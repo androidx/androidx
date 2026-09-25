@@ -51,11 +51,13 @@ import androidx.compose.remote.core.operations.layout.TouchOperation;
 import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
 import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
 import androidx.compose.remote.core.operations.loom.LoomManager;
 import androidx.compose.remote.core.operations.loom.PatternCallback;
 import androidx.compose.remote.core.operations.utilities.ArrayAccess;
 import androidx.compose.remote.core.operations.utilities.IntMap;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
+import androidx.compose.remote.core.semantics.ScrollableComponent;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 import androidx.compose.remote.core.types.IntegerConstant;
@@ -1889,6 +1891,94 @@ public class CoreDocument implements Serializable {
         boolean hasComponentsTouchListeners =
                 mRootLayoutComponent != null && mRootLayoutComponent.getHasTouchListeners();
         return hasComponentsTouchListeners || !mTouchListeners.isEmpty();
+    }
+
+    /**
+     * Returns true if the document declares vertical scrolling.
+     *
+     * <p>Checks the {@link RootContentBehavior} scroll mode, then every
+     * {@link ScrollableComponent}, {@link ScrollModifierOperation} and {@link ComponentModifiers}
+     * in the operations tree.
+     *
+     * <p>Note: this is a structural check that ignores layout and visibility. It returns true even
+     * if the scrollable content currently fits in its container, or is hidden.
+     *
+     * @return true if the document contains a vertical scroll container
+     */
+    public boolean hasVerticalScroll() {
+        if ((mContentScroll & RootContentBehavior.SCROLL_VERTICAL) != 0) {
+            return true;
+        }
+        return hasVerticalScroll(mOperations);
+    }
+
+    private static boolean hasVerticalScroll(@Nullable List<Operation> operations) {
+        if (operations == null) {
+            return false;
+        }
+        for (Operation op : operations) {
+            if (op instanceof ScrollableComponent
+                    && ((ScrollableComponent) op).scrollDirection()
+                            == ScrollableComponent.SCROLL_VERTICAL) {
+                return true;
+            }
+            if (op instanceof ScrollModifierOperation
+                    && ((ScrollModifierOperation) op).isVerticalScroll()) {
+                return true;
+            }
+            if (op instanceof ComponentModifiers
+                    && ((ComponentModifiers) op).hasVerticalScroll()) {
+                return true;
+            }
+            if (op instanceof Container && hasVerticalScroll(((Container) op).getList())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the document declares horizontal scrolling.
+     *
+     * <p>Checks the {@link RootContentBehavior} scroll mode, then every
+     * {@link ScrollableComponent}, {@link ScrollModifierOperation} and {@link ComponentModifiers}
+     * in the operations tree.
+     *
+     * <p>Note: this is a structural check that ignores layout and visibility. It returns true even
+     * if the scrollable content currently fits in its container, or is hidden.
+     *
+     * @return true if the document contains a horizontal scroll container
+     */
+    public boolean hasHorizontalScroll() {
+        if ((mContentScroll & RootContentBehavior.SCROLL_HORIZONTAL) != 0) {
+            return true;
+        }
+        return hasHorizontalScroll(mOperations);
+    }
+
+    private static boolean hasHorizontalScroll(@Nullable List<Operation> operations) {
+        if (operations == null) {
+            return false;
+        }
+        for (Operation op : operations) {
+            if (op instanceof ScrollableComponent
+                    && ((ScrollableComponent) op).scrollDirection()
+                            == ScrollableComponent.SCROLL_HORIZONTAL) {
+                return true;
+            }
+            if (op instanceof ScrollModifierOperation
+                    && ((ScrollModifierOperation) op).isHorizontalScroll()) {
+                return true;
+            }
+            if (op instanceof ComponentModifiers
+                    && ((ComponentModifiers) op).hasHorizontalScroll()) {
+                return true;
+            }
+            if (op instanceof Container && hasHorizontalScroll(((Container) op).getList())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

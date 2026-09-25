@@ -30,6 +30,7 @@ import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.operations.RootContentBehavior
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
@@ -1056,6 +1057,71 @@ class RemoteComposePlayerTest {
                 expectedDarkColor,
                 resolvedColor,
             )
+        }
+    }
+
+    @Test
+    fun isVerticallyScrollable_returnsExpectedResult() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val emptyPlayer = RemoteComposePlayer(context)
+        assertFalse(emptyPlayer.isVerticallyScrollable)
+        assertFalse(emptyPlayer.isHorizontallyScrollable)
+
+        // Non-scrollable document
+        val nonScrollableBytes =
+            createLeftBoxInteractiveDocument(isClickable = true, isScrollable = false)
+        setupPlayerInParent(docBytes = nonScrollableBytes).use { (player, _) ->
+            assertFalse(player.isVerticallyScrollable)
+            assertFalse(player.isHorizontallyScrollable)
+        }
+
+        // Document with nested verticalScroll modifier
+        val verticalScrollModifierBytes =
+            createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
+        setupPlayerInParent(docBytes = verticalScrollModifierBytes).use { (player, _) ->
+            assertTrue(player.isVerticallyScrollable)
+            assertFalse(player.isHorizontallyScrollable)
+        }
+
+        // Document with RootContentBehavior.SCROLL_VERTICAL
+        val rootVerticalScrollDoc =
+            RemoteComposeWriter(300, 300, "test", 6, 0, RcPlatformProfiles.ANDROIDX.platform)
+                .apply {
+                    setRootContentBehavior(
+                        RootContentBehavior.SCROLL_VERTICAL,
+                        RootContentBehavior.ALIGNMENT_CENTER,
+                        RootContentBehavior.NONE,
+                        RootContentBehavior.NONE,
+                    )
+                    root {
+                        box(
+                            RecordingModifier().fillMaxSize(),
+                            BoxLayout.CENTER,
+                            BoxLayout.CENTER,
+                        ) {}
+                    }
+                }
+        setupPlayerInParent(docBytes = rootVerticalScrollDoc.encodeToByteArray()).use { (player, _)
+            ->
+            assertTrue(player.isVerticallyScrollable)
+            assertFalse(player.isHorizontallyScrollable)
+        }
+
+        // Document with horizontalScroll modifier
+        val horizontalScrollDoc =
+            RemoteComposeWriter.obtain(300, 300, RcPlatformProfiles.ANDROIDX).apply {
+                val scrollPos = addNamedFloat("scrollX", 0f)
+                root {
+                    row(
+                        RecordingModifier().fillMaxSize().horizontalScroll(scrollPos),
+                        RowLayout.START,
+                        RowLayout.TOP,
+                    ) {}
+                }
+            }
+        setupPlayerInParent(docBytes = horizontalScrollDoc.encodeToByteArray()).use { (player, _) ->
+            assertFalse(player.isVerticallyScrollable)
+            assertTrue(player.isHorizontallyScrollable)
         }
     }
 
