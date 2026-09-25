@@ -497,7 +497,6 @@ public object TransformingLazyColumnDefaults {
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 internal class TransformingLazyColumnItemProvider(
     val intervalContent: LazyLayoutIntervalContent<TransformingLazyColumnInterval>,
     val state: TransformingLazyColumnState,
@@ -518,13 +517,7 @@ internal class TransformingLazyColumnItemProvider(
                     reduceMotionEnabled = reduceMotionEnabled,
                 )
             }
-        if (WearComposeFoundationFlags.isTransformingLazyColumnPinnableContainerEnabled) {
-            LazyLayoutPinnableItem(key, index, state.pinnedItems) {
-                intervalContent.withInterval(index) { localIndex, content ->
-                    content.item(itemScope, localIndex)
-                }
-            }
-        } else {
+        LazyLayoutPinnableItem(key, index, state.pinnedItems) {
             intervalContent.withInterval(index) { localIndex, content ->
                 content.item(itemScope, localIndex)
             }
