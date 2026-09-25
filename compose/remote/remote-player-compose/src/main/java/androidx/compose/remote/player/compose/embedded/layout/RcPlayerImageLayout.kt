@@ -18,6 +18,7 @@
 
 package androidx.compose.remote.player.compose.embedded.layout
 
+import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +31,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 
 @Composable
@@ -44,7 +47,14 @@ internal fun RcPlayerImageLayout(layout: ImageLayout, modifier: Modifier) {
         val resolved = drawable
         if (resolved != null) {
             Image(
-                painter = remember(resolved) { DrawablePainter(resolved) },
+                painter =
+                    remember(resolved) {
+                        if (resolved is BitmapDrawable && resolved.bitmap != null) {
+                            BitmapPainter(resolved.bitmap.asImageBitmap())
+                        } else {
+                            DrawablePainter(resolved)
+                        }
+                    },
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale =
