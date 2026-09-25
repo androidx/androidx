@@ -22,8 +22,8 @@ import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.NodeHolder
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.Executor
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,7 +57,7 @@ class FakeMeshFeatureTest {
         assertThat(underTest.meshEntity).isNull()
         assertThat(underTest.reformAffordanceEnabled).isFalse()
         assertThat(underTest.executor).isNull()
-        assertThat(underTest.systemMovable).isFalse()
+        assertThat(ReformAffordanceFlag.anySet(underTest.reformFlag)).isFalse()
     }
 
     @Test
@@ -115,20 +115,17 @@ class FakeMeshFeatureTest {
     @Test
     fun setReformAffordanceEnabled_updatesProperties() {
         val fakeEntity = FakeMeshEntity(underTest)
-        val fakeExecutor = Executor { it.run() }
         val isEnabled = true
-        val isSystemMovable = true
+        val reformFlag = ReformAffordanceFlag.MOVABLE
 
         underTest.setReformAffordanceEnabled(
             entity = fakeEntity,
             enabled = isEnabled,
-            executor = fakeExecutor,
-            systemMovable = isSystemMovable,
+            reformFlag = reformFlag,
         )
 
         assertThat(underTest.meshEntity).isSameInstanceAs(fakeEntity)
         assertThat(underTest.reformAffordanceEnabled).isEqualTo(isEnabled)
-        assertThat(underTest.executor).isSameInstanceAs(fakeExecutor)
-        assertThat(underTest.systemMovable).isEqualTo(isSystemMovable)
+        assertThat(underTest.reformFlag).isEqualTo(reformFlag.toInt())
     }
 }

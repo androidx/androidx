@@ -22,6 +22,7 @@ import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.NodeHolder
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import com.google.common.truth.Truth.assertThat
 import java.util.function.Consumer
 import org.junit.Before
@@ -126,8 +127,7 @@ class FakeGltfFeatureTest {
         underTest.setReformAffordanceEnabled(
             entity = fakeEntity,
             enabled = true,
-            executor = executor,
-            systemMovable = true,
+            reformFlag = ReformAffordanceFlag.MOVABLE,
         )
 
         assertThat(underTest.reformAffordanceEnabled).isTrue()
@@ -135,8 +135,7 @@ class FakeGltfFeatureTest {
         underTest.setReformAffordanceEnabled(
             entity = fakeEntity,
             enabled = false,
-            executor = executor,
-            systemMovable = true,
+            reformFlag = ReformAffordanceFlag.MOVABLE,
         )
 
         assertThat(underTest.reformAffordanceEnabled).isFalse()

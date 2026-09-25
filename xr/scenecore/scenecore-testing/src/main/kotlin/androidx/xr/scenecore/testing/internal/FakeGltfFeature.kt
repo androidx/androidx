@@ -27,6 +27,7 @@ import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
 import androidx.xr.scenecore.runtime.GltfModelResource
 import androidx.xr.scenecore.runtime.NodeHolder
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executor
@@ -102,13 +103,15 @@ internal class FakeGltfFeature(nodeHolder: NodeHolder<*>) :
 
     var reformAffordanceEnabled: Boolean = false
 
+    var reformAffordanceFlag: Int = 0
+
     override fun setReformAffordanceEnabled(
         entity: GltfEntity,
         enabled: Boolean,
-        executor: Executor,
-        systemMovable: Boolean,
+        reformFlag: ReformAffordanceFlag,
     ) {
         reformAffordanceEnabled = enabled
+        reformAffordanceFlag = reformFlag.setEnabled(this.reformAffordanceFlag, enabled)
     }
 
     override fun dispose() {

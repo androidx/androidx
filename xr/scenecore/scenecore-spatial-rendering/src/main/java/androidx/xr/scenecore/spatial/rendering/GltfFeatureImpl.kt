@@ -19,10 +19,12 @@ package androidx.xr.scenecore.spatial.rendering
 import androidx.annotation.MainThread
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.scenecore.runtime.GeometryAffordanceState
 import androidx.xr.scenecore.runtime.GltfAnimationFeature
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import androidx.xr.scenecore.spatial.core.AndroidXrEntity
 import androidx.xr.scenecore.spatial.rendering.impress.GltfModel
 import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi
@@ -34,6 +36,8 @@ import java.util.Collections
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executor
 import java.util.function.Consumer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 
 /**
  * Implementation of a SceneCore GltfEntity.
@@ -80,6 +84,8 @@ internal class GltfFeatureImpl(
 
     private val boundsUpdateListeners: MutableSet<Consumer<BoundingBox>> = CopyOnWriteArraySet()
     private var lastBoundingBox: BoundingBox? = null
+
+    private var reformAffordanceMask: Int = 0
 
     init {
         bindImpressNodeToSubspace("gltf_entity_subspace_", modelImpressNode)
@@ -164,21 +170,26 @@ internal class GltfFeatureImpl(
     override fun setReformAffordanceEnabled(
         entity: GltfEntity,
         enabled: Boolean,
-        executor: Executor,
-        systemMovable: Boolean,
+        reformFlag: ReformAffordanceFlag,
     ) {
-        impressApi.setGltfReformAffordanceEnabled(modelImpressNode, enabled, systemMovable)
-        if (enabled) {
+        val wasAnyEnabled = ReformAffordanceFlag.anySet(reformAffordanceMask)
+        reformAffordanceMask = reformFlag.setEnabled(reformAffordanceMask, enabled)
+        val isAnyEnabled = ReformAffordanceFlag.anySet(reformAffordanceMask)
+        impressApi.setReformAffordanceEnabled(modelImpressNode, reformAffordanceMask)
+        if (isAnyEnabled && !wasAnyEnabled) {
             subspace?.let { splitEngineSubspace ->
-                splitEngineSubspace.subspaceNode?.listenForInput(executor) { inputEvent ->
+                splitEngineSubspace.subspaceNode?.listenForInput(Dispatchers.Main.asExecutor()) {
+                    inputEvent ->
                     splitEngineSubspaceManager.forwardInputEvent(
                         inputEvent,
                         splitEngineSubspace.subspaceId,
                     )
+                    val state = impressApi.getReformAffordanceState(modelImpressNode)
+                    entity.affordanceState = GeometryAffordanceState.fromInt(state)
                     (entity as AndroidXrEntity).handleInputEvent(inputEvent)
                 }
             }
-        } else {
+        } else if (!isAnyEnabled && wasAnyEnabled) {
             subspace?.subspaceNode?.stopListeningForInput()
         }
     }

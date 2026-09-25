@@ -18,6 +18,7 @@ package androidx.xr.scenecore.spatial.rendering.impress
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
@@ -127,17 +128,34 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
     }
 
     @Test
-    fun setGltfReformAffordanceEnabled_marshalsParams() {
-        val expectedEnabled = false
-        val systemMovable = false
+    fun setReformAffordanceEnabled_marshalsParams() {
+        val impressNode = ImpressNode(TEST_NODE_ID)
+        var reformAffordanceMask = ReformAffordanceFlag.NONE.toInt()
+
         ImpressApiTestHelper.nativeSetExpectedSetGltfReformAffordanceEnabled(
             TEST_NODE_ID,
-            expectedEnabled,
-            systemMovable,
+            reformAffordanceMask,
         )
-        val impressNode = ImpressNode(TEST_NODE_ID)
+        mImpressApi.setReformAffordanceEnabled(impressNode, reformAffordanceMask)
 
-        mImpressApi.setGltfReformAffordanceEnabled(impressNode, expectedEnabled, systemMovable)
+        reformAffordanceMask = ReformAffordanceFlag.MOVABLE.setEnabled(reformAffordanceMask, true)
+        reformAffordanceMask = ReformAffordanceFlag.RESIZABLE.setEnabled(reformAffordanceMask, true)
+
+        ImpressApiTestHelper.nativeSetExpectedSetGltfReformAffordanceEnabled(
+            TEST_NODE_ID,
+            reformAffordanceMask,
+        )
+        mImpressApi.setReformAffordanceEnabled(impressNode, reformAffordanceMask)
+
+        reformAffordanceMask = ReformAffordanceFlag.MOVABLE.setEnabled(reformAffordanceMask, false)
+        reformAffordanceMask =
+            ReformAffordanceFlag.RESIZABLE.setEnabled(reformAffordanceMask, false)
+
+        ImpressApiTestHelper.nativeSetExpectedSetGltfReformAffordanceEnabled(
+            TEST_NODE_ID,
+            reformAffordanceMask,
+        )
+        mImpressApi.setReformAffordanceEnabled(impressNode, reformAffordanceMask)
 
         // This JNI call does not return any data, so the only assertion is on the native side.
     }

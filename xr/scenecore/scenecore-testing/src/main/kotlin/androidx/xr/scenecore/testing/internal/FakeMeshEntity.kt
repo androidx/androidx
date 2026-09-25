@@ -18,8 +18,10 @@ package androidx.xr.scenecore.testing.internal
 
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
+import androidx.xr.scenecore.runtime.GeometryAffordanceState
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshEntity
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MeshEntity] */
@@ -36,6 +38,8 @@ internal open class FakeMeshEntity(
      */
     internal val materials: List<MaterialResource>
         get() = feature.materials
+
+    override var affordanceState: GeometryAffordanceState = GeometryAffordanceState.NONE
 
     override fun setMaterial(material: MaterialResource, subsetIndex: Int) {
         feature.setMaterial(material, subsetIndex)
@@ -57,12 +61,15 @@ internal open class FakeMeshEntity(
         get() = feature.reformAffordanceEnabled
 
     /** Whether the entity is system movable, captured from [setReformAffordanceEnabled]. */
-    internal val systemMovable: Boolean
-        get() = feature.systemMovable
+    internal val reformAffordanceFlag: Int
+        get() = feature.reformAffordanceFlag
 
-    override fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean) {
+    override fun setReformAffordanceEnabled(
+        enabled: Boolean,
+        reformAffordanceFlag: ReformAffordanceFlag,
+    ) {
         if (executor != null) {
-            feature.setReformAffordanceEnabled(this, enabled, executor, systemMovable)
+            feature.setReformAffordanceEnabled(this, enabled, reformAffordanceFlag)
         }
     }
 

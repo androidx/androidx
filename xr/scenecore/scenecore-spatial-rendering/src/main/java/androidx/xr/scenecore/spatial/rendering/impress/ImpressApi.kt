@@ -261,14 +261,33 @@ public interface ImpressApi {
      * Enable reform affordance for a glTF model.
      *
      * @param impressNode The object of Impress node for the instance of the glTF model.
-     * @param enabled If the reform affordance should be added or removed.
-     * @param systemMovable If the system should handle move input events.
+     * @param reformAffordanceMask Mask of reform affordances to set.
      */
-    public fun setGltfReformAffordanceEnabled(
+    public fun setReformAffordanceEnabled(impressNode: ImpressNode, reformAffordanceMask: Int)
+
+    /** Queries for the reform affordance state for the model. */
+    public fun getReformAffordanceState(impressNode: ImpressNode): Int
+
+    /**
+     * Sets the size limits for the reform affordance on an [ImpressNode].
+     *
+     * @param impressNode target [ImpressNode] with the reform affordance.
+     * @param minSize minimum allowed size for the reform affordance in meters in local space.
+     * @param maxSize maximum allowed size for the reform affordance in meters in local space.
+     */
+    public fun setReformAffordanceSizeLimits(
         impressNode: ImpressNode,
-        enabled: Boolean,
-        systemMovable: Boolean,
+        minSize: Float,
+        maxSize: Float,
     )
+
+    /**
+     * Returns the recommended transform for the reform affordance on an [ImpressNode].
+     *
+     * @param impressNode target [ImpressNode] with the reform affordance
+     * @return recommended affordance transform as a [Matrix4]
+     */
+    public fun getRecommendedAffordanceTransform(impressNode: ImpressNode): Matrix4
 
     /**
      * Toggles the interaction affordance on a CustomMesh entity node in Impress.
@@ -280,6 +299,7 @@ public interface ImpressApi {
      * @param systemMovable A Boolean value indicating whether the interaction should be handled by
      *   the system.
      */
+    // TODO (b/520111090): Clean up redundant mesh reform affordance API
     public fun setCustomMeshReformAffordanceEnabled(
         node: ImpressNode,
         enableAffordance: Boolean,
