@@ -177,6 +177,11 @@ public interface ObservableComposition {
      * called on a sub-composition, it will override the parent composition observer for itself and
      * all its sub-compositions.
      *
+     * The observer is resolved once per composition pass, between
+     * [CompositionObserver.onBeginComposition] and [CompositionObserver.onEndComposition]. Setting
+     * or replacing the observer while a pass is in progress takes effect starting with the next
+     * pass.
+     *
      * @param observer the observer that will be informed of composition events for this composition
      *   and all sub-compositions for which this composition is the composition context.
      * @return a handle that allows the observer to be disposed and detached from the composition.
@@ -209,6 +214,10 @@ public fun Recomposer.observe(
  * sub-composition, transitively, for which this composition is a context. If [setObserver] is
  * called on a sub-composition, it will override the parent composition observer for itself and all
  * its sub-compositions.
+ *
+ * The observer is resolved once per composition pass, between
+ * [CompositionObserver.onBeginComposition] and [CompositionObserver.onEndComposition]. Setting or
+ * replacing the observer while a pass is in progress takes effect starting with the next pass.
  *
  * @param observer the observer that will be informed of composition events for this composition and
  *   all sub-compositions for which this composition is the composition context. Observing a
