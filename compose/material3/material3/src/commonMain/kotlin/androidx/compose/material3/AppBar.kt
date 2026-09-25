@@ -434,6 +434,8 @@ public fun CenterAlignedTopAppBar(
  *   work in conjunction with a scrolled content to change the top app bar appearance as the content
  *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
  * @param contentPadding the padding applied to the content of this TopAppBar.
+ *
+ * @material3expressive
  */
 @Composable
 public fun TopAppBar(
@@ -609,6 +611,8 @@ public fun MediumTopAppBar(
  *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
  * @throws IllegalArgumentException if the provided [expandedHeight] is smaller than the
  *   [collapsedHeight]
+ *
+ * @material3expressive
  */
 @Composable
 public fun MediumFlexibleTopAppBar(
@@ -803,6 +807,8 @@ public fun LargeTopAppBar(
  *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
  * @throws IllegalArgumentException if the provided [expandedHeight] is smaller to the
  *   [collapsedHeight]
+ *
+ * @material3expressive
  */
 @Composable
 public fun LargeFlexibleTopAppBar(
@@ -916,6 +922,8 @@ public fun LargeFlexibleTopAppBar(
  *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
  * @throws IllegalArgumentException if the provided [expandedHeight] is smaller to the
  *   [collapsedHeight]
+ *
+ * @material3expressive
  */
 @Composable
 public fun TwoRowsTopAppBar(
@@ -1271,6 +1279,8 @@ public fun BottomAppBar(
  *   service (e.g., TalkBack) is active. See [BottomAppBarScrollBehavior.nestedScrollConnection].
  * @param content the content of this BottomAppBar. The default layout here is a [Row], so content
  *   inside will be placed horizontally.
+ *
+ * @material3expressive
  */
 @Composable
 public fun FlexibleBottomAppBar(
