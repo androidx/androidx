@@ -732,6 +732,15 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     override val semanticsOwner: SemanticsOwner =
         SemanticsOwner(root, EmptySemanticsModifier(), layoutNodes)
     private val composeAccessibilityDelegate = AndroidComposeViewAccessibilityDelegateCompat(this)
+
+    /**
+     * Reflects the accessibility delegate's effective touch exploration state, including test
+     * overrides
+     * (`AndroidComposeViewAccessibilityDelegateCompat.accessibilityForceEnabledForTesting`).
+     */
+    internal val isTouchExplorationEnabled: Boolean
+        get() = composeAccessibilityDelegate.isTouchExplorationEnabled
+
     internal var contentCaptureManager =
         AndroidContentCaptureManager(
             view = this,
