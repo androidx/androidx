@@ -331,8 +331,8 @@ package androidx.compose.animation.core {
     method @InaccessibleFromKotlin public S getCurrentState();
     method @InaccessibleFromKotlin public S? getPendingTargetState();
     method @InaccessibleFromKotlin public S getTargetState();
-    method @InaccessibleFromKotlin public void setCurrentState$commonMain(S);
-    method @InaccessibleFromKotlin public void setTargetState$commonMain(S);
+    method @InaccessibleFromKotlin public void setCurrentState$jvmAndAndroidMain(S);
+    method @InaccessibleFromKotlin public void setTargetState$jvmAndAndroidMain(S);
     property public S currentState;
     property public S? pendingTargetState;
     property public S targetState;

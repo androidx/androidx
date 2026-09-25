@@ -43,7 +43,7 @@ package androidx.a2ui.engine.catalog {
     property public abstract androidx.a2ui.model.schema.A2uiSchema propertySchema;
   }
 
-  public sealed nonexhaustive interface A2uiCoreComponentDefinitionCollection extends kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition> {
+  public sealed nonexhaustive interface A2uiCoreComponentDefinitionCollection extends java.util.List<androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition> kotlin.jvm.internal.markers.KMappedMarker {
     method public operator androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition? get(String name);
   }
 
