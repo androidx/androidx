@@ -839,7 +839,7 @@ class RecordingCanvasTest {
             canvas.translate(10f, 10f)
             canvas.save()
             canvas.scale(2f, 2f)
-            assertThat(canvas.globalSaveCounter).isEqualTo(2)
+            assertThat(canvas.saveCount).isEqualTo(2)
 
             // 2. Draw to offscreen bitmap (creates a childSpan)
             canvas.drawToOffscreenBitmap(offscreenBitmap, android.graphics.Color.TRANSPARENT) {
@@ -853,7 +853,7 @@ class RecordingCanvasTest {
             // 3. Back in outer canvas, pop both outer saves
             canvas.restore()
             canvas.restore()
-            assertThat(canvas.globalSaveCounter).isEqualTo(0)
+            assertThat(canvas.saveCount).isEqualTo(0)
 
             // 4. Flush operations to document
             canvas.flush()
@@ -3117,11 +3117,11 @@ class RecordingCanvasTest {
             canvas.translate(-87f, -87f)
             // Add a draw call so optimizing canvas preserves this transform block
             canvas.drawRect(0f, 0f, 10f, 10f, Paint())
-            assertThat(canvas.globalSaveCounter).isEqualTo(1)
+            assertThat(canvas.saveCount).isEqualTo(1)
 
             // Step 2: Temporarily pop transforms before drawing span
             canvas.restore()
-            assertThat(canvas.globalSaveCounter).isEqualTo(0)
+            assertThat(canvas.saveCount).isEqualTo(0)
 
             // Step 3: Draw span inside a conditional (using a dynamic boolean condition)
             val dynamicCondition = createNamedRemoteBoolean("test", true)
@@ -3136,7 +3136,7 @@ class RecordingCanvasTest {
             // Add a draw call so optimizing canvas preserves this reinstated transform block
             canvas.drawRect(20f, 20f, 30f, 30f, Paint())
             canvas.restore()
-            assertThat(canvas.globalSaveCounter).isEqualTo(0)
+            assertThat(canvas.saveCount).isEqualTo(0)
 
             // Step 4b: Draw something after the reinstated transform so the save block is preserved
             // by elision pass
@@ -3320,7 +3320,7 @@ class RecordingCanvasTest {
         val canvas = RecordingCanvas(bitmap, enableOptimizations = false)
 
         canvas.save()
-        assertEquals(1, canvas.globalSaveCounter)
+        assertEquals(1, canvas.saveCount)
 
         val condition = RemoteBoolean(true)
         val ex1 =
@@ -3349,7 +3349,7 @@ class RecordingCanvasTest {
         canvas.save()
         val outerSaveNode = canvas.currentSaveRestoreNode
         val outerInitialSpanSaveCount = canvas.initialSpanSaveCount
-        val outerGlobalSaveCounter = canvas.globalSaveCounter
+        val outerSaveCount = canvas.saveCount
 
         val condition = RemoteBoolean(true)
         assertThrows(IllegalStateException::class.java) {
@@ -3362,11 +3362,11 @@ class RecordingCanvasTest {
         assertThat(canvas.buffer.insertPoint).isSameInstanceAs(outerInsertPoint)
         assertThat(canvas.currentSaveRestoreNode).isSameInstanceAs(outerSaveNode)
         assertEquals(outerInitialSpanSaveCount, canvas.initialSpanSaveCount)
-        assertEquals(outerGlobalSaveCounter, canvas.globalSaveCounter)
+        assertEquals(outerSaveCount, canvas.saveCount)
 
-        // Calling restore() once should restore the 1 outer save and bring globalSaveCounter to 0
+        // Calling restore() once should restore the 1 outer save and bring saveCount to 0
         canvas.restore()
-        assertEquals(0, canvas.globalSaveCounter)
+        assertEquals(0, canvas.saveCount)
         // A second restore should throw underflow
         assertThrows(IllegalStateException::class.java) { canvas.restore() }
     }
@@ -3397,37 +3397,37 @@ class RecordingCanvasTest {
         // 1. Push 2 saves on outer span
         canvas.save()
         canvas.save()
-        assertEquals(2, canvas.globalSaveCounter)
+        assertEquals(2, canvas.saveCount)
 
         // 2. Enter child span via drawConditionally
         val dummyCondition = RemoteBoolean(true)
         canvas.drawConditionally(dummyCondition) {
             // Inside child span, we can push local saves
             canvas.save()
-            assertEquals(3, canvas.globalSaveCounter)
+            assertEquals(3, canvas.saveCount)
             canvas.restore()
-            assertEquals(2, canvas.globalSaveCounter)
+            assertEquals(2, canvas.saveCount)
 
             // Temporarily pop outer saves
             canvas.restore()
-            assertEquals(1, canvas.globalSaveCounter)
+            assertEquals(1, canvas.saveCount)
             canvas.restore()
-            assertEquals(0, canvas.globalSaveCounter)
+            assertEquals(0, canvas.saveCount)
 
             // Underflow throws IllegalStateException
             assertThrows(IllegalStateException::class.java) { canvas.restore() }
 
             // Reinstate the popped outer saves
             canvas.save()
-            assertEquals(1, canvas.globalSaveCounter)
+            assertEquals(1, canvas.saveCount)
             canvas.save()
-            assertEquals(2, canvas.globalSaveCounter)
+            assertEquals(2, canvas.saveCount)
         }
 
         // 3. Pop outer saves on main canvas
         canvas.restore()
         canvas.restore()
-        assertEquals(0, canvas.globalSaveCounter)
+        assertEquals(0, canvas.saveCount)
 
         // 4. Global underflow on main canvas must throw IllegalStateException
         assertThrows(IllegalStateException::class.java) { canvas.restore() }
