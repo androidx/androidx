@@ -133,8 +133,12 @@ internal fun resolveBitmap(remoteContext: RemoteContext, id: Int): Bitmap? {
     // Not decoded yet: find the registered BitmapData and decode it now (apply = putObject +
     // loadBitmap, which caches the decoded Bitmap under the id).
     val data = remoteContext.mRemoteComposeState.getObject(id) as? BitmapData ?: return null
-    data.apply(remoteContext)
-    return remoteContext.mRemoteComposeState.getFromId(id) as? Bitmap
+    return try {
+        data.apply(remoteContext)
+        remoteContext.mRemoteComposeState.getFromId(id) as? Bitmap
+    } catch (_: Exception) {
+        null
+    }
 }
 
 /**
