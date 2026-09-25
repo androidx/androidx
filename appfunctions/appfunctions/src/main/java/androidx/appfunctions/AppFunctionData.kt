@@ -17,7 +17,6 @@
 package androidx.appfunctions
 
 import android.app.appsearch.GenericDocument
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -30,13 +29,13 @@ import androidx.annotation.WorkerThread
 import androidx.appfunctions.internal.AppFunctionSerializableFactory
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.internal.getClass
+import androidx.appfunctions.internal.serializableproxies.BuiltInSerializableProxies
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
 import com.google.errorprone.annotations.CanIgnoreReturnValue
-import java.time.LocalDateTime
 
 /**
  * A data class to contain information to be communicated between AppFunctions apps and agents.
@@ -1525,20 +1524,23 @@ internal constructor(
 
         private fun extrasKey(key: String, index: Int) = "property/$key[$index]"
 
-        // TODO(b/399823985): Codegen the mapping table to prevent using reflection
         private fun <T : Any> getSerializableFactory(
             serializableClass: Class<T>
         ): AppFunctionSerializableFactory<T> {
-            val packageName = getPackageName(serializableClass)
+            val builtInFactory = BuiltInSerializableProxies.getFactory(serializableClass)
+            if (builtInFactory != null) {
+                return builtInFactory
+            }
+
             // Using `serializableClass.name` and not `serializableClass.simpleName` to be able to
             // reference nested classes (e.g. OuterClass$InnerClass), to avoid ambiguity between
             // inner classes of the same name.
             val serializableSimpleName = serializableClass.name.substringAfterLast('.')
-
             val factorySimpleName = "${'$'}${serializableSimpleName}Factory"
-            val factoryClassName = "${packageName}.${factorySimpleName}"
+            val packageName = serializableClass.packageName
 
             return try {
+                val factoryClassName = "$packageName.$factorySimpleName"
                 val factoryClass = Class.forName(factoryClassName)
                 @Suppress("UNCHECKED_CAST")
                 factoryClass.getDeclaredConstructor().newInstance()
@@ -1553,16 +1555,6 @@ internal constructor(
                     "Unable to create AppFunctionSerializableFactory for $serializableClass"
                 )
             }
-        }
-
-        private fun getPackageName(serializableClass: Class<*>): String {
-            val setOfProxyTypes = setOf(LocalDateTime::class.simpleName, Uri::class.simpleName)
-            val serializableProxyPackageName = "androidx.appfunctions.internal.serializableproxies"
-            if (setOfProxyTypes.contains(serializableClass.simpleName)) {
-                return serializableProxyPackageName
-            }
-
-            return serializableClass.packageName
         }
 
         /**
