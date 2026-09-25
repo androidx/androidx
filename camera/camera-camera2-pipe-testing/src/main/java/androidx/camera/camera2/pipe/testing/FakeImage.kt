@@ -32,8 +32,6 @@ public class FakeImage(
     override val height: Int,
     override val format: Int,
     timestamp: Long,
-    // TODO(b/516888993): Remove providedHardwareBuffer once Google3 tests are migrated.
-    providedHardwareBuffer: HardwareBuffer? = null,
     cropRect: Rect = Rect(0, 0, width, height),
     hardwareBuffer: HardwareBuffer? = null,
 ) : ImageWrapper, MutableImageWrapper {
@@ -44,7 +42,7 @@ public class FakeImage(
             height = height,
             format = format,
             timestamp = timestamp,
-            hardwareBuffer = providedHardwareBuffer ?: hardwareBuffer,
+            hardwareBuffer = hardwareBuffer,
             cropRect = cropRect,
         )
 

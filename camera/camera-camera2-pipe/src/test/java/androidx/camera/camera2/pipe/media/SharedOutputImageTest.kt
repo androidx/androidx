@@ -126,7 +126,13 @@ class SharedOutputImageTest {
         whenever(imageHardwareBuffer.width).thenReturn(IMAGE_WIDTH)
         whenever(imageHardwareBuffer.height).thenReturn(IMAGE_HEIGHT)
         val fakeImageWithHardwareBuffer =
-            FakeImage(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, IMAGE_TIMESTAMP, imageHardwareBuffer)
+            FakeImage(
+                IMAGE_WIDTH,
+                IMAGE_HEIGHT,
+                IMAGE_FORMAT,
+                IMAGE_TIMESTAMP,
+                hardwareBuffer = imageHardwareBuffer,
+            )
         val outputImage = OutputImage.from(streamId, outputId, fakeImageWithHardwareBuffer)
         val sharedImage = SharedOutputImage.from(outputImage)
 
@@ -143,7 +149,13 @@ class SharedOutputImageTest {
         whenever(imageHardwareBuffer.width).thenReturn(IMAGE_WIDTH)
         whenever(imageHardwareBuffer.height).thenReturn(IMAGE_HEIGHT)
         val fakeImageWithHardwareBuffer =
-            FakeImage(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, IMAGE_TIMESTAMP, imageHardwareBuffer)
+            FakeImage(
+                IMAGE_WIDTH,
+                IMAGE_HEIGHT,
+                IMAGE_FORMAT,
+                IMAGE_TIMESTAMP,
+                hardwareBuffer = imageHardwareBuffer,
+            )
         val outputImage = OutputImage.from(streamId, outputId, fakeImageWithHardwareBuffer)
         val sharedImage = SharedOutputImage.from(outputImage)
 
