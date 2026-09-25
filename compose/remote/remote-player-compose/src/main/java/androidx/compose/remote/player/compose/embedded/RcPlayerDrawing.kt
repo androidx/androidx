@@ -20,7 +20,6 @@ package androidx.compose.remote.player.compose.embedded
 
 import android.graphics.Bitmap
 import android.graphics.Path as AndroidPath
-import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.PaintOperation
@@ -30,7 +29,9 @@ import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.ClipPath
 import androidx.compose.remote.core.operations.ClipRect
+import androidx.compose.remote.core.operations.ColorAttribute
 import androidx.compose.remote.core.operations.ColorConstant
+import androidx.compose.remote.core.operations.ColorExpression
 import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.DrawArc
@@ -57,6 +58,7 @@ import androidx.compose.remote.core.operations.DrawTweenPath
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.FloatFunctionCall
 import androidx.compose.remote.core.operations.FloatFunctionDefine
+import androidx.compose.remote.core.operations.ImageAttribute
 import androidx.compose.remote.core.operations.MatrixRestore
 import androidx.compose.remote.core.operations.MatrixRotate
 import androidx.compose.remote.core.operations.MatrixSave
@@ -73,6 +75,7 @@ import androidx.compose.remote.core.operations.PathCreate
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
+import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.ContainerEnd
@@ -100,10 +103,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.text.TextMeasurer
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
@@ -212,6 +212,16 @@ private fun DrawScope.executeOperationsInPass(
     // suppresses writes during evaluation — so they stay on `remoteContext` (the real store).
     // GraphContext shares that store, so leaf reads are identical either way.
     val read: RemoteContext = graph ?: remoteContext
+    var paintEvalContext: GraphPaintContext? = null
+    fun evalPaintContext(): GraphPaintContext =
+        (paintEvalContext
+                ?: GraphPaintContext(remoteContext, read, textMeasurer).also {
+                    paintEvalContext = it
+                })
+            .also {
+                it.paintState = paintState
+                it.textMeasurer = textMeasurer
+            }
     var canvasLevel = 0
     // For DRAW_TO_BITMAP: the original on-screen canvas, saved the first time the draw target is
     // redirected to an offscreen bitmap so it can be restored (on a `bitmapId == 0` reset, and
@@ -245,6 +255,17 @@ private fun DrawScope.executeOperationsInPass(
                 remoteContext.loadFloat(op.mId, v)
             }
             is ColorConstant -> op.apply(remoteContext)
+            is ColorExpression -> op.apply(remoteContext)
+            is ColorAttribute -> {
+                remoteContext.loadColor(op.mColorId, read.getColor(op.mColorId))
+                op.paint(evalPaintContext())
+            }
+            is ImageAttribute -> op.paint(evalPaintContext())
+            is TextMeasure -> {
+                graph?.textMeasurer = textMeasurer
+                graph?.setTextMeasurePaint(op.mId, paintState.copy())
+                op.paint(evalPaintContext())
+            }
             is NamedVariable -> op.apply(remoteContext)
             is ParticlesLoop -> {
                 // Particle system: bridged to the core (View player) implementation. Needs the
@@ -739,49 +760,7 @@ private fun DrawScope.executeOperationsInPass(
                     val text = full.substring(start, end)
                     val x = resolveFloat(op.mX, op.mOutX, read)
                     val y = resolveFloat(op.mY, op.mOutY, read)
-                    // textMeasurer is non-null
-                    val fontStyle = paintState.fontStyle
-                    val fontWeight = FontWeight(paintState.fontWeight)
-                    // TODO: Support proper font family resolution (see aosp/4187117)
-                    val fontFamily =
-                        when (paintState.fontFamily) {
-                            1 -> FontFamily.SansSerif
-                            2 -> FontFamily.Serif
-                            3 -> FontFamily.Monospace
-                            else -> FontFamily.Default
-                        }
-
-                    val style =
-                        if (paintState.isStroke)
-                            Stroke(
-                                width = paintState.strokeWidth,
-                                cap = mapStrokeCap(paintState.strokeCap),
-                                join = mapStrokeJoin(paintState.strokeJoin),
-                            )
-                        else Fill
-
-                    val textStyle =
-                        if (paintState.brush != null) {
-                            TextStyle(
-                                brush = paintState.brush,
-                                alpha = paintState.alpha,
-                                fontSize = paintState.textSize.toSp(),
-                                fontWeight = fontWeight,
-                                fontStyle = fontStyle,
-                                fontFamily = fontFamily,
-                                drawStyle = style,
-                            )
-                        } else {
-                            TextStyle(
-                                color = paintState.effectiveColor(),
-                                fontSize = paintState.textSize.toSp(),
-                                fontWeight = fontWeight,
-                                fontStyle = fontStyle,
-                                fontFamily = fontFamily,
-                                drawStyle = style,
-                            )
-                        }
-
+                    val textStyle = paintState.toTextStyle(this, read)
                     val textLayoutResult = textMeasurer.measure(text = text, style = textStyle)
 
                     // Assuming y is baseline
@@ -819,24 +798,30 @@ private fun DrawScope.executeOperationsInPass(
                 // are package-private (read reflectively); updateVariables (run above) resolved
                 // them
                 // into mOut*. Replicates DrawTextAnchored.getHorizontalOffset/getVerticalOffset
-                // using
-                // measured text bounds.
+                // using Compose TextMeasurer and drawText.
                 val data = op.readData()
                 val textId = data.textId
                 val full = read.getText(textId)
                 if (full != null && !paintState.textSize.isNaN()) {
-                    val nativePaint = paintState.toNativeTextPaint(read)
                     val flags = data.flags
-                    val baseline = (flags and DrawTextAnchored.BASELINE_RELATIVE) != 0
-                    val bounds = Rect()
-                    nativePaint.getTextBounds(full, 0, full.length, bounds)
+                    val baselineRelative = (flags and DrawTextAnchored.BASELINE_RELATIVE) != 0
+                    val bounds = FloatArray(4)
+                    evalPaintContext().getTextBounds(textId, 0, -1, flags, bounds)
+                    val textStyle = paintState.toTextStyle(this, read)
+                    val textLayoutResult =
+                        textMeasurer.measure(
+                            text = full,
+                            style = textStyle,
+                            softWrap = false,
+                            maxLines = 1,
+                        )
                     val outX = data.x
                     val outY = data.y
                     val outPanX = data.panX
                     val outPanY = data.panY
-                    val textWidth = (bounds.right - bounds.left).toFloat()
-                    val textHeight = (bounds.bottom - bounds.top).toFloat()
-                    val hOffset = (0f - textWidth) * (1f + outPanX) / 2f - bounds.left
+                    val textWidth = bounds[2] - bounds[0]
+                    val textHeight = bounds[3] - bounds[1]
+                    val hOffset = (0f - textWidth) * (1f + outPanX) / 2f - bounds[0]
                     val x = outX + hOffset
                     val y =
                         if (outPanY.isNaN()) {
@@ -844,9 +829,13 @@ private fun DrawScope.executeOperationsInPass(
                         } else {
                             outY +
                                 (0f - textHeight) * (1f - outPanY) / 2f +
-                                (if (baseline) textHeight / 2f else -bounds.top.toFloat())
+                                (if (baselineRelative) textHeight / 2f else -bounds[1])
                         }
-                    drawContext.canvas.nativeCanvas.drawText(full, x, y, nativePaint)
+                    val baseline = textLayoutResult.firstBaseline
+                    drawText(
+                        textLayoutResult = textLayoutResult,
+                        topLeft = Offset(x, y - baseline),
+                    )
                 }
             }
             is DrawBitmapScaled -> {
@@ -1044,8 +1033,16 @@ private fun DrawScope.executeOperationsInPass(
                     val warpRadiusOffset = data.warpRadiusOffset
                     val alignment = data.alignment
                     val placement = data.placement
+                    val textWidth =
+                        textMeasurer
+                            .measure(
+                                text = full,
+                                style = paintState.toTextStyle(this, read),
+                                softWrap = false,
+                                maxLines = 1,
+                            )
+                            .getLineRight(0)
                     val nativePaint = paintState.toNativeTextPaint(read)
-                    val textWidth = nativePaint.measureText(full)
                     val finalRadius = radius + warpRadiusOffset
                     val clockwise = placement == DrawTextOnCircle.Placement.OUTSIDE
                     var sweepDegrees =

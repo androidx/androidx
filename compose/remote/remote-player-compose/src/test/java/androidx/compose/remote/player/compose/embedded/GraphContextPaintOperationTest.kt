@@ -24,6 +24,8 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.ColorAttribute
 import androidx.compose.remote.core.operations.ImageAttribute
+import androidx.compose.remote.core.operations.TextData
+import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.layout.CanvasOperations
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -33,9 +35,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class GraphContextPaintOperationTest {
 
     @Test
@@ -70,6 +74,44 @@ class GraphContextPaintOperationTest {
         assertThat(graphContext.getFloat(11)).isWithin(0.01f).of(128f / 255f)
         assertThat(graphContext.getFloat(12)).isWithin(0.01f).of(0.0f)
         assertThat(graphContext.getFloat(13)).isWithin(0.01f).of(1.0f)
+    }
+
+    @Test
+    fun textMeasureEvaluatesThroughPaintContextInGraphContext() {
+        val state = SnapshotRemoteComposeState()
+        val textId = 5
+        state.cacheData(textId, "Hello World")
+
+        val widthOp = TextMeasure(20, textId, TextMeasure.MEASURE_WIDTH)
+        val heightOp = TextMeasure(21, textId, TextMeasure.MEASURE_HEIGHT)
+        val computedOps =
+            mutableIntObjectMapOf<Operation>().apply {
+                put(20, widthOp)
+                put(21, heightOp)
+            }
+
+        val graphContext =
+            GraphContext(
+                realState = state,
+                computedOps = computedOps,
+                timeMillis = mutableFloatStateOf(0f),
+                clock = RemoteClock.SYSTEM,
+            )
+
+        // Default ComposeLocalPaint has textSize = NaN; toNativeTextPaint preserves Paint's 12px
+        // default so TextMeasure produces a finite non-negative width instead of NaN/0.
+        val defaultWidth = graphContext.getFloat(20)
+        assertThat(defaultWidth.isNaN()).isFalse()
+        assertThat(defaultWidth).isGreaterThan(0f)
+
+        val largePaint =
+            ComposeLocalPaint().apply {
+                textSize = 48f
+                isTextSizeSet = true
+            }
+        graphContext.setTextMeasurePaint(20, largePaint)
+        val largeWidth = graphContext.getFloat(20)
+        assertThat(largeWidth).isGreaterThan(defaultWidth)
     }
 
     @Test
@@ -146,12 +188,18 @@ class GraphContextPaintOperationTest {
             48,
             ByteArray(0),
         )
+        TextData.apply(wire, 50, "Sample")
+        TextMeasure.apply(wire, 60, 50, TextMeasure.MEASURE_WIDTH)
+        ImageAttribute.apply(wire, 61, 42, ImageAttribute.IMAGE_WIDTH, null)
         buffer.addContainerEnd()
         buffer.addContainerEnd()
 
         val document = CoreDocument()
         document.initFromBuffer(buffer)
         val preprocessed = preprocessDocument(document)
+
+        assertThat(preprocessed.computedOpIndex.containsKey(60)).isTrue()
+        assertThat(preprocessed.computedOpIndex.containsKey(61)).isTrue()
 
         val ctx = initializePlayerRemoteContext(document, RemoteClock.SYSTEM, preprocessed)
         val registered = ctx.mRemoteComposeState.getObject(42) as? BitmapData

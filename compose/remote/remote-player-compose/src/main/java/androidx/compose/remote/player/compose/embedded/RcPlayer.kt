@@ -57,6 +57,7 @@ import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.core.operations.ImageAttribute
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.ParticlesCompare
 import androidx.compose.remote.core.operations.ParticlesLoop
@@ -66,6 +67,7 @@ import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
 import androidx.compose.remote.core.operations.TextFromFloat
+import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.Utils
@@ -229,8 +231,12 @@ public fun RcPlayer(
     // store / other computed States and captures its write as the result. No imperative recompute
     // pass, no dirty flags — changing an input invalidates exactly the dependent States, and chains
     // compose naturally.
+    val textMeasurer = rememberTextMeasurer()
     val graphContext =
-        state.graphContext.also { gc -> gc.setTypefaceResolver(remoteContext.typefaceResolver) }
+        state.graphContext.also { gc ->
+            gc.setTypefaceResolver(remoteContext.typefaceResolver)
+            gc.textMeasurer = textMeasurer
+        }
 
     val startClockMillis = remember(document, clock) { clock.millis() }
     val limiter = remember(document) { Limiter() }
@@ -669,6 +675,8 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
             when (op) {
                 is NamedVariable -> op.mVarId
                 is VariableProvider -> op.id
+                is TextMeasure -> op.mId
+                is ImageAttribute -> op.mId
                 else -> -1
             }
         // Warn when a document operation defines an ID that collides with a reserved system
@@ -733,6 +741,16 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
             val animated = op is FloatExpression && op.mFloatAnimation != null
             val id = op.id
             if (!animated && id > 0 && !computedOpIndex.containsKey(id)) {
+                computedOpIndex[id] = op
+            }
+        } else if (op is TextMeasure) {
+            val id = op.mId
+            if (id > 0 && !computedOpIndex.containsKey(id)) {
+                computedOpIndex[id] = op
+            }
+        } else if (op is ImageAttribute) {
+            val id = op.mId
+            if (id > 0 && !computedOpIndex.containsKey(id)) {
                 computedOpIndex[id] = op
             }
         }
