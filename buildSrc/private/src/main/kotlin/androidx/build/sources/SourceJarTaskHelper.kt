@@ -142,7 +142,10 @@ fun Project.configureSourceJarForJava(samplesProjects: MutableCollection<Project
  *
  * @param rJavaSource generated R.java file to enable documenting Android resources
  */
-fun Project.configureSourceJarForMultiplatform(rJavaSource: FileCollection) {
+fun Project.configureSourceJarForMultiplatform(
+    rJavaSource: FileCollection,
+    isolatedProjectEnabled: Boolean,
+) {
     val kmpExtension =
         multiplatformExtension
             ?: throw GradleException(
@@ -152,7 +155,9 @@ fun Project.configureSourceJarForMultiplatform(rJavaSource: FileCollection) {
     val multiplatformMetadataTask =
         tasks.register("createMultiplatformMetadata", CreateMultiplatformMetadata::class.java) {
             it.metadataFile.set(metadataFile)
-            it.sourceSetMetadata = project.provider { createSourceSetMetadata(kmpExtension) }
+            it.sourceSetMetadata = project.provider {
+                createSourceSetMetadata(kmpExtension, isolatedProjectEnabled)
+            }
         }
     val sourceJar =
         tasks.register("multiplatformSourceJar", Jar::class.java) { task ->
@@ -256,7 +261,10 @@ abstract class CreateMultiplatformMetadata : DefaultTask() {
     }
 }
 
-fun createSourceSetMetadata(kmpExtension: KotlinMultiplatformExtension): Map<String, Any> {
+fun createSourceSetMetadata(
+    kmpExtension: KotlinMultiplatformExtension,
+    isolatedProjectEnabled: Boolean,
+): Map<String, Any> {
     // Build a mapping from each source set to the analysis platform for that source set. If a
     // source set is used by several targets, the analysis platform is found by merging the
     // platforms from all targets.
@@ -281,7 +289,11 @@ fun createSourceSetMetadata(kmpExtension: KotlinMultiplatformExtension): Map<Str
                 mapOf(
                     "name" to it.name,
                     "dependencies" to it.transitiveDependsOn().map { it.name }.sorted(),
-                    "analysisPlatform" to sourceSetToPlatforms[it.name]!!.jsonName,
+                    "analysisPlatform" to
+                        (sourceSetToPlatforms[it.name]?.jsonName
+                            ?: if (isolatedProjectEnabled) DokkaAnalysisPlatform.JS.jsonName
+                            // https://youtrack.jetbrains.com/projects/KT/issues/KT-80311
+                            else throw Exception("Missing sourceSet mapping")),
                 )
             }
         }
