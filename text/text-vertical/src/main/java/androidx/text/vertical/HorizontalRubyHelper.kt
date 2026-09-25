@@ -61,7 +61,7 @@ internal class HorizontalRubySpanLayout(
         // draw() runs on another thread, mutating layout.paint mutates the building thread's cache.
         // Use a thread-local paint to avoid allocation overhead during measurement
         val workPaint = workingPaintCache.getOrSet { TextPaint() }
-        workPaint.set(paint)
+        workPaint.setFrom(paint)
 
         // Measure Body Width
         val bodyWidth =
@@ -151,7 +151,10 @@ internal class HorizontalRubySpanLayout(
 
             // The paint object stored in the layout is a shared cache, so reset it to the drawing
             // paint before calling draw ops.
-            bodyLayout.paint.set(paint)
+            bodyLayout.paint.setFrom(paint)
+            // The body text keeps the spans that set baselineShift on paint, for example
+            // SuperscriptSpan. Set baselineShift to 0 so that the body text does not move twice.
+            bodyLayout.paint.baselineShift = 0
             bodyLayout.draw(this)
         }
 
@@ -164,7 +167,10 @@ internal class HorizontalRubySpanLayout(
 
             // The paint object stored in the layout is a shared cache, so reset it to the drawing
             // paint before calling draw ops.
-            rubyLayout.paint.set(paint)
+            rubyLayout.paint.setFrom(paint)
+            // The body layout paint does not use baselineShift, so the ruby layout paint does not
+            // use it either.
+            rubyLayout.paint.baselineShift = 0
             rubyLayout.paint.withTextScale(rubyScale) { rubyLayout.draw(this@withSave) }
         }
     }
