@@ -174,11 +174,19 @@ class GeneratedRulesTest {
             # context: Landroidx/annotation/keep/examples/KeepExamplesKt;unconditionallyKeptMethod()V
             -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.KeepExamplesKt { void unconditionallyKeptMethod(); }
             # context: Landroidx/annotation/keep/examples/KeepExamplesKt;constructBase()V
+            -if class androidx.annotation.keep.examples.KeepExamplesKt { void constructBase(); } -keepclasseswithmembers,allowaccessmodification class ** extends androidx.annotation.keep.examples.BaseClass { void <init>(...); }
+            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;constructBase()V
             -if class androidx.annotation.keep.examples.KeepExamplesKt { void constructBase(); } -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.BaseClass { void <init>(...); }
             # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessInterfaceMethod()V
-            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.MyInterface { *** interfaceMethod(...); }
+            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class ** extends androidx.annotation.keep.examples.MyInterface { *** interfaceMethod${'$'}default(...); }
             # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessInterfaceMethod()V
             -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.MyInterface { *** interfaceMethod${'$'}default(...); }
+            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessInterfaceMethod()V
+            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class ** extends androidx.annotation.keep.examples.MyInterface { *** interfaceMethod(...); }
+            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessInterfaceMethod()V
+            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.MyInterface { *** interfaceMethod(...); }
+            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessBaseField()V
+            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessBaseField(); } -keepclasseswithmembers,allowaccessmodification class ** extends androidx.annotation.keep.examples.BaseClass { *** baseField; }
             # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessBaseField()V
             -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessBaseField(); } -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.BaseClass { *** baseField; }
             """
