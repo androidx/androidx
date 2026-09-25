@@ -41,6 +41,7 @@ import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -57,7 +58,6 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.findNearestParentEntity
 import androidx.xr.compose.platform.getActivity
 import androidx.xr.compose.platform.isEmbedded
-import androidx.xr.compose.subspace.SpatialComposeView
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
 import androidx.xr.compose.subspace.spatialComposeView
@@ -280,7 +280,7 @@ private class SpatialDialogRenderer(
 ) : RememberObserver {
 
     private var panelEntity: CorePanelEntity? = null
-    private var view: SpatialComposeView? = null
+    private var view: ComposeView? = null
 
     var parentEntity: CoreEntity? = null
         set(value) {
