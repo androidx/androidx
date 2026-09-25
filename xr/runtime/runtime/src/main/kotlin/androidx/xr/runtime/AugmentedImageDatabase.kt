@@ -21,6 +21,9 @@ import android.graphics.Bitmap
 /**
  * Database of target images used by the tracker via [Config.augmentedImageDatabase].
  *
+ * Supported device types:
+ * - Immersive
+ *
  * Supported runtimes:
  * - OpenXR
  *
