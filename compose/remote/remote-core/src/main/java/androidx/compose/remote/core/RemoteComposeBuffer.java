@@ -1027,6 +1027,9 @@ public class RemoteComposeBuffer {
     /**
      * inflate the buffer into a list of operations
      *
+     * <p>If the header has the {@link Header#COMPRESS} flag, the buffer contents are first replaced
+     * by the decompressed document.
+     *
      * @param operations the operations list to add to
      */
     public void inflateFromBuffer(
@@ -1039,6 +1042,11 @@ public class RemoteComposeBuffer {
                 try {
                     Header header = Header.readDirect(mBuffer);
                     profiles = header.getProfiles();
+                    Object compression = header.get(Header.COMPRESS);
+                    if (compression != null
+                            && !Integer.valueOf(Header.COMPRESSION_NONE).equals(compression)) {
+                        decompress();
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -1068,6 +1076,18 @@ public class RemoteComposeBuffer {
             }
             companion.read(wrapped, operations);
         }
+    }
+
+    /**
+     * Replaces the buffer contents with the decompressed document, so later inflations (e.g. {@link
+     * CoreDocument#reinflate()}) read it directly instead of decompressing again.
+     */
+    private void decompress() throws IOException {
+        byte[] document = Header.decompressDocument(mBuffer.mBuffer, mBuffer.mSize);
+        mBuffer.mBuffer = document;
+        mBuffer.mMaxSize = document.length;
+        mBuffer.mSize = document.length;
+        mBuffer.setIndex(0);
     }
 
     /**

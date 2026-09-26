@@ -31,6 +31,7 @@ import org.json.JSONObject;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -71,12 +72,28 @@ public class RemoteComposeConverter {
     /**
      * Convert RemoteCompose binary to JSON.
      *
+     * <p>A compressed document (see {@link Header#COMPRESS}) is described by its uncompressed
+     * operations, and an {@code "compression"} entry records how to compress it back.
+     *
      * @param rcBytes RemoteCompose binary
      * @return JSON string
      */
     @SuppressLint("RestrictedApiAndroidX")
     public static @NonNull String remoteComposeToJson(byte @NonNull [] rcBytes)
             throws JSONException {
+        Object compression = null;
+        try {
+            compression = Header.readDirect(new ByteArrayInputStream(rcBytes)).get(Header.COMPRESS);
+        } catch (IOException e) {
+            // No readable header; handled below like any other document.
+        }
+        if (compression != null) {
+            try {
+                rcBytes = Header.decompressDocument(rcBytes, rcBytes.length);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Invalid compressed document", e);
+            }
+        }
         WireBuffer buffer = new WireBuffer(rcBytes.length);
         System.arraycopy(rcBytes, 0, buffer.getBuffer(), 0, rcBytes.length);
 
@@ -109,6 +126,9 @@ public class RemoteComposeConverter {
         JSONObject rc = new JSONObject();
         rc.put("apiLevel", apiLevel);
         rc.put("profiles", profiles);
+        if (compression != null && !Integer.valueOf(Header.COMPRESSION_NONE).equals(compression)) {
+            rc.put("compression", compression);
+        }
         JSONArray opsJson = new JSONArray();
 
         while (buffer.getIndex() < totalLen) {
@@ -517,6 +537,13 @@ public class RemoteComposeConverter {
 
         byte[] result = new byte[buffer.getSize()];
         System.arraycopy(buffer.getBuffer(), 0, result, 0, buffer.getSize());
+        int compression = rc.optInt("compression", Header.COMPRESSION_NONE);
+        if (compression == Header.COMPRESSION_DEFLATE) {
+            return Header.compressDocument(result, result.length);
+        }
+        if (compression != Header.COMPRESSION_NONE) {
+            throw new JSONException("Unsupported compression " + compression);
+        }
         return result;
     }
 

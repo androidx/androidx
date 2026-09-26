@@ -274,6 +274,10 @@ public class RemoteComposeJsonParser {
             }
             short tag = parseHeaderTagStatic(key);
             Object value = header.get(key);
+            if (tag == Header.COMPRESS && value instanceof Boolean) {
+                // "compress": true is shorthand for DEFLATE, the only compression.
+                value = (Boolean) value ? Header.COMPRESSION_DEFLATE : Header.COMPRESSION_NONE;
+            }
             tags.add(RemoteComposeWriter.hTag(tag, value));
         }
         tags.sort(java.util.Comparator.comparingInt(RemoteComposeWriter.HTag::getTag));
@@ -570,6 +574,8 @@ public class RemoteComposeJsonParser {
                 return Header.FEATURE_DATA_PASS_CANVAS_OPS;
             case "debug":
                 return Header.DEBUG;
+            case "compress":
+                return Header.COMPRESS;
             default:
                 throw new JSONException("Unknown header tag: " + name);
         }

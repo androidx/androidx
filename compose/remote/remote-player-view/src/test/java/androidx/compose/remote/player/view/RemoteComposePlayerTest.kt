@@ -30,6 +30,7 @@ import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.RootContentBehavior
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.TouchExpression
@@ -1122,6 +1123,40 @@ class RemoteComposePlayerTest {
         setupPlayerInParent(docBytes = horizontalScrollDoc.encodeToByteArray()).use { (player, _) ->
             assertFalse(player.isVerticallyScrollable)
             assertTrue(player.isHorizontallyScrollable)
+        }
+    }
+
+    @Test
+    fun setDocument_compressedDocument_loads() {
+        val rcDoc =
+            RemoteComposeWriter(
+                RcPlatformProfiles.ANDROIDX,
+                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 300),
+                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 300),
+                RemoteComposeWriter.hTag(Header.COMPRESS, Header.COMPRESSION_DEFLATE),
+            )
+        val scrollPositionId = rcDoc.addNamedFloat("scrollPosition", 0f)
+        rcDoc.root {
+            rcDoc.column(
+                RecordingModifier().fillMaxSize().verticalScroll(scrollPositionId),
+                ColumnLayout.START,
+                ColumnLayout.TOP,
+            ) {
+                for (i in 1..25) {
+                    rcDoc.box(
+                        RecordingModifier().fillMaxWidth().height(44f),
+                        BoxLayout.CENTER,
+                        BoxLayout.CENTER,
+                    ) {}
+                }
+            }
+        }
+        val docBytes = rcDoc.encodeToByteArray()
+        assertTrue(docBytes.size < rcDoc.bufferSize())
+
+        // setDocument() only logs load failures, so check that the content made it through.
+        setupPlayerInParent(docBytes = docBytes).use { (player, _) ->
+            assertTrue(player.isVerticallyScrollable)
         }
     }
 

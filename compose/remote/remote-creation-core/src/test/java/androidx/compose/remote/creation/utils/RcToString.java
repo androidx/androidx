@@ -27,6 +27,7 @@ import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvalua
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -65,10 +66,14 @@ public class RcToString {
     /**
      * Convert RemoteCompose binary to JSON.
      *
+     * <p>A compressed document (see {@link Header#COMPRESS}) is described by its uncompressed form,
+     * so it converts to the same JSON as the document it was compressed from.
+     *
      * @param rcBytes RemoteCompose binary
      * @return JSON string
      */
     public static @NonNull String toString(byte @NonNull [] rcBytes) {
+        rcBytes = decompressIfNeeded(rcBytes);
         WireBuffer buffer = new WireBuffer(rcBytes.length);
         System.arraycopy(rcBytes, 0, buffer.getBuffer(), 0, rcBytes.length);
 
@@ -159,6 +164,25 @@ public class RcToString {
         root.put("rc", rc);
 
         return root.toString();
+    }
+
+    /** Returns the uncompressed document if {@code rcBytes} is compressed, else {@code rcBytes}. */
+    private static byte @NonNull [] decompressIfNeeded(byte @NonNull [] rcBytes) {
+        Header header;
+        try {
+            header = Header.readDirect(new ByteArrayInputStream(rcBytes));
+        } catch (IOException e) {
+            // No readable header: let toString() fail the way it always has.
+            return rcBytes;
+        }
+        if (header.get(Header.COMPRESS) == null) {
+            return rcBytes;
+        }
+        try {
+            return Header.decompressDocument(rcBytes, rcBytes.length);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Invalid compressed document", e);
+        }
     }
 
     private static String formatFloat(float f) {
