@@ -57,6 +57,69 @@ public final class ProcessCompat {
         }
     }
 
+    /**
+     * Returns whether the given {@code uid} belongs to an isolated process.
+     *
+     * Compatibility behavior:
+     * <ul>
+     * <li>SDK 28 and above, this method matches platform behavior.
+     * <li>SDK 27 and earlier, this method checks if the uid is in the isolated UID range.
+     * </ul>
+     *
+     * @param uid a kernel uid
+     * @return {@code true} if the uid corresponds to an isolated process, {@code false} otherwise
+     */
+    public static boolean isIsolatedUid(int uid) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            return Api28Impl.isIsolatedUid(uid);
+        } else {
+            int appId = uid % 100000;
+            return appId >= 99000 && appId <= 99999;
+        }
+    }
+
+    /**
+     * Returns whether the given {@code uid} belongs to an SDK sandbox process.
+     *
+     * Compatibility behavior:
+     * <ul>
+     * <li>SDK 33 and above, this method matches platform behavior.
+     * <li>SDK 32 and earlier, returns {@code false} as SDK sandbox processes did not exist.
+     * </ul>
+     *
+     * @param uid a kernel uid
+     * @return {@code true} if the uid corresponds to an SDK sandbox process, {@code false} otherwise
+     */
+    public static boolean isSdkSandboxUid(int uid) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            return Api33Impl.isSdkSandboxUid(uid);
+        } else {
+            return false;
+        }
+    }
+
+    @RequiresApi(33)
+    static class Api33Impl {
+        private Api33Impl() {
+            // This class is non-instantiable.
+        }
+
+        static boolean isSdkSandboxUid(int uid) {
+            return Process.isSdkSandboxUid(uid);
+        }
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is non-instantiable.
+        }
+
+        static boolean isIsolatedUid(int uid) {
+            return Process.isIsolatedUid(uid);
+        }
+    }
+
     @RequiresApi(24)
     static class Api24Impl {
 
