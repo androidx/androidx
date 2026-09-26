@@ -133,6 +133,9 @@ internal sealed class LayoutRun(val text: CharSequence, val start: Int, val end:
             return
         }
         tempPaint { bgPaint ->
+            // The pool can return a paint that has the state of an earlier style run, for example
+            // Paint.Style.STROKE. Reset the paint, so that it fills the rectangle.
+            bgPaint.reset()
             bgPaint.color = bgColor
             drawRect(left, top, left + width, top + height, bgPaint)
         }
