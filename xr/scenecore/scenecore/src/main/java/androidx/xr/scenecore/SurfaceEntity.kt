@@ -75,7 +75,10 @@ private constructor(
          *   entity.
          * @property cornerRadius The radius of the rounded corners of the Quad in the local spatial
          *   coordinate system of the entity. The maximum allowed value is half of the smaller
-         *   dimension of [extents]. If set to 0.0f, the corners will be sharp.
+         *   dimension of [extents]. If set to 0.0f, the corners will be sharp. Rounded corners
+         *   require [androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4] or higher. On earlier
+         *   versions this value is ignored and the corners stay sharp. Check the device's version
+         *   with [androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion].
          */
         public class Quad
         @JvmOverloads
