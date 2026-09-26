@@ -35,7 +35,6 @@ import com.google.common.truth.Truth.assertThat
 import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -134,9 +133,10 @@ class FaceTest {
             advanceUntilIdle()
 
             var underTest: List<Face> = listOf()
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Face.subscribe(session).collect { underTest = it.toList() }
             }
+            advanceUntilIdle()
 
             assertThat(underTest).isNotEmpty()
         }
@@ -243,9 +243,10 @@ class FaceTest {
             advanceUntilIdle()
 
             var underTest: Face? = null
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Face.subscribe(session).collect { underTest = it.first() }
             }
+            advanceUntilIdle()
             check(underTest != null)
 
             assertThat(underTest.state.value.trackingState.toRuntimeTrackingState())
@@ -267,7 +268,7 @@ class FaceTest {
             advanceUntilIdle()
 
             var underTest: Face? = null
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Face.subscribe(session).collect { underTest = it.first() }
             }
 
@@ -288,7 +289,7 @@ class FaceTest {
             advanceUntilIdle()
 
             var underTest: Face? = null
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Face.subscribe(session).collect { underTest = it.first() }
             }
 
@@ -309,7 +310,7 @@ class FaceTest {
             advanceUntilIdle()
 
             var underTest: Face? = null
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Face.subscribe(session).collect { underTest = it.first() }
             }
 
@@ -330,7 +331,7 @@ class FaceTest {
             advanceUntilIdle()
 
             var underTest: Face? = null
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Face.subscribe(session).collect { underTest = it.first() }
             }
 
@@ -351,7 +352,7 @@ class FaceTest {
             advanceUntilIdle()
 
             var underTest: Face? = null
-            testScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            testScope.launch() {
                 Face.subscribe(session).collect { underTest = it.first() }
             }
 
