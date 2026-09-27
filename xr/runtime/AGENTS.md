@@ -61,7 +61,7 @@ The `Session` class (`Session.kt`) orchestrates all underlying XR subsystems via
 +-----------------------+              +-----------------------+              +-----------------------+
 | Perception Factories  |              |    Scene Factories    |              |  Rendering Factories  |
 | - OpenXrRuntime       |              | - SpatialSceneRuntime |              | - SpatialRendering    |
-| - ArCoreRuntime       |              | - ProjectedScene      |              |   Runtime             |
+| - ArCoreRuntime       |              | - OpenXrSceneRuntime  |              |   Runtime             |
 | - FakePerception      |              | - FakeScene           |              | - FakeRendering       |
 +-----------------------+              +-----------------------+              +-----------------------+
            |                                      |                                      |
@@ -82,7 +82,7 @@ The `Session` class (`Session.kt`) orchestrates all underlying XR subsystems via
 | Provider Type | Service Class String / Class | Concrete Implementations Discovered |
 | :--- | :--- | :--- |
 | **Perception Runtime** | `PerceptionRuntimeFactory` | • `androidx.xr.arcore.openxr.OpenXrRuntimeFactory`<br>• `androidx.xr.arcore.playservices.ArCoreRuntimeFactory`<br>• `androidx.xr.arcore.testing.FakePerceptionRuntimeFactory`<br>• `androidx.xr.runtime.StubPerceptionRuntimeFactory` |
-| **Scene Runtime** | `SceneRuntimeFactory` | • `androidx.xr.scenecore.spatial.core.SpatialSceneRuntimeFactory`<br>• `androidx.xr.scenecore.projected.ProjectedSceneRuntimeFactory`<br>• `androidx.xr.scenecore.testing.FakeSceneRuntimeFactory` |
+| **Scene Runtime** | `SceneRuntimeFactory` | • `androidx.xr.scenecore.spatial.core.SpatialSceneRuntimeFactory`<br>• `androidx.xr.scenecore.openxr.OpenXrSceneRuntimeFactory`<br>• `androidx.xr.scenecore.testing.FakeSceneRuntimeFactory` |
 | **Rendering Runtime** | `RenderingRuntimeFactory` | • `androidx.xr.scenecore.spatial.rendering.SpatialRenderingRuntimeFactory`<br>• `androidx.xr.scenecore.testing.FakeRenderingRuntimeFactory` |
 | **State Extender** | `StateExtender` | • `androidx.xr.arcore.PerceptionStateExtender`<br>• `androidx.xr.arcore.playservices.CameraStateExtender`<br>• `androidx.xr.arcore.testing.internal.FakeStateExtender` |
 | **Session Connector** | `SessionConnector` | • `androidx.xr.scenecore.Scene`<br>• `androidx.xr.runtime.testing.FakeSessionConnector` |
