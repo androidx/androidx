@@ -15,8 +15,10 @@
  */
 package androidx.compose.remote.creation.json;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import androidx.compose.remote.core.Operation;
@@ -31,6 +33,9 @@ import org.json.JSONException;
 import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 public class RemoteComposeJsonParserTest {
     private RemoteComposeWriter mWriter;
@@ -922,6 +927,71 @@ public class RemoteComposeJsonParserTest {
         assertEquals(1, tags.length);
         assertEquals(Header.FEATURE_DATA_PASS_CANVAS_OPS, tags[0].getTag());
         assertEquals(1, tags[0].getValue());
+    }
+
+    @Test
+    public void testCompressInHeader() throws JSONException {
+        assertEquals(Header.COMPRESSION_DEFLATE, parseCompressTag("true").getValue());
+        assertEquals(Header.COMPRESSION_NONE, parseCompressTag("false").getValue());
+        assertEquals(Header.COMPRESSION_DEFLATE, parseCompressTag("1").getValue());
+        assertEquals(Header.COMPRESS, parseCompressTag("true").getTag());
+    }
+
+    @Test
+    public void testParseWithCompressInHeader_compressesDocument()
+            throws JSONException, IOException {
+        byte[] plain =
+                RemoteComposeJsonParser.parse(columnDocument("\"apiLevel\": 8"), null).array();
+        byte[] compressed =
+                RemoteComposeJsonParser.parse(
+                                columnDocument("\"apiLevel\": 8, \"compress\": true"), null)
+                        .array();
+
+        Header header = Header.readDirect(new ByteArrayInputStream(compressed));
+        assertEquals(Header.COMPRESSION_DEFLATE, header.get(Header.COMPRESS));
+        assertTrue(compressed.length < plain.length);
+        assertArrayEquals(plain, Header.decompressDocument(compressed, compressed.length));
+    }
+
+    @Test
+    public void testParseWithCompressInHeader_requiresApiLevel8() {
+        // Without an explicit apiLevel, JSON documents are written at API level 7.
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () ->
+                                RemoteComposeJsonParser.parse(
+                                        columnDocument("\"compress\": true"), null));
+        assertTrue(e.getMessage().contains("API level 8"));
+    }
+
+    private static RemoteComposeWriter.@NonNull HTag parseCompressTag(@NonNull String value)
+            throws JSONException {
+        String json =
+                "{ \"header\": { \"compress\": "
+                        + value
+                        + " }, "
+                        + "\"root\": { \"type\": \"box\" } }";
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        assertEquals(1, tags.length);
+        return tags[0];
+    }
+
+    /** A JSON document with the given header entries and a column of texts. */
+    private static @NonNull String columnDocument(@NonNull String headerEntries) {
+        StringBuilder children = new StringBuilder();
+        for (int i = 0; i < 20; i++) {
+            if (i > 0) {
+                children.append(", ");
+            }
+            children.append("{ \"type\": \"text\", \"value\": \"Item ").append(i).append("\" }");
+        }
+        return "{ \"header\": { "
+                + headerEntries
+                + " }, "
+                + "\"root\": { \"type\": \"column\", \"children\": [ "
+                + children
+                + " ] } }";
     }
 
     @Test

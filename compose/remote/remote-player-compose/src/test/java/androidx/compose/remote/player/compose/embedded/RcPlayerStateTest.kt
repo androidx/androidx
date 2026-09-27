@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -47,6 +48,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -362,5 +364,41 @@ class RcPlayerStateTest {
 
         playerState.clearOverride("chartData")
         assertThat(chartData).isEqualTo(floatArrayOf(10f, 20f, 30f))
+    }
+
+    @Test
+    fun testCompressedCapturedDocument() {
+        val captured = runBlocking {
+            captureSingleRemoteDocument(
+                context = ApplicationProvider.getApplicationContext(),
+                profile = RcPlatformProfiles.ANDROIDX.withCompression(Header.COMPRESSION_DEFLATE),
+            ) {
+                val title = remember { createNamedRemoteString("title", "Compressed") }
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(60.rdp, 40.rdp).semantics { contentDescription = title }
+                )
+            }
+        }
+        assertThat(Header.readDirect(ByteArrayInputStream(captured.bytes)).get(Header.COMPRESS))
+            .isEqualTo(Header.COMPRESSION_DEFLATE)
+
+        // RcPlayerState decompresses the document while loading it.
+        val playerState = RcPlayerState(captured)
+        val title by playerState.stringState("title")
+        assertThat(title).isEqualTo("Compressed")
+
+        rule.setContent {
+            Box(modifier = Modifier.size(200.dp)) {
+                RcPlayer(state = playerState)
+            }
+        }
+
+        rule.waitForIdle()
+        rule
+            .onNodeWithContentDescription("Compressed")
+            .assertExists()
+            .assertWidthIsEqualTo(60.dp)
+            .assertHeightIsEqualTo(40.dp)
     }
 }
