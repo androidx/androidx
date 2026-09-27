@@ -22,6 +22,7 @@ import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.BitmapFontData
+import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
@@ -279,12 +280,24 @@ public open class RemoteComposeContext {
         return mRemoteWriter.checkAndClearForceSendingNewPaint()
     }
 
+    /**
+     * Returns a copy of the document, compressed if the writer compresses (see
+     * [RemoteComposeWriter.getCompression]).
+     */
     public fun buffer(): ByteArray {
         return mRemoteWriter.encodeToByteArray()
     }
 
+    /**
+     * Returns the size of the array returned by [buffer]. When the writer compresses, this
+     * compresses the document to measure it, so prefer `buffer().size` if you also need the bytes.
+     */
     public fun bufferSize(): Int {
-        return mRemoteWriter.bufferSize()
+        return if (mRemoteWriter.compression != Header.COMPRESSION_NONE) {
+            buffer().size
+        } else {
+            mRemoteWriter.bufferSize()
+        }
     }
 
     public fun createShader(shaderString: String): RemoteComposeShader {

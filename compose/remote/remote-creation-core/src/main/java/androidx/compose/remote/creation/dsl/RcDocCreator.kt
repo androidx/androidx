@@ -30,12 +30,14 @@ private fun createRcBufferInternal(
     val isExperimental = experimental || profile.experimental
     val finalProfile =
         if (isExperimental) {
-            androidx.compose.remote.creation.profile.Profile(
-                profile.profile.apiLevel,
-                profile.profile.operationsProfiles or RcProfiles.PROFILE_EXPERIMENTAL,
-                profile.profile.platform,
-                profile.profile.profileFactory,
-            )
+            androidx.compose.remote.creation.profile
+                .Profile(
+                    profile.profile.apiLevel,
+                    profile.profile.operationsProfiles or RcProfiles.PROFILE_EXPERIMENTAL,
+                    profile.profile.platform,
+                    profile.profile.profileFactory,
+                )
+                .withCompression(profile.profile.compression)
         } else {
             profile.profile
         }
@@ -75,9 +77,7 @@ private fun createRcBufferInternal(
 
     contentExecution(writer, scope)
 
-    val buffer = writer.buffer()
-    val size = writer.bufferSize()
-    return buffer.copyOfRange(0, size)
+    return writer.encodeToByteArray()
 }
 
 /** Top-level builder for creating a serialized RemoteCompose document. It will also create root */

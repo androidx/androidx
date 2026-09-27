@@ -1,14 +1,14 @@
 # RemoteCompose Protocol Specification
 
 This document defines some of the binary protocol format for RemoteCompose.
-Each operation consists of an OpCode followed by its specific data fields. 
+Each operation consists of an OpCode followed by its specific data fields.
 This is not authoritative but is provided to give a feel for the protocol.
 
 ## OpCode Reference
 
 | OpCode | Name | Purpose | Fields |
 | :--- | :--- | :--- | :--- |
-| 0 | `HEADER` | Document metadata | Version, Width, Height, Density, Profiles |
+| 0 | `HEADER` | Document metadata | Version, Width, Height, Density, Profiles, Compression |
 | 38 | `CLIP_PATH` | Set clip path | Path ID |
 | 39 | `CLIP_RECT` | Set clip rectangle | L, T, R, B |
 | 40 | `PAINT_VALUES` | Update paint state | Serialized `PaintBundle` |
@@ -42,9 +42,29 @@ This is not authoritative but is provided to give a feel for the protocol.
 | 230 | `CONTAINER_END` | Closes block | - |
 
 ## Data Types
-- **Int**: 32-bit signed (Little Endian).
+- **Int**: 32-bit signed (Big Endian).
 - **Float**: 32-bit IEEE 754.
 - **Short**: 16-bit signed.
 - **Byte**: 8-bit unsigned.
 - **String**: UTF-8 encoded, prefixed by length (Int).
 - **Float ID**: Encoded as a `NaN` where the significand contains the 24-bit ID.
+
+## Compression
+
+A document with a properties header (API level 7+) can set the `COMPRESS`
+property (key 31, Int). With the value `1`, every byte after the header is a
+single zlib stream (DEFLATE, RFC 1950) holding the operations. Other non-zero
+values are reserved and rejected.
+
+- The header itself is never compressed, so tools can peek at it (version,
+  size, profiles, compression) without inflating anything.
+- Players inflate the stream, capped at `Limits.MAX_DECOMPRESSED_SIZE` bytes,
+  and parse the result as the operations following the header. The in-memory
+  document drops the `COMPRESS` property, so it matches the uncompressed
+  original byte for byte.
+- Writers compress API level 8+ documents when their profile
+  (`Profile.withCompression`) or their `COMPRESS` header tag asks for it.
+  `Header.compressDocument` and `Header.decompressDocument` convert existing
+  documents.
+
+See [COMPRESSION.md](COMPRESSION.md) for the full guide.

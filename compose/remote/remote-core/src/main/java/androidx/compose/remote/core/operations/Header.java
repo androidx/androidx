@@ -36,12 +36,19 @@ import androidx.compose.remote.core.operations.utilities.IntMap;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 /**
  * Describe some basic information for a RemoteCompose document
@@ -168,6 +175,20 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
      */
     public static final short FEATURE_DATA_PASS_CANVAS_OPS = 30;
 
+    /**
+     * Compression of everything that follows the header: {@link #COMPRESSION_NONE} (or absent) for
+     * none, {@link #COMPRESSION_DEFLATE} for a zlib stream. The header itself is never compressed,
+     * so a compressed document can still be peeked with {@link #readDirect(InputStream)}. See
+     * {@link #compressDocument} and {@link #decompressDocument}.
+     */
+    public static final short COMPRESS = 31;
+
+    /** {@link #COMPRESS} value: the operations are stored as is. */
+    public static final int COMPRESSION_NONE = 0;
+
+    /** {@link #COMPRESS} value: the operations are a zlib (RFC 1950) DEFLATE stream. */
+    public static final int COMPRESSION_DEFLATE = 1;
+
     /** The object is an integer */
     private static final short DATA_TYPE_INT = 0;
 
@@ -202,6 +223,7 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
         FEATURE_OPTIMIZATION_LEVEL,
         FEATURE_DISALLOW_INTERCEPT_TOUCH,
         FEATURE_DATA_PASS_CANVAS_OPS,
+        COMPRESS,
     };
     private static final String[] KEY_NAMES = {
         "DOC_WIDTH",
@@ -224,8 +246,21 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
         "DENSITY_BEHAVIOR",
         "OPTIMIZATION_LEVEL",
         "DISALLOW_INTERCEPT_TOUCH",
-        "DATA_PASS_CANVAS_OPS"
+        "DATA_PASS_CANVAS_OPS",
+        "COMPRESS"
     };
+
+    /** Offset of the property count in a properties header: opcode, then major, minor, patch. */
+    private static final int PROPERTY_COUNT_OFFSET = 1 + 3 * 4;
+
+    /** Offset of the first property in a properties header. */
+    private static final int PROPERTIES_OFFSET = PROPERTY_COUNT_OFFSET + 4;
+
+    /** Size of an INT property: tag, value length, value. */
+    private static final int INT_PROPERTY_SIZE = 2 + 2 + 4;
+
+    /** Size of the chunks used to deflate and inflate documents. */
+    private static final int CHUNK_SIZE = 8 * 1024;
 
     /**
      * It encodes the version of the document (following semantic versioning) as well as the
@@ -815,6 +850,154 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
                                 + (values[i] == null ? "null" : values[i].getClass().getName()));
             }
         }
+    }
+
+    /**
+     * Compresses a document: everything after the header becomes a zlib stream, and a {@link
+     * #COMPRESS} property is appended to the header. The rest of the header is copied as is, which
+     * keeps the document's version, and stays uncompressed so {@link #readDirect(InputStream)} can
+     * still peek at it. Players decompress transparently while inflating the document.
+     *
+     * @param document an uncompressed document with a properties (API level 7+) header
+     * @param size the number of valid bytes in {@code document}
+     * @return a new array holding the compressed document, or a copy of {@code document} if it is
+     *     already compressed
+     * @throws IllegalArgumentException if the header is invalid or legacy (without properties)
+     */
+    public static byte @NonNull [] compressDocument(byte @NonNull [] document, int size) {
+        ByteArrayInputStream stream = new ByteArrayInputStream(document, 0, size);
+        try {
+            Header header = readDirect(stream);
+            int headerSize = size - stream.available();
+            if (header.mProperties == null) {
+                throw new IllegalArgumentException(
+                        "Compression needs a header with properties (API level 7+)");
+            }
+            Object compression = header.get(COMPRESS);
+            if (compression != null && !Integer.valueOf(COMPRESSION_NONE).equals(compression)) {
+                return Arrays.copyOf(document, size);
+            }
+            byte[] head = new byte[headerSize + INT_PROPERTY_SIZE];
+            int headSize = copyHeaderWithoutCompress(document, headerSize, head, 1);
+            ByteBuffer.wrap(head, headSize, INT_PROPERTY_SIZE)
+                    .putShort((short) (COMPRESS | (DATA_TYPE_INT << 10)))
+                    .putShort((short) 4)
+                    .putInt(COMPRESSION_DEFLATE);
+            ByteArrayOutputStream out = new ByteArrayOutputStream(size / 2 + INT_PROPERTY_SIZE);
+            out.write(head, 0, headSize + INT_PROPERTY_SIZE);
+            Deflater deflater = new Deflater();
+            try {
+                deflater.setInput(document, headerSize, size - headerSize);
+                deflater.finish();
+                byte[] chunk = new byte[CHUNK_SIZE];
+                while (!deflater.finished()) {
+                    out.write(chunk, 0, deflater.deflate(chunk));
+                }
+            } finally {
+                deflater.end();
+            }
+            return out.toByteArray();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Invalid document header", e);
+        }
+    }
+
+    /**
+     * Decompresses a document made by {@link #compressDocument}: inflates everything after the
+     * header and drops the {@link #COMPRESS} property, restoring the original document.
+     *
+     * @param document a document, compressed or not
+     * @param size the number of valid bytes in {@code document}
+     * @return a new array holding the uncompressed document, or a copy of {@code document} if it
+     *     isn't compressed
+     * @throws IOException if the header is invalid or uses an unsupported compression, or if the
+     *     compressed data is corrupted, truncated, followed by extra bytes, or inflates to more
+     *     than {@link Limits#MAX_DECOMPRESSED_SIZE} bytes
+     */
+    public static byte @NonNull [] decompressDocument(byte @NonNull [] document, int size)
+            throws IOException {
+        ByteArrayInputStream stream = new ByteArrayInputStream(document, 0, size);
+        Header header = readDirect(stream);
+        int headerSize = size - stream.available();
+        Object compression = header.get(COMPRESS);
+        if (compression == null || Integer.valueOf(COMPRESSION_NONE).equals(compression)) {
+            return Arrays.copyOf(document, size);
+        }
+        if (!Integer.valueOf(COMPRESSION_DEFLATE).equals(compression)) {
+            throw new IOException("Unsupported document compression " + compression);
+        }
+        byte[] head = new byte[headerSize];
+        int headSize = copyHeaderWithoutCompress(document, headerSize, head, 0);
+        ByteArrayOutputStream out =
+                new ByteArrayOutputStream((int) Math.min(4L * size, Limits.BUFFER_SIZE));
+        out.write(head, 0, headSize);
+        Inflater inflater = new Inflater();
+        try {
+            inflater.setInput(document, headerSize, size - headerSize);
+            byte[] chunk = new byte[CHUNK_SIZE];
+            long inflated = 0;
+            while (!inflater.finished()) {
+                int count = inflater.inflate(chunk);
+                if (count == 0 && !inflater.finished()) {
+                    throw new IOException(
+                            inflater.needsInput()
+                                    ? "Truncated compressed document"
+                                    : "Invalid compressed document");
+                }
+                inflated += count;
+                if (inflated > Limits.MAX_DECOMPRESSED_SIZE) {
+                    throw new IOException(
+                            "Decompressed document exceeds "
+                                    + Limits.MAX_DECOMPRESSED_SIZE
+                                    + " bytes");
+                }
+                out.write(chunk, 0, count);
+            }
+            if (inflater.getRemaining() > 0) {
+                throw new IOException("Unexpected data after the compressed document");
+            }
+        } catch (DataFormatException e) {
+            throw new IOException("Corrupted compressed document", e);
+        } finally {
+            inflater.end();
+        }
+        return out.toByteArray();
+    }
+
+    /**
+     * Copies the properties header that starts {@code document} into {@code out}, without its
+     * {@link #COMPRESS} properties and with {@code extraProperties} added to the property count,
+     * and returns the number of bytes written. Properties are walked using their stored length, and
+     * must end exactly where {@link #readDirect} found the end of the header.
+     */
+    private static int copyHeaderWithoutCompress(
+            byte @NonNull [] document, int headerSize, byte @NonNull [] out, int extraProperties)
+            throws IOException {
+        ByteBuffer in = ByteBuffer.wrap(document, 0, headerSize);
+        int count = in.getInt(PROPERTY_COUNT_OFFSET);
+        System.arraycopy(document, 0, out, 0, PROPERTY_COUNT_OFFSET);
+        int read = PROPERTIES_OFFSET;
+        int written = PROPERTIES_OFFSET;
+        int kept = 0;
+        int i = 0;
+        while (i < count && read + 4 <= headerSize) {
+            int end = read + 4 + (in.getShort(read + 2) & 0xFFFF);
+            if (end > headerSize) {
+                break;
+            }
+            if ((in.getShort(read) & 0x3F) != COMPRESS) {
+                System.arraycopy(document, read, out, written, end - read);
+                written += end - read;
+                kept++;
+            }
+            read = end;
+            i++;
+        }
+        if (i != count || read != headerSize) {
+            throw new IOException("Malformed header properties");
+        }
+        ByteBuffer.wrap(out).putInt(PROPERTY_COUNT_OFFSET, kept + extraProperties);
+        return written;
     }
 
     /**

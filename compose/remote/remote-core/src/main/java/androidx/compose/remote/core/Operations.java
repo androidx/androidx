@@ -205,6 +205,9 @@ public class Operations {
     // Protocol
     /// /////////////////////////////////////
     public static final int HEADER = 0;
+    // Opcode 120 (0x78) is reserved: it is the first byte of a compressed document's operations
+    // (see Header#COMPRESS), so players that can't decompress stop on an unknown operation instead
+    // of misreading the document.
     public static final int LOAD_BITMAP = 4;
     public static final int THEME = 63;
     public static final int CLICK_AREA = 64;
