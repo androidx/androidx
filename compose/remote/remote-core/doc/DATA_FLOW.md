@@ -10,9 +10,11 @@ The developer uses the `RemoteComposeWriter` (Java) or `RemoteComposeContext` (K
 
 ## 2. Transmission
 The contents of the `WireBuffer` are sent over the network or IPC as a simple byte array (`byte[]`).
+- **Compression**: Optionally, everything after the header is compressed (see [COMPRESSION.md](COMPRESSION.md)).
 
 ## 3. Decoding (Client/Player)
 The Player receives the bytes and initializes a `CoreDocument`.
+- **Decompression**: If the header has the `COMPRESS` flag, the operations are inflated first.
 - **Parsing**: `Operations.read()` iterates through the buffer, looking up the OpCode in the `DefaultVersionMap` and instantiating the corresponding `Operation` class.
 - **Layout Tree**: Component operations (`COMPONENT_START`, `CONTAINER_END`) reconstruct the UI hierarchy.
 - **Variable Registration**: Operations that depend on dynamic values register themselves as listeners in the `RemoteContext`.

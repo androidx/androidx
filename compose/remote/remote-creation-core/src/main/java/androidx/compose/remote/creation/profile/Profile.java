@@ -19,6 +19,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CompanionOperation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RcPlatformServices;
+import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.creation.CreationDisplayInfo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
@@ -38,6 +39,7 @@ import java.util.Set;
  *       defines the set of valid operations)
  *   <li>a platform services implementation
  *   <li>a RemoteComposeWriter instance
+ *   <li>how the documents are compressed (see {@link #withCompression})
  * </ul>
  *
  * A subclass of RemoteComposeWriter can be provided by the profile, allowing additional validation
@@ -51,6 +53,7 @@ public class Profile {
     RcPlatformServices mPlatform;
     @NonNull
     RemoteComposeWriterFactory mFactory;
+    int mCompression = Header.COMPRESSION_NONE;
 
     @NonNull
     SupportedOperationsProvider mSupportedOperationsProvider = () -> {
@@ -118,6 +121,42 @@ public class Profile {
     public @NonNull RemoteComposeWriter create(@NonNull CreationDisplayInfo creationDisplayInfo,
             @Nullable Object writerCallback) {
         return mFactory.create(creationDisplayInfo, this, writerCallback);
+    }
+
+    /**
+     * Returns a copy of this profile that compresses the documents it creates. Everything after the
+     * {@link Header} is compressed, so the header can still be peeked, and players decompress the
+     * documents transparently. This profile is left unchanged.
+     *
+     * <p>Writers built with a {@link Header#COMPRESS} tag use that value instead.
+     *
+     * @param compression {@link Header#COMPRESSION_DEFLATE}, or {@link Header#COMPRESSION_NONE}
+     * @return a new profile, identical to this one except for its compression
+     * @throws IllegalArgumentException if the compression is unknown, or this profile's API level
+     *     is below 8
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull Profile withCompression(int compression) {
+        RemoteComposeWriter.checkCompression(mApiLevel, compression);
+        Profile profile =
+                new Profile(
+                        mApiLevel,
+                        mOperationsProfiles,
+                        mPlatform,
+                        mSupportedOperationsProvider,
+                        mFactory);
+        profile.mCompression = compression;
+        return profile;
+    }
+
+    /**
+     * Returns how the documents created with this profile are compressed.
+     *
+     * @return a {@link Header#COMPRESS} value, {@link Header#COMPRESSION_NONE} by default
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public int getCompression() {
+        return mCompression;
     }
 
     /**

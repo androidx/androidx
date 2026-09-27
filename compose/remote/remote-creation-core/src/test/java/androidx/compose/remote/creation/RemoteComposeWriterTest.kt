@@ -23,12 +23,15 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.SystemInfo
 import androidx.compose.remote.core.operations.EventActionOperation
 import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.core.operations.TextData
 import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatChangeActionOperation
 import androidx.compose.remote.core.operations.utilities.IntMap
 import androidx.compose.remote.creation.actions.Action
 import androidx.compose.remote.creation.profile.Profile
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
+import java.io.ByteArrayInputStream
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -270,4 +273,139 @@ class RemoteComposeWriterTest {
             )
             .inOrder()
     }
+
+    @Test
+    fun encodeToByteArray_withCompressTag_compressesEverythingAfterHeader() {
+        val writer = createCompressingWriter(createProfile())
+        repeat(50) { writer.addText("text $it") }
+
+        val bytes = writer.encodeToByteArray()
+        val raw = writer.buffer().copyOf(writer.bufferSize())
+
+        // The writer's own buffer stays uncompressed, without the flag...
+        assertThat(Header.readDirect(ByteArrayInputStream(raw)).get(Header.COMPRESS)).isNull()
+        // ...which encodeToByteArray() adds when compressing.
+        assertThat(
+                Header.readDirect(ByteArrayInputStream(bytes)).getInt(Header.COMPRESS.toInt(), 0)
+            )
+            .isEqualTo(Header.COMPRESSION_DEFLATE)
+        assertThat(bytes.size).isLessThan(raw.size)
+        assertThat(Header.decompressDocument(bytes, bytes.size)).isEqualTo(raw)
+        assertThat(parseDocument(writer).operations.filterIsInstance<TextData>()).hasSize(50)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun compressTag_v7_fails() {
+        createCompressingWriter(createProfile(7))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun compressTag_unsupportedValue_fails() {
+        RemoteComposeWriter(
+            createProfile(),
+            RemoteComposeBuffer(),
+            RemoteComposeWriter.hTag(Header.COMPRESS, 2),
+        )
+    }
+
+    @Test
+    fun reset_dropsCompression() {
+        val writer = createCompressingWriter(createProfile())
+
+        // reset() writes a legacy header, which has no properties to carry the flag.
+        writer.reset()
+
+        assertThat(writer.encodeToByteArray())
+            .isEqualTo(writer.buffer().copyOf(writer.bufferSize()))
+    }
+
+    @Test
+    fun compressTag_overridesProfileCompression() {
+        val writer =
+            RemoteComposeWriter(
+                createProfile().withCompression(Header.COMPRESSION_DEFLATE),
+                RemoteComposeBuffer(),
+                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 100),
+                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 100),
+                RemoteComposeWriter.hTag(Header.COMPRESS, Header.COMPRESSION_NONE),
+            )
+
+        assertThat(writer.compression).isEqualTo(Header.COMPRESSION_NONE)
+        assertThat(writer.encodeToByteArray())
+            .isEqualTo(writer.buffer().copyOf(writer.bufferSize()))
+    }
+
+    @Test
+    fun compressTag_nonIntegerValue_fails() {
+        val e =
+            assertThrows(IllegalArgumentException::class.java) {
+                RemoteComposeWriter(
+                    createProfile(),
+                    RemoteComposeBuffer(),
+                    RemoteComposeWriter.hTag(Header.COMPRESS, "deflate"),
+                )
+            }
+        assertThat(e).hasMessageThat().contains("Unsupported compression")
+    }
+
+    @Test
+    fun platformWriter_withCompressTag_compresses() {
+        val writer =
+            RemoteComposeWriter(
+                rcPlatform,
+                CoreDocument.DOCUMENT_API_LEVEL,
+                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 100),
+                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 100),
+                RemoteComposeWriter.hTag(Header.COMPRESS, Header.COMPRESSION_DEFLATE),
+            )
+        repeat(20) { writer.addText("text $it") }
+
+        val bytes = writer.encodeToByteArray()
+
+        assertThat(writer.compression).isEqualTo(Header.COMPRESSION_DEFLATE)
+        assertThat(Header.readDirect(ByteArrayInputStream(bytes)).get(Header.COMPRESS))
+            .isEqualTo(Header.COMPRESSION_DEFLATE)
+        assertThat(parseDocument(writer).operations.filterIsInstance<TextData>()).hasSize(20)
+    }
+
+    @Test
+    fun encodeToByteArray_compressing_leavesWriterUsable() {
+        val writer = createCompressingWriter(createProfile())
+        writer.addText("first")
+        writer.encodeToByteArray()
+
+        // Compressing works on a copy, so the document can keep growing after being encoded.
+        writer.addText("second")
+        val bytes = writer.encodeToByteArray()
+
+        assertThat(Header.decompressDocument(bytes, bytes.size))
+            .isEqualTo(writer.buffer().copyOf(writer.bufferSize()))
+        assertThat(parseDocument(writer).operations.filterIsInstance<TextData>().map { it.mText })
+            .containsExactly("first", "second")
+            .inOrder()
+    }
+
+    @Test
+    fun checkCompression_validatesValueAndApiLevel() {
+        assertThat(RemoteComposeWriter.checkCompression(7, Header.COMPRESSION_NONE))
+            .isEqualTo(Header.COMPRESSION_NONE)
+        assertThat(RemoteComposeWriter.checkCompression(8, Header.COMPRESSION_DEFLATE))
+            .isEqualTo(Header.COMPRESSION_DEFLATE)
+        assertThrows(IllegalArgumentException::class.java) {
+            RemoteComposeWriter.checkCompression(7, Header.COMPRESSION_DEFLATE)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            RemoteComposeWriter.checkCompression(8, 2)
+        }
+    }
+
+    private fun createCompressingWriter(profile: Profile): RemoteComposeWriter =
+        RemoteComposeWriter(
+            profile,
+            RemoteComposeBuffer(),
+            RemoteComposeWriter.hTag(Header.DOC_WIDTH, 100),
+            RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 100),
+            RemoteComposeWriter.hTag(Header.DOC_PROFILES, profile.operationsProfiles),
+            RemoteComposeWriter.hTag(Header.COMPRESS, Header.COMPRESSION_DEFLATE),
+        )
 }
