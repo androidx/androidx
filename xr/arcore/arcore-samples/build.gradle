@@ -40,15 +40,24 @@ android {
 
 dependencies {
     implementation(libs.kotlinCoroutinesCore)
+    implementation(libs.kotlinCoroutinesTest)
+    implementation(libs.testExtJunit)
+    implementation(libs.testRunner)
+    implementation(libs.truth)
     implementation("androidx.activity:activity:1.12.1")
+    implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
+    implementation(project(":kruth:kruth"))
     implementation(project(":xr:arcore:arcore"))
     implementation(project(":xr:arcore:arcore-play-services"))
+    implementation(project(":xr:arcore:arcore-testing"))
     implementation(project(":xr:scenecore:scenecore"))
 
     compileOnly(project(":annotation:annotation-sampled"))
 
     implementation("com.google.ar:core:1.53.0")
+    implementation("org.robolectric:robolectric:4.17-beta-3")
+    implementation("org.robolectric:shadows-framework:4.17-beta-3")
 }
 
 androidx {
@@ -56,4 +65,5 @@ androidx {
     type = SoftwareType.SAMPLES
     inceptionYear = "2025"
     description = "Contains the sample code for ARCore"
+    kotlinTarget = KotlinTarget.KOTLIN_2_3
 }
