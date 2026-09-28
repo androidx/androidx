@@ -16,6 +16,7 @@
 
 package com.example.androidx.mediarouting.activities;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -34,6 +35,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.core.app.ActivityCompat;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaRouterParams;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -205,6 +207,16 @@ public final class SettingsActivity extends AppCompatActivity {
         mediaRouter2ModeSwitch.setOnCheckedChangeListener(
                 (compoundButton, enabled) -> {
                     mRoutesManager.setIsMediaTransferEnabledAndStore(enabled);
+                    if (!enabled) {
+                        // The user has disabled the MR2 integration, so request the local network
+                        // access. If we already have the permission this does nothing. If we don't
+                        // hold it, it's a convenient way for the user to remember they need it for
+                        // Cast routes to work.
+                        ActivityCompat.requestPermissions(
+                                this,
+                                new String[] {Manifest.permission.ACCESS_LOCAL_NETWORK},
+                                /* requestCode= */ 0);
+                    }
                 });
     }
 
