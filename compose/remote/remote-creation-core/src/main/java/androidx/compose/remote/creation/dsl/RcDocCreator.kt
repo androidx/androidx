@@ -30,14 +30,12 @@ private fun createRcBufferInternal(
     val isExperimental = experimental || profile.experimental
     val finalProfile =
         if (isExperimental) {
-            androidx.compose.remote.creation.profile
-                .Profile(
-                    profile.profile.apiLevel,
-                    profile.profile.operationsProfiles or RcProfiles.PROFILE_EXPERIMENTAL,
-                    profile.profile.platform,
-                    profile.profile.profileFactory,
-                )
-                .withCompression(profile.profile.compression)
+            androidx.compose.remote.creation.profile.Profile(
+                profile.profile.apiLevel,
+                profile.profile.operationsProfiles or RcProfiles.PROFILE_EXPERIMENTAL,
+                profile.profile.platform,
+                profile.profile.profileFactory,
+            )
         } else {
             profile.profile
         }

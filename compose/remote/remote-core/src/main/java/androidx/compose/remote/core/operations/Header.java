@@ -189,6 +189,23 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
     /** {@link #COMPRESS} value: the operations are a zlib (RFC 1950) DEFLATE stream. */
     public static final int COMPRESSION_DEFLATE = 1;
 
+    /**
+     * Directions in which the document scrolls: {@link #SCROLL_HORIZONTAL}, {@link
+     * #SCROLL_VERTICAL}, or both combined. {@link CoreDocument#hasHorizontalScroll()} and {@link
+     * CoreDocument#hasVerticalScroll()} report these directions on top of the scroll containers
+     * they find, so a document can declare scrolling they can't find, e.g. a scroll driven by a
+     * touch expression. It can only add directions: a document with a scroll container reports it
+     * whatever this property says. Other bits are reserved: writers reject them, players ignore
+     * them.
+     */
+    public static final short DOC_SCROLL = 32;
+
+    /** {@link #DOC_SCROLL} flag: the document scrolls horizontally. */
+    public static final int SCROLL_HORIZONTAL = 1;
+
+    /** {@link #DOC_SCROLL} flag: the document scrolls vertically. */
+    public static final int SCROLL_VERTICAL = 2;
+
     /** The object is an integer */
     private static final short DATA_TYPE_INT = 0;
 
@@ -224,6 +241,7 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
         FEATURE_DISALLOW_INTERCEPT_TOUCH,
         FEATURE_DATA_PASS_CANVAS_OPS,
         COMPRESS,
+        DOC_SCROLL,
     };
     private static final String[] KEY_NAMES = {
         "DOC_WIDTH",
@@ -247,7 +265,8 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
         "OPTIMIZATION_LEVEL",
         "DISALLOW_INTERCEPT_TOUCH",
         "DATA_PASS_CANVAS_OPS",
-        "COMPRESS"
+        "COMPRESS",
+        "DOC_SCROLL"
     };
 
     /** Offset of the property count in a properties header: opcode, then major, minor, patch. */

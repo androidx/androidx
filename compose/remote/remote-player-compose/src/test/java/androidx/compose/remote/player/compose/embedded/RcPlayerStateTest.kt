@@ -48,7 +48,6 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -369,10 +368,7 @@ class RcPlayerStateTest {
     @Test
     fun testCompressedCapturedDocument() {
         val captured = runBlocking {
-            captureSingleRemoteDocument(
-                context = ApplicationProvider.getApplicationContext(),
-                profile = RcPlatformProfiles.ANDROIDX.withCompression(Header.COMPRESSION_DEFLATE),
-            ) {
+            captureSingleRemoteDocument(context = ApplicationProvider.getApplicationContext()) {
                 val title = remember { createNamedRemoteString("title", "Compressed") }
                 RemoteBox(
                     modifier =
@@ -380,11 +376,18 @@ class RcPlayerStateTest {
                 )
             }
         }
-        assertThat(Header.readDirect(ByteArrayInputStream(captured.bytes)).get(Header.COMPRESS))
+        val compressed = Header.compressDocument(captured.bytes, captured.bytes.size)
+        assertThat(Header.readDirect(ByteArrayInputStream(compressed)).get(Header.COMPRESS))
             .isEqualTo(Header.COMPRESSION_DEFLATE)
 
-        // RcPlayerState decompresses the document while loading it.
-        val playerState = RcPlayerState(captured)
+        // The document is decompressed while loading.
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                ByteArrayInputStream(compressed).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+        val playerState = RcPlayerState(document)
         val title by playerState.stringState("title")
         assertThat(title).isEqualTo("Compressed")
 
