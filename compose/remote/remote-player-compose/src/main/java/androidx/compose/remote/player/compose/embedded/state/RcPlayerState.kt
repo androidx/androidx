@@ -117,6 +117,10 @@ internal fun rememberRemoteIntAsState(id: Int): State<Int> {
         return graph.epochSecondState
     }
 
+    if (isTimeVariable(id) && graph != null) {
+        return remember(graph, id) { derivedStateOf { graph.timeFloatState(id).value.toInt() } }
+    }
+
     // Plain variable: reactive read of the snapshot-backed integer store.
     return remember(document, id) { derivedStateOf { context.getInteger(id) } }
 }
