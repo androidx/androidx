@@ -130,6 +130,68 @@ The following API reviews and cleanups are currently in flight:
   - [x] Review `RemoteComposeCreationState` & `LocalRemoteComposeCreationState`.
   - [x] `RecordingCanvas` (2 occurrences) - Not planned (kept internal/restricted; in-flight [CL 4177957](https://android-review.googlesource.com/c/platform/frameworks/support/+/4177957) making `AndroidRecordingCanvas` and `JvmRecordingCanvas` `internal`).
 
+## What's Left
+
+The following restricted APIs remain across `remote-creation-compose` to be reviewed (either exposed as public APIs, migrated to `internal`, or removed):
+
+### 1. Layout & Drawing (`androidx.compose.remote.creation.compose.layout`)
+- **`RemoteDrawScope`**:
+  - Bitmap & path drawing: `drawImage`, `drawScaledBitmap`, `drawPath`, `drawRoundedPolygon`, `drawRoundedPolygonMorph`, `drawTweenPath`.
+  - Text drawing: `drawText`, `drawAnchoredText`, `drawTextOnPath`.
+  - Transformations & clipping: `rotate`, `translate`, `scale`, `withTransform`, `clipRect`, `clipPath`.
+  - Control flow & offscreen: `drawConditionally`, `drawToOffscreenBitmap`, `loop`.
+  - `DrawHelpersAndroid`: Conversion helpers (`toAndroidCap`, `toAndroidJoin`, `toBlendMode`, `toImageScalingInt`, etc.).
+- **Layout Components & Types**:
+  - `RemoteFlowRow`: `@Composable RemoteFlowRow` layout component.
+  - `RemotePaddingValues`: `RemotePaddingValues` class and constructors (`all`, `horizontal`/`vertical`, `left`/`top`/`right`/`bottom`).
+  - `RemoteTextMeasure`: `RemoteTextMeasurer`, `RemoteTextLayoutResult`, and `rememberRemoteTextMeasurer` (in-flight [CL 4279995](https://android-review.googlesource.com/c/platform/frameworks/support/+/4279995)).
+  - `RemoteOffset` & `RemoteSize`: Mixed primitive/remote constructors (`RemoteOffset(Float, RemoteFloat)`, `RemoteOffset(Offset)`, `RemoteSize(Size)`) and `asOffset` / `asSize` helpers.
+  - `RemoteRowScope` / `RemoteColumnScope`: Primitive `weight(Float)` overloads.
+  - `RemoteCustomComponent` & `CustomComponentFactory`: Custom component support.
+
+### 2. Built-in Context / "Magic" Floats (`ANIMATION_TIME`, `RemoteTime`, `RemoteComponent`)
+- **Typed APIs for `RemoteContext.FLOAT_*` NaN Constants**:
+  - Replace direct usage of restricted `RemoteContext` NaN-encoded floats (`RemoteFloat(RemoteContext.FLOAT_ANIMATION_TIME)`, `FLOAT_ANIMATION_DELTA_TIME`, `FLOAT_CONTINUOUS_SEC`, `FLOAT_TIME_IN_HR`, `FLOAT_TIME_IN_MIN`, `FLOAT_TIME_IN_SEC`, `FLOAT_DAY_OF_MONTH`, `FLOAT_WEEK_DAY`, `FLOAT_OFFSET_TO_UTC`, `FLOAT_WINDOW_WIDTH`, `FLOAT_WINDOW_HEIGHT`, `FLOAT_COMPONENT_WIDTH`, `FLOAT_COMPONENT_HEIGHT`, touch/sensor values like `FLOAT_TOUCH_POS_*`, `FLOAT_ACCELERATION_*`, `FLOAT_GYRO_ROT_*`, `FLOAT_LIGHT`, etc.) with clean, typed `RemoteFloat` / `RemoteInt` APIs.
+  - Review and unify `RemoteTime`, `RemoteComponent`, `RemoteFloatContext`, and `RemoteAccess` (`RemoteDrawScope.remote`).
+  - Prevent public `RemoteFloat(Float)` / `Float.rf` from acting as a backdoor for raw NaN-encoded IDs once typed context accessors are public.
+
+### 3. Modifiers (`androidx.compose.remote.creation.compose.modifier`)
+- `BackgroundModifier`: `RemoteModifier.background(RemoteBrush)` overload.
+- `CombinedClickableModifier`: `RemoteModifier.combinedClickable`.
+- `RippleModifier`: `RemoteModifier.rippleEffect()`.
+- `MarqueeModifier`: `RemoteModifier.basicMarquee(...)`.
+- `BlurEffect` & `RenderEffect`: Graphics layer render effects.
+- `WidthModifier`, `HeightModifier`, `SizeModifier`: `IntrinsicSize` overloads (`width(IntrinsicSize)`, `height(IntrinsicSize)`), `fillParentMaxSize`, and primitive `Float`/`Int` overloads.
+
+### 4. State (`androidx.compose.remote.creation.compose.state`)
+- **`RemotePaint`**:
+  - Remaining restricted properties (`isAntiAlias`, `filterQuality`, `shader`, `pathEffect`, `colorFilter`; `fontFeatureSettings` in [CL 4295551](https://android-review.googlesource.com/c/platform/frameworks/support/+/4295551)).
+- **`RemoteColor`**:
+  - `createThemedRemoteColor` (in-flight [CL 4306272](https://android-review.googlesource.com/c/platform/frameworks/support/+/4306272)), `fromAHSV`, `rgb`, `compositeOver`, `times`, and `tween`.
+- **Primitives & Math Operations**:
+  - `RemoteString`: `substring` overloads, `plus(String)`, `selectIf*` helpers.
+  - `RemoteFloatOperations`: `lerp`, `clamp`, `atan2`, `cubicEasing`, `evalSpline`, `interpolateRemoteFloat`, `animateRemoteFloat`, `rand`, `randRange`.
+  - `RemoteFloat` & `RemoteInt`: Remaining mixed-primitive overloads and `selectIf*` helpers.
+  - Deprecated `rememberMutableRemote*` and `rememberNamedRemote*` composable functions (in-flight [CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689)).
+- **Array Types**:
+  - `RemoteFloatArray`, `RemoteMutableFloatArray`, `RemoteIntArray`, `RemoteStringArray`.
+
+### 5. Shaders, Vectors, Painters & Actions
+- **`androidx.compose.remote.creation.compose.shaders`**:
+  - `colorStops` overloads on `RemoteLinearGradient` (`linearGradient`, `horizontalGradient`, `verticalGradient`) and `RemoteBrush.fromComposeUi`.
+- **`androidx.compose.remote.creation.compose.vector`**:
+  - Animated vector APIs: `RemoteAnimatedVector`, `RemoteAnimatedVectorPainter`, `RemoteAnimatedVectorParser`.
+- **`androidx.compose.remote.creation.compose.painter`**:
+  - `painterRemoteColor(Color)` overload.
+- **`androidx.compose.remote.creation.compose.action`**:
+  - `ScrollAction` and `LambdaAction`.
+
+### 6. Make `internal`
+- Wire serialization and ID resolution (`writeToDocument`, `getIdForCreationState`, `getFloatIdForCreationState`, `getLongIdForCreationState`, `toRecordingModifier`, `toRecordingModifierElement`, `toRemote`, `RemoteStateVisitor`).
+- `RemoteComposeCreationState`, `RemoteComposeCapture`, `RecordingCanvas`, `RemoteVector` / `RemotePathNode` internals, and `DocumentStats`.
+- Modifier implementation classes (`ClipModifier`, `GraphicsLayerModifier`, `CollapsiblePriorityModifier`, `MacroModifier`, `RippleModifier`).
+- Paint, shader, painter, and vector implementation classes (`StandardRemotePaint`, `CompatAndroidRemotePaint`, `RemoteLinearShader`, `RemoteRadialShader`, `RemoteSweepShader`, `RemoteSolidColor`, `RemoteShader`, `RemoteVectorPainter` and `draw(RemoteCanvas)` helpers, `RemoteColorPainter`, `RemoteImageBitmapPainter`).
+
 ## Out of Scope
 
 The following APIs are considered out of scope for the current cleanup effort:
@@ -142,5 +204,3 @@ The following APIs are considered out of scope for the current cleanup effort:
   - Review `ProceduralRCWidget`
   - Review `WidgetLambdaAction`
   - Review `WidgetInformation`
-- **Other Not-Planned Restricted APIs**
-  - `RecordingCanvas` (internal canvas recording implementation)
