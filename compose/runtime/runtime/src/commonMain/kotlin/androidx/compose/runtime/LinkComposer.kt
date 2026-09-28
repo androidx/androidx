@@ -555,7 +555,8 @@ internal class LinkComposer(
     /** See [Composer.changed] */
     override fun changed(value: Float): Boolean {
         val next = nextSlot()
-        if (next is Float && value == next) {
+        // NaN != NaN for [Float]s, but this method should treat NaN as being equal to NaN.
+        if (next is Float && (value == next || (value.isNaN() && next.isNaN()))) {
             return false
         } else {
             updateValue(value)
@@ -577,7 +578,8 @@ internal class LinkComposer(
     /** See [Composer.changed] */
     override fun changed(value: Double): Boolean {
         val next = nextSlot()
-        if (next is Double && value == next) {
+        // NaN != NaN for [Double]s, but this method should treat NaN as being equal to NaN.
+        if (next is Double && (value == next || (value.isNaN() && next.isNaN()))) {
             return false
         } else {
             updateValue(value)

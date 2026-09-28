@@ -924,7 +924,8 @@ internal class GapComposer(
         val next = nextSlot()
         if (next is Float) {
             val nextPrimitive: Float = next
-            if (value == nextPrimitive) return false
+            // NaN != NaN for [Float]s, but this method should treat NaN as being equal to NaN.
+            if (value == nextPrimitive || (value.isNaN() && nextPrimitive.isNaN())) return false
         }
         updateValue(value)
         return true
@@ -946,7 +947,8 @@ internal class GapComposer(
         val next = nextSlot()
         if (next is Double) {
             val nextPrimitive: Double = next
-            if (value == nextPrimitive) return false
+            // NaN != NaN for [Double]s, but this method should treat NaN as being equal to NaN.
+            if (value == nextPrimitive || (value.isNaN() && nextPrimitive.isNaN())) return false
         }
         updateValue(value)
         return true

@@ -18,6 +18,7 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.mock.EmptyApplier
 import androidx.compose.runtime.mock.Text
 import androidx.compose.runtime.mock.View
@@ -26,6 +27,9 @@ import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectChanges
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.DpSize
 import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 import kotlin.test.AfterTest
@@ -190,4 +194,170 @@ class JvmCompositionTests {
         val afterCount = Snapshot.openSnapshotCount()
         assertEquals(count, afterCount, "A snapshot was left open after the test")
     }
+
+    // The following five test cases ensure that recomposition of a `@Composable` function whose
+    // arguments are unchanged is skipped, in particular when one of the arguments is [Float.NaN]
+    // or [Double.NaN].
+    //
+    // They serve as regression tests against https://issuetracker.google.com/issues/564569402.
+
+    @Test
+    fun floatNaNArgumentSkips() = compositionTest {
+        var parentRecompositionTrigger by mutableStateOf(false)
+        var parentCompositionCount = 0
+        val childCompositionCount = IntRef()
+
+        compose {
+            // [parentRecompositionTrigger] is read here so that changes to it invalidate this
+            // scope.
+            parentRecompositionTrigger
+            parentCompositionCount++
+            WithFloatParameter(forceNonStatic(Float.NaN), childCompositionCount)
+        }
+
+        assertEquals(1, parentCompositionCount)
+        assertEquals(1, childCompositionCount.element)
+
+        parentRecompositionTrigger = true
+        advance()
+
+        assertEquals(2, parentCompositionCount)
+        assertEquals(1, childCompositionCount.element)
+    }
+
+    @Test
+    fun doubleNaNArgumentSkips() = compositionTest {
+        var parentRecompositionTrigger by mutableStateOf(false)
+        var parentCompositionCount = 0
+        val childCompositionCount = IntRef()
+
+        compose {
+            // [parentRecompositionTrigger] is read here so that changes to it invalidate this
+            // scope.
+            parentRecompositionTrigger
+            parentCompositionCount++
+            WithDoubleParameter(forceNonStatic(Double.NaN), childCompositionCount)
+        }
+
+        assertEquals(1, parentCompositionCount)
+        assertEquals(1, childCompositionCount.element)
+
+        parentRecompositionTrigger = true
+        advance()
+
+        assertEquals(2, parentCompositionCount)
+        assertEquals(1, childCompositionCount.element)
+    }
+
+    @Test
+    fun dpOffsetUnspecifiedArgumentSkips() = compositionTest {
+        var parentRecompositionTrigger by mutableStateOf(false)
+        var parentCompositionCount = 0
+        val childCompositionCount = IntRef()
+
+        compose {
+            // [parentRecompositionTrigger] is read here so that changes to it invalidate this
+            // scope.
+            parentRecompositionTrigger
+            parentCompositionCount++
+            WithDpOffsetParameter(forceNonStatic(DpOffset.Unspecified), childCompositionCount)
+        }
+
+        assertEquals(1, parentCompositionCount)
+        assertEquals(1, childCompositionCount.element)
+
+        parentRecompositionTrigger = true
+        advance()
+
+        assertEquals(2, parentCompositionCount)
+        assertEquals(1, childCompositionCount.element)
+    }
+
+    @Test
+    fun dpSizeUnspecifiedArgumentSkips() = compositionTest {
+        var parentRecompositionTrigger by mutableStateOf(false)
+        var parentCompositionCount = 0
+        val childCompositionCount = IntRef()
+
+        compose {
+            // [parentRecompositionTrigger] is read here so that changes to it invalidate this
+            // scope.
+            parentRecompositionTrigger
+            parentCompositionCount++
+            WithDpSizeParameter(forceNonStatic(DpSize.Unspecified), childCompositionCount)
+        }
+
+        assertEquals(1, parentCompositionCount)
+        assertEquals(1, childCompositionCount.element)
+
+        parentRecompositionTrigger = true
+        advance()
+
+        assertEquals(2, parentCompositionCount)
+        assertEquals(1, childCompositionCount.element)
+    }
+
+    @Test
+    fun dpUnspecifiedArgumentSkips() = compositionTest {
+        var parentRecompositionTrigger by mutableStateOf(false)
+        var parentCompositionCount = 0
+        val childCompositionCount = IntRef()
+
+        compose {
+            // [parentRecompositionTrigger] is read here so that changes to it invalidate this
+            // scope.
+            parentRecompositionTrigger
+            parentCompositionCount++
+            WithDpParameter(forceNonStatic(Dp.Unspecified), childCompositionCount)
+        }
+
+        assertEquals(1, parentCompositionCount)
+        assertEquals(1, childCompositionCount.element)
+
+        parentRecompositionTrigger = true
+        advance()
+
+        assertEquals(2, parentCompositionCount)
+        assertEquals(1, childCompositionCount.element)
+    }
+}
+
+/**
+ * Returns [value] unchanged, but ensures that the compiler can't prove that the result is static.
+ *
+ * An argument can be wrapped with this to ensure that at runtime, `Composer.changed` will be used
+ * to determine whether the argument has changed.
+ */
+private fun <T> forceNonStatic(value: T): T = value
+
+private fun <T> Use(@Suppress("UNUSED_PARAMETER") value: T) {}
+
+@Composable
+private fun WithFloatParameter(value: Float, compositionCount: IntRef) {
+    compositionCount.element++
+    Use(value)
+}
+
+@Composable
+private fun WithDoubleParameter(value: Double, compositionCount: IntRef) {
+    compositionCount.element++
+    Use(value)
+}
+
+@Composable
+private fun WithDpParameter(value: Dp, compositionCount: IntRef) {
+    compositionCount.element++
+    Use(value)
+}
+
+@Composable
+private fun WithDpOffsetParameter(value: DpOffset, compositionCount: IntRef) {
+    compositionCount.element++
+    Use(value)
+}
+
+@Composable
+private fun WithDpSizeParameter(value: DpSize, compositionCount: IntRef) {
+    compositionCount.element++
+    Use(value)
 }
