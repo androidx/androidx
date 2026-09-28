@@ -789,6 +789,38 @@ class CompositionAndComputedStateTests {
         validate { Text("Value is 60") }
         assertEquals(2, compositionCount)
     }
+
+    @Test
+    fun onlyInvalidatesIfResultIsDifferentInMovableContent() = compositionTest {
+        var a by mutableIntStateOf(32)
+        var b by mutableIntStateOf(10)
+        val answer by computedStateOf { a + b }
+        var compositionCount = 0
+        val content = movableContentOf {
+            compositionCount++
+            Text("The answer is $answer")
+        }
+
+        compose { content() }
+
+        validate { Text("The answer is ${a + b}") }
+        assertEquals(1, compositionCount)
+
+        Snapshot.withMutableSnapshot {
+            a += 1
+            b -= 1
+        }
+
+        expectNoChanges()
+        revalidate()
+        assertEquals(1, compositionCount)
+
+        a += 1
+
+        expectChanges()
+        revalidate()
+        assertEquals(2, compositionCount)
+    }
 }
 
 private class ComputedNestedItem(val number: Int) {

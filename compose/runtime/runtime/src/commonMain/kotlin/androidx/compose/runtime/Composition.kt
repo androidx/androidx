@@ -1272,7 +1272,11 @@ internal class CompositionImpl(
         references: List<Pair<MovableContentStateReference, MovableContentStateReference?>>
     ) {
         runtimeCheck(references.fastAll { it.first.composition == this })
-        guardChanges { composer.insertMovableContentReferences(references) }
+        guardChanges {
+            observeIndirectStateRecalculations(indirectStateObserver) {
+                composer.insertMovableContentReferences(references)
+            }
+        }
     }
 
     override fun disposeUnusedMovableContent(state: MovableContentState) {

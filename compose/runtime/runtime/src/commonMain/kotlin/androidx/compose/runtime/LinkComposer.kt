@@ -855,7 +855,9 @@ internal class LinkComposer(
             val observer = observerHolder.pin()
             observer?.onBeginComposition(composition)
             try {
-                insertMovableContentGuarded(references)
+                observeIndirectStateRecalculations(indirectStateObserver) {
+                    insertMovableContentGuarded(references)
+                }
                 completed = true
             } finally {
                 observer?.onEndComposition(composition)

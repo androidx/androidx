@@ -710,6 +710,38 @@ class CompositionAndDerivedStateTests {
         validate { Text("Value is 20") }
         assertEquals(3, compositionCount)
     }
+
+    @Test
+    fun onlyInvalidatesIfResultIsDifferentInMovableContent() = compositionTest {
+        var a by mutableIntStateOf(32)
+        var b by mutableIntStateOf(10)
+        val answer by derivedStateOf { a + b }
+        var compositionCount = 0
+        val content = movableContentOf {
+            compositionCount++
+            Text("The answer is $answer")
+        }
+
+        compose { content() }
+
+        validate { Text("The answer is ${a + b}") }
+        assertEquals(1, compositionCount)
+
+        Snapshot.withMutableSnapshot {
+            a += 1
+            b -= 1
+        }
+
+        expectNoChanges()
+        revalidate()
+        assertEquals(1, compositionCount)
+
+        a += 1
+
+        expectChanges()
+        revalidate()
+        assertEquals(2, compositionCount)
+    }
 }
 
 private class NestedItem(val number: Int) {
