@@ -92,10 +92,18 @@ class OperationApplyTest(private val operation: Operation) {
         doc.initializeContext(context)
 
         // Assert: DATA pass.
-        if (operation !is Container || operation is ComponentData) {
-            assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
-        } else {
-            assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+        when (operation) {
+            is TestOperation,
+            is TestVariableSupportOperation,
+            is TestPaintOperation,
+            is TestModifierOperation,
+            is TestContainerAndComponentDataOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
+            }
+            is TestContainerOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+            }
+            else -> error("Unexpected operation: $operation")
         }
         assertThat(context.appliedOperations[ContextMode.UNSET]).isEmpty()
         assertThat(context.appliedOperations[ContextMode.PAINT]).isEmpty()
@@ -128,10 +136,18 @@ class OperationApplyTest(private val operation: Operation) {
         doc.initializeContext(context)
 
         // Assert: DATA pass.
-        if (operation !is Container || operation is ComponentData) {
-            assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
-        } else {
-            assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+        when (operation) {
+            is TestOperation,
+            is TestVariableSupportOperation,
+            is TestPaintOperation,
+            is TestModifierOperation,
+            is TestContainerAndComponentDataOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
+            }
+            is TestContainerOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+            }
+            else -> error("Unexpected operation: $operation")
         }
         assertThat(context.appliedOperations[ContextMode.UNSET]).isEmpty()
         assertThat(context.appliedOperations[ContextMode.PAINT]).isEmpty()
@@ -261,10 +277,18 @@ class OperationApplyTest(private val operation: Operation) {
         doc.initializeContext(context)
 
         // Assert: DATA pass.
-        if (operation !is Container || operation is ComponentData) {
-            assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
-        } else {
-            assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+        when (operation) {
+            is TestOperation,
+            is TestVariableSupportOperation,
+            is TestPaintOperation,
+            is TestModifierOperation,
+            is TestContainerAndComponentDataOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
+            }
+            is TestContainerOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+            }
+            else -> error("Unexpected operation: $operation")
         }
         assertThat(context.appliedOperations[ContextMode.UNSET]).isEmpty()
         assertThat(context.appliedOperations[ContextMode.PAINT]).isEmpty()
@@ -301,10 +325,18 @@ class OperationApplyTest(private val operation: Operation) {
         doc.initializeContext(context)
 
         // Assert: DATA pass.
-        if (operation !is Container || operation is ComponentData) {
-            assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
-        } else {
-            assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+        when (operation) {
+            is TestOperation,
+            is TestVariableSupportOperation,
+            is TestPaintOperation,
+            is TestModifierOperation,
+            is TestContainerAndComponentDataOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
+            }
+            is TestContainerOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+            }
+            else -> error("Unexpected operation: $operation")
         }
         assertThat(context.appliedOperations[ContextMode.UNSET]).isEmpty()
         assertThat(context.appliedOperations[ContextMode.PAINT]).isEmpty()
@@ -344,10 +376,18 @@ class OperationApplyTest(private val operation: Operation) {
         doc.initializeContext(context)
 
         // Assert: DATA pass.
-        if (operation !is Container || operation is ComponentData) {
-            assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
-        } else {
-            assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+        when (operation) {
+            is TestOperation,
+            is TestVariableSupportOperation,
+            is TestPaintOperation,
+            is TestModifierOperation,
+            is TestContainerAndComponentDataOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
+            }
+            is TestContainerOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+            }
+            else -> error("Unexpected operation: $operation")
         }
         assertThat(context.appliedOperations[ContextMode.UNSET]).isEmpty()
         assertThat(context.appliedOperations[ContextMode.PAINT]).isEmpty()
@@ -381,10 +421,18 @@ class OperationApplyTest(private val operation: Operation) {
         doc.initializeContext(context)
 
         // Assert: DATA pass.
-        if (operation !is Container || operation is ComponentData) {
-            assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
-        } else {
-            assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+        when (operation) {
+            is TestOperation,
+            is TestVariableSupportOperation,
+            is TestPaintOperation,
+            is TestModifierOperation,
+            is TestContainerAndComponentDataOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
+            }
+            is TestContainerOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+            }
+            else -> error("Unexpected operation: $operation")
         }
         assertThat(context.appliedOperations[ContextMode.UNSET]).isEmpty()
         assertThat(context.appliedOperations[ContextMode.PAINT]).isEmpty()
@@ -417,10 +465,18 @@ class OperationApplyTest(private val operation: Operation) {
         doc.initializeContext(context)
 
         // Assert: DATA pass.
-        if (operation !is Container || operation is ComponentData) {
-            assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
-        } else {
-            assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+        when (operation) {
+            is TestOperation,
+            is TestVariableSupportOperation,
+            is TestPaintOperation,
+            is TestModifierOperation,
+            is TestContainerAndComponentDataOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).containsExactly(operation)
+            }
+            is TestContainerOperation -> {
+                assertThat(context.appliedOperations[ContextMode.DATA]).isEmpty()
+            }
+            else -> error("Unexpected operation: $operation")
         }
         assertThat(context.appliedOperations[ContextMode.UNSET]).isEmpty()
         assertThat(context.appliedOperations[ContextMode.PAINT]).isEmpty()
