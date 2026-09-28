@@ -22,6 +22,7 @@ import org.chromium.support_lib_boundary.WebMessagePayloadBoundaryInterface;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.InvocationHandler;
 import java.util.Objects;
 
 /**
@@ -67,6 +68,11 @@ public class WebMessagePayloadAdapter implements WebMessagePayloadBoundaryInterf
     public byte @NonNull [] getAsArrayBuffer() {
         checkType(WebMessagePayloadType.TYPE_ARRAY_BUFFER);
         return Objects.requireNonNull(mArrayBuffer);
+    }
+
+    @Override
+    public @Nullable InvocationHandler getAsSharedArrayBuffer() {
+        return null;
     }
 
     /**
