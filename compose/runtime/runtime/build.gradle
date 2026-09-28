@@ -65,7 +65,13 @@ androidXMultiplatform {
         }
 
         create("nonEmulatorCommonTest").dependsOn(commonTest)
-        create("nonEmulatorJvmTest").dependsOn(nonEmulatorCommonTest)
+
+        nonEmulatorJvmTest {
+            dependsOn(nonEmulatorCommonTest)
+            dependencies {
+                implementation(project(":compose:ui:ui-unit"))
+            }
+        }
 
         androidMain.dependencies {
             api(libs.kotlinCoroutinesAndroid)
