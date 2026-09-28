@@ -332,7 +332,7 @@ private constructor(private val config: PagingConfig) {
         // Compute pageCount and itemsToDrop
         var pagesToDrop = 0
         var itemsToDrop = 0
-        while (pagesToDrop < pages.size && storageCount - itemsToDrop > config.maxSize) {
+        while (pages.size - pagesToDrop > 2 && storageCount - itemsToDrop > config.maxSize) {
             val pageSize =
                 when (loadType) {
                     PREPEND -> pages[pagesToDrop].data.size
