@@ -584,7 +584,10 @@ fun StyleColorsText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
     val text =
         remember(density) {
             buildVerticalText(density) {
-                text("吾輩は猫である。")
+                withStyle(textColor = Color(0xFFB71C1C), backgroundColor = Color(0xFFC8E6C9)) {
+                    withRuby("わがはい") { text("吾輩") }
+                }
+                text("は猫である。")
                 withRuby("なまえ") { text("名前") }
                 text("はまだ無い。")
             }

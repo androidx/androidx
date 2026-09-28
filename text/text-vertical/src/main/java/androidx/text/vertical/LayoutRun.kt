@@ -129,7 +129,7 @@ internal sealed class LayoutRun(val text: CharSequence, val start: Int, val end:
         height: Float,
         @ColorInt bgColor: Int,
     ) {
-        if (bgColor == 0) {
+        if (bgColor == 0 || width <= 0f || height <= 0f) {
             return
         }
         tempPaint { bgPaint ->
@@ -550,7 +550,7 @@ internal inline fun <T : Paint, U> T.withVerticalFlag(crossinline block: T.() ->
 
 private val paintPool = ThreadLocal<LinkedList<TextPaint>>()
 
-private inline fun tempPaint(crossinline block: (TextPaint) -> Unit) {
+internal inline fun tempPaint(crossinline block: (TextPaint) -> Unit) {
     val pool = paintPool.getOrSet { LinkedList<TextPaint>() }
     val paint = if (pool.isNotEmpty()) pool.remove() else TextPaint()
     try {

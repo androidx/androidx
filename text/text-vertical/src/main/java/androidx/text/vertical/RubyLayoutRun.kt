@@ -17,8 +17,13 @@
 package androidx.text.vertical
 
 import android.graphics.Canvas
+import android.text.NoCopySpan
+import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
+import android.text.style.CharacterStyle
+import android.text.style.MetricAffectingSpan
+import android.text.style.ReplacementSpan
 import kotlin.math.max
 
 /**
@@ -43,6 +48,131 @@ internal inline fun forEachRubySpanTransition(
         require(rubySpans.size <= 1) { "RubySpan cannot be overlapped" }
         consumer(rStart, rEnd, rubySpans.getOrNull(0))
     }
+
+/**
+ * Scales the text size change of a covering [MetricAffectingSpan] by [rubyScale].
+ *
+ * The wrapper divides the text size by [rubyScale] before it calls [delegate]. If [delegate]
+ * changes the text size, the wrapper multiplies the new size by [rubyScale]. Otherwise, it restores
+ * the original size to prevent a rounding error. Other [TextPaint] fields, such as `baselineShift`,
+ * are not scaled. For example, if [rubyScale] is `0.5f`:
+ *
+ * - `AbsoluteSizeSpan(40)` sets the ruby text size to `20`.
+ * - `RelativeSizeSpan(2f)` makes the ruby text two times larger, the same as the base text.
+ */
+private class ScaledCoveringCharacterStyle(
+    private val delegate: MetricAffectingSpan,
+    private val rubyScale: Float,
+) : MetricAffectingSpan() {
+    override fun updateMeasureState(textPaint: TextPaint) {
+        textPaint.withUnscaledTextSize { delegate.updateMeasureState(textPaint) }
+    }
+
+    override fun updateDrawState(tp: TextPaint) {
+        tp.withUnscaledTextSize { delegate.updateDrawState(tp) }
+    }
+
+    override fun getUnderlying(): MetricAffectingSpan = delegate.underlying
+
+    private inline fun TextPaint.withUnscaledTextSize(block: () -> Unit) {
+        val scaledSize = textSize
+        val unscaledSize = if (rubyScale != 0f) scaledSize / rubyScale else scaledSize
+        textSize = unscaledSize
+        block()
+        textSize = if (textSize != unscaledSize) textSize * rubyScale else scaledSize
+    }
+}
+
+/**
+ * Returns the [CharacterStyle] spans in [bodyText] that cover all of `[start, end)`.
+ *
+ * The result does not include [NoCopySpan] spans or [ReplacementSpan] spans, such as [RubySpan] and
+ * [EmphasisSpan].
+ */
+private fun extractCoveringCharacterStyles(
+    bodyText: CharSequence,
+    start: Int,
+    end: Int,
+): List<CharacterStyle> {
+    if (bodyText !is Spanned) return emptyList()
+    return bodyText.getSpans(start, end, CharacterStyle::class.java).filter { span ->
+        val underlying = span.underlying
+        bodyText.getSpanStart(span) <= start &&
+            bodyText.getSpanEnd(span) >= end &&
+            underlying !is NoCopySpan &&
+            underlying !is ReplacementSpan
+    }
+}
+
+/**
+ * Returns [rubyText] with [coveringSpans] from the base text attached.
+ *
+ * The spans of [rubyText] override [coveringSpans]. This function wraps each [MetricAffectingSpan]
+ * in [coveringSpans] with [ScaledCoveringCharacterStyle], except [FontShearSpan].
+ *
+ * @param rubyText the text of the ruby annotation
+ * @param rubyScale the text scale of the ruby text, relative to the base text
+ * @param coveringSpans the spans from [extractCoveringCharacterStyles]
+ * @return [rubyText] if [rubyText] or [coveringSpans] is empty, otherwise a new [SpannableString]
+ */
+private fun buildStyledRubyText(
+    rubyText: CharSequence,
+    rubyScale: Float,
+    coveringSpans: List<CharacterStyle>,
+): CharSequence {
+    if (rubyText.isEmpty() || coveringSpans.isEmpty()) return rubyText
+
+    // Strip spans with toString() so covering spans are attached before rubyText's own spans.
+    return SpannableString(rubyText.toString()).apply {
+        for (span in coveringSpans) {
+            val rubyStyle =
+                when (val underlying = span.underlying) {
+                    // forStyleRuns finds FontShearSpan by its type, so do not wrap it.
+                    is FontShearSpan -> FontShearSpan(underlying.fontShear)
+                    is MetricAffectingSpan -> ScaledCoveringCharacterStyle(underlying, rubyScale)
+                    else -> CharacterStyle.wrap(underlying)
+                }
+            setSpan(rubyStyle, 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+        }
+        // Re-attach existing spans from rubyText second so they win in getSpans insertion order
+        // when neither span sets SPAN_PRIORITY.
+        if (rubyText is Spanned) {
+            for (span in rubyText.getSpans(0, rubyText.length, Any::class.java)) {
+                if (span is NoCopySpan) continue
+                setSpan(
+                    span,
+                    rubyText.getSpanStart(span),
+                    rubyText.getSpanEnd(span),
+                    rubyText.getSpanFlags(span),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Returns the background color after applying [coveringSpans] on top of [basePaint].
+ *
+ * Only [TextPaint.bgColor] is read from the temporary paint after [CharacterStyle.updateDrawState].
+ */
+// TODO(b/564268825): Deduplicate with HorizontalSpanHelper after aosp/4323047 lands.
+private fun resolveCoveringBackgroundColor(
+    coveringSpans: List<CharacterStyle>,
+    basePaint: TextPaint,
+): Int {
+    var bgColor = basePaint.bgColor
+    if (coveringSpans.isNotEmpty()) {
+        tempPaint { workPaint ->
+            // Only workPaint.bgColor is read after updateDrawState.
+            workPaint.bgColor = bgColor
+            for (span in coveringSpans) {
+                span.updateDrawState(workPaint)
+            }
+            bgColor = workPaint.bgColor
+        }
+    }
+    return bgColor
+}
 
 /**
  * A special LayoutRun specialized for a Ruby text.
@@ -93,9 +223,18 @@ internal class RubyLayoutRun(
             else bodyLayoutRuns.rightSide
 
     private val rubyScale = rubySpan.textScale
+    private val coveringSpans = extractCoveringCharacterStyles(text, start, end)
+    private val styledRubyText: CharSequence =
+        buildStyledRubyText(rubySpan.text, rubyScale, coveringSpans)
     private val rubyLayoutRuns: LineLayout =
         paint.withTextScale(rubyScale) {
-            createLineLayout(rubySpan.text, 0, rubySpan.text.length, this, rubySpan.orientation)
+            createLineLayout(
+                styledRubyText,
+                0,
+                styledRubyText.length,
+                this,
+                rubySpan.orientation,
+            )
         }
     private val bodyLayoutRuns: LineLayout =
         createLineLayout(text, start, end, paint, textOrientation)
@@ -116,13 +255,41 @@ internal class RubyLayoutRun(
             bodyY -= heightDiffHalf
         }
 
-        bodyLayoutRuns.draw(canvas, originX, bodyY, paint)
-
         // `originX` is the baseline of the body text. Butt the ruby box against the body box on
         // whichever side `AnnotationPosition` selects, then convert back to a baseline.
         val rubyX =
             if (isRubyOnRight) originX + bodyLayoutRuns.rightSide - rubyLayoutRuns.leftSide
             else originX + bodyLayoutRuns.leftSide - rubyLayoutRuns.rightSide
+
+        // Fill only the top and bottom centering slivers on the shorter column with the covering
+        // background color so per-run backgrounds inside bodyLayoutRuns or rubyLayoutRuns are not
+        // overdrawn.
+        if (heightDiffHalf != 0f) {
+            val baseBgColor = resolveCoveringBackgroundColor(coveringSpans, paint)
+            if (baseBgColor != 0) {
+                val shorterLayout = if (heightDiffHalf > 0f) rubyLayoutRuns else bodyLayoutRuns
+                val shorterX = if (heightDiffHalf > 0f) rubyX else originX
+                val shorterY = if (heightDiffHalf > 0f) rubyY else bodyY
+                val shorterLeft = shorterX + shorterLayout.leftSide
+                val shorterWidth = shorterLayout.width
+                canvas.drawBackground(
+                    shorterLeft,
+                    originY,
+                    shorterWidth,
+                    shorterY - originY,
+                    baseBgColor,
+                )
+                canvas.drawBackground(
+                    shorterLeft,
+                    shorterY + shorterLayout.height,
+                    shorterWidth,
+                    (originY + height) - (shorterY + shorterLayout.height),
+                    baseBgColor,
+                )
+            }
+        }
+
+        bodyLayoutRuns.draw(canvas, originX, bodyY, paint)
         paint.withTextScale(rubyScale) { rubyLayoutRuns.draw(canvas, rubyX, rubyY, this) }
     }
 
