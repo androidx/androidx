@@ -12,6 +12,7 @@ dependencies {
     docs(project(":a2ui:compose:compose-runtime"))
     docs(project(":a2ui:compose:compose-ui"))
     docs(project(":a2ui:compose:compose-ui-testing"))
+    docs(project(":a2ui:compose:compose-ui-tooling-preview"))
     docs(project(":activity:activity"))
     docs(project(":activity:activity-compose"))
     kmpDocs(project(":annotation:annotation"))
