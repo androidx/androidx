@@ -10468,7 +10468,8 @@ public class NotificationCompat {
         static final String KEY_ACTIONS = "actions";
 
         private PendingIntent mContentIntent;
-        private ArrayList<Action> mActions = new ArrayList<>();
+        private final ArrayList<Action> mActions = new ArrayList<>();
+        private boolean mHasActions = false;
 
         /**
          * Create a {@link ProjectedExtender} with default options.
@@ -10492,6 +10493,7 @@ public class NotificationCompat {
                 ArrayList<Notification.Action> actions = BundleCompat.getParcelableArrayList(
                         projectedBundle, KEY_ACTIONS, Notification.Action.class);
                 if (actions != null) {
+                    mHasActions = true;
                     for (Notification.Action action : actions) {
                         if (action != null) {
                             mActions.add(getActionCompatFromAction(action));
@@ -10529,14 +10531,18 @@ public class NotificationCompat {
         /**
          * Add an action to this notification on projected devices.
          *
-         * <p>Projected actions are displayed instead of main notification actions
-         * when the notification is presented on a projected device.
+         * <p>When projected actions are added using this method, they are displayed instead of the
+         * main notification actions (added via {@link NotificationCompat.Builder#addAction}) when
+         * the notification is presented on a projected device. If no projected actions are set
+         * (and {@link #clearActions()} is not called), the projected device may display compatible
+         * actions from the main notification by default.
          *
          * @param action The action to add.
          * @return This {@code ProjectedExtender} object for chaining.
          * @see NotificationCompat.Action
          */
         public @NonNull ProjectedExtender addAction(@NonNull Action action) {
+            mHasActions = true;
             mActions.add(action);
             return this;
         }
@@ -10544,11 +10550,18 @@ public class NotificationCompat {
         /**
          * Adds multiple actions to this notification on projected devices.
          *
+         * <p>When projected actions are added using this method, they are displayed instead of the
+         * main notification actions (added via {@link NotificationCompat.Builder#addAction}) when
+         * the notification is presented on a projected device. If no projected actions are set
+         * (and {@link #clearActions()} is not called), the projected device may display compatible
+         * actions from the main notification by default.
+         *
          * @param actions The list of actions to add.
          * @return This {@code ProjectedExtender} object for chaining.
          * @see NotificationCompat.Action
          */
         public @NonNull ProjectedExtender addActions(@NonNull List<Action> actions) {
+            mHasActions = true;
             mActions.addAll(actions);
             return this;
         }
@@ -10556,18 +10569,48 @@ public class NotificationCompat {
         /**
          * Clear all projected actions from this extender.
          *
+         * <p>Calling this method sets the projected actions to an empty list and marks
+         * {@link #hasActions()} as {@code true}, which prevents the projected device from using the
+         * main notification actions so that no actions are displayed on a projected device.
+         *
          * @return This {@code ProjectedExtender} object for chaining.
          * @see #addAction
+         * @see #hasActions
          */
         public @NonNull ProjectedExtender clearActions() {
+            mHasActions = true;
             mActions.clear();
             return this;
         }
 
         /**
+         * Returns whether projected actions have been explicitly set or cleared on this extender
+         * (via {@link #addAction}, {@link #addActions}, or {@link #clearActions}).
+         *
+         * <p>If this returns {@code false}, no projected actions have been configured and the
+         * projected device may display compatible actions from the main notification by default.
+         * If this returns {@code true}, the projected device should display the actions returned by
+         * {@link #getActions()} instead of the main notification actions (or display no actions if
+         * {@link #getActions()} is empty, such as after calling {@link #clearActions()}).
+         *
+         * @return {@code true} if projected actions were explicitly set or cleared, {@code false}
+         *         otherwise.
+         */
+        public boolean hasActions() {
+            return mHasActions;
+        }
+
+        /**
          * Get the projected actions present on this notification.
          *
-         * @return List of projected actions.
+         * <p>If {@link #hasActions()} returns {@code false}, this returns an empty list and the
+         * projected device may display compatible actions from the main notification by default.
+         * If {@link #hasActions()} returns {@code true} and this returns an empty list (for
+         * example, after calling {@link #clearActions()}), no actions are displayed on the
+         * projected device.
+         *
+         * @return List of projected actions, or an empty list if none are present.
+         * @see #hasActions()
          */
         public @NonNull List<Action> getActions() {
             return mActions;
@@ -10588,7 +10631,7 @@ public class NotificationCompat {
             if (mContentIntent != null) {
                 projectedBundle.putParcelable(KEY_CONTENT_INTENT, mContentIntent);
             }
-            if (!mActions.isEmpty()) {
+            if (mHasActions) {
                 ArrayList<Parcelable> parcelables = new ArrayList<>(mActions.size());
                 for (Action action : mActions) {
                     if (action != null) {
