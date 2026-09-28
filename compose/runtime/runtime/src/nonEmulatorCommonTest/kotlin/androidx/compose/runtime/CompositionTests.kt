@@ -4890,7 +4890,7 @@ class CompositionTests {
         var count by mutableIntStateOf(1)
         compose {
             repeat(count) { Text("Some text") }
-            repeat(count) { unused(remember { it }) }
+            repeat(count) { Use(remember { it }) }
         }
 
         validate { repeat(count) { Text("Some text") } }
@@ -5444,7 +5444,7 @@ fun ListContentItem(viewItem: ListViewItem, itemRenderer: @Composable (ListViewI
 
 data class ListViewItem(val id: Int)
 
-private fun <T> unused(@Suppress("UNUSED_PARAMETER") value: T) {}
+private fun <T> Use(@Suppress("UNUSED_PARAMETER") value: T) {}
 
 // Part of regression test for 339618126
 @Composable
