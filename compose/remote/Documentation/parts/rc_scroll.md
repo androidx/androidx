@@ -57,3 +57,9 @@ Layout managers like `ColumnLayout` and `RowLayout` are "scroll-aware":
 - During `internalLayoutMeasure`, they check `mComponentModifiers.hasVerticalScroll()`.
 - If true, they allow the content to exceed the host's viewport height.
 - They then call `setVerticalScrollDimension()` to inform the modifier of the total scrollable range, which the `TouchExpression` uses for boundary clamping.
+
+## Reporting Scrolling to Hosts
+
+Hosts may need to know whether a document scrolls, e.g. to decide how to handle gestures around it. `CoreDocument.hasVerticalScroll()` and `hasHorizontalScroll()` (exposed as `RemoteComposePlayer.isVerticallyScrollable()` and `isHorizontallyScrollable()`) answer structurally: they check the `RootContentBehavior` scroll mode, then look for `ScrollableComponent`s and `ScrollModifierOperation`s in the tree, ignoring layout and visibility.
+
+A document can also declare directions these checks can't find, such as a scroll driven by a `TouchExpression`, with the `DOC_SCROLL` header property (`Header.SCROLL_HORIZONTAL`, `Header.SCROLL_VERTICAL`, or both). The property only adds directions: a document that contains a scroll container reports it whatever the property says.

@@ -278,6 +278,9 @@ public class RemoteComposeJsonParser {
                 // "compress": true is shorthand for DEFLATE, the only compression.
                 value = (Boolean) value ? Header.COMPRESSION_DEFLATE : Header.COMPRESSION_NONE;
             }
+            if (tag == Header.DOC_SCROLL && value instanceof String) {
+                value = parseScrollDirections((String) value);
+            }
             tags.add(RemoteComposeWriter.hTag(tag, value));
         }
         tags.sort(java.util.Comparator.comparingInt(RemoteComposeWriter.HTag::getTag));
@@ -576,11 +579,26 @@ public class RemoteComposeJsonParser {
                 return Header.DEBUG;
             case "compress":
                 return Header.COMPRESS;
+            case "scroll":
+                return Header.DOC_SCROLL;
             default:
                 throw new JSONException("Unknown header tag: " + name);
         }
     }
 
+    /** Parses a {@code "scroll"} header name: "horizontal", "vertical" or "both". */
+    private static int parseScrollDirections(@NonNull String name) throws JSONException {
+        switch (name) {
+            case "horizontal":
+                return Header.SCROLL_HORIZONTAL;
+            case "vertical":
+                return Header.SCROLL_VERTICAL;
+            case "both":
+                return Header.SCROLL_HORIZONTAL | Header.SCROLL_VERTICAL;
+            default:
+                throw new JSONException("Unknown scroll directions: " + name);
+        }
+    }
 
     int getHorizontalAlign(@NonNull JSONObject component, @NonNull String defaultValue) {
         String align = component.optString("horizontalAlignment",

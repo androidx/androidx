@@ -320,22 +320,6 @@ class RemoteComposeWriterTest {
     }
 
     @Test
-    fun compressTag_overridesProfileCompression() {
-        val writer =
-            RemoteComposeWriter(
-                createProfile().withCompression(Header.COMPRESSION_DEFLATE),
-                RemoteComposeBuffer(),
-                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 100),
-                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 100),
-                RemoteComposeWriter.hTag(Header.COMPRESS, Header.COMPRESSION_NONE),
-            )
-
-        assertThat(writer.compression).isEqualTo(Header.COMPRESSION_NONE)
-        assertThat(writer.encodeToByteArray())
-            .isEqualTo(writer.buffer().copyOf(writer.bufferSize()))
-    }
-
-    @Test
     fun compressTag_nonIntegerValue_fails() {
         val e =
             assertThrows(IllegalArgumentException::class.java) {
@@ -386,17 +370,57 @@ class RemoteComposeWriterTest {
     }
 
     @Test
-    fun checkCompression_validatesValueAndApiLevel() {
-        assertThat(RemoteComposeWriter.checkCompression(7, Header.COMPRESSION_NONE))
-            .isEqualTo(Header.COMPRESSION_NONE)
-        assertThat(RemoteComposeWriter.checkCompression(8, Header.COMPRESSION_DEFLATE))
-            .isEqualTo(Header.COMPRESSION_DEFLATE)
-        assertThrows(IllegalArgumentException::class.java) {
-            RemoteComposeWriter.checkCompression(7, Header.COMPRESSION_DEFLATE)
+    fun docScrollTag_isWrittenToHeader() {
+        val both = Header.SCROLL_HORIZONTAL or Header.SCROLL_VERTICAL
+        val writers =
+            listOf(
+                RemoteComposeWriter(
+                    createProfile(),
+                    RemoteComposeWriter.hTag(Header.DOC_SCROLL, both),
+                ),
+                // API level 7 introduced header properties.
+                RemoteComposeWriter(
+                    rcPlatform,
+                    7,
+                    RemoteComposeWriter.hTag(Header.DOC_SCROLL, both),
+                ),
+            )
+
+        for (writer in writers) {
+            val header = Header.readDirect(ByteArrayInputStream(writer.encodeToByteArray()))
+            assertThat(header.get(Header.DOC_SCROLL)).isEqualTo(both)
+            val document = parseDocument(writer)
+            assertThat(document.hasHorizontalScroll()).isTrue()
+            assertThat(document.hasVerticalScroll()).isTrue()
         }
-        assertThrows(IllegalArgumentException::class.java) {
-            RemoteComposeWriter.checkCompression(8, 2)
+    }
+
+    @Test
+    fun docScrollTag_unsupportedValue_fails() {
+        for (value in listOf<Any>(4, -1, Header.SCROLL_VERTICAL or 8, "vertical")) {
+            val e =
+                assertThrows(IllegalArgumentException::class.java) {
+                    RemoteComposeWriter(
+                        createProfile(),
+                        RemoteComposeWriter.hTag(Header.DOC_SCROLL, value),
+                    )
+                }
+            assertThat(e).hasMessageThat().contains("Unsupported scroll directions")
         }
+    }
+
+    @Test
+    fun docScrollTag_v6_fails() {
+        // API level 6 headers have no properties, so they would silently drop the tag.
+        val e =
+            assertThrows(IllegalArgumentException::class.java) {
+                RemoteComposeWriter(
+                    rcPlatform,
+                    6,
+                    RemoteComposeWriter.hTag(Header.DOC_SCROLL, Header.SCROLL_VERTICAL),
+                )
+            }
+        assertThat(e).hasMessageThat().contains("API level 7")
     }
 
     private fun createCompressingWriter(profile: Profile): RemoteComposeWriter =

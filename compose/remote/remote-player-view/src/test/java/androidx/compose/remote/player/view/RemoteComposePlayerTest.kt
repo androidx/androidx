@@ -1160,6 +1160,47 @@ class RemoteComposePlayerTest {
         }
     }
 
+    @Test
+    fun isScrollable_docScrollHeader_addsDirectionsOnly() {
+        // No scroll container, but the header declares vertical scrolling.
+        val declared =
+            RemoteComposeWriter(
+                RcPlatformProfiles.ANDROIDX,
+                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 300),
+                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 300),
+                RemoteComposeWriter.hTag(Header.DOC_SCROLL, Header.SCROLL_VERTICAL),
+            )
+        declared.root {
+            declared.box(RecordingModifier().fillMaxSize(), BoxLayout.CENTER, BoxLayout.CENTER) {}
+        }
+        setupPlayerInParent(docBytes = declared.encodeToByteArray()).use { (player, _) ->
+            assertTrue(player.isVerticallyScrollable)
+            assertFalse(player.isHorizontallyScrollable)
+        }
+
+        // A vertical scroll container, with a header that only declares horizontal scrolling: the
+        // header adds its direction, and can't hide the container.
+        val mixed =
+            RemoteComposeWriter(
+                RcPlatformProfiles.ANDROIDX,
+                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 300),
+                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 300),
+                RemoteComposeWriter.hTag(Header.DOC_SCROLL, Header.SCROLL_HORIZONTAL),
+            )
+        val scrollPositionId = mixed.addNamedFloat("scrollPosition", 0f)
+        mixed.root {
+            mixed.column(
+                RecordingModifier().fillMaxSize().verticalScroll(scrollPositionId),
+                ColumnLayout.START,
+                ColumnLayout.TOP,
+            ) {}
+        }
+        setupPlayerInParent(docBytes = mixed.encodeToByteArray()).use { (player, _) ->
+            assertTrue(player.isVerticallyScrollable)
+            assertTrue(player.isHorizontallyScrollable)
+        }
+    }
+
     companion object {
         private fun createLeftBoxInteractiveDocument(
             isClickable: Boolean = false,

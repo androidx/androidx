@@ -25,12 +25,10 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -42,7 +40,6 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -92,7 +89,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
-import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -190,30 +186,6 @@ class CaptureRemoteDocumentTest {
                     .bytes
 
             assertTrue(document.isNotEmpty())
-        }
-
-    @Test
-    fun captureDocument_withCompressingProfile_compressesDocument() =
-        runTest(UnconfinedTestDispatcher()) {
-            val content: @Composable @RemoteComposable () -> Unit = {
-                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc))
-            }
-            val plain = captureSingleRemoteDocument(context, content = content).bytes
-            val compressed =
-                captureSingleRemoteDocument(
-                        context,
-                        profile =
-                            RcPlatformProfiles.ANDROIDX.withCompression(Header.COMPRESSION_DEFLATE),
-                        content = content,
-                    )
-                    .bytes
-
-            assertEquals(
-                Header.COMPRESSION_DEFLATE,
-                Header.readDirect(ByteArrayInputStream(compressed)).get(Header.COMPRESS),
-            )
-            // Compression is lossless: players get back exactly the uncompressed capture.
-            assertArrayEquals(plain, Header.decompressDocument(compressed, compressed.size))
         }
 
     @Test

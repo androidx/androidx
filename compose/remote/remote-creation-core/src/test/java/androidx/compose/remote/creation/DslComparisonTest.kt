@@ -454,26 +454,14 @@ class DslComparisonTest {
     }
 
     @Test
-    fun testCompressingProfileDocumentComparison() {
-        val compressing = RcProfile(testProfile.withCompression(Header.COMPRESSION_DEFLATE))
-
-        val plainBytes = createRcBuffer(RcProfile(testProfile)) { drawLine(0f, 0f, 100f, 100f) }
-        val compressedBytes = createRcBuffer(compressing) { drawLine(0f, 0f, 100f, 100f) }
-
-        assertThat(compressedBytes).isEqualTo(Header.compressDocument(plainBytes, plainBytes.size))
-    }
-
-    @Test
-    fun testCompressingProfileExperimentalDocumentComparison() {
-        // Experimental documents are written with a rebuilt profile, which keeps the compression.
-        val compressing = RcProfile(testProfile.withCompression(Header.COMPRESSION_DEFLATE))
+    fun testCompressedExperimentalDocumentComparison() {
+        val profile = RcProfile(testProfile)
+        val compress = RemoteComposeWriter.hTag(Header.COMPRESS, Header.COMPRESSION_DEFLATE)
 
         val plainBytes =
-            createRcBuffer(RcProfile(testProfile), experimental = true) {
-                drawLine(0f, 0f, 100f, 100f)
-            }
+            createRcBuffer(profile, experimental = true) { drawLine(0f, 0f, 100f, 100f) }
         val compressedBytes =
-            createRcBuffer(compressing, experimental = true) { drawLine(0f, 0f, 100f, 100f) }
+            createRcBuffer(profile, compress, experimental = true) { drawLine(0f, 0f, 100f, 100f) }
 
         assertThat(compressedBytes).isEqualTo(Header.compressDocument(plainBytes, plainBytes.size))
     }

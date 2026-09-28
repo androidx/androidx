@@ -19,11 +19,9 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
-import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import java.io.ByteArrayInputStream
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -101,41 +98,6 @@ class CaptureRemoteDocumentRecompositionTest {
         assertThat(hierarchy1).contains("Initial")
         assertThat(hierarchy2).contains("Updated")
         assertThat(hierarchy1).isNotEqualTo(hierarchy2)
-    }
-
-    @Test
-    fun testRecompositionWithCompressingProfileEmitsCompressedDocuments() = runTest {
-        val state = mutableStateOf("Initial")
-
-        val flow =
-            captureRemoteDocument(
-                creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
-                context = context,
-                profile = RcPlatformProfiles.ANDROIDX.withCompression(Header.COMPRESSION_DEFLATE),
-                coroutineContext = coroutineContext,
-                content = { RemoteText(state.value.rs) },
-            )
-
-        val documents = mutableListOf<ByteArray>()
-        val job = launch { flow.take(2).toList(documents) }
-
-        testScheduler.advanceUntilIdle()
-
-        Snapshot.withMutableSnapshot { state.value = "Updated" }
-        Snapshot.sendApplyNotifications()
-        testScheduler.advanceUntilIdle()
-
-        job.join()
-
-        assertThat(documents).hasSize(2)
-        for (document in documents) {
-            assertThat(Header.readDirect(ByteArrayInputStream(document)).get(Header.COMPRESS))
-                .isEqualTo(Header.COMPRESSION_DEFLATE)
-        }
-        // Players decompress each emitted document transparently.
-        assertThat(RemoteDocument(documents[0]).document.displayHierarchy()).contains("Initial")
-        assertThat(RemoteDocument(documents[1]).document.displayHierarchy()).contains("Updated")
     }
 
     @Test

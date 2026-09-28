@@ -977,6 +977,37 @@ public class RemoteComposeJsonParserTest {
         return tags[0];
     }
 
+    @Test
+    public void testScrollInHeader() throws JSONException {
+        assertEquals(Header.SCROLL_HORIZONTAL, parseScrollTag("\"horizontal\"").getValue());
+        assertEquals(Header.SCROLL_VERTICAL, parseScrollTag("\"vertical\"").getValue());
+        assertEquals(
+                Header.SCROLL_HORIZONTAL | Header.SCROLL_VERTICAL,
+                parseScrollTag("\"both\"").getValue());
+        assertEquals(Header.SCROLL_VERTICAL, parseScrollTag("2").getValue());
+        assertEquals(Header.DOC_SCROLL, parseScrollTag("\"both\"").getTag());
+        assertThrows(JSONException.class, () -> parseScrollTag("\"diagonal\""));
+    }
+
+    @Test
+    public void testParseWithScrollInHeader_writesDocScroll() throws JSONException, IOException {
+        byte[] document =
+                RemoteComposeJsonParser.parse(columnDocument("\"scroll\": \"vertical\""), null)
+                        .array();
+
+        Header header = Header.readDirect(new ByteArrayInputStream(document));
+        assertEquals(Header.SCROLL_VERTICAL, header.get(Header.DOC_SCROLL));
+    }
+
+    private static RemoteComposeWriter.@NonNull HTag parseScrollTag(@NonNull String value)
+            throws JSONException {
+        String json =
+                "{ \"header\": { \"scroll\": " + value + " }, \"root\": { \"type\": \"box\" } }";
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        assertEquals(1, tags.length);
+        return tags[0];
+    }
+
     /** A JSON document with the given header entries and a column of texts. */
     private static @NonNull String columnDocument(@NonNull String headerEntries) {
         StringBuilder children = new StringBuilder();
