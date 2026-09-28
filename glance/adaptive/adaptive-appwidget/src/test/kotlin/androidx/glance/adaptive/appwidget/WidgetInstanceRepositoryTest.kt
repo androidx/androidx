@@ -106,6 +106,24 @@ class WidgetInstanceRepositoryTest {
     }
 
     @Test
+    fun findAppWidgetIdsForWidgetName_withBlankStoredWidgetId_doesNotMatch() {
+        setupBoundWidget(311, MatchingReceiver::class.java.name, widgetId = "   ")
+        setupBoundWidget(312, MatchingReceiver::class.java.name, widgetId = "instance_1")
+
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+
+        val result =
+            repository.findAppWidgetIdsForWidgetName(
+                "matching_widget",
+                widgetIds = setOf("   ", "instance_1"),
+            )
+
+        val componentName = ComponentName(context.packageName, MatchingReceiver::class.java.name)
+        assertThat(result).containsKey(componentName)
+        assertThat(result[componentName]?.toList()).containsExactly(312)
+    }
+
+    @Test
     fun findAppWidgetIdsForWidgetName_withManifestMetaData_matchesWidgetName() {
         setupBoundWidget(401, MatchingReceiver::class.java.name)
         registerReceiverInManifestWithMetaData(MatchingReceiver::class.java.name, "matching_widget")

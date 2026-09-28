@@ -32,6 +32,8 @@ class GlanceAdaptiveWidgetManagerTest {
         var lastPreviewWidgetName: String? = null
         var lastPreviewData: AdaptiveGlanceTemplate? = null
         var setPreviewCalled: Boolean = false
+        var lastActiveInstancesWidgetName: String? = null
+        var activeInstances: List<WidgetInstanceInfo> = emptyList()
 
         override suspend fun pushUpdate(
             widgetName: String,
@@ -41,6 +43,11 @@ class GlanceAdaptiveWidgetManagerTest {
             lastWidgetName = widgetName
             lastWidgetIds = widgetIds
             lastData = currentData
+        }
+
+        override suspend fun getActiveInstances(widgetName: String): List<WidgetInstanceInfo> {
+            lastActiveInstancesWidgetName = widgetName
+            return activeInstances
         }
 
         override suspend fun setPreview(widgetName: String, previewData: AdaptiveGlanceTemplate) {
@@ -108,5 +115,30 @@ class GlanceAdaptiveWidgetManagerTest {
         assertThat(fakeDelegate.setPreviewCalled).isTrue()
         assertThat(fakeDelegate.lastPreviewWidgetName).isEqualTo("profile_widget")
         assertThat(fakeDelegate.lastPreviewData).isSameInstanceAs(testTemplate)
+    }
+
+    @Test
+    fun getActiveInstances_delegatesToDelegate() = runTest {
+        val fakeDelegate = FakeWidgetDelegate()
+        val expected =
+            listOf(WidgetInstanceInfo(widgetName = "profile_widget", widgetId = "instance_1"))
+        fakeDelegate.activeInstances = expected
+        val manager = GlanceAdaptiveWidgetManager(fakeDelegate)
+
+        val result = manager.getActiveInstances(widgetName = "profile_widget")
+
+        assertThat(fakeDelegate.lastActiveInstancesWidgetName).isEqualTo("profile_widget")
+        assertThat(result).isEqualTo(expected)
+    }
+
+    @Test
+    fun getActiveInstances_withNoActiveInstances_returnsEmptyList() = runTest {
+        val fakeDelegate = FakeWidgetDelegate()
+        val manager = GlanceAdaptiveWidgetManager(fakeDelegate)
+
+        val result = manager.getActiveInstances(widgetName = "profile_widget")
+
+        assertThat(fakeDelegate.lastActiveInstancesWidgetName).isEqualTo("profile_widget")
+        assertThat(result).isEmpty()
     }
 }

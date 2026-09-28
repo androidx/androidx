@@ -32,7 +32,7 @@ public class GlanceAdaptiveWidgetManager(
      * Pushes live template data updates to all placed instances matching [widgetName].
      *
      * @param widgetName Developer widget definition String identifier matching
-     *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName].
+     *   `GlanceAdaptiveWidgetReceiver.widgetName`.
      * @param currentData The declarative template data payload implementing
      *   [AdaptiveGlanceTemplate].
      */
@@ -45,7 +45,7 @@ public class GlanceAdaptiveWidgetManager(
      * identifiers.
      *
      * @param widgetName Developer widget definition String identifier matching
-     *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName].
+     *   `GlanceAdaptiveWidgetReceiver.widgetName`.
      * @param currentData The declarative template data payload implementing
      *   [AdaptiveGlanceTemplate].
      * @param widgetIds Collection of target developer widget instance String identifiers to update.
@@ -67,7 +67,7 @@ public class GlanceAdaptiveWidgetManager(
      * Pushes live template data updates to a single target widget instance String identifier.
      *
      * @param widgetName Developer widget definition String identifier matching
-     *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName].
+     *   `GlanceAdaptiveWidgetReceiver.widgetName`.
      * @param currentData The declarative template data payload implementing
      *   [AdaptiveGlanceTemplate].
      * @param widgetId Single target developer widget instance String identifier to update.
@@ -85,6 +85,26 @@ public class GlanceAdaptiveWidgetManager(
     }
 
     /**
+     * Returns the active widget instances matching [widgetName] currently placed on host surfaces
+     * of this device.
+     *
+     * Instances are keyed by their widget instance String identifier. A single identifier can be
+     * placed more than once, so each returned [WidgetInstanceInfo] reports how many placements it
+     * has on each host surface through [WidgetInstanceInfo.surfacePlacements].
+     *
+     * Placements that have not yet been assigned a widget instance String identifier are omitted,
+     * as they cannot be targeted by [pushUpdate].
+     *
+     * @param widgetName Developer widget definition String identifier matching
+     *   `GlanceAdaptiveWidgetReceiver.widgetName`.
+     * @return Active instances for [widgetName], or an empty list if none are placed.
+     * @throws RuntimeException if the options of any placement cannot be read, rather than
+     *   returning a partial result.
+     */
+    public suspend fun getActiveInstances(widgetName: String): List<WidgetInstanceInfo> =
+        delegate.getActiveInstances(widgetName)
+
+    /**
      * Sets dynamic preview data rendered in host widget pickers for the specified widget
      * definition.
      *
@@ -92,7 +112,7 @@ public class GlanceAdaptiveWidgetManager(
      * supported by the platform and this operation completes as a safe no-op.
      *
      * @param widgetName Developer widget definition String identifier matching
-     *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName].
+     *   `GlanceAdaptiveWidgetReceiver.widgetName`.
      * @param previewData Declarative template data payload implementing [AdaptiveGlanceTemplate] to
      *   render as a preview.
      */

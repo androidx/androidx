@@ -25,6 +25,7 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
@@ -298,6 +299,170 @@ class BaseWidgetDelegateTest {
 
     // endregion
 
+    // region getActiveInstances
+
+    @Test
+    fun getActiveInstances_withoutReceivers_returnsEmptyList() = runTest {
+        assertThat(delegate().getActiveInstances("test_widget")).isEmpty()
+    }
+
+    @Test
+    fun getActiveInstances_returnsOneInstancePerWidgetId() = runTest {
+        setupBoundWidget(601, TestReceiver::class.java.name, widgetId = "instance_1")
+        setupBoundWidget(602, TestReceiver::class.java.name, widgetId = "instance_2")
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        val instances = delegate().getActiveInstances("test_widget")
+
+        assertThat(instances.map { it.widgetId }).containsExactly("instance_1", "instance_2")
+        assertThat(instances.map { it.widgetName }).containsExactly("test_widget", "test_widget")
+        instances.forEach { instance ->
+            assertThat(instance.surfacePlacements.size).isEqualTo(1)
+            assertThat(
+                    instance.surfacePlacements.getOrDefault(
+                        AppWidgetGlanceSurface.MOBILE_HOME_SCREEN,
+                        0,
+                    )
+                )
+                .isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun getActiveInstances_withWidgetIdPlacedTwice_countsBothPlacements() = runTest {
+        setupBoundWidget(611, TestReceiver::class.java.name, widgetId = "shared")
+        setupBoundWidget(612, TestReceiver::class.java.name, widgetId = "shared")
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        val instances = delegate().getActiveInstances("test_widget")
+
+        assertThat(instances).hasSize(1)
+        val instance = instances.single()
+        assertThat(instance.widgetId).isEqualTo("shared")
+        assertThat(instance.surfacePlacements.size).isEqualTo(1)
+        assertThat(
+                instance.surfacePlacements.getOrDefault(
+                    AppWidgetGlanceSurface.MOBILE_HOME_SCREEN,
+                    0,
+                )
+            )
+            .isEqualTo(2)
+    }
+
+    @Test
+    fun getActiveInstances_withPlacementsOnSeveralSurfaces_countsEachSurface() = runTest {
+        setupBoundWidget(
+            621,
+            TestReceiver::class.java.name,
+            widgetId = "shared",
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
+        )
+        setupBoundWidget(
+            622,
+            TestReceiver::class.java.name,
+            widgetId = "shared",
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+        )
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        val instances = delegate().getActiveInstances("test_widget")
+
+        assertThat(instances).hasSize(1)
+        val surfacePlacements = instances.single().surfacePlacements
+        assertThat(surfacePlacements.size).isEqualTo(2)
+        assertThat(surfacePlacements.getOrDefault(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, 0))
+            .isEqualTo(1)
+        assertThat(surfacePlacements.getOrDefault(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN, 0))
+            .isEqualTo(1)
+    }
+
+    @Test
+    fun getActiveInstances_skipsPlacementsWithoutStoredWidgetId() = runTest {
+        setupBoundWidget(631, TestReceiver::class.java.name, widgetId = "instance_1")
+        setupBoundWidget(632, TestReceiver::class.java.name, widgetId = null)
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        val instances = delegate().getActiveInstances("test_widget")
+
+        assertThat(instances.map { it.widgetId }).containsExactly("instance_1")
+    }
+
+    @Test
+    fun getActiveInstances_skipsPlacementsWithBlankWidgetId() = runTest {
+        setupBoundWidget(633, TestReceiver::class.java.name, widgetId = "instance_1")
+        setupBoundWidget(634, TestReceiver::class.java.name, widgetId = "   ")
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        val instances = delegate().getActiveInstances("test_widget")
+
+        assertThat(instances.map { it.widgetId }).containsExactly("instance_1")
+    }
+
+    @Test
+    fun getActiveInstances_excludesOtherWidgetNames() = runTest {
+        setupBoundWidget(641, TestReceiver::class.java.name, widgetId = "mine")
+        setupBoundWidget(642, OtherReceiver::class.java.name, widgetId = "theirs")
+        registerReceiverInManifest(TestReceiver::class.java.name)
+        registerReceiverInManifest(OtherReceiver::class.java.name)
+
+        val instances = delegate().getActiveInstances("test_widget")
+
+        assertThat(instances.map { it.widgetId }).containsExactly("mine")
+    }
+
+    @Test
+    fun getActiveInstances_withWidgetIdPlacedTwice_retainsLowestAppWidgetIdOptions() = runTest {
+        // Registered highest-first so that a correct result cannot come from insertion order.
+        setupBoundWidget(
+            652,
+            TestReceiver::class.java.name,
+            widgetId = "shared",
+            extraOptions = Bundle().apply { putString("config_key", "from_652") },
+        )
+        setupBoundWidget(
+            651,
+            TestReceiver::class.java.name,
+            widgetId = "shared",
+            extraOptions = Bundle().apply { putString("config_key", "from_651") },
+        )
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        val instances = delegate().getActiveInstances("test_widget")
+
+        assertThat(instances).hasSize(1)
+        assertThat(instances.single().options.getString("config_key")).isEqualTo("from_651")
+    }
+
+    @Test
+    fun getActiveInstances_whenOptionsFailureOccurs_propagatesException() = runTest {
+        setupBoundWidget(661, TestReceiver::class.java.name, widgetId = "failing")
+        setupBoundWidget(662, TestReceiver::class.java.name, widgetId = "healthy")
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        val realManager = AppWidgetManager.getInstance(context)
+        val mockManager =
+            mock<AppWidgetManager> {
+                on { getAppWidgetIds(any()) }.thenReturn(intArrayOf(661, 662))
+                on { getAppWidgetOptions(eq(661)) }.thenThrow(RuntimeException("IPC failure"))
+                on { getAppWidgetOptions(eq(662)) }
+                    .thenAnswer { realManager.getAppWidgetOptions(662) }
+            }
+
+        val delegate =
+            BaseWidgetDelegate(
+                context = context,
+                repository = WidgetInstanceRepository(context, mockManager),
+                appWidgetManager = mockManager,
+            )
+
+        val error = runCatching { delegate.getActiveInstances("test_widget") }.exceptionOrNull()
+
+        assertThat(error).isInstanceOf(RuntimeException::class.java)
+        assertThat(error).hasMessageThat().isEqualTo("IPC failure")
+    }
+
+    // endregion
+
     /** The appWidgetIds of every [AppWidgetManager.updateAppWidget] call, in call order. */
     private fun capturedUpdatedIds(): List<List<Int>> {
         val idsCaptor = argumentCaptor<IntArray>()
@@ -313,6 +478,7 @@ class BaseWidgetDelegateTest {
         receiverName: String,
         widgetId: String? = null,
         hostCategory: Int? = null,
+        extraOptions: Bundle? = null,
     ) {
         val info = AppWidgetProviderInfo().apply { provider = componentOf(receiverName) }
         shadowOf(AppWidgetManager.getInstance(context)).addBoundWidget(appWidgetId, info)
@@ -323,6 +489,9 @@ class BaseWidgetDelegateTest {
         }
         if (hostCategory != null) {
             bundle.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, hostCategory)
+        }
+        if (extraOptions != null) {
+            bundle.putAll(extraOptions)
         }
         if (!bundle.isEmpty) {
             AppWidgetManager.getInstance(context).updateAppWidgetOptions(appWidgetId, bundle)
