@@ -31,6 +31,8 @@ sealed class Screen(val route: String) {
 
     object RemoteTextButtonDemosScreen : Screen("remoteTextButtonDemosScreen")
 
+    object RemoteTextToggleButtonDemosScreen : Screen("remoteTextToggleButtonDemosScreen")
+
     object RemoteButtonGroupDemosScreen : Screen("remoteButtonGroupDemosScreen")
 
     object RemoteIconDemosScreen : Screen("remoteIconDemosScreen")

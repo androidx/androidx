@@ -34,7 +34,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.semantics.Role
 
 /**
- * Single-slot base button for [RemoteTextButton], [RemoteIconButton] and [RemoteIconToggleButton].
+ * Single-slot base button for [RemoteTextButton], [RemoteIconButton], [RemoteIconToggleButton] and
+ * [RemoteTextToggleButton].
  */
 @Composable
 @RemoteComposable
