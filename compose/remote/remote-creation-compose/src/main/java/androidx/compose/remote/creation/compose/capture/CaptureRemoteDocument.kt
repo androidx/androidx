@@ -495,13 +495,15 @@ private suspend fun awaitRecomposerQuiescence(
     clock: RemoteClock,
     maxIterations: Int = MAX_IDLE_ITERATIONS,
 ): Boolean {
-    // Only call yield() when recomposerDispatcher actually queues tasks (isDispatchNeeded == true).
-    // For immediate dispatchers like Dispatchers.Main.immediate on the main thread (where
-    // continuations run inline), yield() forces a Handler.post() via YieldContext, which deadlocks
-    // if the main thread is blocked inside runBlocking/runTest.
+    // yield() so continuations queued on recomposerDispatcher (e.g. effects resuming from
+    // withFrameNanos after sendFrame) run before quiescence is sampled. recomposerDispatcher is
+    // usually a combined context, so the interceptor must be read out of it. Skip yield() for
+    // immediate dispatchers like Dispatchers.Main.immediate on the main thread (where continuations
+    // run inline), as yield() forces a Handler.post() via YieldContext, which deadlocks if the main
+    // thread is blocked inside runBlocking/runTest.
+    val interceptor = recomposerDispatcher[ContinuationInterceptor]
     val shouldYield =
-        recomposerDispatcher is CoroutineDispatcher &&
-            recomposerDispatcher.isDispatchNeeded(EmptyCoroutineContext)
+        interceptor !is CoroutineDispatcher || interceptor.isDispatchNeeded(EmptyCoroutineContext)
     var idleIterations = 0
     while (true) {
         recomposer.currentState.filter { it == Recomposer.State.Idle }.first()
