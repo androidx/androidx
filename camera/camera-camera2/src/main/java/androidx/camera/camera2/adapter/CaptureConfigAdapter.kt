@@ -30,13 +30,13 @@ import androidx.camera.camera2.impl.UseCaseThreads
 import androidx.camera.camera2.impl.toParameters
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.InputRequest
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.media.AndroidImage
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.unwrapAs
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
@@ -189,7 +189,7 @@ constructor(
         return object : Request.Listener {
             override fun onComplete(
                 requestMetadata: RequestMetadata,
-                frameNumber: FrameNumber,
+                frameNumber: CameraFrameNumber,
                 result: FrameInfo,
             ) {
                 closeImageProxy()
@@ -197,7 +197,7 @@ constructor(
 
             override fun onFailed(
                 requestMetadata: RequestMetadata,
-                frameNumber: FrameNumber,
+                frameNumber: CameraFrameNumber,
                 requestFailure: RequestFailure,
             ) {
                 closeImageProxy()
@@ -209,7 +209,7 @@ constructor(
 
             override fun onTotalCaptureResult(
                 requestMetadata: RequestMetadata,
-                frameNumber: FrameNumber,
+                frameNumber: CameraFrameNumber,
                 totalCaptureResult: FrameInfo,
             ) {
                 closeImageProxy()

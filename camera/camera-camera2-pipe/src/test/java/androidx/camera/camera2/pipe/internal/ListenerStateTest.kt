@@ -18,8 +18,8 @@ package androidx.camera.camera2.pipe.internal
 
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +42,10 @@ class ListenerStateTest {
             val imageAvailableCalled = atomic(0)
             val frameCompletedCalled = atomic(0)
 
-            override fun onFrameStarted(frameNumber: FrameNumber, frameTimestamp: CameraTimestamp) {
+            override fun onFrameStarted(
+                frameNumber: CameraFrameNumber,
+                frameTimestamp: CameraTimestamp,
+            ) {
                 frameStartedCalled.incrementAndGet()
             }
 
@@ -64,7 +67,7 @@ class ListenerStateTest {
             }
         }
 
-    private val testFrameNumber = FrameNumber(100)
+    private val testFrameNumber = CameraFrameNumber(100)
     private val testTimestamp = CameraTimestamp(123456789)
 
     private lateinit var listenerState: ListenerState

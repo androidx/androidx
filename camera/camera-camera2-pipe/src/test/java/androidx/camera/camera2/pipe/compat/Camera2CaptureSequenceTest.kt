@@ -28,7 +28,6 @@ import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStream
@@ -46,6 +45,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -147,7 +147,7 @@ internal class Camera2CaptureSequenceTest {
 
     @Test
     fun onCaptureFailedWithFrameNumberTest() {
-        camera2CaptureSequence.onCaptureFailed(captureRequest, FrameNumber(frameNumber))
+        camera2CaptureSequence.onCaptureFailed(captureRequest, CameraFrameNumber(frameNumber))
         assertThat(listener.lastFrameNumber?.value).isEqualTo(frameNumber)
         assertThat(listener.lastRequestFailure?.frameNumber?.value).isEqualTo(frameNumber)
     }
@@ -220,7 +220,7 @@ internal class Camera2CaptureSequenceTest {
 
     private class FakeRequestListener : Listener {
 
-        var lastFrameNumber: FrameNumber? = null
+        var lastFrameNumber: CameraFrameNumber? = null
         var lastTimeStamp: CameraTimestamp? = null
         var lastFrameInfo: FrameInfo? = null
         var lastRequestFailure: RequestFailure? = null
@@ -230,7 +230,7 @@ internal class Camera2CaptureSequenceTest {
 
         override fun onStarted(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             timestamp: CameraTimestamp,
         ) {
             lastFrameNumber = frameNumber
@@ -239,7 +239,7 @@ internal class Camera2CaptureSequenceTest {
 
         override fun onComplete(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             result: FrameInfo,
         ) {
             lastFrameNumber = frameNumber
@@ -248,7 +248,7 @@ internal class Camera2CaptureSequenceTest {
 
         override fun onFailed(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             requestFailure: RequestFailure,
         ) {
             lastFrameNumber = frameNumber
@@ -257,7 +257,7 @@ internal class Camera2CaptureSequenceTest {
 
         override fun onReadoutStarted(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             timestamp: SensorTimestamp,
         ) {
             lastFrameNumber = frameNumber
@@ -266,7 +266,7 @@ internal class Camera2CaptureSequenceTest {
 
         override fun onBufferLost(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             streamId: StreamId,
             outputId: OutputId,
         ) {

@@ -21,18 +21,30 @@ import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
 import android.util.ArrayMap
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.EmptyRequestMetadata
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CameraId as CommonCameraId
+import androidx.camera.common.CaptureRequestWrapper
 import androidx.camera.common.Metadata
 
 /** An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object */
 internal class AndroidFrameMetadata(
     private val captureResult: CaptureResult,
     override val camera: CameraId,
+    override val captureRequest: CaptureRequestWrapper = EmptyRequestMetadata,
 ) : FrameMetadata {
+    override val keys: List<CaptureResult.Key<*>>
+        get() =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                Api28Compat.getKeys(captureResult)
+            } else {
+                emptyList()
+            }
+
     override fun <T : Any> get(key: Metadata.Key<T>): T? = null
 
     override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T = default
@@ -41,13 +53,14 @@ internal class AndroidFrameMetadata(
         get() = emptySet()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: CaptureResult.Key<T>): T? =
+    override fun <T : Any> get(key: CaptureResult.Key<T>): T? =
         extraMetadata[key] as T? ?: captureResult[key]
 
-    override fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T = get(key) ?: default
+    override fun <T : Any> getOrDefault(key: CaptureResult.Key<T>, default: T): T =
+        get(key) ?: default
 
-    override val frameNumber: FrameNumber
-        get() = FrameNumber(captureResult.frameNumber)
+    override val frameNumber: CameraFrameNumber
+        get() = CameraFrameNumber(captureResult.frameNumber)
 
     override val extraMetadata: Map<*, Any?> = emptyMap<Any, Any?>()
 
@@ -68,6 +81,12 @@ internal class CorrectedFrameMetadata(
     private var frameMetadata: FrameMetadata,
     override var extraMetadata: Map<*, Any?>,
 ) : FrameMetadata {
+    override val keys: List<CaptureResult.Key<*>>
+        get() = buildSet {
+            addAll(frameMetadata.keys)
+            extraMetadata.keys.forEach { if (it is CaptureResult.Key<*>) add(it) }
+        }
+            .toList()
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> get(key: Metadata.Key<T>): T? =
@@ -82,16 +101,23 @@ internal class CorrectedFrameMetadata(
         }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: CaptureResult.Key<T>): T? =
+    override fun <T : Any> get(key: CaptureResult.Key<T>): T? =
         extraMetadata[key] as T? ?: frameMetadata[key]
 
-    override fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T = get(key) ?: default
+    override fun <T : Any> getOrDefault(key: CaptureResult.Key<T>, default: T): T =
+        get(key) ?: default
 
     override val camera: CameraId
         get() = frameMetadata.camera
 
-    override val frameNumber: FrameNumber
+    override val frameNumber: CameraFrameNumber
         get() = frameMetadata.frameNumber
+
+    override val cameraId: CommonCameraId
+        get() = frameMetadata.cameraId
+
+    override val captureRequest: CaptureRequestWrapper
+        get() = frameMetadata.captureRequest
 
     override fun <T : Any> unwrapAs(type: Class<T>): T? = frameMetadata.unwrapAs(type)
 }
@@ -103,7 +129,7 @@ internal class AndroidFrameInfo(
     override val requestMetadata: RequestMetadata,
 ) : FrameInfo {
 
-    private val result = AndroidFrameMetadata(totalCaptureResult, camera)
+    private val result = AndroidFrameMetadata(totalCaptureResult, camera, requestMetadata)
     private val physicalResults: Map<CameraId, FrameMetadata> =
         Debug.trace("physicalCaptureResults") {
             // Compute a Map<String, CaptureResult> by calling the appropriate compat method and
@@ -125,7 +151,8 @@ internal class AndroidFrameInfo(
                 val map = ArrayMap<CameraId, AndroidFrameMetadata>(physicalResults.size)
                 for (entry in physicalResults) {
                     val physicalCamera = CameraId(entry.key)
-                    map[physicalCamera] = AndroidFrameMetadata(entry.value, physicalCamera)
+                    map[physicalCamera] =
+                        AndroidFrameMetadata(entry.value, physicalCamera, requestMetadata)
                 }
                 return@trace map
             }
@@ -137,8 +164,8 @@ internal class AndroidFrameInfo(
 
     override fun get(camera: CameraId): FrameMetadata? = physicalResults[camera]
 
-    override val frameNumber: FrameNumber
-        get() = result.frameNumber
+    override val frameNumber: CameraFrameNumber
+        get() = CameraFrameNumber(totalCaptureResult.frameNumber)
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =

@@ -21,7 +21,6 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.camera.camera2.pipe.Converge3ABehavior
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.EmulatorDeviceTemplate
@@ -34,6 +33,7 @@ import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.atomicfu.atomic
@@ -98,9 +98,9 @@ internal class Controller3AConverge3ATest {
                 )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                    FrameNumber(101L),
+                    CameraFrameNumber(101L),
                     FakeFrameMetadata(
-                        frameNumber = FrameNumber(101L),
+                        frameNumber = CameraFrameNumber(101L),
                         resultMetadata =
                             mapOf(
                                 CaptureResult.CONTROL_AF_STATE to
@@ -158,9 +158,9 @@ internal class Controller3AConverge3ATest {
                 )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(frameNumber)),
-                    FrameNumber(101L),
+                    CameraFrameNumber(101L),
                     FakeFrameMetadata(
-                        frameNumber = FrameNumber(101L),
+                        frameNumber = CameraFrameNumber(101L),
                         resultMetadata =
                             mapOf(
                                 CaptureResult.CONTROL_AF_STATE to
@@ -213,9 +213,9 @@ internal class Controller3AConverge3ATest {
         listener3A.onRequestSequenceCreated(FakeRequestMetadata(requestNumber = RequestNumber(1)))
         listener3A.onPartialCaptureResult(
             FakeRequestMetadata(requestNumber = RequestNumber(1)),
-            FrameNumber(101L),
+            CameraFrameNumber(101L),
             FakeFrameMetadata(
-                frameNumber = FrameNumber(101L),
+                frameNumber = CameraFrameNumber(101L),
                 resultMetadata =
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to

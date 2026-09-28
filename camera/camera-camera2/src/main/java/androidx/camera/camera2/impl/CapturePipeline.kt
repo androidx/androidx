@@ -53,13 +53,13 @@ import androidx.camera.camera2.impl.TorchControl.TorchMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
 import androidx.camera.core.ImageCapture.CaptureMode
 import androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED
@@ -683,7 +683,7 @@ constructor(
 
                                 override fun onTotalCaptureResult(
                                     requestMetadata: RequestMetadata,
-                                    frameNumber: FrameNumber,
+                                    frameNumber: CameraFrameNumber,
                                     totalCaptureResult: FrameInfo,
                                 ) {
                                     completeSignal.complete(null)
@@ -691,7 +691,7 @@ constructor(
 
                                 override fun onFailed(
                                     requestMetadata: RequestMetadata,
-                                    frameNumber: FrameNumber,
+                                    frameNumber: CameraFrameNumber,
                                     requestFailure: RequestFailure,
                                 ) {
                                     completeSignal.completeExceptionally(
@@ -839,7 +839,7 @@ public class ResultListener(
 
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         totalCaptureResult: FrameInfo,
     ) {
         // Save some compute if the task is already complete or has been canceled.

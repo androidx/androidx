@@ -26,7 +26,6 @@ import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.config.UseCaseCameraContext
 import androidx.camera.camera2.interop.setCamera2CaptureRequestConfigurator
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
@@ -35,6 +34,7 @@ import androidx.camera.camera2.testing.FakeCameraGraph
 import androidx.camera.camera2.testing.FakeCapturePipeline
 import androidx.camera.camera2.testing.FakeSurface
 import androidx.camera.camera2.testing.FakeUseCaseSurfaceManager
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
@@ -274,7 +274,7 @@ class UseCaseCameraRequestControlTest {
 
         // Invoke the onComplete on all the listeners.
         fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.last().listeners.forEach {
-            it.onComplete(FakeRequestMetadata(), FrameNumber(0), FakeFrameInfo())
+            it.onComplete(FakeRequestMetadata(), CameraFrameNumber(0), FakeFrameInfo())
         }
 
         // Assert. All the listeners should receive the onComplete signal.

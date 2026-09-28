@@ -631,7 +631,7 @@ class CameraControlAdapterDeviceTest {
 
     private fun RequestMetadata.isAfMode(afMode: Int): Boolean {
         return if (characteristics.isAfModeSupported(afMode)) {
-            getOrDefault(CONTROL_AF_MODE, null) == afMode
+            get(CONTROL_AF_MODE) == afMode
         } else {
             val fallbackMode =
                 if (characteristics.isAfModeSupported(CONTROL_AF_MODE_CONTINUOUS_PICTURE)) {
@@ -641,7 +641,7 @@ class CameraControlAdapterDeviceTest {
                 } else {
                     CONTROL_AF_MODE_OFF
                 }
-            getOrDefault(CONTROL_AF_MODE, null) == fallbackMode
+            get(CONTROL_AF_MODE) == fallbackMode
         }
     }
 
@@ -653,7 +653,7 @@ class CameraControlAdapterDeviceTest {
             if (aeQuirkEnabled) AutoFlashAEModeDisablerImpl.getCorrectedAeMode(aeMode) else aeMode
 
         return if (characteristics.isAeModeSupported(aeModeCorrected)) {
-            getOrDefault(CONTROL_AE_MODE, null) == aeModeCorrected
+            get(CONTROL_AE_MODE) == aeModeCorrected
         } else {
             val fallbackMode =
                 if (characteristics.isAeModeSupported(CONTROL_AE_MODE_ON)) {
@@ -661,7 +661,7 @@ class CameraControlAdapterDeviceTest {
                 } else {
                     CONTROL_AE_MODE_OFF
                 }
-            getOrDefault(CONTROL_AE_MODE, null) == fallbackMode
+            get(CONTROL_AE_MODE) == fallbackMode
         }
     }
 

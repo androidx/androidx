@@ -23,7 +23,6 @@ import android.util.Range
 import android.util.Rational
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.compat.EvCompImpl
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
@@ -32,6 +31,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.CameraControl
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -180,7 +180,7 @@ class EvCompControlTest {
 
     private fun ComboRequestListener.simulateAeConverge(
         exposureValue: Int,
-        frameNumber: FrameNumber = FrameNumber(101L),
+        frameNumber: CameraFrameNumber = CameraFrameNumber(101L),
     ) {
         val requestMetadata =
             FakeRequestMetadata(

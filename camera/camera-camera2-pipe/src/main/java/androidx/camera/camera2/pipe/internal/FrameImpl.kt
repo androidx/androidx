@@ -20,13 +20,13 @@ import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameId
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.media.OutputImage
+import androidx.camera.common.CameraFrameNumber
 import kotlinx.atomicfu.atomic
 
 /**
@@ -156,7 +156,7 @@ internal constructor(
     override val frameId: FrameId
         get() = frameState.frameId
 
-    override val frameNumber: FrameNumber
+    override val frameNumber: CameraFrameNumber
         get() = frameState.frameNumber
 
     override val frameTimestamp: CameraTimestamp

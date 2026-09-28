@@ -25,7 +25,6 @@ import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.Frame.Companion.isFrameInfoAvailable
 import androidx.camera.camera2.pipe.Frame.Companion.isImageAvailable
 import androidx.camera.camera2.pipe.FrameCapture
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.FrameReference
 import androidx.camera.camera2.pipe.FrameReference.Companion.acquire
 import androidx.camera.camera2.pipe.ImageSourceConfig
@@ -41,6 +40,7 @@ import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestFailure
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.ImageSimulator
+import androidx.camera.common.CameraFrameNumber
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -102,14 +102,18 @@ class FrameDistributorTest {
 
     private val cameraId = imageSimulator.cameraMetadata.camera
     private val cameraTimestamp = CameraTimestamp(1234L)
-    private val cameraFrameNumber = FrameNumber(420)
+    private val cameraFrameNumber = CameraFrameNumber(420)
 
     private val request = Request(streams = streams)
     private val fakeRequestMetadata =
         FakeRequestMetadata.from(request, imageSimulator.streamToSurfaceMap, repeating = false)
     private val fakeFrameInfo =
         FakeFrameInfo(
-            metadata = FakeFrameMetadata(camera = cameraId, frameNumber = cameraFrameNumber),
+            metadata =
+                FakeFrameMetadata(
+                    camera = cameraId,
+                    frameNumber = CameraFrameNumber(cameraFrameNumber.value),
+                ),
             requestMetadata = fakeRequestMetadata,
         )
 
@@ -482,7 +486,7 @@ class FrameDistributorTest {
 
         localFrameDistributor.onStarted(
             fakeRequestMetadata,
-            FrameNumber(420),
+            CameraFrameNumber(420),
             CameraTimestamp(500_000_000L),
         )
         val frame = fakeFrameBuffer.frames[0]
@@ -526,7 +530,7 @@ class FrameDistributorTest {
 
         localFrameDistributor.onStarted(
             fakeRequestMetadata,
-            FrameNumber(420),
+            CameraFrameNumber(420),
             CameraTimestamp(500_000_000L),
         )
         val frame = fakeFrameBuffer.frames[0]
@@ -544,7 +548,7 @@ class FrameDistributorTest {
         initReadoutFrameDistributor()
         val exposureTimestamp = CameraTimestamp(100_000_000L)
         val readoutTimestamp = SensorTimestamp(120_000_000L)
-        val frameNum = FrameNumber(100)
+        val frameNum = CameraFrameNumber(100)
 
         readoutFrameDistributor.onStarted(
             readoutFakeRequestMetadata,
@@ -590,7 +594,7 @@ class FrameDistributorTest {
         val streamReadoutId = readoutStreamIds[1]
         val exposureTimestamp = CameraTimestamp(100_000_000L)
         val readoutTimestamp = SensorTimestamp(120_000_000L)
-        val frameNum = FrameNumber(102)
+        val frameNum = CameraFrameNumber(102)
 
         readoutFrameDistributor.onStarted(
             readoutFakeRequestMetadata,
@@ -642,7 +646,7 @@ class FrameDistributorTest {
         val streamReadoutId = readoutStreamIds[1]
         val exposureTimestamp = CameraTimestamp(100_000_000L)
         val readoutTimestamp = SensorTimestamp(120_000_000L)
-        val frameNum = FrameNumber(103)
+        val frameNum = CameraFrameNumber(103)
 
         readoutFrameDistributor.onStarted(
             readoutFakeRequestMetadata,
@@ -696,7 +700,7 @@ class FrameDistributorTest {
             readoutImageSimulator.streamGraph[streamReadoutConfig]!!.outputs.first().id
         val exposureTimestamp = CameraTimestamp(100_000_000L)
         val readoutTimestamp = SensorTimestamp(120_000_000L)
-        val frameNum = FrameNumber(104)
+        val frameNum = CameraFrameNumber(104)
 
         readoutFrameDistributor.onStarted(
             readoutFakeRequestMetadata,
@@ -733,7 +737,7 @@ class FrameDistributorTest {
         initReadoutFrameDistributor(requestStreamsMap = emptyMap())
         val exposureTimestamp = CameraTimestamp(100_000_000L)
         val readoutTimestamp = SensorTimestamp(120_000_000L)
-        val frameNum = FrameNumber(103)
+        val frameNum = CameraFrameNumber(103)
 
         readoutFrameDistributor.onStarted(
             readoutFakeRequestMetadata,
@@ -754,7 +758,7 @@ class FrameDistributorTest {
     fun frameDistributor_withUseReadoutTimestamp_onFailedWithImageLoss_failsOutputs() {
         initReadoutFrameDistributor()
         val exposureTimestamp = CameraTimestamp(100_000_000L)
-        val frameNum = FrameNumber(104)
+        val frameNum = CameraFrameNumber(104)
 
         readoutFrameDistributor.onStarted(
             readoutFakeRequestMetadata,
@@ -777,7 +781,7 @@ class FrameDistributorTest {
         initReadoutFrameDistributor()
         val exposureTimestamp = CameraTimestamp(100_000_000L)
         val readoutTimestamp = SensorTimestamp(120_000_000L)
-        val frameNum = FrameNumber(104)
+        val frameNum = CameraFrameNumber(104)
 
         readoutFrameDistributor.onStarted(
             readoutFakeRequestMetadata,
@@ -814,7 +818,7 @@ class FrameDistributorTest {
     fun frameDistributor_withUseReadoutTimestamp_closedBeforeReadoutStarted_abortsOutputs() {
         initReadoutFrameDistributor()
         val exposureTimestamp = CameraTimestamp(100_000_000L)
-        val frameNum = FrameNumber(105)
+        val frameNum = CameraFrameNumber(105)
 
         readoutFrameDistributor.onStarted(
             readoutFakeRequestMetadata,
@@ -834,7 +838,7 @@ class FrameDistributorTest {
         initReadoutFrameDistributor()
         val exposureTimestamp = CameraTimestamp(100_000_000L)
         val readoutTimestamp = SensorTimestamp(120_000_000L)
-        val frameNum = FrameNumber(106)
+        val frameNum = CameraFrameNumber(106)
 
         readoutFrameDistributor.onStarted(
             readoutFakeRequestMetadata,
@@ -864,7 +868,7 @@ class FrameDistributorTest {
         initReadoutFrameDistributor()
         val exposureTimestamp = CameraTimestamp(100_000_000L)
         val readoutTimestamp = SensorTimestamp(120_000_000L)
-        val frameNum = FrameNumber(107)
+        val frameNum = CameraFrameNumber(107)
 
         readoutFrameDistributor.onStarted(
             readoutFakeRequestMetadata,
@@ -891,8 +895,8 @@ class FrameDistributorTest {
     @Test
     fun frameDistributor_withUseReadoutTimestamp_multipleFramesInFlight() {
         initReadoutFrameDistributor()
-        val frame1Num = FrameNumber(108)
-        val frame2Num = FrameNumber(109)
+        val frame1Num = CameraFrameNumber(108)
+        val frame2Num = CameraFrameNumber(109)
         val exp1 = CameraTimestamp(100_000_000L)
         val exp2 = CameraTimestamp(133_000_000L)
         val read1 = SensorTimestamp(120_000_000L)
@@ -928,7 +932,7 @@ class FrameDistributorTest {
     fun frameDistributor_withUseReadoutTimestamp_onCompleteBeforeReadoutStarted_failsUnstartedOutputs() {
         initReadoutFrameDistributor()
         val exposureTimestamp = CameraTimestamp(100_000_000L)
-        val frameNum = FrameNumber(110)
+        val frameNum = CameraFrameNumber(110)
 
         readoutFrameDistributor.onStarted(
             readoutFakeRequestMetadata,
@@ -977,7 +981,7 @@ class FrameDistributorTest {
         val output1Id = stream.outputs[0].id
         val output2Id = stream.outputs[1].id
 
-        val frameNum = FrameNumber(601)
+        val frameNum = CameraFrameNumber(601)
         val expTimestamp = CameraTimestamp(100_000_000L)
         val readTimestamp = SensorTimestamp(120_000_000L)
 

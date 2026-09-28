@@ -29,9 +29,9 @@ import androidx.camera.camera2.impl.ComboRequestListener
 import androidx.camera.camera2.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.CameraControl
 import dagger.Binds
 import dagger.Module
@@ -127,7 +127,7 @@ constructor(
             object : Request.Listener {
                     override fun onComplete(
                         requestMetadata: RequestMetadata,
-                        frameNumber: FrameNumber,
+                        frameNumber: CameraFrameNumber,
                         result: FrameInfo,
                     ) {
                         val state = result.metadata[CaptureResult.CONTROL_AE_STATE]

@@ -18,10 +18,10 @@ package androidx.camera.camera2.pipe.graph
 
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.config.CameraGraphScope
+import androidx.camera.common.CameraFrameNumber
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
 
@@ -43,7 +43,7 @@ internal class Listener3A @Inject constructor() : Request.Listener, GraphLoop.Li
 
     override fun onPartialCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         captureResult: FrameMetadata,
     ) {
         for (listener in listeners) {
@@ -53,7 +53,7 @@ internal class Listener3A @Inject constructor() : Request.Listener, GraphLoop.Li
 
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         totalCaptureResult: FrameInfo,
     ) {
         for (listener in listeners) {

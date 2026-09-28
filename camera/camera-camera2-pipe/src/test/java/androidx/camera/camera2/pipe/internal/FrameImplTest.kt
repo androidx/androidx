@@ -22,7 +22,6 @@ import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame.Companion.isFrameInfoAvailable
 import androidx.camera.camera2.pipe.Frame.Companion.isImageAvailable
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.Request
@@ -35,6 +34,7 @@ import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeImage
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeSurfaces
+import androidx.camera.common.CameraFrameNumber
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -135,7 +135,7 @@ class FrameImplTest {
             stream4Id to stream4Surface,
         )
 
-    private val frameNumber = FrameNumber(420)
+    private val frameNumber = CameraFrameNumber(420)
     private val frameTimestampNs = 1234L
     private val frameTimestamp = CameraTimestamp(frameTimestampNs)
 
@@ -173,7 +173,8 @@ class FrameImplTest {
     private val stream4OutputImage1 = OutputImage.from(stream4Id, output7Id, stream4Image1)
     private val stream4OutputImage2 = OutputImage.from(stream4Id, output8Id, stream4Image2)
 
-    private val fakeFrameMetadata = FakeFrameMetadata(frameNumber = frameNumber)
+    private val fakeFrameMetadata =
+        FakeFrameMetadata(frameNumber = CameraFrameNumber(frameNumber.value))
     private val fakeFrameInfo = FakeFrameInfo(metadata = fakeFrameMetadata)
 
     private val sharedOutputFrame = FrameImpl(frameState)

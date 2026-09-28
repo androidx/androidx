@@ -22,7 +22,6 @@ import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
 import android.hardware.camera2.CaptureResult
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.FlashMode
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -31,6 +30,7 @@ import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -137,9 +137,9 @@ internal class Controller3ASetTorchTest {
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                FrameNumber(101L),
+                CameraFrameNumber(101L),
                 FakeFrameMetadata(
-                    frameNumber = FrameNumber(101L),
+                    frameNumber = CameraFrameNumber(101L),
                     resultMetadata =
                         mapOf(
                             CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
@@ -164,9 +164,9 @@ internal class Controller3ASetTorchTest {
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                FrameNumber(101L),
+                CameraFrameNumber(101L),
                 FakeFrameMetadata(
-                    frameNumber = FrameNumber(101L),
+                    frameNumber = CameraFrameNumber(101L),
                     resultMetadata =
                         mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH),
                 ),
@@ -211,9 +211,9 @@ internal class Controller3ASetTorchTest {
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                FrameNumber(101L),
+                CameraFrameNumber(101L),
                 FakeFrameMetadata(
-                    frameNumber = FrameNumber(101L),
+                    frameNumber = CameraFrameNumber(101L),
                     resultMetadata =
                         mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF),
                 ),
@@ -235,9 +235,9 @@ internal class Controller3ASetTorchTest {
                 )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                    FrameNumber(101L),
+                    CameraFrameNumber(101L),
                     FakeFrameMetadata(
-                        frameNumber = FrameNumber(101L),
+                        frameNumber = CameraFrameNumber(101L),
                         resultMetadata =
                             mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF),
                     ),
@@ -259,9 +259,9 @@ internal class Controller3ASetTorchTest {
                 )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                    FrameNumber(101L),
+                    CameraFrameNumber(101L),
                     FakeFrameMetadata(
-                        frameNumber = FrameNumber(101L),
+                        frameNumber = CameraFrameNumber(101L),
                         resultMetadata =
                             mapOf(
                                 CaptureResult.CONTROL_AE_MODE to
@@ -301,9 +301,9 @@ internal class Controller3ASetTorchTest {
                 )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                    FrameNumber(101L),
+                    CameraFrameNumber(101L),
                     FakeFrameMetadata(
-                        frameNumber = FrameNumber(101L),
+                        frameNumber = CameraFrameNumber(101L),
                         resultMetadata =
                             mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH),
                     ),
