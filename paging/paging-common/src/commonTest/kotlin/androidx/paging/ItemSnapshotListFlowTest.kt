@@ -17,7 +17,10 @@
 package androidx.paging
 
 import androidx.kruth.assertThat
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.RemoteMediator.MediatorResult
 import androidx.paging.internal.IgnoreJsTarget
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -652,6 +655,98 @@ class ItemSnapshotListFlowTest {
             assertThat(result.loadedLists.size).isEqualTo(2)
             assertThat(result.loadedLists.first().items).isEqualTo(staticList)
             assertThat(result.loadedLists.last().items).containsExactly(0, 1, 2, 3, 4).inOrder()
+
+            result.job.cancel()
+        }
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    @Test
+    fun prependTerminalSeparators() {
+        val mediator = RemoteMediatorMock()
+        mediator.loadCallback = { loadType, _ ->
+            if (loadType == PREPEND) {
+                // mock end of prepend to trigger a Terminal separator
+                MediatorResult.Success(true)
+            } else MediatorResult.Success(false)
+        }
+
+        var currPagingSource = TestPagingSource()
+        // source prevKey == null to trigger a remote mediator prepend
+        currPagingSource.nextLoadResult =
+            Page(data = listOf(50, 51, 52, 53, 54), prevKey = null, nextKey = 55)
+
+        val pager =
+            Pager(
+                config,
+                remoteMediator = mediator,
+                initialKey = 50,
+                pagingSourceFactory = { currPagingSource },
+            )
+        val flow =
+            pager.flow.map { pagingData ->
+                pagingData.insertHeaderItem(item = 100)
+            }
+
+        testScope.runTest {
+            val result = collectOnPager(flow)
+            advanceUntilIdle()
+            val list = result.loadedLists.firstOrNull()
+            assertThat(list).isNotNull()
+            assertThat(list!!.items).containsExactly(50, 51, 52, 53, 54).inOrder()
+
+            currPagingSource = TestPagingSource()
+            currPagingSource.nextLoadResult =
+                Page(data = listOf(50, 51, 52, 53, 54), prevKey = null, nextKey = 55)
+
+            pager.refresh()
+            advanceUntilIdle()
+
+            result.job.cancel()
+        }
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    @Test
+    fun appendTerminalSeparators() {
+        val mediator = RemoteMediatorMock()
+        mediator.loadCallback = { loadType, _ ->
+            if (loadType == LoadType.APPEND) {
+                // mock end of append to trigger a Terminal separator
+                MediatorResult.Success(true)
+            } else MediatorResult.Success(false)
+        }
+
+        var currPagingSource = TestPagingSource()
+        // source prevKey == null to trigger a remote mediator prepend
+        currPagingSource.nextLoadResult =
+            Page(data = listOf(50, 51, 52, 53, 54), prevKey = 49, nextKey = null)
+
+        val pager =
+            Pager(
+                config,
+                remoteMediator = mediator,
+                initialKey = 50,
+                pagingSourceFactory = { currPagingSource },
+            )
+        val flow =
+            pager.flow.map { pagingData ->
+                pagingData.insertFooterItem(item = 100)
+            }
+
+        testScope.runTest {
+            val result = collectOnPager(flow)
+            advanceUntilIdle()
+            val list = result.loadedLists.firstOrNull()
+            assertThat(list).isNotNull()
+            assertThat(list!!.items).containsExactly(50, 51, 52, 53, 54).inOrder()
+
+            currPagingSource = TestPagingSource()
+            currPagingSource.nextLoadResult =
+                Page(data = listOf(50, 51, 52, 53, 54), prevKey = 49, nextKey = null)
+
+            pager.refresh()
+            advanceUntilIdle()
 
             result.job.cancel()
         }
