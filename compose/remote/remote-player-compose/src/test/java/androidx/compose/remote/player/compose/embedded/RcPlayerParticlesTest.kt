@@ -43,7 +43,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 /**
  * Behavioral tests for the particle system, which is bridged to the core (View player)
@@ -52,7 +51,6 @@ import org.robolectric.annotation.GraphicsMode
  * *state* the core simulation advances.
  */
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [35])
 class RcPlayerParticlesTest {
 
