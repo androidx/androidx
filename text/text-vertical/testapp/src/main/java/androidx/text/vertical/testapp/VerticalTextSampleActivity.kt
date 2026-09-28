@@ -27,6 +27,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.StaticLayout
 import android.text.TextPaint
+import android.text.style.BackgroundColorSpan
 import android.text.style.CharacterStyle
 import android.text.style.MetricAffectingSpan
 import android.text.style.ReplacementSpan
@@ -87,6 +88,7 @@ import androidx.compose.ui.unit.sp
 import androidx.text.vertical.AnnotationPosition
 import androidx.text.vertical.EmphasisStyle
 import androidx.text.vertical.FontShearSpan
+import androidx.text.vertical.RubySpan
 import androidx.text.vertical.compose.VerticalText
 import androidx.text.vertical.compose.VerticalTextStyle
 import androidx.text.vertical.compose.buildVerticalText
@@ -592,9 +594,40 @@ fun StyleColorsText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
                 text("はまだ無い。")
             }
         }
+    val strokeText = remember { makeStrokeText() }
     Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         VerticalText(text, style = style, overflow = TextOverflow.Visible)
+        // Keep the plain string after strokeText. This shows that StrokeSpan does not change the
+        // background of the next text.
+        VerticalText(strokeText, style = style, overflow = TextOverflow.Visible)
         VerticalText("プレーン文字列", style = style, overflow = TextOverflow.Visible)
+    }
+}
+
+/**
+ * Makes a text with platform spans. [StrokeSpan] covers all of the text. A [BackgroundColorSpan]
+ * and a [RubySpan] cover the first word.
+ *
+ * The ruby text is shorter than its base text. This leaves space above and below the ruby text,
+ * which gets the background color of the base text.
+ */
+private fun makeStrokeText(): CharSequence =
+    SpannableString("名前はまだ無い。").apply {
+        setSpan(StrokeSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        setSpan(
+            BackgroundColorSpan(Color(0xFFBBDEFB).toArgb()),
+            0,
+            2,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+        )
+        setSpan(RubySpan("なまえ"), 0, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
+
+/** Draws the text as an outline. */
+private class StrokeSpan : CharacterStyle() {
+    override fun updateDrawState(tp: TextPaint) {
+        tp.style = Paint.Style.STROKE
+        tp.strokeWidth = tp.textSize / 24
     }
 }
 
