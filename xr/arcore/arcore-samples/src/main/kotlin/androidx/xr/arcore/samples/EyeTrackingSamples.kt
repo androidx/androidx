@@ -36,7 +36,7 @@ fun getLeftEye(session: Session) {
     val arDevice = ArDevice.getInstance(session)
 
     // Obtain the left eye from the Session object.
-    Eye.left(session)?.let {
+    Eye.left(session).let {
         // The left eye is available; launch a coroutine
         // to respond to changes in the eye's state.
         yourCoroutineScope.launch {
@@ -84,7 +84,7 @@ fun getRightEye(session: Session) {
     val arDevice = ArDevice.getInstance(session)
 
     // Obtain the right eye from the Session object.
-    Eye.right(session)?.let {
+    Eye.right(session).let {
         // The left eye is available; launch a coroutine
         // to respond to changes in the eye's state.
         yourCoroutineScope.launch {
