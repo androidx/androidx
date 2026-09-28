@@ -222,7 +222,7 @@ class HorizontalRubySpanLayoutTest {
                 TextPaint().apply { textSize = 100f },
                 0.5f,
             )
-        val bitmap = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 
         val richDrawPaint =
@@ -234,12 +234,14 @@ class HorizontalRubySpanLayoutTest {
                 density = 3.0f
                 drawableState = intArrayOf(android.R.attr.state_pressed)
             }
-        layout.draw(canvas, 0f, 500f, richDrawPaint)
+        layout.draw(canvas, 0f, 150f, richDrawPaint)
 
         // draw() sets baselineShift to 0. draw_appliesSuperscriptBaselineShiftToBodyOnce shows why.
+        // draw() fills the boxes itself and then sets bgColor to 0. HorizontalSpanBackgroundTest
+        // checks the fill.
         for (recorded in listOf(bodyPaints.last(), rubyPaints.last())) {
             assertThat(recorded.baselineShift).isEqualTo(0)
-            assertThat(recorded.bgColor).isEqualTo(0xFFAA0000.toInt())
+            assertThat(recorded.bgColor).isEqualTo(0)
             assertThat(recorded.linkColor).isEqualTo(0xFF00BB00.toInt())
             assertThat(recorded.density).isEqualTo(3.0f)
             assertThat(recorded.drawableState).isEqualTo(intArrayOf(android.R.attr.state_pressed))
@@ -247,7 +249,7 @@ class HorizontalRubySpanLayoutTest {
 
         bodyPaints.clear()
         rubyPaints.clear()
-        layout.draw(canvas, 0f, 500f, Paint().apply { textSize = 100f })
+        layout.draw(canvas, 0f, 150f, Paint().apply { textSize = 100f })
         bitmap.recycle()
 
         for (recorded in listOf(bodyPaints.last(), rubyPaints.last())) {
@@ -297,7 +299,7 @@ class HorizontalRubySpanLayoutTest {
     private fun recordTextRunYs(layout: HorizontalSpanLayout, paint: Paint): List<Float> {
         val ys = mutableListOf<Float>()
         // Layout.draw skips lines outside the clip, so the canvas needs a bitmap.
-        val bitmap = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
         val canvas =
             object : Canvas(bitmap) {
                 override fun drawTextRun(
@@ -328,7 +330,7 @@ class HorizontalRubySpanLayoutTest {
                     ys.add(y)
                 }
             }
-        layout.draw(canvas, 0f, 500f, paint)
+        layout.draw(canvas, 0f, 150f, paint)
         bitmap.recycle()
         return ys
     }

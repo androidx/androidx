@@ -121,6 +121,12 @@ internal class HorizontalEmphasisSpanLayout(
      */
     private val isMarkOver = position != AnnotationPosition.After
 
+    private val boxAscent = if (isMarkOver) bodyAscent - markLineHeight else bodyAscent
+    private val boxDescent = if (isMarkOver) bodyDescent else bodyDescent + markLineHeight
+
+    /** The styles that cover the span. [draw] uses them to find the background color. */
+    private val coveringStyles = text.getCoveringStyles(start, end)
+
     /**
      * Reserves vertical space for the emphasis mark on the side its position selects.
      *
@@ -130,13 +136,8 @@ internal class HorizontalEmphasisSpanLayout(
      * @param fm the font metrics to overwrite in place
      */
     override fun fillFontMetrics(fm: Paint.FontMetricsInt) {
-        if (isMarkOver) {
-            fm.ascent = bodyAscent - markLineHeight
-            fm.descent = bodyDescent
-        } else {
-            fm.ascent = bodyAscent
-            fm.descent = bodyDescent + markLineHeight
-        }
+        fm.ascent = boxAscent
+        fm.descent = boxDescent
         fm.top = fm.ascent
         fm.bottom = fm.descent
     }
@@ -150,6 +151,11 @@ internal class HorizontalEmphasisSpanLayout(
      * @param paint The paint from the draw call, used to update the layout paint and draw marks.
      */
     override fun draw(canvas: Canvas, x: Float, y: Float, paint: Paint) {
+        // Fill one box that includes the band of the emphasis marks, the same as UprightLayoutRun
+        // does in vertical text.
+        val bgColor = resolveBackgroundColor(paint, coveringStyles)
+        canvas.drawSpanBackground(x, y + boxAscent, x + spanWidth, y + boxDescent, bgColor)
+
         // Draw Body Text
         canvas.withSave {
             val bodyDrawY = y + bodyAscent
@@ -161,6 +167,8 @@ internal class HorizontalEmphasisSpanLayout(
             // The body text keeps the spans that set baselineShift on paint, for example
             // SuperscriptSpan. Set baselineShift to 0 so that the body text does not move twice.
             bodyLayout.paint.baselineShift = 0
+            // The box is filled above. Set bgColor to 0 so that the layout does not fill it again.
+            bodyLayout.paint.bgColor = 0
             bodyLayout.draw(this)
         }
 

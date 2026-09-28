@@ -118,6 +118,12 @@ internal class HorizontalRubySpanLayout(
      */
     private val isRubyOver = position != AnnotationPosition.After
 
+    private val boxAscent = if (isRubyOver) bodyAscent - rubyLineHeight else bodyAscent
+    private val boxDescent = if (isRubyOver) bodyDescent else bodyDescent + rubyLineHeight
+
+    /** The styles that cover the span. [draw] uses them to find the background color. */
+    private val coveringStyles = text.getCoveringStyles(start, end)
+
     /**
      * Reserves vertical space for the ruby text on the side its position selects.
      *
@@ -127,13 +133,8 @@ internal class HorizontalRubySpanLayout(
      * @param fm the font metrics to overwrite in place
      */
     override fun fillFontMetrics(fm: Paint.FontMetricsInt) {
-        if (isRubyOver) {
-            fm.ascent = bodyAscent - rubyLineHeight
-            fm.descent = bodyDescent
-        } else {
-            fm.ascent = bodyAscent
-            fm.descent = bodyDescent + rubyLineHeight
-        }
+        fm.ascent = boxAscent
+        fm.descent = boxDescent
         fm.top = fm.ascent
         fm.bottom = fm.descent
     }
@@ -147,10 +148,22 @@ internal class HorizontalRubySpanLayout(
      * @param paint The paint from the draw call, used to update the layout paints.
      */
     override fun draw(canvas: Canvas, x: Float, y: Float, paint: Paint) {
+        // `y` is the baseline and StaticLayout draws from the top of its line box, so butt the
+        // ruby box against either the top or the bottom of the body's box.
+        val bodyDrawY = y + bodyAscent
+        val rubyDrawY = if (isRubyOver) bodyDrawY - rubyLineHeight else y + bodyDescent
+
+        // Fill the body row and the ruby row across the full span width. RubyLayoutRun does the
+        // same in vertical text: it also fills the space before and after the shorter column.
+        val bgColor = resolveBackgroundColor(paint, coveringStyles)
+        canvas.drawSpanBackground(x, y + boxAscent, x + spanWidth, y + boxDescent, bgColor)
+
+        val bodyLeft = x + bodyXOffset
+        val rubyLeft = x + rubyXOffset
+
         // Draw Body Text
         canvas.withSave {
-            val bodyDrawY = y + bodyAscent
-            translate(x + bodyXOffset, bodyDrawY)
+            translate(bodyLeft, bodyDrawY)
 
             // The paint object stored in the layout is a shared cache, so reset it to the drawing
             // paint before calling draw ops.
@@ -158,15 +171,14 @@ internal class HorizontalRubySpanLayout(
             // The body text keeps the spans that set baselineShift on paint, for example
             // SuperscriptSpan. Set baselineShift to 0 so that the body text does not move twice.
             bodyLayout.paint.baselineShift = 0
+            // The box is filled above. Set bgColor to 0 so that the layout does not fill it again.
+            bodyLayout.paint.bgColor = 0
             bodyLayout.draw(this)
         }
 
         // Draw Ruby Text
         canvas.withSave {
-            // `y` is the baseline and StaticLayout draws from the top of its line box, so butt the
-            // ruby box against either the top or the bottom of the body's box.
-            val rubyDrawY = if (isRubyOver) y + bodyAscent - rubyLineHeight else y + bodyDescent
-            translate(x + rubyXOffset, rubyDrawY)
+            translate(rubyLeft, rubyDrawY)
 
             // The paint object stored in the layout is a shared cache, so reset it to the drawing
             // paint before calling draw ops.
@@ -174,6 +186,8 @@ internal class HorizontalRubySpanLayout(
             // The body layout paint does not use baselineShift, so the ruby layout paint does not
             // use it either.
             rubyLayout.paint.baselineShift = 0
+            // The box is filled above. Set bgColor to 0 so that the layout does not fill it again.
+            rubyLayout.paint.bgColor = 0
             rubyLayout.paint.withTextScale(rubyScale) { rubyLayout.draw(this@withSave) }
         }
     }
