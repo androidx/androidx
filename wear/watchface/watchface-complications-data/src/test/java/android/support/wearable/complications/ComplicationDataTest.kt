@@ -23,6 +23,7 @@ import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import android.os.PersistableBundle
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 import android.support.wearable.complications.ComplicationText.plainText
@@ -32,6 +33,10 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.watchface.complications.data.SharedRobolectricTestRunner
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import org.junit.Assert
 import org.junit.Assert.assertThrows
 import org.junit.Rule
@@ -1505,6 +1510,52 @@ public class ComplicationDataTest {
         assertThat(data.timelineEntries!!.first().shortText!!.getTextAt(mResources, 0))
             .isEqualTo("Valid")
         parcel.recycle()
+    }
+
+    @Test
+    fun testSerializeAndDeserialize_withEmptyExtras_doesNotWriteExtrasToStream() {
+        val data =
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(plainText("text"))
+                .build()
+
+        val bytes =
+            ByteArrayOutputStream().use { stream ->
+                ObjectOutputStream(stream).use { it.writeObject(data) }
+                stream.toByteArray()
+            }
+        val deserialized =
+            ObjectInputStream(ByteArrayInputStream(bytes)).use {
+                it.readObject() as ComplicationData
+            }
+
+        assertThat(bytes.decodeToString()).doesNotContain("<bundle")
+        assertThat(deserialized.extras.isEmpty).isTrue()
+        assertThat(deserialized).isEqualTo(data)
+    }
+
+    @Test
+    fun testSerializeAndDeserialize_withNonEmptyExtras_preservesExtras() {
+        val extras = PersistableBundle().apply { putInt("key", 42) }
+        val data =
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(plainText("text"))
+                .setExtras(extras)
+                .build()
+
+        val bytes =
+            ByteArrayOutputStream().use { stream ->
+                ObjectOutputStream(stream).use { it.writeObject(data) }
+                stream.toByteArray()
+            }
+        val deserialized =
+            ObjectInputStream(ByteArrayInputStream(bytes)).use {
+                it.readObject() as ComplicationData
+            }
+
+        assertThat(bytes.decodeToString()).contains("<bundle")
+        assertThat(deserialized.extras.getInt("key")).isEqualTo(42)
+        assertThat(deserialized).isEqualTo(data)
     }
 
     private companion object {
