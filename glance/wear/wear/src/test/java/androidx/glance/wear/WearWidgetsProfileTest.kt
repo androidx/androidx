@@ -55,7 +55,7 @@ class WearWidgetsProfileTest {
 
     @Test
     fun testRequiredOperations() {
-        val profile = GlanceWearProfiles.wearWidgets()
+        val profile = GlanceWearProfiles.createWearWidgetsProfile()
         val operations = profile.supportedOperations
         val exclusions =
             setOf(
@@ -101,7 +101,7 @@ class WearWidgetsProfileTest {
 
     @Test
     fun testSafeFallbackOperations() {
-        val profile = GlanceWearProfiles.wearWidgets()
+        val profile = GlanceWearProfiles.createWearWidgetsProfile()
         val operations = profile.supportedOperations
 
         assertThat(operations)

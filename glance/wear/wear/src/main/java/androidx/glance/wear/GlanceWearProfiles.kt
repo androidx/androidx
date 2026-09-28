@@ -42,7 +42,9 @@ public object GlanceWearProfiles {
 
     /** A profile for Wear Widgets, based on the allowed operations for widgets. */
     public val wearWidgets: Profile by
-        lazy(mode = LazyThreadSafetyMode.PUBLICATION) { wearWidgets(supportedOperations = null) }
+        lazy(mode = LazyThreadSafetyMode.PUBLICATION) {
+            createWearWidgetsProfile(supportedOperations = null)
+        }
 
     /**
      * Creates a Profile for Wear Widgets, based on the allowed operations for widgets using only
@@ -54,7 +56,7 @@ public object GlanceWearProfiles {
      *   allowed operations can be used.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun wearWidgets(supportedOperations: IntSet? = null): Profile {
+    public fun createWearWidgetsProfile(supportedOperations: IntSet? = null): Profile {
         val operationsToUse =
             if (supportedOperations != null && supportedOperations.isNotEmpty()) {
                 buildIntSet {
