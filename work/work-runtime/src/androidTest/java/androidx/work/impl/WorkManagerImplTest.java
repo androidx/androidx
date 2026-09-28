@@ -51,7 +51,9 @@ import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.isOneOf;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doNothing;
@@ -75,6 +77,7 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import androidx.annotation.OptIn;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.TaskExecutor;
 import androidx.lifecycle.LiveData;
@@ -95,6 +98,7 @@ import androidx.work.Constraints;
 import androidx.work.Constraints.ContentUriTrigger;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExperimentalConfigurationApi;
 import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
@@ -2346,6 +2350,100 @@ public class WorkManagerImplTest {
                         eq(PackageManager.COMPONENT_ENABLED_STATE_DISABLED),
                         eq(PackageManager.DONT_KILL_APP));
 
+    }
+
+    @Test
+    @LargeTest
+    @OptIn(markerClass = ExperimentalConfigurationApi.class)
+    public void testRescheduleReceiverDisabled_whenJobSchedulerPersistenceEnabled()
+            throws ExecutionException, InterruptedException {
+
+        final PackageManager packageManager = mock(PackageManager.class);
+        mContext = new ContextWrapper(ApplicationProvider.getApplicationContext()) {
+            @Override
+            public Context getApplicationContext() {
+                return this;
+            }
+
+            @Override
+            public PackageManager getPackageManager() {
+                return packageManager;
+            }
+        };
+        ComponentName componentName = new ComponentName(mContext, RescheduleReceiver.class);
+        when(packageManager.getComponentEnabledSetting(eq(componentName)))
+                .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+
+        Configuration configuration = new Configuration.Builder(mConfiguration)
+                .setJobSchedulerPersistenceEnabled(true)
+                .build();
+        InstantWorkTaskExecutor workTaskExecutor = new InstantWorkTaskExecutor();
+        Processor processor = new Processor(mContext, configuration, workTaskExecutor, mDatabase);
+        WorkLauncherImpl launcher = new WorkLauncherImpl(processor, workTaskExecutor);
+
+        Trackers trackers = mWorkManagerImpl.getTrackers();
+        Scheduler scheduler = new GreedyScheduler(mContext, configuration,
+                trackers, processor, launcher, workTaskExecutor);
+        mWorkManagerImpl = createWorkManager(mContext, configuration, workTaskExecutor,
+                mDatabase, trackers, processor, schedulers(scheduler));
+
+        WorkManagerImpl.setDelegate(mWorkManagerImpl);
+        mDatabase = mWorkManagerImpl.getWorkDatabase();
+
+        // Wait for initial UnfinishedWorkListener emission on the empty DB before resetting the
+        // mock and testing work enqueueing.
+        verify(packageManager, timeout(LISTENER_TIMEOUT_MS).atLeastOnce())
+                .setComponentEnabledSetting(eq(componentName),
+                        eq(PackageManager.COMPONENT_ENABLED_STATE_DISABLED),
+                        eq(PackageManager.DONT_KILL_APP));
+
+        reset(packageManager);
+        when(packageManager.getComponentEnabledSetting(eq(componentName)))
+                .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_DISABLED);
+
+        OneTimeWorkRequest workRequest =
+                new OneTimeWorkRequest.Builder(StopAwareWorker.class)
+                        .build();
+
+        mWorkManagerImpl.enqueue(Collections.singletonList(workRequest))
+                .getResult().get();
+
+        // Enqueueing normal work should NOT enable RescheduleReceiver when persistence is enabled.
+        verify(packageManager, after(LISTENER_TIMEOUT_MS).never())
+                .setComponentEnabledSetting(eq(componentName),
+                        eq(PackageManager.COMPONENT_ENABLED_STATE_ENABLED),
+                        anyInt());
+
+        // Enqueueing work with Content URI triggers SHOULD enable RescheduleReceiver.
+        OneTimeWorkRequest contentUriWorkRequest =
+                new OneTimeWorkRequest.Builder(StopAwareWorker.class)
+                        .setConstraints(new Constraints.Builder()
+                                .addContentUriTrigger(Uri.parse("content://test"), false)
+                                .build())
+                        .build();
+
+        mWorkManagerImpl.enqueue(Collections.singletonList(contentUriWorkRequest))
+                .getResult().get();
+
+        verify(packageManager, timeout(LISTENER_TIMEOUT_MS).atLeastOnce())
+                .setComponentEnabledSetting(eq(componentName),
+                        eq(PackageManager.COMPONENT_ENABLED_STATE_ENABLED),
+                        eq(PackageManager.DONT_KILL_APP));
+
+        reset(packageManager);
+        when(packageManager.getComponentEnabledSetting(eq(componentName)))
+                .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+
+        mWorkManagerImpl.cancelWorkById(contentUriWorkRequest.getId())
+                .getResult().get();
+
+        verify(packageManager, timeout(LISTENER_TIMEOUT_MS).atLeastOnce())
+                .setComponentEnabledSetting(eq(componentName),
+                        eq(PackageManager.COMPONENT_ENABLED_STATE_DISABLED),
+                        eq(PackageManager.DONT_KILL_APP));
+
+        mWorkManagerImpl.cancelWorkById(workRequest.getId())
+                .getResult().get();
     }
 
     @Test

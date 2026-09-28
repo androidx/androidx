@@ -103,7 +103,8 @@ public class SystemJobScheduler implements Scheduler, ForegroundListener {
                 configuration,
                 getWmJobScheduler(context),
                 new SystemJobInfoConverter(context, configuration.getClock(),
-                        configuration.isMarkingJobsAsImportantWhileForeground()),
+                        configuration.isMarkingJobsAsImportantWhileForeground(),
+                        configuration.isJobSchedulerPersistenceEffective(context)),
                 new CoroutineRunnableScheduler(taskExecutor)
         );
     }
@@ -214,7 +215,13 @@ public class SystemJobScheduler implements Scheduler, ForegroundListener {
      */
     @VisibleForTesting
     public void scheduleInternal(@NonNull WorkSpec workSpec, int jobId) {
-        JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec, jobId);
+        JobInfo jobInfo;
+        try {
+            jobInfo = mSystemJobInfoConverter.convert(workSpec, jobId);
+        } catch (Throwable throwable) {
+            Logger.get().error(TAG, "Unable to schedule " + workSpec, throwable);
+            return;
+        }
         scheduleInternal(workSpec, jobId, jobInfo);
     }
 
@@ -326,17 +333,23 @@ public class SystemJobScheduler implements Scheduler, ForegroundListener {
      * If {@link JobScheduler} knows about things {@link androidx.work.WorkManager} does not know
      * know about (or does not care about), cancel them.
      * <p>
+     * If a job is persisted but {@link Configuration#isJobSchedulerPersistenceEffective(Context)}
+     * does not expect it to be (or vice versa), cancel it so that it is rescheduled with the
+     * correct persistence state.
+     * <p>
      * If {@link androidx.work.WorkManager} does not see backing jobs in {@link JobScheduler} for
      * expected {@link WorkSpec}s, reset the {@code scheduleRequestedAt} bit, so that jobs can be
      * rescheduled.
      *
-     * @param context      The application {@link Context}
-     * @param workDatabase The {@link WorkDatabase} instance
+     * @param context       The application {@link Context}
+     * @param workDatabase  The {@link WorkDatabase} instance
+     * @param configuration The {@link Configuration} instance
      * @return <code>true</code> if jobs need to be reconciled.
      */
     public static boolean reconcileJobs(
             @NonNull Context context,
-            @NonNull WorkDatabase workDatabase) {
+            @NonNull WorkDatabase workDatabase,
+            @NonNull Configuration configuration) {
         // reconcile only in the namespaced jobscheduler.
         // all the work is explicitly migrated to namespace on API 34+.
         JobScheduler jobScheduler = getWmJobScheduler(context);
@@ -348,12 +361,19 @@ public class SystemJobScheduler implements Scheduler, ForegroundListener {
         int jobSize = jobs != null ? jobs.size() : 0;
         Set<String> jobSchedulerWorkSpecs = new HashSet<>(jobSize);
         if (jobs != null && !jobs.isEmpty()) {
+            final boolean persistenceEnabled =
+                    configuration.isJobSchedulerPersistenceEffective(context);
             for (JobInfo jobInfo : jobs) {
                 WorkGenerationalId id = getWorkGenerationalIdFromJobInfo(jobInfo);
-                if (id != null && workManagerWorkSpecsSet.contains(id.getWorkSpecId())) {
+                JobInfo.TriggerContentUri[] triggers = jobInfo.getTriggerContentUris();
+                boolean expectedPersisted =
+                        persistenceEnabled && (triggers == null || triggers.length == 0);
+                if (id != null && workManagerWorkSpecsSet.contains(id.getWorkSpecId())
+                        && jobInfo.isPersisted() == expectedPersisted) {
                     jobSchedulerWorkSpecs.add(id.getWorkSpecId());
                 } else {
-                    // Cancels invalid jobs owned by WorkManager.
+                    // Cancels invalid jobs owned by WorkManager, or jobs whose persistence state
+                    // does not match the current configuration.
                     // These jobs are invalid (in-actionable on our part) but occupy slots in
                     // JobScheduler. This is meant to help mitigate problems like b/134058261,
                     // where we have faulty implementations of JobScheduler.
@@ -521,11 +541,12 @@ public class SystemJobScheduler implements Scheduler, ForegroundListener {
         }
         int jobId = info.systemId;
         // Safe to override calculateNextRuntime offset because the work is already running.
-        JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec, jobId, FGS_JOB_DELAY_MILLIS);
         try {
+            JobInfo jobInfo =
+                    mSystemJobInfoConverter.convert(workSpec, jobId, FGS_JOB_DELAY_MILLIS);
             scheduleInternal(workSpec, jobId, jobInfo);
             return true;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             Logger.get().error(TAG, "Unable to delay work " + workSpecId, e);
             return true;
         }

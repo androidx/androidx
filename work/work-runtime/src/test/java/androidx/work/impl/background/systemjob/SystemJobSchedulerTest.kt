@@ -71,6 +71,7 @@ class SystemJobSchedulerTest {
                     context,
                     configuration.clock,
                     configuration.isMarkingJobsAsImportantWhileForeground(),
+                    configuration.isJobSchedulerPersistenceEffective(context),
                 ),
                 fakeRunnableScheduler,
             )

@@ -16,6 +16,7 @@
 
 package androidx.work
 
+import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.work.ExistingWorkPolicy.APPEND
@@ -156,5 +157,51 @@ class WorkInfoFlowsTest {
             val secondList = tester.awaitNext()
             assertThat(secondList.size).isEqualTo(2)
             assertThat(secondList.map { it.id }).containsExactly(request1.id, request2.id)
+        }
+
+    @Test
+    fun hasUnfinishedContentUriTriggerWorkFlow() =
+        runBlocking<Unit> {
+            val workSpecDao = env.db.workSpecDao()
+            val tester = launchTester(workSpecDao.hasUnfinishedContentUriTriggerWorkFlow())
+            assertThat(tester.awaitNext()).isFalse()
+
+            // Unfinished work without content URI triggers should emit false.
+            workSpecDao.insertWorkSpec(unrelatedRequest.workSpec)
+            assertThat(tester.awaitNext()).isFalse()
+
+            val triggerConstraints =
+                Constraints.Builder()
+                    .addContentUriTrigger(Uri.parse("content://test"), false)
+                    .build()
+            val triggerWorkSpec =
+                OneTimeWorkRequest.Builder(TestWorker::class.java)
+                    .setConstraints(triggerConstraints)
+                    .build()
+                    .workSpec
+
+            // ENQUEUED -> true
+            workSpecDao.insertWorkSpec(triggerWorkSpec)
+            assertThat(tester.awaitNext()).isTrue()
+
+            // RUNNING -> true
+            workSpecDao.setState(WorkInfo.State.RUNNING, triggerWorkSpec.id)
+            assertThat(tester.awaitNext()).isTrue()
+
+            // BLOCKED -> true
+            workSpecDao.setState(WorkInfo.State.BLOCKED, triggerWorkSpec.id)
+            assertThat(tester.awaitNext()).isTrue()
+
+            // SUCCEEDED -> false
+            workSpecDao.setState(WorkInfo.State.SUCCEEDED, triggerWorkSpec.id)
+            assertThat(tester.awaitNext()).isFalse()
+
+            // FAILED -> false
+            workSpecDao.setState(WorkInfo.State.FAILED, triggerWorkSpec.id)
+            assertThat(tester.awaitNext()).isFalse()
+
+            // CANCELLED -> false
+            workSpecDao.setState(WorkInfo.State.CANCELLED, triggerWorkSpec.id)
+            assertThat(tester.awaitNext()).isFalse()
         }
 }

@@ -312,7 +312,10 @@ public class ForceStopRunnable implements Runnable {
         // Mitigation for a platform bug, which causes jobs to get dropped when binding to
         // SystemJobService fails.
         boolean needsReconciling =
-                SystemJobScheduler.reconcileJobs(mContext, mWorkManager.getWorkDatabase());
+                SystemJobScheduler.reconcileJobs(
+                        mContext,
+                        mWorkManager.getWorkDatabase(),
+                        mWorkManager.getConfiguration());
         // Reset previously unfinished work.
         WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();

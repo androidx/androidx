@@ -339,6 +339,13 @@ public interface WorkSpecDao {
     @Query("SELECT COUNT(*) > 0 FROM workspec WHERE state NOT IN $COMPLETED_STATES LIMIT 1")
     public fun hasUnfinishedWorkFlow(): Flow<Boolean>
 
+    /** @return `true` if there is unfinished work with content URI triggers. */
+    @Query(
+        "SELECT EXISTS(SELECT 1 FROM workspec WHERE LENGTH(content_uri_triggers) > 0" +
+            " AND state NOT IN $COMPLETED_STATES)"
+    )
+    public fun hasUnfinishedContentUriTriggerWorkFlow(): Flow<Boolean>
+
     /**
      * Marks a [WorkSpec] as scheduled.
      *
