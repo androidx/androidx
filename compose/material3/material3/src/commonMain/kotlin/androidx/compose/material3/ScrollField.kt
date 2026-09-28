@@ -268,7 +268,7 @@ public fun ScrollField(
             modifier =
                 Modifier.fillMaxHeight()
                     .focusProperties { canFocus = false }
-                    .clickable(enabled = enabled) {
+                    .clickable(interactionSource = null, indication = null, enabled = enabled) {
                         scope.launch { state.animateScrollToOption(index) }
                     }
                     .semantics { selected = isSelected },
