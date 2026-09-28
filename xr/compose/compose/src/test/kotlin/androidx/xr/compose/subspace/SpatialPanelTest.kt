@@ -45,7 +45,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -354,7 +353,7 @@ class SpatialPanelTest {
         composeTestRule.waitForIdle()
 
         assertNotNull(internalComposeView)
-        val composeView = internalComposeView?.parent as? ComposeView
+        val composeView = internalComposeView?.parent as? SpatialComposeView
         assertNotNull(composeView)
 
         assertThat(composeView?.isLaidOut).isTrue()
@@ -566,7 +565,7 @@ class SpatialPanelTest {
         }
 
         composeTestRule.waitForIdle()
-        val composeView = assertNotNull(internalView?.parent as? ComposeView)
+        val composeView = assertNotNull(internalView?.parent as? SpatialComposeView)
 
         val initialScrim = assertNotNull(composeView.foreground as? ColorDrawable)
         assertThat(initialScrim.color).isEqualTo(Color.TRANSPARENT)
