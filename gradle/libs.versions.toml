@@ -12,9 +12,8 @@ androidStudioIj = "2026.2.2.3"
 androidStudioName = "rabbit2-canary3"
 # For IntelliJ download via intellij gradle task
 intelliJVersion = "2026.2"
-# For opening aswb
-# Version from go/studio-versions
-aswbBuildId = "16309011"
+# For opening aswb. For full instructions how to update, go to go/androidx/playbook#update-aswb
+aswbBuildId = "16488178"
 # -----------------------------------------------------------------------------
 
 androidLintMin = "31.1.1"
