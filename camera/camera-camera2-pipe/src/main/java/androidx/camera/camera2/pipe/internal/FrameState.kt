@@ -21,7 +21,6 @@ import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameId
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.RequestMetadata
@@ -37,6 +36,7 @@ import androidx.camera.camera2.pipe.internal.OutputResult.Companion.outputStatus
 import androidx.camera.camera2.pipe.media.OutputImage
 import androidx.camera.camera2.pipe.media.SharedOutputImage
 import androidx.camera.camera2.pipe.media.TrackedOutputImage
+import androidx.camera.common.CameraFrameNumber
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.atomicfu.AtomicInt
 import kotlinx.atomicfu.atomic
@@ -50,7 +50,7 @@ import kotlinx.coroutines.Deferred
  */
 internal class FrameState(
     val requestMetadata: RequestMetadata,
-    val frameNumber: FrameNumber,
+    val frameNumber: CameraFrameNumber,
     val frameTimestamp: CameraTimestamp,
     imageStreams: Set<CameraStream>,
     val concurrentImageStreams: Set<StreamId>?,
@@ -246,7 +246,7 @@ internal class FrameState(
         FrameOutput<FrameInfo>(), OutputDistributor.OutputListener<FrameInfo> {
 
         override fun onOutputComplete(
-            cameraFrameNumber: FrameNumber,
+            cameraFrameNumber: CameraFrameNumber,
             cameraTimestamp: CameraTimestamp,
             cameraOutputSequence: Long,
             outputNumber: Long,
@@ -308,7 +308,7 @@ internal class FrameState(
         }
 
         override fun onOutputComplete(
-            cameraFrameNumber: FrameNumber,
+            cameraFrameNumber: CameraFrameNumber,
             cameraTimestamp: CameraTimestamp,
             cameraOutputSequence: Long,
             outputNumber: Long,

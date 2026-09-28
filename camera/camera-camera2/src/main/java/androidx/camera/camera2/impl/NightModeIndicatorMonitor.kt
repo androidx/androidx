@@ -24,9 +24,9 @@ import android.os.Build
 import androidx.camera.camera2.config.CameraScope
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.NightModeIndicator
 import androidx.camera.core.impl.utils.Threads
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -88,7 +88,7 @@ constructor(cameraMetadata: CameraMetadata?, requestListener: ComboRequestListen
 
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         totalCaptureResult: FrameInfo,
     ) {
         if (Build.VERSION.SDK_INT >= 36 && _requestControl != null) {

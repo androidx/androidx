@@ -27,9 +27,9 @@ import androidx.camera.camera2.impl.containsTag
 import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.CameraControl
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.MutableConfig
@@ -225,7 +225,7 @@ public class Camera2CameraControlCompatImpl @Inject constructor() : Camera2Camer
     @ExecutedBy("UseCaseThreads")
     override fun onComplete(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         result: FrameInfo,
     ): Unit =
         synchronized(updateSignalLock) {

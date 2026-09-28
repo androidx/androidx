@@ -21,12 +21,12 @@ import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import kotlinx.atomicfu.atomic
 
@@ -57,7 +57,7 @@ public data class FakeCaptureSequence(
         listener.onRequestSequenceAborted(requestMetadata)
     }
 
-    public fun invokeOnSequenceCompleted(frameNumber: FrameNumber): Unit =
+    public fun invokeOnSequenceCompleted(frameNumber: CameraFrameNumber): Unit =
         invokeOnRequests { requestMetadata, _, listener ->
             listener.onRequestSequenceCompleted(requestMetadata, frameNumber)
         }

@@ -22,7 +22,6 @@ import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.ParameterUpdateListener
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
@@ -48,6 +47,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
@@ -86,7 +86,7 @@ class CameraGraphParametersImplTest {
     private val grp1 = GraphRequestProcessor.from(csp1)
     private val request1 = Request(listOf(StreamId(0)), listeners = listOf(FakeRequestListener()))
     private val requestMetadata = FakeRequestMetadata()
-    private val frameNumber = FrameNumber(1)
+    private val frameNumber = CameraFrameNumber(1)
     private val timestamp = CameraTimestamp(100)
     private val frameInfo = FakeFrameInfo(requestMetadata = requestMetadata)
     private val failure = FakeRequestFailure(requestMetadata, frameNumber)
@@ -487,7 +487,7 @@ class CameraGraphParametersImplTest {
 
         override fun onUpdateStarted(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             timestamp: CameraTimestamp,
         ) {
             updateStarted = true
@@ -495,7 +495,7 @@ class CameraGraphParametersImplTest {
 
         override fun onUpdateCompleted(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             result: FrameInfo,
         ) {
             updateCompleted = true

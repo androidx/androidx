@@ -21,9 +21,10 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.MetadataTransform
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.Metadata
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -171,18 +172,49 @@ class RequestMetadataTest {
 @Config(sdk = [Config.ALL_SDKS])
 class FrameMetadataTest {
     @Test
-    fun canRetrieveCaptureRequestOrCameraMetadataViaInterface() {
+    fun canRetrieveCaptureResultOrCameraMetadataViaInterface() {
         val metadata =
             FakeFrameMetadata(
                 resultMetadata = mapOf(CaptureResult.JPEG_QUALITY to 95),
                 extraResultMetadata = mapOf(FakeMetadata.TEST_KEY to 42),
             )
 
-        assertThat(metadata[FakeMetadata.TEST_KEY]).isNotNull()
+        assertThat(metadata[FakeMetadata.TEST_KEY]).isEqualTo(42)
         assertThat(metadata[FakeMetadata.TEST_KEY_ABSENT]).isNull()
 
-        assertThat(metadata[CaptureResult.JPEG_QUALITY]).isNotNull()
+        assertThat(metadata[CaptureResult.JPEG_QUALITY]).isEqualTo(95)
         assertThat(metadata[CaptureResult.COLOR_CORRECTION_MODE]).isNull()
+
+        assertThat(metadata.getOrDefault(CaptureResult.JPEG_QUALITY, 10)).isEqualTo(95)
+        assertThat(metadata.getOrDefault(CaptureResult.COLOR_CORRECTION_MODE, -1)).isEqualTo(-1)
+
+        assertThat(metadata.keys).containsExactly(CaptureResult.JPEG_QUALITY)
+        assertThat(metadata.metadataKeys).containsExactly(FakeMetadata.TEST_KEY)
+    }
+
+    @Test
+    fun fakeFrameMetadata_includesExtraMetadataInKeysAndMetadataKeys() {
+        val extraMetaKey = Metadata.Key<String>("extra.meta.key")
+        val metadata =
+            FakeFrameMetadata(
+                resultMetadata = mapOf(CaptureResult.JPEG_QUALITY to 95),
+                extraResultMetadata = mapOf(FakeMetadata.TEST_KEY to 42),
+                extraMetadata =
+                    mapOf(
+                        CaptureResult.LENS_STATE to CaptureResult.LENS_STATE_STATIONARY,
+                        extraMetaKey to "extra_value",
+                    ),
+            )
+
+        assertThat(metadata[CaptureResult.JPEG_QUALITY]).isEqualTo(95)
+        assertThat(metadata[CaptureResult.LENS_STATE])
+            .isEqualTo(CaptureResult.LENS_STATE_STATIONARY)
+        assertThat(metadata[FakeMetadata.TEST_KEY]).isEqualTo(42)
+        assertThat(metadata[extraMetaKey]).isEqualTo("extra_value")
+
+        assertThat(metadata.keys)
+            .containsExactly(CaptureResult.JPEG_QUALITY, CaptureResult.LENS_STATE)
+        assertThat(metadata.metadataKeys).containsExactly(FakeMetadata.TEST_KEY, extraMetaKey)
     }
 }
 
@@ -235,7 +267,7 @@ class MetadataTransformTest {
             )
         val overrides =
             transform.transformFn.computeOverridesFor(
-                FakeFrameInfo(metadata = FakeFrameMetadata(frameNumber = FrameNumber(128))),
+                FakeFrameInfo(metadata = FakeFrameMetadata(frameNumber = CameraFrameNumber(128))),
                 CameraId("Fake"),
                 listOf(),
             )

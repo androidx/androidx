@@ -30,7 +30,6 @@ import androidx.camera.camera2.pipe.Converge3ABehavior
 import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Parameters
@@ -38,6 +37,7 @@ import androidx.camera.camera2.pipe.RequestListeners
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.CameraFrameNumber
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -61,7 +61,7 @@ class FakeCameraGraph(
     override val graphState: StateFlow<GraphState>
         get() = throw NotImplementedError("Not used in testing")
 
-    override val latestFrameNumber: Flow<FrameNumber>
+    override val latestFrameNumber: Flow<CameraFrameNumber>
         get() = throw NotImplementedError("Not used in testing")
 
     override val latestFrameInfo: Flow<FrameInfo>

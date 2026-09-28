@@ -17,10 +17,10 @@
 package androidx.camera.camera2.testing
 
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.common.CameraFrameNumber
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import kotlinx.atomicfu.atomic
@@ -58,7 +58,7 @@ class VerifyResultListener(capturesCount: Int) : Request.Listener {
 
     override fun onComplete(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         result: FrameInfo,
     ) {
         if (!startReceiving) {
@@ -81,7 +81,7 @@ class VerifyResultListener(capturesCount: Int) : Request.Listener {
 
     override fun onFailed(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         requestFailure: RequestFailure,
     ) {
         if (!startReceiving) {

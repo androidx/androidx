@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RestrictTo
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 
 /**
@@ -113,7 +114,7 @@ public interface ParameterUpdateListener {
      */
     public fun onUpdateStarted(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         timestamp: CameraTimestamp,
     )
 
@@ -126,7 +127,7 @@ public interface ParameterUpdateListener {
      */
     public fun onUpdateCompleted(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         result: FrameInfo,
     )
 

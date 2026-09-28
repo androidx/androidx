@@ -17,10 +17,10 @@
 package androidx.camera.camera2.pipe.internal
 
 import androidx.camera.camera2.pipe.CameraTimestamp
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.internal.OutputDistributor.OutputListener
 import androidx.camera.camera2.pipe.media.Finalizer
+import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import kotlinx.atomicfu.atomic
 import org.junit.Test
@@ -40,13 +40,13 @@ class OutputDistributorTest {
     private val fakeOutput6 = FakeOutput(106)
 
     private val pendingOutput1 =
-        PendingOutput(FrameNumber(1), CameraTimestamp(11), outputNumber = 101)
+        PendingOutput(CameraFrameNumber(1), CameraTimestamp(11), outputNumber = 101)
     private val pendingOutput2 =
-        PendingOutput(FrameNumber(2), CameraTimestamp(12), outputNumber = 102)
+        PendingOutput(CameraFrameNumber(2), CameraTimestamp(12), outputNumber = 102)
     private val pendingOutput3 =
-        PendingOutput(FrameNumber(3), CameraTimestamp(13), outputNumber = 103)
+        PendingOutput(CameraFrameNumber(3), CameraTimestamp(13), outputNumber = 103)
     private val pendingOutput4 =
-        PendingOutput(FrameNumber(4), CameraTimestamp(14), outputNumber = 104)
+        PendingOutput(CameraFrameNumber(4), CameraTimestamp(14), outputNumber = 104)
 
     private val outputDistributor =
         OutputDistributor(
@@ -449,8 +449,10 @@ class OutputDistributorTest {
 
     @Test
     fun outputDistributorIgnoresIdenticalFrameNumbersButDifferentOutputNumbers() {
-        val pendingOutput1 = PendingOutput(FrameNumber(1), CameraTimestamp(11), outputNumber = 101)
-        val pendingOutput2 = PendingOutput(FrameNumber(1), CameraTimestamp(12), outputNumber = 102)
+        val pendingOutput1 =
+            PendingOutput(CameraFrameNumber(1), CameraTimestamp(11), outputNumber = 101)
+        val pendingOutput2 =
+            PendingOutput(CameraFrameNumber(1), CameraTimestamp(12), outputNumber = 102)
         outputDistributor.startWith(pendingOutput1)
         // We shouldn't throw when OutputDistributor is started with identical frame numbers.
         outputDistributor.startWith(pendingOutput2)
@@ -469,8 +471,10 @@ class OutputDistributorTest {
 
     @Test
     fun outputDistributorIgnoresIdenticalFrameNumbersAndIdenticalOutputNumbers() {
-        val pendingOutput1 = PendingOutput(FrameNumber(1), CameraTimestamp(11), outputNumber = 101)
-        val pendingOutput2 = PendingOutput(FrameNumber(1), CameraTimestamp(12), outputNumber = 101)
+        val pendingOutput1 =
+            PendingOutput(CameraFrameNumber(1), CameraTimestamp(11), outputNumber = 101)
+        val pendingOutput2 =
+            PendingOutput(CameraFrameNumber(1), CameraTimestamp(12), outputNumber = 101)
         outputDistributor.startWith(pendingOutput1)
         // We shouldn't throw when OutputDistributor is started with identical frame numbers.
         outputDistributor.startWith(pendingOutput2)
@@ -493,8 +497,10 @@ class OutputDistributorTest {
 
     @Test
     fun outputDistributorFinalizesDuplicateResultsEventually() {
-        val pendingOutput1 = PendingOutput(FrameNumber(1), CameraTimestamp(11), outputNumber = 101)
-        val pendingOutput2 = PendingOutput(FrameNumber(1), CameraTimestamp(12), outputNumber = 101)
+        val pendingOutput1 =
+            PendingOutput(CameraFrameNumber(1), CameraTimestamp(11), outputNumber = 101)
+        val pendingOutput2 =
+            PendingOutput(CameraFrameNumber(1), CameraTimestamp(12), outputNumber = 101)
         outputDistributor.startWith(pendingOutput1)
         outputDistributor.startWith(pendingOutput2)
 
@@ -524,8 +530,10 @@ class OutputDistributorTest {
 
     @Test
     fun pendingOutputCompletesOnIdenticalTimestamps() {
-        val pendingOutput1 = PendingOutput(FrameNumber(1), CameraTimestamp(11), outputNumber = 101)
-        val pendingOutput2 = PendingOutput(FrameNumber(2), CameraTimestamp(11), outputNumber = 102)
+        val pendingOutput1 =
+            PendingOutput(CameraFrameNumber(1), CameraTimestamp(11), outputNumber = 101)
+        val pendingOutput2 =
+            PendingOutput(CameraFrameNumber(2), CameraTimestamp(11), outputNumber = 102)
         outputDistributor.startWith(pendingOutput1)
         outputDistributor.startWith(pendingOutput2)
 
@@ -540,8 +548,10 @@ class OutputDistributorTest {
 
     @Test
     fun pendingOutputCompletesOnIdenticalOutputNumbers() {
-        val pendingOutput1 = PendingOutput(FrameNumber(1), CameraTimestamp(11), outputNumber = 101)
-        val pendingOutput2 = PendingOutput(FrameNumber(2), CameraTimestamp(12), outputNumber = 101)
+        val pendingOutput1 =
+            PendingOutput(CameraFrameNumber(1), CameraTimestamp(11), outputNumber = 101)
+        val pendingOutput2 =
+            PendingOutput(CameraFrameNumber(2), CameraTimestamp(12), outputNumber = 101)
         outputDistributor.startWith(pendingOutput1)
         outputDistributor.startWith(pendingOutput2)
 
@@ -561,7 +571,7 @@ class OutputDistributorTest {
      * complete and the callback is invoked.
      */
     private class PendingOutput(
-        val cameraFrameNumber: FrameNumber,
+        val cameraFrameNumber: CameraFrameNumber,
         val cameraTimestamp: CameraTimestamp,
         val outputNumber: Long,
     ) : OutputListener<FakeOutput> {
@@ -574,7 +584,7 @@ class OutputDistributorTest {
         var outputStatus: OutputStatus? = null
 
         override fun onOutputComplete(
-            cameraFrameNumber: FrameNumber,
+            cameraFrameNumber: CameraFrameNumber,
             cameraTimestamp: CameraTimestamp,
             cameraOutputSequence: Long,
             outputNumber: Long,

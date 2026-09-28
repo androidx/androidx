@@ -17,13 +17,13 @@
 package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CaptureResult
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.UpdateCounting3AStateListener
+import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +48,7 @@ internal class Listener3ATest {
         listener3A.onRequestSequenceCreated(FakeRequestMetadata(requestNumber = RequestNumber(1)))
 
         val requestMetadata = FakeRequestMetadata(requestNumber = RequestNumber(1))
-        val frameNumber = FrameNumber(1L)
+        val frameNumber = CameraFrameNumber(1L)
         val captureResult =
             FakeFrameMetadata(
                 mapOf(CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO)
@@ -89,12 +89,12 @@ internal class Listener3ATest {
                         CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
                 )
             )
-        listener3A.onPartialCaptureResult(requestMetadata, FrameNumber(1), captureResult)
+        listener3A.onPartialCaptureResult(requestMetadata, CameraFrameNumber(1), captureResult)
         assertThat(result3AStateListener.partialUpdateCount).isEqualTo(1)
 
         // Since the first update didn't have the right key and it's desired value, the second
         // update should also be supplied to the result3AListener.
-        listener3A.onPartialCaptureResult(requestMetadata, FrameNumber(2), captureResult1)
+        listener3A.onPartialCaptureResult(requestMetadata, CameraFrameNumber(2), captureResult1)
         assertThat(result3AStateListener.partialUpdateCount).isEqualTo(2)
     }
 
@@ -122,7 +122,7 @@ internal class Listener3ATest {
         listener3A.addListener(result3AStateListener2)
 
         val requestMetadata = FakeRequestMetadata(requestNumber = RequestNumber(1))
-        val frameNumber = FrameNumber(1L)
+        val frameNumber = CameraFrameNumber(1L)
         val captureResult =
             FakeFrameMetadata(
                 mapOf(CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO)

@@ -18,13 +18,13 @@ package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CaptureResult
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
@@ -41,7 +41,11 @@ internal class Result3AStateListenerImplTest {
         frameMetadata: FrameMetadata,
     ) {
         val requestMetadata = FakeRequestMetadata(requestNumber = requestNumber)
-        this.onPartialCaptureResult(requestMetadata, frameMetadata.frameNumber, frameMetadata)
+        this.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(frameMetadata.frameNumber.value),
+            frameMetadata,
+        )
     }
 
     @Test
@@ -254,7 +258,7 @@ internal class Result3AStateListenerImplTest {
 
         val frameMetadata1 =
             FakeFrameMetadata(
-                frameNumber = FrameNumber(1),
+                frameNumber = CameraFrameNumber(1),
                 resultMetadata =
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
@@ -267,7 +271,7 @@ internal class Result3AStateListenerImplTest {
 
         val frameMetadata2 =
             FakeFrameMetadata(
-                frameNumber = FrameNumber(2),
+                frameNumber = CameraFrameNumber(2),
                 resultMetadata =
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
@@ -280,7 +284,7 @@ internal class Result3AStateListenerImplTest {
 
         val frameMetadata3 =
             FakeFrameMetadata(
-                frameNumber = FrameNumber(3),
+                frameNumber = CameraFrameNumber(3),
                 resultMetadata =
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
@@ -307,7 +311,7 @@ internal class Result3AStateListenerImplTest {
         val shouldRemove =
             listenerForKeys.onTotalCaptureResult(
                 requestMetadata,
-                frameMetadata3.frameNumber,
+                CameraFrameNumber(frameMetadata3.frameNumber.value),
                 frameInfo3,
             )
 
@@ -338,7 +342,7 @@ internal class Result3AStateListenerImplTest {
                             CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
                         CaptureResult.SENSOR_TIMESTAMP to 400000000L,
                     ),
-                frameNumber = FrameNumber(1),
+                frameNumber = CameraFrameNumber(1),
             )
         listenerForKeys.simulatePartialUpdate(requestMetadata.requestNumber, frameMetadata1)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
@@ -351,7 +355,7 @@ internal class Result3AStateListenerImplTest {
                             CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
                         CaptureResult.SENSOR_TIMESTAMP to 900000000L,
                     ),
-                frameNumber = FrameNumber(3),
+                frameNumber = CameraFrameNumber(3),
             )
         listenerForKeys.simulatePartialUpdate(requestMetadata.requestNumber, frameMetadata2)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
@@ -364,7 +368,7 @@ internal class Result3AStateListenerImplTest {
                             CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
                         CaptureResult.SENSOR_TIMESTAMP to 1500000000L,
                     ),
-                frameNumber = FrameNumber(10),
+                frameNumber = CameraFrameNumber(10),
             )
         listenerForKeys.simulatePartialUpdate(requestMetadata.requestNumber, frameMetadata3)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
@@ -377,7 +381,7 @@ internal class Result3AStateListenerImplTest {
                             CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
                         CaptureResult.SENSOR_TIMESTAMP to 1700000000L,
                     ),
-                frameNumber = FrameNumber(12),
+                frameNumber = CameraFrameNumber(12),
             )
 
         // This partial update crosses the frame limit threshold
@@ -398,7 +402,7 @@ internal class Result3AStateListenerImplTest {
         val shouldRemove =
             listenerForKeys.onTotalCaptureResult(
                 requestMetadata,
-                frameMetadata4.frameNumber,
+                CameraFrameNumber(frameMetadata4.frameNumber.value),
                 frameInfo4,
             )
 
@@ -502,10 +506,10 @@ internal class Result3AStateListenerImplTest {
         val requestMetadata = FakeRequestMetadata(requestNumber = requestNumber)
         listener.onRequestSequenceCreated(requestNumber)
 
-        val frameNumber = FrameNumber(100L)
+        val frameNumber = CameraFrameNumber(100L)
         val frameMetadata =
             FakeFrameMetadata(
-                frameNumber = frameNumber,
+                frameNumber = CameraFrameNumber(frameNumber.value),
                 resultMetadata =
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
@@ -543,10 +547,10 @@ internal class Result3AStateListenerImplTest {
         val requestMetadata = FakeRequestMetadata(requestNumber = requestNumber)
         listener.onRequestSequenceCreated(requestNumber)
 
-        val frameNumber = FrameNumber(100L)
+        val frameNumber = CameraFrameNumber(100L)
         val frameMetadata =
             FakeFrameMetadata(
-                frameNumber = frameNumber,
+                frameNumber = CameraFrameNumber(frameNumber.value),
                 resultMetadata =
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
@@ -601,7 +605,7 @@ internal class Result3AStateListenerImplTest {
 
         val frameMetadata =
             FakeFrameMetadata(
-                frameNumber = FrameNumber(1),
+                frameNumber = CameraFrameNumber(1),
                 resultMetadata =
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
@@ -611,8 +615,16 @@ internal class Result3AStateListenerImplTest {
         val frameInfo = FakeFrameInfo(metadata = frameMetadata)
 
         // Send a partial and total result that do NOT meet the exit condition
-        listener.onPartialCaptureResult(requestMetadata, frameMetadata.frameNumber, frameMetadata)
-        listener.onTotalCaptureResult(requestMetadata, frameMetadata.frameNumber, frameInfo)
+        listener.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(frameMetadata.frameNumber.value),
+            frameMetadata,
+        )
+        listener.onTotalCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(frameMetadata.frameNumber.value),
+            frameInfo,
+        )
 
         // Now cancel the repeating request
         listener.onStopRepeating()
@@ -642,7 +654,7 @@ internal class Result3AStateListenerImplTest {
         // Update 1: Set the baseline time and provide a total capture result
         val frame1 =
             FakeFrameMetadata(
-                frameNumber = FrameNumber(1),
+                frameNumber = CameraFrameNumber(1),
                 resultMetadata =
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
@@ -651,13 +663,21 @@ internal class Result3AStateListenerImplTest {
                     ),
             )
         val frameInfo1 = FakeFrameInfo(metadata = frame1)
-        listener.onPartialCaptureResult(requestMetadata, frame1.frameNumber, frame1)
-        listener.onTotalCaptureResult(requestMetadata, frame1.frameNumber, frameInfo1)
+        listener.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(frame1.frameNumber.value),
+            frame1,
+        )
+        listener.onTotalCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(frame1.frameNumber.value),
+            frameInfo1,
+        )
 
         // Update 2: Exceed the time limit
         val frame2 =
             FakeFrameMetadata(
-                frameNumber = FrameNumber(2),
+                frameNumber = CameraFrameNumber(2),
                 resultMetadata =
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
@@ -667,7 +687,11 @@ internal class Result3AStateListenerImplTest {
             )
 
         // This partial update will trigger the timeout
-        listener.onPartialCaptureResult(requestMetadata, frame2.frameNumber, frame2)
+        listener.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(frame2.frameNumber.value),
+            frame2,
+        )
 
         assertThat(listener.result.isCompleted).isTrue()
         val result3A = listener.result.getCompleted()
@@ -680,7 +704,11 @@ internal class Result3AStateListenerImplTest {
         // Send the actual total result for the frame that caused the timeout
         val frameInfo2 = FakeFrameInfo(metadata = frame2)
         val shouldRemove =
-            listener.onTotalCaptureResult(requestMetadata, frame2.frameNumber, frameInfo2)
+            listener.onTotalCaptureResult(
+                requestMetadata,
+                CameraFrameNumber(frame2.frameNumber.value),
+                frameInfo2,
+            )
 
         assertThat(shouldRemove).isTrue()
         // It should successfully complete using frameInfo2, not frameInfo1

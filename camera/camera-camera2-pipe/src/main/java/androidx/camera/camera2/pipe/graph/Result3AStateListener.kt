@@ -20,10 +20,10 @@ import android.hardware.camera2.CaptureResult
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.common.CameraFrameNumber
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
@@ -45,13 +45,13 @@ internal interface Result3AStateListener : GraphLoop.Listener {
 
     fun onPartialCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         captureResult: FrameMetadata,
     )
 
     fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         totalCaptureResult: FrameInfo,
     ): Boolean
 }
@@ -78,8 +78,8 @@ internal class Result3AStateListenerImpl(
 
     private val _frameInfo = CompletableDeferred<FrameInfo>()
 
-    @Volatile private var matchedFrameNumber: FrameNumber? = null
-    @Volatile private var frameNumberOfFirstUpdate: FrameNumber? = null
+    @Volatile private var matchedFrameNumber: CameraFrameNumber? = null
+    @Volatile private var frameNumberOfFirstUpdate: CameraFrameNumber? = null
     @Volatile private var timestampOfFirstUpdateNs: Long? = null
     @Volatile private var lastTotalCaptureResult: FrameInfo? = null
     @GuardedBy("this") private var initialRequestNumber: RequestNumber? = null
@@ -94,7 +94,7 @@ internal class Result3AStateListenerImpl(
 
     override fun onPartialCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         captureResult: FrameMetadata,
     ) {
         if (_result.isCompleted) return
@@ -103,7 +103,7 @@ internal class Result3AStateListenerImpl(
 
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         totalCaptureResult: FrameInfo,
     ): Boolean {
         lastTotalCaptureResult = totalCaptureResult
@@ -139,7 +139,7 @@ internal class Result3AStateListenerImpl(
         if (checkLimits(frameMetadata)) return true
 
         if (exitCondition(frameMetadata)) {
-            matchedFrameNumber = frameMetadata.frameNumber
+            matchedFrameNumber = CameraFrameNumber(frameMetadata.frameNumber.value)
             _result.complete(Result3A(Result3A.Status.OK, frameMetadata, _frameInfo))
             return true
         }
@@ -156,7 +156,7 @@ internal class Result3AStateListenerImpl(
 
     private fun checkLimits(frameMetadata: FrameMetadata): Boolean {
         val currentTimestampNs: Long? = frameMetadata.get(CaptureResult.SENSOR_TIMESTAMP)
-        val currentFrameNumber = frameMetadata.frameNumber
+        val currentFrameNumber = CameraFrameNumber(frameMetadata.frameNumber.value)
 
         if (currentTimestampNs != null && timestampOfFirstUpdateNs == null) {
             timestampOfFirstUpdateNs = currentTimestampNs

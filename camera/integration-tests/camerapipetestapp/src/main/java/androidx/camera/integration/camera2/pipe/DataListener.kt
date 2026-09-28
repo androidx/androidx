@@ -31,7 +31,7 @@ class DataListener(
     /** Receives CaptureResults and metadata from CameraPipe */
     //    override fun onCompleted(
     //        requestMetadata: RequestMetadata,
-    //        frameNumber: FrameNumber,
+    //        frameNumber: CameraFrameNumber,
     //        totalCaptureResult: TotalCaptureResult
     //    ) {
     //

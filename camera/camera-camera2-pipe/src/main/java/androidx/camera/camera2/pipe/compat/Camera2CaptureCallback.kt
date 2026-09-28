@@ -21,7 +21,7 @@ import android.hardware.camera2.CameraExtensionSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
-import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.common.CameraFrameNumber
 
 /**
  * Interface for merging functionality of [CameraCaptureSession.CaptureCallback] and
@@ -43,12 +43,12 @@ internal interface Camera2CaptureCallback {
     fun onCaptureCompleted(
         captureRequest: CaptureRequest,
         captureResult: TotalCaptureResult,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
     )
 
     fun onCaptureProcessProgressed(captureRequest: CaptureRequest, progress: Int)
 
-    fun onCaptureFailed(captureRequest: CaptureRequest, frameNumber: FrameNumber)
+    fun onCaptureFailed(captureRequest: CaptureRequest, frameNumber: CameraFrameNumber)
 
     fun onCaptureSequenceCompleted(captureSequenceId: Int, captureFrameNumber: Long)
 

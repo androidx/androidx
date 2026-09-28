@@ -17,10 +17,10 @@
 package androidx.camera.camera2.pipe.graph
 
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.common.CameraFrameNumber
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
 import kotlinx.atomicfu.updateAndGet
@@ -55,7 +55,7 @@ internal class CaptureLimiter(private val requestsUntilActive: Long) :
 
     override fun onComplete(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         result: FrameInfo,
     ) {
         val count = frameCount.updateAndGet { if (it == -1L) -1 else it + 1 }

@@ -20,7 +20,6 @@ import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.ParameterUpdateListener
 import androidx.camera.camera2.pipe.Parameters
 import androidx.camera.camera2.pipe.Request
@@ -30,6 +29,7 @@ import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.graph.GraphProcessor
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -270,7 +270,7 @@ internal class ParameterUpdateRequestListener(
 
     override fun onStarted(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         timestamp: CameraTimestamp,
     ) {
         if (started.compareAndSet(false, true)) {
@@ -280,7 +280,7 @@ internal class ParameterUpdateRequestListener(
 
     override fun onComplete(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         result: FrameInfo,
     ) {
         if (completed.compareAndSet(false, true)) {
@@ -309,7 +309,7 @@ internal class ParameterUpdateRequestListener(
 
     override fun onFailed(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         requestFailure: RequestFailure,
     ) {
         if (!started.get() && completed.compareAndSet(false, true)) {

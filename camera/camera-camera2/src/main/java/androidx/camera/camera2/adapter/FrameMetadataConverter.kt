@@ -21,12 +21,12 @@ import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import androidx.camera.core.impl.CameraCaptureResult
 import java.lang.Class
@@ -41,7 +41,8 @@ public object FrameMetadataConverter {
                 override fun get(camera: CameraId): FrameMetadata? = frameMetadata
 
                 override val camera: CameraId = frameMetadata.camera
-                override val frameNumber: FrameNumber = frameMetadata.frameNumber
+                override val frameNumber: CameraFrameNumber =
+                    CameraFrameNumber(frameMetadata.frameNumber.value)
                 override val requestMetadata: RequestMetadata = emptyRequestMetadata
 
                 override fun <T : Any> unwrapAs(type: Class<T>): T? = null
@@ -50,16 +51,18 @@ public object FrameMetadataConverter {
         return CaptureResultAdapter(
             emptyRequestMetadata,
             /** RequestMetadata not to be used here */
-            frameNumber,
+            CameraFrameNumber(frameNumber.value),
             frameInfo,
         )
     }
 
     private val emptyRequestMetadata =
         object : RequestMetadata {
-            override fun <T> get(key: CaptureRequest.Key<T>): T? = null
+            override val keys: List<CaptureRequest.Key<*>> = emptyList()
 
-            override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = default
+            override fun <T : Any> get(key: CaptureRequest.Key<T>): T? = null
+
+            override fun <T : Any> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = default
 
             override val template: RequestTemplate = RequestTemplate(0)
             override val streams: Map<StreamId, Surface> = mapOf()
@@ -68,8 +71,6 @@ public object FrameMetadataConverter {
             override val requestNumber: RequestNumber = RequestNumber(0)
 
             override fun <T : Any> get(key: Metadata.Key<T>): T? = null
-
-            override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T = default
 
             override val metadataKeys: Set<Metadata.Key<*>> = emptySet()
 

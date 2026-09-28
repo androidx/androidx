@@ -37,6 +37,7 @@ import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBefo
 import androidx.camera.camera2.pipe.CameraGraph.Session
 import androidx.camera.camera2.pipe.compat.Camera2Quirks
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -340,9 +341,6 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
          */
         public val METERING_REGIONS_DEFAULT: Array<MeteringRectangle> =
             arrayOf(MeteringRectangle(0, 0, 0, 0, 0))
-
-        /** Placeholder frame number for [Result3A] when a 3A method encounters an error. */
-        public val FRAME_NUMBER_INVALID: FrameNumber = FrameNumber(-1L)
     }
 
     /**
@@ -595,8 +593,8 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
      */
     public val graphState: StateFlow<GraphState>
 
-    /** Conflated flow of the most recent [FrameNumber]s emitted by this CameraGraph. */
-    public val latestFrameNumber: Flow<FrameNumber>
+    /** Conflated flow of the most recent [CameraFrameNumber]s emitted by this CameraGraph. */
+    public val latestFrameNumber: Flow<CameraFrameNumber>
 
     /** Conflated flow of the most recent [FrameInfo] instances emitted by this CameraGraph. */
     public val latestFrameInfo: Flow<FrameInfo>
@@ -850,7 +848,7 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun <T> CameraGraphBase<*>.subscribeToLatestFrameResult(
+        public fun <T : Any> CameraGraphBase<*>.subscribeToLatestFrameResult(
             captureResultKey: CaptureResult.Key<T>,
             filter: ((RequestMetadata) -> Boolean)? = null,
         ): Flow<T?> =

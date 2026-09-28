@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.EmulatorDeviceTemplate
@@ -31,6 +30,7 @@ import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -82,9 +82,9 @@ internal class Controller3AUnlock3ATest {
                 )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                    FrameNumber(101L),
+                    CameraFrameNumber(101L),
                     FakeFrameMetadata(
-                        frameNumber = FrameNumber(101L),
+                        frameNumber = CameraFrameNumber(101L),
                         resultMetadata =
                             mapOf(
                                 CaptureResult.CONTROL_AE_STATE to
@@ -113,9 +113,9 @@ internal class Controller3AUnlock3ATest {
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                FrameNumber(101L),
+                CameraFrameNumber(101L),
                 FakeFrameMetadata(
-                    frameNumber = FrameNumber(101L),
+                    frameNumber = CameraFrameNumber(101L),
                     resultMetadata =
                         mapOf(
                             CaptureResult.CONTROL_AE_STATE to
@@ -142,9 +142,9 @@ internal class Controller3AUnlock3ATest {
                 )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                    FrameNumber(101L),
+                    CameraFrameNumber(101L),
                     FakeFrameMetadata(
-                        frameNumber = FrameNumber(101L),
+                        frameNumber = CameraFrameNumber(101L),
                         resultMetadata =
                             mapOf(
                                 CaptureResult.CONTROL_AF_STATE to
@@ -177,9 +177,9 @@ internal class Controller3AUnlock3ATest {
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                FrameNumber(101L),
+                CameraFrameNumber(101L),
                 FakeFrameMetadata(
-                    frameNumber = FrameNumber(101L),
+                    frameNumber = CameraFrameNumber(101L),
                     resultMetadata =
                         mapOf(
                             CaptureResult.CONTROL_AF_STATE to
@@ -206,9 +206,9 @@ internal class Controller3AUnlock3ATest {
                 )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                    FrameNumber(101L),
+                    CameraFrameNumber(101L),
                     FakeFrameMetadata(
-                        frameNumber = FrameNumber(101L),
+                        frameNumber = CameraFrameNumber(101L),
                         resultMetadata =
                             mapOf(
                                 CaptureResult.CONTROL_AWB_STATE to
@@ -237,9 +237,9 @@ internal class Controller3AUnlock3ATest {
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                FrameNumber(101L),
+                CameraFrameNumber(101L),
                 FakeFrameMetadata(
-                    frameNumber = FrameNumber(101L),
+                    frameNumber = CameraFrameNumber(101L),
                     resultMetadata =
                         mapOf(
                             CaptureResult.CONTROL_AWB_STATE to
@@ -266,9 +266,9 @@ internal class Controller3AUnlock3ATest {
                 )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                    FrameNumber(101L),
+                    CameraFrameNumber(101L),
                     FakeFrameMetadata(
-                        frameNumber = FrameNumber(101L),
+                        frameNumber = CameraFrameNumber(101L),
                         resultMetadata =
                             mapOf(
                                 CaptureResult.CONTROL_AE_STATE to
@@ -306,9 +306,9 @@ internal class Controller3AUnlock3ATest {
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                FrameNumber(101L),
+                CameraFrameNumber(101L),
                 FakeFrameMetadata(
-                    frameNumber = FrameNumber(101L),
+                    frameNumber = CameraFrameNumber(101L),
                     resultMetadata =
                         mapOf(
                             CaptureResult.CONTROL_AF_STATE to
@@ -354,9 +354,9 @@ internal class Controller3AUnlock3ATest {
                 )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                    FrameNumber(frameNumber),
+                    CameraFrameNumber(frameNumber),
                     FakeFrameMetadata(
-                        frameNumber = FrameNumber(frameNumber++),
+                        frameNumber = CameraFrameNumber(frameNumber++),
                         resultMetadata =
                             mapOf(
                                 CaptureResult.CONTROL_AE_STATE to
@@ -394,9 +394,9 @@ internal class Controller3AUnlock3ATest {
                 )
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                    FrameNumber(frameNumber),
+                    CameraFrameNumber(frameNumber),
                     FakeFrameMetadata(
-                        frameNumber = FrameNumber(frameNumber++),
+                        frameNumber = CameraFrameNumber(frameNumber++),
                         resultMetadata =
                             mapOf(
                                 CaptureResult.CONTROL_AF_STATE to
