@@ -233,6 +233,16 @@ fun MainScreen(
                 }
                 item {
                     MenuButton(
+                        "RemoteSegmentedCircularProgressIndicator",
+                        onClick = {
+                            navigateToRoute(
+                                Screen.RemoteSegmentedCircularProgressIndicatorDemosScreen.route
+                            )
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
                         "RemoteCurvedProgressIndicator",
                         onClick = {
                             navigateToRoute(Screen.RemoteCurvedProgressIndicatorDemosScreen.route)

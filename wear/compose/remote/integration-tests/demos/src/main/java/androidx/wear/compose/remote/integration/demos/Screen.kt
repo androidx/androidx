@@ -40,6 +40,9 @@ sealed class Screen(val route: String) {
     object RemoteCircularProgressIndicatorDemosScreen :
         Screen("remoteCircularProgressIndicatorDemosScreen")
 
+    object RemoteSegmentedCircularProgressIndicatorDemosScreen :
+        Screen("remoteSegmentedCircularProgressIndicatorDemosScreen")
+
     object RemoteCurvedProgressIndicatorDemosScreen :
         Screen("remoteCurvedProgressIndicatorDemosScreen")
 
