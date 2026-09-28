@@ -43,7 +43,7 @@ androidXMultiplatform {
     sourceSets {
         commonMain.dependencies {
             api(project(":navigation3:navigation3-runtime"))
-            api(project(":navigationevent:navigationevent-compose"))
+            api("androidx.navigationevent:navigationevent-compose:1.2.0-rc01")
             api("androidx.compose.animation:animation:1.13.0-alpha03")
             api("androidx.compose.runtime:runtime:1.13.0-alpha03")
             api("androidx.compose.runtime:runtime-saveable:1.10.0")
@@ -60,7 +60,7 @@ androidXMultiplatform {
             implementation(libs.kotlinTest)
             implementation(project(":kruth:kruth"))
             implementation(project(":compose:runtime:runtime-test-utils"))
-            implementation(project(":navigationevent:navigationevent-testing"))
+            implementation("androidx.navigationevent:navigationevent-testing:1.2.0-rc01")
         }
 
         androidMain.dependencies {
