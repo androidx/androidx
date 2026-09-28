@@ -21,8 +21,14 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
+import androidx.collection.MutableIntList
+import androidx.collection.MutableObjectIntMap
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurfaceDetector
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
+import androidx.glance.adaptive.core.WidgetInstanceInfo
+import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -90,6 +96,64 @@ internal class BaseWidgetDelegate(
                 Log.e(TAG, "Error pushing widget update for widgetName $widgetName", e)
             }
         }
+
+    /**
+     * Enumerates active platform AppWidgets for [widgetName] and folds them into one
+     * [WidgetInstanceInfo] per widget instance String identifier.
+     *
+     * Several platform AppWidgets can carry the same identifier, so placements are counted per
+     * resolved host surface rather than returned individually. Placements with no stored identifier
+     * are skipped: they cannot be targeted by [pushUpdate], so reporting them would describe an
+     * instance the caller has no way to address.
+     *
+     * @param widgetName Developer widget definition String identifier matching
+     *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @return Active instances for [widgetName], or an empty list if none are placed.
+     * @throws RuntimeException if the options of any placement cannot be read, rather than
+     *   returning a partial result.
+     */
+    override suspend fun getActiveInstances(widgetName: String): List<WidgetInstanceInfo> =
+        withContext(Dispatchers.IO) {
+            val componentToAppWidgetIds =
+                repository.findAppWidgetIdsForWidgetName(widgetName, widgetIds = null)
+            if (componentToAppWidgetIds.isEmpty()) return@withContext emptyList()
+
+            // Sorted so that the options bundle retained for an identifier placed more than
+            // once is always the lowest appWidgetId's, making the result deterministic.
+            val sortedAppWidgetIds = MutableIntList()
+            componentToAppWidgetIds.values.forEach { sortedAppWidgetIds.addAll(it) }
+            sortedAppWidgetIds.sort()
+
+            val accumulators = LinkedHashMap<String, InstanceAccumulator>()
+            for (i in 0 until sortedAppWidgetIds.size) {
+                val appWidgetId = sortedAppWidgetIds[i]
+                val options = appWidgetManager.getAppWidgetOptions(appWidgetId) ?: continue
+                // A blank identifier is treated as absent, matching how the receiver decides
+                // that an identifier still needs to be generated for a placement.
+                val widgetId =
+                    options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)?.takeIf {
+                        it.isNotBlank()
+                    } ?: continue
+                val surface = AppWidgetSurfaceDetector.fromAppWidgetOptions(options)
+                val accumulator = accumulators.getOrPut(widgetId) { InstanceAccumulator(options) }
+                accumulator.surfacePlacements[surface] =
+                    accumulator.surfacePlacements.getOrDefault(surface, 0) + 1
+            }
+
+            accumulators.map { (widgetId, accumulator) ->
+                WidgetInstanceInfo(
+                    widgetName = widgetName,
+                    widgetId = widgetId,
+                    options = accumulator.options,
+                    surfacePlacements = accumulator.surfacePlacements,
+                )
+            }
+        }
+
+    /** Collects the placements sharing one widget instance String identifier. */
+    private class InstanceAccumulator(val options: Bundle) {
+        val surfacePlacements: MutableObjectIntMap<GlanceSurface> = MutableObjectIntMap()
+    }
 
     /**
      * Sets dynamic preview data rendered in host widget pickers for the specified widget
