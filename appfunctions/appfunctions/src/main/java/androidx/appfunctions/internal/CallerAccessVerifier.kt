@@ -276,7 +276,7 @@ internal object CallerAccessVerifier {
         context: Context,
         targetPackageName: String,
         @AppFunctionMetadata.AccessLevel accessLevel: Int,
-        isCompatEnforcementEnabled: Boolean = true,
+        isCompatEnforcementEnabled: Boolean = false,
     ): Boolean {
         if (isAtLeastCinnamonBunMinor2() || !isCompatEnforcementEnabled) {
             return true
@@ -288,6 +288,22 @@ internal object CallerAccessVerifier {
                 isSelf(context, targetPackageName) || isCallerSystem(context)
             else -> false
         }
+    }
+
+    /**
+     * Checks if the caller identity can discover an app function with the given [metadata] on older
+     * platform versions (< 17.2).
+     */
+    fun canCallerDiscoverFunction(
+        context: Context,
+        metadata: AppFunctionMetadata,
+    ): Boolean {
+        return canCallerDiscoverFunction(
+            context = context,
+            targetPackageName = metadata.packageName,
+            accessLevel = metadata.accessLevel,
+            isCompatEnforcementEnabled = metadata.isCompatEnforcementEnabled,
+        )
     }
 
     /** Determines whether the target package shares the same UID as the caller [Process.myUid]. */
