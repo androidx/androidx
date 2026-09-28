@@ -25,6 +25,14 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 
+import androidx.compose.remote.integration.view.demos.blog.ComposeDragDSLKt;
+import androidx.compose.remote.integration.view.demos.blog.DslAnimatedRadiusKt;
+import androidx.compose.remote.integration.view.demos.blog.DslCollisionDetectionKt;
+import androidx.compose.remote.integration.view.demos.blog.DslDiscoBallKt;
+import androidx.compose.remote.integration.view.demos.blog.DslFlappyDroidKt;
+import androidx.compose.remote.integration.view.demos.blog.DslParticlBreakupKt;
+import androidx.compose.remote.integration.view.demos.blog.DslTouchBounceKt;
+import androidx.compose.remote.integration.view.demos.dsl.DSLJetpackDroidKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslButtonsDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCollapsiblePriorityDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCustomComponentDemoKt;
@@ -230,17 +238,17 @@ public abstract class DemosCreation {
 //        demos.add(get("-0/030/conditional", DslConditionalKt::dslConditionalDemo));
         if (dsl) {
             demos.addAll(Arrays.asList(
-                    get("-0/031/ModernShowcaseDemo",
+                    get("0/031/ModernShowcaseDemo",
                             DslModernShowcaseDemoKt::dslModernShowcaseDemo),
-                    get("-0/034/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
-                    get("-0/035/dslMetronome", DslMetronomeKt::dslMetronomeDemo),
-                    get("-0/033/Demo3", RcDslDemoKt::dslDemo),
-                    get("-0/021/gameAstroDodger", DslGameAstroDodgerKt::dslGameAstroDodger),
-                    get("-0/022/gameMarbleTilt", DslGameMarbleTiltKt::dslGameMarbleTilt),
-                    get("-0/020/gamePaddleBattle", DslGamePaddleBattleKt::dslGamePaddleBattle),
-                    get("-0/019/gameFlappyDroid", DslGameFlappyDroidKt::dslGameFlappyDroid),
-                    get("-0/025/gameCannonShoot", DslGameCannonShootKt::dslGameCannonShoot),
-                    get("-0/026/gameSideScroller", DslGameSideScrollerKt::dslGameSideScroller)));
+                    get("0/034/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
+                    get("0/035/dslMetronome", DslMetronomeKt::dslMetronomeDemo),
+                    get("0/033/Demo3", RcDslDemoKt::dslDemo),
+                    get("0/021/gameAstroDodger", DslGameAstroDodgerKt::dslGameAstroDodger),
+                    get("0/022/gameMarbleTilt", DslGameMarbleTiltKt::dslGameMarbleTilt),
+                    get("0/020/gamePaddleBattle", DslGamePaddleBattleKt::dslGamePaddleBattle),
+                    get("0/019/gameFlappyDroid", DslGameFlappyDroidKt::dslGameFlappyDroid),
+                    get("0/025/gameCannonShoot", DslGameCannonShootKt::dslGameCannonShoot),
+                    get("0/026/gameSideScroller", DslGameSideScrollerKt::dslGameSideScroller)));
 
 
         }
@@ -471,6 +479,15 @@ public abstract class DemosCreation {
                     get("1/32/PressureGauge", DslPressureGaugeKt::dslDemoPressureGauge),
                     get("1/33/RadialGradientFocus",
                         DslRadialGradientFocusDemoKt::dslRadialGradientFocusDemo),
+                    get("1/33b/AnimatedRadius", DslAnimatedRadiusKt::dslAnimatedRadius),
+                    get("1/34b/CollisionDetection",
+                            DslCollisionDetectionKt::dslCollisionDetection),
+                    get("1/35b/DiscoBall", DslDiscoBallKt::dslDiscoBall),
+                    get("1/36b/ParticlBreakup", DslParticlBreakupKt::dslParticlBreakup),
+                    get("1/37b/TouchBounce", DslTouchBounceKt::dslTouchBounce),
+                    get("1/38b/DragCirclesDsl", ComposeDragDSLKt::dslDragCirclesDsl_old2),
+                    get("1/39b/dslJetpackDroid", DSLJetpackDroidKt::dslJetpackDroid),
+                    get("1/40b/FlappyDroid", DslFlappyDroidKt::dslFlappyDroid),
 
 //                    get("1/0/RcScrollview", DslRcScrollviewKt::dslRcScrollview),
                     get("1/37/RcSimpleSwitch", DslRcSimpleSwitchKt::dslRcSimpleSwitchDemo),
