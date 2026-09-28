@@ -16,12 +16,20 @@
 
 package androidx.test.uiautomator.testapp;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import android.os.Build;
+import android.view.accessibility.AccessibilityEvent;
 
 import androidx.test.filters.LargeTest;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
+import androidx.test.uiautomator.Direction;
+import androidx.test.uiautomator.EventCondition;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
@@ -293,6 +301,98 @@ public class UntilTest extends BaseTest {
         waitForCondition(() -> {
             assertTrue(target.wait(Until.textEndsWith("ed_text"), TIMEOUT_MS));
         }, button::click);
+    }
+
+    @Test
+    public void scrollFinished_evaluatesMatchingAxis_whenOrthogonalAxisIsUnset() {
+        // Single-axis vertical scroll events (scrollX and maxScrollX are unset at -1).
+        AccessibilityEvent verticalMidScrollEvent =
+                createScrollEvent(
+                        /* scrollX= */ -1,
+                        /* maxScrollX= */ -1,
+                        /* scrollY= */ 50,
+                        /* maxScrollY= */ 100);
+        AccessibilityEvent verticalBottomEndEvent =
+                createScrollEvent(
+                        /* scrollX= */ -1,
+                        /* maxScrollX= */ -1,
+                        /* scrollY= */ 100,
+                        /* maxScrollY= */ 100);
+        AccessibilityEvent verticalTopEndEvent =
+                createScrollEvent(
+                        /* scrollX= */ -1,
+                        /* maxScrollX= */ -1,
+                        /* scrollY= */ 0,
+                        /* maxScrollY= */ 100);
+
+        // Single-axis horizontal scroll events (scrollY and maxScrollY are unset at -1).
+        AccessibilityEvent horizontalMidScrollEvent =
+                createScrollEvent(
+                        /* scrollX= */ 40,
+                        /* maxScrollX= */ 80,
+                        /* scrollY= */ -1,
+                        /* maxScrollY= */ -1);
+        AccessibilityEvent horizontalRightEndEvent =
+                createScrollEvent(
+                        /* scrollX= */ 80,
+                        /* maxScrollX= */ 80,
+                        /* scrollY= */ -1,
+                        /* maxScrollY= */ -1);
+        AccessibilityEvent horizontalLeftEndEvent =
+                createScrollEvent(
+                        /* scrollX= */ 0,
+                        /* maxScrollX= */ 80,
+                        /* scrollY= */ -1,
+                        /* maxScrollY= */ -1);
+
+        // Downward scroll finishes when scrollY reaches maxScrollY, even if scrollX is -1.
+        EventCondition<Boolean> downCondition = Until.scrollFinished(Direction.DOWN);
+        assertFalse(downCondition.accept(verticalMidScrollEvent));
+        assertEquals(Boolean.FALSE, downCondition.getResult());
+        assertTrue(downCondition.accept(verticalBottomEndEvent));
+        assertEquals(Boolean.TRUE, downCondition.getResult());
+
+        // Upward scroll finishes when scrollY reaches 0, even if scrollX is -1.
+        EventCondition<Boolean> upCondition = Until.scrollFinished(Direction.UP);
+        assertFalse(upCondition.accept(verticalMidScrollEvent));
+        assertEquals(Boolean.FALSE, upCondition.getResult());
+        assertTrue(upCondition.accept(verticalTopEndEvent));
+        assertEquals(Boolean.TRUE, upCondition.getResult());
+
+        // Rightward scroll finishes when scrollX reaches maxScrollX, even if scrollY is -1.
+        EventCondition<Boolean> rightCondition = Until.scrollFinished(Direction.RIGHT);
+        assertFalse(rightCondition.accept(horizontalMidScrollEvent));
+        assertEquals(Boolean.FALSE, rightCondition.getResult());
+        assertTrue(rightCondition.accept(horizontalRightEndEvent));
+        assertEquals(Boolean.TRUE, rightCondition.getResult());
+
+        // Leftward scroll finishes when scrollX reaches 0, even if scrollY is -1.
+        EventCondition<Boolean> leftCondition = Until.scrollFinished(Direction.LEFT);
+        assertFalse(leftCondition.accept(horizontalMidScrollEvent));
+        assertEquals(Boolean.FALSE, leftCondition.getResult());
+        assertTrue(leftCondition.accept(horizontalLeftEndEvent));
+        assertEquals(Boolean.TRUE, leftCondition.getResult());
+
+        // A vertical scroll condition ignores horizontal-only scroll events where scrollY is -1.
+        EventCondition<Boolean> unpopulatedVertical = Until.scrollFinished(Direction.DOWN);
+        assertFalse(unpopulatedVertical.accept(horizontalMidScrollEvent));
+        assertNull(unpopulatedVertical.getResult());
+    }
+
+    // The AccessibilityEvent(int) constructor was added in API 30; fall back to the deprecated
+    // AccessibilityEvent.obtain(int) factory method on older API levels.
+    @SuppressWarnings("deprecation")
+    private static AccessibilityEvent createScrollEvent(
+            int scrollX, int maxScrollX, int scrollY, int maxScrollY) {
+        AccessibilityEvent event =
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                        ? new AccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SCROLLED)
+                        : AccessibilityEvent.obtain(AccessibilityEvent.TYPE_VIEW_SCROLLED);
+        event.setScrollX(scrollX);
+        event.setMaxScrollX(maxScrollX);
+        event.setScrollY(scrollY);
+        event.setMaxScrollY(maxScrollY);
+        return event;
     }
 
     /** Verifies that a condition is met after the required action is executed. */

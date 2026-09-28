@@ -38,7 +38,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
@@ -57,6 +59,9 @@ class ComposeTestActivity : ComponentActivity() {
 
 @Composable
 private fun TestView() {
+    // Compose suppresses accessibility events when only UiAutomation is connected (b/212882843).
+    // Force-enable accessibility event dispatch so scroll tests receive TYPE_VIEW_SCROLLED events.
+    (LocalView.current as RootForTest).forceAccessibilityForTesting(true)
     val scrollHeight =
         with(LocalDensity.current) { (2 * LocalWindowInfo.current.containerSize.height).toDp() }
 
