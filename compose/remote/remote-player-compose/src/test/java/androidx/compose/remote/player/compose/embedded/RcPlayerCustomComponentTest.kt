@@ -43,9 +43,8 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
-import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
@@ -514,8 +513,7 @@ class RcPlayerCustomComponentTest {
 
         rule.onNodeWithText("initial-text").assertExists()
 
-        rule.onNode(hasSetTextAction()).performClick()
-        rule.onNode(hasSetTextAction()).performTextInput("-updated")
+        rule.onNode(hasSetTextAction()).performTextReplacement("initial-text-updated")
         rule.waitForIdle()
         rule.onNode(hasSetTextAction()).performImeAction()
 

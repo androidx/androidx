@@ -68,14 +68,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 /**
  * Behavioral tests for [GraphicsLayerModifierOperation] in the embedded [RcPlayer] and wire
  * serialization defaults in `remote-creation-compose`.
  */
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [35])
 class RcPlayerGraphicsLayerTest {
 

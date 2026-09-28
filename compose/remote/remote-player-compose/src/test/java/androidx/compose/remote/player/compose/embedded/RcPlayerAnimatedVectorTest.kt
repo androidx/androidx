@@ -45,14 +45,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 /**
  * End-to-end integration test verifying that a native Animated Vector Drawable renders and animates
  * faithfully in the embedded player ([RcPlayer]) without faking dynamic evaluation.
  */
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [35])
 class RcPlayerAnimatedVectorTest {
 
