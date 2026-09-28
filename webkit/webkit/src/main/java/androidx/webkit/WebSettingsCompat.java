@@ -751,6 +751,11 @@ public class WebSettingsCompat {
         }
     }
 
+    /**
+     * @deprecated In WebView version 152 and later, Attribution Reporting is no longer supported
+     * by WebView.
+     */
+    @Deprecated
     @IntDef({ATTRIBUTION_BEHAVIOR_DISABLED,
             ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER,
             ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER,
@@ -766,7 +771,11 @@ public class WebSettingsCompat {
      * Note that the initial network call to the Attribution Source or Trigger URIs may still
      * happen depending on the installed version of WebView, but any response is discarded and
      * nothing will be stored on the device.
+     *
+     * @deprecated In WebView version 152 and later, Attribution Reporting is no longer supported
+     * by WebView.
      */
+    @Deprecated
     @SuppressWarnings("deprecation")
     public static final int ATTRIBUTION_BEHAVIOR_DISABLED =
             WebSettingsBoundaryInterface.AttributionBehavior.DISABLED;
@@ -776,7 +785,11 @@ public class WebSettingsCompat {
      * eTLD+1) from WebView.
      * <p>
      * This is the default behavior.
+     *
+     * @deprecated In WebView version 152 and later, Attribution Reporting is no longer supported
+     * by WebView.
      */
+    @Deprecated
     @SuppressWarnings("deprecation")
     public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER =
             WebSettingsBoundaryInterface.AttributionBehavior.APP_SOURCE_AND_WEB_TRIGGER;
@@ -787,14 +800,22 @@ public class WebSettingsCompat {
      * This option should only be used after applying to
      * <a href="https://developer.android.com/design-for-safety/privacy-sandbox/attribution-app-to-web#register-attribution">
      * use web sources</a>.
+     *
+     * @deprecated In WebView version 152 and later, Attribution Reporting is no longer supported
+     * by WebView.
      */
+    @Deprecated
     @SuppressWarnings("deprecation")
     public static final int ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER =
             WebSettingsBoundaryInterface.AttributionBehavior.WEB_SOURCE_AND_WEB_TRIGGER;
     /**
      * AttributionRegistrationBehavior that allows apps to register app sources and app triggers
      * from WebView.
+     *
+     * @deprecated In WebView version 152 and later, Attribution Reporting is no longer supported
+     * by WebView.
      */
+    @Deprecated
     @SuppressWarnings("deprecation")
     public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER =
             WebSettingsBoundaryInterface.AttributionBehavior.APP_SOURCE_AND_APP_TRIGGER;
@@ -828,7 +849,10 @@ public class WebSettingsCompat {
      * @throws UnsupportedOperationException if the
      *     {@link WebViewFeature#ATTRIBUTION_REGISTRATION_BEHAVIOR} feature is not supported.
      *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     * @deprecated In WebView version 152 and later, Attribution Reporting is no longer supported
+     * by WebView.
      */
+    @Deprecated
     @RequiresFeature(name = WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setAttributionRegistrationBehavior(@NonNull WebSettings settings,
@@ -854,7 +878,10 @@ public class WebSettingsCompat {
      * @throws UnsupportedOperationException if the
      *     {@link WebViewFeature#ATTRIBUTION_REGISTRATION_BEHAVIOR} feature is not supported.
      *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     * @deprecated In WebView version 152 and later, Attribution Reporting is no longer supported
+     * by WebView.
      */
+    @Deprecated
     @RequiresFeature(name = WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @AttributionRegistrationBehavior
