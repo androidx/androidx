@@ -21,8 +21,10 @@ import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.ExperimentalPagingApi
+import androidx.paging.ItemSnapshotList
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.asItemSnapshotListFlow
 import androidx.paging.cachedIn
 import androidx.paging.insertFooterItem
 import androidx.paging.insertHeaderItem
@@ -31,7 +33,9 @@ import androidx.paging.integration.testapp.room.Customer
 import androidx.paging.integration.testapp.room.SampleDatabase
 import androidx.room.Room
 import java.util.UUID
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 class V3RoomViewModel(application: Application) : AndroidViewModel(application) {
     val database =
@@ -61,14 +65,16 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     @OptIn(ExperimentalPagingApi::class)
-    val flow =
+    val pager =
         Pager(
-                PagingConfig(10),
-                remoteMediator = V3RemoteMediator(database, NetworkCustomerPagingSource.FACTORY),
-            ) {
-                database.customerDao.loadPagedAgeOrderPagingSource()
-            }
-            .flow
+            PagingConfig(10),
+            remoteMediator = V3RemoteMediator(database, NetworkCustomerPagingSource.FACTORY),
+        ) {
+            database.customerDao.loadPagedAgeOrderPagingSource()
+        }
+
+    val flow =
+        pager.flow
             .map { pagingData ->
                 pagingData
                     .insertSeparators { before: Customer?, after: Customer? ->
@@ -110,4 +116,13 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
                     )
             }
             .cachedIn(viewModelScope)
+
+    val asItemSnapshotFlow =
+        flow
+            .asItemSnapshotListFlow()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.Lazily,
+                ItemSnapshotList(0, 0, emptyList()),
+            )
 }
