@@ -31,7 +31,6 @@ import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RecordingRemoteComposeBuffer
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.DrawRect
@@ -51,6 +50,7 @@ import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companio
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.remote.creation.compose.state.StandardRemotePaint
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
@@ -213,7 +213,7 @@ class RecordingCanvasTest {
     }
 
     private fun constructSimpleConditionalDocument(flag: RemoteBoolean): CoreDocument {
-        val angle = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) * 6f % 360.0f
+        val angle = RemoteTimeVariables.continuousSeconds * 6f % 360.0f
         recordingCanvas.drawConditionally(flag) {
             recordingCanvas.save()
             recordingCanvas.rotate(angle, 150f.rf, 150f.rf)
@@ -264,7 +264,7 @@ class RecordingCanvasTest {
     private class Hues(val hue1: RemoteString, val hue2: RemoteString)
 
     private fun createConditionalHues(flag: RemoteBoolean): Hues {
-        val tweenFactor = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) / 30f % 1f
+        val tweenFactor = RemoteTimeVariables.continuousSeconds / 30f % 1f
         val colorRamp = tween(ComposeColor.Red.rc, ComposeColor.Blue.rc, tweenFactor)
         val hue = colorRamp.hue
         val hueString1 = hue.toRemoteString(DecimalFormat("0.00"))
@@ -371,7 +371,7 @@ class RecordingCanvasTest {
         paint.color =
             RemoteColor.rgb(
                 RemoteFloat(0.8f),
-                RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                RemoteTimeVariables.continuousSeconds,
                 RemoteFloat(0.5f),
                 RemoteFloat(1f),
             )
@@ -412,7 +412,7 @@ class RecordingCanvasTest {
             RemoteBlendModeColorFilter(
                 RemoteColor.rgb(
                     RemoteFloat(0.8f),
-                    RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                    RemoteTimeVariables.continuousSeconds,
                     RemoteFloat(0.5f),
                     RemoteFloat(1f),
                 ),
@@ -434,7 +434,7 @@ class RecordingCanvasTest {
             RemoteBlendModeColorFilter(
                 RemoteColor.rgb(
                     RemoteFloat(0.8f),
-                    RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                    RemoteTimeVariables.continuousSeconds,
                     RemoteFloat(0.5f),
                     RemoteFloat(1f),
                 ),
@@ -455,7 +455,7 @@ class RecordingCanvasTest {
         paint.color =
             RemoteColor.rgb(
                 RemoteFloat(0.8f),
-                RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                RemoteTimeVariables.continuousSeconds,
                 RemoteFloat(0.5f),
                 RemoteFloat(1f),
             )
@@ -463,7 +463,7 @@ class RecordingCanvasTest {
             RemoteBlendModeColorFilter(
                 RemoteColor.rgb(
                     RemoteFloat(0.8f),
-                    RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                    RemoteTimeVariables.continuousSeconds,
                     RemoteFloat(0.5f),
                     RemoteFloat(1f),
                 ),

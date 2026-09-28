@@ -18,7 +18,6 @@ package androidx.compose.remote.creation.compose.state
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteEnum.Companion.createNamedRemoteEnum
 import androidx.compose.remote.creation.compose.state.RemoteState.Domain
@@ -93,7 +92,7 @@ class RemoteEnumTest {
     fun constantValue() {
         assertThat(RemoteEnum(Checked.Off).constantValue).isEqualTo(Checked.Off)
 
-        val variableInt = (RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) % 1.rf).toRemoteInt()
+        val variableInt = (RemoteTimeVariables.continuousSeconds % 1.rf).toRemoteInt()
         assertThat(RemoteEnum(variableInt, enumEntries<Checked>()).constantValueOrNull).isNull()
     }
 

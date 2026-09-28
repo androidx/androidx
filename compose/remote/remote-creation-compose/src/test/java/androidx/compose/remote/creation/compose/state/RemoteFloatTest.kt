@@ -372,10 +372,7 @@ class RemoteFloatTest {
 
     @Test
     fun constantValue_notConstant() {
-        assertThat(
-                (RemoteFloat(10f) - RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC))
-                    .constantValueOrNull
-            )
+        assertThat((RemoteFloat(10f) - RemoteTimeVariables.continuousSeconds).constantValueOrNull)
             .isNull()
     }
 
@@ -427,16 +424,12 @@ class RemoteFloatTest {
 
     @Test
     fun hasConstantValue_false() {
-        assertThat(RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC).hasConstantValue).isFalse()
-        assertThat(
-                RemoteFloat(21.5f)
-                    .plus(RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC))
-                    .hasConstantValue
-            )
+        assertThat(RemoteTimeVariables.continuousSeconds.hasConstantValue).isFalse()
+        assertThat(RemoteFloat(21.5f).plus(RemoteTimeVariables.continuousSeconds).hasConstantValue)
             .isFalse()
         assertThat(createNamedRemoteFloat("value", 1f).hasConstantValue).isFalse()
         assertThat(
-                RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+                RemoteTimeVariables.continuousSeconds
                     .toRemoteString(DecimalFormat("#0.00"))
                     .hasConstantValue
             )
@@ -486,11 +479,11 @@ class RemoteFloatTest {
         val y1 = RemoteFloat(1f)
         val x2 = RemoteFloat(0f)
         val y2 = RemoteFloat(0f)
-        val progress = RemoteFloat(RemoteContext.FLOAT_TIME_IN_SEC) // non-constant
+        val progress = RemoteTimeVariables.continuousSeconds // non-constant
         val result = cubicEasing(x1, y1, x2, y2, progress)
         val resultId = result.getIdForCreationState(creationState)
 
-        makeAndUpdateCoreDocument() { context.loadFloat(RemoteContext.ID_TIME_IN_SEC, 0.5f) }
+        makeAndUpdateCoreDocument() { context.loadFloat(RemoteContext.ID_CONTINUOUS_SEC, 0.5f) }
 
         assertThat(context.getFloat(resultId)).isWithin(0.01f).of(0.5f)
     }
@@ -508,11 +501,11 @@ class RemoteFloatTest {
     @Test
     fun evalSpline_expression() {
         val points = RemoteFloatArray(listOf(0f.rf, 0f.rf, 1f.rf, 1f.rf))
-        val progress = RemoteFloat(RemoteContext.FLOAT_TIME_IN_SEC) // non-constant
+        val progress = RemoteTimeVariables.continuousSeconds // non-constant
         val result = evalSpline(points, loop = false, progress)
         val resultId = result.getIdForCreationState(creationState)
 
-        makeAndUpdateCoreDocument() { context.loadFloat(RemoteContext.ID_TIME_IN_SEC, 0.5f) }
+        makeAndUpdateCoreDocument() { context.loadFloat(RemoteContext.ID_CONTINUOUS_SEC, 0.5f) }
 
         assertThat(context.getFloat(resultId)).isWithin(0.01f).of(0.5f)
     }
@@ -529,13 +522,13 @@ class RemoteFloatTest {
     @Test
     fun evalSpline_loop_expression() {
         val points = RemoteFloatArray(listOf(0f.rf, 1f.rf, 0f.rf))
-        val progress = RemoteFloat(RemoteContext.FLOAT_TIME_IN_SEC) // non-constant
+        val progress = RemoteTimeVariables.continuousSeconds // non-constant
         val result = evalSpline(points, loop = true, progress)
         val resultId = result.getIdForCreationState(creationState)
 
         makeAndUpdateCoreDocument() {
             // 1.5 should be equivalent to 0.5 because of loop
-            context.loadFloat(RemoteContext.ID_TIME_IN_SEC, 1.5f)
+            context.loadFloat(RemoteContext.ID_CONTINUOUS_SEC, 1.5f)
         }
 
         // For (0, 1, 0) at 0.5, it should be 1.0
@@ -1004,56 +997,56 @@ class RemoteFloatTest {
 
     @Test
     fun addAndAddPeepholeOptimization() {
-        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) + 100f + 50f
+        val expr = RemoteTimeVariables.continuousSeconds + 100f + 50f
         val array = expr.arrayForCreationState(creationState)
         assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 150.0 + ")
     }
 
     @Test
     fun addAndSubtractPeepholeOptimization() {
-        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) + 100f - 50f
+        val expr = RemoteTimeVariables.continuousSeconds + 100f - 50f
         val array = expr.arrayForCreationState(creationState)
         assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 50.0 + ")
     }
 
     @Test
     fun subtractAndSubtractPeepholeOptimization() {
-        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) - 100f - 50f
+        val expr = RemoteTimeVariables.continuousSeconds - 100f - 50f
         val array = expr.arrayForCreationState(creationState)
         assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 150.0 - ")
     }
 
     @Test
     fun subtractAndAddPeepholeOptimization() {
-        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) - 100f + 50f
+        val expr = RemoteTimeVariables.continuousSeconds - 100f + 50f
         val array = expr.arrayForCreationState(creationState)
         assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 50.0 - ")
     }
 
     @Test
     fun multiplyAndMultiplyPeepholeOptimization() {
-        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) * 4f * 2f
+        val expr = RemoteTimeVariables.continuousSeconds * 4f * 2f
         val array = expr.arrayForCreationState(creationState)
         assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 8.0 * ")
     }
 
     @Test
     fun multiplyAndDividePeepholeOptimization() {
-        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) * 4f / 2f
+        val expr = RemoteTimeVariables.continuousSeconds * 4f / 2f
         val array = expr.arrayForCreationState(creationState)
         assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 2.0 * ")
     }
 
     @Test
     fun divideAndDividePeepholeOptimization() {
-        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) / 4f / 2f
+        val expr = RemoteTimeVariables.continuousSeconds / 4f / 2f
         val array = expr.arrayForCreationState(creationState)
         assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 8.0 / ")
     }
 
     @Test
     fun divideAndMultiplyPeepholeOptimization() {
-        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) / 4f * 2f
+        val expr = RemoteTimeVariables.continuousSeconds / 4f * 2f
         val array = expr.arrayForCreationState(creationState)
         assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 2.0 / ")
     }
@@ -1130,7 +1123,7 @@ class RemoteFloatTest {
 
     @Test
     fun animateRemoteFloat_onPreAllocatedRemoteFloatExpression_preservesAnimation() {
-        val seconds = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val seconds = RemoteTimeVariables.continuousSeconds
         val source = floor(seconds % 4f.rf).toRemoteInt()
         val targetAngle = (source.toRemoteFloat()) * 90f.rf
         val angle = animateRemoteFloat(targetAngle, duration = 1.0f, type = CUBIC_STANDARD)
@@ -1155,7 +1148,7 @@ class RemoteFloatTest {
 
     @Test
     fun animateRemoteFloat_onAlreadyWrittenRemoteFloatExpression_preservesAnimation() {
-        val seconds = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val seconds = RemoteTimeVariables.continuousSeconds
         val source = floor(seconds % 4f.rf).toRemoteInt()
         val targetAngle = (source.toRemoteFloat()) * 90f.rf
 
@@ -1199,7 +1192,7 @@ class RemoteFloatTest {
 
     @Test
     fun animateRemoteFloat_doesNotDeduplicateWithUnanimatedExpression() {
-        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) * 2f
+        val expr = RemoteTimeVariables.continuousSeconds * 2f
         val animated = animateRemoteFloat(expr, duration = 1.0f, type = CUBIC_STANDARD)
 
         val exprId = expr.getIdForCreationState(creationState)
@@ -1878,7 +1871,7 @@ class RemoteFloatTest {
             ) {
                 val myFloatFromConstant = remember {
                     createNamedRemoteFloatExpression("E") {
-                        RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+                        RemoteTimeVariables.continuousSeconds
                     }
                 }
                 RemoteBox(modifier = RemoteModifier.size(myFloatFromConstant.asRemoteDp()))
@@ -1932,7 +1925,7 @@ class RemoteFloatTest {
             ) {
                 val myFloatFromConstant = remember {
                     MutableRemoteFloat {
-                        RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+                        RemoteTimeVariables.continuousSeconds
                     }
                 }
                 RemoteBox(modifier = RemoteModifier.size(myFloatFromConstant.asRemoteDp()))
@@ -2014,7 +2007,7 @@ class RemoteFloatTest {
 
     @Test
     fun sharedExpressionReferenced() {
-        val a = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) + 1f
+        val a = RemoteTimeVariables.continuousSeconds + 1f
         val b = a * 2f
 
         // Write 'a' first to ensure it's in the document and hasBeenWrittenToDoc
@@ -2033,7 +2026,7 @@ class RemoteFloatTest {
 
     @Test
     fun unsharedExpressionInlined() {
-        val a = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) + 1f
+        val a = RemoteTimeVariables.continuousSeconds + 1f
         val b = a * 2f
 
         assertThat(a.hasBeenWrittenToDoc(creationState)).isFalse()
@@ -2092,28 +2085,54 @@ class RemoteFloatTest {
         val x = createNamedRemoteFloat("x", 10f)
         assertThat(x.toDebugString()).isEqualTo("user:x")
 
-        val contSec = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
-        assertThat(contSec.toDebugString()).isEqualTo("context:continuous_sec")
-
-        val densityVal = RemoteFloat(RemoteContext.FLOAT_DENSITY)
-        assertThat(densityVal.toDebugString()).isEqualTo("context:density")
-
-        assertThat(RemoteFloat(RemoteContext.FLOAT_TIME_IN_SEC).toDebugString())
-            .isEqualTo("context:time_in_sec")
-        assertThat(RemoteFloat(RemoteContext.FLOAT_TIME_IN_MIN).toDebugString())
-            .isEqualTo("context:time_in_min")
-        assertThat(RemoteFloat(RemoteContext.FLOAT_TIME_IN_HR).toDebugString())
-            .isEqualTo("context:time_in_hr")
-        assertThat(RemoteFloat(RemoteContext.FLOAT_CALENDAR_MONTH).toDebugString())
-            .isEqualTo("context:calendar_month")
-        assertThat(RemoteFloat(RemoteContext.FLOAT_WEEK_DAY).toDebugString())
-            .isEqualTo("context:week_day")
-        assertThat(RemoteFloat(RemoteContext.FLOAT_DAY_OF_MONTH).toDebugString())
-            .isEqualTo("context:day_of_month")
-        assertThat(RemoteFloat(RemoteContext.FLOAT_DAY_OF_YEAR).toDebugString())
-            .isEqualTo("context:day_of_year")
-        assertThat(RemoteFloat(RemoteContext.FLOAT_YEAR).toDebugString()).isEqualTo("context:year")
+        assertThat(RemoteTimeVariables.continuousSeconds.toDebugString())
+            .isEqualTo("context:continuous_sec")
+        assertThat(RemoteConfiguration.density.toDebugString()).isEqualTo("context:density")
+        assertThat(RemoteTimeVariables.animationTime.toDebugString())
+            .isEqualTo("context:animation_time")
+        assertThat(RemoteTimeVariables.animationDeltaTime.toDebugString())
+            .isEqualTo("context:animation_delta_time")
+        assertThat(RemoteConfiguration.windowWidthPx.toDebugString())
+            .isEqualTo("context:window_width")
+        assertThat(RemoteConfiguration.windowHeightPx.toDebugString())
+            .isEqualTo("context:window_height")
+        assertThat(RemoteConfiguration.fontSizePx.toDebugString()).isEqualTo("context:font_size")
         assertThat(RemoteFloat(asNan(999)).toDebugString()).isEqualTo("context:#999")
+    }
+
+    @Test
+    fun companionContextVariables() {
+        creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(40f, 50f))
+        val animTimeId =
+            (RemoteTimeVariables.animationTime + 1f).getIdForCreationState(creationState)
+        val animDeltaId =
+            (RemoteTimeVariables.animationDeltaTime + 1f).getIdForCreationState(creationState)
+        val contSecId =
+            (RemoteTimeVariables.continuousSeconds + 1f).getIdForCreationState(creationState)
+        val winWidthId =
+            (RemoteConfiguration.windowWidthPx + 1f).getIdForCreationState(creationState)
+        val winHeightId =
+            (RemoteConfiguration.windowHeightPx + 1f).getIdForCreationState(creationState)
+        val densityId = (RemoteConfiguration.density + 1f).getIdForCreationState(creationState)
+        val fontSizeId = (RemoteConfiguration.fontSizePx + 1f).getIdForCreationState(creationState)
+
+        makeAndUpdateCoreDocument {
+            context.loadFloat(RemoteContext.ID_ANIMATION_TIME, 10f)
+            context.loadFloat(RemoteContext.ID_ANIMATION_DELTA_TIME, 20f)
+            context.loadFloat(RemoteContext.ID_CONTINUOUS_SEC, 30f)
+            context.loadFloat(RemoteContext.ID_WINDOW_WIDTH, 40f)
+            context.loadFloat(RemoteContext.ID_WINDOW_HEIGHT, 50f)
+            context.loadFloat(RemoteContext.ID_DENSITY, 80f)
+            context.loadFloat(RemoteContext.ID_FONT_SIZE, 90f)
+        }
+
+        assertThat(context.getFloat(animTimeId)).isEqualTo(11f)
+        assertThat(context.getFloat(animDeltaId)).isEqualTo(21f)
+        assertThat(context.getFloat(contSecId)).isEqualTo(31f)
+        assertThat(context.getFloat(winWidthId)).isEqualTo(41f)
+        assertThat(context.getFloat(winHeightId)).isEqualTo(51f)
+        assertThat(context.getFloat(densityId)).isEqualTo(81f)
+        assertThat(context.getFloat(fontSizeId)).isEqualTo(91f)
     }
 
     @Test

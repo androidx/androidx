@@ -20,7 +20,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
@@ -662,7 +661,7 @@ class RemoteBooleanTest {
         assertThat((RemoteInt(10).isGreaterThan(RemoteInt(5))).constantValue).isTrue()
 
         assertThat(
-                (RemoteFloat(100f).isGreaterThan(RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)))
+                (RemoteFloat(100f).isGreaterThan(RemoteTimeVariables.continuousSeconds))
                     .constantValueOrNull
             )
             .isNull()
@@ -779,7 +778,7 @@ class RemoteBooleanTest {
 
     @Test
     fun toDebugString_contextVariable() {
-        val continuousSecFloat = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val boolExpr = continuousSecFloat.toRemoteInt().isGreaterThan(0.ri)
         assertThat(boolExpr.toDebugString()).isEqualTo("context:continuous_sec.toRemoteInt() > 0")
     }
