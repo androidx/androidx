@@ -38,7 +38,6 @@ import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getSpeakerEn
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isEarpieceEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isSpeakerEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isUnexpectedSwitchFromPreferredToSpeaker
-import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isWiredHeadsetOrBtEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.maybeRemoveEarpieceIfWiredEndpointPresent
 import androidx.core.telecom.internal.utils.Utils.Companion.toCallTypeCompat
 import java.util.function.Consumer
@@ -176,8 +175,6 @@ internal open class CallSession(
     }
 
     override fun onCallEndpointChanged(endpoint: CallEndpoint) {
-        // cache the previous call endpoint for maybeSwitchToSpeakerOnHeadsetDisconnect. This
-        // is used to determine if the last endpoint was BT and the new endpoint is EARPIECE.
         val previousCallEndpoint = mCurrentCallEndpoint
         // due to the [CallsManager#getAvailableStartingCallEndpoints] API, endpoints the client
         // has can be different from the ones coming from the platform. Hence, a remapping is needed
@@ -191,14 +188,13 @@ internal open class CallSession(
             Log.i(TAG, "onCallEndpointChanged: mCurrentCallEndpoint was set")
         }
 
-        maybeSwitchToSpeakerOnHeadsetDisconnect(mCurrentCallEndpoint!!, previousCallEndpoint)
         avoidSpeakerOverrideOnCallStart(previousCallEndpoint, mCurrentCallEndpoint)
 
         enforceVideoCallSpeakerFallback(mCurrentCallEndpoint!!)
         maybeRerouteToEarpiece(isEndpointChange = true)
 
         // clear out the last user requested CallEndpoint. It's only used to determine if the
-        // change in current endpoints was intentional for maybeSwitchToSpeakerOnHeadsetDisconnect
+        // change in current endpoints was intentional.
         if (mLastClientRequestedEndpoint?.type == endpoint.endpointType) {
             mLastClientRequestedEndpoint = null
         }
@@ -207,9 +203,10 @@ internal open class CallSession(
     /**
      * A strict enforcer that ensures video calls never linger on the earpiece. If the platform
      * routes to the earpiece unexpectedly, this immediately forces it to the speaker, UNLESS a
-     * Bluetooth headset is available or the user explicitly requested the earpiece.
+     * Bluetooth or wired headset is available or the user explicitly requested the earpiece.
      */
-    private fun enforceVideoCallSpeakerFallback(endpoint: CallEndpointCompat) {
+    @VisibleForTesting
+    internal fun enforceVideoCallSpeakerFallback(endpoint: CallEndpointCompat) {
         // We only care about video calls
         if (mCallType != CallAttributesCompat.CALL_TYPE_VIDEO_CALL) {
             return
@@ -359,6 +356,11 @@ internal open class CallSession(
             mIsAvailableEndpointsSet.complete(Unit)
             Log.i(TAG, "onAvailableCallEndpointsChanged: mAvailableEndpoints was set")
         }
+
+        // Re-evaluate video speaker fallback when the available endpoints list changes (e.g., if
+        // onCallEndpointChanged(EARPIECE) arrived before onAvailableCallEndpointsChanged removed
+        // a disconnected Bluetooth or wired headset).
+        mCurrentCallEndpoint?.let { enforceVideoCallSpeakerFallback(it) }
     }
 
     override fun onMuteStateChanged(isMuted: Boolean) {
@@ -490,45 +492,6 @@ internal open class CallSession(
             }
         } catch (e: Exception) {
             Log.e(TAG, "switchStartingCallEndpointOnCallStart: hit exception=[$e]")
-        }
-    }
-
-    /**
-     * Due to the fact that OEMs may diverge from AOSP telecom platform behavior, Core-Telecom needs
-     * to ensure that if a video calls headset disconnects, the speakerphone is defaulted instead of
-     * the earpiece route.
-     */
-    @VisibleForTesting
-    fun maybeSwitchToSpeakerOnHeadsetDisconnect(
-        newEndpoint: CallEndpointCompat,
-        previousEndpoint: CallEndpointCompat?,
-    ) {
-        try {
-            if (
-                (mCallType == CallAttributesCompat.CALL_TYPE_VIDEO_CALL) &&
-                    /* Only switch if the users headset disconnects & earpiece is defaulted */
-                    isEarpieceEndpoint(newEndpoint) &&
-                    isWiredHeadsetOrBtEndpoint(previousEndpoint) &&
-                    /* Do not switch request a switch to speaker if the client specifically requested
-                     * to switch from the headset from an earpiece */
-                    !isEarpieceEndpoint(mLastClientRequestedEndpoint)
-            ) {
-                val speakerCompat = getSpeakerEndpoint(mAvailableEndpoints)
-                if (speakerCompat != null) {
-                    Log.i(
-                        TAG,
-                        "maybeSwitchToSpeakerOnHeadsetDisconnect: headset disconnected while" +
-                            " in a video call. requesting switch to speaker.",
-                    )
-                    mPlatformInterface?.requestCallEndpointChange(
-                        EndpointUtils.Api34PlusImpl.toCallEndpoint(speakerCompat),
-                        Runnable::run,
-                        {},
-                    )
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "maybeSwitchToSpeakerOnHeadsetDisconnect: exception=[$e]")
         }
     }
 
