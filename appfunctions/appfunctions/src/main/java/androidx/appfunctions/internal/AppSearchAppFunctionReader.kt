@@ -350,7 +350,7 @@ internal class AppSearchAppFunctionReader(
                 context,
                 appFunctionName.packageName,
                 accessLevel,
-                staticMetadataDocument.isCompatEnforcementEnabled ?: true,
+                staticMetadataDocument.isCompatEnforcementEnabled ?: false,
             )
         ) {
             return null

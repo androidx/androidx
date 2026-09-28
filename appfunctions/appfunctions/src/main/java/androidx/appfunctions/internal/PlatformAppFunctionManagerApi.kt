@@ -23,6 +23,8 @@ import android.content.Context
 import android.os.Build
 import android.os.CancellationSignal
 import android.os.OutcomeReceiver
+import android.util.ArraySet
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionActivityState
 import androidx.appfunctions.AppFunctionException
@@ -30,12 +32,14 @@ import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_DEFAULT
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_DISABLED
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_ENABLED
+import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.RegisterAppFunctionRequest
 import androidx.appfunctions.internal.AppFunctionManagerApi.Companion.applyMissingRuntimeMetadataExceptionFix
+import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.resume
@@ -110,7 +114,7 @@ internal class PlatformAppFunctionManagerApi(
     override suspend fun getAppFunctionActivityStates(
         activityIds: Set<AppFunctionActivityId>
     ): List<AppFunctionActivityState> {
-        return suspendCancellableCoroutine { cont ->
+        val platformStates = suspendCancellableCoroutine { cont ->
             appFunctionManager.getAppFunctionActivityStates(
                 activityIds,
                 Runnable::run,
@@ -140,6 +144,50 @@ internal class PlatformAppFunctionManagerApi(
                     }
                 },
             )
+        }
+
+        if (CallerAccessVerifier.isAtLeastCinnamonBunMinor2() || platformStates.isEmpty()) {
+            return platformStates
+        }
+
+        val allFunctionNames = platformStates.flatMap { it.functionNames }
+        if (allFunctionNames.isEmpty()) {
+            return platformStates
+        }
+        val targetPackages = allFunctionNames.map { it.packageName }.toSet()
+        val allMetadata =
+            appFunctionReader.searchAppFunctionsMetadata(
+                AppFunctionSearchSpec(packageNames = targetPackages)
+            )
+        val metadataMap = allMetadata.associateBy { it.name }
+
+        return platformStates.mapNotNull { activityState ->
+            val visibleFunctions =
+                activityState.functionNames.filter { functionName ->
+                    val metadata = metadataMap[functionName]
+                    val isVisible =
+                        metadata == null ||
+                            CallerAccessVerifier.canCallerDiscoverFunction(context, metadata)
+                    if (!isVisible) {
+                        Log.d(
+                            APP_FUNCTIONS_TAG,
+                            "Filtered out $functionName from activity state " +
+                                "${activityState.activityId}: caller cannot discover function " +
+                                "with accessLevel=${metadata?.accessLevel}",
+                        )
+                    }
+                    isVisible
+                }
+            if (visibleFunctions.isEmpty()) {
+                Log.d(
+                    APP_FUNCTIONS_TAG,
+                    "Dropped activity state ${activityState.activityId}: no functions visible " +
+                        "to caller",
+                )
+                null
+            } else {
+                AppFunctionActivityState(activityState.activityId, ArraySet(visibleFunctions))
+            }
         }
     }
 

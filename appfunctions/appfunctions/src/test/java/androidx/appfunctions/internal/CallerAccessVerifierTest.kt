@@ -457,6 +457,7 @@ class CallerAccessVerifierTest {
                 context,
                 "some.other.package",
                 AppFunctionMetadata.ACCESS_LEVEL_ANDROID_TRUSTED,
+                isCompatEnforcementEnabled = true,
             )
         assertThat(result).isTrue()
     }
@@ -468,6 +469,7 @@ class CallerAccessVerifierTest {
                 context,
                 context.packageName,
                 AppFunctionMetadata.ACCESS_LEVEL_SELF,
+                isCompatEnforcementEnabled = true,
             )
         assertThat(result).isTrue()
     }
@@ -479,6 +481,7 @@ class CallerAccessVerifierTest {
                 context,
                 "some.other.package",
                 AppFunctionMetadata.ACCESS_LEVEL_SELF,
+                isCompatEnforcementEnabled = true,
             )
         assertThat(result).isFalse()
     }
@@ -490,6 +493,7 @@ class CallerAccessVerifierTest {
                 context,
                 context.packageName,
                 AppFunctionMetadata.ACCESS_LEVEL_SYSTEM,
+                isCompatEnforcementEnabled = true,
             )
         assertThat(result).isTrue()
     }
@@ -501,6 +505,7 @@ class CallerAccessVerifierTest {
                 context,
                 "some.other.package",
                 AppFunctionMetadata.ACCESS_LEVEL_SYSTEM,
+                isCompatEnforcementEnabled = true,
             )
         assertThat(result).isFalse()
     }
@@ -513,6 +518,7 @@ class CallerAccessVerifierTest {
                 context,
                 "some.other.package",
                 AppFunctionMetadata.ACCESS_LEVEL_SYSTEM,
+                isCompatEnforcementEnabled = true,
             )
         assertThat(result).isTrue()
     }
@@ -538,6 +544,59 @@ class CallerAccessVerifierTest {
                 AppFunctionMetadata.ACCESS_LEVEL_SYSTEM,
                 isCompatEnforcementEnabled = false,
             )
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun canCallerDiscoverFunction_self_otherPackage_defaultEnforcement_returnsTrue() {
+        val result =
+            CallerAccessVerifier.canCallerDiscoverFunction(
+                context,
+                "some.other.package",
+                AppFunctionMetadata.ACCESS_LEVEL_SELF,
+            )
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun canCallerDiscoverFunction_metadata_self_foreignPackage_returnsFalse() {
+        val metadata =
+            createMetadata(
+                accessLevel = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+                isCompatEnforcementEnabled = true,
+                packageName = "some.other.package",
+            )
+
+        val result = CallerAccessVerifier.canCallerDiscoverFunction(context, metadata)
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun canCallerDiscoverFunction_metadata_self_samePackage_returnsTrue() {
+        val metadata =
+            createMetadata(
+                accessLevel = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+                isCompatEnforcementEnabled = true,
+                packageName = context.packageName,
+            )
+
+        val result = CallerAccessVerifier.canCallerDiscoverFunction(context, metadata)
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun canCallerDiscoverFunction_metadata_self_foreignPackage_enforcementDisabled_returnsTrue() {
+        val metadata =
+            createMetadata(
+                accessLevel = AppFunctionMetadata.ACCESS_LEVEL_SELF,
+                isCompatEnforcementEnabled = false,
+                packageName = "some.other.package",
+            )
+
+        val result = CallerAccessVerifier.canCallerDiscoverFunction(context, metadata)
+
         assertThat(result).isTrue()
     }
 }

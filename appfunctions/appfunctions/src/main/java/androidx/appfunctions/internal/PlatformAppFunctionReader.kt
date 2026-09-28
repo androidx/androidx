@@ -22,11 +22,13 @@ import android.app.appfunctions.AppFunctionObserver
 import android.content.Context
 import android.os.Build
 import android.os.OutcomeReceiver
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.ExperimentalAppFunctionsApi
+import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
 import kotlin.coroutines.resume
@@ -103,23 +105,47 @@ internal class PlatformAppFunctionReader(
 
     override suspend fun getAppFunctionStates(
         appFunctionNames: List<AppFunctionName>
-    ): List<AppFunctionState> = suspendCancellableCoroutine { cont ->
-        appFunctionManager.getAppFunctionStates(
-            appFunctionNames.map { it.toPlatformAppFunctionName() },
-            Runnable::run,
-            object : OutcomeReceiver<List<android.app.appfunctions.AppFunctionState>, Exception> {
-                override fun onResult(result: List<android.app.appfunctions.AppFunctionState>) {
-                    val mappedResults = result.map {
-                        AppFunctionState.fromPlatformAppFunctionState(it)
+    ): List<AppFunctionState> {
+        val platformStates = suspendCancellableCoroutine { cont ->
+            appFunctionManager.getAppFunctionStates(
+                appFunctionNames.map { it.toPlatformAppFunctionName() },
+                Runnable::run,
+                object :
+                    OutcomeReceiver<List<android.app.appfunctions.AppFunctionState>, Exception> {
+                    override fun onResult(result: List<android.app.appfunctions.AppFunctionState>) {
+                        val mappedResults = result.map {
+                            AppFunctionState.fromPlatformAppFunctionState(it)
+                        }
+                        cont.resume(mappedResults)
                     }
-                    cont.resume(mappedResults)
-                }
 
-                override fun onError(error: Exception) {
-                    cont.resumeWithException(error)
-                }
-            },
-        )
+                    override fun onError(error: Exception) {
+                        cont.resumeWithException(error)
+                    }
+                },
+            )
+        }
+        if (CallerAccessVerifier.isAtLeastCinnamonBunMinor2() || platformStates.isEmpty()) {
+            return platformStates
+        }
+        val targetPackages = platformStates.map { it.functionName.packageName }.toSet()
+        val allMetadata =
+            searchAppFunctionsMetadata(AppFunctionSearchSpec(packageNames = targetPackages))
+        val metadataMap = allMetadata.associateBy { it.name }
+        return platformStates.filter {
+            val metadata = metadataMap[it.functionName]
+            val isVisible =
+                metadata == null ||
+                    CallerAccessVerifier.canCallerDiscoverFunction(context, metadata)
+            if (!isVisible) {
+                Log.d(
+                    APP_FUNCTIONS_TAG,
+                    "Filtered out state for ${it.functionName}: caller cannot discover function " +
+                        "with accessLevel=${metadata?.accessLevel}",
+                )
+            }
+            isVisible
+        }
     }
 
     override fun observeAppFunctions(): Flow<AppFunctionsChangeEvent> = callbackFlow {
