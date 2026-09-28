@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXConfig
 import androidx.build.ApkCopyHelperKt
 
 plugins {
@@ -37,12 +36,6 @@ android {
                 enable = true
             }
         }
-    }
-}
-
-androidx {
-    deviceTests {
-        enabled = false
     }
 }
 
