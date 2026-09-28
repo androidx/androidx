@@ -50,6 +50,7 @@ import androidx.wear.compose.remote.integration.demos.components.RemoteHorizonta
 import androidx.wear.compose.remote.integration.demos.components.RemoteHorizontalPageIndicator3Demo
 import androidx.wear.compose.remote.integration.demos.components.RemoteIconButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteIconDemos
+import androidx.wear.compose.remote.integration.demos.components.RemoteIconToggleButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteLinearProgressIndicatorDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteOneHandedGestureDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteRadioButtonDemos
@@ -143,6 +144,9 @@ fun WearApp(
                 }
                 composable(route = Screen.RemoteIconButtonDemosScreen.route) {
                     RemoteIconButtonDemos()
+                }
+                composable(route = Screen.RemoteIconToggleButtonDemosScreen.route) {
+                    RemoteIconToggleButtonDemos()
                 }
                 composable(route = Screen.RemoteTextButtonDemosScreen.route) {
                     RemoteTextButtonDemos()
