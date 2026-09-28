@@ -16,15 +16,15 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.common.CameraFrameNumber
 import java.lang.Class
 
 /** Utility class for testing code that depends on [RequestFailure] with reasonable defaults. */
 public class FakeRequestFailure(
     override val requestMetadata: RequestMetadata,
-    override val frameNumber: FrameNumber,
+    override val frameNumber: CameraFrameNumber,
     override val reason: Int = 0,
     override val wasImageCaptured: Boolean = false,
 ) : RequestFailure {

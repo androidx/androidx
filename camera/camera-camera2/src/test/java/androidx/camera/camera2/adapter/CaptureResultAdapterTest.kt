@@ -20,11 +20,11 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode
 import androidx.camera.core.impl.CameraCaptureMetaData.AfState
@@ -513,7 +513,7 @@ class CaptureResultAdapterTest {
     private fun createCaptureResultAdapter(
         requestParams: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
         resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
-        frameNumber: FrameNumber = FrameNumber(101L),
+        frameNumber: CameraFrameNumber = CameraFrameNumber(101L),
     ): CameraCaptureResult {
         val requestMetadata =
             FakeRequestMetadata(requestParameters = requestParams, requestNumber = RequestNumber(1))
@@ -529,7 +529,7 @@ class CaptureResultAdapterTest {
     private fun createPartialCaptureResultAdapter(
         requestParams: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
         resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
-        frameNumber: FrameNumber = FrameNumber(101L),
+        frameNumber: CameraFrameNumber = CameraFrameNumber(101L),
     ): CameraCaptureResult {
         val requestMetadata =
             FakeRequestMetadata(requestParameters = requestParams, requestNumber = RequestNumber(1))

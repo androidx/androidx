@@ -28,12 +28,12 @@ import androidx.camera.camera2.impl.ComboRequestListener
 import androidx.camera.camera2.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.impl.UseCaseThreads
 import androidx.camera.camera2.impl.toParameters
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.MutableTagBundle
 import androidx.testutils.assertThrows
@@ -175,7 +175,7 @@ class Camera2CameraControlTest {
         requests: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
         tags: Map<String, Any> = emptyMap(),
         results: Map<CaptureResult.Key<*>, Any> = emptyMap(),
-        frameNumber: FrameNumber = FrameNumber(101L),
+        frameNumber: CameraFrameNumber = CameraFrameNumber(101L),
     ) {
         val requestMetadata =
             FakeRequestMetadata(

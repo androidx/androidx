@@ -24,7 +24,6 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.internal.FrameImpl
@@ -37,6 +36,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -188,7 +188,7 @@ class FrameGraphBuffersTest {
     }
 
     private fun createTestFrame(frameNumberValue: Long): Frame {
-        val frameNumber = FrameNumber(frameNumberValue)
+        val frameNumber = CameraFrameNumber(frameNumberValue)
         val frameTimestamp = CameraTimestamp(100L + frameNumberValue)
         val frameState =
             FrameState(

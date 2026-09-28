@@ -17,9 +17,9 @@
 package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CaptureResult
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.LatestFrameMetadata
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -39,10 +39,10 @@ class LatestFrameMetadataImplTest {
             LatestFrameMetadataImpl(
                 captureResultKeys = arrayOf(keyX),
                 captureResultValues = arrayOf(100L),
-                captureResultFrameNumbers = arrayOf(FrameNumber(12)),
+                captureResultFrameNumbers = arrayOf(CameraFrameNumber(12)),
                 rawMetadataKeys = arrayOf(metaKeyY),
                 metadataValues = arrayOf(5),
-                metadataFrameNumbers = arrayOf(FrameNumber(15)),
+                metadataFrameNumbers = arrayOf(CameraFrameNumber(15)),
             )
 
         assertThat(map[keyX]).isEqualTo(100L)
@@ -62,14 +62,14 @@ class LatestFrameMetadataImplTest {
             LatestFrameMetadataImpl(
                 captureResultKeys = arrayOf(keyX),
                 captureResultValues = arrayOf(100L),
-                captureResultFrameNumbers = arrayOf(FrameNumber(12)),
+                captureResultFrameNumbers = arrayOf(CameraFrameNumber(12)),
                 rawMetadataKeys = arrayOf(metaKeyY),
                 metadataValues = arrayOf(5),
-                metadataFrameNumbers = arrayOf(FrameNumber(15)),
+                metadataFrameNumbers = arrayOf(CameraFrameNumber(15)),
             )
 
-        assertThat(map.getFrameNumber(keyX)).isEqualTo(FrameNumber(12))
-        assertThat(map.getFrameNumber(metaKeyY)).isEqualTo(FrameNumber(15))
+        assertThat(map.getFrameNumber(keyX)).isEqualTo(CameraFrameNumber(12))
+        assertThat(map.getFrameNumber(metaKeyY)).isEqualTo(CameraFrameNumber(15))
 
         val unmappedKey = CaptureResult.SENSOR_SENSITIVITY
         assertThat(map.getFrameNumber(unmappedKey)).isNull()
@@ -81,10 +81,10 @@ class LatestFrameMetadataImplTest {
             LatestFrameMetadataImpl(
                 captureResultKeys = arrayOf(keyX),
                 captureResultValues = arrayOf(100L),
-                captureResultFrameNumbers = arrayOf(FrameNumber(12)),
+                captureResultFrameNumbers = arrayOf(CameraFrameNumber(12)),
                 rawMetadataKeys = arrayOf(metaKeyY),
                 metadataValues = arrayOf(5),
-                metadataFrameNumbers = arrayOf(FrameNumber(15)),
+                metadataFrameNumbers = arrayOf(CameraFrameNumber(15)),
             )
 
         assertThat(map.keys).containsExactly(keyX)
@@ -97,14 +97,14 @@ class LatestFrameMetadataImplTest {
             LatestFrameMetadata(
                 captureResultParameters = mapOf(keyX to 100L),
                 metadataParameters = mapOf(metaKeyY to 5),
-                captureResultFrameNumbers = mapOf(keyX to FrameNumber(12)),
-                metadataFrameNumbers = mapOf(metaKeyY to FrameNumber(15)),
+                captureResultFrameNumbers = mapOf(keyX to CameraFrameNumber(12)),
+                metadataFrameNumbers = mapOf(metaKeyY to CameraFrameNumber(15)),
             )
 
         assertThat(metadata[keyX]).isEqualTo(100L)
-        assertThat(metadata.getFrameNumber(keyX)).isEqualTo(FrameNumber(12))
+        assertThat(metadata.getFrameNumber(keyX)).isEqualTo(CameraFrameNumber(12))
 
         assertThat(metadata[metaKeyY]).isEqualTo(5)
-        assertThat(metadata.getFrameNumber(metaKeyY)).isEqualTo(FrameNumber(15))
+        assertThat(metadata.getFrameNumber(metaKeyY)).isEqualTo(CameraFrameNumber(15))
     }
 }

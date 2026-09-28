@@ -128,7 +128,7 @@ public interface CameraControls3A {
     /**
      * Applies the given 3A parameters to the camera device but for only one frame.
      *
-     * @return the FrameNumber for which these parameters were applied.
+     * @return the CameraFrameNumber for which these parameters were applied.
      */
     public fun submit3A(
         aeMode: AeMode? = null,
@@ -155,8 +155,8 @@ public interface CameraControls3A {
      * the returned [Deferred] completes immediately with [Result3A.Status.SUBMIT_FAILED] and the
      * current 3A state, including the AE mode, is left unchanged.
      *
-     * @return the FrameNumber at which the torch was fully turned on if switch was ON, or the
-     *   FrameNumber at which it was completely turned off when the switch was OFF.
+     * @return the CameraFrameNumber at which the torch was fully turned on if switch was ON, or the
+     *   CameraFrameNumber at which it was completely turned off when the switch was OFF.
      */
     public fun setTorchOn(): Deferred<Result3A>
 
@@ -165,8 +165,8 @@ public interface CameraControls3A {
      *
      * @param aeMode The [AeMode] to set while disabling the torch value. If null which is the
      *   default value, the current AE mode is used.
-     * @return the FrameNumber at which the torch was fully turned on if switch was ON, or the
-     *   FrameNumber at which it was completely turned off when the switch was OFF.
+     * @return the CameraFrameNumber at which the torch was fully turned on if switch was ON, or the
+     *   CameraFrameNumber at which it was completely turned off when the switch was OFF.
      */
     public fun setTorchOff(aeMode: AeMode? = null): Deferred<Result3A>
 

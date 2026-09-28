@@ -29,7 +29,6 @@ import androidx.camera.camera2.compat.quirk.CaptureIntentPreviewQuirk
 import androidx.camera.camera2.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.compat.workaround.TemplateParamsQuirkOverride
 import androidx.camera.camera2.config.UseCaseCameraContext
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
@@ -41,6 +40,7 @@ import androidx.camera.camera2.testing.FakeCameraGraphSession.RequestStatus.ABOR
 import androidx.camera.camera2.testing.FakeCameraGraphSession.RequestStatus.FAILED
 import androidx.camera.camera2.testing.FakeCameraGraphSession.RequestStatus.TOTAL_CAPTURE_DONE
 import androidx.camera.camera2.testing.FakeSurface
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.Quirks
 import androidx.testutils.MainDispatcherRule
@@ -321,7 +321,7 @@ class UseCaseCameraStateTest {
 
         val capturedListener = fakeSession.lastCapturedListener
         assertThat(capturedListener).isNotNull()
-        val frameNumber = FrameNumber(0)
+        val frameNumber = CameraFrameNumber(0)
         val frameInfo = FakeFrameInfo()
         val requestMetadata = FakeRequestMetadata()
 

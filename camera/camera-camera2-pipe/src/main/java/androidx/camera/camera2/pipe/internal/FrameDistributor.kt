@@ -25,7 +25,6 @@ import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameCapture
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.FrameReference
 import androidx.camera.camera2.pipe.ImageSourceConfig
 import androidx.camera.camera2.pipe.OutputId
@@ -44,6 +43,7 @@ import androidx.camera.camera2.pipe.media.ImageListener
 import androidx.camera.camera2.pipe.media.ImageSource
 import androidx.camera.camera2.pipe.media.NoOpFinalizer
 import androidx.camera.camera2.pipe.media.OutputImage
+import androidx.camera.common.CameraFrameNumber
 
 /**
  * A FrameDistributor is responsible for listening to events from each [Request] as well as images
@@ -195,7 +195,7 @@ internal class FrameDistributor(
      */
     override fun onStarted(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         timestamp: CameraTimestamp,
     ) {
         // When the camera begins exposing a frame, create a placeholder for all of the outputs that
@@ -210,7 +210,7 @@ internal class FrameDistributor(
                 concurrentImageStreams,
             )
 
-        // Tell the frameInfo distributor to expect FrameInfo at the provided FrameNumber
+        // Tell the frameInfo distributor to expect FrameInfo at the provided CameraFrameNumber
         frameInfoDistributor.onOutputStarted(
             cameraFrameNumber = frameNumber,
             cameraTimestamp = timestamp,
@@ -254,7 +254,7 @@ internal class FrameDistributor(
 
     override fun onReadoutStarted(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         timestamp: SensorTimestamp,
     ) {
         // In API 34+, Android Camera2 may invoke onReadoutStarted even when no streams are
@@ -282,7 +282,7 @@ internal class FrameDistributor(
 
     override fun onComplete(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         result: FrameInfo,
     ) {
         if (useReadoutTimestamp) {
@@ -305,7 +305,7 @@ internal class FrameDistributor(
 
     override fun onBufferLost(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         streamId: StreamId,
         outputId: OutputId,
     ) {
@@ -333,7 +333,7 @@ internal class FrameDistributor(
 
     override fun onFailed(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         requestFailure: RequestFailure,
     ) {
         // Metadata will not arrive for this frame:
@@ -438,7 +438,7 @@ internal class FrameDistributor(
 
     /** Returns the [FrameState] that is still waiting for onReadoutStarted, if there is one. */
     @GuardedBy("lock")
-    private fun findStartedFrameState(frameNumber: FrameNumber): FrameState? {
+    private fun findStartedFrameState(frameNumber: CameraFrameNumber): FrameState? {
         for (i in startedFrameStates.indices) {
             val frameState = startedFrameStates[i]
             if (frameState.frameNumber == frameNumber) {
@@ -449,7 +449,7 @@ internal class FrameDistributor(
     }
 
     @GuardedBy("lock")
-    private fun removeStartedFrameState(frameNumber: FrameNumber): FrameState? =
+    private fun removeStartedFrameState(frameNumber: CameraFrameNumber): FrameState? =
         findStartedFrameState(frameNumber)?.also { startedFrameStates.remove(it) }
 
     private fun failPendingReadoutOutputs(frameState: FrameState, status: OutputStatus) {
@@ -468,7 +468,7 @@ internal class FrameDistributor(
     }
 
     private fun failReadoutOutputForBufferLost(
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         streamId: StreamId,
         outputId: OutputId,
     ) {

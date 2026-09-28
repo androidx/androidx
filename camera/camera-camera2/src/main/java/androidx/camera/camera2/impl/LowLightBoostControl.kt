@@ -26,9 +26,9 @@ import androidx.camera.camera2.config.CameraScope
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLowLightBoost
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.CameraControl
 import androidx.camera.core.LowLightBoostState
 import androidx.camera.core.UseCase
@@ -110,7 +110,7 @@ constructor(
             object : Request.Listener {
                     override fun onTotalCaptureResult(
                         requestMetadata: RequestMetadata,
-                        frameNumber: FrameNumber,
+                        frameNumber: CameraFrameNumber,
                         totalCaptureResult: FrameInfo,
                     ) {
                         if (

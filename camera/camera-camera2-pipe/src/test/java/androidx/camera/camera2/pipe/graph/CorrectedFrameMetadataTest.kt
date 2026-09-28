@@ -57,5 +57,19 @@ internal class CorrectedFrameMetadataTest {
         assertThat(fixed[CaptureResult.LENS_STATE]).isEqualTo(CaptureResult.LENS_STATE_STATIONARY)
         assertThat(fixed[FakeMetadata.TEST_KEY]).isEqualTo(42)
         assertThat(fixed[FakeMetadata.TEST_KEY_ABSENT]).isNull()
+
+        assertThat(fixed.getOrDefault(CaptureResult.CONTROL_AE_MODE, -1))
+            .isEqualTo(CaptureResult.CONTROL_AE_MODE_OFF)
+        assertThat(fixed.getOrDefault(CaptureResult.COLOR_CORRECTION_MODE, -1)).isEqualTo(-1)
+        assertThat(fixed.getOrDefault(FakeMetadata.TEST_KEY, 0)).isEqualTo(42)
+        assertThat(fixed.getOrDefault(FakeMetadata.TEST_KEY_ABSENT, 99)).isEqualTo(99)
+
+        assertThat(fixed.keys)
+            .containsExactly(
+                CaptureResult.CONTROL_AE_MODE,
+                CaptureResult.CONTROL_AF_MODE,
+                CaptureResult.LENS_STATE,
+            )
+        assertThat(fixed.metadataKeys).containsExactly(FakeMetadata.TEST_KEY)
     }
 }

@@ -25,7 +25,6 @@ import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.config.CameraConfig
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
@@ -34,6 +33,7 @@ import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeState3AControlCreator
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.CameraControl
 import androidx.camera.core.LowLightBoostState.ACTIVE
 import androidx.camera.core.LowLightBoostState.INACTIVE
@@ -218,7 +218,7 @@ class LowLightBoostControlTest {
     private fun simulateLowLightBoostStateUpdate(state: Int? = null) =
         comboRequestListener.onTotalCaptureResult(
             FakeRequestMetadata(),
-            FrameNumber(0L),
+            CameraFrameNumber(0L),
             FakeFrameInfo(
                 FakeFrameMetadata(
                     state?.let { mapOf(CONTROL_LOW_LIGHT_BOOST_STATE to state) } ?: emptyMap()

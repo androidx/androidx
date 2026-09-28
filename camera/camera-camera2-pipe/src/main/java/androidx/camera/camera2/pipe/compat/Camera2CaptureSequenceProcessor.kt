@@ -644,6 +644,14 @@ internal class Camera2RequestMetadata(
     override val request: Request,
     override val requestNumber: RequestNumber,
 ) : RequestMetadata {
+    override val keys: List<CaptureRequest.Key<*>>
+        get() =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                Api28Compat.getKeys(captureRequest)
+            } else {
+                emptyList()
+            }
+
     override val metadataKeys: Set<Metadata.Key<*>>
         get() = buildSet {
             requiredParameters.keys.forEach { if (it is Metadata.Key<*>) add(it) }
@@ -652,9 +660,10 @@ internal class Camera2RequestMetadata(
             defaultParameters.keys.forEach { if (it is Metadata.Key<*>) add(it) }
         }
 
-    override fun <T> get(key: CaptureRequest.Key<T>): T? = captureRequest[key]
+    override fun <T : Any> get(key: CaptureRequest.Key<T>): T? = captureRequest[key]
 
-    override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
+    override fun <T : Any> getOrDefault(key: CaptureRequest.Key<T>, default: T): T =
+        get(key) ?: default
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> get(key: Metadata.Key<T>): T? =

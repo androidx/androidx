@@ -27,7 +27,6 @@ import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameBuffers.tryPeekFirst
 import androidx.camera.camera2.pipe.FrameGraph
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.FrameReference.Companion.acquire
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
@@ -42,6 +41,7 @@ import androidx.camera.camera2.pipe.testing.FakeMetadata.Companion.TEST_KEY
 import androidx.camera.camera2.pipe.testing.FrameGraphSimulator
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows
@@ -564,7 +564,7 @@ class FrameGraphImplTest {
         val listener =
             object : Frame.Listener {
                 override fun onFrameStarted(
-                    frameNumber: FrameNumber,
+                    frameNumber: CameraFrameNumber,
                     frameTimestamp: CameraTimestamp,
                 ) {}
 

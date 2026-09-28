@@ -27,6 +27,8 @@ import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.media.ImageWrapper
+import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CaptureRequestWrapper
 import androidx.camera.common.Metadata
 import androidx.camera.common.UnsafeWrapper
 
@@ -90,7 +92,7 @@ public class Request(
          */
         public fun onStarted(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             timestamp: CameraTimestamp,
         ) {}
 
@@ -106,7 +108,7 @@ public class Request(
          */
         public fun onPartialCaptureResult(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             captureResult: FrameMetadata,
         ) {}
 
@@ -142,7 +144,7 @@ public class Request(
          */
         public fun onTotalCaptureResult(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             totalCaptureResult: FrameInfo,
         ) {}
 
@@ -156,7 +158,7 @@ public class Request(
          */
         public fun onComplete(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             result: FrameInfo,
         ) {}
 
@@ -173,7 +175,7 @@ public class Request(
          */
         public fun onFailed(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             requestFailure: RequestFailure,
         ) {}
 
@@ -189,7 +191,7 @@ public class Request(
          */
         public fun onReadoutStarted(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             timestamp: SensorTimestamp,
         ) {}
 
@@ -208,7 +210,7 @@ public class Request(
         @Deprecated("Use the onBufferLost with OutputId.")
         public fun onBufferLost(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             stream: StreamId,
         ) {}
 
@@ -226,7 +228,7 @@ public class Request(
          */
         public fun onBufferLost(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             streamId: StreamId,
             outputId: OutputId,
         ) {}
@@ -281,7 +283,7 @@ public class Request(
          */
         public fun onRequestSequenceCompleted(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
         ) {}
     }
 
@@ -326,8 +328,8 @@ public interface RequestFailure : UnsafeWrapper {
     /** Metadata about the request that has failed. */
     public val requestMetadata: RequestMetadata
 
-    /** The Camera [FrameNumber] for the request that has failed. */
-    public val frameNumber: FrameNumber
+    /** The Camera [CameraFrameNumber] for the request that has failed. */
+    public val frameNumber: CameraFrameNumber
 
     /** Indicates the reason the particular request failed, see [CaptureFailure] for details. */
     public val reason: Int
@@ -378,7 +380,7 @@ public data class InputRequest(val image: ImageWrapper, val frameInfo: FrameInfo
  * different) from the request that was used to create the Camera2 [CaptureRequest].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface RequestMetadata : Metadata, UnsafeWrapper {
+public interface RequestMetadata : Metadata, CaptureRequestWrapper, UnsafeWrapper {
 
     /** The actual Camera2 template that was used when creating this [CaptureRequest] */
     public val template: RequestTemplate
@@ -398,12 +400,28 @@ public interface RequestMetadata : Metadata, UnsafeWrapper {
 
     /** An internal number used to identify a specific [CaptureRequest] */
     public val requestNumber: RequestNumber
+}
 
-    public operator fun <T> get(key: CaptureRequest.Key<T>): T?
+/** An empty implementation of [RequestMetadata]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public object EmptyRequestMetadata : RequestMetadata {
+    override val keys: List<CaptureRequest.Key<*>> = emptyList()
 
-    public fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T {
-        return get(key) ?: default
-    }
+    override fun <T : Any> get(key: CaptureRequest.Key<T>): T? = null
+
+    override fun <T : Any> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = default
+
+    override val template: RequestTemplate = RequestTemplate(0)
+    override val streams: Map<StreamId, Surface> = emptyMap()
+    override val repeating: Boolean = false
+    override val request: Request = Request(listOf())
+    override val requestNumber: RequestNumber = RequestNumber(0)
+
+    override fun <T : Any> get(key: Metadata.Key<T>): T? = null
+
+    override val metadataKeys: Set<Metadata.Key<*>> = emptySet()
+
+    override fun <T : Any> unwrapAs(type: Class<T>): T? = null
 }
 
 /**

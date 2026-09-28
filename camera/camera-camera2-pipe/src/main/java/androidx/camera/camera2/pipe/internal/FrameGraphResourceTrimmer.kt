@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraCharacteristics
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraTimestamp
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
@@ -31,6 +30,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.framegraph.FrameBufferImpl
 import androidx.camera.camera2.pipe.media.ImageReaderImageSource
+import androidx.camera.common.CameraFrameNumber
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
 import kotlinx.atomicfu.AtomicInt
@@ -226,7 +226,7 @@ constructor(
 
     override fun onStarted(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         timestamp: CameraTimestamp,
     ) {
         cameraPipeResourceTrimmer.invalidate()

@@ -21,10 +21,10 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.LatestFrameMetadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 
 private val ABSENT = Any()
@@ -62,20 +62,20 @@ internal class LatestFrameMetadataAggregator(
     private var lastTotalFrameNumber: Long = -1L
 
     /**
-     * Represents the accumulated parameter values for a specific [FrameNumber]. Partial capture
-     * results populate a subset of parameters as they arrive, and the final
+     * Represents the accumulated parameter values for a specific [CameraFrameNumber]. Partial
+     * capture results populate a subset of parameters as they arrive, and the final
      * [android.hardware.camera2.TotalCaptureResult] completes the state or explicitly marks
      * un-reported parameters as null.
      */
     private class FrameMetadataState(
-        val frameNumber: FrameNumber,
+        val frameNumber: CameraFrameNumber,
         val captureResultValues: Array<Any?>,
         val metadataValues: Array<Any?>,
     )
 
     override fun onPartialCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         captureResult: FrameMetadata,
     ) {
         if (requestMetadata.request.inputRequest != null) return // Skip reprocessing
@@ -85,7 +85,7 @@ internal class LatestFrameMetadataAggregator(
 
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         totalCaptureResult: FrameInfo,
     ) {
         if (requestMetadata.request.inputRequest != null) return // Skip reprocessing
@@ -93,7 +93,11 @@ internal class LatestFrameMetadataAggregator(
         updateFrame(frameNumber, totalCaptureResult.metadata, isTotal = true)
     }
 
-    private fun updateFrame(frameNumber: FrameNumber, metadata: FrameMetadata, isTotal: Boolean) {
+    private fun updateFrame(
+        frameNumber: CameraFrameNumber,
+        metadata: FrameMetadata,
+        isTotal: Boolean,
+    ) {
         var mapToDispatch: LatestFrameMetadata? = null
         synchronized(window) {
             // 1. Skip processing if this update is for a frame older than or equal to the latest
@@ -153,12 +157,12 @@ internal class LatestFrameMetadataAggregator(
     }
 
     /**
-     * Retrieves or creates a [FrameMetadataState] for the given [FrameNumber]. States are
+     * Retrieves or creates a [FrameMetadataState] for the given [CameraFrameNumber]. States are
      * maintained in descending order (newest frame first at index 0) so that newest parameter
      * updates take precedence during lookups across partial and total results.
      */
     @GuardedBy("window")
-    private fun getOrCreateFrameState(frameNumber: FrameNumber): FrameMetadataState {
+    private fun getOrCreateFrameState(frameNumber: CameraFrameNumber): FrameMetadataState {
         for (i in window.indices) {
             if (window[i].frameNumber == frameNumber) {
                 return window[i]
@@ -187,9 +191,10 @@ internal class LatestFrameMetadataAggregator(
     @GuardedBy("window")
     private fun buildNextSnapshotIfChanged(): LatestFrameMetadataImpl? {
         val nextCaptureResultValues = Array<Any?>(captureResultKeys.size) { null }
-        val nextCaptureResultFrameNumbers = Array<FrameNumber?>(captureResultKeys.size) { null }
+        val nextCaptureResultFrameNumbers =
+            Array<CameraFrameNumber?>(captureResultKeys.size) { null }
         val nextMetadataValues = Array<Any?>(metadataKeys.size) { null }
-        val nextMetadataFrameNumbers = Array<FrameNumber?>(metadataKeys.size) { null }
+        val nextMetadataFrameNumbers = Array<CameraFrameNumber?>(metadataKeys.size) { null }
 
         // Iterate from oldest to newest so that newer values overwrite older ones.
         for (i in window.indices.reversed()) {

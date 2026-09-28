@@ -30,7 +30,6 @@ import androidx.camera.camera2.pipe.FrameCapture
 import androidx.camera.camera2.pipe.FrameGraph
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Parameters
@@ -44,6 +43,7 @@ import androidx.camera.camera2.pipe.graph.Controller3A
 import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import androidx.camera.camera2.pipe.internal.FrameDistributor
 import androidx.camera.camera2.pipe.internal.FrameGraphResourceTrimmer
+import androidx.camera.common.CameraFrameNumber
 import java.lang.Class
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -76,7 +76,7 @@ constructor(
     override val streams = cameraGraph.streams
 
     override val graphState: StateFlow<GraphState> = cameraGraph.graphState
-    override val latestFrameNumber: Flow<FrameNumber> = cameraGraph.latestFrameNumber
+    override val latestFrameNumber: Flow<CameraFrameNumber> = cameraGraph.latestFrameNumber
     override val latestFrameInfo: Flow<FrameInfo> = cameraGraph.latestFrameInfo
 
     override var isForeground: Boolean = cameraGraph.isForeground

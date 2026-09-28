@@ -25,8 +25,8 @@ import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.UnsafeWrapper
 import androidx.camera.common.unwrapAs
 import androidx.camera.core.impl.CameraCaptureMetaData.AeMode
@@ -44,7 +44,7 @@ import java.nio.BufferUnderflowException
 
 public class PartialCaptureResultAdapter(
     private val requestMetadata: RequestMetadata,
-    private val frameNumber: FrameNumber,
+    private val frameNumber: CameraFrameNumber,
     private val result: FrameMetadata,
 ) : CameraCaptureResult, UnsafeWrapper {
     override fun getAfMode(): AfMode = result.getAfMode()
@@ -81,7 +81,7 @@ public class PartialCaptureResultAdapter(
 /** Adapts the [CameraCaptureResult] interface to [CameraPipe]. */
 public class CaptureResultAdapter(
     private val requestMetadata: RequestMetadata,
-    private val frameNumber: FrameNumber,
+    private val frameNumber: CameraFrameNumber,
     internal val result: FrameInfo,
 ) : CameraCaptureResult, UnsafeWrapper {
     override fun getAfMode(): AfMode = result.metadata.getAfMode()

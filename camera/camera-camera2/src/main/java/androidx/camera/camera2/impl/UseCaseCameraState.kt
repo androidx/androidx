@@ -28,12 +28,12 @@ import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import javax.inject.Inject
 import kotlin.collections.removeFirst as removeFirstKt
@@ -336,7 +336,7 @@ constructor(
     public inner class RequestListener : Request.Listener {
         override fun onTotalCaptureResult(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             totalCaptureResult: FrameInfo,
         ) {
             if (pendingSignalCount.value == 0) {
@@ -349,7 +349,7 @@ constructor(
 
         override fun onFailed(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
+            frameNumber: CameraFrameNumber,
             requestFailure: RequestFailure,
         ) {
             if (pendingSignalCount.value == 0) {
