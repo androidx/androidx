@@ -431,7 +431,7 @@ internal fun buildOutputConfigurations(
             continue
         }
 
-        if (outputConfig.deferrable && outputSurfaces.size != outputConfig.streams.size) {
+        if (outputConfig.deferrable && outputSurfaces.isEmpty()) {
             val output =
                 AndroidOutputConfiguration.create(
                     null,
@@ -463,7 +463,7 @@ internal fun buildOutputConfigurations(
         }
 
         // Default case: We have the surface(s)
-        check(outputSurfaces.size == outputConfig.streams.size) {
+        check(outputConfig.deferrable || outputSurfaces.size == outputConfig.streams.size) {
             val missingStreams = outputConfig.streams.filter { !surfaces.contains(it.id) }
             "Surfaces are not yet available for $outputConfig!" +
                 " Missing surfaces for $missingStreams!"
@@ -497,6 +497,9 @@ internal fun buildOutputConfigurations(
         } catch (e: IllegalArgumentException) {
             Log.error(e) { "Failed to add Surfaces to $output" }
             continue
+        }
+        for (outputStream in outputConfig.streams.filter { !surfaces.containsKey(it.id) }) {
+            deferredOutputs[outputStream.id] = output
         }
         if (graphConfig.postviewStream != null) {
             val postviewStream = streamGraph[graphConfig.postviewStream]
