@@ -20,8 +20,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
@@ -71,13 +69,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
@@ -87,11 +82,6 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
         @JvmStatic
         @Parameterized.Parameters(name = "orientation: {0}")
         fun initParameters(): Array<Any> = arrayOf(Orientation.Vertical, Orientation.Horizontal)
-    }
-
-    @Before
-    fun setup() {
-        assumeTrue(ComposeFoundationFlags.isCacheWindowLookaheadCheckEnabled)
     }
 
     @Test
@@ -920,7 +910,8 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 LookaheadScope {
-                    LazyStaggeredGrid(lanes = 2, Modifier.requiredSize(300.dp)) {
+                    state = LazyStaggeredGridState()
+                    LazyStaggeredGrid(lanes = 2, Modifier.requiredSize(300.dp), state) {
                         items(24, key = { it }) {
                             Box(
                                 Modifier.testTag("$it")
@@ -976,6 +967,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
 
     @Test
     fun testDisposeHappensAfterNoLongerNeededByEitherPass() {
+
         val disposed = mutableListOf<Boolean>().apply { repeat(20) { this.add(false) } }
         var lookaheadHeight by mutableIntStateOf(1000)
         var approachHeight by mutableIntStateOf(1000)
