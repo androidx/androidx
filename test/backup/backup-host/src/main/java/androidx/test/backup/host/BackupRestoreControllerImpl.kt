@@ -400,21 +400,14 @@ internal class BackupRestoreControllerImpl(
         val binderRedirectDir = "/data/local/tmp"
         val payloadId = UUID.randomUUID().toString()
 
-        cmd.append(" -e action ").append(actionClassName)
-        cmd.append(" -e actionClass ").append(actionClassName)
+        val safeActionClass = escapeShellArg(actionClassName)
+        cmd.append(" -e action ").append(safeActionClass)
+        cmd.append(" -e actionClass ").append(safeActionClass)
         cmd.append(" -e payload_id ").append(payloadId)
         cmd.append(" -e redirect_dir ").append(binderRedirectDir)
 
-        val dquote = Char(34).toString()
-        val bslash = Char(92).toString()
         for ((key, value) in args) {
-            val escapedValue = value.replace(dquote, bslash + dquote)
-            cmd.append(" -e ")
-                .append(key)
-                .append(" ")
-                .append(dquote)
-                .append(escapedValue)
-                .append(dquote)
+            cmd.append(" -e ").append(escapeShellKey(key)).append(" ").append(escapeShellArg(value))
         }
         cmd.append(" ")
             .append(applicationId)
@@ -495,7 +488,10 @@ internal class BackupRestoreControllerImpl(
                 }
                 // Remove the remote overflow file on device once successfully pulled!
                 @Suppress("AdbDeviceServicesCommand")
-                adbSession.deviceServices.shellAsText(selector, "rm -f $payloadPath")
+                adbSession.deviceServices.shellAsText(
+                    selector,
+                    "rm -f -- ${escapeShellArg(payloadPath)}",
+                )
 
                 val fileContent = tempLocalFile.readText()
                 val pulledObj = Json.parseToJsonElement(fileContent).jsonObject
@@ -997,10 +993,11 @@ internal class BackupRestoreControllerImpl(
         }
 
         for ((key, value) in intentExtras) {
-            val safeKey =
-                if (key.all { it.isLetterOrDigit() || it == '.' || it == '_' }) key
-                else escapeShellArg(key)
-            command.append(" --es ").append(safeKey).append(" ").append(escapeShellArg(value))
+            command
+                .append(" --es ")
+                .append(escapeShellKey(key))
+                .append(" ")
+                .append(escapeShellArg(value))
         }
 
         logger.info("Launching app via am start: $command")
@@ -1182,6 +1179,17 @@ internal class BackupRestoreControllerImpl(
          * preventing syntax errors on internal single quotes and command injection.
          */
         private fun escapeShellArg(arg: String): String = "'" + arg.replace("'", "'\\''") + "'"
+
+        /**
+         * Leaves simple identifier keys (`[A-Za-z0-9._]+`) unquoted and single-quotes any empty key
+         * or key containing shell metacharacters.
+         */
+        private fun escapeShellKey(key: String): String =
+            if (key.isNotEmpty() && key.all { it.isLetterOrDigit() || it == '.' || it == '_' }) {
+                key
+            } else {
+                escapeShellArg(key)
+            }
 
         private fun parseStringMap(jsonString: String): Map<String, String> {
             if (jsonString.isEmpty()) return emptyMap()
