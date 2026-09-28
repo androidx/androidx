@@ -136,7 +136,7 @@ private constructor(
             oos.writeInt(complicationData.persistencePolicy)
             oos.writeInt(complicationData.displayPolicy)
             if (isFieldValidForType(FIELD_EXTRAS, type)) {
-                if (Build.VERSION.SDK_INT > 30) {
+                if (Build.VERSION.SDK_INT > 30 && !complicationData.extras.isEmpty) {
                     complicationData.extras.writeToStream(oos)
                 }
             }
@@ -292,6 +292,9 @@ private constructor(
             fields[FIELD_DISPLAY_POLICY] = ois.readInt()
             if (isFieldValidForType(FIELD_EXTRAS, type)) {
                 if (Build.VERSION.SDK_INT > 30) {
+                    // The next field is always written via oos.writeObject(), ending the
+                    // block-data segment, so readFromStream(ois) sees EOF and returns an empty
+                    // PersistableBundle when writeToStream(oos) is skipped for empty extras.
                     fields[FIELD_EXTRAS] = PersistableBundle.readFromStream(ois)
                 }
             }
