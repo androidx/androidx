@@ -23,7 +23,6 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.CharacterStyle
 import android.text.style.MetricAffectingSpan
-import android.text.style.ReplacementSpan
 import kotlin.math.max
 
 /**
@@ -65,42 +64,21 @@ private class ScaledCoveringCharacterStyle(
     private val rubyScale: Float,
 ) : MetricAffectingSpan() {
     override fun updateMeasureState(textPaint: TextPaint) {
-        textPaint.withUnscaledTextSize { delegate.updateMeasureState(textPaint) }
+        textPaint.withUnscaledTextSize { delegate.updateMeasureState(it) }
     }
 
     override fun updateDrawState(tp: TextPaint) {
-        tp.withUnscaledTextSize { delegate.updateDrawState(tp) }
+        tp.withUnscaledTextSize { delegate.updateDrawState(it) }
     }
 
     override fun getUnderlying(): MetricAffectingSpan = delegate.underlying
 
-    private inline fun TextPaint.withUnscaledTextSize(block: () -> Unit) {
+    private inline fun TextPaint.withUnscaledTextSize(crossinline block: (TextPaint) -> Unit) {
         val scaledSize = textSize
         val unscaledSize = if (rubyScale != 0f) scaledSize / rubyScale else scaledSize
         textSize = unscaledSize
-        block()
+        block(this)
         textSize = if (textSize != unscaledSize) textSize * rubyScale else scaledSize
-    }
-}
-
-/**
- * Returns the [CharacterStyle] spans in [bodyText] that cover all of `[start, end)`.
- *
- * The result does not include [NoCopySpan] spans or [ReplacementSpan] spans, such as [RubySpan] and
- * [EmphasisSpan].
- */
-private fun extractCoveringCharacterStyles(
-    bodyText: CharSequence,
-    start: Int,
-    end: Int,
-): List<CharacterStyle> {
-    if (bodyText !is Spanned) return emptyList()
-    return bodyText.getSpans(start, end, CharacterStyle::class.java).filter { span ->
-        val underlying = span.underlying
-        bodyText.getSpanStart(span) <= start &&
-            bodyText.getSpanEnd(span) >= end &&
-            underlying !is NoCopySpan &&
-            underlying !is ReplacementSpan
     }
 }
 
@@ -112,7 +90,7 @@ private fun extractCoveringCharacterStyles(
  *
  * @param rubyText the text of the ruby annotation
  * @param rubyScale the text scale of the ruby text, relative to the base text
- * @param coveringSpans the spans from [extractCoveringCharacterStyles]
+ * @param coveringSpans the spans from [getCoveringStyles]
  * @return [rubyText] if [rubyText] or [coveringSpans] is empty, otherwise a new [SpannableString]
  */
 private fun buildStyledRubyText(
@@ -148,30 +126,6 @@ private fun buildStyledRubyText(
             }
         }
     }
-}
-
-/**
- * Returns the background color after applying [coveringSpans] on top of [basePaint].
- *
- * Only [TextPaint.bgColor] is read from the temporary paint after [CharacterStyle.updateDrawState].
- */
-// TODO(b/564268825): Deduplicate with HorizontalSpanHelper after aosp/4323047 lands.
-private fun resolveCoveringBackgroundColor(
-    coveringSpans: List<CharacterStyle>,
-    basePaint: TextPaint,
-): Int {
-    var bgColor = basePaint.bgColor
-    if (coveringSpans.isNotEmpty()) {
-        tempPaint { workPaint ->
-            // Only workPaint.bgColor is read after updateDrawState.
-            workPaint.bgColor = bgColor
-            for (span in coveringSpans) {
-                span.updateDrawState(workPaint)
-            }
-            bgColor = workPaint.bgColor
-        }
-    }
-    return bgColor
 }
 
 /**
@@ -223,7 +177,7 @@ internal class RubyLayoutRun(
             else bodyLayoutRuns.rightSide
 
     private val rubyScale = rubySpan.textScale
-    private val coveringSpans = extractCoveringCharacterStyles(text, start, end)
+    private val coveringSpans = (text as? Spanned)?.getCoveringStyles(start, end).orEmpty()
     private val styledRubyText: CharSequence =
         buildStyledRubyText(rubySpan.text, rubyScale, coveringSpans)
     private val rubyLayoutRuns: LineLayout =
@@ -265,7 +219,7 @@ internal class RubyLayoutRun(
         // background color so per-run backgrounds inside bodyLayoutRuns or rubyLayoutRuns are not
         // overdrawn.
         if (heightDiffHalf != 0f) {
-            val baseBgColor = resolveCoveringBackgroundColor(coveringSpans, paint)
+            val baseBgColor = resolveBackgroundColor(paint, coveringSpans)
             if (baseBgColor != 0) {
                 val shorterLayout = if (heightDiffHalf > 0f) rubyLayoutRuns else bodyLayoutRuns
                 val shorterX = if (heightDiffHalf > 0f) rubyX else originX
