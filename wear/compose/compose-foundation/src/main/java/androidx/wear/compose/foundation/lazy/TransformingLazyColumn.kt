@@ -56,9 +56,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.LocalReduceMotion
-import androidx.wear.compose.foundation.WearComposeFoundationFlags
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.wear.compose.foundation.lazy.layout.lazyLayoutItemAnimator
 import androidx.wear.compose.foundation.requestFocusOnHierarchyActive
@@ -130,7 +128,6 @@ import androidx.wear.compose.foundation.rotary.rotaryScrollable
  *   updated.
  * @param content The content of the list.
  */
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 public fun TransformingLazyColumn(
     modifier: Modifier = Modifier,
@@ -249,45 +246,36 @@ public fun TransformingLazyColumn(
                     flingBehavior = flingBehavior,
                     overscrollEffect = overscrollEffect,
                 )
-                .then(
-                    if (
-                        WearComposeFoundationFlags.isTransformingLazyColumnClickableThresholdEnabled
-                    ) {
-                        Modifier.pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                while (true) {
-                                    val event = awaitPointerEvent(PointerEventPass.Initial)
-                                    val startPosition = event.changes.first().position
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent(PointerEventPass.Initial)
+                            val startPosition = event.changes.first().position
 
-                                    // Wait for up event
-                                    var upEvent: PointerInputChange? = null
-                                    while (upEvent == null) {
-                                        val event = awaitPointerEvent(PointerEventPass.Initial)
-                                        val change = event.changes.first()
+                            // Wait for up event
+                            var upEvent: PointerInputChange? = null
+                            while (upEvent == null) {
+                                val change =
+                                    awaitPointerEvent(PointerEventPass.Initial).changes.first()
 
-                                        if (change.changedToUp()) {
-                                            upEvent = change
-                                        }
-                                    }
-
-                                    val pointerDistance =
-                                        (upEvent.position - startPosition).getDistance()
-                                    // Check if pointer's drag distance is smaller than touch slop
-                                    // and there is any item in edge item that smaller than
-                                    // threshold when pointer leaves screen then consume it.
-                                    if (
-                                        pointerDistance < viewConfiguration.touchSlop &&
-                                            !state.isItemClickableAt(startPosition, minimumHeightPx)
-                                    ) {
-                                        upEvent.consume()
-                                    }
+                                if (change.changedToUp()) {
+                                    upEvent = change
                                 }
                             }
+
+                            val pointerDistance = (upEvent.position - startPosition).getDistance()
+                            // Check if pointer's drag distance is smaller than touch slop
+                            // and there is any item in edge item that smaller than
+                            // threshold when pointer leaves screen then consume it.
+                            if (
+                                pointerDistance < viewConfiguration.touchSlop &&
+                                    !state.isItemClickableAt(startPosition, minimumHeightPx)
+                            ) {
+                                upEvent.consume()
+                            }
                         }
-                    } else {
-                        Modifier
                     }
-                ),
+                },
         measurePolicy = measurePolicy,
         prefetchState = state.prefetchState,
     )
