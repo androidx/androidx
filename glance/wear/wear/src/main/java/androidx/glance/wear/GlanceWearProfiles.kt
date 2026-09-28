@@ -26,9 +26,6 @@ import androidx.glance.wear.core.RcWearOperations.CORE_TEXT
 import androidx.glance.wear.core.RendererVersion
 
 /** Defines profiles for Glance Wear. */
-// TODO: b/526711189 - Make this public API once RC is public, currently this code is forked from
-// RcPlatformProfiles.WEAR_WIDGETS.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object GlanceWearProfiles {
     // Forked from androidx.compose.remote.core.RcProfiles.PROFILE_WEAR_WIDGETS
     private const val PROFILE_WEAR_WIDGETS: Int = 0x800
@@ -43,6 +40,10 @@ public object GlanceWearProfiles {
         add(CORE_TEXT)
     }
 
+    /** A profile for Wear Widgets, based on the allowed operations for widgets. */
+    public val wearWidgets: Profile by
+        lazy(mode = LazyThreadSafetyMode.PUBLICATION) { wearWidgets(supportedOperations = null) }
+
     /**
      * Creates a Profile for Wear Widgets, based on the allowed operations for widgets using only
      * the supported Host operations from the list.
@@ -52,6 +53,7 @@ public object GlanceWearProfiles {
      * @param supportedOperations The set of operations that are supported by the host. If null, all
      *   allowed operations can be used.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun wearWidgets(supportedOperations: IntSet? = null): Profile {
         val operationsToUse =
             if (supportedOperations != null && supportedOperations.isNotEmpty()) {
