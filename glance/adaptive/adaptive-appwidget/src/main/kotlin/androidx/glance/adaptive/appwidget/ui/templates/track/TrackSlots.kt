@@ -263,6 +263,7 @@ internal constructor(
             // the design drops the card and draws the ring at full width with the metric inside.
             val containedRing = isNarrow && tiers.height <= HeightTier.H1
 
+            // TODO: Extract magic numbers into constants
             val paddingDp = if (isNarrow || tiers.height <= HeightTier.H1) 16f else 20f
             val spacingDp =
                 when {
@@ -280,16 +281,12 @@ internal constructor(
                 } else {
                     0f
                 }
-            // Beside the metric the ring defines the row's height; stacked above it, it is bounded
-            // by the content width instead. Launcher cells rarely land on the design's exact grid —
-            // this device reports an 88 dp cell as 85 dp — and a ring that overflows is clipped
-            // flat by the padding rather than shrunk, so it has to fit the content box on both
-            // axes.
-            val contentWidthDp = dimensions.widthDp - 2 * paddingDp
-            val contentHeightDp = dimensions.heightDp - 2 * paddingDp
+            // The ring is a fixed RING_SIZE_DP at every breakpoint the design covers. Only the
+            // narrowest, shortest one replaces it with a ring drawn at the full width of the
+            // container.
             val ringSizeDp =
-                if (containedRing) containerDp - paddingDp / 2f
-                else minOf(RING_SIZE_DP, contentWidthDp, contentHeightDp).coerceAtLeast(0f)
+                if (containedRing) (containerDp - paddingDp / 2f).coerceAtLeast(0f)
+                else RING_SIZE_DP
 
             return TrackSlots(
                 stackTitle = isNarrow,

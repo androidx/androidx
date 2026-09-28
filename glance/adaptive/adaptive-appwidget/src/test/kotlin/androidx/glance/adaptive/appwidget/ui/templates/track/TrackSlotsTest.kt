@@ -186,24 +186,24 @@ class TrackSlotsTest {
     }
 
     @Test
-    fun ringBesideTheMetric_shrinksToTheContentBoxRatherThanOverflowIt() {
+    fun ringBesideTheMetric_keepsItsSpecifiedSizeOnAnUndersizedRow() {
         // A launcher rarely hands over the design's exact row: this device reports the 88 dp row as
-        // 85 dp, which leaves 53 dp once 16 dp of padding comes off each side. A 56 dp ring would
-        // overflow and be clipped flat top and bottom, so it has to come down to the content box.
+        // 85 dp. The ring is specified at 56 dp for this breakpoint, so it stays there rather than
+        // tracking the reported box - a host that under-reports its height must not shrink it.
         val cell = TrackSlots.from(SizeTiers(WidthTier.W3, HeightTier.H1), Dimensions(289, 85))
 
         assertThat(cell.containedRing).isFalse()
-        assertThat(cell.ringSize).isEqualTo(53.dp)
+        assertThat(cell.ringSize).isEqualTo(56.dp)
     }
 
     @Test
-    fun ringAboveTheMetric_shrinksToTheContentWidthRatherThanOverflowIt() {
-        // Stacked, the ring is bounded by the width instead: an 88 dp column reported as 85 dp
-        // leaves 53 dp of content box, so a 56 dp ring would be clipped flat left and right.
+    fun ringAboveTheMetric_keepsItsSpecifiedSizeInAnUndersizedColumn() {
+        // Stacked, the ring is still the same 56 dp: an 88 dp column reported as 85 dp does not
+        // move it either.
         val cell = TrackSlots.from(SizeTiers(WidthTier.W1, HeightTier.H3), Dimensions(85, 176))
 
         assertThat(cell.stackTitle).isTrue()
-        assertThat(cell.ringSize).isEqualTo(53.dp)
+        assertThat(cell.ringSize).isEqualTo(56.dp)
     }
 
     @Test

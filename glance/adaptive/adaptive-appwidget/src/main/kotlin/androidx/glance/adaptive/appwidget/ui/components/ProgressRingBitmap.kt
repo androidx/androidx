@@ -66,7 +66,10 @@ internal fun createProgressRingBitmap(
     val edge = sizePx.coerceIn(2, MAX_RING_SIZE_PX)
     val bitmap = Bitmap.createBitmap(edge, edge, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
-    val stroke = strokeWidthPx.coerceIn(1f, edge / 2f)
+    // Order the bounds so the range can never be empty even if the edge floor above is lowered
+    // below 2 px, where edge / 2f would drop under the 1f floor. coerceIn throws on an inverted
+    // range.
+    val stroke = strokeWidthPx.coerceIn(1f, maxOf(1f, edge / 2f))
     val inset = stroke / 2f
     val bounds = RectF(inset, inset, edge - inset, edge - inset)
     val center = edge / 2f
