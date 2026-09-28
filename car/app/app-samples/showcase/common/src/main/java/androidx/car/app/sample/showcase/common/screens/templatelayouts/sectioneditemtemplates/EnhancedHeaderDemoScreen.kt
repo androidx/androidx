@@ -61,7 +61,7 @@ class EnhancedHeaderDemoScreen(carContext: CarContext) : Screen(carContext) {
 
         val backgroundIcon =
             CarIcon.createOriginalIcon(
-                IconCompat.createWithResource(carContext, R.drawable.test_image_square)
+                IconCompat.createWithResource(carContext, R.drawable.junction_image)
             )
 
         val background = Background.Builder().setImage(backgroundIcon).build()
