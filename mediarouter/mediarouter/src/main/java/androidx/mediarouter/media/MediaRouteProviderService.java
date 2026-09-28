@@ -57,6 +57,7 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_VERS
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.isValidRemoteMessenger;
 import static androidx.mediarouter.media.MediaRouter.UNSELECT_REASON_UNKNOWN;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
@@ -1605,9 +1606,7 @@ public abstract class MediaRouteProviderService extends Service {
                 return true;
             }
 
-            // TODO(b/413118912) - replace the permission string below with the framework constant
-            //  when it's available (currently planned in SDK 37).
-            if ("android.permission.ACCESS_LOCAL_NETWORK".equals(permission)) {
+            if (Manifest.permission.ACCESS_LOCAL_NETWORK.equals(permission)) {
                 try {
                     // The local network protection feature should only apply to apps
                     // with target SDK after 36 (Baklava).
