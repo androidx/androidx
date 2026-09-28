@@ -19,6 +19,7 @@ package androidx.compose.ui.platform
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import android.os.Parcel
 import android.text.Annotation
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.util.fastForEach
 
 private const val PLAIN_TEXT_LABEL = "plain text"
+private const val URL_LABEL = "URL"
 
 /** Android implementation for [ClipboardManager]. */
 @Suppress("DEPRECATION")
@@ -109,8 +111,80 @@ internal class AndroidClipboardManager internal constructor(private val context:
 // add more functionality in it.
 public actual class ClipEntry(public val clipData: ClipData) {
 
-    public actual val clipMetadata: ClipMetadata
-        get() = clipData.description.toClipMetadata()
+    public actual val clipMetadata: ClipMetadata = clipData.description.toClipMetadata()
+
+    public actual suspend fun readText(): String? {
+        if (!clipMetadata.hasText()) return null
+
+        // Check the metadata and the read value.
+        // When the result is null despite the metadata state, try next possible representation.
+        if (clipMetadata.hasPlainText()) {
+            val plainText = readPlainText()
+            if (plainText != null) return plainText
+        }
+        if (clipMetadata.hasHtml()) {
+            val html = readHtml()
+            if (html != null) return html
+        }
+        if (clipMetadata.hasUrl()) {
+            val url = readUrl()
+            if (url != null) return url
+        }
+        return null
+    }
+
+    public actual suspend fun readPlainText(): String? = readFirstItem { item ->
+        item.text?.toString()
+    }
+
+    public actual suspend fun readHtml(): String? {
+        return when {
+            clipMetadata.hasHtml() -> readFirstItem { item -> item.htmlText }
+            else -> null
+        }
+    }
+
+    public actual suspend fun readUrl(): String? {
+        return when {
+            // item.uri might be not null, but the advertised MIME type is not url, so check it:
+            clipMetadata.hasUrl() -> readFirstItem { item -> item.uri?.toString() }
+            else -> null
+        }
+    }
+
+    public actual companion object {
+        public actual fun withText(plainText: String, html: String?): ClipEntry {
+            val clipData =
+                if (html == null) {
+                    ClipData.newPlainText(PLAIN_TEXT_LABEL, plainText)
+                } else {
+                    ClipData.newHtmlText(PLAIN_TEXT_LABEL, plainText, html)
+                }
+            return ClipEntry(clipData)
+        }
+
+        public actual fun withUrl(
+            url: String,
+            plainText: String,
+            html: String?,
+        ): ClipEntry {
+            val mimeTypes = buildList {
+                add(ClipDescription.MIMETYPE_TEXT_URILIST)
+                add(ClipDescription.MIMETYPE_TEXT_PLAIN)
+                if (html != null) add(ClipDescription.MIMETYPE_TEXT_HTML)
+            }
+            val item = ClipData.Item(plainText, html, null, Uri.parse(url))
+            return ClipEntry(ClipData(URL_LABEL, mimeTypes.toTypedArray(), item))
+        }
+    }
+}
+
+private inline fun <T> ClipEntry.readFirstItem(transform: (ClipData.Item) -> T?): T? {
+    return try {
+        if (clipData.itemCount == 0) null else transform(clipData.getItemAt(0))
+    } catch (_: Exception) {
+        null
+    }
 }
 
 public fun ClipData.toClipEntry(): ClipEntry = ClipEntry(this)
@@ -121,7 +195,22 @@ public fun ClipData.toClipEntry(): ClipEntry = ClipEntry(this)
  */
 // Defining this class not as a typealias but a wrapper gives us flexibility in the future to
 // add more functionality in it.
-public actual class ClipMetadata(public val clipDescription: ClipDescription)
+public actual class ClipMetadata(public val clipDescription: ClipDescription) {
+    public actual fun hasText(): Boolean = clipDescription.hasMimeType("text/*")
+
+    public actual fun hasPlainText(): Boolean {
+        return clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
+        // Android ClipData.Item requires for html content to always have a plain text fallback;
+        // If text/html is present, then ClipData.Item.text must be present too!
+        || hasHtml()
+    }
+
+    public actual fun hasHtml(): Boolean =
+        clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML)
+
+    public actual fun hasUrl(): Boolean =
+        clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_URILIST)
+}
 
 public fun ClipDescription.toClipMetadata(): ClipMetadata = ClipMetadata(this)
 

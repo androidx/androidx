@@ -31,4 +31,4 @@ public actual class PlatformTransferableContent internal constructor() {
 public actual fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean =
     implementedInJetBrainsFork()
 
-internal actual fun ClipEntry.readPlainText(): String? = implementedInJetBrainsFork()
+internal actual fun ClipEntry.readAllPlainText(): String? = implementedInJetBrainsFork()

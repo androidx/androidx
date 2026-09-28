@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.contextmenu.ProcessTextItemOverrideRule
-import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextContextMenuItems

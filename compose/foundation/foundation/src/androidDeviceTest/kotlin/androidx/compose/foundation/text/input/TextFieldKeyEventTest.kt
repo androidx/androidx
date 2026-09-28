@@ -18,7 +18,6 @@ package androidx.compose.foundation.text.input
 
 import android.content.Context
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

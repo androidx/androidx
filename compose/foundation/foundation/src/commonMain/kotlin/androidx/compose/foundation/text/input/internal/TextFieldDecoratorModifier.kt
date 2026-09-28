@@ -24,7 +24,7 @@ import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.foundation.content.internal.dragAndDropRequestPermission
 import androidx.compose.foundation.content.internal.getReceiveContentConfiguration
-import androidx.compose.foundation.content.readPlainText
+import androidx.compose.foundation.content.readAllPlainText
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.Handle
@@ -323,7 +323,7 @@ internal class TextFieldDecoratorModifierNode(
                 onDrop = { clipEntry, clipMetadata ->
                     emitDragExitEvent()
                     textFieldSelectionState.clearHandleDragging()
-                    var plainText = clipEntry.readPlainText()
+                    var plainText = clipEntry.readAllPlainText()
 
                     val receiveContentConfiguration = getReceiveContentConfiguration()
                     // if receiveContent configuration is set, all drag operations should be
@@ -340,7 +340,7 @@ internal class TextFieldDecoratorModifierNode(
                             receiveContentConfiguration.receiveContentListener.onReceive(
                                 transferableContent
                             )
-                        plainText = remaining?.clipEntry?.readPlainText()
+                        plainText = remaining?.clipEntry?.readAllPlainText()
                     }
                     plainText?.let(textFieldState::replaceSelectedText)
                     true

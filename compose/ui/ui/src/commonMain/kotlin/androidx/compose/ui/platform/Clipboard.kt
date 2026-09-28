@@ -21,10 +21,12 @@ public interface Clipboard {
     /**
      * Returns the clipboard entry that's provided by the platform's ClipboardManager.
      *
-     * This item can include arbitrary content like text, images, videos, or any data that may be
-     * provided through a mediator. Returned entry may contain multiple items with different types.
+     * The entry can offer multiple representations of one item, such as plain text and HTML. Some
+     * platforms may also return entries containing multiple items. Returns null when the clipboard
+     * is empty.
      *
-     * It returns null when the clipboard is empty.
+     * Check [ClipEntry.clipMetadata] before reading, then read promptly: clipboard content can
+     * become unavailable even after a positive metadata check.
      *
      * Calling this function on Android will access the Clipboard's contents, and the first time it
      * happens this will trigger a warning that says "App pasted from Clipboard". Use

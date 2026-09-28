@@ -23,7 +23,6 @@ import androidx.compose.foundation.contextmenu.assertContextMenuItem
 import androidx.compose.foundation.contextmenu.assertContextMenuItems
 import androidx.compose.foundation.contextmenu.clickOffPopup
 import androidx.compose.foundation.contextmenu.contextMenuItemInteraction
-import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.PlatformSelectionBehaviorsRule
 import androidx.compose.foundation.text.contextmenu.ProcessTextApi23Impl

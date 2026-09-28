@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input
 
 import android.R
+import android.content.ClipData
 import android.os.Build
 import android.text.InputType
 import android.text.SpannableStringBuilder
@@ -25,7 +26,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,6 +77,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties.TextSelectionRange
 import androidx.compose.ui.semantics.getOrNull
@@ -1169,6 +1170,28 @@ internal class BasicTextFieldTest {
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("Worldo")
             assertThat(state.selection).isEqualTo(TextRange(5))
+        }
+    }
+
+    @Test
+    fun paste_contextMenuAction_pastesFromClipEntryWithHtml() {
+        val clipData = ClipData.newHtmlText("label", "plain text", "<b>plain text</b>")
+        val clipEntry = clipData.toClipEntry()
+        val clipboard = FakeClipboard(clipEntry)
+        val state = TextFieldState("Hello, ", initialSelection = TextRange(7))
+        inputMethodInterceptor.setTextFieldTestContent {
+            CompositionLocalProvider(LocalClipboard provides clipboard) {
+                BasicTextField(state = state, modifier = Modifier.testTag(Tag))
+            }
+        }
+
+        requestFocus(Tag)
+
+        inputMethodInterceptor.withInputConnection { performContextMenuAction(R.id.paste) }
+
+        rule.runOnIdle {
+            assertThat(state.text.toString()).isEqualTo("Hello, plain text")
+            assertThat(state.selection).isEqualTo(TextRange(17))
         }
     }
 

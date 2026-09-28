@@ -68,7 +68,7 @@ class TransferableContentTest {
                 }
             )
 
-        assertThat(transferableContent.clipEntry.readPlainText()).isEqualTo("a\nb\nc")
+        assertThat(transferableContent.clipEntry.readAllPlainText()).isEqualTo("a\nb\nc")
     }
 
     @Test
@@ -81,7 +81,7 @@ class TransferableContentTest {
                 }
             )
 
-        assertThat(transferableContent.clipEntry.readPlainText()).isNull()
+        assertThat(transferableContent.clipEntry.readAllPlainText()).isNull()
     }
 
     @Test
@@ -95,7 +95,7 @@ class TransferableContentTest {
                 }
             )
 
-        assertThat(transferableContent.clipEntry.readPlainText()).isEqualTo("abc")
+        assertThat(transferableContent.clipEntry.readAllPlainText()).isEqualTo("abc")
     }
 
     @Test

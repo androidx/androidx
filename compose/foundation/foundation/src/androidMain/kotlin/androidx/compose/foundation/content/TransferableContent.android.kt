@@ -110,7 +110,7 @@ public actual fun TransferableContent.hasMediaType(mediaType: MediaType): Boolea
     return clipMetadata.clipDescription.hasMimeType(mediaType.representation)
 }
 
-internal actual fun ClipEntry.readPlainText(): String? {
+internal actual fun ClipEntry.readAllPlainText(): String? {
     var seenText = false
     for (i in 0 until clipData.itemCount) {
         seenText = seenText || (clipData.getItemAt(i).text != null)
