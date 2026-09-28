@@ -140,6 +140,7 @@ public class RemoteComposeWriter {
     private static HTag[] filterAndValidateTags(int apiLevel, HTag[] tags) {
         // The buffer is never compressed: encodeToByteArray() adds the flag when compressing.
         tags = removeTag(tags, Header.COMPRESS);
+        checkScroll(apiLevel, HTag.getValue(tags, Header.DOC_SCROLL));
         if (apiLevel >= 8) {
             return tags;
         }
@@ -153,6 +154,25 @@ public class RemoteComposeWriter {
                     "densityBehavior is only supported in API level 8 or higher");
         }
         return removeTag(tags, Header.DOC_DENSITY_BEHAVIOR);
+    }
+
+    /**
+     * Checks the value of a {@link Header#DOC_SCROLL} tag, if any: an INT combining {@link
+     * Header#SCROLL_HORIZONTAL} and {@link Header#SCROLL_VERTICAL}, in an API level 7+ document.
+     * API level 6 headers have no properties, so they would drop it.
+     */
+    private static void checkScroll(int apiLevel, @Nullable Object value) {
+        if (value == null) {
+            return;
+        }
+        int directions = Header.SCROLL_HORIZONTAL | Header.SCROLL_VERTICAL;
+        if (!(value instanceof Integer) || ((Integer) value & ~directions) != 0) {
+            throw new IllegalArgumentException("Unsupported scroll directions " + value);
+        }
+        if (apiLevel < 7) {
+            throw new IllegalArgumentException(
+                    "DOC_SCROLL is only supported in API level 7 or higher");
+        }
     }
 
     private static HTag[] removeTag(HTag[] tags, short removedTag) {
@@ -184,7 +204,7 @@ public class RemoteComposeWriter {
      * @throws IllegalArgumentException if the compression is unknown, or not supported at {@code
      *     apiLevel}
      */
-    public static int checkCompression(int apiLevel, int compression) {
+    private static int checkCompression(int apiLevel, int compression) {
         if (compression == Header.COMPRESSION_NONE) {
             return compression;
         }
@@ -199,13 +219,13 @@ public class RemoteComposeWriter {
     }
 
     /**
-     * Returns the compression requested by a {@link Header#COMPRESS} tag, or {@code
-     * defaultCompression} (usually the profile's) if there is no such tag.
+     * Returns the compression requested by a {@link Header#COMPRESS} tag, or {@link
+     * Header#COMPRESSION_NONE} if there is no such tag.
      */
-    private static int compressionOf(int apiLevel, HTag[] tags, int defaultCompression) {
+    private static int compressionOf(int apiLevel, HTag[] tags) {
         Object value = HTag.getValue(tags, Header.COMPRESS);
         if (value == null) {
-            return checkCompression(apiLevel, defaultCompression);
+            return Header.COMPRESSION_NONE;
         }
         if (!(value instanceof Integer)) {
             throw new IllegalArgumentException("Unsupported compression " + value);
@@ -266,7 +286,7 @@ public class RemoteComposeWriter {
     public RemoteComposeWriter(@NonNull Profile profile, HTag @NonNull ... tags) {
         this.mPlatform = profile.getPlatform();
         this.mApiLevel = profile.getApiLevel();
-        mCompression = compressionOf(mApiLevel, tags, profile.getCompression());
+        mCompression = compressionOf(mApiLevel, tags);
         tags = filterAndValidateTags(mApiLevel, tags);
         mBuffer = new RemoteComposeBuffer(profile.getApiLevel());
 
@@ -384,7 +404,7 @@ public class RemoteComposeWriter {
             HTag @NonNull ... tags) {
         this.mPlatform = platform;
         this.mApiLevel = apiLevel;
-        mCompression = compressionOf(apiLevel, tags, Header.COMPRESSION_NONE);
+        mCompression = compressionOf(apiLevel, tags);
         tags = filterAndValidateTags(apiLevel, tags);
         mBuffer = new RemoteComposeBuffer(apiLevel);
 
@@ -438,7 +458,7 @@ public class RemoteComposeWriter {
             @NonNull Profile profile, @NonNull RemoteComposeBuffer buffer, HTag @NonNull ... tags) {
         this.mPlatform = profile.getPlatform();
         this.mApiLevel = profile.getApiLevel();
-        mCompression = compressionOf(mApiLevel, tags, profile.getCompression());
+        mCompression = compressionOf(mApiLevel, tags);
         tags = filterAndValidateTags(mApiLevel, tags);
         mBuffer = buffer;
 
@@ -990,8 +1010,7 @@ public class RemoteComposeWriter {
 
     /**
      * Returns how {@link #encodeToByteArray()} compresses the document: the value of the {@link
-     * Header#COMPRESS} tag the writer was created with, else the compression of its {@link Profile}
-     * (see {@link Profile#withCompression}), else {@link Header#COMPRESSION_NONE}.
+     * Header#COMPRESS} tag the writer was created with, else {@link Header#COMPRESSION_NONE}.
      *
      * @return a {@link Header#COMPRESS} value
      */

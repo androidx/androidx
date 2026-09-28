@@ -628,7 +628,8 @@ public class RemoteComposeView extends FrameLayout
      *
      * <p>See {@link CoreDocument#hasVerticalScroll()}.
      *
-     * @return true if the document contains a vertical scroll container, false otherwise
+     * @return true if the document contains a vertical scroll container, or its header declares
+     *     vertical scrolling, false otherwise
      */
     public boolean isVerticallyScrollable() {
         if (mDocument == null) {
@@ -642,7 +643,8 @@ public class RemoteComposeView extends FrameLayout
      *
      * <p>See {@link CoreDocument#hasHorizontalScroll()}.
      *
-     * @return true if the document contains a horizontal scroll container, false otherwise
+     * @return true if the document contains a horizontal scroll container, or its header declares
+     *     horizontal scrolling, false otherwise
      */
     public boolean isHorizontallyScrollable() {
         if (mDocument == null) {

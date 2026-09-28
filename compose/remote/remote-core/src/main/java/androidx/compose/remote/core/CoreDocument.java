@@ -1896,16 +1896,21 @@ public class CoreDocument implements Serializable {
     /**
      * Returns true if the document declares vertical scrolling.
      *
-     * <p>Checks the {@link RootContentBehavior} scroll mode, then every
-     * {@link ScrollableComponent}, {@link ScrollModifierOperation} and {@link ComponentModifiers}
-     * in the operations tree.
+     * <p>Checks the {@link Header#DOC_SCROLL} header property and the {@link RootContentBehavior}
+     * scroll mode, then every {@link ScrollableComponent}, {@link ScrollModifierOperation} and
+     * {@link ComponentModifiers} in the operations tree. The header property can only add vertical
+     * scrolling: a document with a vertical scroll container returns true whatever it says.
      *
      * <p>Note: this is a structural check that ignores layout and visibility. It returns true even
      * if the scrollable content currently fits in its container, or is hidden.
      *
-     * @return true if the document contains a vertical scroll container
+     * @return true if the document contains a vertical scroll container, or its header declares
+     *     vertical scrolling
      */
     public boolean hasVerticalScroll() {
+        if ((declaredScroll() & Header.SCROLL_VERTICAL) != 0) {
+            return true;
+        }
         if ((mContentScroll & RootContentBehavior.SCROLL_VERTICAL) != 0) {
             return true;
         }
@@ -1940,16 +1945,22 @@ public class CoreDocument implements Serializable {
     /**
      * Returns true if the document declares horizontal scrolling.
      *
-     * <p>Checks the {@link RootContentBehavior} scroll mode, then every
-     * {@link ScrollableComponent}, {@link ScrollModifierOperation} and {@link ComponentModifiers}
-     * in the operations tree.
+     * <p>Checks the {@link Header#DOC_SCROLL} header property and the {@link RootContentBehavior}
+     * scroll mode, then every {@link ScrollableComponent}, {@link ScrollModifierOperation} and
+     * {@link ComponentModifiers} in the operations tree. The header property can only add
+     * horizontal scrolling: a document with a horizontal scroll container returns true whatever it
+     * says.
      *
      * <p>Note: this is a structural check that ignores layout and visibility. It returns true even
      * if the scrollable content currently fits in its container, or is hidden.
      *
-     * @return true if the document contains a horizontal scroll container
+     * @return true if the document contains a horizontal scroll container, or its header declares
+     *     horizontal scrolling
      */
     public boolean hasHorizontalScroll() {
+        if ((declaredScroll() & Header.SCROLL_HORIZONTAL) != 0) {
+            return true;
+        }
         if ((mContentScroll & RootContentBehavior.SCROLL_HORIZONTAL) != 0) {
             return true;
         }
@@ -1979,6 +1990,16 @@ public class CoreDocument implements Serializable {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns the scroll directions declared by the {@link Header#DOC_SCROLL} header property, or 0
+     * if there is none. The header is read when the document is loaded, so this doesn't need an
+     * initialized context. A value that isn't an INT declares nothing.
+     */
+    private int declaredScroll() {
+        Object value = mHeader == null ? null : mHeader.get(Header.DOC_SCROLL);
+        return value instanceof Integer ? (Integer) value : 0;
     }
 
     /**
