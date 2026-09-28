@@ -61,6 +61,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.view.inputmethod.InputContentInfoCompat
+import androidx.core.view.inputmethod.TextAttributeCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -438,6 +439,102 @@ class StatelessInputConnectionTest {
         assertThat(result).isTrue()
         assertThat(value.toString()).isEqualTo("test text")
         assertThat(suggestionSelectedInEdit).isTrue()
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    fun commitTextWithTextAttribute_verifySuggestionNotSelected() {
+        var suggestionSelectedInEdit = true
+        onRequestEdit = { block ->
+            val buffer = TextFieldBuffer(value).apply { suggestionSelected = true }
+            buffer.block()
+            suggestionSelectedInEdit = buffer.suggestionSelected
+            value = buffer.toTextFieldCharSequence()
+        }
+
+        val suggestions = arrayListOf("test")
+        val extras = PersistableBundle().apply { putString("key", "value") }
+        val textAttribute =
+            TextAttributeCompat.Builder()
+                .setTextConversionSuggestions(suggestions)
+                .setExtras(extras)
+                .setTextSuggestionSelected(false)
+                .build()
+                .unwrap() as TextAttribute
+        val result = ic.commitText("test text", 1, textAttribute)
+
+        assertThat(result).isTrue()
+        assertThat(value.toString()).isEqualTo("test text")
+        assertThat(suggestionSelectedInEdit).isFalse()
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    fun commitTextWithNullTextAttribute_verifySuggestionNotSelected() {
+        var suggestionSelectedInEdit = true
+        onRequestEdit = { block ->
+            val buffer = TextFieldBuffer(value).apply { suggestionSelected = true }
+            buffer.block()
+            suggestionSelectedInEdit = buffer.suggestionSelected
+            value = buffer.toTextFieldCharSequence()
+        }
+
+        val result = ic.commitText("test text", 1, null)
+
+        assertThat(result).isTrue()
+        assertThat(value.toString()).isEqualTo("test text")
+        assertThat(suggestionSelectedInEdit).isFalse()
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    fun setComposingTextWithTextAttribute_verifySuggestionNotSelected() {
+        var suggestionSelectedInEdit = true
+        var compositionInEdit = TextRange(0, 0)
+        onRequestEdit = { block ->
+            val buffer = TextFieldBuffer(value).apply { suggestionSelected = true }
+            buffer.block()
+            suggestionSelectedInEdit = buffer.suggestionSelected
+            compositionInEdit = buffer.composition!!
+            value = buffer.toTextFieldCharSequence()
+        }
+
+        val suggestions = arrayListOf("test")
+        val extras = PersistableBundle().apply { putString("key", "value") }
+        val textAttribute =
+            TextAttributeCompat.Builder()
+                .setTextConversionSuggestions(suggestions)
+                .setExtras(extras)
+                .setTextSuggestionSelected(false)
+                .build()
+                .unwrap() as TextAttribute
+        val result = ic.setComposingText("test text", 1, textAttribute)
+
+        assertThat(result).isTrue()
+        assertThat(value.toString()).isEqualTo("test text")
+        assertThat(compositionInEdit).isEqualTo(TextRange(0, 9))
+        assertThat(suggestionSelectedInEdit).isFalse()
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    fun setComposingTextWithNullTextAttribute_verifySuggestionNotSelected() {
+        var suggestionSelectedInEdit = true
+        var compositionInEdit = TextRange(0, 0)
+        onRequestEdit = { block ->
+            val buffer = TextFieldBuffer(value).apply { suggestionSelected = true }
+            buffer.block()
+            suggestionSelectedInEdit = buffer.suggestionSelected
+            compositionInEdit = buffer.composition!!
+            value = buffer.toTextFieldCharSequence()
+        }
+
+        val result = ic.setComposingText("test text", 1, null)
+
+        assertThat(result).isTrue()
+        assertThat(value.toString()).isEqualTo("test text")
+        assertThat(compositionInEdit).isEqualTo(TextRange(0, 9))
+        assertThat(suggestionSelectedInEdit).isFalse()
     }
 
     @SdkSuppress(minSdkVersion = 37)
