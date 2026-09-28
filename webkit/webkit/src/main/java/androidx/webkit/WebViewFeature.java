@@ -621,7 +621,11 @@ public class WebViewFeature {
      * This feature covers
      * {@link WebSettingsCompat#setAttributionRegistrationBehavior(WebSettings, int)}
      * {@link WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
+     *
+     * @deprecated In WebView version 152 and later, Attribution Reporting is no longer supported
+     * by WebView.
      */
+    @Deprecated
     public static final String ATTRIBUTION_REGISTRATION_BEHAVIOR =
             "ATTRIBUTION_REGISTRATION_BEHAVIOR";
 

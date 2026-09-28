@@ -167,6 +167,7 @@ public class WebSettingsCompatTest {
                 mWebViewOnUiThread.getSettings()));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testAttributionRegistrationBehaviorChange() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR);
