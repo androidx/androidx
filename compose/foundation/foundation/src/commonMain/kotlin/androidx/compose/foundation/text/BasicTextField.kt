@@ -62,6 +62,7 @@ import androidx.compose.foundation.text.selection.rememberPlatformSelectionBehav
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -437,7 +438,7 @@ internal fun BasicTextField(
                     remember(interactionSource, windowInfo) {
                         // Using derived state here to avoid recomposing when window focus is
                         // obtained after the initial focus.
-                        derivedStateOf { isFocused && windowInfo.isWindowFocused }
+                        computedStateOf { isFocused && windowInfo.isWindowFocused }
                     }
 
                 rememberClipboardEventsHandler(
