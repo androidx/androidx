@@ -3258,6 +3258,15 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         if (pointerCount == 0) {
             return
         }
+        val isHover =
+            action == ACTION_HOVER_ENTER ||
+                action == ACTION_HOVER_MOVE ||
+                action == ACTION_HOVER_EXIT
+        val isTrackpadPanHover =
+            ComposeUiFlags.isTrackpadPanHoverFixEnabled &&
+                isHover &&
+                SDK_INT >= 34 &&
+                motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
         val pointerProperties = Array(pointerCount) { MotionEvent.PointerProperties() }
         val pointerCoords = Array(pointerCount) { MotionEvent.PointerCoords() }
         for (i in 0 until pointerCount) {
@@ -3269,6 +3278,10 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             val screenPosition = localToScreen(localPosition)
             coords.x = screenPosition.x
             coords.y = screenPosition.y
+            if (isTrackpadPanHover) {
+                coords.setAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_X_DISTANCE, 0f)
+                coords.setAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_Y_DISTANCE, 0f)
+            }
         }
         val buttonState = if (forceHover) 0 else motionEvent.buttonState
 
@@ -3282,11 +3295,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         // layout changes) should not inherit gesture classifications like trackpad pan. Doing so
         // would incorrectly trigger pan gestures or suppress normal hover state updates.
         val classification =
-            if (
-                action == ACTION_HOVER_ENTER ||
-                    action == ACTION_HOVER_MOVE ||
-                    action == ACTION_HOVER_EXIT
-            ) {
+            if (isHover) {
                 MotionEvent.CLASSIFICATION_NONE
             } else if (SDK_INT >= 29) {
                 motionEvent.classification
