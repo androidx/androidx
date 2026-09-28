@@ -23,6 +23,7 @@ import androidx.emoji2.text.EmojiCompat.LOAD_STRATEGY_MANUAL
 import androidx.emoji2.text.EmojiCompat.MetadataRepoLoader
 import androidx.emoji2.text.MetadataRepo
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
@@ -123,6 +124,32 @@ class EmojiCompatStatusTest {
         EmojiCompatStatus.fontLoaded.assertTrue()
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 35)
+    fun loadedNoOp_isNotLoaded() {
+        val (config, _) = makeEmojiConfig(useAfterUpdatableSystemFonts = false)
+        val ec = EmojiCompat.init(config)
+        ec.load()
+        assertThat(ec.loadState).isEqualTo(EmojiCompat.LOAD_STATE_SUCCEEDED)
+        EmojiCompatStatus.setDelegateForTesting(null)
+        assertThat(EmojiCompatStatus.fontLoaded.value).isFalse()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 35)
+    fun nonLoaded_toLoadedNoOp_isNotLoaded() {
+        val (config, _) = makeEmojiConfig(useAfterUpdatableSystemFonts = false)
+        val ec = EmojiCompat.init(config)
+        val state = EmojiCompatStatus.fontLoaded
+        assertThat(state.value).isFalse()
+
+        ec.load()
+        assertThat(ec.loadState).isEqualTo(EmojiCompat.LOAD_STATE_SUCCEEDED)
+
+        assertThat(state.value).isFalse()
+        assertThat(EmojiCompatStatus.fontLoaded.value).isFalse()
+    }
+
     private fun State<Boolean>.assertTrue() {
         // there's too many async actors to do anything reasonable and non-flaky here. tie up the
         // test thread until main posts the value
@@ -132,7 +159,9 @@ class EmojiCompatStatusTest {
         }
     }
 
-    private fun makeEmojiConfig(): Pair<EmojiCompat.Config, CompletableDeferred<MetadataRepo?>> {
+    private fun makeEmojiConfig(
+        useAfterUpdatableSystemFonts: Boolean = true
+    ): Pair<EmojiCompat.Config, CompletableDeferred<MetadataRepo?>> {
         val deferred = CompletableDeferred<MetadataRepo?>(null)
         val loader = MetadataRepoLoader { cb ->
             CoroutineScope(Dispatchers.Default).launch {
@@ -146,7 +175,7 @@ class EmojiCompatStatusTest {
         }
         val config = object : EmojiCompat.Config(loader) {}
         config.setMetadataLoadStrategy(LOAD_STRATEGY_MANUAL)
-        config.setUseAfterUpdatableSystemFonts(true)
+        config.setUseAfterUpdatableSystemFonts(useAfterUpdatableSystemFonts)
         return config to deferred
     }
 }

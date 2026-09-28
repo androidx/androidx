@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text.platform
 
+import android.view.inputmethod.EditorInfo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -89,14 +90,22 @@ private class DefaultImpl : EmojiCompatStatusDelegate {
     private fun getFontLoadState(): State<Boolean> {
         val ec = EmojiCompat.get()
         return if (ec.loadState == EmojiCompat.LOAD_STATE_SUCCEEDED) {
-            ImmutableBool(true)
+            if (ec.isNoOp()) {
+                Falsey
+            } else {
+                ImmutableBool(true)
+            }
         } else {
             val mutableLoaded = mutableStateOf(false)
             val initCallback =
                 object : EmojiCompat.InitCallback() {
                     override fun onInitialized() {
-                        mutableLoaded.value = true // update previous observers
-                        loadState = ImmutableBool(true) // never observe again
+                        if (ec.isNoOp()) {
+                            loadState = Falsey // never observe again
+                        } else {
+                            mutableLoaded.value = true // update previous observers
+                            loadState = ImmutableBool(true) // never observe again
+                        }
                     }
 
                     override fun onFailed(throwable: Throwable?) {
@@ -106,5 +115,19 @@ private class DefaultImpl : EmojiCompatStatusDelegate {
             ec.registerInitCallback(initCallback)
             mutableLoaded
         }
+    }
+
+    /**
+     * Workaround to detect whether [EmojiCompat] is in no-op mode on API 35+ (when
+     * `setUseAfterUpdatableSystemFonts(false)` is the default). In no-op mode,
+     * [EmojiCompat.updateEditorInfo] returns early without populating
+     * [EmojiCompat.EDITOR_INFO_METAVERSION_KEY] in [EditorInfo.extras].
+     */
+    // TODO(b/567212321): Use EmojiCompat.isDisabledForUpdatableSystemFonts() once Compose updates
+    //  to emoji2 1.8.0+ and remove this workaround.
+    private fun EmojiCompat.isNoOp(): Boolean {
+        val editorInfo = EditorInfo()
+        updateEditorInfo(editorInfo)
+        return editorInfo.extras?.containsKey(EmojiCompat.EDITOR_INFO_METAVERSION_KEY) != true
     }
 }
