@@ -28,10 +28,13 @@ dependencies {
     implementation(project(":compose:material:material"))
     implementation(project(":compose:runtime:runtime-retain"))
     implementation(project(":web:web"))
+    implementation(project(":web:web-compose"))
 }
 
 android {
-    compileSdk { version = release(37) }
+    // Override default compileSdk to compile test app against latest platform
+    // APIs.
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
     namespace = "androidx.web.testapp"
 }
 
