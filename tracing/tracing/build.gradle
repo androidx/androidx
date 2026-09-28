@@ -72,5 +72,8 @@ androidx {
     description = "Android Tracing"
     deviceTests {
         enableAlsoRunningOnPhysicalDevices = true
+        // Pure test execution is fast (small number of unit tests) relative to device setup/teardown.
+        // Restricting to 1 shard eliminates redundant multi-device setup waste without impacting wall-clock latency on Tradefed.
+        maxShardCount = 1
     }
 }
