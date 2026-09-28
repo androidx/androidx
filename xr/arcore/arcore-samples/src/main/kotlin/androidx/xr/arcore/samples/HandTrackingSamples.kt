@@ -186,7 +186,7 @@ fun getLeftHand(session: Session, lifecycle: Lifecycle) {
         }
 
     yourCoroutineScope.launch {
-        Hand.left(session)?.state?.collect { leftHandState ->
+        Hand.left(session).state.collect { leftHandState ->
             // early out since we only care if the hand is actively tracking.
             if (leftHandState.trackingState != TrackingState.TRACKING) return@collect
 
@@ -196,12 +196,15 @@ fun getLeftHand(session: Session, lifecycle: Lifecycle) {
                 "Thumb" -> {
                     // Handle the user making a "thumbs up" gesture.
                 }
+
                 "Heart" -> {
                     // Handle the user making a one-handed heart gesture.
                 }
+
                 "V" -> {
                     // Handle the user making a "V" with their index and middle finger.
                 }
+
                 "Unknown" -> {}
             }
 
@@ -371,7 +374,7 @@ fun getRightHand(session: Session, lifecycle: Lifecycle) {
         }
 
     yourCoroutineScope.launch {
-        Hand.right(session)?.state?.collect { rightHandState ->
+        Hand.right(session).state.collect { rightHandState ->
             // early out since we only care if the hand is actively tracking.
             if (rightHandState.trackingState != TrackingState.TRACKING) return@collect
 
@@ -381,12 +384,15 @@ fun getRightHand(session: Session, lifecycle: Lifecycle) {
                 "Thumb" -> {
                     // Handle the user making a "thumbs up" gesture.
                 }
+
                 "Heart" -> {
                     // Handle the user making a one-handed heart gesture.
                 }
+
                 "V" -> {
                     // Handle the user making a "V" with their index and middle finger.
                 }
+
                 "Unknown" -> {}
             }
 
