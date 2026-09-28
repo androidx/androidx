@@ -30,16 +30,16 @@ import android.text.style.CharacterStyle
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
-import androidx.test.filters.SdkSuppress
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 private const val SPAN_FLAG = SpannableString.SPAN_INCLUSIVE_EXCLUSIVE
 
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
+@SmallTest
 class RubyLayoutRunTest {
     private val PREFIX = "PREFIX_PREFIX_PREFIX"
     private val SUFFIX = "SUFFIX_SUFFIX_SUFFIX"
@@ -55,29 +55,11 @@ class RubyLayoutRunTest {
 
     private val PAINT = TextPaint().apply { textSize = ONE_EM }
 
-    private fun getVerticalAdvance(text: String, scaleFactor: Float = 1.0f): Float {
-        val oldFlags = PAINT.flags
-        PAINT.flags = PAINT.flags or Paint.VERTICAL_TEXT_FLAG
-        PAINT.textSize = ONE_EM * scaleFactor
-        try {
-            return PAINT.measureText(text)
-        } finally {
-            PAINT.textSize = ONE_EM
-            PAINT.flags = oldFlags
-        }
-    }
+    private fun getVerticalAdvance(text: String, scaleFactor: Float = 1.0f): Float =
+        PAINT.withTextScale(scaleFactor) { measureTextVertical(text) }
 
-    private fun getHorizontalAdvance(text: String, scaleFactor: Float = 1.0f): Float {
-        val oldFlags = PAINT.flags
-        PAINT.flags = PAINT.flags and Paint.VERTICAL_TEXT_FLAG.inv()
-        PAINT.textSize = ONE_EM * scaleFactor
-        try {
-            return PAINT.measureText(text)
-        } finally {
-            PAINT.textSize = ONE_EM
-            PAINT.flags = oldFlags
-        }
-    }
+    private fun getHorizontalAdvance(text: String, scaleFactor: Float = 1.0f): Float =
+        PAINT.withTextScale(scaleFactor) { measureText(text) }
 
     private class MockCanvas() : Canvas() {
         data class DrawRectCall(
@@ -246,21 +228,29 @@ class RubyLayoutRunTest {
 
             val mock = MockCanvas()
             draw(mock, 0f, 0f, PAINT)
-            assertThat(mock.invocations.size).isEqualTo(2)
-            val bodyIndex = if (mock.invocations[0].text == TEXT) 0 else 1
-            val rubyIndex = if (bodyIndex == 0) 1 else 0
+            val usesVerticalTextFlag = Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
 
-            mock.invocations[bodyIndex].run {
+            assertThat(mock.invocations).isNotEmpty()
+            mock.invocations[0].run {
+                assertThat(text).isEqualTo(TEXT)
                 assertThat(start).isEqualTo(LATIN_START)
                 assertThat(end).isEqualTo(LATIN_END)
                 assertThat(paint.hasVerticalTextFlag()).isFalse()
                 assertThat(paint.textSize).isEqualTo(PAINT.textSize)
             }
-            mock.invocations[rubyIndex].run {
-                assertThat(start).isEqualTo(0)
-                assertThat(end).isEqualTo(LONG_RUBY_TEXT.length)
-                assertThat(paint.hasVerticalTextFlag()).isTrue()
-                assertThat(paint.textSize).isEqualTo(PAINT.textSize * 0.5f)
+            val rubyInvocations = mock.invocations.drop(1)
+            for (invocation in rubyInvocations) {
+                assertThat(invocation.text).isEqualTo(LONG_RUBY_TEXT)
+                assertThat(invocation.paint.hasVerticalTextFlag()).isEqualTo(usesVerticalTextFlag)
+                assertThat(invocation.paint.textSize).isEqualTo(PAINT.textSize * 0.5f)
+            }
+            val rubyRanges = rubyInvocations.map { it.start to it.end }
+            if (usesVerticalTextFlag) {
+                assertThat(rubyRanges).containsExactly(0 to LONG_RUBY_TEXT.length)
+            } else {
+                assertThat(rubyRanges)
+                    .containsExactlyElementsIn((0 until LONG_RUBY_TEXT.length).map { it to it + 1 })
+                    .inOrder()
             }
         }
     }

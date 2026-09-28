@@ -27,7 +27,8 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.BackgroundColorSpan
 import android.text.style.RelativeSizeSpan
-import androidx.test.filters.SdkSuppress
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import androidx.text.vertical.ResolvedOrientation.Rotate
 import androidx.text.vertical.ResolvedOrientation.TateChuYoko
 import androidx.text.vertical.ResolvedOrientation.Upright
@@ -37,10 +38,9 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+@RunWith(AndroidJUnit4::class)
+@SmallTest
 class LayoutRunTest {
     private val PREFIX = "PREFIX_PREFIX_PREFIX"
     private val SUFFIX = "SUFFIX_SUFFIX_SUFFIX"
@@ -58,29 +58,13 @@ class LayoutRunTest {
 
     private val PAINT = TextPaint().apply { textSize = ONE_EM }
 
-    private fun getVerticalAdvance(text: String): Float {
-        val oldFlags = PAINT.flags
-        PAINT.flags = PAINT.flags or Paint.VERTICAL_TEXT_FLAG
-        try {
-            return PAINT.measureText(text)
-        } finally {
-            PAINT.flags = oldFlags
-        }
-    }
+    private fun getVerticalAdvance(text: String): Float = PAINT.measureTextVertical(text)
 
-    private fun getHorizontalAdvance(text: String): Float {
-        val oldFlags = PAINT.flags
-        PAINT.flags = PAINT.flags and Paint.VERTICAL_TEXT_FLAG.inv()
-        try {
-            return PAINT.measureText(text)
-        } finally {
-            PAINT.flags = oldFlags
-        }
-    }
+    private fun getHorizontalAdvance(text: String): Float = PAINT.measureText(text)
 
     private fun getHorizontalLineHeight(text: String): Float {
         val fm = FontMetricsInt()
-        PAINT.getFontMetricsInt(text, 0, text.length, 0, text.length, false, fm)
+        PAINT.getFontMetricsIntCompat(text, 0, text.length, 0, text.length, false, fm)
         return (fm.descent - fm.ascent).toFloat()
     }
 
@@ -138,17 +122,25 @@ class LayoutRunTest {
             assertThat(leftSideOffset).isEqualTo(-HALF_EM) // leftSide is half of 1em
             assertThat(rightSideOffset).isEqualTo(HALF_EM) // rightSide is half of 1em
 
+            val usesVerticalTextFlag = Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+            val ranges = mutableListOf<Pair<Int, Int>>()
             draw(
                 MockCanvas { text, start, end, paint ->
                     assertThat(text).isEqualTo(TEXT)
-                    assertThat(start).isEqualTo(LATIN_START)
-                    assertThat(end).isEqualTo(LATIN_END)
-                    assertThat(paint.hasVerticalTextFlag()).isTrue()
+                    assertThat(paint.hasVerticalTextFlag()).isEqualTo(usesVerticalTextFlag)
+                    ranges += start to end
                 },
                 0f,
                 0f,
                 PAINT,
             )
+            if (usesVerticalTextFlag) {
+                assertThat(ranges).containsExactly(LATIN_START to LATIN_END)
+            } else {
+                assertThat(ranges)
+                    .containsExactlyElementsIn((LATIN_START until LATIN_END).map { it to it + 1 })
+                    .inOrder()
+            }
         }
     }
 
@@ -162,17 +154,27 @@ class LayoutRunTest {
             assertThat(leftSideOffset).isEqualTo(-HALF_EM) // leftSide is half of 1em
             assertThat(rightSideOffset).isEqualTo(HALF_EM) // rightSide is half of 1em
 
+            val usesVerticalTextFlag = Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+            val ranges = mutableListOf<Pair<Int, Int>>()
             draw(
                 MockCanvas { text, start, end, paint ->
                     assertThat(text).isEqualTo(TEXT)
-                    assertThat(start).isEqualTo(JAPANESE_START)
-                    assertThat(end).isEqualTo(JAPANESE_END)
-                    assertThat(paint.hasVerticalTextFlag()).isTrue()
+                    assertThat(paint.hasVerticalTextFlag()).isEqualTo(usesVerticalTextFlag)
+                    ranges += start to end
                 },
                 0f,
                 0f,
                 PAINT,
             )
+            if (usesVerticalTextFlag) {
+                assertThat(ranges).containsExactly(JAPANESE_START to JAPANESE_END)
+            } else {
+                assertThat(ranges)
+                    .containsExactlyElementsIn(
+                        (JAPANESE_START until JAPANESE_END).map { it to it + 1 }
+                    )
+                    .inOrder()
+            }
         }
     }
 
@@ -206,7 +208,7 @@ class LayoutRunTest {
             assertThat(start).isEqualTo(JAPANESE_START)
             assertThat(end).isEqualTo(JAPANESE_END)
             assertThat(width).isEqualTo(ONE_EM) // width is 1em.
-            assertThat(height).isEqualTo(getVerticalAdvance(JAPANESE_TEXT))
+            assertThat(height).isEqualTo(getHorizontalAdvance(JAPANESE_TEXT))
             assertThat(leftSideOffset).isEqualTo(-HALF_EM) // leftSide is half of 1em
             assertThat(rightSideOffset).isEqualTo(HALF_EM) // rightSide is half of 1em
 
@@ -365,7 +367,6 @@ class LayoutRunTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     fun uprightLayoutRun_multiStyleRuns_drawsBackgroundWithinRunHeight() {
         val text =
             SpannableString("あい").apply {
