@@ -29,6 +29,7 @@ import android.text.StaticLayout
 import android.text.TextPaint
 import android.text.style.BackgroundColorSpan
 import android.text.style.CharacterStyle
+import android.text.style.ForegroundColorSpan
 import android.text.style.MetricAffectingSpan
 import android.text.style.ReplacementSpan
 import androidx.activity.ComponentActivity
@@ -587,7 +588,19 @@ fun StyleColorsText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
         remember(density) {
             buildVerticalText(density) {
                 withStyle(textColor = Color(0xFFB71C1C), backgroundColor = Color(0xFFC8E6C9)) {
-                    withRuby("わがはい") { text("吾輩") }
+                    withRuby(
+                        SpannableString("わがはい").apply {
+                            setSpan(
+                                ForegroundColorSpan(android.graphics.Color.BLUE),
+                                0,
+                                2,
+                                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE or
+                                    (1 shl Spanned.SPAN_PRIORITY_SHIFT),
+                            )
+                        }
+                    ) {
+                        text("吾輩")
+                    }
                 }
                 text("は猫である。")
                 withRuby("なまえ") { text("名前") }
