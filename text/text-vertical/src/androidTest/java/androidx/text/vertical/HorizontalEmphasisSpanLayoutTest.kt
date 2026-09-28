@@ -247,9 +247,11 @@ class HorizontalEmphasisSpanLayoutTest {
         // TODO(b/561269843): bodyLayout.paint currently aliases workingPaintCache. Update this
         // test when b/561269843 gives the layout its own paint.
         // draw() sets baselineShift to 0. draw_appliesSuperscriptBaselineShiftToBodyOnce shows why.
+        // draw() fills the box itself and then sets bgColor to 0. HorizontalSpanBackgroundTest
+        // checks the fill.
         val workPaintAfterRichDraw = workingPaintCache.get()!!
         assertThat(workPaintAfterRichDraw.baselineShift).isEqualTo(0)
-        assertThat(workPaintAfterRichDraw.bgColor).isEqualTo(0xFFAA0000.toInt())
+        assertThat(workPaintAfterRichDraw.bgColor).isEqualTo(0)
         assertThat(workPaintAfterRichDraw.linkColor).isEqualTo(0xFF00BB00.toInt())
         assertThat(workPaintAfterRichDraw.density).isEqualTo(3.0f)
 
@@ -410,7 +412,7 @@ class HorizontalEmphasisSpanLayoutTest {
     private fun recordTextRunYs(layout: HorizontalSpanLayout, paint: Paint): List<Float> {
         val ys = mutableListOf<Float>()
         // Layout.draw skips lines outside the clip, so the canvas needs a bitmap.
-        val bitmap = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
         val canvas =
             object : Canvas(bitmap) {
                 override fun drawTextRun(
@@ -441,7 +443,7 @@ class HorizontalEmphasisSpanLayoutTest {
                     ys.add(y)
                 }
             }
-        layout.draw(canvas, 0f, 500f, paint)
+        layout.draw(canvas, 0f, 150f, paint)
         bitmap.recycle()
         return ys
     }

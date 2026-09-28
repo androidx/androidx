@@ -22,7 +22,10 @@ import android.text.NoCopySpan
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
+import android.text.style.CharacterStyle
+import android.text.style.MetricAffectingSpan
 import android.text.style.ReplacementSpan
+import androidx.annotation.ColorInt
 import java.lang.ref.WeakReference
 import java.util.Objects
 
@@ -51,6 +54,73 @@ internal fun TextPaint.setFrom(src: Paint) {
     } else {
         set(defaultTextPaint)
         set(src)
+    }
+}
+
+/**
+ * Returns the [CharacterStyle] spans in this text that cover all of `[start, end)`, in the order
+ * that [Spanned.getSpans] returns them.
+ *
+ * The result does not include [NoCopySpan] spans or [ReplacementSpan] spans, such as [RubySpan] and
+ * [EmphasisSpan].
+ */
+internal fun Spanned.getCoveringStyles(start: Int, end: Int): List<CharacterStyle> =
+    getSpans(start, end, CharacterStyle::class.java).filter { span ->
+        val underlying = span.underlying
+        getSpanStart(span) <= start &&
+            getSpanEnd(span) >= end &&
+            underlying !is NoCopySpan &&
+            underlying !is ReplacementSpan
+    }
+
+/**
+ * Returns the background color of a [ReplacementSpan].
+ *
+ * The platform applies only the covering [MetricAffectingSpan]s to the paint that it passes to
+ * [ReplacementSpan.draw]. It does not apply other [CharacterStyle]s, such as
+ * [android.text.style.BackgroundColorSpan]. This function applies all of [coveringStyles] in order,
+ * so the last style that sets [TextPaint.bgColor] gives the color, the same as in plain text.
+ *
+ * @param paint the paint that the platform passes to [ReplacementSpan.draw]
+ * @param coveringStyles the styles that [getCoveringStyles] returns for the span
+ */
+@ColorInt
+internal fun resolveBackgroundColor(paint: Paint, coveringStyles: List<CharacterStyle>): Int {
+    var bgColor = (paint as? TextPaint)?.bgColor ?: 0
+    if (coveringStyles.isEmpty()) return bgColor
+    tempPaint { workPaint ->
+        // Only workPaint.bgColor is read after updateDrawState.
+        workPaint.bgColor = bgColor
+        for (style in coveringStyles) {
+            style.updateDrawState(workPaint)
+        }
+        bgColor = workPaint.bgColor
+    }
+    return bgColor
+}
+
+/**
+ * Fills a box with [bgColor].
+ *
+ * The platform does not fill the background of a [ReplacementSpan], so each span fills the box that
+ * [HorizontalSpanLayout.fillFontMetrics] reports with this function. This function does nothing if
+ * [bgColor] is 0 or if the box is empty.
+ */
+internal fun Canvas.drawSpanBackground(
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+    @ColorInt bgColor: Int,
+) {
+    // Canvas.drawRect sorts the edges of a box, so it also fills a box with inverted edges.
+    if (bgColor == 0 || left >= right || top >= bottom) return
+    tempPaint { bgPaint ->
+        // The pool can return a paint that has the state of an earlier user, for example
+        // Paint.Style.STROKE. Reset the paint, so that it fills the box.
+        bgPaint.reset()
+        bgPaint.color = bgColor
+        drawRect(left, top, right, bottom, bgPaint)
     }
 }
 
@@ -167,11 +237,45 @@ internal class HorizontalSpanImpl(
 }
 
 /**
+ * Clears [TextPaint.bgColor] in the body layout.
+ *
+ * [drawSpanBackground] fills the covering background color across the span box.
+ * [cloneWithoutReplacementSpan] puts this span right after the last covering span that sets
+ * `bgColor`, so the body layout does not fill that color again. A partial span that comes after
+ * this span still fills its characters.
+ */
+private object NoBgColorSpan : CharacterStyle() {
+    override fun updateDrawState(tp: TextPaint) {
+        tp.bgColor = 0
+    }
+}
+
+/**
+ * Returns the last style in this list that sets [TextPaint.bgColor] to a color other than 0, or
+ * `null` if no style sets it.
+ */
+private fun List<CharacterStyle>.findLastBgColorStyle(): CharacterStyle? {
+    if (isEmpty()) return null
+    var lastStyle: CharacterStyle? = null
+    tempPaint { probe ->
+        for (style in this) {
+            probe.bgColor = 0
+            style.updateDrawState(probe)
+            if (probe.bgColor != 0) lastStyle = style
+        }
+    }
+    return lastStyle
+}
+
+/**
  * Creates a copy of the specified range of the Spanned text, excluding [NoCopySpan] and
  * [ReplacementSpan].
  *
  * Excluding [ReplacementSpan] is crucial to prevent infinite recursion, as this class itself is a
  * [ReplacementSpan] and measuring it would trigger this logic again.
+ *
+ * The copy keeps the order of the spans. It also gets [NoBgColorSpan] right after the last covering
+ * span that sets [TextPaint.bgColor].
  *
  * @param src The source Spanned text.
  * @param start The start index.
@@ -181,6 +285,7 @@ internal class HorizontalSpanImpl(
 internal fun cloneWithoutReplacementSpan(src: Spanned, start: Int, end: Int): Spanned {
     val textContent = src.subSequence(start, end).toString()
     val spannable = SpannableString(textContent)
+    val lastBgColorStyle = src.getCoveringStyles(start, end).findLastBgColorStyle()
 
     val spans = src.getSpans(start, end, Any::class.java)
     for (span in spans) {
@@ -191,6 +296,16 @@ internal fun cloneWithoutReplacementSpan(src: Spanned, start: Int, end: Int): Sp
         val spanFlags = src.getSpanFlags(span)
 
         spannable.setSpan(span, spanStart - start, spanEnd - start, spanFlags)
+        if (span === lastBgColorStyle) {
+            // Spanned.getSpans sorts the spans by priority. Use the same priority, so that
+            // NoBgColorSpan stays right after this span.
+            spannable.setSpan(
+                NoBgColorSpan,
+                0,
+                spannable.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE or (spanFlags and Spanned.SPAN_PRIORITY),
+            )
+        }
     }
     return spannable
 }
