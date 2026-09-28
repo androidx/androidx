@@ -343,13 +343,14 @@ public class SystemJobScheduler implements Scheduler, ForegroundListener {
         List<JobInfo> jobs = getPendingJobs(context, jobScheduler);
         List<String> workManagerWorkSpecs =
                 workDatabase.systemIdInfoDao().getWorkSpecIds();
+        Set<String> workManagerWorkSpecsSet = new HashSet<>(workManagerWorkSpecs);
 
         int jobSize = jobs != null ? jobs.size() : 0;
         Set<String> jobSchedulerWorkSpecs = new HashSet<>(jobSize);
         if (jobs != null && !jobs.isEmpty()) {
             for (JobInfo jobInfo : jobs) {
                 WorkGenerationalId id = getWorkGenerationalIdFromJobInfo(jobInfo);
-                if (id != null) {
+                if (id != null && workManagerWorkSpecsSet.contains(id.getWorkSpecId())) {
                     jobSchedulerWorkSpecs.add(id.getWorkSpecId());
                 } else {
                     // Cancels invalid jobs owned by WorkManager.
