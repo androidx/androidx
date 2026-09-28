@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresFeature
+import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import java.util.function.BiConsumer
 import java.util.function.Function
@@ -53,7 +54,22 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
 
     private var isDetached: Boolean = true
     private var isDestroyed: Boolean = false
-    private var currentView: WebContentView? = null
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var currentView: WebContentView? = null
+        private set
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var currentViewListener: ((WebContentView?) -> Unit)? = null
+        set(value) {
+            if (field === value) return
+            val previousListener = field
+            field = value
+            previousListener?.invoke(null)
+            value?.invoke(currentView)
+        }
+
     private var savedScrollX: Int = 0
     private var savedScrollY: Int = 0
 
@@ -125,6 +141,8 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
         boundaryInterface.destroy()
         isDestroyed = true
         currentView = null
+        currentViewListener?.invoke(null)
+        currentViewListener = null
     }
 
     internal fun <T : WebContentView> internalAttach(context: Context, factory: (Context) -> T): T {
@@ -148,6 +166,8 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
         if (!isDetached && (savedScrollX != 0 || savedScrollY != 0)) {
             view.scrollTo(savedScrollX, savedScrollY)
         }
+
+        currentViewListener?.invoke(view)
 
         return view
     }

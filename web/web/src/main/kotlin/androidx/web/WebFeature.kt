@@ -25,12 +25,16 @@ import org.chromium.support_lib_boundary.util.Features
 public object WebFeature {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @StringDef(value = [WebFeature.WEB_CONTENT])
+    @StringDef(value = [WebFeature.WEB_CONTENT, WebFeature.WEB_SURFACE])
     @Retention(AnnotationRetention.SOURCE)
     public annotation class WebFeatures
 
     /** Feature for [WebContent]. */
     public const val WEB_CONTENT: String = Features.WEB_CONTENT
+
+    /** Feature for WebSurface. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public const val WEB_SURFACE: String = Features.WEB_SURFACE
 
     private val supportedFeatures: Set<String> by lazy {
         try {
