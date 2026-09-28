@@ -43,6 +43,15 @@ dependencies {
     androidTestImplementation(libs.truth)
 }
 
+dependencies {
+    constraints {
+        implementation(libs.wireRuntime) {
+            because("b/566416374 - upgrading to address CVE")
+        }
+    }
+
+}
+
 androidx {
     name = "Compose Runtime: Tracing"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
