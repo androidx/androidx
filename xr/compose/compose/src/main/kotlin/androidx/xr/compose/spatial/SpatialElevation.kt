@@ -47,6 +47,7 @@ import androidx.xr.compose.R
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.findNearestParentEntity
+import androidx.xr.compose.subspace.SpatialComposeView
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
 import androidx.xr.compose.subspace.spatialComposeView
@@ -207,7 +208,7 @@ private class SpatialElevationRenderer(
             }
         }
 
-    private var view: ComposeView? = null
+    private var view: SpatialComposeView? = null
     private var panelEntity: CorePanelEntity? = null
 
     override fun onRemembered() {
