@@ -51,18 +51,6 @@ package androidx.wear.compose.foundation
 @ExperimentalWearFoundationApi
 public object WearComposeFoundationFlags {
     /**
-     * Whether to use the new clickability threshold in
-     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumn]. When true, the clickability
-     * threshold ignores clicks in the top or bottom 20dp of the layout, to avoid accidental clicks
-     * on small items that are partially shown due to fading/scaling in the TransformingLazyColumn.
-     * If false, all clicks will be recognized instead
-     */
-    // TODO: b/485988796
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isTransformingLazyColumnClickableThresholdEnabled: Boolean = true
-
-    /**
      * Whether to use warped curved text, true by default. Warping provides higher quality rendering
      * for curved text, specially for cursive fonts, but can have a slight performance impact for
      * big curved text.
