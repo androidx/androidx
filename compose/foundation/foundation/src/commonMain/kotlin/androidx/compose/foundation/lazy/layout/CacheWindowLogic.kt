@@ -194,16 +194,11 @@ internal class MultiLaneCacheWindow(
                 hasUpdatedVisibleItemsOnce = true
             }
         } else {
-            if (!hasUpdatedVisibleItemsOnce) {
-                if (cacheWindow.isNonScrollCachingEnabled) {
-                    val prefetchForwardWindow =
-                        with(cacheWindow) {
-                            density?.calculateAheadWindow(mainAxisViewportSize) ?: 0
-                        }
-                    // we won't fill the window if we don't have a prefetch window
-                    if (prefetchForwardWindow != 0) shouldRefillWindow = true
-                }
-                hasUpdatedVisibleItemsOnce = true
+            if (!hasUpdatedVisibleItemsOnce && cacheWindow.isNonScrollCachingEnabled) {
+                val prefetchForwardWindow =
+                    with(cacheWindow) { density?.calculateAheadWindow(mainAxisViewportSize) ?: 0 }
+                // we won't fill the window if we don't have a prefetch window
+                if (prefetchForwardWindow != 0) shouldRefillWindow = true
             }
         }
 
@@ -264,9 +259,7 @@ internal class MultiLaneCacheWindow(
                         applyForwardPrefetch = previousPassDelta <= 0.0f,
                     )
                 } else {
-                    if (cacheWindow.isNonScrollCachingEnabled) {
-                        refillWindow(previousPassDelta <= 0.0f)
-                    }
+                    refillWindow(previousPassDelta <= 0.0f)
                 }
 
                 shouldRefillWindow = false
