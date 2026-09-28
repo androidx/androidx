@@ -17,18 +17,17 @@
 package androidx.text.vertical
 
 import android.graphics.Canvas
-import android.os.Build
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
-import androidx.test.filters.SdkSuppress
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+@RunWith(AndroidJUnit4::class)
+@SmallTest
 class FontShearTest {
 
     private val TEXT = "Hello"
@@ -50,81 +49,45 @@ class FontShearTest {
     @Test
     fun fontShearRun_UprightCase() {
         UprightLayoutRun(TEXT, 0, TEXT.length, PAINT).also {
-            it.draw(
-                MockCanvas { x, y ->
-                    assertThat(x).isEqualTo(0f)
-                    assertThat(y).isEqualTo(0f)
-                },
-                0f,
-                0f,
-                PAINT,
-            )
+            val skews = mutableListOf<Pair<Float, Float>>()
+            it.draw(MockCanvas { x, y -> skews += x to y }, 0f, 0f, PAINT)
+            assertThat(skews).isEmpty()
         }
 
         UprightLayoutRun(SHEARED, 0, SHEARED.length, PAINT).also {
-            it.draw(
-                MockCanvas { x, y ->
-                    assertThat(x).isEqualTo(0f)
-                    assertThat(y).isEqualTo(-FontShearSpan.DEFAULT_FONT_SHEAR)
-                },
-                0f,
-                0f,
-                PAINT,
-            )
+            val skews = mutableListOf<Pair<Float, Float>>()
+            it.draw(MockCanvas { x, y -> skews += x to y }, 0f, 0f, PAINT)
+            assertThat(skews).containsExactly(0f to -FontShearSpan.DEFAULT_FONT_SHEAR)
         }
     }
 
     @Test
     fun fontShearRun_RotateCase() {
         RotateLayoutRun(TEXT, 0, TEXT.length, PAINT).also {
-            it.draw(
-                MockCanvas { x, y ->
-                    assertThat(x).isEqualTo(0f)
-                    assertThat(y).isEqualTo(0f)
-                },
-                0f,
-                0f,
-                PAINT,
-            )
+            val skews = mutableListOf<Pair<Float, Float>>()
+            it.draw(MockCanvas { x, y -> skews += x to y }, 0f, 0f, PAINT)
+            assertThat(skews).isEmpty()
         }
 
         RotateLayoutRun(SHEARED, 0, SHEARED.length, PAINT).also {
-            it.draw(
-                MockCanvas { x, y ->
-                    assertThat(x).isEqualTo(-FontShearSpan.DEFAULT_FONT_SHEAR)
-                    assertThat(y).isEqualTo(0f)
-                },
-                0f,
-                0f,
-                PAINT,
-            )
+            val skews = mutableListOf<Pair<Float, Float>>()
+            it.draw(MockCanvas { x, y -> skews += x to y }, 0f, 0f, PAINT)
+            assertThat(skews).containsExactly(-FontShearSpan.DEFAULT_FONT_SHEAR to 0f)
         }
     }
 
     @Test
     fun fontShearRun_TateChuYokoCase() {
         TateChuYokoLayoutRun(TEXT, 0, TEXT.length, PAINT).also {
-            it.draw(
-                MockCanvas { x, y ->
-                    assertThat(x).isEqualTo(0f)
-                    assertThat(y).isEqualTo(0f)
-                },
-                0f,
-                0f,
-                PAINT,
-            )
+            val skews = mutableListOf<Pair<Float, Float>>()
+            it.draw(MockCanvas { x, y -> skews += x to y }, 0f, 0f, PAINT)
+            assertThat(skews).isEmpty()
         }
 
         TateChuYokoLayoutRun(SHEARED, 0, SHEARED.length, PAINT).also {
-            it.draw(
-                MockCanvas { x, y ->
-                    assertThat(x).isEqualTo(-FontShearSpan.DEFAULT_FONT_SHEAR)
-                    assertThat(y).isEqualTo(0f)
-                },
-                0f,
-                0f,
-                PAINT,
-            )
+            val skews = mutableListOf<Pair<Float, Float>>()
+            it.draw(MockCanvas { x, y -> skews += x to y }, 0f, 0f, PAINT)
+            assertThat(skews).containsExactly(-FontShearSpan.DEFAULT_FONT_SHEAR to 0f)
         }
     }
 }
