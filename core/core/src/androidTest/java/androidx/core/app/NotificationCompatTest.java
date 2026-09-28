@@ -3626,16 +3626,25 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void emptyProjectedExtender() {
         NotificationCompat.ProjectedExtender projectedExtender =
                 new NotificationCompat.ProjectedExtender();
+        assertFalse(projectedExtender.hasActions());
+        assertTrue(projectedExtender.getActions().isEmpty());
         Notification notification = new NotificationCompat.Builder(mContext, "test channel")
                 .extend(projectedExtender).build();
         assertTrue(notification.extras.getBundle(
                 NotificationCompat.ProjectedExtender.EXTRA_PROJECTED_EXTENDER).isEmpty());
+        NotificationCompat.ProjectedExtender recoveredExtender =
+                new NotificationCompat.ProjectedExtender(notification);
+        assertFalse(recoveredExtender.hasActions());
+        assertTrue(recoveredExtender.getActions().isEmpty());
     }
 
     @Test
     public void projectedExtenderAddGetClearActions() {
         NotificationCompat.ProjectedExtender projectedExtender =
                 new NotificationCompat.ProjectedExtender();
+        assertFalse(projectedExtender.hasActions());
+        assertTrue(projectedExtender.getActions().isEmpty());
+
         NotificationCompat.Action action1 =
                 new NotificationCompat.Action.Builder(0, "Action 1", createIntent("action1"))
                         .build();
@@ -3647,13 +3656,46 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                         .build();
 
         projectedExtender.addAction(action1);
+        assertTrue(projectedExtender.hasActions());
         assertEquals(Collections.singletonList(action1), projectedExtender.getActions());
 
         projectedExtender.addActions(Arrays.asList(action2, action3));
+        assertTrue(projectedExtender.hasActions());
         assertEquals(Arrays.asList(action1, action2, action3), projectedExtender.getActions());
 
         projectedExtender.clearActions();
+        assertTrue(projectedExtender.hasActions());
         assertTrue(projectedExtender.getActions().isEmpty());
+    }
+
+    @Test
+    public void projectedExtenderClearActionsFromNotification() {
+        NotificationCompat.ProjectedExtender projectedExtender =
+                new NotificationCompat.ProjectedExtender().clearActions();
+        Notification notification =
+                new NotificationCompat.Builder(mContext, "test channel")
+                        .setSmallIcon(0)
+                        .setContentTitle("title")
+                        .setContentText("text")
+                        .extend(projectedExtender)
+                        .build();
+
+        Bundle projectedExtensions =
+                notification.extras.getBundle(
+                        NotificationCompat.ProjectedExtender.EXTRA_PROJECTED_EXTENDER);
+        assertNotNull(projectedExtensions);
+        ArrayList<Notification.Action> actions =
+                BundleCompat.getParcelableArrayList(
+                        projectedExtensions,
+                        NotificationCompat.ProjectedExtender.KEY_ACTIONS,
+                        Notification.Action.class);
+        assertNotNull(actions);
+        assertTrue(actions.isEmpty());
+
+        NotificationCompat.ProjectedExtender recoveredExtender =
+                new NotificationCompat.ProjectedExtender(notification);
+        assertTrue(recoveredExtender.hasActions());
+        assertTrue(recoveredExtender.getActions().isEmpty());
     }
 
     @Test
