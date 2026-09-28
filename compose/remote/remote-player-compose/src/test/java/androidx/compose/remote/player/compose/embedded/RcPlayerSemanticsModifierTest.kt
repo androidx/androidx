@@ -58,14 +58,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 /**
  * Tests for the semantics modifier (content description, text, role, CLEAR_AND_SET mode), asserted
  * through the Compose semantics tree — no screenshots.
  */
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [35])
 class RcPlayerSemanticsModifierTest {
 

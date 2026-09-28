@@ -48,11 +48,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 @OptIn(ExperimentalRemotePlayerApi::class)
 @Config(sdk = [35], qualifiers = "w1000dp-h500dp")
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(RobolectricTestRunner::class)
 class RemotePageIndicatorUnitTest {
 
