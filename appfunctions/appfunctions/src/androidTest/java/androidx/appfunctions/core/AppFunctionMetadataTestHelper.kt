@@ -271,7 +271,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                 description = "",
                 scope = AppFunctionMetadata.SCOPE_GLOBAL,
                 accessLevel = AppFunctionMetadata.ACCESS_LEVEL_SELF,
-                isCompatEnforcementEnabled = false,
+                isCompatEnforcementEnabled = true,
             )
 
         val ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS =

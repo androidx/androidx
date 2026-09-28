@@ -516,6 +516,13 @@ class DynamicRegistrationIntegrationTest {
             targetFunctionId = DYNAMIC_SELF_ACCESS_SIGNATURE_ID,
             verifyEnabledState = false,
         ) {
+            // Self-access function is filtered out from getAppFunctionStates for foreign callers.
+            val states =
+                appFunctionManager.getAppFunctionStates(
+                    listOf(AppFunctionName(TARGET_APP_PACKAGE, DYNAMIC_SELF_ACCESS_SIGNATURE_ID))
+                )
+            assertThat(states).isEmpty()
+
             val dynamicResponse =
                 appFunctionManager.executeAppFunction(
                     request =
@@ -538,6 +545,14 @@ class DynamicRegistrationIntegrationTest {
             targetFunctionId = DYNAMIC_SYSTEM_ACCESS_SIGNATURE_ID,
             verifyEnabledState = false,
         ) {
+            // System-access function is filtered out from getAppFunctionStates for callers without
+            // system permission.
+            val states =
+                appFunctionManager.getAppFunctionStates(
+                    listOf(AppFunctionName(TARGET_APP_PACKAGE, DYNAMIC_SYSTEM_ACCESS_SIGNATURE_ID))
+                )
+            assertThat(states).isEmpty()
+
             val dynamicResponse =
                 appFunctionManager.executeAppFunction(
                     request =

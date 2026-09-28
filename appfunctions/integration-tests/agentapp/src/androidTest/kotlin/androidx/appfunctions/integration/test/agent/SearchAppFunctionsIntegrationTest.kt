@@ -260,9 +260,8 @@ class SearchAppFunctionsIntegrationTest {
     }
 
     @Test
-    fun getAppFunctionStates_selfAccess_omittedWhenAccessEnforced() = doBlocking {
+    fun getAppFunctionStates_selfAccess_omitted() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
-        assumeTrue(isPlatformAccessEnforcementEnabled())
 
         val states =
             appFunctionManager.getAppFunctionStates(
@@ -338,30 +337,26 @@ class SearchAppFunctionsIntegrationTest {
         }
 
     @Test
-    fun getAppFunctionStates_systemAccess_withoutSystemPermission_omittedWhenAccessEnforced() =
-        doBlocking {
-            assumeTrue(isDynamicIndexerAvailable(targetContext))
-            assumeTrue(isPlatformAccessEnforcementEnabled())
+    fun getAppFunctionStates_systemAccess_withoutSystemPermission_omitted() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
 
-            val states =
-                appFunctionManager.getAppFunctionStates(
-                    listOf(
-                        AppFunctionName(TARGET_APP_PACKAGE, SYSTEM_ACCESS_FUNCTION_ID),
-                        AppFunctionName(TARGET_APP_PACKAGE, ENABLED_BY_DEFAULT_FUNCTION_ID),
-                    )
+        val states =
+            appFunctionManager.getAppFunctionStates(
+                listOf(
+                    AppFunctionName(TARGET_APP_PACKAGE, SYSTEM_ACCESS_FUNCTION_ID),
+                    AppFunctionName(TARGET_APP_PACKAGE, ENABLED_BY_DEFAULT_FUNCTION_ID),
                 )
+            )
 
-            assertThat(
-                    states.none { it.functionName.functionIdentifier == SYSTEM_ACCESS_FUNCTION_ID }
-                )
-                .isTrue()
-            assertThat(
-                    states.any {
-                        it.functionName.functionIdentifier == ENABLED_BY_DEFAULT_FUNCTION_ID
-                    }
-                )
-                .isTrue()
-        }
+        assertThat(states.none { it.functionName.functionIdentifier == SYSTEM_ACCESS_FUNCTION_ID })
+            .isTrue()
+        assertThat(
+                states.any {
+                    it.functionName.functionIdentifier == ENABLED_BY_DEFAULT_FUNCTION_ID
+                }
+            )
+            .isTrue()
+    }
 
     @Test
     fun getAppFunctionStates_systemAccess_withAdoptedShellIdentity_included() = doBlocking {
