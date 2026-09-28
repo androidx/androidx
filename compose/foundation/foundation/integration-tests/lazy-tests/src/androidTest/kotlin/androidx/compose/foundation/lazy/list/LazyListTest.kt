@@ -21,8 +21,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.AutoTestFrameClock
-import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.VelocityTrackerCalculationThreshold
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -130,7 +128,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -2161,10 +2158,8 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         )
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun testRetainedItemsInLookahead() {
-        assumeTrue(ComposeFoundationFlags.isCacheWindowLookaheadCheckEnabled)
         val composedItems = mutableListOf<Int>()
         val expectedComposedItems = mutableListOf<Int>()
         var expanded by mutableStateOf(false)
