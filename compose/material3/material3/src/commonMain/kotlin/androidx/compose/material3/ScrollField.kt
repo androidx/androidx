@@ -186,6 +186,8 @@ public fun rememberScrollFieldState(itemCount: Int, index: Int = 0): ScrollField
  * @param interactionSource [MutableInteractionSource] for observing and controlling the
  *   interactions with the scroll field.
  * @param field the composable used to render each item in the wheel.
+ *
+ * @material3expressive
  */
 @Composable
 public fun ScrollField(
