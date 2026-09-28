@@ -92,6 +92,9 @@ internal class HorizontalRubySpanLayout(
 
         // Create Ruby Layout
         // The scale is dropped after the build. draw() re-applies it.
+        // TODO(b/564268825): Apply covering spans that are not MetricAffectingSpan, such as
+        // ForegroundColorSpan, to rubyText. The platform already applies covering
+        // MetricAffectingSpan spans to the paint that it passes to RubySpan.
         rubyLayout =
             workPaint.withTextScale(rubyScale) {
                 StaticLayout.Builder.obtain(rubyText, 0, rubyText.length, this, rubyWidth).build()
