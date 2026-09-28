@@ -51,6 +51,7 @@
             </valueType>
         </response>
         <accessLevel>self</accessLevel>
+        <isCompatEnforcementEnabled>true</isCompatEnforcementEnabled>
         <functionId>androidx.appfunctions.test.FakeClass#dynamic_registration_self_access</functionId>
     </appfunction>
 </appfunctions>
