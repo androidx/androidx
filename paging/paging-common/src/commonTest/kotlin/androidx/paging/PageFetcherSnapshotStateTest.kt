@@ -741,6 +741,52 @@ class PageFetcherSnapshotStateTest {
         }
     }
 
+    @Test
+    fun dropEventOrNull_neverDropsBelowTwoPages() = testScope.runTest {
+        val config =
+            PagingConfig(
+                pageSize = 10,
+                initialLoadSize = 10,
+                prefetchDistance = 1,
+                maxSize = 15,
+            )
+        val state = PageFetcherSnapshotState.Holder<Int, Int>(config = config).withLock { it }
+
+        state.insert(
+            loadKey = null,
+            loadId = 0,
+            loadType = REFRESH,
+            page = Page(data = List(10) { it }, prevKey = null, nextKey = 1),
+        )
+        state.insert(
+            loadKey = 1,
+            loadId = 0,
+            loadType = APPEND,
+            page = Page(data = List(10) { it + 10 }, prevKey = 0, nextKey = 2),
+        )
+        state.insert(
+            loadKey = 2,
+            loadId = 0,
+            loadType = APPEND,
+            page = Page(data = List(10) { it + 20 }, prevKey = 1, nextKey = 3),
+        )
+
+        val hint =
+            ViewportHint.Access(
+                pageOffset = 2,
+                indexInPage = 9,
+                presentedItemsBefore = 29,
+                presentedItemsAfter = 0,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 2,
+            )
+
+        val dropEvent = state.dropEventOrNull(PREPEND, hint)
+
+        assertThat(dropEvent).isNotNull()
+        assertThat(state.pages.size - dropEvent!!.pageCount).isAtLeast(2)
+    }
+
     private fun List<Page<Int, Int>>.toPageStore(
         initialPageIndex: Int,
         separatorCountPerItem: Int = 0,
