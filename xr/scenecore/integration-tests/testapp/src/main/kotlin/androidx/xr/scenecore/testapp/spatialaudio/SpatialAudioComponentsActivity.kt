@@ -109,7 +109,7 @@ class SpatialAudioComponentsActivity : AppCompatActivity() {
             val movableComponent = MovableComponent.createSystemMovable(session, scaleInZ = false)
             soundEntity.addComponent(movableComponent)
 
-            val pointSourceParams = PointSourceParams()
+            val pointSourceParams = PointSourceParams.Builder().build()
             val firstOrderAttributes = SoundFieldAttributes(AmbisonicsOrder.FIRST_ORDER)
             val thirdOrderAttributes = SoundFieldAttributes(AmbisonicsOrder.THIRD_ORDER)
 

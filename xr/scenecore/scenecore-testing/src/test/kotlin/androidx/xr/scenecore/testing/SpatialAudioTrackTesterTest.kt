@@ -99,7 +99,7 @@ class SpatialAudioTrackTesterTest {
     @Test
     fun isSoundPlayedOnEntity_setPointSourceParams_returnsTrueForConfiguredEntity() {
         val entity = Entity.create(session, "test")
-        val pointSourceParams = PointSourceParams()
+        val pointSourceParams = PointSourceParams.Builder().build()
 
         SpatialAudioTrack.setPointSourceParams(session, track, pointSourceParams, entity)
 

@@ -75,7 +75,7 @@ class SpatialAudioTrackTest {
         val track = AudioTrack.Builder().build()
 
         val entity = Entity.create(session, "test")
-        val pointSourceParams = PointSourceParams()
+        val pointSourceParams = PointSourceParams.Builder().build()
         val tester = testRule.spatialAudioTrackTester
 
         assertThat(SpatialAudioTrack.getSpatialSourceType(session, track))
@@ -97,7 +97,12 @@ class SpatialAudioTrackTest {
         val builder = AudioTrack.Builder()
 
         val entity = Entity.create(session, "test")
-        val pointSourceParams = PointSourceParams()
+        val pointSourceParams =
+            PointSourceParams.Builder()
+                .setDistanceAttenuation(DistanceAttenuation.Custom(0.9f, 2.0f, 0.01f, 1.0f))
+                .setDirectivity(0.9f, 1.2f)
+                .setSpread(0.1f)
+                .build()
         val tester = testRule.spatialAudioTrackBuilderTester
 
         assertThat(tester.getPointSourceParams(builder)).isNull()
@@ -105,8 +110,16 @@ class SpatialAudioTrackTest {
 
         SpatialAudioTrackBuilder.setPointSourceParams(session, builder, pointSourceParams, entity)
 
-        // TODO: b/426001209 - Check params equality once additional params are implemented.
-        assertThat(tester.getPointSourceParams(builder)).isNotNull()
+        val params = tester.getPointSourceParams(builder)
+        assertThat(params).isNotNull()
+        val da = params!!.distanceAttenuation as DistanceAttenuation.Custom
+        assertThat(da.minDistance).isEqualTo(0.9f)
+        assertThat(da.maxDistance).isEqualTo(2.0f)
+        assertThat(da.gainAtMaxDistance).isEqualTo(0.01f)
+        assertThat(da.rolloffFactor).isEqualTo(1.0f)
+        assertThat(params.directivityBalance).isEqualTo(0.9f)
+        assertThat(params.directivitySharpness).isEqualTo(1.2f)
+        assertThat(params.spread).isEqualTo(0.1f)
         assertThat(tester.isCurrentPointSource(builder, entity)).isTrue()
     }
 
@@ -115,7 +128,7 @@ class SpatialAudioTrackTest {
         val track = AudioTrack.Builder().build()
 
         val entity = Entity.create(session, "test")
-        val pointSourceParams = PointSourceParams()
+        val pointSourceParams = PointSourceParams.Builder().build()
         val tester = testRule.spatialAudioTrackTester
 
         assertThat(SpatialAudioTrack.getSpatialSourceType(session, track))

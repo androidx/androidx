@@ -23,6 +23,7 @@ import androidx.xr.scenecore.PointSourceParams
 import androidx.xr.scenecore.SoundFieldAttributes
 import androidx.xr.scenecore.SpatialAudioTrackBuilder
 import androidx.xr.scenecore.testing.internal.FakeAudioTrackExtensionsWrapper as InternalFakeAudioTrackExtensionsWrapper
+import androidx.xr.scenecore.toPointSourceParams
 
 /**
  * Test utility class for spatial audio extensions.
