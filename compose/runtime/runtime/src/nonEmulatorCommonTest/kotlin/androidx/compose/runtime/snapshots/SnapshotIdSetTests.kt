@@ -22,6 +22,7 @@ import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class SnapshotIdSetTests {
@@ -5642,6 +5643,48 @@ class SnapshotIdSetTests {
                 if (op) prev.set(value.toSnapshotId()) else prev.clear(value.toSnapshotId())
             result
         }
+    }
+
+    @Test
+    fun clearLastBitReturnsEmpty() {
+        // Clearing the only bit in lowerSet returns EMPTY
+        assertSame(
+            SnapshotIdSet.EMPTY,
+            SnapshotIdSet.EMPTY.set(10L.toSnapshotId()).clear(10L.toSnapshotId()),
+        )
+        // Clearing the only bit in upperSet returns EMPTY
+        assertSame(
+            SnapshotIdSet.EMPTY,
+            SnapshotIdSet.EMPTY.set(70L.toSnapshotId()).clear(70L.toSnapshotId()),
+        )
+        // Clearing the only bit above initial 128-bit window returns EMPTY
+        assertSame(
+            SnapshotIdSet.EMPTY,
+            SnapshotIdSet.EMPTY.set(500L.toSnapshotId()).clear(500L.toSnapshotId()),
+        )
+        // Clearing the only bit at (id + 1) % 64 == 0 boundary returns EMPTY
+        assertSame(
+            SnapshotIdSet.EMPTY,
+            SnapshotIdSet.EMPTY.set(191L.toSnapshotId()).clear(191L.toSnapshotId()),
+        )
+        // Clearing the last bit from belowBound returns EMPTY
+        assertSame(
+            SnapshotIdSet.EMPTY,
+            SnapshotIdSet.EMPTY.set(500L.toSnapshotId())
+                .set(1L.toSnapshotId())
+                .clear(500L.toSnapshotId())
+                .clear(1L.toSnapshotId()),
+        )
+        // andNot clearing all bits returns EMPTY
+        val setA = SnapshotIdSet.EMPTY.set(200L.toSnapshotId()).set(201L.toSnapshotId())
+        assertSame(SnapshotIdSet.EMPTY, setA.andNot(setA))
+        // andNot with disjoint bits in the same window returns the same instance
+        val setB = SnapshotIdSet.EMPTY.set(202L.toSnapshotId())
+        assertSame(setA, setA.andNot(setB))
+        // or with subset in the same window returns the same superset instance
+        val subsetA = SnapshotIdSet.EMPTY.set(200L.toSnapshotId())
+        assertSame(setA, setA.or(subsetA))
+        assertSame(setA, subsetA.or(setA))
     }
 }
 
