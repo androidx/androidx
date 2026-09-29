@@ -44,7 +44,7 @@ internal constructor(
         val spatialAnnotationState =
             nativeGetSpatialAnnotationState(nativeSpatialAnnotationId, xrTime)
         if (spatialAnnotationState == null) {
-            trackingState = TrackingState.PAUSED
+            trackingState = TrackingState.STOPPED
             return
         }
 
