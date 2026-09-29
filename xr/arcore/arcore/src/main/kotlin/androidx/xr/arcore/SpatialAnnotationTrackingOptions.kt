@@ -26,7 +26,8 @@ import java.nio.ByteBuffer
  *
  * Use the nested [Builder] to create an instance.
  *
- * @param imageBuffer the [ByteBuffer] containing the input image data
+ * @param imageBuffer the [ByteBuffer] containing the input image data, must be a direct
+ *   [ByteBuffer] with position 0
  * @param imageSize the [IntSize2d] of the input image
  * @param rowStride the row stride of the input image in bytes
  * @param format the format of the input image
@@ -85,7 +86,8 @@ private constructor(
     /**
      * Builder for [SpatialAnnotationTrackingOptions].
      *
-     * @param imageBuffer the raw image byte buffer from the camera frame
+     * @param imageBuffer the raw image byte buffer from the camera frame, must be a direct
+     *   [ByteBuffer] with position 0
      * @param imageSize the 2D pixel dimensions of the image buffer
      * @param timestampNanos the system timestamp in nanoseconds correlating to the camera frame,
      *   using the [System.nanoTime] clock base
@@ -150,6 +152,8 @@ private constructor(
             val h = size.height
             val timestamp = timestampNanos
 
+            check(buffer.isDirect) { "imageBuffer must be a direct ByteBuffer." }
+            check(buffer.position() == 0) { "imageBuffer position must be 0." }
             check(w > 0 && h > 0) { "Width and height must be strictly positive." }
             check(quads.isNotEmpty()) { "At least one Quad must be provided to start tracking." }
 
