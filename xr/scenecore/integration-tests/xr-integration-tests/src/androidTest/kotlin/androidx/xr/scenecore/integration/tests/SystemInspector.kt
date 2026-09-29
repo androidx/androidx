@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.xr.scenecore.testapp
+package androidx.xr.scenecore.integration.tests
 
 import androidx.test.uiautomator.UiDevice
 import androidx.xr.runtime.math.Quaternion

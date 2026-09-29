@@ -16,7 +16,7 @@
 
 @file:kotlin.OptIn(androidx.xr.scenecore.ExperimentalGltfAnimationApi::class)
 
-package androidx.xr.scenecore.testapp
+package androidx.xr.scenecore.integration.tests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
