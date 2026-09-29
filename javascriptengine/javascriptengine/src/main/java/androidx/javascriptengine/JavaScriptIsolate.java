@@ -49,11 +49,12 @@ import javax.annotation.concurrent.ThreadSafe;
  * <p>
  * Each isolate has its own state and JS global object,
  * and cannot interact with any other isolate through JS APIs. There is only a <em>moderate</em>
- * security boundary between isolates in a single {@link JavaScriptSandbox}. If the code in one
+ * security boundary between isolates in a single {@link JavaScriptSandbox} or across shared
+ * {@link JavaScriptSandbox} instances running within the same service process. If the code in one
  * {@link JavaScriptIsolate} is able to compromise the security of the JS engine then it may be
- * able to observe or manipulate other isolates, since they run in the same process. For strong
- * isolation multiple {@link JavaScriptSandbox} processes should be used, but it is not supported
- * at the moment. Please find the feature request <a href="https://crbug.com/1349860">here</a>.
+ * able to observe or manipulate other isolates if they run in the same process. For strong
+ * isolation, multiple dedicated {@link JavaScriptSandbox} processes can be used at the cost of
+ * additional system resources.
  * <p>
  * This class is thread-safe.
  */

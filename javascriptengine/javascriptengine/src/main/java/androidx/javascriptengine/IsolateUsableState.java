@@ -405,6 +405,18 @@ final class IsolateUsableState implements IsolateState {
 
     @Override
     public void onDied(@NonNull TerminationInfo terminationInfo) {
+        if (mJsIsolate.mJsSandbox.getSandboxServiceInstance().isActive()) {
+            // For shared sandboxes, the service as a whole might not be dead. It could just be
+            // that this isolate's sandbox has been closed. If this is the case (isActive=true), we
+            // should make sure the service knows the isolate is no longer needed.
+            try {
+                mJsIsolateStub.close();
+                Log.w(TAG, "Closed an orphaned isolate in a still active sandbox service.");
+            } catch (RemoteException | RuntimeException e) {
+                // Kill the service directly. The sandbox itself is already supposedly closed/dead.
+                mJsIsolate.mJsSandbox.getSandboxServiceInstance().kill(e);
+            }
+        }
         cancelAllPendingEvaluations(terminationInfo.toJavaScriptException());
         mOnTerminatedCallbacks.forEach(
                 (callback, executor) -> executor.execute(() -> callback.accept(terminationInfo)));

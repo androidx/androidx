@@ -772,7 +772,7 @@ public class WebViewJavaScriptSandboxTest {
     @MediumTest
     public void testMultipleSandboxesCannotCoexist() throws Throwable {
         Context context = ApplicationProvider.getApplicationContext();
-        final String contains = "already bound";
+        final String contains = "Cannot create two concurrent legacy sandboxes.";
         ListenableFuture<JavaScriptSandbox> jsSandboxFuture1 =
                 JavaScriptSandbox.createConnectedInstanceAsync(context);
         try (JavaScriptSandbox ignored1 = jsSandboxFuture1.get(5, TimeUnit.SECONDS)) {
