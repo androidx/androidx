@@ -266,9 +266,6 @@ internal fun ComposeStackTrace.filterInternalFramesByGroupKey(): List<ComposeSta
                 // We reached the root group
                 break
             } else {
-                // Remove the previous frame, it is a hash of parent context and has no reference
-                // in the source code.
-                filteredFrames.removeLastOrNull()
                 continue
             }
         }
