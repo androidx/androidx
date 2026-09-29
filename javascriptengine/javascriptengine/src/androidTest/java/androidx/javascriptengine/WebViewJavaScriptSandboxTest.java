@@ -1035,7 +1035,7 @@ public class WebViewJavaScriptSandboxTest {
         ListenableFuture<JavaScriptSandbox> jsSandboxFuture =
                 JavaScriptSandbox.createConnectedInstanceAsync(context);
         try (JavaScriptSandbox jsSandbox = jsSandboxFuture.get(5, TimeUnit.SECONDS)) {
-            jsSandbox.killImmediatelyOnThread();
+            jsSandbox.unbindServiceAndEnterDeadStateForTesting();
             try (JavaScriptIsolate jsIsolate = jsSandbox.createIsolate()) {
                 final CountDownLatch latch = new CountDownLatch(1);
                 jsIsolate.addOnTerminatedCallback(Runnable::run, info -> {
@@ -1057,7 +1057,7 @@ public class WebViewJavaScriptSandboxTest {
         ListenableFuture<JavaScriptSandbox> jsSandboxFuture =
                 JavaScriptSandbox.createConnectedInstanceAsync(context);
         try (JavaScriptSandbox jsSandbox = jsSandboxFuture.get(5, TimeUnit.SECONDS)) {
-            jsSandbox.unbindService();
+            jsSandbox.unbindServiceForTesting();
             try (JavaScriptIsolate jsIsolate = jsSandbox.createIsolate()) {
                 final CountDownLatch latch = new CountDownLatch(1);
                 jsIsolate.addOnTerminatedCallback(Runnable::run, info -> {
@@ -1495,7 +1495,7 @@ public class WebViewJavaScriptSandboxTest {
                     latch.countDown();
                 });
 
-                jsSandbox.killImmediatelyOnThread();
+                jsSandbox.unbindServiceAndEnterDeadStateForTesting();
 
                 Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
             }

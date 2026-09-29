@@ -305,7 +305,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
         private void runShutdownTasks(@NonNull Exception e) {
             if (mJsSandbox != null) {
                 Log.e(TAG, "Sandbox has died", e);
-                mJsSandbox.killImmediatelyOnThread();
+                mJsSandbox.killDueToException(e);
             } else {
                 mContext.unbindService(this);
                 sIsReadyToConnect.set(true);
@@ -596,6 +596,13 @@ public final class JavaScriptSandbox implements AutoCloseable {
         notifyIsolatesAboutClosure();
     }
 
+    private void unbindService() {
+        final ConnectionSetup connection = mConnection.getAndSet(null);
+        if (connection != null) {
+            mContext.unbindService(connection);
+        }
+    }
+
     /**
      * Unbind the service if it hasn't been unbound already.
      * <p>
@@ -609,29 +616,40 @@ public final class JavaScriptSandbox implements AutoCloseable {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @VisibleForTesting
-    public void unbindService() {
-        final ConnectionSetup connection = mConnection.getAndSet(null);
-        if (connection != null) {
-            mContext.unbindService(connection);
-        }
+    public void unbindServiceForTesting() {
+        unbindService();
     }
 
     /**
-     * Kill the sandbox and immediately update state and trigger callbacks/futures on the calling
+     * Unbind from the service and bring the sandbox/isolates into dead states on the calling
      * thread.
-     * <p>
-     * There is a risk of deadlock if this is called from an isolate-related callback. In order
-     * to kill from code holding arbitrary locks, use {@link #kill} instead.
+     *
+     * <p>This can somewhat emulate a service death and subsequent handling.
+     *
+     * <p>Note that this bypasses the normal executor used for performing this logic.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @VisibleForTesting
-    public void killImmediatelyOnThread() {
+    public void unbindServiceAndEnterDeadStateForTesting() {
+        unbindServiceForTesting();
+        enterDeadState();
+    }
+
+    /**
+     * Update state to reflect death and trigger callbacks/futures immediately on the calling
+     * thread.
+     *
+     * <p>Safe to call multiple times and/or when closed.
+     *
+     * <p>This should only be called via onServiceKilled to avoid running callbacks under unexpected
+     * locks, or directly for testing purposes only.
+     */
+    private void enterDeadState() {
         synchronized (mLock) {
             if (mState != State.ALIVE) {
                 return;
             }
             mState = State.DEAD;
-            unbindService();
         }
         notifyIsolatesAboutDeath();
     }
@@ -642,21 +660,23 @@ public final class JavaScriptSandbox implements AutoCloseable {
      * This will unbind the sandbox service so that any future IPC will fail immediately.
      * However, isolates will be notified asynchronously, from mContext's main executor.
      */
-    void kill() {
-        unbindService();
-        getMainExecutor().execute(this::killImmediatelyOnThread);
-    }
-
-    /**
-     * Same as {@link #kill}, but logs information about the cause.
-     */
-    void killDueToException(Exception e) {
+    void killDueToException(@NonNull Exception e) {
         if (e instanceof DeadObjectException) {
             Log.e(TAG, "Sandbox died before or during during remote call", e);
         } else {
             Log.e(TAG, "Killing sandbox due to exception", e);
         }
-        kill();
+        unbindService();
+        onServiceKilled();
+    }
+
+    /**
+     * Handle an unplanned service death.
+     *
+     * <p>Safe to call multiple times and/or when closed.
+     */
+    void onServiceKilled() {
+        getMainExecutor().execute(this::enterDeadState);
     }
 
     private void notifyIsolatesAboutClosure() {

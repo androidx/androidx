@@ -156,7 +156,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
         synchronized (mLock) {
             if (terminationInfo.getStatus() == TerminationInfo.STATUS_MEMORY_LIMIT_EXCEEDED) {
                 Log.e(TAG, "isolate exceeded its heap memory limit - killing sandbox");
-                mJsSandbox.kill();
+                mJsSandbox.killDueToException(terminationInfo.toJavaScriptException());
             }
             final IsolateState oldState = mIsolateState;
             if (oldState.canDie()) {
