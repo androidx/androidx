@@ -40,6 +40,7 @@ import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.semantics
+import androidx.compose.remote.creation.compose.modifier.sharedElement
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
@@ -60,6 +61,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -1082,6 +1084,152 @@ class RcPlayerAnimationTest {
             val finalWidth =
                 endNode.getUnclippedBoundsInRoot().let { it.right.value - it.left.value }
             assertThat(finalWidth).isWithin(2f).of(40f)
+        }
+    }
+
+    @Test
+    fun stateLayout_disabledAnimationSpec_transitionsInstantly() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val bytes =
+                captureSingleRemoteDocument(
+                        context = context,
+                        content = {
+                            val checked = remember { MutableRemoteBoolean(false) }
+                            RemoteColumn {
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.semantics {
+                                                contentDescription = "disabledToggle".rs
+                                            }
+                                            .size(20.rdp)
+                                            .clickable(action = valueChange(checked, !checked))
+                                )
+                                RemoteStateLayout(currentState = checked) { state ->
+                                    if (!state) {
+                                        RemoteBox(
+                                            modifier =
+                                                RemoteModifier.semantics {
+                                                        contentDescription = "disabled_state0".rs
+                                                    }
+                                                    .animationSpec(enabled = false)
+                                                    .size(50.rdp)
+                                                    .background(Color.Red.rc)
+                                        )
+                                    } else {
+                                        RemoteBox(
+                                            modifier =
+                                                RemoteModifier.semantics {
+                                                        contentDescription = "disabled_state1".rs
+                                                    }
+                                                    .animationSpec(enabled = false)
+                                                    .size(50.rdp)
+                                                    .background(Color.Blue.rc)
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                    )
+                    .bytes
+
+            val document = loadDocument(bytes)
+            rule.mainClock.autoAdvance = false
+            rule.setContent {
+                Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) }
+            }
+
+            rule.mainClock.advanceTimeBy(0)
+            rule.onNodeWithContentDescription("disabled_state0").assertIsDisplayed()
+            rule.onNodeWithContentDescription("disabled_state1").assertDoesNotExist()
+
+            // Trigger transition from state 0 to state 1
+            rule.onNodeWithContentDescription("disabledToggle").performClick()
+            rule.mainClock.advanceTimeByFrame()
+
+            // Because animation is disabled (animationId = 0), SharedTransitionLayout and
+            // AnimatedContent are bypassed so state0 exits on the very first frame.
+            rule.onNodeWithContentDescription("disabled_state0").assertDoesNotExist()
+            rule.onNodeWithContentDescription("disabled_state1").assertIsDisplayed()
+        }
+    }
+
+    @Test
+    fun fitBox_disabledAnimationSpec_transitionsInstantly() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val bytes =
+                captureSingleRemoteDocument(
+                        context = context,
+                        content = {
+                            RemoteFitBox(modifier = RemoteModifier.animationSpec(enabled = false)) {
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.semantics {
+                                                contentDescription = "fitDisabled_wide".rs
+                                            }
+                                            .width(250.rdp)
+                                            .height(80.rdp)
+                                ) {
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.semantics {
+                                                    contentDescription = "fitDisabled_shared".rs
+                                                }
+                                                .sharedElement(key = 500)
+                                                .size(80.rdp)
+                                    )
+                                }
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.semantics {
+                                                contentDescription = "fitDisabled_narrow".rs
+                                            }
+                                            .width(120.rdp)
+                                            .height(80.rdp)
+                                ) {
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.semantics {
+                                                    contentDescription = "fitDisabled_shared".rs
+                                                }
+                                                .sharedElement(key = 500)
+                                                .size(40.rdp)
+                                    )
+                                }
+                            }
+                        },
+                    )
+                    .bytes
+
+            val document = loadDocument(bytes)
+            var containerWidth by mutableStateOf(300.dp)
+            rule.mainClock.autoAdvance = false
+            rule.setContent {
+                Box(modifier = Modifier.size(width = containerWidth, height = 200.dp)) {
+                    RcPlayer(document = document)
+                }
+            }
+
+            rule.mainClock.advanceTimeBy(0)
+            rule.onNodeWithContentDescription("fitDisabled_wide").assertIsDisplayed()
+            rule.onNodeWithContentDescription("fitDisabled_narrow").assertDoesNotExist()
+
+            // Shrink container so narrow alternative is chosen
+            containerWidth = 150.dp
+            rule.mainClock.advanceTimeByFrame()
+
+            // Because animation is disabled on FitBox, SharedTransitionLayout and AnimatedContent
+            // are bypassed: wide child exits on the very first frame and shared element snaps to
+            // 40dp without interpolating.
+            rule.onNodeWithContentDescription("fitDisabled_wide").assertDoesNotExist()
+            rule.onNodeWithContentDescription("fitDisabled_narrow").assertIsDisplayed()
+            val sharedWidth =
+                rule
+                    .onNodeWithContentDescription("fitDisabled_shared")
+                    .getUnclippedBoundsInRoot()
+                    .let { it.right.value - it.left.value }
+            assertThat(sharedWidth).isWithin(2f).of(40f)
         }
     }
 }
