@@ -27,6 +27,7 @@ import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.core.ui.TemplateRenderer
+import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import androidx.test.core.app.ApplicationProvider
@@ -41,6 +42,7 @@ import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
+import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
@@ -57,13 +59,14 @@ import org.robolectric.annotation.Config
  * [AppWidgetManager].
  *
  * How individual compositions are grouped, sized and rendered is covered by
- * [GlanceRemoteViewsComposerTest].
+ * [GlanceRemoteViewsComposerTest], and the telemetry extras by [WidgetTelemetryHandlerTest].
  */
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
 class BaseWidgetDelegateTest {
 
-    private class TestTemplate : AdaptiveGlanceTemplate
+    private class TestTemplate(override val templateId: String = "TestTemplate") :
+        AdaptiveGlanceTemplate
 
     private class TestReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "test_widget"
@@ -88,6 +91,7 @@ class BaseWidgetDelegateTest {
             TemplateRenderer { template, constraints ->
                 { mockRenderer(template, constraints.surface) }
             },
+            ArchetypeSelector { _, constraints -> constraints.surface },
         )
     }
 
@@ -463,6 +467,126 @@ class BaseWidgetDelegateTest {
 
     // endregion
 
+    // region telemetry
+
+    private enum class TestArchetype {
+        COMPACT_HERO,
+        SPLIT_ROW,
+    }
+
+    private class DimensionAwareTemplate : AdaptiveGlanceTemplate {
+        override val templateId: String = "dimension_template"
+    }
+
+    /**
+     * Registers [DimensionAwareTemplate] with a width-based selector, reporting each rendered
+     * archetype to [onRender].
+     */
+    private fun registerDimensionAwareTemplate(onRender: (TestArchetype) -> Unit) {
+        val selector =
+            ArchetypeSelector<DimensionAwareTemplate, AppWidgetGlanceSurface, TestArchetype> {
+                _,
+                constraints ->
+                if (constraints.dimensions.widthDp >= 250) TestArchetype.SPLIT_ROW
+                else TestArchetype.COMPACT_HERO
+            }
+        AppWidgetTemplateRegistry.register(
+            DimensionAwareTemplate::class.java,
+            TemplateRenderer { template, constraints ->
+                { onRender(selector.select(template, constraints)) }
+            },
+            selector,
+        )
+    }
+
+    @Test
+    fun pushUpdate_writesTelemetryOptionsBeforeUpdatingRemoteViews() = runTest {
+        setupBoundWidget(601, TestReceiver::class.java.name)
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+
+        // Written first so that a host reading the extras on update sees current values.
+        val inOrder = inOrder(appWidgetManager)
+        inOrder.verify(appWidgetManager).updateAppWidgetOptions(eq(601), any())
+        inOrder.verify(appWidgetManager).updateAppWidget(eq(intArrayOf(601)), any<RemoteViews>())
+        assertThat(
+                appWidgetManager
+                    .getAppWidgetOptions(601)
+                    .getString(WidgetTelemetryHandler.EXTRA_XFF_TEMPLATE_ID)
+            )
+            .isEqualTo("TestTemplate")
+    }
+
+    @Test
+    fun pushUpdate_populatesArchetypeIdFromDimensions_andRendersMatchingArchetype() = runTest {
+        var renderedArchetype: TestArchetype? = null
+        registerDimensionAwareTemplate { renderedArchetype = it }
+        setupBoundWidget(
+            appWidgetId = 606,
+            receiverName = TestReceiver::class.java.name,
+            extraOptions =
+                Bundle().apply {
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 280)
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 120)
+                },
+        )
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        delegate().pushUpdate(widgetName = "test_widget", currentData = DimensionAwareTemplate())
+
+        assertThat(
+                appWidgetManager
+                    .getAppWidgetOptions(606)
+                    .getString(WidgetTelemetryHandler.EXTRA_XFF_ARCHETYPE_ID)
+            )
+            .isEqualTo("SPLIT_ROW")
+        assertThat(renderedArchetype).isEqualTo(TestArchetype.SPLIT_ROW)
+    }
+
+    @Test
+    fun pushUpdate_whenHostReportsWidthOnly_reportsTheRenderedArchetype() = runTest {
+        var renderedArchetype: TestArchetype? = null
+        registerDimensionAwareTemplate { renderedArchetype = it }
+        // The composer renders a width without a height at unspecified (0, 0) dimensions, so the
+        // reported archetype must come from that render target, not from the raw 280 dp width.
+        setupBoundWidget(
+            appWidgetId = 608,
+            receiverName = TestReceiver::class.java.name,
+            extraOptions =
+                Bundle().apply { putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 280) },
+        )
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        delegate().pushUpdate(widgetName = "test_widget", currentData = DimensionAwareTemplate())
+
+        assertThat(renderedArchetype).isEqualTo(TestArchetype.COMPACT_HERO)
+        assertThat(
+                appWidgetManager
+                    .getAppWidgetOptions(608)
+                    .getString(WidgetTelemetryHandler.EXTRA_XFF_ARCHETYPE_ID)
+            )
+            .isEqualTo("COMPACT_HERO")
+    }
+
+    @Test
+    fun pushUpdate_whenUpdateAppWidgetOptionsThrows_stillUpdatesRemoteViews() = runTest {
+        setupBoundWidget(612, TestReceiver::class.java.name)
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        doThrow(RuntimeException("Simulated IPC write failure"))
+            .whenever(appWidgetManager)
+            .updateAppWidgetOptions(eq(612), any())
+
+        val testData = TestTemplate()
+        delegate().pushUpdate(widgetName = "test_widget", currentData = testData)
+
+        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+        verify(appWidgetManager).updateAppWidget(eq(intArrayOf(612)), any())
+    }
+
+    // endregion
+
     /** The appWidgetIds of every [AppWidgetManager.updateAppWidget] call, in call order. */
     private fun capturedUpdatedIds(): List<List<Int>> {
         val idsCaptor = argumentCaptor<IntArray>()
@@ -483,15 +607,12 @@ class BaseWidgetDelegateTest {
         val info = AppWidgetProviderInfo().apply { provider = componentOf(receiverName) }
         shadowOf(AppWidgetManager.getInstance(context)).addBoundWidget(appWidgetId, info)
 
-        val bundle = Bundle()
+        val bundle = extraOptions?.let { Bundle(it) } ?: Bundle()
         if (widgetId != null) {
             bundle.putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, widgetId)
         }
         if (hostCategory != null) {
             bundle.putInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, hostCategory)
-        }
-        if (extraOptions != null) {
-            bundle.putAll(extraOptions)
         }
         if (!bundle.isEmpty) {
             AppWidgetManager.getInstance(context).updateAppWidgetOptions(appWidgetId, bundle)

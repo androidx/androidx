@@ -25,7 +25,9 @@ import org.junit.Test
 
 class TemplateRendererTest {
 
-    private class TestTemplate(val title: String) : AdaptiveGlanceTemplate
+    private class TestTemplate(val title: String) : AdaptiveGlanceTemplate {
+        override val templateId: String = "TestTemplate"
+    }
 
     private data class TestSurface(override val tag: String) : GlanceSurface
 

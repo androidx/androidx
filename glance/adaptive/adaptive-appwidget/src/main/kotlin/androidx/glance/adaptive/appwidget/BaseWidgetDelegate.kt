@@ -47,12 +47,14 @@ internal class BaseWidgetDelegate(
     private val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context),
     private val composer: GlanceRemoteViewsComposer =
         GlanceRemoteViewsComposer(context, appWidgetManager),
+    private val telemetry: WidgetTelemetryHandler = WidgetTelemetryHandler(appWidgetManager),
 ) : GlanceAdaptiveWidgetDelegate {
 
     /**
      * Resolves active target widget instances for the given [widgetName] and optional [widgetIds],
      * renders [currentData] via [GlanceRemoteViewsComposer], and updates matching platform
-     * AppWidgets directly.
+     * AppWidgets directly. Telemetry extras are written through [WidgetTelemetryHandler] before the
+     * update.
      *
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
@@ -73,6 +75,8 @@ internal class BaseWidgetDelegate(
 
                 val targetToInstances =
                     composer.groupInstancesByRenderTarget(componentToAppWidgetIds)
+                telemetry.ensureTelemetryOptions(targetToInstances, currentData)
+
                 for ((target, appWidgetIds) in targetToInstances) {
                     try {
                         val remoteViews = composer.compose(currentData, target)
