@@ -52,7 +52,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.trace
-import androidx.core.graphics.createBitmap
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -211,9 +210,7 @@ public suspend fun captureSingleRemoteDocument(
         val document =
             withContext(recomposerDispatcher) {
                 Snapshot.withMutableSnapshot {
-                    val recordingCanvas = RecordingCanvas(createBitmap(1, 1), creationState)
-
-                    val remoteCanvas = RemoteCanvas(recordingCanvas)
+                    val remoteCanvas = RemoteCanvas(creationState)
 
                     if (RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled) {
                         check(creationState.document.buffer.buffer.size() == initialSize) {
@@ -411,10 +408,7 @@ public fun captureRemoteDocument(
                                         creationState.remoteVariableToId.clear()
                                         creationState.floatArrayCache.clear()
                                         creationState.longArrayCache.clear()
-                                        val recordingCanvas =
-                                            RecordingCanvas(createBitmap(1, 1), creationState)
-
-                                        val remoteCanvas = RemoteCanvas(recordingCanvas)
+                                        val remoteCanvas = RemoteCanvas(creationState)
 
                                         check(
                                             creationState.document.buffer.buffer.size() ==

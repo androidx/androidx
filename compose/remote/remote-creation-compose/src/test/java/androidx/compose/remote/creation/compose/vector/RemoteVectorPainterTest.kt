@@ -16,8 +16,6 @@
 
 package androidx.compose.remote.creation.compose.vector
 
-import android.graphics.Bitmap
-import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.path
@@ -143,14 +141,8 @@ class RemoteVectorPainterTest {
                 .build()
 
         val size = Size(24f, 24f)
-        val creationState =
-            RemoteComposeCreationState(
-                AndroidxRcPlatformServices(),
-                size,
-            )
-        val bitmap = Bitmap.createBitmap(24, 24, Bitmap.Config.ARGB_8888)
-        val recordingCanvas = RecordingCanvas(bitmap, creationState)
-        val remoteCanvas = RemoteCanvas(recordingCanvas)
+        val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), size)
+        val remoteCanvas = RemoteCanvas(creationState)
 
         // Draw procedurally using the new RemoteImageVector.draw extension
         remoteImageVector.draw(remoteCanvas)
