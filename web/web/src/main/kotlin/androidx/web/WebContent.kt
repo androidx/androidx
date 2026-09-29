@@ -23,6 +23,8 @@ import androidx.annotation.NonNull
 import androidx.annotation.RequiresFeature
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Proxy
 import java.util.function.BiConsumer
 import java.util.function.Function
 import org.chromium.support_lib_boundary.WebContentBoundaryInterface
@@ -52,6 +54,9 @@ public fun WebContent(block: WebContent.Builder.() -> Unit = {}): WebContent {
 public class WebContent
 internal constructor(private val boundaryInterface: WebContentBoundaryInterface) : AutoCloseable {
 
+    internal fun getInvocationHandler(): InvocationHandler =
+        Proxy.getInvocationHandler(boundaryInterface)
+
     private var isDetached: Boolean = true
     private var isDestroyed: Boolean = false
 
@@ -59,19 +64,22 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
     public var currentView: WebContentView? = null
         private set
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var currentViewListener: ((WebContentView?) -> Unit)? = null
-        set(value) {
-            if (field === value) return
-            val previousListener = field
-            field = value
-            previousListener?.invoke(null)
-            value?.invoke(currentView)
-        }
+    private var currentViewListener: ((WebContentView?) -> Unit)? = null
 
-    private var savedScrollX: Int = 0
-    private var savedScrollY: Int = 0
+    private val attachedView: WebContentView?
+        get() = currentView?.takeUnless { isDetached }
+
+    /** Sets a listener to be notified when the attached [WebContentView] changes. */
+    @UiThread
+    @InternalWebApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun setCurrentViewListener(listener: ((WebContentView?) -> Unit)?) {
+        if (currentViewListener === listener) return
+        val previousListener = currentViewListener
+        currentViewListener = listener
+        previousListener?.invoke(null)
+        listener?.invoke(attachedView)
+    }
 
     private fun unwrapActivity(context: Context): Activity? {
         var ctx: Context? = context
@@ -151,25 +159,15 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
                 check(!view.isAttachedToWindow && view.parent == null) {
                     "Previous WebContentView must be detached from the view hierarchy before attaching or detaching WebContent."
                 }
-                savedScrollX = view.scrollX
-                savedScrollY = view.scrollY
             }
         }
 
-        val view = boundaryInterface.executeViewFactory(context, factory::invoke)
-
-        isDetached = view is DetachedWebContentView
-        currentView = view
-
-        // The scroll position is saved in WebView in framework source
-        // so the Chromium layer cannot persist these values.
-        if (!isDetached && (savedScrollX != 0 || savedScrollY != 0)) {
-            view.scrollTo(savedScrollX, savedScrollY)
+        return boundaryInterface.executeViewFactory(context, factory::invoke).also { nextView ->
+            currentView?.transferViewState(nextView)
+            currentView = nextView
+            isDetached = nextView is DetachedWebContentView
+            currentViewListener?.invoke(attachedView)
         }
-
-        currentViewListener?.invoke(view)
-
-        return view
     }
 
     /** Builder for [WebContent]. */
@@ -181,9 +179,7 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
             enforcement = "androidx.web.WebFeature#isFeatureSupported",
         )
         public constructor() {
-            if (!WebFeature.isFeatureSupported(WebFeature.WEB_CONTENT)) {
-                throw WebFeature.getUnsupportedOperationException()
-            }
+            WebFeature.checkSupported(WebFeature.WEB_CONTENT)
         }
 
         private fun transfer(chromiumConfig: BiConsumer<@WebContentConfig Int, Any>) {

@@ -60,6 +60,11 @@ public object WebFeature {
         return BoundaryInterfaceReflectionUtil.containsFeature(supportedFeatures, feature)
     }
 
-    internal fun getUnsupportedOperationException() =
-        UnsupportedOperationException("This method is not supported by the current WebView APK")
+    internal fun checkSupported(@WebFeatures feature: String) {
+        if (!isFeatureSupported(feature)) {
+            throw UnsupportedOperationException(
+                "This method is not supported by the current WebView APK"
+            )
+        }
+    }
 }

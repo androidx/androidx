@@ -21,6 +21,7 @@ import android.util.AttributeSet
 import android.webkit.WebView
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
+import androidx.annotation.UiThread
 
 /**
  * This is a [WebView] that is created via [WebContent]. The underlying web state can outlive a
@@ -42,4 +43,18 @@ public open class WebContentView : WebView {
         @Nullable attrs: AttributeSet?,
         defStyleAttr: Int,
     ) : super(context, attrs, defStyleAttr)
+
+    /**
+     * Transfers view-specific state (such as scroll position) from this [WebContentView] to
+     * [nextView].
+     *
+     * This only transfers [android.view.View]-level properties; underlying web state is managed by
+     * [WebContent].
+     */
+    @UiThread
+    internal open fun transferViewState(@NonNull nextView: WebContentView) {
+        if (scrollX != 0 || scrollY != 0) {
+            nextView.scrollTo(scrollX, scrollY)
+        }
+    }
 }
