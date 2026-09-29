@@ -1028,6 +1028,22 @@ class ScatterMapTest {
     }
 
     @Test
+    fun asMapEntriesContainsAbsentKeyWithNullValue() {
+        val map = MutableScatterMap<String, String?>()
+        map["Hello"] = "World"
+        val entry = mapOf<String, String?>("Bonjour" to null).entries.single()
+        assertFalse(map.asMap().entries.contains(entry))
+    }
+
+    @Test
+    fun asMapEntriesContainsAllAbsentKeyWithNullValue() {
+        val map = MutableScatterMap<String, String?>()
+        map["Hello"] = "World"
+        val entry = mapOf<String, String?>("Bonjour" to null).entries.single()
+        assertFalse(map.asMap().entries.containsAll(listOf(entry)))
+    }
+
+    @Test
     fun asMapToList() {
         val map = mutableScatterMapOf<Int, Int>()
         map[0] = 0
@@ -1361,6 +1377,22 @@ class ScatterMapTest {
                 listOf(MutableMapEntry("Bonjour", "Le Monde"), MutableMapEntry("Hallo", "Welt"))
             )
         )
+    }
+
+    @Test
+    fun asMutableMapEntriesContainsAbsentKeyWithNullValue() {
+        val map = MutableScatterMap<String, String?>()
+        map["Hello"] = "World"
+        val entry = mutableMapOf<String, String?>("Bonjour" to null).entries.single()
+        assertFalse(map.asMutableMap().entries.contains(entry))
+    }
+
+    @Test
+    fun asMutableMapEntriesContainsAllAbsentKeyWithNullValue() {
+        val map = MutableScatterMap<String, String?>()
+        map["Hello"] = "World"
+        val entry = mutableMapOf<String, String?>("Bonjour" to null).entries.single()
+        assertFalse(map.asMutableMap().entries.containsAll(listOf(entry)))
     }
 
     @Test
