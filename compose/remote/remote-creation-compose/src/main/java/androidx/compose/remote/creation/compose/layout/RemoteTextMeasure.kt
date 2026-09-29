@@ -15,7 +15,6 @@
  */
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.creation.Painter
 import androidx.compose.remote.creation.RemoteComposeWriter
@@ -53,7 +52,6 @@ private val DefaultFontSize: RemoteTextUnit = 12.rsp
  *
  * Parameters are read from CompositionLocals (such as [LocalRemoteDensity]).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 public fun rememberRemoteTextMeasurer(): RemoteTextMeasurer {
     val density = LocalRemoteDensity.current
@@ -69,7 +67,6 @@ public fun rememberRemoteTextMeasurer(): RemoteTextMeasurer {
  *
  * @param density density of the measurement environment, used for scaling fonts.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 public class RemoteTextMeasurer(internal val density: RemoteDensity) {
     /**
@@ -186,7 +183,6 @@ public class RemoteTextMeasurer(internal val density: RemoteDensity) {
  *
  * @param size the dimensions ([RemoteSize]) of the measured text.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 public class RemoteTextLayoutResult(public val size: RemoteSize) {
     public constructor(width: RemoteFloat, height: RemoteFloat) : this(RemoteSize(width, height))
