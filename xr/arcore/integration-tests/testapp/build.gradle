@@ -21,7 +21,6 @@
  * modifying its settings.
  */
 
-import androidx.build.AndroidXConfig
 import androidx.build.ApkCopyHelperKt
 import androidx.build.SoftwareType
 
@@ -53,9 +52,6 @@ androidx {
     type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2025"
     description = "Integration tests app that exercises the ARCore APIs."
-    deviceTests {
-        enabled = false
-    }
 }
 
 dependencies {
