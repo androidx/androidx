@@ -68,7 +68,8 @@ public class QualityValidatedEncoderProfilesProvider implements EncoderProfilesP
         if (videoQuality != null) {
             for (VideoQualityQuirk quirk : mQuirks.getAll(VideoQualityQuirk.class)) {
                 // All quirks must be able to be workaround, then it can be considered valid.
-                if (quirk != null && quirk.isProblematicVideoQuality(mCameraInfo, videoQuality)) {
+                if (quirk != null && quirk.isProblematicVideoQuality(mCameraInfo, videoQuality,
+                        quality)) {
                     if (!workaroundBySurfaceProcessing(quirk)) {
                         return false;
                     }

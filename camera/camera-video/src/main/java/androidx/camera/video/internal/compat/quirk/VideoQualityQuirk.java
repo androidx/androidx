@@ -39,5 +39,5 @@ public interface VideoQualityQuirk extends Quirk {
 
     /** Checks if the given Quality type is a problematic quality. */
     boolean isProblematicVideoQuality(@NonNull CameraInfoInternal cameraInfo,
-            @NonNull Quality quality);
+            @NonNull Quality quality, int profileQuality);
 }
