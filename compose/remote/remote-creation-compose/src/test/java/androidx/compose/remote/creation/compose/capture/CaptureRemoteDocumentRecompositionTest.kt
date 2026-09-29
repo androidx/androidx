@@ -39,6 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -46,7 +47,9 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
+@Repeat(5)
 class CaptureRemoteDocumentRecompositionTest {
+    @get:Rule val repeatRule = RepeatRule()
 
     private lateinit var context: Context
 
@@ -168,14 +171,8 @@ class CaptureRemoteDocumentRecompositionTest {
                 },
             )
 
-        // Start background snapshot apply observer loop to handle async writes from Flow collector
-        backgroundScope.launch {
-            while (true) {
-                Snapshot.sendApplyNotifications()
-                kotlinx.coroutines.delay(10)
-            }
-        }
-
+        // No manual Snapshot.sendApplyNotifications() loop: captureRemoteDocument's
+        // SnapshotWriteMonitor must deliver the collector's global write by itself.
         val documents = mutableListOf<ByteArray>()
         val job = launch { flow.take(2).toList(documents) }
 

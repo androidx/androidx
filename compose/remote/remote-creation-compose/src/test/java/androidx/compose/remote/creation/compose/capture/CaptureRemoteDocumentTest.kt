@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationCompos
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -40,6 +41,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,6 +84,8 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -513,6 +517,139 @@ class CaptureRemoteDocumentTest {
             assertEquals(Lifecycle.Event.ON_PAUSE, observedSelfRemoveEvent.get())
             assertDocumentContainsText(document.toCoreDocument(), "TasksCompleted:4")
         }
+
+    /**
+     * Destroying the capture's [LocalLifecycleOwner] steps down one event at a time, like a stepped
+     * `LifecycleRegistry`: every observer receives `ON_PAUSE` before any receives `ON_STOP`,
+     * downward events are delivered newest observer first, and [Lifecycle.currentState] inside each
+     * callback is that event's target state.
+     *
+     * This matters because captured content runs ordinary lifecycle-aware code that expects the
+     * host to behave like an Activity or Fragment. Observers commonly read `currentState` from
+     * their callbacks (e.g. `currentStateAsState()`, or code guarding on `isAtLeast(STARTED)`) and
+     * would otherwise see `DESTROYED` while still handling `ON_PAUSE`. Reverse order tears down
+     * observers registered later, which may depend on ones registered earlier, before the ones they
+     * depend on. `HeadlessLifecycleOwner` reimplements `LifecycleRegistry` to avoid its main-thread
+     * enforcement, so this test guards against drifting from its semantics.
+     */
+    @Test
+    fun captureSingleRemoteDocument_destroysLifecycleStepwiseInReverseRegistrationOrder() =
+        runTest {
+            val downwardEvents =
+                listOf(
+                    Lifecycle.Event.ON_PAUSE,
+                    Lifecycle.Event.ON_STOP,
+                    Lifecycle.Event.ON_DESTROY,
+                )
+            val observed = CopyOnWriteArrayList<String>()
+
+            captureSingleRemoteDocument(context) {
+                val lifecycle = LocalLifecycleOwner.current.lifecycle
+                LaunchedEffect(Unit) {
+                    for (name in listOf("first", "second")) {
+                        lifecycle.addObserver(
+                            LifecycleEventObserver { owner, event ->
+                                if (event in downwardEvents) {
+                                    observed.add("$name:$event:${owner.lifecycle.currentState}")
+                                }
+                            }
+                        )
+                    }
+                }
+                RemoteText("Lifecycle".rs)
+            }
+
+            assertEquals(
+                listOf(
+                    "second:ON_PAUSE:STARTED",
+                    "first:ON_PAUSE:STARTED",
+                    "second:ON_STOP:CREATED",
+                    "first:ON_STOP:CREATED",
+                    "second:ON_DESTROY:DESTROYED",
+                    "first:ON_DESTROY:DESTROYED",
+                ),
+                observed,
+            )
+        }
+
+    /**
+     * Frames are sent as soon as they are awaited, so content that requests a new frame from every
+     * frame (an infinite transition, or a `withFrameNanos` loop) can never become quiescent. Before
+     * frames were capped, a single capture of such content spun at full CPU and never returned. It
+     * must now fail promptly with an error that names the cause. Remote documents should animate
+     * with remote expressions instead.
+     */
+    @Test
+    @Repeat(1)
+    fun captureSingleRemoteDocument_withInfiniteFrameLoop_failsInsteadOfHanging() = runTest {
+        val failure =
+            withContext(Dispatchers.Default) {
+                withTimeout(30.seconds) {
+                    runCatching {
+                        captureSingleRemoteDocument(context) { InfiniteFrameLoopContent() }
+                    }
+                        .exceptionOrNull()
+                }
+            }
+
+        assertTrue("Expected IllegalStateException, got $failure", failure is IllegalStateException)
+        assertTrue(failure!!.message!!.contains("frames without settling"))
+    }
+
+    /**
+     * The frame cap must leave room for content that settles after a few frames, e.g. effects that
+     * step through several `withFrameNanos` calls before reaching their final state.
+     */
+    @Test
+    fun captureSingleRemoteDocument_withFewFrames_capturesSettledState() = runTest {
+        val document =
+            withContext(Dispatchers.Default) {
+                captureSingleRemoteDocument(context) {
+                    var frames by remember { mutableStateOf(0) }
+                    LaunchedEffect(Unit) { repeat(20) { withFrameNanos { frames++ } } }
+                    RemoteText("Frames:$frames".rs)
+                }
+            }
+
+        assertDocumentContainsText(document.toCoreDocument(), "Frames:20")
+    }
+
+    /**
+     * A streaming capture of content that never stops requesting frames still emits documents,
+     * rendering each time the frame cap is reached, instead of never producing even the first one.
+     */
+    @Test
+    @Repeat(1)
+    fun captureRemoteDocument_withInfiniteFrameLoop_stillEmitsDocuments() = runTest {
+        val documents =
+            withContext(Dispatchers.Default) {
+                withTimeout(30.seconds) {
+                    captureRemoteDocument(
+                            context = context,
+                            creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
+                            coroutineContext = Dispatchers.Default,
+                        ) {
+                            InfiniteFrameLoopContent()
+                        }
+                        .take(2)
+                        .toList()
+                }
+            }
+
+        assertEquals(2, documents.size)
+    }
+
+    @RemoteComposable
+    @Composable
+    private fun InfiniteFrameLoopContent() {
+        var frames by remember { mutableStateOf(0) }
+        LaunchedEffect(Unit) {
+            while (true) {
+                withFrameNanos { frames++ }
+            }
+        }
+        RemoteText("Frames:$frames".rs)
+    }
 
     /**
      * Case 5a: Calling on an unconfined [CoroutineDispatcher] (`Dispatchers.Unconfined`, where
