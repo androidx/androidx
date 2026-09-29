@@ -194,11 +194,16 @@ internal class MultiLaneCacheWindow(
                 hasUpdatedVisibleItemsOnce = true
             }
         } else {
-            if (!hasUpdatedVisibleItemsOnce && cacheWindow.isNonScrollCachingEnabled) {
-                val prefetchForwardWindow =
-                    with(cacheWindow) { density?.calculateAheadWindow(mainAxisViewportSize) ?: 0 }
-                // we won't fill the window if we don't have a prefetch window
-                if (prefetchForwardWindow != 0) shouldRefillWindow = true
+            if (!hasUpdatedVisibleItemsOnce) {
+                if (cacheWindow.isNonScrollCachingEnabled) {
+                    val prefetchForwardWindow =
+                        with(cacheWindow) {
+                            density?.calculateAheadWindow(mainAxisViewportSize) ?: 0
+                        }
+                    // we won't fill the window if we don't have a prefetch window
+                    if (prefetchForwardWindow != 0) shouldRefillWindow = true
+                }
+                hasUpdatedVisibleItemsOnce = true
             }
         }
 
@@ -259,7 +264,11 @@ internal class MultiLaneCacheWindow(
                         applyForwardPrefetch = previousPassDelta <= 0.0f,
                     )
                 } else {
-                    refillWindow(previousPassDelta <= 0.0f)
+                    if (cacheWindow.isNonScrollCachingEnabled) {
+                        refillWindow(previousPassDelta <= 0.0f)
+                    } else {
+                        resetAheadWindowBounds(previousPassDelta <= 0.0f)
+                    }
                 }
 
                 shouldRefillWindow = false
@@ -372,6 +381,32 @@ internal class MultiLaneCacheWindow(
                 scrollDelta = 0.0f,
                 applyForwardPrefetch = refillForward,
             )
+        }
+    }
+
+    private fun CacheWindowScope.resetAheadWindowBounds(resetForward: Boolean) {
+        if (!hasVisibleItems) return
+        val prefetchForwardWindow =
+            with(cacheWindow) { density?.calculateAheadWindow(mainAxisViewportSize) ?: 0 }
+
+        if (resetForward) {
+            updatePerLaneLastVisibleItemIndexes(perLaneLastVisibleItemIndex)
+            updatePerLaneMainAxisExtraEndSpace(perLaneMainAxisExtraEndSpace)
+            for (lane in 0 until currentLaneCount) {
+                perLaneCacheWindowEndItemIndex[lane] = perLaneLastVisibleItemIndex[lane]
+                perLaneCacheWindowEndSpace[lane] =
+                    prefetchForwardWindow - perLaneMainAxisExtraEndSpace[lane]
+            }
+            removeOutOfBoundsItems(perLaneCacheWindowEndItemIndex.max() + 1, itemsCount - 1)
+        } else {
+            updatePerLaneFirstVisibleItemIndex(perLaneFirstVisibleItemIndex)
+            updatePerLaneMainAxisExtraStartSpace(perLaneMainAxisExtraStartSpace)
+            for (lane in 0 until currentLaneCount) {
+                perLaneCacheWindowStartIndex[lane] = perLaneFirstVisibleItemIndex[lane]
+                perLaneCacheWindowStartSpace[lane] =
+                    prefetchForwardWindow - perLaneMainAxisExtraStartSpace[lane]
+            }
+            removeOutOfBoundsItems(0, perLaneCacheWindowStartIndex.min() - 1)
         }
     }
 
