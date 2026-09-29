@@ -53,11 +53,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -125,16 +121,6 @@ public final class JavaScriptSandbox implements AutoCloseable {
     @GuardedBy("mLock")
     @NonNull
     private State mState;
-
-    final ExecutorService mThreadPoolTaskExecutor =
-            Executors.newCachedThreadPool(new ThreadFactory() {
-                private final AtomicInteger mCount = new AtomicInteger(1);
-
-                @Override
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, "JavaScriptSandbox Thread #" + mCount.getAndIncrement());
-                }
-            });
 
     /**
      * A client-side feature, which may be conditional on one or more service-side features.
@@ -608,12 +594,6 @@ public final class JavaScriptSandbox implements AutoCloseable {
             mState = State.CLOSED;
         }
         notifyIsolatesAboutClosure();
-        // This doesn't force the threads or their tasks to immediately terminate. Any previously
-        // scheduled tasks will be fulfilled, but new tasks will be rejected.
-        //
-        // We do not want to use shutdownNow, which would cancel any tasks that have not yet
-        // started, as this could skip cleanup operations and leak resources such as file handles.
-        mThreadPoolTaskExecutor.shutdown();
     }
 
     /**

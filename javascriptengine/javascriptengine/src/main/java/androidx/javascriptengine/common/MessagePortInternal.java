@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -74,7 +74,7 @@ public final class MessagePortInternal {
     // Sandbox thread pool task executor.
     // Offloads messages sent over file descriptor.
     @NonNull
-    public final ExecutorService mIoExecutor;
+    public final Executor mIoExecutor;
     // The client is an implementation logic of the functions that determine how the messages
     // are processed after they have been received.
     // This is not responsible for receiving messages. Is is responsible to process messages.
@@ -222,13 +222,13 @@ public final class MessagePortInternal {
     /**
      * Creates a new MessagePortInternal that can later be entangled.
      *
-     * @param executorService The ExecutorService that will run the pipe reading.
+     * @param executor The Executor that will run the pipe reading.
      * @param maxMessageSize The maximum size in bytes allowed for a received message.
      * @return a new MessagePortInternal.
      */
-    public MessagePortInternal(@NonNull ExecutorService executorService, int maxMessageSize) {
+    public MessagePortInternal(@NonNull Executor executor, int maxMessageSize) {
         mLocalIMessagePort = new MessagePortIpcClient();
-        mIoExecutor = executorService;
+        mIoExecutor = executor;
         mMessagePortClient = new MessagePortClient() {
             @Override
             public void onString(String string) {}
@@ -246,7 +246,7 @@ public final class MessagePortInternal {
      */
     public MessagePortInternal() {
         mLocalIMessagePort = new MessagePortIpcClient();
-        mIoExecutor = MoreExecutors.newDirectExecutorService();
+        mIoExecutor = MoreExecutors.directExecutor();
         mMessagePortClient = new MessagePortClient() {
             @Override
             public void onString(String string) {}
