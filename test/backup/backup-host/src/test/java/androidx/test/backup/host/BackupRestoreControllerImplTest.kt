@@ -1046,7 +1046,9 @@ class BackupRestoreControllerImplTest {
                     collector::class.java.name.contains("TextShellCollector") ||
                         collector::class.java.name.contains("LineShellCollector")
                 val stdout =
-                    if (cmd.contains("bmgr list transports")) {
+                    if (cmd.contains("pm clear")) {
+                        "Success\n"
+                    } else if (cmd.contains("bmgr list transports")) {
                         "* com.android.localtransport/.LocalTransport\n"
                     } else if (cmd.contains("dumpsys backup")) {
                         "Restore complete: 0\n"
@@ -1329,7 +1331,9 @@ class BackupRestoreControllerImplTest {
                     collector::class.java.name.contains("TextShellCollector") ||
                         collector::class.java.name.contains("LineShellCollector")
                 val stdout =
-                    if (cmd.contains("bmgr list transports")) {
+                    if (cmd.contains("pm clear")) {
+                        "Success\n"
+                    } else if (cmd.contains("bmgr list transports")) {
                         "* com.android.localtransport/.LocalTransport\n"
                     } else if (cmd.contains("am instrument")) {
                         "BACKUP_RESTORE_RESULT: {\"isSuccess\":true}\n"
@@ -1424,7 +1428,9 @@ class BackupRestoreControllerImplTest {
                     collector::class.java.name.contains("TextShellCollector") ||
                         collector::class.java.name.contains("LineShellCollector")
                 val stdout =
-                    if (cmd.contains("am instrument")) {
+                    if (cmd.contains("pm clear")) {
+                        "Success\n"
+                    } else if (cmd.contains("am instrument")) {
                         "BACKUP_RESTORE_RESULT: {\"isSuccess\":true}\n"
                     } else if (cmd.contains("bmgr restore")) {
                         throw java.io.IOException("bmgr: transport initialization error")
@@ -1495,7 +1501,9 @@ class BackupRestoreControllerImplTest {
                     collector::class.java.name.contains("TextShellCollector") ||
                         collector::class.java.name.contains("LineShellCollector")
                 val stdout =
-                    if (cmd.contains("am instrument")) {
+                    if (cmd.contains("pm clear")) {
+                        "Success\n"
+                    } else if (cmd.contains("am instrument")) {
                         "BACKUP_RESTORE_RESULT: {\"isSuccess\":true}\n"
                     } else if (cmd.contains("dumpsys backup")) {
                         throw java.io.IOException(
@@ -1578,5 +1586,149 @@ class BackupRestoreControllerImplTest {
                 IllegalStateException("Device keyguard dismiss failed"),
             )
         assertEquals(BackupErrorCode.KEYGUARD_UNLOCK_FAILED, code)
+    }
+
+    @Test
+    fun testClearAppDataSucceedsWhenPmClearReportsSuccess() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+        val commandsExecuted = mutableListOf<String>()
+        stubShell { cmd ->
+            commandsExecuted.add(cmd)
+            com.android.adblib.ShellCommandOutput("Success\n", "", 0)
+        }
+
+        assertEquals(device, device.clearAppData())
+        assertEquals(
+            listOf("pm clear com.example.app"),
+            commandsExecuted.filter { it.startsWith("pm ") },
+        )
+    }
+
+    @Test
+    fun testClearAppDataThrowsWhenPmClearReportsFailure() {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+        stubShell { com.android.adblib.ShellCommandOutput("", "Failed\n", 1) }
+
+        val e = assertFailsWith<IOException> { runBlocking { device.clearAppData() } }
+        assertTrue(e.message!!.contains("com.example.app"), "Unexpected message: ${e.message}")
+        assertTrue(e.message!!.contains("exit code 1"), "Unexpected message: ${e.message}")
+        assertTrue(e.message!!.contains("Failed"), "Unexpected message: ${e.message}")
+    }
+
+    @Test
+    fun testClearAppDataThrowsWhenPmClearDoesNotReportSuccess() {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+        stubShell { com.android.adblib.ShellCommandOutput("", "", 0) }
+
+        val e = assertFailsWith<IOException> { runBlocking { device.clearAppData() } }
+        assertEquals("Failed to clear app data for com.example.app (exit code 0)", e.message)
+    }
+
+    @Test
+    fun testClearAppDataThrowsWhenFailureIsReportedOnStdout() {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+        // Without the shell v2 protocol stderr is merged into stdout and no exit code is reported.
+        stubShell { com.android.adblib.ShellCommandOutput("Failed\n", "", 0) }
+
+        val e = assertFailsWith<IOException> { runBlocking { device.clearAppData() } }
+        assertEquals(
+            "Failed to clear app data for com.example.app (exit code 0): Failed",
+            e.message,
+        )
+    }
+
+    @Test
+    fun testClearAppDataReportsIdenticalStreamsOnce() {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+        stubShell { com.android.adblib.ShellCommandOutput("Failed\n", "Failed\n", 1) }
+
+        val e = assertFailsWith<IOException> { runBlocking { device.clearAppData() } }
+        assertEquals(
+            "Failed to clear app data for com.example.app (exit code 1): Failed",
+            e.message,
+        )
+    }
+
+    @Test
+    fun testRunBackupRestoreFlowStopsBeforeRestoreWhenPmClearFails() {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+        val commandsExecuted = mutableListOf<String>()
+        stubShell { cmd ->
+            commandsExecuted.add(cmd)
+            when {
+                cmd.contains("pm clear") -> com.android.adblib.ShellCommandOutput("", "Failed\n", 1)
+                cmd.contains("bmgr list transports") ->
+                    com.android.adblib.ShellCommandOutput(
+                        "* com.android.localtransport/.LocalTransport\n",
+                        "",
+                        0,
+                    )
+                cmd.contains("am instrument") ->
+                    com.android.adblib.ShellCommandOutput(
+                        "BACKUP_RESTORE_RESULT: {\"isSuccess\":true}\n",
+                        "",
+                        0,
+                    )
+                else -> com.android.adblib.ShellCommandOutput("", "", 0)
+            }
+        }
+
+        assertFailsWith<IOException> {
+            runBlocking {
+                device.runBackupRestoreFlow(
+                    listOf(StorageDomain.Preference("app_prefs", "key", "val")),
+                    tempFolder.root.toPath(),
+                    BackupTransportMode.LOCAL,
+                )
+            }
+        }
+
+        val summary = device.lastExecutionSummary
+        assertNotNull(summary)
+        assertEquals(BackupErrorCode.CLEAR_DATA_FAILED, summary.errorCode)
+        assertEquals(BackupExecutionStage.CLEAR_DATA, summary.failureStage)
+        assertTrue(
+            commandsExecuted.none { it.contains("bmgr restore") },
+            "Restore must not run after a failed clear: $commandsExecuted",
+        )
+        assertTrue(
+            commandsExecuted.none { it.contains(BackupRestoreController.ACTION_ASSERT_STORAGE) },
+            "Verification must not run after a failed clear: $commandsExecuted",
+        )
+    }
+
+    /** Answers every shell command issued through [mockDeviceServices] with [handler]. */
+    private fun stubShell(handler: (String) -> com.android.adblib.ShellCommandOutput) {
+        `when`(
+                mockDeviceServices.shell(
+                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
+                    any(String::class.java) ?: "",
+                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
+                    any(),
+                    any(),
+                    any(Duration::class.java) ?: Duration.ofSeconds(1),
+                    anyInt(),
+                    anyBoolean(),
+                    anyBoolean(),
+                )
+            )
+            .thenAnswer { invocation ->
+                val output = handler(invocation.getArgument(1) as String)
+                val collectorName = invocation.getArgument<Any>(2)::class.java.name
+                if (
+                    collectorName.contains("TextShellCollector") ||
+                        collectorName.contains("LineShellCollector")
+                ) {
+                    flowOf(output.stdout)
+                } else {
+                    flowOf(output)
+                }
+            }
     }
 }
