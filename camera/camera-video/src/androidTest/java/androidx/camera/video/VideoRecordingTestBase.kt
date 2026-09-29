@@ -599,9 +599,7 @@ abstract class VideoRecordingTestBase(
         recordingSession.createRecording(recorder = recorder).recordAndVerify()
     }
 
-    // TODO(b/340406044): Enable the test for stream sharing use case.
     @FirstAvailableCameraOnly
-    @IgnoreStreamSharing
     @Test
     fun persistentRecording_unbindAndRebind_producesValidFile() {
         assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
