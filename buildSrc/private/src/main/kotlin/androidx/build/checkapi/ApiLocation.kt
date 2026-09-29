@@ -68,6 +68,10 @@ data class ApiLocation(
         return Version(baseName)
     }
 
+    /** File to write traces to. */
+    val traceFile: File
+        get() = File(apiFileDirectory, "trace$SUFFIX_TRACE")
+
     companion object {
         fun fromPublicApiFile(f: File): ApiLocation {
             return fromBaseName(f.parentFile, f.nameWithoutExtension)
@@ -99,12 +103,6 @@ data class ApiLocation(
                 apiLevelsFile = File(apiFileDir, API_LEVELS),
                 multiplatformApiDirectory = File(apiFileDir, "$PREFIX_MULTIPLATFORM$baseName"),
             )
-        }
-
-        internal fun toTraceFilePath(apiFile: File): String {
-            val absoluteTracePath = "${apiFile.absolutePath}$SUFFIX_TRACE"
-            File(absoluteTracePath).delete()
-            return absoluteTracePath
         }
 
         /** Whether this [directory] exists and contains signature files. */

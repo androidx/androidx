@@ -234,7 +234,7 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
         apiLevelsArgs: List<String>,
         multiplatform: Boolean,
     ): List<String> {
-        val args = mutableListOf("--format=4.0", "--warnings-as-errors")
+        val args = mutableListOf("single-surface", "--format=4.0", "--warnings-as-errors")
 
         // Generate public API txt if there is a jvm/android target. If there isn't, the
         // `generateApi`
@@ -245,11 +245,6 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
             if (outputLocation != null) {
                 when (generateApiMode) {
                     is GenerateApiMode.PublicApi -> {
-                        args +=
-                            listOf(
-                                "--trace-file",
-                                ApiLocation.toTraceFilePath(outputLocation.publicApiFile),
-                            )
                         args += listOf("--api", outputLocation.publicApiFile.toString())
                         // Generate API levels just for the public API
                         args += apiLevelsArgs
@@ -257,11 +252,6 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
 
                     is GenerateApiMode.AllRestrictedApis,
                     GenerateApiMode.RestrictToLibraryGroupPrefixApis -> {
-                        args +=
-                            listOf(
-                                "--trace-file",
-                                ApiLocation.toTraceFilePath(outputLocation.restrictedApiFile),
-                            )
                         args += listOf("--api", outputLocation.restrictedApiFile.toString())
                     }
                 }
@@ -269,11 +259,6 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
         } else {
             // If there is no jvm/android target, generate multiplatform API files instead.
             if (outputLocation != null) {
-                args +=
-                    listOf(
-                        "--trace-file",
-                        ApiLocation.toTraceFilePath(outputLocation.multiplatformApiDirectory),
-                    )
                 args +=
                     listOf(
                         "--multiplatform-api-directory",
@@ -354,6 +339,7 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
         includeCompiledSources: Boolean,
     ): List<String> {
         return buildList {
+            add("multi-surface")
             addAll(getConfigFileArgs())
 
             add("--project")
