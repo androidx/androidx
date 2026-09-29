@@ -71,6 +71,7 @@ import androidx.camera.video.internal.OutputStorage
 import androidx.camera.video.internal.audio.AudioStreamFactory
 import androidx.camera.video.internal.audio.FakeAudioStream
 import androidx.camera.video.internal.encoder.EncodeException
+import androidx.camera.video.internal.encoder.Encoder
 import androidx.camera.video.internal.encoder.EncoderFactory
 import androidx.camera.video.internal.encoder.InvalidConfigException
 import androidx.camera.video.internal.muxer.MuxerException
@@ -1018,6 +1019,42 @@ class RecorderTest {
     }
 
     @Test
+    fun persistentRecording_afterRebind_finalizeWaitsForAudioEncoderToStop() {
+        // Arrange: a persistent recording with audio whose audio encoder stop can be held back.
+        var audioEncoder: StopDeferringEncoder? = null
+        val recorder =
+            createRecorder(
+                audioEncoderFactory = { _, _, _ ->
+                    StopDeferringEncoder(createFakeAudioEncoder()).also { audioEncoder = it }
+                }
+            )
+        val recording =
+            createRecording(recorder, withAudio = true, asPersistentRecording = true)
+                .startAndVerify()
+                .sendFrames()
+
+        // Unbind and rebind, so the video encoder is replaced while the audio encoder is kept.
+        recorder.onSourceStateChanged(INACTIVE)
+        latestSurfaceRequest?.deferrableSurface?.close()
+        idleMainLooper()
+        recorder.sendSurfaceRequest()
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        idleMainLooper()
+        recording.sendFrames(3)
+
+        // Act: stop the recording while the audio encoder has not stopped yet.
+        val deferringAudioEncoder = checkNotNull(audioEncoder)
+        deferringAudioEncoder.deferStop = true
+        recording.stop()
+
+        // Assert: the recording is not finalized until the audio encoder stops.
+        recording.verifyNoFinalize()
+        deferringAudioEncoder.completeDeferredStop()
+        idle(recorder)
+        recording.verifyFinalize()
+    }
+
+    @Test
     fun getVideoCapabilitiesStabilizationSupportIsCorrect_whenNotSupportedInExtensions() {
         val cameraInfo = FakeCameraInfoInternal().apply { isVideoStabilizationSupported = true }
         val sessionProcessor =
@@ -1211,19 +1248,7 @@ class RecorderTest {
                 )
                 .also { latestVideoEncoder = it }
         }
-        val defaultAudioEncoderFactory = EncoderFactory { _, _, _ ->
-            val byteBufferInput = FakeByteBufferInput()
-            FakeEncoder(
-                    encoderInput = byteBufferInput,
-                    onStateChanged = { isActive ->
-                        byteBufferInput.setState(
-                            if (isActive) BufferProvider.State.ACTIVE
-                            else BufferProvider.State.INACTIVE
-                        )
-                    },
-                )
-                .also { latestAudioEncoder = it }
-        }
+        val defaultAudioEncoderFactory = EncoderFactory { _, _, _ -> createFakeAudioEncoder() }
         val defaultOutputStorageFactory =
             object : OutputStorage.Factory {
                 override fun create(outputOptions: OutputOptions): OutputStorage =
@@ -1262,17 +1287,32 @@ class RecorderTest {
         return recorder
     }
 
+    private fun createFakeAudioEncoder(): FakeEncoder {
+        val byteBufferInput = FakeByteBufferInput()
+        return FakeEncoder(
+                encoderInput = byteBufferInput,
+                onStateChanged = { isActive ->
+                    byteBufferInput.setState(
+                        if (isActive) BufferProvider.State.ACTIVE else BufferProvider.State.INACTIVE
+                    )
+                },
+            )
+            .also { latestAudioEncoder = it }
+    }
+
     private fun createRecording(
         recorder: Recorder = createRecorder(),
         outputOptions: OutputOptions = createFileOutputOptions(),
         withAudio: Boolean = false,
         initialAudioMuted: Boolean = false,
+        asPersistentRecording: Boolean = false,
     ): Recording =
         recordingSession.createRecording(
             recorder = recorder,
             outputOptions = outputOptions,
             withAudio = withAudio,
             initialAudioMuted = initialAudioMuted,
+            asPersistentRecording = asPersistentRecording,
         )
 
     private fun idle(recorder: Recorder) {
@@ -1329,6 +1369,26 @@ class RecorderTest {
     private class FailingAudioProcessor : PassthroughAudioProcessor() {
         override fun onAudioBuffer(audioBuffer: ByteBuffer) {
             throw RuntimeException("Audio processing fail on purpose.")
+        }
+    }
+
+    /** An [Encoder] that can hold back [stop] so a test controls when the encoder stops. */
+    private class StopDeferringEncoder(private val delegate: FakeEncoder) : Encoder by delegate {
+        var deferStop = false
+        private var deferredStopTimeUs: Long? = null
+
+        override fun stop(expectedStopTimeUs: Long) {
+            if (deferStop) {
+                deferredStopTimeUs = expectedStopTimeUs
+            } else {
+                delegate.stop(expectedStopTimeUs)
+            }
+        }
+
+        fun completeDeferredStop() {
+            val stopTimeUs = checkNotNull(deferredStopTimeUs) { "stop() was not called." }
+            deferredStopTimeUs = null
+            delegate.stop(stopTimeUs)
         }
     }
 
