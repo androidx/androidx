@@ -208,6 +208,73 @@ private val problematicJpegByteArray2 =
 // Invalid very short data
 private val invalidVeryShortData = listOf(0xff, 0xd8).map { it.toByte() }.toByteArray()
 
+// Gain map image data of a JPEG/R (Ultra HDR) image. A complete JPEG image (SOI ... EOI) which is
+// directly appended after the EOI mark of the primary image.
+private val gainmapJpegByteArray =
+    listOf(
+            0xff,
+            0xd8,
+            0xff,
+            0xe2,
+            0x00,
+            0x06,
+            0x11,
+            0x22,
+            0x33,
+            0x44,
+            0xff,
+            0xda,
+            0xaa,
+            0xbb,
+            0xcc,
+            0xdd,
+            0xff,
+            0xd9,
+        )
+        .map { it.toByte() }
+        .toByteArray()
+
+// Correct JPEG/R byte array which is composed of the primary image and the gain map image.
+private val correctJpegrByteArray = correctJpegByteArray2 + gainmapJpegByteArray
+
+// Problematic JPEG/R byte array with redundant 0 padding data after the gain map image.
+private val problematicJpegrByteArray =
+    correctJpegByteArray2 +
+        gainmapJpegByteArray +
+        listOf(
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0xff,
+                0x00,
+                0x00,
+                0xe5,
+                0x92,
+                0x00,
+                0x00,
+                0xe6,
+                0x01,
+                0x00,
+            )
+            .map { it.toByte() }
+            .toByteArray()
+
+// Invalid JPEG/R byte array whose gain map image doesn't have the EOI byte.
+private val invalidJpegrNoGainmapEoiData =
+    correctJpegByteArray2 +
+        listOf(0xff, 0xd8, 0xff, 0xda, 0x11, 0x22).map { it.toByte() }.toByteArray()
+
 // Invalid data without SOS byte
 private val invalidNoSosData =
     listOf(
@@ -302,10 +369,16 @@ class InvalidJpegDataParserTest(
                 add(arrayOf("SAMSUNG", "SM-A520F", invalidVeryShortData, 2))
                 add(arrayOf("SAMSUNG", "SM-A520F", invalidNoSosData, 28))
                 add(arrayOf("SAMSUNG", "SM-A520F", invalidNoEoiData, 28))
+                // JPEG/R (Ultra HDR) data. The gain map image should not be truncated.
+                add(arrayOf("SAMSUNG", "SM-S901B", correctJpegrByteArray, 36))
+                add(arrayOf("SAMSUNG", "SM-S901B", problematicJpegrByteArray, 36))
+                add(arrayOf("SAMSUNG", "SM-S901B", invalidJpegrNoGainmapEoiData, 24))
                 add(arrayOf("fake-brand", "fake-model", problematicJpegByteArray, 42))
                 add(arrayOf("fake-brand", "fake-model", problematicJpegByteArray2, 64))
                 add(arrayOf("fake-brand", "fake-model", correctJpegByteArray1, 28))
                 add(arrayOf("fake-brand", "fake-model", correctJpegByteArray2, 18))
+                add(arrayOf("fake-brand", "fake-model", correctJpegrByteArray, 36))
+                add(arrayOf("fake-brand", "fake-model", problematicJpegrByteArray, 60))
             }
     }
 
