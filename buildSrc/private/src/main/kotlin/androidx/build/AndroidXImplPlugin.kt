@@ -1276,7 +1276,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                     androidXExtension.type.get() != SoftwareType.SAMPLES
             ) {
                 val versionService = LibraryVersionsService.registerOrGet(project)
-                project.createVerifyDependencyVersionsTask()
+                project.createVerifyDependencyVersionsTask(versionService)
                 project.configurePinnedDependenciesReport(versionService)
             }
         }
