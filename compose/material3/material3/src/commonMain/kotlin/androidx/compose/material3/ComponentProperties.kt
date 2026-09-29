@@ -34,6 +34,7 @@ internal class ComponentProperties(
     val navigationRailProperties: NavigationRailProperties = NavigationRailProperties.Default,
     val navigationRailItemProperties: NavigationRailItemProperties =
         NavigationRailItemProperties.Default,
+    val cardProperties: CardProperties = CardProperties.Default,
     // TODO(b/543061101): Add properties for components.
 ) {
     companion object {
@@ -112,6 +113,12 @@ internal class NavigationRailItemProperties(
 ) {
     companion object {
         val Default = NavigationRailItemProperties()
+    }
+}
+
+internal class CardProperties(val style: CardStyle = CardStyle.Default) {
+    companion object {
+        val Default = CardProperties()
     }
 }
 

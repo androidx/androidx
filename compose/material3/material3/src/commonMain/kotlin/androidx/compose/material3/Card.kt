@@ -28,6 +28,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.material3.MaterialTheme.LocalMaterialTheme
 import androidx.compose.material3.internal.animateElevation
 import androidx.compose.material3.tokens.ElevatedCardTokens
 import androidx.compose.material3.tokens.FilledCardTokens
@@ -46,7 +47,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.takeOrElse
 
 /**
  * [Material Design filled card](https://m3.material.io/components/cards/overview)
@@ -846,5 +851,81 @@ public constructor(
         result = 31 * result + disabledContainerColor.hashCode()
         result = 31 * result + disabledContentColor.hashCode()
         return result
+    }
+}
+
+/**
+ * [Material Design card](https://m3.material.io/components/cards/overview) whose appearance is
+ * defined by a [CardStyle]. Use [CardStyle.Elevated] or [CardStyle.Outlined] for those variants.
+ *
+ * @param modifier the [Modifier] to be applied to this card
+ * @param onClick called when this card is clicked. When `null`, the card is not clickable and uses
+ *   a non-clickable [Surface], so it does not gain click semantics, focusability or a minimum touch
+ *   target size.
+ * @param enabled controls the enabled state of this card. When `false`, this component will not
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param style the [CardStyle] to apply. When `null`, the theme's default card style is used.
+ * @param interactionSource interaction states from this source are applied to [style]; created
+ *   internally when clickable.
+ * @param content the content of this card
+ */
+@Composable
+internal fun StyleableCard(
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    enabled: Boolean = true,
+    style: CardStyle? = null,
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource =
+        interactionSource ?: if (onClick != null) remember { MutableInteractionSource() } else null
+    val localTheme = LocalMaterialTheme.current
+    val state =
+        ComponentState.enabled(enabled).let {
+            if (interactionSource != null) it.interactionState(interactionSource) else it
+        }
+    val scope =
+        CardStyleScope(theme = localTheme, state = state)
+            .resolve(style ?: localTheme.componentProperties.cardProperties.style)
+
+    // Fallbacks for styles that leave values unset; defaults to the filled card.
+    val shape = scope.shape ?: CardDefaults.shape
+    val containerColor =
+        scope.containerColor.takeOrElse {
+            localTheme.colorScheme.fromToken(FilledCardTokens.ContainerColor)
+        }
+    val contentColor = scope.contentColor.takeOrElse { contentColorFor(containerColor) }
+    // TODO(b/554027431): Animate shadowElevation transitions across interaction states when
+    // enabled.
+    val shadowElevation = scope.shadowElevation.takeOrElse { 0.dp }
+
+    if (onClick != null) {
+        Surface(
+            onClick = onClick,
+            modifier = modifier,
+            enabled = enabled,
+            shape = shape,
+            color = containerColor,
+            contentColor = contentColor,
+            shadowElevation = shadowElevation,
+            border = scope.border,
+            interactionSource = interactionSource,
+        ) {
+            Column(content = content)
+        }
+    } else {
+        Surface(
+            modifier = if (enabled) modifier else modifier.semantics { disabled() },
+            shape = shape,
+            color = containerColor,
+            contentColor = contentColor,
+            shadowElevation = shadowElevation,
+            border = scope.border,
+        ) {
+            Column(content = content)
+        }
     }
 }
