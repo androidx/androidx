@@ -18,6 +18,8 @@ package androidx.test.backup.host
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.util.Base64
+import java.util.UUID
 
 /**
  * Mirrors `androidx.test.backup.BackupActionInputKeys` for the host.
@@ -76,8 +78,123 @@ internal object BackupActionValues {
     const val STATUS_FAILURE = "failure"
 }
 
-/** Encoding shared with the device-side actions in `androidx.test.backup`. */
+/**
+ * The arguments the host sends to the device-side runner and actions in `androidx.test.backup`, and
+ * how they are encoded.
+ */
 internal object BackupActionWireProtocol {
+
+    /** Returns the instrumentation component of the test APK built for [applicationId]. */
+    fun runnerComponent(applicationId: String): String =
+        "$applicationId.test/androidx.test.backup.BackupRestoreTestRunner"
+
+    /**
+     * Returns the instrumentation arguments that make the runner execute [actionClassName] with the
+     * action [args]. When [waitForDebugger] is true, the runner waits for a debugger to attach
+     * before it starts.
+     */
+    fun instrumentationArgs(
+        actionClassName: String,
+        args: Map<String, String>,
+        waitForDebugger: Boolean,
+    ): Map<String, String> = buildMap {
+        if (waitForDebugger) put(RUNNER_DEBUG, "true")
+        put(RUNNER_ACTION, actionClassName)
+        put(RUNNER_ACTION_CLASS, actionClassName)
+        put(RUNNER_PAYLOAD_ID, UUID.randomUUID().toString())
+        put(RUNNER_REDIRECT_DIR, OVERFLOW_REDIRECT_DIR)
+        putAll(args)
+    }
+
+    /**
+     * Returns the `PopulateStorageAction` arguments that write [storage] on the device.
+     *
+     * @throws IllegalArgumentException if [storage] is of an unsupported type
+     */
+    fun populateArgs(storage: StorageDomain): Map<String, String> =
+        when (storage) {
+            is StorageDomain.Preference ->
+                buildMap {
+                    put(BackupActionInputKeys.STORAGE_TYPE, BackupActionValues.STORAGE_TYPE_PREFS)
+                    put(BackupActionInputKeys.PREF_NAME, storage.prefName)
+                    put(BackupActionInputKeys.PREF_KEY, storage.key)
+                    val value = storage.value
+                    if (value != null) {
+                        put(BackupActionInputKeys.VALUE, value.toString())
+                        put(BackupActionInputKeys.VALUE_TYPE, valueTypeOf(value))
+                    }
+                }
+            is StorageDomain.Database -> {
+                val columns = storage.columnValues.map { (name, value) -> name to value.orEmpty() }
+                // The primary key is written too, so that verification can find the row again.
+                val hasKeyColumn =
+                    storage.columnValues.keys.any {
+                        it.equals(storage.primaryKeyCol, ignoreCase = true)
+                    }
+                val keyColumn = storage.primaryKeyCol to storage.primaryKeyVal.toString()
+                mapOf(
+                    BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_DATABASE,
+                    BackupActionInputKeys.DB_NAME to storage.dbName,
+                    BackupActionInputKeys.TABLE to storage.table,
+                    BackupActionInputKeys.VALUES to
+                        encodeColumnValues(if (hasKeyColumn) columns else columns + keyColumn),
+                )
+            }
+            is StorageDomain.TextFile ->
+                mapOf(
+                    BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_FILES,
+                    BackupActionInputKeys.PATH to storage.path,
+                    BackupActionInputKeys.VALUE to storage.content,
+                )
+            is StorageDomain.BinaryFile ->
+                mapOf(
+                    BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_FILES,
+                    BackupActionInputKeys.PATH to storage.path,
+                    BackupActionInputKeys.VALUE to base64(storage.content),
+                    BackupActionInputKeys.IS_BINARY to "true",
+                )
+            else -> throw IllegalArgumentException("Unsupported storage domain type: $storage")
+        }
+
+    /**
+     * Returns the `AssertStorageAction` arguments that check that [storage] holds its value on the
+     * device.
+     *
+     * @throws IllegalArgumentException if [storage] is of an unsupported type, or is a
+     *   [StorageDomain.Database] with no column to verify
+     */
+    fun assertArgs(storage: StorageDomain): Map<String, String> =
+        populateArgs(storage) +
+            when (storage) {
+                is StorageDomain.Preference ->
+                    if (storage.value != null) {
+                        mapOf(BackupActionInputKeys.EXPECTED to storage.value.toString())
+                    } else {
+                        mapOf(BackupActionInputKeys.EXPECT_NULL to "true")
+                    }
+                is StorageDomain.Database -> {
+                    // The action verifies every column in VALUES within the row identified by the
+                    // primary key. The first column is also sent on its own, which is all that
+                    // device libraries predating VALUES verification check.
+                    val (expectedCol, expectedVal) =
+                        storage.columnValues.entries.firstOrNull()
+                            ?: throw IllegalArgumentException(
+                                "DATABASE storage domain must specify at least one column/value " +
+                                    "pair to verify."
+                            )
+                    mapOf(
+                        BackupActionInputKeys.KEY_COL to storage.primaryKeyCol,
+                        BackupActionInputKeys.KEY_VAL to storage.primaryKeyVal.toString(),
+                        BackupActionInputKeys.EXPECTED_COL to expectedCol,
+                        BackupActionInputKeys.EXPECTED_VAL to expectedVal.orEmpty(),
+                    )
+                }
+                is StorageDomain.TextFile ->
+                    mapOf(BackupActionInputKeys.EXPECTED to storage.content)
+                is StorageDomain.BinaryFile ->
+                    mapOf(BackupActionInputKeys.EXPECTED to base64(storage.content))
+                else -> emptyMap()
+            }
 
     /**
      * Encodes column name/value pairs into the [BackupActionInputKeys.VALUES] wire format.
@@ -92,4 +209,28 @@ internal object BackupActionWireProtocol {
 
     private fun encode(value: String): String =
         URLEncoder.encode(value, StandardCharsets.UTF_8.name())
+
+    private fun valueTypeOf(value: Any): String =
+        when (value) {
+            is Int -> BackupActionValues.VALUE_TYPE_INT
+            is Long -> BackupActionValues.VALUE_TYPE_LONG
+            is Float -> BackupActionValues.VALUE_TYPE_FLOAT
+            is Boolean -> BackupActionValues.VALUE_TYPE_BOOLEAN
+            else -> BackupActionValues.VALUE_TYPE_STRING
+        }
+
+    /** A database cell value as the device reads it; null is sent as an empty string. */
+    private fun Any?.orEmpty(): String = this?.toString() ?: ""
+
+    private fun base64(bytes: ByteArray): String = Base64.getEncoder().encodeToString(bytes)
+
+    // Instrumentation arguments read by `androidx.test.backup.BackupRestoreTestRunner`.
+    private const val RUNNER_DEBUG = "debug"
+    private const val RUNNER_ACTION = "action"
+    private const val RUNNER_ACTION_CLASS = "actionClass"
+    private const val RUNNER_PAYLOAD_ID = "payload_id"
+    private const val RUNNER_REDIRECT_DIR = "redirect_dir"
+
+    /** Device directory the runner may write a payload to when it is too large to print. */
+    private const val OVERFLOW_REDIRECT_DIR = "/data/local/tmp"
 }

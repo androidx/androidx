@@ -30,7 +30,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Duration
 import java.util.Locale
-import java.util.UUID
 import java.util.logging.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.guava.future
@@ -62,105 +61,6 @@ internal class BackupRestoreControllerImpl(
 
     private val componentRegex by lazy {
         """\b${Regex.escape(applicationId)}/[a-zA-Z0-9._${'$'}]+\b""".toRegex()
-    }
-
-    private fun getPutStorageArgs(storage: StorageDomain): Map<String, String> {
-        val args = mutableMapOf<String, String>()
-        when (storage) {
-            is StorageDomain.Preference -> {
-                args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_PREFS
-                args[BackupActionInputKeys.PREF_NAME] = storage.prefName
-                args[BackupActionInputKeys.PREF_KEY] = storage.key
-                val v = storage.value
-                if (v != null) {
-                    args[BackupActionInputKeys.VALUE] = v.toString()
-                    val valueType =
-                        when (v) {
-                            is Int -> BackupActionValues.VALUE_TYPE_INT
-                            is Long -> BackupActionValues.VALUE_TYPE_LONG
-                            is Float -> BackupActionValues.VALUE_TYPE_FLOAT
-                            is Boolean -> BackupActionValues.VALUE_TYPE_BOOLEAN
-                            else -> BackupActionValues.VALUE_TYPE_STRING
-                        }
-                    args[BackupActionInputKeys.VALUE_TYPE] = valueType
-                }
-            }
-            is StorageDomain.Database -> {
-                args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_DATABASE
-                args[BackupActionInputKeys.DB_NAME] = storage.dbName
-                args[BackupActionInputKeys.TABLE] = storage.table
-                val pairs =
-                    storage.columnValues.entries
-                        .map { it.key to (it.value?.toString() ?: "") }
-                        .toMutableList()
-                // Ensure primary key is also inserted/updated in PopulateStorageAction
-                if (
-                    storage.columnValues.keys.none {
-                        it.equals(storage.primaryKeyCol, ignoreCase = true)
-                    }
-                ) {
-                    pairs.add(storage.primaryKeyCol to storage.primaryKeyVal.toString())
-                }
-                args[BackupActionInputKeys.VALUES] =
-                    BackupActionWireProtocol.encodeColumnValues(pairs)
-            }
-            is StorageDomain.TextFile -> {
-                args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_FILES
-                args[BackupActionInputKeys.PATH] = storage.path
-                args[BackupActionInputKeys.VALUE] = storage.content
-            }
-            is StorageDomain.BinaryFile -> {
-                args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_FILES
-                args[BackupActionInputKeys.PATH] = storage.path
-                args[BackupActionInputKeys.VALUE] =
-                    java.util.Base64.getEncoder().encodeToString(storage.content)
-                args[BackupActionInputKeys.IS_BINARY] = "true"
-            }
-            else -> {
-                throw IllegalArgumentException("Unsupported storage domain type: $storage")
-            }
-        }
-        return args
-    }
-
-    private fun getVerifyStorageArgs(
-        storage: StorageDomain,
-        putArgs: Map<String, String>,
-    ): Map<String, String> {
-        val verifyArgs = putArgs.toMutableMap()
-        when (storage) {
-            is StorageDomain.Preference -> {
-                if (storage.value != null) {
-                    verifyArgs[BackupActionInputKeys.EXPECTED] = storage.value.toString()
-                } else {
-                    verifyArgs[BackupActionInputKeys.EXPECT_NULL] = "true"
-                }
-            }
-            is StorageDomain.Database -> {
-                // Map the database verification arguments for AssertStorageAction
-                verifyArgs[BackupActionInputKeys.KEY_COL] = storage.primaryKeyCol
-                verifyArgs[BackupActionInputKeys.KEY_VAL] = storage.primaryKeyVal.toString()
-
-                // Let's assert on the first column to verify
-                val firstCol =
-                    storage.columnValues.entries.firstOrNull()
-                        ?: throw IllegalArgumentException(
-                            "DATABASE storage domain must specify at least one column/value pair to verify."
-                        )
-                verifyArgs[BackupActionInputKeys.EXPECTED_COL] = firstCol.key
-                verifyArgs[BackupActionInputKeys.EXPECTED_VAL] = firstCol.value?.toString() ?: ""
-            }
-            is StorageDomain.TextFile -> {
-                verifyArgs[BackupActionInputKeys.EXPECTED] = storage.content
-            }
-            is StorageDomain.BinaryFile -> {
-                verifyArgs[BackupActionInputKeys.EXPECTED] =
-                    java.util.Base64.getEncoder().encodeToString(storage.content)
-                verifyArgs[BackupActionInputKeys.IS_BINARY] = "true"
-            }
-            else -> {}
-        }
-        return verifyArgs
     }
 
     override suspend fun runBackupRestoreFlow(
@@ -198,20 +98,18 @@ internal class BackupRestoreControllerImpl(
             // 1. Put data for each storage domain (seeds the app sandbox)
             currentStage = BackupExecutionStage.SEEDING
             stageStartTime = System.nanoTime()
-            val domainArgs = storages.map { domain ->
-                val putArgs = getPutStorageArgs(domain)
+            for (domain in storages) {
                 logger.info("Seeding data on device via PopulateStorageAction for $domain...")
                 val putResult =
                     runOnDevice(
                         actionClassName = BackupRestoreController.ACTION_POPULATE_STORAGE,
-                        args = putArgs,
+                        args = BackupActionWireProtocol.populateArgs(domain),
                     )
                 if (putResult is BackupActionResult.Failure) {
                     throw IOException(
                         "PopulateStorageAction failed for $domain: ${putResult.errorMessage}"
                     )
                 }
-                domain to putArgs
             }
             seedingDuration = Duration.ofNanos(System.nanoTime() - stageStartTime)
 
@@ -240,15 +138,14 @@ internal class BackupRestoreControllerImpl(
             // 5. Verify Data for each storage domain (asserts sandbox is restored perfectly)
             currentStage = BackupExecutionStage.VERIFICATION
             stageStartTime = System.nanoTime()
-            for ((domain, putArgs) in domainArgs) {
+            for (domain in storages) {
                 logger.info(
                     "Verifying restored data on device via AssertStorageAction for $domain..."
                 )
-                val verifyArgs = getVerifyStorageArgs(domain, putArgs)
                 val verifyResult =
                     runOnDevice(
                         actionClassName = BackupRestoreController.ACTION_ASSERT_STORAGE,
-                        args = verifyArgs,
+                        args = BackupActionWireProtocol.assertArgs(domain),
                     )
                 if (verifyResult is BackupActionResult.Failure) {
                     throw IOException(
@@ -389,29 +286,13 @@ internal class BackupRestoreControllerImpl(
         timeout: Duration,
         waitForDebugger: Boolean,
     ): BackupActionResult {
-        val cmd = StringBuilder("am instrument")
-        if (waitForDebugger) {
-            cmd.append(" -w -e debug true")
-        } else {
-            cmd.append(" -w")
-        }
-
-        // Binder IPC Overflow redirection directory on device
-        val binderRedirectDir = "/data/local/tmp"
-        val payloadId = UUID.randomUUID().toString()
-
-        val safeActionClass = escapeShellArg(actionClassName)
-        cmd.append(" -e action ").append(safeActionClass)
-        cmd.append(" -e actionClass ").append(safeActionClass)
-        cmd.append(" -e payload_id ").append(payloadId)
-        cmd.append(" -e redirect_dir ").append(binderRedirectDir)
-
-        for ((key, value) in args) {
+        val cmd = StringBuilder("am instrument -w")
+        val instrumentationArgs =
+            BackupActionWireProtocol.instrumentationArgs(actionClassName, args, waitForDebugger)
+        for ((key, value) in instrumentationArgs) {
             cmd.append(" -e ").append(escapeShellKey(key)).append(" ").append(escapeShellArg(value))
         }
-        cmd.append(" ")
-            .append(applicationId)
-            .append(".test/androidx.test.backup.BackupRestoreTestRunner")
+        cmd.append(" ").append(BackupActionWireProtocol.runnerComponent(applicationId))
 
         val selector = DeviceSelector.fromSerialNumber(serialNumber)
         @Suppress("AdbDeviceServicesCommand")
