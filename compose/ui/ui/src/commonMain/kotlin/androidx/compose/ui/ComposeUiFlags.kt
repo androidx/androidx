@@ -161,8 +161,6 @@ public object ComposeUiFlags {
      * how velocity is calculated for flings, which may affect scrolling, nested scrolling, and
      * similar gesture behaviors. Please file a bug report if disabling this flag resolves the
      * issue.
-     *
-     * Note: This flag currently no-ops; the feature will be added in a future change.
      */
     // TODO: b/530873034 - Cleanup feature flag
     @field:Suppress("MutableBareField")
