@@ -135,4 +135,31 @@ public class CircularArrayTest {
         // Collection is empty so this should throw.
         assertFailsWith<IndexOutOfBoundsException> { array.popLast() }
     }
+
+    @Test
+    public fun firstReturnsNull() {
+        val array = CircularArray<String?>(4)
+        array.addLast(null)
+        array.addLast(ELEMENT_X)
+        assertNull(array.first)
+    }
+
+    @Test
+    public fun lastReturnsNull() {
+        val array = CircularArray<String?>(4)
+        array.addLast(ELEMENT_X)
+        array.addLast(null)
+        assertNull(array.last)
+    }
+
+    @Test
+    public fun getReturnsNull() {
+        val array = CircularArray<String?>(4)
+        array.addLast(ELEMENT_X)
+        array.addLast(null)
+        array.addLast(ELEMENT_Y)
+        assertEquals(ELEMENT_X, array[0])
+        assertNull(array[1])
+        assertEquals(ELEMENT_Y, array[2])
+    }
 }
