@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.layout
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RcProfiles
@@ -31,6 +32,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createOffscreenRemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -38,6 +40,7 @@ import androidx.compose.remote.creation.compose.util.MyRemoteComposeWriterAndroi
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.player.compose.test.utils.TestPlayer
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.text.font.FontVariation
@@ -337,11 +340,121 @@ class RemoteCanvasTest {
         assertThat(animatedFloatCalls.size).isEqualTo(3)
     }
 
-    private fun setupRemoteCanvas() {
+    @Test
+    fun testClipRect_preservesSaveRestoreWhenOptimized() {
+        setupRemoteCanvas(enableOptimizations = true)
+
+        remoteCanvas.save()
+        remoteCanvas.clipRect(10f.rf, 10f.rf, 50f.rf, 50f.rf)
+        remoteCanvas.drawRect(0f.rf, 0f.rf, 100f.rf, 100f.rf, null)
+        remoteCanvas.restore()
+        remoteCanvas.drawRect(0f.rf, 0f.rf, 100f.rf, 100f.rf, null)
+
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls)
+            .containsAtLeast(
+                "addMatrixSave",
+                "addClipRect(10.0, 10.0, 50.0, 50.0)",
+                "addDrawRect(0.0, 0.0, 100.0, 100.0)",
+                "addMatrixRestore",
+                "addDrawRect(0.0, 0.0, 100.0, 100.0)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDrawToOffscreenBitmap_preservesOuterSaveRestoreWhenOptimized() {
+        setupRemoteCanvas(enableOptimizations = true)
+
+        val offscreenBitmap = createOffscreenRemoteBitmap(100, 100)
+
+        remoteCanvas.save()
+        remoteCanvas.translate(10f.rf, 10f.rf)
+        remoteCanvas.save()
+        remoteCanvas.scale(2f.rf, 2f.rf)
+
+        remoteCanvas.drawToOffscreenBitmap(offscreenBitmap, Color.TRANSPARENT) {
+            remoteCanvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, null)
+        }
+
+        remoteCanvas.restore()
+        remoteCanvas.restore()
+        remoteCanvas.drawRect(0f.rf, 0f.rf, 50f.rf, 50f.rf, null)
+
+        remoteCanvas.flush()
+
+        val calls = fakeBuffer.calls
+        val lastRestoreIndex = calls.lastIndexOf("addMatrixRestore")
+        val finalDrawRectIndex = calls.indexOfLast {
+            it.startsWith("addDrawRect") && it.contains("50.0")
+        }
+
+        assertThat(lastRestoreIndex).isNotEqualTo(-1)
+        assertThat(finalDrawRectIndex).isNotEqualTo(-1)
+        assertThat(lastRestoreIndex).isLessThan(finalDrawRectIndex)
+        assertThat(calls.count { it == "addMatrixRestore" }).isEqualTo(2)
+    }
+
+    @Test
+    fun testLoop_evaluatesLoopIndexForEachIterationDuringPlayback() {
+        setupRemoteCanvas()
+
+        remoteCanvas.loop(0f.rf, 3f.rf, 1f.rf) { index ->
+            remoteCanvas.drawRect(index * 10f.rf, 0f.rf, (index * 10f.rf) + 5f.rf, 5f.rf, null)
+        }
+
+        remoteCanvas.flush()
+
+        val drawCalls = captureDrawCalls().filter { it.startsWith("drawRect") }
+        assertThat(drawCalls)
+            .containsExactly(
+                "drawRect(0.000000, 0.000000, 5.000000, 5.000000)",
+                "drawRect(10.000000, 0.000000, 15.000000, 5.000000)",
+                "drawRect(20.000000, 0.000000, 25.000000, 5.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testCustomComponent_withChildDrawingContent() {
+        setupRemoteCanvas(
+            profileMask = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL
+        )
+
+        remoteCanvas.custom(
+            "testConfig",
+            content = { remoteCanvas.drawRect(1f.rf, 2f.rf, 3f.rf, 4f.rf, null) },
+        )
+
+        remoteCanvas.flush()
+
+        val contentStartIndex = fakeBuffer.calls.indexOf("addContentStart")
+        val drawRectIndex = fakeBuffer.calls.indexOf("addDrawRect(1.0, 2.0, 3.0, 4.0)")
+        val containerEndIndex = fakeBuffer.calls.indexOf("addContainerEnd")
+
+        assertThat(contentStartIndex).isNotEqualTo(-1)
+        assertThat(drawRectIndex).isNotEqualTo(-1)
+        assertThat(containerEndIndex).isNotEqualTo(-1)
+        assertThat(contentStartIndex).isLessThan(drawRectIndex)
+        assertThat(drawRectIndex).isLessThan(containerEndIndex)
+    }
+
+    private fun captureDrawCalls(): List<String> {
+        val wireBuffer = fakeBuffer.buffer
+        val bytes = wireBuffer.buffer.copyOfRange(0, wireBuffer.size)
+        val player = TestPlayer.fromBytes(bytes, 500f, 500f)
+        return player.paint()
+    }
+
+    private fun setupRemoteCanvas(
+        enableOptimizations: Boolean = false,
+        profileMask: Int = RcProfiles.PROFILE_ANDROIDX,
+    ) {
         val profile =
             Profile(
                 CoreDocument.DOCUMENT_API_LEVEL,
-                RcProfiles.PROFILE_ANDROIDX,
+                profileMask,
                 AndroidxRcPlatformServices(),
             ) { creationDisplayInfo, p, _ ->
                 MyRemoteComposeWriterAndroid(
@@ -349,7 +462,7 @@ class RemoteCanvasTest {
                     fakeBuffer,
                     RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
                     RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
-                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
+                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, profileMask),
                 )
             }
         creationState =
@@ -358,7 +471,7 @@ class RemoteCanvasTest {
                 null,
                 profile,
             )
-        remoteCanvas = RemoteCanvas(creationState)
+        remoteCanvas = RemoteCanvas(creationState, enableOptimizations = enableOptimizations)
     }
 
     private fun getOperations(buffer: RemoteComposeBuffer): List<Operation> =
