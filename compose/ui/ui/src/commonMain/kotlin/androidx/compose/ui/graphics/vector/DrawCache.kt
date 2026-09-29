@@ -41,8 +41,6 @@ internal class DrawCache {
 
     @PublishedApi internal var mCachedImage: ImageBitmap? = null
     private var cachedCanvas: Canvas? = null
-    private var scopeDensity: Density? = null
-    private var layoutDirection: LayoutDirection = LayoutDirection.Ltr
     private var size: IntSize = IntSize.Zero
     private var config: ImageBitmapConfig = ImageBitmapConfig.Argb8888
 
@@ -60,8 +58,6 @@ internal class DrawCache {
         layoutDirection: LayoutDirection,
         block: DrawScope.() -> Unit,
     ) {
-        this.scopeDensity = density
-        this.layoutDirection = layoutDirection
         var targetImage = mCachedImage
         var targetCanvas = cachedCanvas
         if (
@@ -103,4 +99,14 @@ internal class DrawCache {
     private fun DrawScope.clear() {
         drawRect(color = Color.Black, blendMode = BlendMode.Clear)
     }
+}
+
+/**
+ * Provides a [DrawCache] for a given draw size and bitmap configuration.
+ *
+ * Decouples [VectorComponent] from the caching strategy.
+ */
+internal fun interface DrawCacheProvider {
+    /** Returns a [DrawCache] for the given [size] and [config]. */
+    fun provide(size: IntSize, config: ImageBitmapConfig): DrawCache
 }
