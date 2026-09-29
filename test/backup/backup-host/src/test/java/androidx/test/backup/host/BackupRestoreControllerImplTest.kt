@@ -437,6 +437,186 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
+    fun testRunOnDeviceEscapesActionClassAndArgsForShell() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+
+        val commandsExecuted = mutableListOf<String>()
+        `when`(
+                mockDeviceServices.shell(
+                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
+                    any(String::class.java) ?: "",
+                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
+                    any(),
+                    any(),
+                    any(Duration::class.java) ?: Duration.ofSeconds(1),
+                    anyInt(),
+                    anyBoolean(),
+                    anyBoolean(),
+                )
+            )
+            .thenAnswer { invocation ->
+                val cmd = invocation.getArgument(1) as String
+                commandsExecuted.add(cmd)
+                if (cmd.contains("am instrument")) {
+                    flowOf(
+                        com.android.adblib.ShellCommandOutput(
+                            runnerStdout("""{"status":"success"}"""),
+                            "",
+                            0,
+                        )
+                    )
+                } else {
+                    flowOf("")
+                }
+            }
+
+        val result =
+            device.runOnDevice(
+                actionClassName = "com.example.MyTest\$CustomAction",
+                args =
+                    mapOf(
+                        "dollar_var" to "\$100 \${USER} \$(id)",
+                        "backticks" to "`whoami`",
+                        "trailing_slash" to """C:\path\trailing\""",
+                        "double_quotes" to """{"k":"v"}""",
+                        "single_quote" to "O'Brian",
+                        "danger;key\$1" to "val",
+                        "" to "empty_key_val",
+                    ),
+            )
+
+        assertTrue(result is BackupActionResult.Success)
+        val cmd = commandsExecuted.first { it.contains("am instrument") }
+        assertTrue(
+            cmd.contains("-e action 'com.example.MyTest\$CustomAction'"),
+            "Expected single-quoted action with inner-class dollar sign: '$cmd'",
+        )
+        assertTrue(
+            cmd.contains("-e actionClass 'com.example.MyTest\$CustomAction'"),
+            "Expected single-quoted actionClass with inner-class dollar sign: '$cmd'",
+        )
+        assertTrue(
+            cmd.contains("-e dollar_var '\$100 \${USER} \$(id)'"),
+            "Expected single-quoted value preventing shell dollar expansion: '$cmd'",
+        )
+        assertTrue(
+            cmd.contains("-e backticks '`whoami`'"),
+            "Expected single-quoted value preventing command substitution: '$cmd'",
+        )
+        assertTrue(
+            cmd.contains("""-e trailing_slash 'C:\path\trailing\'"""),
+            "Expected single-quoted value preserving trailing backslash: '$cmd'",
+        )
+        assertTrue(
+            cmd.contains("""-e double_quotes '{"k":"v"}'"""),
+            "Expected single-quoted value preserving double quotes: '$cmd'",
+        )
+        assertTrue(
+            cmd.contains("""-e single_quote 'O'\''Brian'"""),
+            "Expected escaped single quote inside value: '$cmd'",
+        )
+        assertTrue(
+            cmd.contains("-e 'danger;key\$1' 'val'"),
+            "Expected single-quoted key when key contains shell metacharacters: '$cmd'",
+        )
+        assertTrue(
+            cmd.contains("-e '' 'empty_key_val'"),
+            "Expected single-quoted empty key so argument count is preserved: '$cmd'",
+        )
+    }
+
+    @Test
+    fun testRunOnDeviceEscapesOverflowPayloadPathOnCleanup() = runBlocking {
+        val device =
+            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+
+        val overflowDevicePath = "/data/local/tmp/overflow_\$special'file.json"
+        val envelope = buildJsonObject {
+            put("isSuccess", true)
+            put("payload_path", overflowDevicePath)
+        }
+            .toString()
+
+        val mockChannelFactory =
+            mock(com.android.adblib.AdbChannelFactory::class.java) { invocation ->
+                if (invocation.method.name == "createFile") {
+                    val localPath = invocation.arguments.firstOrNull() as? java.nio.file.Path
+                    if (localPath != null) {
+                        val overflowFileJson = buildJsonObject {
+                            put("payloadJson", """{"status":"success","rows":"5"}""")
+                        }
+                            .toString()
+                        localPath.toFile().writeText(overflowFileJson)
+                    }
+                    mock(com.android.adblib.AdbOutputChannel::class.java)
+                } else {
+                    org.mockito.Mockito.RETURNS_DEFAULTS.answer(invocation)
+                }
+            }
+        `when`(mockSession.channelFactory).thenReturn(mockChannelFactory)
+
+        val mockSyncServices = mock(com.android.adblib.AdbDeviceSyncServices::class.java)
+        mockDeviceServices =
+            mock(AdbDeviceServices::class.java) { invocation ->
+                if (invocation.method.name == "sync") {
+                    mockSyncServices
+                } else {
+                    org.mockito.Mockito.RETURNS_DEFAULTS.answer(invocation)
+                }
+            }
+        `when`(mockSession.deviceServices).thenReturn(mockDeviceServices)
+        `when`(mockDeviceServices.session).thenReturn(mockSession)
+
+        val commandsExecuted = mutableListOf<String>()
+        `when`(
+                mockDeviceServices.shell(
+                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
+                    any(String::class.java) ?: "",
+                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
+                    any(),
+                    any(),
+                    any(Duration::class.java) ?: Duration.ofSeconds(1),
+                    anyInt(),
+                    anyBoolean(),
+                    anyBoolean(),
+                )
+            )
+            .thenAnswer { invocation ->
+                val cmd = invocation.getArgument(1) as String
+                val collector = invocation.getArgument<Any>(2)
+                val isTextCollector =
+                    collector::class.java.name.contains("TextShellCollector") ||
+                        collector::class.java.name.contains("LineShellCollector")
+                commandsExecuted.add(cmd)
+                if (isTextCollector) {
+                    flowOf("")
+                } else if (cmd.contains("am instrument")) {
+                    flowOf(
+                        com.android.adblib.ShellCommandOutput(
+                            "BACKUP_RESTORE_RESULT: $envelope\n",
+                            "",
+                            0,
+                        )
+                    )
+                } else {
+                    flowOf(com.android.adblib.ShellCommandOutput("", "", 0))
+                }
+            }
+
+        val result = device.runOnDevice("com.example.MyAction", emptyMap())
+
+        assertTrue(result is BackupActionResult.Success, "Expected Success but got: $result")
+        assertEquals("5", (result as BackupActionResult.Success).data["rows"])
+        assertTrue(
+            commandsExecuted.contains(
+                """rm -f -- '/data/local/tmp/overflow_${'$'}special'\''file.json'"""
+            ),
+            "Expected escaped payloadPath in rm -f command, actual commands: $commandsExecuted",
+        )
+    }
+
+    @Test
     fun testLaunchAppDefault() = runBlocking {
         val device =
             BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
@@ -558,7 +738,12 @@ class BackupRestoreControllerImplTest {
 
         device.launchApp(
             activityClass = ".MyActivity",
-            intentExtras = mapOf("name" to "O'Brian", "danger;cmd" to "'; rm -rf /; '"),
+            intentExtras =
+                mapOf(
+                    "name" to "O'Brian",
+                    "danger;cmd" to "'; rm -rf /; '",
+                    "" to "empty_key_val",
+                ),
         )
 
         assertTrue(commandsExecuted.isNotEmpty())
@@ -568,6 +753,7 @@ class BackupRestoreControllerImplTest {
             cmd.contains("""--es 'danger;cmd' ''\''; rm -rf /; '\'''"""),
             "Actual command was: '$cmd'",
         )
+        assertTrue(cmd.contains("--es '' 'empty_key_val'"), "Actual command was: '$cmd'")
     }
 
     @Test
