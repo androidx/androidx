@@ -159,4 +159,20 @@ internal class ArrayMapTest {
         map.remove("c")
         assertContentEquals(map.values, listOf(1))
     }
+
+    @Test
+    fun entriesCopy() {
+        val map = ArrayMap<String, Int>()
+        map["a"] = 1
+        map["b"] = 2
+        assertEquals("[a=1, b=2]", ArrayList(map.entries).toString())
+    }
+
+    @Test
+    fun entriesToTypedArray() {
+        val map = ArrayMap<String, Int>()
+        map["a"] = 1
+        map["b"] = 2
+        assertEquals("[a=1, b=2]", map.entries.toTypedArray().contentToString())
+    }
 }

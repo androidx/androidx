@@ -22,6 +22,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Array;
+import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
@@ -210,7 +211,9 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * Set are subtly different than that of a {@link java.util.HashMap}: most important,
      * the {@link java.util.Map.Entry Map.Entry} object returned by its iterator is a single
      * object that exists for the entire iterator, so you can <b>not</b> hold on to it
-     * after calling {@link java.util.Iterator#next() Iterator.next}.</p>
+     * after calling {@link java.util.Iterator#next() Iterator.next}.
+     * {@link Set#toArray() toArray} returns copies of the entries, which do not support
+     * {@link java.util.Map.Entry#setValue(Object) setValue}.</p>
      */
     @NonNull
     @Override
@@ -266,6 +269,32 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
         @Override
         public int size() {
             return ArrayMap.this.size();
+        }
+
+        @Override
+        public Object @NonNull [] toArray() {
+            final int N = ArrayMap.this.size();
+            Object[] result = new Object[N];
+            for (int i = 0; i < N; i++) {
+                result[i] = new AbstractMap.SimpleImmutableEntry<>(keyAt(i), valueAt(i));
+            }
+            return result;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T @NonNull [] toArray(T @NonNull [] array) {
+            final int mySize = size();
+            if (array.length < mySize) {
+                array = (T[]) Array.newInstance(array.getClass().getComponentType(), mySize);
+            }
+            for (int i = 0; i < mySize; i++) {
+                array[i] = (T) new AbstractMap.SimpleImmutableEntry<>(keyAt(i), valueAt(i));
+            }
+            if (array.length > mySize) {
+                array[mySize] = null;
+            }
+            return array;
         }
     }
 
