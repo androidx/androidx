@@ -16,252 +16,78 @@
 
 package androidx.test.backup.host
 
-import com.android.adblib.AdbDeviceServices
-import com.android.adblib.AdbSession
-import com.android.adblib.AdbSessionHost
-import com.android.adblib.DeviceSelector
-import com.android.adblib.ShellCollector
-import com.android.adblib.TextShellCollector
-import com.android.adblib.deviceCacheProvider
+import com.android.adblib.ShellCommandOutput
 import java.io.IOException
-import java.time.Duration
+import java.util.zip.ZipFile
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import org.mockito.Mockito.any
-import org.mockito.Mockito.anyBoolean
-import org.mockito.Mockito.anyInt
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 
-@Suppress("CheckResult")
 class BackupRestoreControllerImplTest {
 
     @get:Rule val tempFolder = TemporaryFolder()
 
-    private lateinit var mockSession: AdbSession
-    private lateinit var mockDeviceServices: AdbDeviceServices
+    private val device = FakeAdbDevice()
+    private val publishedMetrics = mutableMapOf<String, String>()
+    private val controller =
+        BackupRestoreControllerImpl(
+            device.session,
+            FAKE_SERIAL,
+            34,
+            PACKAGE,
+            telemetryPublisher = { key, value -> publishedMetrics[key] = value },
+        )
 
-    @Suppress("UNCHECKED_CAST")
-    @Before
-    fun setUp() {
-        mockSession = mock(AdbSession::class.java)
-        mockDeviceServices = mock(AdbDeviceServices::class.java)
-        `when`(mockSession.deviceServices).thenReturn(mockDeviceServices)
-        `when`(mockDeviceServices.session).thenReturn(mockSession)
+    @Test
+    fun propertiesAreExposed() {
+        assertEquals(FAKE_SERIAL, controller.serialNumber)
+        assertEquals(34, controller.apiLevel)
+        assertEquals(PACKAGE, controller.applicationId)
+    }
 
-        val mockHost = mock(AdbSessionHost::class.java)
-        `when`(mockSession.host).thenReturn(mockHost)
+    @Test
+    fun runOnDeviceRunsTheActionAndReturnsItsPayload() = runBlocking {
+        device.onShell { shellOutput(runnerStdout("""{"user_id":"123"}""")) }
 
-        val mockProp = mock(AdbSessionHost.Property::class.java) as AdbSessionHost.Property<Any>
-        `when`(mockHost.getPropertyValue(any(AdbSessionHost.Property::class.java) ?: mockProp))
-            .thenAnswer { invocation ->
-                val prop = invocation.getArgument(0) as AdbSessionHost.Property<*>
-                prop.defaultValue
-            }
+        val result = controller.runOnDevice("com.example.MyAction", mapOf("user_id" to "123"))
 
-        val mockLoggerFactory = mock(com.android.adblib.AdbLoggerFactory::class.java)
-        `when`(mockHost.loggerFactory).thenReturn(mockLoggerFactory)
-        val mockAdbLogger = mock(com.android.adblib.AdbLogger::class.java)
-        `when`(mockLoggerFactory.createLogger(any(Class::class.java) ?: Any::class.java))
-            .thenReturn(mockAdbLogger)
-        `when`(mockAdbLogger.minLevel).thenReturn(com.android.adblib.AdbLogger.Level.INFO)
+        assertEquals(BackupActionResult.Success(mapOf("user_id" to "123")), result)
+        val command = device.commands.single()
+        assertTrue(command.startsWith("am instrument -w -e action "), command)
+        assertTrue(command.contains(" -e user_id '123' "), command)
+        assertTrue(command.endsWith(" $PACKAGE.test/$RUNNER"), command)
+    }
 
-        val mockHostServices = mock(com.android.adblib.AdbHostServices::class.java)
-        `when`(mockSession.hostServices).thenReturn(mockHostServices)
-        `when`(mockHostServices.session).thenReturn(mockSession)
-        runBlocking {
-            `when`(
-                    mockHostServices.features(
-                        any(DeviceSelector::class.java) ?: DeviceSelector.any()
-                    )
-                )
-                .thenReturn(emptyList())
-            `when`(mockHostServices.hostFeatures()).thenReturn(emptyList())
+    @Test
+    fun runOnDeviceReturnsTheRunnerFailureAndStackTrace() = runBlocking {
+        device.onShell {
+            shellOutput(
+                RESULT_MARKER +
+                    """{"isSuccess":false,"errorMessage":"Something broke","stackTrace":"at MyAction.kt:15"}"""
+            )
         }
 
-        val mockCache = mock(com.android.adblib.CoroutineScopeCache::class.java)
-        `when`(mockSession.cache).thenReturn(mockCache)
-
-        val mockDeviceCacheProvider = mock(com.android.adblib.DeviceCacheProvider::class.java)
-        `when`(mockSession.deviceCacheProvider).thenReturn(mockDeviceCacheProvider)
-        `when`(mockSession.scope)
-            .thenReturn(
-                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Unconfined)
-            )
+        assertEquals(
+            BackupActionResult.Failure("Something broke", "at MyAction.kt:15"),
+            controller.runOnDevice("com.example.MyAction", emptyMap()),
+        )
     }
 
     @Test
-    fun testPropertiesExposedCorrectly() {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-        assertEquals("emulator-5554", device.serialNumber)
-        assertEquals(34, device.apiLevel)
-        assertEquals("com.example.app", device.applicationId)
-    }
-
-    @Test
-    fun testRunOnDeviceWithNormalPayload() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        // Mock ADB shell output flow returning clean JSON result
-        val dq = Char(34).toString()
-        val bs = Char(92).toString()
-        val jsonString =
-            "{" +
-                dq +
-                "isSuccess" +
-                dq +
-                ":true," +
-                dq +
-                "payloadJson" +
-                dq +
-                ":" +
-                dq +
-                "{" +
-                bs +
-                dq +
-                "user_id" +
-                bs +
-                dq +
-                ":" +
-                bs +
-                dq +
-                "123" +
-                bs +
-                dq +
-                "}" +
-                dq +
-                "}"
-        val mockStdout = "BACKUP_RESTORE_RESULT: " + jsonString + Char(10).toString()
-
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                if (cmd.contains("am instrument")) {
-                    flowOf(com.android.adblib.ShellCommandOutput(mockStdout, "", 0))
-                } else {
-                    flowOf("")
-                }
-            }
-
-        val result = device.runOnDevice("com.example.MyAction", mapOf("user_id" to "123"))
-
-        assertTrue(result is BackupActionResult.Success)
-        val successResult = result as BackupActionResult.Success
-        assertEquals("123", successResult.data["user_id"])
-    }
-
-    @Test
-    fun testRunOnDeviceWithErrorPayloadAndStackTrace() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val mockStdout =
-            "BACKUP_RESTORE_RESULT: " +
-                """{"isSuccess":false,"errorMessage":"Something broke","stackTrace":"at MyAction.kt:15"}""" +
-                Char(10).toString()
-
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                if (cmd.contains("am instrument")) {
-                    flowOf(com.android.adblib.ShellCommandOutput(mockStdout, "", 0))
-                } else {
-                    flowOf("")
-                }
-            }
-
-        val result = device.runOnDevice("com.example.MyAction", emptyMap())
-
-        assertTrue(result is BackupActionResult.Failure)
-        val failureResult = result as BackupActionResult.Failure
-        assertEquals("Something broke", failureResult.errorMessage)
-        assertEquals("at MyAction.kt:15", failureResult.stackTrace)
-    }
-
-    /** Wraps an action payload in the envelope the on-device runner prints to stdout. */
-    private fun runnerStdout(payloadJson: String): String {
-        val envelope = buildJsonObject {
-            put("isSuccess", true)
-            put("payloadJson", payloadJson)
-        }
-            .toString()
-        return "BACKUP_RESTORE_RESULT: $envelope\n"
-    }
-
-    @Test
-    fun testRunOnDeviceEscapesActionClassAndArgsForShell() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val commandsExecuted = mutableListOf<String>()
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                commandsExecuted.add(cmd)
-                if (cmd.contains("am instrument")) {
-                    flowOf(
-                        com.android.adblib.ShellCommandOutput(
-                            runnerStdout("""{"status":"success"}"""),
-                            "",
-                            0,
-                        )
-                    )
-                } else {
-                    flowOf("")
-                }
-            }
+    fun runOnDeviceEscapesActionClassAndArgsForShell() = runBlocking {
+        device.onShell { shellOutput(runnerStdout("""{"status":"success"}""")) }
 
         val result =
-            device.runOnDevice(
+            controller.runOnDevice(
                 actionClassName = "com.example.MyTest\$CustomAction",
                 args =
                     mapOf(
@@ -275,1387 +101,532 @@ class BackupRestoreControllerImplTest {
                     ),
             )
 
-        assertTrue(result is BackupActionResult.Success)
-        val cmd = commandsExecuted.first { it.contains("am instrument") }
+        assertIs<BackupActionResult.Success>(result)
+        val cmd = device.commands.single()
+        listOf(
+                "-e action 'com.example.MyTest\$CustomAction'",
+                "-e actionClass 'com.example.MyTest\$CustomAction'",
+                "-e dollar_var '\$100 \${USER} \$(id)'",
+                "-e backticks '`whoami`'",
+                """-e trailing_slash 'C:\path\trailing\'""",
+                """-e double_quotes '{"k":"v"}'""",
+                """-e single_quote 'O'\''Brian'""",
+                "-e 'danger;key\$1' 'val'",
+                "-e '' 'empty_key_val'",
+            )
+            .forEach { expected -> assertTrue(cmd.contains(expected), "No `$expected` in: $cmd") }
+    }
+
+    @Test
+    fun runOnDeviceAsksTheRunnerToWaitForADebugger() = runBlocking {
+        device.onShell { shellOutput(runnerStdout("{}")) }
+
+        controller.runOnDevice("com.example.MyAction", emptyMap(), waitForDebugger = true)
+
         assertTrue(
-            cmd.contains("-e action 'com.example.MyTest\$CustomAction'"),
-            "Expected single-quoted action with inner-class dollar sign: '$cmd'",
-        )
-        assertTrue(
-            cmd.contains("-e actionClass 'com.example.MyTest\$CustomAction'"),
-            "Expected single-quoted actionClass with inner-class dollar sign: '$cmd'",
-        )
-        assertTrue(
-            cmd.contains("-e dollar_var '\$100 \${USER} \$(id)'"),
-            "Expected single-quoted value preventing shell dollar expansion: '$cmd'",
-        )
-        assertTrue(
-            cmd.contains("-e backticks '`whoami`'"),
-            "Expected single-quoted value preventing command substitution: '$cmd'",
-        )
-        assertTrue(
-            cmd.contains("""-e trailing_slash 'C:\path\trailing\'"""),
-            "Expected single-quoted value preserving trailing backslash: '$cmd'",
-        )
-        assertTrue(
-            cmd.contains("""-e double_quotes '{"k":"v"}'"""),
-            "Expected single-quoted value preserving double quotes: '$cmd'",
-        )
-        assertTrue(
-            cmd.contains("""-e single_quote 'O'\''Brian'"""),
-            "Expected escaped single quote inside value: '$cmd'",
-        )
-        assertTrue(
-            cmd.contains("-e 'danger;key\$1' 'val'"),
-            "Expected single-quoted key when key contains shell metacharacters: '$cmd'",
-        )
-        assertTrue(
-            cmd.contains("-e '' 'empty_key_val'"),
-            "Expected single-quoted empty key so argument count is preserved: '$cmd'",
+            device.commands.single().startsWith("am instrument -w -e debug 'true' -e action "),
+            device.commands.single(),
         )
     }
 
     @Test
-    fun testRunOnDeviceEscapesOverflowPayloadPathOnCleanup() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val overflowDevicePath = "/data/local/tmp/overflow_\$special'file.json"
-        val envelope = buildJsonObject {
-            put("isSuccess", true)
-            put("payload_path", overflowDevicePath)
+    fun runOnDevicePullsAndRemovesTheOverflowPayload() = runBlocking {
+        val overflowPath = "/data/local/tmp/overflow_\$special'file.json"
+        device.onShell { command ->
+            if (command.startsWith("am instrument")) shellOutput(overflowStdout(overflowPath))
+            else shellOutput()
         }
-            .toString()
+        device.onPull {
+            buildJsonObject { put("payloadJson", """{"status":"success","rows":"5"}""") }.toString()
+        }
 
-        val mockChannelFactory =
-            mock(com.android.adblib.AdbChannelFactory::class.java) { invocation ->
-                if (invocation.method.name == "createFile") {
-                    val localPath = invocation.arguments.firstOrNull() as? java.nio.file.Path
-                    if (localPath != null) {
-                        val overflowFileJson = buildJsonObject {
-                            put("payloadJson", """{"status":"success","rows":"5"}""")
-                        }
-                            .toString()
-                        localPath.toFile().writeText(overflowFileJson)
-                    }
-                    mock(com.android.adblib.AdbOutputChannel::class.java)
-                } else {
-                    org.mockito.Mockito.RETURNS_DEFAULTS.answer(invocation)
-                }
-            }
-        `when`(mockSession.channelFactory).thenReturn(mockChannelFactory)
+        val result = controller.runOnDevice("com.example.MyAction", emptyMap())
 
-        val mockSyncServices = mock(com.android.adblib.AdbDeviceSyncServices::class.java)
-        mockDeviceServices =
-            mock(AdbDeviceServices::class.java) { invocation ->
-                if (invocation.method.name == "sync") {
-                    mockSyncServices
-                } else {
-                    org.mockito.Mockito.RETURNS_DEFAULTS.answer(invocation)
-                }
-            }
-        `when`(mockSession.deviceServices).thenReturn(mockDeviceServices)
-        `when`(mockDeviceServices.session).thenReturn(mockSession)
+        assertEquals(
+            BackupActionResult.Success(mapOf("status" to "success", "rows" to "5")),
+            result,
+        )
+        assertEquals(listOf(overflowPath), device.pulledPaths)
+        assertEquals(
+            """rm -f -- '/data/local/tmp/overflow_${'$'}special'\''file.json'""",
+            device.commands.last(),
+        )
+    }
 
-        val commandsExecuted = mutableListOf<String>()
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                val collector = invocation.getArgument<Any>(2)
-                val isTextCollector =
-                    collector::class.java.name.contains("TextShellCollector") ||
-                        collector::class.java.name.contains("LineShellCollector")
-                commandsExecuted.add(cmd)
-                if (isTextCollector) {
-                    flowOf("")
-                } else if (cmd.contains("am instrument")) {
-                    flowOf(
-                        com.android.adblib.ShellCommandOutput(
-                            "BACKUP_RESTORE_RESULT: $envelope\n",
-                            "",
-                            0,
-                        )
-                    )
-                } else {
-                    flowOf(com.android.adblib.ShellCommandOutput("", "", 0))
-                }
-            }
+    @Test
+    fun runOnDeviceReportsAFailedOverflowPullAndKeepsTheFile() = runBlocking {
+        device.onShell { command ->
+            if (command.startsWith("am instrument")) shellOutput(overflowStdout("/tmp/p.json"))
+            else shellOutput()
+        }
+        device.onPull { throw IOException("device disconnected") }
 
-        val result = device.runOnDevice("com.example.MyAction", emptyMap())
-
-        assertTrue(result is BackupActionResult.Success, "Expected Success but got: $result")
-        assertEquals("5", (result as BackupActionResult.Success).data["rows"])
-        assertTrue(
-            commandsExecuted.contains(
-                """rm -f -- '/data/local/tmp/overflow_${'$'}special'\''file.json'"""
+        assertEquals(
+            BackupActionResult.Failure(
+                "Failed to pull Binder overflow payload: device disconnected"
             ),
-            "Expected escaped payloadPath in rm -f command, actual commands: $commandsExecuted",
+            controller.runOnDevice("com.example.MyAction", emptyMap()),
+        )
+        assertTrue(device.commands.none { it.startsWith("rm ") }, "${device.commands}")
+    }
+
+    @Test
+    fun launchAppStartsTheLauncherActivityByDefault() = runBlocking {
+        device.onShell { command ->
+            if (command.contains("resolve-activity")) {
+                shellOutput("priority=0 isDefault=true\n$PACKAGE/$PACKAGE.MainActivity\n")
+            } else {
+                shellOutput()
+            }
+        }
+
+        controller.launchApp()
+
+        assertEquals(
+            listOf(
+                "input keyevent KEYCODE_WAKEUP",
+                "wm dismiss-keyguard",
+                "cmd package resolve-activity --brief -c android.intent.category.LAUNCHER $PACKAGE",
+                "am start -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER " +
+                    "-n '$PACKAGE/$PACKAGE.MainActivity'",
+            ),
+            device.commands,
         )
     }
 
     @Test
-    fun testLaunchAppDefault() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val commandsExecuted = mutableListOf<String>()
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
+    fun launchAppQualifiesTheActivityClassWithTheApplicationId() = runBlocking {
+        mapOf(
+                ".MyActivity" to "$PACKAGE/.MyActivity",
+                ".subpackage.MyActivity" to "$PACKAGE/.subpackage.MyActivity",
+                "SimpleActivity" to "$PACKAGE/.SimpleActivity",
+                "$PACKAGE.subpackage.MyActivity" to "$PACKAGE/$PACKAGE.subpackage.MyActivity",
+                "com.other.library.MyActivity" to "$PACKAGE/com.other.library.MyActivity",
+                "$PACKAGE.MainActivity\$Inner" to "$PACKAGE/$PACKAGE.MainActivity\$Inner",
+                "com.other/.Explicit" to "com.other/.Explicit",
             )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                val collector = invocation.getArgument<Any>(2)
-                val isTextCollector =
-                    collector::class.java.name.contains("TextShellCollector") ||
-                        collector::class.java.name.contains("LineShellCollector")
-                commandsExecuted.add(cmd)
-                val stdout =
-                    if (cmd.contains("resolve-activity")) {
-                        "priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true\ncom.example.app/com.example.app.MainActivity\n"
-                    } else {
-                        ""
-                    }
-                if (isTextCollector) {
-                    flowOf(stdout)
-                } else {
-                    flowOf(com.android.adblib.ShellCommandOutput(stdout, "", 0))
-                }
+            .forEach { (activityClass, component) ->
+                controller.launchApp(activityClass)
+
+                assertTrue(
+                    device.commands.last().endsWith(" -n '$component'"),
+                    "For $activityClass: ${device.commands.last()}",
+                )
             }
-
-        device.launchApp()
-
-        assertTrue(commandsExecuted.isNotEmpty())
-        val lastCommand = commandsExecuted.last()
-        assertTrue(
-            lastCommand.contains("am start -W") &&
-                lastCommand.contains("-c android.intent.category.LAUNCHER") &&
-                lastCommand.contains("-n 'com.example.app/com.example.app.MainActivity'"),
-            "Expected 'am start' command but was '$lastCommand'",
-        )
-        assertTrue(
-            commandsExecuted.none { it.contains("POST_NOTIFICATIONS") },
-            "launchApp should not grant POST_NOTIFICATIONS permission",
-        )
+        assertTrue(device.commands.none { it.contains("resolve-activity") })
     }
 
     @Test
-    fun testLaunchAppCustom() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
+    fun launchAppWithOnlyAnActionResolvesItWithinThePackage() = runBlocking {
+        controller.launchApp(activityClass = null, action = "com.example.CUSTOM_ACTION")
 
-        val commandsExecuted = mutableListOf<String>()
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                commandsExecuted.add(cmd)
-                flowOf("")
-            }
+        assertEquals("am start -W -a com.example.CUSTOM_ACTION -p $PACKAGE", device.commands.last())
+        assertTrue(device.commands.none { it.contains("resolve-activity") })
+    }
 
-        device.launchApp(
+    @Test
+    fun launchAppPassesTheActionAndExtras() = runBlocking {
+        controller.launchApp(
             activityClass = ".MyActivity",
-            intentExtras = mapOf("foo" to "bar value", "baz" to "qux"),
+            intentExtras = linkedMapOf("foo" to "bar value", "baz" to "qux"),
             action = "android.intent.action.VIEW",
         )
 
-        assertTrue(commandsExecuted.isNotEmpty())
-        val cmd = commandsExecuted.last()
-        assertTrue(cmd.contains("am start"), "Actual command was: '$cmd'")
-        assertTrue(cmd.contains("-a android.intent.action.VIEW"), "Actual command was: '$cmd'")
-        assertTrue(cmd.contains("-n 'com.example.app/.MyActivity'"), "Actual command was: '$cmd'")
-        assertTrue(cmd.contains("--es foo 'bar value'"), "Actual command was: '$cmd'")
-        assertTrue(cmd.contains("--es baz 'qux'"), "Actual command was: '$cmd'")
-    }
-
-    @Test
-    fun testLaunchAppWithQuotesAndSpecialCharsInExtras() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val commandsExecuted = mutableListOf<String>()
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                commandsExecuted.add(cmd)
-                flowOf("")
-            }
-
-        device.launchApp(
-            activityClass = ".MyActivity",
-            intentExtras =
-                mapOf(
-                    "name" to "O'Brian",
-                    "danger;cmd" to "'; rm -rf /; '",
-                    "" to "empty_key_val",
-                ),
-        )
-
-        assertTrue(commandsExecuted.isNotEmpty())
-        val cmd = commandsExecuted.last()
-        assertTrue(cmd.contains("--es name 'O'\\''Brian'"), "Actual command was: '$cmd'")
-        assertTrue(
-            cmd.contains("""--es 'danger;cmd' ''\''; rm -rf /; '\'''"""),
-            "Actual command was: '$cmd'",
-        )
-        assertTrue(cmd.contains("--es '' 'empty_key_val'"), "Actual command was: '$cmd'")
-    }
-
-    @Test
-    fun testLaunchAppRelativeSubpackage() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val commandsExecuted = mutableListOf<String>()
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                commandsExecuted.add(cmd)
-                flowOf("")
-            }
-
-        // Relative class with leading dot (e.g. ".subpackage.MyActivity")
-        device.launchApp(activityClass = ".subpackage.MyActivity")
-        var cmd = commandsExecuted.last()
-        assertTrue(
-            cmd.contains("-n 'com.example.app/.subpackage.MyActivity'"),
-            "Expected leading dot for relative class: '$cmd'",
-        )
-
-        // Simple class name (e.g. "SimpleActivity") should resolve with leading dot
-        device.launchApp(activityClass = "SimpleActivity")
-        cmd = commandsExecuted.last()
-        assertTrue(
-            cmd.contains("-n 'com.example.app/.SimpleActivity'"),
-            "Expected leading dot for simple activity: '$cmd'",
-        )
-
-        // Fully qualified class name matching applicationId
-        device.launchApp(activityClass = "com.example.app.subpackage.MyActivity")
-        cmd = commandsExecuted.last()
-        assertTrue(
-            cmd.contains("-n 'com.example.app/com.example.app.subpackage.MyActivity'"),
-            "Expected full component name without extra dot: '$cmd'",
-        )
-
-        // Fully qualified class name belonging to a different package hierarchy
-        device.launchApp(activityClass = "com.other.external.library.MyActivity")
-        cmd = commandsExecuted.last()
-        assertTrue(
-            cmd.contains("-n 'com.example.app/com.other.external.library.MyActivity'"),
-            "Expected external package hierarchy class without dot prefix: '$cmd'",
+        assertEquals(
+            "am start -W -a android.intent.action.VIEW -n '$PACKAGE/.MyActivity' " +
+                "--es foo 'bar value' --es baz 'qux'",
+            device.commands.last(),
         )
     }
 
     @Test
-    fun testLaunchAppImplicitAction() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val commandsExecuted = mutableListOf<String>()
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                commandsExecuted.add(cmd)
-                flowOf("")
-            }
-
-        device.launchApp(
-            activityClass = null,
-            intentExtras = emptyMap(),
-            action = "com.example.CUSTOM_ACTION",
-        )
-
-        assertTrue(commandsExecuted.isNotEmpty())
-        val cmd = commandsExecuted.last()
-        assertTrue(cmd.contains("am start"), "Actual command was: '$cmd'")
-        assertTrue(cmd.contains("-a com.example.CUSTOM_ACTION"), "Actual command was: '$cmd'")
-        assertTrue(cmd.contains("-p com.example.app"), "Actual command was: '$cmd'")
-        // Assert we did not query package manager for launcher activity
-        assertTrue(
-            commandsExecuted.none { it.contains("resolve-activity") },
-            "Should not query launcher",
-        )
-    }
-
-    @Test
-    fun testClearDeviceLogs() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val commandsExecuted = mutableListOf<String>()
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                commandsExecuted.add(cmd)
-                flowOf("")
-            }
-
-        device.clearDeviceLogs()
-
-        assertTrue(commandsExecuted.isNotEmpty())
-        assertEquals("logcat -c", commandsExecuted.last())
-    }
-
-    @Test
-    fun testAsyncMethods() {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenReturn(flowOf(""))
-
-        val future = device.stopAppAsync()
-        val result = future.get()
-        assertEquals(device, result)
-    }
-
-    @Test
-    fun testPerformRestoreSessionFiltering() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        var dumpsysCallCount = 0
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                val collector = invocation.getArgument<Any>(2)
-                val isShellCommandOutput = collector::class.java.name.contains("ShellCommandOutput")
-                if (cmd.contains("dumpsys backup")) {
-                    dumpsysCallCount++
-                    val stdout =
-                        when (dumpsysCallCount) {
-                            // 1. Idle state before dispatch: "Restore session: null" should NOT
-                            // match
-                            1 -> "Restore session: null\nRestore in progress: false\n"
-                            // 2. Active state: valid session object dispatched
-                            2 ->
-                                "Restore session: com.android.server.backup.RestoreSession@123\n" +
-                                    "Restore in progress: true\n"
-                            // 3. Completed state: session finishes
-                            else -> "Restore session: null\nRestore in progress: false\n"
-                        }
-                    flowOf(com.android.adblib.ShellCommandOutput(stdout, "", 0))
-                } else if (cmd.contains("bmgr list transports")) {
-                    flowOf(
-                        com.android.adblib.ShellCommandOutput(
-                            "* com.android.localtransport/.LocalTransport\n",
-                            "",
-                            0,
-                        )
-                    )
-                } else if (isShellCommandOutput) {
-                    flowOf(com.android.adblib.ShellCommandOutput("", "", 0))
-                } else {
-                    flowOf("")
-                }
-            }
-
-        val localBackupFile = tempFolder.newFile("backup_local_device.zip")
-        device.performRestore(localBackupFile.toPath(), Duration.ofSeconds(2))
-        assertTrue(
-            dumpsysCallCount >= 3,
-            "Expected at least 3 dumpsys polls, actual: $dumpsysCallCount",
-        )
-    }
-
-    @Test
-    fun testUnstopPackageWithLauncherActivity() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val commandsExecuted = mutableListOf<String>()
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                val collector = invocation.getArgument<Any>(2)
-                val isTextCollector =
-                    collector::class.java.name.contains("TextShellCollector") ||
-                        collector::class.java.name.contains("LineShellCollector")
-                commandsExecuted.add(cmd)
-                val stdout =
-                    if (cmd.contains("resolve-activity")) {
-                        "priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true\ncom.example.app/com.example.app.MainActivity\n"
-                    } else if (cmd.contains("bmgr list transports")) {
-                        "* com.android.localtransport/.LocalTransport\n"
-                    } else {
-                        ""
-                    }
-                if (isTextCollector) {
-                    flowOf(stdout)
-                } else {
-                    flowOf(com.android.adblib.ShellCommandOutput(stdout, "", 0))
-                }
-            }
-
-        device.performBackup(BackupTransportMode.LOCAL, tempFolder.root.toPath())
-
-        assertTrue(
-            commandsExecuted.any {
-                it.contains(
-                    "am broadcast -a android.intent.action.MAIN -p com.example.app --include-stopped-packages"
-                )
-            },
-            "Expected silent broadcast wake-up",
-        )
-        assertTrue(
-            commandsExecuted.any { it.contains("resolve-activity") },
-            "Expected resolve-activity query",
-        )
-        assertTrue(
-            commandsExecuted.any {
-                it.contains("am start -W -n 'com.example.app/com.example.app.MainActivity'")
-            },
-            "Expected explicit activity launch",
-        )
-        assertTrue(
-            commandsExecuted.any { it.contains("input keyevent KEYCODE_HOME") },
-            "Expected KEYCODE_HOME keyevent to restore home screen",
-        )
-        assertTrue(
-            commandsExecuted.none { it.contains("monkey") },
-            "Expected no monkey command execution",
-        )
-    }
-
-    @Test
-    fun testUnstopPackageWithoutLauncherActivity() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val commandsExecuted = mutableListOf<String>()
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                val collector = invocation.getArgument<Any>(2)
-                val isTextCollector =
-                    collector::class.java.name.contains("TextShellCollector") ||
-                        collector::class.java.name.contains("LineShellCollector")
-                commandsExecuted.add(cmd)
-                val stdout =
-                    if (cmd.contains("resolve-activity")) {
-                        "No activity found\n"
-                    } else if (cmd.contains("bmgr list transports")) {
-                        "* com.android.localtransport/.LocalTransport\n"
-                    } else {
-                        ""
-                    }
-                if (isTextCollector) {
-                    flowOf(stdout)
-                } else {
-                    flowOf(com.android.adblib.ShellCommandOutput(stdout, "", 0))
-                }
-            }
-
-        device.performBackup(BackupTransportMode.LOCAL, tempFolder.root.toPath())
-
-        assertTrue(
-            commandsExecuted.any {
-                it.contains(
-                    "am broadcast -a android.intent.action.MAIN -p com.example.app --include-stopped-packages"
-                )
-            },
-            "Expected silent broadcast wake-up",
-        )
-        assertTrue(
-            commandsExecuted.any { it.contains("resolve-activity") },
-            "Expected resolve-activity query",
-        )
-        assertTrue(
-            commandsExecuted.none { it.contains("am start") },
-            "Expected no activity start when launcher is absent",
-        )
-        assertTrue(
-            commandsExecuted.none { it.contains("monkey") },
-            "Expected no monkey execution when launcher is absent",
-        )
-        assertTrue(
-            commandsExecuted.none { it.contains("KEYCODE_HOME") },
-            "Expected no KEYCODE_HOME keyevent when no activity was launched",
-        )
-    }
-
-    @Test
-    fun testLaunchAppWithInnerClassActivity() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val commandsExecuted = mutableListOf<String>()
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                commandsExecuted.add(cmd)
-                flowOf("")
-            }
-
-        device.launchApp(activityClass = "com.example.app.MainActivity\$InnerActivity")
-        val cmd = commandsExecuted.last()
-        assertTrue(
-            cmd.contains("-n 'com.example.app/com.example.app.MainActivity\$InnerActivity'"),
-            "Expected escaped inner class with dollar sign: '$cmd'",
-        )
-    }
-
-    @Test
-    fun testUnstopPackageWithInnerClassLauncherActivity() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val commandsExecuted = mutableListOf<String>()
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                val collector = invocation.getArgument<Any>(2)
-                val isTextCollector =
-                    collector::class.java.name.contains("TextShellCollector") ||
-                        collector::class.java.name.contains("LineShellCollector")
-                commandsExecuted.add(cmd)
-                val stdout =
-                    if (cmd.contains("resolve-activity")) {
-                        "priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true\ncom.example.app/com.example.app.MainActivity\$InnerLauncher\n"
-                    } else if (cmd.contains("bmgr list transports")) {
-                        "* com.android.localtransport/.LocalTransport\n"
-                    } else {
-                        ""
-                    }
-                if (isTextCollector) {
-                    flowOf(stdout)
-                } else {
-                    flowOf(com.android.adblib.ShellCommandOutput(stdout, "", 0))
-                }
-            }
-
-        device.performBackup(BackupTransportMode.LOCAL, tempFolder.root.toPath())
-
-        assertTrue(
-            commandsExecuted.any {
-                it.contains(
-                    "am start -W -n 'com.example.app/com.example.app.MainActivity\$InnerLauncher'"
-                )
-            },
-            "Expected explicit activity launch escaping inner class dollar sign",
-        )
-    }
-
-    @Test
-    fun testRunBackupRestoreFlowRecordsExecutionSummaryAndPublishesMetrics() {
-        val publishedMetrics = mutableMapOf<String, String>()
-        val device =
-            BackupRestoreControllerImpl(
-                mockSession,
-                "emulator-5554",
-                34,
-                "com.example.app",
-                telemetryPublisher = { k, v -> publishedMetrics[k] = v },
-            )
-
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                val collector = invocation.getArgument<Any>(2)
-                val isTextCollector =
-                    collector::class.java.name.contains("TextShellCollector") ||
-                        collector::class.java.name.contains("LineShellCollector")
-                val stdout =
-                    if (cmd.contains("pm clear")) {
-                        "Success\n"
-                    } else if (cmd.contains("bmgr list transports")) {
-                        "* com.android.localtransport/.LocalTransport\n"
-                    } else if (cmd.contains("dumpsys backup")) {
-                        "Restore complete: 0\n"
-                    } else if (cmd.contains("am instrument")) {
-                        "BACKUP_RESTORE_RESULT: {\"isSuccess\":true}\n"
-                    } else {
-                        ""
-                    }
-                if (isTextCollector) {
-                    flowOf(stdout)
-                } else {
-                    flowOf(com.android.adblib.ShellCommandOutput(stdout, "", 0))
-                }
-            }
-
-        runBlocking {
-            device.runBackupRestoreFlow(
-                listOf(StorageDomain.Preference("app_prefs", "key", "val")),
-                tempFolder.root.toPath(),
-                BackupTransportMode.LOCAL,
-            )
+    fun deviceOperationsRunOnTheApplication() = runBlocking {
+        device.onShell { command ->
+            if (command.startsWith("pm clear")) shellOutput("Success\n") else shellOutput()
         }
 
-        val summary = device.lastExecutionSummary
-        assertNotNull(summary)
-        assertEquals(BackupTransportMode.LOCAL, summary.transportMode)
+        assertEquals(controller, controller.stopApp())
+        assertEquals(controller, controller.clearAppData())
+        assertEquals(controller, controller.clearDeviceLogs())
+        assertEquals(
+            controller,
+            controller.pullFile("/sdcard/a.txt", tempFolder.root.toPath().resolve("a.txt")),
+        )
+
+        assertEquals(
+            listOf("am force-stop $PACKAGE", "pm clear $PACKAGE", "logcat -c"),
+            device.commands,
+        )
+        assertEquals(listOf("/sdcard/a.txt"), device.pulledPaths)
+    }
+
+    @Test
+    fun fetchDeviceLogsWritesTheLogcatDump() = runBlocking {
+        device.onShell { shellOutput("line 1\nline 2\n") }
+        val destination = tempFolder.root.toPath().resolve("logcat.txt")
+
+        controller.fetchDeviceLogs(destination)
+
+        assertEquals("line 1\nline 2\n", destination.toFile().readText())
+    }
+
+    @Test
+    fun asyncMethodsCompleteWithTheController() {
+        assertEquals(controller, controller.stopAppAsync().get())
+    }
+
+    @Test
+    fun performBackupWritesTheLocalArchiveToTheOutputDirectory() = runBlocking {
+        onHealthyDevice()
+
+        val archive = controller.performBackup(BackupTransportMode.LOCAL, tempFolder.root.toPath())
+
+        assertEquals(tempFolder.root.toPath().resolve("backup_local_device.zip"), archive)
+        assertTrue(archive.toFile().isFile)
+    }
+
+    @Test
+    fun performRestoreUsesTheLocalTransportForALocalArchive() = runBlocking {
+        onHealthyDevice()
+
+        controller.performRestore(tempFolder.newFile("backup_local_device.zip").toPath())
+
+        assertTrue(device.commands.contains("bmgr restore 1 $PACKAGE"), "${device.commands}")
+    }
+
+    @Test
+    fun localBackupRunsOnTheLocalTransportThenSelectsTheOriginalOneAgain() = runBlocking {
+        device.onShell { command ->
+            when {
+                command == "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
+                command.contains("resolve-activity") -> shellOutput("No activity found\n")
+                else -> shellOutput()
+            }
+        }
+
+        val archive = controller.performBackup(LOCAL, outputDir())
+
+        assertEquals(
+            listOf(
+                "bmgr enable true",
+                "bmgr list transports",
+                "bmgr transport $LOCAL_TRANSPORT",
+                "bmgr backupnow @pm@",
+                "bmgr backupnow $PACKAGE",
+                "bmgr transport '$GMS_TRANSPORT'",
+            ),
+            device.commands.dropWhile { !it.startsWith("bmgr") },
+        )
+        ZipFile(archive.toFile()).use { zip ->
+            assertEquals("1", zip.getInputStream(zip.getEntry("token.txt")).reader().readText())
+        }
+    }
+
+    /** Backup skips packages in the stopped state, so the package is woken up first. */
+    @Test
+    fun localBackupUnstopsThePackageFirst() = runBlocking {
+        controller.performBackup(LOCAL, outputDir())
+
+        assertTrue(
+            device.commands.first().startsWith("am broadcast -a android.intent.action.MAIN"),
+            "Actual commands: ${device.commands}",
+        )
+    }
+
+    @Test
+    fun localBackupKeepsTheLocalTransportWhenItWasAlreadySelected() = runBlocking {
+        device.onShell { command ->
+            if (command == "bmgr list transports") shellOutput(TRANSPORTS_WITH_LOCAL_SELECTED)
+            else shellOutput()
+        }
+
+        controller.performBackup(LOCAL, outputDir())
+
+        assertEquals(
+            listOf("bmgr transport $LOCAL_TRANSPORT"),
+            device.commands.filter { it.startsWith("bmgr transport") },
+        )
+    }
+
+    @Test
+    fun localBackupAssumesTheGmsTransportWhenNoneIsMarkedSelected() = runBlocking {
+        device.onShell { command ->
+            if (command == "bmgr list transports") shellOutput("    $LOCAL_TRANSPORT\n")
+            else shellOutput()
+        }
+
+        controller.performBackup(LOCAL, outputDir())
+
+        assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
+    }
+
+    /**
+     * Restore waits for the restore pass to be registered and then to end. An idle session reads
+     * `Restore session: null`, which must not count as a restore in progress.
+     */
+    @Test
+    fun localRestoreWaitsForTheRestorePassToEnd() = runBlocking {
+        var dumpsysCount = 0
+        device.onShell { command ->
+            when (command) {
+                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
+                "dumpsys backup" ->
+                    when (++dumpsysCount) {
+                        2 ->
+                            shellOutput(
+                                "Restore session: com.android.server.backup.RestoreSession@123\n" +
+                                    "Restore in progress: true\n"
+                            )
+                        else -> shellOutput("Restore session: null\nRestore in progress: false\n")
+                    }
+                else -> shellOutput()
+            }
+        }
+
+        controller.performRestore(tempFolder.newFile("backup_local_device.zip").toPath())
+
+        assertEquals(3, dumpsysCount)
+        assertEquals(
+            listOf(
+                "bmgr list transports",
+                "bmgr transport $LOCAL_TRANSPORT",
+                "bmgr restore 1 $PACKAGE",
+                "bmgr run",
+                "bmgr transport '$GMS_TRANSPORT'",
+            ),
+            device.commands.filter { it != "dumpsys backup" },
+        )
+    }
+
+    @Test
+    fun flowRunsEveryStageInOrderAndPublishesTheSummary() {
+        onHealthyDevice()
+
+        runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+
+        val stageCommands =
+            listOf(
+                    BackupRestoreController.ACTION_POPULATE_STORAGE,
+                    "am force-stop",
+                    "bmgr backupnow $PACKAGE",
+                    "pm clear",
+                    "bmgr restore",
+                    BackupRestoreController.ACTION_ASSERT_STORAGE,
+                )
+                .map { stage -> device.commands.indexOfFirst { it.contains(stage) } }
+        assertEquals(stageCommands.sorted(), stageCommands, "${device.commands}")
+        assertFalse(stageCommands.contains(-1), "${device.commands}")
+
+        val summary = assertNotNull(controller.lastExecutionSummary)
+        assertEquals(LOCAL, summary.transportMode)
         assertEquals(1, summary.storageDomainCount)
         assertTrue(summary.isSuccess)
         assertEquals(BackupErrorCode.NONE, summary.errorCode)
-        assertTrue(summary.totalDuration.toMillis() >= 0)
-
-        assertEquals("unknown", publishedMetrics["BackupRestore.libraryVersion"])
-        assertEquals("LOCAL", publishedMetrics["BackupRestore.transportMode"])
-        assertEquals("1", publishedMetrics["BackupRestore.storageDomainCount"])
-        assertEquals("SUCCESS", publishedMetrics["BackupRestore.status"])
-        assertTrue(publishedMetrics.containsKey("BackupRestore.totalDurationMillis"))
+        assertEquals("LOCAL", publishedMetrics[BackupReportKeys.TRANSPORT_MODE])
+        assertEquals("SUCCESS", publishedMetrics[BackupReportKeys.STATUS])
     }
 
     @Test
-    fun testRunBackupRestoreFlowMapsClearDataFailureToClearDataFailed() {
-        val publishedMetrics = mutableMapOf<String, String>()
-        val device =
-            BackupRestoreControllerImpl(
-                mockSession,
-                "emulator-5554",
-                34,
-                "com.example.app",
-                telemetryPublisher = { k, v -> publishedMetrics[k] = v },
-            )
-
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                val collector = invocation.getArgument<Any>(2)
-                val isTextCollector =
-                    collector::class.java.name.contains("TextShellCollector") ||
-                        collector::class.java.name.contains("LineShellCollector")
-                val stdout =
-                    if (cmd.contains("bmgr list transports")) {
-                        "* com.android.localtransport/.LocalTransport\n"
-                    } else if (cmd.contains("pm clear")) {
-                        throw java.io.IOException("pm clear failed to clear package data")
-                    } else if (cmd.contains("am instrument")) {
-                        "BACKUP_RESTORE_RESULT: {\"isSuccess\":true}\n"
-                    } else {
-                        ""
-                    }
-                if (isTextCollector) {
-                    flowOf(stdout)
-                } else {
-                    flowOf(com.android.adblib.ShellCommandOutput(stdout, "", 0))
-                }
-            }
+    fun flowStopsBeforeRestoreWhenClearingDataFails() {
+        onHealthyDevice { command ->
+            if (command.startsWith("pm clear")) shellOutput(stderr = "Failed\n", exitCode = 1)
+            else null
+        }
 
         assertFailsWith<IOException> {
-            runBlocking {
-                device.runBackupRestoreFlow(
-                    listOf(StorageDomain.Preference("app_prefs", "key", "val")),
-                    tempFolder.root.toPath(),
-                    BackupTransportMode.LOCAL,
-                )
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.CLEAR_DATA, BackupErrorCode.CLEAR_DATA_FAILED)
+        assertEquals("FAILURE", publishedMetrics[BackupReportKeys.STATUS])
+        assertEquals("CLEAR_DATA_FAILED", publishedMetrics[BackupReportKeys.ERROR_CODE])
+        assertEquals("CLEAR_DATA", publishedMetrics[BackupReportKeys.FAILURE_STAGE])
+        assertTrue(
+            device.commands.none {
+                it.contains("bmgr restore") ||
+                    it.contains(BackupRestoreController.ACTION_ASSERT_STORAGE)
+            },
+            "Restore and verification must not run after a failed clear: ${device.commands}",
+        )
+    }
+
+    @Test
+    fun flowAttributesAStopFailureToTheBackup() {
+        onHealthyDevice { command ->
+            if (command.startsWith("am force-stop")) throw IOException("Failed to stop process")
+            else null
+        }
+
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.BACKUP, BackupErrorCode.BACKUP_FAILED)
+    }
+
+    @Test
+    fun flowAttributesASeedingTimeoutToSeedingRatherThanRestore() {
+        onHealthyDevice { command ->
+            if (command.startsWith("am instrument")) {
+                throw IOException("Command execution timed out after 30 seconds")
+            } else {
+                null
             }
         }
 
-        val summary = device.lastExecutionSummary
-        assertNotNull(summary)
-        assertFalse(summary.isSuccess)
-        assertEquals(BackupErrorCode.CLEAR_DATA_FAILED, summary.errorCode)
-        assertEquals(BackupExecutionStage.CLEAR_DATA, summary.failureStage)
-        assertEquals("FAILURE", publishedMetrics["BackupRestore.status"])
-        assertEquals(
-            BackupErrorCode.CLEAR_DATA_FAILED.name,
-            publishedMetrics["BackupRestore.errorCode"],
-        )
-        assertEquals(
-            BackupExecutionStage.CLEAR_DATA.name,
-            publishedMetrics["BackupRestore.failureStage"],
-        )
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.SEEDING, BackupErrorCode.SEEDING_FAILED)
     }
 
     @Test
-    fun testRunBackupRestoreFlowStopAppFailureMapsToBackupFailed() {
-        val publishedMetrics = mutableMapOf<String, String>()
-        val device =
-            BackupRestoreControllerImpl(
-                mockSession,
-                "emulator-5554",
-                34,
-                "com.example.app",
-                telemetryPublisher = { k, v -> publishedMetrics[k] = v },
-            )
-
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                val collector = invocation.getArgument<Any>(2)
-                val isTextCollector =
-                    collector::class.java.name.contains("TextShellCollector") ||
-                        collector::class.java.name.contains("LineShellCollector")
-                val stdout =
-                    if (cmd.contains("am instrument")) {
-                        "BACKUP_RESTORE_RESULT: {\"isSuccess\":true}\n"
-                    } else if (cmd.contains("am force-stop")) {
-                        throw java.io.IOException("Failed to stop process")
-                    } else {
-                        ""
-                    }
-                if (isTextCollector) {
-                    flowOf(stdout)
-                } else {
-                    flowOf(com.android.adblib.ShellCommandOutput(stdout, "", 0))
-                }
-            }
-
-        assertFailsWith<IOException> {
-            runBlocking {
-                device.runBackupRestoreFlow(
-                    listOf(StorageDomain.Preference("app_prefs", "key", "val")),
-                    tempFolder.root.toPath(),
-                    BackupTransportMode.LOCAL,
-                )
+    fun flowClassifiesARestoreBmgrFailure() {
+        onHealthyDevice { command ->
+            if (command.startsWith("bmgr restore")) {
+                throw IOException("bmgr: transport initialization error")
+            } else {
+                null
             }
         }
 
-        val summary = device.lastExecutionSummary
-        assertNotNull(summary)
-        assertFalse(summary.isSuccess)
-        assertEquals(BackupErrorCode.BACKUP_FAILED, summary.errorCode)
-        assertEquals(BackupExecutionStage.BACKUP, summary.failureStage)
-        assertEquals("FAILURE", publishedMetrics["BackupRestore.status"])
-        assertEquals(
-            BackupErrorCode.BACKUP_FAILED.name,
-            publishedMetrics["BackupRestore.errorCode"],
-        )
-        assertEquals(
-            BackupExecutionStage.BACKUP.name,
-            publishedMetrics["BackupRestore.failureStage"],
-        )
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.RESTORE, BackupErrorCode.BMGR_INIT_FAILED)
     }
 
     @Test
-    fun testRunBackupRestoreFlowSeedingTimeoutMapsToSeedingFailedNotRestorePollTimeout() {
-        val publishedMetrics = mutableMapOf<String, String>()
-        val device =
-            BackupRestoreControllerImpl(
-                mockSession,
-                "emulator-5554",
-                34,
-                "com.example.app",
-                telemetryPublisher = { k, v -> publishedMetrics[k] = v },
-            )
-
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                if (cmd.contains("am instrument")) {
-                    throw java.io.IOException("Command execution timed out after 30 seconds")
-                }
-                val collector = invocation.getArgument<Any>(2)
-                val isTextCollector =
-                    collector::class.java.name.contains("TextShellCollector") ||
-                        collector::class.java.name.contains("LineShellCollector")
-                if (isTextCollector) {
-                    flowOf("")
-                } else {
-                    flowOf(com.android.adblib.ShellCommandOutput("", "", 0))
-                }
-            }
-
-        assertFailsWith<IOException> {
-            runBlocking {
-                device.runBackupRestoreFlow(
-                    listOf(StorageDomain.Preference("app_prefs", "key", "val")),
-                    tempFolder.root.toPath(),
-                    BackupTransportMode.LOCAL,
-                )
+    fun flowClassifiesARestorePollingTimeout() {
+        onHealthyDevice { command ->
+            if (command == "dumpsys backup") {
+                throw IOException("RESTORE POLLING TIMED OUT WAITING FOR COMPLETION")
+            } else {
+                null
             }
         }
 
-        val summary = device.lastExecutionSummary
-        assertNotNull(summary)
-        assertFalse(summary.isSuccess)
-        assertEquals(BackupErrorCode.SEEDING_FAILED, summary.errorCode)
-        assertEquals(BackupExecutionStage.SEEDING, summary.failureStage)
-        assertEquals("FAILURE", publishedMetrics["BackupRestore.status"])
-        assertEquals(
-            BackupErrorCode.SEEDING_FAILED.name,
-            publishedMetrics["BackupRestore.errorCode"],
-        )
-        assertEquals(
-            BackupExecutionStage.SEEDING.name,
-            publishedMetrics["BackupRestore.failureStage"],
-        )
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.RESTORE, BackupErrorCode.RESTORE_POLL_TIMEOUT)
     }
 
     @Test
-    fun testRunBackupRestoreFlowTelemetryPublisherExceptionDoesNotMaskSuccess() {
-        val device =
+    fun flowReportsWhichDomainFailedVerification() {
+        onHealthyDevice { command ->
+            if (command.contains(BackupRestoreController.ACTION_ASSERT_STORAGE)) {
+                shellOutput(
+                    runnerStdout("""{"status":"failure","error":"Expected 'v' but found 'x'"}""")
+                )
+            } else {
+                null
+            }
+        }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+            }
+
+        assertEquals(
+            "AssertStorageAction failed for $PREFERENCE: Expected 'v' but found 'x'",
+            e.message,
+        )
+        assertFailure(BackupExecutionStage.VERIFICATION, BackupErrorCode.VERIFICATION_FAILED)
+    }
+
+    @Test
+    fun flowSucceedsWhenPublishingTelemetryFails() {
+        onHealthyDevice()
+        val controller =
             BackupRestoreControllerImpl(
-                mockSession,
-                "emulator-5554",
+                device.session,
+                FAKE_SERIAL,
                 34,
-                "com.example.app",
+                PACKAGE,
                 telemetryPublisher = { _, _ -> throw RuntimeException("Telemetry publish failed") },
             )
 
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                val collector = invocation.getArgument<Any>(2)
-                val isTextCollector =
-                    collector::class.java.name.contains("TextShellCollector") ||
-                        collector::class.java.name.contains("LineShellCollector")
-                val stdout =
-                    if (cmd.contains("pm clear")) {
-                        "Success\n"
-                    } else if (cmd.contains("bmgr list transports")) {
-                        "* com.android.localtransport/.LocalTransport\n"
-                    } else if (cmd.contains("am instrument")) {
-                        "BACKUP_RESTORE_RESULT: {\"isSuccess\":true}\n"
-                    } else {
-                        ""
-                    }
-                if (isTextCollector) {
-                    flowOf(stdout)
-                } else {
-                    flowOf(com.android.adblib.ShellCommandOutput(stdout, "", 0))
-                }
-            }
+        runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
 
-        // Even though telemetryPublisher throws, the flow must complete successfully
-        runBlocking {
-            device.runBackupRestoreFlow(
-                listOf(StorageDomain.Preference("app_prefs", "key", "val")),
-                tempFolder.root.toPath(),
-                BackupTransportMode.LOCAL,
-            )
-        }
-
-        val summary = device.lastExecutionSummary
-        assertNotNull(summary)
-        assertTrue(summary.isSuccess)
-        assertEquals(BackupErrorCode.NONE, summary.errorCode)
+        assertTrue(assertNotNull(controller.lastExecutionSummary).isSuccess)
     }
 
     @Test
-    fun testRunBackupRestoreFlowEmptyStoragesFailsAtPrecondition() {
-        val publishedMetrics = mutableMapOf<String, String>()
-        val device =
-            BackupRestoreControllerImpl(
-                mockSession,
-                "emulator-5554",
-                34,
-                "com.example.app",
-                telemetryPublisher = { k, v -> publishedMetrics[k] = v },
-            )
-
+    fun flowRejectsAnEmptyDomainListAsAPreconditionFailure() {
         assertFailsWith<IllegalArgumentException> {
-            runBlocking {
-                device.runBackupRestoreFlow(
-                    emptyList(),
-                    tempFolder.root.toPath(),
-                    BackupTransportMode.LOCAL,
-                )
-            }
+            runBlocking { controller.runBackupRestoreFlow(emptyList(), outputDir(), LOCAL) }
         }
 
-        val summary = device.lastExecutionSummary
-        assertNotNull(summary)
-        assertFalse(summary.isSuccess)
-        assertEquals(BackupExecutionStage.PRECONDITION, summary.failureStage)
-        assertEquals(BackupErrorCode.UNKNOWN_ERROR, summary.errorCode)
-        assertEquals("FAILURE", publishedMetrics["BackupRestore.status"])
-        assertEquals(
-            BackupExecutionStage.PRECONDITION.name,
-            publishedMetrics["BackupRestore.failureStage"],
-        )
+        assertFailure(BackupExecutionStage.PRECONDITION, BackupErrorCode.UNKNOWN_ERROR)
+        assertTrue(device.commands.isEmpty(), "${device.commands}")
     }
 
-    @Test
-    fun testRunBackupRestoreFlowRestoreBmgrFailureMapsToBmgrInitFailed() {
-        val publishedMetrics = mutableMapOf<String, String>()
-        val device =
-            BackupRestoreControllerImpl(
-                mockSession,
-                "emulator-5554",
-                34,
-                "com.example.app",
-                telemetryPublisher = { k, v -> publishedMetrics[k] = v },
-            )
-
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                val collector = invocation.getArgument<Any>(2)
-                val isTextCollector =
-                    collector::class.java.name.contains("TextShellCollector") ||
-                        collector::class.java.name.contains("LineShellCollector")
-                val stdout =
-                    if (cmd.contains("pm clear")) {
-                        "Success\n"
-                    } else if (cmd.contains("am instrument")) {
-                        "BACKUP_RESTORE_RESULT: {\"isSuccess\":true}\n"
-                    } else if (cmd.contains("bmgr restore")) {
-                        throw java.io.IOException("bmgr: transport initialization error")
-                    } else {
-                        ""
-                    }
-                if (isTextCollector) {
-                    flowOf(stdout)
-                } else {
-                    flowOf(com.android.adblib.ShellCommandOutput(stdout, "", 0))
+    /**
+     * Answers shell commands as a device on which every step of the local backup and restore flow
+     * succeeds, except where [override] returns an output or throws.
+     */
+    private fun onHealthyDevice(override: (String) -> ShellCommandOutput? = { null }) {
+        var restoreProgressChecks = 0
+        device.onShell { command ->
+            override(command)
+                ?: when {
+                    command.startsWith("am instrument") -> shellOutput(runnerStdout("{}"))
+                    command.startsWith("pm clear") -> shellOutput("Success\n")
+                    command == "bmgr list transports" ->
+                        shellOutput("  * com.android.localtransport/.LocalTransport\n")
+                    // The restore pass is reported as registered once and then as ended.
+                    command == "dumpsys backup" ->
+                        if (++restoreProgressChecks == 1) {
+                            shellOutput("Restore in progress: true\n")
+                        } else {
+                            shellOutput("Restore in progress: false\n")
+                        }
+                    else -> shellOutput()
                 }
-            }
-
-        assertFailsWith<IOException> {
-            runBlocking {
-                device.runBackupRestoreFlow(
-                    listOf(StorageDomain.Preference("app_prefs", "key", "val")),
-                    tempFolder.root.toPath(),
-                    BackupTransportMode.LOCAL,
-                )
-            }
         }
+    }
 
-        val summary = device.lastExecutionSummary
-        assertNotNull(summary)
+    private fun assertFailure(stage: BackupExecutionStage, errorCode: BackupErrorCode) {
+        val summary = assertNotNull(controller.lastExecutionSummary)
         assertFalse(summary.isSuccess)
-        assertEquals(BackupErrorCode.BMGR_INIT_FAILED, summary.errorCode)
-        assertEquals(BackupExecutionStage.RESTORE, summary.failureStage)
-        assertEquals(
-            BackupErrorCode.BMGR_INIT_FAILED.name,
-            publishedMetrics["BackupRestore.errorCode"],
-        )
-        assertEquals(
-            BackupExecutionStage.RESTORE.name,
-            publishedMetrics["BackupRestore.failureStage"],
-        )
+        assertEquals(stage, summary.failureStage)
+        assertEquals(errorCode, summary.errorCode)
     }
 
-    @Test
-    fun testRunBackupRestoreFlowRestoreUppercaseTimeoutMapsToRestorePollTimeout() {
-        val publishedMetrics = mutableMapOf<String, String>()
-        val device =
-            BackupRestoreControllerImpl(
-                mockSession,
-                "emulator-5554",
-                34,
-                "com.example.app",
-                telemetryPublisher = { k, v -> publishedMetrics[k] = v },
-            )
+    private fun outputDir() = tempFolder.root.toPath()
 
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val cmd = invocation.getArgument(1) as String
-                val collector = invocation.getArgument<Any>(2)
-                val isTextCollector =
-                    collector::class.java.name.contains("TextShellCollector") ||
-                        collector::class.java.name.contains("LineShellCollector")
-                val stdout =
-                    if (cmd.contains("pm clear")) {
-                        "Success\n"
-                    } else if (cmd.contains("am instrument")) {
-                        "BACKUP_RESTORE_RESULT: {\"isSuccess\":true}\n"
-                    } else if (cmd.contains("dumpsys backup")) {
-                        throw java.io.IOException(
-                            "RESTORE POLLING TIMED OUT WAITING FOR COMPLETION"
-                        )
-                    } else {
-                        ""
-                    }
-                if (isTextCollector) {
-                    flowOf(stdout)
-                } else {
-                    flowOf(com.android.adblib.ShellCommandOutput(stdout, "", 0))
-                }
-            }
+    private companion object {
+        const val PACKAGE = "com.example.app"
+        const val RUNNER = "androidx.test.backup.BackupRestoreTestRunner"
+        const val RESULT_MARKER = "BACKUP_RESTORE_RESULT: "
+        val LOCAL = BackupTransportMode.LOCAL
+        val PREFERENCE = StorageDomain.Preference("app_prefs", "key", "val")
+        const val LOCAL_TRANSPORT = "com.android.localtransport/.LocalTransport"
+        const val GMS_TRANSPORT = "com.google.android.gms/.backup.BackupTransportService"
+        const val TRANSPORTS_WITH_GMS_SELECTED = "    $LOCAL_TRANSPORT\n  * $GMS_TRANSPORT\n"
+        const val TRANSPORTS_WITH_LOCAL_SELECTED = "  * $LOCAL_TRANSPORT\n    $GMS_TRANSPORT\n"
 
-        assertFailsWith<IOException> {
-            runBlocking {
-                device.runBackupRestoreFlow(
-                    listOf(StorageDomain.Preference("app_prefs", "key", "val")),
-                    tempFolder.root.toPath(),
-                    BackupTransportMode.LOCAL,
-                )
+        /** Wraps an action payload in the envelope the on-device runner prints to stdout. */
+        fun runnerStdout(payloadJson: String): String {
+            val envelope = buildJsonObject {
+                put("isSuccess", true)
+                put("payloadJson", payloadJson)
             }
+            return "$RESULT_MARKER$envelope\n"
         }
 
-        val summary = device.lastExecutionSummary
-        assertNotNull(summary)
-        assertFalse(summary.isSuccess)
-        assertEquals(BackupErrorCode.RESTORE_POLL_TIMEOUT, summary.errorCode)
-        assertEquals(BackupExecutionStage.RESTORE, summary.failureStage)
-        assertEquals(
-            BackupErrorCode.RESTORE_POLL_TIMEOUT.name,
-            publishedMetrics["BackupRestore.errorCode"],
-        )
-    }
-
-    @Test
-    fun testClearAppDataSucceedsWhenPmClearReportsSuccess() = runBlocking {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-        val commandsExecuted = mutableListOf<String>()
-        stubShell { cmd ->
-            commandsExecuted.add(cmd)
-            com.android.adblib.ShellCommandOutput("Success\n", "", 0)
-        }
-
-        assertEquals(device, device.clearAppData())
-        assertEquals(
-            listOf("pm clear com.example.app"),
-            commandsExecuted.filter { it.startsWith("pm ") },
-        )
-    }
-
-    @Test
-    fun testClearAppDataThrowsWhenPmClearReportsFailure() {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-        stubShell { com.android.adblib.ShellCommandOutput("", "Failed\n", 1) }
-
-        val e = assertFailsWith<IOException> { runBlocking { device.clearAppData() } }
-        assertTrue(e.message!!.contains("com.example.app"), "Unexpected message: ${e.message}")
-        assertTrue(e.message!!.contains("exit code 1"), "Unexpected message: ${e.message}")
-        assertTrue(e.message!!.contains("Failed"), "Unexpected message: ${e.message}")
-    }
-
-    @Test
-    fun testClearAppDataThrowsWhenPmClearDoesNotReportSuccess() {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-        stubShell { com.android.adblib.ShellCommandOutput("", "", 0) }
-
-        val e = assertFailsWith<IOException> { runBlocking { device.clearAppData() } }
-        assertEquals("Failed to clear app data for com.example.app (exit code 0)", e.message)
-    }
-
-    @Test
-    fun testClearAppDataThrowsWhenFailureIsReportedOnStdout() {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-        // Without the shell v2 protocol stderr is merged into stdout and no exit code is reported.
-        stubShell { com.android.adblib.ShellCommandOutput("Failed\n", "", 0) }
-
-        val e = assertFailsWith<IOException> { runBlocking { device.clearAppData() } }
-        assertEquals(
-            "Failed to clear app data for com.example.app (exit code 0): Failed",
-            e.message,
-        )
-    }
-
-    @Test
-    fun testClearAppDataReportsIdenticalStreamsOnce() {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-        stubShell { com.android.adblib.ShellCommandOutput("Failed\n", "Failed\n", 1) }
-
-        val e = assertFailsWith<IOException> { runBlocking { device.clearAppData() } }
-        assertEquals(
-            "Failed to clear app data for com.example.app (exit code 1): Failed",
-            e.message,
-        )
-    }
-
-    @Test
-    fun testRunBackupRestoreFlowStopsBeforeRestoreWhenPmClearFails() {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-        val commandsExecuted = mutableListOf<String>()
-        stubShell { cmd ->
-            commandsExecuted.add(cmd)
-            when {
-                cmd.contains("pm clear") -> com.android.adblib.ShellCommandOutput("", "Failed\n", 1)
-                cmd.contains("bmgr list transports") ->
-                    com.android.adblib.ShellCommandOutput(
-                        "* com.android.localtransport/.LocalTransport\n",
-                        "",
-                        0,
-                    )
-                cmd.contains("am instrument") ->
-                    com.android.adblib.ShellCommandOutput(
-                        "BACKUP_RESTORE_RESULT: {\"isSuccess\":true}\n",
-                        "",
-                        0,
-                    )
-                else -> com.android.adblib.ShellCommandOutput("", "", 0)
+        /** Runner output for a payload that was written to [devicePath] instead of printed. */
+        fun overflowStdout(devicePath: String): String {
+            val envelope = buildJsonObject {
+                put("isSuccess", true)
+                put("payload_path", devicePath)
             }
+            return "$RESULT_MARKER$envelope\n"
         }
-
-        assertFailsWith<IOException> {
-            runBlocking {
-                device.runBackupRestoreFlow(
-                    listOf(StorageDomain.Preference("app_prefs", "key", "val")),
-                    tempFolder.root.toPath(),
-                    BackupTransportMode.LOCAL,
-                )
-            }
-        }
-
-        val summary = device.lastExecutionSummary
-        assertNotNull(summary)
-        assertEquals(BackupErrorCode.CLEAR_DATA_FAILED, summary.errorCode)
-        assertEquals(BackupExecutionStage.CLEAR_DATA, summary.failureStage)
-        assertTrue(
-            commandsExecuted.none { it.contains("bmgr restore") },
-            "Restore must not run after a failed clear: $commandsExecuted",
-        )
-        assertTrue(
-            commandsExecuted.none { it.contains(BackupRestoreController.ACTION_ASSERT_STORAGE) },
-            "Verification must not run after a failed clear: $commandsExecuted",
-        )
-    }
-
-    /** Answers every shell command issued through [mockDeviceServices] with [handler]. */
-    private fun stubShell(handler: (String) -> com.android.adblib.ShellCommandOutput) {
-        `when`(
-                mockDeviceServices.shell(
-                    any(DeviceSelector::class.java) ?: DeviceSelector.any(),
-                    any(String::class.java) ?: "",
-                    (any(ShellCollector::class.java) as? ShellCollector<*>) ?: TextShellCollector(),
-                    any(),
-                    any(),
-                    any(Duration::class.java) ?: Duration.ofSeconds(1),
-                    anyInt(),
-                    anyBoolean(),
-                    anyBoolean(),
-                )
-            )
-            .thenAnswer { invocation ->
-                val output = handler(invocation.getArgument(1) as String)
-                val collectorName = invocation.getArgument<Any>(2)::class.java.name
-                if (
-                    collectorName.contains("TextShellCollector") ||
-                        collectorName.contains("LineShellCollector")
-                ) {
-                    flowOf(output.stdout)
-                } else {
-                    flowOf(output)
-                }
-            }
     }
 }
