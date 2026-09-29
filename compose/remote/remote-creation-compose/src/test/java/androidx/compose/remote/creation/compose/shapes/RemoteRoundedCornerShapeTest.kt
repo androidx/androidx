@@ -25,7 +25,6 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
-import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
@@ -99,9 +98,7 @@ class RemoteRoundedCornerShapeTest {
                 null,
                 profile,
             )
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val recordingCanvas = RecordingCanvas(bitmap, creationState)
-        val remoteCanvas = RemoteCanvas(recordingCanvas)
+        val remoteCanvas = RemoteCanvas(creationState)
         return RemoteDrawScope(remoteCanvas) to remoteCanvas
     }
 

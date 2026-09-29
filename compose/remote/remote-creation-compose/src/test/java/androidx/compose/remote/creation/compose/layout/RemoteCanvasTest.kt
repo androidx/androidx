@@ -27,7 +27,6 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.PaintTrackerTest.TestPaintChanges
-import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
@@ -40,8 +39,10 @@ import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.text.font.FontVariation
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -56,8 +57,18 @@ class RemoteCanvasTest {
         }
     private val fakeBuffer = TestRemoteComposeBuffer()
     private lateinit var creationState: RemoteComposeCreationState
-    private lateinit var recordingCanvas: RecordingCanvas
     private lateinit var remoteCanvas: RemoteCanvas
+
+    @Before
+    fun setUp() {
+        val size = Size(500f, 500f)
+        creationState =
+            RemoteComposeCreationState(
+                androidx.compose.remote.creation.platform.AndroidxRcPlatformServices(),
+                size,
+            )
+        remoteCanvas = RemoteCanvas(creationState)
+    }
 
     @Test
     fun testFontVariationSettingsSync() {
@@ -79,7 +90,7 @@ class RemoteCanvasTest {
         remoteCanvas.drawText("World".rs, 10f.rf, 10f.rf, paint2)
 
         remoteCanvas.flush()
-        val documentOps = getOperations(recordingCanvas.document.buffer)
+        val documentOps = getOperations(remoteCanvas.document.buffer)
         val paintDataOps = documentOps.filterIsInstance<PaintData>()
         assertThat(paintDataOps).hasSize(2)
 
@@ -347,9 +358,7 @@ class RemoteCanvasTest {
                 null,
                 profile,
             )
-        val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap, creationState)
-        remoteCanvas = RemoteCanvas(recordingCanvas)
+        remoteCanvas = RemoteCanvas(creationState)
     }
 
     private fun getOperations(buffer: RemoteComposeBuffer): List<Operation> =
