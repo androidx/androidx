@@ -14,13 +14,13 @@ Run all commands from the repository root (`frameworks/support`). Always scope G
   ```
 - **Compile all SceneCore subprojects**:
   ```bash
-  PROJECT_PREFIX=:xr:scenecore ./gradlew :xr:scenecore:scenecore-spatial-core:assemble :xr:scenecore:scenecore-spatial-rendering:assemble :xr:scenecore:scenecore-projected:assemble
+  PROJECT_PREFIX=:xr:scenecore ./gradlew :xr:scenecore:scenecore-spatial-core:assemble :xr:scenecore:scenecore-spatial-rendering:assemble :xr:scenecore:scenecore-openxr:assemble
   ```
 - **Run Unit Tests (Robolectric / JVM)**:
   ```bash
   PROJECT_PREFIX=:xr:scenecore ./gradlew :xr:scenecore:scenecore-spatial-core:testReleaseUnitTest
   PROJECT_PREFIX=:xr:scenecore ./gradlew :xr:scenecore:scenecore-spatial-rendering:testReleaseUnitTest
-  PROJECT_PREFIX=:xr:scenecore ./gradlew :xr:scenecore:scenecore-projected:testReleaseUnitTest
+  PROJECT_PREFIX=:xr:scenecore ./gradlew :xr:scenecore:scenecore-openxr:testReleaseUnitTest
   ```
 - **Update Public API Tracks**:
   ```bash
@@ -35,7 +35,7 @@ Run all commands from the repository root (`frameworks/support`). Always scope G
 
 ## 3-Tier SceneCore Modular Architecture
 
-SceneCore is structured into three distinct architectural tiers to enforce separation between developer-facing APIs, runtime abstractions, platform OS extensions, split rendering engines, and IPC projection:
+SceneCore is structured into three distinct architectural tiers to enforce separation between developer-facing APIs, runtime abstractions, platform OS extensions, split rendering engines, and the OpenXR backend:
 
 ```
 +-----------------------------------------------------------------------------------------+
@@ -53,13 +53,13 @@ SceneCore is structured into three distinct architectural tiers to enforce separ
          Implemented by             Implemented by             Implemented by
                    /                      |                        \
 +-------------------------+   +---------------------------+   +---------------------------+
-| On-Device Spatial Core  |   | On-Device Spatial Render  |   | Projected & Tethered Mode |
-| :scenecore-spatial-core |   | :scenecore-spatial-rendering| | :scenecore-projected      |
+| On-Device Spatial Core  |   | On-Device Spatial Render  |   | OpenXR Backend (WIP)      |
+| :scenecore-spatial-core |   | :scenecore-spatial-rendering| | :scenecore-openxr         |
 |                         |   |                           |   |                           |
-| Interfaces directly with|   | Integrates Google's       |   | Jetpack AIDL IPC services |
-| Vendor XrExtensions and |   | native SplitEngine        |   | (IProjectedSceneCoreService)|
-| Android Platform APIs   |   | (ImpressApi) inside an    |   | across process/device     |
-|                         |   | extension SubspaceNode    |   | boundaries                |
+| Interfaces directly with|   | Integrates Google's       |   | Native OpenXR calls via   |
+| Vendor XrExtensions and |   | native SplitEngine        |   | SceneCoreOpenXrNative JNI |
+| Android Platform APIs   |   | (ImpressApi) inside an    |   | bridge. Snapshot-only;    |
+|                         |   | extension SubspaceNode    |   | not on public devices yet |
 +-------------------------+   +---------------------------+   +---------------------------+
 ```
 
@@ -75,7 +75,7 @@ SceneCore is structured into three distinct architectural tiers to enforce separ
 ### 3. Concrete Implementations
 - **`scenecore-spatial-core` (`SpatialSceneRuntime`)**: Foundational on-device spatial engine (`AndroidXrEntity`, `ActivitySpaceImpl`, `PanelEntityImpl`, `MovableComponentImpl`). Interacts directly with platform `com.android.extensions.xr.*` APIs and `SurfaceControlViewHost`.
 - **`scenecore-spatial-rendering` (`SpatialRenderingRuntime`)**: 3D spatial rendering engine. Operates inside extension `SubspaceNode` (`SplitEngineSubspaceManager`) to offload heavy rendering tasks (glTF models, materials, stereoscopic surfaces, IBL skybox) to native **SplitEngine (`ImpressApi`)**.
-- **`scenecore-projected` (`ProjectedSceneRuntime`)**: Supports projected/remote displays via AIDL services (`IProjectedSceneCoreService.aidl`, `IProjectedNode.aidl`).
+- **`scenecore-openxr` (`OpenXrSceneRuntime`)**: Experimental OpenXR backend that makes native OpenXR calls through the `SceneCoreOpenXrNative` JNI bridge. Snapshot-only (not published to maven.google.com) while the OpenXR pathway is unsupported on public devices. `OpenXrSceneRuntimeFactory` only requires `Feature.FULLSTACK`, so when it is on the classpath it is selected wherever `SpatialSceneRuntimeFactory`'s requirements are not met.
 - **`scenecore-testing` (`FakeSceneRuntime`)**: Fakes and test doubles (`FakeSceneRuntime`, `FakeRenderingRuntime`, `FakeEntity`, `FakeImpressApiImpl`, `EntityTester`) for Robolectric/JVM testing without physical XR displays or native graphics hardware.
 - **`integration-tests`**: Integration test applications (`testapp`, `videoplayerdrmtest`).
 
