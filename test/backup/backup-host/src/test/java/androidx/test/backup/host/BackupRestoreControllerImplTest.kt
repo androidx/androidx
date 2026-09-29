@@ -18,7 +18,6 @@ package androidx.test.backup.host
 
 import com.android.adblib.ShellCommandOutput
 import java.io.IOException
-import java.util.zip.ZipFile
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -295,110 +294,6 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
-    fun localBackupRunsOnTheLocalTransportThenSelectsTheOriginalOneAgain() = runBlocking {
-        device.onShell { command ->
-            when {
-                command == "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
-                command.contains("resolve-activity") -> shellOutput("No activity found\n")
-                else -> shellOutput()
-            }
-        }
-
-        val archive = controller.performBackup(LOCAL, outputDir())
-
-        assertEquals(
-            listOf(
-                "bmgr enable true",
-                "bmgr list transports",
-                "bmgr transport $LOCAL_TRANSPORT",
-                "bmgr backupnow @pm@",
-                "bmgr backupnow $PACKAGE",
-                "bmgr transport '$GMS_TRANSPORT'",
-            ),
-            device.commands.dropWhile { !it.startsWith("bmgr") },
-        )
-        ZipFile(archive.toFile()).use { zip ->
-            assertEquals("1", zip.getInputStream(zip.getEntry("token.txt")).reader().readText())
-        }
-    }
-
-    /** Backup skips packages in the stopped state, so the package is woken up first. */
-    @Test
-    fun localBackupUnstopsThePackageFirst() = runBlocking {
-        controller.performBackup(LOCAL, outputDir())
-
-        assertTrue(
-            device.commands.first().startsWith("am broadcast -a android.intent.action.MAIN"),
-            "Actual commands: ${device.commands}",
-        )
-    }
-
-    @Test
-    fun localBackupKeepsTheLocalTransportWhenItWasAlreadySelected() = runBlocking {
-        device.onShell { command ->
-            if (command == "bmgr list transports") shellOutput(TRANSPORTS_WITH_LOCAL_SELECTED)
-            else shellOutput()
-        }
-
-        controller.performBackup(LOCAL, outputDir())
-
-        assertEquals(
-            listOf("bmgr transport $LOCAL_TRANSPORT"),
-            device.commands.filter { it.startsWith("bmgr transport") },
-        )
-    }
-
-    @Test
-    fun localBackupAssumesTheGmsTransportWhenNoneIsMarkedSelected() = runBlocking {
-        device.onShell { command ->
-            if (command == "bmgr list transports") shellOutput("    $LOCAL_TRANSPORT\n")
-            else shellOutput()
-        }
-
-        controller.performBackup(LOCAL, outputDir())
-
-        assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
-    }
-
-    /**
-     * Restore waits for the restore pass to be registered and then to end. An idle session reads
-     * `Restore session: null`, which must not count as a restore in progress.
-     */
-    @Test
-    fun localRestoreWaitsForTheRestorePassToEnd() = runBlocking {
-        var dumpsysCount = 0
-        device.onShell { command ->
-            when (command) {
-                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
-                "dumpsys backup" ->
-                    when (++dumpsysCount) {
-                        2 ->
-                            shellOutput(
-                                "Restore session: com.android.server.backup.RestoreSession@123\n" +
-                                    "Restore in progress: true\n"
-                            )
-                        else -> shellOutput("Restore session: null\nRestore in progress: false\n")
-                    }
-                else -> shellOutput()
-            }
-        }
-
-        controller.performRestore(tempFolder.newFile("backup_local_device.zip").toPath())
-
-        assertEquals(3, dumpsysCount)
-        assertEquals(
-            listOf(
-                "bmgr list transports",
-                "bmgr transport $LOCAL_TRANSPORT",
-                "bmgr restore 1 $PACKAGE",
-                "bmgr run",
-                "bmgr transport '$GMS_TRANSPORT'",
-            ),
-            device.commands.filter { it != "dumpsys backup" },
-        )
-    }
-
-    @Test
     fun flowRunsEveryStageInOrderAndPublishesTheSummary() {
         onHealthyDevice()
 
@@ -606,10 +501,6 @@ class BackupRestoreControllerImplTest {
         const val RESULT_MARKER = "BACKUP_RESTORE_RESULT: "
         val LOCAL = BackupTransportMode.LOCAL
         val PREFERENCE = StorageDomain.Preference("app_prefs", "key", "val")
-        const val LOCAL_TRANSPORT = "com.android.localtransport/.LocalTransport"
-        const val GMS_TRANSPORT = "com.google.android.gms/.backup.BackupTransportService"
-        const val TRANSPORTS_WITH_GMS_SELECTED = "    $LOCAL_TRANSPORT\n  * $GMS_TRANSPORT\n"
-        const val TRANSPORTS_WITH_LOCAL_SELECTED = "  * $LOCAL_TRANSPORT\n    $GMS_TRANSPORT\n"
 
         /** Wraps an action payload in the envelope the on-device runner prints to stdout. */
         fun runnerStdout(payloadJson: String): String {

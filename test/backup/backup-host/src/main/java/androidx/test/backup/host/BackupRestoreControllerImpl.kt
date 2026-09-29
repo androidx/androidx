@@ -29,11 +29,7 @@ import java.nio.file.Path
 import java.time.Duration
 import java.util.Locale
 import java.util.logging.Logger
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.guava.future
-import kotlinx.coroutines.withTimeoutOrNull
 
 internal class BackupRestoreControllerImpl(
     private val adbSession: AdbSession,
@@ -49,6 +45,8 @@ internal class BackupRestoreControllerImpl(
     private val logger = Logger.getLogger(BackupRestoreControllerImpl::class.java.name)
 
     private val shell = BackupDeviceShell(adbSession, serialNumber)
+
+    private val localTransport = BackupLocalTransport(shell, applicationId)
 
     private val backupService: Service by lazy {
         val platformLogger = PlatformLogger.getInstance(BackupRestoreControllerImpl::class.java)
@@ -203,109 +201,15 @@ internal class BackupRestoreControllerImpl(
         }
     }
 
-    /** Backs up the package to the local transport and returns a placeholder archive. */
-    private suspend fun runLocalBackup(outputDir: Path): File {
-        logger.info("Executing robust local transport backup simulation...")
-        shell.unstopPackage(applicationId)
-        shell.exec("bmgr enable true")
-        withLocalTransport {
-            shell.exec("bmgr backupnow @pm@")
-            shell.exec("bmgr backupnow ${BackupDeviceShell.quoteIfNeeded(applicationId)}")
-        }
-        val archive = prepareBackupFile(outputDir, BackupTransportMode.LOCAL)
-        ZipOutputStream(archive.outputStream()).use { zip ->
-            zip.putNextEntry(ZipEntry("token.txt"))
-            zip.write("1".toByteArray())
-            zip.closeEntry()
-        }
-        return archive
-    }
-
-    /** Restores the package from the local transport and waits for the restore pass to end. */
-    private suspend fun runLocalRestore() {
-        logger.info("Executing robust local transport restore simulation...")
-        withLocalTransport {
-            shell.exec("bmgr restore 1 ${BackupDeviceShell.quoteIfNeeded(applicationId)}")
-            shell.exec("bmgr run")
-            waitForRestorePassCompletion(RESTORE_TIMEOUT)
-        }
-    }
-
-    /** Runs [block] with the local transport selected, then selects the original one again. */
-    private suspend fun withLocalTransport(block: suspend () -> Unit) {
-        val originalTransport =
-            shell
-                .exec("bmgr list transports")
-                .stdout
-                .lineSequence()
-                .firstOrNull { it.trim().startsWith("*") }
-                ?.replace("*", "")
-                ?.trim() ?: DEFAULT_TRANSPORT
-        shell.exec("bmgr transport $LOCAL_TRANSPORT")
-        block()
-        if (originalTransport != LOCAL_TRANSPORT) {
-            shell.exec("bmgr transport ${BackupDeviceShell.quote(originalTransport)}")
-        }
-    }
-
-    /**
-     * Waits for BackupManagerService to dispatch and complete the restore pass, or until [timeout]
-     * expires.
-     */
-    private suspend fun waitForRestorePassCompletion(timeout: Duration) {
-        val totalTimeoutMs = timeout.toMillis()
-        val dispatchTimeoutMs =
-            (totalTimeoutMs / 2)
-                .coerceAtLeast(minOf(totalTimeoutMs, 5000L))
-                .coerceAtMost(totalTimeoutMs)
-        val startNanos = System.nanoTime()
-
-        // Wait for system_server to dispatch and register the restore pass
-        val started =
-            withTimeoutOrNull(dispatchTimeoutMs) {
-                while (!isRestoreInProgress()) {
-                    delay(RESTORE_DISPATCH_POLL_INTERVAL_MS)
-                }
-                true
-            }
-
-        if (started == true) {
-            val elapsedMs = (System.nanoTime() - startNanos) / 1_000_000
-            val remainingMs = (totalTimeoutMs - elapsedMs).coerceAtLeast(1000L)
-            // Wait until the active restore pass completes
-            val completed =
-                withTimeoutOrNull(remainingMs) {
-                    while (isRestoreInProgress()) {
-                        delay(RESTORE_COMPLETION_POLL_INTERVAL_MS)
-                    }
-                    true
-                }
-
-            if (completed == null) {
-                logger.warning(
-                    "Restore pass active polling reached timeout (${timeout.toSeconds()}s); proceeding."
-                )
-            }
-        } else {
-            logger.warning(
-                "Restore pass registration was not detected within ${dispatchTimeoutMs}ms; proceeding."
-            )
-        }
-    }
-
-    private suspend fun isRestoreInProgress(): Boolean {
-        val dumpsys = shell.exec("dumpsys backup").stdout
-        return RESTORE_SESSION_REGEX.containsMatchIn(dumpsys) ||
-            RESTORE_IN_PROGRESS_REGEX.containsMatchIn(dumpsys)
-    }
-
     override suspend fun performBackup(
         mode: BackupTransportMode,
         outputDir: Path,
         timeout: Duration,
     ): Path {
         if (mode == BackupTransportMode.LOCAL) {
-            return runLocalBackup(outputDir).toPath()
+            val archive = prepareBackupFile(outputDir, mode)
+            localTransport.backup(archive)
+            return archive.toPath()
         }
         val serviceType =
             when (mode) {
@@ -346,7 +250,7 @@ internal class BackupRestoreControllerImpl(
         timeout: Duration,
     ): BackupRestoreController {
         if (backupFile.fileName.toString() == backupFileName(BackupTransportMode.LOCAL)) {
-            runLocalRestore()
+            localTransport.restore()
             return this
         }
         // Moves any foreground activity to the background so the restore agent can bind.
@@ -580,19 +484,6 @@ internal class BackupRestoreControllerImpl(
          * backup transport emulation service library.
          */
         const val MIN_GMS_VERSION = 240913000
-
-        const val LOCAL_TRANSPORT = "com.android.localtransport/.LocalTransport"
-
-        /** Assumed to be the selected transport when `bmgr` does not mark one. */
-        const val DEFAULT_TRANSPORT = "com.google.android.gms/.backup.BackupTransportService"
-
-        val RESTORE_TIMEOUT: Duration = Duration.ofSeconds(15)
-        const val RESTORE_DISPATCH_POLL_INTERVAL_MS = 250L
-        const val RESTORE_COMPLETION_POLL_INTERVAL_MS = 500L
-
-        val RESTORE_SESSION_REGEX =
-            Regex("""(?i)(?:Restore session|Active restore):\s*(?!null\b|none\b)\S+""")
-        val RESTORE_IN_PROGRESS_REGEX = Regex("""(?i)Restore (?:pass )?in progress:\s*true\b""")
 
         fun backupFileName(mode: BackupTransportMode): String =
             "backup_${mode.toString().lowercase(Locale.ROOT)}_device.zip"
