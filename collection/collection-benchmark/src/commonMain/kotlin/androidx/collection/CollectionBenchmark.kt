@@ -17,5 +17,7 @@
 package androidx.collection
 
 interface CollectionBenchmark {
+    fun prepare() {}
+
     fun measuredBlock()
 }
