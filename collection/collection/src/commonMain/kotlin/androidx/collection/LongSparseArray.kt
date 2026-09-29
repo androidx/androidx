@@ -385,24 +385,22 @@ internal inline fun <E> LongSparseArray<E>.commonIsEmpty(): Boolean = size() == 
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonKeyAt(index: Int): Long {
-    requirePrecondition(index in 0 until size) {
-        "Expected index to be within 0..size()-1, but was $index"
-    }
-
     if (garbage) {
         commonGc()
+    }
+    requirePrecondition(index in 0 until size) {
+        "Expected index to be within 0..size()-1, but was $index"
     }
     return keys[index]
 }
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonValueAt(index: Int): E {
-    requirePrecondition(index in 0 until size) {
-        "Expected index to be within 0..size()-1, but was $index"
-    }
-
     if (garbage) {
         commonGc()
+    }
+    requirePrecondition(index in 0 until size) {
+        "Expected index to be within 0..size()-1, but was $index"
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -411,12 +409,11 @@ internal inline fun <E> LongSparseArray<E>.commonValueAt(index: Int): E {
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonSetValueAt(index: Int, value: E) {
-    requirePrecondition(index in 0 until size) {
-        "Expected index to be within 0..size()-1, but was $index"
-    }
-
     if (garbage) {
         commonGc()
+    }
+    requirePrecondition(index in 0 until size) {
+        "Expected index to be within 0..size()-1, but was $index"
     }
     values[index] = value
 }
