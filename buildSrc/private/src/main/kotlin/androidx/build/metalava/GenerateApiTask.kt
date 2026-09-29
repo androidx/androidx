@@ -137,15 +137,18 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             }
         }
 
-        generateApiConfigs.forEach { (generateApiMode, apiLintMode) ->
-            val args = buildList {
-                addAll(
-                    getMultiSurfaceArgs(
-                        projectXml,
-                        sourcePaths.files,
-                        includeCompiledSources = true,
-                    )
-                )
+        val args = buildList {
+            val traceFile = apiLocation.get().traceFile
+            // Remove existing trace file to write the new one.
+            traceFile.delete()
+            add("--trace-file")
+            add(traceFile.absolutePath)
+
+            addAll(
+                getMultiSurfaceArgs(projectXml, sourcePaths.files, includeCompiledSources = true)
+            )
+
+            generateApiConfigs.forEach { (generateApiMode, apiLintMode) ->
                 addAll(
                     getSingleSurfaceArgs(
                         apiLocation.get(),
@@ -156,7 +159,7 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
                     )
                 )
             }
-            runWithArgs(args)
         }
+        runWithArgs(args)
     }
 }
