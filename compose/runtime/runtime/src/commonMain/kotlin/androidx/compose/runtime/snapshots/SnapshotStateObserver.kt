@@ -414,28 +414,30 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
         /** Observer for derived state recalculation */
         val derivedStateObserver =
             object : IndirectStateObserver {
-                private var computedStateDepth = 0
+                /**
+                 * The number of times that [currentComputedState] appears on the calculation stack.
+                 * This is usually 1 when [currentComputedState] is non-null, but may increment if
+                 * the calculation lambda is re-entrant and reads the outer state while it computes
+                 * itself.
+                 */
+                private var currentComputedStateReentrantDepth = 0
 
                 override fun start(state: IndirectState<*>) {
                     if (state is DerivedState<*>) {
                         deriveStateScopeCount++
-                    } else if (state is ComputedState<*>) {
-                        if (deriveStateScopeCount == 0 && computedStateDepth == 0) {
-                            dependencyToIndirectStates.removeScope(state)
-                            rootComputingState = state
-                        }
-                        computedStateDepth++
+                    } else if (state === currentComputedState) {
+                        currentComputedStateReentrantDepth++
                     }
                 }
 
                 override fun done(state: IndirectState<*>, calculatedValue: Any?) {
                     if (state is DerivedState<*>) {
                         deriveStateScopeCount--
-                    } else if (state is ComputedState<*>) {
-                        if (--computedStateDepth == 0) {
-                            recordedIndirectStateValues[state] = calculatedValue
-                            rootComputingState = null
-                        }
+                    } else if (
+                        state === currentComputedState && --currentComputedStateReentrantDepth == 0
+                    ) {
+                        recordedIndirectStateValues[state] = calculatedValue
+                        currentComputedState = null
                     }
                 }
             }
@@ -453,7 +455,8 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
          */
         private var deriveStateScopeCount = 0
 
-        private var rootComputingState: ComputedState<*>? = null
+        /** The outermost [ComputedState] that is currently being calculated. */
+        private var currentComputedState: ComputedState<*>? = null
 
         /** Invalidation index from state objects to derived states reading them. */
         private var _dependencyToIndirectStates: ScopeMap<Any, IndirectState<*>>? = null
@@ -496,9 +499,9 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                 return
             }
 
-            val rootComputingState = rootComputingState
-            if (rootComputingState != null) {
-                recordReadInComputedState(value, rootComputingState)
+            val currentComputedState = currentComputedState
+            if (currentComputedState != null) {
+                recordReadInComputedState(value, currentComputedState)
                 return
             }
 
@@ -517,6 +520,14 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                     }
                     dependencyToIndirectStates.add(dependency, value)
                 }
+            } else if (value is ComputedState<*>) {
+                // The calculation of the computed state immediately follows this read, and we're
+                // not already inside another computed state read. Record subsequent reads as
+                // dependencies of this state, including when it was already read in this scope.
+                if (previousToken != currentToken) {
+                    dependencyToIndirectStates.removeScope(value)
+                }
+                this.currentComputedState = value
             }
 
             if (previousToken == -1) {
