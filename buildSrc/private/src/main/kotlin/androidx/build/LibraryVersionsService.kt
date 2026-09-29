@@ -65,12 +65,20 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
      * An absent file parses to an empty list rather than failing, so that a checkout without it, or
      * a build that never consults it, behaves as though nothing is exempted.
      */
-    internal val tipOfTreeExemptions: List<TipOfTreeExemption> by lazy {
+    private val tipOfTreeExemptions: List<TipOfTreeExemption> by lazy {
         parseTipOfTreeExemptions(
             parameters.tipOfTreeExemptionsFileContents.orNull,
             parameters.tipOfTreeExemptionsFileName.get(),
         )
     }
+
+    private val tipOfTreeExemptionsByLibrary: Map<String, List<TipOfTreeExemption>> by lazy {
+        tipOfTreeExemptions.groupBy { it.library }
+    }
+
+    /** Returns only the exemptions applicable to [projectPath]. */
+    internal fun exemptionsFor(projectPath: String): List<TipOfTreeExemption> =
+        tipOfTreeExemptionsByLibrary[projectPath] ?: emptyList()
 
     private fun getTable(key: String): JsonNode {
         val table = parsedTomlFile.get(key)
@@ -144,6 +152,43 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         result
     }
 
+    /**
+     * Name of the set of libraries that share a version, keyed by Maven group id.
+     *
+     * This is the group's `atomicGroupVersion` reference when it has one, and null when it does not
+     * (meaning libraries in the group version independently). Deliberately the *reference* name
+     * rather than the resolved version: several groups reference `versions.COMPOSE` and so always
+     * ship together, while two unrelated groups that happen to both sit at 1.0.0-alpha01 do not.
+     */
+    private val versionGroupByGroupId: Map<String, String?> by lazy {
+        val result = mutableMapOf<String, String?>()
+        for (association in libraryGroupAssociations) {
+            if (association.overrideIncludeInProjectPaths.isNotEmpty()) continue
+            result[association.libraryGroup.group] = association.versionGroupName
+        }
+        result
+    }
+
+    /** Version group names for projects whose group is set by `overrideInclude`. */
+    private val versionGroupByProjectPath: Map<String, String?> by lazy {
+        val result = mutableMapOf<String, String?>()
+        for (association in libraryGroupAssociations) {
+            for (path in association.overrideIncludeInProjectPaths) {
+                result[path] = association.versionGroupName
+            }
+        }
+        result
+    }
+
+    /**
+     * The version group [projectPath] belongs to, or null if it versions on its own schedule.
+     *
+     * `overrideInclude` wins over the group id, because it exists precisely to put a project in a
+     * different version group from the rest of its Maven group.
+     */
+    fun versionGroupFor(projectPath: String, groupId: String?): String? =
+        versionGroupByProjectPath[projectPath] ?: groupId?.let { versionGroupByGroupId[it] }
+
     private val libraryGroupAssociations: List<LibraryGroupAssociation> by lazy {
         val groups = getTable("groups")
 
@@ -181,7 +226,17 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
                     ?: emptyList()
 
             val group = LibraryGroup(groupName, atomicGroupVersion)
-            LibraryGroupAssociation(name, group, overrideApplyToProjects)
+            val atomicGroupVersionName =
+                groupDefinition
+                    .get(AtomicGroupVersion)
+                    ?.asString()
+                    ?.removePrefix(VersionReferencePrefix)
+            LibraryGroupAssociation(
+                declarationName = name,
+                libraryGroup = group,
+                overrideIncludeInProjectPaths = overrideApplyToProjects,
+                versionGroupName = atomicGroupVersionName,
+            )
         }
     }
 
@@ -213,6 +268,8 @@ private data class LibraryGroupAssociation(
     val libraryGroup: LibraryGroup,
     // the paths of any additional projects that this group should be assigned to
     val overrideIncludeInProjectPaths: List<String>,
+    // the name identifying the set of libraries that release together with this group
+    val versionGroupName: String?,
 )
 
 private const val VersionReferencePrefix = "versions."
