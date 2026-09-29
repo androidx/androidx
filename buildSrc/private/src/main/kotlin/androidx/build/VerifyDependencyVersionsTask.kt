@@ -16,13 +16,16 @@
 
 package androidx.build
 
+import androidx.build.pinneddependencies.ProjectCoordinates
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
@@ -279,4 +282,54 @@ private fun shouldVerifyDependency(dependency: Dependency): Boolean {
     }
 
     return true
+}
+
+internal fun Project.getLibraryProjectCoordinates(
+    libraryVersionsService: Provider<LibraryVersionsService>
+): Provider<ProjectCoordinates> {
+    val projectPath = path
+    val projectVersion = Version(version.toString())
+    val projectGroup = group.toString()
+    val projectArtifact = name
+    return libraryVersionsService.map { service ->
+        ProjectCoordinates(
+            projectPath = projectPath,
+            groupId = projectGroup,
+            artifactId = projectArtifact,
+            version = projectVersion,
+            versionGroup = service.versionGroupFor(projectPath, projectGroup),
+        )
+    }
+}
+
+internal fun Project.getTipOfTreeDependencies(
+    libraryVersionService: Provider<LibraryVersionsService>
+): Provider<Set<ProjectCoordinates>> {
+    val declaredDependencies =
+        project.configurations.matching(project::shouldVerifyConfiguration).flatMap { configuration
+            ->
+            configuration.allDependencies
+                .filter(::shouldVerifyDependency)
+                .filterIsInstance<ProjectDependency>()
+                .distinctBy { it.path }
+                .map { dependency ->
+                    ProjectCoordinates(
+                        projectPath = dependency.path,
+                        groupId = dependency.group!!,
+                        artifactId = dependency.name,
+                        version = dependency.version?.let { Version.parseOrNull(it) },
+                    )
+                }
+        }
+
+    return libraryVersionService.map { service ->
+        declaredDependencies
+            .map { dependency ->
+                dependency.copy(
+                    versionGroup =
+                        service.versionGroupFor(dependency.projectPath, dependency.groupId)
+                )
+            }
+            .toSet()
+    }
 }

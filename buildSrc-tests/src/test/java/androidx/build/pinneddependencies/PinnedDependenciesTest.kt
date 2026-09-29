@@ -187,6 +187,19 @@ class PinnedDependenciesTest {
     }
 
     @Test
+    fun findUnpinnedDependencies_keepsOnlySeparatelyReleasedDependencies() {
+        val self = tracing.copy(projectPath = ":fragment:fragment", versionGroup = null)
+        val sibling =
+            tracing.copy(projectPath = ":fragment:fragment-ktx", versionGroup = "FRAGMENT")
+        val duplicateTracing = tracing.copy(version = Version("1.0.0"))
+
+        val unpinned =
+            findUnpinnedDependencies(fragment, listOf(self, sibling, tracing, duplicateTracing))
+
+        assertThat(unpinned.map { it.projectPath }).containsExactly(":tracing:tracing")
+    }
+
+    @Test
     fun parseTipOfTreeExemptions_emptyOrNullReturnsEmpty() {
         assertThat(parseTipOfTreeExemptions(null)).isEmpty()
         assertThat(parseTipOfTreeExemptions("")).isEmpty()
