@@ -102,6 +102,7 @@ import androidx.pdf.view.fastscroll.getDimensions
 import androidx.pdf.view.layout.PageLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import java.util.LinkedList
+import java.util.Locale
 import java.util.Queue
 import java.util.concurrent.Executors
 import kotlin.math.abs
@@ -2836,18 +2837,26 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         val externalLink = ExternalLink(uri)
         if (linkClickListener?.onLinkClicked(externalLink) == true) {
             return true
-        } else {
-            try {
-                val intent = Intent(Intent.ACTION_VIEW, externalLink.uri)
-                context.startActivity(intent)
-                return true
-            } catch (_: Exception) {
-                return false
-            }
+        }
+
+        val scheme = externalLink.uri.scheme?.lowercase(Locale.ROOT)
+        if (scheme !in DEFAULT_ALLOWED_LINK_SCHEMES) {
+            return false
+        }
+        return try {
+            val intent =
+                Intent(Intent.ACTION_VIEW, externalLink.uri).addCategory(Intent.CATEGORY_BROWSABLE)
+            context.startActivity(intent)
+            true
+        } catch (_: Exception) {
+            false
         }
     }
 
     public companion object {
+        private val DEFAULT_ALLOWED_LINK_SCHEMES =
+            setOf("http", "https", "mailto", "tel", "sms", "smsto", "geo")
+
         /** The PdfView is not currently being affected by an outside input, e.g. user touch */
         public const val GESTURE_STATE_IDLE: Int = 0
 
