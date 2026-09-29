@@ -3347,8 +3347,8 @@ class RecordingCanvasTest {
 
         val outerInsertPoint = canvas.buffer.insertPoint
         canvas.save()
-        val outerSaveNode = canvas.currentSaveRestoreNode
-        val outerInitialSpanSaveCount = canvas.initialSpanSaveCount
+        val outerSaveNode = canvas.buffer.currentSaveRestoreNode
+        val outerInitialSpanSaveCount = canvas.buffer.initialSpanSaveCount
         val outerSaveCount = canvas.saveCount
 
         val condition = RemoteBoolean(true)
@@ -3360,8 +3360,8 @@ class RecordingCanvasTest {
 
         // Verify canvas internal state was restored despite exception
         assertThat(canvas.buffer.insertPoint).isSameInstanceAs(outerInsertPoint)
-        assertThat(canvas.currentSaveRestoreNode).isSameInstanceAs(outerSaveNode)
-        assertEquals(outerInitialSpanSaveCount, canvas.initialSpanSaveCount)
+        assertThat(canvas.buffer.currentSaveRestoreNode).isSameInstanceAs(outerSaveNode)
+        assertEquals(outerInitialSpanSaveCount, canvas.buffer.initialSpanSaveCount)
         assertEquals(outerSaveCount, canvas.saveCount)
 
         // Calling restore() once should restore the 1 outer save and bring saveCount to 0
