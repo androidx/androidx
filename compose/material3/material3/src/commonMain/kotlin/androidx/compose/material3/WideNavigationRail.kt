@@ -1005,7 +1005,7 @@ public fun WideNavigationRailItem(
         startIconLabelTextStyle = NavigationRailHorizontalItemTokens.LabelTextFont.value,
         indicatorPadding = indicatorPadding,
         topIconIndicatorToLabelVerticalPadding = NavigationRailVerticalItemTokens.IconLabelSpace,
-        noLabelIndicatorPadding = WNRItemNoLabelIndicatorPadding,
+        noLabelIndicatorPadding = PaddingValues(WNRItemNoLabelIndicatorPadding),
         startIconToLabelHorizontalPadding = NavigationRailHorizontalItemTokens.IconLabelSpace,
         itemHorizontalPadding = WNRItemHorizontalPadding,
         textColor =
@@ -1075,7 +1075,7 @@ internal fun StyleableWideNavigationRailItem(
         startIconLabelTextStyle = NavigationRailHorizontalItemTokens.LabelTextFont.value,
         indicatorPadding = indicatorPadding,
         topIconIndicatorToLabelVerticalPadding = NavigationRailVerticalItemTokens.IconLabelSpace,
-        noLabelIndicatorPadding = WNRItemNoLabelIndicatorPadding,
+        noLabelIndicatorPadding = PaddingValues(WNRItemNoLabelIndicatorPadding),
         startIconToLabelHorizontalPadding = NavigationRailHorizontalItemTokens.IconLabelSpace,
         itemHorizontalPadding = WNRItemHorizontalPadding,
         textColor = styleScope.textColor,

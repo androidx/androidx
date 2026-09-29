@@ -18,6 +18,7 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.defaultMinSize
@@ -124,7 +125,7 @@ internal fun StyleableShortNavigationBar(
     content: @Composable () -> Unit,
 ) {
     val localTheme = LocalMaterialTheme.current
-    val styleScope = NavigationBarStyleScope(localTheme)
+    val styleScope = NavigationBarStyleScope(localTheme, mediaQueryInfo())
     with(style ?: localTheme.componentProperties.navigationBarProperties.style) {
         styleScope.applyStyle()
     }
@@ -284,11 +285,11 @@ public fun ShortNavigationBarItem(
         labelTextStyle = NavigationBarTokens.LabelTextFont.value,
         indicatorShape = NavigationBarTokens.ItemActiveIndicatorShape.value,
         indicatorWidth = NavigationBarVerticalItemTokens.ActiveIndicatorWidth,
-        indicatorHorizontalPadding = indicatorHorizontalPadding,
-        indicatorVerticalPadding = indicatorVerticalPadding,
+        indicatorPadding = PaddingValues(indicatorHorizontalPadding, indicatorVerticalPadding),
         indicatorToLabelVerticalPadding = TopIconIndicatorToLabelPadding,
         startIconToLabelHorizontalPadding = StartIconToLabelPadding,
-        topIconItemVerticalPadding = TopIconItemVerticalPadding,
+        topIconItemPadding = PaddingValues(vertical = TopIconItemVerticalPadding),
+        startIconItemPadding = PaddingValues(0.dp),
         textColor = colors.textColor(selected, enabled, isIconPositionTop),
         iconColor = colors.iconColor(selected, enabled),
         indicatorColor = colors.selectedIndicatorColor,
@@ -321,37 +322,38 @@ internal fun StyleableShortNavigationBarItem(
     val styleScope =
         NavigationBarItemStyleScope(
             localTheme,
+            mediaQueryInfo(),
             ComponentState.selected(selected).enabled(enabled).orientation(isIconPositionTop),
         )
     with(style ?: localTheme.componentProperties.navigationBarItemProperties.style) {
         styleScope.applyStyle()
     }
-
-    val indicatorHorizontalPadding =
-        if (isIconPositionTop) {
-            TopIconIndicatorHorizontalPadding
-        } else {
-            StartIconIndicatorHorizontalPadding
-        }
-    val indicatorVerticalPadding =
-        if (isIconPositionTop) {
-            TopIconIndicatorVerticalPadding
-        } else {
-            StartIconIndicatorVerticalPadding
-        }
+    val contentPadding =
+        PaddingValues(
+            start = styleScope.contentPaddingStart,
+            top = styleScope.contentPaddingTop,
+            end = styleScope.contentPaddingEnd,
+            bottom = styleScope.contentPaddingBottom,
+        )
 
     NavigationItem(
         selected = selected,
         onClick = onClick,
         icon = icon,
-        labelTextStyle = NavigationBarTokens.LabelTextFont.value,
+        labelTextStyle = styleScope.textStyle,
         indicatorShape = NavigationBarTokens.ItemActiveIndicatorShape.value,
         indicatorWidth = NavigationBarVerticalItemTokens.ActiveIndicatorWidth,
-        indicatorHorizontalPadding = indicatorHorizontalPadding,
-        indicatorVerticalPadding = indicatorVerticalPadding,
+        indicatorPadding =
+            PaddingValues(
+                start = styleScope.indicatorPaddingStart,
+                top = styleScope.indicatorPaddingTop,
+                end = styleScope.indicatorPaddingEnd,
+                bottom = styleScope.indicatorPaddingBottom,
+            ),
         indicatorToLabelVerticalPadding = TopIconIndicatorToLabelPadding,
         startIconToLabelHorizontalPadding = StartIconToLabelPadding,
-        topIconItemVerticalPadding = TopIconItemVerticalPadding,
+        topIconItemPadding = contentPadding,
+        startIconItemPadding = contentPadding,
         textColor = styleScope.textColor,
         iconColor = styleScope.iconColor,
         indicatorColor = styleScope.indicatorColor,
