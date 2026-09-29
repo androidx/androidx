@@ -2124,6 +2124,67 @@ class ResizableComponentImplTest {
             .inOrder()
     }
 
+    private fun createTestMovableComponent(): MovableComponentImpl =
+        MovableComponentImpl(
+            systemMovable = true,
+            scaleInZ = false,
+            userAnchorable = false,
+            activitySpaceImpl = activitySpaceImpl,
+            entityShadowRenderer = null,
+            runtimeExecutor = fakeExecutor,
+        )
+
+    private fun AndroidXrEntity.hasPoseRelativeToParentFlag(): Boolean =
+        (nodeRepository.getReformOptions(getNode()).flags and
+            ReformOptions.FLAG_POSE_RELATIVE_TO_PARENT) != 0
+
+    @Test
+    fun addResizableComponent_setsPoseRelativeToParentFlag() {
+        val entity = createTestEntity() as AndroidXrEntity
+        val resizableComponent =
+            ResizableComponentImpl(fakeExecutor, xrExtensions, MIN_DIMENSIONS, MAX_DIMENSIONS)
+
+        assertThat(entity.addComponent(resizableComponent)).isTrue()
+
+        assertThat(entity.hasPoseRelativeToParentFlag()).isTrue()
+    }
+
+    @Test
+    fun resizableThenMovable_attachAndDetachInEitherOrder_keepsPoseRelativeToParentFlag() {
+        val entity = createTestEntity() as AndroidXrEntity
+        val resizableComponent =
+            ResizableComponentImpl(fakeExecutor, xrExtensions, MIN_DIMENSIONS, MAX_DIMENSIONS)
+        val movableComponent = createTestMovableComponent()
+
+        assertThat(entity.addComponent(resizableComponent)).isTrue()
+        assertThat(entity.addComponent(movableComponent)).isTrue()
+        assertThat(entity.hasPoseRelativeToParentFlag()).isTrue()
+
+        entity.removeComponent(movableComponent)
+        assertThat(entity.hasPoseRelativeToParentFlag()).isTrue()
+
+        entity.removeComponent(resizableComponent)
+        assertThat(entity.hasPoseRelativeToParentFlag()).isTrue()
+    }
+
+    @Test
+    fun movableThenResizable_attachAndDetachInEitherOrder_keepsPoseRelativeToParentFlag() {
+        val entity = createTestEntity() as AndroidXrEntity
+        val resizableComponent =
+            ResizableComponentImpl(fakeExecutor, xrExtensions, MIN_DIMENSIONS, MAX_DIMENSIONS)
+        val movableComponent = createTestMovableComponent()
+
+        assertThat(entity.addComponent(movableComponent)).isTrue()
+        assertThat(entity.addComponent(resizableComponent)).isTrue()
+        assertThat(entity.hasPoseRelativeToParentFlag()).isTrue()
+
+        entity.removeComponent(resizableComponent)
+        assertThat(entity.hasPoseRelativeToParentFlag()).isTrue()
+
+        entity.removeComponent(movableComponent)
+        assertThat(entity.hasPoseRelativeToParentFlag()).isTrue()
+    }
+
     companion object {
         private val MIN_DIMENSIONS = Dimensions(0f, 0f, 0f)
         private val MAX_DIMENSIONS = Dimensions(10f, 10f, 10f)
