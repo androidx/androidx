@@ -1254,6 +1254,38 @@ class ObjectListTest {
     }
 
     @Test
+    fun sublist_outOfBounds_Add_Below() {
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            val l = mutableObjectListOf(0, 1, 2, 3).asMutableList().subList(1, 2)
+            l.add(-1, 1)
+        }
+    }
+
+    @Test
+    fun sublist_outOfBounds_Add_Above() {
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            val l = mutableObjectListOf(0, 1, 2, 3).asMutableList().subList(1, 2)
+            l.add(2, 1)
+        }
+    }
+
+    @Test
+    fun sublist_outOfBounds_AddAll_Below() {
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            val l = mutableObjectListOf(0, 1, 2, 3).asMutableList().subList(1, 2)
+            l.addAll(-1, listOf(1))
+        }
+    }
+
+    @Test
+    fun sublist_outOfBounds_AddAll_Above() {
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            val l = mutableObjectListOf(0, 1, 2, 3).asMutableList().subList(1, 2)
+            l.addAll(2, listOf(1))
+        }
+    }
+
+    @Test
     fun list_outOfBounds_SubList_Below() {
         assertFailsWith(IndexOutOfBoundsException::class) {
             val l = mutableObjectListOf(0, 1, 2, 3).asMutableList()

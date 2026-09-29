@@ -1477,11 +1477,13 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
         }
 
         override fun add(index: Int, element: T) {
+            checkInsertIndex(index)
             list.add(index + start, element)
             end++
         }
 
         override fun addAll(index: Int, elements: Collection<T>): Boolean {
+            checkInsertIndex(index)
             list.addAll(index + start, elements)
             end += elements.size
             return elements.size > 0
@@ -1559,6 +1561,13 @@ private fun List<*>.checkIndex(index: Int) {
         throwIndexOutOfBoundsException(
             "Index $index is out of bounds. The list has $size elements."
         )
+    }
+}
+
+private fun List<*>.checkInsertIndex(index: Int) {
+    val size = size
+    if (index < 0 || index > size) {
+        throwIndexOutOfBoundsException("Index $index must be in 0..$size.")
     }
 }
 
