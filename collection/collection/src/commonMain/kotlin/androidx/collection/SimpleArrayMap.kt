@@ -541,8 +541,8 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
 
                 val ohashes = hashes
                 val oarray: Array<Any?> = array
-                hashes = hashes.copyOf(n)
-                array = array.copyOf(n shl 1)
+                hashes = IntArray(n)
+                array = arrayOfNulls(n shl 1)
 
                 if (CONCURRENT_MODIFICATION_EXCEPTIONS && osize != size) {
                     throw ConcurrentModificationException()

@@ -16,6 +16,7 @@
 
 package androidx.collection
 
+import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 import org.junit.Assert
@@ -62,4 +63,20 @@ public class SimpleArrayMapJvmTest {
         }
         done.set(true)
     }
+
+    @Test
+    public fun removeAtDoesNotRetainRemovedValue() {
+        val map = SimpleArrayMap<Any, Any>(12)
+        repeat(3) { map.put(Any(), Any()) }
+        val removed = removeLast(map)
+        repeat(10) {
+            if (removed.get() != null) {
+                System.gc()
+            }
+        }
+        Assert.assertNull(removed.get())
+    }
+
+    private fun removeLast(map: SimpleArrayMap<Any, Any>): WeakReference<Any> =
+        WeakReference(map.removeAt(map.size() - 1))
 }
