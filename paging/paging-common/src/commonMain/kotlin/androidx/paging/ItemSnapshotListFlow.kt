@@ -99,12 +99,21 @@ public fun <T : Any> Flow<PagingData<T>>.asItemSnapshotListFlow(
                                 )
                         }
                         else -> {
-                            requireNotNull(pageStore) {
-                                "PageStore should only be null on REFRESH. This likely " +
-                                    "indicates an error in the library. Please file a bug " +
-                                    "in the Buganizer"
+                            // If a header or footer was previously displayed and on a new
+                            // generation the
+                            // RemoteMediator returns endOfPagination = true for APPEND/PREPEND,
+                            // the separator is transformed into a TERMINAL separator and is
+                            // inserted
+                            // as an empty page before REFRESH even completes. In that case we would
+                            // receive an empty APPEND/PREPEND with a null page store.
+                            if (currPageStore == null && pageEvent is PageEvent.Insert) {
+                                require(pageEvent.pages.isEmpty()) {
+                                    "PageStore should only be null on REFRESH or empty Inserts. This likely " +
+                                        "indicates an error in the library. Please file a bug " +
+                                        "in the Buganizer"
+                                }
                             }
-                            currPageStore.processEvent(pageEvent)
+                            currPageStore?.processEvent(pageEvent)
                         }
                     }
                     currPageStore
