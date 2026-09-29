@@ -345,6 +345,55 @@ class SpatialAnnotationTest {
         }
 
     @Test
+    fun builder_nonDirectBuffer_throwsIllegalStateException() {
+        val heapBuffer = ByteBuffer.allocate(100)
+        val quadMap =
+            mapOf(
+                SpatialAnnotationId.fromString("teapot") to
+                    Quad.fromCorners(
+                        Vector2(0f, 0f),
+                        Vector2(0f, 0f),
+                        Vector2(0f, 0f),
+                        Vector2(0f, 0f),
+                    )
+            )
+
+        val exception =
+            assertFailsWith<IllegalStateException> {
+                SpatialAnnotationTrackingOptions.Builder(heapBuffer, IntSize2d(10, 10), 1000L)
+                    .setQuads(quadMap)
+                    .build()
+            }
+
+        assertThat(exception).hasMessageThat().contains("imageBuffer must be a direct ByteBuffer")
+    }
+
+    @Test
+    fun builder_bufferNonZeroPosition_throwsIllegalStateException() {
+        val directBuffer = ByteBuffer.allocateDirect(400)
+        directBuffer.position(10)
+        val quadMap =
+            mapOf(
+                SpatialAnnotationId.fromString("teapot") to
+                    Quad.fromCorners(
+                        Vector2(0f, 0f),
+                        Vector2(0f, 0f),
+                        Vector2(0f, 0f),
+                        Vector2(0f, 0f),
+                    )
+            )
+
+        val exception =
+            assertFailsWith<IllegalStateException> {
+                SpatialAnnotationTrackingOptions.Builder(directBuffer, IntSize2d(10, 10), 1000L)
+                    .setQuads(quadMap)
+                    .build()
+            }
+
+        assertThat(exception).hasMessageThat().contains("imageBuffer position must be 0")
+    }
+
+    @Test
     fun startTracking_addsSpatialAnnotationsToSession() =
         runTest(testDispatcher) {
             activityController.resume()

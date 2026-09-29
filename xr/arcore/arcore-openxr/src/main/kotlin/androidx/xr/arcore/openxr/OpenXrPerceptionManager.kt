@@ -343,7 +343,6 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
                 .toFloatArray()
 
         // TODO(b/559357621): Add RGBA support in the native code.
-        // TODO(b/560289000): Prove imageBuffer.isDirect.
         // TODO(b/560289167): Investigate coroutines teardown issue.
         nativeStartSpatialAnnotationTracking(
             imageBuffer,
