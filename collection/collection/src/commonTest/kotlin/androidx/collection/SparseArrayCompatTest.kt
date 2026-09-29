@@ -307,4 +307,28 @@ internal class SparseArrayCompatTest {
         assertFailsWith<IndexOutOfBoundsException> { source.valueAt(0) }
         assertFailsWith<IndexOutOfBoundsException> { source.valueAt(9) }
     }
+
+    @Test
+    fun removeAtRange() {
+        val array = SparseArrayCompat<String>()
+        for (i in 0 until 6) {
+            array.put(i, "v$i")
+        }
+        array.removeAtRange(2, 3)
+        assertEquals(3, array.size())
+        assertEquals(0, array.keyAt(0))
+        assertEquals(1, array.keyAt(1))
+        assertEquals(5, array.keyAt(2))
+    }
+
+    @Test
+    fun removeAtRange_clampsToSize() {
+        val array = SparseArrayCompat<String>()
+        for (i in 0 until 4) {
+            array.put(i, "v$i")
+        }
+        array.removeAtRange(1, 100)
+        assertEquals(1, array.size())
+        assertEquals(0, array.keyAt(0))
+    }
 }

@@ -272,7 +272,7 @@ internal inline fun <E> SparseArrayCompat<E>.commonRemoveAt(index: Int) {
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> SparseArrayCompat<E>.commonRemoveAtRange(index: Int, size: Int) {
-    val end = min(size, index + size)
+    val end = min(this.size, index + size)
     for (i in index until end) {
         removeAt(i)
     }
