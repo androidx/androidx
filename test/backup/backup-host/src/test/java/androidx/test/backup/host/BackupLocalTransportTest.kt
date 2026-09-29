@@ -16,8 +16,10 @@
 
 package androidx.test.backup.host
 
+import java.io.IOException
 import java.util.zip.ZipFile
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -96,6 +98,36 @@ class BackupLocalTransportTest {
 
         transport.backup(tempFolder.root.resolve("backup_local_device.zip"))
 
+        assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
+    }
+
+    @Test
+    fun backupSelectsTheOriginalTransportAgainWhenItFails() {
+        device.onShell { command ->
+            when (command) {
+                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
+                "bmgr backupnow $PACKAGE" -> throw IOException("bmgr backupnow failed")
+                else -> shellOutput()
+            }
+        }
+
+        assertFailsWith<IOException> {
+            runBlocking { transport.backup(tempFolder.root.resolve("backup_local_device.zip")) }
+        }
+        assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
+    }
+
+    @Test
+    fun restoreSelectsTheOriginalTransportAgainWhenItFails() {
+        device.onShell { command ->
+            when (command) {
+                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
+                "bmgr restore 1 $PACKAGE" -> throw IOException("bmgr restore failed")
+                else -> shellOutput()
+            }
+        }
+
+        assertFailsWith<IOException> { runBlocking { transport.restore() } }
         assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
     }
 

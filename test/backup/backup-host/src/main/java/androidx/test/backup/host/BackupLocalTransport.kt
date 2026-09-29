@@ -62,7 +62,10 @@ internal class BackupLocalTransport(
         }
     }
 
-    /** Runs [block] with the local transport selected, then selects the original one again. */
+    /**
+     * Runs [block] with the local transport selected, then selects the original one again, even
+     * when [block] fails.
+     */
     private suspend fun withLocalTransport(block: suspend () -> Unit) {
         val originalTransport =
             shell
@@ -72,10 +75,15 @@ internal class BackupLocalTransport(
                 .firstOrNull { it.trim().startsWith("*") }
                 ?.replace("*", "")
                 ?.trim() ?: DEFAULT_TRANSPORT
-        shell.exec("bmgr transport $LOCAL_TRANSPORT")
-        block()
-        if (originalTransport != LOCAL_TRANSPORT) {
-            shell.exec("bmgr transport ${BackupDeviceShell.quote(originalTransport)}")
+        withCleanup(
+            cleanup = {
+                if (originalTransport != LOCAL_TRANSPORT) {
+                    shell.exec("bmgr transport ${BackupDeviceShell.quote(originalTransport)}")
+                }
+            }
+        ) {
+            shell.exec("bmgr transport $LOCAL_TRANSPORT")
+            block()
         }
     }
 
