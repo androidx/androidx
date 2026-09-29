@@ -26,67 +26,52 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLocale
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.SpatialColumn
-import androidx.xr.compose.subspace.SpatialCurvedRow
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.animation.follow.FollowMode
 import androidx.xr.compose.subspace.animation.follow.FollowTarget
+import androidx.xr.compose.subspace.animation.follow.FollowThresholds
 import androidx.xr.compose.subspace.animation.follow.TrackedDimensions
+import androidx.xr.compose.subspace.draw.scale
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
-import androidx.xr.compose.subspace.layout.offset
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.ui.components.TopBarWithBackArrow
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
-import java.time.LocalDate
-import java.time.format.TextStyle
 
 private enum class UiBehaviorSelection {
     SOFT,
-    EXPONENTIAL_DECAY,
+    TIGHT,
+    SNAP,
 }
-
-data class TodoItem(val description: String, val isCompleted: Boolean)
 
 class ViewFollowingSubspaceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,68 +89,71 @@ class ViewFollowingSubspaceActivity : ComponentActivity() {
             Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
         )
 
-        val todoItems = remember {
-            mutableStateListOf(
-                TodoItem("Buy groceries", true),
-                TodoItem("Finish report", false),
-                TodoItem("Review PRs", false),
-            )
-        }
-        // State for the soft follow half life slider
-        var softFollowHalfLife by remember { mutableIntStateOf(300) }
         var uiBehaviorSelection by remember { mutableStateOf(UiBehaviorSelection.SOFT) }
+
+        var isXTracked by remember { mutableStateOf(true) }
+        var isYTracked by remember { mutableStateOf(true) }
+        var isZTracked by remember { mutableStateOf(true) }
+        var isPitchTracked by remember { mutableStateOf(true) }
+        var isYawTracked by remember { mutableStateOf(true) }
+        var isRollTracked by remember { mutableStateOf(true) }
+
+        var softHalfLifeMs by remember { mutableFloatStateOf(175f) }
+        var softStartDelay by remember { mutableFloatStateOf(200f) }
+        var softStartTranslationThreshold by remember { mutableFloatStateOf(0.2f) }
+        var softStartPitchThreshold by remember { mutableFloatStateOf(16.0f) }
+        var softStartYawThreshold by remember { mutableFloatStateOf(24.0f) }
+        var softStartRollThreshold by remember { mutableFloatStateOf(20.0f) }
+
         val selectedMode =
-            remember(uiBehaviorSelection, softFollowHalfLife) {
+            remember(
+                uiBehaviorSelection,
+                isXTracked,
+                isYTracked,
+                isZTracked,
+                isPitchTracked,
+                isYawTracked,
+                isRollTracked,
+                softHalfLifeMs,
+                softStartDelay,
+                softStartTranslationThreshold,
+                softStartPitchThreshold,
+                softStartYawThreshold,
+                softStartRollThreshold,
+            ) {
                 val dimensions =
                     TrackedDimensions(
-                        isXTracked = true,
-                        isYTracked = true,
-                        isZTracked = true,
-                        isPitchTracked = true,
-                        isYawTracked = true,
-                        isRollTracked = false,
+                        isXTracked = isXTracked,
+                        isYTracked = isYTracked,
+                        isZTracked = isZTracked,
+                        isPitchTracked = isPitchTracked,
+                        isYawTracked = isYawTracked,
+                        isRollTracked = isRollTracked,
+                    )
+                val startThresholds =
+                    FollowThresholds(
+                        translationMeters = softStartTranslationThreshold,
+                        pitchDegrees = softStartPitchThreshold,
+                        yawDegrees = softStartYawThreshold,
+                        rollDegrees = softStartRollThreshold,
                     )
                 when (uiBehaviorSelection) {
                     UiBehaviorSelection.SOFT ->
                         FollowMode.soft(
                             dimensions = dimensions,
-                            halfLifeMillis = softFollowHalfLife.toLong(),
+                            halfLifeMillis = softHalfLifeMs.toLong(),
+                            startDelay = softStartDelay.toLong(),
+                            startThresholds = startThresholds,
                         )
-                    UiBehaviorSelection.EXPONENTIAL_DECAY ->
-                        FollowMode.exponentialDecay(dimensions = dimensions)
+                    UiBehaviorSelection.TIGHT -> FollowMode.tight(dimensions = dimensions)
+                    UiBehaviorSelection.SNAP -> FollowMode.snap(dimensions = dimensions)
                 }
             }
-
-        Subspace(
-            follow = FollowTarget.view(FollowMode.snap()),
-            modifier = SubspaceModifier.offset(z = (-200).dp),
-        ) {
-            SpatialPanel(SubspaceModifier.height(400.dp).width(600.dp)) {
-                Column(
-                    Modifier.fillMaxWidth()
-                        .fillMaxHeight()
-                        .background(Color.White)
-                        .padding(all = 32.dp)
-                ) {
-                    Text(
-                        text =
-                            buildAnnotatedString {
-                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                    append("Half Life")
-                                }
-                                append(
-                                    " - Adjusts the time, in milliseconds, it takes for the " +
-                                        "content to catch up to the user.\n"
-                                )
-                            },
-                        fontSize = 16.sp,
-                    )
-                }
-            }
-        }
 
         Subspace(follow = FollowTarget.view(selectedMode)) {
-            SpatialPanel(SubspaceModifier.height(200.dp).width(450.dp).offset(y = (-50).dp)) {
+            val panelHeight =
+                if (uiBehaviorSelection == UiBehaviorSelection.SOFT) 600.dp else 270.dp
+            SpatialPanel(SubspaceModifier.height(panelHeight).width(500.dp).scale(.7f).movable()) {
                 Box(Modifier.fillMaxSize().background(Color.Cyan)) {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         TopBarWithBackArrow(
@@ -175,10 +163,45 @@ class ViewFollowingSubspaceActivity : ComponentActivity() {
                         )
                     }
                     Column(
-                        modifier = Modifier.fillMaxSize().padding(top = 50.dp),
+                        modifier =
+                            Modifier.fillMaxSize()
+                                .padding(top = 70.dp, bottom = 32.dp)
+                                .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
+                        verticalArrangement = Arrangement.Top,
                     ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                        ) {
+                            Text(
+                                "Translation",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.width(90.dp),
+                            )
+                            CheckboxWithLabel("X", isXTracked) { isXTracked = it }
+                            CheckboxWithLabel("Y", isYTracked) { isYTracked = it }
+                            CheckboxWithLabel("Z", isZTracked) { isZTracked = it }
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .padding(start = 24.dp, end = 24.dp, bottom = 8.dp),
+                        ) {
+                            Text(
+                                "Rotation",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.width(90.dp),
+                            )
+                            CheckboxWithLabel("Pitch", isPitchTracked) { isPitchTracked = it }
+                            CheckboxWithLabel("Yaw", isYawTracked) { isYawTracked = it }
+                            CheckboxWithLabel("Roll", isRollTracked) { isRollTracked = it }
+                        }
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -202,220 +225,129 @@ class ViewFollowingSubspaceActivity : ComponentActivity() {
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier =
                                     Modifier.clickable {
-                                        uiBehaviorSelection = UiBehaviorSelection.EXPONENTIAL_DECAY
+                                        uiBehaviorSelection = UiBehaviorSelection.TIGHT
                                     },
                             ) {
                                 RadioButton(
-                                    selected =
-                                        (uiBehaviorSelection ==
-                                            UiBehaviorSelection.EXPONENTIAL_DECAY),
-                                    onClick = {
-                                        uiBehaviorSelection = UiBehaviorSelection.EXPONENTIAL_DECAY
+                                    selected = (uiBehaviorSelection == UiBehaviorSelection.TIGHT),
+                                    onClick = { uiBehaviorSelection = UiBehaviorSelection.TIGHT },
+                                )
+                                Text("Tight", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier =
+                                    Modifier.clickable {
+                                        uiBehaviorSelection = UiBehaviorSelection.SNAP
                                     },
+                            ) {
+                                RadioButton(
+                                    selected = (uiBehaviorSelection == UiBehaviorSelection.SNAP),
+                                    onClick = { uiBehaviorSelection = UiBehaviorSelection.SNAP },
                                 )
-                                Text(
-                                    "ExponentialDecay",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                )
+                                Text("Snap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             }
                         }
 
                         if (uiBehaviorSelection == UiBehaviorSelection.SOFT) {
-                            SoftFollowSlider(
-                                halfLife = softFollowHalfLife,
-                                onHalfLifeChange = { softFollowHalfLife = it.toInt() },
+                            SliderWithLabel(
+                                label = "HalfLife",
+                                value = softHalfLifeMs,
+                                valueRange = 1f..1000f,
+                                formatValue = { "${it.toInt()}ms" },
+                                onValueChange = { softHalfLifeMs = it },
+                            )
+                            SliderWithLabel(
+                                label = "StartDelay",
+                                value = softStartDelay,
+                                valueRange = 0f..1000f,
+                                formatValue = { "${it.toInt()}ms" },
+                                onValueChange = { softStartDelay = it },
+                            )
+                            Text(
+                                "Start Thresholds",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 4.dp),
+                            )
+                            SliderWithLabel(
+                                label = "  translation",
+                                value = softStartTranslationThreshold,
+                                valueRange = 0f..1f,
+                                formatValue = { "${(it * 100).toInt() / 100f}m" },
+                                onValueChange = { softStartTranslationThreshold = it },
+                            )
+                            SliderWithLabel(
+                                label = "  pitch",
+                                value = softStartPitchThreshold,
+                                valueRange = 0f..30f,
+                                formatValue = { "${it.toInt()}°" },
+                                onValueChange = { softStartPitchThreshold = it },
+                            )
+                            SliderWithLabel(
+                                label = "  yaw",
+                                value = softStartYawThreshold,
+                                valueRange = 0f..30f,
+                                formatValue = { "${it.toInt()}°" },
+                                onValueChange = { softStartYawThreshold = it },
+                            )
+                            SliderWithLabel(
+                                label = "  roll",
+                                value = softStartRollThreshold,
+                                valueRange = 0f..30f,
+                                formatValue = { "${it.toInt()}°" },
+                                onValueChange = { softStartRollThreshold = it },
                             )
                         }
                     }
                 }
             }
         }
-        Subspace(
-            follow =
-                FollowTarget.view(
-                    FollowMode.soft(
-                        dimensions =
-                            TrackedDimensions(
-                                isXTracked = true,
-                                isYTracked = true,
-                                isZTracked = true,
-                            ),
-                        halfLifeMillis = softFollowHalfLife.toLong(),
-                    )
-                )
+    }
+
+    @Composable
+    private fun CheckboxWithLabel(
+        label: String,
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { onCheckedChange(!checked) },
         ) {
-            SpatialCurvedRow(SubspaceModifier.width(1000.dp).height(300.dp), curveRadius = 500.dp) {
-                // To-Do List Card
-                SpatialColumn(SubspaceModifier.width(250.dp)) {
-                    TodoListCard(todoItems) { updatedItem ->
-                        val index = todoItems.indexOfFirst {
-                            it.description == updatedItem.description
-                        }
-                        if (index != -1) {
-                            todoItems[index] =
-                                updatedItem.copy(isCompleted = !updatedItem.isCompleted)
-                        }
-                    }
-                }
-                // Empty spacer
-                SpatialColumn(SubspaceModifier.width(500.dp)) {}
-                // Calendar Card
-                SpatialColumn(SubspaceModifier.width(250.dp)) { CalendarCard() }
-            }
+            Checkbox(checked = checked, onCheckedChange = onCheckedChange)
+            Text(label, fontSize = 12.sp)
         }
     }
 
     @Suppress("DEPRECATION")
     @Composable
-    private fun SoftFollowSlider(halfLife: Int, onHalfLifeChange: (Float) -> Unit) {
-        Column(
-            modifier = Modifier.width(400.dp).padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+    private fun SliderWithLabel(
+        label: String,
+        value: Float,
+        valueRange: ClosedFloatingPointRange<Float>,
+        formatValue: (Float) -> String,
+        onValueChange: (Float) -> Unit,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         ) {
             Text(
-                text = "Half Life: $halfLife milliseconds",
+                label,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
+                modifier = Modifier.width(110.dp),
             )
-            val min = 1f
-            val max = 1000f
-            val increment = 100f
-            val totalValues = ((max - min) / increment) + 1
-            val steps = (totalValues - 1).toInt()
             Slider(
-                value = halfLife.toFloat(),
-                onValueChange = onHalfLifeChange,
-                valueRange = min..max,
-                steps = steps,
+                value = value,
+                onValueChange = onValueChange,
+                valueRange = valueRange,
+                modifier = Modifier.weight(1f),
             )
-        }
-    }
-
-    @Composable
-    private fun TodoListCard(todoItems: List<TodoItem>, onItemClick: (TodoItem) -> Unit) {
-        SpatialPanel {
-            Card(
-                modifier = Modifier.fillMaxSize(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFE2F0EA)),
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    todoItems.forEachIndexed { index, item ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth().clickable { onItemClick(item) },
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            if (item.isCompleted) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "Completed",
-                                    tint = Color(0xFF4CAF50),
-                                    modifier = Modifier.size(24.dp),
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Default.Circle,
-                                    contentDescription = "Incomplete",
-                                    tint = Color(0xFF757575),
-                                    modifier = Modifier.size(24.dp),
-                                )
-                            }
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                item.description,
-                                fontSize = 16.sp,
-                                color = if (item.isCompleted) Color.Gray else Color.Black,
-                            )
-                        }
-                        Spacer(Modifier.height(8.dp))
-                    }
-                }
-            }
-        }
-    }
-
-    @Composable
-    private fun CalendarCard() {
-        val currentDate = LocalDate.now()
-        val currentMonth =
-            currentDate.month.getDisplayName(TextStyle.FULL, LocalLocale.current.platformLocale)
-        val currentYear = currentDate.year
-        val currentDay = currentDate.dayOfMonth
-        val daysInMonth = currentDate.lengthOfMonth()
-        val firstDayOfMonth = currentDate.withDayOfMonth(1)
-        val firstDayOfWeekIndex = firstDayOfMonth.dayOfWeek.value % 7
-        SpatialPanel {
-            Card(
-                modifier = Modifier.fillMaxSize(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFE2F0EA)),
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "$currentMonth $currentYear",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                    ) {
-                        listOf("Mo", "Tu", "We", "Th", "Fr", "Sa", "Su").forEach {
-                            Text(it, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        }
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    Column {
-                        val daysList = (1..daysInMonth).toList().toIntArray()
-                        var dayIndex = 0
-                        for (week in 0 until 6) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceAround,
-                            ) {
-                                for (dayOfWeek in 0..6) {
-                                    val cellIndex = week * 7 + dayOfWeek
-                                    val dayToDisplay =
-                                        if (
-                                            cellIndex >= firstDayOfWeekIndex &&
-                                                dayIndex < daysList.size
-                                        ) {
-                                            daysList[dayIndex].also { dayIndex++ }
-                                        } else {
-                                            null
-                                        }
-                                    if (dayToDisplay != null) {
-                                        Box(
-                                            modifier =
-                                                Modifier.size(24.dp)
-                                                    .background(
-                                                        if (dayToDisplay == currentDay)
-                                                            Color(0xFF4CAF50)
-                                                        else Color.Transparent
-                                                    ),
-                                            contentAlignment = Alignment.Center,
-                                        ) {
-                                            Text(
-                                                "$dayToDisplay",
-                                                fontSize = 12.sp,
-                                                color =
-                                                    if (dayToDisplay == currentDay) Color.White
-                                                    else Color.Black,
-                                            )
-                                        }
-                                    } else {
-                                        Spacer(Modifier.size(24.dp))
-                                    }
-                                }
-                            }
-                            Spacer(Modifier.height(4.dp))
-                        }
-                    }
-                }
-            }
+            Text(formatValue(value), fontSize = 12.sp, modifier = Modifier.width(55.dp))
         }
     }
 }
