@@ -937,6 +937,11 @@ package androidx.compose.remote.creation.compose.shapes {
 
 package androidx.compose.remote.creation.compose.state {
 
+  public final class AndroidRemoteColorKt {
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int lightMode, @ColorRes int darkMode, androidx.compose.ui.graphics.Color lightFallback, androidx.compose.ui.graphics.Color darkFallback);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor-jZ3TX3s(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int, @ColorRes int, long, long);
+  }
+
   public abstract class BaseRemoteState<T> implements androidx.compose.remote.creation.compose.state.RemoteState<T> {
     property public abstract T? constantValueOrNull;
   }
