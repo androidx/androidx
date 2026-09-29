@@ -14,3 +14,633 @@
 
 # Tip-of-tree project dependencies that are temporarily exempted from being pinned
 # to released artifact versions.
+
+[[tipOfTreeExemptions]]
+library = ":appstate:statestore:statestore-datastore"
+dependsOn = ":datastore:datastore-core"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":appstate:statestore:statestore-datastore"
+dependsOn = ":datastore:datastore-preferences-core"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":camera:camera-camera2-pipe"
+dependsOn = ":camera:featurecombinationquery:featurecombinationquery"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":camera:camera-camera2-pipe-testing"
+dependsOn = ":camera:camera-camera2-pipe"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":camera:camera-camera2-pipe-testing"
+dependsOn = ":camera:camera-common-testing"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":camera:camera-camera2-pipe-testing"
+dependsOn = ":camera:featurecombinationquery:featurecombinationquery"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":camera:camera-compose"
+dependsOn = ":camera:viewfinder:viewfinder-compose"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":camera:camera-compose"
+dependsOn = ":camera:viewfinder:viewfinder-core"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":camera:camera-testing"
+dependsOn = ":camera:camera-camera2"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":camera:camera-testing"
+dependsOn = ":camera:camera-common-testing"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":camera:camera-testing"
+dependsOn = ":camera:camera-core"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":camera:camera-testing"
+dependsOn = ":camera:camera-lifecycle"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":camera:camera-testing"
+dependsOn = ":camera:camera-video"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":compose:material3:material3-a2ui"
+dependsOn = ":a2ui:a2ui-engine"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":compose:material3:material3-a2ui"
+dependsOn = ":a2ui:a2ui-model"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":compose:material3:material3-a2ui"
+dependsOn = ":a2ui:compose:compose-runtime"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":compose:material3:material3-a2ui"
+dependsOn = ":a2ui:compose:compose-ui"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":compose:material:material"
+dependsOn = ":compose:runtime:runtime"
+validThroughLibraryVersion = "1.13.0-rc01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":compose:material:material-navigation"
+dependsOn = ":compose:material:material"
+validThroughLibraryVersion = "1.13.0-rc01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":compose:material:material-ripple"
+dependsOn = ":compose:runtime:runtime"
+validThroughLibraryVersion = "1.13.0-rc01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":compose:remote:foundation:foundation"
+dependsOn = ":compose:remote:remote-creation"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":compose:remote:foundation:foundation"
+dependsOn = ":compose:remote:remote-creation-compose"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":constraintlayout:constraintlayout"
+dependsOn = ":constraintlayout:constraintlayout-core"
+validThroughLibraryVersion = "2.3.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":constraintlayout:constraintlayout-compose"
+dependsOn = ":constraintlayout:constraintlayout-core"
+validThroughLibraryVersion = "1.2.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":core:core-animation-testing"
+dependsOn = ":core:core-animation"
+validThroughLibraryVersion = "1.1.0-alpha01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":core:core-ktx"
+dependsOn = ":core:core"
+validThroughLibraryVersion = "1.20.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":core:core-location-altitude"
+dependsOn = ":core:core-location-altitude-proto"
+validThroughLibraryVersion = "1.0.0"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":core:core-location-altitude-proto"
+dependsOn = ":core:core-location-altitude-external-protobuf"
+validThroughLibraryVersion = "1.0.0"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":core:core-performance-play-services"
+dependsOn = ":core:core-performance"
+validThroughLibraryVersion = "1.1.0-alpha01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":core:core-performance-testing"
+dependsOn = ":core:core-performance"
+validThroughLibraryVersion = "1.1.0-alpha01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":core:core-testing"
+dependsOn = ":core:core"
+validThroughLibraryVersion = "1.20.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":credentials:registry:registry-provider"
+dependsOn = ":credentials:credentials"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":emoji:emoji-appcompat"
+dependsOn = ":emoji:emoji"
+validThroughLibraryVersion = "1.2.0"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":emoji:emoji-bundled"
+dependsOn = ":emoji:emoji"
+validThroughLibraryVersion = "1.2.0"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":glance:adaptive:adaptive-wear"
+dependsOn = ":glance:wear:wear-core"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":glance:glance-appwidget"
+dependsOn = ":compose:remote:remote-core"
+validThroughLibraryVersion = "1.3.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":glance:glance-appwidget"
+dependsOn = ":compose:remote:remote-creation"
+validThroughLibraryVersion = "1.3.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":glance:wear:wear"
+dependsOn = ":compose:remote:remote-creation"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":glance:wear:wear"
+dependsOn = ":compose:remote:remote-creation-compose"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":glance:wear:wear-tooling-preview"
+dependsOn = ":compose:remote:remote-player-core"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":glance:wear:wear-tooling-preview"
+dependsOn = ":compose:remote:remote-tooling-preview"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":health:health-services-client"
+dependsOn = ":health:health-services-client-proto"
+validThroughLibraryVersion = "1.1.0-rc01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":health:health-services-client-proto"
+dependsOn = ":health:health-services-client-external-protobuf"
+validThroughLibraryVersion = "1.1.0-rc01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":hilt:hilt-lifecycle-viewmodel-compose"
+dependsOn = ":hilt:hilt-lifecycle-viewmodel"
+validThroughLibraryVersion = "1.5.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":hilt:hilt-navigation"
+dependsOn = ":hilt:hilt-lifecycle-viewmodel"
+validThroughLibraryVersion = "1.5.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":hilt:hilt-navigation-compose"
+dependsOn = ":hilt:hilt-lifecycle-viewmodel-compose"
+validThroughLibraryVersion = "1.5.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":hilt:hilt-navigation-fragment"
+dependsOn = ":hilt:hilt-lifecycle-viewmodel"
+validThroughLibraryVersion = "1.5.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":hilt:hilt-work"
+dependsOn = ":hilt:hilt-common"
+validThroughLibraryVersion = "1.5.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":leanback:leanback"
+dependsOn = ":leanback:leanback-grid"
+validThroughLibraryVersion = "1.3.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":lifecycle:lifecycle-viewmodel-savedstate"
+dependsOn = ":savedstate:savedstate"
+validThroughLibraryVersion = "2.12.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":photopicker:photopicker-activity"
+dependsOn = ":activity:activity"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":room3:room3-paging"
+dependsOn = ":sqlite:sqlite-async"
+validThroughLibraryVersion = "3.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":room3:room3-runtime"
+dependsOn = ":sqlite:sqlite"
+validThroughLibraryVersion = "3.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":room3:room3-runtime"
+dependsOn = ":sqlite:sqlite-async"
+validThroughLibraryVersion = "3.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":room3:room3-runtime"
+dependsOn = ":sqlite:sqlite-bundled"
+validThroughLibraryVersion = "3.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":room3:room3-runtime"
+dependsOn = ":sqlite:sqlite-framework"
+validThroughLibraryVersion = "3.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":room3:room3-sqlite-wrapper"
+dependsOn = ":sqlite:sqlite"
+validThroughLibraryVersion = "3.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":room3:room3-testing"
+dependsOn = ":sqlite:sqlite"
+validThroughLibraryVersion = "3.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":room3:room3-testing"
+dependsOn = ":sqlite:sqlite-async"
+validThroughLibraryVersion = "3.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":room3:room3-testing"
+dependsOn = ":sqlite:sqlite-framework"
+validThroughLibraryVersion = "3.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":security:security-app-authenticator-testing"
+dependsOn = ":security:security-app-authenticator"
+validThroughLibraryVersion = "1.0.0"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":security:security-crypto-ktx"
+dependsOn = ":security:security-crypto"
+validThroughLibraryVersion = "1.1.0"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":security:security-state-provider"
+dependsOn = ":security:security-state"
+validThroughLibraryVersion = "1.0.0"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:compose:remote:remote-material3"
+dependsOn = ":compose:remote:foundation:foundation"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:compose:remote:remote-material3"
+dependsOn = ":compose:remote:remote-creation"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:compose:remote:remote-material3"
+dependsOn = ":compose:remote:remote-creation-compose"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles"
+dependsOn = ":wear:protolayout:protolayout"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles"
+dependsOn = ":wear:protolayout:protolayout-expression"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles"
+dependsOn = ":wear:protolayout:protolayout-material3"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles-material"
+dependsOn = ":wear:protolayout:protolayout-expression"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles-proto"
+dependsOn = ":wear:protolayout:protolayout-proto"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles-renderer"
+dependsOn = ":wear:protolayout:protolayout"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles-renderer"
+dependsOn = ":wear:protolayout:protolayout-expression"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles-renderer"
+dependsOn = ":wear:protolayout:protolayout-expression-pipeline"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles-renderer"
+dependsOn = ":wear:protolayout:protolayout-renderer"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles-testing"
+dependsOn = ":wear:protolayout:protolayout"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles-tooling"
+dependsOn = ":wear:protolayout:protolayout"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles-tooling"
+dependsOn = ":wear:protolayout:protolayout-expression"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles-tooling"
+dependsOn = ":wear:protolayout:protolayout-expression-pipeline"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles-tooling-preview"
+dependsOn = ":wear:protolayout:protolayout"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:tiles:tiles-tooling-preview"
+dependsOn = ":wear:protolayout:protolayout-expression"
+validThroughLibraryVersion = "1.7.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":wear:wear-input-testing"
+dependsOn = ":wear:wear-input"
+validThroughLibraryVersion = "1.2.0"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":web:web"
+dependsOn = ":webkit:webkit"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":web:web-compose"
+dependsOn = ":compose:runtime:runtime"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":web:web-compose"
+dependsOn = ":compose:ui:ui"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":web:web-compose"
+dependsOn = ":compose:ui:ui-graphics"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":web:web-compose"
+dependsOn = ":compose:ui:ui-unit"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":window:window"
+dependsOn = ":window:extensions:extensions"
+validThroughLibraryVersion = "1.6.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:arcore:arcore"
+dependsOn = ":xr:runtime:runtime"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:arcore:arcore-runtime"
+dependsOn = ":xr:runtime:runtime"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:arcore:arcore-testing"
+dependsOn = ":xr:runtime:runtime"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:compose:material3:material3"
+dependsOn = ":compose:material3:adaptive:adaptive"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:compose:material3:material3"
+dependsOn = ":compose:material3:adaptive:adaptive-layout"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:compose:material3:material3"
+dependsOn = ":compose:material3:material3"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:compose:material3:material3"
+dependsOn = ":compose:material3:material3-adaptive-navigation-suite"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:compose:material3:material3"
+dependsOn = ":xr:compose:compose"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:scenecore:scenecore"
+dependsOn = ":xr:arcore:arcore"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:scenecore:scenecore"
+dependsOn = ":xr:runtime:runtime"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:scenecore:scenecore-runtime"
+dependsOn = ":xr:arcore:arcore"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:scenecore:scenecore-runtime"
+dependsOn = ":xr:runtime:runtime"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:scenecore:scenecore-spatial-core"
+dependsOn = ":xr:arcore:arcore-openxr"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:scenecore:scenecore-spatial-core"
+dependsOn = ":xr:runtime:runtime"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:scenecore:scenecore-spatial-rendering"
+dependsOn = ":xr:runtime:runtime"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:scenecore:scenecore-testing"
+dependsOn = ":xr:arcore:arcore-testing"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":xr:scenecore:scenecore-testing"
+dependsOn = ":xr:runtime:runtime-testing"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/TODO - <reason>"

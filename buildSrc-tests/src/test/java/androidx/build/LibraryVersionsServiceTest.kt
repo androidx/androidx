@@ -315,19 +315,19 @@ class LibraryVersionsServiceTest {
     }
 
     @Test
-    fun tipOfTreeExemptions_absentFileIsEmpty() {
+    fun exemptionsFor_absentFileIsEmpty() {
         val service = createLibraryVersionsService("[versions]\n[groups]\n", exemptions = null)
-        assertThat(service.tipOfTreeExemptions).isEmpty()
+        assertThat(service.exemptionsFor(":fragment:fragment")).isEmpty()
     }
 
     @Test
-    fun tipOfTreeExemptions_emptyListIsEmpty() {
+    fun exemptionsFor_emptyListIsEmpty() {
         val service = createLibraryVersionsService("[versions]\n[groups]\n")
-        assertThat(service.tipOfTreeExemptions).isEmpty()
+        assertThat(service.exemptionsFor(":fragment:fragment")).isEmpty()
     }
 
     @Test
-    fun tipOfTreeExemptions_parsesEntries() {
+    fun exemptionsFor_parsesEntries() {
         val service =
             createLibraryVersionsService(
                 "[versions]\n[groups]\n",
@@ -341,17 +341,45 @@ class LibraryVersionsServiceTest {
                     """
                         .trimIndent(),
             )
-        assertThat(service.tipOfTreeExemptions)
-            .containsExactly(
-                TipOfTreeExemption(
-                    library = ":fragment:fragment",
-                    dependsOn = ":tracing:tracing",
-                    validThroughLibraryVersion = "1.9.0-rc01",
-                    reason = "b/12345 - needs an unreleased API",
-                )
+        val expected =
+            TipOfTreeExemption(
+                library = ":fragment:fragment",
+                dependsOn = ":tracing:tracing",
+                validThroughLibraryVersion = "1.9.0-rc01",
+                reason = "b/12345 - needs an unreleased API",
             )
+        assertThat(service.exemptionsFor(":fragment:fragment")).containsExactly(expected)
+        assertThat(service.exemptionsFor(":other:module")).isEmpty()
     }
 
+    @Test
+    fun versionGroupFor_atomicGroupReturnsGroupVersionName() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [versions]
+            V1 = "1.2.3"
+            [groups]
+            COMPOSE_UI = { group = "androidx.compose.ui", atomicGroupVersion = "versions.V1" }
+            """
+            )
+        assertThat(service.versionGroupFor(":compose:ui:ui", "androidx.compose.ui")).isEqualTo("V1")
+    }
+
+    @Test
+    fun versionGroupFor_nonAtomicGroupReturnsNull() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [versions]
+            CORE = "1.2.3"
+            [groups]
+            CORE = { group = "androidx.core" }
+            """
+            )
+        assertThat(service.versionGroupFor(":core:core", "androidx.core")).isNull()
+        assertThat(service.versionGroupFor(":core:core-splashscreen", "androidx.core")).isNull()
+    }
     private fun createLibraryVersionsService(
         tomlFileContents: String,
         tomlFileName: String = "libraryversions.toml",

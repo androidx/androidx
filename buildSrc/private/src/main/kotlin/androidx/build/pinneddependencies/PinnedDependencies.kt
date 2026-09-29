@@ -134,6 +134,35 @@ internal fun suggestedExemptionVersion(current: Version): String =
         }
     }
 
+/**
+ * Returns [library]'s tip-of-tree [dependencies] that release separately from it, and so must
+ * either be pinned to a released version or exempted.
+ */
+internal fun findUnpinnedDependencies(
+    library: ProjectCoordinates,
+    dependencies: Collection<ProjectCoordinates>,
+): List<ProjectCoordinates> =
+    dependencies
+        .distinctBy { it.projectPath }
+        .filterNot { it.projectPath == library.projectPath || library.releasesTogetherWith(it) }
+
+/**
+ * A new exemption for [library] depending on [dependsOn], seeded with a suggested expiry version
+ * and a placeholder reason that a human must replace.
+ */
+internal fun placeholderExemption(
+    library: String,
+    libraryVersion: Version?,
+    dependsOn: String,
+): TipOfTreeExemption =
+    TipOfTreeExemption(
+        library = library,
+        dependsOn = dependsOn,
+        validThroughLibraryVersion =
+            libraryVersion?.let { suggestedExemptionVersion(it) } ?: "1.0.0-alpha01",
+        reason = "b/TODO - <reason>",
+    )
+
 /** Returns the verification error messages for [library]'s tip-of-tree dependencies. */
 internal fun findVerificationErrors(
     library: ProjectCoordinates,
@@ -143,24 +172,19 @@ internal fun findVerificationErrors(
     val applicableExemptions =
         exemptions.filter { it.library == library.projectPath }.associateBy { it.dependsOn }
 
-    return dependencies
-        .distinctBy { it.projectPath }
-        .filterNot { it.projectPath == library.projectPath || library.releasesTogetherWith(it) }
-        .mapNotNull { dependency ->
-            val exemption = applicableExemptions[dependency.projectPath]
-            val validThrough = exemption?.let { Version.parseOrNull(it.validThroughLibraryVersion) }
+    return findUnpinnedDependencies(library, dependencies).mapNotNull { dependency ->
+        val exemption = applicableExemptions[dependency.projectPath]
+        val validThrough = exemption?.let { Version.parseOrNull(it.validThroughLibraryVersion) }
 
-            when {
-                exemption == null -> formatShouldBePinnedError(library, dependency)
-                !exemption.reason.containsBug() ->
-                    formatMissingBugError(library, dependency, exemption)
-                validThrough == null ->
-                    formatUnparseableVersionError(library, dependency, exemption)
-                library.version != null && library.version > validThrough ->
-                    formatExpiredError(library, dependency, exemption)
-                else -> null
-            }
+        when {
+            exemption == null -> formatShouldBePinnedError(library, dependency)
+            !exemption.reason.containsBug() -> formatMissingBugError(library, dependency, exemption)
+            validThrough == null -> formatUnparseableVersionError(library, dependency, exemption)
+            library.version != null && library.version > validThrough ->
+                formatExpiredError(library, dependency, exemption)
+            else -> null
         }
+    }
 }
 
 private fun formatShouldBePinnedError(
