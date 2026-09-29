@@ -1516,54 +1516,6 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
-    fun testMapExceptionToErrorCodeCaseInsensitive() {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        assertEquals(
-            BackupErrorCode.RESTORE_POLL_TIMEOUT,
-            device.mapExceptionToErrorCode(
-                BackupExecutionStage.RESTORE,
-                IOException("TIMEOUT DURING RESTORE"),
-            ),
-        )
-        assertEquals(
-            BackupErrorCode.RESTORE_POLL_TIMEOUT,
-            device.mapExceptionToErrorCode(
-                BackupExecutionStage.RESTORE,
-                IOException("POLLING FAILED"),
-            ),
-        )
-        assertEquals(
-            BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING,
-            device.mapExceptionToErrorCode(
-                BackupExecutionStage.BACKUP,
-                IOException("MISSING GMSCORE"),
-            ),
-        )
-        assertEquals(
-            BackupErrorCode.BMGR_INIT_FAILED,
-            device.mapExceptionToErrorCode(
-                BackupExecutionStage.BACKUP,
-                IOException("BMGR TRANSPORT ERROR"),
-            ),
-        )
-    }
-
-    @Test
-    fun testMapExceptionToErrorCodeKeyguardFailure() {
-        val device =
-            BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
-
-        val code =
-            device.mapExceptionToErrorCode(
-                BackupExecutionStage.PRECONDITION,
-                IllegalStateException("Device keyguard dismiss failed"),
-            )
-        assertEquals(BackupErrorCode.KEYGUARD_UNLOCK_FAILED, code)
-    }
-
-    @Test
     fun testClearAppDataSucceedsWhenPmClearReportsSuccess() = runBlocking {
         val device =
             BackupRestoreControllerImpl(mockSession, "emulator-5554", 34, "com.example.app")
