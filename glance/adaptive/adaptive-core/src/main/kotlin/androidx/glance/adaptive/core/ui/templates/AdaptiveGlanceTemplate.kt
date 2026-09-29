@@ -19,4 +19,15 @@ package androidx.glance.adaptive.core.ui.templates
 import androidx.annotation.RestrictTo
 
 /** Base interface for all Glance Adaptive templates. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface AdaptiveGlanceTemplate
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface AdaptiveGlanceTemplate {
+    /**
+     * Unique semantic identifier of the template for telemetry and registry lookups (e.g.,
+     * "list_template_v1").
+     *
+     * Implementations must provide a stable constant string identifier that is unique across all
+     * templates within the application to ensure human-readable telemetry, accurate data
+     * partitioning, and no identifier collisions under R8/ProGuard class minification.
+     */
+    public val templateId: String
+}
