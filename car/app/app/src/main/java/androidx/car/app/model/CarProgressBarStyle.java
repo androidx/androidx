@@ -122,6 +122,8 @@ public final class CarProgressBarStyle {
          *
          * <p>If a color is not set, or if the provided color does not pass a contrast check, the
          * host will use a default color.
+         *
+         * @throws IllegalArgumentException if {@code color} contains an unsupported color type
          */
         public @NonNull Builder setColor(@Nullable CarColor color) {
             if (color != null) {
@@ -136,6 +138,8 @@ public final class CarProgressBarStyle {
          *
          * <p>If a color is not set, or if the provided color does not pass a contrast check, the
          * host will use a default color.
+         *
+         * @throws IllegalArgumentException if {@code color} contains an unsupported color type
          */
         public @NonNull Builder setTrackColor(@Nullable CarColor color) {
             if (color != null) {
