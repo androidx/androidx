@@ -194,4 +194,68 @@ class OpenXrActivitySpaceTest {
 
         assertThat(originChangeCount).isEqualTo(1)
     }
+
+    @Test
+    fun poseInPlatformReferenceSpace_and_getPoseRealWorld_returnIdentityWithoutStackOverflow() {
+        val perceptionSpaceScenePose =
+            nodeRegistry
+                .getSystemSpaceScenePoseOfType(
+                    androidx.xr.scenecore.runtime.PerceptionSpaceScenePose::class.java
+                )
+                .first()
+
+        assertThat(activitySpace.poseInPlatformReferenceSpace).isEqualTo(Pose.Identity)
+        assertThat(activitySpace.poseInPerceptionSpace).isEqualTo(Pose.Identity)
+        assertThat(activitySpace.getPose(Space.REAL_WORLD)).isEqualTo(Pose.Identity)
+        assertThat(activitySpace.transformPoseTo(Pose.Identity, perceptionSpaceScenePose))
+            .isEqualTo(Pose.Identity)
+    }
+
+    @Test
+    fun childEntity_getPoseRealWorld_and_transformPoseToPerceptionSpace_withoutInfiniteRecursion() {
+        val perceptionSpaceScenePose =
+            nodeRegistry
+                .getSystemSpaceScenePoseOfType(
+                    androidx.xr.scenecore.runtime.PerceptionSpaceScenePose::class.java
+                )
+                .first()
+        val childHandle = fakeNative.createSceneEntity()
+        val childEntity =
+            object : OpenXrEntity(activity, childHandle, fakeNative, nodeRegistry, executor) {}
+        childEntity.parent = activitySpace
+        val localPose = Pose(Vector3(1f, 2f, 3f))
+        childEntity.setPose(localPose, Space.PARENT)
+
+        assertThat(childEntity.getPose(Space.REAL_WORLD)).isEqualTo(localPose)
+        assertThat(childEntity.transformPoseTo(Pose.Identity, perceptionSpaceScenePose))
+            .isEqualTo(localPose)
+    }
+
+    @Test
+    fun setPlatformReferenceSpacePose_updatesPoseAndChildRealWorldPoseAndFiresOriginListener() {
+        var originChangeCount = 0
+        val directExecutor = java.util.concurrent.Executor { it.run() }
+        activitySpace.setOnOriginChangedListener({ originChangeCount++ }, directExecutor)
+
+        val childHandle = fakeNative.createSceneEntity()
+        val childEntity =
+            object : OpenXrEntity(activity, childHandle, fakeNative, nodeRegistry, executor) {}
+        childEntity.parent = activitySpace
+        val childLocalPose = Pose(Vector3(1f, 2f, 3f))
+        childEntity.setPose(childLocalPose, Space.PARENT)
+
+        val newPlatformPose = Pose(Vector3(10f, 20f, 30f))
+        activitySpace.setPlatformReferenceSpacePose(newPlatformPose)
+
+        assertThat(activitySpace.poseInPlatformReferenceSpace).isEqualTo(newPlatformPose)
+        assertThat(activitySpace.poseInPerceptionSpace).isEqualTo(newPlatformPose)
+        assertThat(activitySpace.getPose(Space.REAL_WORLD)).isEqualTo(newPlatformPose)
+        assertThat(childEntity.getPose(Space.REAL_WORLD))
+            .isEqualTo(newPlatformPose.compose(childLocalPose))
+        assertThat(originChangeCount).isEqualTo(1)
+
+        // Setting the same pose again should not trigger onOriginChanged a second time.
+        activitySpace.setPlatformReferenceSpacePose(newPlatformPose)
+        assertThat(originChangeCount).isEqualTo(1)
+    }
 }

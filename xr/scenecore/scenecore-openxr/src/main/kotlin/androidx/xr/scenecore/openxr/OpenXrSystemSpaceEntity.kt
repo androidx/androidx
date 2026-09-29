@@ -18,6 +18,7 @@ package androidx.xr.scenecore.openxr
 
 import android.content.Context
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SystemSpaceEntity
@@ -46,6 +47,36 @@ internal constructor(
     private class ListenerHolder(val listener: Runnable, val executor: Executor)
 
     private val originListener = AtomicReference<ListenerHolder?>()
+
+    /**
+     * Backing storage for [poseInPlatformReferenceSpace], updated via
+     * [setPlatformReferenceSpacePose]. Defaults to [Pose.Identity] until the runtime reports the
+     * space's origin.
+     */
+    protected val _poseInPlatformReferenceSpace: AtomicReference<Pose> =
+        AtomicReference(Pose.Identity)
+
+    /**
+     * The pose of this space's origin relative to the underlying OpenXR platform reference space.
+     *
+     * This is returned directly from stored state rather than computed through [transformPoseTo].
+     * [androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl] derives its own pose from
+     * the ActivitySpace's value of this property, so computing it via the perception space would
+     * recurse infinitely.
+     */
+    override val poseInPlatformReferenceSpace: Pose
+        get() = _poseInPlatformReferenceSpace.get()
+
+    /**
+     * Updates the pose of this system space relative to the underlying platform reference space and
+     * notifies registered origin change listeners if the pose changed.
+     */
+    public fun setPlatformReferenceSpacePose(pose: Pose) {
+        val previousPose = _poseInPlatformReferenceSpace.getAndSet(pose)
+        if (previousPose != pose) {
+            onOriginChanged()
+        }
+    }
 
     override fun setOnOriginChangedListener(listener: Runnable?, executor: Executor?) {
         if (listener != null) {
