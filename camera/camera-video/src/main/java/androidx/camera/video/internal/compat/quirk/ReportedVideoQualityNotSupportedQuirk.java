@@ -64,13 +64,19 @@ import java.util.Locale;
  *                      <li>See b/317935034#comment2. On Oppo pht110, it fails to record video
  *                      on back camera and UHD quality.</li>
  *                  </ul>
- *      Device(s):   Huawei Mate 20, Huawei Mate 20 Pro, Vivo Y91i, Huawei P40 Lite, Oppo pht110
+ *                  <ul>
+ *                      <li>On Samsung Galaxy A06 (SM-A065M), CamcorderProfile advertises
+ *                      high-speed video support (720p@120fps), but recording high-speed video fails
+ *                      in the camera HAL.</li>
+ *                  </ul>
+ *      Device(s):   Huawei Mate 20, Huawei Mate 20 Pro, Vivo Y91i, Huawei P40 Lite, Oppo pht110,
+ *                   Samsung Galaxy A06 (SM-A065M)
  */
 public class ReportedVideoQualityNotSupportedQuirk implements VideoQualityQuirk,
         SurfaceProcessingQuirk {
     static boolean load() {
         return isHuaweiMate20() || isHuaweiMate20Pro() || isVivoY91i() || isHuaweiP40Lite()
-                || isOppoPht110();
+                || isOppoPht110() || isSamsungGalaxyA06();
     }
 
     private static boolean isHuaweiMate20() {
@@ -95,10 +101,15 @@ public class ReportedVideoQualityNotSupportedQuirk implements VideoQualityQuirk,
         return "OPPO".equalsIgnoreCase(Build.BRAND) && "PHT110".equalsIgnoreCase(Build.MODEL);
     }
 
+    private static boolean isSamsungGalaxyA06() {
+        return "Samsung".equalsIgnoreCase(Build.MANUFACTURER)
+                && "sm-a065m".equalsIgnoreCase(Build.MODEL);
+    }
+
     /** Checks if the given mime type is a problematic quality. */
     @Override
     public boolean isProblematicVideoQuality(@NonNull CameraInfoInternal cameraInfo,
-            @NonNull Quality quality) {
+            @NonNull Quality quality, int profileQuality) {
         if (isHuaweiMate20() || isHuaweiMate20Pro()) {
             return quality == Quality.UHD;
         } else if (isVivoY91i()) {
@@ -110,13 +121,19 @@ public class ReportedVideoQualityNotSupportedQuirk implements VideoQualityQuirk,
                     && (quality == Quality.FHD || quality == Quality.HD);
         } else if (isOppoPht110()) {
             return cameraInfo.getLensFacing() == LENS_FACING_BACK && quality == Quality.UHD;
+        } else if (isSamsungGalaxyA06()) {
+            return isHighSpeedQuality(profileQuality);
         }
         return false;
     }
 
+    private static boolean isHighSpeedQuality(int profileQuality) {
+        return profileQuality >= CamcorderProfile.QUALITY_HIGH_SPEED_LOW;
+    }
+
     @Override
     public boolean workaroundBySurfaceProcessing() {
-        // VivoY91i can't be workaround.
+        // VivoY91i and SamsungGalaxyA06 can't be workaround.
         return isHuaweiMate20() || isHuaweiMate20Pro() || isHuaweiP40Lite() || isOppoPht110();
     }
 }

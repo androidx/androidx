@@ -72,7 +72,7 @@ public class ExcludeStretchedVideoQualityQuirk implements VideoQualityQuirk {
     /** Checks if the given Quality type is a problematic quality. */
     @Override
     public boolean isProblematicVideoQuality(@NonNull CameraInfoInternal cameraInfo,
-            @NonNull Quality quality) {
+            @NonNull Quality quality, int profileQuality) {
         if (isSamsungJ4()) {
             return quality == Quality.FHD || quality == Quality.UHD;
         }
