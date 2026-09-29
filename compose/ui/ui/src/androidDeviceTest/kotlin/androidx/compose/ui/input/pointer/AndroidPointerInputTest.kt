@@ -112,6 +112,7 @@ import kotlinx.coroutines.launch
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -7350,6 +7351,143 @@ class AndroidPointerInputTest {
             assertThat(event1).isNotNull()
             assertThat(event2).isNotNull()
             assertThat(pointerInputCancellations).isFalse()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun trackpadPan_relayoutDuringPan_doesNotDispatchDuplicatePanMove() {
+        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
+        var showChild by mutableStateOf(true)
+        val parentEvents = mutableListOf<Pair<PointerEventType, Offset>>()
+        val latch = CountDownLatch(1)
+
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier.fillMaxSize()
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent(PointerEventPass.Final)
+                                    val unconsumedPan =
+                                        if (
+                                            event.type == PointerEventType.PanMove &&
+                                                event.changes.none { it.isConsumed }
+                                        ) {
+                                            event.changes.firstOrNull()?.panOffset ?: Offset.Zero
+                                        } else {
+                                            Offset.Zero
+                                        }
+                                    parentEvents += event.type to unconsumedPan
+                                }
+                            }
+                        }
+                        .onGloballyPositioned { latch.countDown() }
+                ) {
+                    if (showChild) {
+                        Box(
+                            Modifier.fillMaxSize().pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        val event = awaitPointerEvent(PointerEventPass.Main)
+                                        if (event.type == PointerEventType.PanMove) {
+                                            event.changes.fastForEach { it.consume() }
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        val locationInWindow = IntArray(2)
+        rule.runOnUiThread {
+            container.getLocationInWindow(locationInWindow)
+            val x = locationInWindow[0] + 10f
+            val y = locationInWindow[1] + 10f
+            val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
+
+            // 1. Start trackpad pan and send initial pan move (consumed by child)
+            val panDown =
+                MotionEvent(
+                    eventTime = 10,
+                    action = ACTION_DOWN,
+                    numPointers = 1,
+                    actionIndex = 0,
+                    pointerProperties =
+                        arrayOf(PointerProperties(0).apply { toolType = TOOL_TYPE_FINGER }),
+                    pointerCoords =
+                        arrayOf(
+                            PointerCoords(x, y).apply {
+                                setAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_X_DISTANCE, 0f)
+                                setAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_Y_DISTANCE, 0f)
+                            }
+                        ),
+                    classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+                )
+            val panMove1 =
+                MotionEvent(
+                    eventTime = 20,
+                    action = ACTION_MOVE,
+                    numPointers = 1,
+                    actionIndex = 0,
+                    pointerProperties =
+                        arrayOf(PointerProperties(0).apply { toolType = TOOL_TYPE_FINGER }),
+                    pointerCoords =
+                        arrayOf(
+                            PointerCoords(x, y - 10f).apply {
+                                setAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_X_DISTANCE, 0f)
+                                setAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_Y_DISTANCE, 10f)
+                            }
+                        ),
+                    classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+                )
+            androidComposeView.dispatchTouchEvent(panDown)
+            androidComposeView.dispatchTouchEvent(panMove1)
+
+            // 2. Remove child mid-pan to trigger relayout and resendMotionEventOnLayout
+            showChild = false
+        }
+
+        // Wait for relayout and the posted resendMotionEventRunnable to execute
+        rule.waitForFutureFrame()
+
+        rule.runOnUiThread {
+            val x = locationInWindow[0] + 10f
+            val y = locationInWindow[1] + 10f
+            val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
+
+            // 3. Send a second pan move after child removal (unconsumed, picked up by parent)
+            val panMove2 =
+                MotionEvent(
+                    eventTime = 40,
+                    action = ACTION_MOVE,
+                    numPointers = 1,
+                    actionIndex = 0,
+                    pointerProperties =
+                        arrayOf(PointerProperties(0).apply { toolType = TOOL_TYPE_FINGER }),
+                    pointerCoords =
+                        arrayOf(
+                            PointerCoords(x, y - 20f).apply {
+                                setAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_X_DISTANCE, 0f)
+                                setAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_Y_DISTANCE, 10f)
+                            }
+                        ),
+                    classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+                )
+            androidComposeView.dispatchTouchEvent(panMove2)
+
+            // Verify the simulated hover event on relayout did not produce an extra PanMove
+            val unconsumedPanMoves = parentEvents.filter { (type, pan) ->
+                type == PointerEventType.PanMove && pan != Offset.Zero
+            }
+            assertThat(unconsumedPanMoves)
+                .containsExactly(PointerEventType.PanMove to Offset(0f, 10f))
         }
     }
 
