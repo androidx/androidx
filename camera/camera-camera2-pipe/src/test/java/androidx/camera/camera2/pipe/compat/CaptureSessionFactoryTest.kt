@@ -35,7 +35,9 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
+import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputId
+import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
@@ -160,6 +162,85 @@ internal class CaptureSessionFactoryTest {
         assertThat(pendingOutputs).isNotNull()
         assertThat(pendingOutputs).isEmpty()
         surface.release()
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P)
+    fun buildOutputConfigurationsWithPartiallyAvailableSharedDeferrableStream() {
+        val sharedOutputConfig =
+            OutputStream.Config.create(
+                size = Size(640, 480),
+                format = StreamFormat.UNKNOWN,
+                outputType = OutputStream.OutputType.SURFACE_VIEW,
+            )
+        val streamConfig1 = CameraStream.Config.create(sharedOutputConfig)
+        val streamConfig2 = CameraStream.Config.create(sharedOutputConfig)
+        val graphConfig =
+            CameraGraph.Config(
+                camera = testCamera.cameraId,
+                streams = listOf(streamConfig1, streamConfig2),
+            )
+        val streamGraph =
+            StreamGraphImpl(
+                testCamera.metadata,
+                graphConfig,
+                mock(),
+                mock(),
+                MemoryEstimator.create(),
+            )
+        val stream1 = checkNotNull(streamGraph[streamConfig1])
+        val stream2 = checkNotNull(streamGraph[streamConfig2])
+
+        val surfaceTexture = SurfaceTexture(0).apply { setDefaultBufferSize(640, 480) }
+        val surface1 = Surface(surfaceTexture)
+
+        val outputs =
+            buildOutputConfigurations(graphConfig, streamGraph, mapOf(stream1.id to surface1))
+
+        assertThat(outputs.all).hasSize(1)
+        assertThat(outputs.all.single().surface).isEqualTo(surface1)
+        assertThat(outputs.all.single().surfaces).containsExactly(surface1)
+        assertThat(outputs.deferred.keys).containsExactly(stream2.id)
+        assertThat(outputs.outputSurfaceMap).containsExactly(stream1.outputs.single().id, surface1)
+
+        surface1.release()
+        surfaceTexture.release()
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P)
+    fun buildOutputConfigurationsWithFullyMissingSharedDeferrableStream() {
+        val sharedOutputConfig =
+            OutputStream.Config.create(
+                size = Size(640, 480),
+                format = StreamFormat.UNKNOWN,
+                outputType = OutputStream.OutputType.SURFACE_VIEW,
+            )
+        val streamConfig1 = CameraStream.Config.create(sharedOutputConfig)
+        val streamConfig2 = CameraStream.Config.create(sharedOutputConfig)
+        val graphConfig =
+            CameraGraph.Config(
+                camera = testCamera.cameraId,
+                streams = listOf(streamConfig1, streamConfig2),
+            )
+        val streamGraph =
+            StreamGraphImpl(
+                testCamera.metadata,
+                graphConfig,
+                mock(),
+                mock(),
+                MemoryEstimator.create(),
+            )
+        val stream1 = checkNotNull(streamGraph[streamConfig1])
+        val stream2 = checkNotNull(streamGraph[streamConfig2])
+
+        val outputs = buildOutputConfigurations(graphConfig, streamGraph, emptyMap())
+
+        assertThat(outputs.all).hasSize(1)
+        assertThat(outputs.all.single().surface).isNull()
+        assertThat(outputs.all.single().surfaces).isEmpty()
+        assertThat(outputs.deferred.keys).containsExactly(stream1.id, stream2.id)
+        assertThat(outputs.outputSurfaceMap).isEmpty()
     }
 }
 
