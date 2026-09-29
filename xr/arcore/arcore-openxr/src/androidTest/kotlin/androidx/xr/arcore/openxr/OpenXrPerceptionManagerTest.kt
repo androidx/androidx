@@ -607,6 +607,9 @@ class OpenXrPerceptionManagerTest {
         underTest.stopSpatialAnnotationTracking(listOf(id))
 
         assertThat(underTest.xrResources.annotationConfigs).doesNotContainKey(id)
+
+        underTest.updateSpatialAnnotations(2000L)
+
         assertThat(underTest.xrResources.trackablesMap).doesNotContainKey(handle)
         assertThat(underTest.xrResources.updatables).doesNotContain(trackable as Updatable)
     }
@@ -636,6 +639,9 @@ class OpenXrPerceptionManagerTest {
             underTest.stopSpatialAnnotationTracking(emptyList())
 
             assertThat(underTest.xrResources.annotationConfigs).isEmpty()
+
+            underTest.updateSpatialAnnotations(2000L)
+
             assertThat(underTest.xrResources.trackablesMap).isEmpty()
             assertThat(underTest.xrResources.updatables).doesNotContain(trackable1)
             assertThat(underTest.xrResources.updatables).doesNotContain(trackable2)
@@ -657,14 +663,17 @@ class OpenXrPerceptionManagerTest {
                 SpatialAnnotationQuadAlignment.OBJECT,
             )
             underTest.updateSpatialAnnotations(1000L)
+            val trackable1 = underTest.xrResources.trackablesMap[101L] as Updatable
+            val trackable2 = underTest.xrResources.trackablesMap[102L] as Updatable
 
             underTest.stopSpatialAnnotationTracking(listOf(id1))
 
             assertThat(underTest.xrResources.annotationConfigs).doesNotContainKey(id1)
             assertThat(underTest.xrResources.annotationConfigs).containsKey(id2)
+            underTest.updateSpatialAnnotations(2000L)
             assertThat(underTest.xrResources.trackablesMap).doesNotContainKey(101L)
             assertThat(underTest.xrResources.trackablesMap).containsKey(102L)
-            val trackable2 = underTest.xrResources.trackablesMap[102L] as Updatable
+            assertThat(underTest.xrResources.updatables).doesNotContain(trackable1)
             assertThat(underTest.xrResources.updatables).contains(trackable2)
         }
 
@@ -683,6 +692,9 @@ class OpenXrPerceptionManagerTest {
             underTest.stopSpatialAnnotationTracking(listOf(id1, unknownId))
 
             assertThat(underTest.xrResources.annotationConfigs).doesNotContainKey(id1)
+
+            underTest.updateSpatialAnnotations(2000L)
+
             assertThat(underTest.xrResources.trackablesMap).doesNotContainKey(101L)
         }
 
