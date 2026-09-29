@@ -204,4 +204,18 @@ internal class ArraySetTest {
         set5.add(set5)
         assertEquals("{1, one, (this Set)}", set5.toString())
     }
+
+    @Test
+    fun removeAllCollection() {
+        val set = ArraySet(listOf(1, 2, 3, 4))
+        assertTrue(set.removeAll(listOf(1, 3, 5)))
+        assertEquals(ArraySet(listOf(2, 4)), set)
+        assertFalse(set.removeAll(setOf(1, 3)))
+        assertFalse(set.removeAll(emptyList()))
+        assertEquals(ArraySet(listOf(2, 4)), set)
+
+        val asCollection: MutableCollection<Int> = set
+        assertTrue(asCollection.removeAll(listOf(4)))
+        assertEquals(ArraySet(listOf(2)), set)
+    }
 }
