@@ -1,5 +1,7 @@
 # Bug component: 1077984
 ashleyingram@google.com
-gregbullock@google.com
 ssancho@google.com
 stevebower@google.com
+
+per-file lazy/**=tianmingxu@google.com
+per-file *TransformingLazyColumn*=tianmingxu@google.com
