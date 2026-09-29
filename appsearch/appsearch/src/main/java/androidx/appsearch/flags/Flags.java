@@ -192,14 +192,6 @@ public final class Flags {
             FLAG_PREFIX + "enable_result_unavailable";
 
     /**
-     * Enables throwing {@link androidx.appsearch.exceptions.AppSearchException} with code
-     * {@link androidx.appsearch.app.AppSearchResult#RESULT_ABORTED} if the search result page token
-     * is not found in native.
-     */
-    public static final String FLAG_ENABLE_THROW_EXCEPTION_FOR_NATIVE_NOT_FOUND_PAGE_TOKEN =
-            FLAG_PREFIX + "enable_throw_exception_for_native_not_found_page_token";
-
-    /**
      * Enable retrying the critical section of initialization before resetting as a last resort.
      */
     public static final String FLAG_ENABLE_INITIALIZATION_RETRIES_BEFORE_RESET =
@@ -494,15 +486,6 @@ public final class Flags {
      * enabled.
      */
     public static boolean enableResultUnavailable() {
-        return true;
-    }
-
-    /**
-     * Whether {@link androidx.appsearch.exceptions.AppSearchException} with code
-     * {@link androidx.appsearch.app.AppSearchResult#RESULT_ABORTED} should be thrown if the search
-     * result page token is not found in native.
-     */
-    public static boolean enableThrowExceptionForNativeNotFoundPageToken() {
         return true;
     }
 
