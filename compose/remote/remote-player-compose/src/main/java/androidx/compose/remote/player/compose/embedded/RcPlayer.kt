@@ -543,6 +543,11 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
             }
         }
 
+        // Custom components whose plugin handles clicks itself (e.g. a native button) receive the
+        // click actions via RcCustomComponent instead of a wrapping clickable.
+        val customClickHandlers =
+            if (component is Custom) rememberCustomClickHandlers(component) else null
+
         var modifier =
             Modifier.sharedElementTransition(component)
                 .then(
@@ -559,6 +564,7 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                     component.componentModifiers.toModifier(
                         component.getDrawContentOperationsListReflection(),
                         ignoreVisibility = visibilityDelegatedToParent,
+                        ignoreClicks = customClickHandlers != null,
                     )
                 )
                 .rcComponentContentInspector(component)
@@ -599,7 +605,7 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
             is FitBoxLayout -> RcPlayerFitBoxLayout(component, modifier)
             is StateLayout -> RcPlayerStateLayout(component, modifier)
             is ImageLayout -> RcPlayerImageLayout(component, modifier)
-            is Custom -> RcPlayerCustom(component, modifier)
+            is Custom -> RcPlayerCustom(component, modifier, customClickHandlers)
             // Last as others are often BoxLayout subclasses
             is BoxLayout -> RcPlayerBox(component, modifier)
             else -> {

@@ -18,37 +18,59 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import android.content.Context
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RcProfiles
-import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.managers.Custom
-import androidx.compose.remote.creation.RemoteComposeContextAndroid
+import androidx.compose.remote.creation.RemoteComposeWriterAndroid
+import androidx.compose.remote.creation.compose.action.hostAction
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteColumn
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteCustomComponent
+import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.clickable
+import androidx.compose.remote.creation.compose.modifier.combinedClickable
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.MutableRemoteString
+import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.embedded.demos.SupportEditTextData
 import androidx.compose.remote.player.compose.embedded.demos.SupportEditTextPlugin
 import androidx.compose.remote.player.compose.embedded.demos.embedded.SupportSpannableStringPlugin
+import androidx.compose.remote.player.core.state.StateUpdater
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.doubleClick
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import java.io.ByteArrayInputStream
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,57 +78,52 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Tests for Custom (host-extension) components: the document declares a `Custom` component with a
- * config string + typed properties, and the host's `customContent` composable renders it (the
- * embedded equivalent of the View player's setCustomSupport / CustomContext).
+ * Tests for Custom (host-extension) components recorded with [RemoteCustomComponent] and played by
+ * the embedded player (`RcPlayer`): typed properties, return channels, remote children, and
+ * plugin-handled clicks ([CustomComposablePlugin.handlesClick]).
  */
+@OptIn(ExperimentalFoundationApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class RcPlayerCustomComponentTest {
 
     @get:Rule val rule = RcPlayerTestRule()
 
+    private val experimentalProfile =
+        Profile(
+            CoreDocument.DOCUMENT_API_LEVEL,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            AndroidxRcPlatformServices(),
+        ) { creationDisplayInfo, profile, callback ->
+            RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
+        }
+
+    private fun setCustomContent(
+        customPlugins: CustomPluginRegistry? = null,
+        widthDp: Float = 200f,
+        heightDp: Float = 200f,
+        onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit =
+            { _, _, _ ->
+            },
+        content: @Composable @RemoteComposable () -> Unit,
+    ): CoreDocument {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val density = context.resources.displayMetrics.density
+        return rule.setRemoteContent(
+            customPlugins = customPlugins,
+            profile = experimentalProfile,
+            onNamedAction = onNamedAction,
+            remoteCreationDisplayInfo =
+                createCreationDisplayInfo(
+                    context = context,
+                    size = Size(widthDp * density, heightDp * density),
+                ),
+            content = content,
+        )
+    }
+
     @Test
     fun customComponentRendersHostContentWithResolvedProperties() {
-        val docContext =
-            RemoteComposeContextAndroid(
-                100,
-                100,
-                "custom",
-                CoreDocument.DOCUMENT_API_LEVEL,
-                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
-                AndroidxRcPlatformServices(),
-            ) {
-                writer.root {
-                    writer.column(Modifier, 1, 1) {
-                        writer.startCustom(
-                            Modifier,
-                            "test:badge",
-                            listOf(
-                                Custom.CustomProperty(
-                                    1.toShort(),
-                                    Custom.CustomProperty.FLOAT_PROP,
-                                    42f,
-                                ),
-                                Custom.CustomProperty(
-                                    2.toShort(),
-                                    Custom.CustomProperty.INT_PROP,
-                                    7,
-                                ),
-                            ),
-                        )
-                        writer.endCustom()
-                    }
-                }
-            }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
         val plugin =
             object : CustomComposablePlugin<Unit> {
                 override val name: String = "test:badge"
@@ -125,12 +142,14 @@ class RcPlayerCustomComponentTest {
                 }
             }
 
-        rule.setContent {
-            Box(modifier = Modifier.size(100.dp)) {
-                RcPlayer(document = document, customPlugins = CustomPluginRegistry(plugin))
+        setCustomContent(customPlugins = CustomPluginRegistry(plugin)) {
+            RemoteColumn {
+                RemoteCustomComponent(name = "test:badge") {
+                    property(1, 42f)
+                    property(2, 7)
+                }
             }
         }
-        rule.mainClock.advanceTimeBy(100)
 
         // The host content composed inside the Custom component, with the config name and both
         // properties resolved by type.
@@ -145,47 +164,6 @@ class RcPlayerCustomComponentTest {
     @Suppress("UNCHECKED_CAST")
     @Test
     fun customReturnChannelsWriteBackIntoTheDocument() {
-        val docContext =
-            RemoteComposeContextAndroid(
-                100,
-                100,
-                "custom",
-                CoreDocument.DOCUMENT_API_LEVEL,
-                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
-                AndroidxRcPlatformServices(),
-            ) {
-                val floatTargetId = writer.addNamedFloat("returnTarget", 0f)
-                val textTargetId = writer.textCreateId("")
-                writer.root {
-                    writer.column(Modifier, 1, 1) {
-                        writer.startCustom(
-                            Modifier,
-                            "test:return",
-                            listOf(
-                                Custom.CustomProperty(
-                                    1.toShort(),
-                                    Custom.CustomProperty.FLOAT_RETURN,
-                                    floatTargetId,
-                                ),
-                                Custom.CustomProperty(
-                                    2.toShort(),
-                                    Custom.CustomProperty.TEXT_RETURN,
-                                    textTargetId,
-                                ),
-                            ),
-                        )
-                        writer.endCustom()
-                    }
-                }
-            }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
         val returnPlugin =
             object : CustomComposablePlugin<Unit> {
                 override val name: String = "test:return"
@@ -204,12 +182,17 @@ class RcPlayerCustomComponentTest {
                 }
             }
 
-        rule.setContent {
-            Box(modifier = Modifier.size(100.dp)) {
-                RcPlayer(document = document, customPlugins = CustomPluginRegistry(returnPlugin))
+        val document =
+            setCustomContent(customPlugins = CustomPluginRegistry(returnPlugin)) {
+                val floatState = remember { MutableRemoteFloat(0f) }
+                val textState = remember { MutableRemoteString("") }
+                RemoteColumn {
+                    RemoteCustomComponent(name = "test:return") {
+                        bindReturn(1, floatState)
+                        bindReturn(2, textState)
+                    }
+                }
             }
-        }
-        rule.mainClock.advanceTimeBy(100)
         rule.onNodeWithText("returned").assertExists()
 
         // The write-back landed in the document store, at the ids the Custom op declared.
@@ -253,53 +236,14 @@ class RcPlayerCustomComponentTest {
                 }
             }
 
-        val docContext =
-            RemoteComposeContextAndroid(
-                100,
-                100,
-                "custom",
-                CoreDocument.DOCUMENT_API_LEVEL,
-                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
-                AndroidxRcPlatformServices(),
-            ) {
-                writer.root {
-                    writer.column(Modifier, 1, 1) {
-                        writer.startCustom(
-                            Modifier,
-                            "test:badge",
-                            listOf(
-                                Custom.CustomProperty(
-                                    1.toShort(),
-                                    Custom.CustomProperty.FLOAT_PROP,
-                                    42f,
-                                ),
-                                Custom.CustomProperty(
-                                    2.toShort(),
-                                    Custom.CustomProperty.INT_PROP,
-                                    7,
-                                ),
-                            ),
-                        )
-                        writer.endCustom()
-                    }
+        setCustomContent(customPlugins = CustomPluginRegistry(badgePlugin)) {
+            RemoteColumn {
+                RemoteCustomComponent(name = "test:badge") {
+                    property(1, 42f)
+                    property(2, 7)
                 }
-            }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
-        val registry = CustomPluginRegistry(badgePlugin)
-
-        rule.setContent {
-            Box(modifier = Modifier.size(100.dp)) {
-                RcPlayer(document = document, customPlugins = registry)
             }
         }
-        rule.mainClock.advanceTimeBy(100)
 
         rule.onNodeWithText("plugin:42:7").assertExists()
     }
@@ -330,186 +274,47 @@ class RcPlayerCustomComponentTest {
                 }
             }
 
-        val docContext =
-            RemoteComposeContextAndroid(
-                100,
-                100,
-                "custom",
-                CoreDocument.DOCUMENT_API_LEVEL,
-                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
-                AndroidxRcPlatformServices(),
-            ) {
-                writer.root {
-                    writer.column(Modifier, 1, 1) {
-                        writer.startCustom(
-                            Modifier,
-                            "test:badge",
-                            listOf(
-                                Custom.CustomProperty(
-                                    1.toShort(),
-                                    Custom.CustomProperty.FLOAT_PROP,
-                                    42f,
-                                ),
-                                Custom.CustomProperty(
-                                    2.toShort(),
-                                    Custom.CustomProperty.INT_PROP,
-                                    7,
-                                ),
-                            ),
-                        )
-                        writer.endCustom()
-                    }
+        setCustomContent(customPlugins = CustomPluginRegistry(badgePlugin)) {
+            RemoteColumn {
+                RemoteCustomComponent(name = "test:badge") {
+                    property(1, 42f)
+                    property(2, 7)
                 }
-            }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
-        val registry = CustomPluginRegistry(badgePlugin)
-
-        rule.setContent {
-            Box(modifier = Modifier.size(100.dp)) {
-                RcPlayer(document = document, customPlugins = registry)
             }
         }
-        rule.mainClock.advanceTimeBy(100)
 
         rule.onNodeWithText("schema:default-title:42:7").assertExists()
     }
 
     @Test
     fun supportEditTextRendersAndHandlesReturnChannel() {
-        var textTargetId = -1
-        val docContext =
-            RemoteComposeContextAndroid(
-                100,
-                100,
-                "custom",
-                CoreDocument.DOCUMENT_API_LEVEL,
-                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
-                AndroidxRcPlatformServices(),
-            ) {
-                textTargetId = writer.textCreateId("")
-                writer.root {
-                    writer.column(Modifier, 1, 1) {
-                        writer.startCustom(
-                            Modifier,
-                            "support:edit-text",
-                            listOf(
-                                Custom.CustomProperty(
-                                    SupportEditTextData.TEXT.id.toShort(),
-                                    Custom.CustomProperty.STRING_PROP,
-                                    writer.textCreateId("initial-text"),
-                                ),
-                                Custom.CustomProperty(
-                                    SupportEditTextData.HINT.id.toShort(),
-                                    Custom.CustomProperty.STRING_PROP,
-                                    writer.textCreateId("enter-text"),
-                                ),
-                                Custom.CustomProperty(
-                                    SupportEditTextData.RET_TEXT.id.toShort(),
-                                    Custom.CustomProperty.TEXT_RETURN,
-                                    textTargetId,
-                                ),
-                            ),
-                        )
-                        writer.endCustom()
-                    }
+        setCustomContent(customPlugins = CustomPluginRegistry(SupportEditTextPlugin)) {
+            val textState = remember { MutableRemoteString("") }
+            RemoteColumn {
+                RemoteCustomComponent(name = "support:edit-text") {
+                    property(SupportEditTextData.TEXT.id, "initial-text")
+                    property(SupportEditTextData.HINT.id, "enter-text")
+                    bindReturn(SupportEditTextData.RET_TEXT.id, textState)
                 }
-            }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
-        val registry = CustomPluginRegistry(SupportEditTextPlugin)
-
-        rule.setContent {
-            Box(modifier = Modifier.size(100.dp)) {
-                RcPlayer(document = document, customPlugins = registry)
             }
         }
-        rule.mainClock.advanceTimeBy(100)
 
         rule.onNodeWithText("initial-text").assertExists()
     }
 
     @Test
     fun supportEditTextUpdatesSharedTextState() {
-        var textTargetId = -1
-        val docContext =
-            RemoteComposeContextAndroid(
-                100,
-                100,
-                "custom",
-                CoreDocument.DOCUMENT_API_LEVEL,
-                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
-                AndroidxRcPlatformServices(),
-            ) {
-                textTargetId = writer.textCreateId("")
-                writer.root {
-                    writer.column(Modifier, 1, 1) {
-                        writer.startCustom(
-                            Modifier,
-                            "support:edit-text",
-                            listOf(
-                                Custom.CustomProperty(
-                                    SupportEditTextData.TEXT.id.toShort(),
-                                    Custom.CustomProperty.STRING_PROP,
-                                    writer.textCreateId("initial-text"),
-                                ),
-                                Custom.CustomProperty(
-                                    SupportEditTextData.HINT.id.toShort(),
-                                    Custom.CustomProperty.STRING_PROP,
-                                    writer.textCreateId("enter-text"),
-                                ),
-                                Custom.CustomProperty(
-                                    SupportEditTextData.RET_TEXT.id.toShort(),
-                                    Custom.CustomProperty.TEXT_RETURN,
-                                    textTargetId,
-                                ),
-                            ),
-                        )
-                        writer.endCustom()
-
-                        writer.textComponent(
-                            Modifier,
-                            textTargetId,
-                            Color.Red.toArgb(),
-                            12f,
-                            0,
-                            400f,
-                            null,
-                            0,
-                            0,
-                            1,
-                        ) {}
-                    }
+        setCustomContent(customPlugins = CustomPluginRegistry(SupportEditTextPlugin)) {
+            val textState = remember { MutableRemoteString("") }
+            RemoteColumn {
+                RemoteCustomComponent(name = "support:edit-text") {
+                    property(SupportEditTextData.TEXT.id, "initial-text")
+                    property(SupportEditTextData.HINT.id, "enter-text")
+                    bindReturn(SupportEditTextData.RET_TEXT.id, textState)
                 }
-            }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
-        val registry = CustomPluginRegistry(SupportEditTextPlugin)
-
-        rule.setContent {
-            Box(modifier = Modifier.size(200.dp)) {
-                RcPlayer(document = document, customPlugins = registry)
+                RemoteText(textState, color = Color.Red.rc)
             }
         }
-        rule.mainClock.advanceTimeBy(100)
 
         rule.onNodeWithText("initial-text").assertExists()
 
@@ -529,85 +334,24 @@ class RcPlayerCustomComponentTest {
         val termsUrl = "https://example.com/terms"
         val privacyUrl = "https://example.com/privacy"
 
-        val docContext =
-            RemoteComposeContextAndroid(
-                300,
-                100,
-                "custom-spannable",
-                CoreDocument.DOCUMENT_API_LEVEL,
-                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
-                AndroidxRcPlatformServices(),
-            ) {
-                writer.root {
-                    writer.column(Modifier, 1, 1) {
-                        writer.startCustom(
-                            Modifier,
-                            SupportSpannableStringPlugin.CONFIG,
-                            listOf(
-                                Custom.CustomProperty(
-                                    SupportSpannableStringPlugin.PROP_TEXT,
-                                    Custom.CustomProperty.STRING_PROP,
-                                    writer.textCreateId(fullText),
-                                ),
-                                Custom.CustomProperty(
-                                    SupportSpannableStringPlugin.PROP_LINK_COUNT,
-                                    Custom.CustomProperty.INT_PROP,
-                                    2,
-                                ),
-                                Custom.CustomProperty(
-                                    (SupportSpannableStringPlugin.PROP_LINK_URL_BASE + 0).toShort(),
-                                    Custom.CustomProperty.STRING_PROP,
-                                    writer.textCreateId(termsUrl),
-                                ),
-                                Custom.CustomProperty(
-                                    (SupportSpannableStringPlugin.PROP_LINK_START_BASE + 0)
-                                        .toShort(),
-                                    Custom.CustomProperty.INT_PROP,
-                                    18,
-                                ),
-                                Custom.CustomProperty(
-                                    (SupportSpannableStringPlugin.PROP_LINK_END_BASE + 0).toShort(),
-                                    Custom.CustomProperty.INT_PROP,
-                                    34,
-                                ),
-                                Custom.CustomProperty(
-                                    (SupportSpannableStringPlugin.PROP_LINK_URL_BASE + 1).toShort(),
-                                    Custom.CustomProperty.STRING_PROP,
-                                    writer.textCreateId(privacyUrl),
-                                ),
-                                Custom.CustomProperty(
-                                    (SupportSpannableStringPlugin.PROP_LINK_START_BASE + 1)
-                                        .toShort(),
-                                    Custom.CustomProperty.INT_PROP,
-                                    39,
-                                ),
-                                Custom.CustomProperty(
-                                    (SupportSpannableStringPlugin.PROP_LINK_END_BASE + 1).toShort(),
-                                    Custom.CustomProperty.INT_PROP,
-                                    53,
-                                ),
-                            ),
-                        )
-                        writer.endCustom()
-                    }
+        setCustomContent(
+            customPlugins = CustomPluginRegistry(SupportSpannableStringPlugin),
+            widthDp = 300f,
+            heightDp = 100f,
+        ) {
+            RemoteColumn {
+                RemoteCustomComponent(name = SupportSpannableStringPlugin.CONFIG) {
+                    property(SupportSpannableStringPlugin.PROP_TEXT.toInt(), fullText)
+                    property(SupportSpannableStringPlugin.PROP_LINK_COUNT.toInt(), 2)
+                    property(SupportSpannableStringPlugin.PROP_LINK_URL_BASE + 0, termsUrl)
+                    property(SupportSpannableStringPlugin.PROP_LINK_START_BASE + 0, 18)
+                    property(SupportSpannableStringPlugin.PROP_LINK_END_BASE + 0, 34)
+                    property(SupportSpannableStringPlugin.PROP_LINK_URL_BASE + 1, privacyUrl)
+                    property(SupportSpannableStringPlugin.PROP_LINK_START_BASE + 1, 39)
+                    property(SupportSpannableStringPlugin.PROP_LINK_END_BASE + 1, 53)
                 }
-            }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
-        val registry = CustomPluginRegistry(SupportSpannableStringPlugin)
-
-        rule.setContent {
-            Box(modifier = Modifier.size(300.dp)) {
-                RcPlayer(document = document, customPlugins = registry)
             }
         }
-        rule.mainClock.advanceTimeBy(100)
 
         val node = rule.onNodeWithText(fullText).fetchSemanticsNode()
         val textList = node.config[SemanticsProperties.Text]
@@ -644,79 +388,22 @@ class RcPlayerCustomComponentTest {
         val sampleText = "Hello World"
         val testUrl = "https://example.com"
 
-        val docContext =
-            RemoteComposeContextAndroid(
-                200,
-                100,
-                "custom-spannable-styled",
-                CoreDocument.DOCUMENT_API_LEVEL,
-                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
-                AndroidxRcPlatformServices(),
-            ) {
-                writer.root {
-                    writer.column(Modifier, 1, 1) {
-                        writer.startCustom(
-                            Modifier,
-                            SupportSpannableStringPlugin.CONFIG,
-                            listOf(
-                                Custom.CustomProperty(
-                                    SupportSpannableStringPlugin.PROP_TEXT,
-                                    Custom.CustomProperty.STRING_PROP,
-                                    writer.textCreateId(sampleText),
-                                ),
-                                Custom.CustomProperty(
-                                    SupportSpannableStringPlugin.PROP_TEXT_COLOR,
-                                    Custom.CustomProperty.INT_PROP,
-                                    Color.Blue.toArgb(),
-                                ),
-                                Custom.CustomProperty(
-                                    SupportSpannableStringPlugin.PROP_TEXT_SIZE,
-                                    Custom.CustomProperty.FLOAT_PROP,
-                                    18f,
-                                ),
-                                Custom.CustomProperty(
-                                    SupportSpannableStringPlugin.PROP_LINK_COUNT,
-                                    Custom.CustomProperty.INT_PROP,
-                                    1,
-                                ),
-                                Custom.CustomProperty(
-                                    (SupportSpannableStringPlugin.PROP_LINK_URL_BASE + 0).toShort(),
-                                    Custom.CustomProperty.STRING_PROP,
-                                    writer.textCreateId(testUrl),
-                                ),
-                                Custom.CustomProperty(
-                                    (SupportSpannableStringPlugin.PROP_LINK_START_BASE + 0)
-                                        .toShort(),
-                                    Custom.CustomProperty.INT_PROP,
-                                    -5,
-                                ),
-                                Custom.CustomProperty(
-                                    (SupportSpannableStringPlugin.PROP_LINK_END_BASE + 0).toShort(),
-                                    Custom.CustomProperty.INT_PROP,
-                                    100,
-                                ),
-                            ),
-                        )
-                        writer.endCustom()
-                    }
+        setCustomContent(customPlugins = CustomPluginRegistry(SupportSpannableStringPlugin)) {
+            RemoteColumn {
+                RemoteCustomComponent(name = SupportSpannableStringPlugin.CONFIG) {
+                    property(SupportSpannableStringPlugin.PROP_TEXT.toInt(), sampleText)
+                    property(
+                        SupportSpannableStringPlugin.PROP_TEXT_COLOR.toInt(),
+                        Color.Blue.toArgb(),
+                    )
+                    property(SupportSpannableStringPlugin.PROP_TEXT_SIZE.toInt(), 18f)
+                    property(SupportSpannableStringPlugin.PROP_LINK_COUNT.toInt(), 1)
+                    property(SupportSpannableStringPlugin.PROP_LINK_URL_BASE + 0, testUrl)
+                    property(SupportSpannableStringPlugin.PROP_LINK_START_BASE + 0, -5)
+                    property(SupportSpannableStringPlugin.PROP_LINK_END_BASE + 0, 100)
                 }
-            }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
-        val registry = CustomPluginRegistry(SupportSpannableStringPlugin)
-
-        rule.setContent {
-            Box(modifier = Modifier.size(200.dp)) {
-                RcPlayer(document = document, customPlugins = registry)
             }
         }
-        rule.mainClock.advanceTimeBy(100)
 
         val node = rule.onNodeWithText(sampleText).fetchSemanticsNode()
         val textList = node.config[SemanticsProperties.Text]
@@ -739,53 +426,14 @@ class RcPlayerCustomComponentTest {
     fun supportSpannableStringRendersTextWithoutLinks() {
         val plainText = "Plain text without any links"
 
-        val docContext =
-            RemoteComposeContextAndroid(
-                200,
-                100,
-                "custom-spannable-nolinks",
-                CoreDocument.DOCUMENT_API_LEVEL,
-                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
-                AndroidxRcPlatformServices(),
-            ) {
-                writer.root {
-                    writer.column(Modifier, 1, 1) {
-                        writer.startCustom(
-                            Modifier,
-                            SupportSpannableStringPlugin.CONFIG,
-                            listOf(
-                                Custom.CustomProperty(
-                                    SupportSpannableStringPlugin.PROP_TEXT,
-                                    Custom.CustomProperty.STRING_PROP,
-                                    writer.textCreateId(plainText),
-                                ),
-                                Custom.CustomProperty(
-                                    SupportSpannableStringPlugin.PROP_LINK_COUNT,
-                                    Custom.CustomProperty.INT_PROP,
-                                    0,
-                                ),
-                            ),
-                        )
-                        writer.endCustom()
-                    }
+        setCustomContent(customPlugins = CustomPluginRegistry(SupportSpannableStringPlugin)) {
+            RemoteColumn {
+                RemoteCustomComponent(name = SupportSpannableStringPlugin.CONFIG) {
+                    property(SupportSpannableStringPlugin.PROP_TEXT.toInt(), plainText)
+                    property(SupportSpannableStringPlugin.PROP_LINK_COUNT.toInt(), 0)
                 }
-            }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
-        val registry = CustomPluginRegistry(SupportSpannableStringPlugin)
-
-        rule.setContent {
-            Box(modifier = Modifier.size(200.dp)) {
-                RcPlayer(document = document, customPlugins = registry)
             }
         }
-        rule.mainClock.advanceTimeBy(100)
 
         val node = rule.onNodeWithText(plainText).fetchSemanticsNode()
         val textList = node.config[SemanticsProperties.Text]
@@ -793,6 +441,190 @@ class RcPlayerCustomComponentTest {
 
         assertThat(renderedAnnotatedString.text).isEqualTo(plainText)
         assertThat(renderedAnnotatedString.getLinkAnnotations(0, plainText.length)).isEmpty()
+    }
+
+    @Test
+    fun pluginHandlingClicksReceivesClickActions() {
+        var capturedDoubleClick: (() -> Unit)? = {}
+        var capturedLongClick: (() -> Unit)? = {}
+        val plugin =
+            object : CustomComposablePlugin<Unit> {
+                override val name: String = "test:button"
+                override val handlesClick: Boolean = true
+
+                @Composable override fun extract(component: RcCustomComponent): Unit = Unit
+
+                @Composable
+                override fun Content(data: Unit, component: RcCustomComponent, modifier: Modifier) {
+                    capturedDoubleClick = component.onDoubleClick
+                    capturedLongClick = component.onLongClick
+                    BasicText("label", Modifier.clickable { component.onClick?.invoke() })
+                }
+            }
+
+        var fired: String? = null
+        setCustomContent(
+            customPlugins = CustomPluginRegistry(plugin),
+            onNamedAction = { name, _, _ -> fired = name },
+        ) {
+            RemoteCustomComponent(
+                name = "test:button",
+                modifier = RemoteModifier.clickable(hostAction("tap".rs), role = null),
+            )
+        }
+
+        // Unused doubleClick and longClick remain null.
+        assertThat(capturedDoubleClick).isNull()
+        assertThat(capturedLongClick).isNull()
+        // Only the plugin's clickable exists; the player did not also wrap the component in one.
+        rule.onAllNodes(hasClickAction()).assertCountEquals(1)
+        rule.onNodeWithText("label").performClick()
+        rule.waitForIdle()
+
+        assertThat(fired).isEqualTo("tap")
+    }
+
+    @Test
+    fun pluginHandlingClicksReceivesDoubleAndLongClickActions() {
+        val plugin =
+            object : CustomComposablePlugin<Unit> {
+                override val name: String = "test:button"
+                override val handlesClick: Boolean = true
+
+                @Composable override fun extract(component: RcCustomComponent): Unit = Unit
+
+                @Composable
+                override fun Content(data: Unit, component: RcCustomComponent, modifier: Modifier) {
+                    BasicText(
+                        "label",
+                        Modifier.combinedClickable(
+                            onClick = { component.onClick?.invoke() },
+                            onDoubleClick = component.onDoubleClick,
+                            onLongClick = component.onLongClick,
+                        ),
+                    )
+                }
+            }
+
+        val fired = mutableListOf<String>()
+        setCustomContent(
+            customPlugins = CustomPluginRegistry(plugin),
+            onNamedAction = { name, _, _ -> fired.add(name) },
+        ) {
+            RemoteCustomComponent(
+                name = "test:button",
+                modifier =
+                    RemoteModifier.combinedClickable(
+                        onClick = hostAction("single".rs),
+                        onDoubleClick = hostAction("double".rs),
+                        onLongClick = hostAction("long".rs),
+                        role = null,
+                    ),
+            )
+        }
+
+        rule.onAllNodes(hasClickAction()).assertCountEquals(1)
+
+        rule.onNodeWithText("label").performClick()
+        rule.mainClock.advanceTimeBy(400L)
+        rule.waitForIdle()
+        assertThat(fired).contains("single")
+
+        rule.onNodeWithText("label").performTouchInput { doubleClick() }
+        rule.mainClock.advanceTimeBy(400L)
+        rule.waitForIdle()
+        assertThat(fired).contains("double")
+
+        rule.onNodeWithText("label").performTouchInput { longClick() }
+        rule.waitForIdle()
+        assertThat(fired).contains("long")
+    }
+
+    @Test
+    fun pluginHandlingClicksLeavesUnusedClickHandlersNull() {
+        var capturedClick: (() -> Unit)? = {}
+        var capturedDoubleClick: (() -> Unit)? = {}
+        var capturedLongClick: (() -> Unit)? = {}
+        val plugin =
+            object : CustomComposablePlugin<Unit> {
+                override val name: String = "test:button"
+                override val handlesClick: Boolean = true
+
+                @Composable override fun extract(component: RcCustomComponent): Unit = Unit
+
+                @Composable
+                override fun Content(data: Unit, component: RcCustomComponent, modifier: Modifier) {
+                    capturedClick = component.onClick
+                    capturedDoubleClick = component.onDoubleClick
+                    capturedLongClick = component.onLongClick
+                    val clickModifier =
+                        if (
+                            component.onClick != null ||
+                                component.onDoubleClick != null ||
+                                component.onLongClick != null
+                        ) {
+                            Modifier.combinedClickable(
+                                onClick = { component.onClick?.invoke() },
+                                onDoubleClick = component.onDoubleClick,
+                                onLongClick = component.onLongClick,
+                            )
+                        } else {
+                            Modifier
+                        }
+                    BasicText("label", clickModifier)
+                }
+            }
+
+        setCustomContent(customPlugins = CustomPluginRegistry(plugin)) {
+            RemoteCustomComponent(name = "test:button")
+        }
+
+        assertThat(capturedClick).isNull()
+        assertThat(capturedDoubleClick).isNull()
+        assertThat(capturedLongClick).isNull()
+        rule.onAllNodes(hasClickAction()).assertCountEquals(0)
+    }
+
+    @Test
+    fun pluginNotHandlingClicksIsWrappedByThePlayer() {
+        var onClick: (() -> Unit)? = {}
+        var onDoubleClick: (() -> Unit)? = {}
+        var onLongClick: (() -> Unit)? = {}
+        val plugin =
+            object : CustomComposablePlugin<Unit> {
+                override val name: String = "test:label"
+
+                @Composable override fun extract(component: RcCustomComponent): Unit = Unit
+
+                @Composable
+                override fun Content(data: Unit, component: RcCustomComponent, modifier: Modifier) {
+                    onClick = component.onClick
+                    onDoubleClick = component.onDoubleClick
+                    onLongClick = component.onLongClick
+                    BasicText("label")
+                }
+            }
+
+        var fired: String? = null
+        setCustomContent(
+            customPlugins = CustomPluginRegistry(plugin),
+            onNamedAction = { name, _, _ -> fired = name },
+        ) {
+            RemoteCustomComponent(
+                name = "test:label",
+                modifier = RemoteModifier.clickable(hostAction("tap".rs), role = null),
+            )
+        }
+
+        // The player applies the click modifier itself and does not expose it to the plugin.
+        assertThat(onClick).isNull()
+        assertThat(onDoubleClick).isNull()
+        assertThat(onLongClick).isNull()
+        rule.onAllNodes(hasClickAction()).assertCountEquals(1)
+        rule.onNodeWithText("label").performClick()
+        rule.waitForIdle()
+
+        assertThat(fired).isEqualTo("tap")
     }
 
     private fun findCustom(operations: Collection<Operation>): Custom? {

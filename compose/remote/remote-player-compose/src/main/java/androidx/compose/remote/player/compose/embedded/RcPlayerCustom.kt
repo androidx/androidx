@@ -22,7 +22,11 @@ import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.layout.ClickModifierOperation
+import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.managers.Custom
+import androidx.compose.remote.player.compose.embedded.modifier.ClickActionHandlers
+import androidx.compose.remote.player.compose.embedded.modifier.rememberClickActionHandlers
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAsState
@@ -34,6 +38,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.util.fastFilter
 
 /** Base interface for custom component property schemas. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -136,6 +141,21 @@ internal constructor(
     public val componentId: Int,
     private val rawProperties: List<Custom.CustomProperty>,
     private val remoteContext: RemoteContext,
+    /**
+     * Runs the component's single-click actions, or `null` if it has none. Only populated for
+     * plugins that opt in via [CustomComposablePlugin.handlesClick].
+     */
+    public val onClick: (() -> Unit)? = null,
+    /**
+     * Runs the component's double-click actions, or `null` if it has none. Only populated for
+     * plugins that opt in via [CustomComposablePlugin.handlesClick].
+     */
+    public val onDoubleClick: (() -> Unit)? = null,
+    /**
+     * Runs the component's long-click actions, or `null` if it has none. Only populated for plugins
+     * that opt in via [CustomComposablePlugin.handlesClick].
+     */
+    public val onLongClick: (() -> Unit)? = null,
 ) : RcCustomPropertyReader {
 
     /** Returns the raw [Custom.CustomProperty] for [property], if present. */
@@ -290,6 +310,15 @@ public interface CustomComposablePlugin<T : Any> {
 
     /** Renders the custom component UI using the extracted data [data]. */
     @Composable public fun Content(data: T, component: RcCustomComponent, modifier: Modifier)
+
+    /**
+     * Whether this plugin dispatches the component's clicks itself via [RcCustomComponent.onClick],
+     * [RcCustomComponent.onDoubleClick], and [RcCustomComponent.onLongClick] (e.g. from a native
+     * button). When `true`, the player does not apply the component's click modifiers to the
+     * wrapping layout.
+     */
+    public val handlesClick: Boolean
+        get() = false
 }
 
 /**
@@ -332,6 +361,9 @@ public class CustomPluginRegistry(private val plugins: Map<String, CustomComposa
         val data = plugin.extract(component) ?: return
         plugin.Content(data, component, modifier)
     }
+
+    /** Whether the plugin registered for [config] handles clicks itself. */
+    internal fun handlesClick(config: String): Boolean = plugins[config]?.handlesClick == true
 }
 
 /**
@@ -344,19 +376,47 @@ public val LocalRcCustomPlugins: ProvidableCompositionLocal<CustomPluginRegistry
         null
     }
 
+/** Resolves the config name of a [Custom] component. */
+@Composable
+private fun rememberCustomConfig(layout: Custom): String {
+    val data = layout.readData()
+    return if (data.configId != -1) {
+        rememberRemoteStringAsState(data.configId).value
+    } else {
+        data.config ?: ""
+    }
+}
+
+/**
+ * Returns the click handlers for [layout] if its plugin handles clicks itself (see
+ * [CustomComposablePlugin.handlesClick]), otherwise `null`. When non-null, the player must not also
+ * apply the component's click modifiers, and each individual handler on [ClickActionHandlers] is
+ * `null` if the component has no actions for that gesture.
+ */
+@Composable
+internal fun rememberCustomClickHandlers(layout: Custom): ClickActionHandlers? {
+    val customPlugins = LocalRcCustomPlugins.current ?: return null
+    val config = rememberCustomConfig(layout)
+    if (!customPlugins.handlesClick(config)) return null
+    val clickOps =
+        layout.componentModifiers.list.fastFilter {
+            it is ClickModifierOperation || it is MultiClickModifier
+        }
+    return rememberClickActionHandlers(clickOps)
+}
+
 /** Renders a [Custom] component by delegating to the host's [LocalRcCustomPlugins] registry. */
 @Composable
-internal fun RcPlayerCustom(layout: Custom, modifier: Modifier) {
+internal fun RcPlayerCustom(
+    layout: Custom,
+    modifier: Modifier,
+    clickHandlers: ClickActionHandlers? = null,
+) {
     val remoteContext = LocalRemoteContext.current
     val customPlugins = LocalRcCustomPlugins.current
 
     val data = layout.readData()
-    val config =
-        if (data.configId != -1) {
-            rememberRemoteStringAsState(data.configId).value
-        } else {
-            data.config ?: ""
-        }
+    val config = rememberCustomConfig(layout)
 
     @Suppress("UNCHECKED_CAST")
     val properties = data.properties as? List<Custom.CustomProperty> ?: emptyList()
@@ -368,6 +428,9 @@ internal fun RcPlayerCustom(layout: Custom, modifier: Modifier) {
                 componentId = layout.componentId,
                 rawProperties = properties,
                 remoteContext = remoteContext,
+                onClick = clickHandlers?.onClick,
+                onDoubleClick = clickHandlers?.onDoubleClick,
+                onLongClick = clickHandlers?.onLongClick,
             )
         customPlugins?.Render(component, modifier = Modifier)
     }
