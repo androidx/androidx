@@ -27,19 +27,12 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.time.Duration
 import java.util.Locale
 import java.util.logging.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.guava.future
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 internal class BackupRestoreControllerImpl(
     private val adbSession: AdbSession,
@@ -301,158 +294,52 @@ internal class BackupRestoreControllerImpl(
                 .shellAsText(device = selector, command = cmd.toString())
                 .stdout
 
-        val marker = "BACKUP_RESTORE_RESULT: "
-        val markerIndex = stdout.indexOf(marker)
-        val jsonPart =
-            if (markerIndex != -1) {
-                stdout.substring(markerIndex + marker.length).trim().lineSequence().firstOrNull()
-                    ?: ""
-            } else {
-                val fallbackMarker = "resultJson="
-                val fallbackIndex = stdout.indexOf(fallbackMarker)
-                if (fallbackIndex != -1) {
-                    stdout
-                        .substring(fallbackIndex + fallbackMarker.length)
-                        .trim()
-                        .lineSequence()
-                        .firstOrNull() ?: ""
-                } else {
-                    ""
-                }
-            }
-
-        if (jsonPart.isEmpty()) {
-            val errMsg = "No execution result was received from device. Raw stdout:\n$stdout"
-            return BackupActionResult.Failure(errMsg)
-        }
-
-        val jsonObject =
-            try {
-                Json.parseToJsonElement(jsonPart).jsonObject
-            } catch (e: Exception) {
-                val errMsg =
-                    "Failed to parse runner output JSON: ${e.message}. Raw JSON:\n$jsonPart"
-                return BackupActionResult.Failure(errMsg)
-            }
-
-        val isSuccess = jsonObject["isSuccess"]?.jsonPrimitive?.booleanOrNull ?: false
-        val runnerFailure =
-            if (isSuccess) {
-                null
-            } else {
-                BackupActionResult.Failure(
-                    errorMessage =
-                        jsonObject["errorMessage"]?.jsonPrimitive?.contentOrNull
-                            ?: "Unknown device failure.",
-                    stackTrace = jsonObject["stackTrace"]?.jsonPrimitive?.contentOrNull,
-                )
-            }
-
-        // Handle Binder overflow redirection
-        val payloadPath = jsonObject["payload_path"]?.jsonPrimitive?.contentOrNull
-        val inlinePayload = jsonObject["payloadJson"]?.jsonPrimitive?.contentOrNull
-
-        // A failure with no payload is a crash or a runner error; nothing more to read. A failure
-        // that does carry a payload is an action reporting its own failure, and the payload is
-        // still read: it names the specific error, and an overflow file must not be left behind.
-        if (runnerFailure != null && payloadPath == null && inlinePayload == null) {
-            return runnerFailure
-        }
-        if (payloadPath != null) {
-            val tempLocalFile = File.createTempFile("overflow_", ".json")
-            try {
-                val localPath = Paths.get(tempLocalFile.absolutePath)
-                adbSession.channelFactory.createFile(localPath).use { outputChannel ->
-                    adbSession.deviceServices.sync(selector).use { syncServices ->
-                        syncServices.recv(payloadPath, outputChannel, null)
+        val report = BackupRunnerReport.parse(stdout)
+        val payloadPath = report.payloadPath
+        val payloadJson =
+            when {
+                payloadPath != null ->
+                    try {
+                        pullOverflowPayload(payloadPath)
+                    } catch (e: Exception) {
+                        return BackupActionResult.Failure(
+                            "Failed to pull Binder overflow payload: " + e.message
+                        )
                     }
-                }
-                // Remove the remote overflow file on device once successfully pulled!
-                @Suppress("AdbDeviceServicesCommand")
-                adbSession.deviceServices.shellAsText(
-                    selector,
-                    "rm -f -- ${escapeShellArg(payloadPath)}",
-                )
-
-                val fileContent = tempLocalFile.readText()
-                val pulledObj = Json.parseToJsonElement(fileContent).jsonObject
-                val innerPayload = pulledObj["payloadJson"]?.jsonPrimitive?.contentOrNull ?: ""
-                val dataMap = parseStringMap(innerPayload)
-
-                return reconcile(runnerFailure, toActionResult(dataMap, actionClassName))
-            } catch (e: Exception) {
-                return BackupActionResult.Failure(
-                    "Failed to pull Binder overflow payload: " + e.message
-                )
-            } finally {
-                tempLocalFile.delete()
+                // A failure with no payload is a crash or a runner error; nothing more to read. A
+                // failure that does carry a payload is an action reporting its own failure, and the
+                // payload is still read: it names the specific error, and an overflow file must not
+                // be left behind.
+                report.inlinePayload == null && report.runnerFailure != null ->
+                    return report.runnerFailure
+                else ->
+                    report.inlinePayload.orEmpty().also {
+                        logger.info("Executed $actionClassName on device.")
+                        if (it.isNotEmpty()) logger.info("Payload returned: $it")
+                    }
             }
-        }
-
-        val payloadJson = inlinePayload ?: ""
-        logger.info("Executed $actionClassName on device.")
-        if (payloadJson.isNotEmpty()) {
-            logger.info("Payload returned: $payloadJson")
-        }
-
-        val dataMap = parseStringMap(payloadJson)
-
-        return reconcile(runnerFailure, toActionResult(dataMap, actionClassName))
+        return report.resultFor(payloadJson, actionClassName)
     }
 
-    /**
-     * Combines the runner's verdict with the one derived from the payload.
-     *
-     * The payload decides the message, but a failure reported by the runner is never downgraded to
-     * a success, so a runner that is stricter than the payload rule still wins.
-     */
-    private fun reconcile(
-        runnerFailure: BackupActionResult.Failure?,
-        fromPayload: BackupActionResult,
-    ): BackupActionResult =
-        if (runnerFailure != null && fromPayload is BackupActionResult.Success) {
-            runnerFailure
-        } else {
-            fromPayload
-        }
-
-    /**
-     * Converts a device action's result payload into a [BackupActionResult].
-     *
-     * An action reports a problem in-band through [BackupActionOutputKeys.STATUS] rather than by
-     * throwing. Reading it here keeps the host correct even against a runner that reports only
-     * whether the action threw, and supplies the specific error message.
-     *
-     * This mirrors `androidx.test.backup.BackupDeviceActionResult.isSuccess` exactly, so the device
-     * and the host never disagree about the same payload:
-     * - A reported status decides on its own. Only the recognized failure value
-     *   [BackupActionValues.STATUS_FAILURE] marks the action as failed; `status` is a generic key
-     *   that custom actions legitimately publish their own vocabulary through, so an unrecognized
-     *   value is reported as a success rather than being guessed at.
-     * - With no status at all, a non-empty [BackupActionOutputKeys.ERROR] marks the action as
-     *   failed, so an action that reports only an error is not read as passing.
-     *
-     * Actions that want their failures honored should use
-     * `androidx.test.backup.BackupDeviceActionResult.failure`, which emits the recognized value.
-     */
-    private fun toActionResult(
-        dataMap: Map<String, String>,
-        actionClassName: String,
-    ): BackupActionResult {
-        val status = dataMap[BackupActionOutputKeys.STATUS]
-        val error = dataMap[BackupActionOutputKeys.ERROR]
-        if (status != null) {
-            if (status.equals(BackupActionValues.STATUS_FAILURE, ignoreCase = true)) {
-                return BackupActionResult.Failure(
-                    error
-                        ?: "$actionClassName reported ${BackupActionOutputKeys.STATUS}='$status' without an " +
-                            "${BackupActionOutputKeys.ERROR} message."
-                )
+    /** Reads the payload the runner wrote to [devicePath], then deletes that file. */
+    private suspend fun pullOverflowPayload(devicePath: String): String {
+        val selector = DeviceSelector.fromSerialNumber(serialNumber)
+        val localFile = File.createTempFile("overflow_", ".json")
+        try {
+            adbSession.channelFactory.createFile(localFile.toPath()).use { outputChannel ->
+                adbSession.deviceServices.sync(selector).use { syncServices ->
+                    syncServices.recv(devicePath, outputChannel, null)
+                }
             }
-        } else if (!error.isNullOrEmpty()) {
-            return BackupActionResult.Failure(error)
+            @Suppress("AdbDeviceServicesCommand")
+            adbSession.deviceServices.shellAsText(
+                selector,
+                "rm -f -- ${escapeShellArg(devicePath)}",
+            )
+            return BackupRunnerReport.parseOverflowFile(localFile.readText())
+        } finally {
+            localFile.delete()
         }
-        return BackupActionResult.Success(dataMap)
     }
 
     private suspend fun runLocalBackupSimulation(outputDir: File): File {
@@ -1091,22 +978,5 @@ internal class BackupRestoreControllerImpl(
             } else {
                 escapeShellArg(key)
             }
-
-        private fun parseStringMap(jsonString: String): Map<String, String> {
-            if (jsonString.isEmpty()) return emptyMap()
-            return try {
-                val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
-                val map = mutableMapOf<String, String>()
-                for ((key, element) in jsonObject) {
-                    val value = (element as? JsonPrimitive)?.contentOrNull
-                    if (value != null) {
-                        map[key] = value
-                    }
-                }
-                map
-            } catch (e: Exception) {
-                emptyMap()
-            }
-        }
     }
 }
