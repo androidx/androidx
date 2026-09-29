@@ -21,6 +21,8 @@ import androidx.compose.remote.core.operations.utilities.easing.MonotonicSpline;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Arrays;
+
 /**
  * Topology and domain helper for 2D vertex meshes.
  *
@@ -197,6 +199,436 @@ public final class Mesh2DGenerator {
                 out[k++] = bottomLeft;
                 out[k++] = bottomRight;
             }
+        }
+    }
+
+    /**
+     * The furthest a skirt vertex is pushed out at a corner, as a multiple of the skirt width.
+     *
+     * <p>A skirt vertex sits on the bisector of its two edges, pushed out by {@code 1/cos(a/2)},
+     * where {@code a} is the angle the boundary turns through, so the skirt keeps its width along
+     * both. That grows without bound as a corner sharpens, so it is capped, at the same miter limit
+     * SVG uses by default.
+     */
+    public static final float ANTIALIAS_MAX_MITER = 4f;
+
+    /**
+     * The boundary loops of a layout: the edges an antialiasing skirt is grown from.
+     *
+     * <p>Each loop is a closed ring of body vertex indices, its last vertex joining back to its
+     * first, listed in the direction the body's own triangles run along it. A rectangular layout
+     * has one loop around all four sides. A polar or ring layout has two, its first row and its
+     * last; a polar layout's first row is normally its centre, which collapses to a point and so
+     * grows no skirt. A fan has one, its rim.
+     *
+     * <p>The loops depend only on the layout and the counts, so a caller can compute them once.
+     *
+     * @param layout one of the {@code LAYOUT_*} constants
+     * @param uCount samples along u
+     * @param vCount samples along v
+     * @return the loops, empty when the counts describe no area
+     */
+    public static int @NonNull [] @NonNull [] antialiasLoops(int layout, int uCount, int vCount) {
+        switch (layout) {
+            case LAYOUT_FAN: {
+                if (uCount < 3) {
+                    return new int[0][];
+                }
+                int[] rim = new int[uCount];
+                for (int i = 0; i < uCount; i++) {
+                    rim[i] = 1 + i;
+                }
+                return new int[][] {rim};
+            }
+            case LAYOUT_POLAR:
+            case LAYOUT_RING: {
+                if (uCount < 3 || vCount < 2) {
+                    return new int[0][];
+                }
+                // The body's triangles run along the first row backwards and the last forwards.
+                int[] first = new int[uCount];
+                int[] last = new int[uCount];
+                int lastRow = (vCount - 1) * uCount;
+                for (int i = 0; i < uCount; i++) {
+                    first[i] = (uCount - i) % uCount;
+                    last[i] = lastRow + i;
+                }
+                return new int[][] {first, last};
+            }
+            case LAYOUT_GRID:
+            case LAYOUT_STRIP:
+            case LAYOUT_PATH_STRIP:
+            default: {
+                // Anything else is wired as a grid by generateIndices, so it is bounded as one.
+                if (uCount < 2 || vCount < 2) {
+                    return new int[0][];
+                }
+                int[] loop = new int[2 * (uCount + vCount) - 4];
+                int k = 0;
+                // Down the first column, along the last row, up the last column, back along row 0.
+                for (int j = 0; j < vCount; j++) {
+                    loop[k++] = j * uCount;
+                }
+                for (int i = 1; i < uCount; i++) {
+                    loop[k++] = (vCount - 1) * uCount + i;
+                }
+                for (int j = vCount - 2; j >= 0; j--) {
+                    loop[k++] = j * uCount + uCount - 1;
+                }
+                for (int i = uCount - 2; i >= 1; i--) {
+                    loop[k++] = i;
+                }
+                return new int[][] {loop};
+            }
+        }
+    }
+
+    /**
+     * The number of vertices a skirt around {@code loops} adds: one per loop vertex.
+     *
+     * @param loops the loops from {@link #antialiasLoops}
+     * @return the skirt's vertex count
+     */
+    public static int antialiasVertexCount(int @NonNull [] @NonNull [] loops) {
+        int count = 0;
+        for (int[] loop : loops) {
+            count += loop.length;
+        }
+        return count;
+    }
+
+    /**
+     * The number of indices a skirt around {@code loops} adds: two triangles per loop edge.
+     *
+     * @param loops the loops from {@link #antialiasLoops}
+     * @return the skirt's index count
+     */
+    public static int antialiasIndexCount(int @NonNull [] @NonNull [] loops) {
+        return antialiasVertexCount(loops) * 6;
+    }
+
+    /**
+     * Grow an antialiasing skirt around a mesh.
+     *
+     * <p>{@code drawVertices} does not antialias triangle edges, so a mesh stops at a hard, stepped
+     * edge. The skirt is a band of vertices just outside each boundary loop that repeat their
+     * neighbour's colour and uv at alpha 0, so the edge fades out over {@code width} instead. It
+     * only ever grows outward and never moves the body, so an edge looks about half a skirt width
+     * heavier than it would without it.
+     *
+     * <p>The body occupies the first {@code bodyVertexCount} vertices of the arrays, which must
+     * already have room for the skirt as well (see {@link #antialiasVertexCount}). The skirt's
+     * vertices are written after the body's, one per loop vertex; {@link #antialiasIndices} makes
+     * the triangles that join them to the body.
+     *
+     * <p>Which side is outward is decided from the body beside each loop rather than from the
+     * loop's winding alone. That is what makes it right for a ring's inner edge, a mirrored grid
+     * and a strip whose path crosses itself. Edges with no length, such as a tapered tip, are
+     * skipped when the corners are mitred. A loop with no length at all, such as a polar mesh's
+     * centre, and a body with no area both get a skirt of zero width: it keeps its vertex slots, so
+     * the array sizes never depend on the geometry, but it draws nothing.
+     *
+     * @param layout one of the {@code LAYOUT_*} constants
+     * @param uCount samples along u
+     * @param vCount samples along v
+     * @param loops the loops from {@link #antialiasLoops}
+     * @param width how far the skirt reaches beyond the edge, in the mesh's own units
+     * @param verts x,y pairs, body first
+     * @param uv u,v pairs, body first, or empty for none
+     * @param colors packed ARGB per vertex, body first, or empty for none
+     * @param bodyVertexCount the number of body vertices
+     * @param scratch working space of at least twice the longest loop, or null to allocate it
+     */
+    public static void appendAntialiasSkirt(
+            int layout,
+            int uCount,
+            int vCount,
+            int @NonNull [] @NonNull [] loops,
+            float width,
+            float @NonNull [] verts,
+            float @NonNull [] uv,
+            int @NonNull [] colors,
+            int bodyVertexCount,
+            float @Nullable [] scratch) {
+        // NaN, an unresolved variable, fails the comparison and so collapses the skirt too.
+        float reach = width > 0f && width < Float.POSITIVE_INFINITY ? width : 0f;
+        int base = bodyVertexCount;
+        for (int[] loop : loops) {
+            int n = loop.length;
+            if (scratch == null || scratch.length < 2 * n) {
+                scratch = new float[2 * n];
+            }
+            float side = reach > 0f ? outwardSide(layout, uCount, vCount, loop, verts) : 0f;
+            if (side != 0f && edgeNormals(loop, verts, side, scratch)) {
+                skirtPositions(loop, verts, reach, side, scratch, base);
+            } else {
+                for (int e = 0; e < n; e++) {
+                    verts[(base + e) * 2] = verts[loop[e] * 2];
+                    verts[(base + e) * 2 + 1] = verts[loop[e] * 2 + 1];
+                }
+            }
+            for (int e = 0; e < n; e++) {
+                int a = loop[e];
+                int skirtA = base + e;
+                if (uv.length > 0) {
+                    uv[skirtA * 2] = uv[a * 2];
+                    uv[skirtA * 2 + 1] = uv[a * 2 + 1];
+                }
+                if (colors.length > 0) {
+                    colors[skirtA] = colors[a] & 0x00FFFFFF;
+                }
+            }
+            base += n;
+        }
+    }
+
+    /**
+     * The triangle list of a mesh with an antialiasing skirt: the body's triangles in their own
+     * order, each followed by the skirt along whichever of its edges lie on a loop.
+     *
+     * <p>Drawing each piece of skirt straight after the triangle it borders keeps the painter's
+     * order of a mesh that overlaps itself, such as a ribbon that crosses its own path: the part
+     * drawn later covers the earlier part's skirt as well as its body. Were the skirt drawn after
+     * the whole body, the fringe of the part underneath would be laid over the part on top.
+     *
+     * <p>The skirt's vertices follow the body's, one per loop vertex, as {@link
+     * #appendAntialiasSkirt} writes them. A loop edge that no triangle runs along, which only a
+     * hand built triangle list can have, gets its skirt after everything else. The list depends
+     * only on the topology, so a caller can compute it once.
+     *
+     * @param bodyIndices the body's triangle list
+     * @param loops the loops from {@link #antialiasLoops}
+     * @param bodyVertexCount the number of body vertices, so the index of the first skirt vertex
+     * @param out the destination, {@code bodyIndices.length + antialiasIndexCount(loops)} long
+     */
+    public static void antialiasIndices(
+            int @NonNull [] bodyIndices,
+            int @NonNull [] @NonNull [] loops,
+            int bodyVertexCount,
+            int @NonNull [] out) {
+        // Each loop edge a -> b, as the body vertices it joins and the skirt vertices beyond them,
+        // found from a by way of the edge that leaves it. No vertex is on a loop twice.
+        int edgeCount = antialiasVertexCount(loops);
+        int[] edges = new int[edgeCount * 4];
+        int[] leaving = new int[bodyVertexCount];
+        Arrays.fill(leaving, -1);
+        int edge = 0;
+        int base = bodyVertexCount;
+        for (int[] loop : loops) {
+            int n = loop.length;
+            for (int e = 0; e < n; e++) {
+                edges[edge * 4] = loop[e];
+                edges[edge * 4 + 1] = loop[(e + 1) % n];
+                edges[edge * 4 + 2] = base + e;
+                edges[edge * 4 + 3] = base + (e + 1) % n;
+                if (loop[e] >= 0 && loop[e] < bodyVertexCount) {
+                    leaving[loop[e]] = edge;
+                }
+                edge++;
+            }
+            base += n;
+        }
+
+        boolean[] drawn = new boolean[edgeCount];
+        int k = 0;
+        int wholeTriangles = bodyIndices.length / 3 * 3;
+        for (int t = 0; t < wholeTriangles; t += 3) {
+            out[k++] = bodyIndices[t];
+            out[k++] = bodyIndices[t + 1];
+            out[k++] = bodyIndices[t + 2];
+            for (int s = 0; s < 3; s++) {
+                int loopEdge =
+                        loopEdge(edges, leaving, bodyIndices[t + s], bodyIndices[t + (s + 1) % 3]);
+                if (loopEdge >= 0 && !drawn[loopEdge]) {
+                    drawn[loopEdge] = true;
+                    k = skirtTriangles(edges, loopEdge, out, k);
+                }
+            }
+        }
+        for (int e = 0; e < edgeCount; e++) {
+            if (!drawn[e]) {
+                k = skirtTriangles(edges, e, out, k);
+            }
+        }
+        // Indices past the last whole triangle draw nothing, and stay last so they join nothing.
+        for (int i = wholeTriangles; i < bodyIndices.length; i++) {
+            out[k++] = bodyIndices[i];
+        }
+    }
+
+    /**
+     * The loop edge joining body vertices {@code a} and {@code b}, whichever way round, or -1. A
+     * hand built triangle list may wind either way, so direction does not count.
+     */
+    private static int loopEdge(int[] edges, int[] leaving, int a, int b) {
+        if (a >= 0 && a < leaving.length) {
+            int edge = leaving[a];
+            if (edge >= 0 && edges[edge * 4 + 1] == b) {
+                return edge;
+            }
+        }
+        if (b >= 0 && b < leaving.length) {
+            int edge = leaving[b];
+            if (edge >= 0 && edges[edge * 4 + 1] == a) {
+                return edge;
+            }
+        }
+        return -1;
+    }
+
+    /** Write the two skirt triangles along loop edge {@code edge} at {@code k}. */
+    private static int skirtTriangles(int[] edges, int edge, int[] out, int k) {
+        int a = edges[edge * 4];
+        int b = edges[edge * 4 + 1];
+        int skirtA = edges[edge * 4 + 2];
+        int skirtB = edges[edge * 4 + 3];
+        // The body's triangle runs a -> b, so the skirt's runs b -> a: the same winding.
+        out[k++] = b;
+        out[k++] = a;
+        out[k++] = skirtA;
+        out[k++] = b;
+        out[k++] = skirtA;
+        out[k++] = skirtB;
+        return k;
+    }
+
+    /**
+     * A vertex one step into the body from the boundary vertex {@code vertex}: across the strip, in
+     * from the rim, or diagonally in from a corner. Only which side of the boundary it is on
+     * matters.
+     */
+    private static int antialiasInward(int layout, int uCount, int vCount, int vertex) {
+        if (layout == LAYOUT_FAN) {
+            return 0;
+        }
+        int i = vertex % uCount;
+        int j = vertex / uCount;
+        if (layout == LAYOUT_POLAR || layout == LAYOUT_RING) {
+            return (j == 0 ? 1 : vCount - 2) * uCount + i;
+        }
+        int ii = i == 0 ? 1 : (i == uCount - 1 ? uCount - 2 : i);
+        int jj = j == 0 ? 1 : (j == vCount - 1 ? vCount - 2 : j);
+        return jj * uCount + ii;
+    }
+
+    /**
+     * Which side of {@code loop} the body is on, by a vote of every edge against the body vertex
+     * just inside it.
+     *
+     * @return 1 if the body is on the side {@code (-dy, dx)} of each edge, so outward is {@code
+     *     (dy, -dx)}; -1 for the reverse; 0 if the body beside the loop has no area
+     */
+    private static float outwardSide(
+            int layout, int uCount, int vCount, int[] loop, float[] verts) {
+        double vote = 0;
+        double magnitude = 0;
+        int n = loop.length;
+        for (int e = 0; e < n; e++) {
+            int a = loop[e];
+            int b = loop[(e + 1) % n];
+            int c = antialiasInward(layout, uCount, vCount, a);
+            double ax = verts[a * 2];
+            double ay = verts[a * 2 + 1];
+            double dx = verts[b * 2] - ax;
+            double dy = verts[b * 2 + 1] - ay;
+            double cx = verts[c * 2] - ax;
+            double cy = verts[c * 2 + 1] - ay;
+            vote += dx * cy - dy * cx;
+            magnitude += Math.hypot(dx, dy) * Math.hypot(cx, cy);
+        }
+        if (!(Math.abs(vote) > 1e-6 * magnitude)) {
+            return 0f;
+        }
+        return vote > 0 ? 1f : -1f;
+    }
+
+    /**
+     * Fill {@code normals} with each loop edge's unit outward normal, or zero for an edge with no
+     * length.
+     *
+     * @return false if no edge of the loop has any length
+     */
+    private static boolean edgeNormals(int[] loop, float[] verts, float side, float[] normals) {
+        int n = loop.length;
+        boolean any = false;
+        for (int e = 0; e < n; e++) {
+            int a = loop[e];
+            int b = loop[(e + 1) % n];
+            float dx = verts[b * 2] - verts[a * 2];
+            float dy = verts[b * 2 + 1] - verts[a * 2 + 1];
+            float length = (float) Math.hypot(dx, dy);
+            if (length > DEGENERATE_EPSILON) {
+                normals[e * 2] = side * dy / length;
+                normals[e * 2 + 1] = -side * dx / length;
+                any = true;
+            } else {
+                normals[e * 2] = 0f;
+                normals[e * 2 + 1] = 0f;
+            }
+        }
+        return any;
+    }
+
+    private static boolean hasNormal(float[] normals, int edge) {
+        return normals[edge * 2] != 0f || normals[edge * 2 + 1] != 0f;
+    }
+
+    /**
+     * Place each skirt vertex on the mitred bisector of the nearest edges with length on either
+     * side of it.
+     *
+     * <p>Two passes, so the loop needs no working space beyond the edge normals. The backward pass
+     * parks the normal of the edge after each vertex in that vertex's own skirt slot; the forward
+     * pass combines it with the edge before and overwrites the slot with the final position.
+     */
+    private static void skirtPositions(
+            int[] loop, float[] verts, float reach, float side, float[] normals, int base) {
+        int n = loop.length;
+        int next = 0;
+        while (!hasNormal(normals, next)) {
+            next++;
+        }
+        for (int k = n - 1; k >= 0; k--) {
+            if (hasNormal(normals, k)) {
+                next = k;
+            }
+            verts[(base + k) * 2] = normals[next * 2];
+            verts[(base + k) * 2 + 1] = normals[next * 2 + 1];
+        }
+
+        int previous = n - 1;
+        while (!hasNormal(normals, previous)) {
+            previous--;
+        }
+        float limit = ANTIALIAS_MAX_MITER * ANTIALIAS_MAX_MITER;
+        for (int k = 0; k < n; k++) {
+            if (k > 0 && hasNormal(normals, k - 1)) {
+                previous = k - 1;
+            }
+            float px = normals[previous * 2];
+            float py = normals[previous * 2 + 1];
+            float mx = px + verts[(base + k) * 2];
+            float my = py + verts[(base + k) * 2 + 1];
+            // |m| = 2cos(a/2) for unit normals a radians apart, so the miter 1/cos(a/2) is 2/|m|.
+            float lengthSquared = mx * mx + my * my;
+            float offsetX;
+            float offsetY;
+            if (lengthSquared < 1e-12f) {
+                // The loop turns straight back on itself, as at a tip whose last edge has been
+                // skipped: carry on past the tip along the edge that arrives there.
+                offsetX = -side * py * reach;
+                offsetY = side * px * reach;
+            } else {
+                float scale = 2f / lengthSquared;
+                if (lengthSquared * limit < 4f) {
+                    scale = ANTIALIAS_MAX_MITER / (float) Math.sqrt(lengthSquared);
+                }
+                offsetX = mx * scale * reach;
+                offsetY = my * scale * reach;
+            }
+            int a = loop[k];
+            verts[(base + k) * 2] = verts[a * 2] + offsetX;
+            verts[(base + k) * 2 + 1] = verts[a * 2 + 1] + offsetY;
         }
     }
 
@@ -781,7 +1213,9 @@ public final class Mesh2DGenerator {
             out[1] = 0f;
             return;
         }
-        if (layout == LAYOUT_FAN && uCount >= 1 && vertexCount == uCount + 1) {
+        // The layout's vertices may be followed by more: an antialiased mesh carries its skirt
+        // after the body, and the skirt is no part of the surface a matrix is read from.
+        if (layout == LAYOUT_FAN && uCount >= 1 && vertexCount >= uCount + 1) {
             float uNorm = ((u % 1f) + 1f) % 1f;
             float fu = uNorm * uCount;
             int i0 = ((int) Math.floor(fu)) % uCount;
@@ -794,7 +1228,7 @@ public final class Mesh2DGenerator {
             out[1] = (1f - vc) * verts[1] + vc * rimY;
             return;
         }
-        if (uCount >= 2 && vCount >= 2 && uCount * vCount == vertexCount) {
+        if (uCount >= 2 && vCount >= 2 && uCount * vCount <= vertexCount) {
             int i0;
             int i1;
             float tu;
