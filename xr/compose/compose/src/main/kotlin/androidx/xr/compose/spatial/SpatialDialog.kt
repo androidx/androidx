@@ -57,6 +57,8 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.findNearestParentEntity
 import androidx.xr.compose.platform.getActivity
 import androidx.xr.compose.platform.isEmbedded
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_WIDTH_PX
 import androidx.xr.compose.subspace.SpatialComposeView
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
@@ -331,7 +333,12 @@ private class SpatialDialogRenderer(
                                 }
                             },
                         )
-                        .constrainTo(Constraints())
+                        .constrainTo(
+                            Constraints(
+                                maxWidth = MAX_SAFE_PANEL_WIDTH_PX,
+                                maxHeight = MAX_SAFE_PANEL_HEIGHT_PX,
+                            )
+                        )
                         .onSizeChanged {
                             panelEntity?.size =
                                 IntVolumeSize(width = it.width, height = it.height, depth = 0)

@@ -320,7 +320,7 @@ class FollowingSubspaceV2Test {
     @Test
     fun followingSubspaceV2_withRequiredSizeModifier_overridesDefaultContentBox() {
         configureSessionWithDeviceTrackingMode()
-        val requiredSize = 50000.dp
+        val requiredSize = 4000.dp
 
         composeTestRule.setContent {
             // The user provides a requiredSize.
@@ -341,7 +341,7 @@ class FollowingSubspaceV2Test {
     @Test
     fun followingSubspaceV2_withRequiredSizeInModifier_overridesDefaultContentBox() {
         configureSessionWithDeviceTrackingMode()
-        val requiredMaxSize = 50000.dp
+        val requiredMaxSize = 4000.dp
 
         composeTestRule.setContent {
             // The user provides a requiredSizeIn.

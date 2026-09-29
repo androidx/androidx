@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.spatial.Subspace
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_WIDTH_PX
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
@@ -205,6 +207,36 @@ class ResizableModifierTest {
     }
 
     @Test
+    fun resizable_modifierMaxSizeInfinityIsSetOnNonPanelEntity() {
+        val maxSize = DpVolumeSize(Dp.Infinity, Dp.Infinity, Dp.Infinity)
+        composeTestRule.setContent {
+            Subspace {
+                SpatialColumn(
+                    SubspaceModifier.testTag("column")
+                        .resizable(maximumSize = maxSize, resizePolicy = ResizePolicy.custom {})
+                ) {
+                    SpatialPanel { Text(text = "Column") }
+                }
+            }
+        }
+        assertResizableComponentMaxSizeIsSet(testTag = "column", size = maxSize)
+    }
+
+    @Test
+    fun resizable_panelEntity_explicitMaxSizeExceedingMaxSafeSize_clampsMaxSize() {
+        val maxSize = DpVolumeSize(9000.dp, 9000.dp, 9000.dp)
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    SubspaceModifier.testTag("panel")
+                        .resizable(maximumSize = maxSize, resizePolicy = ResizePolicy.custom {})
+                ) {}
+            }
+        }
+        assertResizableComponentMaxSizeIsNotSet(testTag = "panel")
+    }
+
+    @Test
     fun resizable_modifierMinSizeIsSet() {
         val minSize = DpVolumeSize(100.dp, 100.dp, 100.dp)
         composeTestRule.setContent {
@@ -330,8 +362,10 @@ class ResizableModifierTest {
                 session.scene.virtualPixelDensity,
             )
 
-        assertEquals(Dp.Infinity, maxWidth)
-        assertEquals(Dp.Infinity, maxHeight)
+        val expectedMaxWidthDp = with(composeTestRule.density) { MAX_SAFE_PANEL_WIDTH_PX.toDp() }
+        val expectedMaxHeightDp = with(composeTestRule.density) { MAX_SAFE_PANEL_HEIGHT_PX.toDp() }
+        assertEquals(expectedMaxWidthDp, maxWidth)
+        assertEquals(expectedMaxHeightDp, maxHeight)
     }
 
     private fun assertResizableComponentMinSizeIsSet(
