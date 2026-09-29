@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -27,7 +28,9 @@ import androidx.compose.material3.tokens.AppBarTokens
 import androidx.compose.material3.tokens.CheckboxTokens
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.ColorToken
+import androidx.compose.material3.tokens.ElevatedCardTokens
 import androidx.compose.material3.tokens.ElevationTokens
+import androidx.compose.material3.tokens.FilledCardTokens
 import androidx.compose.material3.tokens.NavigationBarTokens
 import androidx.compose.material3.tokens.NavigationRailBaselineItemTokens
 import androidx.compose.material3.tokens.NavigationRailCollapsedTokens
@@ -35,6 +38,7 @@ import androidx.compose.material3.tokens.NavigationRailColorTokens
 import androidx.compose.material3.tokens.NavigationRailExpandedTokens
 import androidx.compose.material3.tokens.NavigationRailHorizontalItemTokens
 import androidx.compose.material3.tokens.NavigationRailVerticalItemTokens
+import androidx.compose.material3.tokens.OutlinedCardTokens
 import androidx.compose.material3.tokens.RadioButtonTokens
 import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SearchBarTokens
@@ -44,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -1045,5 +1050,140 @@ internal class NavigationRailItemStyleScope(
         indicatorPaddingTop = top
         indicatorPaddingEnd = end
         indicatorPaddingBottom = bottom
+    }
+}
+
+internal fun interface CardStyle : ComponentStyle<CardStyleScope> {
+    infix fun then(other: CardStyle): CardStyle = CardStyle {
+        applyStyle()
+        with(other) { applyStyle() }
+    }
+
+    companion object {
+        // State blocks are declared in increasing priority; `disabled` is last so it always wins.
+        val Default = CardStyle {
+            val container = FilledCardTokens.ContainerColor.value
+            val content = theme.colorScheme.contentColorFor(container)
+            containerColor(container)
+            contentColor(content)
+            shape(FilledCardTokens.ContainerShape.value)
+            shadowElevation(FilledCardTokens.ContainerElevation)
+            border(null)
+            hovered { shadowElevation(FilledCardTokens.HoverContainerElevation) }
+            focused { shadowElevation(FilledCardTokens.FocusContainerElevation) }
+            pressed { shadowElevation(FilledCardTokens.PressedContainerElevation) }
+            dragged { shadowElevation(FilledCardTokens.DraggedContainerElevation) }
+            disabled {
+                containerColor(
+                    FilledCardTokens.DisabledContainerColor.value
+                        .copy(alpha = FilledCardTokens.DisabledContainerOpacity)
+                        .compositeOver(container)
+                )
+                contentColor(content.copy(alpha = DisabledAlpha))
+                shadowElevation(FilledCardTokens.DisabledContainerElevation)
+            }
+        }
+
+        val Elevated = CardStyle {
+            val container = ElevatedCardTokens.ContainerColor.value
+            val content = theme.colorScheme.contentColorFor(container)
+            containerColor(container)
+            contentColor(content)
+            shape(ElevatedCardTokens.ContainerShape.value)
+            shadowElevation(ElevatedCardTokens.ContainerElevation)
+            border(null)
+            hovered { shadowElevation(ElevatedCardTokens.HoverContainerElevation) }
+            focused { shadowElevation(ElevatedCardTokens.FocusContainerElevation) }
+            pressed { shadowElevation(ElevatedCardTokens.PressedContainerElevation) }
+            dragged { shadowElevation(ElevatedCardTokens.DraggedContainerElevation) }
+            disabled {
+                // Composited over DisabledContainerColor (not ContainerColor) to exactly match
+                // CardDefaults.elevatedCardColors().
+                containerColor(
+                    ElevatedCardTokens.DisabledContainerColor.value
+                        .copy(alpha = ElevatedCardTokens.DisabledContainerOpacity)
+                        .compositeOver(ElevatedCardTokens.DisabledContainerColor.value)
+                )
+                contentColor(content.copy(alpha = DisabledAlpha))
+                shadowElevation(ElevatedCardTokens.DisabledContainerElevation)
+            }
+        }
+
+        val Outlined = CardStyle {
+            val container = OutlinedCardTokens.ContainerColor.value
+            val content = theme.colorScheme.contentColorFor(container)
+            containerColor(container)
+            contentColor(content)
+            shape(OutlinedCardTokens.ContainerShape.value)
+            shadowElevation(OutlinedCardTokens.ContainerElevation)
+            border(
+                BorderStroke(OutlinedCardTokens.OutlineWidth, OutlinedCardTokens.OutlineColor.value)
+            )
+            // Unlike the other variants, an outlined card keeps its container elevation while
+            // hovered, focused and pressed. This matches CardDefaults.outlinedCardElevation(),
+            // which intentionally ignores the Hover/Focus/PressedContainerElevation tokens.
+            dragged { shadowElevation(OutlinedCardTokens.DraggedContainerElevation) }
+            disabled {
+                // An outlined card keeps its container color when disabled, matching
+                // CardDefaults.outlinedCardColors().
+                contentColor(content.copy(alpha = DisabledAlpha))
+                // Composited to an opaque color to exactly match
+                // CardDefaults.outlinedCardBorder(enabled = false).
+                border(
+                    BorderStroke(
+                        OutlinedCardTokens.OutlineWidth,
+                        OutlinedCardTokens.DisabledOutlineColor.value
+                            .copy(alpha = OutlinedCardTokens.DisabledOutlineOpacity)
+                            .compositeOver(ElevatedCardTokens.ContainerColor.value),
+                    )
+                )
+                shadowElevation(OutlinedCardTokens.DisabledContainerElevation)
+            }
+        }
+    }
+}
+
+internal class CardStyleScope(
+    override val theme: MaterialTheme.Values,
+    override val state: ComponentState = ComponentState.Default,
+) :
+    DisabledState<CardStyleScope>,
+    InteractionState<CardStyleScope>,
+    MaterialThemeAccessorScope,
+    StyleResolver by StyleResolverImpl() {
+
+    var containerColor: Color = Color.Unspecified
+        private set
+
+    var contentColor: Color = Color.Unspecified
+        private set
+
+    var shape: Shape? = null
+        private set
+
+    var shadowElevation: Dp = Dp.Unspecified
+        private set
+
+    var border: BorderStroke? = null
+        private set
+
+    fun containerColor(color: Color) {
+        containerColor = color
+    }
+
+    fun contentColor(color: Color) {
+        contentColor = color
+    }
+
+    fun shape(shape: Shape) {
+        this.shape = shape
+    }
+
+    fun shadowElevation(shadowElevation: Dp) {
+        this.shadowElevation = shadowElevation
+    }
+
+    fun border(border: BorderStroke?) {
+        this.border = border
     }
 }
