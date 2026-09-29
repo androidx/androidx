@@ -343,8 +343,12 @@ internal sealed class KspTypeElement(
     override fun getSuperInterfaceElements() = superInterfaces.mapNotNull { it.typeElement }
 
     override val companionObject: KspTypeElement? by lazy {
-        getEnclosedTypeElements().filterIsInstance<KspTypeElement>().firstOrNull {
-            it.isCompanionObject()
+        if (isFromJava()) {
+            null
+        } else {
+            getEnclosedTypeElements().filterIsInstance<KspTypeElement>().firstOrNull {
+                it.isCompanionObject()
+            }
         }
     }
 

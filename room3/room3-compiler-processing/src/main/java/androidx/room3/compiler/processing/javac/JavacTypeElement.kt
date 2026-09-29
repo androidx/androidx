@@ -80,14 +80,15 @@ internal sealed class JavacTypeElement(env: JavacProcessingEnv, override val ele
         }
     }
 
-    override val companionObject: JavacTypeElement? =
+    override val companionObject: JavacTypeElement? by lazy {
         // Note: we use the kotlinMetadata to first get the companion object name to avoid parsing
         // metadata for every enclosed type just to figure out if it's a companion object.
-        kotlinMetadata?.let { km ->
+        kotlinMetadata?.companionObjectName?.let { name ->
             getEnclosedTypeElements().filterIsInstance<JavacTypeElement>().singleOrNull {
-                it.name == km.companionObjectName
+                it.name == name
             }
         }
+    }
 
     override val closestMemberContainer: JavacTypeElement
         get() = this
@@ -130,11 +131,17 @@ internal sealed class JavacTypeElement(env: JavacProcessingEnv, override val ele
     override fun isExpect() = kotlinMetadata?.isExpect() == true
 
     override fun isAnnotationClass(): Boolean {
-        return kotlinMetadata?.isAnnotationClass() ?: (element.kind == ElementKind.ANNOTATION_TYPE)
+        if (element.kind == ElementKind.ANNOTATION_TYPE) return true
+        if (element.kind != ElementKind.CLASS) {
+            // is not an annotation and is not c class, then it must be an enum or interface
+            return false
+        }
+        return kotlinMetadata?.isAnnotationClass() ?: false
     }
 
     override fun isClass(): Boolean {
-        return kotlinMetadata?.isClass() ?: (element.kind == ElementKind.CLASS)
+        if (element.kind != ElementKind.CLASS) return false
+        return kotlinMetadata?.isClass() ?: true
     }
 
     override fun isNested(): Boolean {
@@ -142,7 +149,12 @@ internal sealed class JavacTypeElement(env: JavacProcessingEnv, override val ele
     }
 
     override fun isInterface(): Boolean {
-        return kotlinMetadata?.isInterface() ?: (element.kind == ElementKind.INTERFACE)
+        if (element.kind == ElementKind.INTERFACE) return true
+        if (element.kind != ElementKind.CLASS) {
+            // is not an interface and is not a class, then it must be an enum or annotation
+            return false
+        }
+        return kotlinMetadata?.isInterface() ?: false
     }
 
     override fun isRecordClass(): Boolean {
@@ -157,10 +169,7 @@ internal sealed class JavacTypeElement(env: JavacProcessingEnv, override val ele
 
     private val _declaredMethods by lazy {
         val companionObjectMethodDescriptors =
-            getEnclosedTypeElements()
-                .firstOrNull { it.isCompanionObject() }
-                ?.getDeclaredMethods()
-                ?.map { it.jvmDescriptor } ?: emptyList()
+            companionObject?.getDeclaredMethods()?.map { it.jvmDescriptor } ?: emptyList()
 
         val declaredMethods =
             ElementFilter.methodsIn(element.enclosedElements)
