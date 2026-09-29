@@ -40,6 +40,7 @@ public class FakeSessionProcessor(
     private val supportedCameraOperations: Set<Int> = emptySet(),
     private val extensionSpecificChars: List<Pair<CameraCharacteristics.Key<*>, Any>>? =
         emptyList(),
+    private val sessionProcessorType: Int = SessionProcessor.TYPE_DEFAULT,
 ) : SessionProcessor {
 
     // Values of these Deferred are the timestamp to complete.
@@ -72,6 +73,9 @@ public class FakeSessionProcessor(
 
     override fun getAvailableCharacteristicsKeyValues():
         List<Pair<CameraCharacteristics.Key<*>, Any>> = extensionSpecificChars!!
+
+    override fun getImplementationType(): Pair<Int, Int> =
+        Pair.create(sessionProcessorType, 0 /* ExtensionMode.None */)
 
     public suspend fun assertInitSessionInvoked(): Long {
         return initSessionCalled.awaitWithTimeout(3000)

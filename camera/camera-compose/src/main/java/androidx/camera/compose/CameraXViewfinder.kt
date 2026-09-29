@@ -131,9 +131,11 @@ private const val SCREEN_FLASH_ANIMATION_DURATION_MILLIS = 1000
  *   the higher-performance [ImplementationMode.EXTERNAL] mode, but will fall back to
  *   [ImplementationMode.EMBEDDED] if the camera hardware level is
  *   [LEGACY][android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY],
- *   or on devices with other known compatibility issues (such as on API level 24 and below).
- *   Explicitly setting a mode will override this compatibility logic and may have performance or
- *   correctness implications on some devices.
+ *   if Extensions are enabled on API level 33 and below, or on devices with other known
+ *   compatibility issues (such as on API level 24 and below). Explicitly setting a mode will
+ *   override this compatibility logic and may have performance or correctness implications on some
+ *   devices. For example, explicitly setting [ImplementationMode.EXTERNAL] while Extensions are
+ *   enabled on API level 33 and below will cause the camera session to fail to configure.
  * @param coordinateTransformer The [MutableCoordinateTransformer] used to map offsets of this
  *   viewfinder to the source coordinates of the data being provided to the surface that fulfills
  *   [surfaceRequest]
@@ -149,7 +151,7 @@ public fun CameraXViewfinder(
     surfaceRequest: SurfaceRequest,
     modifier: Modifier = Modifier,
     implementationMode: ImplementationMode =
-        CameraImplementationModeCompat.chooseCompatibleMode(surfaceRequest.camera.cameraInfo),
+        CameraImplementationModeCompat.chooseCompatibleMode(surfaceRequest.camera),
     coordinateTransformer: MutableCoordinateTransformer? = null,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Crop,
@@ -196,9 +198,11 @@ public fun CameraXViewfinder(
  *   the higher-performance [ImplementationMode.EXTERNAL] mode, but will fall back to
  *   [ImplementationMode.EMBEDDED] if the camera hardware level is
  *   [LEGACY][android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY],
- *   or on devices with other known compatibility issues (such as on API level 24 and below).
- *   Explicitly setting a mode will override this compatibility logic and may have performance or
- *   correctness implications on some devices.
+ *   if Extensions are enabled on API level 33 and below, or on devices with other known
+ *   compatibility issues (such as on API level 24 and below). Explicitly setting a mode will
+ *   override this compatibility logic and may have performance or correctness implications on some
+ *   devices. For example, explicitly setting [ImplementationMode.EXTERNAL] while Extensions are
+ *   enabled on API level 33 and below will cause the camera session to fail to configure.
  * @param coordinateTransformer The [MutableCoordinateTransformer] used to map offsets of this
  *   viewfinder to the source coordinates of the data being provided to the surface that fulfills
  *   [surfaceRequest]
@@ -230,7 +234,7 @@ public fun CameraXViewfinder(
     surfaceRequest: SurfaceRequest,
     modifier: Modifier = Modifier,
     implementationMode: ImplementationMode =
-        CameraImplementationModeCompat.chooseCompatibleMode(surfaceRequest.camera.cameraInfo),
+        CameraImplementationModeCompat.chooseCompatibleMode(surfaceRequest.camera),
     coordinateTransformer: MutableCoordinateTransformer? = null,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Crop,
