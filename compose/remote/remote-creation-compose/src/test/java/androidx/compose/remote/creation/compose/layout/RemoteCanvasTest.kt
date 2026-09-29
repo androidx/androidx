@@ -37,12 +37,11 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.util.MyRemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.text.font.FontVariation
 import com.google.common.truth.Truth.assertThat
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -60,42 +59,9 @@ class RemoteCanvasTest {
     private lateinit var recordingCanvas: RecordingCanvas
     private lateinit var remoteCanvas: RemoteCanvas
 
-    @Before
-    fun setUp() {
-        val size = Size(500f, 500f)
-        creationState =
-            RemoteComposeCreationState(
-                androidx.compose.remote.creation.platform.AndroidxRcPlatformServices(),
-                size,
-            )
-        val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap, creationState)
-        remoteCanvas = RemoteCanvas(recordingCanvas)
-    }
-
     @Test
     fun testFontVariationSettingsSync() {
-        val platform = androidx.compose.remote.creation.platform.AndroidxRcPlatformServices()
-        val profile =
-            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
-                creationDisplayInfo,
-                profile,
-                callbacks ->
-                MyRemoteComposeWriterAndroid(
-                    profile,
-                    fakeBuffer,
-                    RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
-                    RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
-                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
-                )
-            }
-
-        creationState =
-            RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
-
-        val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap, creationState)
-        remoteCanvas = RemoteCanvas(recordingCanvas)
+        setupRemoteCanvas()
 
         val settings = FontVariation.Settings(FontVariation.weight(500), FontVariation.width(100f))
         val paint = RemotePaint { fontVariationSettings = settings }
@@ -133,27 +99,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testHoisting_3LevelsDeep() {
-        val platform = androidx.compose.remote.creation.platform.AndroidxRcPlatformServices()
-        val profile =
-            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
-                creationDisplayInfo,
-                profile,
-                callbacks ->
-                MyRemoteComposeWriterAndroid(
-                    profile,
-                    fakeBuffer,
-                    RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
-                    RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
-                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
-                )
-            }
-
-        creationState =
-            RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
-
-        val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap, creationState)
-        remoteCanvas = RemoteCanvas(recordingCanvas)
+        setupRemoteCanvas()
 
         val x = createNamedRemoteFloat("x", 10f)
         val y = createNamedRemoteFloat("y", 20f)
@@ -221,27 +167,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testCSE_DependencyOrderingBug() {
-        val platform = androidx.compose.remote.creation.platform.AndroidxRcPlatformServices()
-        val profile =
-            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
-                creationDisplayInfo,
-                profile,
-                callbacks ->
-                MyRemoteComposeWriterAndroid(
-                    profile,
-                    fakeBuffer,
-                    RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
-                    RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
-                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
-                )
-            }
-
-        creationState =
-            RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
-
-        val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap, creationState)
-        remoteCanvas = RemoteCanvas(recordingCanvas)
+        setupRemoteCanvas()
 
         val x = createNamedRemoteFloat("x", 10f)
         val y = createNamedRemoteFloat("y", 20f)
@@ -287,27 +213,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testCSE_NestedDependencyBug() {
-        val platform = androidx.compose.remote.creation.platform.AndroidxRcPlatformServices()
-        val profile =
-            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
-                creationDisplayInfo,
-                profile,
-                callbacks ->
-                MyRemoteComposeWriterAndroid(
-                    profile,
-                    fakeBuffer,
-                    RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
-                    RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
-                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
-                )
-            }
-
-        creationState =
-            RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
-
-        val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap, creationState)
-        remoteCanvas = RemoteCanvas(recordingCanvas)
+        setupRemoteCanvas()
 
         val x = createNamedRemoteFloat("x", 10f)
         val y = createNamedRemoteFloat("y", 20f)
@@ -339,28 +245,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testDrawConditionally_ChainsDependencies() {
-        val platform = androidx.compose.remote.creation.platform.AndroidxRcPlatformServices()
-        val profile =
-            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
-                creationDisplayInfo,
-                profile,
-                callbacks ->
-                MyRemoteComposeWriterAndroid(
-                    profile,
-                    fakeBuffer,
-                    RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
-                    RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
-                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
-                )
-            }
-
-        creationState =
-            RemoteComposeCreationState(RemoteCreationDisplayInfo(100, 100, 160, 1f), null, profile)
-
-        val bitmap =
-            android.graphics.Bitmap.createBitmap(100, 100, android.graphics.Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap, creationState)
-        remoteCanvas = RemoteCanvas(recordingCanvas)
+        setupRemoteCanvas()
 
         val condition = createNamedRemoteBoolean("cond", true)
 
@@ -386,28 +271,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testLoop_ChainsDependencies() {
-        val platform = androidx.compose.remote.creation.platform.AndroidxRcPlatformServices()
-        val profile =
-            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
-                creationDisplayInfo,
-                profile,
-                callbacks ->
-                MyRemoteComposeWriterAndroid(
-                    profile,
-                    fakeBuffer,
-                    RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
-                    RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
-                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
-                )
-            }
-
-        creationState =
-            RemoteComposeCreationState(RemoteCreationDisplayInfo(100, 100, 160, 1f), null, profile)
-
-        val bitmap =
-            android.graphics.Bitmap.createBitmap(100, 100, android.graphics.Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap, creationState)
-        remoteCanvas = RemoteCanvas(recordingCanvas)
+        setupRemoteCanvas()
 
         val from = createNamedRemoteFloat("from", 0f)
         val until = createNamedRemoteFloat("until", 10f)
@@ -415,7 +279,7 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, null) // Op 1
 
-        remoteCanvas.loop(from, until, step) { index ->
+        remoteCanvas.loop(from, until, step) { _ ->
             remoteCanvas.drawRect(10f.rf, 10f.rf, 20f.rf, 20f.rf, null) // Op 2
         } // Op 3
 
@@ -435,28 +299,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testCSE_PropagationOrder_RootToLeaf() {
-        val platform = androidx.compose.remote.creation.platform.AndroidxRcPlatformServices()
-        val profile =
-            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
-                creationDisplayInfo,
-                profile,
-                callbacks ->
-                MyRemoteComposeWriterAndroid(
-                    profile,
-                    fakeBuffer,
-                    RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
-                    RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
-                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
-                )
-            }
-
-        creationState =
-            RemoteComposeCreationState(RemoteCreationDisplayInfo(100, 100, 160, 1f), null, profile)
-
-        val bitmap =
-            android.graphics.Bitmap.createBitmap(100, 100, android.graphics.Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap, creationState)
-        remoteCanvas = RemoteCanvas(recordingCanvas)
+        setupRemoteCanvas()
 
         val x = createNamedRemoteFloat("x", 10f)
         val y = createNamedRemoteFloat("y", 20f)
@@ -481,6 +324,32 @@ class RemoteCanvasTest {
 
         val animatedFloatCalls = fakeBuffer.calls.filter { it.startsWith("addAnimatedFloat") }
         assertThat(animatedFloatCalls.size).isEqualTo(3)
+    }
+
+    private fun setupRemoteCanvas() {
+        val profile =
+            Profile(
+                CoreDocument.DOCUMENT_API_LEVEL,
+                RcProfiles.PROFILE_ANDROIDX,
+                AndroidxRcPlatformServices(),
+            ) { creationDisplayInfo, p, _ ->
+                MyRemoteComposeWriterAndroid(
+                    p,
+                    fakeBuffer,
+                    RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
+                    RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
+                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
+                )
+            }
+        creationState =
+            RemoteComposeCreationState(
+                RemoteCreationDisplayInfo(500, 500, 160, 1f),
+                null,
+                profile,
+            )
+        val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
+        recordingCanvas = RecordingCanvas(bitmap, creationState)
+        remoteCanvas = RemoteCanvas(recordingCanvas)
     }
 
     private fun getOperations(buffer: RemoteComposeBuffer): List<Operation> =
