@@ -255,6 +255,21 @@ When directed to an index page, directory list, or guide linking to sub-guides
   - If creating a branch via `git checkout -b <branch_name>`, always explicitly
     configure upstream tracking immediately:
     `git branch --set-upstream-to=aosp/androidx-main <branch_name>`.
+- **Backend Architecture & CameraPipe Migration (`Camera2Config`)**:
+  - **CRITICAL ARCHITECTURAL CONTEXT**: The `camera-camera2` implementation
+    module has been migrated to use `camera-camera2-pipe` (CameraPipe) as its
+    underlying backend engine.
+  - While public entry points like `Camera2Config.defaultConfig()` retain the
+    `Camera2` naming for backward compatibility with existing applications, they
+    instantiate a `CameraFactoryProvider` backed by `CameraPipe` (`CameraGraph`,
+    `Camera2CameraController`, `Camera2DeviceManager`).
+  - **DO NOT** assume `Camera2Config` implies the legacy pre-migration Camera2
+    pipeline or that CameraPipe is an optional or experimental alternative;
+    CameraPipe **is** the default active engine driving `camera-camera2`.
+  - When debugging device quirks, capture session lifecycle, or frame streaming
+    issues, look for CameraPipe concepts (`CameraGraph.Config`, `CXCP` logcat
+    tags, `Camera2DeviceCloser`, `CloseCameraDeviceOnCameraGraphCloseQuirk`)
+    within `camera-camera2`.
 - **Mandatory Pre-Coding Guideline Reading & Recursive Traversal**: Before
   modifying or creating code, agents MUST use `view_file` to read the relevant
   local guideline files into active context. When encountering index pages,
@@ -880,6 +895,23 @@ three layers in order:
        compliant with Android platform specifications, and the device failure is
        conclusively proven to be an unrecoverable vendor driver/HAL defect.
 
+##### E. Device Quirk OS Version Ceilings (The Upstream OS Upgrade Trap)
+When inspecting or authoring quirks with OS version checks (e.g.,
+`Build.VERSION.SDK_INT <= Build.VERSION_CODES.UPSIDE_DOWN_CAKE`):
+- **Audit Underlying Driver/HAL Persistence**: Verify whether the underlying
+  vendor driver or HAL bug is genuinely resolved in newer Android OS releases
+  before placing an upper bound on a quirk.
+- **The Upgrade Trap**: Hardcoding an upper bound (such as
+  `<= UPSIDE_DOWN_CAKE` / Android 14) causes the quirk to automatically
+  deactivate when devices upgrade to Android 15 (API 35) or Android 16
+  (API 36). If the vendor driver retains the flaw across platform updates,
+  this causes regressions in the wild.
+- **Triage Protocol for Post-Upgrade Regressions**: When an issue spikes
+  immediately after a major Android upgrade (e.g., Android 16 on Samsung
+  devices), inspect existing quirks in `androidx.camera.camera2.compat.quirk`
+  to check whether an existing quirk previously protected the device family
+  but was turned off by an outdated OS version ceiling.
+
 > [!NOTE]
 > **Internal Lab Automation & Fleet Query Tooling**:
 > When operating in Google-internal environments with access to automated
@@ -1123,10 +1155,14 @@ Test: <test instructions>
 
 ## Description of sub-projects:
 
-- camera-camera2: The implementation layer that bridges `camera-core` abstractions to the
-  `camera-camera2-pipe` backend.
-- camera-camera2-pipe: A performance-oriented Camera2 abstraction layer that provides a flexible
-  shim to power high-efficiency camera applications.
+- camera-camera2: The implementation layer that bridges `camera-core`
+  abstractions to the Android Camera2 platform APIs. Under the hood, this
+  module has been migrated to use `camera-camera2-pipe` (CameraPipe) as its
+  default and only backend engine (`Camera2Config` instantiates CameraPipe).
+- camera-camera2-pipe: A low-level, high-performance Camera2 abstraction layer
+  that powers CameraX's `camera-camera2` implementation. It manages camera
+  devices (`Camera2DeviceManager`), capture sessions (`CameraGraph`), and
+  low-level request/frame pipelines.
 - camera-camera2-pipe-testing: Testing library for `camera-camera2-pipe`.
 - camera-common: Contains common utility classes and constants used across CameraX modules.
 - camera-common-testing: Provides testing utilities and fakes for `camera-common`.
