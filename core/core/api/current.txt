@@ -2558,6 +2558,7 @@ package androidx.core.os {
 
   public final class MemorySnapshot {
     method public static androidx.core.os.MemorySnapshot? capture();
+    method public static androidx.core.os.MemorySnapshot? capture(int pid);
     method @InaccessibleFromKotlin public long getAnonRssBytes();
     method @InaccessibleFromKotlin public long getFileRssBytes();
     method @InaccessibleFromKotlin public long getPackageMemoryUsageBytes();
@@ -2581,6 +2582,7 @@ package androidx.core.os {
 
   public static final class MemorySnapshot.Companion {
     method public androidx.core.os.MemorySnapshot? capture();
+    method public androidx.core.os.MemorySnapshot? capture(int pid);
   }
 
   public final class MessageCompat {
