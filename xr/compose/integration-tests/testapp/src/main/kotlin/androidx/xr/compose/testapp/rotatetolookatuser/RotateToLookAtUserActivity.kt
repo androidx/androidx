@@ -17,6 +17,7 @@
 package androidx.xr.compose.testapp.rotatetolookatuser
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -31,6 +32,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,7 +45,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.xr.arcore.Anchor
+import androidx.xr.arcore.AnchorCreateResourcesExhausted
+import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.compose.platform.LocalSession
+import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialColumn
@@ -52,6 +58,7 @@ import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.StereoMode
 import androidx.xr.compose.subspace.SubspaceComposable
+import androidx.xr.compose.subspace.animation.follow.FollowTarget
 import androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi
 import androidx.xr.compose.subspace.layout.MovePolicy
 import androidx.xr.compose.subspace.layout.PitchLimits
@@ -74,7 +81,11 @@ import androidx.xr.compose.testapp.ui.theme.PurpleGrey40
 import androidx.xr.compose.testapp.ui.theme.PurpleGrey80
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.scene
 
 /**
  * Integration test activity for the [rotateToLookAtUser] modifier.
@@ -106,7 +117,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
         setContent { MainContent() }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalFollowingSubspaceApi::class)
     @SubspaceComposable
     @Composable
     private fun MainContent() {
@@ -114,6 +125,20 @@ class RotateToLookAtUserActivity : ComponentActivity() {
         session.configure(
             Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
         )
+        var anchor by remember { mutableStateOf<Anchor?>(null) }
+        DisposableEffect(session) {
+            val listener = Runnable {
+                createAnchor(session, Pose(Vector3(-1f, 0f, 1.5f)))?.let { newAnchor ->
+                    anchor?.detach()
+                    anchor = newAnchor
+                }
+            }
+            session.scene.activitySpace.addOriginChangedListener(listener)
+            onDispose {
+                session.scene.activitySpace.removeOriginChangedListener(listener)
+                anchor?.detach()
+            }
+        }
 
         var isRotateToLookAtUserOn by remember { mutableStateOf(true) }
 
@@ -129,6 +154,15 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                             onToggle = { isRotateToLookAtUserOn = it },
                         )
                         TestGrid(isFeatureOn = isRotateToLookAtUserOn)
+                    }
+                }
+            }
+            anchor?.let { anchor ->
+                Subspace(follow = FollowTarget.anchor(anchor)) {
+                    TestPanelContainer(title = "Anchored Panel", isFeatureOn = true) {
+                        modifier,
+                        content ->
+                        SpatialPanel(modifier = modifier, content = content)
                     }
                 }
             }
@@ -471,5 +505,37 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun createAnchor(session: Session, anchorPose: Pose): Anchor? {
+        // Set the Anchor pose to the right of the Activity space.
+        val anchorPose =
+            session.scene.activitySpace.transformPoseTo(
+                anchorPose,
+                session.scene.perceptionSpace,
+            )
+        when (val anchorResult = Anchor.create(session, anchorPose)) {
+            is AnchorCreateSuccess -> {
+                return anchorResult.anchor
+            }
+            is AnchorCreateResourcesExhausted -> {
+                Log.e(
+                    TAG,
+                    "Failed to create anchor: anchor resources exhausted.",
+                )
+                return null
+            }
+            else -> {
+                Log.e(
+                    TAG,
+                    "Failed to create anchor: ${anchorResult::class.simpleName}",
+                )
+                return null
+            }
+        }
+    }
+
+    companion object {
+        private const val TAG = "FollowingSubspaceApp"
     }
 }
