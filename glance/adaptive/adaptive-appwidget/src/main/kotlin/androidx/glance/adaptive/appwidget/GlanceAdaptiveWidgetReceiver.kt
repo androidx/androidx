@@ -142,12 +142,7 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
                         rawOptions ?: Bundle(),
                         checkManagerIfMissing = false,
                     )
-                val state = WidgetOptionsState.from(options)
-                synchronized(lock) {
-                    if (!lastOptionsCache.containsKey(id)) {
-                        lastOptionsCache[id] = state
-                    }
-                }
+                cacheWidgetOptionsIfMissing(id, options)
             }
         }
     }
@@ -278,6 +273,36 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
             synchronized(lock) { lastOptionsCache.clear() }
         }
 
+        internal fun cacheWidgetOptionsIfMissing(appWidgetId: Int, options: Bundle): String {
+            // lastOptionsCache is a primitive-keyed MutableIntObjectMap (avoiding Int boxing)
+            // guarded by `lock`. Check presence under a brief lock, then parse the Bundle
+            // outside the lock so parcel unmarshalling and sorting do not hold the monitor.
+            val existingWidgetId =
+                synchronized(lock) { lastOptionsCache[appWidgetId]?.widgetId }
+                    ?.takeUnless { it.isBlank() }
+            if (existingWidgetId != null) {
+                return existingWidgetId
+            }
+            val parsed = WidgetOptionsState.from(options)
+            val resolvedWidgetId =
+                parsed.widgetId?.takeUnless { it.isBlank() } ?: UUID.randomUUID().toString()
+            val state =
+                if (parsed.widgetId == resolvedWidgetId) {
+                    parsed
+                } else {
+                    parsed.copy(widgetId = resolvedWidgetId)
+                }
+            return synchronized(lock) {
+                val cached = lastOptionsCache[appWidgetId]
+                if (cached != null && !cached.widgetId.isNullOrBlank()) {
+                    cached.widgetId
+                } else {
+                    lastOptionsCache[appWidgetId] = state
+                    resolvedWidgetId
+                }
+            }
+        }
+
         /**
          * Broadcast action to force a debug update of the Glance Adaptive widget via adb: `adb
          * shell am broadcast -a androidx.glance.adaptive.action.DEBUG_UPDATE -n APP/COMPONENT`
@@ -380,9 +405,13 @@ private fun getWidgetSizes(options: Bundle): List<SizeF>? {
             options.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
         } ?: return null
 
-    rawSizes.sortWith { a, b ->
+    // Copy to a new ArrayList to avoid mutating the Bundle's internal list in-place.
+    // Note: ArrayList(Collection) + MutableList.sortWith is used instead of Iterable.sortedWith
+    // to avoid iterator allocations flagged by AndroidX's ListIterator lint check.
+    val sortedSizes = ArrayList(rawSizes)
+    sortedSizes.sortWith { a, b ->
         val widthCompare = a.width.compareTo(b.width)
         if (widthCompare != 0) widthCompare else a.height.compareTo(b.height)
     }
-    return rawSizes
+    return sortedSizes
 }

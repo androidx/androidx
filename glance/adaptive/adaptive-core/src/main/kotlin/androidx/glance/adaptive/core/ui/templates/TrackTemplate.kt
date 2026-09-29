@@ -39,6 +39,8 @@ public class TrackTemplate(
     public val progress: Float? = null,
     public val statusText: String? = null,
 ) : AdaptiveGlanceTemplate {
+    override val templateId: String = "TrackTemplate"
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TrackTemplate) return false
