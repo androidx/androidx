@@ -55,7 +55,7 @@ class PositionalAudioComponentTesterTest {
 
     @Test
     fun equalsAndHashCode_behaveCorrectly() {
-        val params = PointSourceParams()
+        val params = PointSourceParams.Builder().build()
         val component = PositionalAudioComponent.create(session, params)
         val tester1 = PositionalAudioComponentTester.create(component)
         val tester2 = PositionalAudioComponentTester.create(component)
@@ -66,8 +66,8 @@ class PositionalAudioComponentTesterTest {
 
     @Test
     fun pointSourceParams_returnsCorrectValue() {
-        val params1 = PointSourceParams()
-        val params2 = PointSourceParams()
+        val params1 = PointSourceParams.Builder().build()
+        val params2 = PointSourceParams.Builder().setSpread(180f).build()
         val component = PositionalAudioComponent.create(session, params1)
         val tester = testRule.createTester<PositionalAudioComponentTester>(component)
 
@@ -80,7 +80,7 @@ class PositionalAudioComponentTesterTest {
 
     @Test
     fun audioOutputProvider_delegatesToInternalFake() {
-        val params = PointSourceParams()
+        val params = PointSourceParams.Builder().build()
         val component = PositionalAudioComponent.create(session, params)
         val tester = testRule.createTester<PositionalAudioComponentTester>(component)
         val fakeProvider = AudioTrackAudioOutputProvider.Builder(activity).build()

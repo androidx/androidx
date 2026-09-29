@@ -22,7 +22,6 @@ import androidx.xr.scenecore.HitTestResult
 import androidx.xr.scenecore.HitTestResult.SurfaceType
 import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.PerceivedResolutionResult
-import androidx.xr.scenecore.PointSourceParams
 import androidx.xr.scenecore.PointerCaptureComponent.PointerCaptureState
 import androidx.xr.scenecore.ResizeEvent
 import androidx.xr.scenecore.ResizeEvent.ResizeState
@@ -39,7 +38,6 @@ import androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceType as RtHitTe
 import androidx.xr.scenecore.runtime.InputEvent as RtInputEvent
 import androidx.xr.scenecore.runtime.InputEvent.HitInfo as RtHitInfo
 import androidx.xr.scenecore.runtime.PerceivedResolutionResult as RtPerceivedResolutionResult
-import androidx.xr.scenecore.runtime.PointSourceParams as RtPointSourceParams
 import androidx.xr.scenecore.runtime.PointerCaptureComponent.PointerCaptureState as RtPointerCaptureState
 import androidx.xr.scenecore.runtime.ResizeEvent as RtResizeEvent
 import androidx.xr.scenecore.runtime.ResizeEvent.ResizeState as RtResizeState
@@ -275,13 +273,6 @@ internal fun Int.toPointerCaptureState(): PointerCaptureState {
 // endregion
 
 // region Spatial Audio
-/** Extension function that converts a [RtPointSourceParams] to a [PointSourceParams]. */
-internal fun RtPointSourceParams.toPointSourceParams(): PointSourceParams {
-    val pointSourceParams = PointSourceParams()
-    pointSourceParams.rtPointSourceParams = this
-    return pointSourceParams
-}
-
 /**
  * Extension function that converts a [SpatializerConstants.SourceType] to a
  * [RtSpatializerConstants.SourceType].

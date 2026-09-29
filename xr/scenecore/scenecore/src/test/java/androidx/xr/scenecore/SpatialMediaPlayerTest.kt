@@ -73,7 +73,7 @@ class SpatialMediaPlayerTest {
         val tester = scenecoreTestRule.createTester(mediaPlayer)
 
         val entity = Entity.create(session, "test")
-        val pointSourceParams = PointSourceParams()
+        val pointSourceParams = PointSourceParams.Builder().build()
 
         SpatialMediaPlayer.setPointSourceParams(session, mediaPlayer, pointSourceParams, entity)
 

@@ -20,6 +20,7 @@ import androidx.media3.exoplayer.audio.AudioOutputProvider
 import androidx.xr.scenecore.PointSourceParams
 import androidx.xr.scenecore.PositionalAudioComponent
 import androidx.xr.scenecore.testing.internal.FakePositionalAudioComponent as InternalFakePositionalAudioComponent
+import androidx.xr.scenecore.toPointSourceParams
 
 /**
  * A test-only accessor for [PositionalAudioComponent] that enables direct manipulation and

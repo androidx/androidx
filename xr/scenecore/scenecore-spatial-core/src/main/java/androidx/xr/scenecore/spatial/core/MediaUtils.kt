@@ -15,6 +15,9 @@
  */
 package androidx.xr.scenecore.spatial.core
 
+import androidx.xr.runtime.SpatialApiVersionHelper
+import androidx.xr.runtime.SpatialApiVersions
+import androidx.xr.scenecore.runtime.DistanceAttenuation
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.SpatializerConstants
 import com.android.extensions.xr.media.PointSourceParams
@@ -31,6 +34,24 @@ internal object MediaUtils {
         val builder = PointSourceParams.Builder()
         if (entity != null) {
             builder.setNode((entity as AndroidXrEntity).getNode())
+        }
+        if (
+            SpatialApiVersionHelper.spatialApiVersion >= SpatialApiVersions.SPATIAL_API_V4 &&
+                params != null
+        ) {
+            val distanceAttenuation: DistanceAttenuation = params.distanceAttenuation
+            val directivityBalance = params.directivityBalance
+            val directivitySharpness = params.directivitySharpness
+            val spread = params.spread
+            builder.underlyingObject.setDistanceAttenuationConfig(
+                distanceAttenuation.distanceRolloffModel,
+                distanceAttenuation.minDistance,
+                distanceAttenuation.maxDistance,
+                distanceAttenuation.gainAtMaxDistance,
+                distanceAttenuation.rolloffFactor,
+            )
+            builder.underlyingObject.setDirectivity(directivityBalance, directivitySharpness)
+            builder.underlyingObject.setSpread(spread)
         }
         return builder.build()
     }

@@ -44,7 +44,7 @@ class SoundEffectPoolComponentTesterTest {
     @Rule @JvmField val testRule = SceneCoreTestRule()
 
     private val testDispatcher = StandardTestDispatcher()
-    private val params = PointSourceParams()
+    private val params = PointSourceParams.Builder().build()
     private val maxStreams = 4
 
     private lateinit var activityController: ActivityController<ComponentActivity>

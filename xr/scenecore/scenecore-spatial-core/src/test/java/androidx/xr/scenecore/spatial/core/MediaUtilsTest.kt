@@ -15,6 +15,7 @@
  */
 package androidx.xr.scenecore.spatial.core
 
+import androidx.xr.scenecore.runtime.DistanceAttenuation
 import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.SoundFieldAttributes
 import androidx.xr.scenecore.runtime.SpatializerConstants
@@ -42,10 +43,39 @@ class MediaUtilsTest {
         val expected = xrExtensions.createNode()
         val entity = mock<AndroidXrEntity>()
         whenever(entity.getNode()).thenReturn(expected)
-        val rtParams = PointSourceParams()
+        val distanceAttenuation =
+            DistanceAttenuation(
+                distanceRolloffModel = DistanceAttenuation.ROLLOFF_MODEL_CUSTOM,
+                minDistance = 0.5f,
+                maxDistance = 10.0f,
+                gainAtMaxDistance = 0.5f,
+                rolloffFactor = 2.0f,
+            )
+        val rtParams =
+            PointSourceParams(
+                distanceAttenuation = distanceAttenuation,
+                directivityBalance = 0.5f,
+                directivitySharpness = 2.0f,
+                spread = 180.0f,
+            )
         val result = convertPointSourceParamsToExtensions(rtParams, entity)
 
         assertThat(result.node).isEqualTo(entity.getNode())
+        assertThat(result.underlyingObject.distanceAttenuationRolloffModel)
+            .isEqualTo(distanceAttenuation.distanceRolloffModel)
+        assertThat(result.underlyingObject.distanceAttenuationMinDistance)
+            .isEqualTo(distanceAttenuation.minDistance)
+        assertThat(result.underlyingObject.distanceAttenuationMaxDistance)
+            .isEqualTo(distanceAttenuation.maxDistance)
+        assertThat(result.underlyingObject.distanceAttenuationGainAtMaxDistance)
+            .isEqualTo(distanceAttenuation.gainAtMaxDistance)
+        assertThat(result.underlyingObject.distanceAttenuationRolloffFactor)
+            .isEqualTo(distanceAttenuation.rolloffFactor)
+        assertThat(result.underlyingObject.directivityBalance)
+            .isEqualTo(rtParams.directivityBalance)
+        assertThat(result.underlyingObject.directivitySharpness)
+            .isEqualTo(rtParams.directivitySharpness)
+        assertThat(result.underlyingObject.spread).isEqualTo(rtParams.spread)
     }
 
     @Test

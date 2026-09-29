@@ -22,6 +22,7 @@ import androidx.xr.scenecore.PointSourceParams
 import androidx.xr.scenecore.SoundFieldAttributes
 import androidx.xr.scenecore.SpatialMediaPlayer
 import androidx.xr.scenecore.testing.internal.FakeMediaPlayerExtensionsWrapper as InternalFakeMediaPlayerExtensionsWrapper
+import androidx.xr.scenecore.toPointSourceParams
 
 /**
  * A test utility for accessing and inspecting the spatial data associated with the
