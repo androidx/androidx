@@ -3655,16 +3655,6 @@ public final class AppSearchImpl implements Closeable {
                 }
             }
 
-            // In normal use case, the page token is guaranteed to be valid, so if page token not
-            // found flag is true, then it is mostly caused by pagination cache eviction. Therefore,
-            // throw an exception indicating that the search and pagination is aborted.
-            if (Flags.enableResultAborted()
-                    && Flags.enableThrowExceptionForNativeNotFoundPageToken()
-                    && searchResultProto.getPageTokenNotFound()) {
-                throw new AppSearchException(AppSearchResult.RESULT_ABORTED,
-                        "Page token not found. It is usually caused by pagination cache eviction.");
-            }
-
             long rewriteSearchResultLatencyStartMillis = SystemClock.elapsedRealtime();
             // Rewrite search result before we return.
             Set<String> resultSchemas = new ArraySet<>();

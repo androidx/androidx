@@ -174,13 +174,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enableThrowExceptionForNativeNotFoundPageToken() {
-        assertThat(Flags.FLAG_ENABLE_THROW_EXCEPTION_FOR_NATIVE_NOT_FOUND_PAGE_TOKEN)
-                .isEqualTo("com.android.appsearch.flags"
-                        + ".enable_throw_exception_for_native_not_found_page_token");
-    }
-
-    @Test
     public void testFlagValue_enableInitializationRetriesBeforeReset() {
         assertThat(Flags.FLAG_ENABLE_INITIALIZATION_RETRIES_BEFORE_RESET)
                 .isEqualTo(
