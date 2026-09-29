@@ -146,6 +146,9 @@ class OpenXrPerceptionManagerTest {
         }
 
         assertThat(underTest.xrResources.annotationConfigs).doesNotContainKey(id)
+
+        underTest.updateSpatialAnnotations(2000L)
+
         assertThat(underTest.xrResources.trackablesMap).doesNotContainKey(handle)
         assertThat(underTest.xrResources.updatables).doesNotContain(trackable as Updatable)
     }
@@ -167,12 +170,17 @@ class OpenXrPerceptionManagerTest {
         }
 
         assertThat(underTest.xrResources.annotationConfigs).isEmpty()
+
+        underTest.updateSpatialAnnotations(2000L)
+
         assertThat(underTest.xrResources.trackablesMap).isEmpty()
         assertThat(underTest.xrResources.updatables).isEmpty()
     }
 
     @Test
     fun clear_clearsSpatialAnnotationsAndResources() {
+        assertThat(underTest.isPerceptionManagerCleared).isFalse()
+
         val id = SpatialAnnotationId.fromString("test_annotation")
         underTest.xrResources.addAnnotationHandle(id, 42L, SpatialAnnotationQuadAlignment.SCREEN)
         underTest.updateSpatialAnnotations(1000L)
@@ -183,6 +191,7 @@ class OpenXrPerceptionManagerTest {
             // Native method is not linked in JVM host unit tests.
         }
 
+        assertThat(underTest.isPerceptionManagerCleared).isTrue()
         assertThat(underTest.xrResources.annotationConfigs).isEmpty()
         assertThat(underTest.xrResources.trackablesMap).isEmpty()
         assertThat(underTest.xrResources.updatables).isEmpty()
@@ -195,6 +204,7 @@ class OpenXrPerceptionManagerTest {
         underTest.xrResources.addAnnotationHandle(id1, 101L, SpatialAnnotationQuadAlignment.SCREEN)
         underTest.xrResources.addAnnotationHandle(id2, 102L, SpatialAnnotationQuadAlignment.OBJECT)
         underTest.updateSpatialAnnotations(1000L)
+        val trackable2 = underTest.xrResources.trackablesMap[102L] as Updatable
 
         try {
             underTest.stopSpatialAnnotationTracking(listOf(id1))
@@ -204,9 +214,11 @@ class OpenXrPerceptionManagerTest {
 
         assertThat(underTest.xrResources.annotationConfigs).doesNotContainKey(id1)
         assertThat(underTest.xrResources.annotationConfigs).containsKey(id2)
+
+        underTest.updateSpatialAnnotations(2000L)
+
         assertThat(underTest.xrResources.trackablesMap).doesNotContainKey(101L)
         assertThat(underTest.xrResources.trackablesMap).containsKey(102L)
-        val trackable2 = underTest.xrResources.trackablesMap[102L] as Updatable
         assertThat(underTest.xrResources.updatables).contains(trackable2)
     }
 
@@ -224,6 +236,9 @@ class OpenXrPerceptionManagerTest {
         }
 
         assertThat(underTest.xrResources.annotationConfigs).doesNotContainKey(id1)
+
+        underTest.updateSpatialAnnotations(2000L)
+
         assertThat(underTest.xrResources.trackablesMap).doesNotContainKey(101L)
     }
 }
