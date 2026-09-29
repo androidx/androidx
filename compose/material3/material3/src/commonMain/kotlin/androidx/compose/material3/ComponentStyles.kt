@@ -31,7 +31,9 @@ import androidx.compose.material3.tokens.ColorToken
 import androidx.compose.material3.tokens.ElevatedCardTokens
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.FilledCardTokens
+import androidx.compose.material3.tokens.NavigationBarHorizontalItemTokens
 import androidx.compose.material3.tokens.NavigationBarTokens
+import androidx.compose.material3.tokens.NavigationBarVerticalItemTokens
 import androidx.compose.material3.tokens.NavigationRailBaselineItemTokens
 import androidx.compose.material3.tokens.NavigationRailCollapsedTokens
 import androidx.compose.material3.tokens.NavigationRailColorTokens
@@ -44,12 +46,14 @@ import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SearchBarTokens
 import androidx.compose.material3.tokens.SearchViewTokens
 import androidx.compose.material3.tokens.ShapeToken
+import androidx.compose.material3.tokens.TypographyToken
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.jvm.JvmInline
@@ -203,6 +207,9 @@ internal interface MaterialThemeAccessorScope {
 
     val ShapeToken.value: Shape
         get() = theme.shapes.fromToken(this)
+
+    val TypographyToken.value: TextStyle
+        get() = theme.typography.fromToken(this)
 }
 
 internal interface CheckedState<T : StatefulStyleScope<T>> : StatefulStyleScope<T> {
@@ -778,11 +785,24 @@ internal fun interface NavigationBarStyle : ComponentStyle<NavigationBarStyleSco
             contentColor(theme.colorScheme.onSurface)
             containerHeight(NavigationBarTokens.ContainerHeight)
         }
+
+        val Adaptive =
+            Default then
+                {
+                    auto {
+                        containerHeight(96.dp)
+                    }
+                }
     }
 }
 
-internal class NavigationBarStyleScope(override val theme: MaterialTheme.Values) :
-    MaterialThemeAccessorScope, StyleResolver by StyleResolverImpl() {
+internal class NavigationBarStyleScope(
+    override val theme: MaterialTheme.Values,
+    override val mediaQueryInfo: MediaQueryInfo,
+) :
+    MaterialThemeAccessorScope,
+    AdaptiveStyleScope<NavigationBarStyleScope>,
+    StyleResolver by StyleResolverImpl() {
     var containerColor: Color = Color.Unspecified
         private set
 
@@ -815,10 +835,30 @@ internal fun interface NavigationBarItemStyle : ComponentStyle<NavigationBarItem
         val Default = NavigationBarItemStyle {
             iconColor(NavigationBarTokens.ItemInactiveIconColor.value)
             textColor(NavigationBarTokens.ItemInactiveLabelTextColor.value)
+            textStyle(NavigationBarTokens.LabelTextFont.value)
             indicatorColor(NavigationBarTokens.ItemActiveIndicatorColor.value)
-            disabled {
-                iconColor(NavigationBarTokens.ItemInactiveIconColor.value.copy(alpha = 0.38f))
-                textColor(NavigationBarTokens.ItemInactiveLabelTextColor.value.copy(alpha = 0.38f))
+            vertical {
+                indicatorPadding(
+                    start = NavigationBarVerticalItemHorizontalPadding,
+                    end = NavigationBarVerticalItemHorizontalPadding,
+                    top = NavigationBarVerticalItemVerticalPadding,
+                    bottom = NavigationBarVerticalItemVerticalPadding,
+                )
+                contentPadding(
+                    start = 0.dp,
+                    top = NavigationBarVerticalItemTokens.ContainerBetweenSpace,
+                    end = 0.dp,
+                    bottom = NavigationBarVerticalItemTokens.ContainerBetweenSpace,
+                )
+            }
+            horizontal {
+                indicatorPadding(
+                    start = NavigationBarHorizontalItemTokens.ActiveIndicatorLeadingSpace,
+                    end = NavigationBarHorizontalItemTokens.ActiveIndicatorTrailingSpace,
+                    top = NavigationBarHorizontalItemVerticalPadding,
+                    bottom = NavigationBarHorizontalItemVerticalPadding,
+                )
+                contentPadding(start = 0.dp, top = 0.dp, end = 0.dp, bottom = 0.dp)
             }
             selected {
                 iconColor(NavigationBarTokens.ItemActiveIconColor.value)
@@ -829,14 +869,42 @@ internal fun interface NavigationBarItemStyle : ComponentStyle<NavigationBarItem
                     textColor(NavigationBarTokens.ItemActiveIconColor.value)
                 }
             }
+            disabled {
+                iconColor(NavigationBarTokens.ItemInactiveIconColor.value.copy(alpha = 0.38f))
+                textColor(NavigationBarTokens.ItemInactiveLabelTextColor.value.copy(alpha = 0.38f))
+            }
         }
+
+        val Adaptive =
+            Default then
+                {
+                    auto {
+                        textStyle(theme.typography.headlineSmall)
+                        vertical {
+                            contentPadding(start = 0.dp, top = 10.dp, end = 0.dp, bottom = 10.dp)
+                            indicatorPadding(start = 20.dp, top = 8.dp, end = 20.dp, bottom = 8.dp)
+                        }
+                    }
+                }
     }
 }
 
+private val NavigationBarVerticalItemHorizontalPadding =
+    (NavigationBarVerticalItemTokens.ActiveIndicatorWidth -
+        NavigationBarVerticalItemTokens.IconSize) / 2
+private val NavigationBarVerticalItemVerticalPadding =
+    (NavigationBarVerticalItemTokens.ActiveIndicatorHeight -
+        NavigationBarVerticalItemTokens.IconSize) / 2
+private val NavigationBarHorizontalItemVerticalPadding =
+    (NavigationBarHorizontalItemTokens.ActiveIndicatorHeight -
+        NavigationBarHorizontalItemTokens.IconSize) / 2
+
 internal class NavigationBarItemStyleScope(
     override val theme: MaterialTheme.Values,
+    override val mediaQueryInfo: MediaQueryInfo,
     override val state: ComponentState = ComponentState.Default,
 ) :
+    AdaptiveStyleScope<NavigationBarItemStyleScope>,
     MaterialThemeAccessorScope,
     SelectedState<NavigationBarItemStyleScope>,
     DisabledState<NavigationBarItemStyleScope>,
@@ -848,7 +916,34 @@ internal class NavigationBarItemStyleScope(
     var textColor: Color = Color.Unspecified
         private set
 
+    var textStyle: TextStyle = TextStyle.Default
+        private set
+
     var indicatorColor: Color = Color.Unspecified
+        private set
+
+    var indicatorPaddingStart: Dp = Dp.Unspecified
+        private set
+
+    var indicatorPaddingTop: Dp = Dp.Unspecified
+        private set
+
+    var indicatorPaddingEnd: Dp = Dp.Unspecified
+        private set
+
+    var indicatorPaddingBottom: Dp = Dp.Unspecified
+        private set
+
+    var contentPaddingStart: Dp = Dp.Unspecified
+        private set
+
+    var contentPaddingTop: Dp = Dp.Unspecified
+        private set
+
+    var contentPaddingEnd: Dp = Dp.Unspecified
+        private set
+
+    var contentPaddingBottom: Dp = Dp.Unspecified
         private set
 
     fun iconColor(color: Color) {
@@ -859,8 +954,26 @@ internal class NavigationBarItemStyleScope(
         textColor = color
     }
 
+    fun textStyle(style: TextStyle) {
+        textStyle = style
+    }
+
     fun indicatorColor(color: Color) {
         indicatorColor = color
+    }
+
+    fun indicatorPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
+        indicatorPaddingStart = start
+        indicatorPaddingTop = top
+        indicatorPaddingEnd = end
+        indicatorPaddingBottom = bottom
+    }
+
+    fun contentPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
+        contentPaddingStart = start
+        contentPaddingTop = top
+        contentPaddingEnd = end
+        contentPaddingBottom = bottom
     }
 }
 
