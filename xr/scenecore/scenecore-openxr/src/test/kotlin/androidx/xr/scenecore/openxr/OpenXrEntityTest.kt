@@ -152,6 +152,25 @@ class OpenXrEntityTest {
 
         entity.setPose(testPose, Space.REAL_WORLD)
         assertPose(entity.getPose(Space.REAL_WORLD), testPose)
+        assertPose(entity.transformPoseTo(Pose.Identity, perceptionSpaceScenePose), testPose)
+    }
+
+    @Test
+    fun getPose_worldSpace_updatesWhenActivitySpacePlatformReferenceSpacePoseChanges() {
+        val perceptionSpaceScenePose = PerceptionSpaceScenePoseImpl(activitySpace)
+        nodeRegistry.addSystemSpaceScenePose(perceptionSpaceScenePose)
+
+        entity.setPose(testPose, Space.PARENT)
+        val newPlatformPose =
+            Pose(Vector3(4f, 5f, 6f), Quaternion.fromEulerAngles(Vector3(0f, 45f, 0f)))
+        activitySpace.setPlatformReferenceSpacePose(newPlatformPose)
+
+        val expectedWorldPose = newPlatformPose.compose(testPose)
+        assertPose(entity.getPose(Space.REAL_WORLD), expectedWorldPose)
+        assertPose(
+            entity.transformPoseTo(Pose.Identity, perceptionSpaceScenePose),
+            expectedWorldPose,
+        )
     }
 
     @Test
