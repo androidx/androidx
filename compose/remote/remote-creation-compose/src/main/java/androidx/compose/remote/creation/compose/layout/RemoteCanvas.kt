@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices.RcPathArrayCreator
 import androidx.compose.remote.core.operations.ConditionalOperations
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.CanvasOp
@@ -79,12 +78,24 @@ public class RemoteCanvas(
     internal fun custom(
         config: String,
         modifier: RemoteModifier = RemoteModifier,
+        content: (() -> Unit)? = null,
         properties: RemoteCustomPropertiesScope.() -> Unit = {},
     ) {
         val scope = RemoteCustomPropertiesScope().apply(properties)
+        val childSpan =
+            if (content != null) {
+                val span = buffer.recordInChildSpan(content)
+                if (buffer.enableOptimizations) {
+                    buffer.optimizeSpan(span)
+                }
+                span
+            } else {
+                null
+            }
+
         val op =
             buffer.recordRenderingOp(
-                CanvasOp.CustomComponent(config, modifier, scope.entries, null)
+                CanvasOp.CustomComponent(config, modifier, scope.entries, childSpan)
             )
         for (i in scope.entries.indices) {
             val state = scope.entries[i].state
@@ -602,9 +613,17 @@ public class RemoteCanvas(
         bottom: RemoteFloat,
         clipOp: ClipOp = ClipOp.Intersect,
     ) {
-        val op = recordRenderingOp {
-            document.clipRect(left.floatId, top.floatId, right.floatId, bottom.floatId)
-        }
+        val op =
+            buffer.recordRenderingOp(
+                CanvasOp.Clip { writer ->
+                    writer.clipRect(
+                        left.getFloatIdForCreationState(creationState),
+                        top.getFloatIdForCreationState(creationState),
+                        right.getFloatIdForCreationState(creationState),
+                        bottom.getFloatIdForCreationState(creationState),
+                    )
+                }
+            )
         buffer.addRoots(op, left, top, right, bottom)
     }
 
@@ -662,7 +681,7 @@ public class RemoteCanvas(
 
         val op =
             buffer.recordRenderingOp(
-                CanvasOp.Draw { writer ->
+                CanvasOp.Draw(switchesCanvas = true) { writer ->
                     writer.drawOnBitmap(bitmapId, 1, 0)
                     forceSendingPaint = true
                     childSpan.record(writer, creationState)
@@ -688,7 +707,7 @@ public class RemoteCanvas(
 
         val op =
             buffer.recordRenderingOp(
-                CanvasOp.Draw { writer ->
+                CanvasOp.Draw(switchesCanvas = true) { writer ->
                     writer.drawOnBitmap(bitmapId, 0, clearColor)
                     forceSendingPaint = true
                     childSpan.record(writer, creationState)
@@ -709,19 +728,13 @@ public class RemoteCanvas(
         step: RemoteFloat,
         body: (index: RemoteFloat) -> Unit,
     ) {
-        val loopVariableId = document.createFloatId()
-        val loopVariable = MutableRemoteFloat(loopVariableId)
+        val loopVariable = MutableRemoteFloat()
         val childSpan = buffer.recordInChildSpan { body(loopVariable) }
 
         val op =
             buffer.recordRenderingOp(
                 CanvasOp.Draw { writer ->
-                    writer.loop(
-                        Utils.idFromNan(loopVariableId),
-                        from.floatId,
-                        step.floatId,
-                        until.floatId,
-                    ) {
+                    writer.loop(loopVariable.id, from.floatId, step.floatId, until.floatId) {
                         childSpan.record(writer, creationState)
                     }
                 }
