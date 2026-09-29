@@ -76,7 +76,7 @@ class SpatialSoundPoolTesterTest {
     fun playAsPointSourceResult_getsAndSetsValue() {
         val tester = testRule.spatialSoundPoolTester
         val entity = Entity.create(session, "testEntity")
-        val params = PointSourceParams()
+        val params = PointSourceParams.Builder().build()
         val soundId = 1
 
         tester.playAsPointSourceResult = 42

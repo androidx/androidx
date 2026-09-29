@@ -106,7 +106,7 @@ class SpatialAudioActivity : AppCompatActivity() {
             val movableComponent = MovableComponent.createSystemMovable(session, scaleInZ = false)
             soundEntity.addComponent(movableComponent)
 
-            val pointSourceParams = PointSourceParams()
+            val pointSourceParams = PointSourceParams.Builder().build()
             val soundFieldAttributes =
                 SoundFieldAttributes(SpatializerConstants.AmbisonicsOrder.FIRST_ORDER)
 
@@ -196,7 +196,7 @@ class SpatialAudioActivity : AppCompatActivity() {
             audioTrackDefaultSetParams.setOnClickListener {
                 audioTrackDefaultPlayer.setPointSourceParams(
                     session,
-                    PointSourceParams(),
+                    PointSourceParams.Builder().build(),
                     soundEntity,
                 )
             }
@@ -209,7 +209,7 @@ class SpatialAudioActivity : AppCompatActivity() {
                     Environment.getExternalStorageDirectory().path + "/Download/tiger_16db_raw.wav",
                     sampleRate = 48000,
                     session,
-                    PointSourceParams(),
+                    PointSourceParams.Builder().build(),
                     session.scene.mainPanelEntity,
                 )
             audioTrackPointPlayer.configureTrack()
@@ -222,7 +222,7 @@ class SpatialAudioActivity : AppCompatActivity() {
             audioTrackParamsButton.setOnClickListener {
                 audioTrackPointPlayer.setPointSourceParams(
                     session,
-                    PointSourceParams(),
+                    PointSourceParams.Builder().build(),
                     soundEntity,
                 )
             }
@@ -249,7 +249,7 @@ class SpatialAudioActivity : AppCompatActivity() {
             audioTrackSoundFieldParamsButton.setOnClickListener {
                 audioTrackSoundFieldPlayer.setPointSourceParams(
                     session,
-                    PointSourceParams(),
+                    PointSourceParams.Builder().build(),
                     soundEntity,
                 )
             }
@@ -390,8 +390,8 @@ class SpatialAudioActivity : AppCompatActivity() {
                     AudioTrack.Builder()
                         .setAudioAttributes(
                             AudioAttributes.Builder()
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN)
+                                .setUsage(AudioAttributes.USAGE_GAME)
                                 .build()
                         )
                         .setAudioFormat(

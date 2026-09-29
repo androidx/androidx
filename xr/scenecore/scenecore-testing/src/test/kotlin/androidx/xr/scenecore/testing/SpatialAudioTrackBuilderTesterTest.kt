@@ -79,7 +79,7 @@ class SpatialAudioTrackBuilderTesterTest {
 
     @Test
     fun getPointSourceParams_setPointSourceParams_setsSuccessfully() {
-        val pointSourceParams = PointSourceParams()
+        val pointSourceParams = PointSourceParams.Builder().build()
         val entity = Entity.create(session, "test")
 
         assertThat(underTest.getPointSourceParams(builder)).isNull()
@@ -109,7 +109,7 @@ class SpatialAudioTrackBuilderTesterTest {
     fun isSoundPlayedOnEntity_setPointSourceParams_returnsTrueForConfiguredEntity() {
         val entity = Entity.create(session, "test")
         val otherEntity = Entity.create(session, "other_entity")
-        val pointSourceParams = PointSourceParams()
+        val pointSourceParams = PointSourceParams.Builder().build()
 
         SpatialAudioTrackBuilder.setPointSourceParams(session, builder, pointSourceParams, entity)
 

@@ -20,6 +20,8 @@ package androidx.xr.scenecore
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.PlaneLabel
 import androidx.xr.arcore.PlaneType
+import androidx.xr.runtime.RequiresSpatialApi
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
@@ -32,6 +34,7 @@ import androidx.xr.scenecore.runtime.AnchorEntity as RtAnchorEntity
 import androidx.xr.scenecore.runtime.AnchorPlacement as RtAnchorPlacement
 import androidx.xr.scenecore.runtime.Dimensions as RtDimensions
 import androidx.xr.scenecore.runtime.DirectExecutor
+import androidx.xr.scenecore.runtime.DistanceAttenuation as RtDistanceAttenuation
 import androidx.xr.scenecore.runtime.HitTestResult as RtHitTestResult
 import androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceType as RtHitTestSurfaceType
 import androidx.xr.scenecore.runtime.InputEvent as RtInputEvent
@@ -42,6 +45,7 @@ import androidx.xr.scenecore.runtime.PerceivedResolutionResult as RtPerceivedRes
 import androidx.xr.scenecore.runtime.PixelDimensions as RtPixelDimensions
 import androidx.xr.scenecore.runtime.PlaneSemantic as RtPlaneSemantic
 import androidx.xr.scenecore.runtime.PlaneType as RtPlaneType
+import androidx.xr.scenecore.runtime.PointSourceParams as RtPointSourceParams
 import androidx.xr.scenecore.runtime.ResizeEvent as RtResizeEvent
 import androidx.xr.scenecore.runtime.ScenePose.HitTestFilter as RtHitTestFilter
 import androidx.xr.scenecore.runtime.SceneRuntime
@@ -561,4 +565,87 @@ internal fun RtTriangleMesh.toTriangleMesh(): TriangleMesh {
 
 internal fun TriangleMesh.toRtTriangleMesh(): RtTriangleMesh {
     return RtTriangleMesh(positions = positions, texCoords = texCoords, indices = indices)
+}
+
+/* Spatial Audio */
+@RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
+internal fun RtDistanceAttenuation.toDistanceAttenuation(): DistanceAttenuation {
+    return when (distanceRolloffModel) {
+        RtDistanceAttenuation.ROLLOFF_MODEL_AUTO -> DistanceAttenuation.Auto
+        RtDistanceAttenuation.ROLLOFF_MODEL_NONE -> DistanceAttenuation.None
+        RtDistanceAttenuation.ROLLOFF_MODEL_NATURAL -> DistanceAttenuation.Natural(minDistance)
+        RtDistanceAttenuation.ROLLOFF_MODEL_LINEAR ->
+            DistanceAttenuation.Linear(minDistance, maxDistance, gainAtMaxDistance)
+        RtDistanceAttenuation.ROLLOFF_MODEL_CUSTOM ->
+            DistanceAttenuation.Custom(minDistance, maxDistance, gainAtMaxDistance, rolloffFactor)
+        else -> DistanceAttenuation.Auto
+    }
+}
+
+/** Extension function that converts a [RtPointSourceParams] to a [PointSourceParams]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RtPointSourceParams.toPointSourceParams(): PointSourceParams {
+    return PointSourceParams(this)
+}
+
+/** Converts a [DistanceAttenuation] to a [RtDistanceAttenuation]. */
+@RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
+internal fun distanceAttenuationToRtDistanceAttenuation(
+    distanceAttenuation: DistanceAttenuation
+): RtDistanceAttenuation {
+    return when (distanceAttenuation) {
+        is DistanceAttenuation.Auto ->
+            RtDistanceAttenuation(
+                RtDistanceAttenuation.ROLLOFF_MODEL_AUTO,
+                1.0f,
+                500.0f,
+                0.0f,
+                1.0f,
+            )
+
+        is DistanceAttenuation.None ->
+            RtDistanceAttenuation(
+                RtDistanceAttenuation.ROLLOFF_MODEL_NONE,
+                1.0f,
+                500.0f,
+                1.0f,
+                0.0f,
+            )
+
+        is DistanceAttenuation.Natural ->
+            RtDistanceAttenuation(
+                RtDistanceAttenuation.ROLLOFF_MODEL_NATURAL,
+                distanceAttenuation.minDistance,
+                500.0f,
+                0.0f,
+                1.0f,
+            )
+
+        is DistanceAttenuation.Linear ->
+            RtDistanceAttenuation(
+                RtDistanceAttenuation.ROLLOFF_MODEL_LINEAR,
+                distanceAttenuation.minDistance,
+                distanceAttenuation.maxDistance,
+                distanceAttenuation.gainAtMaxDistance,
+                1.0f,
+            )
+
+        is DistanceAttenuation.Custom ->
+            RtDistanceAttenuation(
+                RtDistanceAttenuation.ROLLOFF_MODEL_CUSTOM,
+                distanceAttenuation.minDistance,
+                distanceAttenuation.maxDistance,
+                distanceAttenuation.gainAtMaxDistance,
+                distanceAttenuation.rolloffFactor,
+            )
+
+        else ->
+            RtDistanceAttenuation(
+                RtDistanceAttenuation.ROLLOFF_MODEL_AUTO,
+                1.0f,
+                500.0f,
+                0.0f,
+                1.0f,
+            )
+    }
 }

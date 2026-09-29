@@ -55,7 +55,7 @@ public object SpatialAudioTrack {
     public fun getPointSourceParams(session: Session, track: AudioTrack): PointSourceParams? {
         val rtAttributes =
             session.sceneRuntime.audioTrackExtensionsWrapper.getPointSourceParams(track)
-        return rtAttributes?.toPointSourceParams(session)
+        return rtAttributes?.toPointSourceParams()
     }
 
     /**

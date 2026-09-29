@@ -16,7 +16,10 @@
 package androidx.xr.scenecore.spatial.core
 
 import android.media.AudioTrack
+import androidx.xr.runtime.SpatialApiVersionHelper
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.scenecore.runtime.AudioTrackExtensionsWrapper
+import androidx.xr.scenecore.runtime.DistanceAttenuation
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.SoundFieldAttributes
@@ -27,9 +30,27 @@ internal class AudioTrackExtensionsWrapperImpl(
     private val audioTrackExtensions: AudioTrackExtensions
 ) : AudioTrackExtensionsWrapper {
     override fun getPointSourceParams(track: AudioTrack): PointSourceParams? {
-        audioTrackExtensions.getPointSourceParams(track) ?: return null
+        val extParams = audioTrackExtensions.getPointSourceParams(track) ?: return null
 
-        return PointSourceParams()
+        if (SpatialApiVersionHelper.spatialApiVersion >= SpatialApiVersions.SPATIAL_API_V4) {
+            val distanceAttenuation: DistanceAttenuation =
+                DistanceAttenuation(
+                    extParams.underlyingObject.distanceAttenuationRolloffModel,
+                    extParams.underlyingObject.distanceAttenuationMinDistance,
+                    extParams.underlyingObject.distanceAttenuationMaxDistance,
+                    extParams.underlyingObject.distanceAttenuationGainAtMaxDistance,
+                    extParams.underlyingObject.distanceAttenuationRolloffFactor,
+                )
+
+            return PointSourceParams(
+                distanceAttenuation,
+                extParams.underlyingObject.directivityBalance,
+                extParams.underlyingObject.directivitySharpness,
+                extParams.underlyingObject.spread,
+            )
+        } else { // Earlier API versions
+            return PointSourceParams()
+        }
     }
 
     override fun getSoundFieldAttributes(track: AudioTrack): SoundFieldAttributes? {
