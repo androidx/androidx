@@ -599,6 +599,26 @@ abstract class VideoRecordingTestBase(
         recordingSession.createRecording(recorder = recorder).recordAndVerify()
     }
 
+    // TODO(b/340406044): Enable the test for stream sharing use case.
+    @FirstAvailableCameraOnly
+    @IgnoreStreamSharing
+    @Test
+    fun persistentRecording_unbindAndRebind_producesValidFile() {
+        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+
+        checkAndBindUseCases(preview, videoCapture)
+        val recording =
+            recordingSession.createRecording(asPersistentRecording = true).startAndVerify()
+
+        instrumentation.runOnMainSync { cameraProvider.unbindAll() }
+        checkAndBindUseCases(preview, videoCapture)
+
+        recording.clearEvents()
+        recording.verifyStatus()
+
+        recording.stopAndVerify()
+    }
+
     @FirstAvailableCameraOnly
     @Test
     fun canRecordWithCorrectTransformation() {

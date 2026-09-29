@@ -1163,6 +1163,105 @@ class RecorderTest {
     }
 
     @Test
+    fun persistentRecording_stopAfterSourceInactive_finalizes() {
+        val recorder = createRecorder()
+        val recording =
+            createRecording(recorder, asPersistentRecording = true, withAudio = true)
+                .startAndVerify()
+                .sendFrames()
+
+        recorder.onSourceStateChanged(INACTIVE)
+        latestSurfaceRequest?.deferrableSurface?.close()
+        idleMainLooper()
+
+        recording.stopAndVerify()
+    }
+
+    @Test
+    fun persistentRecording_withoutAudio_stopAfterSourceInactive_finalizes() {
+        val recorder = createRecorder()
+        val recording =
+            createRecording(recorder, asPersistentRecording = true, withAudio = false)
+                .startAndVerify()
+                .sendFrames()
+
+        recorder.onSourceStateChanged(INACTIVE)
+        latestSurfaceRequest?.deferrableSurface?.close()
+        idleMainLooper()
+
+        recording.stopAndVerify()
+    }
+
+    @Test
+    fun persistentRecording_canContinueRecordingAfterRebind() {
+        val recorder = createRecorder()
+        val recording =
+            createRecording(recorder, asPersistentRecording = true, withAudio = true)
+                .startAndVerify()
+                .sendFrames()
+
+        recorder.onSourceStateChanged(INACTIVE)
+        latestSurfaceRequest?.deferrableSurface?.close()
+        idleMainLooper()
+
+        recorder.sendSurfaceRequest()
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        idleMainLooper()
+
+        recording.clearEvents()
+        recording.sendFrames(3)
+        recording.verifyStatus(statusCount = 3)
+
+        recording.stopAndVerify()
+    }
+
+    @Test
+    fun persistentRecording_canContinueRecordingPausedAfterRebind() {
+        val recorder = createRecorder()
+        val recording =
+            createRecording(recorder, asPersistentRecording = true)
+                .startAndVerify()
+                .sendFrames()
+                .pauseAndVerify()
+
+        recorder.onSourceStateChanged(INACTIVE)
+        latestSurfaceRequest?.deferrableSurface?.close()
+        idleMainLooper()
+
+        recorder.sendSurfaceRequest()
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        idleMainLooper()
+
+        recording.resumeAndVerify().sendFrames(3).stopAndVerify()
+    }
+
+    @Test
+    fun persistentRecording_videoEncoderErrorWhileStopping_finalizes() {
+        val recorder =
+            createRecorder(
+                videoEncoderFactory =
+                    EncoderFactory { _, _, _ ->
+                        val fakeEncoder = FakeEncoder().also { latestVideoEncoder = it }
+                        object : Encoder by fakeEncoder {
+                            override fun stop(expectedStopTimeUs: Long) {
+                                fakeEncoder.triggerEncodeError(
+                                    EncodeException.ERROR_UNKNOWN,
+                                    "Test error",
+                                )
+                            }
+                        }
+                    }
+            )
+        val recording =
+            createRecording(recorder, asPersistentRecording = true).startAndVerify().sendFrames()
+
+        recording.stop()
+        idleMainLooper()
+
+        recording.verifyFinalize(error = Finalize.ERROR_ENCODING_FAILED)
+    }
+
+    @Test
     fun recordingWithSetTargetVideoEncodingBitRate() {
         testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(6_000_000)
     }
