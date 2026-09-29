@@ -831,7 +831,27 @@ internal class BackupRestoreControllerImpl(
     override suspend fun clearAppData(): BackupRestoreController {
         val selector = DeviceSelector.fromSerialNumber(serialNumber)
         @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, "pm clear $applicationId")
+        val output = adbSession.deviceServices.shellAsText(selector, "pm clear $applicationId")
+        // `pm clear` prints "Success" on stdout when the data was removed. Otherwise it prints
+        // "Failed", or the exception that stopped it, on stderr with a non-zero exit code.
+        // Continuing after a failed clear would restore onto the seeded data and let verification
+        // pass without a restore having taken place.
+        val succeeded =
+            output.exitCode == 0 &&
+                output.stdout.lineSequence().any { it.trim().equals("Success", ignoreCase = true) }
+        if (!succeeded) {
+            val details =
+                listOf(output.stderr, output.stdout)
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() }
+                    .distinct()
+                    .joinToString(" ")
+            val detailsSuffix = if (details.isNotEmpty()) ": $details" else ""
+            throw IOException(
+                "Failed to clear app data for $applicationId " +
+                    "(exit code ${output.exitCode})$detailsSuffix"
+            )
+        }
         return this
     }
 
