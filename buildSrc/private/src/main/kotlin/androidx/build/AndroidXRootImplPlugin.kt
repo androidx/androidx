@@ -26,6 +26,9 @@ import androidx.build.intellij.registerIntelliJTask
 import androidx.build.license.ValidateLicensesExistTask
 import androidx.build.logging.TERMINAL_RED
 import androidx.build.logging.TERMINAL_RESET
+import androidx.build.pinneddependencies.PINNED_DEPENDENCY_REPORTS_CATEGORY
+import androidx.build.pinneddependencies.TIP_OF_TREE_EXEMPTIONS_FILE_NAME
+import androidx.build.pinneddependencies.UpdateTipOfTreeExemptionsTask
 import androidx.build.playground.ValidateIntegrationPatches
 import androidx.build.playground.VerifyPlaygroundGradleConfigurationTask
 import androidx.build.studio.registerStudioTask
@@ -131,6 +134,16 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                 task.zipMap.set(computeArtifactMap(artifactCollection.releaseIncoming, distDir))
                 task.sbomMap.set(computeArtifactMap(artifactCollection.sbomIncoming, distDir))
             }
+
+        tasks.register(
+            UpdateTipOfTreeExemptionsTask.TASK_NAME,
+            UpdateTipOfTreeExemptionsTask::class.java,
+        ) { task ->
+            task.reportFiles.from(
+                artifactCollection.pinnedDependencyReportsIncoming.map { it.files }
+            )
+            task.exemptionsFile.set(layout.projectDirectory.file(TIP_OF_TREE_EXEMPTIONS_FILE_NAME))
+        }
 
         tasks.register(BUILD_ON_SERVER_TASK, BuildOnServerTask::class.java) { task ->
             task.cacheEvenIfNoOutputs()
@@ -338,10 +351,16 @@ private fun Project.configureArtifactConfigurations(): RootArtifactCollection {
     val releaseProvider =
         registerArtifactConfiguration("releaseArtifacts", "androidx-release-artifacts")
     val sbomProvider = registerArtifactConfiguration("sbomArtifacts", "androidx-sbom-artifacts")
+    val pinnedDependencyReportsProvider =
+        registerArtifactConfiguration(
+            "pinnedDependencyReports",
+            PINNED_DEPENDENCY_REPORTS_CATEGORY,
+        )
 
     subprojects { sub ->
         dependencies.add(releaseProvider.name, dependencies.create(sub))
         dependencies.add(sbomProvider.name, dependencies.create(sub))
+        dependencies.add(pinnedDependencyReportsProvider.name, dependencies.create(sub))
     }
 
     val releaseView = releaseProvider.map { conf ->
@@ -349,12 +368,16 @@ private fun Project.configureArtifactConfigurations(): RootArtifactCollection {
     }
 
     val sbomView = sbomProvider.map { conf -> conf.incoming.artifactView { it.lenient(true) } }
+    val pinnedDependencyReportsView = pinnedDependencyReportsProvider.map { conf ->
+        conf.incoming.artifactView { it.lenient(true) }
+    }
     val releaseFiles = objects.fileCollection().from(releaseView.map { it.files })
 
     return RootArtifactCollection(
         releaseArtifacts = releaseFiles,
         releaseIncoming = releaseView,
         sbomIncoming = sbomView,
+        pinnedDependencyReportsIncoming = pinnedDependencyReportsView,
     )
 }
 
@@ -379,6 +402,7 @@ private class RootArtifactCollection(
     val releaseArtifacts: FileCollection,
     val releaseIncoming: Provider<ArtifactView>,
     val sbomIncoming: Provider<ArtifactView>,
+    val pinnedDependencyReportsIncoming: Provider<ArtifactView>,
 )
 
 /* Computes a map of projectPath to the artifact's path relative to the distDir. */
