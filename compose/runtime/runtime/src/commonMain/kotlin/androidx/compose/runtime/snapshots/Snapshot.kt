@@ -255,7 +255,7 @@ public sealed class Snapshot(
      * Call while holding a `sync {}` lock.
      */
     internal open fun closeLocked() {
-        openSnapshots = openSnapshots.clear(snapshotId)
+        openNonGlobalSnapshots = openNonGlobalSnapshots.clear(snapshotId)
     }
 
     /**
@@ -727,7 +727,9 @@ public sealed class Snapshot(
             }
         }
 
-        @InternalComposeApi public fun openSnapshotCount(): Int = openSnapshots.toList().size
+        @InternalComposeApi
+        public fun openSnapshotCount(): Int =
+            openNonGlobalSnapshots.toList().size + /* global snapshot */ 1
 
         @PublishedApi
         internal fun removeCurrent(): Snapshot? {
@@ -820,7 +822,7 @@ internal constructor(
                 sync {
                     val newId = nextSnapshotId
                     nextSnapshotId += 1
-                    openSnapshots = openSnapshots.set(newId)
+                    openNonGlobalSnapshots = openNonGlobalSnapshots.set(newId)
                     val currentInvalid = invalid
                     this.invalid = currentInvalid.set(newId)
                     NestedMutableSnapshot(
@@ -864,12 +866,12 @@ internal constructor(
         // applied since the snapshot was taken.
         val modified = modified
         val optimisticMerges =
-            if (modified != null) {
+            if (modified != null && modified.isNotEmpty()) {
                 val globalSnapshot = globalSnapshot
                 optimisticMerges(
                     globalSnapshot.snapshotId,
                     this,
-                    openSnapshots.clear(globalSnapshot.snapshotId),
+                    openNonGlobalSnapshots,
                 )
             } else null
 
@@ -893,7 +895,7 @@ internal constructor(
                         nextSnapshotId,
                         modified,
                         optimisticMerges,
-                        openSnapshots.clear(globalSnapshot.snapshotId),
+                        openNonGlobalSnapshots,
                     )
                 if (result != SnapshotApplyResult.Success) return result
 
@@ -975,7 +977,7 @@ internal constructor(
             advance {
                 sync {
                     val readonlyId = nextSnapshotId.also { nextSnapshotId += 1 }
-                    openSnapshots = openSnapshots.set(readonlyId)
+                    openNonGlobalSnapshots = openNonGlobalSnapshots.set(readonlyId)
                     NestedReadonlySnapshot(
                         snapshotId = readonlyId,
                         invalid = invalid.addRange(previousId + 1, readonlyId),
@@ -1007,7 +1009,7 @@ internal constructor(
 
     override fun closeLocked() {
         // Remove itself and previous ids from the open set.
-        openSnapshots = openSnapshots.clear(snapshotId).andNot(previousIds)
+        openNonGlobalSnapshots = openNonGlobalSnapshots.clear(snapshotId).andNot(previousIds)
     }
 
     override fun releasePinnedSnapshotsForCloseLocked() {
@@ -1194,7 +1196,7 @@ internal constructor(
                 val previousId = snapshotId
                 sync {
                     snapshotId = nextSnapshotId.also { nextSnapshotId += 1 }
-                    openSnapshots = openSnapshots.set(snapshotId)
+                    openNonGlobalSnapshots = openNonGlobalSnapshots.set(snapshotId)
                 }
                 invalid = invalid.addRange(previousId + 1, snapshotId)
             }
@@ -2115,9 +2117,10 @@ internal inline fun <T> sync(block: () -> T): T {
 // The following variables should only be written when sync is taken
 
 /**
- * A set of snapshots that are currently open and should be considered invalid for new snapshots.
+ * A set of non-global snapshots that are currently open and should be considered invalid for new
+ * snapshots.
  */
-private var openSnapshots = SnapshotIdSet.EMPTY
+private var openNonGlobalSnapshots = SnapshotIdSet.EMPTY
 
 /** The first snapshot created must be at least on more than the [Snapshot.PreexistingSnapshotId] */
 private var nextSnapshotId = Snapshot.PreexistingSnapshotId.toSnapshotId() + 1
@@ -2144,10 +2147,9 @@ private var globalWriteObservers = emptyList<(Any) -> Unit>()
 
 private val globalSnapshot =
     GlobalSnapshot(
-            snapshotId = nextSnapshotId.also { nextSnapshotId += 1 },
-            invalid = SnapshotIdSet.EMPTY,
-        )
-        .also { openSnapshots = openSnapshots.set(it.snapshotId) }
+        snapshotId = nextSnapshotId.also { nextSnapshotId += 1 },
+        invalid = SnapshotIdSet.EMPTY,
+    )
 
 // Unused, kept for API compat
 @Suppress("unused") @PublishedApi internal val snapshotInitializer: Snapshot = globalSnapshot
@@ -2156,19 +2158,16 @@ private fun <T> resetGlobalSnapshotLocked(
     globalSnapshot: GlobalSnapshot,
     block: (invalid: SnapshotIdSet) -> T,
 ): T {
-    val snapshotId = globalSnapshot.snapshotId
-    val result = block(openSnapshots.clear(snapshotId))
+    val result = block(openNonGlobalSnapshots)
 
     val nextGlobalSnapshotId = nextSnapshotId
     nextSnapshotId += 1
 
-    openSnapshots = openSnapshots.clear(snapshotId)
     globalSnapshot.snapshotId = nextGlobalSnapshotId
-    globalSnapshot.invalid = openSnapshots
+    globalSnapshot.invalid = openNonGlobalSnapshots
     globalSnapshot.writeCount = 0
     globalSnapshot.modified = null
     globalSnapshot.releasePinnedSnapshotLocked()
-    openSnapshots = openSnapshots.set(nextGlobalSnapshotId)
 
     return result
 }
@@ -2218,13 +2217,13 @@ private fun advanceGlobalSnapshot() = advanceGlobalSnapshot(emptyLambda)
 private fun <T : Snapshot> takeNewSnapshot(block: (invalid: SnapshotIdSet) -> T): T =
     advanceGlobalSnapshot { invalid ->
         val result = block(invalid)
-        sync { openSnapshots = openSnapshots.set(result.snapshotId) }
+        sync { openNonGlobalSnapshots = openNonGlobalSnapshots.set(result.snapshotId) }
         result
     }
 
 private fun validateOpen(snapshot: Snapshot) {
-    val openSnapshots = openSnapshots
-    if (!openSnapshots.get(snapshot.snapshotId)) {
+    val openNonGlobalSnapshots = openNonGlobalSnapshots
+    if (!openNonGlobalSnapshots.get(snapshot.snapshotId)) {
         error(
             "Snapshot is not open: snapshotId=${
                 snapshot.snapshotId
