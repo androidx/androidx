@@ -21,6 +21,8 @@ package androidx.compose.remote.player.compose.embedded.layout
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -36,9 +38,7 @@ import androidx.compose.remote.player.compose.embedded.LocalAnimatedVisibilitySc
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.LocalSharedTransitionScope
 import androidx.compose.remote.player.compose.embedded.RcPlayerComponent
-import androidx.compose.remote.player.compose.embedded.animationSpecReflection
 import androidx.compose.remote.player.compose.embedded.horizontalPositioningReflection
-import androidx.compose.remote.player.compose.embedded.mapEasing
 import androidx.compose.remote.player.compose.embedded.verticalPositioningReflection
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -82,8 +82,9 @@ internal fun RcPlayerFitBoxLayout(layout: FitBoxLayout, modifier: Modifier) {
         return
     }
 
-    val duration = layout.animationSpecReflection?.motionDuration?.toInt() ?: 300
-    val easing = mapEasing(layout.animationSpecReflection?.motionEasingType ?: 0)
+    val transitionConfig = rememberLayoutTransitionConfig(layout, children)
+    val duration = transitionConfig.duration
+    val easing = transitionConfig.easing
     val alignment =
         mapFitBoxAlignment(
             layout.horizontalPositioningReflection,
@@ -146,34 +147,55 @@ internal fun RcPlayerFitBoxLayout(layout: FitBoxLayout, modifier: Modifier) {
             }
         }
 
-        // Phase 2 (Content): Subcompose the chosen alternative with AnimatedContent.
-        // targetState is provided directly by 'chosen' without writing mutable Compose State in
-        // measure.
+        // Phase 2 (Content): Subcompose the chosen alternative. When animation is disabled
+        // (duration <= 0), render a plain Box directly without SharedTransitionLayout or
+        // AnimatedContent overhead.
         val contentMeasurables =
             subcompose(FitBoxSlot.Content) {
-                SharedTransitionLayout {
-                    AnimatedContent(
-                        targetState = chosen,
-                        contentAlignment = alignment,
-                        label = "RcPlayerFitBoxLayout",
-                        transitionSpec = {
-                            fadeIn(
-                                animationSpec = tween(durationMillis = duration, easing = easing)
-                            ) togetherWith
-                                fadeOut(
-                                    animationSpec =
-                                        tween(durationMillis = duration, easing = easing)
-                                )
-                        },
-                    ) { currentIndex ->
-                        CompositionLocalProvider(
-                            LocalSharedTransitionScope provides this@SharedTransitionLayout,
-                            LocalAnimatedVisibilityScope provides this@AnimatedContent,
-                        ) {
-                            Box(contentAlignment = alignment) {
-                                RcPlayerComponent(children[currentIndex])
+                if (duration <= 0) {
+                    Box(contentAlignment = alignment) { RcPlayerComponent(children[chosen]) }
+                } else {
+                    @Composable
+                    fun AnimatedFitBoxContent(sharedTransitionScope: SharedTransitionScope?) {
+                        AnimatedContent(
+                            targetState = chosen,
+                            contentAlignment = alignment,
+                            label = "RcPlayerFitBoxLayout",
+                            transitionSpec = {
+                                (fadeIn(
+                                        animationSpec =
+                                            tween(durationMillis = duration, easing = easing)
+                                    ) togetherWith
+                                        fadeOut(
+                                            animationSpec =
+                                                tween(durationMillis = duration, easing = easing)
+                                        ))
+                                    .using(
+                                        SizeTransform(clip = false) { _, _ ->
+                                            tween(durationMillis = duration, easing = easing)
+                                        }
+                                    )
+                            },
+                        ) { currentIndex ->
+                            CompositionLocalProvider(
+                                LocalSharedTransitionScope provides sharedTransitionScope,
+                                LocalAnimatedVisibilityScope provides this@AnimatedContent,
+                            ) {
+                                Box(contentAlignment = alignment) {
+                                    RcPlayerComponent(children[currentIndex])
+                                }
                             }
                         }
+                    }
+
+                    if (transitionConfig.hasSharedElements) {
+                        SharedTransitionLayout {
+                            AnimatedFitBoxContent(
+                                sharedTransitionScope = this@SharedTransitionLayout
+                            )
+                        }
+                    } else {
+                        AnimatedFitBoxContent(sharedTransitionScope = null)
                     }
                 }
             }
