@@ -547,7 +547,7 @@ public object Shell {
             getPidsForProcess(processName).map { pid ->
                 ProcessPid(pid = pid, processName = processName)
             }
-        if (!processes.isEmpty()) {
+        if (processes.isNotEmpty()) {
             killProcessesAndWait(
                 processes,
                 waitPollPeriodMs = waitPollPeriodMs,
