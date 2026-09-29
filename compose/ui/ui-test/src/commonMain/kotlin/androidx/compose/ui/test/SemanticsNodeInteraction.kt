@@ -50,11 +50,12 @@ constructor(
 
     /**
      * Anytime we refresh semantics we capture it here. This is then presented to the user in case
-     * their tests fails deu to a missing node. This helps to see what was the last state of the
-     * node before it disappeared. We dump it to string because trying to dump the node later can
-     * result in failure as it gets detached from its layout.
+     * their tests fails due to a missing node. This helps to see what was the last state of the
+     * node before it disappeared. We take a [SemanticsNodeSnapshot] because trying to dump the node
+     * later can result in failure as it gets detached from its layout. The snapshot is only printed
+     * if the node goes missing.
      */
-    private var lastSeenSemantics: String? = null
+    private var lastSeenSemantics: SemanticsNodeSnapshot? = null
 
     internal fun fetchSemanticsNodes(
         atLeastOneRootRequired: Boolean,
@@ -166,7 +167,7 @@ constructor(
                     buildErrorMessageForNodeMissingInTree(
                         errorMessage = finalErrorMessage,
                         selector = selector,
-                        lastSeenSemantics = lastSeenSemantics!!,
+                        lastSeenSemantics = lastSeenSemantics!!.printToString(),
                     )
                 )
             }
@@ -186,7 +187,7 @@ constructor(
             )
         }
 
-        lastSeenSemantics = result.selectedNodes.first().printToString()
+        lastSeenSemantics = SemanticsNodeSnapshot(result.selectedNodes.first(), maxDepth = 0)
         return result.selectedNodes.first()
     }
 
