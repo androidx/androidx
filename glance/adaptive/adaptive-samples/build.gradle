@@ -14,36 +14,39 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `createProject` gradle task (./gradlew createProject)
- *
- * Please use the task when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
+    id("com.android.application")
     id("AndroidXComposePlugin")
-}
-
-dependencies {
-    implementation(project(":glance:adaptive:adaptive-appwidget"))
-    implementation(project(":glance:adaptive:adaptive-core"))
-    implementation(project(":glance:adaptive:adaptive-wear"))
-    implementation(project(":glance:glance"))
-    implementation(project(":glance:glance-appwidget"))
 }
 
 android {
     namespace = "androidx.glance.adaptive.samples"
-    compileSdk { version = release(37) }
+    // Required by project(":compose:ui:ui") and project(":compose:foundation:foundation") AAR metadata
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
+
+    defaultConfig {
+        minSdk { version = release(29) }
+    }
+}
+
+dependencies {
+    implementation(project(":glance:adaptive:adaptive-core"))
+    implementation(project(":glance:adaptive:adaptive-appwidget"))
+    implementation(project(":activity:activity"))
+    implementation(project(":activity:activity-compose"))
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:foundation:foundation-layout"))
+    implementation(project(":compose:material3:material3"))
+    implementation(project(":lifecycle:lifecycle-runtime"))
 }
 
 androidx {
     name = "Glance Adaptive Samples"
     type = SoftwareType.SAMPLES
     inceptionYear = "2026"
-    description = "Contains the sample code for Glance Adaptive Widgets"
+    description = "Contains the sample code and demo application for Glance Adaptive Widgets"
 }
