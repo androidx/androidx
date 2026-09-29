@@ -17,6 +17,7 @@
 package androidx.ink.strokes
 
 import androidx.ink.brush.ExperimentalInkAnimationApi
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
@@ -25,7 +26,11 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 /** Tests [ImmutableStrokeInputBatch] and [MutableStrokeInputBatch]. */
-@OptIn(InkInternalOnlyApi::class, ExperimentalInkAnimationApi::class)
+@OptIn(
+    InkInternalOnlyApi::class,
+    ExperimentalInkAnimationApi::class,
+    ExperimentalInkBarrelTwistApi::class,
+)
 class StrokeInputBatchTest {
 
     private val builder = MutableStrokeInputBatch()
@@ -40,6 +45,7 @@ class StrokeInputBatchTest {
             pressure = 0.5f,
             tiltRadians = 0.5f,
             orientationRadians = 0.5f,
+            barrelTwistRadians = 0.5f,
         )
 
     @Test
@@ -132,6 +138,18 @@ class StrokeInputBatchTest {
             )
         assertThat(builder.size).isEqualTo(0)
         assertThat(builder.toImmutable().size).isEqualTo(0)
+
+        // Bad barrel twist.
+        val badBarrelTwist =
+            StrokeInput.create(1f, 1f, 1L, InputToolType.STYLUS, barrelTwistRadians = 10000f)
+        val barrelTwistError =
+            assertFailsWith<IllegalArgumentException> { builder.add(badBarrelTwist) }
+        assertThat(barrelTwistError.message)
+            .contains(
+                "`StrokeInput::barrel_twist` must be -1 or in the range [0, 2 * pi]. Got: 3183.1π"
+            )
+        assertThat(builder.size).isEqualTo(0)
+        assertThat(builder.toImmutable().size).isEqualTo(0)
     }
 
     @Test
@@ -170,8 +188,19 @@ class StrokeInputBatchTest {
     @Test
     fun add_explodedInput_withBadValues_throwsIllegalArgumentException() {
         assertFailsWith<IllegalArgumentException> {
-            // Bad tilt, pressure, and orientation.
-            builder.add(InputToolType.STYLUS, 1f, 1f, 1L, 10000f, 1000f, 1000f)
+            builder.add(InputToolType.STYLUS, 1f, 1f, 1L, strokeUnitLengthCm = -0.5f)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            builder.add(InputToolType.STYLUS, 1f, 1f, 1L, pressure = 1000f)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            builder.add(InputToolType.STYLUS, 1f, 1f, 1L, tiltRadians = 1000f)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            builder.add(InputToolType.STYLUS, 1f, 1f, 1L, orientationRadians = 1000f)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            builder.add(InputToolType.STYLUS, 1f, 1f, 1L, barrelTwistRadians = 1000f)
         }
         assertThat(builder.size).isEqualTo(0)
 
@@ -426,24 +455,32 @@ class StrokeInputBatchTest {
     }
 
     @Test
-    fun getBaseAnimationPhase_returnsZeroIfUnset() {
-        assertThat(builder.getBaseAnimationPhase()).isEqualTo(0.0f)
-        assertThat(builder.toImmutable().getBaseAnimationPhase()).isEqualTo(0.0f)
+    fun getBasePaintAnimationPhase_returnsZeroIfUnset() {
+        assertThat(builder.getBasePaintAnimationPhase()).isEqualTo(0.0f)
+        assertThat(builder.toImmutable().getBasePaintAnimationPhase()).isEqualTo(0.0f)
 
         builder.add(InputToolType.MOUSE, 1f, 2f, 3L)
-        assertThat(builder.getBaseAnimationPhase()).isEqualTo(0.0f)
-        assertThat(builder.toImmutable().getBaseAnimationPhase()).isEqualTo(0.0f)
+        assertThat(builder.getBasePaintAnimationPhase()).isEqualTo(0.0f)
+        assertThat(builder.toImmutable().getBasePaintAnimationPhase()).isEqualTo(0.0f)
     }
 
     @Test
-    fun getBaseAnimationPhase_returnsValueIfSet() {
-        builder.setBaseAnimationPhase(0.75f)
-        assertThat(builder.getBaseAnimationPhase()).isEqualTo(0.75f)
-        assertThat(builder.toImmutable().getBaseAnimationPhase()).isEqualTo(0.75f)
+    fun getBasePaintAnimationPhase_returnsValueIfSet() {
+        builder.setBasePaintAnimationPhase(0.75f)
+        assertThat(builder.getBasePaintAnimationPhase()).isEqualTo(0.75f)
+        assertThat(builder.toImmutable().getBasePaintAnimationPhase()).isEqualTo(0.75f)
 
         builder.add(InputToolType.MOUSE, 1f, 2f, 3L)
-        assertThat(builder.getBaseAnimationPhase()).isEqualTo(0.75f)
-        assertThat(builder.toImmutable().getBaseAnimationPhase()).isEqualTo(0.75f)
+        assertThat(builder.getBasePaintAnimationPhase()).isEqualTo(0.75f)
+        assertThat(builder.toImmutable().getBasePaintAnimationPhase()).isEqualTo(0.75f)
+
+        builder.setBasePaintAnimationPhase(1.25f)
+        assertThat(builder.getBasePaintAnimationPhase()).isEqualTo(0.25f)
+        assertThat(builder.toImmutable().getBasePaintAnimationPhase()).isEqualTo(0.25f)
+
+        builder.setBasePaintAnimationPhase(-0.25f)
+        assertThat(builder.getBasePaintAnimationPhase()).isEqualTo(0.75f)
+        assertThat(builder.toImmutable().getBasePaintAnimationPhase()).isEqualTo(0.75f)
     }
 
     @Test
@@ -483,6 +520,7 @@ class StrokeInputBatchTest {
                 InputToolType.STYLUS,
                 tiltRadians = 0.5f,
                 orientationRadians = 0.5f,
+                barrelTwistRadians = 0.5f,
             )
         assertThat(builder.add(noPressureInput)).isSameInstanceAs(builder)
 
@@ -511,6 +549,7 @@ class StrokeInputBatchTest {
                 InputToolType.STYLUS,
                 pressure = 0.5f,
                 orientationRadians = 0.5f,
+                barrelTwistRadians = 0.5f,
             )
         assertThat(builder.add(noTiltInput)).isSameInstanceAs(builder)
 
@@ -540,12 +579,43 @@ class StrokeInputBatchTest {
                 InputToolType.STYLUS,
                 pressure = 0.5f,
                 tiltRadians = 0.5f,
+                barrelTwistRadians = 0.5f,
             )
         assertThat(builder.add(noOrientationInput)).isSameInstanceAs(builder)
 
         // Check batch.
         val batch = builder.toImmutable()
         assertThat(batch.hasOrientation()).isFalse()
+    }
+
+    @Test
+    fun hasBarrelTwist_withBarrelTwist_returnsTrue() {
+        val barrelTwistInput =
+            StrokeInput.create(1f, 1f, 1L, InputToolType.STYLUS, barrelTwistRadians = 0.5f)
+        assertThat(builder.add(barrelTwistInput)).isSameInstanceAs(builder)
+
+        // Check batch.
+        val batch = builder.toImmutable()
+        assertThat(batch.hasBarrelTwist()).isTrue()
+    }
+
+    @Test
+    fun hasBarrelTwist_withoutBarrelTwist_returnsFalse() {
+        val noBarrelTwistInput =
+            StrokeInput.create(
+                1f,
+                1f,
+                1L,
+                InputToolType.STYLUS,
+                pressure = 0.5f,
+                tiltRadians = 0.5f,
+                orientationRadians = 0.5f,
+            )
+        assertThat(builder.add(noBarrelTwistInput)).isSameInstanceAs(builder)
+
+        // Check batch.
+        val batch = builder.toImmutable()
+        assertThat(batch.hasBarrelTwist()).isFalse()
     }
 
     @Test

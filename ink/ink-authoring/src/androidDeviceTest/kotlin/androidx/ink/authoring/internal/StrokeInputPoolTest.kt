@@ -19,6 +19,7 @@ package androidx.ink.authoring.internal
 import android.graphics.Matrix
 import android.view.MotionEvent
 import androidx.ink.authoring.testing.MultiTouchInputCreator
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.StrokeInput
@@ -29,9 +30,11 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
+private const val PI: Float = kotlin.math.PI.toFloat()
+
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@OptIn(InkInternalOnlyApi::class)
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkBarrelTwistApi::class)
 class StrokeInputPoolTest {
 
     @Test
@@ -47,6 +50,7 @@ class StrokeInputPoolTest {
         assertThat(input.pressure).isEqualTo(StrokeInput.NO_PRESSURE)
         assertThat(input.tiltRadians).isEqualTo(StrokeInput.NO_TILT)
         assertThat(input.orientationRadians).isEqualTo(StrokeInput.NO_ORIENTATION)
+        assertThat(input.getBarrelTwistRadians()).isEqualTo(StrokeInput.NO_BARREL_TWIST)
     }
 
     @Test
@@ -62,6 +66,7 @@ class StrokeInputPoolTest {
                 pressure = 4F,
                 orientationRadians = 5F,
                 tiltRadians = 6F,
+                barrelTwistRadians = 7F,
             )
 
         assertThat(input.x).isEqualTo(1F)
@@ -71,6 +76,7 @@ class StrokeInputPoolTest {
         assertThat(input.pressure).isEqualTo(4F)
         assertThat(input.orientationRadians).isEqualTo(5F)
         assertThat(input.tiltRadians).isEqualTo(6F)
+        assertThat(input.getBarrelTwistRadians()).isEqualTo(7F)
     }
 
     @Test
@@ -233,9 +239,44 @@ class StrokeInputPoolTest {
                 ),
             )
     }
+
+    @Test
+    fun convertAxisOrientationToOrientationRadians_convertsAngles() {
+        assertThat(convertAxisOrientationToOrientationRadians(-0.5f * PI)).isWithin(0.001f).of(0f)
+        assertThat(convertAxisOrientationToOrientationRadians(-0.25f * PI))
+            .isWithin(0.001f)
+            .of(0.25f * PI)
+        assertThat(convertAxisOrientationToOrientationRadians(0f)).isWithin(0.001f).of(0.5f * PI)
+        assertThat(convertAxisOrientationToOrientationRadians(0.25f * PI))
+            .isWithin(0.001f)
+            .of(0.75f * PI)
+        assertThat(convertAxisOrientationToOrientationRadians(0.5f * PI)).isWithin(0.001f).of(PI)
+        assertThat(convertAxisOrientationToOrientationRadians(0.75f * PI))
+            .isWithin(0.001f)
+            .of(1.25f * PI)
+        assertThat(convertAxisOrientationToOrientationRadians(PI)).isWithin(0.001f).of(1.5f * PI)
+        assertThat(convertAxisOrientationToOrientationRadians(-PI)).isWithin(0.001f).of(1.5f * PI)
+        assertThat(convertAxisOrientationToOrientationRadians(-0.75f * PI))
+            .isWithin(0.001f)
+            .of(1.75f * PI)
+    }
+
+    @Test
+    fun convertAxisRzToBarrelTwistRadians_convertsAngles() {
+        assertThat(convertAxisRzToBarrelTwistRadians(0f)).isWithin(0.001f).of(0f)
+        assertThat(convertAxisRzToBarrelTwistRadians(-0.25f)).isWithin(0.001f).of(0.25f * PI)
+        assertThat(convertAxisRzToBarrelTwistRadians(-0.5f)).isWithin(0.001f).of(0.5f * PI)
+        assertThat(convertAxisRzToBarrelTwistRadians(-0.75f)).isWithin(0.001f).of(0.75f * PI)
+        assertThat(convertAxisRzToBarrelTwistRadians(-1f)).isWithin(0.001f).of(PI)
+        assertThat(convertAxisRzToBarrelTwistRadians(1f)).isWithin(0.001f).of(PI)
+        assertThat(convertAxisRzToBarrelTwistRadians(0.75f)).isWithin(0.001f).of(1.25f * PI)
+        assertThat(convertAxisRzToBarrelTwistRadians(0.5f)).isWithin(0.001f).of(1.5f * PI)
+        assertThat(convertAxisRzToBarrelTwistRadians(0.25f)).isWithin(0.001f).of(1.75f * PI)
+    }
 }
 
 /** A [Correspondence] for fuzzy matching of a [StrokeInput]. */
+@OptIn(ExperimentalInkBarrelTwistApi::class)
 private fun strokeInputNearEqual(
     tolerance: Double = 0.001
 ): Correspondence<StrokeInput, StrokeInput> =
@@ -249,7 +290,11 @@ private fun strokeInputNearEqual(
                 actual.toolType == expected.toolType &&
                 floatTolerance.compare(actual.pressure, expected.pressure) &&
                 floatTolerance.compare(actual.tiltRadians, expected.tiltRadians) &&
-                floatTolerance.compare(actual.orientationRadians, expected.orientationRadians)
+                floatTolerance.compare(actual.orientationRadians, expected.orientationRadians) &&
+                floatTolerance.compare(
+                    actual.getBarrelTwistRadians(),
+                    expected.getBarrelTwistRadians(),
+                )
         },
         "is approximately equal to",
     )

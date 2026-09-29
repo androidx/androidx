@@ -21,6 +21,7 @@ import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushFamily
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.StockBrushes
@@ -58,7 +59,11 @@ import org.junit.runners.Parameterized.Parameters
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(Parameterized::class)
 @MediumTest
-@OptIn(InkInternalOnlyApi::class, ExperimentalInkCustomBrushApi::class)
+@OptIn(
+    InkInternalOnlyApi::class,
+    ExperimentalInkCustomBrushApi::class,
+    ExperimentalInkBarrelTwistApi::class,
+)
 class StockBrushesTest(val brushName: String) {
     val family = familiesByName[brushName]!!
 
@@ -122,13 +127,14 @@ class StockBrushesTest(val brushName: String) {
         )
 
     /**
-     * Creates a copy of a stroke input batch and overrides the [pressure] of each input if pressure
-     * is not null.
+     * Creates a copy of a stroke input batch and overrides the [pressure], [tiltRadians],
+     * [orientationRadians], and/or [barrelTwistRadians] of each input if not null.
      */
     fun StrokeInputBatch.overrideInputChannel(
         pressure: Float? = null,
-        tilt: Float? = null,
-        orientation: Float? = null,
+        tiltRadians: Float? = null,
+        orientationRadians: Float? = null,
+        barrelTwistRadians: Float? = null,
     ): ImmutableStrokeInputBatch {
         val builder = MutableStrokeInputBatch()
         for (i in 0 until size) {
@@ -139,8 +145,9 @@ class StockBrushesTest(val brushName: String) {
                 y = input.y,
                 elapsedTimeMillis = input.elapsedTimeMillis,
                 pressure = pressure ?: input.pressure,
-                tiltRadians = tilt ?: input.tiltRadians,
-                orientationRadians = orientation ?: input.orientationRadians,
+                tiltRadians = tiltRadians ?: input.tiltRadians,
+                orientationRadians = orientationRadians ?: input.orientationRadians,
+                barrelTwistRadians = barrelTwistRadians ?: input.getBarrelTwistRadians(),
             )
         }
         return builder.toImmutable()
@@ -261,7 +268,7 @@ class StockBrushesTest(val brushName: String) {
                         Stroke(
                             makeBrush(family = family, size = 10f),
                             helper.octagonStylusInputs.overrideInputChannel(
-                                tilt = StrokeInput.NO_TILT
+                                tiltRadians = StrokeInput.NO_TILT
                             ),
                         )
                     )
@@ -271,7 +278,7 @@ class StockBrushesTest(val brushName: String) {
                         Stroke(
                             makeBrush(family = family, size = 10f),
                             helper.octagonStylusInputs.overrideInputChannel(
-                                orientation = StrokeInput.NO_ORIENTATION
+                                orientationRadians = StrokeInput.NO_ORIENTATION
                             ),
                         )
                     )

@@ -19,6 +19,7 @@ package androidx.ink.strokes
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.ExperimentalInkAnimationApi
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
@@ -29,10 +30,10 @@ import kotlin.jvm.JvmOverloads
  * A read-only view of an object that stores multiple [StrokeInput] values together in a more
  * memory-efficient manner than just `List<StrokeInput>`. The input points in this batch are
  * guaranteed to be consistent with one another – for example, they all have the same
- * [StrokeInput.toolType] and the same set of optional fields like pressure/tilt/orientation, and
- * their timestamps are all monotonically non-decreasing. This can be an [ImmutableStrokeInputBatch]
- * for data that cannot change, or a [MutableStrokeInputBatch] for data that is meant to be modified
- * or incrementally built.
+ * [StrokeInput.toolType] and the same set of optional fields like pressure/tilt/orientation/twist,
+ * and their timestamps are all monotonically non-decreasing. This can be an
+ * [ImmutableStrokeInputBatch] for data that cannot change, or a [MutableStrokeInputBatch] for data
+ * that is meant to be modified or incrementally built.
  */
 @OptIn(InkInternalOnlyApi::class)
 public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> Long) {
@@ -96,6 +97,14 @@ public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> L
     public fun hasOrientation(): Boolean = StrokeInputBatchNative.hasOrientation(nativePointer)
 
     /**
+     * Whether all of the individual inputs have a defined value for
+     * [StrokeInput.getBarrelTwistRadians]. If not, then no input items have a barrel twist value.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBarrelTwistApi
+    public fun hasBarrelTwist(): Boolean = StrokeInputBatchNative.hasBarrelTwist(nativePointer)
+
+    /**
      * Returns the seed value that should be used for seeding any noise generators for brush
      * behaviors when a full stroke is regenerated with this input batch. If no seed value has yet
      * been set for this input batch, returns the default seed of zero.
@@ -103,15 +112,15 @@ public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> L
     public fun getNoiseSeed(): Int = StrokeInputBatchNative.getNoiseSeed(nativePointer)
 
     /**
-     * Returns the [0, 2) value that will determine the stroke's overall animation progress at some
-     * arbitrary zero clock state, so that different strokes can be animated correctly relative to
-     * each other.
+     * Returns the [0, 1) value that will determine the stroke's overall paint animation progress at
+     * some arbitrary zero clock state, so that different strokes can be animated correctly relative
+     * to each other.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
-    @FloatRange(from = 0.0, to = 2.0, toInclusive = false)
-    public fun getBaseAnimationPhase(): Float =
-        StrokeInputBatchNative.getBaseAnimationPhase(nativePointer)
+    @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
+    public fun getBasePaintAnimationPhase(): Float =
+        StrokeInputBatchNative.getBasePaintAnimationPhase(nativePointer)
 
     /**
      * Gets the value of the i-th input. Requires that [index] is non-negative and less than [size].
@@ -174,7 +183,8 @@ public class ImmutableStrokeInputBatch private constructor(nativeAlloc: () -> Lo
  *    consistent. This means all inputs must have the same set of optional member variables that
  *    hold a value. For example, every input holds a [StrokeInput.pressure] value if-and-only-if
  *    every other input holds a [StrokeInput.pressure] value. This is also true for
- *    [StrokeInput.tiltRadians] and [StrokeInput.orientationRadians].
+ *    [StrokeInput.tiltRadians], [StrokeInput.orientationRadians], and barrel twist via
+ *    [StrokeInput.getBarrelTwistRadians].
  * 2) The sequence of [StrokeInput] values must not contain repeated x-y-t triplets, and the time
  *    values must be non-negative and non-decreasing.
  * 3) Values of [StrokeInput.strokeUnitLengthCm] must be finite and positive, or be
@@ -185,10 +195,16 @@ public class ImmutableStrokeInputBatch private constructor(nativeAlloc: () -> Lo
  *    [StrokeInput.NO_TILT].
  * 6) Values of [StrokeInput.orientationRadians] must fall within the range of
  *    [0, 2π) or be [StrokeInput.NO_ORIENTATION].
- * 7) The [StrokeInput.toolType] and [StrokeInput.strokeUnitLengthCm] values must be the same across
+ * 7) Values returned by [StrokeInput.getBarrelTwistRadians] must fall within the range of
+ *    [0, 2π) or be [StrokeInput.NO_BARREL_TWIST].
+ * 8) The [StrokeInput.toolType] and [StrokeInput.strokeUnitLengthCm] values must be the same across
  *    all inputs.
  */
-@OptIn(InkInternalOnlyApi::class, ExperimentalInkAnimationApi::class)
+@OptIn(
+    InkInternalOnlyApi::class,
+    ExperimentalInkAnimationApi::class,
+    ExperimentalInkBarrelTwistApi::class,
+)
 public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::create) {
 
     public fun clear() {
@@ -200,7 +216,8 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
      *
      * Inputs are invalid if they contain values out of the valid range, duplicate a previous input,
      * have an elapsed time before a previous input, or have a different tool type or set different
-     * optional fields (pressure, tilt, or orientation) than the inputs already in the batch.
+     * optional fields (pressure, tilt, orientation, or barrel twist) than the inputs already in the
+     * batch.
      *
      * Returns this instance to allow call chaining.
      *
@@ -221,6 +238,7 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
             input.pressure,
             input.tiltRadians,
             input.orientationRadians,
+            input.getBarrelTwistRadians(),
         )
     }
 
@@ -268,6 +286,72 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
         pressure: Float = StrokeInput.NO_PRESSURE,
         tiltRadians: Float = StrokeInput.NO_TILT,
         orientationRadians: Float = StrokeInput.NO_ORIENTATION,
+    ): MutableStrokeInputBatch =
+        add(
+            type,
+            x,
+            y,
+            elapsedTimeMillis,
+            strokeUnitLengthCm,
+            pressure,
+            tiltRadians,
+            orientationRadians,
+            StrokeInput.NO_BARREL_TWIST,
+        )
+
+    /**
+     * Variant of [add] that takes individual parameters (including barrel twist) instead of a
+     * [StrokeInput].
+     *
+     * Returns this instance to allow call chaining.
+     *
+     * @param type The [InputToolType] to use for the input.
+     * @param x The x-coordinate of the input position in stroke space.
+     * @param y The y-coordinate of the input position in stroke space.
+     * @param elapsedTimeMillis Marks the number of milliseconds since the stroke started. On
+     *   Android, this should be a non-negative timestamp in the
+     *   `android.os.SystemClock.elapsedRealtime` time base.
+     * @param strokeUnitLengthCm The physical distance in centimeters that the pointer must travel
+     *   in order to produce an input motion of one stroke unit. For stylus/touch, this is the
+     *   real-world distance that the stylus/fingertip must move in physical space; for mouse, this
+     *   is the visual distance that the mouse pointer must travel along the surface of the display.
+     *   A value of [StrokeInput.NO_STROKE_UNIT_LENGTH] indicates that the relationship between
+     *   stroke space and physical space is unknown or ill-defined.
+     * @param pressure Must be within [0, 1] if present. Absence of [pressure] data is represented
+     *   with [StrokeInput.NO_PRESSURE].
+     * @param tiltRadians Must be within [0, π/2] if present. The angle in radians between a stylus
+     *   and the line perpendicular to the plane of the screen. 0 is perpendicular to the screen and
+     *   π/2 is flat against the drawing surface. Absence of [tiltRadians] data is represented with
+     *   [StrokeInput.NO_TILT].
+     * @param orientationRadians Must be within [0, 2π] if present. Indicates the direction in which
+     *   the stylus is pointing in relation to the positive x axis in radians. A value of 0 means
+     *   the ray from the stylus tip to the end is along positive x and values increase towards the
+     *   positive y-axis. Absence of [orientationRadians] data is represented with
+     *   [StrokeInput.NO_ORIENTATION].
+     * @param barrelTwistRadians Must be within [0, 2π]. Indicates the rotation of the stylus around
+     *   its longitudinal axis. A value of zero means that the stylus is not rotated around its
+     *   longitudinal axis, and values increase as the stylus rotates from the positive x axis
+     *   towards the positive y axis (when looking down the stylus from its top towards its tip).
+     *   Absence of [barrelTwistRadians] data is represented with [StrokeInput.NO_BARREL_TWIST].
+     * @return `this`
+     * @throws IllegalArgumentException If the input is not valid. Note that this can be a common
+     *   occurrence with real user input on certain devices, in particular due to duplicate or
+     *   out-of-order inputs. Therefore, users should either catch and handle this exception or
+     *   sanitize the input to avoid ensure validity before passing it to this function.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBarrelTwistApi
+    @Suppress("MissingJvmstatic") // @JvmOverloads is on the non-experimental overload
+    public fun add(
+        type: InputToolType,
+        x: Float,
+        y: Float,
+        elapsedTimeMillis: Long,
+        strokeUnitLengthCm: Float = StrokeInput.NO_STROKE_UNIT_LENGTH,
+        pressure: Float = StrokeInput.NO_PRESSURE,
+        tiltRadians: Float = StrokeInput.NO_TILT,
+        orientationRadians: Float = StrokeInput.NO_ORIENTATION,
+        barrelTwistRadians: Float = StrokeInput.NO_BARREL_TWIST,
     ): MutableStrokeInputBatch {
         val success =
             MutableStrokeInputBatchNative.appendSingle(
@@ -280,6 +364,7 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
                 pressure,
                 tiltRadians,
                 orientationRadians,
+                barrelTwistRadians,
             )
         check(success) { "Should have thrown an exception if add failed." }
         return this
@@ -327,6 +412,7 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
                     input.pressure,
                     input.tiltRadians,
                     input.orientationRadians,
+                    input.getBarrelTwistRadians(),
                 )
             check(success) { "Should have thrown an exception if add failed." }
         }
@@ -345,27 +431,28 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
     }
 
     /**
-     * Sets the [0, 2) animation progress value that the stroke should have at clock state zero. For
-     * newly-drawn strokes, this value should generally be chosen such that the stroke will be at
-     * animation progress 0 at the current clock state for the first input of the stroke.
+     * Sets the [0, 1) paint animation progress value that the stroke should have at clock state
+     * zero. For newly-drawn strokes, this value should generally be chosen such that the stroke
+     * will be at paint animation progress 0 at the current clock state for the first input of the
+     * stroke.
      *
      * Note that it doesn't especially matter what clock is being used by the environment creating
-     * the stroke, since this value only matters for capturing the relative animation phases between
-     * multiple strokes created in the same environment: if such strokes are serialized and later
-     * loaded in a different environment with a different clock that uses a different zero point,
-     * they will still maintain the same relative phases.
+     * the stroke, since this value only matters for capturing the relative paint animation phases
+     * between multiple strokes created in the same environment: if such strokes are serialized and
+     * later loaded in a different environment with a different clock that uses a different zero
+     * point, they will still maintain the same relative phases.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
-    public fun setBaseAnimationPhase(
-        @FloatRange(from = 0.0, to = 2.0, toInclusive = false) phase: Float
+    public fun setBasePaintAnimationPhase(
+        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) phase: Float
     ) {
-        MutableStrokeInputBatchNative.setBaseAnimationPhase(nativePointer, phase)
+        MutableStrokeInputBatchNative.setBasePaintAnimationPhase(nativePointer, phase)
     }
 
     /** Create [ImmutableStrokeInputBatch] with the accumulated StrokeInputs. */
     public override fun toImmutable(): ImmutableStrokeInputBatch =
-        if (isEmpty() && getNoiseSeed() == 0 && getBaseAnimationPhase() == 0.0f) {
+        if (isEmpty() && getNoiseSeed() == 0 && getBasePaintAnimationPhase() == 0.0f) {
             ImmutableStrokeInputBatch.EMPTY
         } else {
             val currentPointer = nativePointer
@@ -398,9 +485,11 @@ expect internal object StrokeInputBatchNative {
 
     fun hasOrientation(nativePointer: Long): Boolean
 
+    fun hasBarrelTwist(nativePointer: Long): Boolean
+
     fun getNoiseSeed(nativePointer: Long): Int
 
-    fun getBaseAnimationPhase(nativePointer: Long): Float
+    fun getBasePaintAnimationPhase(nativePointer: Long): Float
 
     fun populate(nativePointer: Long, index: Int, input: StrokeInput)
 }
@@ -418,6 +507,7 @@ expect internal object MutableStrokeInputBatchNative {
         pressure: Float,
         tilt: Float,
         orientation: Float,
+        barrelTwist: Float,
     ): Boolean
 
     fun appendBatch(nativePointer: Long, addedNativePointer: Long): Boolean
@@ -426,5 +516,5 @@ expect internal object MutableStrokeInputBatchNative {
 
     fun setNoiseSeed(nativePointer: Long, seed: Int)
 
-    fun setBaseAnimationPhase(nativePointer: Long, phase: Float)
+    fun setBasePaintAnimationPhase(nativePointer: Long, phase: Float)
 }

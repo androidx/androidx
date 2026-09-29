@@ -30,8 +30,8 @@ import androidx.ink.authoring.InkInProgressShapeRenderer
 import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
-import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
 import androidx.ink.strokes.Stroke
+import androidx.ink.strokes.StrokePaintAnimationClock
 import java.util.concurrent.TimeUnit
 import org.mockito.kotlin.mock
 

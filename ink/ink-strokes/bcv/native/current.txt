@@ -20,6 +20,7 @@ abstract class androidx.ink.strokes/StrokeInputBatch { // androidx.ink.strokes/S
     final fun getNoiseSeed(): kotlin/Int // androidx.ink.strokes/StrokeInputBatch.getNoiseSeed|getNoiseSeed(){}[0]
     final fun getStrokeUnitLengthCm(): kotlin/Float // androidx.ink.strokes/StrokeInputBatch.getStrokeUnitLengthCm|getStrokeUnitLengthCm(){}[0]
     final fun getToolType(): androidx.ink.brush/InputToolType // androidx.ink.strokes/StrokeInputBatch.getToolType|getToolType(){}[0]
+    final fun hasBarrelTwist(): kotlin/Boolean // androidx.ink.strokes/StrokeInputBatch.hasBarrelTwist|hasBarrelTwist(){}[0]
     final fun hasOrientation(): kotlin/Boolean // androidx.ink.strokes/StrokeInputBatch.hasOrientation|hasOrientation(){}[0]
     final fun hasPressure(): kotlin/Boolean // androidx.ink.strokes/StrokeInputBatch.hasPressure|hasPressure(){}[0]
     final fun hasStrokeUnitLength(): kotlin/Boolean // androidx.ink.strokes/StrokeInputBatch.hasStrokeUnitLength|hasStrokeUnitLength(){}[0]
@@ -75,6 +76,7 @@ final class androidx.ink.strokes/MutableStrokeInputBatch : androidx.ink.strokes/
     constructor <init>() // androidx.ink.strokes/MutableStrokeInputBatch.<init>|<init>(){}[0]
 
     final fun add(androidx.ink.brush/InputToolType, kotlin/Float, kotlin/Float, kotlin/Long, kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ...): androidx.ink.strokes/MutableStrokeInputBatch // androidx.ink.strokes/MutableStrokeInputBatch.add|add(androidx.ink.brush.InputToolType;kotlin.Float;kotlin.Float;kotlin.Long;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+    final fun add(androidx.ink.brush/InputToolType, kotlin/Float, kotlin/Float, kotlin/Long, kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ...): androidx.ink.strokes/MutableStrokeInputBatch // androidx.ink.strokes/MutableStrokeInputBatch.add|add(androidx.ink.brush.InputToolType;kotlin.Float;kotlin.Float;kotlin.Long;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
     final fun add(androidx.ink.strokes/StrokeInput): androidx.ink.strokes/MutableStrokeInputBatch // androidx.ink.strokes/MutableStrokeInputBatch.add|add(androidx.ink.strokes.StrokeInput){}[0]
     final fun add(androidx.ink.strokes/StrokeInputBatch): androidx.ink.strokes/MutableStrokeInputBatch // androidx.ink.strokes/MutableStrokeInputBatch.add|add(androidx.ink.strokes.StrokeInputBatch){}[0]
     final fun add(kotlin.collections/Collection<androidx.ink.strokes/StrokeInput>): androidx.ink.strokes/MutableStrokeInputBatch // androidx.ink.strokes/MutableStrokeInputBatch.add|add(kotlin.collections.Collection<androidx.ink.strokes.StrokeInput>){}[0]
@@ -129,11 +131,16 @@ final class androidx.ink.strokes/StrokeInput { // androidx.ink.strokes/StrokeInp
         final fun <get-y>(): kotlin/Float // androidx.ink.strokes/StrokeInput.y.<get-y>|<get-y>(){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.strokes/StrokeInput.equals|equals(kotlin.Any?){}[0]
+    final fun getBarrelTwistRadians(): kotlin/Float // androidx.ink.strokes/StrokeInput.getBarrelTwistRadians|getBarrelTwistRadians(){}[0]
+    final fun hasBarrelTwist(): kotlin/Boolean // androidx.ink.strokes/StrokeInput.hasBarrelTwist|hasBarrelTwist(){}[0]
     final fun hashCode(): kotlin/Int // androidx.ink.strokes/StrokeInput.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // androidx.ink.strokes/StrokeInput.toString|toString(){}[0]
     final fun update(kotlin/Float, kotlin/Float, kotlin/Long, androidx.ink.brush/InputToolType = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ...) // androidx.ink.strokes/StrokeInput.update|update(kotlin.Float;kotlin.Float;kotlin.Long;androidx.ink.brush.InputToolType;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+    final fun update(kotlin/Float, kotlin/Float, kotlin/Long, androidx.ink.brush/InputToolType = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ...) // androidx.ink.strokes/StrokeInput.update|update(kotlin.Float;kotlin.Float;kotlin.Long;androidx.ink.brush.InputToolType;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
 
     final object Companion { // androidx.ink.strokes/StrokeInput.Companion|null[0]
+        final const val NO_BARREL_TWIST // androidx.ink.strokes/StrokeInput.Companion.NO_BARREL_TWIST|{}NO_BARREL_TWIST[0]
+            final fun <get-NO_BARREL_TWIST>(): kotlin/Float // androidx.ink.strokes/StrokeInput.Companion.NO_BARREL_TWIST.<get-NO_BARREL_TWIST>|<get-NO_BARREL_TWIST>(){}[0]
         final const val NO_ORIENTATION // androidx.ink.strokes/StrokeInput.Companion.NO_ORIENTATION|{}NO_ORIENTATION[0]
             final fun <get-NO_ORIENTATION>(): kotlin/Float // androidx.ink.strokes/StrokeInput.Companion.NO_ORIENTATION.<get-NO_ORIENTATION>|<get-NO_ORIENTATION>(){}[0]
         final const val NO_PRESSURE // androidx.ink.strokes/StrokeInput.Companion.NO_PRESSURE|{}NO_PRESSURE[0]
@@ -144,6 +151,7 @@ final class androidx.ink.strokes/StrokeInput { // androidx.ink.strokes/StrokeInp
             final fun <get-NO_TILT>(): kotlin/Float // androidx.ink.strokes/StrokeInput.Companion.NO_TILT.<get-NO_TILT>|<get-NO_TILT>(){}[0]
 
         final fun create(kotlin/Float, kotlin/Float, kotlin/Long, androidx.ink.brush/InputToolType = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ...): androidx.ink.strokes/StrokeInput // androidx.ink.strokes/StrokeInput.Companion.create|create(kotlin.Float;kotlin.Float;kotlin.Long;androidx.ink.brush.InputToolType;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+        final fun create(kotlin/Float, kotlin/Float, kotlin/Long, androidx.ink.brush/InputToolType = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ...): androidx.ink.strokes/StrokeInput // androidx.ink.strokes/StrokeInput.Companion.create|create(kotlin.Float;kotlin.Float;kotlin.Long;androidx.ink.brush.InputToolType;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
     }
 }
 

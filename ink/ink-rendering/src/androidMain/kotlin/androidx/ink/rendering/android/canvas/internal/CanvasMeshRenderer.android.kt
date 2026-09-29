@@ -31,7 +31,7 @@ import androidx.annotation.Size
 import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableObjectLongMap
 import androidx.ink.brush.BrushPaint
-import androidx.ink.brush.BrushPaint.TextureLayer.AnimationRepeatMode
+import androidx.ink.brush.BrushPaint.AnimationRepeatMode
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.SelfOverlap
 import androidx.ink.brush.TextureBitmapStore
@@ -969,9 +969,7 @@ internal class CanvasMeshRenderer(
             TEXTURE_MAPPING(5),
 
             /**
-             * The current progress of the texture animation. It is a `float` in the range [0, 2].
-             * (It ranges [0, 2] instead of [0, 1] in order to account for `ANIMATION_REPEAT_MODE`
-             * being set to "reverse" mode.)
+             * The current progress of the texture animation. It is a `float` in the range [0, 1].
              *
              * We must pass both animation progress and number of frames to the shader, rather than
              * computing a frame index from these on the CPU and passing only that. Why? Each

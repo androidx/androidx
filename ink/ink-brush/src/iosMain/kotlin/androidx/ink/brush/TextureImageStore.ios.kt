@@ -30,8 +30,9 @@ public fun interface TextureImageStore {
      * should be done on initialization. The result is expected to be cached by consumers, so this
      * should return a deterministic result for a given input.
      *
-     * For rendering, this currently must return a [UIImage] wrapping a `CGImage`, that is, one
-     * where the underlying bitmap is pre-loaded.
+     * Since this will be read during the draw, this ideally should return [UIImage] instances
+     * wrapping `CGImage`, that is, ones where the underlying bitmap is pre-loaded. Otherwise, the
+     * first draw may be slower as texture images are rendered from `CIImage` to `CGImage`.
      *
      * Textures can be disabled by having this function always return `null`. `null` should also be
      * returned when a texture can not be loaded. If `null` is returned, the texture layer in

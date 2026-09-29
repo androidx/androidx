@@ -19,10 +19,13 @@ package androidx.ink.rendering.android.view
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.view.View
+import androidx.annotation.RestrictTo
 import androidx.core.view.ViewCompat
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.rendering.android.canvas.StrokeDrawScope
+import androidx.ink.strokes.StrokePaintAnimationClock
 
 /**
  * Helps developers using Android Views to draw [androidx.ink.strokes.Stroke] objects in their UI,
@@ -56,11 +59,20 @@ import androidx.ink.rendering.android.canvas.StrokeDrawScope
  * }
  * ```
  */
-@OptIn(InkInternalOnlyApi::class)
-public class ViewStrokeRenderer(
+@OptIn(ExperimentalInkAnimationApi::class, InkInternalOnlyApi::class)
+public class ViewStrokeRenderer
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkAnimationApi
+public constructor(
     private val canvasStrokeRenderer: CanvasStrokeRenderer,
     private val view: View,
+    private val strokePaintAnimationClock: StrokePaintAnimationClock,
 ) {
+
+    public constructor(
+        canvasStrokeRenderer: CanvasStrokeRenderer,
+        view: View,
+    ) : this(canvasStrokeRenderer, view, StrokePaintAnimationClock.STOPPED_CLOCK)
 
     private val scratchMatrix = Matrix()
     private val recycledDrawScopes = mutableListOf<StrokeDrawScope>()
@@ -130,10 +142,11 @@ public class ViewStrokeRenderer(
             ViewCompat.transformMatrixToGlobal(view, it)
         }
         require(viewToScreenTransform.isAffine) { "View to screen transform must be affine." }
+        val animatorClockStateMillis = strokePaintAnimationClock.getClockStateMillis()
         val scope =
             recycledDrawScopes.removeFirstOrNull()
                 ?: StrokeDrawScope.withRenderer(canvasStrokeRenderer)
-        scope.onDrawStart(viewToScreenTransform, canvas)
+        scope.onDrawStart(viewToScreenTransform, canvas, animatorClockStateMillis)
         return scope
     }
 

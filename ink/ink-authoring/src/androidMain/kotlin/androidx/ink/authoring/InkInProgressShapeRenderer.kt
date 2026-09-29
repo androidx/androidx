@@ -21,7 +21,7 @@ import android.graphics.Matrix
 import androidx.annotation.OpenForTesting
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
-import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
+import androidx.ink.strokes.StrokePaintAnimationClock
 
 /**
  * An implementation of [InProgressShapeRenderer] that just wraps
@@ -31,7 +31,7 @@ import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
 @ExperimentalInkCustomShapeWorkflowApi
 @OptIn(ExperimentalInkAnimationApi::class)
 internal open class InkInProgressShapeRenderer(
-    private val animationClock: StrokePaintAnimationClock,
+    private val strokePaintAnimationClock: StrokePaintAnimationClock,
     private val canvasStrokeRenderer: CanvasStrokeRenderer,
 ) : InProgressShapeRenderer<InkInProgressShape> {
 
@@ -41,7 +41,7 @@ internal open class InkInProgressShapeRenderer(
             canvas = canvas,
             inProgressStroke = shape.inProgressStroke,
             strokeToScreenTransform = strokeToScreenTransform,
-            animatorClockStateMillis = animationClock.getClockStateMillis(),
+            animatorClockStateMillis = strokePaintAnimationClock.getClockStateMillis(),
         )
     }
 }

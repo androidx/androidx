@@ -50,7 +50,7 @@ import androidx.ink.nativeloader.InkInternalOnlyApi
  * Although [MotionEvent] APIs support a different tool type per pointer, in practice this cannot
  * occur as the different tool types would come from different devices, and [MotionEvent.getDevice]
  * is not available per pointer. Similarly, the presence or absence of optional stylus fields like
- * pressure/tilt/orientation cannot differ per pointer.
+ * pressure/tilt/orientation/twist cannot differ per pointer.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 @VisibleForTesting
@@ -69,6 +69,10 @@ public class MultiTouchInputCreator(
         FloatArray(pointerCount) {
             if (toolType == MotionEvent.TOOL_TYPE_STYLUS) 0.01F * (it + 1) else 0F
         },
+    private val startBarrelTwist: FloatArray =
+        FloatArray(pointerCount) {
+            if (toolType == MotionEvent.TOOL_TYPE_STYLUS) 0.03F * (it + 1) else 0F
+        },
     /**
      * Note: Tilt does not seem to be supported currently in Robolectric, but it can be used for
      * emulator/device tests.
@@ -85,12 +89,17 @@ public class MultiTouchInputCreator(
         FloatArray(pointerCount) { if (toolType == MotionEvent.TOOL_TYPE_STYLUS) 0.1F else 0F },
     private val orientationIncrement: FloatArray =
         FloatArray(pointerCount) { if (toolType == MotionEvent.TOOL_TYPE_STYLUS) 0.2F else 0F },
+    private val barrelTwistIncrement: FloatArray =
+        FloatArray(pointerCount) { if (toolType == MotionEvent.TOOL_TYPE_STYLUS) 0.1F else 0F },
     private val tiltIncrement: FloatArray =
         FloatArray(pointerCount) { if (toolType == MotionEvent.TOOL_TYPE_STYLUS) 0.1F else 0F },
     private val downFlags: IntArray = IntArray(pointerCount),
     private val upFlags: IntArray = IntArray(pointerCount),
     private val downtime: Long = 1000L,
-    /** Set this to non-null to enable optional fields like pressure, tilt, and orientation. */
+    /**
+     * Set this to non-null to enable optional fields like pressure, tilt, orientation, and barrel
+     * twist.
+     */
     private val device: InputDevice? = null,
 ) {
     private var moveCount: Int = 0
@@ -105,11 +114,13 @@ public class MultiTouchInputCreator(
                 startY.size == pointerCount &&
                 startPressure.size == pointerCount &&
                 startOrientation.size == pointerCount &&
+                startBarrelTwist.size == pointerCount &&
                 startTilt.size == pointerCount &&
                 xIncrement.size == pointerCount &&
                 yIncrement.size == pointerCount &&
                 pressureIncrement.size == pointerCount &&
                 orientationIncrement.size == pointerCount &&
+                barrelTwistIncrement.size == pointerCount &&
                 tiltIncrement.size == pointerCount &&
                 downFlags.size == pointerCount &&
                 upFlags.size == pointerCount
@@ -151,6 +162,7 @@ public class MultiTouchInputCreator(
                     pressure = startPressure[p]
                     orientation = startOrientation[p]
                     setAxisValue(AXIS_TILT, startTilt[p])
+                    setAxisValue(MotionEvent.AXIS_RZ, startBarrelTwist[p])
                 }
             )
             val ev =
@@ -200,6 +212,11 @@ public class MultiTouchInputCreator(
                             previousPointerCoords.getAxisValue(AXIS_TILT) +
                                 tiltIncrement[p] / historyIncrements,
                         )
+                        setAxisValue(
+                            MotionEvent.AXIS_RZ,
+                            previousPointerCoords.getAxisValue(MotionEvent.AXIS_RZ) +
+                                barrelTwistIncrement[p] / historyIncrements,
+                        )
                     }
             }
             val ev =
@@ -241,6 +258,11 @@ public class MultiTouchInputCreator(
                                 AXIS_TILT,
                                 previousPointerCoords.getAxisValue(AXIS_TILT) +
                                     tiltIncrement[p] / historyIncrements,
+                            )
+                            setAxisValue(
+                                MotionEvent.AXIS_RZ,
+                                previousPointerCoords.getAxisValue(MotionEvent.AXIS_RZ) +
+                                    barrelTwistIncrement[p] / historyIncrements,
                             )
                         }
                 }
