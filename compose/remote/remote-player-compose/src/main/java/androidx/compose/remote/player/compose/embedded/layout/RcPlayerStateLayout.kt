@@ -21,8 +21,9 @@ package androidx.compose.remote.player.compose.embedded.layout
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -31,6 +32,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
+import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
 import androidx.compose.remote.player.compose.embedded.LocalAnimatedVisibilityScope
 import androidx.compose.remote.player.compose.embedded.LocalSharedTransitionScope
@@ -67,38 +69,29 @@ internal fun RcPlayerStateLayout(layout: StateLayout, modifier: Modifier) {
         child.mVisibility = vis
     }
 
-    val layoutSpec =
-        layout.componentModifiers?.list?.fastFirstOrNull { it is AnimationSpec } as? AnimationSpec
-            ?: layout.animationSpecReflection?.takeIf { it != AnimationSpec.DEFAULT }
+    val transitionConfig = rememberLayoutTransitionConfig(layout, children)
+    val duration = transitionConfig.duration
+    val easing = transitionConfig.easing
 
-    val spec =
-        layoutSpec
-            ?: remember(children) {
-                var found: AnimationSpec? = null
-                fun search(comp: Component) {
-                    val s =
-                        (comp as? LayoutComponent)?.componentModifiers?.list?.fastFirstOrNull {
-                            it is AnimationSpec
-                        } as? AnimationSpec
-                            ?: comp.animationSpecReflection?.takeIf { it != AnimationSpec.DEFAULT }
-                    if (s != null && (found == null || s.motionDuration > found!!.motionDuration)) {
-                        found = s
-                    }
-                    if (comp is LayoutComponent) {
-                        comp.childrenComponents.fastForEach { search(it) }
-                    }
-                }
-                children.fastForEach { search(it) }
-                found
-            }
+    if (duration <= 0) {
+        Box(
+            modifier = modifier.rcComponentContentInspector(layout, forStateLayoutContent = true),
+            contentAlignment = Alignment.Center,
+        ) {
+            RcPlayerComponent(children[targetIndex])
+        }
+        return
+    }
 
-    val duration = spec?.motionDuration?.toInt() ?: 300
-    val easing = mapEasing(spec?.motionEasingType ?: 0)
-
-    SharedTransitionLayout(modifier = modifier) {
+    @Composable
+    fun AnimatedStateContent(
+        sharedTransitionScope: SharedTransitionScope?,
+        contentModifier: Modifier,
+    ) {
         AnimatedContent(
             targetState = targetIndex,
-            modifier = Modifier.rcComponentContentInspector(layout, forStateLayoutContent = true),
+            modifier =
+                contentModifier.rcComponentContentInspector(layout, forStateLayoutContent = true),
             contentAlignment = Alignment.Center,
             label = "RcPlayerStateLayout",
             transitionSpec = {
@@ -108,17 +101,13 @@ internal fun RcPlayerStateLayout(layout: StateLayout, modifier: Modifier) {
                         fadeOut(animationSpec = tween(durationMillis = duration, easing = easing)))
                     .using(
                         SizeTransform(clip = false) { _, _ ->
-                            if (duration <= 0) {
-                                snap()
-                            } else {
-                                tween(durationMillis = duration, easing = easing)
-                            }
+                            tween(durationMillis = duration, easing = easing)
                         }
                     )
             },
         ) { currentIndex ->
             CompositionLocalProvider(
-                LocalSharedTransitionScope provides this@SharedTransitionLayout,
+                LocalSharedTransitionScope provides sharedTransitionScope,
                 LocalAnimatedVisibilityScope provides this@AnimatedContent,
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -127,4 +116,72 @@ internal fun RcPlayerStateLayout(layout: StateLayout, modifier: Modifier) {
             }
         }
     }
+
+    if (transitionConfig.hasSharedElements) {
+        SharedTransitionLayout(modifier = modifier) {
+            AnimatedStateContent(
+                sharedTransitionScope = this@SharedTransitionLayout,
+                contentModifier = Modifier,
+            )
+        }
+    } else {
+        AnimatedStateContent(sharedTransitionScope = null, contentModifier = modifier)
+    }
 }
+
+internal class LayoutTransitionConfig(
+    val duration: Int,
+    val easing: Easing,
+    val hasSharedElements: Boolean,
+)
+
+@Composable
+internal fun rememberLayoutTransitionConfig(
+    layout: LayoutComponent,
+    children: List<Component>,
+): LayoutTransitionConfig {
+    return remember(layout, children) {
+        val layoutSpec =
+            layout.componentModifiers?.list?.fastFirstOrNull { it is AnimationSpec }
+                as? AnimationSpec
+                ?: layout.animationSpecReflection?.takeIf { it != AnimationSpec.DEFAULT }
+
+        var childSpec: AnimationSpec? = null
+        var hasSharedElements = false
+
+        fun search(comp: Component) {
+            if (comp.animationId != -1 && comp.animationId != 0) {
+                hasSharedElements = true
+            }
+            val s =
+                (comp as? LayoutComponent)?.componentModifiers?.list?.fastFirstOrNull {
+                    it is AnimationSpec
+                } as? AnimationSpec
+                    ?: comp.animationSpecReflection?.takeIf { it != AnimationSpec.DEFAULT }
+            if (
+                s != null &&
+                    (childSpec == null ||
+                        s.effectiveMotionDuration() > childSpec!!.effectiveMotionDuration())
+            ) {
+                childSpec = s
+            }
+            if (comp is LayoutComponent && comp !is StateLayout && comp !is FitBoxLayout) {
+                comp.childrenComponents.fastForEach { search(it) }
+            }
+        }
+
+        children.fastForEach { search(it) }
+
+        val spec = layoutSpec ?: childSpec
+        val duration = spec?.effectiveMotionDuration()?.toInt() ?: 300
+        val easing = mapEasing(spec?.motionEasingType ?: 0)
+        LayoutTransitionConfig(
+            duration = duration,
+            easing = easing,
+            hasSharedElements = duration > 0 && hasSharedElements,
+        )
+    }
+}
+
+internal fun AnimationSpec.effectiveMotionDuration(): Float =
+    if (isAnimationEnabled) motionDuration else 0f
