@@ -16,10 +16,10 @@
 
 package androidx.compose.remote.player.view.platform;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.graphics.fonts.FontStyle.FONT_WEIGHT_MAX;
 import static android.graphics.fonts.FontStyle.FONT_WEIGHT_MIN;
-import static androidx.core.math.MathUtils.clamp;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.res.Resources;
 import android.os.Build;
@@ -79,7 +79,8 @@ public class AndroidFloatSystemVariables implements RemoteComposePlayer.FloatSys
                         }
                     } // REMOVE IN PLATFORM
                     float finalWeight = baseWeight + userAdjustment;
-                    finalWeight = clamp(finalWeight, FONT_WEIGHT_MIN, FONT_WEIGHT_MAX);
+                    finalWeight = Math.max(FONT_WEIGHT_MIN, Math.min(finalWeight, FONT_WEIGHT_MAX));
+
                     player.setLocalFloat(FONT_WEIGHT, finalWeight);
             }
         }

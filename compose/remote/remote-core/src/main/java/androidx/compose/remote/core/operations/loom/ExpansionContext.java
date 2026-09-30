@@ -117,8 +117,15 @@ public class ExpansionContext {
         return result;
     }
 
+    /** limit recursion on expansion */
     private static final int MAX_EXPANSION_DEPTH = 64;
 
+    /**
+     * expand the operations recursively
+     * @param operations input operations
+     * @param result     output operations
+     * @param loomManager the loom manager
+     **/
     public void expandRecursive(
             @NonNull ArrayList<Operation> operations,
             @NonNull ArrayList<Operation> result,

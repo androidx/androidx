@@ -476,6 +476,10 @@ public class BitmapData extends Operation
             }
             int allocW = Math.max(reqWidth, mMaxPooledWidth);
             int allocH = Math.max(reqHeight, mMaxPooledHeight);
+            if ((long) allocW * allocH * 4L > Limits.MAX_BITMAP_MEMORY) {
+                allocW = reqWidth;
+                allocH = reqHeight;
+            }
             int slotId = mNextPoolBitmapId++;
             context.loadBitmap(
                     slotId, ENCODING_EMPTY, TYPE_RAW8888, allocW, allocH, EMPTY_BITMAP_BYTES);
@@ -717,6 +721,13 @@ public class BitmapData extends Operation
         float y = (float) Math.floor(targetComp.getY());
         int reqW = Math.max(1, (int) Math.ceil((targetComp.getX() - x) + targetComp.getWidth()));
         int reqH = Math.max(1, (int) Math.ceil((targetComp.getY() - y) + targetComp.getHeight()));
+        if (reqW < 1
+                || reqH < 1
+                || reqW > Limits.MAX_IMAGE_DIMENSION
+                || reqH > Limits.MAX_IMAGE_DIMENSION
+                || (long) reqW * reqH * 4L > Limits.MAX_BITMAP_MEMORY) {
+            throw new RuntimeException("Dimension of image is invalid " + reqW + "x" + reqH);
+        }
         mImageWidth = reqW;
         mImageHeight = reqH;
         getPool(context).ensureBitmap(context, this, prevW, prevH, reqW, reqH);
