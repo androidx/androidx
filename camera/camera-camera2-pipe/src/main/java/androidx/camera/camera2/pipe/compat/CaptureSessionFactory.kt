@@ -456,8 +456,8 @@ internal fun buildOutputConfigurations(
                 continue
             }
             allOutputs.add(output)
-            for (outputSurface in outputConfig.streamBuilder) {
-                deferredOutputs[outputSurface.id] = output
+            for (cameraStream in outputConfig.streamBuilder) {
+                deferredOutputs[cameraStream.id] = output
             }
             continue
         }
@@ -498,8 +498,8 @@ internal fun buildOutputConfigurations(
             Log.error(e) { "Failed to add Surfaces to $output" }
             continue
         }
-        for (outputStream in outputConfig.streams.filter { !surfaces.containsKey(it.id) }) {
-            deferredOutputs[outputStream.id] = output
+        for (cameraStream in outputConfig.streams.filter { !surfaces.containsKey(it.id) }) {
+            deferredOutputs[cameraStream.id] = output
         }
         if (graphConfig.postviewStream != null) {
             val postviewStream = streamGraph[graphConfig.postviewStream]
