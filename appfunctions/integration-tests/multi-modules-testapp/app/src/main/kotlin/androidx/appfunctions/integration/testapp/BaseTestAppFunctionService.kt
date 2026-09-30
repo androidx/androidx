@@ -20,6 +20,7 @@ package androidx.appfunctions.integration.testapp
 import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
+import android.os.PatternMatcher
 import androidx.annotation.RequiresApi
 import androidx.appfunction.integration.test.sharedschema.AppFunctionNote
 import androidx.appfunction.integration.test.sharedschema.ClassWithOptionalValues
@@ -39,6 +40,7 @@ import androidx.appfunctions.AppFunctionAccessLevel
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionInvalidArgumentException
+import androidx.appfunctions.AppFunctionPatternMatcher
 import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.AppFunctionServiceEntryPoint
 import androidx.appfunctions.AppFunctionStringValueConstraint
@@ -316,7 +318,11 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
 
     @AppFunctionDeclaration
     internal fun echoStringWithConstraint(
-        @AppFunctionStringValueConstraint(pattern = "^[a-z]+$", format = "custom")
+        @AppFunctionStringValueConstraint(
+            patternMatchers =
+                [AppFunctionPatternMatcher("[a-z]+", PatternMatcher.PATTERN_ADVANCED_GLOB)],
+            format = "custom",
+        )
         stringParam: String
     ): String = stringParam
 

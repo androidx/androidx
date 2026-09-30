@@ -57,7 +57,7 @@ public class `$DerivedSerializableOutputFunctions_AppFunctionInventory` : AppFun
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 

@@ -103,7 +103,7 @@ public class `$FakeAllPrimitiveParamsImpl_AppFunctionInventory` : AppFunctionInv
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 

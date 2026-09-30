@@ -18,13 +18,12 @@ package androidx.appfunctions.metadata
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
-import android.util.Log
+import android.os.PatternMatcher
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
-import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
+import androidx.appfunctions.internal.PatternMatchers
 import androidx.appsearch.annotation.Document
 import java.util.Objects
-import java.util.regex.PatternSyntaxException
 
 @IntDef(
     AppFunctionDataTypeMetadata.TYPE_UNIT,
@@ -1235,13 +1234,16 @@ constructor(
     )
     public val enumValues: Set<String>? = null,
     /**
-     * The regex pattern that string values must match.
+     * The patternMatchers that string values must match.
      *
-     * If specified, string values accepted by this data type must match this regular expression. A
-     * `null` value indicates that no pattern constraint is applied, whereas an empty string
-     * represents a pattern matching empty string values.
+     * If null, no pattern constraint is applied, otherwise it must be non-empty and string values
+     * accepted by this data type must match at least one of these [PatternMatcher]s.
      */
-    public val pattern: String? = null,
+    @get:Suppress(
+        // Null value is used to specify that the value was not set by the caller.
+        "NullableCollection"
+    )
+    public val patternMatchers: List<PatternMatcher>? = null,
     /**
      * The semantic format description for string values (e.g., `"uri"`).
      *
@@ -1255,20 +1257,34 @@ constructor(
         require(enumValues == null || enumValues.isNotEmpty()) {
             "If specified, enumValues cannot be empty."
         }
-    }
-
-    internal val compiledPattern: Regex? by lazy {
-        try {
-            pattern?.toRegex()
-        } catch (e: PatternSyntaxException) {
-            Log.w(
-                APP_FUNCTIONS_TAG,
-                "Failed to parse pattern regex \"$pattern\"; bypassing pattern validation",
-                e,
-            )
-            null
+        require(patternMatchers == null || patternMatchers.isNotEmpty()) {
+            "If specified, patternMatchers cannot be empty."
         }
     }
+
+    /**
+     * [PatternMatcher] does not implement equals, so compare by (path, type) regardless of order.
+     */
+    private val patternKeys: Set<Pair<String, Int>>
+        get() = patternMatchers.orEmpty().mapTo(mutableSetOf()) { it.path to it.type }
+
+    /**
+     * A regular expression equivalent to [patternMatchers], or `null` if [patternMatchers] is null
+     * or contains a type that this library version cannot convert (for example, a type added in a
+     * newer SDK).
+     *
+     * Combines all [patternMatchers] into a single expression joined as alternatives (logical OR),
+     * so it matches a string value if and only if at least one of [patternMatchers] matches it. The
+     * expression uses ECMA-262 regular expression syntax and is derived from [patternMatchers]
+     * rather than stored.
+     *
+     * This is intended for describing the constraint to non-Android consumers. Do not use it to
+     * validate values: evaluating a regular expression derived from untrusted metadata risks
+     * catastrophic backtracking (ReDoS) and regex dialect mismatches. An
+     * [androidx.appfunctions.AppFunctionData] built with this metadata already validates string
+     * values against [patternMatchers].
+     */
+    public val regexPattern: String? by lazy { patternMatchers?.toRegexPatternOrNull() }
 
     /**
      * Converts this [AppFunctionStringTypeMetadata] to an [AppFunctionDataTypeMetadataDocument].
@@ -1279,7 +1295,10 @@ constructor(
             isNullable = isNullable,
             description = description.ifEmpty { null },
             enumValues = enumValues?.toList() ?: emptyList(),
-            pattern = pattern,
+            patterns =
+                patternMatchers.orEmpty().map {
+                    AppFunctionStringPatternDocument(value = it.path, type = it.type.toLong())
+                },
             format = format,
         )
     }
@@ -1288,21 +1307,21 @@ constructor(
         if (this === other) return true
         if (other !is AppFunctionStringTypeMetadata) return false
         return super.equals(other) &&
-            pattern == other.pattern &&
+            patternKeys == other.patternKeys &&
             format == other.format &&
             enumValues == other.enumValues
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + (pattern?.hashCode() ?: 0)
+        result = 31 * result + patternKeys.hashCode()
         result = 31 * result + (format?.hashCode() ?: 0)
         result = 31 * result + (enumValues?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
-        return "AppFunctionStringTypeMetadata(isNullable=$isNullable, description=$description, pattern=$pattern, format=$format, enumValues=$enumValues)"
+        return "AppFunctionStringTypeMetadata(isNullable=$isNullable, description=$description, patternMatchers=$patternMatchers, format=$format, enumValues=$enumValues)"
     }
 
     override fun internalRequireSemanticallyEquivalentTo(
@@ -1315,8 +1334,8 @@ constructor(
         require(otherResolved is AppFunctionStringTypeMetadata) {
             "Expect ${AppFunctionStringTypeMetadata::class.java} but found ${otherResolved.javaClass}"
         }
-        require(this.pattern == otherResolved.pattern) {
-            "Pattern mismatch for String type. Expected: ${this.pattern}, actual: ${otherResolved.pattern}"
+        require(this.patternKeys == otherResolved.patternKeys) {
+            "Patterns mismatch for String type. Expected: ${this.patternMatchers}, actual: ${otherResolved.patternMatchers}"
         }
         require(this.format == otherResolved.format) {
             "Format mismatch for String type. Expected: ${this.format}, actual: ${otherResolved.format}"
@@ -1405,6 +1424,30 @@ internal data class AppFunctionNamedDataTypeMetadataDocument(
     @Document.DocumentProperty val dataTypeMetadata: AppFunctionDataTypeMetadataDocument,
 )
 
+/** Represents the persistent storage format of a single [PatternMatcher]. */
+@Document
+internal data class AppFunctionStringPatternDocument(
+    @Document.Namespace val namespace: String = APP_FUNCTION_NAMESPACE,
+    /** The id of the pattern. */
+    @Document.Id val id: String = APP_FUNCTION_ID_EMPTY,
+    /** The pattern string, i.e. [PatternMatcher.getPath]. */
+    @Document.StringProperty val value: String,
+    /** The pattern type, i.e. [PatternMatcher.getType]. */
+    @Document.LongProperty val type: Long,
+)
+
+/**
+ * Converts indexed patterns to [PatternMatcher]s, or null if there are none.
+ *
+ * @throws androidx.appfunctions.internal.InvalidPatternMatcherException if [PatternMatcher] rejects
+ *   any of the patterns.
+ */
+private fun List<AppFunctionStringPatternDocument>.toPatternMatchersOrNull():
+    List<PatternMatcher>? {
+    val matchers = map { PatternMatchers.create(it.value, it.type.toInt()) }
+    return matchers.ifEmpty { null }
+}
+
 /** Represents the persistent storage format of [AppFunctionDataTypeMetadata]. */
 @Document
 internal data class AppFunctionDataTypeMetadataDocument(
@@ -1458,8 +1501,8 @@ internal data class AppFunctionDataTypeMetadataDocument(
     @Document.StringProperty val description: String? = null,
     /** Enum values, that this data type is restricted to use. */
     @Document.StringProperty val enumValues: List<String> = emptyList(),
-    /** Pattern restriction for String data type. */
-    @Document.StringProperty val pattern: String? = null,
+    /** Pattern restrictions for String data type, matched with [PatternMatcher]. */
+    @Document.DocumentProperty val patterns: List<AppFunctionStringPatternDocument> = emptyList(),
     /** Format restriction for String data type. */
     @Document.StringProperty val format: String? = null,
 ) {
@@ -1553,7 +1596,7 @@ internal data class AppFunctionDataTypeMetadataDocument(
                 )
             AppFunctionDataTypeMetadata.TYPE_STRING ->
                 AppFunctionStringTypeMetadata(
-                    pattern = pattern,
+                    patternMatchers = patterns.toPatternMatchersOrNull(),
                     format = format,
                     enumValues = enumValues.toSet().ifEmpty { null },
                     isNullable = isNullable,

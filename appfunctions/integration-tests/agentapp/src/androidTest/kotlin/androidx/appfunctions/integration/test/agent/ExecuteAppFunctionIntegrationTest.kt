@@ -1564,7 +1564,7 @@ class ExecuteAppFunctionIntegrationTest {
     fun executeFunction_stringValueConstraint_failsForInvalidPattern() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val functionMetadata = searchAppFunction(ECHO_STRING_WITH_CONSTRAINT_FUNCTION_ID)
-        val invalidString = "12345" // Does not match ^[a-z]+$
+        val invalidString = "12345" // Does not match advanced glob [a-z]+
 
         assertThrows(IllegalArgumentException::class.java) {
             buildSingleStringParameterData(functionMetadata, "stringParam", invalidString)

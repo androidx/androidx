@@ -313,7 +313,7 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -464,7 +464,7 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = true,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -614,7 +614,7 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -673,7 +673,7 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = true,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -790,7 +790,7 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -1422,7 +1422,7 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = true,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -1460,7 +1460,7 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -1498,7 +1498,7 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = true,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -1529,7 +1529,7 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -1567,7 +1567,7 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
