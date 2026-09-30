@@ -23,9 +23,7 @@ import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -142,8 +140,12 @@ private fun <T> CapturedAnimatedVisibilityImpl(
                 transition.targetEnterExit(visible, it)
             }
 
-        val activeEnter = childTransition.trackActiveEnter(enter)
-        val activeExit = childTransition.trackActiveExit(exit)
+        val modifierState =
+            updateEnterExitModifierState(
+                childTransition,
+                enter,
+                exit,
+            )
 
         val isExiting = childTransition.targetState == PostExit
 
@@ -166,10 +168,8 @@ private fun <T> CapturedAnimatedVisibilityImpl(
                         layout(w, h) { placeable.place(0, 0) }
                     }
                     .then(
-                        childTransition.createModifier(
-                            enter = activeEnter,
-                            exit = activeExit,
-                            trackActiveEnterExit = false,
+                        childTransition.createEnterExitModifier(
+                            state = modifierState,
                             label = "CapturedBuiltIn",
                         )
                     )
