@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.runtime.Composable
@@ -197,6 +198,14 @@ internal class RemoteBooleanPropertyEntry(
         }
 }
 
+internal class RemoteImageBitmapPropertyEntry(
+    override val id: Short,
+    override val state: RemoteImageBitmap,
+) : CustomPropertyEntry() {
+    override fun toCustomProperty(creationState: RemoteComposeCreationState): CustomProperty =
+        CustomProperty(id, CustomProperty.INT_PROP, state.getIdForCreationState(creationState))
+}
+
 internal class RemoteFloatReturnEntry(
     override val id: Short,
     override val state: RemoteFloat,
@@ -303,6 +312,11 @@ public constructor(private val creationState: RemoteComposeCreationState? = null
 
     public fun property(id: Int, value: RemoteBoolean) {
         entries.add(RemoteBooleanPropertyEntry(id.toShort(), value))
+    }
+
+    /** Passes the document bitmap id of [value] as an integer property. */
+    public fun property(id: Int, value: RemoteImageBitmap) {
+        entries.add(RemoteImageBitmapPropertyEntry(id.toShort(), value))
     }
 
     public fun bindReturn(id: Int, state: RemoteString?) {

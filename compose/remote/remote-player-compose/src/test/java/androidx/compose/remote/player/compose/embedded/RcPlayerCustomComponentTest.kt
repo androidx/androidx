@@ -19,6 +19,8 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -44,6 +46,7 @@ import androidx.compose.remote.creation.compose.modifier.onTouchDown
 import androidx.compose.remote.creation.compose.modifier.onTouchUp
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteString
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -58,6 +61,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
@@ -665,6 +669,33 @@ class RcPlayerCustomComponentTest {
         rule.waitForIdle()
 
         assertThat(fired).isEqualTo("tap")
+    }
+
+    @Test
+    fun imageBitmapPropertyResolvesWithImageLoader() {
+        val bitmap = Bitmap.createBitmap(4, 4, Bitmap.Config.ARGB_8888).asImageBitmap()
+        var drawable: Drawable? = null
+        val plugin =
+            object : CustomComposablePlugin<Unit> {
+                override val name: String = "test:icon"
+
+                @Composable override fun extract(component: RcCustomComponent): Unit = Unit
+
+                @Composable
+                override fun Content(data: Unit, component: RcCustomComponent, modifier: Modifier) {
+                    val bitmapId by component.intState(IntProperty(1, default = -1))
+                    drawable = LocalRcImageLoader.current.loadImage(bitmapId).value
+                }
+            }
+
+        setCustomContent(customPlugins = CustomPluginRegistry(plugin)) {
+            RemoteCustomComponent(
+                name = "test:icon",
+                properties = { property(1, RemoteImageBitmap(bitmap)) },
+            )
+        }
+
+        assertThat(drawable).isNotNull()
     }
 
     private fun findCustom(operations: Collection<Operation>): Custom? {

@@ -96,6 +96,7 @@ class RemoteScreenshotTestRule(
         typefaceResolver: TypefaceResolver? = null,
         customSupport: AndroidCustomContext? = null,
         playComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
+        player: Player? = null,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
         setContent(
@@ -108,6 +109,7 @@ class RemoteScreenshotTestRule(
             typefaceResolver = typefaceResolver,
             customSupport = customSupport,
             playComposableWrapper = playComposableWrapper,
+            player = player,
             composable = composable,
         )
 
@@ -126,6 +128,7 @@ class RemoteScreenshotTestRule(
         typefaceResolver: TypefaceResolver? = null,
         customSupport: AndroidCustomContext? = null,
         playComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
+        player: Player? = null,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
         baseRule.setContent(
@@ -134,12 +137,13 @@ class RemoteScreenshotTestRule(
             creationComposableWrapper = creationComposableWrapper,
             onCoreDocumentCreated = onCoreDocumentCreated,
             player =
-                PlayerImpl(
-                    update = update,
-                    bitmapLoader = bitmapLoader,
-                    typefaceResolver = typefaceResolver,
-                    customSupport = customSupport,
-                ),
+                player
+                    ?: PlayerImpl(
+                        update = update,
+                        bitmapLoader = bitmapLoader,
+                        typefaceResolver = typefaceResolver,
+                        customSupport = customSupport,
+                    ),
             playComposableWrapper = playComposableWrapper,
             composable = composable,
         )
