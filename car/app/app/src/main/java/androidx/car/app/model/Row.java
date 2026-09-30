@@ -335,6 +335,8 @@ public final class Row implements Item {
                 mTexts,
                 mImage,
                 mEndImage,
+                mActions,
+                mNumericDecoration,
                 mToggle,
                 mOnClickDelegate == null,
                 mMetadata,
@@ -361,6 +363,8 @@ public final class Row implements Item {
                 && Objects.equals(mTexts, otherRow.mTexts)
                 && Objects.equals(mImage, otherRow.mImage)
                 && Objects.equals(mEndImage, otherRow.mEndImage)
+                && Objects.equals(mActions, otherRow.mActions)
+                && mNumericDecoration == otherRow.mNumericDecoration
                 && Objects.equals(mToggle, otherRow.mToggle)
                 && Objects.equals(mOnClickDelegate == null, otherRow.mOnClickDelegate == null)
                 && Objects.equals(mMetadata, otherRow.mMetadata)
