@@ -85,7 +85,7 @@ internal class MultiWidgetSelectionDelegate(
                 _previousLastVisibleOffset
             }
 
-    override fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder) {
+    override fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder, isLast: Boolean) {
         val layoutCoordinates = getLayoutCoordinates() ?: return
         val textLayoutResult = layoutResultCallback() ?: return
 
@@ -132,6 +132,7 @@ internal class MultiWidgetSelectionDelegate(
             givenRawPreviousHandleOffset = rawPreviousHandleOffset,
             previousHandlePosition = localPreviousHandlePosition,
             selectableId = selectableId,
+            isLast = isLast,
         )
     }
 
@@ -255,6 +256,7 @@ internal class MultiWidgetSelectionDelegate(
  *   to be recomputed from [previousHandlePosition]
  * @param previousHandlePosition the position of the previous handle
  * @param selectableId the selectableId for the selectable
+ * @param isLast whether this is the last selectable in the layout
  */
 internal fun SelectionLayoutBuilder.appendSelectableInfo(
     textLayoutResult: TextLayoutResult,
@@ -262,6 +264,7 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
     givenRawPreviousHandleOffset: Int,
     previousHandlePosition: Offset,
     selectableId: Long,
+    isLast: Boolean,
 ) {
     val bounds =
         Rect(
@@ -274,9 +277,35 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
     val currentXDirection = getXDirection(localPosition, bounds)
     val currentYDirection = getYDirection(localPosition, bounds)
 
-    fun otherDirection(anchor: Selection.AnchorInfo?): Direction =
-        anchor?.let { getDirectionById(it.selectableId, selectableId) }
-            ?: resolve2dDirection(currentXDirection, currentYDirection)
+    // Computes the direction for the "other" (non-dragged) handle
+    fun otherDirection(forStartSlot: Boolean): Direction {
+        // If there is no previous selection then we're just starting a selection gesture, so both
+        // handles are in the same spot.
+        val previousSelection =
+            previousSelection ?: return resolve2dDirection(currentXDirection, currentYDirection)
+
+        // If there is a previous selection, examine it to find the direction
+        val anchor = if (forStartSlot) previousSelection.start else previousSelection.end
+
+        // Check selectable order first
+        val directionBySelectables = getDirectionById(anchor.selectableId, selectableId)
+        if ((directionBySelectables != Direction.ON) || !allowSelectionBetweenSelectables) {
+            // When allowSelectionBetweenSelectables is false, this resolution is enough
+            return directionBySelectables
+        }
+
+        // When on the same selectable, check the slot in the previous layout to get better
+        // resolution
+        val previousLayout = previousLayout ?: return Direction.ON
+        val handleSlot = if (forStartSlot) previousLayout.startSlot else previousLayout.endSlot
+        val selectableSlot =
+            (if (forStartSlot) previousLayout.startInfo else previousLayout.endInfo).slot
+        return when {
+            handleSlot < selectableSlot -> Direction.BEFORE
+            handleSlot > selectableSlot -> Direction.AFTER
+            else -> Direction.ON
+        }
+    }
 
     val otherDirection: Direction
     val startXHandleDirection: Direction
@@ -284,21 +313,40 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
     val endXHandleDirection: Direction
     val endYHandleDirection: Direction
     if (isStartHandle) {
-        otherDirection = otherDirection(previousSelection?.end)
+        otherDirection = otherDirection(forStartSlot = false)
         startXHandleDirection = currentXDirection
         startYHandleDirection = currentYDirection
         endXHandleDirection = otherDirection
         endYHandleDirection = otherDirection
     } else {
-        otherDirection = otherDirection(previousSelection?.start)
+        otherDirection = otherDirection(forStartSlot = true)
         startXHandleDirection = otherDirection
         startYHandleDirection = otherDirection
         endXHandleDirection = currentXDirection
         endYHandleDirection = currentYDirection
     }
 
-    if (!allowSelectionBetweenSelectables) {
-        if (!isSelected(resolve2dDirection(currentXDirection, currentYDirection), otherDirection)) {
+    val currentDirection = resolve2dDirection(currentXDirection, currentYDirection)
+
+    if (allowSelectionBetweenSelectables) {
+        // Ignore all selectables before the selection, unless we've reached the end
+        if (
+            (currentDirection == Direction.AFTER) && (otherDirection == Direction.AFTER) && !isLast
+        ) {
+            return
+        }
+        // Ignore selectables after the selection, unless nothing has been added yet (which means
+        // both handles are right before the current selectable), in which case append this one
+        // because we have to have at least one.
+        if (
+            (currentDirection == Direction.BEFORE) &&
+                (otherDirection == Direction.BEFORE) &&
+                !isEmpty
+        ) {
+            return
+        }
+    } else {
+        if (!isSelected(currentDirection, otherDirection)) {
             return
         }
     }
