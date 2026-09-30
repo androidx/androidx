@@ -399,18 +399,9 @@ public fun captureRemoteDocument(
                 val invalidations = Channel<Unit>(Channel.CONFLATED)
                 // Seed so the initial document is always produced.
                 invalidations.trySend(Unit)
-                // Apply notifications raised by states written during this session's own document
-                // rendering must not re-trigger it, otherwise regeneration would spin. Tracking the
-                // exact state objects mutated inside renderSnapshot avoids swallowing global
-                // snapshot changes from other threads that happen to be coalesced during apply().
-                val renderingModifiedStates = newIdentitySet()
+                val renderTracker = RenderInvalidationTracker()
                 val applyObserverHandle = Snapshot.registerApplyObserver { changed, _ ->
-                    val hasExternalModification =
-                        synchronized(renderingModifiedStates) {
-                            renderingModifiedStates.isEmpty() ||
-                                changed.any { it !in renderingModifiedStates }
-                        }
-                    if (hasExternalModification) {
+                    if (renderTracker.onApplied(changed)) {
                         invalidations.trySend(Unit)
                     }
                 }
@@ -433,13 +424,16 @@ public fun captureRemoteDocument(
 
                         val bytes =
                             withContext(recomposerDispatcher) {
+                                if (!renderTracker.beginRender(applier.changeCount)) {
+                                    return@withContext null
+                                }
+                                val renderReads = newIdentitySet()
                                 try {
                                     withRenderSnapshot(
+                                        readObserver = { read -> renderReads.add(read) },
                                         writeObserver = { written ->
-                                            synchronized(renderingModifiedStates) {
-                                                renderingModifiedStates.add(written)
-                                            }
-                                        }
+                                            renderTracker.onRenderWrite(written)
+                                        },
                                     ) {
                                         creationState.document =
                                             profile.create(
@@ -466,11 +460,9 @@ public fun captureRemoteDocument(
                                         creationState.document.encodeToByteArray()
                                     }
                                 } finally {
-                                    synchronized(renderingModifiedStates) {
-                                        renderingModifiedStates.clear()
-                                    }
+                                    renderTracker.endRender(renderReads)
                                 }
-                            }
+                            } ?: continue
 
                         if (previousBytes?.contentEquals(bytes) != true) {
                             previousBytes = bytes
@@ -734,10 +726,12 @@ private suspend fun awaitApplyObserverNotifications(canYield: Boolean): Boolean 
  * recomposer has seen them. Disposing a snapshot that wrote nothing avoids that.
  */
 private fun <T> withRenderSnapshot(
+    readObserver: ((Any) -> Unit)? = null,
     writeObserver: ((Any) -> Unit)? = null,
     block: () -> T,
 ): T {
-    val snapshot = Snapshot.takeMutableSnapshot(writeObserver = writeObserver)
+    val snapshot =
+        Snapshot.takeMutableSnapshot(readObserver = readObserver, writeObserver = writeObserver)
     try {
         val result = snapshot.enter(block)
         if (snapshot.hasPendingChanges()) {
@@ -746,6 +740,76 @@ private fun <T> withRenderSnapshot(
         return result
     } finally {
         snapshot.dispose()
+    }
+}
+
+/**
+ * Decides when the streaming [captureRemoteDocument] loop must wake up, and when it must actually
+ * re-render and re-encode the document.
+ * - Apply notifications consisting only of states written by this session's own render are ignored,
+ *   otherwise regeneration would spin. Tracking the exact state objects mutated inside the render
+ *   snapshot avoids swallowing global snapshot changes from other threads that happen to be
+ *   coalesced during `apply()`.
+ * - Any other apply notification wakes the loop so the recomposer is driven to quiescence.
+ * - A render is only performed if composition applied changes to the node tree since the previous
+ *   render ([RemoteComposeApplier.changeCount] moved), a state read by the previous render changed
+ *   (e.g. inside a `RemoteCanvas` draw lambda, which runs at render time), or an external change
+ *   landed while a render was in progress. Unrelated global snapshot writes elsewhere in the
+ *   process therefore no longer cost a full render and encode.
+ *
+ * Limits: render inputs that are not snapshot state (e.g. plain fields mutated from an effect) are
+ * not observed. Previously any unrelated snapshot write forced a re-render and would incidentally
+ * pick such changes up; now they are only rendered alongside the next tree change or render-read
+ * state change.
+ *
+ * Thread-safe: [onApplied] runs on whichever thread sends apply notifications.
+ */
+private class RenderInvalidationTracker {
+    private val lock = Any()
+    private val renderWrites = newIdentitySet()
+    private var renderReads: Set<Any> = emptySet()
+    private var isRendering = false
+    private var renderInputsChanged = true
+    private var lastRenderChangeCount = 0L
+
+    /** Apply observer hook. Returns `true` if the capture loop should wake up. */
+    fun onApplied(changed: Set<Any>): Boolean =
+        synchronized(lock) {
+            val hasExternalModification =
+                renderWrites.isEmpty() || changed.any { it !in renderWrites }
+            if (hasExternalModification && !renderInputsChanged) {
+                renderInputsChanged =
+                    isRendering || changed.any { it !in renderWrites && it in renderReads }
+            }
+            hasExternalModification
+        }
+
+    fun onRenderWrite(state: Any) {
+        synchronized(lock) { renderWrites.add(state) }
+    }
+
+    /**
+     * Returns `true` and marks a render as in progress if the document may have changed since the
+     * previous render; `false` if rendering can be skipped.
+     */
+    fun beginRender(changeCount: Long): Boolean =
+        synchronized(lock) {
+            val shouldRender = renderInputsChanged || changeCount != lastRenderChangeCount
+            if (shouldRender) {
+                renderInputsChanged = false
+                lastRenderChangeCount = changeCount
+                isRendering = true
+            }
+            shouldRender
+        }
+
+    /** Ends a render started by [beginRender], recording the states it read. */
+    fun endRender(reads: Set<Any>) {
+        synchronized(lock) {
+            renderReads = reads
+            renderWrites.clear()
+            isRendering = false
+        }
     }
 }
 
