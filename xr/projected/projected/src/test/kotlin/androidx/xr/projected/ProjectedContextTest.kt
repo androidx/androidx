@@ -29,8 +29,20 @@ import androidx.xr.projected.ProjectedContext.PROJECTED_DEVICE_NAME
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import androidx.xr.projected.testing.ProjectedTestRule
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
@@ -272,6 +284,120 @@ class ProjectedContextTest {
             assertThat(flow.first()).isFalse()
         }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    @Test
+    fun isProjectedDeviceConnected_displayRemovedWhileCollecting_emitsFalse() = runTest {
+        val emissions = Channel<Boolean>(Channel.UNLIMITED)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            ProjectedContext.isProjectedDeviceConnected(context, coroutineContext).collect {
+                emissions.send(it)
+            }
+        }
+        assertThat(emissions.receive()).isTrue()
+
+        // Unlike in the tests above, the display is removed while the flow is being collected, so
+        // the new value can only come from the display listener.
+        ShadowDisplayManager.removeDisplay(
+            virtualDeviceManager.virtualDevices.first().displayIds[0]
+        )
+
+        assertThat(emissions.receive()).isFalse()
+    }
+
+    /**
+     * Verifies that callbacks delivered on different threads evaluate and emit the state one at a
+     * time. Otherwise a slow callback can emit a stale value after a newer callback already emitted
+     * the current one, leaving the flow stuck on the stale value.
+     *
+     * The first callback is parked in the middle of evaluating the state. A second callback is then
+     * delivered on another thread and must block on the lock instead of evaluating the state before
+     * the first callback is released.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    @Test
+    fun isProjectedDeviceConnected_concurrentCallbacks_areSerialized() = runTest {
+        val testThread = Thread.currentThread()
+        val firstCallbackThread = AtomicReference<Thread?>()
+        val secondCallbackThread = CompletableDeferred<Thread>()
+        val firstCallbackParked = CompletableDeferred<Unit>()
+        val secondCallbackEntered = CompletableDeferred<Unit>()
+        val releaseFirstCallback = CountDownLatch(1)
+        val callbackExecutor = Executors.newFixedThreadPool(2)
+        val callbackDispatcher = Executor { command ->
+            callbackExecutor.execute {
+                val currentThread = Thread.currentThread()
+                if (
+                    !firstCallbackThread.compareAndSet(null, currentThread) &&
+                        currentThread !== firstCallbackThread.get()
+                ) {
+                    secondCallbackThread.complete(currentThread)
+                }
+                command.run()
+            }
+        }
+            .asCoroutineDispatcher()
+
+        // Evaluating the state looks up system services. Park the first callback there and note
+        // whether a second callback enters while the first one is still parked.
+        val testContext =
+            HostContextInterceptor(context) {
+                if (Thread.currentThread() !== testThread) {
+                    if (Thread.currentThread() === firstCallbackThread.get()) {
+                        firstCallbackParked.complete(Unit)
+                        releaseFirstCallback.await()
+                    } else {
+                        secondCallbackEntered.complete(Unit)
+                    }
+                }
+            }
+        val emissions = Channel<Boolean>(Channel.UNLIMITED)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            ProjectedContext.isProjectedDeviceConnected(testContext, callbackDispatcher).collect {
+                emissions.send(it)
+            }
+        }
+
+        try {
+            // The flow is collected on this thread, so the listeners are registered by now.
+            assertThat(emissions.receive()).isTrue()
+
+            // Remove the projected display to trigger the first callback and park it
+            // mid-evaluation.
+            ShadowDisplayManager.removeDisplay(
+                virtualDeviceManager.virtualDevices.first().displayIds[0]
+            )
+            firstCallbackParked.await()
+
+            // Trigger a second callback on the other executor thread while the first callback holds
+            // the lock.
+            ShadowDisplayManager.addDisplay("")
+            val secondThread = secondCallbackThread.await()
+
+            // Wait for the second thread to enter the BLOCKED state on the lock.
+            while (secondThread.state != Thread.State.BLOCKED) {
+                assertWithMessage(
+                        "Second thread did not enter the BLOCKED state, it proceeded past the" +
+                            " first thread"
+                    )
+                    .that(secondCallbackEntered.isCompleted)
+                    .isFalse()
+                Thread.yield()
+            }
+
+            // Release the first callback so it finishes and releases the lock, then wait for the
+            // second callback to acquire the lock and evaluate the state before checking the
+            // emitted disconnected state.
+            releaseFirstCallback.countDown()
+            secondCallbackEntered.await()
+            assertThat(emissions.receive()).isFalse()
+        } finally {
+            releaseFirstCallback.countDown()
+            callbackExecutor.shutdownNow()
+        }
+    }
+
     // TODO: b/476403759 - Replace reflection with the shadow APIs when they are available.
     private fun clearVirtualDevices() {
         ReflectionHelpers.getStaticField<MutableList<*>>(
@@ -310,6 +436,22 @@ class ProjectedContextTest {
     class LocalContextWrapper(context: Context, private val deviceId: Int) :
         ContextWrapper(context) {
         override fun getDeviceId() = deviceId
+    }
+
+    /**
+     * Runs [onSystemServiceLookup] before every system service lookup on a created device context.
+     */
+    private class HostContextInterceptor(
+        context: Context,
+        private val onSystemServiceLookup: () -> Unit,
+    ) : ContextWrapper(context) {
+        override fun createDeviceContext(deviceId: Int): Context =
+            object : ContextWrapper(super.createDeviceContext(deviceId)) {
+                override fun getSystemService(name: String): Any? {
+                    onSystemServiceLookup()
+                    return super.getSystemService(name)
+                }
+            }
     }
 
     private fun createVirtualDisplayForDevice(virtualDevice: Any?): VirtualDisplay =
