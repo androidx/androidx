@@ -30,6 +30,8 @@ import android.window.OnBackInvokedDispatcher
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.xr.runtime.SpatialApiVersionHelper
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.scenecore.runtime.CleanupAction
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.PanelEntity
@@ -40,6 +42,7 @@ import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
 import java.lang.ref.WeakReference
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Displays a [android.view.View] on a spatial panel.
@@ -220,23 +223,70 @@ internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
         return BackInvokedRegistration(dispatcher, callback)
     }
 
+    private val inFlightSetSizeCount = AtomicInteger(0)
+
+    private fun onSetSizeTransactionComplete() {
+        if (inFlightSetSizeCount.decrementAndGet() <= 0) {
+            inFlightSetSizeCount.set(0)
+            isSetSizePending.set(false)
+            notifyOnSetSizeComplete()
+        }
+    }
+
+    override fun dispose() {
+        inFlightSetSizeCount.set(0)
+        super.dispose()
+    }
+
     override var sizeInPixels: PixelDimensions
         get() = super.sizeInPixels
+        // SpatialApiVersionHelper.previewSpatialApiVersion is annotated with
+        // @RestrictTo(RestrictTo.Scope.LIBRARY) in androidx.xr.runtime.
+        @Suppress("RestrictedApiAndroidX")
         set(value) {
             requiresApiLevel(30) {
                 if (super.sizeInPixels == value) return
-                surfaceControlViewHost.relayout(value.width, value.height)
                 val surfacePackage = surfaceControlViewHost.surfacePackage ?: return
+                super.sizeInPixels = value
+                inFlightSetSizeCount.incrementAndGet()
+                isSetSizePending.set(true)
                 try {
-                    extensions.createNodeTransaction().use { transaction ->
-                        transaction
-                            .setWindowBounds(surfacePackage, value.width, value.height)
-                            .apply()
+                    // setViewHostSize and addTransactionCommittedListener were unhidden in preview
+                    // (1.5.0-alpha01) after stable API 4 finalization, so non-preview API 4 builds
+                    // (previewSpatialApiVersion == 0) do not include them.
+                    if (
+                        SpatialApiVersionHelper.spatialApiVersion >=
+                            SpatialApiVersions.SPATIAL_API_V4 &&
+                            SpatialApiVersionHelper.previewSpatialApiVersion > 0
+                    ) {
+                        extensions.createNodeTransaction().use { transaction ->
+                            transaction.setWindowBounds(surfacePackage, value.width, value.height)
+                            // NodeTransaction is a short-lived builder whose commit listener is a
+                            // one-shot callback consumed on apply(). Clearing
+                            // setSizeCompleteListeners in BasePanelEntity.dispose() ensures this
+                            // callback is a safe no-op if committed after disposal.
+                            transaction.underlyingObject
+                                .setViewHostSize(surfaceControlViewHost, value.width, value.height)
+                                .addTransactionCommittedListener(scheduledExecutor) {
+                                    onSetSizeTransactionComplete()
+                                }
+                            transaction.apply()
+                        }
+                    } else {
+                        surfaceControlViewHost.relayout(value.width, value.height)
+                        extensions.createNodeTransaction().use { transaction ->
+                            transaction
+                                .setWindowBounds(surfacePackage, value.width, value.height)
+                                .apply()
+                        }
+                        onSetSizeTransactionComplete()
                     }
+                } catch (t: Throwable) {
+                    onSetSizeTransactionComplete()
+                    throw t
                 } finally {
                     surfacePackage.release()
                 }
-                super.sizeInPixels = value
             }
         }
 

@@ -153,7 +153,7 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
         // Verify: While the IPC call is in-flight, the listener must not be invoked,
         // and the entity should be in a pending state.
         Truth.assertThat(listenerInvoked).isFalse()
-        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isTrue()
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize).isTrue()
 
         // Manually trigger the completion of the IPC call.
         shadowExtensions.flushSetMainWindowSizeCallbacks(activity)
@@ -161,7 +161,7 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
         // Verify: Once the IPC completes, the listener is synchronously notified
         // and the pending state is cleared.
         Truth.assertThat(listenerInvoked).isTrue()
-        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isFalse()
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize).isFalse()
 
         // Cleanup
         mainPanelEntity.removeOnSetSizeCompleteListener(listener)
@@ -187,7 +187,7 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
         // Verify: The first request is sent to the underlying API immediately.
         Truth.assertThat(shadowExtensions.getMainWindowWidth(activity))
             .isEqualTo((kTestDimensions100.width * pixelsPerMeter).toInt())
-        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isTrue()
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize).isTrue()
 
         // 2. Simulate rapid, consecutive size updates from the user before the first request
         // completes.
@@ -200,7 +200,7 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
         // The intermediate requests (200, 300, 400) are deferred and coalesced.
         Truth.assertThat(shadowExtensions.getMainWindowWidth(activity))
             .isEqualTo((kTestDimensions100.width * pixelsPerMeter).toInt())
-        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isTrue()
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize).isTrue()
 
         // 3. Manually complete the FIRST request (100).
         // This triggers handleSetSizeComplete(), which discovers the coalesced deferred
@@ -210,13 +210,13 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
         // Verify: The system automatically skipped 200 and 300, and immediately
         // sent the latest requested size (400) to the underlying API.
         Truth.assertThat(shadowExtensions.getMainWindowWidth(activity)).isEqualTo(800000)
-        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isTrue()
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize).isTrue()
 
         // 4. Manually complete the SECOND request (400).
         shadowExtensions.flushSetMainWindowSizeCallbacks(activity)
 
         // Verify: The system has finished all resize operations and is now idle.
-        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isFalse()
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize).isFalse()
 
         // Cleanup
         shadowExtensions.deferSetMainWindowSizeCallbacks(false)
@@ -236,7 +236,7 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
 
         // Verify: Even if the underlying API throws an exception synchronously,
         // our error handling ensures the pending flag is correctly recovered to false.
-        Truth.assertThat(mainPanelEntity.isWaitingForSetSize()).isFalse()
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize).isFalse()
 
         // Verify: The listener MUST be invoked on failure to prevent the UI
         // from getting permanently stuck in a hidden state.
