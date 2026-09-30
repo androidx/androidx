@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.LayoutDirection
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -232,6 +233,46 @@ class ScrollToTest(private val config: TestConfig) {
                     .that(targetBoundsAfter.center)
                     .isEqualTo(viewportBounds.center)
             }
+        }
+    }
+
+    @Test
+    fun scrollToTarget_autoAdvanceDisabled() {
+        val scrollState = ScrollState(config.initialScrollOffset)
+        val isRtl = config.orientation == HorizontalRtl
+
+        rule.setContent {
+            val direction = if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+            CompositionLocalProvider(LocalLayoutDirection provides direction) {
+                when (config.orientation) {
+                    HorizontalLtr,
+                    HorizontalRtl -> Row(rowModifier(scrollState)) { Boxes() }
+                    Vertical -> Column(columnModifier(scrollState)) { Boxes() }
+                }
+            }
+        }
+
+        if (config.expectScrolling) {
+            // When scrolling is required to bring the target into view, performScrollTo() fails
+            // because the scroll animation needs the test clock to advance in order to run.
+            rule.mainClock.autoAdvance = false
+            val error =
+                assertThrows(AssertionError::class.java) {
+                    rule.onNodeWithTag(itemTag).performScrollTo()
+                }
+            assertThat(error).hasMessageThat().contains("mainClock.autoAdvance is set to false")
+
+            // Re-enabling autoAdvance allows the scroll animation to run and bring the node into
+            // view.
+            rule.mainClock.autoAdvance = true
+            rule.onNodeWithTag(itemTag).performScrollTo()
+            rule.waitForIdle()
+        } else {
+            // When the target is already visible in the viewport, no scroll animation is needed,
+            // so performScrollTo() is a no-op and succeeds even with autoAdvance disabled.
+            rule.mainClock.autoAdvance = false
+            rule.onNodeWithTag(itemTag).performScrollTo()
+            rule.mainClock.autoAdvance = true
         }
     }
 
