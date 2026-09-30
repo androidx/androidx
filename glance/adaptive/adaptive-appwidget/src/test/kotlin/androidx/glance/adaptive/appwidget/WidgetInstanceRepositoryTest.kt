@@ -124,18 +124,6 @@ class WidgetInstanceRepositoryTest {
     }
 
     @Test
-    fun findAppWidgetIdsForWidgetName_withManifestMetaData_matchesWidgetName() {
-        setupBoundWidget(401, MatchingReceiver::class.java.name)
-        registerReceiverInManifestWithMetaData(MatchingReceiver::class.java.name, "matching_widget")
-
-        val result = repository.findAppWidgetIdsForWidgetName("matching_widget", widgetIds = null)
-
-        val componentName = ComponentName(context.packageName, MatchingReceiver::class.java.name)
-        assertThat(result).containsKey(componentName)
-        assertThat(result[componentName]?.toList()).containsExactly(401)
-    }
-
-    @Test
     fun findReceiverComponentsForWidgetName_withZeroBoundWidgets_returnsMatchingComponent() {
         registerReceiverInManifest(MatchingReceiver::class.java.name)
 
@@ -147,8 +135,9 @@ class WidgetInstanceRepositoryTest {
     }
 
     @Test
-    fun findReceiverComponentsForWidgetName_withManifestMetaData_matchesWidgetName() {
-        registerReceiverInManifestWithMetaData(MatchingReceiver::class.java.name, "matching_widget")
+    @Config(sdk = [32])
+    fun findReceiverComponentsForWidgetName_preSdk33_returnsMatchingComponent() {
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
 
         val components = repository.findReceiverComponentsForWidgetName("matching_widget")
 
@@ -191,29 +180,5 @@ class WidgetInstanceRepositoryTest {
             componentName,
             IntentFilter(AppWidgetManager.ACTION_APPWIDGET_UPDATE),
         )
-    }
-
-    private fun registerReceiverInManifestWithMetaData(receiverName: String, widgetName: String) {
-        val componentName = ComponentName(context.packageName, receiverName)
-        val shadowPackageManager = shadowOf(context.packageManager)
-        shadowPackageManager.addReceiverIfNotPresent(componentName)
-        shadowPackageManager.addIntentFilterForReceiver(
-            componentName,
-            IntentFilter(AppWidgetManager.ACTION_APPWIDGET_UPDATE),
-        )
-        val updateIntent =
-            android.content.Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
-                setPackage(context.packageName)
-            }
-        val resolveInfos =
-            context.packageManager.queryBroadcastReceivers(
-                updateIntent,
-                android.content.pm.PackageManager.GET_META_DATA,
-            )
-        val resolveInfo = resolveInfos.firstOrNull { it.activityInfo?.name == receiverName }
-        resolveInfo?.activityInfo?.metaData =
-            Bundle().apply {
-                putString(GlanceAdaptiveWidgetReceiver.META_DATA_WIDGET_NAME, widgetName)
-            }
     }
 }
