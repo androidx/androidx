@@ -26,8 +26,11 @@ import androidx.compose.remote.creation.compose.capture.heightDp
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.embedded.CustomPluginRegistry
 import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.player.core.state.StateUpdater
 import androidx.compose.remote.testing.RemoteBaseContentTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -74,6 +77,10 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
      */
     fun setRemoteContent(
         customPlugins: CustomPluginRegistry? = null,
+        profile: Profile = RcPlatformProfiles.ANDROIDX,
+        onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit =
+            { _, _, _ ->
+            },
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo =
             createCreationDisplayInfo(
                 context = ApplicationProvider.getApplicationContext(),
@@ -109,6 +116,7 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
                     ): MutableState<CoreDocument?> {
                         return rememberRemoteDocument(
                             creationDisplayInfo = remoteCreationDisplayInfo,
+                            profile = profile,
                             content = composable,
                         )
                     }
@@ -117,7 +125,11 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
                 object : RemoteBaseContentTestRule.Player {
                     @Composable
                     override fun Play(coreDocument: CoreDocument, size: Size) {
-                        RcPlayer(document = coreDocument, customPlugins = customPlugins)
+                        RcPlayer(
+                            document = coreDocument,
+                            customPlugins = customPlugins,
+                            onNamedAction = onNamedAction,
+                        )
                     }
                 },
             size =
@@ -134,6 +146,7 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
             waitForIdle()
             mainClock.advanceTimeByFrame()
         }
+        waitForIdle()
         return createdDocument!!
     }
 }

@@ -102,14 +102,27 @@ import androidx.compose.ui.util.fastForEach
 public fun ComponentModifiers.toModifier(
     drawOpsList: List<Operation>? = null,
     ignoreVisibility: Boolean = false,
+): Modifier = toModifier(drawOpsList, ignoreVisibility, ignoreClicks = false)
+
+/**
+ * Variant of [toModifier] that can skip click operations ([ignoreClicks]), used when a custom
+ * component plugin dispatches the clicks itself (see [CustomComposablePlugin.handlesClick]).
+ */
+@Composable
+@Suppress("ModifierFactoryExtensionFunction")
+internal fun ComponentModifiers.toModifier(
+    drawOpsList: List<Operation>?,
+    ignoreVisibility: Boolean,
+    ignoreClicks: Boolean,
 ): Modifier {
     var modifier: Modifier = Modifier
     // Track whether a DrawContentOperation has already been attached to the modifier chain, so
     // that subsequent clip operations are hoisted before drawWithContent without bypassing
     // preceding padding.
     var drawContentProcessed = false
-    var multiClickProcessed = false
-    val hasClickModifier = list.fastAny { it is ClickModifierOperation || it is MultiClickModifier }
+    var multiClickProcessed = ignoreClicks
+    val hasClickModifier =
+        !ignoreClicks && list.fastAny { it is ClickModifierOperation || it is MultiClickModifier }
     list.fastForEach { op ->
         modifier = modifier.rcModifierInspector(op)
         modifier =
@@ -130,7 +143,7 @@ public fun ComponentModifiers.toModifier(
                 is WidthInModifierOperation -> modifier.widthIn(op)
                 is HeightInModifierOperation -> modifier.heightIn(op)
                 is DimensionConstraintsModifierOperation -> modifier.dimensionConstraints(op)
-                is ClickModifierOperation -> modifier.click(op)
+                is ClickModifierOperation -> if (ignoreClicks) modifier else modifier.click(op)
                 is MultiClickModifier -> {
                     // RemoteCompose emits a separate MultiClickModifier operation per gesture type
                     // (e.g. CLICK_TYPE_SINGLE, CLICK_TYPE_DOUBLE, CLICK_TYPE_LONG) on the same

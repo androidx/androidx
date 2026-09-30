@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.Custom.CustomProperty
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.BaseRemoteState
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -31,12 +32,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 
+internal class RemoteCustomComponentNode : RemoteComposeNode() {
+    var name: String = ""
+    var properties: RemoteCustomPropertiesScope.() -> Unit = {}
+
+    override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
+        val scope = overriddenScope(creationState)
+        val recordingModifier = scope.toRecordingModifier(modifier)
+        if (recordingModifier.componentId == -1) {
+            recordingModifier.componentId(creationState.document.nextId())
+        }
+        val coreProperties = RemoteCustomPropertiesScope(creationState).apply(properties).properties
+        creationState.document.startCustom(recordingModifier, name, coreProperties)
+        creationState.document.endCustom()
+    }
+}
+
 /**
  * Bridge exposing RemoteCompose Custom Components as `@RemoteComposable` components in the Compose
  * DSL.
  *
- * @param modifier High-level [RemoteModifier] to decorate the custom component container.
+ * The component is recorded directly as a layout component rather than inside a [RemoteCanvas], so
+ * its [modifier] (e.g. `clickable` or `combinedClickable`) applies to the Custom component itself
+ * and can be handled by the host's plugin.
+ *
  * @param name Unique registered custom component name.
+ * @param modifier High-level [RemoteModifier] to decorate the custom component.
  * @param properties Custom property definitions to pass to the custom component.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -48,13 +69,14 @@ public fun RemoteCustomComponent(
     modifier: RemoteModifier = RemoteModifier,
     properties: RemoteCustomPropertiesScope.() -> Unit = {},
 ) {
-    RemoteCanvas(modifier = modifier) {
-        remoteCanvas.custom(
-            config = name,
-            modifier = modifier,
-            properties = properties,
-        )
-    }
+    RemoteComposeNode(
+        factory = ::RemoteCustomComponentNode,
+        update = {
+            set(name) { this.name = it }
+            set(modifier) { this.modifier = it }
+            set(properties) { this.properties = it }
+        },
+    )
 }
 
 /** An entry representing a single custom property or return binding. */
