@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -43,11 +44,14 @@ fun startActivityWithSplashScreen(
     intentModifier: ((Intent) -> Unit)? = null,
 ): SplashScreenTestController {
     // Start from the home screen
-    InstrumentationRegistry.getInstrumentation()
-        .getUiAutomation()
-        .executeShellCommand(
-            "am start -a android.intent.action.MAIN -c android.intent.category.HOME"
+    ParcelFileDescriptor.AutoCloseInputStream(
+            InstrumentationRegistry.getInstrumentation()
+                .uiAutomation
+                .executeShellCommand(
+                    "am start -W -a android.intent.action.MAIN -c android.intent.category.HOME"
+                )
         )
+        .use { it.readBytes() }
 
     // Wait for launcher
     val launcherPackage: String = device.launcherPackageName
