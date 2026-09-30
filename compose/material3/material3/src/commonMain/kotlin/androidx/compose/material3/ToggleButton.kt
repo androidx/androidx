@@ -152,6 +152,8 @@ import kotlin.jvm.JvmInline
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  * @see [Button] for a static button that doesn't need to be toggled.
  * @see [IconToggleButton] for a toggleable button where the content is specifically an [Icon].
+ *
+ * @material3expressive
  */
 @Composable
 public fun ToggleButton(
@@ -270,6 +272,8 @@ public fun ToggleButton(
  *   interactions will still happen internally.
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  * @see [ElevatedButton] for a static button that doesn't need to be toggled.
+ *
+ * @material3expressive
  */
 @Composable
 public fun ElevatedToggleButton(
@@ -357,6 +361,8 @@ public fun ElevatedToggleButton(
  * @see [FilledTonalButton] for a static button that doesn't need to be toggled.
  * @see [FilledTonalIconToggleButton] for a toggleable button where the content is specifically an
  *   [Icon].
+ *
+ * @material3expressive
  */
 @Composable
 public fun FilledTonalToggleButton(
@@ -442,6 +448,8 @@ public fun FilledTonalToggleButton(
  * @see [OutlinedButton] for a static button that doesn't need to be toggled.
  * @see [OutlinedIconToggleButton] for a toggleable button where the content is specifically an
  *   [Icon].
+ *
+ * @material3expressive
  */
 @Composable
 public fun OutlinedToggleButton(
