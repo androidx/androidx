@@ -19,6 +19,7 @@ package androidx.compose.foundation.layout
 import android.annotation.SuppressLint
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.FlexBoxScopeInstance.flex
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -659,6 +660,56 @@ class FlexBoxTest {
 
         rule.waitForIdle()
         Truth.assertThat(focusLog).containsExactly(1, 2, 0).inOrder()
+    }
+
+    @Test
+    fun column_multiLineText_wrapsLikeStandardColumn() {
+        val text =
+            "This is a long paragraph of text that needs to wrap into multiple lines when " +
+                "placed in a narrow 120dp container."
+        var flexTextHeight = 0
+        var flexTextLineCount = 0
+        var flexSiblingY = -1f
+        var columnTextHeight = 0
+        var columnSiblingY = -1f
+
+        rule.setContent {
+            Row {
+                FlexBox(
+                    modifier = Modifier.width(120.dp),
+                    config = { direction(FlexDirection.Column) },
+                ) {
+                    BasicText(
+                        text = text,
+                        modifier = Modifier.onSizeChanged { flexTextHeight = it.height },
+                        onTextLayout = { flexTextLineCount = it.lineCount },
+                    )
+                    Box(
+                        Modifier.fillMaxWidth().height(40.dp).onPlaced {
+                            flexSiblingY = it.positionInParent().y
+                        }
+                    )
+                }
+                Column(modifier = Modifier.width(120.dp)) {
+                    BasicText(
+                        text = text,
+                        modifier = Modifier.onSizeChanged { columnTextHeight = it.height },
+                    )
+                    Box(
+                        Modifier.fillMaxWidth().height(40.dp).onPlaced {
+                            columnSiblingY = it.positionInParent().y
+                        }
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(flexTextLineCount).isGreaterThan(1)
+            Truth.assertThat(flexTextHeight).isEqualTo(columnTextHeight)
+            Truth.assertThat(flexSiblingY).isEqualTo(columnSiblingY)
+            Truth.assertThat(flexSiblingY).isEqualTo(flexTextHeight.toFloat())
+        }
     }
 
     companion object {
