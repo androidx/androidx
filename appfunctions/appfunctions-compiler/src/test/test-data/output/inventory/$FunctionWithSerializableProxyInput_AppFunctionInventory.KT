@@ -35,7 +35,7 @@ public class `$FunctionWithSerializableProxyInput_AppFunctionInventory` : AppFun
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = "uri",
       )
 
@@ -63,7 +63,7 @@ public class `$FunctionWithSerializableProxyInput_AppFunctionInventory` : AppFun
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = "uri",
       )
 
@@ -98,7 +98,7 @@ public class `$FunctionWithSerializableProxyInput_AppFunctionInventory` : AppFun
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = "uri",
       )
 
@@ -133,7 +133,7 @@ public class `$FunctionWithSerializableProxyInput_AppFunctionInventory` : AppFun
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = "uri",
       )
 

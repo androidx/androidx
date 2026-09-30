@@ -51,6 +51,7 @@ import androidx.appfunctions.compiler.core.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionParcelableTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionReferenceTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionSchemaMetadata
+import androidx.appfunctions.compiler.core.metadata.AppFunctionStringPatternMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionStringTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionUnitTypeMetadata
 import com.google.devtools.ksp.getDeclaredProperties
@@ -552,13 +553,18 @@ class AppFunctionMetadataCreatorHelper(
                 )
                 ?.filterIsInstance<String>() ?: emptyList()
 
-        val pattern = buildAllowedSchemeRegex(allowedSchemes)
+        val patterns = allowedSchemes.map { scheme ->
+            AppFunctionStringPatternMetadata(
+                value = "$scheme:",
+                type = AppFunctionStringPatternMetadata.PREFIX,
+            )
+        }
 
         val uriStringMetadata =
             AppFunctionStringTypeMetadata(
                 isNullable = false,
                 description = "",
-                pattern = pattern,
+                patterns = patterns,
                 format = AppFunctionStringTypeMetadata.FORMAT_URI,
             )
         return AppFunctionObjectTypeMetadata(
@@ -568,14 +574,6 @@ class AppFunctionMetadataCreatorHelper(
             isNullable = isNullable,
             description = description,
         )
-    }
-
-    private fun buildAllowedSchemeRegex(allowedSchemes: List<String>): String? {
-        return when (allowedSchemes.size) {
-            0 -> null
-            1 -> "^${Regex.escape(allowedSchemes.single())}:.*"
-            else -> "^(${allowedSchemes.joinToString("|") { scheme -> Regex.escape(scheme) }}):.*"
-        }
     }
 
     /**

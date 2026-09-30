@@ -199,6 +199,14 @@ package androidx.appfunctions {
     ctor @BytecodeOnly public AppFunctionNotSupportedException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target public @interface AppFunctionPatternMatcher {
+    ctor @KotlinOnly public AppFunctionPatternMatcher(String pattern, int type);
+    method @InaccessibleFromKotlin public abstract String pattern();
+    method @InaccessibleFromKotlin public abstract int type();
+    property public abstract String pattern;
+    property public abstract int type;
+  }
+
   public final class AppFunctionPermissionRequiredException extends androidx.appfunctions.AppFunctionAppException {
     ctor public AppFunctionPermissionRequiredException(optional String? errorMessage);
     ctor @BytecodeOnly public AppFunctionPermissionRequiredException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -285,13 +293,13 @@ package androidx.appfunctions {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface AppFunctionStringValueConstraint {
-    ctor @KotlinOnly public AppFunctionStringValueConstraint(optional String[] enumValues, optional String pattern, optional String format);
+    ctor @KotlinOnly public AppFunctionStringValueConstraint(optional String[] enumValues, optional androidx.appfunctions.AppFunctionPatternMatcher[] patternMatchers, optional String format);
     method @InaccessibleFromKotlin public abstract String[] enumValues() default {};
     method @InaccessibleFromKotlin public abstract String format() default "";
-    method @InaccessibleFromKotlin public abstract String pattern() default "";
+    method @InaccessibleFromKotlin public abstract androidx.appfunctions.AppFunctionPatternMatcher[] patternMatchers() default {};
     property public abstract String[] enumValues;
     property public abstract String format;
-    property public abstract String pattern;
+    property public abstract androidx.appfunctions.AppFunctionPatternMatcher[] patternMatchers;
   }
 
   public abstract class AppFunctionSystemException extends androidx.appfunctions.AppFunctionException {
@@ -689,16 +697,18 @@ package androidx.appfunctions.metadata {
   public final class AppFunctionStringTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
     ctor public AppFunctionStringTypeMetadata(boolean isNullable);
     ctor public AppFunctionStringTypeMetadata(boolean isNullable, optional String description);
-    ctor @BytecodeOnly public AppFunctionStringTypeMetadata(boolean, String!, java.util.Set!, String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public AppFunctionStringTypeMetadata(boolean, String!, java.util.Set!, java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AppFunctionStringTypeMetadata(boolean isNullable, optional String description, optional java.util.Set<java.lang.String>? enumValues);
-    ctor public AppFunctionStringTypeMetadata(boolean isNullable, optional String description, optional java.util.Set<java.lang.String>? enumValues, optional String? pattern);
-    ctor public AppFunctionStringTypeMetadata(boolean isNullable, optional String description, optional java.util.Set<java.lang.String>? enumValues, optional String? pattern, optional String? format);
+    ctor public AppFunctionStringTypeMetadata(boolean isNullable, optional String description, optional java.util.Set<java.lang.String>? enumValues, optional java.util.List<? extends android.os.PatternMatcher>? patternMatchers);
+    ctor public AppFunctionStringTypeMetadata(boolean isNullable, optional String description, optional java.util.Set<java.lang.String>? enumValues, optional java.util.List<? extends android.os.PatternMatcher>? patternMatchers, optional String? format);
     method @InaccessibleFromKotlin public java.util.Set<java.lang.String>? getEnumValues();
     method @InaccessibleFromKotlin public String? getFormat();
-    method @InaccessibleFromKotlin public String? getPattern();
+    method @InaccessibleFromKotlin public java.util.List<android.os.PatternMatcher>? getPatternMatchers();
+    method @InaccessibleFromKotlin public String? getRegexPattern();
     property public java.util.Set<java.lang.String>? enumValues;
     property public String? format;
-    property public String? pattern;
+    property public java.util.List<android.os.PatternMatcher>? patternMatchers;
+    property public String? regexPattern;
     field public static final androidx.appfunctions.metadata.AppFunctionStringTypeMetadata.Companion Companion;
     field public static final String FORMAT_URI = "uri";
   }

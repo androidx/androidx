@@ -982,7 +982,7 @@ public class `$AllPrimitiveInputFunctions_AppFunctionInventory` : AppFunctionInv
             isNullable = true,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -1027,7 +1027,7 @@ public class `$AllPrimitiveInputFunctions_AppFunctionInventory` : AppFunctionInv
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -1079,7 +1079,7 @@ public class `$AllPrimitiveInputFunctions_AppFunctionInventory` : AppFunctionInv
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -1124,7 +1124,7 @@ public class `$AllPrimitiveInputFunctions_AppFunctionInventory` : AppFunctionInv
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 

@@ -22,11 +22,13 @@ import android.app.appfunctions.AppFunctionObserver
 import android.content.Context
 import android.os.Build
 import android.os.OutcomeReceiver
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.ExperimentalAppFunctionsApi
+import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
 import kotlin.coroutines.resume
@@ -71,10 +73,20 @@ internal class PlatformAppFunctionReader(
                         result: List<android.app.appfunctions.AppFunctionMetadata>
                     ) {
                         val mappedResults = result.mapNotNull {
-                            AppFunctionMetadata.fromPlatformAppFunctionMetadata(
-                                it,
-                                schemaAppFunctionInventory,
-                            )
+                            try {
+                                AppFunctionMetadata.fromPlatformAppFunctionMetadata(
+                                    it,
+                                    schemaAppFunctionInventory,
+                                )
+                            } catch (e: Exception) {
+                                Log.w(
+                                    APP_FUNCTIONS_TAG,
+                                    "Failed to convert ${it.name} to " +
+                                        "${AppFunctionMetadata::class.simpleName}",
+                                    e,
+                                )
+                                null
+                            }
                         }
                         cont.resume(mappedResults)
                     }

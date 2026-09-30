@@ -43,7 +43,7 @@ public class `$NestedDerivedSerializableInputFunctions_AppFunctionInventory` : A
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 

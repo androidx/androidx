@@ -38,6 +38,16 @@
             type="appfn:AppFunctionDataTypeMetadataDocument" />
     </xs:documentType>
 
+    <!-- Definition for AppFunctionStringPatternDocument.
+         Mirrors android.os.PatternMatcher: "value" is the pattern (PatternMatcher#getPath) and
+         "type" is one of the PatternMatcher.PATTERN_* constants (PatternMatcher#getType). If
+         android.os.PatternMatcher rejects the pattern, the function is ignored, or the whole
+         package if the pattern is in shared components. -->
+    <xs:documentType name="AppFunctionStringPatternDocument">
+        <xs:element name="value" cardinality="2" type="xs:string" />
+        <xs:element name="type" cardinality="2" type="xs:long" />
+    </xs:documentType>
+
     <!-- Definition for AppFunctionDataTypeMetadataDocument -->
     <xs:documentType name="AppFunctionDataTypeMetadataDocument">
         <xs:element name="type" cardinality="3" type="xs:long" />
@@ -53,7 +63,8 @@
         <xs:element name="objectQualifiedName" cardinality="2" type="xs:string" />
         <xs:element name="description" cardinality="2" type="xs:string" />
         <xs:element name="enumValues" cardinality="1" type="xs:string" />
-        <xs:element name="pattern" cardinality="2" type="xs:string" />
+        <xs:element name="patterns" cardinality="1"
+            type="appfn:AppFunctionStringPatternDocument" />
         <xs:element name="format" cardinality="2" type="xs:string" />
     </xs:documentType>
 

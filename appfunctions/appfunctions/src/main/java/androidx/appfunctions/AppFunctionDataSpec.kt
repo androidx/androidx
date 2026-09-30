@@ -241,12 +241,8 @@ public abstract class AppFunctionDataSpec {
                 require(enumValues == null || enumValues.contains(targetValue)) {
                     "Invalid value for \"$targetKey\" got \"$targetValue\", expecting one of $enumValues"
                 }
-                if (pattern != null) {
-                    val regex = compiledPattern
-                    val isMatching = regex == null || regex.matches(targetValue)
-                    require(isMatching) {
-                        "Invalid value for \"$targetKey\" got \"$targetValue\", expecting match with pattern \"$pattern\""
-                    }
+                require(patternMatchers == null || patternMatchers.any { it.match(targetValue) }) {
+                    "Invalid value for \"$targetKey\" got \"$targetValue\", expecting match with one of $patternMatchers"
                 }
             }
             is AppFunctionArrayTypeMetadata -> {

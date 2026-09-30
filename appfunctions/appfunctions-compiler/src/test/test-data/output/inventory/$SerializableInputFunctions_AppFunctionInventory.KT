@@ -37,7 +37,7 @@ public class `$SerializableInputFunctions_AppFunctionInventory` : AppFunctionInv
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
@@ -53,7 +53,7 @@ public class `$SerializableInputFunctions_AppFunctionInventory` : AppFunctionInv
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 

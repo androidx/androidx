@@ -60,7 +60,7 @@ public class `$DerivedSerializableInputFunctions_AppFunctionInventory` : AppFunc
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
