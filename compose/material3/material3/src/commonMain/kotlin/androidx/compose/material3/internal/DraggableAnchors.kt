@@ -101,10 +101,10 @@ private class DraggableAnchorsNode<T>(
     var anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
     var orientation: Orientation,
 ) : Modifier.Node(), LayoutModifierNode {
-    private var didInitializeAnchors = false
+    private var didLookahead: Boolean = false
 
     override fun onDetach() {
-        didInitializeAnchors = false
+        didLookahead = false
     }
 
     private val isReverseDirection: Boolean
@@ -123,7 +123,7 @@ private class DraggableAnchorsNode<T>(
         this.anchors = anchors
         this.orientation = orientation
         if (shouldInvalidateMeasure) {
-            didInitializeAnchors = false
+            didLookahead = false
             invalidateMeasurement()
         }
     }
@@ -134,17 +134,30 @@ private class DraggableAnchorsNode<T>(
         constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
-        // If we are in a lookahead pass, we only want to update the anchors here and not in
-        // post-lookahead. If there is no lookahead happening (!isLookingAhead && !didLookahead),
-        // update the anchors in the main pass.
-        if (!isLookingAhead || !didInitializeAnchors) {
+        // Anchors are recomputed in every main (post-lookahead) measure pass so they track the
+        // size actually being laid out, e.g. while content is animating its size. In a lookahead
+        // pass we only compute them if no lookahead pass has happened yet, so that the offset is
+        // initialized before the first lookahead placement.
+        if (!isLookingAhead || !didLookahead) {
             val size = IntSize(placeable.width, placeable.height)
             val (newAnchors, suggestedTarget) = anchors(size, constraints)
-            state.updateAnchors(newAnchors, suggestedTarget)
-            didInitializeAnchors = true
+            val validatedTarget =
+                if (newAnchors.hasPositionFor(suggestedTarget)) {
+                    suggestedTarget
+                } else {
+                    newAnchors.anchorAt(0) ?: suggestedTarget
+                }
+            if (state.anchors == newAnchors && state.offset.isNaN() && newAnchors.size > 0) {
+                @Suppress("UNCHECKED_CAST")
+                state.updateAnchors(
+                    DraggableAnchors<Any> {} as DraggableAnchors<T>,
+                    validatedTarget,
+                )
+            }
+            state.updateAnchors(newAnchors, validatedTarget)
         }
 
-        didInitializeAnchors = isLookingAhead || didInitializeAnchors
+        didLookahead = isLookingAhead || didLookahead
         return layout(placeable.width, placeable.height) {
             // In a lookahead pass, we use the position of the current target as this is where any
             // ongoing animations would move. If the component is in a settled state, lookahead
@@ -188,7 +201,7 @@ private class DraggableAnchorsNode<T>(
         if (offset.isNaN()) {
             throw AnchoredDraggableUninitializedException(
                 isLookingAhead = isLookingAhead,
-                didLookahead = didInitializeAnchors,
+                didLookahead = didLookahead,
                 anchors = state.anchors,
                 targetValue = state.targetValue,
             )
