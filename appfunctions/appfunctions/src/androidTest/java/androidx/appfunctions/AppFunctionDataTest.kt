@@ -26,6 +26,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import android.os.PatternMatcher
 import android.os.ext.SdkExtensions
 import androidx.appfunctions.Attachment.Companion.ATTACHMENT_OBJECT_TYPE_METADATA
 import androidx.appfunctions.Note.Companion.NOTE_OBJECT_TYPE_METADATA
@@ -2144,7 +2145,8 @@ class AppFunctionDataTest {
     fun testReadWrite_stringPatternValue_conformanceSuccess() {
         val stringTypeWithPattern =
             AppFunctionStringTypeMetadata(
-                pattern = "^content://.*",
+                patternMatchers =
+                    listOf(PatternMatcher("content://", PatternMatcher.PATTERN_PREFIX)),
                 format = "uri",
                 isNullable = false,
             )
@@ -2166,7 +2168,8 @@ class AppFunctionDataTest {
     fun testWrite_stringPatternValue_conformanceFailsForInvalidValues() {
         val stringTypeWithPattern =
             AppFunctionStringTypeMetadata(
-                pattern = "^content://.*",
+                patternMatchers =
+                    listOf(PatternMatcher("content://", PatternMatcher.PATTERN_PREFIX)),
                 format = "uri",
                 isNullable = false,
             )
@@ -2183,14 +2186,14 @@ class AppFunctionDataTest {
             assertFailsWith<IllegalArgumentException> {
                 builder.setString("uriParam", "http://example.com")
             }
-        assertThat(exception).hasMessageThat().contains("expecting match with pattern")
+        assertThat(exception).hasMessageThat().contains("expecting match with one of")
     }
 
     @Test
     fun testValidateDataSpecMatches_stringPatternMismatch_throwsException() {
         val stringTypeWithConflictingPattern =
             AppFunctionStringTypeMetadata(
-                pattern = "^http://.*",
+                patternMatchers = listOf(PatternMatcher("http://", PatternMatcher.PATTERN_PREFIX)),
                 format = "uri",
                 isNullable = false,
             )
@@ -2204,7 +2207,8 @@ class AppFunctionDataTest {
 
         val stringTypeWithPattern =
             AppFunctionStringTypeMetadata(
-                pattern = "^content://.*",
+                patternMatchers =
+                    listOf(PatternMatcher("content://", PatternMatcher.PATTERN_PREFIX)),
                 format = "uri",
                 isNullable = false,
             )
@@ -2224,13 +2228,13 @@ class AppFunctionDataTest {
         val targetSpec = AppFunctionDataSpec.create(spec2, AppFunctionComponentsMetadata())
         val exception =
             assertFailsWith<IllegalArgumentException> { targetSpec.validateDataSpecMatches(data) }
-        assertThat(exception).hasMessageThat().contains("Pattern mismatch for String type")
+        assertThat(exception).hasMessageThat().contains("Patterns mismatch for String type")
     }
 
     @Test
     fun testValidateDataSpecMatches_unconstrainedToConstrainedPattern_throwsException() {
         val stringTypeWithoutPattern =
-            AppFunctionStringTypeMetadata(pattern = null, format = "uri", isNullable = false)
+            AppFunctionStringTypeMetadata(format = "uri", isNullable = false)
         val spec1 =
             AppFunctionObjectTypeMetadata(
                 properties = mapOf("uriParam" to stringTypeWithoutPattern),
@@ -2241,7 +2245,8 @@ class AppFunctionDataTest {
 
         val stringTypeWithPattern =
             AppFunctionStringTypeMetadata(
-                pattern = "^content://.*",
+                patternMatchers =
+                    listOf(PatternMatcher("content://", PatternMatcher.PATTERN_PREFIX)),
                 format = "uri",
                 isNullable = false,
             )
@@ -2261,14 +2266,14 @@ class AppFunctionDataTest {
         val targetSpec = AppFunctionDataSpec.create(spec2, AppFunctionComponentsMetadata())
         val exception =
             assertFailsWith<IllegalArgumentException> { targetSpec.validateDataSpecMatches(data) }
-        assertThat(exception).hasMessageThat().contains("Pattern mismatch for String type")
+        assertThat(exception).hasMessageThat().contains("Patterns mismatch for String type")
     }
 
     @Test
     fun testValidateDataSpecMatches_nestedObjectConstraint_matchingPattern_succeeds() {
         val uriInnerSpec =
             AppFunctionStringTypeMetadata(
-                pattern = "^content:.*",
+                patternMatchers = listOf(PatternMatcher("content:", PatternMatcher.PATTERN_PREFIX)),
                 format = "uri",
                 isNullable = false,
             )
@@ -2302,31 +2307,80 @@ class AppFunctionDataTest {
     }
 
     @Test
-    fun testBuild_invalidPattern_bypassesValidation() {
-        val stringTypeWithInvalidPattern =
+    fun testWrite_multiplePatterns_matchesAnyPattern() {
+        val stringTypeWithPatterns =
             AppFunctionStringTypeMetadata(
-                pattern = "[invalid_regex",
-                format = "custom",
+                patternMatchers =
+                    listOf(
+                        PatternMatcher("content:", PatternMatcher.PATTERN_PREFIX),
+                        PatternMatcher("file:", PatternMatcher.PATTERN_PREFIX),
+                    ),
+                format = "uri",
                 isNullable = false,
             )
         val objectSpec =
             AppFunctionObjectTypeMetadata(
-                properties = mapOf("testKey" to stringTypeWithInvalidPattern),
-                required = listOf("testKey"),
+                properties = mapOf("uriParam" to stringTypeWithPatterns),
+                required = listOf("uriParam"),
                 qualifiedName = "TestSpec",
                 isNullable = false,
             )
 
-        // Builder write validation should not throw PatternSyntaxException or
-        // IllegalArgumentException
-        val data =
+        AppFunctionData.Builder(objectSpec, AppFunctionComponentsMetadata())
+            .setString("uriParam", "content://media/1")
+        AppFunctionData.Builder(objectSpec, AppFunctionComponentsMetadata())
+            .setString("uriParam", "file:///sdcard/1")
+        assertFailsWith<IllegalArgumentException> {
             AppFunctionData.Builder(objectSpec, AppFunctionComponentsMetadata())
-                .setString("testKey", "anyValue")
-                .build()
+                .setString("uriParam", "http://example.com")
+        }
+    }
 
-        // Spec matching validation should also not throw
-        val targetSpec = AppFunctionDataSpec.create(objectSpec, AppFunctionComponentsMetadata())
-        targetSpec.validateDataSpecMatches(data)
+    @Test
+    fun testWrite_suffixPattern_conformance() {
+        val stringTypeWithPattern =
+            AppFunctionStringTypeMetadata(
+                patternMatchers = listOf(PatternMatcher(".png", PatternMatcher.PATTERN_SUFFIX)),
+                isNullable = false,
+            )
+        val objectSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("fileName" to stringTypeWithPattern),
+                required = listOf("fileName"),
+                qualifiedName = "TestSpec",
+                isNullable = false,
+            )
+
+        AppFunctionData.Builder(objectSpec, AppFunctionComponentsMetadata())
+            .setString("fileName", "image.png")
+        assertFailsWith<IllegalArgumentException> {
+            AppFunctionData.Builder(objectSpec, AppFunctionComponentsMetadata())
+                .setString("fileName", "image.jpg")
+        }
+    }
+
+    @Test
+    fun testWrite_advancedGlobPattern_conformance() {
+        val stringTypeWithPattern =
+            AppFunctionStringTypeMetadata(
+                patternMatchers =
+                    listOf(PatternMatcher("[0-9]+", PatternMatcher.PATTERN_ADVANCED_GLOB)),
+                isNullable = false,
+            )
+        val objectSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("digits" to stringTypeWithPattern),
+                required = listOf("digits"),
+                qualifiedName = "TestSpec",
+                isNullable = false,
+            )
+
+        AppFunctionData.Builder(objectSpec, AppFunctionComponentsMetadata())
+            .setString("digits", "12345")
+        assertFailsWith<IllegalArgumentException> {
+            AppFunctionData.Builder(objectSpec, AppFunctionComponentsMetadata())
+                .setString("digits", "12a45")
+        }
     }
 
     companion object {

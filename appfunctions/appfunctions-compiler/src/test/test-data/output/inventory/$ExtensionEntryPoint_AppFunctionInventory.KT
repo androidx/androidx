@@ -53,7 +53,7 @@ public class `$ExtensionEntryPoint_AppFunctionInventory` : AppFunctionInventory 
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -75,7 +75,7 @@ public class `$ExtensionEntryPoint_AppFunctionInventory` : AppFunctionInventory 
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 

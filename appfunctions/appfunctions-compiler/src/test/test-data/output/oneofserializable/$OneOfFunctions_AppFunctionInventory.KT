@@ -42,7 +42,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
@@ -51,7 +51,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
@@ -81,7 +81,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
@@ -90,7 +90,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
@@ -127,7 +127,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
@@ -185,7 +185,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
@@ -194,7 +194,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
@@ -231,7 +231,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
@@ -321,7 +321,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
@@ -330,7 +330,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
@@ -381,7 +381,7 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 

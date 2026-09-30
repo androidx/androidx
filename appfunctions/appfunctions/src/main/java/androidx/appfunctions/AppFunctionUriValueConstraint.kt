@@ -30,8 +30,9 @@ package androidx.appfunctions
  * [androidx.appfunctions.metadata.AppFunctionStringTypeMetadata] object with:
  * - [androidx.appfunctions.metadata.AppFunctionStringTypeMetadata.format] set to
  *   [androidx.appfunctions.metadata.AppFunctionStringTypeMetadata.FORMAT_URI].
- * - [androidx.appfunctions.metadata.AppFunctionStringTypeMetadata.pattern] set to a regular
- *   expression matching the specified [allowedSchemes].
+ * - [androidx.appfunctions.metadata.AppFunctionStringTypeMetadata.patternMatchers] set to one
+ *   [android.os.PatternMatcher] per scheme in [allowedSchemes], each matching the `"<scheme>:"`
+ *   prefix with [android.os.PatternMatcher.PATTERN_PREFIX].
  *
  * ### Usage Example:
  * ```
@@ -66,9 +67,9 @@ public annotation class AppFunctionUriValueConstraint(
      * The list of allowed URI schemes for the annotated element defined by the developer (e.g.
      * `["content"]` or custom schemes such as `["photo", "video"]`).
      *
-     * At compile time, this list is translated into a regular expression matching the specified
-     * schemes (for example, `^content:.*` when `allowedSchemes = ["content"]`). If empty, any URI
-     * scheme is permitted.
+     * At compile time, each scheme is translated into a [android.os.PatternMatcher] matching the
+     * `"<scheme>:"` prefix (for example, `PatternMatcher("content:", PATTERN_PREFIX)` when
+     * `allowedSchemes = ["content"]`). If empty, any URI scheme is permitted.
      */
     val allowedSchemes: Array<String> = []
 )

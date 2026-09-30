@@ -265,21 +265,6 @@ class AppFunctionServiceEntryPointCompilerTest {
     }
 
     @Test
-    fun testAppFunctionStringValueConstraint_invalidPattern_throwsException() {
-        val report =
-            compilationTestHelper.compileAll(
-                sourceFileNames =
-                    listOf("entrypoints/invalid/InvalidStringValueConstraintPattern.KT")
-            )
-
-        compilationTestHelper.assertErrorWithMessage(
-            report = report,
-            expectedErrorMessage =
-                "Invalid pattern regex \"[invalid_regex\" in @AppFunctionStringValueConstraint",
-        )
-    }
-
-    @Test
     fun testAppFunctionUriValueConstraint_valid_success() {
         val report =
             compilationTestHelper.compileAll(

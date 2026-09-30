@@ -64,10 +64,19 @@ public annotation class AppFunctionStringValueConstraint(
      */
     val enumValues: Array<String> = [],
     /**
-     * The regex pattern that string values must match. An empty string indicates no pattern
-     * constraint is applied.
+     * The patterns that string values must match. A value is valid if it matches any of the
+     * patterns. An empty array indicates no pattern constraint is applied.
+     *
+     * Each pattern is translated to a [android.os.PatternMatcher] in
+     * [androidx.appfunctions.metadata.AppFunctionStringTypeMetadata.patternMatchers].
+     *
+     * **Important:** Patterns are not validated at compile time. If [android.os.PatternMatcher]
+     * rejects any pattern (for example, a malformed
+     * [android.os.PatternMatcher.PATTERN_ADVANCED_GLOB]), the function using it is omitted from
+     * agents' search results. If the pattern is on a property of an [AppFunctionSerializable], all
+     * of the app's functions are omitted.
      */
-    val pattern: String = "",
+    val patternMatchers: Array<AppFunctionPatternMatcher> = [],
     /**
      * The format description for string values (e.g. `"uri"`). An empty string indicates no format
      * description is set.
