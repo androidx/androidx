@@ -25,6 +25,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.text.format.DateFormat
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
@@ -285,6 +286,11 @@ public suspend fun captureSingleRemoteDocument(
  * changed in the layout tree) are automatically filtered out, so new byte arrays are only emitted
  * when the document actually changes.
  *
+ * Remote documents are expected to change rarely; animate with remote expressions rather than
+ * recomposition. Content that updates faster than a few documents in quick succession followed by
+ * about one per second is throttled, and a warning is logged. The latest state is still emitted
+ * once the throttle allows.
+ *
  * @param creationDisplayInfo Details about the virtual display to capture for (size, density,
  *   etc.).
  * @param remoteDensity The logical screen density and font scale to use for unit conversions.
@@ -306,6 +312,42 @@ public suspend fun captureSingleRemoteDocument(
 public fun captureRemoteDocument(
     context: Context,
     creationDisplayInfo: RemoteCreationDisplayInfo,
+    remoteDensity: RemoteDensity =
+        RemoteDensity(
+            creationDisplayInfo.density.density.rf,
+            creationDisplayInfo.density.fontScale.rf,
+        ),
+    layoutDirection: LayoutDirection? = null,
+    writerEvents: WriterEvents = WriterEvents(),
+    clock: RemoteClock = RemoteClock.SYSTEM,
+    profile: Profile = RcPlatformProfiles.ANDROIDX,
+    coroutineContext: CoroutineContext = Dispatchers.Default,
+    content: @Composable @RemoteComposable () -> Unit,
+): Flow<ByteArray> =
+    captureRemoteDocument(
+        context = context,
+        creationDisplayInfo = creationDisplayInfo,
+        updateThrottle = CaptureUpdateThrottle.Default,
+        remoteDensity = remoteDensity,
+        layoutDirection = layoutDirection,
+        writerEvents = writerEvents,
+        clock = clock,
+        profile = profile,
+        coroutineContext = coroutineContext,
+        content = content,
+    )
+
+/**
+ * Like the public [captureRemoteDocument], but with [updateThrottle] deciding how often documents
+ * are emitted instead of [CaptureUpdateThrottle.Default].
+ *
+ * TODO(b/567847315): Make the update strategy public together with [CaptureUpdateThrottle].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun captureRemoteDocument(
+    context: Context,
+    creationDisplayInfo: RemoteCreationDisplayInfo,
+    updateThrottle: CaptureUpdateThrottle,
     remoteDensity: RemoteDensity =
         RemoteDensity(
             creationDisplayInfo.density.density.rf,
@@ -377,8 +419,8 @@ public fun captureRemoteDocument(
             // this clock (runRecomposeAndApplyChanges below), so pacing here with a time-based
             // delay would add latency to every recomposition and stall entirely on hosts whose
             // clock only advances explicitly (virtual-time test dispatchers, a paused Robolectric
-            // looper). Throttling continuously changing output is left to the collector, e.g. via
-            // conflate() or sample().
+            // looper). Emitted documents are rate limited separately by updateThrottle, between
+            // renders rather than between frames.
             frameClock = BroadcastFrameClock {
                 launch(recomposerDispatcher) { frameCounter.sendFrame(frameClock, clock) }
             }
@@ -408,12 +450,18 @@ public fun captureRemoteDocument(
 
                 try {
                     var previousBytes: ByteArray? = null
+                    val rateLimiter = updateThrottle.newLimiter()
                     for (invalidation in invalidations) {
+                        // Wait for the throttle before settling and rendering, so writes made
+                        // meanwhile are conflated into the invalidation channel and the document
+                        // rendered afterwards reflects the latest state. Only emitted documents
+                        // count towards the limit.
+                        rateLimiter?.awaitPermit()
                         // Let the recomposer observe and apply the invalidation before
                         // rendering. An unsettled composition (e.g. continuously animating
                         // content) still renders once the iteration or frame bound is hit, so
-                        // streaming captures keep producing documents. Content that animates
-                        // forever therefore renders as fast as frames allow.
+                        // streaming captures keep producing documents, at the rate allowed by
+                        // updateThrottle.
                         awaitRecomposerQuiescence(
                             recomposer = recomposer,
                             frameClock = frameClock,
@@ -466,6 +514,7 @@ public fun captureRemoteDocument(
 
                         if (previousBytes?.contentEquals(bytes) != true) {
                             previousBytes = bytes
+                            rateLimiter?.onEmitted()
                             emit(bytes)
                         }
                     }
