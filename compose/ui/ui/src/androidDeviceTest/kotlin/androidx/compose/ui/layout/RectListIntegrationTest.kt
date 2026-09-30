@@ -19,9 +19,11 @@ package androidx.compose.ui.layout
 import androidx.collection.mutableIntSetOf
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -75,6 +77,7 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.test.assertTrue
+import kotlinx.coroutines.runBlocking
 import org.junit.ComparisonFailure
 import org.junit.Rule
 import org.junit.Test
@@ -957,6 +960,68 @@ class RectListIntegrationTest {
                 Row(Modifier.padding(10.dp).alignByBaseline()) {
                     BasicText("text", Modifier.size(10.dp).alignByBaseline())
                 }
+            }
+        }
+    }
+
+    // Regression test for b/549552303#comment6: alignment lines queried during the measure pass
+    // of reused LazyColumn items.
+    @Test
+    @MediumTest
+    fun testLazyColumn_alignmentLinesQueriedDuringMeasure_withReuse() {
+        val itemPx = 20
+        val itemDp = with(rule.density) { itemPx.toDp() }
+        val lazyListState = LazyListState()
+        rule.setContent {
+            LazyColumn(state = lazyListState, modifier = Modifier.height(itemDp * 2)) {
+                items(10) { index ->
+                    BaselineQueryingLayout {
+                        Box(Modifier.fillMaxWidth()) {
+                            Spacer(
+                                Modifier.layout { measurable, constraints ->
+                                    val placeable = measurable.measure(constraints)
+                                    layout(10 + index, itemPx, mapOf(FirstBaseline to index)) {
+                                        placeable.place(0, 0)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Item 0 scrolls off-screen, but is still measured to advance the first visible index.
+        rule.runOnIdle { runBlocking { lazyListState.scrollBy(itemPx.toFloat()) } }
+        // Item 0 is no longer composed and its slot is moved to the reuse pool.
+        rule.runOnIdle { runBlocking { lazyListState.scrollBy(itemPx.toFloat()) } }
+        // Item 4 reuses the slot of item 0 and queries its baseline during measure.
+        rule.runOnIdle { runBlocking { lazyListState.scrollBy(itemPx.toFloat()) } }
+        rule.waitForIdle()
+    }
+
+    /**
+     * A layout which queries the baselines of its only child during the measure pass and re-exposes
+     * them as its own alignment lines, similar to the reproducer in b/549552303.
+     */
+    @Composable
+    private fun BaselineQueryingLayout(
+        modifier: Modifier = Modifier,
+        content: @Composable () -> Unit,
+    ) {
+        Layout(content = { Box(Modifier.layoutId("anchor")) { content() } }, modifier = modifier) {
+            measurables,
+            constraints ->
+            val placeable = measurables.first { it.layoutId == "anchor" }.measure(constraints)
+            val firstBaseline = placeable[FirstBaseline]
+            val lastBaseline = placeable[LastBaseline]
+            layout(
+                width = placeable.width,
+                height = placeable.height,
+                alignmentLines =
+                    mapOf(FirstBaseline to firstBaseline, LastBaseline to lastBaseline),
+            ) {
+                placeable.placeRelative(0, 0)
             }
         }
     }

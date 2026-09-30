@@ -358,6 +358,12 @@ internal class LookaheadPassDelegate(
         return alignmentLines.getLastCalculation()
     }
 
+    override var isPlacingForAlignment: Boolean
+        get() = innerCoordinator.lookaheadDelegate?.isPlacingForAlignment == true
+        set(value) {
+            innerCoordinator.lookaheadDelegate?.isPlacingForAlignment = value
+        }
+
     override val parentAlignmentLinesOwner: AlignmentLinesOwner?
         get() = layoutNode.parent?.layoutDelegate?.lookaheadAlignmentLinesOwner
 

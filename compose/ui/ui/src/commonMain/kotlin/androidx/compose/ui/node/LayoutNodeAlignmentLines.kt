@@ -146,7 +146,14 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
             if (childOwner.alignmentLines.dirty) {
                 // It did not need relayout, but we still call layout to recalculate
                 // alignment lines.
-                childOwner.layoutChildren()
+                if (alignmentLinesOwner.isPlacingForAlignment) {
+                    val wasPlacingForAlignment = childOwner.isPlacingForAlignment
+                    childOwner.isPlacingForAlignment = true
+                    childOwner.layoutChildren()
+                    childOwner.isPlacingForAlignment = wasPlacingForAlignment
+                } else {
+                    childOwner.layoutChildren()
+                }
             }
             // Add alignment lines on the child node.
             childOwner.alignmentLines.alignmentLineMap.forEach { (childLine, linePosition) ->

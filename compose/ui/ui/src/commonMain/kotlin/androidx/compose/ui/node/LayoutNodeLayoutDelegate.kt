@@ -414,6 +414,12 @@ internal const val MeasuredTwiceErrorMessage: String =
  */
 internal interface AlignmentLinesOwner : Measurable {
 
+    /**
+     * Whether the [AlignmentLinesOwner] is currently laying out its children only for the purposes
+     * of calculating the alignment lines. See [LookaheadCapablePlaceable.isPlacingForAlignment].
+     */
+    var isPlacingForAlignment: Boolean
+
     val placeOrder: Int
 
     /** InnerNodeCoordinator of the LayoutNode that the AlignmentLinesOwner operates on. */
