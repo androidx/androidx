@@ -64,6 +64,11 @@ public class ValidUriService : ValidUriConstraintService() {
           parameters["stringParam"] as String,
         )
       }
+      FUNCTION_ID_FUNCTION_WITH_ALL_STRING_PATTERN_KINDS -> {
+        this.functionWithAllStringPatternKinds(
+          parameters["stringParam"] as String,
+        )
+      }
       FUNCTION_ID_FUNCTION_WITH_SERIALIZABLE_VALUE_CONSTRAINTS -> {
         this.functionWithSerializableValueConstraints(
           parameters["param"] as SerializableWithValueConstraints,
@@ -95,6 +100,9 @@ public class ValidUriService : ValidUriConstraintService() {
 
     public const val FUNCTION_ID_FUNCTION_WITH_STRING_CONSTRAINT_NO_ENUM_VALUES: String =
         "com.testdata.ValidUriConstraintService#functionWithStringConstraintNoEnumValues"
+
+    public const val FUNCTION_ID_FUNCTION_WITH_ALL_STRING_PATTERN_KINDS: String =
+        "com.testdata.ValidUriConstraintService#functionWithAllStringPatternKinds"
 
     public const val FUNCTION_ID_FUNCTION_WITH_SERIALIZABLE_VALUE_CONSTRAINTS: String =
         "com.testdata.ValidUriConstraintService#functionWithSerializableValueConstraints"

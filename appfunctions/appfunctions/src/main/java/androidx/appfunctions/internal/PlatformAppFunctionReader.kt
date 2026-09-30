@@ -73,10 +73,20 @@ internal class PlatformAppFunctionReader(
                         result: List<android.app.appfunctions.AppFunctionMetadata>
                     ) {
                         val mappedResults = result.mapNotNull {
-                            AppFunctionMetadata.fromPlatformAppFunctionMetadata(
-                                it,
-                                schemaAppFunctionInventory,
-                            )
+                            try {
+                                AppFunctionMetadata.fromPlatformAppFunctionMetadata(
+                                    it,
+                                    schemaAppFunctionInventory,
+                                )
+                            } catch (e: Exception) {
+                                Log.w(
+                                    APP_FUNCTIONS_TAG,
+                                    "Failed to convert ${it.name} to " +
+                                        "${AppFunctionMetadata::class.simpleName}",
+                                    e,
+                                )
+                                null
+                            }
                         }
                         cont.resume(mappedResults)
                     }

@@ -33,7 +33,7 @@ public class `$StringEnumValueFunctions_AppFunctionInventory` : AppFunctionInven
           isNullable = false,
           description = "",
           enumValues = setOf("ON", "OFF"),
-          pattern = null,
+          patternMatchers = null,
           format = null,
       )
 
@@ -72,7 +72,7 @@ public class `$StringEnumValueFunctions_AppFunctionInventory` : AppFunctionInven
             isNullable = false,
             description = "",
             enumValues = setOf("ON", "OFF"),
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -120,7 +120,7 @@ public class `$StringEnumValueFunctions_AppFunctionInventory` : AppFunctionInven
             isNullable = false,
             description = "",
             enumValues = setOf("ON", "OFF"),
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 

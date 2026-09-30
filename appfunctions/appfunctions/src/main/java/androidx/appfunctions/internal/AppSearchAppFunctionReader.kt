@@ -117,12 +117,16 @@ internal class AppSearchAppFunctionReader(
                 safeCastToDocumentClass<AppFunctionRuntimeMetadata>(runtimeDocument) ?: return null
 
             val schemaMetadata = buildSchemaMetadataFromGdForLegacyIndexer(staticDocument)
+            val topLevelComponents = searchTopLevelComponent(session, setOf(packageName))
+            if (packageName in topLevelComponents.invalidPackages) {
+                return null
+            }
             val componentMetadata =
                 getAppFunctionComponentsMetadata(
                     packageName,
                     staticMetadataDocument,
                     schemaMetadata,
-                    searchTopLevelComponent(session, setOf(packageName)),
+                    topLevelComponents.componentsByPackage,
                 ) ?: return null
 
             return AppFunctionMetadata.create(
@@ -227,8 +231,7 @@ internal class AppSearchAppFunctionReader(
                 .setListFilterQueryLanguageEnabled(true)
                 .build()
 
-        val sharedTopLevelComponentsByPackage =
-            searchTopLevelComponent(session, searchFunctionSpec.packageNames)
+        val topLevelComponents = searchTopLevelComponent(session, searchFunctionSpec.packageNames)
 
         return session
             .search(
@@ -243,10 +246,7 @@ internal class AppSearchAppFunctionReader(
                     }
                 }
                 try {
-                    convertSearchResultToAppFunctionMetadata(
-                        searchResult,
-                        sharedTopLevelComponentsByPackage,
-                    )
+                    convertSearchResultToAppFunctionMetadata(searchResult, topLevelComponents)
                 } catch (e: Exception) {
                     Log.w(
                         APP_FUNCTIONS_TAG,
@@ -260,10 +260,20 @@ internal class AppSearchAppFunctionReader(
             .filterNotNull()
     }
 
+    /**
+     * The shared top-level components of each package, and the packages whose components failed to
+     * convert. All functions of an invalid package are ignored, since they may reference the
+     * missing components.
+     */
+    private class TopLevelComponents(
+        val componentsByPackage: Map<String, AppFunctionComponentsMetadata>,
+        val invalidPackages: Set<String>,
+    )
+
     private suspend fun searchTopLevelComponent(
         session: GlobalSearchSession,
         packageNames: Set<String>?,
-    ): Map<String, AppFunctionComponentsMetadata> {
+    ): TopLevelComponents {
         val topLevelComponentsSearchSpec =
             SearchSpec.Builder()
                 .addFilterNamespaces(APP_FUNCTIONS_NAMESPACE)
@@ -278,13 +288,29 @@ internal class AppSearchAppFunctionReader(
                 .setListFilterQueryLanguageEnabled(true)
                 .build()
 
+        val invalidPackages = mutableSetOf<String>()
         val topLevelComponents =
             session
                 .search("", topLevelComponentsSearchSpec)
                 .consumeAll { searchResult ->
                     val packageName = searchResult.genericDocument.getPropertyString("packageName")
                     val metadata =
-                        extractAppFunctionComponentsMetadataFromSearchResult(searchResult)
+                        try {
+                            safeCastToDocumentClass<AppFunctionComponentsMetadataDocument>(
+                                    searchResult.genericDocument
+                                )
+                                ?.toAppFunctionComponentsMetadata()
+                        } catch (e: Exception) {
+                            Log.w(
+                                APP_FUNCTIONS_TAG,
+                                "Failed to convert search result " +
+                                    "${searchResult.genericDocument.id} to " +
+                                    "${AppFunctionComponentsMetadata::class.simpleName}",
+                                e,
+                            )
+                            packageName?.let { invalidPackages.add(it) }
+                            null
+                        }
 
                     // Only return a Pair if both are non-null and metadata is valid
                     if (
@@ -296,39 +322,23 @@ internal class AppSearchAppFunctionReader(
                     }
                 }
                 .filterNotNull()
-        return buildMap {
-            for ((packageName, metadata) in topLevelComponents) {
-                if (containsKey(packageName)) {
-                    // Starting from Android 17, an app can have multiple service, therefore,
-                    // multiple top-level documents is possible. To make sure all reference types
-                    // are correctly presented, the reader must aggregate them all.
-                    val existingMetadata = checkNotNull(get(packageName))
-                    val combinedDataTypes = (existingMetadata.dataTypes + metadata.dataTypes)
-                    put(packageName, AppFunctionComponentsMetadata(combinedDataTypes))
-                } else {
-                    put(packageName, metadata)
+        val componentsByPackage =
+            buildMap<String, AppFunctionComponentsMetadata> {
+                for ((packageName, metadata) in topLevelComponents) {
+                    if (containsKey(packageName)) {
+                        // Starting from Android 17, an app can have multiple service, therefore,
+                        // multiple top-level documents is possible. To make sure all reference
+                        // types are correctly presented, the reader must aggregate them all.
+                        val existingMetadata = checkNotNull(get(packageName))
+                        val combinedDataTypes = (existingMetadata.dataTypes + metadata.dataTypes)
+                        put(packageName, AppFunctionComponentsMetadata(combinedDataTypes))
+                    } else {
+                        put(packageName, metadata)
+                    }
                 }
             }
-        }
+        return TopLevelComponents(componentsByPackage, invalidPackages)
     }
-
-    private fun extractAppFunctionComponentsMetadataFromSearchResult(
-        searchResult: SearchResult
-    ): AppFunctionComponentsMetadata? =
-        try {
-            safeCastToDocumentClass<AppFunctionComponentsMetadataDocument>(
-                    searchResult.genericDocument
-                )
-                ?.toAppFunctionComponentsMetadata()
-        } catch (ex: Exception) {
-            Log.w(
-                APP_FUNCTIONS_TAG,
-                "Failed to convert search result ${searchResult.genericDocument.id} " +
-                    "to ${AppFunctionComponentsMetadata::class.simpleName}",
-                ex,
-            )
-            null
-        }
 
     private fun convertSearchResultToAppFunctionState(
         searchResult: SearchResult,
@@ -371,16 +381,20 @@ internal class AppSearchAppFunctionReader(
      * enabled, it is impossible to resolve the function signature information (e.g. parameters,
      * response). In such case, the function would return null.
      *
-     * @return [AppFunctionMetadata] or null if unable to resolve the function signature.
+     * @return [AppFunctionMetadata] or null if unable to resolve the function signature, or if the
+     *   package's shared components failed to convert.
      */
     private fun convertSearchResultToAppFunctionMetadata(
         searchResult: SearchResult,
-        sharedTopLevelComponentsByPackage: Map<String, AppFunctionComponentsMetadata>,
+        topLevelComponents: TopLevelComponents,
     ): AppFunctionMetadata? {
         // This is different from document id which for uniqueness is computed as packageName + "/"
         // + functionId.
         val appFunctionName = extractAppFunctionName(searchResult)
         val packageName = appFunctionName.packageName
+        if (packageName in topLevelComponents.invalidPackages) {
+            return null
+        }
 
         val staticMetadataDocument =
             safeCastToDocumentClass<AppFunctionMetadataDocument>(searchResult.genericDocument)
@@ -395,7 +409,7 @@ internal class AppSearchAppFunctionReader(
                 packageName,
                 staticMetadataDocument,
                 schemaMetadata,
-                sharedTopLevelComponentsByPackage,
+                topLevelComponents.componentsByPackage,
             ) ?: return null
 
         return AppFunctionMetadata.create(

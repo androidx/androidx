@@ -1,6 +1,8 @@
 package com.testdata
 
+import android.os.PatternMatcher
 import androidx.appfunctions.`internal`.AppFunctionInventory
+import androidx.appfunctions.`internal`.PatternMatchers
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionDataTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
@@ -27,6 +29,7 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
     "com.testdata.ValidUriConstraintService#functionWithMultiSchemeUri" to ComTestdataValidUriConstraintServiceFunctionWithMultiSchemeUriMetadataObject.APP_FUNCTION_METADATA,
     "com.testdata.ValidUriConstraintService#functionWithUnconstrainedUri" to ComTestdataValidUriConstraintServiceFunctionWithUnconstrainedUriMetadataObject.APP_FUNCTION_METADATA,
     "com.testdata.ValidUriConstraintService#functionWithStringConstraintNoEnumValues" to ComTestdataValidUriConstraintServiceFunctionWithStringConstraintNoEnumValuesMetadataObject.APP_FUNCTION_METADATA,
+    "com.testdata.ValidUriConstraintService#functionWithAllStringPatternKinds" to ComTestdataValidUriConstraintServiceFunctionWithAllStringPatternKindsMetadataObject.APP_FUNCTION_METADATA,
     "com.testdata.ValidUriConstraintService#functionWithSerializableValueConstraints" to ComTestdataValidUriConstraintServiceFunctionWithSerializableValueConstraintsMetadataObject.APP_FUNCTION_METADATA,
     "com.testdata.ValidUriConstraintService#functionWithUriReturn" to ComTestdataValidUriConstraintServiceFunctionWithUriReturnMetadataObject.APP_FUNCTION_METADATA,
   )
@@ -36,7 +39,7 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = "^\\Qcontent\\E:.*",
+          patternMatchers = PatternMatchers.createList("content:" to PatternMatcher.PATTERN_PREFIX),
           format = "uri",
       )
 
@@ -64,7 +67,7 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = "^[0-9]+${'$'}",
+          patternMatchers = PatternMatchers.createList("[0-9]+" to PatternMatcher.PATTERN_ADVANCED_GLOB),
           format = "numeric",
       )
 
@@ -105,7 +108,7 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = "^\\Qcontent\\E:.*",
+            patternMatchers = PatternMatchers.createList("content:" to PatternMatcher.PATTERN_PREFIX),
             format = "uri",
         )
 
@@ -169,7 +172,7 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = "^(\\Qcontent\\E|\\Qfile\\E):.*",
+            patternMatchers = PatternMatchers.createList("content:" to PatternMatcher.PATTERN_PREFIX, "file:" to PatternMatcher.PATTERN_PREFIX),
             format = "uri",
         )
 
@@ -233,7 +236,7 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = "uri",
         )
 
@@ -297,7 +300,7 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = "^[a-z]+${'$'}",
+            patternMatchers = PatternMatchers.createList("[a-z]+" to PatternMatcher.PATTERN_ADVANCED_GLOB),
             format = "custom",
         )
 
@@ -327,6 +330,51 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
     public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
         CompileTimeAppFunctionMetadata(
             id = "com.testdata.ValidUriConstraintService#functionWithStringConstraintNoEnumValues",
+            isEnabledByDefault = true,
+            schema =  SCHEMA_METADATA,
+            parameters = PARAMETER_METADATA_LIST,
+            response = RESPONSE_METADATA,
+        )
+  }
+
+  private object ComTestdataValidUriConstraintServiceFunctionWithAllStringPatternKindsMetadataObject {
+    private val SCHEMA_METADATA: AppFunctionSchemaMetadata? = null
+
+    private val PARAMETER_METADATA_STRINGPARAM_PRIMITIVE_DATA_TYPE: AppFunctionStringTypeMetadata =
+        AppFunctionStringTypeMetadata(
+            isNullable = false,
+            description = "",
+            enumValues = null,
+            patternMatchers = PatternMatchers.createList("exact" to PatternMatcher.PATTERN_LITERAL, "pre" to PatternMatcher.PATTERN_PREFIX, "post" to PatternMatcher.PATTERN_SUFFIX, "a.*b" to PatternMatcher.PATTERN_SIMPLE_GLOB, "[0-9]+" to PatternMatcher.PATTERN_ADVANCED_GLOB, "future" to 42),
+            format = null,
+        )
+
+    private val STRINGPARAM_PARAMETER_METADATA: AppFunctionParameterMetadata =
+        AppFunctionParameterMetadata(
+            name = "stringParam",
+            isRequired = true,
+            dataType = PARAMETER_METADATA_STRINGPARAM_PRIMITIVE_DATA_TYPE,
+            description = "",
+        )
+
+    private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
+      STRINGPARAM_PARAMETER_METADATA,
+    )
+
+    private val PRIMITIVE_RESPONSE_VALUE_TYPE: AppFunctionUnitTypeMetadata =
+        AppFunctionUnitTypeMetadata(
+            isNullable = false,
+            description = ""
+        )
+
+    private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
+            valueType = PRIMITIVE_RESPONSE_VALUE_TYPE,
+            description = ""
+        )
+
+    public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
+        CompileTimeAppFunctionMetadata(
+            id = "com.testdata.ValidUriConstraintService#functionWithAllStringPatternKinds",
             isEnabledByDefault = true,
             schema =  SCHEMA_METADATA,
             parameters = PARAMETER_METADATA_LIST,
@@ -388,7 +436,7 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = "^\\Qcontent\\E:.*",
+            patternMatchers = PatternMatchers.createList("content:" to PatternMatcher.PATTERN_PREFIX),
             format = "uri",
         )
 

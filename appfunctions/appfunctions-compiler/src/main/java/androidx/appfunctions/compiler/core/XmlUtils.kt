@@ -23,6 +23,7 @@ import androidx.appfunctions.compiler.core.metadata.AppFunctionMetadataDocument
 import androidx.appfunctions.compiler.core.metadata.AppFunctionNamedDataTypeMetadataDocument
 import androidx.appfunctions.compiler.core.metadata.AppFunctionParameterMetadataDocument
 import androidx.appfunctions.compiler.core.metadata.AppFunctionResponseMetadataDocument
+import androidx.appfunctions.compiler.core.metadata.AppFunctionStringPatternDocument
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 
@@ -135,14 +136,24 @@ private fun AppFunctionDataTypeMetadataDocument.toXmlElement(
             appendChild(doc.createElementWithTextNode("enumValues", enumValue))
         }
 
-        if (pattern != null) {
-            appendChild(doc.createElementWithTextNode("pattern", pattern))
+        for (pattern in patterns) {
+            appendChild(pattern.toXmlElement(doc, "patterns"))
         }
         if (format != null) {
             appendChild(doc.createElementWithTextNode("format", format))
         }
 
         appendChild(doc.createElementWithTextNode("type", type.toString()))
+    }
+
+private fun AppFunctionStringPatternDocument.toXmlElement(
+    doc: Document,
+    elementName: String,
+): Element =
+    doc.createElement(elementName).apply {
+        appendChild(doc.createElementWithTextNode("id", id))
+        appendChild(doc.createElementWithTextNode("type", type.toString()))
+        appendChild(doc.createElementWithTextNode("value", value))
     }
 
 private fun AppFunctionNamedDataTypeMetadataDocument.toXmlElement(

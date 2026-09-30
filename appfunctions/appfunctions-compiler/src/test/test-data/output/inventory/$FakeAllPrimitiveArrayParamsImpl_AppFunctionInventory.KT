@@ -133,7 +133,7 @@ public class `$FakeAllPrimitiveArrayParamsImpl_AppFunctionInventory` : AppFuncti
             isNullable = false,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 
@@ -192,7 +192,7 @@ public class `$FakeAllPrimitiveArrayParamsImpl_AppFunctionInventory` : AppFuncti
             isNullable = true,
             description = "",
             enumValues = null,
-            pattern = null,
+            patternMatchers = null,
             format = null,
         )
 

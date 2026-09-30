@@ -18,7 +18,9 @@ package androidx.appfunction.integration.test.sharedschema
 
 import android.app.PendingIntent
 import android.net.Uri
+import android.os.PatternMatcher
 import androidx.appfunctions.AppFunctionIntValueConstraint
+import androidx.appfunctions.AppFunctionPatternMatcher
 import androidx.appfunctions.AppFunctionResourceContainer
 import androidx.appfunctions.AppFunctionSchemaCapability
 import androidx.appfunctions.AppFunctionSerializable
@@ -293,7 +295,11 @@ data class IntEnumSerializable(
 @AppFunctionSerializable
 data class UriConstraintSerializable(
     @property:AppFunctionUriValueConstraint(allowedSchemes = ["content", "file"]) val uri: Uri,
-    @property:AppFunctionStringValueConstraint(pattern = "^[0-9]+$", format = "numeric")
+    @property:AppFunctionStringValueConstraint(
+        patternMatchers =
+            [AppFunctionPatternMatcher("[0-9]+", PatternMatcher.PATTERN_ADVANCED_GLOB)],
+        format = "numeric",
+    )
     val numericString: String,
 )
 

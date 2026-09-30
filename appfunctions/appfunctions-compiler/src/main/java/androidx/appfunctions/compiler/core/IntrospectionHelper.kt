@@ -138,8 +138,15 @@ object IntrospectionHelper {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionStringValueConstraint")
 
         const val PROPERTY_ENUM_VALUES = "enumValues"
-        const val PROPERTY_PATTERN = "pattern"
+        const val PROPERTY_PATTERN_MATCHERS = "patternMatchers"
         const val PROPERTY_FORMAT = "format"
+    }
+
+    object AppFunctionPatternMatcherAnnotation {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionPatternMatcher")
+
+        const val PROPERTY_PATTERN = "pattern"
+        const val PROPERTY_TYPE = "type"
     }
 
     object AppFunctionUriValueConstraintAnnotation {
@@ -223,6 +230,20 @@ object IntrospectionHelper {
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionIntTypeMetadata")
     val APP_FUNCTION_STRING_TYPE_METADATA_CLASS =
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionStringTypeMetadata")
+
+    object PatternMatcherClass {
+        val CLASS_NAME = ClassName("android.os", "PatternMatcher")
+
+        // Names of the android.os.PatternMatcher type constants.
+        const val PATTERN_LITERAL = "PATTERN_LITERAL"
+        const val PATTERN_PREFIX = "PATTERN_PREFIX"
+        const val PATTERN_SIMPLE_GLOB = "PATTERN_SIMPLE_GLOB"
+        const val PATTERN_ADVANCED_GLOB = "PATTERN_ADVANCED_GLOB"
+        const val PATTERN_SUFFIX = "PATTERN_SUFFIX"
+    }
+
+    val PATTERN_MATCHERS_HELPER_CLASS =
+        ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "PatternMatchers")
     val APP_FUNCTION_PENDING_INTENT_TYPE_METADATA_CLASS =
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionPendingIntentTypeMetadata")
 

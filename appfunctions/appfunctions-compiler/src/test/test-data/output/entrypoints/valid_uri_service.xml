@@ -12,7 +12,11 @@
                     <dataTypeMetadata>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <pattern>^\Qcontent\E:.*</pattern>
+                        <patterns>
+                            <id>unused</id>
+                            <type>1</type>
+                            <value>content:</value>
+                        </patterns>
                         <format>uri</format>
                         <type>8</type>
                     </dataTypeMetadata>
@@ -48,7 +52,16 @@
                     <dataTypeMetadata>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <pattern>^(\Qcontent\E|\Qfile\E):.*</pattern>
+                        <patterns>
+                            <id>unused</id>
+                            <type>1</type>
+                            <value>content:</value>
+                        </patterns>
+                        <patterns>
+                            <id>unused</id>
+                            <type>1</type>
+                            <value>file:</value>
+                        </patterns>
                         <format>uri</format>
                         <type>8</type>
                     </dataTypeMetadata>
@@ -114,7 +127,11 @@
             <dataTypeMetadata>
                 <id>unused</id>
                 <isNullable>false</isNullable>
-                <pattern>^[a-z]+$</pattern>
+                <patterns>
+                    <id>unused</id>
+                    <type>3</type>
+                    <value>[a-z]+</value>
+                </patterns>
                 <format>custom</format>
                 <type>8</type>
             </dataTypeMetadata>
@@ -131,6 +148,59 @@
             </valueType>
         </response>
         <functionId>com.testdata.ValidUriConstraintService#functionWithStringConstraintNoEnumValues</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.testdata.ValidUriConstraintService#functionWithAllStringPatternKinds</id>
+        <enabledByDefault>true</enabledByDefault>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <patterns>
+                    <id>unused</id>
+                    <type>0</type>
+                    <value>exact</value>
+                </patterns>
+                <patterns>
+                    <id>unused</id>
+                    <type>1</type>
+                    <value>pre</value>
+                </patterns>
+                <patterns>
+                    <id>unused</id>
+                    <type>4</type>
+                    <value>post</value>
+                </patterns>
+                <patterns>
+                    <id>unused</id>
+                    <type>2</type>
+                    <value>a.*b</value>
+                </patterns>
+                <patterns>
+                    <id>unused</id>
+                    <type>3</type>
+                    <value>[0-9]+</value>
+                </patterns>
+                <patterns>
+                    <id>unused</id>
+                    <type>42</type>
+                    <value>future</value>
+                </patterns>
+                <type>8</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>stringParam</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>0</type>
+            </valueType>
+        </response>
+        <functionId>com.testdata.ValidUriConstraintService#functionWithAllStringPatternKinds</functionId>
     </appfunction>
     <appfunction>
         <id>com.testdata.ValidUriConstraintService#functionWithSerializableValueConstraints</id>
@@ -169,7 +239,11 @@
                     <dataTypeMetadata>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <pattern>^\Qcontent\E:.*</pattern>
+                        <patterns>
+                            <id>unused</id>
+                            <type>1</type>
+                            <value>content:</value>
+                        </patterns>
                         <format>uri</format>
                         <type>8</type>
                     </dataTypeMetadata>
@@ -197,7 +271,11 @@
                             <dataTypeMetadata>
                                 <id>unused</id>
                                 <isNullable>false</isNullable>
-                                <pattern>^\Qcontent\E:.*</pattern>
+                                <patterns>
+                                    <id>unused</id>
+                                    <type>1</type>
+                                    <value>content:</value>
+                                </patterns>
                                 <format>uri</format>
                                 <type>8</type>
                             </dataTypeMetadata>
@@ -214,7 +292,11 @@
                     <dataTypeMetadata>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <pattern>^[0-9]+$</pattern>
+                        <patterns>
+                            <id>unused</id>
+                            <type>3</type>
+                            <value>[0-9]+</value>
+                        </patterns>
                         <format>numeric</format>
                         <type>8</type>
                     </dataTypeMetadata>
