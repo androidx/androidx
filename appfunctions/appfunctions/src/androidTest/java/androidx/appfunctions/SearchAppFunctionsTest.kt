@@ -19,17 +19,22 @@ package androidx.appfunctions
 import android.Manifest
 import android.app.UiAutomation
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
+import androidx.appfunctions.core.AppFunctionMetadataTestHelper.Companion.TEST_APP_METADATA
+import androidx.appfunctions.core.AppFunctionMetadataTestHelper.Companion.TEST_APP_METADATA_IN_FRENCH
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper.Companion.TEST_PACKAGE_NAME
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper.FunctionIds.MEDIA_SCHEMA_PRINT
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
 import androidx.appfunctions.metadata.AppFunctionName
+import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.Locale
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume.assumeNotNull
@@ -252,4 +257,54 @@ class SearchAppFunctionsTest {
             val result = appFunctionManager.searchAppFunctions(searchSpec)
             assertThat(result).isEmpty()
         }
+
+    @Test
+    fun testSearchAppFunctions_resolveAppFunctionAppMetadata() =
+        runBlocking<Unit> {
+            val packageMetadata = searchTestPackageMetadata()
+
+            assertThat(packageMetadata.resolveAppFunctionAppMetadata(context))
+                .isEqualTo(TEST_APP_METADATA)
+        }
+
+    @Test
+    fun testSearchAppFunctions_resolveAppFunctionAppMetadata_accordingToCurrentLocale() =
+        runBlocking<Unit> {
+            val packageMetadata = searchTestPackageMetadata()
+
+            assertThat(
+                    packageMetadata.resolveAppFunctionAppMetadata(
+                        getContextWithLocale(Locale.FRENCH)
+                    )
+                )
+                .isEqualTo(TEST_APP_METADATA_IN_FRENCH)
+        }
+
+    @Test
+    fun testSearchAppFunctions_resolveAppFunctionAppMetadata_missingLocale_defaultsToEnglish() =
+        runBlocking<Unit> {
+            val packageMetadata = searchTestPackageMetadata()
+
+            assertThat(
+                    packageMetadata.resolveAppFunctionAppMetadata(
+                        getContextWithLocale(Locale.KOREAN)
+                    )
+                )
+                .isEqualTo(TEST_APP_METADATA)
+        }
+
+    private suspend fun searchTestPackageMetadata(): AppFunctionPackageMetadata {
+        val result =
+            appFunctionManager.searchAppFunctions(
+                AppFunctionSearchSpec(packageNames = setOf(context.packageName))
+            )
+        assertThat(result).isNotEmpty()
+        return result.first().packageMetadata
+    }
+
+    private fun getContextWithLocale(locale: Locale): Context {
+        val config = Configuration(context.resources.configuration)
+        config.setLocale(locale)
+        return context.createConfigurationContext(config)
+    }
 }
