@@ -57,18 +57,14 @@ private const val TAG = "GlanceAdaptiveReceiver"
  * }
  * ```
  *
- * To filter broadcast updates by widget name at the manifest level (recommended when using multiple
- * widget receivers in the same application), add the [META_DATA_WIDGET_NAME] meta-data tag to the
- * receiver declaration in `AndroidManifest.xml`:
+ * Include the [Intent.ACTION_LOCALE_CHANGED] action in the receiver declaration in
+ * `AndroidManifest.xml` so that widgets are updated when the device locale changes:
  * ```xml
  * <receiver android:name=".MyGlanceAdaptiveWidgetReceiver" android:exported="true">
  *     <intent-filter>
  *         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
  *         <action android:name="android.intent.action.LOCALE_CHANGED" />
  *     </intent-filter>
- *     <meta-data
- *         android:name="androidx.glance.adaptive.WIDGET_NAME"
- *         android:value="profile_widget" />
  * </receiver>
  * ```
  *
@@ -86,6 +82,10 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
      *
      * This identifier should correspond to the widget template definition or layout configuration
      * registered with the adaptive widget framework.
+     *
+     * This is the single source of truth for the widget name of this receiver. It is read from an
+     * instance created with the receiver's no-argument constructor, so it must return a constant
+     * value.
      */
     public abstract val widgetName: String
 
@@ -313,12 +313,6 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
          */
         public const val ACTION_DEBUG_UPDATE: String =
             "androidx.glance.adaptive.action.DEBUG_UPDATE"
-
-        /**
-         * Manifest `<meta-data>` name used to associate an [AppWidgetProvider] receiver with a
-         * specific developer [widgetName] string identifier in `AndroidManifest.xml`.
-         */
-        public const val META_DATA_WIDGET_NAME: String = "androidx.glance.adaptive.WIDGET_NAME"
 
         /**
          * Key for storing the developer String instance identifier in [AppWidgetManager] widget

@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntList
 import androidx.collection.mutableIntListOf
@@ -46,7 +47,16 @@ internal class WidgetInstanceRepository(
                 setPackage(context.packageName)
             }
         val widgetReceivers =
-            packageManager.queryBroadcastReceivers(updateIntent, PackageManager.GET_META_DATA)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.queryBroadcastReceivers(
+                    updateIntent,
+                    PackageManager.ResolveInfoFlags.of(0),
+                )
+            } else {
+                // The ResolveInfoFlags overload is only available from API 33.
+                @Suppress("DEPRECATION")
+                packageManager.queryBroadcastReceivers(updateIntent, /* flags= */ 0)
+            }
 
         for (idx in widgetReceivers.indices) {
             val resolveInfo = widgetReceivers[idx]
@@ -105,16 +115,9 @@ internal class WidgetInstanceRepository(
 
     /**
      * Checks if the broadcast receiver represented by [receiverInfo] matches the target
-     * [widgetName] by checking manifest meta-data or reflectively reading
-     * [GlanceAdaptiveWidgetReceiver.widgetName].
+     * [widgetName] by reflectively reading [GlanceAdaptiveWidgetReceiver.widgetName].
      */
     private fun isReceiverForWidgetName(receiverInfo: ActivityInfo, widgetName: String): Boolean {
-        val metaDataWidgetName =
-            receiverInfo.metaData?.getString(GlanceAdaptiveWidgetReceiver.META_DATA_WIDGET_NAME)
-        if (metaDataWidgetName != null) {
-            return metaDataWidgetName == widgetName
-        }
-
         return runCatching {
                 val receiverClass = context.classLoader.loadClass(receiverInfo.name)
                 if (GlanceAdaptiveWidgetReceiver::class.java.isAssignableFrom(receiverClass)) {
