@@ -25,7 +25,9 @@ import java.io.IOException
 import java.nio.file.Path
 import java.time.Duration
 import java.util.logging.Logger
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 /**
  * Runs shell commands and file transfers on one device over ADB.
@@ -195,16 +197,17 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
      * @throws IllegalStateException if the package manager does not report success
      */
     suspend fun installPackage(apkFile: Path, options: List<String>) {
-        logger.info("Pushing APK: ${apkFile.toAbsolutePath()} to device staging area...")
-        pushFile(apkFile, STAGED_APK_PATH)
+        withCleanup(cleanup = { removeFile(STAGED_APK_PATH) }) {
+            logger.info("Pushing APK: ${apkFile.toAbsolutePath()} to device staging area...")
+            pushFile(apkFile, STAGED_APK_PATH)
 
-        logger.info("Installing staged APK via pm install...")
-        val flags = options.joinToString(" ") { quoteIfNeeded(it) }
-        val result = exec("pm install $flags ${quote(STAGED_APK_PATH)}")
-        if (!result.stdout.contains("Success", ignoreCase = true)) {
-            throw IllegalStateException("Failed to install APK: ${result.stdout.trim()}")
+            logger.info("Installing staged APK via pm install...")
+            val flags = options.joinToString(" ") { quoteIfNeeded(it) }
+            val result = exec("pm install $flags ${quote(STAGED_APK_PATH)}")
+            if (!result.stdout.contains("Success", ignoreCase = true)) {
+                throw IllegalStateException("Failed to install APK: ${result.stdout.trim()}")
+            }
         }
-        removeFile(STAGED_APK_PATH)
     }
 
     /** Turns the screen on and dismisses the keyguard. */
@@ -259,4 +262,27 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
         /** Characters, besides letters and digits, that the shell never interprets in a word. */
         private const val SHELL_SAFE = "._/:=@%+,-"
     }
+}
+
+/**
+ * Runs [block], then [cleanup], even when [block] fails or its coroutine is cancelled.
+ *
+ * When both fail, the failure of [block] is thrown with that of [cleanup] suppressed, so a cleanup
+ * that fails for the same underlying reason, such as a disconnected device, never hides the root
+ * cause.
+ */
+internal suspend fun <T> withCleanup(cleanup: suspend () -> Unit, block: suspend () -> T): T {
+    val result =
+        try {
+            block()
+        } catch (e: Throwable) {
+            try {
+                withContext(NonCancellable) { cleanup() }
+            } catch (cleanupFailure: Throwable) {
+                e.addSuppressed(cleanupFailure)
+            }
+            throw e
+        }
+    withContext(NonCancellable) { cleanup() }
+    return result
 }
