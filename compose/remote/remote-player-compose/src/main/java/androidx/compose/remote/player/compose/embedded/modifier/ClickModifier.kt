@@ -51,7 +51,6 @@ import androidx.compose.remote.player.compose.embedded.valueIdReflection
 import androidx.compose.remote.player.compose.embedded.valueReflection
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 
 @Composable
@@ -77,36 +76,70 @@ internal fun Modifier.click(op: ClickModifierOperation): Modifier {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun Modifier.multiClick(ops: List<MultiClickModifier>): Modifier {
+    val handlers = rememberClickActionHandlers(ops)
+    return this.combinedClickable(
+        onClick = { handlers.onClick?.invoke() },
+        onDoubleClick = handlers.onDoubleClick,
+        onLongClick = handlers.onLongClick,
+    )
+}
+
+/**
+ * The click action handlers for a component: each is `null` if the component has no actions for
+ * that gesture type, so callers can leave the gesture disabled when unused.
+ */
+internal class ClickActionHandlers(
+    val onClick: (() -> Unit)?,
+    val onDoubleClick: (() -> Unit)?,
+    val onLongClick: (() -> Unit)?,
+)
+
+/**
+ * Returns the single-click, double-click, and long-click handlers for [ops] (both
+ * [ClickModifierOperation]s and [MultiClickModifier]s). Each handler is `null` if there are no
+ * actions for that gesture type. Used by custom components whose plugin dispatches clicks from its
+ * own native component.
+ */
+@Composable
+internal fun rememberClickActionHandlers(ops: List<Operation>): ClickActionHandlers {
     val coreDocument = LocalCoreDocument.current
     val remoteContext = LocalRemoteContext.current
     val onAction = LocalRemoteActionHandler.current
     val onNamedAction = LocalRemoteNamedActionHandler.current
 
-    val singleOps = ops.fastFilter {
-        it.clickTypeReflection == MultiClickModifier.CLICK_TYPE_SINGLE
-    }
-    val doubleOps = ops.fastFilter {
-        it.clickTypeReflection == MultiClickModifier.CLICK_TYPE_DOUBLE
-    }
-    val longOps = ops.fastFilter { it.clickTypeReflection == MultiClickModifier.CLICK_TYPE_LONG }
-
-    fun dispatchOps(targetOps: List<MultiClickModifier>) {
-        targetOps.fastForEach { modifierOp ->
-            modifierOp.mList.fastForEach { action ->
-                applyClickAction(action, coreDocument, remoteContext, onAction, onNamedAction)
-            }
+    val singleActions = ArrayList<Operation>()
+    val doubleActions = ArrayList<Operation>()
+    val longActions = ArrayList<Operation>()
+    ops.fastForEach { op ->
+        when (op) {
+            is ClickModifierOperation -> singleActions.addAll(op.mList)
+            is MultiClickModifier ->
+                when (op.clickTypeReflection) {
+                    MultiClickModifier.CLICK_TYPE_SINGLE -> singleActions.addAll(op.mList)
+                    MultiClickModifier.CLICK_TYPE_DOUBLE -> doubleActions.addAll(op.mList)
+                    MultiClickModifier.CLICK_TYPE_LONG -> longActions.addAll(op.mList)
+                }
         }
-        coreDocument.updateVariablesReflection(
-            remoteContext,
-            Theme.SYSTEM,
-            coreDocument.getOperationsReflection(),
-        )
     }
 
-    return this.combinedClickable(
-        onClick = { dispatchOps(singleOps) },
-        onDoubleClick = if (doubleOps.isNotEmpty()) ({ dispatchOps(doubleOps) }) else null,
-        onLongClick = if (longOps.isNotEmpty()) ({ dispatchOps(longOps) }) else null,
+    fun handlerFor(actions: List<Operation>): (() -> Unit)? {
+        if (actions.isEmpty()) return null
+        return {
+            actions.fastForEach {
+                applyClickAction(it, coreDocument, remoteContext, onAction, onNamedAction)
+            }
+            coreDocument.updateVariablesReflection(
+                remoteContext,
+                Theme.SYSTEM,
+                coreDocument.getOperationsReflection(),
+            )
+        }
+    }
+
+    return ClickActionHandlers(
+        onClick = handlerFor(singleActions),
+        onDoubleClick = handlerFor(doubleActions),
+        onLongClick = handlerFor(longActions),
     )
 }
 
