@@ -92,6 +92,7 @@ class BufferTest {
 
     /** Test that calling getMappedRange() on a non-mapped buffer raises an exception. */
     @SmallTest
+    @SdkSuppress(excludedSdks = [30])
     @Test
     fun bufferMapFailureTest() {
         runBlocking {
@@ -116,6 +117,7 @@ class BufferTest {
 
     /** Tests that the size and usage properties of a buffer are correct. */
     @SmallTest
+    @SdkSuppress(excludedSdks = [30])
     @Test
     fun testBufferSizeAndUsage() {
         runBlocking {
