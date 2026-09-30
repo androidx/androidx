@@ -17,13 +17,11 @@
 package androidx.appfunctions.internal.serializableproxies
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.time.LocalDateTime
 import kotlin.test.Test
 
-@RequiresApi(Build.VERSION_CODES.O)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class AppFunctionLocalDateTimeTest {
 
