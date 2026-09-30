@@ -56,7 +56,8 @@ internal actual suspend fun <R> trace(
     }
 }
 
-@SuppressLint("NullAnnotationGroup")
+@SuppressLint("NullAnnotationGroup", "IllegalExperimentalApiUsage")
+// While this API surface area is experimental, Tracing will guarantee a forward migration path.
 @OptIn(DelicateTracingApi::class)
 internal actual suspend fun captureTraceToken(tracer: DataStoreTracer?): DataStoreTraceToken? {
     return tracer?.tokenFromCoroutineContext()
