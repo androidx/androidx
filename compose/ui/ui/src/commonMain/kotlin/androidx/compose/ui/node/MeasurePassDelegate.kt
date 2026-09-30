@@ -843,6 +843,12 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
         return alignmentLines.getLastCalculation()
     }
 
+    override var isPlacingForAlignment: Boolean
+        get() = innerCoordinator.isPlacingForAlignment
+        set(value) {
+            innerCoordinator.isPlacingForAlignment = value
+        }
+
     override val parentAlignmentLinesOwner: AlignmentLinesOwner?
         get() = layoutNode.parent?.layoutDelegate?.alignmentLinesOwner
 
