@@ -255,7 +255,7 @@ public actual class ArraySet<E> actual constructor(capacity: Int) :
      * @return Returns true if any values were removed from the array set, else false.
      */
     actual override fun removeAll(elements: Collection<E>): Boolean {
-        return removeAll(elements)
+        return removeAllInternal(elements)
     }
 
     /**
