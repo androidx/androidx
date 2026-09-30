@@ -123,7 +123,7 @@ constructor(
          */
         public const val CONFIG_MULTICAST_DS_TWR: Int = 2
 
-        /** Same as CONFIG_UNICAST_DS_TWR, except AoA data is not reported. */
+        /** Same as CONFIG_UNICAST_DS_TWR, except angle of arrival data is not reported. */
         internal const val CONFIG_UNICAST_DS_TWR_NO_AOA = 3
 
         /** Same as CONFIG_UNICAST_DS_TWR, except P-STS security mode is enabled. */

@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo
 
 /** An asynchronous update from a sensor fusion session. */
 public sealed interface SensorFusionResult {
+    /** The peer UWB device that this result applies to. */
     public val device: UwbDevice
 
     /**
@@ -97,7 +98,7 @@ public sealed interface SensorFusionResult {
 
     /**
      * An [Estimate] backed by raw UWB range only because the odometry sensor has failed. The
-     * estimate will not have AoA.
+     * estimate will not have angle of arrival.
      */
     public class ImpreciseEstimate(
         public override val device: UwbDevice,
@@ -143,8 +144,8 @@ public sealed interface SensorFusionResult {
 
     public companion object {
         /**
-         * Failed because AoA is transiently unavailable for an expected reason, such as during
-         * initialization. This should resolve itself soon.
+         * Failed because angle of arrival is transiently unavailable for an expected reason, such
+         * as during initialization. This should resolve itself soon.
          */
         public const val ESTIMATE_FAILURE_REASON_NOT_AVAILABLE: Int = 1
 
@@ -193,10 +194,11 @@ public sealed interface SensorFusionResult {
         public const val FALLBACK_REASON_NOT_AVAILABLE: Int = 0
 
         /**
-         * This device supports hardware AoA which will be used instead of sensor fusion.
+         * This device supports hardware angle of arrival measurement, which will be used instead of
+         * sensor fusion.
          *
-         * To use sensor fusion even when hardware AoA is supported, configure the session with
-         * [RangingParameters.isAoaDisabled] set to `true`.
+         * To use sensor fusion even when hardware angle of arrival is supported, configure the
+         * session with [RangingParameters.isAoaDisabled] set to `true`.
          */
         public const val FALLBACK_REASON_HARDWARE_AOA_PRECEDENCE: Int = 1
 
