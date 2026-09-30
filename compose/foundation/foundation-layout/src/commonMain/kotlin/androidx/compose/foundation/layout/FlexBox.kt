@@ -2546,9 +2546,9 @@ internal class ResolvedFlexItemInfo : FlexConfigScope {
         if (_minMainAxisSize == -1) {
             _minMainAxisSize =
                 if (isHorizontal) {
-                    measurable?.minIntrinsicWidth(Constraints.Infinity) ?: 0
+                    measurable?.minIntrinsicWidth(flexBoxCrossAxisMaxPx) ?: 0
                 } else {
-                    measurable?.minIntrinsicHeight(Constraints.Infinity) ?: 0
+                    measurable?.minIntrinsicHeight(flexBoxCrossAxisMaxPx) ?: 0
                 }
         }
         return _minMainAxisSize
@@ -2559,9 +2559,9 @@ internal class ResolvedFlexItemInfo : FlexConfigScope {
         if (_maxContentSize == -1) {
             _maxContentSize =
                 if (isHorizontal) {
-                    measurable?.maxIntrinsicWidth(Constraints.Infinity) ?: 0
+                    measurable?.maxIntrinsicWidth(flexBoxCrossAxisMaxPx) ?: 0
                 } else {
-                    measurable?.maxIntrinsicHeight(Constraints.Infinity) ?: 0
+                    measurable?.maxIntrinsicHeight(flexBoxCrossAxisMaxPx) ?: 0
                 }
         }
         return _maxContentSize
