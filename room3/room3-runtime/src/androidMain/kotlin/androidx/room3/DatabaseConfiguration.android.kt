@@ -94,7 +94,7 @@ constructor(
     /* The connection pool timeout. */
     public actual val connectionPoolTimeout: Duration,
 
-    /* Whether Room is allowed to delete and recreate the database file on corruption. */
+    /* Whether Room is allowed to delete and recreate the database file during corruption recovery. */
     public actual val allowDataLossOnRecovery: Boolean,
 ) {
     /* Whether the invalidation tracker will use temp or real tables for invalidation tracking. */

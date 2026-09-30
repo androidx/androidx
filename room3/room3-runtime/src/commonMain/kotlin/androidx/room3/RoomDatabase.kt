@@ -493,12 +493,21 @@ public expect abstract class RoomDatabase() {
         public fun setConnectionPoolTimeout(timeout: Duration): Builder<T>
 
         /**
-         * Sets whether Room is allowed to delete and recreate the database file in situations where
-         * the database cannot be opened or is corrupted, thus allowing for its data to be lost.
+         * Sets whether Room is allowed to delete and recreate the database file during corruption
+         * recovery.
          *
-         * @param allowDataLossOnRecovery If `true` the database file might be deleted and recreated
-         *   in the case that it cannot be opened.
-         * @return This builder instance.
+         * During initialization, Room attempts to open and verify the database connection. If
+         * opening fails due to an [androidx.sqlite.SQLiteException] (such as file corruption) and
+         * cannot be resolved by an initial retry, Room enters a recovery flow:
+         * * If [allowDataLossOnRecovery] is `true`, Room deletes the corrupted database file along
+         *   with any companion journal files (`-wal`, `-shm`, `-journal`) and recreates the
+         *   database, resulting in data loss.
+         * * If [allowDataLossOnRecovery] is `false` (the default), Room rethrows the exception
+         *   without attempting recovery.
+         *
+         * @param allowDataLossOnRecovery whether database deletion and recreation is permitted on
+         *   corruption
+         * @return this builder instance
          */
         @JvmOverloads
         @Suppress("MissingGetterMatchingBuilder")
