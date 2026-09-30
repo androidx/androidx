@@ -42,8 +42,8 @@ public interface UwbClientSessionScope {
     public fun prepareSession(parameters: RangingParameters): Flow<RangingResult>
 
     /**
-     * Prepare a sensor fusion session, which performs software AoA estimation and adjusts range for
-     * local device motion at a high resolution.
+     * Prepare a sensor fusion session, which performs software angle of arrival estimation and
+     * adjusts range for local device motion at a high resolution.
      *
      * Sensor fusion relies on ARCore to estimate local device odometry. Before calling this method,
      * you must follow ARCore documentation to
@@ -57,11 +57,17 @@ public interface UwbClientSessionScope {
      *   [SensorFusionResult.SensorFusionFallback] and the session will fall back to standard UWB
      *   ranging. That is, all subsequent results will be instances of [RangingResult].
      *
-     * Throws the same exceptions as [prepareSession(RangingParameters)], in addition to:
-     *
-     * @throws [SecurityException] if the app does not have the [android.Manifest.permission.CAMERA]
-     *   permission. Apps must have requested and been granted this permission before calling this
-     *   method.
+     * @throws [IllegalStateException] if a new flow was consumed again after the UWB ranging is
+     *   already initiated.
+     * @throws [androidx.core.uwb.exceptions.UwbSystemCallbackException] if the backend UWB system
+     *   has resulted in an error.
+     * @throws [SecurityException] if the app does not have both the
+     *   `android.permission.UWB_RANGING` and [android.Manifest.permission.CAMERA] permissions. Apps
+     *   must have requested and been granted these permissions before calling this method.
+     * @throws [IllegalArgumentException] if the client starts a ranging session without setting
+     *   complex channel and peer address.
+     * @throws [IllegalArgumentException] if the client starts a ranging session with invalid config
+     *   id or ranging update type.
      */
     public fun prepareSession(parameters: SensorFusionParameters): Flow<SensorFusionResult> = flow {
         emit(
