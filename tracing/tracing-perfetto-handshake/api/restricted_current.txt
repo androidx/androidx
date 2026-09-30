@@ -27,40 +27,13 @@ package androidx.tracing.perfetto.handshake {
 
 package androidx.tracing.perfetto.handshake.protocol {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class RequestKeys {
-    property public static String ACTION_DISABLE_TRACING_COLD_START;
-    property public static String ACTION_ENABLE_TRACING;
-    property public static String ACTION_ENABLE_TRACING_COLD_START;
-    property public static String KEY_PATH;
-    property public static String KEY_PERSISTENT;
-    property public static String RECEIVER_CLASS_NAME;
-    field public static final String ACTION_DISABLE_TRACING_COLD_START = "androidx.tracing.perfetto.action.DISABLE_TRACING_COLD_START";
-    field public static final String ACTION_ENABLE_TRACING = "androidx.tracing.perfetto.action.ENABLE_TRACING";
-    field public static final String ACTION_ENABLE_TRACING_COLD_START = "androidx.tracing.perfetto.action.ENABLE_TRACING_COLD_START";
-    field public static final androidx.tracing.perfetto.handshake.protocol.RequestKeys INSTANCE;
-    field public static final String KEY_PATH = "path";
-    field public static final String KEY_PERSISTENT = "persistent";
-    field public static final String RECEIVER_CLASS_NAME = "androidx.tracing.perfetto.TracingReceiver";
-  }
-
   public final class Response {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public Response(int resultCode, String? requiredVersion, String? message);
     method @InaccessibleFromKotlin public String? getMessage();
     method @InaccessibleFromKotlin public String? getRequiredVersion();
     method @InaccessibleFromKotlin public int getResultCode();
     property public String? message;
     property public String? requiredVersion;
     property public int resultCode;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ResponseKeys {
-    property public static String KEY_MESSAGE;
-    property public static String KEY_REQUIRED_VERSION;
-    property public static String KEY_RESULT_CODE;
-    field public static final androidx.tracing.perfetto.handshake.protocol.ResponseKeys INSTANCE;
-    field public static final String KEY_MESSAGE = "message";
-    field public static final String KEY_REQUIRED_VERSION = "requiredVersion";
-    field public static final String KEY_RESULT_CODE = "exitCode";
   }
 
   public final class ResponseResultCodes {
