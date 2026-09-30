@@ -1,1 +1,1130 @@
 // Signature format: 4.0
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) androidx.camera.camera2.pipe.testing {
+
+  public final class CameraControllerSimulator implements androidx.camera.camera2.pipe.CameraController {
+    ctor public CameraControllerSimulator(androidx.camera.camera2.pipe.CameraContext cameraContext, androidx.camera.camera2.pipe.CameraGraphId graphId, androidx.camera.camera2.pipe.CameraGraph.Config graphConfig, androidx.camera.camera2.pipe.graph.GraphListener graphListener);
+    method public void close();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.CameraGraphId getCameraGraphId();
+    method @BytecodeOnly public String getCameraId-Dz_R5H8();
+    method @InaccessibleFromKotlin public boolean getClosed();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor? getCurrentCaptureSequenceProcessor();
+    method @InaccessibleFromKotlin public java.util.Map<androidx.camera.camera2.pipe.StreamId,android.view.Surface>? getCurrentSurfaceMap();
+    method @KotlinOnly public androidx.camera.camera2.pipe.StreamGraph.OutputLatency? getOutputLatency(androidx.camera.camera2.pipe.StreamId? streamId);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.StreamGraph.OutputLatency? getOutputLatency-n5Pu2dI(androidx.camera.camera2.pipe.StreamId?);
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.StreamGraph.OutputLatency? getOutputLatencySet();
+    method @InaccessibleFromKotlin public long getSimulatedCaptureLatency();
+    method @InaccessibleFromKotlin public long getSimulatedProcessingLatency();
+    method @InaccessibleFromKotlin public boolean getStarted();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.StreamGraph? getStreamGraph();
+    method @InaccessibleFromKotlin public boolean isForeground();
+    method @InaccessibleFromKotlin public void setForeground(boolean);
+    method @InaccessibleFromKotlin public void setStreamGraph(androidx.camera.camera2.pipe.StreamGraph?);
+    method public void simulateCameraError(androidx.camera.camera2.pipe.GraphState.GraphStateError graphStateError);
+    method public void simulateCameraModified();
+    method public void simulateCameraStarted();
+    method public void simulateCameraStopped();
+    method public void simulateOutputLatency();
+    method public void start();
+    method public void stop();
+    method public void updateSurfaceMap(java.util.Map<androidx.camera.camera2.pipe.StreamId,? extends android.view.Surface> surfaceMap);
+    property public androidx.camera.camera2.pipe.CameraGraphId cameraGraphId;
+    property public androidx.camera.camera2.pipe.CameraId cameraId;
+    property public boolean closed;
+    property public androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor? currentCaptureSequenceProcessor;
+    property public java.util.Map<androidx.camera.camera2.pipe.StreamId,android.view.Surface>? currentSurfaceMap;
+    property public boolean isForeground;
+    property public androidx.camera.camera2.pipe.StreamGraph.OutputLatency? outputLatencySet;
+    property public long simulatedCaptureLatency;
+    property public long simulatedProcessingLatency;
+    property public boolean started;
+    property public androidx.camera.camera2.pipe.StreamGraph? streamGraph;
+  }
+
+  public final class CameraGraphSimulator implements java.lang.AutoCloseable androidx.camera.camera2.pipe.CameraGraph androidx.camera.camera2.pipe.testing.CameraSimulator {
+    method public suspend Object? acquireSession(kotlin.coroutines.Continuation<? super androidx.camera.camera2.pipe.CameraGraph.Session>);
+    method public androidx.camera.camera2.pipe.CameraGraph.Session? acquireSessionOrNull();
+    method public void close();
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> converge3A(java.util.List<android.hardware.camera2.params.MeteringRectangle>? aeRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? afRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? awbRegions, androidx.camera.camera2.pipe.Converge3ABehavior? aeBehavior, androidx.camera.camera2.pipe.Converge3ABehavior? afBehavior, androidx.camera.camera2.pipe.Converge3ABehavior? awbBehavior, kotlin.jvm.functions.Function1<androidx.camera.camera2.pipe.FrameMetadata,java.lang.Boolean>? convergedCondition, Integer? frameLimit, Long? timeLimitNs);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A!> converge3A-3VUeUZc(java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, androidx.camera.camera2.pipe.Converge3ABehavior?, androidx.camera.camera2.pipe.Converge3ABehavior?, androidx.camera.camera2.pipe.Converge3ABehavior?, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.pipe.FrameMetadata!,java.lang.Boolean!>?, Integer?, Long?);
+    method @InaccessibleFromKotlin @Deprecated public androidx.camera.camera2.pipe.CameraGraph getCameraGraph();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.CameraGraph.Config getConfig();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.testing.FakeImageReaders getFakeImageReaders();
+    method public kotlinx.coroutines.flow.StateFlow<androidx.camera.camera2.pipe.GraphState!> getGraphState();
+    method public androidx.camera.camera2.pipe.CameraGraphId getId();
+    method public kotlinx.coroutines.flow.Flow<androidx.camera.camera2.pipe.FrameInfo!> getLatestFrameInfo();
+    method public kotlinx.coroutines.flow.Flow<androidx.camera.common.CameraFrameNumber!> getLatestFrameNumber();
+    method public androidx.camera.camera2.pipe.RequestListeners getListeners();
+    method public androidx.camera.camera2.pipe.Parameters getParameters();
+    method public androidx.camera.camera2.pipe.StreamGraph getStreams();
+    method public void initializeSurfaces();
+    method @InaccessibleFromKotlin public boolean isClosed();
+    method public boolean isForeground();
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> lock3A(androidx.camera.camera2.pipe.AeMode? aeMode, androidx.camera.camera2.pipe.AfMode? afMode, androidx.camera.camera2.pipe.AwbMode? awbMode, java.util.List<android.hardware.camera2.params.MeteringRectangle>? aeRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? afRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? awbRegions, androidx.camera.camera2.pipe.Lock3ABehavior? aeLockBehavior, androidx.camera.camera2.pipe.Lock3ABehavior? afLockBehavior, androidx.camera.camera2.pipe.Lock3ABehavior? awbLockBehavior, androidx.camera.camera2.pipe.AeMode? afTriggerStartAeMode, kotlin.jvm.functions.Function1<androidx.camera.camera2.pipe.FrameMetadata,java.lang.Boolean>? convergedCondition, kotlin.jvm.functions.Function1<androidx.camera.camera2.pipe.FrameMetadata,java.lang.Boolean>? lockedCondition, int frameLimit, long convergedTimeLimitNs, long lockedTimeLimitNs);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A!> lock3A-vIrNa9k(androidx.camera.camera2.pipe.AeMode?, androidx.camera.camera2.pipe.AfMode?, androidx.camera.camera2.pipe.AwbMode?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, androidx.camera.camera2.pipe.Lock3ABehavior?, androidx.camera.camera2.pipe.Lock3ABehavior?, androidx.camera.camera2.pipe.Lock3ABehavior?, androidx.camera.camera2.pipe.AeMode?, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.pipe.FrameMetadata!,java.lang.Boolean!>?, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.pipe.FrameMetadata!,java.lang.Boolean!>?, int, long, long);
+    method public void setForeground(boolean <set-?>);
+    method @KotlinOnly public void setSurface(androidx.camera.camera2.pipe.StreamId stream, android.view.Surface? surface);
+    method @BytecodeOnly public void setSurface-NYG5g8E(int, android.view.Surface?);
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> setTorchOff(androidx.camera.camera2.pipe.AeMode? aeMode);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A!> setTorchOff-NqN7i0k(androidx.camera.camera2.pipe.AeMode?);
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> setTorchOn();
+    method public androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator simulateAndCompleteNextFrame(optional java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,? extends java.lang.Object?> resultMetadata, optional java.util.Set<androidx.camera.camera2.pipe.CameraId> physicalCameraIds, optional java.util.Map<androidx.camera.camera2.pipe.OutputId,android.hardware.HardwareBuffer> hardwareBuffers, optional long advanceClockByNanos);
+    method public void simulateCameraError(androidx.camera.camera2.pipe.GraphState.GraphStateError graphStateError);
+    method public void simulateCameraModified();
+    method public void simulateCameraStarted();
+    method public void simulateCameraStopped();
+    method @KotlinOnly public void simulateExpectedOutputs(androidx.camera.camera2.pipe.StreamId streamId, long timestamp, java.util.Set<androidx.camera.camera2.pipe.OutputId> outputIds);
+    method @BytecodeOnly public void simulateExpectedOutputs-hB7JTeY(int, long, java.util.Set<androidx.camera.camera2.pipe.OutputId!>);
+    method @KotlinOnly public void simulateImage(androidx.camera.camera2.pipe.StreamId streamId, long imageTimestamp, optional androidx.camera.camera2.pipe.OutputId? outputId, optional android.hardware.HardwareBuffer? hardwareBuffer);
+    method @BytecodeOnly public void simulateImage-wZda4rs(int, long, androidx.camera.camera2.pipe.OutputId?, android.hardware.HardwareBuffer?);
+    method public void simulateImages(androidx.camera.camera2.pipe.Request request, long imageTimestamp, optional java.util.Set<androidx.camera.camera2.pipe.CameraId> physicalCameraIds, optional java.util.Map<androidx.camera.camera2.pipe.OutputId,android.hardware.HardwareBuffer> hardwareBuffers);
+    method public androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator simulateNextFrame(optional long advanceClockByNanos, optional boolean advanceBarrier);
+    method public void start();
+    method public void stop();
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> submit3A(androidx.camera.camera2.pipe.AeMode? aeMode, androidx.camera.camera2.pipe.AfMode? afMode, androidx.camera.camera2.pipe.AwbMode? awbMode, java.util.List<android.hardware.camera2.params.MeteringRectangle>? aeRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? afRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? awbRegions);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A!> submit3A-ydBZfZg(androidx.camera.camera2.pipe.AeMode?, androidx.camera.camera2.pipe.AfMode?, androidx.camera.camera2.pipe.AwbMode?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?);
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> unlock3A(Boolean? ae, Boolean? af, Boolean? awb, kotlin.jvm.functions.Function1<androidx.camera.camera2.pipe.FrameMetadata,java.lang.Boolean>? unlockedCondition, int frameLimit, long timeLimitNs);
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> update3A(androidx.camera.camera2.pipe.AeMode? aeMode, androidx.camera.camera2.pipe.AfMode? afMode, androidx.camera.camera2.pipe.AwbMode? awbMode, androidx.camera.camera2.pipe.ControlMode? controlMode, androidx.camera.camera2.pipe.FlashMode? flashMode, java.util.List<android.hardware.camera2.params.MeteringRectangle>? aeRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? afRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? awbRegions, boolean retainLocks);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A!> update3A-znct4lo(androidx.camera.camera2.pipe.AeMode?, androidx.camera.camera2.pipe.AfMode?, androidx.camera.camera2.pipe.AwbMode?, androidx.camera.camera2.pipe.ControlMode?, androidx.camera.camera2.pipe.FlashMode?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, boolean);
+    method public void updateAudioRestrictionMode(androidx.camera.camera2.pipe.AudioRestrictionMode mode);
+    method @BytecodeOnly public void updateAudioRestrictionMode-LwUUkyU(int);
+    method public suspend <T> Object? useSession(kotlin.jvm.functions.Function3<kotlinx.coroutines.CoroutineScope,androidx.camera.camera2.pipe.CameraGraph.Session,kotlin.coroutines.Continuation<? super T>,?> action, kotlin.coroutines.Continuation<? super T>);
+    method public <T> kotlinx.coroutines.Deferred<T> useSessionIn(kotlinx.coroutines.CoroutineScope scope, kotlin.jvm.functions.Function3<kotlinx.coroutines.CoroutineScope,androidx.camera.camera2.pipe.CameraGraph.Session,kotlin.coroutines.Continuation<? super T>,?> action);
+    property @Deprecated public androidx.camera.camera2.pipe.CameraGraph cameraGraph;
+    property public androidx.camera.camera2.pipe.CameraGraph.Config config;
+    property public androidx.camera.camera2.pipe.testing.FakeImageReaders fakeImageReaders;
+    property public kotlinx.coroutines.flow.StateFlow<androidx.camera.camera2.pipe.GraphState> graphState;
+    property public androidx.camera.camera2.pipe.CameraGraphId id;
+    property public boolean isClosed;
+    property public boolean isForeground;
+    property public kotlinx.coroutines.flow.Flow<androidx.camera.camera2.pipe.FrameInfo> latestFrameInfo;
+    property public kotlinx.coroutines.flow.Flow<androidx.camera.common.CameraFrameNumber> latestFrameNumber;
+    property public androidx.camera.camera2.pipe.RequestListeners listeners;
+    property public androidx.camera.camera2.pipe.Parameters parameters;
+    property public androidx.camera.camera2.pipe.StreamGraph streams;
+    field public static final androidx.camera.camera2.pipe.testing.CameraGraphSimulator.Companion Companion;
+  }
+
+  public static final class CameraGraphSimulator.Companion {
+    method public androidx.camera.camera2.pipe.testing.CameraGraphSimulator create(android.content.Context testContext, androidx.camera.camera2.pipe.CameraPipe.ThreadConfig testThreads, androidx.camera.camera2.pipe.CameraMetadata testCamera, androidx.camera.camera2.pipe.CameraGraph.Config graphConfig);
+    method public androidx.camera.camera2.pipe.testing.CameraGraphSimulator create(kotlinx.coroutines.test.TestScope testScope, android.content.Context testContext, androidx.camera.camera2.pipe.CameraMetadata cameraMetadata, androidx.camera.camera2.pipe.CameraGraph.Config graphConfig);
+  }
+
+  public final class CameraGraphSimulator.FrameSimulator {
+    method @BytecodeOnly public long getFrameNumber-2hlX2lI();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.Request getRequest();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.testing.FakeCaptureSequence getRequestSequence();
+    method @InaccessibleFromKotlin public Long? getTimestampNanos();
+    method @InaccessibleFromKotlin public void setTimestampNanos(Long?);
+    method public void simulateAbort();
+    method @KotlinOnly @Deprecated public void simulateBufferLoss(androidx.camera.camera2.pipe.StreamId streamId);
+    method @KotlinOnly public void simulateBufferLoss(androidx.camera.camera2.pipe.StreamId streamId, androidx.camera.camera2.pipe.OutputId outputId);
+    method @BytecodeOnly @Deprecated public void simulateBufferLoss-aKI5c8E(int);
+    method @BytecodeOnly public void simulateBufferLoss-vTrRqPs(int, int);
+    method public void simulateComplete(java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,? extends java.lang.Object?> resultMetadata, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,? extends java.lang.Object?> extraResultMetadata, optional java.util.Map<? extends java.lang.Object?,? extends java.lang.Object?> extraMetadata, optional java.util.Map<androidx.camera.camera2.pipe.CameraId,? extends java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,? extends java.lang.Object?>> physicalResultMetadata);
+    method @BytecodeOnly public static void simulateComplete$default(androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator!, java.util.Map!, java.util.Map!, java.util.Map!, java.util.Map!, int, Object!);
+    method @KotlinOnly public void simulateExpectedOutputs(androidx.camera.camera2.pipe.StreamId streamId, optional Long? imageTimestamp, java.util.Set<androidx.camera.camera2.pipe.OutputId> outputIds);
+    method @BytecodeOnly public void simulateExpectedOutputs-hB7JTeY(int, Long?, java.util.Set<androidx.camera.camera2.pipe.OutputId!>);
+    method @BytecodeOnly public static void simulateExpectedOutputs-hB7JTeY$default(androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator!, int, Long!, java.util.Set!, int, Object!);
+    method public void simulateFailure(androidx.camera.camera2.pipe.RequestFailure requestFailure);
+    method @KotlinOnly public void simulateImage(androidx.camera.camera2.pipe.StreamId streamId, optional Long? imageTimestamp, optional androidx.camera.camera2.pipe.OutputId? outputId, optional android.hardware.HardwareBuffer? hardwareBuffer);
+    method @BytecodeOnly public void simulateImage-wZda4rs(int, Long?, androidx.camera.camera2.pipe.OutputId?, android.hardware.HardwareBuffer?);
+    method @BytecodeOnly public static void simulateImage-wZda4rs$default(androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator!, int, Long!, androidx.camera.camera2.pipe.OutputId!, android.hardware.HardwareBuffer!, int, Object!);
+    method public void simulateImages(optional Long? imageTimestamp, optional java.util.Set<androidx.camera.camera2.pipe.CameraId> physicalCameraIds, optional java.util.Map<androidx.camera.camera2.pipe.OutputId,android.hardware.HardwareBuffer> hardwareBuffers);
+    method @BytecodeOnly public static void simulateImages$default(androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator!, Long!, java.util.Set!, java.util.Map!, int, Object!);
+    method public void simulatePartialCaptureResult(java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,? extends java.lang.Object?> resultMetadata, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,? extends java.lang.Object?> extraResultMetadata, optional java.util.Map<? extends java.lang.Object?,? extends java.lang.Object?> extraMetadata);
+    method @BytecodeOnly public static void simulatePartialCaptureResult$default(androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator!, java.util.Map!, java.util.Map!, java.util.Map!, int, Object!);
+    method public void simulateStarted(long timestampNanos);
+    method public void simulateTotalCaptureResult(java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,? extends java.lang.Object?> resultMetadata, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,? extends java.lang.Object?> extraResultMetadata, optional java.util.Map<? extends java.lang.Object?,? extends java.lang.Object?> extraMetadata, optional java.util.Map<androidx.camera.camera2.pipe.CameraId,? extends java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,? extends java.lang.Object?>> physicalResultMetadata);
+    method @BytecodeOnly public static void simulateTotalCaptureResult$default(androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator!, java.util.Map!, java.util.Map!, java.util.Map!, java.util.Map!, int, Object!);
+    property public androidx.camera.common.CameraFrameNumber frameNumber;
+    property public androidx.camera.camera2.pipe.Request request;
+    property public androidx.camera.camera2.pipe.testing.FakeCaptureSequence requestSequence;
+    property public Long? timestampNanos;
+  }
+
+  public final class CameraPipeSimulator implements java.lang.AutoCloseable androidx.camera.camera2.pipe.CameraPipe {
+    method public androidx.camera.camera2.pipe.CameraSurfaceManager cameraSurfaceManager();
+    method public androidx.camera.camera2.pipe.CameraDevices cameras();
+    method public void checkCameraGraphsClosed();
+    method public void checkImageReadersClosed();
+    method public void checkImagesClosed();
+    method public void close();
+    method @Deprecated public androidx.camera.camera2.pipe.testing.CameraGraphSimulator create(androidx.camera.camera2.pipe.CameraGraph.Config config);
+    method public androidx.camera.camera2.pipe.testing.CameraGraphSimulator createCameraGraph(androidx.camera.camera2.pipe.CameraGraph.Config config);
+    method public androidx.camera.camera2.pipe.testing.CameraGraphSimulator createCameraGraphSimulator(androidx.camera.camera2.pipe.CameraGraph.Config graphConfig);
+    method public java.util.List<androidx.camera.camera2.pipe.testing.CameraGraphSimulator> createCameraGraphSimulators(androidx.camera.camera2.pipe.CameraGraph.ConcurrentConfig config);
+    method public java.util.List<androidx.camera.camera2.pipe.testing.CameraGraphSimulator> createCameraGraphs(androidx.camera.camera2.pipe.CameraGraph.ConcurrentConfig config);
+    method public androidx.camera.camera2.pipe.testing.FrameGraphSimulator createFrameGraph(androidx.camera.camera2.pipe.FrameGraph.Config frameGraphConfig);
+    method public java.util.List<androidx.camera.camera2.pipe.testing.FrameGraphSimulator> createFrameGraphs(androidx.camera.camera2.pipe.FrameGraph.ConcurrentConfig frameGraphConfigs);
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.testing.CameraGraphSimulator> getCameraGraphs();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.testing.FakeCameraBackend getFakeCameraBackend();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.testing.FakeImageReaders getFakeImageReaders();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.testing.FakeImageSources getFakeImageSources();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.testing.FakeSurfaces getFakeSurfaces();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.testing.FrameGraphSimulator> getFrameGraphs();
+    method @BytecodeOnly public int getGlobalAudioRestrictionMode-_b5Q8KE();
+    method @KotlinOnly public suspend Object? isConfigSupported(androidx.camera.camera2.pipe.CameraGraph.Config graphConfig, kotlin.coroutines.Continuation<? super androidx.camera.camera2.pipe.ConfigQueryResult>);
+    method @BytecodeOnly public Object? isConfigSupported-NpXggIU(androidx.camera.camera2.pipe.CameraGraph.Config, kotlin.coroutines.Continuation<? super androidx.camera.camera2.pipe.ConfigQueryResult!>);
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.CameraGraph.Config> isConfigSupportedHistory();
+    method public void prewarmIsConfigSupported(androidx.camera.camera2.pipe.CameraGraph.Config graphConfig);
+    method @BytecodeOnly public void setGlobalAudioRestrictionMode-LwUUkyU(int);
+    method public void shutdown();
+    property public java.util.List<androidx.camera.camera2.pipe.testing.CameraGraphSimulator> cameraGraphs;
+    property public androidx.camera.camera2.pipe.testing.FakeCameraBackend fakeCameraBackend;
+    property public androidx.camera.camera2.pipe.testing.FakeImageReaders fakeImageReaders;
+    property public androidx.camera.camera2.pipe.testing.FakeImageSources fakeImageSources;
+    property public androidx.camera.camera2.pipe.testing.FakeSurfaces fakeSurfaces;
+    property public java.util.List<androidx.camera.camera2.pipe.testing.FrameGraphSimulator> frameGraphs;
+    property public androidx.camera.camera2.pipe.AudioRestrictionMode globalAudioRestrictionMode;
+    property public java.util.List<androidx.camera.camera2.pipe.CameraGraph.Config> isConfigSupportedHistory;
+    field public static final androidx.camera.camera2.pipe.testing.CameraPipeSimulator.Companion Companion;
+  }
+
+  public static final class CameraPipeSimulator.Companion {
+    method public androidx.camera.camera2.pipe.testing.CameraPipeSimulator create(android.content.Context testContext, androidx.camera.camera2.pipe.CameraPipe.ThreadConfig testThreads, java.util.List<? extends androidx.camera.camera2.pipe.CameraMetadata> testCameras, optional androidx.camera.camera2.pipe.MemoryEstimator memoryEstimator, optional androidx.camera.camera2.pipe.testing.TestThreadScope? testThreadScope);
+    method public androidx.camera.camera2.pipe.testing.CameraPipeSimulator create(kotlinx.coroutines.test.TestScope testScope, android.content.Context testContext, optional java.util.List<? extends androidx.camera.camera2.pipe.CameraMetadata> fakeCameras, optional androidx.camera.camera2.pipe.MemoryEstimator memoryEstimator);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.CameraPipeSimulator! create$default(androidx.camera.camera2.pipe.testing.CameraPipeSimulator.Companion!, android.content.Context!, androidx.camera.camera2.pipe.CameraPipe.ThreadConfig!, java.util.List!, androidx.camera.camera2.pipe.MemoryEstimator!, androidx.camera.camera2.pipe.testing.TestThreadScope!, int, Object!);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.CameraPipeSimulator! create$default(androidx.camera.camera2.pipe.testing.CameraPipeSimulator.Companion!, kotlinx.coroutines.test.TestScope!, android.content.Context!, java.util.List!, androidx.camera.camera2.pipe.MemoryEstimator!, int, Object!);
+  }
+
+  public interface CameraSimulator {
+    method public void initializeSurfaces();
+    method @InaccessibleFromKotlin public boolean isClosed();
+    method public androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator simulateAndCompleteNextFrame(optional java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,? extends java.lang.Object?> resultMetadata, optional java.util.Set<androidx.camera.camera2.pipe.CameraId> physicalCameraIds, optional java.util.Map<androidx.camera.camera2.pipe.OutputId,android.hardware.HardwareBuffer> hardwareBuffers, optional long advanceClockByNanos);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator! simulateAndCompleteNextFrame$default(androidx.camera.camera2.pipe.testing.CameraSimulator!, java.util.Map!, java.util.Set!, java.util.Map!, long, int, Object!);
+    method public void simulateCameraError(androidx.camera.camera2.pipe.GraphState.GraphStateError graphStateError);
+    method public void simulateCameraModified();
+    method public void simulateCameraStarted();
+    method public void simulateCameraStopped();
+    method @KotlinOnly public void simulateExpectedOutputs(androidx.camera.camera2.pipe.StreamId streamId, long timestamp, java.util.Set<androidx.camera.camera2.pipe.OutputId> outputIds);
+    method @BytecodeOnly public void simulateExpectedOutputs-hB7JTeY(int, long, java.util.Set<androidx.camera.camera2.pipe.OutputId!>);
+    method @KotlinOnly public void simulateImage(androidx.camera.camera2.pipe.StreamId streamId, long imageTimestamp, optional androidx.camera.camera2.pipe.OutputId? outputId, optional android.hardware.HardwareBuffer? hardwareBuffer);
+    method @BytecodeOnly public void simulateImage-wZda4rs(int, long, androidx.camera.camera2.pipe.OutputId?, android.hardware.HardwareBuffer?);
+    method @BytecodeOnly public static void simulateImage-wZda4rs$default(androidx.camera.camera2.pipe.testing.CameraSimulator!, int, long, androidx.camera.camera2.pipe.OutputId!, android.hardware.HardwareBuffer!, int, Object!);
+    method public void simulateImages(androidx.camera.camera2.pipe.Request request, long imageTimestamp, optional java.util.Set<androidx.camera.camera2.pipe.CameraId> physicalCameraIds, optional java.util.Map<androidx.camera.camera2.pipe.OutputId,android.hardware.HardwareBuffer> hardwareBuffers);
+    method @BytecodeOnly public static void simulateImages$default(androidx.camera.camera2.pipe.testing.CameraSimulator!, androidx.camera.camera2.pipe.Request!, long, java.util.Set!, java.util.Map!, int, Object!);
+    method public androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator simulateNextFrame(optional long advanceClockByNanos, optional boolean advanceBarrier);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator! simulateNextFrame$default(androidx.camera.camera2.pipe.testing.CameraSimulator!, long, boolean, int, Object!);
+    property public abstract boolean isClosed;
+  }
+
+  public interface DeviceTemplate {
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeCameraMetadata createCameraMetadata(optional androidx.camera.camera2.pipe.CameraId cameraId, optional Integer? lensFacing, optional java.util.Map<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>,java.lang.Object?> characteristicsOverrides, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,java.lang.Object?> metadataOverrides, optional java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> requestKeysOverrides, optional java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> resultKeysOverrides, optional java.util.Map<java.lang.Integer,androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata> extensionMetadata, optional java.util.Map<androidx.camera.camera2.pipe.CameraId,androidx.camera.camera2.pipe.testing.FakeCameraMetadata> physicalMetadata);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeCameraMetadata createCameraMetadata-t3SLZhY(String, Integer?, java.util.Map<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object!>!,? extends java.lang.Object!>, java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object!>!,? extends java.lang.Object!>, java.util.Set<? extends android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object!>!>, java.util.Set<? extends android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object!>!>, java.util.Map<java.lang.Integer!,androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata!>, java.util.Map<androidx.camera.camera2.pipe.CameraId!,androidx.camera.camera2.pipe.testing.FakeCameraMetadata!>);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeCameraMetadata! createCameraMetadata-t3SLZhY$default(androidx.camera.camera2.pipe.testing.DeviceTemplate!, String!, Integer!, java.util.Map!, java.util.Map!, java.util.Set!, java.util.Set!, java.util.Map!, java.util.Map!, int, Object!);
+  }
+
+  public final class EmulatorDeviceTemplate implements androidx.camera.camera2.pipe.testing.DeviceTemplate {
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeCameraMetadata createCameraMetadata(optional androidx.camera.camera2.pipe.CameraId cameraId, optional Integer? lensFacing, optional java.util.Map<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>,java.lang.Object?> characteristicsOverrides, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,java.lang.Object?> metadataOverrides, optional java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> requestKeysOverrides, optional java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> resultKeysOverrides, optional java.util.Map<java.lang.Integer,androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata> extensionMetadata, optional java.util.Map<androidx.camera.camera2.pipe.CameraId,androidx.camera.camera2.pipe.testing.FakeCameraMetadata> physicalMetadata);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeCameraMetadata createCameraMetadata-t3SLZhY(String, Integer?, java.util.Map<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object!>!,? extends java.lang.Object!>, java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object!>!,? extends java.lang.Object!>, java.util.Set<? extends android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object!>!>, java.util.Set<? extends android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object!>!>, java.util.Map<java.lang.Integer!,androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata!>, java.util.Map<androidx.camera.camera2.pipe.CameraId!,androidx.camera.camera2.pipe.testing.FakeCameraMetadata!>);
+    field public static final androidx.camera.camera2.pipe.testing.EmulatorDeviceTemplate INSTANCE;
+  }
+
+  public final class FakeCameraBackend implements androidx.camera.camera2.pipe.CameraBackend {
+    ctor public FakeCameraBackend(java.util.Map<androidx.camera.camera2.pipe.CameraId,? extends androidx.camera.camera2.pipe.CameraMetadata> fakeCameras);
+    method public java.util.List<androidx.camera.camera2.pipe.CameraId> awaitCameraIds();
+    method @KotlinOnly public androidx.camera.camera2.pipe.CameraMetadata? awaitCameraMetadata(androidx.camera.camera2.pipe.CameraId cameraId);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.CameraMetadata? awaitCameraMetadata-EfqyGwQ(String);
+    method public java.util.Set<java.util.Set<androidx.camera.camera2.pipe.CameraId>> awaitConcurrentCameraIds();
+    method public androidx.camera.camera2.pipe.CameraController createCameraController(androidx.camera.camera2.pipe.CameraContext cameraContext, androidx.camera.camera2.pipe.CameraGraphId graphId, androidx.camera.camera2.pipe.CameraGraph.Config graphConfig, androidx.camera.camera2.pipe.graph.GraphListener graphListener, androidx.camera.camera2.pipe.StreamGraph streamGraph, androidx.camera.camera2.pipe.SurfaceTracker surfaceTracker);
+    method @KotlinOnly public void disconnect(androidx.camera.camera2.pipe.CameraId cameraId);
+    method @BytecodeOnly public void disconnect-EfqyGwQ(String);
+    method public void disconnectAll();
+    method public kotlinx.coroutines.Deferred<kotlin.Unit> disconnectAllAsync();
+    method @KotlinOnly public kotlinx.coroutines.Deferred<kotlin.Unit> disconnectAsync(androidx.camera.camera2.pipe.CameraId cameraId);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<kotlin.Unit!> disconnectAsync-EfqyGwQ(String);
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.testing.CameraControllerSimulator> getCameraControllers();
+    method @BytecodeOnly public String getId-QwmhuAM();
+    method @KotlinOnly public suspend Object? isConfigSupported(androidx.camera.camera2.pipe.CameraGraph.Config graphConfig, kotlin.coroutines.Continuation<? super androidx.camera.camera2.pipe.ConfigQueryResult>);
+    method @KotlinOnly public void prewarm(androidx.camera.camera2.pipe.CameraId cameraId);
+    method @BytecodeOnly public void prewarm-EfqyGwQ(String);
+    method @KotlinOnly public void prewarmIsConfigSupported(androidx.camera.camera2.pipe.CameraId cameraId);
+    method public kotlinx.coroutines.Deferred<kotlin.Unit> shutdownAsync();
+    property public java.util.List<androidx.camera.camera2.pipe.testing.CameraControllerSimulator> cameraControllers;
+    property public kotlinx.coroutines.flow.Flow<java.util.List<androidx.camera.camera2.pipe.CameraId>> cameraIds;
+    property public androidx.camera.camera2.pipe.CameraBackendId id;
+    field public static final androidx.camera.camera2.pipe.testing.FakeCameraBackend.Companion Companion;
+  }
+
+  public static final class FakeCameraBackend.Companion {
+    method @BytecodeOnly public String getFAKE_CAMERA_BACKEND_ID-QwmhuAM();
+    method @InaccessibleFromKotlin public android.util.Size getMAX_VIDEO_RESOLUTION();
+    property public androidx.camera.camera2.pipe.CameraBackendId FAKE_CAMERA_BACKEND_ID;
+    property public android.util.Size MAX_VIDEO_RESOLUTION;
+  }
+
+  public final class FakeCameraColorSpaceProfiles implements androidx.camera.camera2.pipe.CameraColorSpaceProfiles {
+    ctor public FakeCameraColorSpaceProfiles();
+    ctor @BytecodeOnly public FakeCameraColorSpaceProfiles(java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeCameraColorSpaceProfiles(optional java.util.List<androidx.camera.camera2.pipe.testing.FakeCameraColorSpaceProfiles.Profile> profileTable);
+    method @KotlinOnly public java.util.Set<androidx.camera.camera2.pipe.CameraColorSpace> getSupportedColorSpaces(androidx.camera.camera2.pipe.StreamFormat imageFormat);
+    method @BytecodeOnly public java.util.Set<androidx.camera.camera2.pipe.CameraColorSpace!> getSupportedColorSpaces-hNQ4ISI(int);
+    method @KotlinOnly public java.util.Set<androidx.camera.camera2.pipe.CameraColorSpace> getSupportedColorSpacesForDynamicRange(androidx.camera.camera2.pipe.StreamFormat imageFormat, androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile dynamicRangeProfile);
+    method @BytecodeOnly public java.util.Set<androidx.camera.camera2.pipe.CameraColorSpace!> getSupportedColorSpacesForDynamicRange-sNWL0t8(int, long);
+    method @KotlinOnly public java.util.Set<androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile> getSupportedDynamicRangeProfiles(androidx.camera.camera2.pipe.CameraColorSpace cameraColorSpace, androidx.camera.camera2.pipe.StreamFormat imageFormat);
+    method @BytecodeOnly public java.util.Set<androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile!> getSupportedDynamicRangeProfiles-6Yu6yh8(String, int);
+    method @KotlinOnly public java.util.Set<androidx.camera.camera2.pipe.StreamFormat> getSupportedImageFormatsForColorSpace(androidx.camera.camera2.pipe.CameraColorSpace cameraColorSpace);
+    method @BytecodeOnly public java.util.Set<androidx.camera.camera2.pipe.StreamFormat!> getSupportedImageFormatsForColorSpace-jRxjvBE(String);
+    method public <T> T? unwrapAs(Class<T> type);
+  }
+
+  public static final class FakeCameraColorSpaceProfiles.Profile {
+    ctor @KotlinOnly public FakeCameraColorSpaceProfiles.Profile(androidx.camera.camera2.pipe.StreamFormat format, androidx.camera.camera2.pipe.CameraColorSpace colorSpace, androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile profile);
+    ctor @BytecodeOnly public FakeCameraColorSpaceProfiles.Profile(int, String!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeCameraColorSpaceProfiles.Profile copy(optional androidx.camera.camera2.pipe.StreamFormat format, optional androidx.camera.camera2.pipe.CameraColorSpace colorSpace, optional androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile profile);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeCameraColorSpaceProfiles.Profile copy-TiYoDR4(int, String, long);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeCameraColorSpaceProfiles.Profile! copy-TiYoDR4$default(androidx.camera.camera2.pipe.testing.FakeCameraColorSpaceProfiles.Profile!, int, String!, long, int, Object!);
+  }
+
+  public final class FakeCameraDevices implements androidx.camera.camera2.pipe.CameraDevices {
+    ctor @KotlinOnly public FakeCameraDevices(androidx.camera.camera2.pipe.CameraBackendId defaultCameraBackendId, java.util.Set<java.util.Set<androidx.camera.camera2.pipe.CameraBackendId>> concurrentCameraBackendIds, java.util.Map<androidx.camera.camera2.pipe.CameraBackendId,java.util.List<androidx.camera.camera2.pipe.CameraMetadata>> cameraMetadataMap);
+    ctor @BytecodeOnly public FakeCameraDevices(String!, java.util.Set!, java.util.Map!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public java.util.List<androidx.camera.camera2.pipe.CameraId>? awaitCameraIds(androidx.camera.camera2.pipe.CameraBackendId? cameraBackendId);
+    method @BytecodeOnly public java.util.List<androidx.camera.camera2.pipe.CameraId!>? awaitCameraIds-SeavPBo(String?);
+    method @KotlinOnly public androidx.camera.camera2.pipe.CameraMetadata? awaitCameraMetadata(androidx.camera.camera2.pipe.CameraId cameraId, androidx.camera.camera2.pipe.CameraBackendId? cameraBackendId);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.CameraMetadata? awaitCameraMetadata-FpsL5FU(String, String?);
+    method @KotlinOnly public java.util.Set<java.util.Set<androidx.camera.camera2.pipe.CameraId>> awaitConcurrentCameraIds(androidx.camera.camera2.pipe.CameraBackendId? cameraBackendId);
+    method @BytecodeOnly public java.util.Set<java.util.Set<androidx.camera.camera2.pipe.CameraId!>!> awaitConcurrentCameraIds-SeavPBo(String?);
+    method @KotlinOnly @Deprecated public androidx.camera.camera2.pipe.CameraMetadata awaitMetadata(androidx.camera.camera2.pipe.CameraId camera);
+    method @BytecodeOnly @Deprecated public androidx.camera.camera2.pipe.CameraMetadata awaitMetadata-EfqyGwQ(String);
+    method @KotlinOnly public kotlinx.coroutines.flow.Flow<java.util.List<androidx.camera.camera2.pipe.CameraId>> cameraIdsFlow(androidx.camera.camera2.pipe.CameraBackendId? cameraBackendId);
+    method @BytecodeOnly public kotlinx.coroutines.flow.Flow<java.util.List<androidx.camera.camera2.pipe.CameraId!>!> cameraIdsFlow-SeavPBo(String?);
+    method @KotlinOnly public void disconnect(androidx.camera.camera2.pipe.CameraId cameraId, androidx.camera.camera2.pipe.CameraBackendId? cameraBackendId);
+    method @BytecodeOnly public void disconnect-FpsL5FU(String, String?);
+    method @KotlinOnly public void disconnectAll(androidx.camera.camera2.pipe.CameraBackendId? cameraBackendId);
+    method @BytecodeOnly public void disconnectAll-SeavPBo(String?);
+    method @KotlinOnly public kotlinx.coroutines.Deferred<kotlin.Unit> disconnectAllAsync(androidx.camera.camera2.pipe.CameraBackendId? cameraBackendId);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<kotlin.Unit!> disconnectAllAsync-SeavPBo(String?);
+    method @KotlinOnly public kotlinx.coroutines.Deferred<kotlin.Unit> disconnectAsync(androidx.camera.camera2.pipe.CameraId cameraId, androidx.camera.camera2.pipe.CameraBackendId? cameraBackendId);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<kotlin.Unit!> disconnectAsync-FpsL5FU(String, String?);
+    method @Deprecated public java.util.List<androidx.camera.camera2.pipe.CameraId> findAll();
+    method @KotlinOnly public suspend Object? getCameraIds(optional androidx.camera.camera2.pipe.CameraBackendId? cameraBackendId, kotlin.coroutines.Continuation<? super java.util.List<androidx.camera.camera2.pipe.CameraId>?>);
+    method @BytecodeOnly public Object? getCameraIds-iAq86To(String?, kotlin.coroutines.Continuation<? super java.util.List<androidx.camera.camera2.pipe.CameraId!>!>);
+    method @KotlinOnly public suspend Object? getCameraMetadata(androidx.camera.camera2.pipe.CameraId cameraId, optional androidx.camera.camera2.pipe.CameraBackendId? cameraBackendId, kotlin.coroutines.Continuation<? super androidx.camera.camera2.pipe.CameraMetadata?>);
+    method @BytecodeOnly public Object? getCameraMetadata-_mltaTw(String, String?, kotlin.coroutines.Continuation<? super androidx.camera.camera2.pipe.CameraMetadata!>);
+    method @KotlinOnly public suspend Object? getConcurrentCameraIds(optional androidx.camera.camera2.pipe.CameraBackendId? cameraBackendId, kotlin.coroutines.Continuation<? super java.util.Set<java.util.Set<androidx.camera.camera2.pipe.CameraId>>>);
+    method @BytecodeOnly public Object? getConcurrentCameraIds-iAq86To(String?, kotlin.coroutines.Continuation<? super java.util.Set<? extends java.util.Set<androidx.camera.camera2.pipe.CameraId!>!>!>);
+    method @KotlinOnly @Deprecated public suspend Object? getMetadata(androidx.camera.camera2.pipe.CameraId camera, kotlin.coroutines.Continuation<? super androidx.camera.camera2.pipe.CameraMetadata>);
+    method @BytecodeOnly @Deprecated public Object? getMetadata-0r8Bogc(String, kotlin.coroutines.Continuation<? super androidx.camera.camera2.pipe.CameraMetadata!>);
+    method @Deprecated public suspend Object? ids(kotlin.coroutines.Continuation<? super java.util.List<androidx.camera.camera2.pipe.CameraId>>);
+    method @KotlinOnly public void prewarm(androidx.camera.camera2.pipe.CameraId cameraId, androidx.camera.camera2.pipe.CameraBackendId? cameraBackendId);
+    method @BytecodeOnly public void prewarm-FpsL5FU(String, String?);
+  }
+
+  public final class FakeCameraExtensionMetadata extends androidx.camera.camera2.pipe.testing.FakeMetadata implements androidx.camera.camera2.pipe.CameraExtensionMetadata {
+    ctor @KotlinOnly public FakeCameraExtensionMetadata(androidx.camera.camera2.pipe.CameraId camera, int cameraExtension, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,java.lang.Object?> metadata, optional java.util.Map<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>,java.lang.Object?> characteristics, optional java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> requestKeys, optional java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> resultKeys, optional java.util.Map<java.lang.Integer,java.util.Set<android.util.Size>> captureOutputSizes, optional java.util.Map<java.lang.Class<? extends java.lang.Object?>,java.util.Set<android.util.Size>> previewOutputSizes, optional java.util.Map<java.lang.Integer,java.util.Map<android.util.Size,java.util.Set<android.util.Size>>> postviewSizes, optional java.util.Map<java.lang.Integer,java.util.Map<android.util.Size,android.util.Range<java.lang.Long>>> estimatedCaptureLatencyRangeMillis, optional boolean isRedacted, optional boolean isPostviewSupported, optional boolean isCaptureProgressSupported);
+    ctor @BytecodeOnly public FakeCameraExtensionMetadata(String!, int, java.util.Map!, java.util.Map!, java.util.Set!, java.util.Set!, java.util.Map!, java.util.Map!, java.util.Map!, java.util.Map!, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public FakeCameraExtensionMetadata(String!, int, java.util.Map!, java.util.Map!, java.util.Set!, java.util.Set!, java.util.Map!, java.util.Map!, java.util.Map!, java.util.Map!, boolean, boolean, boolean, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public <T> T? get(android.hardware.camera2.CameraCharacteristics.Key<T> key);
+    method @BytecodeOnly public String getCamera-Dz_R5H8();
+    method @InaccessibleFromKotlin public int getCameraExtension();
+    method public android.util.Range<java.lang.Long>? getEstimatedCaptureLatencyRangeMillis(android.util.Size captureSize, int imageFormat);
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getKeys();
+    method public java.util.Set<android.util.Size> getOutputSizes(int imageFormat);
+    method public java.util.Set<android.util.Size> getOutputSizes(Class<? extends java.lang.Object?> klass);
+    method public java.util.Set<android.util.Size> getPostviewSizes(android.util.Size captureSize, int format);
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getRequestKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> getResultKeys();
+    method @InaccessibleFromKotlin public boolean isCaptureProgressSupported();
+    method @InaccessibleFromKotlin public boolean isPostviewSupported();
+    method @InaccessibleFromKotlin public boolean isRedacted();
+    method public <T> T? unwrapAs(Class<T> type);
+    property public androidx.camera.camera2.pipe.CameraId camera;
+    property public int cameraExtension;
+    property public boolean isCaptureProgressSupported;
+    property public boolean isPostviewSupported;
+    property public boolean isRedacted;
+    property public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> keys;
+    property public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> requestKeys;
+    property public java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> resultKeys;
+  }
+
+  public final class FakeCameraIds {
+    method @BytecodeOnly public String getDefault-Dz_R5H8();
+    method @KotlinOnly public androidx.camera.camera2.pipe.CameraId next();
+    method @BytecodeOnly public String next-Dz_R5H8();
+    property public androidx.camera.camera2.pipe.CameraId default;
+    field public static final androidx.camera.camera2.pipe.testing.FakeCameraIds INSTANCE;
+  }
+
+  public final class FakeCameraMetadata extends androidx.camera.camera2.pipe.testing.FakeMetadata implements androidx.camera.camera2.pipe.CameraMetadata {
+    ctor @BytecodeOnly public FakeCameraMetadata();
+    ctor @BytecodeOnly public FakeCameraMetadata(java.util.Map!, java.util.Map!, String!, java.util.Set!, java.util.Set!, java.util.Set!, java.util.Set!, java.util.Set!, java.util.Map!, java.util.Set!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public FakeCameraMetadata(java.util.Map!, java.util.Map!, String!, java.util.Set!, java.util.Set!, java.util.Set!, java.util.Set!, java.util.Set!, java.util.Map!, java.util.Set!, java.util.Map!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @KotlinOnly public FakeCameraMetadata(optional java.util.Map<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>,java.lang.Object?> characteristics, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,java.lang.Object?> metadata, optional androidx.camera.camera2.pipe.CameraId cameraId, optional java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>>? keys, optional java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> requestKeys, optional java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> resultKeys, optional java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> sessionKeys, optional java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> sessionCharacteristicsKeys, optional java.util.Map<androidx.camera.camera2.pipe.CameraId,androidx.camera.camera2.pipe.CameraMetadata> physicalMetadata, optional java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> physicalRequestKeys, optional java.util.Map<java.lang.Integer,androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata> extensionMetadata);
+    method public androidx.camera.camera2.pipe.CameraExtensionMetadata awaitExtensionMetadata(int extension);
+    method @KotlinOnly public androidx.camera.camera2.pipe.CameraMetadata awaitPhysicalMetadata(androidx.camera.camera2.pipe.CameraId cameraId);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.CameraMetadata awaitPhysicalMetadata-EfqyGwQ(String);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeCameraMetadata fromTemplate-cHPkAjY(androidx.camera.camera2.pipe.testing.DeviceTemplate, String, Integer?, java.util.Map<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object!>!,? extends java.lang.Object!>, java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object!>!,? extends java.lang.Object!>, java.util.Set<? extends android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object!>!>, java.util.Set<? extends android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object!>!>, java.util.Map<java.lang.Integer!,androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata!>, java.util.Map<androidx.camera.camera2.pipe.CameraId!,androidx.camera.camera2.pipe.testing.FakeCameraMetadata!>);
+    method public <T> T? get(android.hardware.camera2.CameraCharacteristics.Key<T> key);
+    method @BytecodeOnly public String getCamera-Dz_R5H8();
+    method public suspend Object? getExtensionMetadata(int extension, kotlin.coroutines.Continuation<? super androidx.camera.camera2.pipe.CameraExtensionMetadata>);
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getKeys();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.camera.camera2.pipe.CameraId> getPhysicalCameraIds();
+    method @InaccessibleFromKotlin public java.util.Map<androidx.camera.camera2.pipe.CameraId,androidx.camera.camera2.pipe.CameraMetadata> getPhysicalMetadata();
+    method @KotlinOnly public suspend Object? getPhysicalMetadata(androidx.camera.camera2.pipe.CameraId cameraId, kotlin.coroutines.Continuation<? super androidx.camera.camera2.pipe.CameraMetadata>);
+    method @BytecodeOnly public Object? getPhysicalMetadata-0r8Bogc(String, kotlin.coroutines.Continuation<? super androidx.camera.camera2.pipe.CameraMetadata!>);
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getPhysicalRequestKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getRequestKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> getResultKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getSessionCharacteristicsKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getSessionKeys();
+    method @InaccessibleFromKotlin public java.util.Set<java.lang.Integer> getSupportedExtensions();
+    method @InaccessibleFromKotlin public boolean isRedacted();
+    method public <T> T? unwrapAs(Class<T> type);
+    property public androidx.camera.camera2.pipe.CameraId camera;
+    property public boolean isRedacted;
+    property public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> keys;
+    property public java.util.Set<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>> metadataKeys;
+    property public java.util.Set<androidx.camera.camera2.pipe.CameraId> physicalCameraIds;
+    property public java.util.Map<androidx.camera.camera2.pipe.CameraId,androidx.camera.camera2.pipe.CameraMetadata> physicalMetadata;
+    property public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> physicalRequestKeys;
+    property public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> requestKeys;
+    property public java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> resultKeys;
+    property public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> sessionCharacteristicsKeys;
+    property public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> sessionKeys;
+    property public java.util.Set<java.lang.Integer> supportedExtensions;
+    field public static final androidx.camera.camera2.pipe.testing.FakeCameraMetadata.Companion Companion;
+  }
+
+  public static final class FakeCameraMetadata.Companion {
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeCameraMetadata fromTemplate(optional androidx.camera.camera2.pipe.testing.DeviceTemplate template, optional androidx.camera.camera2.pipe.CameraId cameraId, optional Integer? lensFacing, optional java.util.Map<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>,java.lang.Object?> characteristicsOverrides, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,java.lang.Object?> metadataOverrides, optional java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> requestKeysOverrides, optional java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> resultKeysOverrides, optional java.util.Map<java.lang.Integer,androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata> extensionMetadata, optional java.util.Map<androidx.camera.camera2.pipe.CameraId,androidx.camera.camera2.pipe.testing.FakeCameraMetadata> physicalMetadata);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeCameraMetadata fromTemplate-cHPkAjY(androidx.camera.camera2.pipe.testing.DeviceTemplate, String, Integer?, java.util.Map<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object!>!,? extends java.lang.Object!>, java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object!>!,? extends java.lang.Object!>, java.util.Set<? extends android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object!>!>, java.util.Set<? extends android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object!>!>, java.util.Map<java.lang.Integer!,androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata!>, java.util.Map<androidx.camera.camera2.pipe.CameraId!,androidx.camera.camera2.pipe.testing.FakeCameraMetadata!>);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeCameraMetadata! fromTemplate-cHPkAjY$default(androidx.camera.camera2.pipe.testing.FakeCameraMetadata.Companion!, androidx.camera.camera2.pipe.testing.DeviceTemplate!, String!, Integer!, java.util.Map!, java.util.Map!, java.util.Set!, java.util.Set!, java.util.Map!, java.util.Map!, int, Object!);
+  }
+
+  public final class FakeCameraMultiResolutionStreamConfigurationMap implements androidx.camera.camera2.pipe.CameraMultiResolutionStreamConfigurationMap {
+    ctor public FakeCameraMultiResolutionStreamConfigurationMap();
+    ctor @BytecodeOnly public FakeCameraMultiResolutionStreamConfigurationMap(java.util.List!, java.util.List!, java.util.Map!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeCameraMultiResolutionStreamConfigurationMap(optional java.util.List<androidx.camera.camera2.pipe.StreamFormat> outputFormats, optional java.util.List<androidx.camera.camera2.pipe.StreamFormat> inputFormats, optional java.util.Map<androidx.camera.camera2.pipe.StreamFormat,? extends java.util.List<? extends android.hardware.camera2.params.MultiResolutionStreamInfo>> outputMultiResStreamFormatsByFormat, optional java.util.Map<androidx.camera.camera2.pipe.StreamFormat,? extends java.util.List<? extends android.hardware.camera2.params.MultiResolutionStreamInfo>> inputMultiResStreamFormatsByFormat);
+    method public java.util.List<androidx.camera.camera2.pipe.StreamFormat> getInputFormats();
+    method @KotlinOnly public java.util.List<android.hardware.camera2.params.MultiResolutionStreamInfo> getInputInfo(androidx.camera.camera2.pipe.StreamFormat format);
+    method @BytecodeOnly public java.util.List<android.hardware.camera2.params.MultiResolutionStreamInfo!> getInputInfo-hNQ4ISI(int);
+    method public java.util.List<androidx.camera.camera2.pipe.StreamFormat> getOutputFormats();
+    method @KotlinOnly public java.util.List<android.hardware.camera2.params.MultiResolutionStreamInfo> getOutputInfo(androidx.camera.camera2.pipe.StreamFormat format);
+    method @BytecodeOnly public java.util.List<android.hardware.camera2.params.MultiResolutionStreamInfo!> getOutputInfo-hNQ4ISI(int);
+    method @KotlinOnly public boolean isConcurrentReadersSupported(androidx.camera.camera2.pipe.StreamFormat format);
+    method @BytecodeOnly public boolean isConcurrentReadersSupported-hNQ4ISI(int);
+    method public <T> T? unwrapAs(Class<T> type);
+  }
+
+  public final class FakeCameraStreamConfigurationMap implements androidx.camera.camera2.pipe.CameraStreamConfigurationMap {
+    ctor @BytecodeOnly public FakeCameraStreamConfigurationMap(java.util.List!, java.util.List!, java.util.Map!, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeCameraStreamConfigurationMap(java.util.List<androidx.camera.camera2.pipe.testing.FakeCameraStreamConfigurationMap.OutputTableEntry> outputTable, optional java.util.List<androidx.camera.camera2.pipe.testing.FakeCameraStreamConfigurationMap.InputTableEntry> inputTable, optional java.util.Map<androidx.camera.camera2.pipe.StreamFormat,? extends java.util.List<androidx.camera.camera2.pipe.StreamFormat>> outputFormatsForInputFormats, optional java.util.Set<? extends java.lang.Class<? extends java.lang.Object?>> outputClassTypes);
+    method @KotlinOnly public java.util.List<android.util.Size> getHighResolutionOutputSizes(androidx.camera.camera2.pipe.StreamFormat format);
+    method @BytecodeOnly public java.util.List<android.util.Size!> getHighResolutionOutputSizes-hNQ4ISI(int);
+    method public java.util.List<android.util.Range<java.lang.Integer>> getHighSpeedVideoFpsRanges();
+    method public java.util.List<android.util.Range<java.lang.Integer>> getHighSpeedVideoFpsRangesFor(android.util.Size size);
+    method public java.util.List<android.util.Size> getHighSpeedVideoSizes();
+    method public java.util.List<android.util.Size> getHighSpeedVideoSizesFor(android.util.Range<java.lang.Integer> fpsRange);
+    method public java.util.List<androidx.camera.camera2.pipe.StreamFormat> getInputFormats();
+    method @KotlinOnly public java.util.List<android.util.Size> getInputSizes(androidx.camera.camera2.pipe.StreamFormat format);
+    method @BytecodeOnly public java.util.List<android.util.Size!> getInputSizes-hNQ4ISI(int);
+    method public java.util.List<androidx.camera.camera2.pipe.StreamFormat> getOutputFormats();
+    method @KotlinOnly public long getOutputMinFrameDuration(androidx.camera.camera2.pipe.StreamFormat format, android.util.Size size);
+    method public <T> long getOutputMinFrameDuration(Class<T> klass, android.util.Size size);
+    method @BytecodeOnly public long getOutputMinFrameDuration-lomOqCM(int, android.util.Size);
+    method @KotlinOnly public java.util.List<android.util.Size> getOutputSizes(androidx.camera.camera2.pipe.StreamFormat format);
+    method public <T> java.util.List<android.util.Size> getOutputSizes(Class<T> klass);
+    method @BytecodeOnly public java.util.List<android.util.Size!> getOutputSizes-hNQ4ISI(int);
+    method @KotlinOnly public long getOutputStallDuration(androidx.camera.camera2.pipe.StreamFormat format, android.util.Size size);
+    method public <T> long getOutputStallDuration(Class<T> klass, android.util.Size size);
+    method @BytecodeOnly public long getOutputStallDuration-lomOqCM(int, android.util.Size);
+    method @KotlinOnly public java.util.List<androidx.camera.camera2.pipe.StreamFormat> getValidOutputFormatsForInput(androidx.camera.camera2.pipe.StreamFormat inputFormat);
+    method @BytecodeOnly public java.util.List<androidx.camera.camera2.pipe.StreamFormat!> getValidOutputFormatsForInput-hNQ4ISI(int);
+    method public boolean isOutputSupportedFor(android.view.Surface surface);
+    method @KotlinOnly public boolean isOutputSupportedFor(androidx.camera.camera2.pipe.StreamFormat format);
+    method public <T> boolean isOutputSupportedFor(Class<T> klass);
+    method @BytecodeOnly public boolean isOutputSupportedFor-hNQ4ISI(int);
+    method public <T> T? unwrapAs(Class<T> type);
+  }
+
+  public static final class FakeCameraStreamConfigurationMap.InputTableEntry {
+    ctor @KotlinOnly public FakeCameraStreamConfigurationMap.InputTableEntry(androidx.camera.camera2.pipe.StreamFormat format, android.util.Size size);
+    ctor @BytecodeOnly public FakeCameraStreamConfigurationMap.InputTableEntry(int, android.util.Size!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeCameraStreamConfigurationMap.InputTableEntry copy(optional androidx.camera.camera2.pipe.StreamFormat format, optional android.util.Size size);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeCameraStreamConfigurationMap.InputTableEntry copy-lomOqCM(int, android.util.Size);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeCameraStreamConfigurationMap.InputTableEntry! copy-lomOqCM$default(androidx.camera.camera2.pipe.testing.FakeCameraStreamConfigurationMap.InputTableEntry!, int, android.util.Size!, int, Object!);
+  }
+
+  public static final class FakeCameraStreamConfigurationMap.OutputTableEntry {
+    ctor @KotlinOnly public FakeCameraStreamConfigurationMap.OutputTableEntry(androidx.camera.camera2.pipe.StreamFormat format, android.util.Size size, optional boolean isHighRes, optional long minDuration, optional long stallDuration, optional android.util.Range<java.lang.Integer>? highSpeedFpsRange);
+    ctor @BytecodeOnly public FakeCameraStreamConfigurationMap.OutputTableEntry(int, android.util.Size!, boolean, long, long, android.util.Range!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public FakeCameraStreamConfigurationMap.OutputTableEntry(int, android.util.Size!, boolean, long, long, android.util.Range!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeCameraStreamConfigurationMap.OutputTableEntry copy(optional androidx.camera.camera2.pipe.StreamFormat format, optional android.util.Size size, optional boolean isHighRes, optional long minDuration, optional long stallDuration, optional android.util.Range<java.lang.Integer>? highSpeedFpsRange);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeCameraStreamConfigurationMap.OutputTableEntry copy-r9KWWH0(int, android.util.Size, boolean, long, long, android.util.Range<java.lang.Integer!>?);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeCameraStreamConfigurationMap.OutputTableEntry! copy-r9KWWH0$default(androidx.camera.camera2.pipe.testing.FakeCameraStreamConfigurationMap.OutputTableEntry!, int, android.util.Size!, boolean, long, long, android.util.Range!, int, Object!);
+  }
+
+  public final class FakeCaptureSequence implements androidx.camera.camera2.pipe.CaptureSequence<androidx.camera.camera2.pipe.Request> {
+    ctor @KotlinOnly public FakeCaptureSequence(boolean repeating, androidx.camera.camera2.pipe.CameraId cameraId, java.util.List<androidx.camera.camera2.pipe.Request> captureRequestList, java.util.List<androidx.camera.camera2.pipe.RequestMetadata> captureMetadataList, java.util.Map<androidx.camera.camera2.pipe.Request,androidx.camera.camera2.pipe.RequestMetadata> requestMetadata, java.util.Map<? extends java.lang.Object?,java.lang.Object?> defaultParameters, java.util.Map<? extends java.lang.Object?,java.lang.Object?> requiredParameters, java.util.Map<? extends java.lang.Object?,java.lang.Object?> graphParameters, java.util.List<androidx.camera.camera2.pipe.Request.Listener> listeners, androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener sequenceListener, int sequenceNumber);
+    ctor @BytecodeOnly public FakeCaptureSequence(boolean, String!, java.util.List!, java.util.List!, java.util.Map!, java.util.Map!, java.util.Map!, java.util.Map!, java.util.List!, androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public boolean component1();
+    method public androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener component10();
+    method public int component11();
+    method @KotlinOnly public operator androidx.camera.camera2.pipe.CameraId component2();
+    method @BytecodeOnly public String component2-Dz_R5H8();
+    method public java.util.List<androidx.camera.camera2.pipe.Request> component3();
+    method public java.util.List<androidx.camera.camera2.pipe.RequestMetadata> component4();
+    method public java.util.Map<androidx.camera.camera2.pipe.Request,androidx.camera.camera2.pipe.RequestMetadata> component5();
+    method public java.util.Map<? extends java.lang.Object?,java.lang.Object?> component6();
+    method public java.util.Map<? extends java.lang.Object?,java.lang.Object?> component7();
+    method public java.util.Map<? extends java.lang.Object?,java.lang.Object?> component8();
+    method public java.util.List<androidx.camera.camera2.pipe.Request.Listener> component9();
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeCaptureSequence copy(optional boolean repeating, optional androidx.camera.camera2.pipe.CameraId cameraId, optional java.util.List<androidx.camera.camera2.pipe.Request> captureRequestList, optional java.util.List<androidx.camera.camera2.pipe.RequestMetadata> captureMetadataList, optional java.util.Map<androidx.camera.camera2.pipe.Request,androidx.camera.camera2.pipe.RequestMetadata> requestMetadata, optional java.util.Map<? extends java.lang.Object?,java.lang.Object?> defaultParameters, optional java.util.Map<? extends java.lang.Object?,java.lang.Object?> requiredParameters, optional java.util.Map<? extends java.lang.Object?,java.lang.Object?> graphParameters, optional java.util.List<androidx.camera.camera2.pipe.Request.Listener> listeners, optional androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener sequenceListener, optional int sequenceNumber);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeCaptureSequence copy-Jof7mg4(boolean, String, java.util.List<androidx.camera.camera2.pipe.Request!>, java.util.List<? extends androidx.camera.camera2.pipe.RequestMetadata!>, java.util.Map<androidx.camera.camera2.pipe.Request!,? extends androidx.camera.camera2.pipe.RequestMetadata!>, java.util.Map<? extends java.lang.Object!,? extends java.lang.Object!>, java.util.Map<? extends java.lang.Object!,? extends java.lang.Object!>, java.util.Map<? extends java.lang.Object!,? extends java.lang.Object!>, java.util.List<? extends androidx.camera.camera2.pipe.Request.Listener!>, androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener, int);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeCaptureSequence! copy-Jof7mg4$default(androidx.camera.camera2.pipe.testing.FakeCaptureSequence!, boolean, String!, java.util.List!, java.util.List!, java.util.Map!, java.util.Map!, java.util.Map!, java.util.Map!, java.util.List!, androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener!, int, int, Object!);
+    method @BytecodeOnly public String getCameraId-Dz_R5H8();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.RequestMetadata> getCaptureMetadataList();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.Request> getCaptureRequestList();
+    method @InaccessibleFromKotlin public java.util.Map<? extends java.lang.Object?,java.lang.Object?> getDefaultParameters();
+    method @InaccessibleFromKotlin public java.util.Map<? extends java.lang.Object?,java.lang.Object?> getGraphParameters();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.Request.Listener> getListeners();
+    method @InaccessibleFromKotlin public boolean getRepeating();
+    method @InaccessibleFromKotlin public java.util.Map<androidx.camera.camera2.pipe.Request,androidx.camera.camera2.pipe.RequestMetadata> getRequestMetadata();
+    method @InaccessibleFromKotlin public java.util.Map<? extends java.lang.Object?,java.lang.Object?> getRequiredParameters();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener getSequenceListener();
+    method @InaccessibleFromKotlin public int getSequenceNumber();
+    method public void invokeOnSequenceAborted();
+    method @KotlinOnly public void invokeOnSequenceCompleted(androidx.camera.common.CameraFrameNumber frameNumber);
+    method @BytecodeOnly public void invokeOnSequenceCompleted-pYBNz1M(long);
+    method public void invokeOnSequenceCreated();
+    method public void invokeOnSequenceSubmitted();
+    method @InaccessibleFromKotlin public void setSequenceNumber(int);
+    property public androidx.camera.camera2.pipe.CameraId cameraId;
+    property public java.util.List<androidx.camera.camera2.pipe.RequestMetadata> captureMetadataList;
+    property public java.util.List<androidx.camera.camera2.pipe.Request> captureRequestList;
+    property public java.util.Map<? extends java.lang.Object?,java.lang.Object?> defaultParameters;
+    property public java.util.Map<? extends java.lang.Object?,java.lang.Object?> graphParameters;
+    property public java.util.List<androidx.camera.camera2.pipe.Request.Listener> listeners;
+    property public boolean repeating;
+    property public java.util.Map<androidx.camera.camera2.pipe.Request,androidx.camera.camera2.pipe.RequestMetadata> requestMetadata;
+    property public java.util.Map<? extends java.lang.Object?,java.lang.Object?> requiredParameters;
+    property public androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener sequenceListener;
+    property public int sequenceNumber;
+    field public static final androidx.camera.camera2.pipe.testing.FakeCaptureSequence.Companion Companion;
+  }
+
+  public static final class FakeCaptureSequence.Companion {
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeCaptureSequence? create(androidx.camera.camera2.pipe.CameraId cameraId, boolean repeating, java.util.List<androidx.camera.camera2.pipe.Request> requests, java.util.Map<androidx.camera.camera2.pipe.StreamId,android.view.Surface> surfaceMap, optional androidx.camera.camera2.pipe.RequestTemplate defaultTemplate, optional java.util.Map<? extends java.lang.Object?,java.lang.Object?> defaultParameters, optional java.util.Map<? extends java.lang.Object?,java.lang.Object?> requiredParameters, optional java.util.Map<? extends java.lang.Object?,java.lang.Object?> graphParameters, optional java.util.List<androidx.camera.camera2.pipe.Request.Listener> listeners, optional androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener sequenceListener);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeCaptureSequence? create-bKs43Ko(String, boolean, java.util.List<androidx.camera.camera2.pipe.Request!>, java.util.Map<androidx.camera.camera2.pipe.StreamId!,? extends android.view.Surface!>, int, java.util.Map<? extends java.lang.Object!,? extends java.lang.Object!>, java.util.Map<? extends java.lang.Object!,? extends java.lang.Object!>, java.util.Map<? extends java.lang.Object!,? extends java.lang.Object!>, java.util.List<? extends androidx.camera.camera2.pipe.Request.Listener!>, androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeCaptureSequence! create-bKs43Ko$default(androidx.camera.camera2.pipe.testing.FakeCaptureSequence.Companion!, String!, boolean, java.util.List!, java.util.Map!, int, java.util.Map!, java.util.Map!, java.util.Map!, java.util.List!, androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener!, int, Object!);
+  }
+
+  public final class FakeCaptureSequenceListener implements androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener {
+    ctor public FakeCaptureSequenceListener();
+    method @InaccessibleFromKotlin public boolean isComplete();
+    method public void onCaptureSequenceComplete(androidx.camera.camera2.pipe.CaptureSequence<? extends java.lang.Object?> captureSequence);
+    property public boolean isComplete;
+  }
+
+  public final class FakeCaptureSequenceProcessor implements androidx.camera.camera2.pipe.CaptureSequenceProcessor<androidx.camera.camera2.pipe.Request,androidx.camera.camera2.pipe.testing.FakeCaptureSequence> {
+    ctor @BytecodeOnly public FakeCaptureSequenceProcessor();
+    ctor @KotlinOnly public FakeCaptureSequenceProcessor(optional androidx.camera.camera2.pipe.CameraId cameraId, optional androidx.camera.camera2.pipe.RequestTemplate defaultTemplate);
+    ctor @BytecodeOnly public FakeCaptureSequenceProcessor(String!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public FakeCaptureSequenceProcessor(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void abortCaptures();
+    method public androidx.camera.camera2.pipe.testing.FakeCaptureSequence? build(boolean isRepeating, java.util.List<androidx.camera.camera2.pipe.Request> requests, java.util.Map<? extends java.lang.Object?,? extends java.lang.Object?> defaultParameters, java.util.Map<? extends java.lang.Object?,? extends java.lang.Object?> graphParameters, java.util.Map<? extends java.lang.Object?,? extends java.lang.Object?> requiredParameters, androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener sequenceListener, java.util.List<? extends androidx.camera.camera2.pipe.Request.Listener> listeners);
+    method public void clearEvents();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event> getEvents();
+    method @InaccessibleFromKotlin public boolean getRejectBuild();
+    method @InaccessibleFromKotlin public boolean getRejectSubmit();
+    method @InaccessibleFromKotlin public java.util.Map<androidx.camera.camera2.pipe.StreamId,android.view.Surface> getSurfaceMap();
+    method @InaccessibleFromKotlin public boolean getThrowOnAbort();
+    method @InaccessibleFromKotlin public boolean getThrowOnBuild();
+    method @InaccessibleFromKotlin public boolean getThrowOnShutdown();
+    method @InaccessibleFromKotlin public boolean getThrowOnStop();
+    method @InaccessibleFromKotlin public boolean getThrowOnSubmit();
+    method public androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event nextEvent();
+    method @InaccessibleFromKotlin public void setRejectBuild(boolean);
+    method @InaccessibleFromKotlin public void setRejectSubmit(boolean);
+    method @InaccessibleFromKotlin public void setSurfaceMap(java.util.Map<androidx.camera.camera2.pipe.StreamId,? extends android.view.Surface>);
+    method @InaccessibleFromKotlin public void setThrowOnAbort(boolean);
+    method @InaccessibleFromKotlin public void setThrowOnBuild(boolean);
+    method @InaccessibleFromKotlin public void setThrowOnShutdown(boolean);
+    method @InaccessibleFromKotlin public void setThrowOnStop(boolean);
+    method @InaccessibleFromKotlin public void setThrowOnSubmit(boolean);
+    method public suspend Object? shutdown(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public void stopRepeating();
+    method public Integer submit(androidx.camera.camera2.pipe.testing.FakeCaptureSequence captureSequence);
+    property public java.util.List<androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event> events;
+    property public boolean rejectBuild;
+    property public boolean rejectSubmit;
+    property public java.util.Map<androidx.camera.camera2.pipe.StreamId,android.view.Surface> surfaceMap;
+    property public boolean throwOnAbort;
+    property public boolean throwOnBuild;
+    property public boolean throwOnShutdown;
+    property public boolean throwOnStop;
+    property public boolean throwOnSubmit;
+    field public static final androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion Companion;
+  }
+
+  public static final class FakeCaptureSequenceProcessor.AbortCaptures implements androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event {
+    field public static final androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.AbortCaptures INSTANCE;
+  }
+
+  public static final class FakeCaptureSequenceProcessor.BuildRejected implements androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event {
+    ctor public FakeCaptureSequenceProcessor.BuildRejected(androidx.camera.camera2.pipe.testing.FakeCaptureSequence? captureSequence);
+    method public androidx.camera.camera2.pipe.testing.FakeCaptureSequence? component1();
+    method public androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.BuildRejected copy(optional androidx.camera.camera2.pipe.testing.FakeCaptureSequence? captureSequence);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.BuildRejected! copy$default(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.BuildRejected!, androidx.camera.camera2.pipe.testing.FakeCaptureSequence!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.testing.FakeCaptureSequence? getCaptureSequence();
+    property public androidx.camera.camera2.pipe.testing.FakeCaptureSequence? captureSequence;
+  }
+
+  public static final class FakeCaptureSequenceProcessor.Companion {
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.testing.FakeCaptureSequence? getCaptureSequence(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event);
+    method @InaccessibleFromKotlin public java.util.Map<? extends java.lang.Object?,java.lang.Object?> getDefaultParameters(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event);
+    method @InaccessibleFromKotlin public java.util.Map<? extends java.lang.Object?,java.lang.Object?> getGraphParameters(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event);
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.Request.Listener> getListeners(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event);
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.Request> getRequests(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event);
+    method @InaccessibleFromKotlin public java.util.Map<? extends java.lang.Object?,java.lang.Object?> getRequiredParameters(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event);
+    method @InaccessibleFromKotlin public boolean isAbort(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event);
+    method @InaccessibleFromKotlin public boolean isCapture(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event);
+    method @InaccessibleFromKotlin public boolean isClose(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event);
+    method @InaccessibleFromKotlin public boolean isRejected(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event);
+    method @InaccessibleFromKotlin public boolean isRepeating(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event);
+    method @InaccessibleFromKotlin public boolean isStopRepeating(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event);
+    property public androidx.camera.camera2.pipe.testing.FakeCaptureSequence? androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event.captureSequence;
+    property public java.util.Map<? extends java.lang.Object?,java.lang.Object?> androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event.defaultParameters;
+    property public java.util.Map<? extends java.lang.Object?,java.lang.Object?> androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event.graphParameters;
+    property public boolean androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event.isAbort;
+    property public boolean androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event.isCapture;
+    property public boolean androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event.isClose;
+    property public boolean androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event.isRejected;
+    property public boolean androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event.isRepeating;
+    property public boolean androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event.isStopRepeating;
+    property public java.util.List<androidx.camera.camera2.pipe.Request.Listener> androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event.listeners;
+    property public java.util.List<androidx.camera.camera2.pipe.Request> androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event.requests;
+    property public java.util.Map<? extends java.lang.Object?,java.lang.Object?> androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event.requiredParameters;
+  }
+
+  public static sealed exhaustive interface FakeCaptureSequenceProcessor.Event {
+  }
+
+  public static final class FakeCaptureSequenceProcessor.Shutdown implements androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event {
+    field public static final androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Shutdown INSTANCE;
+  }
+
+  public static final class FakeCaptureSequenceProcessor.StopRepeating implements androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event {
+    field public static final androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.StopRepeating INSTANCE;
+  }
+
+  public static final class FakeCaptureSequenceProcessor.Submit implements androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event {
+    ctor public FakeCaptureSequenceProcessor.Submit(androidx.camera.camera2.pipe.testing.FakeCaptureSequence captureSequence);
+    method public androidx.camera.camera2.pipe.testing.FakeCaptureSequence component1();
+    method public androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Submit copy(optional androidx.camera.camera2.pipe.testing.FakeCaptureSequence captureSequence);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Submit! copy$default(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Submit!, androidx.camera.camera2.pipe.testing.FakeCaptureSequence!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.testing.FakeCaptureSequence getCaptureSequence();
+    property public androidx.camera.camera2.pipe.testing.FakeCaptureSequence captureSequence;
+  }
+
+  public static final class FakeCaptureSequenceProcessor.SubmitRejected implements androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Event {
+    ctor public FakeCaptureSequenceProcessor.SubmitRejected(androidx.camera.camera2.pipe.testing.FakeCaptureSequence captureSequence);
+    method public androidx.camera.camera2.pipe.testing.FakeCaptureSequence component1();
+    method public androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.SubmitRejected copy(optional androidx.camera.camera2.pipe.testing.FakeCaptureSequence captureSequence);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.SubmitRejected! copy$default(androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.SubmitRejected!, androidx.camera.camera2.pipe.testing.FakeCaptureSequence!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.testing.FakeCaptureSequence getCaptureSequence();
+    property public androidx.camera.camera2.pipe.testing.FakeCaptureSequence captureSequence;
+  }
+
+  public final class FakeFrameInfo implements androidx.camera.camera2.pipe.FrameInfo {
+    ctor public FakeFrameInfo();
+    ctor @BytecodeOnly public FakeFrameInfo(androidx.camera.camera2.pipe.FrameMetadata!, androidx.camera.camera2.pipe.RequestMetadata!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeFrameInfo(optional androidx.camera.camera2.pipe.FrameMetadata metadata, optional androidx.camera.camera2.pipe.RequestMetadata requestMetadata, optional java.util.Map<androidx.camera.camera2.pipe.CameraId,? extends androidx.camera.camera2.pipe.FrameMetadata> physicalMetadata);
+    method @KotlinOnly public operator androidx.camera.camera2.pipe.FrameMetadata? get(androidx.camera.camera2.pipe.CameraId camera);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.FrameMetadata? get-EfqyGwQ(String);
+    method @BytecodeOnly public String getCamera-Dz_R5H8();
+    method @BytecodeOnly public long getFrameNumber-2hlX2lI();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.FrameMetadata getMetadata();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.RequestMetadata getRequestMetadata();
+    method public <T> T? unwrapAs(Class<T> type);
+    property public androidx.camera.camera2.pipe.CameraId camera;
+    property public androidx.camera.common.CameraFrameNumber frameNumber;
+    property public androidx.camera.camera2.pipe.FrameMetadata metadata;
+    property public androidx.camera.camera2.pipe.RequestMetadata requestMetadata;
+  }
+
+  public final class FakeFrameMetadata extends androidx.camera.camera2.pipe.testing.FakeMetadata implements androidx.camera.camera2.pipe.FrameMetadata {
+    ctor @BytecodeOnly public FakeFrameMetadata();
+    ctor @BytecodeOnly public FakeFrameMetadata(java.util.Map!, java.util.Map!, String!, long, java.util.Map!, androidx.camera.common.CaptureRequestWrapper!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public FakeFrameMetadata(java.util.Map!, java.util.Map!, String!, long, java.util.Map!, androidx.camera.common.CaptureRequestWrapper!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @KotlinOnly public FakeFrameMetadata(optional java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,java.lang.Object?> resultMetadata, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,java.lang.Object?> extraResultMetadata, optional androidx.camera.camera2.pipe.CameraId camera, optional androidx.camera.common.CameraFrameNumber frameNumber, optional java.util.Map<? extends java.lang.Object?,java.lang.Object?> extraMetadata, optional androidx.camera.common.CaptureRequestWrapper captureRequest);
+    method public <T> T? get(android.hardware.camera2.CaptureResult.Key<T> key);
+    method @BytecodeOnly public String getCamera-Dz_R5H8();
+    method @InaccessibleFromKotlin public java.util.Map<? extends java.lang.Object?,java.lang.Object?> getExtraMetadata();
+    method @BytecodeOnly public long getFrameNumber-2hlX2lI();
+    method @InaccessibleFromKotlin public java.util.List<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> getKeys();
+    method public <T> T? unwrapAs(Class<T> type);
+    property public androidx.camera.camera2.pipe.CameraId camera;
+    property public androidx.camera.common.CaptureRequestWrapper captureRequest;
+    property public java.util.Map<? extends java.lang.Object?,java.lang.Object?> extraMetadata;
+    property public androidx.camera.common.CameraFrameNumber frameNumber;
+    property public java.util.List<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> keys;
+    property public java.util.Set<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>> metadataKeys;
+  }
+
+  public final class FakeImage implements androidx.camera.camera2.pipe.media.ImageWrapper androidx.camera.common.MutableImageWrapper {
+    ctor public FakeImage(int width, int height, int format, long timestamp, optional android.graphics.Rect cropRect, optional android.hardware.HardwareBuffer? hardwareBuffer);
+    ctor @BytecodeOnly public FakeImage(int, int, int, long, android.graphics.Rect!, android.hardware.HardwareBuffer!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void close();
+    method @InaccessibleFromKotlin public android.graphics.Rect getCropRect();
+    method @InaccessibleFromKotlin public int getFormat();
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.common.ImagePlane> getImagePlanes();
+    method @InaccessibleFromKotlin public int getNumberOfTimesClosed();
+    method @InaccessibleFromKotlin public long getTimestamp();
+    method @InaccessibleFromKotlin public int getWidth();
+    method @InaccessibleFromKotlin public boolean isClosed();
+    method @InaccessibleFromKotlin public void setCropRect(android.graphics.Rect);
+    method @InaccessibleFromKotlin public void setSyncFence(android.hardware.SyncFence?);
+    method @InaccessibleFromKotlin public void setTimestamp(long);
+    method public <T> T? unwrapAs(Class<T> type);
+    property public android.graphics.Rect cropRect;
+    property @androidx.camera.common.ImageDataSpace public int dataSpace;
+    property public int format;
+    property public android.hardware.HardwareBuffer? hardwareBuffer;
+    property public int height;
+    property public java.util.List<androidx.camera.common.ImagePlane> imagePlanes;
+    property public boolean isClosed;
+    property public int numberOfTimesClosed;
+    property @Deprecated public java.util.List<androidx.camera.common.ImagePlane> planes;
+    property public android.hardware.SyncFence? syncFence;
+    property public long timestamp;
+    property public int width;
+  }
+
+  public final class FakeImageReader implements androidx.camera.camera2.pipe.media.ImageReaderWrapper {
+    ctor @BytecodeOnly public FakeImageReader(int, int, Long!, android.view.Surface!, int, java.util.Map!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void checkImagesClosed();
+    method public void close();
+    method public void discardFreeBuffers();
+    method public void flush();
+    method @InaccessibleFromKotlin public int getCapacity();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.testing.FakeImage> getImages();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.media.ImageReaderWrapper.OnExpectedOutputsListener? getOnExpectedOutputsListener();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.media.ImageReaderWrapper.OnImageListener? getOnImageListener();
+    method @BytecodeOnly public int getStreamId-ptHMqGs();
+    method @InaccessibleFromKotlin public android.view.Surface getSurface();
+    method @InaccessibleFromKotlin public Long? getUsageFlags();
+    method @InaccessibleFromKotlin public boolean isClosed();
+    method @InaccessibleFromKotlin public boolean isFlushed();
+    method @InaccessibleFromKotlin public void setOnExpectedOutputsListener(androidx.camera.camera2.pipe.media.ImageReaderWrapper.OnExpectedOutputsListener?);
+    method @InaccessibleFromKotlin public void setOnImageListener(androidx.camera.camera2.pipe.media.ImageReaderWrapper.OnImageListener?);
+    method public void simulateExpectedOutputs(long timestamp, java.util.Set<androidx.camera.camera2.pipe.OutputId> outputIds);
+    method @KotlinOnly public void simulateImage(androidx.camera.camera2.pipe.media.ImageWrapper image, androidx.camera.camera2.pipe.OutputId outputId);
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeImage simulateImage(long imageTimestamp, optional androidx.camera.camera2.pipe.OutputId? outputId, optional android.hardware.HardwareBuffer? hardwareBuffer);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeImage simulateImage-_OVlRRQ(long, androidx.camera.camera2.pipe.OutputId?, android.hardware.HardwareBuffer?);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeImage! simulateImage-_OVlRRQ$default(androidx.camera.camera2.pipe.testing.FakeImageReader!, long, androidx.camera.camera2.pipe.OutputId!, android.hardware.HardwareBuffer!, int, Object!);
+    method @BytecodeOnly public void simulateImage-og7wgUk(androidx.camera.camera2.pipe.media.ImageWrapper, int);
+    method public <T> T? unwrapAs(Class<T> type);
+    property public int capacity;
+    property public java.util.List<androidx.camera.camera2.pipe.testing.FakeImage> images;
+    property public boolean isClosed;
+    property public boolean isFlushed;
+    property public androidx.camera.camera2.pipe.media.ImageReaderWrapper.OnExpectedOutputsListener? onExpectedOutputsListener;
+    property public androidx.camera.camera2.pipe.media.ImageReaderWrapper.OnImageListener? onImageListener;
+    property public androidx.camera.camera2.pipe.StreamId streamId;
+    property public android.view.Surface surface;
+    property public Long? usageFlags;
+    field public static final androidx.camera.camera2.pipe.testing.FakeImageReader.Companion Companion;
+  }
+
+  public static final class FakeImageReader.Companion {
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeImageReader create(androidx.camera.camera2.pipe.StreamFormat format, androidx.camera.camera2.pipe.StreamId streamId, androidx.camera.camera2.pipe.OutputId outputId, android.util.Size size, int capacity, Long? usageFlags, optional androidx.camera.camera2.pipe.testing.FakeSurfaces? fakeSurfaces);
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeImageReader create(androidx.camera.camera2.pipe.StreamFormat format, androidx.camera.camera2.pipe.StreamId streamId, java.util.Map<androidx.camera.camera2.pipe.OutputId,android.util.Size> outputIdMap, int capacity, Long? usageFlags, optional androidx.camera.camera2.pipe.testing.FakeSurfaces? fakeSurfaces);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeImageReader create-4_LGQcw(int, int, int, android.util.Size, int, Long?, androidx.camera.camera2.pipe.testing.FakeSurfaces?);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeImageReader! create-4_LGQcw$default(androidx.camera.camera2.pipe.testing.FakeImageReader.Companion!, int, int, int, android.util.Size!, int, Long!, androidx.camera.camera2.pipe.testing.FakeSurfaces!, int, Object!);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeImageReader create-9W1rMhI(int, int, java.util.Map<androidx.camera.camera2.pipe.OutputId!,android.util.Size!>, int, Long?, androidx.camera.camera2.pipe.testing.FakeSurfaces?);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeImageReader! create-9W1rMhI$default(androidx.camera.camera2.pipe.testing.FakeImageReader.Companion!, int, int, java.util.Map!, int, Long!, androidx.camera.camera2.pipe.testing.FakeSurfaces!, int, Object!);
+  }
+
+  public final class FakeImageReaders {
+    ctor public FakeImageReaders(androidx.camera.camera2.pipe.testing.FakeSurfaces fakeSurfaces);
+    method public void checkImageReadersClosed();
+    method public void checkImagesClosed();
+    method public androidx.camera.camera2.pipe.testing.FakeImageReader create(androidx.camera.camera2.pipe.CameraStream cameraStream, int capacity);
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeImageReader create(androidx.camera.camera2.pipe.StreamFormat format, androidx.camera.camera2.pipe.StreamId streamId, java.util.Map<androidx.camera.camera2.pipe.OutputId,android.util.Size> outputIdMap, int capacity, Long? usageFlags);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeImageReader create-ZPhgwqw(int, int, java.util.Map<androidx.camera.camera2.pipe.OutputId!,android.util.Size!>, int, Long?);
+    method public operator androidx.camera.camera2.pipe.testing.FakeImageReader? get(android.view.Surface surface);
+    method @KotlinOnly public operator androidx.camera.camera2.pipe.testing.FakeImageReader? get(androidx.camera.camera2.pipe.StreamId streamId);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeImageReader? get-aKI5c8E(int);
+  }
+
+  public final class FakeImageSource implements androidx.camera.camera2.pipe.media.ImageSource {
+    method public void close();
+    method public void discardFreeBuffers();
+    method public void flush();
+    method public androidx.camera.camera2.pipe.media.ExpectedOutputsListener? getExpectedOutputsListener();
+    method public androidx.camera.camera2.pipe.media.ImageListener? getImageListener();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.testing.FakeImage> getImages();
+    method public kotlinx.coroutines.flow.StateFlow<java.lang.Integer!> getOpenImages();
+    method @BytecodeOnly public int getStreamId-ptHMqGs();
+    method public android.view.Surface getSurface();
+    method @InaccessibleFromKotlin public boolean isClosed();
+    method @InaccessibleFromKotlin public boolean isFlushed();
+    method public void setExpectedOutputsListener(androidx.camera.camera2.pipe.media.ExpectedOutputsListener? <set-?>);
+    method public void setImageListener(androidx.camera.camera2.pipe.media.ImageListener? <set-?>);
+    method public void simulateExpectedOutputs(long timestamp, java.util.Set<androidx.camera.camera2.pipe.OutputId> outputIds);
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeImage simulateImage(long timestamp, optional androidx.camera.camera2.pipe.OutputId? outputId, optional android.hardware.HardwareBuffer? hardwareBuffer);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeImage simulateImage-_OVlRRQ(long, androidx.camera.camera2.pipe.OutputId?, android.hardware.HardwareBuffer?);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeImage! simulateImage-_OVlRRQ$default(androidx.camera.camera2.pipe.testing.FakeImageSource!, long, androidx.camera.camera2.pipe.OutputId!, android.hardware.HardwareBuffer!, int, Object!);
+    method public <T> T? unwrapAs(Class<T> type);
+    property public androidx.camera.camera2.pipe.media.ExpectedOutputsListener? expectedOutputsListener;
+    property public androidx.camera.camera2.pipe.media.ImageListener? imageListener;
+    property public java.util.List<androidx.camera.camera2.pipe.testing.FakeImage> images;
+    property public boolean isClosed;
+    property public boolean isFlushed;
+    property public kotlinx.coroutines.flow.StateFlow<java.lang.Integer> openImages;
+    property public androidx.camera.camera2.pipe.StreamId streamId;
+    property public android.view.Surface surface;
+    field public static final androidx.camera.camera2.pipe.testing.FakeImageSource.Companion Companion;
+  }
+
+  public static final class FakeImageSource.Companion {
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeImageSource create(androidx.camera.camera2.pipe.StreamFormat streamFormat, androidx.camera.camera2.pipe.StreamId streamId, java.util.Map<androidx.camera.camera2.pipe.OutputId,android.util.Size> outputs, int capacity, Long? usageFlags, androidx.camera.camera2.pipe.testing.FakeImageReaders fakeImageReaders, androidx.camera.camera2.pipe.MemoryEstimator memoryEstimator);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeImageSource create-OTWCE9Y(int, int, java.util.Map<androidx.camera.camera2.pipe.OutputId!,android.util.Size!>, int, Long?, androidx.camera.camera2.pipe.testing.FakeImageReaders, androidx.camera.camera2.pipe.MemoryEstimator);
+  }
+
+  public final class FakeImageSources implements androidx.camera.camera2.pipe.media.ImageSources {
+    ctor public FakeImageSources(androidx.camera.camera2.pipe.testing.FakeImageReaders fakeImageReaders, optional androidx.camera.camera2.pipe.MemoryEstimator memoryEstimator);
+    ctor @BytecodeOnly public FakeImageSources(androidx.camera.camera2.pipe.testing.FakeImageReaders!, androidx.camera.camera2.pipe.MemoryEstimator!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void checkImageSourcesClosed();
+    method public void checkImagesClosed();
+    method public androidx.camera.camera2.pipe.media.ImageSource createImageSource(androidx.camera.camera2.pipe.CameraStream cameraStream, androidx.camera.camera2.pipe.ImageSourceConfig imageSourceConfig);
+    method public operator androidx.camera.camera2.pipe.testing.FakeImageSource? get(android.view.Surface surface);
+    method @KotlinOnly public operator androidx.camera.camera2.pipe.testing.FakeImageSource? get(androidx.camera.camera2.pipe.StreamId streamId);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeImageSource? get-aKI5c8E(int);
+  }
+
+  public class FakeMetadata implements androidx.camera.common.Metadata {
+    ctor public FakeMetadata();
+    ctor @BytecodeOnly public FakeMetadata(java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeMetadata(optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,? extends java.lang.Object?> metadata);
+    method public <T> T? get(androidx.camera.common.Metadata.Key<T> key);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>> getMetadataKeys();
+    property public java.util.Set<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>> metadataKeys;
+    field public static final androidx.camera.camera2.pipe.testing.FakeMetadata.Companion Companion;
+    field public static final androidx.camera.common.Metadata.Key<java.lang.Integer> TEST_KEY;
+    field public static final androidx.camera.common.Metadata.Key<java.lang.Integer> TEST_KEY_ABSENT;
+  }
+
+  public static final class FakeMetadata.Companion {
+    property public androidx.camera.common.Metadata.Key<java.lang.Integer> TEST_KEY;
+    property public androidx.camera.common.Metadata.Key<java.lang.Integer> TEST_KEY_ABSENT;
+  }
+
+  public final class FakeOnImageListener implements androidx.camera.camera2.pipe.media.ImageReaderWrapper.OnImageListener {
+    ctor public FakeOnImageListener();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.camera2.pipe.testing.FakeOnImageListener.OnImageEvent> getOnImageEvents();
+    method @KotlinOnly public void onImage(androidx.camera.camera2.pipe.StreamId streamId, androidx.camera.camera2.pipe.OutputId outputId, androidx.camera.camera2.pipe.media.ImageWrapper image);
+    method @BytecodeOnly public void onImage-AQuxepk(int, int, androidx.camera.camera2.pipe.media.ImageWrapper);
+    property public java.util.List<androidx.camera.camera2.pipe.testing.FakeOnImageListener.OnImageEvent> onImageEvents;
+  }
+
+  public static final class FakeOnImageListener.OnImageEvent {
+    ctor @KotlinOnly public FakeOnImageListener.OnImageEvent(androidx.camera.camera2.pipe.StreamId streamId, androidx.camera.camera2.pipe.OutputId outputId, androidx.camera.camera2.pipe.media.ImageWrapper image);
+    ctor @BytecodeOnly public FakeOnImageListener.OnImageEvent(int, int, androidx.camera.camera2.pipe.media.ImageWrapper!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public operator androidx.camera.camera2.pipe.StreamId component1();
+    method @BytecodeOnly public int component1-ptHMqGs();
+    method @KotlinOnly public operator androidx.camera.camera2.pipe.OutputId component2();
+    method @BytecodeOnly public int component2-4LaLFng();
+    method public androidx.camera.camera2.pipe.media.ImageWrapper component3();
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeOnImageListener.OnImageEvent copy(optional androidx.camera.camera2.pipe.StreamId streamId, optional androidx.camera.camera2.pipe.OutputId outputId, optional androidx.camera.camera2.pipe.media.ImageWrapper image);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeOnImageListener.OnImageEvent copy-AQuxepk(int, int, androidx.camera.camera2.pipe.media.ImageWrapper);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeOnImageListener.OnImageEvent! copy-AQuxepk$default(androidx.camera.camera2.pipe.testing.FakeOnImageListener.OnImageEvent!, int, int, androidx.camera.camera2.pipe.media.ImageWrapper!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.media.ImageWrapper getImage();
+    method @BytecodeOnly public int getOutputId-4LaLFng();
+    method @BytecodeOnly public int getStreamId-ptHMqGs();
+    property public androidx.camera.camera2.pipe.media.ImageWrapper image;
+    property public androidx.camera.camera2.pipe.OutputId outputId;
+    property public androidx.camera.camera2.pipe.StreamId streamId;
+  }
+
+  public final class FakeRequestFailure implements androidx.camera.camera2.pipe.RequestFailure {
+    ctor @KotlinOnly public FakeRequestFailure(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, optional int reason, optional boolean wasImageCaptured);
+    ctor @BytecodeOnly public FakeRequestFailure(androidx.camera.camera2.pipe.RequestMetadata!, long, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public FakeRequestFailure(androidx.camera.camera2.pipe.RequestMetadata!, long, int, boolean, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public long getFrameNumber-2hlX2lI();
+    method @InaccessibleFromKotlin public int getReason();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.RequestMetadata getRequestMetadata();
+    method @InaccessibleFromKotlin public boolean getWasImageCaptured();
+    method public <T> T? unwrapAs(Class<T> type);
+    property public androidx.camera.common.CameraFrameNumber frameNumber;
+    property public int reason;
+    property public androidx.camera.camera2.pipe.RequestMetadata requestMetadata;
+    property public boolean wasImageCaptured;
+  }
+
+  public final class FakeRequestListener implements androidx.camera.camera2.pipe.Request.Listener {
+    ctor public FakeRequestListener();
+    ctor public FakeRequestListener(optional int replayBuffer);
+    ctor @BytecodeOnly public FakeRequestListener(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnAborted> getOnAbortedFlow();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnBufferLost> getOnBufferLostFlow();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnComplete> getOnCompleteFlow();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnFailed> getOnFailedFlow();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnPartialCaptureResult> getOnPartialCaptureResultFlow();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnRequestSequenceCompleted> getOnRequestSequenceCompletedFlow();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnStarted> getOnStartedFlow();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnTotalCaptureResult> getOnTotalCaptureResultFlow();
+    method @KotlinOnly public void onBufferLost(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, androidx.camera.camera2.pipe.StreamId streamId, androidx.camera.camera2.pipe.OutputId outputId);
+    method @KotlinOnly public void onComplete(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, androidx.camera.camera2.pipe.FrameInfo result);
+    method @KotlinOnly public void onFailed(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, androidx.camera.camera2.pipe.RequestFailure requestFailure);
+    method @KotlinOnly public void onPartialCaptureResult(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, androidx.camera.camera2.pipe.FrameMetadata captureResult);
+    method @KotlinOnly public void onRequestSequenceCompleted(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber);
+    method @KotlinOnly public void onStarted(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, androidx.camera.camera2.pipe.CameraTimestamp timestamp);
+    method @KotlinOnly public void onTotalCaptureResult(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, androidx.camera.camera2.pipe.FrameInfo totalCaptureResult);
+    property public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnAborted> onAbortedFlow;
+    property public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnBufferLost> onBufferLostFlow;
+    property public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnComplete> onCompleteFlow;
+    property public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnFailed> onFailedFlow;
+    property public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnPartialCaptureResult> onPartialCaptureResultFlow;
+    property public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnRequestSequenceCompleted> onRequestSequenceCompletedFlow;
+    property public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnStarted> onStartedFlow;
+    property public kotlinx.coroutines.flow.SharedFlow<androidx.camera.camera2.pipe.testing.OnTotalCaptureResult> onTotalCaptureResultFlow;
+  }
+
+  public final class FakeRequestMetadata extends androidx.camera.camera2.pipe.testing.FakeMetadata implements androidx.camera.camera2.pipe.RequestMetadata {
+    ctor @BytecodeOnly public FakeRequestMetadata();
+    ctor @BytecodeOnly public FakeRequestMetadata(java.util.Map!, java.util.Map!, int, java.util.Map!, boolean, androidx.camera.camera2.pipe.Request!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public FakeRequestMetadata(java.util.Map!, java.util.Map!, int, java.util.Map!, boolean, androidx.camera.camera2.pipe.Request!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @KotlinOnly public FakeRequestMetadata(optional java.util.Map<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>,java.lang.Object?> requestParameters, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,java.lang.Object?> metadata, optional androidx.camera.camera2.pipe.RequestTemplate template, optional java.util.Map<androidx.camera.camera2.pipe.StreamId,android.view.Surface> streams, optional boolean repeating, optional androidx.camera.camera2.pipe.Request request, optional androidx.camera.camera2.pipe.RequestNumber requestNumber);
+    method public <T> T? get(android.hardware.camera2.CaptureRequest.Key<T> key);
+    method @InaccessibleFromKotlin public java.util.List<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getKeys();
+    method @InaccessibleFromKotlin public boolean getRepeating();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.Request getRequest();
+    method @BytecodeOnly public long getRequestNumber-my6kx4g();
+    method @InaccessibleFromKotlin public java.util.Map<androidx.camera.camera2.pipe.StreamId,android.view.Surface> getStreams();
+    method @BytecodeOnly public int getTemplate-fGx8uWA();
+    method public <T> T? unwrapAs(Class<T> type);
+    property public java.util.List<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> keys;
+    property public java.util.Set<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>> metadataKeys;
+    property public boolean repeating;
+    property public androidx.camera.camera2.pipe.Request request;
+    property public androidx.camera.camera2.pipe.RequestNumber requestNumber;
+    property public java.util.Map<androidx.camera.camera2.pipe.StreamId,android.view.Surface> streams;
+    property public androidx.camera.camera2.pipe.RequestTemplate template;
+    field public static final androidx.camera.camera2.pipe.testing.FakeRequestMetadata.Companion Companion;
+  }
+
+  public static final class FakeRequestMetadata.Companion {
+    method public androidx.camera.camera2.pipe.testing.FakeRequestMetadata from(androidx.camera.camera2.pipe.Request request, java.util.Map<androidx.camera.camera2.pipe.StreamId,? extends android.view.Surface> streamToSurfaces, optional boolean repeating);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.testing.FakeRequestMetadata! from$default(androidx.camera.camera2.pipe.testing.FakeRequestMetadata.Companion!, androidx.camera.camera2.pipe.Request!, java.util.Map!, boolean, int, Object!);
+  }
+
+  public final class FakeSurfaces implements java.lang.AutoCloseable {
+    ctor public FakeSurfaces();
+    method public void close();
+    method public android.view.Surface createFakeSurface(optional android.util.Size size);
+    method @BytecodeOnly public static android.view.Surface! createFakeSurface$default(androidx.camera.camera2.pipe.testing.FakeSurfaces!, android.util.Size!, int, Object!);
+    field public static final androidx.camera.camera2.pipe.testing.FakeSurfaces.Companion Companion;
+  }
+
+  public static final class FakeSurfaces.Companion {
+    method public android.view.Surface create(optional android.util.Size size);
+    method @BytecodeOnly public static android.view.Surface! create$default(androidx.camera.camera2.pipe.testing.FakeSurfaces.Companion!, android.util.Size!, int, Object!);
+  }
+
+  public final class FakeThreads {
+    method public androidx.camera.camera2.pipe.core.Threads fromDispatcher(kotlinx.coroutines.CoroutineDispatcher dispatcher, optional kotlinx.coroutines.CoroutineDispatcher? blockingDispatcher);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.core.Threads! fromDispatcher$default(androidx.camera.camera2.pipe.testing.FakeThreads!, kotlinx.coroutines.CoroutineDispatcher!, kotlinx.coroutines.CoroutineDispatcher!, int, Object!);
+    method public androidx.camera.camera2.pipe.core.Threads fromTestScope(kotlinx.coroutines.test.TestScope scope, optional kotlinx.coroutines.CoroutineDispatcher? blockingDispatcher);
+    method @BytecodeOnly public static androidx.camera.camera2.pipe.core.Threads! fromTestScope$default(androidx.camera.camera2.pipe.testing.FakeThreads!, kotlinx.coroutines.test.TestScope!, kotlinx.coroutines.CoroutineDispatcher!, int, Object!);
+    field public static final androidx.camera.camera2.pipe.testing.FakeThreads INSTANCE;
+  }
+
+  public final class FakeTimeSource implements androidx.camera.camera2.pipe.core.TimeSource {
+    ctor public FakeTimeSource();
+    method @BytecodeOnly public long getCurrentTimestamp-vQl9yQU();
+    method @KotlinOnly public androidx.camera.camera2.pipe.core.TimestampNs now();
+    method @BytecodeOnly public long now-vQl9yQU();
+    method @BytecodeOnly public void setCurrentTimestamp-mxdxgDo(long);
+    property public androidx.camera.camera2.pipe.core.TimestampNs currentTimestamp;
+  }
+
+  public final class FrameGraphSimulator implements java.lang.AutoCloseable androidx.camera.camera2.pipe.testing.CameraSimulator androidx.camera.camera2.pipe.FrameGraph {
+    method public suspend Object? acquireSession(kotlin.coroutines.Continuation<? super androidx.camera.camera2.pipe.FrameGraph.Session>);
+    method public androidx.camera.camera2.pipe.FrameGraph.Session? acquireSessionOrNull();
+    method public androidx.camera.camera2.pipe.FrameCapture capture(androidx.camera.camera2.pipe.Request request);
+    method public java.util.List<androidx.camera.camera2.pipe.FrameCapture> capture(java.util.List<androidx.camera.camera2.pipe.Request> requests);
+    method public androidx.camera.camera2.pipe.FrameBuffer captureWith(java.util.Set<androidx.camera.camera2.pipe.StreamId> streamIds, java.util.Map<java.lang.Object,java.lang.Object?> parameters, int capacity);
+    method public void close();
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> converge3A(java.util.List<android.hardware.camera2.params.MeteringRectangle>? aeRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? afRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? awbRegions, androidx.camera.camera2.pipe.Converge3ABehavior? aeBehavior, androidx.camera.camera2.pipe.Converge3ABehavior? afBehavior, androidx.camera.camera2.pipe.Converge3ABehavior? awbBehavior, kotlin.jvm.functions.Function1<androidx.camera.camera2.pipe.FrameMetadata,java.lang.Boolean>? convergedCondition, Integer? frameLimit, Long? timeLimitNs);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A!> converge3A-3VUeUZc(java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, androidx.camera.camera2.pipe.Converge3ABehavior?, androidx.camera.camera2.pipe.Converge3ABehavior?, androidx.camera.camera2.pipe.Converge3ABehavior?, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.pipe.FrameMetadata!,java.lang.Boolean!>?, Integer?, Long?);
+    method public void drain(androidx.camera.camera2.pipe.StreamId streamId);
+    method public kotlinx.coroutines.flow.StateFlow<androidx.camera.camera2.pipe.GraphState!> getGraphState();
+    method public androidx.camera.camera2.pipe.CameraGraphId getId();
+    method public kotlinx.coroutines.flow.Flow<androidx.camera.camera2.pipe.FrameInfo!> getLatestFrameInfo();
+    method public kotlinx.coroutines.flow.Flow<androidx.camera.common.CameraFrameNumber!> getLatestFrameNumber();
+    method public androidx.camera.camera2.pipe.RequestListeners getListeners();
+    method public androidx.camera.camera2.pipe.Parameters getParameters();
+    method @InaccessibleFromKotlin public java.util.Map<androidx.camera.camera2.pipe.StreamId,android.view.Surface?> getSetSurfaceResults();
+    method public androidx.camera.camera2.pipe.StreamGraph getStreams();
+    method public void initializeSurfaces();
+    method @BytecodeOnly public boolean isClosed();
+    method public boolean isForeground();
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> lock3A(androidx.camera.camera2.pipe.AeMode? aeMode, androidx.camera.camera2.pipe.AfMode? afMode, androidx.camera.camera2.pipe.AwbMode? awbMode, java.util.List<android.hardware.camera2.params.MeteringRectangle>? aeRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? afRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? awbRegions, androidx.camera.camera2.pipe.Lock3ABehavior? aeLockBehavior, androidx.camera.camera2.pipe.Lock3ABehavior? afLockBehavior, androidx.camera.camera2.pipe.Lock3ABehavior? awbLockBehavior, androidx.camera.camera2.pipe.AeMode? afTriggerStartAeMode, kotlin.jvm.functions.Function1<androidx.camera.camera2.pipe.FrameMetadata,java.lang.Boolean>? convergedCondition, kotlin.jvm.functions.Function1<androidx.camera.camera2.pipe.FrameMetadata,java.lang.Boolean>? lockedCondition, int frameLimit, long convergedTimeLimitNs, long lockedTimeLimitNs);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A!> lock3A-vIrNa9k(androidx.camera.camera2.pipe.AeMode?, androidx.camera.camera2.pipe.AfMode?, androidx.camera.camera2.pipe.AwbMode?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, androidx.camera.camera2.pipe.Lock3ABehavior?, androidx.camera.camera2.pipe.Lock3ABehavior?, androidx.camera.camera2.pipe.Lock3ABehavior?, androidx.camera.camera2.pipe.AeMode?, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.pipe.FrameMetadata!,java.lang.Boolean!>?, kotlin.jvm.functions.Function1<? super androidx.camera.camera2.pipe.FrameMetadata!,java.lang.Boolean!>?, int, long, long);
+    method public void setForeground(boolean <set-?>);
+    method @KotlinOnly public void setSurface(androidx.camera.camera2.pipe.StreamId stream, android.view.Surface? surface);
+    method @BytecodeOnly public void setSurface-NYG5g8E(int, android.view.Surface?);
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> setTorchOff(androidx.camera.camera2.pipe.AeMode? aeMode);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A!> setTorchOff-NqN7i0k(androidx.camera.camera2.pipe.AeMode?);
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> setTorchOn();
+    method public androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator simulateAndCompleteNextFrame(java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,java.lang.Object?> resultMetadata, java.util.Set<androidx.camera.camera2.pipe.CameraId> physicalCameraIds, java.util.Map<androidx.camera.camera2.pipe.OutputId,android.hardware.HardwareBuffer> hardwareBuffers, long advanceClockByNanos);
+    method public void simulateCameraError(androidx.camera.camera2.pipe.GraphState.GraphStateError graphStateError);
+    method public void simulateCameraModified();
+    method public void simulateCameraStarted();
+    method public void simulateCameraStopped();
+    method public void simulateExpectedOutputs(androidx.camera.camera2.pipe.StreamId streamId, long timestamp, java.util.Set<androidx.camera.camera2.pipe.OutputId> outputIds);
+    method @BytecodeOnly public void simulateExpectedOutputs-hB7JTeY(int, long, java.util.Set<androidx.camera.camera2.pipe.OutputId!>);
+    method public void simulateImage(androidx.camera.camera2.pipe.StreamId streamId, long imageTimestamp, androidx.camera.camera2.pipe.OutputId? outputId, android.hardware.HardwareBuffer? hardwareBuffer);
+    method @BytecodeOnly public void simulateImage-wZda4rs(int, long, androidx.camera.camera2.pipe.OutputId?, android.hardware.HardwareBuffer?);
+    method public void simulateImages(androidx.camera.camera2.pipe.Request request, long imageTimestamp, java.util.Set<androidx.camera.camera2.pipe.CameraId> physicalCameraIds, java.util.Map<androidx.camera.camera2.pipe.OutputId,android.hardware.HardwareBuffer> hardwareBuffers);
+    method public androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator simulateNextFrame(long advanceClockByNanos, boolean advanceBarrier);
+    method public void start();
+    method public void stop();
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> submit3A(androidx.camera.camera2.pipe.AeMode? aeMode, androidx.camera.camera2.pipe.AfMode? afMode, androidx.camera.camera2.pipe.AwbMode? awbMode, java.util.List<android.hardware.camera2.params.MeteringRectangle>? aeRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? afRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? awbRegions);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A!> submit3A-ydBZfZg(androidx.camera.camera2.pipe.AeMode?, androidx.camera.camera2.pipe.AfMode?, androidx.camera.camera2.pipe.AwbMode?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?);
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> unlock3A(Boolean? ae, Boolean? af, Boolean? awb, kotlin.jvm.functions.Function1<androidx.camera.camera2.pipe.FrameMetadata,java.lang.Boolean>? unlockedCondition, int frameLimit, long timeLimitNs);
+    method public <T> T? unwrapAs(Class<T> type);
+    method public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A> update3A(androidx.camera.camera2.pipe.AeMode? aeMode, androidx.camera.camera2.pipe.AfMode? afMode, androidx.camera.camera2.pipe.AwbMode? awbMode, androidx.camera.camera2.pipe.ControlMode? controlMode, androidx.camera.camera2.pipe.FlashMode? flashMode, java.util.List<android.hardware.camera2.params.MeteringRectangle>? aeRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? afRegions, java.util.List<android.hardware.camera2.params.MeteringRectangle>? awbRegions, boolean retainLocks);
+    method @BytecodeOnly public kotlinx.coroutines.Deferred<androidx.camera.camera2.pipe.Result3A!> update3A-znct4lo(androidx.camera.camera2.pipe.AeMode?, androidx.camera.camera2.pipe.AfMode?, androidx.camera.camera2.pipe.AwbMode?, androidx.camera.camera2.pipe.ControlMode?, androidx.camera.camera2.pipe.FlashMode?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, java.util.List<android.hardware.camera2.params.MeteringRectangle!>?, boolean);
+    method public void updateAudioRestrictionMode(androidx.camera.camera2.pipe.AudioRestrictionMode mode);
+    method @BytecodeOnly public void updateAudioRestrictionMode-LwUUkyU(int);
+    method public suspend <T> Object? useSession(kotlin.jvm.functions.Function3<kotlinx.coroutines.CoroutineScope,androidx.camera.camera2.pipe.FrameGraph.Session,kotlin.coroutines.Continuation<? super T>,?> action, kotlin.coroutines.Continuation<? super T>);
+    method public <T> kotlinx.coroutines.Deferred<T> useSessionIn(kotlinx.coroutines.CoroutineScope scope, kotlin.jvm.functions.Function3<kotlinx.coroutines.CoroutineScope,androidx.camera.camera2.pipe.FrameGraph.Session,kotlin.coroutines.Continuation<? super T>,?> action);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.camera.camera2.pipe.GraphState> graphState;
+    property public androidx.camera.camera2.pipe.CameraGraphId id;
+    property public boolean isClosed;
+    property public boolean isForeground;
+    property public kotlinx.coroutines.flow.Flow<androidx.camera.camera2.pipe.FrameInfo> latestFrameInfo;
+    property public kotlinx.coroutines.flow.Flow<androidx.camera.common.CameraFrameNumber> latestFrameNumber;
+    property public androidx.camera.camera2.pipe.RequestListeners listeners;
+    property public androidx.camera.camera2.pipe.Parameters parameters;
+    property public java.util.Map<androidx.camera.camera2.pipe.StreamId,android.view.Surface?> setSurfaceResults;
+    property public androidx.camera.camera2.pipe.StreamGraph streams;
+    field public static final androidx.camera.camera2.pipe.testing.FrameGraphSimulator.Companion Companion;
+  }
+
+  public static final class FrameGraphSimulator.Companion {
+    method public androidx.camera.camera2.pipe.testing.FrameGraphSimulator create(android.content.Context testContext, androidx.camera.camera2.pipe.CameraPipe.ThreadConfig testThreads, androidx.camera.camera2.pipe.CameraMetadata testCamera, androidx.camera.camera2.pipe.FrameGraph.Config graphConfig);
+    method public androidx.camera.camera2.pipe.testing.FrameGraphSimulator create(kotlinx.coroutines.test.TestScope testScope, android.content.Context testContext, androidx.camera.camera2.pipe.CameraMetadata cameraMetadata, androidx.camera.camera2.pipe.FrameGraph.Config graphConfig);
+  }
+
+  public final class HighEndDeviceTemplate implements androidx.camera.camera2.pipe.testing.DeviceTemplate {
+    method @KotlinOnly public androidx.camera.camera2.pipe.testing.FakeCameraMetadata createCameraMetadata(optional androidx.camera.camera2.pipe.CameraId cameraId, optional Integer? lensFacing, optional java.util.Map<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>,java.lang.Object?> characteristicsOverrides, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,java.lang.Object?> metadataOverrides, optional java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> requestKeysOverrides, optional java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> resultKeysOverrides, optional java.util.Map<java.lang.Integer,androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata> extensionMetadata, optional java.util.Map<androidx.camera.camera2.pipe.CameraId,androidx.camera.camera2.pipe.testing.FakeCameraMetadata> physicalMetadata);
+    method @BytecodeOnly public androidx.camera.camera2.pipe.testing.FakeCameraMetadata createCameraMetadata-t3SLZhY(String, Integer?, java.util.Map<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object!>!,? extends java.lang.Object!>, java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object!>!,? extends java.lang.Object!>, java.util.Set<? extends android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object!>!>, java.util.Set<? extends android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object!>!>, java.util.Map<java.lang.Integer!,androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata!>, java.util.Map<androidx.camera.camera2.pipe.CameraId!,androidx.camera.camera2.pipe.testing.FakeCameraMetadata!>);
+    field public static final androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate INSTANCE;
+  }
+
+  public final class OnAborted extends androidx.camera.camera2.pipe.testing.RequestListenerEvent {
+    ctor public OnAborted(androidx.camera.camera2.pipe.Request request);
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.Request getRequest();
+    property public androidx.camera.camera2.pipe.Request request;
+  }
+
+  public final class OnBufferLost extends androidx.camera.camera2.pipe.testing.RequestListenerEvent {
+    ctor @KotlinOnly public OnBufferLost(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, androidx.camera.camera2.pipe.StreamId streamId, androidx.camera.camera2.pipe.OutputId outputId);
+    ctor @BytecodeOnly public OnBufferLost(androidx.camera.camera2.pipe.RequestMetadata!, long, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public long getFrameNumber-2hlX2lI();
+    method @BytecodeOnly public int getOutputId-4LaLFng();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.RequestMetadata getRequestMetadata();
+    method @BytecodeOnly public int getStreamId-ptHMqGs();
+    property public androidx.camera.common.CameraFrameNumber frameNumber;
+    property public androidx.camera.camera2.pipe.OutputId outputId;
+    property public androidx.camera.camera2.pipe.RequestMetadata requestMetadata;
+    property public androidx.camera.camera2.pipe.StreamId streamId;
+  }
+
+  public final class OnComplete extends androidx.camera.camera2.pipe.testing.RequestListenerEvent {
+    ctor @KotlinOnly public OnComplete(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, androidx.camera.camera2.pipe.FrameInfo frameInfo);
+    ctor @BytecodeOnly public OnComplete(androidx.camera.camera2.pipe.RequestMetadata!, long, androidx.camera.camera2.pipe.FrameInfo!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.FrameInfo getFrameInfo();
+    method @BytecodeOnly public long getFrameNumber-2hlX2lI();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.RequestMetadata getRequestMetadata();
+    property public androidx.camera.camera2.pipe.FrameInfo frameInfo;
+    property public androidx.camera.common.CameraFrameNumber frameNumber;
+    property public androidx.camera.camera2.pipe.RequestMetadata requestMetadata;
+  }
+
+  public final class OnFailed extends androidx.camera.camera2.pipe.testing.RequestListenerEvent {
+    ctor @KotlinOnly public OnFailed(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, androidx.camera.camera2.pipe.RequestFailure requestFailure);
+    ctor @BytecodeOnly public OnFailed(androidx.camera.camera2.pipe.RequestMetadata!, long, androidx.camera.camera2.pipe.RequestFailure!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public long getFrameNumber-2hlX2lI();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.RequestFailure getRequestFailure();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.RequestMetadata getRequestMetadata();
+    property public androidx.camera.common.CameraFrameNumber frameNumber;
+    property public androidx.camera.camera2.pipe.RequestFailure requestFailure;
+    property public androidx.camera.camera2.pipe.RequestMetadata requestMetadata;
+  }
+
+  public final class OnPartialCaptureResult extends androidx.camera.camera2.pipe.testing.RequestListenerEvent {
+    ctor @KotlinOnly public OnPartialCaptureResult(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, androidx.camera.camera2.pipe.FrameMetadata frameMetadata);
+    ctor @BytecodeOnly public OnPartialCaptureResult(androidx.camera.camera2.pipe.RequestMetadata!, long, androidx.camera.camera2.pipe.FrameMetadata!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.FrameMetadata getFrameMetadata();
+    method @BytecodeOnly public long getFrameNumber-2hlX2lI();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.RequestMetadata getRequestMetadata();
+    property public androidx.camera.camera2.pipe.FrameMetadata frameMetadata;
+    property public androidx.camera.common.CameraFrameNumber frameNumber;
+    property public androidx.camera.camera2.pipe.RequestMetadata requestMetadata;
+  }
+
+  public final class OnRequestSequenceCompleted extends androidx.camera.camera2.pipe.testing.RequestListenerEvent {
+    ctor @KotlinOnly public OnRequestSequenceCompleted(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber);
+    ctor @BytecodeOnly public OnRequestSequenceCompleted(androidx.camera.camera2.pipe.RequestMetadata!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public long getFrameNumber-2hlX2lI();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.RequestMetadata getRequestMetadata();
+    property public androidx.camera.common.CameraFrameNumber frameNumber;
+    property public androidx.camera.camera2.pipe.RequestMetadata requestMetadata;
+  }
+
+  public final class OnStarted extends androidx.camera.camera2.pipe.testing.RequestListenerEvent {
+    ctor @KotlinOnly public OnStarted(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, androidx.camera.camera2.pipe.CameraTimestamp timestamp);
+    ctor @BytecodeOnly public OnStarted(androidx.camera.camera2.pipe.RequestMetadata!, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public long getFrameNumber-2hlX2lI();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.RequestMetadata getRequestMetadata();
+    method @BytecodeOnly public long getTimestamp-LS1Wq50();
+    property public androidx.camera.common.CameraFrameNumber frameNumber;
+    property public androidx.camera.camera2.pipe.RequestMetadata requestMetadata;
+    property public androidx.camera.camera2.pipe.CameraTimestamp timestamp;
+  }
+
+  public final class OnTotalCaptureResult extends androidx.camera.camera2.pipe.testing.RequestListenerEvent {
+    ctor @KotlinOnly public OnTotalCaptureResult(androidx.camera.camera2.pipe.RequestMetadata requestMetadata, androidx.camera.common.CameraFrameNumber frameNumber, androidx.camera.camera2.pipe.FrameInfo frameInfo);
+    ctor @BytecodeOnly public OnTotalCaptureResult(androidx.camera.camera2.pipe.RequestMetadata!, long, androidx.camera.camera2.pipe.FrameInfo!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.FrameInfo getFrameInfo();
+    method @BytecodeOnly public long getFrameNumber-2hlX2lI();
+    method @InaccessibleFromKotlin public androidx.camera.camera2.pipe.RequestMetadata getRequestMetadata();
+    property public androidx.camera.camera2.pipe.FrameInfo frameInfo;
+    property public androidx.camera.common.CameraFrameNumber frameNumber;
+    property public androidx.camera.camera2.pipe.RequestMetadata requestMetadata;
+  }
+
+  public abstract sealed exhaustive class RequestListenerEvent {
+  }
+
+  public interface TestThreadScope {
+    method @KotlinOnly public void advanceTimeBy(kotlin.time.Duration duration);
+    method @BytecodeOnly public void advanceTimeBy-LRDsOJo(long);
+    method @KotlinOnly public void advanceUntilIdle(optional kotlin.time.Duration? timeout);
+    method @BytecodeOnly public void advanceUntilIdle-BwNAW2A(kotlin.time.Duration?);
+    method @BytecodeOnly public static void advanceUntilIdle-BwNAW2A$default(androidx.camera.camera2.pipe.testing.TestThreadScope!, kotlin.time.Duration!, int, Object!);
+    method public static androidx.camera.camera2.pipe.testing.TestThreadScope from(kotlinx.coroutines.test.TestScope testScope);
+    field public static final androidx.camera.camera2.pipe.testing.TestThreadScope.Companion Companion;
+  }
+
+  public static final class TestThreadScope.Companion {
+    method public androidx.camera.camera2.pipe.testing.TestThreadScope from(kotlinx.coroutines.test.TestScope testScope);
+  }
+
+  public final class TestThreadScopeImpl implements androidx.camera.camera2.pipe.testing.TestThreadScope {
+    method @KotlinOnly public void advanceTimeBy(kotlin.time.Duration duration);
+    method @BytecodeOnly public void advanceTimeBy-LRDsOJo(long);
+    method @KotlinOnly public void advanceUntilIdle(optional kotlin.time.Duration? timeout);
+    method @BytecodeOnly public void advanceUntilIdle-BwNAW2A(kotlin.time.Duration?);
+  }
+
+}
+
