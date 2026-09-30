@@ -22,7 +22,12 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.integration.demos.bookends.material3.BookendsImplementation
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteAppScaffold
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteButton
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteScreenScaffold
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteText
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteTimeText
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteTransformingLazyColumn
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -41,6 +46,23 @@ class WearMaterial3BookendsScreenshotTest :
     fun timeText() {
         runScreenshotTest(centered = false) {
             RemoteTimeText(modifier = RemoteModifier.fillMaxSize(), time = "10:09".rs)
+        }
+    }
+
+    /** A full screen with the components that only exist as Wear Compose Material3 bookends. */
+    @Test
+    fun screen_scaffoldWithTransformingLazyColumn() {
+        runScreenshotTest(centered = false) {
+            RemoteAppScaffold(timeText = { RemoteTimeText(time = "10:09".rs) }) {
+                RemoteScreenScaffold {
+                    RemoteTransformingLazyColumn {
+                        item { RemoteText("Bookends".rs) }
+                        items(4) { index ->
+                            RemoteButton(onClick = noopAction) { RemoteText("Item $index".rs) }
+                        }
+                    }
+                }
+            }
         }
     }
 }

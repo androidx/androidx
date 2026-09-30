@@ -25,17 +25,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteArrangement
-import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
@@ -55,9 +47,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteAppScaffold
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteButton
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteIcon
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteScreenScaffold
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteText
-import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteTimeText
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteTransformingLazyColumn
 import androidx.wear.compose.remote.integration.demos.bookends.player.WearMaterial3Plugins
 
 /**
@@ -71,22 +66,30 @@ fun BookendsDemoContent() {
     val increment = valueChange(clicks, clicks + 1)
     val icon = remember { RemoteImageBitmap(bookendsIconBitmap()) }
 
-    RemoteBox(modifier = RemoteModifier.fillMaxSize()) {
-        RemoteTimeText(modifier = RemoteModifier.fillMaxSize())
-        RemoteColumn(
-            modifier = RemoteModifier.fillMaxSize().padding(24.rdp),
-            verticalArrangement =
-                RemoteArrangement.spacedBy(4.rdp, RemoteAlignment.CenterVertically),
-            horizontalAlignment = RemoteAlignment.CenterHorizontally,
-        ) {
-            RemoteText("Bookends".rs, textAlign = TextAlign.Center)
-            RemoteButton(
-                onClick = increment,
-                label = "Tap me".rs,
-                secondaryLabel = "Clicks: ".rs + clicks.toRemoteString(),
-                icon = icon,
-            )
-            RemoteButton(onClick = increment, label = "Disabled".rs, enabled = false.rb)
+    RemoteAppScaffold {
+        RemoteScreenScaffold {
+            RemoteTransformingLazyColumn {
+                item { RemoteText("Bookends".rs, textAlign = TextAlign.Center) }
+                item {
+                    RemoteButton(
+                        onClick = increment,
+                        secondaryLabel = {
+                            RemoteText("Clicks: ".rs + clicks.toRemoteString(), maxLines = 1)
+                        },
+                        icon = { RemoteIcon(bitmap = icon, contentDescription = null) },
+                    ) {
+                        RemoteText("Tap me".rs)
+                    }
+                }
+                items(5) { index ->
+                    RemoteButton(onClick = increment) { RemoteText("Item $index".rs) }
+                }
+                item {
+                    RemoteButton(onClick = increment, enabled = false.rb) {
+                        RemoteText("Disabled".rs)
+                    }
+                }
+            }
         }
     }
 }
@@ -129,7 +132,7 @@ fun BookendsDemo(modifier: Modifier = Modifier) {
 
 /**
  * Hosts [BookendsDemo] full screen, outside of the demo app's own `AppScaffold`, since the document
- * provides its own `TimeText`.
+ * provides its own `AppScaffold` and `TimeText`.
  */
 class BookendsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

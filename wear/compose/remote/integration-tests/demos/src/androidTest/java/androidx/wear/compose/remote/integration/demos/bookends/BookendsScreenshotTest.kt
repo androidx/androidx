@@ -58,6 +58,7 @@ import androidx.wear.compose.material3.Typography
 import androidx.wear.compose.remote.integration.demos.bookends.material3.BookendsImplementation
 import androidx.wear.compose.remote.integration.demos.bookends.material3.LocalBookendsImplementation
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteButton
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteIcon
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteText
 import androidx.wear.compose.remote.integration.demos.bookends.player.WearMaterial3Plugins
 import androidx.wear.compose.remote.material3.RemoteMaterialTheme
@@ -74,7 +75,9 @@ internal const val SCREENSHOT_GOLDEN_DIRECTORY = "wear/compose/remote/integratio
  * per [BookendsImplementation] (see the subclasses) so the two sets of goldens can be compared.
  *
  * Both sets are played with the embedded player, which renders the `Custom` components with Wear
- * Compose Material3 via [WearMaterial3Plugins].
+ * Compose Material3 via [WearMaterial3Plugins]. `TransformingLazyColumn`, the scaffolds and the
+ * scroll indicator have no remote-material3 equivalent and are covered by
+ * [WearMaterial3BookendsScreenshotTest] only.
  */
 abstract class BookendsScreenshotTest(private val implementation: BookendsImplementation) {
     val remoteComposeTestRule =
@@ -96,7 +99,7 @@ abstract class BookendsScreenshotTest(private val implementation: BookendsImplem
 
     @Test
     fun button() {
-        runScreenshotTest { RemoteButton(onClick = noopAction, label = "Button".rs) }
+        runScreenshotTest { RemoteButton(onClick = noopAction) { RemoteText("Button".rs) } }
     }
 
     @Test
@@ -104,9 +107,10 @@ abstract class BookendsScreenshotTest(private val implementation: BookendsImplem
         runScreenshotTest {
             RemoteButton(
                 onClick = noopAction,
-                label = "Primary label".rs,
-                secondaryLabel = "Secondary label".rs,
-            )
+                secondaryLabel = { RemoteText("Secondary label".rs) },
+            ) {
+                RemoteText("Primary label".rs)
+            }
         }
     }
 
@@ -115,10 +119,16 @@ abstract class BookendsScreenshotTest(private val implementation: BookendsImplem
         runScreenshotTest {
             RemoteButton(
                 onClick = noopAction,
-                label = "Primary label".rs,
-                secondaryLabel = "Secondary label".rs,
-                icon = RemoteImageBitmap(bookendsIconBitmap()),
-            )
+                secondaryLabel = { RemoteText("Secondary label".rs) },
+                icon = {
+                    RemoteIcon(
+                        bitmap = RemoteImageBitmap(bookendsIconBitmap()),
+                        contentDescription = null,
+                    )
+                },
+            ) {
+                RemoteText("Primary label".rs)
+            }
         }
     }
 
@@ -127,20 +137,20 @@ abstract class BookendsScreenshotTest(private val implementation: BookendsImplem
         runScreenshotTest {
             RemoteButton(
                 onClick = noopAction,
-                label = "Disabled".rs,
-                secondaryLabel = "Secondary label".rs,
                 enabled = false.rb,
-            )
+                secondaryLabel = { RemoteText("Secondary label".rs) },
+            ) {
+                RemoteText("Disabled".rs)
+            }
         }
     }
 
     @Test
     fun button_longLabel() {
         runScreenshotTest {
-            RemoteButton(
-                onClick = noopAction,
-                label = "A very long label that is truncated by the button label maxLines".rs,
-            )
+            RemoteButton(onClick = noopAction) {
+                RemoteText("A very long label that is truncated by the button label maxLines".rs)
+            }
         }
     }
 

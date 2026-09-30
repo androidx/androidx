@@ -27,17 +27,34 @@ import androidx.compose.ui.text.style.TextAlign
  */
 internal object BookendsSpec {
     // Custom component names.
+    const val SLOT = "wear.m3:slot"
+    const val APP_SCAFFOLD = "wear.m3:app-scaffold"
+    const val SCREEN_SCAFFOLD = "wear.m3:screen-scaffold"
     const val TIME_TEXT = "wear.m3:time-text"
+    const val SCROLL_INDICATOR = "wear.m3:scroll-indicator"
+    const val TRANSFORMING_LAZY_COLUMN = "wear.m3:transforming-lazy-column"
     const val BUTTON = "wear.m3:button"
+    const val ICON = "wear.m3:icon"
     const val TEXT = "wear.m3:text"
 
-    // TIME_TEXT properties: PROP_TEXT, the optional fixed time.
+    // SLOT properties.
+    const val PROP_SLOT_ID = 1
+
+    // Slot ids. A slot groups the remote children for one composable lambda parameter.
+    const val SLOT_CONTENT = 0
+    const val SLOT_TIME_TEXT = 1
+    const val SLOT_SCROLL_INDICATOR = 2
+    const val SLOT_LABEL = 3
+    const val SLOT_SECONDARY_LABEL = 4
+    const val SLOT_ICON = 5
 
     // BUTTON properties.
     const val PROP_ENABLED = 1
-    const val PROP_LABEL = 2
-    const val PROP_SECONDARY_LABEL = 3
-    const val PROP_ICON = 4
+
+    // ICON properties.
+    const val PROP_BITMAP = 1
+    const val PROP_CONTENT_DESCRIPTION = 2
+    const val PROP_TINT = 3
 
     /** Size of the icon of a button, matching `ButtonDefaults.IconSize`. */
     const val ICON_SIZE_DP = 26

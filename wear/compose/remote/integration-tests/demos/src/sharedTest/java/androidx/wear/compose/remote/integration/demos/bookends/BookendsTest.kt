@@ -51,7 +51,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.style.TextAlign
@@ -59,9 +59,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.wear.compose.remote.integration.demos.bookends.material3.BookendsImplementation
 import androidx.wear.compose.remote.integration.demos.bookends.material3.LocalBookendsImplementation
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteAppScaffold
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteButton
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteIcon
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteScreenScaffold
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteText
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteTimeText
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteTransformingLazyColumn
 import androidx.wear.compose.remote.integration.demos.bookends.player.WearMaterial3Plugins
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -85,10 +89,9 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
                 clickedValue = value
             }
         ) {
-            RemoteButton(
-                onClick = hostAction("buttonClick".rs, 42.rf),
-                label = "Button".rs,
-            )
+            RemoteButton(onClick = hostAction("buttonClick".rs, 42.rf)) {
+                RemoteText("Button".rs)
+            }
         }
 
         rule
@@ -110,9 +113,10 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
             val clicks = rememberMutableRemoteInt(0)
             RemoteButton(
                 onClick = valueChange(clicks, clicks + 1),
-                label = "Increment".rs,
-                secondaryLabel = "Clicks: ".rs + clicks.toRemoteString(),
-            )
+                secondaryLabel = { RemoteText("Clicks: ".rs + clicks.toRemoteString()) },
+            ) {
+                RemoteText("Increment".rs)
+            }
         }
 
         rule.onNodeWithText("Increment").assertIsDisplayed()
@@ -130,14 +134,21 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
         setBookendsContent {
             RemoteButton(
                 onClick = hostAction("noop".rs, 1.rf),
-                label = "Primary label".rs,
-                secondaryLabel = "Secondary label".rs,
-                icon = RemoteImageBitmap(bookendsIconBitmap()),
-            )
+                secondaryLabel = { RemoteText("Secondary label".rs) },
+                icon = {
+                    RemoteIcon(
+                        bitmap = RemoteImageBitmap(bookendsIconBitmap()),
+                        contentDescription = "Favorite".rs,
+                    )
+                },
+            ) {
+                RemoteText("Primary label".rs)
+            }
         }
 
         rule.onNodeWithText("Primary label").assertIsDisplayed()
         rule.onNodeWithText("Secondary label").assertIsDisplayed()
+        rule.onNodeWithContentDescription("Favorite").assertIsDisplayed()
     }
 
     @Test
@@ -146,10 +157,11 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
         setBookendsContent(onNamedAction = { _, _ -> clicked = true }) {
             RemoteButton(
                 onClick = hostAction("disabledClick".rs, 1.rf),
-                label = "Disabled".rs,
-                secondaryLabel = "Secondary label".rs,
                 enabled = false.rb,
-            )
+                secondaryLabel = { RemoteText("Secondary label".rs) },
+            ) {
+                RemoteText("Disabled".rs)
+            }
         }
 
         rule.onNodeWithText("Disabled").assertIsDisplayed().performClick()
@@ -254,11 +266,6 @@ class WearMaterial3BookendsTest : BookendsTest(BookendsImplementation.WearMateri
         rule.onNodeWithText("Bookends").assertIsDisplayed()
         rule.onNodeWithText("Tap me").assertIsDisplayed().assertIsEnabled()
         rule.onNodeWithText("Clicks: 0").assertIsDisplayed()
-        rule.onNodeWithText("Disabled").assertIsDisplayed().assertIsNotEnabled()
-
-        // Clicking Disabled does not increment the remote counter.
-        rule.onNodeWithText("Disabled").performClick()
-        rule.onNodeWithText("Clicks: 0").assertIsDisplayed()
 
         // Clicking Tap me increments the remote counter.
         rule.onNodeWithText("Tap me").performClick()
@@ -266,15 +273,40 @@ class WearMaterial3BookendsTest : BookendsTest(BookendsImplementation.WearMateri
     }
 
     @Test
-    fun implementation_emitsCustomOperations() {
-        val doc = setBookendsContent {
-            RemoteButton(
-                onClick = hostAction("click".rs, 1.rf),
-                label = "Button".rs,
-            )
+    fun screenScaffold_withTransformingLazyColumn_rendersAndDispatchesItemClicks() {
+        var clickedItem = -1
+        setBookendsContent(onNamedAction = { _, value -> clickedItem = (value as Float).toInt() }) {
+            RemoteAppScaffold(timeText = { RemoteTimeText(time = "10:09".rs) }) {
+                RemoteScreenScaffold {
+                    RemoteTransformingLazyColumn {
+                        item { RemoteText("Header".rs) }
+                        items(2) { index ->
+                            RemoteButton(onClick = hostAction("item".rs, index.toFloat().rf)) {
+                                RemoteText("Row $index".rs)
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        assertThat(doc.customComponentCount()).isEqualTo(1)
+        rule.onNodeWithText("Header").assertIsDisplayed()
+        rule.onNodeWithText("Row 0").assertIsDisplayed().performClick()
+        rule.composeRule.runOnIdle { assertThat(clickedItem).isEqualTo(0) }
+
+        rule.onNodeWithText("Row 1").assertIsDisplayed().performClick()
+        rule.composeRule.runOnIdle { assertThat(clickedItem).isEqualTo(1) }
+    }
+
+    @Test
+    fun implementation_emitsCustomOperations() {
+        val doc = setBookendsContent {
+            RemoteButton(onClick = hostAction("click".rs, 1.rf)) {
+                RemoteText("Button".rs)
+            }
+        }
+
+        assertThat(doc.customComponentCount()).isAtLeast(2)
     }
 }
 
@@ -287,10 +319,9 @@ class RemoteMaterial3BookendsTest : BookendsTest(BookendsImplementation.RemoteMa
     @Test
     fun implementation_doesNotEmitCustomOperations() {
         val doc = setBookendsContent {
-            RemoteButton(
-                onClick = hostAction("click".rs, 1.rf),
-                label = "Button".rs,
-            )
+            RemoteButton(onClick = hostAction("click".rs, 1.rf)) {
+                RemoteText("Button".rs)
+            }
         }
 
         assertThat(doc.customComponentCount()).isEqualTo(0)
