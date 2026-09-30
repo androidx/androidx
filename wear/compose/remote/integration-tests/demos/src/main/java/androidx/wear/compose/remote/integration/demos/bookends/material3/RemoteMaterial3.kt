@@ -44,6 +44,7 @@ import androidx.wear.compose.material3.LocalTextConfiguration
 import androidx.wear.compose.remote.integration.demos.bookends.BookendsSpec
 import androidx.wear.compose.remote.integration.demos.bookends.BookendsSpec.toWire
 import androidx.wear.compose.remote.material3.RemoteButton as RemoteMaterial3Button
+import androidx.wear.compose.remote.material3.RemoteSwitchButton as RemoteMaterial3SwitchButton
 import androidx.wear.compose.remote.material3.RemoteText as RemoteMaterial3Text
 import androidx.wear.compose.remote.material3.RemoteTimeText as RemoteMaterial3TimeText
 
@@ -246,6 +247,59 @@ fun RemoteButton(
             icon?.let { RemoteSlot(BookendsSpec.SLOT_ICON, it) }
         },
         properties = { property(BookendsSpec.PROP_ENABLED, enabled) },
+    )
+}
+
+/**
+ * Toggleable switch button with a label, and optional secondary label and icon, rendered as
+ * `androidx.wear.compose.material3.SwitchButton`.
+ *
+ * @param checked Whether the switch button is currently checked.
+ * @param onCheckedChange The action performed when the switch button is clicked to toggle it.
+ * @param modifier The modifier for the switch button.
+ * @param enabled Whether the switch button is enabled.
+ * @param icon Optional icon, shown at the start of the switch button.
+ * @param secondaryLabel Optional secondary label, shown below the [label].
+ * @param label The main label of the switch button.
+ */
+@RemoteComposable
+@Composable
+fun RemoteSwitchButton(
+    checked: RemoteBoolean,
+    onCheckedChange: Action,
+    modifier: RemoteModifier = RemoteModifier,
+    enabled: RemoteBoolean = true.rb,
+    icon: (@Composable @RemoteComposable () -> Unit)? = null,
+    secondaryLabel: (@Composable @RemoteComposable RemoteRowScope.() -> Unit)? = null,
+    label: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
+) {
+    if (LocalBookendsImplementation.current == BookendsImplementation.RemoteMaterial3) {
+        RemoteMaterial3SwitchButton(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = modifier,
+            enabled = enabled,
+            icon = icon,
+            secondaryLabel = secondaryLabel,
+            label = label,
+        )
+        return
+    }
+    val rowScope = remember { RemoteRowScope() }
+    // The click is dispatched from the native Material3 SwitchButton on the host, so no ripple or
+    // semantics role is added here.
+    RemoteCustomComponent(
+        name = BookendsSpec.SWITCH_BUTTON,
+        modifier = modifier.clickable(onCheckedChange, role = null),
+        content = {
+            RemoteSlot(BookendsSpec.SLOT_LABEL) { rowScope.label() }
+            secondaryLabel?.let { RemoteSlot(BookendsSpec.SLOT_SECONDARY_LABEL) { rowScope.it() } }
+            icon?.let { RemoteSlot(BookendsSpec.SLOT_ICON, it) }
+        },
+        properties = {
+            property(BookendsSpec.PROP_ENABLED, enabled)
+            property(BookendsSpec.PROP_CHECKED, checked)
+        },
     )
 }
 

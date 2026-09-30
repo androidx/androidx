@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
@@ -51,6 +52,7 @@ import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteA
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteButton
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteIcon
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteScreenScaffold
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteSwitchButton
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteText
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteTransformingLazyColumn
 import androidx.wear.compose.remote.integration.demos.bookends.player.WearMaterial3Plugins
@@ -64,6 +66,8 @@ import androidx.wear.compose.remote.integration.demos.bookends.player.WearMateri
 fun BookendsDemoContent() {
     val clicks = rememberMutableRemoteInt(0)
     val increment = valueChange(clicks, clicks + 1)
+    val checked = rememberMutableRemoteBoolean(false)
+    val toggle = valueChange(checked, !checked)
     val icon = remember { RemoteImageBitmap(bookendsIconBitmap()) }
 
     RemoteAppScaffold {
@@ -79,6 +83,18 @@ fun BookendsDemoContent() {
                         icon = { RemoteIcon(bitmap = icon, contentDescription = null) },
                     ) {
                         RemoteText("Tap me".rs)
+                    }
+                }
+                item {
+                    RemoteSwitchButton(
+                        checked = checked,
+                        onCheckedChange = toggle,
+                        secondaryLabel = {
+                            RemoteText(checked.select("On".rs, "Off".rs), maxLines = 1)
+                        },
+                        icon = { RemoteIcon(bitmap = icon, contentDescription = null) },
+                    ) {
+                        RemoteText("Toggle".rs)
                     }
                 }
                 items(5) { index ->

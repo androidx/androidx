@@ -34,6 +34,7 @@ internal object BookendsSpec {
     const val SCROLL_INDICATOR = "wear.m3:scroll-indicator"
     const val TRANSFORMING_LAZY_COLUMN = "wear.m3:transforming-lazy-column"
     const val BUTTON = "wear.m3:button"
+    const val SWITCH_BUTTON = "wear.m3:switch-button"
     const val ICON = "wear.m3:icon"
     const val TEXT = "wear.m3:text"
 
@@ -48,8 +49,9 @@ internal object BookendsSpec {
     const val SLOT_SECONDARY_LABEL = 4
     const val SLOT_ICON = 5
 
-    // BUTTON properties.
+    // BUTTON / SWITCH_BUTTON properties.
     const val PROP_ENABLED = 1
+    const val PROP_CHECKED = 2
 
     // ICON properties.
     const val PROP_BITMAP = 1

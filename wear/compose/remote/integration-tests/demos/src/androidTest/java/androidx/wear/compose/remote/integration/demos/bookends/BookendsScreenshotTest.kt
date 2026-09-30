@@ -59,6 +59,7 @@ import androidx.wear.compose.remote.integration.demos.bookends.material3.Bookend
 import androidx.wear.compose.remote.integration.demos.bookends.material3.LocalBookendsImplementation
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteButton
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteIcon
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteSwitchButton
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteText
 import androidx.wear.compose.remote.integration.demos.bookends.player.WearMaterial3Plugins
 import androidx.wear.compose.remote.material3.RemoteMaterialTheme
@@ -150,6 +151,58 @@ abstract class BookendsScreenshotTest(private val implementation: BookendsImplem
         runScreenshotTest {
             RemoteButton(onClick = noopAction) {
                 RemoteText("A very long label that is truncated by the button label maxLines".rs)
+            }
+        }
+    }
+
+    @Test
+    fun switchButton_checked() {
+        runScreenshotTest {
+            RemoteSwitchButton(
+                checked = true.rb,
+                onCheckedChange = noopAction,
+                secondaryLabel = { RemoteText("On".rs) },
+                icon = {
+                    RemoteIcon(
+                        bitmap = RemoteImageBitmap(bookendsIconBitmap()),
+                        contentDescription = null,
+                    )
+                },
+            ) {
+                RemoteText("Switch".rs)
+            }
+        }
+    }
+
+    @Test
+    fun switchButton_unchecked() {
+        runScreenshotTest {
+            RemoteSwitchButton(
+                checked = false.rb,
+                onCheckedChange = noopAction,
+                secondaryLabel = { RemoteText("Off".rs) },
+                icon = {
+                    RemoteIcon(
+                        bitmap = RemoteImageBitmap(bookendsIconBitmap()),
+                        contentDescription = null,
+                    )
+                },
+            ) {
+                RemoteText("Switch".rs)
+            }
+        }
+    }
+
+    @Test
+    fun switchButton_disabled() {
+        runScreenshotTest {
+            RemoteSwitchButton(
+                checked = true.rb,
+                onCheckedChange = noopAction,
+                enabled = false.rb,
+                secondaryLabel = { RemoteText("Secondary label".rs) },
+            ) {
+                RemoteText("Disabled".rs)
             }
         }
     }

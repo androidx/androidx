@@ -36,6 +36,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -51,6 +52,9 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsToggleable
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -63,6 +67,7 @@ import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteA
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteButton
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteIcon
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteScreenScaffold
+import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteSwitchButton
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteText
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteTimeText
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteTransformingLazyColumn
@@ -169,6 +174,70 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
     }
 
     @Test
+    fun switchButton_togglesStateOnClick() {
+        setBookendsContent {
+            val checked = rememberMutableRemoteBoolean(false)
+            RemoteSwitchButton(
+                checked = checked,
+                onCheckedChange = valueChange(checked, !checked),
+                secondaryLabel = { RemoteText(checked.select("On".rs, "Off".rs)) },
+            ) {
+                RemoteText("Toggle".rs)
+            }
+        }
+
+        rule.onNodeWithText("Toggle").assertIsDisplayed().assertHasClickAction()
+        rule.onNodeWithText("Off").assertIsDisplayed()
+
+        rule.onNodeWithText("Toggle").performClick()
+        rule.onNodeWithText("On").assertIsDisplayed()
+
+        rule.onNodeWithText("Toggle").performClick()
+        rule.onNodeWithText("Off").assertIsDisplayed()
+    }
+
+    @Test
+    fun switchButton_secondaryLabelAndIcon() {
+        setBookendsContent {
+            RemoteSwitchButton(
+                checked = true.rb,
+                onCheckedChange = hostAction("noop".rs, 1.rf),
+                secondaryLabel = { RemoteText("Secondary label".rs) },
+                icon = {
+                    RemoteIcon(
+                        bitmap = RemoteImageBitmap(bookendsIconBitmap()),
+                        contentDescription = "Favorite".rs,
+                    )
+                },
+            ) {
+                RemoteText("Primary label".rs)
+            }
+        }
+
+        rule.onNodeWithText("Primary label").assertIsDisplayed()
+        rule.onNodeWithText("Secondary label").assertIsDisplayed()
+        rule.onNodeWithContentDescription("Favorite").assertIsDisplayed()
+    }
+
+    @Test
+    fun switchButton_disabledDoesNotToggleState() {
+        setBookendsContent {
+            val checked = rememberMutableRemoteBoolean(false)
+            RemoteSwitchButton(
+                checked = checked,
+                onCheckedChange = valueChange(checked, !checked),
+                enabled = false.rb,
+                secondaryLabel = { RemoteText(checked.select("On".rs, "Off".rs)) },
+            ) {
+                RemoteText("Disabled switch".rs)
+            }
+        }
+
+        rule.onNodeWithText("Disabled switch").assertIsDisplayed().performClick()
+        rule.onNodeWithText("Off").assertIsDisplayed()
+    }
+
+    @Test
     fun text_rendersAllVariants() {
         setBookendsContent {
             RemoteColumn(
@@ -260,6 +329,27 @@ class WearMaterial3BookendsTest : BookendsTest(BookendsImplementation.WearMateri
     }
 
     @Test
+    fun switchButton_updatesToggleableSemanticsOnClick() {
+        setBookendsContent {
+            val checked = rememberMutableRemoteBoolean(false)
+            RemoteSwitchButton(
+                checked = checked,
+                onCheckedChange = valueChange(checked, !checked),
+            ) {
+                RemoteText("Switch".rs)
+            }
+        }
+
+        rule.onNodeWithText("Switch").assertIsToggleable().assertIsOff()
+
+        rule.onNodeWithText("Switch").performClick()
+        rule.onNodeWithText("Switch").assertIsOn()
+
+        rule.onNodeWithText("Switch").performClick()
+        rule.onNodeWithText("Switch").assertIsOff()
+    }
+
+    @Test
     fun bookendsDemoContent_rendersAndIncrementsCounterOnClick() {
         setBookendsContent { BookendsDemoContent() }
 
@@ -270,6 +360,16 @@ class WearMaterial3BookendsTest : BookendsTest(BookendsImplementation.WearMateri
         // Clicking Tap me increments the remote counter.
         rule.onNodeWithText("Tap me").performClick()
         rule.onNodeWithText("Clicks: 1").assertIsDisplayed()
+
+        // Clicking Toggle flips the switch button state on and off.
+        rule.onNodeWithText("Toggle").assertIsDisplayed().assertIsOff()
+        rule.onNodeWithText("Off").assertIsDisplayed()
+        rule.onNodeWithText("Toggle").performClick()
+        rule.onNodeWithText("Toggle").assertIsOn()
+        rule.onNodeWithText("On").assertIsDisplayed()
+        rule.onNodeWithText("Toggle").performClick()
+        rule.onNodeWithText("Toggle").assertIsOff()
+        rule.onNodeWithText("Off").assertIsDisplayed()
     }
 
     @Test

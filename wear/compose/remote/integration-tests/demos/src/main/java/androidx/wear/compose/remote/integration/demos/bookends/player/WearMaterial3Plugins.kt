@@ -53,6 +53,7 @@ import androidx.wear.compose.material3.LocalTextConfiguration
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.ScrollIndicator
 import androidx.wear.compose.material3.SurfaceTransformation
+import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TimeSource
 import androidx.wear.compose.material3.TimeText
@@ -242,6 +243,38 @@ private object ButtonPlugin : WearPlugin(BookendsSpec.BUTTON) {
     }
 }
 
+private object SwitchButtonPlugin : WearPlugin(BookendsSpec.SWITCH_BUTTON) {
+    private val Enabled = IntProperty(BookendsSpec.PROP_ENABLED, default = 1)
+    private val Checked = IntProperty(BookendsSpec.PROP_CHECKED, default = 0)
+
+    // Clicks are dispatched from the Material3 SwitchButton rather than a wrapping clickable.
+    override val handlesClick: Boolean = true
+
+    @Composable
+    override fun Content(
+        data: RcCustomComponent,
+        component: RcCustomComponent,
+        modifier: Modifier,
+    ) {
+        val enabled by component.intState(Enabled)
+        val checked by component.intState(Checked)
+        val label = component.slot(BookendsSpec.SLOT_LABEL)
+        val secondaryLabel = component.slot(BookendsSpec.SLOT_SECONDARY_LABEL)
+        val icon = component.slot(BookendsSpec.SLOT_ICON)
+
+        SwitchButton(
+            checked = checked != 0,
+            onCheckedChange = { component.onClick?.invoke() },
+            modifier = modifier.fillMaxWidth(),
+            enabled = enabled != 0,
+            transformation = LocalSurfaceTransformation.current,
+            icon = icon?.let { slot -> { slot.Children() } },
+            secondaryLabel = secondaryLabel?.let { slot -> { slot.Children() } },
+            label = { label?.Children() },
+        )
+    }
+}
+
 private object IconPlugin : WearPlugin(BookendsSpec.ICON) {
     private val BitmapId = IntProperty(BookendsSpec.PROP_BITMAP, default = -1)
     private val ContentDescription = StringProperty(BookendsSpec.PROP_CONTENT_DESCRIPTION)
@@ -316,6 +349,7 @@ internal val WearMaterial3Plugins: CustomPluginRegistry =
         ScrollIndicatorPlugin,
         TransformingLazyColumnPlugin,
         ButtonPlugin,
+        SwitchButtonPlugin,
         IconPlugin,
         TextPlugin,
     )

@@ -29,7 +29,8 @@ enum class BookendsImplementation {
     /**
      * Delegate to the equivalent `androidx.wear.compose.remote.material3` component, drawn with
      * remote primitives. Only supported by the components that have a remote-material3 equivalent
-     * ([RemoteButton], [RemoteText] and [RemoteTimeText]); the others always use [WearMaterial3].
+     * ([RemoteButton], [RemoteSwitchButton], [RemoteIcon], [RemoteText] and [RemoteTimeText]); the
+     * others always use [WearMaterial3].
      */
     RemoteMaterial3,
 }
