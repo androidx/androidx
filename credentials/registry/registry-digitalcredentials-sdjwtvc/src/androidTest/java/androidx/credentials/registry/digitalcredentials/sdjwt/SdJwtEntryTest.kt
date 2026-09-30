@@ -17,6 +17,7 @@
 package androidx.credentials.registry.digitalcredentials.sdjwt
 
 import android.graphics.Bitmap
+import androidx.credentials.registry.provider.digitalcredentials.DeduplicationInfo
 import androidx.credentials.registry.provider.digitalcredentials.VerificationEntryDisplayProperties
 import androidx.credentials.registry.provider.digitalcredentials.VerificationFieldDisplayProperties
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -77,5 +78,22 @@ class SdJwtEntryTest {
         assertThat(entry.claims).containsExactly(claim1, claim2).inOrder()
         assertThat(entry.entryDisplayPropertySet).containsExactly(ENTRY_DISPLAY_DATA)
         assertThat(entry.id).isEqualTo("id")
+        assertThat(entry.deduplicationInfo).isNull()
+    }
+
+    @Test
+    fun construction_withDeduplicationInfo_success() {
+        val deduplicationInfo = DeduplicationInfo(id = "dedup-id", rank = 10)
+        val entry =
+            SdJwtEntry(
+                verifiableCredentialType = "https://example.com/vct",
+                claims = listOf(),
+                entryDisplayPropertySet = setOf(ENTRY_DISPLAY_DATA),
+                id = "id",
+                deduplicationInfo = deduplicationInfo,
+            )
+
+        assertThat(entry.id).isEqualTo("id")
+        assertThat(entry.deduplicationInfo).isEqualTo(deduplicationInfo)
     }
 }

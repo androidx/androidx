@@ -35,8 +35,15 @@ class DigitalCredentialEntryTest {
             )
     }
 
-    class TestFormatDigitalCredentialEntry(val subProperty: String) :
-        DigitalCredentialEntry(id = "test-id", entryDisplayPropertySet = setOf(DISPLAY_DATA))
+    class TestFormatDigitalCredentialEntry(
+        val subProperty: String,
+        deduplicationInfo: DeduplicationInfo? = null,
+    ) :
+        DigitalCredentialEntry(
+            id = "test-id",
+            entryDisplayPropertySet = setOf(DISPLAY_DATA),
+            deduplicationInfo = deduplicationInfo,
+        )
 
     @Test
     fun subclassConstruction_success() {
@@ -44,6 +51,22 @@ class DigitalCredentialEntryTest {
 
         assertThat(entry.id).isEqualTo("test-id")
         assertThat(entry.entryDisplayPropertySet).containsExactly(DISPLAY_DATA)
+        assertThat(entry.deduplicationInfo).isNull()
+        assertThat(entry.subProperty).isEqualTo("subProperty")
+    }
+
+    @Test
+    fun subclassConstruction_withDeduplicationInfo_success() {
+        val deduplicationInfo = DeduplicationInfo(id = "dedup-id", rank = 5)
+        val entry =
+            TestFormatDigitalCredentialEntry(
+                "subProperty",
+                deduplicationInfo = deduplicationInfo,
+            )
+
+        assertThat(entry.id).isEqualTo("test-id")
+        assertThat(entry.entryDisplayPropertySet).containsExactly(DISPLAY_DATA)
+        assertThat(entry.deduplicationInfo).isEqualTo(deduplicationInfo)
         assertThat(entry.subProperty).isEqualTo("subProperty")
     }
 }

@@ -24,6 +24,7 @@ import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtClaim
 import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtEntry
 import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtInlineIssuanceEntry
 import androidx.credentials.registry.provider.RegistryManager
+import androidx.credentials.registry.provider.digitalcredentials.DeduplicationInfo
 import androidx.credentials.registry.provider.digitalcredentials.InlineIssuanceEntry
 import androidx.credentials.registry.provider.digitalcredentials.VerificationEntryDisplayProperties
 import androidx.credentials.registry.provider.digitalcredentials.VerificationFieldDisplayProperties
@@ -124,6 +125,7 @@ class OpenId4VpRegistryTest {
                 claims = listOf(claim1, claim2),
                 entryDisplayPropertySet = setOf(sdJwtEntryVerificationDisplay),
                 id = "sd-jwt-id",
+                deduplicationInfo = DeduplicationInfo(id = "sd-jwt-dedup-id", rank = 10),
             )
 
         val registry =
@@ -150,6 +152,8 @@ class OpenId4VpRegistryTest {
         assertThat(sdJwtArray.length()).isEqualTo(1)
         val sdJwtJson = sdJwtArray.getJSONObject(0)
         assertThat(sdJwtJson.getString("id")).isEqualTo(sdJwtEntry.id)
+        assertThat(sdJwtJson.getString("dedupId")).isEqualTo(sdJwtEntry.deduplicationInfo!!.id)
+        assertThat(sdJwtJson.getInt("rank")).isEqualTo(sdJwtEntry.deduplicationInfo!!.rank)
 
         val sdJwtDisplay = sdJwtJson.getJSONObject("display").getJSONObject("verification")
         assertThat(sdJwtDisplay.getString("title")).isEqualTo(sdJwtEntryVerificationDisplay.title)
@@ -392,6 +396,8 @@ class OpenId4VpRegistryTest {
         assertThat(mdocArray.length()).isEqualTo(1)
         val mdocJson = mdocArray.getJSONObject(0)
         assertThat(mdocJson.getString("id")).isEqualTo(mdocEntry.id)
+        assertThat(mdocJson.has("dedupId")).isFalse()
+        assertThat(mdocJson.has("rank")).isFalse()
 
         val mdocDisplay = mdocJson.getJSONObject("display").getJSONObject("verification")
         assertThat(mdocDisplay.getString("title")).isEqualTo(mdocEntryVerificationDisplay.title)
@@ -403,6 +409,38 @@ class OpenId4VpRegistryTest {
         // Assert inline issuance
         assertThat(json.getJSONObject("credentials").getJSONObject("issuance").length())
             .isEqualTo(0)
+    }
+
+    @Test
+    fun construction_singleMdoc_withDeduplicationInfo() {
+        val mdocEntryVerificationDisplay =
+            VerificationEntryDisplayProperties("MDOC Credential", "For testing", TEST_ICON_1)
+        val mdocEntry =
+            MdocEntry(
+                docType = "example.docType.1",
+                fields = emptyList(),
+                entryDisplayPropertySet = setOf(mdocEntryVerificationDisplay),
+                id = "mdocid",
+                deduplicationInfo = DeduplicationInfo(id = "mdoc-dedup-id", rank = 7),
+            )
+
+        val registry =
+            OpenId4VpRegistry.create(
+                context = context,
+                credentialEntries = listOf(mdocEntry),
+                id = "registry_id",
+            )
+
+        val (json, _) = parseCredentialBytes(registry.credentials)
+        val mdocJson =
+            json
+                .getJSONObject("credentials")
+                .getJSONObject("mso_mdoc")
+                .getJSONArray("example.docType.1")
+                .getJSONObject(0)
+        assertThat(mdocJson.getString("id")).isEqualTo(mdocEntry.id)
+        assertThat(mdocJson.getString("dedupId")).isEqualTo(mdocEntry.deduplicationInfo!!.id)
+        assertThat(mdocJson.getInt("rank")).isEqualTo(mdocEntry.deduplicationInfo!!.rank)
     }
 
     @Test
