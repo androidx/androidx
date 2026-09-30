@@ -22,7 +22,6 @@ import androidx.collection.MutableIntSet
 import androidx.collection.mutableIntSetOf
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
@@ -33,6 +32,7 @@ import androidx.compose.remote.player.compose.embedded.LocalComponentValueStateM
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.getFloatExpressionsReflection
 import androidx.compose.remote.player.compose.embedded.getValuesReflection
+import androidx.compose.remote.player.compose.embedded.isTimeVariable
 import androidx.compose.remote.player.compose.embedded.mapEasing
 import androidx.compose.remote.player.compose.embedded.state.expressionDependsOnAnimation
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
@@ -145,14 +145,6 @@ private fun rememberGraphicsLayerFloatAsState(source: Float): State<Float> {
         state
     }
 }
-
-private fun isTimeVariable(id: Int): Boolean =
-    id == RemoteContext.ID_CONTINUOUS_SEC ||
-        id == RemoteContext.ID_TIME_IN_SEC ||
-        id == RemoteContext.ID_TIME_IN_MIN ||
-        id == RemoteContext.ID_TIME_IN_HR ||
-        id == RemoteContext.ID_ANIMATION_TIME ||
-        id == RemoteContext.ID_EPOCH_SECOND
 
 private fun expressionDependsOnTime(
     expressions: Map<Int, FloatExpression>,

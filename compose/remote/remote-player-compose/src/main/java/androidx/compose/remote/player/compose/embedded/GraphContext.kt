@@ -197,6 +197,7 @@ internal class GraphContext(
             realState.isIntegerOverridden(id) -> super.getInteger(id)
             isComputed(id) -> (computedValue(id) as? Number)?.toInt() ?: 0
             id == RemoteContext.ID_EPOCH_SECOND -> epochSecondState.intValue
+            isTimeVariable(id) -> timeFloatState(id).value.toInt()
             else -> super.getInteger(id)
         }
 

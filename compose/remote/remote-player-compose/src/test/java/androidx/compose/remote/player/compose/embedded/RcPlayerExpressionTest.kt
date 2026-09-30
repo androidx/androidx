@@ -25,12 +25,14 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatExpression
+import androidx.compose.remote.core.operations.IntegerExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.CanvasOperations
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess
+import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import androidx.compose.remote.player.compose.embedded.state.AddOp
@@ -730,5 +732,79 @@ class RcPlayerExpressionTest {
         // Reserved system variable ID (10 = ID_OFFSET_TO_UTC) is not remapped or fixed;
         // GraphContext continues resolving the system clock variable (0.0f in UTC).
         assertThat(state.graphContext.getFloat(RemoteContext.ID_OFFSET_TO_UTC)).isEqualTo(0f)
+    }
+
+    @Test
+    fun testDiscreteTimeVariablesResolveViaGetIntegerAndIntegerExpression() {
+        val realState = SnapshotRemoteComposeState()
+        // 2026-03-15T12:30:45Z is a Sunday (ISO day-of-week = 7), day-of-year = 74
+        val baseInstant = Instant.parse("2026-03-15T12:30:45.123Z")
+        val clock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.ofHours(2)))
+        // In +02:00, local time is 2026-03-15T14:30:45.123+02:00:
+        // hour = 14, timeInMin = 14 * 60 + 30 = 870, timeInSec = 30 * 60 + 45 = 1845
+        val exprId = 100
+        // IntegerExpression: ID_TIME_IN_SEC + 10
+        // mask bit 0 = ID (1), bit 1 = literal 10 (0), bit 2 = operator I_ADD (1) -> mask = 0b101 =
+        // 5
+        val intExpr =
+            IntegerExpression(
+                exprId,
+                0b101,
+                intArrayOf(RemoteContext.ID_TIME_IN_SEC, 10, IntegerExpressionEvaluator.I_ADD),
+            )
+        val computedOps = mutableIntObjectMapOf<Operation>().apply { put(exprId, intExpr) }
+        val graph = GraphContext(realState, computedOps, clock = clock)
+
+        assertThat(graph.getInteger(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1845)
+        assertThat(graph.getInteger(RemoteContext.ID_TIME_IN_MIN)).isEqualTo(870)
+        assertThat(graph.getInteger(RemoteContext.ID_TIME_IN_HR)).isEqualTo(14)
+        assertThat(graph.getInteger(RemoteContext.ID_CALENDAR_MONTH)).isEqualTo(3)
+        assertThat(graph.getInteger(RemoteContext.ID_DAY_OF_MONTH)).isEqualTo(15)
+        assertThat(graph.getInteger(RemoteContext.ID_WEEK_DAY)).isEqualTo(7)
+        assertThat(graph.getInteger(RemoteContext.ID_DAY_OF_YEAR)).isEqualTo(74)
+        assertThat(graph.getInteger(RemoteContext.ID_YEAR)).isEqualTo(2026)
+        assertThat(graph.getInteger(RemoteContext.ID_OFFSET_TO_UTC)).isEqualTo(7200)
+        assertThat(graph.getInteger(RemoteContext.ID_EPOCH_SECOND))
+            .isEqualTo(baseInstant.epochSecond.toInt())
+        assertThat(graph.getInteger(exprId)).isEqualTo(1855)
+
+        // Advance by 5 seconds:
+        graph.updateTime(5000f)
+        assertThat(graph.getInteger(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1850)
+        assertThat(graph.getInteger(exprId)).isEqualTo(1860)
+    }
+
+    @Test
+    fun preprocessDocument_integerExpressionWithTimeVariable_setsHasDiscreteTime() {
+        val doc = CoreDocument()
+        doc.getOperationsReflection()
+            .add(
+                IntegerExpression(
+                    100,
+                    0b101,
+                    intArrayOf(RemoteContext.ID_TIME_IN_SEC, 1, IntegerExpressionEvaluator.I_ADD),
+                )
+            )
+
+        val preprocessed = preprocessDocument(doc)
+        assertThat(preprocessed.hasDiscreteTime).isTrue()
+        assertThat(preprocessed.hasContinuousTime).isFalse()
+    }
+
+    @Test
+    fun preprocessDocument_floatExpressionWithContinuousTimeVariable_setsHasContinuousTime() {
+        val doc = CoreDocument()
+        doc.getOperationsReflection()
+            .add(
+                FloatExpression(
+                    100,
+                    floatArrayOf(Utils.asNan(RemoteContext.ID_CONTINUOUS_SEC)),
+                    null,
+                )
+            )
+
+        val preprocessed = preprocessDocument(doc)
+        assertThat(preprocessed.hasContinuousTime).isTrue()
+        assertThat(preprocessed.hasDiscreteTime).isFalse()
     }
 }

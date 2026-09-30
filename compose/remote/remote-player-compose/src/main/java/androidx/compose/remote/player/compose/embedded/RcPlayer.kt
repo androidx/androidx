@@ -58,6 +58,7 @@ import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.ImageAttribute
+import androidx.compose.remote.core.operations.IntegerExpression
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.ParticlesCompare
 import androidx.compose.remote.core.operations.ParticlesLoop
@@ -67,6 +68,7 @@ import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
 import androidx.compose.remote.core.operations.TextFromFloat
+import androidx.compose.remote.core.operations.TextLookupInt
 import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.TimeAttribute
@@ -670,6 +672,17 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
     var hasContinuousTime = false
     var hasDiscreteTime = false
 
+    val timeListenerCollector =
+        object : StoreBackedRemoteContext(document.clock) {
+            override fun listensTo(id: Int, variableSupport: VariableSupport) {
+                if (isContinuousTimeVariable(id)) {
+                    hasContinuousTime = true
+                } else if (isDiscreteTimeVariable(id)) {
+                    hasDiscreteTime = true
+                }
+            }
+        }
+
     fun visitOp(op: Operation) {
         val definedId =
             when (op) {
@@ -688,8 +701,19 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
             )
         }
 
-        if (op is TextFromFloat && Utils.isVariable(op.mValue)) {
-            val id = Utils.idFromNan(op.mValue)
+        // Collect direct references to continuous or discrete time variables from expressions and
+        // variable-reading operations so we know which clock loop (if any) needs to run.
+        if (
+            op is FloatExpression ||
+                op is IntegerExpression ||
+                op is TextFromFloat ||
+                op is TextLookupInt ||
+                op is ComponentVisibilityOperation
+        ) {
+            op.registerListening(timeListenerCollector)
+        } else if (op is StateLayout) {
+            // StateLayout does not implement VariableSupport, so inspect its indexId directly.
+            val id = op.indexIdReflection
             if (isContinuousTimeVariable(id)) {
                 hasContinuousTime = true
             } else if (isDiscreteTimeVariable(id)) {
@@ -799,16 +823,6 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
             parent?.let { targetId = it.id }
         }
         componentValueMap.getOrPut(targetId) { ArrayList() }.add(op)
-    }
-
-    val floatExpressions = document.getFloatExpressionsReflection().values
-    for (expr in floatExpressions) {
-        if (isExpressionContinuousTimeDependent(expr)) {
-            hasContinuousTime = true
-        }
-        if (isExpressionDiscreteTimeDependent(expr)) {
-            hasDiscreteTime = true
-        }
     }
 
     return DocumentPreprocessResult(
