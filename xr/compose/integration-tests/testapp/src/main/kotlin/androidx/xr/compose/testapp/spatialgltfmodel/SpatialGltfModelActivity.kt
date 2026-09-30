@@ -326,9 +326,9 @@ class SpatialGltfModelActivity : ComponentActivity() {
             val deltaRot = event.previousPose.rotation.inverse * event.pose.rotation
 
             with(density) {
-                state.customX += pixelDensity.convertMetersToPixels(deltaX).toDp()
-                state.customY += pixelDensity.convertMetersToPixels(deltaY).toDp()
-                state.customZ += pixelDensity.convertMetersToPixels(deltaZ).toDp()
+                state.customX += deltaX.toDp()
+                state.customY += deltaY.toDp()
+                state.customZ += deltaZ.toDp()
             }
             state.customRotation *= deltaRot
         }
