@@ -87,7 +87,7 @@ class Animation : ComponentActivity() {
         MainPanelContent(
             onFadeInClick = {
                 coroutineScope.launch {
-                    animatedAlpha.snapTo(0.5f)
+                    animatedAlpha.snapTo(0.1f)
                     animatedAlpha.animateTo(1.0f, animationSpec = tween(2000))
                 }
             }
