@@ -110,7 +110,7 @@ public class RemoteBitmapDecoder {
                         throw new RuntimeException("TYPE_PNG is not allowed for ENCODING_INLINE");
                 }
                 break;
-            case BitmapData.ENCODING_FILE: {
+            case BitmapData.ENCODING_FILE:
                 if (!Limits.ENABLE_IMAGE_FILES) {
                     throw new RuntimeException("File image not supported [" + imageId + "]");
                 }
@@ -133,8 +133,7 @@ public class RemoteBitmapDecoder {
                     throw new RuntimeException(e);
                 }
                 break;
-            }
-            case BitmapData.ENCODING_URL: {
+            case BitmapData.ENCODING_URL:
                 if (!Limits.ENABLE_IMAGE_URLS) {
                     throw new RuntimeException("URL image not supported [" + imageId + "]");
                 }
@@ -156,7 +155,6 @@ public class RemoteBitmapDecoder {
                     throw new RuntimeException(e);
                 }
                 break;
-            }
             case BitmapData.ENCODING_EMPTY:
                 image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
                 break;

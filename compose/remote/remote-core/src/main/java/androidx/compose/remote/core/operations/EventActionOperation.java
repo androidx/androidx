@@ -179,6 +179,9 @@ public class EventActionOperation extends Operation implements EventHandler, Con
 
         if (hasData) {
             int dataLen = dataIds.length;
+            if (dataLen > Limits.MAX_FUNCTION_ARGUMENTS) {
+                throw new RuntimeException("Too many data IDs passed to EventHandler");
+            }
             buffer.writeInt(dataLen);
             for (int data : dataIds) {
                 buffer.writeInt(data);
@@ -217,6 +220,9 @@ public class EventActionOperation extends Operation implements EventHandler, Con
         int[] dataIds = null;
         if (CommonFlagsUtil.hasData(commonFlags)) {
             int dataLen = buffer.readInt();
+            if (dataLen < 0 || dataLen > Limits.MAX_FUNCTION_ARGUMENTS) {
+                throw new RuntimeException("Too many data IDs: " + dataLen);
+            }
             dataIds = new int[dataLen];
             for (int i = 0; i < dataLen; i++) {
                 dataIds[i] = buffer.readInt();
@@ -226,7 +232,7 @@ public class EventActionOperation extends Operation implements EventHandler, Con
         float[] condition = null;
         if (CommonFlagsUtil.isConditional(commonFlags)) {
             int len = buffer.readInt();
-            if (len > Limits.MAX_EXPRESSION_SIZE) {
+            if (len < 0 || len > Limits.MAX_EXPRESSION_SIZE) {
                 throw new RuntimeException("Float expression too long");
             }
             condition = new float[len];
