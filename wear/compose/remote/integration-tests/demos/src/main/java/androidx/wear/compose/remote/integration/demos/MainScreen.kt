@@ -287,6 +287,14 @@ fun MainScreen(
                         },
                     )
                 }
+                item {
+                    MenuButton(
+                        "Gesture Hint",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteOneHandedGestureDemosScreen.route)
+                        },
+                    )
+                }
             }
         }
     }
