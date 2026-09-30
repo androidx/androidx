@@ -769,7 +769,17 @@ private val MinTouchTargetSizeForHandles
  *   innerTextField exactly once.
  */
 @Deprecated(
-    "This overload of BasicTextField is deprecated in favor of the overload that uses TextFieldState to hoist its state."
+    "Use the BasicTextField(state: TextFieldState, ...) overload instead. To migrate: " +
+        "create a TextFieldState via rememberTextFieldState(initialText) in composition or " +
+        "TextFieldState(initialText) in a state holder; read text from state.text and update " +
+        "it programmatically via state.edit { ... } or state.setTextAndPlaceCursorAtEnd(text); " +
+        "observe text changes for side effects via snapshotFlow { state.text }.collect { ... }; " +
+        "and replace onValueChange input filtering with InputTransformation, visualTransformation " +
+        "with OutputTransformation (or BasicSecureTextField for passwords), singleLine/maxLines/" +
+        "minLines with TextFieldLineLimits, decorationBox with TextFieldDecorator, and " +
+        "keyboardActions with KeyboardActionHandler. See " +
+        "https://developer.android.com/develop/ui/compose/text/migrate-state-based for full " +
+        "migration guidance."
 )
 @Composable
 public fun BasicTextField(
@@ -930,7 +940,18 @@ public fun BasicTextField(
  */
 @Suppress("DeprecatedCallableAddReplaceWith")
 @Deprecated(
-    "This overload of BasicTextField is deprecated in favor of the overload that uses TextFieldState to hoist its state."
+    "Use the BasicTextField(state: TextFieldState, ...) overload instead. To migrate: " +
+        "create a TextFieldState via rememberTextFieldState(initialText, initialSelection) in " +
+        "composition or TextFieldState(initialText, initialSelection) in a state holder; read " +
+        "text and selection from state.text and state.selection, and update them programmatically " +
+        "via state.edit { ... } or state.setTextAndPlaceCursorAtEnd(text); observe changes for " +
+        "side effects via snapshotFlow { state.text }.collect { ... }; and replace onValueChange " +
+        "input filtering with InputTransformation, visualTransformation with OutputTransformation " +
+        "(or BasicSecureTextField for passwords), singleLine/maxLines/minLines with " +
+        "TextFieldLineLimits, decorationBox with TextFieldDecorator, and keyboardActions with " +
+        "KeyboardActionHandler. See " +
+        "https://developer.android.com/develop/ui/compose/text/migrate-state-based for full " +
+        "migration guidance."
 )
 @Composable
 public fun BasicTextField(
