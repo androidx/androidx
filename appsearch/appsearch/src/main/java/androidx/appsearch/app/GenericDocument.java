@@ -372,9 +372,15 @@ public class GenericDocument {
      */
     public @Nullable Object getProperty(@NonNull String path) {
         Objects.requireNonNull(path);
-        Object rawValue =
-                getRawPropertyFromRawDocument(new PropertyPath(path), /*pathIndex=*/ 0,
-                        mDocumentParcel.getPropertyMap());
+        Map<String, PropertyParcel> propertyMap = mDocumentParcel.getPropertyMap();
+        Object rawValue;
+        if (isSimplePropertyName(path)) {
+            PropertyParcel propertyParcel = propertyMap.get(path);
+            rawValue = propertyParcel != null ? propertyParcel.getValues() : null;
+        } else {
+            rawValue = getRawPropertyFromRawDocument(
+                    new PropertyPath(path), /*pathIndex=*/ 0, propertyMap);
+        }
 
         // Unpack the raw value into the types the user expects, if required.
         if (rawValue instanceof GenericDocumentParcel) {
@@ -402,6 +408,24 @@ public class GenericDocument {
 
         // Otherwise the raw property is the same as the final property and needs no transformation.
         return rawValue;
+    }
+
+    /**
+     * Returns {@code true} if {@code path} is a direct property name rather than a nested or
+     * indexed property path (i.e. non-empty and contains no {@code '.'}, {@code '['}, or
+     * {@code ']'} characters).
+     */
+    private static boolean isSimplePropertyName(@NonNull String path) {
+        if (path.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < path.length(); i++) {
+            char c = path.charAt(i);
+            if (c == '.' || c == '[' || c == ']') {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

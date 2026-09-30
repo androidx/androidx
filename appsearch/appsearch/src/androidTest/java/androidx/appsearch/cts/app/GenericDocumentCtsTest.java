@@ -730,6 +730,8 @@ public class GenericDocumentCtsTest {
     @Test
     public void testNestedProperties_arrayTypesInvalidPath() {
         GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1").build();
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyString(""));
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyString("]"));
         assertThrows(IllegalArgumentException.class, () -> doc.getPropertyString("."));
         assertThrows(IllegalArgumentException.class, () -> doc.getPropertyDocument("."));
         assertThrows(IllegalArgumentException.class, () -> doc.getPropertyBoolean("."));
