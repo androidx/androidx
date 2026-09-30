@@ -23,7 +23,15 @@ import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.yield
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -324,7 +332,7 @@ class BackupDeviceShellTest {
     }
 
     @Test
-    fun installPackageThrowsWhenPmInstallFails() {
+    fun installPackageRemovesTheStagedApkWhenPmInstallFails() {
         device.onShell { command ->
             if (command.startsWith("pm install")) {
                 shellOutput("Failure [INSTALL_FAILED_OLDER_SDK]\n")
@@ -339,6 +347,70 @@ class BackupDeviceShellTest {
                 runBlocking { shell.installPackage(apk, emptyList()) }
             }
         assertEquals("Failed to install APK: Failure [INSTALL_FAILED_OLDER_SDK]", e.message)
+        assertEquals("rm -f -- '$STAGED_APK'", device.commands.last())
+    }
+
+    @Test
+    fun withCleanupCleansUpAfterAFailure() {
+        var cleanedUp = false
+
+        assertFailsWith<IOException> {
+            runBlocking { withCleanup(cleanup = { cleanedUp = true }) { throw IOException() } }
+        }
+        assertTrue(cleanedUp)
+    }
+
+    /** A cleanup that fails for the same reason as the block must not hide the root cause. */
+    @Test
+    fun withCleanupKeepsTheBlockFailureWhenCleanupAlsoFails() {
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking {
+                    withCleanup(cleanup = { throw IOException("device offline") }) {
+                        throw IOException("bmgr restore failed")
+                    }
+                }
+            }
+        assertEquals("bmgr restore failed", e.message)
+        assertEquals(listOf("device offline"), e.suppressed.map { it.message })
+    }
+
+    @Test
+    fun withCleanupRunsASuspendingCleanupWhenCancelled() = runBlocking {
+        var cleanedUp = false
+        val job =
+            launch(start = CoroutineStart.UNDISPATCHED) {
+                withCleanup(
+                    cleanup = {
+                        yield()
+                        cleanedUp = true
+                    }
+                ) {
+                    awaitCancellation()
+                }
+            }
+
+        job.cancelAndJoin()
+
+        assertTrue(cleanedUp)
+    }
+
+    @Test
+    fun withCleanupRunsASuspendingCleanupWhenCancelledAfterTheBlockSucceeds() = runBlocking {
+        var cleanedUp = false
+        launch {
+            withCleanup(
+                cleanup = {
+                    yield()
+                    cleanedUp = true
+                }
+            ) {
+                currentCoroutineContext().job.cancel()
+            }
+        }
+            .join()
+
+        assertTrue(cleanedUp)
     }
 
     @Test
