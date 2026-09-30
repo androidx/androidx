@@ -302,7 +302,7 @@ open class GeospatialProjectedActivity : ComponentActivity() {
                 val comparisonMessage = testGeospatialConversions(geoPose)
 
                 var text =
-                    "\nGeospatial GeospatialState: ${getGeospatialStateMessage(geospatialState.geospatialTrackingState)}"
+                    "\nGeospatial TrackingState: ${getGeospatialStateMessage(geospatialState.geospatialTrackingState)}"
                 text += "\nGeospatialPose: Lat/Lon: ${lat.fmt(6)}, ${lon.fmt(6)}, Alt: ${alt.fmt()}"
                 text += "\nEUS Quat: ${eus.x.fmt()}, ${eus.y.fmt()}, ${eus.z.fmt()}, ${eus.w.fmt()}"
                 text += "\nVPS availability: $vpsStatusMessage"
