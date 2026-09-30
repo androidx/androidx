@@ -316,7 +316,7 @@ internal class FakeSelectable : Selectable {
 
     var fakeSelectAllSelection: Selection? = FakeSelectAllSelection
 
-    override fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder) {
+    override fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder, isLast: Boolean) {
         builder.appendInfo(
             SELECTABLE_KEY,
             rawStartHandleOffset,
