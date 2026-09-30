@@ -76,4 +76,6 @@ sealed class Screen(val route: String) {
     object RemoteSliderDemosScreen : Screen("remoteSliderDemosScreen")
 
     object RemoteStepperDemosScreen : Screen("remoteStepperDemosScreen")
+
+    object RemoteOneHandedGestureDemosScreen : Screen("remoteOneHandedGestureDemosScreen")
 }
