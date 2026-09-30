@@ -188,4 +188,32 @@ class EncoderProfilesProviderResolverTest {
             )
             .isTrue()
     }
+
+    @Test
+    fun resolve_hlg10Supported_softwareEncoder_doesNotAddHdrProfile() {
+        val softwareFinder = VideoEncoderInfo.Finder {
+            FakeVideoEncoderInfo(isHardwareAccelerated = false)
+        }
+        val cameraInfo =
+            FakeCameraInfoInternal().apply {
+                encoderProfilesProvider =
+                    FakeEncoderProfilesProvider.Builder().add(QUALITY_1080P, PROFILES_1080P).build()
+                supportedDynamicRanges = setOf(DynamicRange.HLG_10_BIT)
+            }
+
+        val provider =
+            EncoderProfilesProviderResolver.resolve(
+                cameraInfo,
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE,
+                QUALITY_SOURCE_REGULAR,
+                softwareFinder,
+            )
+
+        assertThat(
+                requireNotNull(provider.getAll(QUALITY_1080P)).videoProfiles.any {
+                    it.hdrFormat == VideoProfile.HDR_HLG
+                }
+            )
+            .isFalse()
+    }
 }
