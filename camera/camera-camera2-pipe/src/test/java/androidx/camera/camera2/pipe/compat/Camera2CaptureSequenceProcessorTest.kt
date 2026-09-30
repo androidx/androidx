@@ -179,11 +179,10 @@ internal class Camera2CaptureSequenceProcessorTest {
         val request = requestBuilder.build()
         assertThat(request).isNotNull()
 
-        // TODO: Add support for checking parameters when robolectric supports it.
-        // assertThat(request[CaptureRequest.CONTROL_AE_MODE])
-        //    .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
-        // assertThat(request[CaptureRequest.CONTROL_AF_MODE])
-        //    .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+        assertThat(request[CaptureRequest.CONTROL_AE_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
+        assertThat(request[CaptureRequest.CONTROL_AF_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
     }
 
     @Test
@@ -230,6 +229,11 @@ internal class Camera2CaptureSequenceProcessorTest {
         assertThat(result).isGreaterThan(0)
         assertThat(fakeCaptureSessionWrapper.lastCapture).hasSize(1)
         assertThat(fakeCaptureSessionWrapper.lastRepeating).isNull()
+
+        assertThat(fakeCaptureSessionWrapper.lastCapture!![0][CaptureRequest.CONTROL_AE_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
+        assertThat(fakeCaptureSessionWrapper.lastCapture!![0][CaptureRequest.CONTROL_AF_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
 
         // TODO: Add support for checking parameters when robolectric supports it.
     }
@@ -366,6 +370,11 @@ internal class Camera2CaptureSequenceProcessorTest {
         assertThat(result).isGreaterThan(0)
         assertThat(fakeCaptureSessionWrapper.lastCapture).hasSize(1)
         assertThat(fakeCaptureSessionWrapper.lastRepeating).isNull()
+
+        assertThat(fakeCaptureSessionWrapper.lastCapture!![0][CaptureRequest.CONTROL_AE_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
+        assertThat(fakeCaptureSessionWrapper.lastCapture!![0][CaptureRequest.CONTROL_AF_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
 
         // TODO: Add support for checking parameters when robolectric supports it.
     }
