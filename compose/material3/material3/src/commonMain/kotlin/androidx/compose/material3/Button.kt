@@ -230,6 +230,8 @@ public fun Button(
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text, icon or image.
+ *
+ * @material3expressive
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -407,6 +409,8 @@ public fun ElevatedButton(
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text, icon or image.
+ *
+ * @material3expressive
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -558,6 +562,8 @@ public fun FilledTonalButton(
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text, icon or image.
+ *
+ * @material3expressive
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -707,6 +713,8 @@ public fun OutlinedButton(
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text, icon or image.
+ *
+ * @material3expressive
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -858,6 +866,8 @@ public fun TextButton(
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text.
+ *
+ * @material3expressive
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
