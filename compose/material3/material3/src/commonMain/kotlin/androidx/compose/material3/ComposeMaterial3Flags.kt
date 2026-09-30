@@ -103,8 +103,8 @@ public object ComposeMaterial3Flags {
      * This flag affects [BottomSheet] and [ModalBottomSheet].
      *
      * When true (default), BottomSheet will always include [SheetValue.PartiallyExpanded] if
-     * provided in [SheetState.enabledValues], converging it with [SheetValue.Expanded] for small
-     * sheets.
+     * provided in [SheetState.enabledValues], which will be half the size of the sheet content, at
+     * most half of the screen size.
      *
      * When false, the legacy auto-exclusion logic is enabled.
      */
