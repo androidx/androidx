@@ -17,8 +17,7 @@
 package androidx.test.backup.host
 
 import com.android.adblib.AdbSession
-import com.android.adblib.DeviceSelector
-import com.android.adblib.shellAsText
+import com.android.backup.BackupResult
 import com.android.backup.BackupService as Service
 import com.android.backup.BackupType as ServiceType
 import com.android.tools.environment.Logger as PlatformLogger
@@ -30,6 +29,8 @@ import java.nio.file.Path
 import java.time.Duration
 import java.util.Locale
 import java.util.logging.Logger
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.guava.future
 import kotlinx.coroutines.withTimeoutOrNull
@@ -47,13 +48,11 @@ internal class BackupRestoreControllerImpl(
 
     private val logger = Logger.getLogger(BackupRestoreControllerImpl::class.java.name)
 
+    private val shell = BackupDeviceShell(adbSession, serialNumber)
+
     private val backupService: Service by lazy {
         val platformLogger = PlatformLogger.getInstance(BackupRestoreControllerImpl::class.java)
         Service.getInstance(adbSession, platformLogger, MIN_GMS_VERSION)
-    }
-
-    private val componentRegex by lazy {
-        """\b${Regex.escape(applicationId)}/[a-zA-Z0-9._${'$'}]+\b""".toRegex()
     }
 
     override suspend fun runBackupRestoreFlow(
@@ -156,21 +155,15 @@ internal class BackupRestoreControllerImpl(
         timeout: Duration,
         waitForDebugger: Boolean,
     ): BackupActionResult {
-        val cmd = StringBuilder("am instrument -w")
-        val instrumentationArgs =
-            BackupActionWireProtocol.instrumentationArgs(actionClassName, args, waitForDebugger)
-        for ((key, value) in instrumentationArgs) {
-            cmd.append(" -e ").append(escapeShellKey(key)).append(" ").append(escapeShellArg(value))
-        }
-        cmd.append(" ").append(BackupActionWireProtocol.runnerComponent(applicationId))
-
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
-        @Suppress("AdbDeviceServicesCommand")
         val stdout =
-            adbSession.deviceServices
-                .shellAsText(device = selector, command = cmd.toString())
-                .stdout
-
+            shell.instrument(
+                BackupActionWireProtocol.runnerComponent(applicationId),
+                BackupActionWireProtocol.instrumentationArgs(
+                    actionClassName,
+                    args,
+                    waitForDebugger,
+                ),
+            )
         val report = BackupRunnerReport.parse(stdout)
         val payloadPath = report.payloadPath
         val payloadJson =
@@ -200,122 +193,66 @@ internal class BackupRestoreControllerImpl(
 
     /** Reads the payload the runner wrote to [devicePath], then deletes that file. */
     private suspend fun pullOverflowPayload(devicePath: String): String {
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
         val localFile = File.createTempFile("overflow_", ".json")
         try {
-            adbSession.channelFactory.createFile(localFile.toPath()).use { outputChannel ->
-                adbSession.deviceServices.sync(selector).use { syncServices ->
-                    syncServices.recv(devicePath, outputChannel, null)
-                }
-            }
-            @Suppress("AdbDeviceServicesCommand")
-            adbSession.deviceServices.shellAsText(
-                selector,
-                "rm -f -- ${escapeShellArg(devicePath)}",
-            )
+            shell.pullFile(devicePath, localFile.toPath())
+            shell.removeFile(devicePath)
             return BackupRunnerReport.parseOverflowFile(localFile.readText())
         } finally {
             localFile.delete()
         }
     }
 
-    private suspend fun runLocalBackupSimulation(outputDir: File): File {
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
+    /** Backs up the package to the local transport and returns a placeholder archive. */
+    private suspend fun runLocalBackup(outputDir: Path): File {
         logger.info("Executing robust local transport backup simulation...")
-        unstopPackage()
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, "bmgr enable true")
-
-        @Suppress("AdbDeviceServicesCommand")
-        val transportsOutput =
-            adbSession.deviceServices.shellAsText(selector, "bmgr list transports").stdout
-        val originalTransport =
-            transportsOutput
-                .lineSequence()
-                .firstOrNull { it.trim().startsWith("*") }
-                ?.replace("*", "")
-                ?.trim() ?: "com.google.android.gms/.backup.BackupTransportService"
-
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(
-            selector,
-            "bmgr transport com.android.localtransport/.LocalTransport",
-        )
-
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, "bmgr backupnow @pm@")
-
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, "bmgr backupnow $applicationId")
-
-        if (originalTransport != "com.android.localtransport/.LocalTransport") {
-            @Suppress("AdbDeviceServicesCommand")
-            adbSession.deviceServices.shellAsText(selector, "bmgr transport $originalTransport")
+        shell.unstopPackage(applicationId)
+        shell.exec("bmgr enable true")
+        withLocalTransport {
+            shell.exec("bmgr backupnow @pm@")
+            shell.exec("bmgr backupnow ${BackupDeviceShell.quoteIfNeeded(applicationId)}")
         }
-
-        val fallbackFile = File(outputDir, "backup_local_device.zip")
-        if (fallbackFile.exists()) {
-            fallbackFile.delete()
-        }
-        fallbackFile.deleteOnExit()
-        fallbackFile.parentFile?.mkdirs()
-        java.util.zip.ZipOutputStream(fallbackFile.outputStream()).use { zip ->
-            zip.putNextEntry(java.util.zip.ZipEntry("token.txt"))
+        val archive = prepareBackupFile(outputDir, BackupTransportMode.LOCAL)
+        ZipOutputStream(archive.outputStream()).use { zip ->
+            zip.putNextEntry(ZipEntry("token.txt"))
             zip.write("1".toByteArray())
             zip.closeEntry()
         }
-        return fallbackFile
+        return archive
     }
 
-    private suspend fun runLocalRestoreSimulation() {
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
+    /** Restores the package from the local transport and waits for the restore pass to end. */
+    private suspend fun runLocalRestore() {
         logger.info("Executing robust local transport restore simulation...")
-        @Suppress("AdbDeviceServicesCommand")
-        val transportsOutput =
-            adbSession.deviceServices.shellAsText(selector, "bmgr list transports").stdout
-        val originalTransport =
-            transportsOutput
-                .lineSequence()
-                .firstOrNull { it.trim().startsWith("*") }
-                ?.replace("*", "")
-                ?.trim() ?: "com.google.android.gms/.backup.BackupTransportService"
-
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(
-            selector,
-            "bmgr transport com.android.localtransport/.LocalTransport",
-        )
-
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, "bmgr restore 1 $applicationId")
-
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, "bmgr run")
-
-        // Poll BackupManagerService until the asynchronous restore pass completes cleanly
-        waitForRestorePassCompletion(selector)
-
-        if (originalTransport != "com.android.localtransport/.LocalTransport") {
-            @Suppress("AdbDeviceServicesCommand")
-            adbSession.deviceServices.shellAsText(selector, "bmgr transport $originalTransport")
+        withLocalTransport {
+            shell.exec("bmgr restore 1 ${BackupDeviceShell.quoteIfNeeded(applicationId)}")
+            shell.exec("bmgr run")
+            waitForRestorePassCompletion(RESTORE_TIMEOUT)
         }
     }
 
-    private suspend fun isRestoreInProgress(selector: DeviceSelector): Boolean {
-        @Suppress("AdbDeviceServicesCommand")
-        val dumpsys = adbSession.deviceServices.shellAsText(selector, "dumpsys backup").stdout
-        return RESTORE_SESSION_REGEX.containsMatchIn(dumpsys) ||
-            RESTORE_IN_PROGRESS_REGEX.containsMatchIn(dumpsys)
+    /** Runs [block] with the local transport selected, then selects the original one again. */
+    private suspend fun withLocalTransport(block: suspend () -> Unit) {
+        val originalTransport =
+            shell
+                .exec("bmgr list transports")
+                .stdout
+                .lineSequence()
+                .firstOrNull { it.trim().startsWith("*") }
+                ?.replace("*", "")
+                ?.trim() ?: DEFAULT_TRANSPORT
+        shell.exec("bmgr transport $LOCAL_TRANSPORT")
+        block()
+        if (originalTransport != LOCAL_TRANSPORT) {
+            shell.exec("bmgr transport ${BackupDeviceShell.quote(originalTransport)}")
+        }
     }
 
     /**
      * Waits for BackupManagerService to dispatch and complete the restore pass, or until [timeout]
      * expires.
      */
-    private suspend fun waitForRestorePassCompletion(
-        selector: DeviceSelector,
-        timeout: Duration = Duration.ofSeconds(15),
-    ) {
+    private suspend fun waitForRestorePassCompletion(timeout: Duration) {
         val totalTimeoutMs = timeout.toMillis()
         val dispatchTimeoutMs =
             (totalTimeoutMs / 2)
@@ -326,7 +263,7 @@ internal class BackupRestoreControllerImpl(
         // Wait for system_server to dispatch and register the restore pass
         val started =
             withTimeoutOrNull(dispatchTimeoutMs) {
-                while (!isRestoreInProgress(selector)) {
+                while (!isRestoreInProgress()) {
                     delay(RESTORE_DISPATCH_POLL_INTERVAL_MS)
                 }
                 true
@@ -338,7 +275,7 @@ internal class BackupRestoreControllerImpl(
             // Wait until the active restore pass completes
             val completed =
                 withTimeoutOrNull(remainingMs) {
-                    while (isRestoreInProgress(selector)) {
+                    while (isRestoreInProgress()) {
                         delay(RESTORE_COMPLETION_POLL_INTERVAL_MS)
                     }
                     true
@@ -356,15 +293,20 @@ internal class BackupRestoreControllerImpl(
         }
     }
 
+    private suspend fun isRestoreInProgress(): Boolean {
+        val dumpsys = shell.exec("dumpsys backup").stdout
+        return RESTORE_SESSION_REGEX.containsMatchIn(dumpsys) ||
+            RESTORE_IN_PROGRESS_REGEX.containsMatchIn(dumpsys)
+    }
+
     override suspend fun performBackup(
         mode: BackupTransportMode,
         outputDir: Path,
         timeout: Duration,
     ): Path {
         if (mode == BackupTransportMode.LOCAL) {
-            return runLocalBackupSimulation(outputDir.toFile()).toPath()
+            return runLocalBackup(outputDir).toPath()
         }
-
         val serviceType =
             when (mode) {
                 BackupTransportMode.DEVICE_TO_DEVICE -> ServiceType.DEVICE_TO_DEVICE
@@ -372,19 +314,8 @@ internal class BackupRestoreControllerImpl(
                 BackupTransportMode.CLOUD_UNENCRYPTED -> ServiceType.CLOUD_UNENCRYPTED
                 else -> throw IllegalArgumentException("Unsupported backup transport mode: $mode")
             }
-
-        val backupFile =
-            File(outputDir.toFile(), "backup_${mode.toString().lowercase(Locale.ROOT)}_device.zip")
-        if (backupFile.exists()) {
-            backupFile.delete()
-        }
-        backupFile.deleteOnExit()
-        backupFile.parentFile?.mkdirs()
-
-        // Ensure package is taken out of Android's stopped state (FLAG_STOPPED) before triggering
-        // backup.
-        // Android's BackupManagerService skips packages in stopped state.
-        unstopPackage()
+        val backupFile = prepareBackupFile(outputDir, mode)
+        shell.unstopPackage(applicationId)
 
         logger.info(
             "Attempting full-fidelity production backup via BackupService for type $mode..."
@@ -398,14 +329,15 @@ internal class BackupRestoreControllerImpl(
                 listener = null,
             )
         when (result) {
-            is com.android.backup.BackupResult.Success,
-            is com.android.backup.BackupResult.WithoutAppData -> {
+            is BackupResult.Success,
+            is BackupResult.WithoutAppData -> {
                 logger.info(
-                    "BackupService successfully created production backup archive: ${backupFile.absolutePath}"
+                    "BackupService successfully created production backup archive: " +
+                        backupFile.absolutePath
                 )
                 return backupFile.toPath()
             }
-            is com.android.backup.BackupResult.Error -> throw result.throwable
+            is BackupResult.Error -> throw result.throwable
         }
     }
 
@@ -413,19 +345,16 @@ internal class BackupRestoreControllerImpl(
         backupFile: Path,
         timeout: Duration,
     ): BackupRestoreController {
-        if (backupFile.fileName.toString() == "backup_local_device.zip") {
-            runLocalRestoreSimulation()
+        if (backupFile.fileName.toString() == backupFileName(BackupTransportMode.LOCAL)) {
+            runLocalRestore()
             return this
         }
-
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
-        // Background any active UI so Android's BackupManagerService can bind its restore agent
-        // smoothly
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, "input keyevent KEYCODE_HOME")
+        // Moves any foreground activity to the background so the restore agent can bind.
+        shell.pressHome()
 
         logger.info(
-            "Attempting full-fidelity production restore via BackupService for file: ${backupFile.toAbsolutePath()}..."
+            "Attempting full-fidelity production restore via BackupService for file: " +
+                "${backupFile.toAbsolutePath()}..."
         )
         val result =
             backupService.restore(
@@ -434,178 +363,42 @@ internal class BackupRestoreControllerImpl(
                 listener = null,
             )
         when (result) {
-            is com.android.backup.BackupResult.Success -> {
+            is BackupResult.Success ->
                 logger.info("BackupService successfully executed production restore.")
-                return this
-            }
-            is com.android.backup.BackupResult.Error -> throw result.throwable
-            else -> {
-                // For any other unexpected non-success result
-                logger.warning("Restore finished with result: $result")
-                return this
-            }
+            is BackupResult.Error -> throw result.throwable
+            else -> logger.warning("Restore finished with result: $result")
         }
+        return this
     }
 
     override suspend fun fetchDeviceLogs(
         destinationPath: Path,
         duration: Duration,
     ): BackupRestoreController {
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
-        val durationSeconds = duration.toSeconds()
-        @Suppress("AdbDeviceServicesCommand")
-        val stdout =
-            adbSession.deviceServices
-                .shellAsText(selector, "logcat -d -t ${durationSeconds}s")
-                .stdout
-        Files.write(destinationPath, stdout.toByteArray(Charsets.UTF_8))
+        Files.write(destinationPath, shell.dumpLogcat(duration).toByteArray(Charsets.UTF_8))
         return this
     }
 
     override suspend fun clearDeviceLogs(): BackupRestoreController {
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, "logcat -c")
+        shell.clearLogcat()
         return this
     }
 
     override suspend fun clearAppData(): BackupRestoreController {
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
-        @Suppress("AdbDeviceServicesCommand")
-        val output = adbSession.deviceServices.shellAsText(selector, "pm clear $applicationId")
-        // `pm clear` prints "Success" on stdout when the data was removed. Otherwise it prints
-        // "Failed", or the exception that stopped it, on stderr with a non-zero exit code.
-        // Continuing after a failed clear would restore onto the seeded data and let verification
-        // pass without a restore having taken place.
-        val succeeded =
-            output.exitCode == 0 &&
-                output.stdout.lineSequence().any { it.trim().equals("Success", ignoreCase = true) }
-        if (!succeeded) {
-            val details =
-                listOf(output.stderr, output.stdout)
-                    .map { it.trim() }
-                    .filter { it.isNotEmpty() }
-                    .distinct()
-                    .joinToString(" ")
-            val detailsSuffix = if (details.isNotEmpty()) ": $details" else ""
-            throw IOException(
-                "Failed to clear app data for $applicationId " +
-                    "(exit code ${output.exitCode})$detailsSuffix"
-            )
-        }
+        shell.clearPackageData(applicationId)
         return this
-    }
-
-    /**
-     * Parses the output of `cmd package resolve-activity` to extract the launcher component name.
-     *
-     * Matches 'package_name/activity_class_name', avoiding other verbose resolve fields like
-     * 'priority='. Includes the '$' character to support inner/anonymous classes often used in
-     * activity names.
-     */
-    private fun extractComponent(resolveOutput: String): String? {
-        return componentRegex.find(resolveOutput)?.value
-    }
-
-    /**
-     * Transitions the target application package out of Android's stopped state (`FLAG_STOPPED`).
-     *
-     * In Android, freshly installed or `pm clear`-ed packages are marked as stopped, causing
-     * `BackupManagerService` to skip backup/restore operations until the package is explicitly
-     * woken up.
-     *
-     * 1. Broadcast wake-up: Sends a broadcast with `--include-stopped-packages` to wake packages
-     *    containing manifest receivers or background services without UI disruption.
-     * 2. Activity launch: For packages with a launcher activity, executes an explicit activity
-     *    start with `-W` to ensure the package transitions out of the stopped state on modern
-     *    Android versions where background broadcasts alone may not unstop activity-based apps. A
-     *    small settling delay is introduced before sending `KEYCODE_HOME` so the app's internal
-     *    initialization settles without interruption while leaving the device in a clean state.
-     * 3. Fallback: If no launcher activity is present, logs a warning and relies on the broadcast
-     *    wake-up rather than attempting invalid UI interactions.
-     */
-    private suspend fun unstopPackage() {
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
-
-        // 1. Silent broadcast wake-up for packages with receivers or service-only architectures.
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(
-            selector,
-            "am broadcast -a android.intent.action.MAIN -p $applicationId --include-stopped-packages",
-        )
-
-        // 2. Resolve launcher activity for activity-based applications.
-        @Suppress("AdbDeviceServicesCommand")
-        val resolveOutput =
-            adbSession.deviceServices
-                .shellAsText(
-                    selector,
-                    "cmd package resolve-activity --brief -c android.intent.category.LAUNCHER $applicationId",
-                )
-                .stdout
-
-        val component = extractComponent(resolveOutput)
-
-        if (component != null) {
-            @Suppress("AdbDeviceServicesCommand")
-            adbSession.deviceServices.shellAsText(
-                selector,
-                "am start -W -n ${escapeShellArg(component)}",
-            )
-            delay(ACTIVITY_SETTLE_DELAY_MS)
-            @Suppress("AdbDeviceServicesCommand")
-            adbSession.deviceServices.shellAsText(selector, "input keyevent KEYCODE_HOME")
-        } else {
-            logger.warning(
-                "No launcher activity found for package $applicationId; relied on broadcast wake-up."
-            )
-        }
     }
 
     override suspend fun pullFile(
         devicePath: String,
         hostDestination: Path,
     ): BackupRestoreController {
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
-        adbSession.channelFactory.createFile(hostDestination).use { outputChannel ->
-            adbSession.deviceServices.sync(selector).use { syncServices ->
-                syncServices.recv(devicePath, outputChannel, null)
-            }
-        }
+        shell.pullFile(devicePath, hostDestination)
         return this
     }
 
     override suspend fun installApk(apkFile: Path, options: List<String>): BackupRestoreController {
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
-        logger.info("Pushing APK: ${apkFile.toAbsolutePath()} to device staging area...")
-        val deviceTmpPath = "/data/local/tmp/backup_test_temp.apk"
-        val flags = options.joinToString(" ")
-
-        // 1. Sync push the file to device staging folder
-        adbSession.channelFactory.openFile(apkFile).use { inputChannel ->
-            adbSession.deviceServices.sync(selector).use { syncServices ->
-                syncServices.send(
-                    inputChannel,
-                    deviceTmpPath,
-                    com.android.adblib.RemoteFileMode.fromModeBits(511),
-                    null,
-                    null,
-                )
-            }
-        }
-
-        // 2. Execute pm install from staging area with options
-        logger.info("Installing staged APK via pm install...")
-        @Suppress("AdbDeviceServicesCommand")
-        val result =
-            adbSession.deviceServices.shellAsText(selector, "pm install $flags $deviceTmpPath")
-        if (!result.stdout.contains("Success", ignoreCase = true)) {
-            throw IllegalStateException("Failed to install APK: ${result.stdout.trim()}")
-        }
-
-        // 3. Clean up the staging area
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, "rm -f $deviceTmpPath")
+        shell.installPackage(apkFile, options)
         return this
     }
 
@@ -614,184 +407,168 @@ internal class BackupRestoreControllerImpl(
         intentExtras: Map<String, String>,
         action: String?,
     ): BackupRestoreController {
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
-
-        // Wake screen and dismiss keyguard so the application window is always visible to
-        // developers on screen
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, "input keyevent KEYCODE_WAKEUP")
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, "wm dismiss-keyguard")
-
-        val targetComponent: String? =
-            if (activityClass != null) {
-                when {
-                    activityClass.contains("/") -> activityClass
-                    activityClass.startsWith(".") -> "$applicationId/$activityClass"
-                    !activityClass.contains(".") -> "$applicationId/.$activityClass"
-                    else -> "$applicationId/$activityClass"
-                }
-            } else if (action == null) {
-                @Suppress("AdbDeviceServicesCommand")
-                val resolveResult =
-                    adbSession.deviceServices.shellAsText(
-                        selector,
-                        "cmd package resolve-activity --brief -c android.intent.category.LAUNCHER $applicationId",
-                    )
-                extractComponent(resolveResult.stdout)
-            } else {
-                null
+        // Keeps the launched app visible on the device screen.
+        shell.wakeAndDismissKeyguard()
+        val component =
+            when {
+                activityClass != null -> qualifyActivity(activityClass)
+                action == null -> shell.resolveLauncherActivity(applicationId)
+                else -> null
             }
-
-        val command = StringBuilder("am start -W")
-        if (action != null) {
-            command.append(" -a ").append(action)
-        } else {
-            command.append(" -a android.intent.action.MAIN")
-            command.append(" -c android.intent.category.LAUNCHER")
-        }
-
-        if (targetComponent != null) {
-            command.append(" -n ").append(escapeShellArg(targetComponent))
-        } else {
-            command.append(" -p ").append(applicationId)
-        }
-
-        for ((key, value) in intentExtras) {
-            command
-                .append(" --es ")
-                .append(escapeShellKey(key))
-                .append(" ")
-                .append(escapeShellArg(value))
-        }
-
-        logger.info("Launching app via am start: $command")
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, command.toString())
+        shell.startActivity(
+            action = action ?: BackupDeviceShell.ACTION_MAIN,
+            category = if (action == null) BackupDeviceShell.CATEGORY_LAUNCHER else null,
+            component = component,
+            packageName = applicationId,
+            stringExtras = intentExtras,
+        )
         return this
     }
 
+    /** Returns [activityClass] as a `package/class` component of the app under test. */
+    private fun qualifyActivity(activityClass: String): String =
+        when {
+            activityClass.contains("/") -> activityClass
+            activityClass.startsWith(".") -> "$applicationId/$activityClass"
+            !activityClass.contains(".") -> "$applicationId/.$activityClass"
+            else -> "$applicationId/$activityClass"
+        }
+
     override suspend fun stopApp(): BackupRestoreController {
-        val selector = DeviceSelector.fromSerialNumber(serialNumber)
-        logger.info("Force-stopping $applicationId...")
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices.shellAsText(selector, "am force-stop $applicationId")
+        shell.forceStop(applicationId)
         return this
     }
 
     // --- ListenableFuture / Java interoperability implementations ---
 
+    private fun <T> asFuture(block: suspend () -> T): ListenableFuture<T> =
+        adbSession.scope.future { block() }
+
     override fun runOnDeviceAsync(actionClassName: String): ListenableFuture<BackupActionResult> =
-        adbSession.scope.future { runOnDevice(actionClassName) }
+        asFuture {
+            runOnDevice(actionClassName)
+        }
 
     override fun runOnDeviceAsync(
         actionClassName: String,
         args: Map<String, String>,
-    ): ListenableFuture<BackupActionResult> =
-        adbSession.scope.future { runOnDevice(actionClassName, args) }
+    ): ListenableFuture<BackupActionResult> = asFuture { runOnDevice(actionClassName, args) }
 
     override fun runOnDeviceAsync(
         actionClassName: String,
         args: Map<String, String>,
         timeout: Duration,
-    ): ListenableFuture<BackupActionResult> =
-        adbSession.scope.future { runOnDevice(actionClassName, args, timeout) }
+    ): ListenableFuture<BackupActionResult> = asFuture {
+        runOnDevice(actionClassName, args, timeout)
+    }
 
     override fun runOnDeviceAsync(
         actionClassName: String,
         args: Map<String, String>,
         timeout: Duration,
         waitForDebugger: Boolean,
-    ): ListenableFuture<BackupActionResult> =
-        adbSession.scope.future { runOnDevice(actionClassName, args, timeout, waitForDebugger) }
+    ): ListenableFuture<BackupActionResult> = asFuture {
+        runOnDevice(actionClassName, args, timeout, waitForDebugger)
+    }
 
     override fun runBackupRestoreFlowAsync(
         storage: StorageDomain,
         outputDir: Path,
         mode: BackupTransportMode,
-    ): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { runBackupRestoreFlow(storage, outputDir, mode) }
+    ): ListenableFuture<BackupRestoreController> = asFuture {
+        runBackupRestoreFlow(storage, outputDir, mode)
+    }
 
     override fun runBackupRestoreFlowAsync(
         storages: List<StorageDomain>,
         outputDir: Path,
         mode: BackupTransportMode,
-    ): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { runBackupRestoreFlow(storages, outputDir, mode) }
+    ): ListenableFuture<BackupRestoreController> = asFuture {
+        runBackupRestoreFlow(storages, outputDir, mode)
+    }
 
     override fun performBackupAsync(
         mode: BackupTransportMode,
         outputDir: Path,
-    ): ListenableFuture<Path> = adbSession.scope.future { performBackup(mode, outputDir) }
+    ): ListenableFuture<Path> = asFuture { performBackup(mode, outputDir) }
 
     override fun performBackupAsync(
         mode: BackupTransportMode,
         outputDir: Path,
         timeout: Duration,
-    ): ListenableFuture<Path> = adbSession.scope.future { performBackup(mode, outputDir, timeout) }
+    ): ListenableFuture<Path> = asFuture { performBackup(mode, outputDir, timeout) }
 
     override fun performRestoreAsync(backupFile: Path): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { performRestore(backupFile) }
+        asFuture {
+            performRestore(backupFile)
+        }
 
     override fun performRestoreAsync(
         backupFile: Path,
         timeout: Duration,
-    ): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { performRestore(backupFile, timeout) }
+    ): ListenableFuture<BackupRestoreController> = asFuture { performRestore(backupFile, timeout) }
 
     override fun fetchDeviceLogsAsync(
         destinationPath: Path
-    ): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { fetchDeviceLogs(destinationPath) }
+    ): ListenableFuture<BackupRestoreController> = asFuture { fetchDeviceLogs(destinationPath) }
 
     override fun fetchDeviceLogsAsync(
         destinationPath: Path,
         duration: Duration,
-    ): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { fetchDeviceLogs(destinationPath, duration) }
+    ): ListenableFuture<BackupRestoreController> = asFuture {
+        fetchDeviceLogs(destinationPath, duration)
+    }
 
-    override fun clearDeviceLogsAsync(): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { clearDeviceLogs() }
+    override fun clearDeviceLogsAsync(): ListenableFuture<BackupRestoreController> = asFuture {
+        clearDeviceLogs()
+    }
 
-    override fun clearAppDataAsync(): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { clearAppData() }
+    override fun clearAppDataAsync(): ListenableFuture<BackupRestoreController> = asFuture {
+        clearAppData()
+    }
 
     override fun pullFileAsync(
         devicePath: String,
         hostDestination: Path,
-    ): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { pullFile(devicePath, hostDestination) }
+    ): ListenableFuture<BackupRestoreController> = asFuture {
+        pullFile(devicePath, hostDestination)
+    }
 
     override fun installApkAsync(apkFile: Path): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { installApk(apkFile) }
+        asFuture {
+            installApk(apkFile)
+        }
 
     override fun installApkAsync(
         apkFile: Path,
         options: List<String>,
-    ): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { installApk(apkFile, options) }
+    ): ListenableFuture<BackupRestoreController> = asFuture { installApk(apkFile, options) }
 
-    override fun launchAppAsync(): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { launchApp() }
+    override fun launchAppAsync(): ListenableFuture<BackupRestoreController> = asFuture {
+        launchApp()
+    }
 
     override fun launchAppAsync(activityClass: String?): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { launchApp(activityClass) }
+        asFuture {
+            launchApp(activityClass)
+        }
 
     override fun launchAppAsync(
         activityClass: String?,
         intentExtras: Map<String, String>,
-    ): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { launchApp(activityClass, intentExtras) }
+    ): ListenableFuture<BackupRestoreController> = asFuture {
+        launchApp(activityClass, intentExtras)
+    }
 
     override fun launchAppAsync(
         activityClass: String?,
         intentExtras: Map<String, String>,
         action: String?,
-    ): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { launchApp(activityClass, intentExtras, action) }
+    ): ListenableFuture<BackupRestoreController> = asFuture {
+        launchApp(activityClass, intentExtras, action)
+    }
 
-    override fun stopAppAsync(): ListenableFuture<BackupRestoreController> =
-        adbSession.scope.future { stopApp() }
+    override fun stopAppAsync(): ListenableFuture<BackupRestoreController> = asFuture { stopApp() }
 
     override fun close() {
         adbSession.close()
@@ -802,32 +579,33 @@ internal class BackupRestoreControllerImpl(
          * Minimum Google Play Services (GmsCore) version code (24.09.13) required by the underlying
          * backup transport emulation service library.
          */
-        private const val MIN_GMS_VERSION = 240913000
+        const val MIN_GMS_VERSION = 240913000
 
-        private val RESTORE_SESSION_REGEX =
+        const val LOCAL_TRANSPORT = "com.android.localtransport/.LocalTransport"
+
+        /** Assumed to be the selected transport when `bmgr` does not mark one. */
+        const val DEFAULT_TRANSPORT = "com.google.android.gms/.backup.BackupTransportService"
+
+        val RESTORE_TIMEOUT: Duration = Duration.ofSeconds(15)
+        const val RESTORE_DISPATCH_POLL_INTERVAL_MS = 250L
+        const val RESTORE_COMPLETION_POLL_INTERVAL_MS = 500L
+
+        val RESTORE_SESSION_REGEX =
             Regex("""(?i)(?:Restore session|Active restore):\s*(?!null\b|none\b)\S+""")
-        private val RESTORE_IN_PROGRESS_REGEX =
-            Regex("""(?i)Restore (?:pass )?in progress:\s*true\b""")
+        val RESTORE_IN_PROGRESS_REGEX = Regex("""(?i)Restore (?:pass )?in progress:\s*true\b""")
 
-        private const val RESTORE_DISPATCH_POLL_INTERVAL_MS = 250L
-        private const val RESTORE_COMPLETION_POLL_INTERVAL_MS = 500L
-        private const val ACTIVITY_SETTLE_DELAY_MS = 500L
+        fun backupFileName(mode: BackupTransportMode): String =
+            "backup_${mode.toString().lowercase(Locale.ROOT)}_device.zip"
 
-        /**
-         * Safely escapes an argument string for POSIX shell execution using single quotes,
-         * preventing syntax errors on internal single quotes and command injection.
-         */
-        private fun escapeShellArg(arg: String): String = "'" + arg.replace("'", "'\\''") + "'"
-
-        /**
-         * Leaves simple identifier keys (`[A-Za-z0-9._]+`) unquoted and single-quotes any empty key
-         * or key containing shell metacharacters.
-         */
-        private fun escapeShellKey(key: String): String =
-            if (key.isNotEmpty() && key.all { it.isLetterOrDigit() || it == '.' || it == '_' }) {
-                key
-            } else {
-                escapeShellArg(key)
+        /** Returns a fresh location in [outputDir] for the backup archive of [mode]. */
+        fun prepareBackupFile(outputDir: Path, mode: BackupTransportMode): File {
+            val file = File(outputDir.toFile(), backupFileName(mode))
+            if (file.exists()) {
+                file.delete()
             }
+            file.deleteOnExit()
+            file.parentFile?.mkdirs()
+            return file
+        }
     }
 }

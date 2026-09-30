@@ -1,0 +1,382 @@
+/*
+ * Copyright (C) 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.test.backup.host
+
+import androidx.test.backup.host.BackupDeviceShell.Companion.quote
+import androidx.test.backup.host.BackupDeviceShell.Companion.quoteIfNeeded
+import java.io.IOException
+import java.time.Duration
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
+import kotlinx.coroutines.runBlocking
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.TemporaryFolder
+
+class BackupDeviceShellTest {
+
+    @get:Rule val tempFolder = TemporaryFolder()
+
+    private val device = FakeAdbDevice()
+    private val shell = BackupDeviceShell(device.session, FAKE_SERIAL)
+
+    @Test
+    fun quoteWrapsInSingleQuotesSoTheShellExpandsNothing() {
+        assertEquals("'plain'", quote("plain"))
+        assertEquals("''", quote(""))
+        assertEquals("'\$HOME `id` \\ \"x\"'", quote("\$HOME `id` \\ \"x\""))
+        assertEquals("""'O'\''Brian'""", quote("O'Brian"))
+    }
+
+    @Test
+    fun quoteIfNeededLeavesShellSafeTokensBare() {
+        assertEquals("com.example.app", quoteIfNeeded("com.example.app"))
+        assertEquals("-r", quoteIfNeeded("-r"))
+        assertEquals("--user=10", quoteIfNeeded("--user=10"))
+        assertEquals("/data/local/tmp/a_b", quoteIfNeeded("/data/local/tmp/a_b"))
+    }
+
+    @Test
+    fun quoteIfNeededQuotesEmptyAndUnsafeTokens() {
+        assertEquals("''", quoteIfNeeded(""))
+        assertEquals("'a b'", quoteIfNeeded("a b"))
+        assertEquals("'danger;key\$1'", quoteIfNeeded("danger;key\$1"))
+        assertEquals("'Outer\$Inner'", quoteIfNeeded("Outer\$Inner"))
+    }
+
+    @Test
+    fun execReturnsTheCommandOutput() = runBlocking {
+        device.onShell { shellOutput(stdout = "out", stderr = "err", exitCode = 3) }
+
+        val output = shell.exec("echo hi")
+
+        assertEquals(listOf("echo hi"), device.commands)
+        assertEquals("out", output.stdout)
+        assertEquals("err", output.stderr)
+        assertEquals(3, output.exitCode)
+    }
+
+    @Test
+    fun execAddressesOnlyTheShellsOwnDevice() {
+        val otherShell = BackupDeviceShell(device.session, "other-serial")
+
+        assertFailsWith<AssertionError> { runBlocking { otherShell.exec("echo hi") } }
+        assertEquals(emptyList<String>(), device.commands)
+    }
+
+    @Test
+    fun pullFileWritesTheDeviceFileToTheHost() = runBlocking {
+        device.onPull { "content of $it" }
+        val hostFile = tempFolder.root.toPath().resolve("pulled.txt")
+
+        shell.pullFile("/sdcard/a.txt", hostFile)
+
+        assertEquals(listOf("/sdcard/a.txt"), device.pulledPaths)
+        assertEquals("content of /sdcard/a.txt", hostFile.toFile().readText())
+    }
+
+    @Test
+    fun removeFileQuotesThePathAndEndsOptions() = runBlocking {
+        shell.removeFile("/data/local/tmp/-odd \$name'.json")
+
+        assertEquals(
+            listOf("""rm -f -- '/data/local/tmp/-odd ${'$'}name'\''.json'"""),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun instrumentQuotesEveryValueAndOnlyUnsafeKeys() = runBlocking {
+        device.onShell { shellOutput(stdout = "runner output") }
+
+        val stdout =
+            shell.instrument(
+                "com.example.app.test/androidx.test.backup.BackupRestoreTestRunner",
+                linkedMapOf(
+                    "actionClass" to "com.example.My\$Action",
+                    "value" to "`whoami` \$(id)",
+                    "danger;key" to "v",
+                    "" to "empty key",
+                ),
+            )
+
+        assertEquals("runner output", stdout)
+        assertEquals(
+            listOf(
+                "am instrument -w" +
+                    " -e actionClass 'com.example.My\$Action'" +
+                    " -e value '`whoami` \$(id)'" +
+                    " -e 'danger;key' 'v'" +
+                    " -e '' 'empty key'" +
+                    " com.example.app.test/androidx.test.backup.BackupRestoreTestRunner"
+            ),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun startActivityTargetsTheComponentWhenGiven() = runBlocking {
+        shell.startActivity(
+            action = BackupDeviceShell.ACTION_MAIN,
+            category = BackupDeviceShell.CATEGORY_LAUNCHER,
+            component = "com.example.app/.Main\$Inner",
+            packageName = "com.example.app",
+            stringExtras = emptyMap(),
+        )
+
+        assertEquals(
+            listOf(
+                "am start -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER" +
+                    " -n 'com.example.app/.Main\$Inner'"
+            ),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun startActivityResolvesWithinThePackageWithoutAComponent() = runBlocking {
+        shell.startActivity(
+            action = "com.example.CUSTOM",
+            category = null,
+            component = null,
+            packageName = "com.example.app",
+            stringExtras = emptyMap(),
+        )
+
+        assertEquals(
+            listOf("am start -W -a com.example.CUSTOM -p com.example.app"),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun startActivityQuotesExtras() = runBlocking {
+        shell.startActivity(
+            action = "android.intent.action.VIEW",
+            category = null,
+            component = null,
+            packageName = "com.example.app",
+            stringExtras =
+                linkedMapOf(
+                    "name" to "O'Brian",
+                    "danger;cmd" to "'; rm -rf /; '",
+                    "" to "empty_key_val",
+                ),
+        )
+
+        assertEquals(
+            "am start -W -a android.intent.action.VIEW -p com.example.app" +
+                """ --es name 'O'\''Brian'""" +
+                """ --es 'danger;cmd' ''\''; rm -rf /; '\'''""" +
+                " --es '' 'empty_key_val'",
+            device.commands.single(),
+        )
+    }
+
+    @Test
+    fun resolveLauncherActivitySkipsTheOtherResolveFields() = runBlocking {
+        device.onShell {
+            shellOutput(RESOLVE_OUTPUT_PREFIX + "com.example.app/.ui.Main\$Launcher\n")
+        }
+
+        assertEquals(
+            "com.example.app/.ui.Main\$Launcher",
+            shell.resolveLauncherActivity("com.example.app"),
+        )
+        assertEquals(
+            listOf(
+                "cmd package resolve-activity --brief -c android.intent.category.LAUNCHER " +
+                    "com.example.app"
+            ),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun resolveLauncherActivityReturnsNullWithoutALauncher() = runBlocking {
+        device.onShell { shellOutput("No activity found\n") }
+
+        assertNull(shell.resolveLauncherActivity("com.example.app"))
+    }
+
+    @Test
+    fun unstopPackageStartsTheLauncherActivityThenGoesHome() = runBlocking {
+        device.onShell { command ->
+            if (command.contains("resolve-activity")) {
+                shellOutput(RESOLVE_OUTPUT_PREFIX + "com.example.app/com.example.app.Main\$Inner\n")
+            } else {
+                shellOutput()
+            }
+        }
+
+        shell.unstopPackage("com.example.app")
+
+        assertEquals(
+            listOf(
+                "am broadcast -a android.intent.action.MAIN -p com.example.app " +
+                    "--include-stopped-packages",
+                "cmd package resolve-activity --brief -c android.intent.category.LAUNCHER " +
+                    "com.example.app",
+                "am start -W -n 'com.example.app/com.example.app.Main\$Inner'",
+                "input keyevent KEYCODE_HOME",
+            ),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun unstopPackageReliesOnTheBroadcastWithoutALauncher() = runBlocking {
+        device.onShell { command ->
+            if (command.contains("resolve-activity")) shellOutput("No activity found\n")
+            else shellOutput()
+        }
+
+        shell.unstopPackage("com.example.app")
+
+        assertEquals(
+            listOf(
+                "am broadcast -a android.intent.action.MAIN -p com.example.app " +
+                    "--include-stopped-packages",
+                "cmd package resolve-activity --brief -c android.intent.category.LAUNCHER " +
+                    "com.example.app",
+            ),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun forceStopStopsThePackage() = runBlocking {
+        shell.forceStop("com.example.app")
+
+        assertEquals(listOf("am force-stop com.example.app"), device.commands)
+    }
+
+    @Test
+    fun clearPackageDataSucceedsWhenPmClearReportsSuccess() = runBlocking {
+        device.onShell { shellOutput("Success\n") }
+
+        shell.clearPackageData("com.example.app")
+
+        assertEquals(listOf("pm clear com.example.app"), device.commands)
+    }
+
+    @Test
+    fun clearPackageDataThrowsWhenPmClearReportsFailure() {
+        device.onShell { shellOutput(stderr = "Failed\n", exitCode = 1) }
+
+        val e = assertFailsWith<IOException> { runBlocking { shell.clearPackageData(PACKAGE) } }
+        assertEquals("Failed to clear app data for $PACKAGE (exit code 1): Failed", e.message)
+    }
+
+    @Test
+    fun clearPackageDataThrowsWhenPmClearDoesNotReportSuccess() {
+        device.onShell { shellOutput() }
+
+        val e = assertFailsWith<IOException> { runBlocking { shell.clearPackageData(PACKAGE) } }
+        assertEquals("Failed to clear app data for $PACKAGE (exit code 0)", e.message)
+    }
+
+    @Test
+    fun clearPackageDataThrowsWhenFailureIsReportedOnStdout() {
+        // Without the shell v2 protocol stderr is merged into stdout and no exit code is reported.
+        device.onShell { shellOutput("Failed\n") }
+
+        val e = assertFailsWith<IOException> { runBlocking { shell.clearPackageData(PACKAGE) } }
+        assertEquals("Failed to clear app data for $PACKAGE (exit code 0): Failed", e.message)
+    }
+
+    @Test
+    fun clearPackageDataReportsIdenticalStreamsOnce() {
+        device.onShell { shellOutput("Failed\n", "Failed\n", 1) }
+
+        val e = assertFailsWith<IOException> { runBlocking { shell.clearPackageData(PACKAGE) } }
+        assertEquals("Failed to clear app data for $PACKAGE (exit code 1): Failed", e.message)
+    }
+
+    @Test
+    fun installPackageStagesInstallsAndRemovesTheApk() = runBlocking {
+        device.onShell { command ->
+            if (command.startsWith("pm install")) shellOutput("Success\n") else shellOutput()
+        }
+
+        shell.installPackage(tempFolder.newFile("app.apk").toPath(), listOf("-r", "-t"))
+
+        assertEquals(listOf(STAGED_APK), device.pushedPaths)
+        assertEquals(
+            listOf("pm install -r -t '$STAGED_APK'", "rm -f -- '$STAGED_APK'"),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun installPackageThrowsWhenPmInstallFails() {
+        device.onShell { command ->
+            if (command.startsWith("pm install")) {
+                shellOutput("Failure [INSTALL_FAILED_OLDER_SDK]\n")
+            } else {
+                shellOutput()
+            }
+        }
+        val apk = tempFolder.newFile("app.apk").toPath()
+
+        val e =
+            assertFailsWith<IllegalStateException> {
+                runBlocking { shell.installPackage(apk, emptyList()) }
+            }
+        assertEquals("Failed to install APK: Failure [INSTALL_FAILED_OLDER_SDK]", e.message)
+    }
+
+    @Test
+    fun wakeAndDismissKeyguardWakesTheScreenFirst() = runBlocking {
+        shell.wakeAndDismissKeyguard()
+
+        assertEquals(
+            listOf("input keyevent KEYCODE_WAKEUP", "wm dismiss-keyguard"),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun pressHomeSendsTheHomeKey() = runBlocking {
+        shell.pressHome()
+
+        assertEquals(listOf("input keyevent KEYCODE_HOME"), device.commands)
+    }
+
+    @Test
+    fun dumpLogcatReturnsTheRecentEntries() = runBlocking {
+        device.onShell { shellOutput("log line\n") }
+
+        assertEquals("log line\n", shell.dumpLogcat(Duration.ofSeconds(30)))
+        assertEquals(listOf("logcat -d -t 30s"), device.commands)
+    }
+
+    @Test
+    fun clearLogcatClearsTheBuffer() = runBlocking {
+        shell.clearLogcat()
+
+        assertEquals(listOf("logcat -c"), device.commands)
+    }
+
+    private companion object {
+        const val PACKAGE = "com.example.app"
+        const val STAGED_APK = "/data/local/tmp/backup_test_temp.apk"
+        const val RESOLVE_OUTPUT_PREFIX =
+            "priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true\n"
+    }
+}
