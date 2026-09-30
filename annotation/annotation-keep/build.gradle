@@ -42,7 +42,7 @@ dependencies {
 
 androidx {
     name = "Keep Annotation"
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.ANNOTATION_KEEP_QUARANTINE
     inceptionYear = "2025"
     description = "Provides annotations to guide optimizers / code shrinkers."
