@@ -182,17 +182,17 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
      * is stopped.
      */
     var draggingHandle: Handle? by mutableStateOf(null)
-        private set
+        internal set // internal needed by CMP
 
     /** The current position of a drag, in decoration box coordinates. */
     var currentDragPosition: Offset? by mutableStateOf(null)
-        private set
+        internal set // internal needed by CMP
 
     /**
      * The previous offset of a drag, before selection adjustments. Only update when a selection
      * layout change has occurred, or set to -1 if a new drag begins.
      */
-    private var previousRawDragOffset: Int = -1
+    internal var previousRawDragOffset: Int = -1 // internal needed by CMP
 
     /**
      * The old [TextFieldValue] before entering the selection mode on long press. Used to exit the
@@ -201,7 +201,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
     private var oldValue: TextFieldValue = TextFieldValue()
 
     /** The previous [SelectionLayout] where [SelectionLayout.shouldRecomputeSelection] was true. */
-    private var previousSelectionLayout: SelectionLayout? = null
+    internal var previousSelectionLayout: SelectionLayout? = null // internal needed by CMP
 
     /**
      * The latest selection range that was passed to [onValueChange]. The [value] state is updated
