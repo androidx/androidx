@@ -52,7 +52,6 @@ androidXMultiplatform {
             api(project(":datastore:datastore-core"))
             api(libs.kotlinCoroutinesCore)
             api(libs.okio)
-            implementation(libs.kotlinSerializationJson)
         }
         commonTest.dependencies {
             implementation(project(":kruth:kruth"))
@@ -65,6 +64,8 @@ androidXMultiplatform {
             implementation(libs.atomicFu)
         }
         webMain.dependencies {
+            api(libs.kotlinSerializationCore)
+            implementation(libs.kotlinSerializationJson)
             implementation(libs.kotlinXw3c)
         }
     }
