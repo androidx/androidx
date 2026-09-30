@@ -21,6 +21,11 @@ plugins {
 
 android {
     namespace = "androidx.xr.glimmer.macrobenchmark"
+    defaultConfig {
+        // TODO(b/567875413): Lower minSdk once initial focus is assigned with
+        //  isInitialFocusOnFocusableAvailable on Sargo (API 30/31) devices.
+        minSdk { version = release(32) }
+    }
     targetProjectPath = ":xr:glimmer:integration-tests:macrobenchmark-target"
     experimentalProperties["android.experimental.self-instrumenting"] = true
 }
