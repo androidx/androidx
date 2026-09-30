@@ -35,6 +35,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -70,6 +72,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
@@ -81,7 +84,6 @@ import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -499,7 +501,10 @@ private fun NewShapeDialog(
     onImportShape: (() -> List<Feature>) -> Unit,
 ) {
     var wantsSvgImport by remember { mutableStateOf(true) }
-    val text = remember { mutableStateOf(TextFieldValue("")) }
+    val text =
+        rememberSaveable(wantsSvgImport, saver = TextFieldState.Saver) {
+            TextFieldState(if (wantsSvgImport) TRIANGE_SVG_PATH else SERIALIZED_TRIANGLE)
+        }
     var selectedButton by remember { mutableIntStateOf(0) }
 
     AlertDialog(
@@ -534,9 +539,9 @@ private fun NewShapeDialog(
                     when (selectedButton) {
                         0 -> onAddShape()
                         1 -> {
-                            onImportShape { SvgPathParser.parseFeatures(text.value.text) }
+                            onImportShape { SvgPathParser.parseFeatures(text.text.toString()) }
                         }
-                        2 -> onImportShape { FeatureSerializer.parse(text.value.text) }
+                        2 -> onImportShape { FeatureSerializer.parse(text.text.toString()) }
                     }
                 }
             ) {
@@ -607,22 +612,11 @@ private fun ExpandableQuestionCard(
 }
 
 @Composable
-fun ImportTextField(text: MutableState<TextFieldValue>, importsSvgPath: Boolean, enabled: Boolean) {
-    var hasBeenEdited by remember { mutableStateOf(false) }
-
-    if (!hasBeenEdited) {
-        text.value = TextFieldValue(if (importsSvgPath) TRIANGE_SVG_PATH else SERIALIZED_TRIANGLE)
-    }
-
+fun ImportTextField(text: TextFieldState, importsSvgPath: Boolean, enabled: Boolean) {
     TextField(
-        value = text.value,
-        onValueChange = {
-            text.value = it
-            hasBeenEdited = true
-        },
+        state = text,
         enabled = enabled,
-        minLines = 10,
-        maxLines = 20,
+        lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 10, maxHeightInLines = 20),
         label = {
             Text(
                 if (importsSvgPath) "Svg Path ('d' attribute in svg files)"

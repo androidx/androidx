@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,7 +63,7 @@ fun TooltipDemo() {
     ) {
         Text("Add items to the list")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            var textFieldValue by remember { mutableStateOf("") }
+            val textFieldState = rememberTextFieldState()
             var textFieldTooltipText by remember { mutableStateOf("") }
             val textFieldTooltipState = rememberTooltipState()
             val scope = rememberCoroutineScope()
@@ -71,22 +73,18 @@ fun TooltipDemo() {
                 tooltip = { PlainTooltip { Text(textFieldTooltipText) } },
                 state = textFieldTooltipState,
             ) {
-                OutlinedTextField(
-                    value = textFieldValue,
-                    placeholder = { Text("Item Name") },
-                    onValueChange = { newVal -> textFieldValue = newVal },
-                )
+                OutlinedTextField(state = textFieldState, placeholder = { Text("Item Name") })
             }
 
             OutlinedButton(
                 onClick = {
-                    if (textFieldValue.isBlank()) {
+                    if (textFieldState.text.isBlank()) {
                         textFieldTooltipText = "Please give the item a name!"
                         scope.launch { textFieldTooltipState.show() }
                     } else {
-                        val listItem = ItemInfo(textFieldValue, TooltipState())
+                        val listItem = ItemInfo(textFieldState.text.toString(), TooltipState())
                         listData.add(listItem)
-                        textFieldValue = ""
+                        textFieldState.clearText()
                         scope.launch { listItem.addedTooltipState.show() }
                     }
                 }
