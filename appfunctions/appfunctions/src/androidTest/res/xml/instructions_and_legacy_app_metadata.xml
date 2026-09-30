@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  Copyright 2025 The Android Open Source Project
+  Copyright 2026 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,7 +14,8 @@
   limitations under the License.
   -->
 
-<resources>
-    <public type="attr" name="instructions" />
-    <public type="attr" name="displayDescription" />
-</resources>
+<!-- Sets both attributes to verify "instructions" takes precedence over legacy "description". -->
+<AppFunctionAppMetadata xmlns:appfn="http://schemas.android.com/apk/androidx.appfunctions"
+    appfn:instructions="New instructions"
+    appfn:description="Legacy instructions"
+    appfn:displayDescription="Legacy display description" />

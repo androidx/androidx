@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  Copyright 2025 The Android Open Source Project
+  Copyright 2026 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
   limitations under the License.
   -->
 
-<resources>
-    <public type="attr" name="instructions" />
-    <public type="attr" name="displayDescription" />
-</resources>
+<!-- Simulates app metadata compiled against an older library version that still used the legacy
+     "description" attribute. The library namespace is not resolved by aapt2, so this compiles even
+     though the attribute is no longer declared by the library. -->
+<AppFunctionAppMetadata xmlns:appfn="http://schemas.android.com/apk/androidx.appfunctions"
+    appfn:description="Legacy instructions"
+    appfn:displayDescription="Legacy display description" />
