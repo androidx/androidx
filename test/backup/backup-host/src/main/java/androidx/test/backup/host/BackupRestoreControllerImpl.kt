@@ -27,20 +27,12 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.time.Duration
 import java.util.Locale
-import java.util.UUID
 import java.util.logging.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.guava.future
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 internal class BackupRestoreControllerImpl(
     private val adbSession: AdbSession,
@@ -64,322 +56,97 @@ internal class BackupRestoreControllerImpl(
         """\b${Regex.escape(applicationId)}/[a-zA-Z0-9._${'$'}]+\b""".toRegex()
     }
 
-    private fun getPutStorageArgs(storage: StorageDomain): Map<String, String> {
-        val args = mutableMapOf<String, String>()
-        when (storage) {
-            is StorageDomain.Preference -> {
-                args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_PREFS
-                args[BackupActionInputKeys.PREF_NAME] = storage.prefName
-                args[BackupActionInputKeys.PREF_KEY] = storage.key
-                val v = storage.value
-                if (v != null) {
-                    args[BackupActionInputKeys.VALUE] = v.toString()
-                    val valueType =
-                        when (v) {
-                            is Int -> BackupActionValues.VALUE_TYPE_INT
-                            is Long -> BackupActionValues.VALUE_TYPE_LONG
-                            is Float -> BackupActionValues.VALUE_TYPE_FLOAT
-                            is Boolean -> BackupActionValues.VALUE_TYPE_BOOLEAN
-                            else -> BackupActionValues.VALUE_TYPE_STRING
-                        }
-                    args[BackupActionInputKeys.VALUE_TYPE] = valueType
-                }
-            }
-            is StorageDomain.Database -> {
-                args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_DATABASE
-                args[BackupActionInputKeys.DB_NAME] = storage.dbName
-                args[BackupActionInputKeys.TABLE] = storage.table
-                val pairs =
-                    storage.columnValues.entries
-                        .map { it.key to (it.value?.toString() ?: "") }
-                        .toMutableList()
-                // Ensure primary key is also inserted/updated in PopulateStorageAction
-                if (
-                    storage.columnValues.keys.none {
-                        it.equals(storage.primaryKeyCol, ignoreCase = true)
-                    }
-                ) {
-                    pairs.add(storage.primaryKeyCol to storage.primaryKeyVal.toString())
-                }
-                args[BackupActionInputKeys.VALUES] =
-                    BackupActionWireProtocol.encodeColumnValues(pairs)
-            }
-            is StorageDomain.TextFile -> {
-                args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_FILES
-                args[BackupActionInputKeys.PATH] = storage.path
-                args[BackupActionInputKeys.VALUE] = storage.content
-            }
-            is StorageDomain.BinaryFile -> {
-                args[BackupActionInputKeys.STORAGE_TYPE] = BackupActionValues.STORAGE_TYPE_FILES
-                args[BackupActionInputKeys.PATH] = storage.path
-                args[BackupActionInputKeys.VALUE] =
-                    java.util.Base64.getEncoder().encodeToString(storage.content)
-                args[BackupActionInputKeys.IS_BINARY] = "true"
-            }
-            else -> {
-                throw IllegalArgumentException("Unsupported storage domain type: $storage")
-            }
-        }
-        return args
-    }
-
-    private fun getVerifyStorageArgs(
-        storage: StorageDomain,
-        putArgs: Map<String, String>,
-    ): Map<String, String> {
-        val verifyArgs = putArgs.toMutableMap()
-        when (storage) {
-            is StorageDomain.Preference -> {
-                if (storage.value != null) {
-                    verifyArgs[BackupActionInputKeys.EXPECTED] = storage.value.toString()
-                } else {
-                    verifyArgs[BackupActionInputKeys.EXPECT_NULL] = "true"
-                }
-            }
-            is StorageDomain.Database -> {
-                // Map the database verification arguments for AssertStorageAction
-                verifyArgs[BackupActionInputKeys.KEY_COL] = storage.primaryKeyCol
-                verifyArgs[BackupActionInputKeys.KEY_VAL] = storage.primaryKeyVal.toString()
-
-                // Let's assert on the first column to verify
-                val firstCol =
-                    storage.columnValues.entries.firstOrNull()
-                        ?: throw IllegalArgumentException(
-                            "DATABASE storage domain must specify at least one column/value pair to verify."
-                        )
-                verifyArgs[BackupActionInputKeys.EXPECTED_COL] = firstCol.key
-                verifyArgs[BackupActionInputKeys.EXPECTED_VAL] = firstCol.value?.toString() ?: ""
-            }
-            is StorageDomain.TextFile -> {
-                verifyArgs[BackupActionInputKeys.EXPECTED] = storage.content
-            }
-            is StorageDomain.BinaryFile -> {
-                verifyArgs[BackupActionInputKeys.EXPECTED] =
-                    java.util.Base64.getEncoder().encodeToString(storage.content)
-                verifyArgs[BackupActionInputKeys.IS_BINARY] = "true"
-            }
-            else -> {}
-        }
-        return verifyArgs
-    }
-
     override suspend fun runBackupRestoreFlow(
         storage: StorageDomain,
         outputDir: Path,
         mode: BackupTransportMode,
-    ): BackupRestoreController {
-        return runBackupRestoreFlow(listOf(storage), outputDir, mode)
-    }
+    ): BackupRestoreController = runBackupRestoreFlow(listOf(storage), outputDir, mode)
 
     override suspend fun runBackupRestoreFlow(
         storages: List<StorageDomain>,
         outputDir: Path,
         mode: BackupTransportMode,
     ): BackupRestoreController {
-        val totalStartTime = System.nanoTime()
-        var stageStartTime = System.nanoTime()
-        var seedingDuration = Duration.ZERO
-        var backupDuration = Duration.ZERO
-        var clearDataDuration = Duration.ZERO
-        var restoreDuration = Duration.ZERO
-        var verificationDuration = Duration.ZERO
-        var currentStage = BackupExecutionStage.PRECONDITION
-        var flowSummary: BackupExecutionSummary? = null
-
+        val tracker = BackupExecutionTracker(mode, storages.size)
         try {
-            if (storages.isEmpty()) {
-                throw IllegalArgumentException("At least one StorageDomain must be provided.")
-            }
+            require(storages.isNotEmpty()) { "At least one StorageDomain must be provided." }
             logger.info(
                 "Executing standard backup and restore flow for $applicationId across " +
                     "${storages.size} storage domains..."
             )
-
-            // 1. Put data for each storage domain (seeds the app sandbox)
-            currentStage = BackupExecutionStage.SEEDING
-            stageStartTime = System.nanoTime()
-            val domainArgs = storages.map { domain ->
-                val putArgs = getPutStorageArgs(domain)
-                logger.info("Seeding data on device via PopulateStorageAction for $domain...")
-                val putResult =
-                    runOnDevice(
-                        actionClassName = BackupRestoreController.ACTION_POPULATE_STORAGE,
-                        args = putArgs,
-                    )
-                if (putResult is BackupActionResult.Failure) {
-                    throw IOException(
-                        "PopulateStorageAction failed for $domain: ${putResult.errorMessage}"
-                    )
-                }
-                domain to putArgs
-            }
-            seedingDuration = Duration.ofNanos(System.nanoTime() - stageStartTime)
-
-            // 2. Perform Backup (stops app to flush filesystem, then invokes BMGR)
-            currentStage = BackupExecutionStage.BACKUP
-            stageStartTime = System.nanoTime()
-            stopApp()
-            logger.info("Performing backup via performBackup ($mode)...")
-            val backupFile = performBackup(mode = mode, outputDir = outputDir)
-            backupDuration = Duration.ofNanos(System.nanoTime() - stageStartTime)
-
-            // 3. Clear App Data (simulates uninstall/device wipe)
-            currentStage = BackupExecutionStage.CLEAR_DATA
-            stageStartTime = System.nanoTime()
-            logger.info("Clearing app sandbox via clearAppData...")
-            clearAppData()
-            clearDataDuration = Duration.ofNanos(System.nanoTime() - stageStartTime)
-
-            // 4. Perform Restore
-            currentStage = BackupExecutionStage.RESTORE
-            stageStartTime = System.nanoTime()
-            logger.info("Restoring data via performRestore...")
-            performRestore(backupFile = backupFile)
-            restoreDuration = Duration.ofNanos(System.nanoTime() - stageStartTime)
-
-            // 5. Verify Data for each storage domain (asserts sandbox is restored perfectly)
-            currentStage = BackupExecutionStage.VERIFICATION
-            stageStartTime = System.nanoTime()
-            for ((domain, putArgs) in domainArgs) {
-                logger.info(
-                    "Verifying restored data on device via AssertStorageAction for $domain..."
-                )
-                val verifyArgs = getVerifyStorageArgs(domain, putArgs)
-                val verifyResult =
-                    runOnDevice(
-                        actionClassName = BackupRestoreController.ACTION_ASSERT_STORAGE,
-                        args = verifyArgs,
-                    )
-                if (verifyResult is BackupActionResult.Failure) {
-                    throw IOException(
-                        "AssertStorageAction failed for $domain: ${verifyResult.errorMessage}"
+            tracker.stage(BackupExecutionStage.SEEDING) {
+                for (domain in storages) {
+                    logger.info("Seeding data on device via PopulateStorageAction for $domain...")
+                    runStorageAction(
+                        BackupRestoreController.ACTION_POPULATE_STORAGE,
+                        domain,
+                        BackupActionWireProtocol.populateArgs(domain),
                     )
                 }
             }
-            verificationDuration = Duration.ofNanos(System.nanoTime() - stageStartTime)
-
-            val totalDuration = Duration.ofNanos(System.nanoTime() - totalStartTime)
-            val successSummary =
-                BackupExecutionSummary(
-                    transportMode = mode,
-                    storageDomainCount = storages.size,
-                    seedingDuration = seedingDuration,
-                    backupDuration = backupDuration,
-                    clearDataDuration = clearDataDuration,
-                    restoreDuration = restoreDuration,
-                    verificationDuration = verificationDuration,
-                    totalDuration = totalDuration,
-                    isSuccess = true,
-                    errorCode = BackupErrorCode.NONE,
-                )
-            flowSummary = successSummary
-            lastExecutionSummary = successSummary
+            val backupFile =
+                tracker.stage(BackupExecutionStage.BACKUP) {
+                    // Stopping the app flushes its pending writes to disk before the backup.
+                    stopApp()
+                    logger.info("Performing backup via performBackup ($mode)...")
+                    performBackup(mode, outputDir)
+                }
+            tracker.stage(BackupExecutionStage.CLEAR_DATA) {
+                logger.info("Clearing app sandbox via clearAppData...")
+                clearAppData()
+            }
+            tracker.stage(BackupExecutionStage.RESTORE) {
+                logger.info("Restoring data via performRestore...")
+                performRestore(backupFile)
+            }
+            tracker.stage(BackupExecutionStage.VERIFICATION) {
+                for (domain in storages) {
+                    logger.info(
+                        "Verifying restored data on device via AssertStorageAction for $domain..."
+                    )
+                    runStorageAction(
+                        BackupRestoreController.ACTION_ASSERT_STORAGE,
+                        domain,
+                        BackupActionWireProtocol.assertArgs(domain),
+                    )
+                }
+            }
         } catch (e: Exception) {
-            val totalDuration = Duration.ofNanos(System.nanoTime() - totalStartTime)
-            val elapsedInCurrentStage = Duration.ofNanos(System.nanoTime() - stageStartTime)
-            when (currentStage) {
-                BackupExecutionStage.SEEDING -> seedingDuration = elapsedInCurrentStage
-                BackupExecutionStage.BACKUP -> backupDuration = elapsedInCurrentStage
-                BackupExecutionStage.CLEAR_DATA -> clearDataDuration = elapsedInCurrentStage
-                BackupExecutionStage.RESTORE -> restoreDuration = elapsedInCurrentStage
-                BackupExecutionStage.VERIFICATION -> verificationDuration = elapsedInCurrentStage
-                BackupExecutionStage.PRECONDITION -> {}
-            }
-            val errorCode = mapExceptionToErrorCode(currentStage, e)
-            val failureSummary =
-                BackupExecutionSummary(
-                    transportMode = mode,
-                    storageDomainCount = storages.size,
-                    seedingDuration = seedingDuration,
-                    backupDuration = backupDuration,
-                    clearDataDuration = clearDataDuration,
-                    restoreDuration = restoreDuration,
-                    verificationDuration = verificationDuration,
-                    totalDuration = totalDuration,
-                    isSuccess = false,
-                    errorCode = errorCode,
-                    failureStage = currentStage,
-                    errorMessage = e.message,
-                )
-            flowSummary = failureSummary
-            lastExecutionSummary = failureSummary
+            record(tracker.failed(e))
             throw e
-        } finally {
-            flowSummary?.let { summary ->
-                try {
-                    publishMetrics(summary)
-                } catch (telemetryEx: Throwable) {
-                    logger.warning("Failed to publish telemetry: ${telemetryEx.message}")
-                }
-            }
         }
-
+        val summary = tracker.succeeded()
+        record(summary)
         logger.info(
             "Standard backup and restore flow executed successfully across all storage " +
-                "domains with 100% data integrity! (${flowSummary?.totalDuration?.toMillis()}ms)"
+                "domains with 100% data integrity! (${summary.totalDuration.toMillis()}ms)"
         )
         return this
     }
 
-    private fun publishMetrics(summary: BackupExecutionSummary) {
-        val pub = telemetryPublisher ?: return
-        pub(BackupReportKeys.LIBRARY_VERSION, LIBRARY_VERSION)
-        pub(BackupReportKeys.TRANSPORT_MODE, summary.transportMode.toString())
-        pub(BackupReportKeys.STORAGE_DOMAIN_COUNT, summary.storageDomainCount.toString())
-        pub(BackupReportKeys.SEEDING_DURATION, summary.seedingDuration.toMillis().toString())
-        pub(BackupReportKeys.BACKUP_DURATION, summary.backupDuration.toMillis().toString())
-        pub(BackupReportKeys.CLEAR_DATA_DURATION, summary.clearDataDuration.toMillis().toString())
-        pub(BackupReportKeys.RESTORE_DURATION, summary.restoreDuration.toMillis().toString())
-        pub(
-            BackupReportKeys.VERIFICATION_DURATION,
-            summary.verificationDuration.toMillis().toString(),
-        )
-        pub(BackupReportKeys.TOTAL_DURATION, summary.totalDuration.toMillis().toString())
-        pub(
-            BackupReportKeys.STATUS,
-            if (summary.isSuccess) BackupReportKeys.REPORT_STATUS_SUCCESS
-            else BackupReportKeys.REPORT_STATUS_FAILURE,
-        )
-        if (!summary.isSuccess) {
-            pub(BackupReportKeys.ERROR_CODE, summary.errorCode.name)
-            summary.failureStage?.let { pub(BackupReportKeys.FAILURE_STAGE, it.name) }
-            summary.errorMessage?.let { pub(BackupReportKeys.ERROR_MESSAGE, it) }
+    /** Runs a storage action for [domain] and throws if it fails. */
+    private suspend fun runStorageAction(
+        actionClassName: String,
+        domain: StorageDomain,
+        args: Map<String, String>,
+    ) {
+        val result = runOnDevice(actionClassName = actionClassName, args = args)
+        if (result is BackupActionResult.Failure) {
+            throw IOException(
+                "${actionClassName.substringAfterLast('.')} failed for $domain: " +
+                    result.errorMessage
+            )
         }
     }
 
-    internal fun mapExceptionToErrorCode(
-        stage: BackupExecutionStage,
-        e: Exception,
-    ): BackupErrorCode {
-        val msg = e.message?.lowercase(Locale.ROOT) ?: ""
-        return when (stage) {
-            BackupExecutionStage.PRECONDITION ->
-                if (msg.contains("keyguard")) {
-                    BackupErrorCode.KEYGUARD_UNLOCK_FAILED
-                } else {
-                    BackupErrorCode.UNKNOWN_ERROR
-                }
-            BackupExecutionStage.SEEDING -> BackupErrorCode.SEEDING_FAILED
-            BackupExecutionStage.BACKUP ->
-                when {
-                    msg.contains("gmscore") || msg.contains("play store") ->
-                        BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING
-                    msg.contains("bmgr") || msg.contains("transport") ->
-                        BackupErrorCode.BMGR_INIT_FAILED
-                    else -> BackupErrorCode.BACKUP_FAILED
-                }
-            BackupExecutionStage.CLEAR_DATA -> BackupErrorCode.CLEAR_DATA_FAILED
-            BackupExecutionStage.RESTORE ->
-                when {
-                    msg.contains("timeout") || msg.contains("polling") ->
-                        BackupErrorCode.RESTORE_POLL_TIMEOUT
-                    msg.contains("gmscore") || msg.contains("play store") ->
-                        BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING
-                    msg.contains("bmgr") || msg.contains("transport") ->
-                        BackupErrorCode.BMGR_INIT_FAILED
-                    else -> BackupErrorCode.RESTORE_FAILED
-                }
-            BackupExecutionStage.VERIFICATION -> BackupErrorCode.VERIFICATION_FAILED
+    /** Stores [summary] as the latest one and publishes it; publishing never fails the flow. */
+    private fun record(summary: BackupExecutionSummary) {
+        lastExecutionSummary = summary
+        val publisher = telemetryPublisher ?: return
+        try {
+            summary.publishTo(publisher)
+        } catch (e: Throwable) {
+            logger.warning("Failed to publish telemetry: ${e.message}")
         }
     }
 
@@ -389,29 +156,13 @@ internal class BackupRestoreControllerImpl(
         timeout: Duration,
         waitForDebugger: Boolean,
     ): BackupActionResult {
-        val cmd = StringBuilder("am instrument")
-        if (waitForDebugger) {
-            cmd.append(" -w -e debug true")
-        } else {
-            cmd.append(" -w")
-        }
-
-        // Binder IPC Overflow redirection directory on device
-        val binderRedirectDir = "/data/local/tmp"
-        val payloadId = UUID.randomUUID().toString()
-
-        val safeActionClass = escapeShellArg(actionClassName)
-        cmd.append(" -e action ").append(safeActionClass)
-        cmd.append(" -e actionClass ").append(safeActionClass)
-        cmd.append(" -e payload_id ").append(payloadId)
-        cmd.append(" -e redirect_dir ").append(binderRedirectDir)
-
-        for ((key, value) in args) {
+        val cmd = StringBuilder("am instrument -w")
+        val instrumentationArgs =
+            BackupActionWireProtocol.instrumentationArgs(actionClassName, args, waitForDebugger)
+        for ((key, value) in instrumentationArgs) {
             cmd.append(" -e ").append(escapeShellKey(key)).append(" ").append(escapeShellArg(value))
         }
-        cmd.append(" ")
-            .append(applicationId)
-            .append(".test/androidx.test.backup.BackupRestoreTestRunner")
+        cmd.append(" ").append(BackupActionWireProtocol.runnerComponent(applicationId))
 
         val selector = DeviceSelector.fromSerialNumber(serialNumber)
         @Suppress("AdbDeviceServicesCommand")
@@ -420,158 +171,52 @@ internal class BackupRestoreControllerImpl(
                 .shellAsText(device = selector, command = cmd.toString())
                 .stdout
 
-        val marker = "BACKUP_RESTORE_RESULT: "
-        val markerIndex = stdout.indexOf(marker)
-        val jsonPart =
-            if (markerIndex != -1) {
-                stdout.substring(markerIndex + marker.length).trim().lineSequence().firstOrNull()
-                    ?: ""
-            } else {
-                val fallbackMarker = "resultJson="
-                val fallbackIndex = stdout.indexOf(fallbackMarker)
-                if (fallbackIndex != -1) {
-                    stdout
-                        .substring(fallbackIndex + fallbackMarker.length)
-                        .trim()
-                        .lineSequence()
-                        .firstOrNull() ?: ""
-                } else {
-                    ""
-                }
-            }
-
-        if (jsonPart.isEmpty()) {
-            val errMsg = "No execution result was received from device. Raw stdout:\n$stdout"
-            return BackupActionResult.Failure(errMsg)
-        }
-
-        val jsonObject =
-            try {
-                Json.parseToJsonElement(jsonPart).jsonObject
-            } catch (e: Exception) {
-                val errMsg =
-                    "Failed to parse runner output JSON: ${e.message}. Raw JSON:\n$jsonPart"
-                return BackupActionResult.Failure(errMsg)
-            }
-
-        val isSuccess = jsonObject["isSuccess"]?.jsonPrimitive?.booleanOrNull ?: false
-        val runnerFailure =
-            if (isSuccess) {
-                null
-            } else {
-                BackupActionResult.Failure(
-                    errorMessage =
-                        jsonObject["errorMessage"]?.jsonPrimitive?.contentOrNull
-                            ?: "Unknown device failure.",
-                    stackTrace = jsonObject["stackTrace"]?.jsonPrimitive?.contentOrNull,
-                )
-            }
-
-        // Handle Binder overflow redirection
-        val payloadPath = jsonObject["payload_path"]?.jsonPrimitive?.contentOrNull
-        val inlinePayload = jsonObject["payloadJson"]?.jsonPrimitive?.contentOrNull
-
-        // A failure with no payload is a crash or a runner error; nothing more to read. A failure
-        // that does carry a payload is an action reporting its own failure, and the payload is
-        // still read: it names the specific error, and an overflow file must not be left behind.
-        if (runnerFailure != null && payloadPath == null && inlinePayload == null) {
-            return runnerFailure
-        }
-        if (payloadPath != null) {
-            val tempLocalFile = File.createTempFile("overflow_", ".json")
-            try {
-                val localPath = Paths.get(tempLocalFile.absolutePath)
-                adbSession.channelFactory.createFile(localPath).use { outputChannel ->
-                    adbSession.deviceServices.sync(selector).use { syncServices ->
-                        syncServices.recv(payloadPath, outputChannel, null)
+        val report = BackupRunnerReport.parse(stdout)
+        val payloadPath = report.payloadPath
+        val payloadJson =
+            when {
+                payloadPath != null ->
+                    try {
+                        pullOverflowPayload(payloadPath)
+                    } catch (e: Exception) {
+                        return BackupActionResult.Failure(
+                            "Failed to pull Binder overflow payload: " + e.message
+                        )
                     }
-                }
-                // Remove the remote overflow file on device once successfully pulled!
-                @Suppress("AdbDeviceServicesCommand")
-                adbSession.deviceServices.shellAsText(
-                    selector,
-                    "rm -f -- ${escapeShellArg(payloadPath)}",
-                )
-
-                val fileContent = tempLocalFile.readText()
-                val pulledObj = Json.parseToJsonElement(fileContent).jsonObject
-                val innerPayload = pulledObj["payloadJson"]?.jsonPrimitive?.contentOrNull ?: ""
-                val dataMap = parseStringMap(innerPayload)
-
-                return reconcile(runnerFailure, toActionResult(dataMap, actionClassName))
-            } catch (e: Exception) {
-                return BackupActionResult.Failure(
-                    "Failed to pull Binder overflow payload: " + e.message
-                )
-            } finally {
-                tempLocalFile.delete()
+                // A failure with no payload is a crash or a runner error; nothing more to read. A
+                // failure that does carry a payload is an action reporting its own failure, and the
+                // payload is still read: it names the specific error, and an overflow file must not
+                // be left behind.
+                report.inlinePayload == null && report.runnerFailure != null ->
+                    return report.runnerFailure
+                else ->
+                    report.inlinePayload.orEmpty().also {
+                        logger.info("Executed $actionClassName on device.")
+                        if (it.isNotEmpty()) logger.info("Payload returned: $it")
+                    }
             }
-        }
-
-        val payloadJson = inlinePayload ?: ""
-        logger.info("Executed $actionClassName on device.")
-        if (payloadJson.isNotEmpty()) {
-            logger.info("Payload returned: $payloadJson")
-        }
-
-        val dataMap = parseStringMap(payloadJson)
-
-        return reconcile(runnerFailure, toActionResult(dataMap, actionClassName))
+        return report.resultFor(payloadJson, actionClassName)
     }
 
-    /**
-     * Combines the runner's verdict with the one derived from the payload.
-     *
-     * The payload decides the message, but a failure reported by the runner is never downgraded to
-     * a success, so a runner that is stricter than the payload rule still wins.
-     */
-    private fun reconcile(
-        runnerFailure: BackupActionResult.Failure?,
-        fromPayload: BackupActionResult,
-    ): BackupActionResult =
-        if (runnerFailure != null && fromPayload is BackupActionResult.Success) {
-            runnerFailure
-        } else {
-            fromPayload
-        }
-
-    /**
-     * Converts a device action's result payload into a [BackupActionResult].
-     *
-     * An action reports a problem in-band through [BackupActionOutputKeys.STATUS] rather than by
-     * throwing. Reading it here keeps the host correct even against a runner that reports only
-     * whether the action threw, and supplies the specific error message.
-     *
-     * This mirrors `androidx.test.backup.BackupDeviceActionResult.isSuccess` exactly, so the device
-     * and the host never disagree about the same payload:
-     * - A reported status decides on its own. Only the recognized failure value
-     *   [BackupActionValues.STATUS_FAILURE] marks the action as failed; `status` is a generic key
-     *   that custom actions legitimately publish their own vocabulary through, so an unrecognized
-     *   value is reported as a success rather than being guessed at.
-     * - With no status at all, a non-empty [BackupActionOutputKeys.ERROR] marks the action as
-     *   failed, so an action that reports only an error is not read as passing.
-     *
-     * Actions that want their failures honored should use
-     * `androidx.test.backup.BackupDeviceActionResult.failure`, which emits the recognized value.
-     */
-    private fun toActionResult(
-        dataMap: Map<String, String>,
-        actionClassName: String,
-    ): BackupActionResult {
-        val status = dataMap[BackupActionOutputKeys.STATUS]
-        val error = dataMap[BackupActionOutputKeys.ERROR]
-        if (status != null) {
-            if (status.equals(BackupActionValues.STATUS_FAILURE, ignoreCase = true)) {
-                return BackupActionResult.Failure(
-                    error
-                        ?: "$actionClassName reported ${BackupActionOutputKeys.STATUS}='$status' without an " +
-                            "${BackupActionOutputKeys.ERROR} message."
-                )
+    /** Reads the payload the runner wrote to [devicePath], then deletes that file. */
+    private suspend fun pullOverflowPayload(devicePath: String): String {
+        val selector = DeviceSelector.fromSerialNumber(serialNumber)
+        val localFile = File.createTempFile("overflow_", ".json")
+        try {
+            adbSession.channelFactory.createFile(localFile.toPath()).use { outputChannel ->
+                adbSession.deviceServices.sync(selector).use { syncServices ->
+                    syncServices.recv(devicePath, outputChannel, null)
+                }
             }
-        } else if (!error.isNullOrEmpty()) {
-            return BackupActionResult.Failure(error)
+            @Suppress("AdbDeviceServicesCommand")
+            adbSession.deviceServices.shellAsText(
+                selector,
+                "rm -f -- ${escapeShellArg(devicePath)}",
+            )
+            return BackupRunnerReport.parseOverflowFile(localFile.readText())
+        } finally {
+            localFile.delete()
         }
-        return BackupActionResult.Success(dataMap)
     }
 
     private suspend fun runLocalBackupSimulation(outputDir: File): File {
@@ -1154,32 +799,6 @@ internal class BackupRestoreControllerImpl(
 
     private companion object {
         /**
-         * Version of this library, read from the version resource packaged into the artifact.
-         *
-         * Falls back to [BackupReportKeys.UNKNOWN_LIBRARY_VERSION] when the resource is absent, for
-         * example when running against locally built classes rather than a published artifact.
-         * Reporting a placeholder here keeps the telemetry honest instead of attributing runs to a
-         * release that may not be the one under test.
-         */
-        private val LIBRARY_VERSION: String by lazy {
-            try {
-                readVersionResource("/META-INF/androidx.test.backup_backup-host.version")
-                    ?: readVersionResource("/META-INF/androidx.test.backup_backup.version")
-                    ?: BackupReportKeys.UNKNOWN_LIBRARY_VERSION
-            } catch (_: Throwable) {
-                BackupReportKeys.UNKNOWN_LIBRARY_VERSION
-            }
-        }
-
-        private fun readVersionResource(resourcePath: String): String? =
-            BackupRestoreControllerImpl::class
-                .java
-                .getResourceAsStream(resourcePath)
-                ?.bufferedReader()
-                ?.use { it.readLine()?.trim() }
-                ?.takeIf { it.isNotEmpty() }
-
-        /**
          * Minimum Google Play Services (GmsCore) version code (24.09.13) required by the underlying
          * backup transport emulation service library.
          */
@@ -1210,22 +829,5 @@ internal class BackupRestoreControllerImpl(
             } else {
                 escapeShellArg(key)
             }
-
-        private fun parseStringMap(jsonString: String): Map<String, String> {
-            if (jsonString.isEmpty()) return emptyMap()
-            return try {
-                val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
-                val map = mutableMapOf<String, String>()
-                for ((key, element) in jsonObject) {
-                    val value = (element as? JsonPrimitive)?.contentOrNull
-                    if (value != null) {
-                        map[key] = value
-                    }
-                }
-                map
-            } catch (e: Exception) {
-                emptyMap()
-            }
-        }
     }
 }
