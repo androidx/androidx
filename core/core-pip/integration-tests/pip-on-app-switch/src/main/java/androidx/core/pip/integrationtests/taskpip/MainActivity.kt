@@ -35,6 +35,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.pip.PictureInPictureDelegate
 import androidx.core.pip.VideoPlaybackPictureInPicture
 import androidx.core.pip.contentpip.ContentPipCallback
+import androidx.core.pip.contentpip.ContentPipCallback.FinishReason
 import androidx.core.pip.contentpip.enablePipOnAppSwitch
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.Player
@@ -204,16 +205,16 @@ class MainActivity : AppCompatActivity(), ContentPipCallback {
         }
     }
 
-    override fun onInitContentPip(): Boolean {
+    override fun onInit(): Boolean {
         return playbackManager.player.isPlaying
     }
 
-    override fun onPrepareContentPip(): Boolean {
+    override fun onPrepare(): Boolean {
         playbackManager.detachPlayerView(playerView)
         return true
     }
 
-    override fun onAttachContentPip(pipActivity: ComponentActivity) {
+    override fun onAttach(pipActivity: ComponentActivity) {
         val pipPlayerView = PlayerView(pipActivity)
         pipPlayerView.useController = false
 
@@ -238,18 +239,24 @@ class MainActivity : AppCompatActivity(), ContentPipCallback {
         pipActivity.setPictureInPictureParams(paramsBuilder.build())
     }
 
-    override fun onFinishContentPip(isDismissed: Boolean) {
-        // isStopping=true suggests the PiP is dismissed, stop the playback.
-        if (isDismissed) {
-            playbackManager.player.stop()
-        } else {
-            playbackManager.player.play()
-            // Bring MainActivity back to the front smoothly
-            val intent =
-                Intent(this, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                }
-            startActivity(intent)
+    override fun onFinish(reason: FinishReason) {
+        when (reason) {
+            FinishReason.RESTORED -> {
+                playbackManager.player.play()
+                // Bring MainActivity back to the front smoothly
+                val intent =
+                    Intent(this, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    }
+                startActivity(intent)
+            }
+            // Stop the playback if the PiP is dismissed or finished for other reasons.
+            else -> playbackManager.player.stop()
         }
+    }
+
+    override fun onError(throwable: Throwable) {
+        // The Content PiP failed, e.g., failed to enter PiP, stop the playback.
+        playbackManager.player.stop()
     }
 }
