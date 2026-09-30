@@ -39,10 +39,10 @@ import org.junit.runner.RunWith
 /** Automated integration tests for SceneCore multi-channel glTF animations. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@XrDeviceTest
 class SceneCoreGltfMultiAnimationTest {
 
     @Test
+    @XrDeviceTest
     fun animation_singleChannelFsm_transitionsThroughStates() = runTestWithSession { session ->
         val playingDeferred = CompletableDeferred<Unit>()
         val listener =
@@ -95,6 +95,7 @@ class SceneCoreGltfMultiAnimationTest {
     }
 
     @Test
+    @XrDeviceTest
     fun animation_multiChannelConcurrency_playsSimultaneously() = runTestWithSession { session ->
         val playingDeferred1 = CompletableDeferred<Unit>()
         val playingDeferred2 = CompletableDeferred<Unit>()
@@ -168,6 +169,7 @@ class SceneCoreGltfMultiAnimationTest {
     }
 
     @Test
+    @XrDeviceTest
     fun animation_speedAndLooping_updatesLivePlayback() = runTestWithSession { session ->
         val playingDeferred = CompletableDeferred<Unit>()
         val listener =
@@ -212,6 +214,7 @@ class SceneCoreGltfMultiAnimationTest {
     }
 
     @Test
+    @XrDeviceTest
     fun animation_stopAllAnimations_abortsAllActiveChannels() = runTestWithSession { session ->
         val playingDeferred1 = CompletableDeferred<Unit>()
         val playingDeferred2 = CompletableDeferred<Unit>()
