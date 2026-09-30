@@ -71,9 +71,12 @@ class XmlVectorTestCase : ImageVectorTestCase() {
 class ProgrammaticVectorTestCase : ImageVectorTestCase() {
 
     /** Returns a clone of ic_baseline_menu_24 built purely in code */
-    @Composable
-    override fun getPainter() =
-        rememberVectorPainter(
+    @Composable override fun getPainter() = rememberVectorPainter(imageVector)
+
+    override val testTag = "Vector"
+
+    companion object {
+        private val imageVector =
             ImageVector.Builder(
                     defaultWidth = 24.dp,
                     defaultHeight = 24.dp,
@@ -113,7 +116,5 @@ class ProgrammaticVectorTestCase : ImageVectorTestCase() {
                     )
                 }
                 .build()
-        )
-
-    override val testTag = "Vector"
+    }
 }
