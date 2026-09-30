@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
@@ -696,6 +697,62 @@ class RcPlayerCustomComponentTest {
         }
 
         assertThat(drawable).isNotNull()
+    }
+
+    @Test
+    fun customComponentRendersChildren() {
+        var childCount = -1
+        var slotConfig: String? = null
+        var slotId: Int? = null
+        var plainIsCustom = true
+        var outOfRangeIsCustom = true
+        val plugin =
+            object : CustomComposablePlugin<Unit> {
+                override val name: String = "test:card"
+
+                @Composable override fun extract(component: RcCustomComponent): Unit = Unit
+
+                @Composable
+                override fun Content(data: Unit, component: RcCustomComponent, modifier: Modifier) {
+                    childCount = component.childCount
+                    val slot = component.customChild(0)
+                    slotConfig = slot?.config
+                    slotId = slot?.ints?.get(1)
+                    plainIsCustom = component.customChild(1) != null
+                    outOfRangeIsCustom = component.customChild(5) != null
+                    Column {
+                        BasicText("card")
+                        // The slot's children are rendered directly, bypassing the registry.
+                        slot?.Children()
+                        component.Child(1)
+                        // Out-of-range indices render nothing rather than throwing.
+                        component.Child(5)
+                    }
+                }
+            }
+
+        setCustomContent(customPlugins = CustomPluginRegistry(plugin)) {
+            RemoteCustomComponent(
+                name = "test:card",
+                content = {
+                    RemoteCustomComponent(
+                        name = "test:slot",
+                        content = { RemoteText("slotted".rs) },
+                        properties = { property(1, 7) },
+                    )
+                    RemoteText("plain".rs)
+                },
+            )
+        }
+
+        assertThat(childCount).isEqualTo(2)
+        assertThat(slotConfig).isEqualTo("test:slot")
+        assertThat(slotId).isEqualTo(7)
+        assertThat(plainIsCustom).isFalse()
+        assertThat(outOfRangeIsCustom).isFalse()
+        rule.onNodeWithText("card").assertExists()
+        rule.onNodeWithText("slotted").assertExists()
+        rule.onNodeWithText("plain").assertExists()
     }
 
     private fun findCustom(operations: Collection<Operation>): Custom? {

@@ -45,6 +45,7 @@ internal class RemoteCustomComponentNode : RemoteComposeNode() {
         }
         val coreProperties = RemoteCustomPropertiesScope(creationState).apply(properties).properties
         creationState.document.startCustom(recordingModifier, name, coreProperties)
+        renderChildren(creationState, remoteCanvas)
         creationState.document.endCustom()
     }
 }
@@ -53,21 +54,23 @@ internal class RemoteCustomComponentNode : RemoteComposeNode() {
  * Bridge exposing RemoteCompose Custom Components as `@RemoteComposable` components in the Compose
  * DSL.
  *
- * The component is recorded directly as a layout component rather than inside a [RemoteCanvas], so
- * its [modifier] (e.g. `clickable` or `combinedClickable`) applies to the Custom component itself
- * and can be handled by the host's plugin.
+ * The [content] is recorded as child components of the Custom component, so a host plugin can
+ * render them inside its own native implementation of [name] (e.g. as the label of a native button,
+ * or the items of a native list).
  *
  * @param name Unique registered custom component name.
  * @param modifier High-level [RemoteModifier] to decorate the custom component.
+ * @param content The remote children of the custom component.
  * @param properties Custom property definitions to pass to the custom component.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
-@Suppress("RestrictedApi")
+@Suppress("RestrictedApi", "ComposableLambdaParameterPosition")
 public fun RemoteCustomComponent(
     name: String,
     modifier: RemoteModifier = RemoteModifier,
+    content: @Composable @RemoteComposable () -> Unit = {},
     properties: RemoteCustomPropertiesScope.() -> Unit = {},
 ) {
     RemoteComposeNode(
@@ -77,6 +80,7 @@ public fun RemoteCustomComponent(
             set(modifier) { this.modifier = it }
             set(properties) { this.properties = it }
         },
+        content = content,
     )
 }
 
@@ -256,7 +260,7 @@ internal class RemoteBooleanReturnEntry(
 
 /** Scope for configuring properties and return bindings of a [RemoteCustomComponent]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Suppress("RestrictedApi")
+@Suppress("RestrictedApi", "ComposableLambdaParameterPosition")
 public class RemoteCustomPropertiesScope
 public constructor(private val creationState: RemoteComposeCreationState? = null) {
     internal val entries = mutableListOf<CustomPropertyEntry>()
@@ -314,7 +318,10 @@ public constructor(private val creationState: RemoteComposeCreationState? = null
         entries.add(RemoteBooleanPropertyEntry(id.toShort(), value))
     }
 
-    /** Passes the document bitmap id of [value] as an integer property. */
+    /**
+     * Adds the bitmap [value] to the document and passes its id as an int property. A host plugin
+     * can resolve it with `LocalRcImageLoader`.
+     */
     public fun property(id: Int, value: RemoteImageBitmap) {
         entries.add(RemoteImageBitmapPropertyEntry(id.toShort(), value))
     }
