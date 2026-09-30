@@ -145,22 +145,8 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup> by lazy {
         val result = mutableMapOf<String, LibraryGroup>()
         for (association in libraryGroupAssociations) {
-            val baseGroup = libraryGroupsByGroupId[association.libraryGroup.group]
-            // Only mark requireSameVersion = false when the override specifies a different
-            // atomicGroupVersion than the base group (as opposed to using overrideInclude to map
-            // a project from another directory into a single group, or an edge case where an
-            // override entry's version matches the base group's version).
-            val isVersionOverride =
-                baseGroup != null &&
-                    association.libraryGroup.atomicGroupVersion != baseGroup.atomicGroupVersion
-            val effectiveGroup =
-                if (isVersionOverride) {
-                    association.libraryGroup.copy(requireSameVersion = false)
-                } else {
-                    association.libraryGroup
-                }
             for (overridePath in association.overrideIncludeInProjectPaths) {
-                result[overridePath] = effectiveGroup
+                result[overridePath] = association.libraryGroup
             }
         }
         result

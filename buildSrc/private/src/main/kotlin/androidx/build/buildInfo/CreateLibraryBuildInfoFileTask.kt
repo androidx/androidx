@@ -418,12 +418,7 @@ fun Project.addCreateLibraryBuildInfoFileTasks(
                     createTaskForComponent(
                         anchorTask = anchorTask,
                         pub = mavenPub,
-                        libraryGroup =
-                            if (androidXExtension.projectDirectlySpecifiesMavenVersion) {
-                                androidXExtension.mavenGroup?.copy(requireSameVersion = false)
-                            } else {
-                                androidXExtension.mavenGroup
-                            },
+                        libraryGroup = androidXExtension.mavenGroup,
                         // `mavenPub.artifactId` is a var annotated @ToBeReplacedByLazyProperty
                         // It may not yet be set to the right value at configuration time, so wrap
                         // it in a provider.
