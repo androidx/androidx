@@ -371,7 +371,14 @@ public final class Action {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mTitle, mType, mOnClickDelegate == null, mIcon == null, mIsEnabled);
+        return Objects.hash(
+                mTitle,
+                mType,
+                mOnClickDelegate == null,
+                mIcon,
+                mBackgroundColor,
+                mFlags,
+                mIsEnabled);
     }
 
     @Override
@@ -390,6 +397,7 @@ public final class Action {
                 && mType == otherAction.mType
                 && Objects.equals(mIcon, otherAction.mIcon)
                 && Objects.equals(mOnClickDelegate == null, otherAction.mOnClickDelegate == null)
+                && Objects.equals(mBackgroundColor, otherAction.mBackgroundColor)
                 && Objects.equals(mFlags, otherAction.mFlags)
                 && mIsEnabled == otherAction.mIsEnabled;
     }
