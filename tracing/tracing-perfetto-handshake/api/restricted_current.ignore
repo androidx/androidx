@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+AddedClass: androidx.tracing.perfetto.handshake.protocol.RequestKeys:
+    Added class androidx.tracing.perfetto.handshake.protocol.RequestKeys
+AddedClass: androidx.tracing.perfetto.handshake.protocol.ResponseKeys:
+    Added class androidx.tracing.perfetto.handshake.protocol.ResponseKeys
+
+
+AddedMethod: androidx.tracing.perfetto.handshake.protocol.Response#Response(int, String, String):
+    Added constructor androidx.tracing.perfetto.handshake.protocol.Response(int,String,String)
