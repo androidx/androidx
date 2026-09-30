@@ -104,6 +104,139 @@ class CardTest {
     }
 
     @Test
+    fun semantics_notFocusable() {
+        rule.setGlimmerThemeContent {
+            Box {
+                Card(modifier = Modifier.testTag("card"), focusable = false) {
+                    Text("This is a card")
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag("card")
+            .assert(isNotFocusable())
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+    }
+
+    @Test
+    fun imageCard_semantics() {
+        rule.setGlimmerThemeContent {
+            Box {
+                ImageCard(
+                    image = { Box(Modifier.size(10.dp)) },
+                    modifier = Modifier.testTag("card"),
+                ) {
+                    Text("This is a card")
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag("card")
+            .assert(isFocusable())
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+    }
+
+    @Test
+    fun imageCard_semantics_notFocusable() {
+        rule.setGlimmerThemeContent {
+            Box {
+                ImageCard(
+                    image = { Box(Modifier.size(10.dp)) },
+                    modifier = Modifier.testTag("card"),
+                    focusable = false,
+                ) {
+                    Text("This is a card")
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag("card")
+            .assert(isNotFocusable())
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+    }
+
+    @Test
+    fun leadingImageCard_semantics() {
+        rule.setGlimmerThemeContent {
+            Box {
+                LeadingImageCard(
+                    image = { Box(Modifier.size(10.dp)) },
+                    modifier = Modifier.testTag("card"),
+                ) {
+                    Text("This is a card")
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag("card")
+            .assert(isFocusable())
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+    }
+
+    @Test
+    fun leadingImageCard_semantics_notFocusable() {
+        rule.setGlimmerThemeContent {
+            Box {
+                LeadingImageCard(
+                    image = { Box(Modifier.size(10.dp)) },
+                    modifier = Modifier.testTag("card"),
+                    focusable = false,
+                ) {
+                    Text("This is a card")
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag("card")
+            .assert(isNotFocusable())
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+    }
+
+    @Test
+    fun trailingImageCard_semantics() {
+        rule.setGlimmerThemeContent {
+            Box {
+                TrailingImageCard(
+                    image = { Box(Modifier.size(10.dp)) },
+                    modifier = Modifier.testTag("card"),
+                ) {
+                    Text("This is a card")
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag("card")
+            .assert(isFocusable())
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+    }
+
+    @Test
+    fun trailingImageCard_semantics_notFocusable() {
+        rule.setGlimmerThemeContent {
+            Box {
+                TrailingImageCard(
+                    image = { Box(Modifier.size(10.dp)) },
+                    modifier = Modifier.testTag("card"),
+                    focusable = false,
+                ) {
+                    Text("This is a card")
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag("card")
+            .assert(isNotFocusable())
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+    }
+
+    @Test
     fun semantics_clickable() {
         rule.setGlimmerThemeContent {
             Box {

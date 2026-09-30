@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
@@ -91,11 +90,12 @@ public fun AlertDialog(
             verticalArrangement = Arrangement.spacedBy(buttonSpacing, Alignment.CenterVertically),
         ) {
             Card(
+                focusable = false,
                 shape = shape,
                 color = containerColor,
                 contentColor = contentColor,
                 contentPadding = contentPadding,
-                modifier = Modifier.fillMaxWidth().focusProperties { canFocus = false },
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(
                     modifier = Modifier.padding(innerPadding),
