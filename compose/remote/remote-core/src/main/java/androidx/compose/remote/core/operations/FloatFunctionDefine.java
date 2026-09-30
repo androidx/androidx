@@ -46,6 +46,8 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
     private final int mId;
     private final int @NonNull [] mFloatVarId;
     private static final int MAX_EXECUTION_DEPTH = 16;
+    private static final ThreadLocal<Integer> sGlobalExecutionDepth =
+            ThreadLocal.withInitial(() -> 0);
     private int mExecutionDepth = 0;
     @NonNull private ArrayList<Operation> mList = new ArrayList<>();
 
@@ -118,7 +120,7 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int id = buffer.readId();
         int varLen = buffer.readInt();
-        if (varLen > Limits.MAX_FUNCTION_ARGUMENTS) {
+        if (varLen < 0 || varLen > Limits.MAX_FUNCTION_ARGUMENTS) {
             throw new IllegalArgumentException("Too many arguments");
         }
         int[] varId = new int[varLen];
@@ -171,10 +173,12 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
      * @param context the current RemoteContext
      */
     public void execute(@NonNull RemoteContext context) {
-        if (mExecutionDepth >= MAX_EXECUTION_DEPTH) {
+        int globalDepth = sGlobalExecutionDepth.get();
+        if (mExecutionDepth >= MAX_EXECUTION_DEPTH || globalDepth >= MAX_EXECUTION_DEPTH) {
             throw new RuntimeException("Recursion not allowed");
         }
         mExecutionDepth++;
+        sGlobalExecutionDepth.set(globalDepth + 1);
         try {
             for (Operation op : mList) {
                 if (op instanceof VariableSupport) {
@@ -186,6 +190,7 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
             }
         } finally {
             mExecutionDepth--;
+            sGlobalExecutionDepth.set(globalDepth);
         }
     }
 }

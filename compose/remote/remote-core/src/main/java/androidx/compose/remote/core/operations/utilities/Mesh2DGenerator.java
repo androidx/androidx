@@ -213,21 +213,20 @@ public final class Mesh2DGenerator {
      * @param out    a 2 element array receiving x then y
      */
     public static void defaultPosition(int layout, float u, float v, float @NonNull [] out) {
+        float angle;
         switch (layout) {
             case LAYOUT_POLAR:
-            case LAYOUT_FAN: {
-                float angle = u * TWO_PI;
+            case LAYOUT_FAN:
+                angle = u * TWO_PI;
                 out[0] = v * (float) Math.cos(angle);
                 out[1] = v * (float) Math.sin(angle);
                 break;
-            }
-            case LAYOUT_RING: {
-                float angle = u * TWO_PI;
+            case LAYOUT_RING:
+                angle = u * TWO_PI;
                 float radius = DEFAULT_RING_INNER_RADIUS + (1f - DEFAULT_RING_INNER_RADIUS) * v;
                 out[0] = radius * (float) Math.cos(angle);
                 out[1] = radius * (float) Math.sin(angle);
                 break;
-            }
             case LAYOUT_GRID:
             case LAYOUT_STRIP:
             case LAYOUT_PATH_STRIP:
@@ -880,6 +879,9 @@ public final class Mesh2DGenerator {
             effective = FLAG_ORIGIN;
         }
 
+        float ux;
+        float uy;
+        float sign;
         switch (effective) {
             case FLAG_FULL:
                 out[0] = duX;
@@ -887,26 +889,24 @@ public final class Mesh2DGenerator {
                 out[2] = dvX;
                 out[3] = dvY;
                 break;
-            case FLAG_SCALE: {
-                float ux = duX / duLength;
-                float uy = duY / duLength;
+            case FLAG_SCALE:
+                ux = duX / duLength;
+                uy = duY / duLength;
                 out[0] = ux * duLength;
                 out[1] = uy * duLength;
-                float sign = cross < 0 ? -1f : 1f;
+                sign = cross < 0 ? -1f : 1f;
                 out[2] = -uy * dvLength * sign;
                 out[3] = ux * dvLength * sign;
                 break;
-            }
-            case FLAG_ROTATION: {
-                float ux = duX / duLength;
-                float uy = duY / duLength;
-                float sign = cross < 0 ? -1f : 1f;
+            case FLAG_ROTATION:
+                ux = duX / duLength;
+                uy = duY / duLength;
+                sign = cross < 0 ? -1f : 1f;
                 out[0] = ux;
                 out[1] = uy;
                 out[2] = -uy * sign;
                 out[3] = ux * sign;
                 break;
-            }
             case FLAG_ORIGIN:
             default:
                 out[0] = 1f;

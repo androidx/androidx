@@ -16,6 +16,7 @@
 package androidx.compose.remote.core;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 
@@ -709,12 +710,11 @@ public abstract class PaintContext {
     }
 
     private final java.util.ArrayList<Boolean> mOffscreenClipStack = new java.util.ArrayList<>();
-    private final java.util.ArrayList<androidx.compose.remote.core.operations.layout.Component>
+    private final java.util.ArrayList<Component>
             mOffscreenCompStack = new java.util.ArrayList<>();
     private final java.util.ArrayList<Integer> mOffscreenBitmapIdStack =
             new java.util.ArrayList<>();
-    private androidx.compose.remote.core.operations.layout.@Nullable Component mOffscreenComponent =
-            null;
+    private @Nullable Component mOffscreenComponent = null;
     private int mOffscreenBitmapId = 0;
 
     /** Releases any active offscreen bitmaps back to the offscreen bitmap pool. */
@@ -730,8 +730,7 @@ public abstract class PaintContext {
      * @param bitmapId the bitmap ID of the offscreen target
      * @param clipped true if a clip rect was pushed on the offscreen canvas
      */
-    public void pushOffscreenTarget(
-            androidx.compose.remote.core.operations.layout.@Nullable Component component,
+    public void pushOffscreenTarget(@Nullable Component component,
             int bitmapId,
             boolean clipped) {
         mOffscreenCompStack.add(mOffscreenComponent);
@@ -782,8 +781,7 @@ public abstract class PaintContext {
      *
      * @param component the offscreen target component, or null
      */
-    public void setOffscreenComponent(
-            androidx.compose.remote.core.operations.layout.@Nullable Component component) {
+    public void setOffscreenComponent(@Nullable Component component) {
         mOffscreenComponent = component;
     }
 
@@ -792,8 +790,7 @@ public abstract class PaintContext {
      *
      * @return the offscreen target component, or null
      */
-    public androidx.compose.remote.core.operations.layout.@Nullable Component
-            getOffscreenComponent() {
+    public @Nullable Component getOffscreenComponent() {
         return mOffscreenComponent;
     }
 }

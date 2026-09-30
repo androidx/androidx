@@ -758,7 +758,7 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
             float @Nullable [] verts,
             float @Nullable [] uv,
             int @Nullable [] colors) {
-        validate(type, uCount, vCount, indices, verts);
+        validate(type, uCount, vCount, indices, verts, uv, colors);
 
         buffer.start(OP_CODE);
         buffer.writeInt(meshId);
@@ -966,7 +966,13 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
     }
 
     private static void validate(
-            int type, int uCount, int vCount, int @Nullable [] indices, float @Nullable [] verts) {
+            int type,
+            int uCount,
+            int vCount,
+            int @Nullable [] indices,
+            float @Nullable [] verts,
+            float @Nullable [] uv,
+            int @Nullable [] colors) {
         if (type == TYPE_EXPRESSION) {
             long grid = (long) uCount * (long) vCount;
             if (grid > Limits.MAX_MESH_2D_GRID) {
@@ -986,6 +992,24 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
             throw new RuntimeException(
                     "Mesh2D vertex count "
                             + vertexCount
+                            + " exceeds MAX_MESH_2D_VERTICES ("
+                            + Limits.MAX_MESH_2D_VERTICES
+                            + ")");
+        }
+        int uvCount = uv != null ? uv.length / 2 : 0;
+        if (uvCount > Limits.MAX_MESH_2D_VERTICES) {
+            throw new RuntimeException(
+                    "Mesh2D UV count "
+                            + uvCount
+                            + " exceeds MAX_MESH_2D_VERTICES ("
+                            + Limits.MAX_MESH_2D_VERTICES
+                            + ")");
+        }
+        int colorCount = colors != null ? colors.length : 0;
+        if (colorCount > Limits.MAX_MESH_2D_VERTICES) {
+            throw new RuntimeException(
+                    "Mesh2D color count "
+                            + colorCount
                             + " exceeds MAX_MESH_2D_VERTICES ("
                             + Limits.MAX_MESH_2D_VERTICES
                             + ")");
@@ -1031,7 +1055,7 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                         "Mesh2D grid exceeds MAX_MESH_2D_GRID (" + Limits.MAX_MESH_2D_GRID + ")");
             }
             int widthCount = buffer.readInt();
-            if (widthCount > Limits.MAX_MESH_2D_WIDTH_SAMPLES) {
+            if (widthCount < 0 || widthCount > Limits.MAX_MESH_2D_WIDTH_SAMPLES) {
                 throw new RuntimeException(
                         "Mesh2D width sample count exceeds MAX_MESH_2D_WIDTH_SAMPLES ("
                                 + Limits.MAX_MESH_2D_WIDTH_SAMPLES
@@ -1042,7 +1066,7 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                 widths[i] = buffer.readNanId();
             }
             int positionCount = buffer.readInt();
-            if (positionCount > Limits.MAX_MESH_2D_WIDTH_SAMPLES) {
+            if (positionCount < 0 || positionCount > Limits.MAX_MESH_2D_WIDTH_SAMPLES) {
                 throw new RuntimeException(
                         "Mesh2D width position count exceeds MAX_MESH_2D_WIDTH_SAMPLES ("
                                 + Limits.MAX_MESH_2D_WIDTH_SAMPLES
@@ -1061,7 +1085,7 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
             expressions = new float[EXPRESSION_GROUPS][];
             for (int g = 0; g < EXPRESSION_GROUPS; g++) {
                 int len = buffer.readInt();
-                if (len > Limits.MAX_EXPRESSION_SIZE) {
+                if (len < 0 || len > Limits.MAX_EXPRESSION_SIZE) {
                     throw new RuntimeException("Mesh2D expression too long");
                 }
                 float[] group = new float[len];
@@ -1072,7 +1096,7 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
             }
         } else {
             int indexCount = buffer.readInt();
-            if (indexCount > Limits.MAX_MESH_2D_INDICES) {
+            if (indexCount < 0 || indexCount > Limits.MAX_MESH_2D_INDICES) {
                 throw new RuntimeException(
                         "Mesh2D index count exceeds MAX_MESH_2D_INDICES ("
                                 + Limits.MAX_MESH_2D_INDICES
@@ -1086,9 +1110,21 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
             int vertsLen = buffer.readInt();
             int uvLen = buffer.readInt();
             int colorsLen = buffer.readInt();
-            if (vertsLen / 2 > Limits.MAX_MESH_2D_VERTICES) {
+            if (vertsLen < 0 || vertsLen / 2 > Limits.MAX_MESH_2D_VERTICES) {
                 throw new RuntimeException(
                         "Mesh2D vertex count exceeds MAX_MESH_2D_VERTICES ("
+                                + Limits.MAX_MESH_2D_VERTICES
+                                + ")");
+            }
+            if (uvLen < 0 || uvLen / 2 > Limits.MAX_MESH_2D_VERTICES) {
+                throw new RuntimeException(
+                        "Mesh2D UV count exceeds MAX_MESH_2D_VERTICES ("
+                                + Limits.MAX_MESH_2D_VERTICES
+                                + ")");
+            }
+            if (colorsLen < 0 || colorsLen > Limits.MAX_MESH_2D_VERTICES) {
+                throw new RuntimeException(
+                        "Mesh2D color count exceeds MAX_MESH_2D_VERTICES ("
                                 + Limits.MAX_MESH_2D_VERTICES
                                 + ")");
             }
