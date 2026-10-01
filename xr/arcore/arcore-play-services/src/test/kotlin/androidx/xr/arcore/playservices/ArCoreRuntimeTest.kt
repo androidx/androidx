@@ -386,6 +386,7 @@ class ArCoreRuntimeTest {
         runTest {
             var wasUpdated = false
             launch {
+                underTest.prepareForUpdate()
                 underTest.update()
                 wasUpdated = true
             }

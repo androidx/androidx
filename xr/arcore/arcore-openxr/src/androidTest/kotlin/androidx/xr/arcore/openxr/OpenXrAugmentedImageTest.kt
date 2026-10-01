@@ -122,7 +122,10 @@ class OpenXrAugmentedImageTest {
             openXrRuntime.configure(Config(augmentedImageDatabase = augmentedImageDatabase))
 
             // Required to wait for the c++ polling event to finish
-            runBlocking { openXrRuntime.update() }
+            runBlocking {
+                openXrRuntime.prepareForUpdate()
+                openXrRuntime.update()
+            }
 
             testBody()
 

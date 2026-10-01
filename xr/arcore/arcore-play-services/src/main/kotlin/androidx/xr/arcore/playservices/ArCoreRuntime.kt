@@ -98,7 +98,7 @@ internal constructor(
         _session.pause()
     }
 
-    override suspend fun update(): ComparableTimeMark {
+    override suspend fun prepareForUpdate() {
         // Delay for average time between frames based on camera config fps setting. This frees up
         // the thread this method is scheduled to run on to do other work. Note that this can result
         // in the emission of duplicated CoreStates by the core Session if the underlying ARCore 1.x
@@ -107,7 +107,9 @@ internal constructor(
             (_session.cameraConfig.fpsRange.lower + _session.cameraConfig.fpsRange.upper) / 2
         val delayTime = (1000L / avgFps).milliseconds
         delay(delayTime)
+    }
 
+    override suspend fun update(): ComparableTimeMark {
         perceptionManager.update()
 
         return timeSource.markNow()
