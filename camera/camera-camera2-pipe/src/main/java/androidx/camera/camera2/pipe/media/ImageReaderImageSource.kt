@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.media
 import android.hardware.camera2.CameraCharacteristics
 import android.media.ImageReader
 import android.os.Build
+import android.os.Handler
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
@@ -28,10 +29,12 @@ import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.core.HandlerExecutor
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.common.ImageWrapper
 import java.lang.Class
+import java.util.concurrent.Executor
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,6 +76,8 @@ constructor(
             imageSourceConfig.defaultDataSpace,
             imageSourceConfig.defaultHardwareBufferFormat,
             imageSourceConfig.enableConcurrentOutputs,
+            @Suppress("DEPRECATION") imageSourceConfig.handler,
+            @Suppress("DEPRECATION") imageSourceConfig.executor,
         )
     }
 
@@ -83,6 +88,8 @@ constructor(
         defaultDataSpace: Int?,
         defaultHardwareBufferFormat: Int?,
         enableConcurrentOutputs: Boolean,
+        handler: Handler? = null,
+        executor: Executor? = null,
     ): ImageSource {
         require(cameraStream.outputs.isNotEmpty()) { "$cameraStream must have outputs." }
         require(capacity > 0) { "Capacity ($capacity) must be > 0" }
@@ -92,8 +99,10 @@ constructor(
             }
         }
 
-        val handlerProvider = { threads.camera2Handler }
-        val executorProvider = { threads.lightweightExecutor }
+        val handlerProvider = { handler ?: threads.camera2Handler }
+        val executorProvider = {
+            executor ?: handler?.let { HandlerExecutor(it) } ?: threads.lightweightExecutor
+        }
 
         val imageReaderCapacity = clampImageReaderCapacity(capacity, maxImageReaderCapacity)
 
@@ -102,8 +111,13 @@ constructor(
         }
 
         if (cameraStream.outputs.size == 1) {
+            if (executor != null) {
+                Log.warn {
+                    "Ignoring executor ($executor) for $cameraStream. Single-output ImageReader " +
+                        "only supports setting a Handler."
+                }
+            }
             val output = cameraStream.outputs.single()
-            val handler = handlerProvider()
             val imageReader =
                 AndroidImageReader.create(
                     output.size.width,
@@ -115,7 +129,7 @@ constructor(
                     defaultHardwareBufferFormat,
                     cameraStream.id,
                     output.id,
-                    handler,
+                    handlerProvider(),
                 )
             return ImageReaderImageSource.create(imageReader, memoryEstimator)
         }
@@ -145,6 +159,13 @@ constructor(
                     "Ignoring HardwareBufferFormat ($defaultHardwareBufferFormat) " +
                         "for $cameraStream. MultiResolutionImageReader does not support " +
                         "setting the default HardwareBufferFormat."
+                }
+            }
+            if (executor != null && handler != null) {
+                Log.warn {
+                    "Both handler ($handler) and executor ($executor) were provided for " +
+                        "$cameraStream. MultiResolutionImageReader will use executor and ignore " +
+                        "handler."
                 }
             }
             val imageReader =

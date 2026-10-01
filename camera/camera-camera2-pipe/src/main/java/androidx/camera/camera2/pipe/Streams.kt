@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
+import android.os.Handler
 import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -28,6 +29,7 @@ import androidx.camera.camera2.pipe.OutputStream.TimestampBase.Companion.TIMESTA
 import androidx.camera.camera2.pipe.compat.Api33Compat
 import androidx.camera.camera2.pipe.compat.Api34Compat
 import androidx.camera.common.CameraId
+import java.util.concurrent.Executor
 
 /**
  * A [CameraStream] is used on a [CameraGraph] to control what outputs that graph produces.
@@ -535,6 +537,12 @@ public class ImageSourceConfig(
 ) {
     // Only allowed to be set to true on multi-output streams.
     public var enableConcurrentOutputs: Boolean = false
+
+    @Deprecated("Prefer CameraPipe's default ImageReader threading.")
+    public var handler: Handler? = null
+
+    @Deprecated("Prefer CameraPipe's default ImageReader threading.")
+    public var executor: Executor? = null
 }
 
 /** This identifies a single output. */
