@@ -50,6 +50,39 @@ class AppFunctionStringTypeMetadataTest {
     }
 
     @Test
+    fun pattern_noPatterns_isNull() {
+        assertThat(AppFunctionStringTypeMetadata(isNullable = false).pattern).isNull()
+    }
+
+    @Test
+    fun pattern_singlePrefixPattern_returnsRegexPattern() {
+        val metadata =
+            AppFunctionStringTypeMetadata(
+                isNullable = false,
+                patternMatchers = listOf(PatternMatcher("content:", PatternMatcher.PATTERN_PREFIX)),
+            )
+
+        assertThat(metadata.pattern).isEqualTo("^content:")
+        assertThat(metadata.pattern).isEqualTo(metadata.regexPattern)
+    }
+
+    @Test
+    fun pattern_multiplePatterns_returnsRegexPattern() {
+        val metadata =
+            AppFunctionStringTypeMetadata(
+                isNullable = false,
+                patternMatchers =
+                    listOf(
+                        PatternMatcher("content:", PatternMatcher.PATTERN_PREFIX),
+                        PatternMatcher("file:", PatternMatcher.PATTERN_PREFIX),
+                    ),
+            )
+
+        assertThat(metadata.pattern).isEqualTo("(?:^content:)|(?:^file:)")
+        assertThat(metadata.pattern).isEqualTo(metadata.regexPattern)
+    }
+
+    @Test
     fun constructor_emptyPatternMatchers_throws() {
         assertThrows(IllegalArgumentException::class.java) {
             AppFunctionStringTypeMetadata(isNullable = false, patternMatchers = emptyList())
