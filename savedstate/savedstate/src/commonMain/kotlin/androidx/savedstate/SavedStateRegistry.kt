@@ -30,6 +30,13 @@ public expect class SavedStateRegistry {
     public constructor()
 
     /**
+     * Creates a [SavedStateRegistry] backed by the given [SavedStateContainer].
+     *
+     * @param container The [SavedStateContainer] to back this [SavedStateRegistry].
+     */
+    internal constructor(container: SavedStateContainer)
+
+    /**
      * Creates a [SavedStateRegistry] initialized with [initialState].
      *
      * @param initialState The initial saved state to restore from.
@@ -129,4 +136,16 @@ public expect class SavedStateRegistry {
      * @param key The key with which the component was previously registered.
      */
     @MainThread public fun unregisterSavedStateProvider(key: String)
+
+    /** Returns the underlying [SavedStateContainer] managing this [SavedStateRegistry]. */
+    @MainThread public fun asContainer(): SavedStateContainer
+
+    /**
+     * Retrieves an existing nested [SavedStateContainer] associated with [key], or creates and
+     * registers a new child [SavedStateContainer] if none exists.
+     *
+     * @param key identifier of the container
+     * @return existing or newly created child [SavedStateContainer] instance
+     */
+    @MainThread public fun createOrGetContainer(key: String): SavedStateContainer
 }
