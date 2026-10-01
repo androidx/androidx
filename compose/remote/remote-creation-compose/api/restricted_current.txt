@@ -96,10 +96,8 @@ package androidx.compose.remote.creation.compose.capture {
     ctor public RemoteDensity(androidx.compose.remote.creation.compose.state.RemoteFloat density, androidx.compose.remote.creation.compose.state.RemoteFloat fontScale);
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getDensity();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getFontScale();
-    method @KotlinOnly public androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.ui.unit.Dp);
-    method @KotlinOnly public androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.ui.unit.TextUnit);
-    method @BytecodeOnly public androidx.compose.remote.creation.compose.state.RemoteFloat toPx--R2X_6o(long);
-    method @BytecodeOnly public androidx.compose.remote.creation.compose.state.RemoteFloat toPx-0680j_4(float);
+    method public androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.remote.creation.compose.state.RemoteDp dp);
+    method public androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.remote.creation.compose.state.RemoteTextUnit textUnit);
     property public androidx.compose.remote.creation.compose.state.RemoteFloat density;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat fontScale;
     field public static final androidx.compose.remote.creation.compose.capture.RemoteDensity.Companion Companion;
@@ -114,6 +112,17 @@ package androidx.compose.remote.creation.compose.capture {
     enum_constant public static final androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior Dp;
     enum_constant public static final androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior Legacy;
     enum_constant public static final androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior Pixels;
+  }
+
+  public final class RemoteDensityKt {
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.remote.creation.compose.capture.RemoteDensity, androidx.compose.ui.unit.Dp dp);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.remote.creation.compose.capture.RemoteDensity, androidx.compose.ui.unit.TextUnit textUnit);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.ui.unit.Dp, androidx.compose.remote.creation.compose.capture.RemoteDensity density);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.ui.unit.TextUnit, androidx.compose.remote.creation.compose.capture.RemoteDensity density);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat toPx-3ABfNKs(androidx.compose.remote.creation.compose.capture.RemoteDensity, float);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat toPx-D5KLDUw(float, androidx.compose.remote.creation.compose.capture.RemoteDensity);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat toPx-eAf_CNQ(long, androidx.compose.remote.creation.compose.capture.RemoteDensity);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat toPx-mpE4wyQ(androidx.compose.remote.creation.compose.capture.RemoteDensity, long);
   }
 
   public final class RemoteImageVector {
