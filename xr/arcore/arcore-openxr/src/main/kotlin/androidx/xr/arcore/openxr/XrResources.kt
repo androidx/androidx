@@ -95,13 +95,17 @@ internal class XrResources(timeSource: OpenXrTimeSource) {
         _updatables.remove(updatable)
     }
 
+    /**
+     * Registers [handle] as the native tracking handle for [id].
+     *
+     * @return the handle previously registered for [id], or null if there was none. The caller is
+     *   responsible for stopping the returned handle natively so it is not leaked.
+     */
     internal fun addAnnotationHandle(
         id: SpatialAnnotationId,
         handle: Long,
         alignment: SpatialAnnotationQuadAlignment? = null,
-    ) {
-        _annotationConfigs[id] = SpatialAnnotationConfig(handle, alignment)
-    }
+    ): Long? = _annotationConfigs.put(id, SpatialAnnotationConfig(handle, alignment))?.handle
 
     internal fun removeAnnotationHandle(id: SpatialAnnotationId): Long? {
         return _annotationConfigs.remove(id)?.handle

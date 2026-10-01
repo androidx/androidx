@@ -356,11 +356,20 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
         ) { handles ->
             if (continuation.isActive && !isPerceptionManagerCleared) {
                 if (handles?.size == keys.size) {
-                    keys.forEachIndexed { index, key ->
+                    // Re-tracking an already-tracked ID replaces its handle; stop the old one so
+                    // it isn't leaked natively.
+                    // TODO(b/568087383): Native returns handles in completion order, not quad
+                    //  order, so handles[index] may not correspond to keys[index].
+                    val replacedHandles = keys.mapIndexedNotNull { index, key ->
                         xrResources.addAnnotationHandle(key, handles[index], alignment)
+                    }
+                    if (replacedHandles.isNotEmpty()) {
+                        nativeStopSpatialAnnotationTracking(replacedHandles.toLongArray())
                     }
                     continuation.resume(Unit)
                 } else {
+                    // TODO(b/568088408): Stop the handles that did succeed on a partial failure
+                    //  so they aren't leaked natively.
                     continuation.resumeWithException(
                         IllegalStateException("Failed to start spatial annotation tracking.")
                     )
