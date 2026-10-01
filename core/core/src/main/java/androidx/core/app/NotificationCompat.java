@@ -10466,10 +10466,11 @@ public class NotificationCompat {
         static final String EXTRA_PROJECTED_EXTENDER = "android.projected.EXTENSIONS";
         static final String KEY_CONTENT_INTENT = "content_intent";
         static final String KEY_ACTIONS = "actions";
+        static final String KEY_SHOULD_USE_EXTENDER_ACTIONS = "should_use_extender_actions";
 
         private PendingIntent mContentIntent;
         private final ArrayList<Action> mActions = new ArrayList<>();
-        private boolean mHasActions = false;
+        private boolean mShouldUseExtenderActions = false;
 
         /**
          * Create a {@link ProjectedExtender} with default options.
@@ -10490,10 +10491,11 @@ public class NotificationCompat {
             if (projectedBundle != null) {
                 mContentIntent = BundleCompat.getParcelable(projectedBundle, KEY_CONTENT_INTENT,
                         PendingIntent.class);
+                mShouldUseExtenderActions = projectedBundle.getBoolean(
+                        KEY_SHOULD_USE_EXTENDER_ACTIONS, false);
                 ArrayList<Notification.Action> actions = BundleCompat.getParcelableArrayList(
                         projectedBundle, KEY_ACTIONS, Notification.Action.class);
                 if (actions != null) {
-                    mHasActions = true;
                     for (Notification.Action action : actions) {
                         if (action != null) {
                             mActions.add(getActionCompatFromAction(action));
@@ -10542,7 +10544,7 @@ public class NotificationCompat {
          * @see NotificationCompat.Action
          */
         public @NonNull ProjectedExtender addAction(@NonNull Action action) {
-            mHasActions = true;
+            mShouldUseExtenderActions = true;
             mActions.add(action);
             return this;
         }
@@ -10561,7 +10563,7 @@ public class NotificationCompat {
          * @see NotificationCompat.Action
          */
         public @NonNull ProjectedExtender addActions(@NonNull List<Action> actions) {
-            mHasActions = true;
+            mShouldUseExtenderActions = true;
             mActions.addAll(actions);
             return this;
         }
@@ -10570,47 +10572,70 @@ public class NotificationCompat {
          * Clear all projected actions from this extender.
          *
          * <p>Calling this method sets the projected actions to an empty list and marks
-         * {@link #hasActions()} as {@code true}, which prevents the projected device from using the
-         * main notification actions so that no actions are displayed on a projected device.
+         * {@link #shouldUseExtenderActions()} as {@code true}, which prevents the projected device
+         * from using the main notification actions so that no actions are displayed on a projected
+         * device. To undo defining projected actions and revert to the default behavior of using
+         * compatible actions from the main notification, call {@link #resetActions()}.
          *
          * @return This {@code ProjectedExtender} object for chaining.
          * @see #addAction
-         * @see #hasActions
+         * @see #resetActions
+         * @see #shouldUseExtenderActions
          */
         public @NonNull ProjectedExtender clearActions() {
-            mHasActions = true;
+            mShouldUseExtenderActions = true;
             mActions.clear();
             return this;
         }
 
         /**
-         * Returns whether projected actions have been explicitly set or cleared on this extender
-         * (via {@link #addAction}, {@link #addActions}, or {@link #clearActions}).
+         * Reset projected actions on this extender to the default unset state.
          *
-         * <p>If this returns {@code false}, no projected actions have been configured and the
-         * projected device may display compatible actions from the main notification by default.
-         * If this returns {@code true}, the projected device should display the actions returned by
-         * {@link #getActions()} instead of the main notification actions (or display no actions if
-         * {@link #getActions()} is empty, such as after calling {@link #clearActions()}).
+         * <p>Calling this method clears any projected actions and marks
+         * {@link #shouldUseExtenderActions()} as {@code false}, allowing the projected device to
+         * display compatible actions from the main notification by default.
          *
-         * @return {@code true} if projected actions were explicitly set or cleared, {@code false}
-         *         otherwise.
+         * @return This {@code ProjectedExtender} object for chaining.
+         * @see #addAction
+         * @see #clearActions
+         * @see #shouldUseExtenderActions
          */
-        public boolean hasActions() {
-            return mHasActions;
+        public @NonNull ProjectedExtender resetActions() {
+            mShouldUseExtenderActions = false;
+            mActions.clear();
+            return this;
+        }
+
+        /**
+         * Returns whether the projected device should use the actions from this extender
+         * (configured via {@link #addAction}, {@link #addActions}, or {@link #clearActions})
+         * instead of the main notification actions.
+         *
+         * <p>If this returns {@code false} (the default, or after calling {@link #resetActions()}),
+         * no projected actions have been configured and the projected device may display compatible
+         * actions from the main notification by default. If this returns {@code true}, the
+         * projected device should display the actions returned by {@link #getActions()} instead of
+         * the main notification actions (or display no actions if {@link #getActions()} is empty,
+         * such as after calling {@link #clearActions()}).
+         *
+         * @return {@code true} if the extender's actions should be used instead of the main
+         *         notification actions, {@code false} otherwise.
+         */
+        public boolean shouldUseExtenderActions() {
+            return mShouldUseExtenderActions;
         }
 
         /**
          * Get the projected actions present on this notification.
          *
-         * <p>If {@link #hasActions()} returns {@code false}, this returns an empty list and the
-         * projected device may display compatible actions from the main notification by default.
-         * If {@link #hasActions()} returns {@code true} and this returns an empty list (for
-         * example, after calling {@link #clearActions()}), no actions are displayed on the
-         * projected device.
+         * <p>If {@link #shouldUseExtenderActions()} returns {@code false}, this returns an empty
+         * list and the projected device may display compatible actions from the main notification
+         * by default. If {@link #shouldUseExtenderActions()} returns {@code true} and this returns
+         * an empty list (for example, after calling {@link #clearActions()}), no actions are
+         * displayed on the projected device.
          *
          * @return List of projected actions, or an empty list if none are present.
-         * @see #hasActions()
+         * @see #shouldUseExtenderActions()
          */
         public @NonNull List<Action> getActions() {
             return mActions;
@@ -10631,7 +10656,9 @@ public class NotificationCompat {
             if (mContentIntent != null) {
                 projectedBundle.putParcelable(KEY_CONTENT_INTENT, mContentIntent);
             }
-            if (mHasActions) {
+            projectedBundle.putBoolean(
+                    KEY_SHOULD_USE_EXTENDER_ACTIONS, mShouldUseExtenderActions);
+            if (!mActions.isEmpty()) {
                 ArrayList<Parcelable> parcelables = new ArrayList<>(mActions.size());
                 for (Action action : mActions) {
                     if (action != null) {
