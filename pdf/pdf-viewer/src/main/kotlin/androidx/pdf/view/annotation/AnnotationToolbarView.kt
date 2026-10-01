@@ -17,7 +17,6 @@
 package androidx.pdf.view.annotation
 
 import android.content.Context
-import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
@@ -90,10 +89,14 @@ import kotlinx.coroutines.launch
  * [removeView] or [removeAllViews].
  */
 @ExperimentalPdfApi
-public class AnnotationToolbarView
-@JvmOverloads
-constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
-    ViewGroup(context, attrs, defStyle) {
+public class AnnotationToolbarView : ViewGroup {
+
+    @JvmOverloads
+    public constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyle: Int = 0,
+    ) : super(context.withMaterial3ThemeFallback(), attrs, defStyle)
 
     /** Denotes the docking edge of the toolbar within its parent container. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -111,7 +114,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         /** Represents a state where the toolbar is docked to the end (right in LTR) edge. */
         public const val DOCK_STATE_END: Int = 2
 
-        private const val TRANSITION_ANIMATION_DURATION = 300L
         private const val FADE_IN_TRANSITION_DELAY = 150L
     }
 
@@ -122,9 +124,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * edit history stack.
      */
     @get:JvmName("canUndo")
-    public var canUndo: Boolean = false
+    public var canUndo: Boolean
+        get() = viewModel.state.value.canUndo
         set(value) {
-            field = value
             viewModel.onAction(ToolbarIntent.UndoAvailabilityChanged(value))
         }
 
@@ -135,9 +137,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * edit history stack.
      */
     @get:JvmName("canRedo")
-    public var canRedo: Boolean = false
+    public var canRedo: Boolean
+        get() = viewModel.state.value.canRedo
         set(value) {
-            field = value
             viewModel.onAction(ToolbarIntent.RedoAvailabilityChanged(value))
         }
 
@@ -147,6 +149,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      */
     public val isConfigPopupVisible: Boolean
         get() = with(viewModel.state.value) { showColorPalette || showBrushSizeSlider }
+
+    /**
+     * Returns `true` if the toolbar is currently expanded to show its interactive tools, or `false`
+     * if it is collapsed.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val isExpanded: Boolean
+        get() = viewModel.state.value.isExpanded
 
     /**
      * Dismisses any currently visible configuration popups (Color Palette or Brush Size Slider).
@@ -180,6 +190,50 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      */
     public fun removeOnDockChangedListener(listener: OnDockStateChangedListener) {
         dockStateChangedListeners.remove(listener)
+    }
+
+    /**
+     * Adds a listener for configuration popup visibility changes.
+     *
+     * @param listener The callback listener invoked when a configuration popup is shown or hidden.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun addOnConfigPopupVisibilityChangedListener(
+        listener: OnConfigPopupVisibilityChangedListener
+    ) {
+        configPopupVisibilityChangedListeners.add(listener)
+    }
+
+    /**
+     * Removes a listener for configuration popup visibility changes.
+     *
+     * @param listener The callback listener invoked when a configuration popup is shown or hidden.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun removeOnConfigPopupVisibilityChangedListener(
+        listener: OnConfigPopupVisibilityChangedListener
+    ) {
+        configPopupVisibilityChangedListeners.remove(listener)
+    }
+
+    /**
+     * Adds a listener for toolbar expanded state changes.
+     *
+     * @param listener The callback listener invoked when the toolbar expands or collapses.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun addOnExpandedStateChangedListener(listener: OnExpandedStateChangedListener) {
+        expandedStateChangedListeners.add(listener)
+    }
+
+    /**
+     * Removes a listener for toolbar expanded state changes.
+     *
+     * @param listener The callback listener invoked when the toolbar expands or collapses.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun removeOnExpandedStateChangedListener(listener: OnExpandedStateChangedListener) {
+        expandedStateChangedListeners.remove(listener)
     }
 
     /**
@@ -221,6 +275,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     private var annotationToolbarListener: AnnotationToolbarListener? = null
     private val dockStateChangedListeners = mutableListOf<OnDockStateChangedListener>()
+    private val configPopupVisibilityChangedListeners =
+        mutableListOf<OnConfigPopupVisibilityChangedListener>()
+    private val expandedStateChangedListeners = mutableListOf<OnExpandedStateChangedListener>()
 
     private val constraintSet = AnnotationToolbarConstraintSet(this.context)
 
@@ -273,6 +330,10 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     init {
         super.addView(container)
+        if (id == NO_ID) {
+            id = R.id.annotationToolbar
+        }
+
         LayoutInflater.from(context).inflate(R.layout.annotation_toolbar, container, true)
         background = context.getDrawable(R.drawable.annotation_toolbar_background)
 
@@ -355,6 +416,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     private suspend fun collectUiStates() = coroutineScope {
         var lastDockedState: Int? = null
+        var lastConfigPopupVisible: Boolean? = null
+        var lastExpandedState: Boolean? = null
         launch(start = CoroutineStart.UNDISPATCHED) {
             viewModel.state.collect { state ->
                 addAnimatorIfRequired(state)
@@ -362,6 +425,21 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 if (state.dockedState != lastDockedState) {
                     updateDockState(state.dockedState)
                     lastDockedState = state.dockedState
+                }
+
+                val isPopupVisible = state.showColorPalette || state.showBrushSizeSlider
+                if (isPopupVisible != lastConfigPopupVisible) {
+                    lastConfigPopupVisible = isPopupVisible
+                    configPopupVisibilityChangedListeners.forEach {
+                        it.onConfigPopupVisibilityChanged(isPopupVisible)
+                    }
+                }
+
+                if (state.isExpanded != lastExpandedState) {
+                    lastExpandedState = state.isExpanded
+                    expandedStateChangedListeners.forEach {
+                        it.onExpandedStateChanged(state.isExpanded)
+                    }
                 }
 
                 updateExpandedState(state.isExpanded)
@@ -529,11 +607,13 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     private fun addTransitionAnimation() {
+        if (!areAnimationsEnabled) return
+
         val transition =
             TransitionSet()
                 .apply {
                     ordering = TransitionSet.ORDERING_TOGETHER
-                    duration = TRANSITION_ANIMATION_DURATION
+                    duration = AnnotationToolbarAnimationDefaults.TRANSITION_DURATION_MS.toLong()
                     interpolator = DecelerateInterpolator()
 
                     addTransition(
@@ -582,6 +662,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                         with(viewModel.state.value) {
                             colorPaletteView.isVisible = showColorPalette
                             brushSizeSelectorView.isVisible = showBrushSizeSlider
+                            toolTrayContainer.isVisible = isExpanded
                             toolTray.isVisible = isExpanded
                             collapsedIcon.isVisible = !isExpanded
                         }
@@ -682,6 +763,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         val left = paddingLeft
         val top = paddingTop
         container.layout(left, top, left + container.measuredWidth, top + container.measuredHeight)
+    }
+
+    override fun requestLayout() {
+        super.requestLayout()
+        propagateRequestLayoutToRoot()
     }
 
     override fun generateDefaultLayoutParams(): LayoutParams {
@@ -812,6 +898,35 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         public fun onDockStateChanged(@DockState dockState: Int)
     }
 
+    /**
+     * Interface definition for callbacks invoked when the visibility of a configuration popup on
+     * [AnnotationToolbarView] changes.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun interface OnConfigPopupVisibilityChangedListener {
+        /**
+         * Called when a configuration popup (such as the color palette or brush size slider) is
+         * shown or hidden.
+         *
+         * @param isVisible `true` if a configuration popup is currently visible, `false` otherwise.
+         */
+        public fun onConfigPopupVisibilityChanged(isVisible: Boolean)
+    }
+
+    /**
+     * Interface definition for callbacks invoked when the expanded state of [AnnotationToolbarView]
+     * changes.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun interface OnExpandedStateChangedListener {
+        /**
+         * Called when the toolbar expansion state changes.
+         *
+         * @param isExpanded `true` if the toolbar is expanded, `false` if collapsed.
+         */
+        public fun onExpandedStateChanged(isExpanded: Boolean)
+    }
+
     private fun Int.toPx(context: Context): Float {
         return this.toFloat() * context.resources.displayMetrics.density
     }
@@ -836,11 +951,4 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
         return this
     }
-}
-
-/** Helper function to check if a touch event is within the bounds of a given view. */
-internal fun View.isTouchInView(event: MotionEvent): Boolean {
-    val viewRect = Rect()
-    getHitRect(viewRect)
-    return viewRect.contains(event.x.toInt(), event.y.toInt())
 }

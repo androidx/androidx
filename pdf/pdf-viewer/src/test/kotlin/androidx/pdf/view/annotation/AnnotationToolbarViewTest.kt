@@ -22,6 +22,7 @@ import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.pdf.ActivityUtils
 import androidx.pdf.ExperimentalPdfApi
@@ -151,5 +152,149 @@ class AnnotationToolbarViewTest {
         coordinator.updateLayout()
 
         assertThat(toolbar.visibility).isEqualTo(View.GONE)
+    }
+
+    @Test
+    fun init_setsDefaultId_whenNoIdProvided() {
+        val toolbar = AnnotationToolbarView(activity)
+
+        assertThat(toolbar.id).isEqualTo(R.id.annotationToolbar)
+    }
+
+    @Test
+    fun onConfigPopupVisibilityChangedListener_invokedWhenPopupToggledAndRemovedCleanly() {
+        val controller = Robolectric.buildActivity(Activity::class.java).create()
+        val visibleActivity = controller.get()
+        visibleActivity.setTheme(
+            com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar
+        )
+        val root = FrameLayout(visibleActivity)
+        visibleActivity.setContentView(root)
+        controller.start().resume().visible()
+        ShadowLooper.idleMainLooper()
+
+        val toolbar = AnnotationToolbarView(visibleActivity)
+        val popupVisibilityEvents = mutableListOf<Boolean>()
+        val listener = AnnotationToolbarView.OnConfigPopupVisibilityChangedListener { isVisible ->
+            popupVisibilityEvents.add(isVisible)
+        }
+        toolbar.addOnConfigPopupVisibilityChangedListener(listener)
+
+        root.addView(toolbar, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        toolbar.dispatchWindowVisibilityChanged(View.VISIBLE)
+        ShadowLooper.idleMainLooper()
+
+        assertThat(popupVisibilityEvents).containsExactly(false)
+
+        // Open brush size slider
+        toolbar.findViewById<View>(R.id.pen_button).performClick()
+        ShadowLooper.idleMainLooper()
+        assertThat(popupVisibilityEvents).containsExactly(false, true).inOrder()
+
+        // Switching directly to color palette keeps popup visible and should not emit duplicate
+        // true
+        toolbar.findViewById<View>(R.id.color_palette_button).performClick()
+        ShadowLooper.idleMainLooper()
+        assertThat(popupVisibilityEvents).containsExactly(false, true).inOrder()
+
+        // Dismiss popup (and verify a redundant dismiss does not emit duplicate false)
+        toolbar.dismissPopups()
+        toolbar.dismissPopups()
+        ShadowLooper.idleMainLooper()
+        assertThat(popupVisibilityEvents).containsExactly(false, true, false).inOrder()
+
+        // Remove listener and verify no further invocations
+        toolbar.removeOnConfigPopupVisibilityChangedListener(listener)
+        toolbar.findViewById<View>(R.id.pen_button).performClick()
+        ShadowLooper.idleMainLooper()
+        assertThat(popupVisibilityEvents).containsExactly(false, true, false).inOrder()
+    }
+
+    @Test
+    fun onExpandedStateChangedListener_invokedWhenExpandedOrCollapsedAndRemovedCleanly() {
+        val controller = Robolectric.buildActivity(Activity::class.java).create()
+        val visibleActivity = controller.get()
+        visibleActivity.setTheme(
+            com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar
+        )
+        val root = FrameLayout(visibleActivity)
+        visibleActivity.setContentView(root)
+        controller.start().resume().visible()
+        ShadowLooper.idleMainLooper()
+
+        val toolbar = AnnotationToolbarView(visibleActivity)
+        val expandedEvents = mutableListOf<Boolean>()
+        val listener = AnnotationToolbarView.OnExpandedStateChangedListener { isExpanded ->
+            expandedEvents.add(isExpanded)
+        }
+        toolbar.addOnExpandedStateChangedListener(listener)
+
+        root.addView(toolbar, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        toolbar.dispatchWindowVisibilityChanged(View.VISIBLE)
+        ShadowLooper.idleMainLooper()
+
+        assertThat(toolbar.isExpanded).isTrue()
+        assertThat(expandedEvents).containsExactly(true)
+
+        // Collapse (and verify a redundant collapse does not emit duplicate false)
+        toolbar.collapseToolbar()
+        toolbar.collapseToolbar()
+        ShadowLooper.idleMainLooper()
+        assertThat(toolbar.isExpanded).isFalse()
+        assertThat(expandedEvents).containsExactly(true, false).inOrder()
+
+        // Expand (and verify a redundant expand does not emit duplicate true)
+        toolbar.expandToolbar()
+        toolbar.expandToolbar()
+        ShadowLooper.idleMainLooper()
+        assertThat(toolbar.isExpanded).isTrue()
+        assertThat(expandedEvents).containsExactly(true, false, true).inOrder()
+
+        // Remove listener and verify no further invocations
+        toolbar.removeOnExpandedStateChangedListener(listener)
+        toolbar.collapseToolbar()
+        ShadowLooper.idleMainLooper()
+        assertThat(toolbar.isExpanded).isFalse()
+        assertThat(expandedEvents).containsExactly(true, false, true).inOrder()
+    }
+
+    @Test
+    fun coordinatorView_restoreHierarchyState_withoutToolbar_doesNotThrow() {
+        val coordinator = AnnotationToolbarCoordinatorView(activity)
+        val state = SparseArray<Parcelable>()
+
+        coordinator.saveHierarchyState(state)
+        coordinator.restoreHierarchyState(state)
+    }
+
+    @Test
+    fun coordinatorView_removeView_detachesToolbarAndUnregistersDockListener() {
+        val controller = Robolectric.buildActivity(Activity::class.java).create()
+        val visibleActivity = controller.get()
+        val coordinator = AnnotationToolbarCoordinatorView(visibleActivity)
+        visibleActivity.setContentView(coordinator)
+        controller.start().resume().visible()
+        ShadowLooper.idleMainLooper()
+
+        val toolbar = AnnotationToolbarView(visibleActivity)
+        coordinator.addView(toolbar)
+        toolbar.dispatchWindowVisibilityChanged(View.VISIBLE)
+        ShadowLooper.idleMainLooper()
+        assertThat(toolbar.parent).isNotNull()
+
+        // Removing an unrelated view is a no-op and keeps the toolbar attached
+        coordinator.removeView(View(visibleActivity))
+        assertThat(toolbar.parent).isNotNull()
+
+        // Removing the attached toolbar detaches it and unregisters the coordinator's dock listener
+        val paramsBeforeRemove = toolbar.layoutParams as ConstraintLayout.LayoutParams
+        assertThat(paramsBeforeRemove.horizontalBias).isEqualTo(0.5f)
+        coordinator.removeView(toolbar)
+        assertThat(toolbar.parent).isNull()
+
+        toolbar.dockState = AnnotationToolbarView.DOCK_STATE_START
+        ShadowLooper.idleMainLooper()
+        assertThat((toolbar.layoutParams as ConstraintLayout.LayoutParams).horizontalBias)
+            .isEqualTo(0.5f)
     }
 }
