@@ -120,6 +120,8 @@ public sealed class A2uiProperty<out T> {
          *   only applicable if [isAdditionalPropertiesAllowed] is true.
          * @return A [StaticA2uiProperty] resolving to a List of [A2uiComponentProperties] at
          *   runtime.
+         * @throws IllegalArgumentException If [minItems] or [maxItems] is negative, or if
+         *   [minItems] is greater than [maxItems].
          */
         public fun nestedList(
             key: String,
@@ -331,6 +333,8 @@ public sealed class A2uiProperty<out T> {
          * @param maxItems The maximum number of items allowed in the list, defaults to
          *   [Int.MAX_VALUE] meaning no constraint.
          * @return A [StaticA2uiProperty] that resolves to a [List] of [String] at runtime.
+         * @throws IllegalArgumentException If [minItems] or [maxItems] is negative, or if
+         *   [minItems] is greater than [maxItems].
          */
         public fun stringList(
             key: String,
@@ -352,6 +356,8 @@ public sealed class A2uiProperty<out T> {
          * @param maxItems The maximum number of items allowed in the list, defaults to
          *   [Int.MAX_VALUE] meaning no constraint.
          * @return A [StaticA2uiProperty] that resolves to a [List] of [Number] at runtime.
+         * @throws IllegalArgumentException If [minItems] or [maxItems] is negative, or if
+         *   [minItems] is greater than [maxItems].
          */
         public fun numberList(
             key: String,
@@ -373,6 +379,8 @@ public sealed class A2uiProperty<out T> {
          * @param maxItems The maximum number of items allowed in the list, defaults to
          *   [Int.MAX_VALUE] meaning no constraint.
          * @return A [StaticA2uiProperty] that resolves to a [List] of [Boolean] at runtime.
+         * @throws IllegalArgumentException If [minItems] or [maxItems] is negative, or if
+         *   [minItems] is greater than [maxItems].
          */
         public fun booleanList(
             key: String,
@@ -394,6 +402,8 @@ public sealed class A2uiProperty<out T> {
          * @param maxItems The maximum number of items allowed in the list, defaults to
          *   [Int.MAX_VALUE] meaning no constraint.
          * @return A [StaticA2uiProperty] that resolves to a [List] of [Any] at runtime.
+         * @throws IllegalArgumentException If [minItems] or [maxItems] is negative, or if
+         *   [minItems] is greater than [maxItems].
          */
         public fun anyList(
             key: String,
@@ -925,6 +935,10 @@ internal class NestedListProperty(
     isAdditionalPropertiesAllowed: Boolean,
     additionalPropertiesSchema: A2uiSchema?,
 ) : StaticA2uiProperty<List<A2uiComponentProperties>>() {
+    init {
+        checkItemsRange(minItems, maxItems)
+    }
+
     override val schema: A2uiSchema = run {
         val propertiesMap = mutableMapOf<String, A2uiSchema>()
         val requiredSet = mutableSetOf<String>()
@@ -1025,6 +1039,10 @@ internal class StringListProperty(
     @IntRange(from = 0) minItems: Int,
     @IntRange(from = 0) maxItems: Int,
 ) : StaticA2uiProperty<List<String>>() {
+    init {
+        checkItemsRange(minItems, maxItems)
+    }
+
     override val schema: A2uiSchema =
         A2uiArraySchema(
             items = A2uiStringSchema.INSTANCE,
@@ -1045,6 +1063,10 @@ internal class NumberListProperty(
     @IntRange(from = 0) minItems: Int,
     @IntRange(from = 0) maxItems: Int,
 ) : StaticA2uiProperty<List<Number>>() {
+    init {
+        checkItemsRange(minItems, maxItems)
+    }
+
     override val schema: A2uiSchema =
         A2uiArraySchema(
             items = A2uiNumberSchema.INSTANCE,
@@ -1065,6 +1087,10 @@ internal class BooleanListProperty(
     @IntRange(from = 0) minItems: Int,
     @IntRange(from = 0) maxItems: Int,
 ) : StaticA2uiProperty<List<Boolean>>() {
+    init {
+        checkItemsRange(minItems, maxItems)
+    }
+
     override val schema: A2uiSchema =
         A2uiArraySchema(
             items = A2uiBooleanSchema.INSTANCE,
@@ -1085,6 +1111,10 @@ internal class AnyListProperty(
     @IntRange(from = 0) minItems: Int,
     @IntRange(from = 0) maxItems: Int,
 ) : StaticA2uiProperty<List<Any>>() {
+    init {
+        checkItemsRange(minItems, maxItems)
+    }
+
     override val schema: A2uiSchema =
         A2uiArraySchema(
             items = A2uiAnySchema.INSTANCE,
@@ -1094,6 +1124,20 @@ internal class AnyListProperty(
         )
 
     @Suppress("UNCHECKED_CAST") override fun safeCast(value: Any): List<Any>? = value as? List<Any>
+}
+
+/**
+ * Validates the item count constraints of a list property.
+ *
+ * @throws IllegalArgumentException If [minItems] or [maxItems] is negative, or if [minItems] is
+ *   greater than [maxItems].
+ */
+private fun checkItemsRange(minItems: Int, maxItems: Int) {
+    require(minItems >= 0) { "minItems ($minItems) must be non-negative" }
+    require(maxItems >= 0) { "maxItems ($maxItems) must be non-negative" }
+    require(minItems <= maxItems) {
+        "minItems ($minItems) must be less than or equal to maxItems ($maxItems)"
+    }
 }
 
 @Immutable
