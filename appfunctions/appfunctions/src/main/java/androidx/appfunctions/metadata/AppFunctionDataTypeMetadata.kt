@@ -1287,6 +1287,21 @@ constructor(
     public val regexPattern: String? by lazy { patternMatchers?.toRegexPatternOrNull() }
 
     /**
+     * Legacy name of [regexPattern].
+     *
+     * Kept temporarily so that existing callers compiled against both older and newer library
+     * versions keep working during the migration. Use [regexPattern] instead.
+     *
+     * This returns the regular expression derived from [patternMatchers] (for example, a
+     * [PatternMatcher.PATTERN_PREFIX] matcher for `"content:"` yields `"^content:"`), not the
+     * original string a caller passed to older library versions.
+     */
+    // TODO: b/487929963 - Remove before the first beta release.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val pattern: String?
+        get() = regexPattern
+
+    /**
      * Converts this [AppFunctionStringTypeMetadata] to an [AppFunctionDataTypeMetadataDocument].
      */
     override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
