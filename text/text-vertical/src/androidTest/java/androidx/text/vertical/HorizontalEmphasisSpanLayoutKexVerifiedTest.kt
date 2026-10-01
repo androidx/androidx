@@ -37,28 +37,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Tests symbolic execution branches for [HorizontalEmphasisSpanLayout].
+ * Tests branches in [HorizontalEmphasisSpanLayout] derived from Kex symbolic execution paths.
  *
- * Kex 0.0.11 generated these 26 branch paths with the KSMT portfolio solver. Each `@Test` method
- * maps 1:1 to a symbolic path from the pre-minimized and post-minimized Kex test suites.
- *
- * Coverage summary from Kex symbolic analysis:
- * - `HorizontalEmphasisSpanLayout`: 95.52% line (64/67), 79.19% instruction (373/471), 50.00%
- *   branch (9/18).
- *
- * Raw Kex output accounting (215 pre-minimized files, 5 post-minimized files):
- * - Core branch paths: 24 (`getSpanWidth_6013653000`, `fillFontMetrics_8127294241`,
- *   `init_707615389_throw_java_lang_ClassCastException11`, `12`, `13`, `24`, `25`, `27`, `32`,
- *   `draw_8157316408`, `draw_8157316409`, `draw_81573164013`, `draw_81573164017`,
- *   `draw_81573164022`, `draw_81573164024`, `draw_81573164025`, `draw_81573164027`,
- *   `draw_81573164029`, `draw_81573164030`, `draw_81573164031`, `draw_81573164032`,
- *   `draw_81573164034`, `draw_81573164036`, `draw_815731640124`).
- * - Synthetic SMT edge cases: 2 (`init_707615389_throw_java_lang_ClassCastException23`, `28` for
- *   `AnnotationPosition.Unknown` fallback to `isMarkOver = true`).
- * - Unreachable `Unsafe`-corrupted or duplicate loop-unroll states: 113 (`draw_815731640*` files
- *   that unroll `positions: FloatArray` for lengths 2 to 16 with `derollCount = 20`).
- * - Infrastructure and non-null NPEs: 76 (`EqualityUtils`, `ReflectionUtils`, 1 `fillFontMetrics`
- *   NPE, 51 `init` NPE/NASE/CCEs, 22 `draw` NPE/CCEs).
+ * Covers initialization, [HorizontalEmphasisSpanLayout.spanWidth],
+ * [HorizontalEmphasisSpanLayout.fillFontMetrics], and [HorizontalEmphasisSpanLayout.draw].
  */
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -77,7 +59,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         canvasBitmap = null
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_getSpanWidth_6013653000
     // Returns the measured spanWidth of the body text.
     @Test
     fun kex_emphasisLayout_getSpanWidth_returnsMeasuredBodyWidth() {
@@ -98,8 +79,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(layout.spanWidth).isEqualTo(expectedWidth)
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_fillFontMetrics_8127294241
-    // Post-minimized representative for HorizontalEmphasisSpanLayout.fillFontMetrics.
     // Overwrites ascent, descent, top, and bottom with boxAscent and boxDescent.
     @Test
     fun kex_emphasisLayout_fillFontMetrics_setsAscentDescentTopAndBottom() {
@@ -131,7 +110,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(fm.bottom).isEqualTo(fm.descent)
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_init_707615389_throw_java_lang_ClassCastException11
     // Branch: empty body text range (start == end) with AnnotationPosition.Before and TextPaint.
     // Creates an empty positions array and expands boxAscent upward by markLineHeight.
     @Test
@@ -156,7 +134,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_init_707615389_throw_java_lang_ClassCastException12
     // Branch: empty body text range (start == end) with AnnotationPosition.After and TextPaint.
     // Creates an empty positions array and expands boxDescent downward by markLineHeight.
     @Test
@@ -181,7 +158,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_init_707615389_throw_java_lang_ClassCastException13
     // Branch: non-empty range containing non-target characters (spaces and punctuation where
     // isEmphasisTarget(codePoint) is false) with AnnotationPosition.Before and TextPaint.
     @Test
@@ -206,7 +182,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_init_707615389_throw_java_lang_ClassCastException24
     // Branch: empty body text range (start == end) with AnnotationPosition.After and plain Paint.
     // Initializes workingPaintCache from plain Paint and creates an empty positions array.
     @Test
@@ -231,7 +206,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_init_707615389_throw_java_lang_ClassCastException25
     // Branch: non-empty range containing non-target characters with AnnotationPosition.After and
     // plain Paint. Leaves positions[gs] as Float.NaN.
     @Test
@@ -256,7 +230,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_init_707615389_throw_java_lang_ClassCastException27
     // Branch: non-empty range with target letter graphemes (isEmphasisTarget(codePoint) is true),
     // AnnotationPosition.After, and TextPaint. Populates positions[gs] with centered coordinates.
     @Test
@@ -287,8 +260,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(markPositions[1].x).isGreaterThan(markPositions[0].x)
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_init_707615389_throw_java_lang_ClassCastException32
-    // Post-minimized representative for HorizontalEmphasisSpanLayout.<init>.
     // Branch: non-empty range with target letter graphemes, AnnotationPosition.Before, and plain
     // Paint. Populates positions[gs] using the working TextPaint cache.
     @Test
@@ -319,8 +290,7 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(markPositions[1].x).isGreaterThan(markPositions[0].x)
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_init_707615389_throw_java_lang_ClassCastException23
-    // SMT Edge Case: empty body range (start == end), position is AnnotationPosition.Unknown,
+    // Branch: empty body range (start == end), position is AnnotationPosition.Unknown,
     // plain Paint. Proves fallback `position != AnnotationPosition.After` sets isMarkOver = true.
     @Test
     fun kex_emphasisLayout_init_emptyRangePositionUnknownWithPlainPaint_treatsAsMarkOver() {
@@ -357,8 +327,7 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(fmUnknown.descent).isEqualTo(fmBefore.descent)
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_init_707615389_throw_java_lang_ClassCastException28
-    // SMT Edge Case: non-empty body range, position is AnnotationPosition.Unknown, TextPaint.
+    // Branch: non-empty body range, position is AnnotationPosition.Unknown, TextPaint.
     // Proves fallback `position != AnnotationPosition.After` sets isMarkOver = true.
     @Test
     fun kex_emphasisLayout_init_positionUnknownWithTextPaint_treatsAsMarkOver() {
@@ -395,7 +364,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(fmUnknown.descent).isEqualTo(fmBefore.descent)
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_8157316408
     // Branch: empty positions array, isMarkOver == false (After), plain Paint.
     // Draws neither background rectangle nor emphasis marks.
     @Test
@@ -422,7 +390,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_81573164013
     // Branch: empty positions array, isMarkOver == true (Before), plain Paint.
     // Draws neither background rectangle nor emphasis marks.
     @Test
@@ -449,7 +416,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_81573164022
     // Branch: empty positions array, isMarkOver == false (After), TextPaint(bgColor = 0).
     // Draws neither background rectangle nor emphasis marks.
     @Test
@@ -457,7 +423,7 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         val paint =
             TextPaint().apply {
                 textSize = 40f
-                bgColor = 0
+                bgColor = Color.TRANSPARENT
             }
         val layout =
             HorizontalEmphasisSpanLayout(
@@ -480,7 +446,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_81573164024
     // Branch: empty positions array, isMarkOver == true (Before), TextPaint(bgColor = 0).
     // Draws neither background rectangle nor emphasis marks.
     @Test
@@ -488,7 +453,7 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         val paint =
             TextPaint().apply {
                 textSize = 40f
-                bgColor = 0
+                bgColor = Color.TRANSPARENT
             }
         val layout =
             HorizontalEmphasisSpanLayout(
@@ -511,7 +476,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_81573164025
     // Branch: empty positions array (spanWidth == 0), isMarkOver == true (Before),
     // TextPaint(bgColor != 0). Skips the zero-width background box via left >= right and draws
     // zero emphasis marks.
@@ -545,7 +509,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_81573164027
     // Branch: empty positions array (spanWidth == 0), isMarkOver == false (After),
     // TextPaint(bgColor != 0). Skips the zero-width background box via left >= right and draws
     // zero emphasis marks.
@@ -579,7 +542,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_8157316409
     // Branch: positions contains only Float.NaN entries (whitespace), isMarkOver == false (After),
     // plain Paint. Skips every NaN entry via `if (pos.isNaN()) return@forEach`.
     @Test
@@ -607,7 +569,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_81573164032
     // Branch: positions contains only Float.NaN entries (whitespace), isMarkOver == true (Before),
     // TextPaint(bgColor != 0). Draws the background box and skips all mark draw calls.
     @Test
@@ -645,7 +606,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(drawnMarks).isEmpty()
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_81573164017
     // Branch: single valid target grapheme (!pos.isNaN()), isMarkOver == true (Before), plain
     // Paint. Draws a single emphasis mark above the body baseline.
     @Test
@@ -681,7 +641,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(markPositions.single().y).isLessThan(100f)
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_81573164029
     // Branch: single valid target grapheme (!pos.isNaN()), isMarkOver == false (After),
     // TextPaint(bgColor = 0). Draws a single emphasis mark below the body baseline.
     @Test
@@ -712,7 +671,7 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         val drawPaint =
             TextPaint().apply {
                 textSize = 40f
-                bgColor = 0
+                bgColor = Color.TRANSPARENT
             }
 
         layout.draw(canvas, 10f, 100f, drawPaint)
@@ -722,7 +681,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(markPositions.single().y).isGreaterThan(100f)
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_81573164034
     // Branch: single valid target grapheme (!pos.isNaN()), isMarkOver == false (After),
     // TextPaint(bgColor != 0). Fills the background box and draws the mark below the body line.
     @Test
@@ -768,7 +726,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(markPositions.single().y).isGreaterThan(100f)
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_81573164030
     // Branch: multiple target graphemes (length 2), isMarkOver == false (After), plain Paint.
     // Draws an emphasis mark for each target grapheme without a background rectangle.
     @Test
@@ -804,7 +761,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(markPositions[1].x).isGreaterThan(markPositions[0].x)
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_81573164031
     // Branch: multiple target graphemes (length 2), isMarkOver == true (Before),
     // TextPaint(bgColor = 0). Draws an emphasis mark above each target grapheme.
     @Test
@@ -835,7 +791,7 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         val drawPaint =
             TextPaint().apply {
                 textSize = 40f
-                bgColor = 0
+                bgColor = Color.TRANSPARENT
             }
 
         layout.draw(canvas, 10f, 100f, drawPaint)
@@ -846,7 +802,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(markPositions[1].x).isGreaterThan(markPositions[0].x)
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_81573164036
     // Branch: multiple target graphemes (length 2), isMarkOver == false (After),
     // TextPaint(bgColor != 0). Fills the background rectangle and draws both emphasis marks.
     @Test
@@ -893,8 +848,6 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
         assertThat(markPositions[1].x).isGreaterThan(markPositions[0].x)
     }
 
-    // Kex: HorizontalEmphasisSpanLayout_draw_815731640124
-    // Post-minimized representative for HorizontalEmphasisSpanLayout.draw.
     // Branch: mixed target and non-target graphemes in positions (some valid, some Float.NaN),
     // with SuperscriptSpan baselineShift and bgColor reset to 0 on bodyLayout.paint, and caller
     // paint textSize restored after withTextScale(relSize).
@@ -937,7 +890,7 @@ class HorizontalEmphasisSpanLayoutKexVerifiedTest {
                 RectF(10f, 120f + fm.ascent, 10f + layout.spanWidth, 120f + fm.descent)
             )
         assertThat(richDrawPaint.textSize).isEqualTo(40f)
-        assertThat(workingPaintCache.get()?.bgColor).isEqualTo(0)
+        assertThat(workingPaintCache.get()?.bgColor).isEqualTo(Color.TRANSPARENT)
         assertThat(workingPaintCache.get()?.baselineShift).isEqualTo(0)
         assertThat(workingPaintCache.get()?.linkColor).isEqualTo(Color.GREEN)
     }

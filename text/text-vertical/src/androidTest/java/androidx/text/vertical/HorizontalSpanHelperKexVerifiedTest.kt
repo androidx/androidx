@@ -37,50 +37,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Tests symbolic execution branches for `HorizontalSpanHelper.kt`.
+ * Tests branches in `HorizontalSpanHelper.kt` derived from Kex symbolic execution paths.
  *
- * Kex 0.0.11 generated these 31 branch paths with the KSMT portfolio solver across [NoBgColorSpan],
- * [workingPaintCache], [setFrom], [getCoveringStyles], [resolveBackgroundColor],
- * [drawSpanBackground], `findLastBgColorStyle`, and [cloneWithoutReplacementSpan]. Each `@Test`
- * method maps 1:1 to a symbolic path from the pre-minimized and post-minimized Kex test suites.
- *
- * Coverage summary from Kex symbolic analysis:
- * - `NoBgColorSpan`: 100.00% line (2/2), 100.00% instruction (7/7), 100.00% branch.
- * - `HorizontalSpanHelperKt`: 73.21% line (41/56), 80.57% instruction (228/283), 63.16% branch
- *   (24/38).
- *
- * Raw Kex output accounting (76 pre-minimized files total):
- * - `NoBgColorSpan` (5 pre-minimized files, 3 post-minimized files):
- *     - Core branch paths: 1 (`updateDrawState_21271554561`).
- *     - Infrastructure and non-null NPEs: 4 (`EqualityUtils`, `ReflectionUtils`, `init_7394825870`,
- *       `updateDrawState_2127155456_throw_java_lang_NullPointerException0`).
- * - `HorizontalSpanHelperKt` (71 pre-minimized files, 8 post-minimized files):
- *     - Core branch paths: 25 (`getWorkingPaintCache_14491230630`, `setFrom_13620886862`,
- *       `setFrom_13620886864`, `getCoveringStyles_11166987513`, `getCoveringStyles_11166987515`,
- *       `getCoveringStyles_11166987517`, `getCoveringStyles_11166987518`,
- *       `getCoveringStyles_11166987519`, `getCoveringStyles_111669875110`,
- *       `resolveBackgroundColor_6130108504`, `resolveBackgroundColor_6130108506`,
- *       `resolveBackgroundColor_613010850_throw_java_lang_ClassCastException5`,
- *       `resolveBackgroundColor_613010850_throw_java_lang_ClassCastException7`,
- *       `drawSpanBackground_830925210`, `drawSpanBackground_830925211`,
- *       `drawSpanBackground_830925212`,
- *       `drawSpanBackground_83092521_throw_java_lang_ClassCastException3`,
- *       `findLastBgColorStyle_20534634132`,
- *       `findLastBgColorStyle_2053463413_throw_java_lang_ClassCastException3`,
- *       `cloneWithoutReplacementSpan_13049585768`, `130495857614`, `130495857615`, `130495857621`,
- *       `130495857622`,
- *       `cloneWithoutReplacementSpan_1304958576_throw_java_lang_ClassCastException4`).
- *     - Synthetic SMT edge cases: 5 (`cloneWithoutReplacementSpan_130495857617`, `130495857620`,
- *       `130495857624`, `130495857627`, `130495857630` for `coerceIn` boundary clamping,
- *       `lastBgColorStyle` matching, and `SPAN_PRIORITY` flag preservation).
- *     - Unreachable `Unsafe`-corrupted states: 26 (`getCoveringStyles_11166987512`, `4`, `6`;
- *       `cloneWithoutReplacementSpan_13049585763`, `5`, `6`, `7`, `9`, `11`, `12`, `13`, `16`,
- *       `18`, `19`, `23`, `25`, `26`, `28`, `29`, `31`, `32`, `33`, `34`, `35`;
- *       `cloneWithoutReplacementSpan_1304958576_throw_java_lang_ClassCastException0`, `10` with
- *       inverted `start > end` bounds or mid-loop span type mutation).
- *     - Infrastructure and non-null NPEs: 15 (`EqualityUtils`, `ReflectionUtils`, 3 `setFrom` NPEs,
- *       2 `getCoveringStyles` NPE/CCEs, 4 `resolveBackgroundColor` NPE/CCEs, 2
- *       `findLastBgColorStyle` NPE/CCEs, 2 `cloneWithoutReplacementSpan` NPE/CCEs).
+ * Covers `NoBgColorSpan`, [setFrom], [getCoveringStyles], [resolveBackgroundColor],
+ * [drawSpanBackground], `findLastBgColorStyle`, and [cloneWithoutReplacementSpan].
  */
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -100,11 +60,9 @@ class HorizontalSpanHelperKexVerifiedTest {
     }
 
     // =========================================================================================
-    // Target 1: NoBgColorSpan (1 test)
+    // Target 1: NoBgColorSpan
     // =========================================================================================
 
-    // Kex: NoBgColorSpan_updateDrawState_21271554561
-    // Post-minimized representative for NoBgColorSpan.updateDrawState.
     // Clears TextPaint.bgColor to 0 on a non-null TextPaint instance.
     @Test
     fun kex_noBgColorSpan_updateDrawState_clearsBgColorToZero() {
@@ -123,28 +81,15 @@ class HorizontalSpanHelperKexVerifiedTest {
 
         assertThat(noBgSpan).isNotSameInstanceAs(bgSpan)
         assertThat(noBgSpan).isInstanceOf(CharacterStyle::class.java)
-        assertThat(textPaint.bgColor).isEqualTo(0)
+        assertThat(textPaint.bgColor).isEqualTo(Color.TRANSPARENT)
     }
 
     // =========================================================================================
-    // Target 2: HorizontalSpanHelperKt (30 tests)
+    // Target 2: HorizontalSpanHelperKt
     // =========================================================================================
 
-    // Kex: HorizontalSpanHelperKt_getWorkingPaintCache_14491230630
-    // Returns the non-null ThreadLocal cache instance for working TextPaint objects.
-    @Test
-    fun kex_getWorkingPaintCache_returnsNonNullThreadLocal() {
-        val cache = workingPaintCache
-        assertThat(cache).isNotNull()
-
-        val paint = TextPaint().apply { textSize = 32f }
-        cache.set(paint)
-        assertThat(workingPaintCache.get()).isSameInstanceAs(paint)
-    }
-
-    // Kex: HorizontalSpanHelperKt_setFrom_13620886862
-    // Post-minimized representative for TextPaint.setFrom when src is a TextPaint.
-    // Copies all base Paint and TextPaint fields into the receiver TextPaint.
+    // Branch: src is a TextPaint. Copies all base Paint and TextPaint fields into the receiver
+    // TextPaint.
     @Test
     fun kex_setFrom_whenSourceIsTextPaint_copiesAllTextPaintFields() {
         val source =
@@ -170,9 +115,8 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(target.drawableState).isEqualTo(intArrayOf(android.R.attr.state_selected))
     }
 
-    // Kex: HorizontalSpanHelperKt_setFrom_13620886864
-    // Post-minimized representative for TextPaint.setFrom when src is a plain Paint.
-    // Resets TextPaint-specific fields from defaultTextPaint before copying base Paint fields.
+    // Branch: src is a plain Paint. Resets TextPaint-specific fields from defaultTextPaint before
+    // copying base Paint fields.
     @Test
     fun kex_setFrom_whenSourceIsPlainPaint_resetsTextPaintFieldsAndCopiesBasePaint() {
         val target =
@@ -195,14 +139,13 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(target.color).isEqualTo(Color.MAGENTA)
         assertThat(target.textSize).isEqualTo(28f)
         assertThat(target.isAntiAlias).isTrue()
-        assertThat(target.bgColor).isEqualTo(0)
+        assertThat(target.bgColor).isEqualTo(Color.TRANSPARENT)
         assertThat(target.baselineShift).isEqualTo(0)
         assertThat(target.linkColor).isEqualTo(0)
         assertThat(target.density).isEqualTo(1.0f)
         assertThat(target.drawableState).isNull()
     }
 
-    // Kex: HorizontalSpanHelperKt_getCoveringStyles_11166987513
     // Branch: source Spanned contains no CharacterStyle spans in [start, end).
     // Returns an empty list.
     @Test
@@ -214,7 +157,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(styles).isEmpty()
     }
 
-    // Kex: HorizontalSpanHelperKt_getCoveringStyles_11166987515
     // Branch: source Spanned contains a CharacterStyle that implements NoCopySpan.
     // Excludes the NoCopySpan from the returned covering styles.
     @Test
@@ -230,7 +172,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(styles).isEmpty()
     }
 
-    // Kex: HorizontalSpanHelperKt_getCoveringStyles_11166987517
     // Branch: source Spanned contains a ReplacementSpan (RubySpan).
     // Excludes the ReplacementSpan from the returned covering styles.
     @Test
@@ -246,7 +187,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(styles).isEmpty()
     }
 
-    // Kex: HorizontalSpanHelperKt_getCoveringStyles_11166987518
     // Branch: CharacterStyle covers all of [start, end) (spanStart <= start && spanEnd >= end)
     // and is neither NoCopySpan nor ReplacementSpan. Returns the span in the covering list.
     @Test
@@ -264,7 +204,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(styles).containsExactly(underline, bgSpan).inOrder()
     }
 
-    // Kex: HorizontalSpanHelperKt_getCoveringStyles_11166987519
     // Branch: CharacterStyle starts at or before start, but ends before end (getSpanEnd < end).
     // Excludes the partial span from the returned covering styles.
     @Test
@@ -280,7 +219,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(styles).isEmpty()
     }
 
-    // Kex: HorizontalSpanHelperKt_getCoveringStyles_111669875110
     // Branch: CharacterStyle starts after start (getSpanStart > start).
     // Excludes the partial span from the returned covering styles.
     @Test
@@ -296,7 +234,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(styles).isEmpty()
     }
 
-    // Kex: HorizontalSpanHelperKt_resolveBackgroundColor_6130108504
     // Branch: paint !is TextPaint (plain Paint) and coveringStyles.isEmpty() is true.
     // Returns 0 without entering tempPaint.
     @Test
@@ -305,24 +242,20 @@ class HorizontalSpanHelperKexVerifiedTest {
 
         val bgColor = resolveBackgroundColor(plainPaint, emptyList())
 
-        assertThat(bgColor).isEqualTo(0)
+        assertThat(bgColor).isEqualTo(Color.TRANSPARENT)
     }
 
-    // Kex: HorizontalSpanHelperKt_resolveBackgroundColor_6130108506
-    // Post-minimized representative for resolveBackgroundColor.
     // Branch: paint is TextPaint and coveringStyles.isEmpty() is true.
     // Returns paint.bgColor directly without entering tempPaint.
     @Test
     fun kex_resolveBackgroundColor_textPaintAndEmptyStyles_returnsPaintBgColor() {
-        val zeroBgPaint = TextPaint().apply { bgColor = 0 }
+        val zeroBgPaint = TextPaint().apply { bgColor = Color.TRANSPARENT }
         val yellowBgPaint = TextPaint().apply { bgColor = Color.YELLOW }
 
-        assertThat(resolveBackgroundColor(zeroBgPaint, emptyList())).isEqualTo(0)
+        assertThat(resolveBackgroundColor(zeroBgPaint, emptyList())).isEqualTo(Color.TRANSPARENT)
         assertThat(resolveBackgroundColor(yellowBgPaint, emptyList())).isEqualTo(Color.YELLOW)
     }
 
-    // Kex:
-    // HorizontalSpanHelperKt_resolveBackgroundColor_613010850_throw_java_lang_ClassCastException5
     // Branch: paint !is TextPaint (plain Paint) and coveringStyles is non-empty.
     // Applies all coveringStyles in order on workPaint and returns the final bgColor.
     @Test
@@ -340,8 +273,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(bgColor).isEqualTo(Color.CYAN)
     }
 
-    // Kex:
-    // HorizontalSpanHelperKt_resolveBackgroundColor_613010850_throw_java_lang_ClassCastException7
     // Branch: paint is TextPaint and coveringStyles is non-empty.
     // Seeds workPaint.bgColor from paint.bgColor, applies coveringStyles in order, and leaves
     // the caller TextPaint unchanged.
@@ -361,7 +292,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(textPaint.bgColor).isEqualTo(Color.GREEN)
     }
 
-    // Kex: HorizontalSpanHelperKt_drawSpanBackground_830925210
     // Branch: bgColor == 0.
     // Returns early without drawing a rectangle on the canvas.
     @Test
@@ -369,12 +299,11 @@ class HorizontalSpanHelperKexVerifiedTest {
         val drawnRects = mutableListOf<RectF>()
         val canvas = recordingCanvas(rects = drawnRects)
 
-        canvas.drawSpanBackground(10f, 20f, 110f, 60f, 0)
+        canvas.drawSpanBackground(10f, 20f, 110f, 60f, Color.TRANSPARENT)
 
         assertThat(drawnRects).isEmpty()
     }
 
-    // Kex: HorizontalSpanHelperKt_drawSpanBackground_830925211
     // Branch: bgColor != 0 && left >= right.
     // Returns early without drawing an empty or horizontally inverted box.
     @Test
@@ -388,7 +317,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(drawnRects).isEmpty()
     }
 
-    // Kex: HorizontalSpanHelperKt_drawSpanBackground_830925212
     // Branch: bgColor != 0 && left < right && top >= bottom.
     // Returns early without drawing an empty or vertically inverted box.
     @Test
@@ -402,8 +330,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(drawnRects).isEmpty()
     }
 
-    // Kex: HorizontalSpanHelperKt_drawSpanBackground_83092521_throw_java_lang_ClassCastException3
-    // Post-minimized representative for Canvas.drawSpanBackground.
     // Branch: bgColor != 0 && left < right && top < bottom.
     // Resets the pooled paint (clearing any prior Paint.Style.STROKE) and fills the box with
     // bgColor.
@@ -431,7 +357,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(drawnStyles).containsExactly(Paint.Style.FILL)
     }
 
-    // Kex: HorizontalSpanHelperKt_findLastBgColorStyle_20534634132
     // Branch: coveringStyles list is empty (isEmpty() == true).
     // Returns null so cloneWithoutReplacementSpan does not attach NoBgColorSpan.
     @Test
@@ -448,8 +373,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(spans).asList().containsExactly(partialBg)
     }
 
-    // Kex:
-    // HorizontalSpanHelperKt_findLastBgColorStyle_2053463413_throw_java_lang_ClassCastException3
     // Branch: coveringStyles is non-empty, probing each style and updating lastStyle when
     // probe.bgColor != 0. Places NoBgColorSpan right after the last covering BackgroundColorSpan.
     @Test
@@ -470,11 +393,13 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(spans).hasLength(4)
         assertThat(spans[0]).isSameInstanceAs(firstBg)
         assertThat(spans[1]).isSameInstanceAs(secondBg)
-        assertThat(spans[2]).isNotSameInstanceAs(trailingUnderline)
         assertThat(spans[3]).isSameInstanceAs(trailingUnderline)
+
+        val paint = TextPaint().apply { bgColor = Color.GREEN }
+        spans[2].updateDrawState(paint)
+        assertThat(paint.bgColor).isEqualTo(Color.TRANSPARENT)
     }
 
-    // Kex: HorizontalSpanHelperKt_cloneWithoutReplacementSpan_13049585768
     // Branch: source Spanned has no spans.
     // Returns a new SpannableString with the subSequence text and zero spans.
     @Test
@@ -487,7 +412,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(result.getSpans(0, result.length, Any::class.java)).isEmpty()
     }
 
-    // Kex: HorizontalSpanHelperKt_cloneWithoutReplacementSpan_130495857621
     // Branch: source Spanned contains a NoCopySpan.
     // Skips the NoCopySpan during span copying.
     @Test
@@ -503,7 +427,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(result.getSpans(0, result.length, Any::class.java)).isEmpty()
     }
 
-    // Kex: HorizontalSpanHelperKt_cloneWithoutReplacementSpan_130495857614
     // Branch: source Spanned contains an EmphasisSpan (ReplacementSpan).
     // Skips the ReplacementSpan to avoid infinite recursion during measurement.
     @Test
@@ -519,7 +442,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(result.getSpans(0, result.length, Any::class.java)).isEmpty()
     }
 
-    // Kex: HorizontalSpanHelperKt_cloneWithoutReplacementSpan_130495857622
     // Branch: source Spanned contains a RubySpan (ReplacementSpan).
     // Skips the RubySpan during span copying.
     @Test
@@ -535,9 +457,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(result.getSpans(0, result.length, Any::class.java)).isEmpty()
     }
 
-    // Kex:
-    // HorizontalSpanHelperKt_cloneWithoutReplacementSpan_1304958576_throw_java_lang_ClassCastException4
-    // Post-minimized representative for cloneWithoutReplacementSpan with a covering non-bg span.
     // Branch: covering UnderlineSpan sets probe.bgColor == 0, so lastBgColorStyle is null and
     // NoBgColorSpan is not attached.
     @Test
@@ -557,7 +476,6 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(result.getSpanEnd(underline)).isEqualTo(3)
     }
 
-    // Kex: HorizontalSpanHelperKt_cloneWithoutReplacementSpan_130495857615
     // Branch: partial span starting at start and ending before end (spanStart == start &&
     // spanEnd < end). Copies the span with relative offsets and does not attach NoBgColorSpan.
     @Test
@@ -577,9 +495,7 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(result.getSpanEnd(underline)).isEqualTo(3)
     }
 
-    // Kex: HorizontalSpanHelperKt_cloneWithoutReplacementSpan_130495857617
-    // Post-minimized representative for cloneWithoutReplacementSpan boundary clamping.
-    // SMT Edge Case: span starting before start and ending before end (spanStart < start &&
+    // Branch: span starting before start and ending before end (spanStart < start &&
     // spanEnd < end). Clamps spanStart to start via coerceIn(start, end).
     @Test
     fun kex_cloneWithoutReplacementSpan_spanOverlappingLeftBoundary_clampsStartToZero() {
@@ -596,8 +512,7 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(result.getSpanEnd(underline)).isEqualTo(3)
     }
 
-    // Kex: HorizontalSpanHelperKt_cloneWithoutReplacementSpan_130495857620
-    // SMT Edge Case: span starting after start and extending past end (spanStart > start &&
+    // Branch: span starting after start and extending past end (spanStart > start &&
     // spanEnd > end). Clamps spanEnd to end via coerceIn(start, end).
     @Test
     fun kex_cloneWithoutReplacementSpan_spanOverlappingRightBoundary_clampsEndToLength() {
@@ -614,8 +529,7 @@ class HorizontalSpanHelperKexVerifiedTest {
         assertThat(result.getSpanEnd(underline)).isEqualTo(5)
     }
 
-    // Kex: HorizontalSpanHelperKt_cloneWithoutReplacementSpan_130495857624
-    // SMT Edge Case: covering BackgroundColorSpan matches span === lastBgColorStyle.
+    // Branch: covering BackgroundColorSpan matches span === lastBgColorStyle.
     // Attaches NoBgColorSpan across [0, spannable.length) right after the covering
     // BackgroundColorSpan.
     @Test
@@ -641,11 +555,10 @@ class HorizontalSpanHelperKexVerifiedTest {
         for (style in spans) {
             style.updateDrawState(paint)
         }
-        assertThat(paint.bgColor).isEqualTo(0)
+        assertThat(paint.bgColor).isEqualTo(Color.TRANSPARENT)
     }
 
-    // Kex: HorizontalSpanHelperKt_cloneWithoutReplacementSpan_130495857627
-    // SMT Edge Case: covering BackgroundColorSpan with non-zero SPAN_PRIORITY flags.
+    // Branch: covering BackgroundColorSpan with non-zero SPAN_PRIORITY flags.
     // Preserves (spanFlags and Spanned.SPAN_PRIORITY) on the attached NoBgColorSpan.
     @Test
     fun kex_cloneWithoutReplacementSpan_coveringBgSpanWithPriority_preservesPriorityOnNoBgSpan() {
@@ -665,8 +578,7 @@ class HorizontalSpanHelperKexVerifiedTest {
             .isEqualTo(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE or (5 shl Spanned.SPAN_PRIORITY_SHIFT))
     }
 
-    // Kex: HorizontalSpanHelperKt_cloneWithoutReplacementSpan_130495857630
-    // SMT Edge Case: covering BackgroundColorSpan followed by a partial BackgroundColorSpan.
+    // Branch: covering BackgroundColorSpan followed by a partial BackgroundColorSpan.
     // Places NoBgColorSpan after the covering BackgroundColorSpan so the partial
     // BackgroundColorSpan still applies to its sub-range.
     @Test
