@@ -16,7 +16,7 @@
 
 package androidx.appsearch.localstorage.lock;
 
-import static androidx.appsearch.localstorage.lock.UpgradeableReadWriteLockTestHelper.waitUntilThreadBlocks;
+import static androidx.appsearch.localstorage.lock.UpgradeableReadWriteLockTestHelper.waitUntilThreadQueued;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -114,7 +114,7 @@ public class UpgradeableReadWriteLockWriteLockTest {
             blockedThread.start();
 
             // Wait until the background thread enters a blocked/waiting state.
-            waitUntilThreadBlocks(blockedThread);
+            waitUntilThreadQueued(mLock, blockedThread);
 
             // Step 3: Interrupt the background thread while it is waiting.
             blockedThread.interrupt();
@@ -181,7 +181,7 @@ public class UpgradeableReadWriteLockWriteLockTest {
             blockedThread.start();
 
             // Wait until the background thread enters a blocked/waiting state.
-            waitUntilThreadBlocks(blockedThread);
+            waitUntilThreadQueued(mLock, blockedThread);
 
             // Step 3: Interrupt the background thread while it is waiting.
             blockedThread.interrupt();
