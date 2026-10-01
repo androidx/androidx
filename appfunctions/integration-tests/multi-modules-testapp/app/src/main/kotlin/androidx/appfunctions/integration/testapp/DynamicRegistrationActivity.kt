@@ -21,6 +21,7 @@ import android.app.appfunctions.AppFunctionRegistration
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionData
@@ -56,12 +57,18 @@ class DynamicRegistrationActivity : Activity() {
             val appFunction = AppFunction { _, _, callback ->
                 callback.accept(ExecuteAppFunctionResponse.Success(AppFunctionData.EMPTY))
             }
-            registration =
-                appFunctionManager.registerAppFunction(
-                    ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID,
-                    Dispatchers.Default.asExecutor(),
-                    appFunction,
-                )
+            try {
+                registration =
+                    appFunctionManager.registerAppFunction(
+                        ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID,
+                        Dispatchers.Default.asExecutor(),
+                        appFunction,
+                    )
+                Log.d(TAG, "Registered $ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to register $ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID", e)
+                throw e
+            }
         }
     }
 
@@ -72,6 +79,7 @@ class DynamicRegistrationActivity : Activity() {
     }
 
     companion object {
+        private const val TAG = "DynamicRegActivity"
         const val ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID =
             "androidx.appfunctions.integration.testapp.DynamicActivityScopeSignature#processVoid"
         const val ACTION_REGISTER_ACTIVITY_SCOPED =
