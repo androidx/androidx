@@ -264,6 +264,37 @@ class A2uiPropertyTest {
         assertThat(result).isEmpty()
     }
 
+    @Test
+    fun nestedListProperty_initialization_withEqualMinMaxItems_setsCorrectSchema() {
+        val prop = A2uiProperty.nestedList("tabs", emptyList(), minItems = 3, maxItems = 3)
+
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiArraySchema(
+                    items = A2uiObjectSchema(properties = emptyMap()),
+                    minItems = 3,
+                    maxItems = 3,
+                )
+            )
+    }
+
+    @Test
+    fun nestedListProperty_initialization_withMinItemsGreaterThanMaxItems_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.nestedList("tabs", emptyList(), minItems = 5, maxItems = 2)
+        }
+    }
+
+    @Test
+    fun nestedListProperty_initialization_withNegativeItemsBounds_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.nestedList("tabs", emptyList(), minItems = -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.nestedList("tabs", emptyList(), maxItems = -1)
+        }
+    }
+
     // ========================================================================
     // StringProperty tests
     // ========================================================================
@@ -440,6 +471,31 @@ class A2uiPropertyTest {
         assertThat(prop.safeCast(emptyList<Any>())).isEmpty()
     }
 
+    @Test
+    fun stringListProperty_initialization_withEqualMinMaxItems_setsCorrectSchema() {
+        val prop = A2uiProperty.stringList("test", minItems = 3, maxItems = 3)
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiArraySchema(A2uiStringSchema.INSTANCE, minItems = 3, maxItems = 3))
+    }
+
+    @Test
+    fun stringListProperty_initialization_withMinItemsGreaterThanMaxItems_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.stringList("test", minItems = 5, maxItems = 2)
+        }
+    }
+
+    @Test
+    fun stringListProperty_initialization_withNegativeItemsBounds_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.stringList("test", minItems = -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.stringList("test", maxItems = -1)
+        }
+    }
+
     // ========================================================================
     // NumberListProperty tests
     // ========================================================================
@@ -490,6 +546,31 @@ class A2uiPropertyTest {
         val prop = A2uiProperty.numberList("test")
 
         assertThat(prop.safeCast(emptyList<Any>())).isEmpty()
+    }
+
+    @Test
+    fun numberListProperty_initialization_withEqualMinMaxItems_setsCorrectSchema() {
+        val prop = A2uiProperty.numberList("test", minItems = 3, maxItems = 3)
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiArraySchema(A2uiNumberSchema.INSTANCE, minItems = 3, maxItems = 3))
+    }
+
+    @Test
+    fun numberListProperty_initialization_withMinItemsGreaterThanMaxItems_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.numberList("test", minItems = 5, maxItems = 2)
+        }
+    }
+
+    @Test
+    fun numberListProperty_initialization_withNegativeItemsBounds_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.numberList("test", minItems = -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.numberList("test", maxItems = -1)
+        }
     }
 
     // ========================================================================
@@ -544,6 +625,31 @@ class A2uiPropertyTest {
         assertThat(prop.safeCast(emptyList<Any>())).isEmpty()
     }
 
+    @Test
+    fun booleanListProperty_initialization_withEqualMinMaxItems_setsCorrectSchema() {
+        val prop = A2uiProperty.booleanList("test", minItems = 3, maxItems = 3)
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiArraySchema(A2uiBooleanSchema.INSTANCE, minItems = 3, maxItems = 3))
+    }
+
+    @Test
+    fun booleanListProperty_initialization_withMinItemsGreaterThanMaxItems_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.booleanList("test", minItems = 5, maxItems = 2)
+        }
+    }
+
+    @Test
+    fun booleanListProperty_initialization_withNegativeItemsBounds_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.booleanList("test", minItems = -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.booleanList("test", maxItems = -1)
+        }
+    }
+
     // ========================================================================
     // AnyListProperty tests
     // ========================================================================
@@ -590,6 +696,27 @@ class A2uiPropertyTest {
         val prop = A2uiProperty.anyList("test")
 
         assertThat(prop.safeCast(emptyList<Any>())).isEmpty()
+    }
+
+    @Test
+    fun anyListProperty_initialization_withEqualMinMaxItems_setsCorrectSchema() {
+        val prop = A2uiProperty.anyList("test", minItems = 3, maxItems = 3)
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiArraySchema(A2uiAnySchema.INSTANCE, minItems = 3, maxItems = 3))
+    }
+
+    @Test
+    fun anyListProperty_initialization_withMinItemsGreaterThanMaxItems_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.anyList("test", minItems = 5, maxItems = 2)
+        }
+    }
+
+    @Test
+    fun anyListProperty_initialization_withNegativeItemsBounds_throwsException() {
+        assertFailsWith<IllegalArgumentException> { A2uiProperty.anyList("test", minItems = -1) }
+        assertFailsWith<IllegalArgumentException> { A2uiProperty.anyList("test", maxItems = -1) }
     }
 
     // ========================================================================
