@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+[iosArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
+[iosSimulatorArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
+[linuxArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
+[linuxX64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
+[macosArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
+[mingwX64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
+[tvosArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
+[tvosSimulatorArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
+[watchosArm32]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
+[watchosArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
+[watchosDeviceArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
+[watchosSimulatorArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle

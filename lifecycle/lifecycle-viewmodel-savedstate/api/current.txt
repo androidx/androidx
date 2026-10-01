@@ -10,8 +10,11 @@ package androidx.lifecycle {
   public final class SavedStateHandle {
     ctor @VisibleForTesting public SavedStateHandle();
     ctor @VisibleForTesting public SavedStateHandle(java.util.Map<java.lang.String,? extends java.lang.Object?> initialState);
+    method @MainThread public androidx.savedstate.SavedStateContainer asContainer();
     method @MainThread public void clearSavedStateProvider(String key);
     method @MainThread public operator boolean contains(String key);
+    method @MainThread public androidx.savedstate.SavedStateContainer createOrGetContainer(String key);
+    method @MainThread public androidx.lifecycle.SavedStateHandle createOrGetSavedStateHandle(String key);
     method @MainThread public operator <T> T? get(String key);
     method @MainThread public <T> androidx.lifecycle.MutableLiveData<T> getLiveData(String key);
     method @MainThread public <T> androidx.lifecycle.MutableLiveData<T> getLiveData(String key, T initialValue);

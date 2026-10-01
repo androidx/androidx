@@ -30,10 +30,12 @@ final class androidx.lifecycle/SavedStateHandle { // androidx.lifecycle/SavedSta
     final fun <#A1: kotlin/Any?> getStateFlow(kotlin/String, #A1): kotlinx.coroutines.flow/StateFlow<#A1> // androidx.lifecycle/SavedStateHandle.getStateFlow|getStateFlow(kotlin.String;0:0){0§<kotlin.Any?>}[0]
     final fun <#A1: kotlin/Any?> remove(kotlin/String): #A1? // androidx.lifecycle/SavedStateHandle.remove|remove(kotlin.String){0§<kotlin.Any?>}[0]
     final fun <#A1: kotlin/Any?> set(kotlin/String, #A1?) // androidx.lifecycle/SavedStateHandle.set|set(kotlin.String;0:0?){0§<kotlin.Any?>}[0]
+    final fun asContainer(): androidx.savedstate/SavedStateContainer // androidx.lifecycle/SavedStateHandle.asContainer|asContainer(){}[0]
     final fun clearSavedStateProvider(kotlin/String) // androidx.lifecycle/SavedStateHandle.clearSavedStateProvider|clearSavedStateProvider(kotlin.String){}[0]
     final fun contains(kotlin/String): kotlin/Boolean // androidx.lifecycle/SavedStateHandle.contains|contains(kotlin.String){}[0]
+    final fun createOrGetContainer(kotlin/String): androidx.savedstate/SavedStateContainer // androidx.lifecycle/SavedStateHandle.createOrGetContainer|createOrGetContainer(kotlin.String){}[0]
+    final fun createOrGetSavedStateHandle(kotlin/String): androidx.lifecycle/SavedStateHandle // androidx.lifecycle/SavedStateHandle.createOrGetSavedStateHandle|createOrGetSavedStateHandle(kotlin.String){}[0]
     final fun keys(): kotlin.collections/Set<kotlin/String> // androidx.lifecycle/SavedStateHandle.keys|keys(){}[0]
-    final fun savedStateProvider(): androidx.savedstate/SavedStateRegistry.SavedStateProvider // androidx.lifecycle/SavedStateHandle.savedStateProvider|savedStateProvider(){}[0]
     final fun setSavedStateProvider(kotlin/String, androidx.savedstate/SavedStateRegistry.SavedStateProvider) // androidx.lifecycle/SavedStateHandle.setSavedStateProvider|setSavedStateProvider(kotlin.String;androidx.savedstate.SavedStateRegistry.SavedStateProvider){}[0]
 
     final object Companion { // androidx.lifecycle/SavedStateHandle.Companion|null[0]
