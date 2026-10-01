@@ -88,7 +88,9 @@ public object BackupActionInputKeys {
      * Must be one of [BackupActionValues.VALUE_TYPE_INT], [BackupActionValues.VALUE_TYPE_LONG],
      * [BackupActionValues.VALUE_TYPE_FLOAT], [BackupActionValues.VALUE_TYPE_BOOLEAN] or
      * [BackupActionValues.VALUE_TYPE_STRING], matched case-insensitively. Defaults to
-     * [BackupActionValues.VALUE_TYPE_STRING] when absent. Any other value fails the action.
+     * [BackupActionValues.VALUE_TYPE_STRING] when absent. Any other value fails the action, as does
+     * a [VALUE] or [EXPECTED] that does not parse as this type. Booleans accept only `"true"` and
+     * `"false"`, in any casing.
      */
     public const val VALUE_TYPE: String = "value_type"
 
@@ -148,7 +150,9 @@ public object BackupActionInputKeys {
      * Expected content during verification of preference or file storage.
      *
      * Falls back to [VALUE] when absent, which lets the same payload seed and verify a domain.
-     * Database verification uses [EXPECTED_COL] and [EXPECTED_VAL] instead.
+     * Preferences are compared as values of [VALUE_TYPE] rather than as strings, so `"1.50"`
+     * matches a stored float of `1.5`. Database verification uses [EXPECTED_COL] and [EXPECTED_VAL]
+     * instead.
      */
     public const val EXPECTED: String = "expected"
 
@@ -164,9 +168,10 @@ public object BackupActionInputKeys {
     public const val EXPECTED_VAL: String = "expected_val"
 
     /**
-     * Whether verification should assert that the preference is absent instead of comparing it.
+     * Whether the preference is expected to be absent.
      *
-     * Parsed with [String.toBoolean]. When enabled, [EXPECTED] and [VALUE] are not consulted.
+     * Parsed with [String.toBoolean]. When enabled, population removes the key and verification
+     * asserts that it is absent; [VALUE], [VALUE_TYPE] and [EXPECTED] are not consulted.
      */
     public const val EXPECT_NULL: String = "expect_null"
 }

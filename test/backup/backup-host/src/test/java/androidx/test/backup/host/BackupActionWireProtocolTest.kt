@@ -192,9 +192,14 @@ class BackupActionWireProtocolTest {
     }
 
     @Test
-    fun populateArgsOmitANullPreferenceValue() {
+    fun populateArgsMarksANullPreferenceWithExpectNull() {
         assertEquals(
-            mapOf("storage_type" to "PREFS", "pref_name" to "prefs", "pref_key" to "key"),
+            mapOf(
+                "storage_type" to "PREFS",
+                "pref_name" to "prefs",
+                "pref_key" to "key",
+                "expect_null" to "true",
+            ),
             BackupActionWireProtocol.populateArgs(StorageDomain.Preference("prefs", "key", null)),
         )
     }
@@ -275,7 +280,7 @@ class BackupActionWireProtocolTest {
         val domain = StorageDomain.Preference("prefs", "key", null)
 
         assertEquals(
-            BackupActionWireProtocol.populateArgs(domain) + ("expect_null" to "true"),
+            BackupActionWireProtocol.populateArgs(domain),
             BackupActionWireProtocol.assertArgs(domain),
         )
     }
