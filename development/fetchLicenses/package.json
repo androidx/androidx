@@ -18,7 +18,7 @@
   "dependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "22.9.0",
-    "express": "^4.21.1",
+    "express": "^4.22.2",
     "puppeteer": "^23.7.1"
   },
   "devDependencies": {
