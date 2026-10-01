@@ -23,11 +23,10 @@ import androidx.compose.remote.creation.compose.capture.createCreationDisplayInf
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
-import androidx.compose.remote.player.compose.RemoteDocumentPlayer
-import androidx.compose.remote.player.core.platform.AndroidCustomContext
-import androidx.compose.remote.player.core.platform.BitmapLoader
+import androidx.compose.remote.player.compose.EnableEmbeddedPlayerRule
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.core.platform.TypefaceResolver
-import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.remote.testing.RemoteBaseContentTestRule.Player
 import androidx.compose.remote.testing.RemoteContentTestRule
 import androidx.compose.runtime.Composable
@@ -36,6 +35,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.BitmapMatcher
+import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -44,11 +44,13 @@ import org.junit.runners.model.Statement
  * A [TestRule] that uses [RemoteContentTestRule] to set the Remote Compose content and uses
  * [AndroidXScreenshotTestRule] for screenshot testing.
  *
- * The content is played with the View based [RemoteDocumentPlayer]. To play the content with the
- * embedded player instead, use [RemoteEmbeddedScreenshotTestRule].
+ * The content is played with the embedded player ([RcPlayer]).
+ * [androidx.compose.remote.player.compose.RemoteComposePlayerFlags.isEmbeddedPlayerEnabled] is
+ * enabled for the duration of each test (see [EnableEmbeddedPlayerRule]). To play the content with
+ * the View based player instead, use [RemoteScreenshotTestRule].
  */
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-class RemoteScreenshotTestRule(
+class RemoteEmbeddedScreenshotTestRule(
     moduleDirectory: String,
     val remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
     val matcher: BitmapMatcher? = null,
@@ -71,8 +73,11 @@ class RemoteScreenshotTestRule(
             matcher = matcher,
         )
 
+    private val delegateChain: RuleChain =
+        RuleChain.outerRule(EnableEmbeddedPlayerRule()).around(baseRule)
+
     override fun apply(base: Statement, description: Description): Statement {
-        return baseRule.apply(base, description)
+        return delegateChain.apply(base, description)
     }
 
     /** [ComposeContentTestRule] used by this [TestRule]. */
@@ -91,10 +96,7 @@ class RemoteScreenshotTestRule(
         creationComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
         // play params
-        update: (RemoteComposePlayer) -> Unit = {},
-        bitmapLoader: BitmapLoader? = null,
         typefaceResolver: TypefaceResolver? = null,
-        customSupport: AndroidCustomContext? = null,
         playComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
@@ -103,10 +105,7 @@ class RemoteScreenshotTestRule(
             profile = profile,
             creationComposableWrapper = creationComposableWrapper,
             onCoreDocumentCreated = onCoreDocumentCreated,
-            update = update,
-            bitmapLoader = bitmapLoader,
             typefaceResolver = typefaceResolver,
-            customSupport = customSupport,
             playComposableWrapper = playComposableWrapper,
             composable = composable,
         )
@@ -121,10 +120,7 @@ class RemoteScreenshotTestRule(
         creationComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
         // play params
-        update: (RemoteComposePlayer) -> Unit = {},
-        bitmapLoader: BitmapLoader? = null,
         typefaceResolver: TypefaceResolver? = null,
-        customSupport: AndroidCustomContext? = null,
         playComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
@@ -133,13 +129,7 @@ class RemoteScreenshotTestRule(
             profile = profile,
             creationComposableWrapper = creationComposableWrapper,
             onCoreDocumentCreated = onCoreDocumentCreated,
-            player =
-                PlayerImpl(
-                    update = update,
-                    bitmapLoader = bitmapLoader,
-                    typefaceResolver = typefaceResolver,
-                    customSupport = customSupport,
-                ),
+            player = EmbeddedPlayer(typefaceResolver = typefaceResolver),
             playComposableWrapper = playComposableWrapper,
             composable = composable,
         )
@@ -153,23 +143,12 @@ class RemoteScreenshotTestRule(
         const val ROOT_TEST_TAG: String = RemoteBaseScreenshotTestRule.ROOT_TEST_TAG
     }
 
-    private class PlayerImpl(
-        private val update: (RemoteComposePlayer) -> Unit = {},
-        private val bitmapLoader: BitmapLoader? = null,
-        private val typefaceResolver: TypefaceResolver? = null,
-        private val customSupport: AndroidCustomContext? = null,
-    ) : Player {
+    /** Plays the document with the embedded player ([RcPlayer]). */
+    private class EmbeddedPlayer(private val typefaceResolver: TypefaceResolver?) : Player {
+        @OptIn(ExperimentalRemotePlayerApi::class)
         @Composable
         override fun Play(coreDocument: CoreDocument, size: Size) {
-            RemoteDocumentPlayer(
-                document = coreDocument,
-                documentWidth = size.width.toInt(),
-                documentHeight = size.height.toInt(),
-                update = update,
-                bitmapLoader = bitmapLoader,
-                typefaceResolver = typefaceResolver,
-                customSupport = customSupport,
-            )
+            RcPlayer(document = coreDocument, typefaceResolver = typefaceResolver)
         }
     }
 }
