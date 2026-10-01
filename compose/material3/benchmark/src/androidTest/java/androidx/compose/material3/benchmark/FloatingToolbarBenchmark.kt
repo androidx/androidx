@@ -110,6 +110,9 @@ class FloatingToolbarBenchmark(private val type: FloatingToolbarType) {
         benchmarkRule.toggleStateBenchmarkLayout(
             caseFactory = floatingToolbarWithFabTestCaseFactory,
             assertOneRecomposition = false,
+            // Disabled: Rigid animation targets conflict with artificial root bounds,
+            // causing infinite layout requests and benchmark timeouts.
+            invalidateLayoutCache = false,
         )
     }
 
