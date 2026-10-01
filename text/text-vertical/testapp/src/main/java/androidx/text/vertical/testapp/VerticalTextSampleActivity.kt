@@ -93,6 +93,7 @@ import androidx.text.vertical.RubySpan
 import androidx.text.vertical.compose.VerticalText
 import androidx.text.vertical.compose.VerticalTextStyle
 import androidx.text.vertical.compose.buildVerticalText
+import java.io.File
 import kotlin.math.roundToInt
 
 /**
@@ -114,6 +115,13 @@ class VerticalTextSampleActivity : ComponentActivity() {
 
         setContent {
             val tabs = remember {
+                // Load the system CJK font as the primary typeface. Its top and bottom bounds are
+                // much larger than its ascent and descent, unlike the Latin default font when it
+                // falls back to CJK per glyph. Fall back to sans-serif when the file is absent.
+                val cjkFontFamily =
+                    File("/system/fonts/NotoSansCJK-Regular.ttc")
+                        .takeIf { it.exists() }
+                        ?.let { FontFamily(Typeface.createFromFile(it)) } ?: FontFamily.SansSerif
                 arrayOf(
                     DemoTab("Vertical Text") { enabled ->
                         ZoomableVerticalText(styleColorsEnabled = enabled) { LongText(it) }
@@ -128,6 +136,15 @@ class VerticalTextSampleActivity : ComponentActivity() {
                     },
                     DemoTab("Horizontal Multi-style Text") { enabled ->
                         ZoomableVerticalText(isVertical = false, styleColorsEnabled = enabled) {
+                            ComplexHorizontalText(it)
+                        }
+                    },
+                    DemoTab("Horizontal CJK Font") { enabled ->
+                        ZoomableVerticalText(
+                            isVertical = false,
+                            styleColorsEnabled = enabled,
+                            fontFamily = cjkFontFamily,
+                        ) {
                             ComplexHorizontalText(it)
                         }
                     },
@@ -207,6 +224,7 @@ private class PanLimits {
 fun ZoomableVerticalText(
     isVertical: Boolean = true,
     styleColorsEnabled: Boolean = false,
+    fontFamily: FontFamily = FontFamily.Serif,
     content: @Composable (VerticalTextStyle) -> Unit,
 ) {
     val fontSize = 32f
@@ -215,10 +233,10 @@ fun ZoomableVerticalText(
     var offsetY by remember { mutableFloatStateOf(0f) }
     val panLimits = remember { PanLimits() }
     val style =
-        remember(zoom, styleColorsEnabled) {
+        remember(zoom, styleColorsEnabled, fontFamily) {
             VerticalTextStyle(
                 fontSize = (fontSize * zoom).sp,
-                fontFamily = FontFamily.Serif,
+                fontFamily = fontFamily,
                 color = if (styleColorsEnabled) Color(0xFF1A237E) else Color.Unspecified,
                 background = if (styleColorsEnabled) Color(0xFFFFF59D) else Color.Unspecified,
                 localeList =
@@ -297,8 +315,8 @@ fun ZoomableVerticalText(
  * Sets [TextPaint.bgColor] to 0 for the text that it covers.
  *
  * The platform fills the background of plain text from the line top to the line bottom. This span
- * stops that fill. [LegacyHorizontalText] fills each plain text run from the font top to the font
- * bottom instead, so the background does not go into the ruby or emphasis band. The platform
+ * stops that fill. [LegacyHorizontalText] fills each plain text run from the font ascent to the
+ * font descent instead, so the background does not go into the ruby or emphasis band. The platform
  * applies only [MetricAffectingSpan]s to the paint of a [ReplacementSpan]. Thus,
  * [androidx.text.vertical.RubySpan] and [androidx.text.vertical.EmphasisSpan] still get the
  * background color from the paint.
@@ -316,8 +334,8 @@ private object NoTextBackgroundSpan : CharacterStyle(), NoCopySpan {
 /**
  * Returns the background boxes of the text runs that are not in a [ReplacementSpan].
  *
- * Each box goes from the start to the end of the run, and from the font top to the font bottom of
- * the run. The base text of [androidx.text.vertical.RubySpan] and
+ * Each box goes from the start to the end of the run, and from the font ascent to the font descent
+ * of the run. The base text of [androidx.text.vertical.RubySpan] and
  * [androidx.text.vertical.EmphasisSpan] uses the same edges, so the fills meet. This function
  * supports only left-to-right text. [LegacyHorizontalText] uses it to fill the style-level
  * [TextPaint.bgColor].
@@ -346,9 +364,9 @@ internal fun plainTextBackgroundRects(
             if (spans.none { it is ReplacementSpan }) {
                 workPaint.set(paint)
                 spans.forEach { it.updateMeasureState(workPaint) }
-                // RubySpan and EmphasisSpan lay out their base text with includePad. Thus, their
-                // base text goes from the font top to the font bottom. Use the same edges so that
-                // the fills meet.
+                // RubySpan and EmphasisSpan lay out their base text with includePad = false. Thus,
+                // their base text goes from the font ascent to the font descent. Use the same edges
+                // so that the fills meet.
                 workPaint.getFontMetricsInt(fm)
                 val left = layout.getPrimaryHorizontal(start)
                 val right =
@@ -357,7 +375,7 @@ internal fun plainTextBackgroundRects(
                     } else {
                         layout.getLineRight(line)
                     }
-                rects += RectF(left, baseline + fm.top, right, baseline + fm.bottom)
+                rects += RectF(left, baseline + fm.ascent, right, baseline + fm.descent)
             }
             start = end
         }

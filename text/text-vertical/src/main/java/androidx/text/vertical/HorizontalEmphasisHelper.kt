@@ -81,13 +81,16 @@ internal class HorizontalEmphasisSpanLayout(
                     workPaint,
                     spanWidth,
                 )
+                .setIncludePad(false)
                 .build()
 
         // Create Emphasis Layout
         val emLayout =
             workPaint.withTextScale(relSize) {
                 val width = ceil(Layout.getDesiredWidth(emphasis, 0, emphasis.length, this)).toInt()
-                StaticLayout.Builder.obtain(emphasis, 0, emphasis.length, this, width).build()
+                StaticLayout.Builder.obtain(emphasis, 0, emphasis.length, this, width)
+                    .setIncludePad(false)
+                    .build()
             }
         emphasisWidth = emLayout.width
         emphasisAscent = emLayout.getLineAscent(0)
