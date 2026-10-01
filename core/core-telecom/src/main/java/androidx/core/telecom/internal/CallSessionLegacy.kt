@@ -406,7 +406,7 @@ internal class CallSessionLegacy(
                 isSpeakerEndpoint(mLastClientRequestedEndpoint) &&
                 isSpeakerEndpoint(nextEndpoint)
         ) {
-            Log.i(
+            Log.d(
                 TAG,
                 "avoidSpeakerOverrideOnCallStart: User explicitly requested SPEAKER " +
                     "($mLastClientRequestedEndpoint). Current endpoint is $nextEndpoint. " +
@@ -427,7 +427,7 @@ internal class CallSessionLegacy(
             return
         }
 
-        Log.i(
+        Log.d(
             TAG,
             "avoidSpeakerOverrideOnCallStart: Evaluating. " +
                 "mPreferredStartingCallEndpoint=[$preferredStartingCallEndpoint], " +
@@ -448,7 +448,7 @@ internal class CallSessionLegacy(
             mWasPreferredOverrideChecked = true
             mStartingEndpointStabilizationJob?.cancel()
             CoroutineScope(coroutineContext).launch {
-                Log.i(
+                Log.d(
                     TAG,
                     "avoidSpeakerOverrideOnCallStart: Unwanted switch from preferred" +
                         "starting endpoint to SPEAKER detected. " +
@@ -682,7 +682,7 @@ internal class CallSessionLegacy(
             btAddress: String?,
             endpoint: CallEndpointCompat,
         ): Boolean {
-            Log.i(
+            Log.d(
                 "bDME",
                 "{btName=[$btName], btAddress=${getMaskedMacAddress(btAddress)}}," +
                     "{eName=[${endpoint.name}], eAddress=${getMaskedMacAddress(endpoint.mMackAddress)}}",
