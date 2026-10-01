@@ -51,6 +51,9 @@ public class TestPlane(planeType: PlaneType, planeLabel: PlaneLabel) : TestTrack
                     } else {
                         TrackingState.PAUSED
                     }
+                fakeRuntimeTrackable.anchors.forEach {
+                    it.trackingState = fakeRuntimeTrackable.trackingState
+                }
             }
             FakePerceptionRuntime.allowOneMoreCallToUpdate()
         }
