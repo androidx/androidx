@@ -17,11 +17,11 @@
 package androidx.test.backup.host
 
 import java.io.File
-import java.time.Duration
 import java.util.logging.Logger
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import kotlin.time.Duration as KotlinDuration
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -34,7 +34,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 internal class BackupLocalTransport(
     private val shell: BackupDeviceShell,
     private val applicationId: String,
-    private val reselectTransportTimeout: KotlinDuration = DEFAULT_CLEANUP_TIMEOUT,
+    private val reselectTransportTimeout: Duration = DEFAULT_CLEANUP_TIMEOUT,
 ) {
     private val logger = Logger.getLogger(BackupLocalTransport::class.java.name)
 
@@ -54,13 +54,19 @@ internal class BackupLocalTransport(
         }
     }
 
-    /** Restores the package from the local transport and waits for the restore pass to end. */
-    suspend fun restore() {
+    /**
+     * Restores the package from the local transport and waits for the restore pass to end.
+     *
+     * [timeout] is the caller's budget for the whole restore. It limits how long to look for the
+     * restore pass, so that a restore finishing before the first check still completes within it.
+     * The wait for a pass that was seen has no bound of its own; the caller enforces [timeout].
+     */
+    suspend fun restore(timeout: Duration) {
         logger.info("Executing robust local transport restore simulation...")
         withLocalTransport {
             shell.exec("bmgr restore 1 ${BackupDeviceShell.quoteIfNeeded(applicationId)}")
             shell.exec("bmgr run")
-            waitForRestorePassCompletion(RESTORE_TIMEOUT)
+            waitForRestorePassCompletion(minOf(RESTORE_DISPATCH_TIMEOUT, timeout / 2))
         }
     }
 
@@ -92,47 +98,27 @@ internal class BackupLocalTransport(
     }
 
     /**
-     * Waits for BackupManagerService to dispatch and complete the restore pass, or until [timeout]
-     * expires.
+     * Waits for BackupManagerService to dispatch the restore pass, and then for it to complete.
+     *
+     * A pass that is not seen within [dispatchTimeout] is assumed to have completed before the
+     * first check.
      */
-    private suspend fun waitForRestorePassCompletion(timeout: Duration) {
-        val totalTimeoutMs = timeout.toMillis()
-        val dispatchTimeoutMs =
-            (totalTimeoutMs / 2)
-                .coerceAtLeast(minOf(totalTimeoutMs, 5000L))
-                .coerceAtMost(totalTimeoutMs)
-        val startNanos = System.nanoTime()
-
-        // Wait for system_server to dispatch and register the restore pass
+    private suspend fun waitForRestorePassCompletion(dispatchTimeout: Duration) {
         val started =
-            withTimeoutOrNull(dispatchTimeoutMs) {
+            withTimeoutOrNull(dispatchTimeout) {
                 while (!isRestoreInProgress()) {
                     delay(RESTORE_DISPATCH_POLL_INTERVAL_MS)
                 }
                 true
             }
-
-        if (started == true) {
-            val elapsedMs = (System.nanoTime() - startNanos) / 1_000_000
-            val remainingMs = (totalTimeoutMs - elapsedMs).coerceAtLeast(1000L)
-            // Wait until the active restore pass completes
-            val completed =
-                withTimeoutOrNull(remainingMs) {
-                    while (isRestoreInProgress()) {
-                        delay(RESTORE_COMPLETION_POLL_INTERVAL_MS)
-                    }
-                    true
-                }
-
-            if (completed == null) {
-                logger.warning(
-                    "Restore pass active polling reached timeout (${timeout.toSeconds()}s); proceeding."
-                )
-            }
-        } else {
+        if (started == null) {
             logger.warning(
-                "Restore pass registration was not detected within ${dispatchTimeoutMs}ms; proceeding."
+                "Restore pass registration was not detected within $dispatchTimeout; proceeding."
             )
+            return
+        }
+        while (isRestoreInProgress()) {
+            delay(RESTORE_COMPLETION_POLL_INTERVAL_MS)
         }
     }
 
@@ -148,7 +134,8 @@ internal class BackupLocalTransport(
         /** Assumed to be the selected transport when `bmgr` does not mark one. */
         const val DEFAULT_TRANSPORT = "com.google.android.gms/.backup.BackupTransportService"
 
-        val RESTORE_TIMEOUT: Duration = Duration.ofSeconds(15)
+        /** Upper bound for detecting the restore pass, whatever the caller's timeout. */
+        val RESTORE_DISPATCH_TIMEOUT = 7_500.milliseconds
         const val RESTORE_DISPATCH_POLL_INTERVAL_MS = 250L
         const val RESTORE_COMPLETION_POLL_INTERVAL_MS = 500L
 
