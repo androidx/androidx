@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastSumBy
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.abs
@@ -56,19 +57,35 @@ internal class TransformingLazyColumnScrollScope(
 
     fun approximateDistanceTo(targetIndex: Int, targetOffset: Int = 0): Int {
         val layoutInfo = state.layoutInfoState.value
-        if (layoutInfo.visibleItems.isEmpty()) return 0
-        return if (!isItemVisible(targetIndex)) {
-            val averageSize = layoutInfo.visibleItemsAverageHeight + layoutInfo.itemSpacing
-            val indexesDiff = targetIndex - layoutInfo.anchorItemIndex
-            (averageSize * indexesDiff) + layoutInfo.anchorItemScrollOffset
-        } else
-            if (targetIndex == layoutInfo.anchorItemIndex) {
-                layoutInfo.anchorItemScrollOffset
-            } else {
-                val visibleItem =
-                    layoutInfo.visibleItems.fastFirstOrNull { it.index == targetIndex }
-                (visibleItem?.offset ?: 0) - layoutInfo.viewportSize.height / 2
-            } + targetOffset
+        val visibleItems = layoutInfo.visibleItems
+        if (visibleItems.isEmpty()) return 0
+
+        val anchorIndex = layoutInfo.anchorItemIndex
+        if (targetIndex == anchorIndex) return -layoutInfo.anchorItemScrollOffset + targetOffset
+
+        val averageHeight = layoutInfo.visibleItemsAverageHeight
+        fun heightOf(index: Int) =
+            visibleItems.fastFirstOrNull { it.index == index }?.measuredHeight ?: averageHeight
+
+        val start = minOf(anchorIndex, targetIndex)
+        val end = maxOf(anchorIndex, targetIndex)
+        var betweenHeight = 0
+        var visibleBetween = 0
+        visibleItems.fastForEach {
+            if (it.index > start && it.index < end) {
+                betweenHeight += it.measuredHeight
+                visibleBetween++
+            }
+        }
+        betweenHeight += (end - start - 1 - visibleBetween) * averageHeight
+
+        val centerToCenter =
+            heightOf(anchorIndex) / 2 +
+                betweenHeight +
+                heightOf(targetIndex) / 2 +
+                (end - start) * layoutInfo.itemSpacing
+        val direction = if (targetIndex > anchorIndex) 1 else -1
+        return direction * centerToCenter - layoutInfo.anchorItemScrollOffset + targetOffset
     }
 
     internal fun TransformingLazyColumnScrollScope.isItemVisible(index: Int): Boolean {
