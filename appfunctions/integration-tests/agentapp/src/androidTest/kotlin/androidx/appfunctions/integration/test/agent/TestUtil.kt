@@ -200,6 +200,11 @@ internal object TestUtil {
         executeShellCommandSync("am startservice -a $action -n $packageName/$className")
     }
 
+    /** Force stops the given package using shell command. */
+    fun UiAutomation.forceStop(packageName: String) {
+        executeShellCommandSync("am force-stop $packageName")
+    }
+
     /** Sets the app function with the given state. */
     fun setAppFunctionStateRemoteAsync(appFunctionName: AppFunctionName, state: Int) = doBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
