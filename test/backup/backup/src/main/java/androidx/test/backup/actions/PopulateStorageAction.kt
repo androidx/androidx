@@ -23,6 +23,8 @@ import android.database.sqlite.SQLiteDatabase
 import androidx.test.backup.BackupActionInputKeys.DB_NAME
 import androidx.test.backup.BackupActionInputKeys.IS_BINARY
 import androidx.test.backup.BackupActionInputKeys.IS_DEVICE_PROTECTED
+import androidx.test.backup.BackupActionInputKeys.KEY_COL
+import androidx.test.backup.BackupActionInputKeys.KEY_VAL
 import androidx.test.backup.BackupActionInputKeys.PATH
 import androidx.test.backup.BackupActionInputKeys.PREF_KEY
 import androidx.test.backup.BackupActionInputKeys.PREF_NAME
@@ -111,6 +113,8 @@ public class PopulateStorageAction : BackupDeviceAction {
                         } catch (e: IllegalArgumentException) {
                             return failure(e.message ?: "Malformed '$VALUES' argument.")
                         }
+                    val keyCol = args[KEY_COL]
+                    val keyVal = args[KEY_VAL]
 
                     targetContext.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null).use { db
                         ->
@@ -124,23 +128,33 @@ public class PopulateStorageAction : BackupDeviceAction {
                         db.execSQL(
                             "CREATE TABLE IF NOT EXISTS `$table` (${colDefs.joinToString(", ")})"
                         )
-                        // SQLite errors (unknown column, constraint violation) propagate out of
-                        // insertWithOnConflict as SQLException and are turned into a failure by
-                        // the catch below. A -1 return means the statement ran but inserted no
-                        // row, which CONFLICT_REPLACE should never produce; check it anyway so a
-                        // future change to the conflict algorithm cannot seed nothing silently.
-                        val rowId =
-                            db.insertWithOnConflict(
-                                table,
-                                null,
-                                cv,
-                                SQLiteDatabase.CONFLICT_REPLACE,
-                            )
-                        if (rowId == -1L) {
-                            return failure(
-                                "Insert into table '$table' did not add a row " +
-                                    "(insertWithOnConflict returned -1)."
-                            )
+                        db.beginTransaction()
+                        try {
+                            if (keyCol != null && keyVal != null) {
+                                db.delete(table, "`$keyCol` = ?", arrayOf(keyVal))
+                            }
+                            // SQLite errors (unknown column, constraint violation) propagate out
+                            // of insertWithOnConflict as SQLException and are turned into a
+                            // failure by the catch below. A -1 return means the statement ran but
+                            // inserted no row, which CONFLICT_REPLACE should never produce; check
+                            // it anyway so a future change to the conflict algorithm cannot seed
+                            // nothing silently.
+                            val rowId =
+                                db.insertWithOnConflict(
+                                    table,
+                                    null,
+                                    cv,
+                                    SQLiteDatabase.CONFLICT_REPLACE,
+                                )
+                            if (rowId == -1L) {
+                                return failure(
+                                    "Insert into table '$table' did not add a row " +
+                                        "(insertWithOnConflict returned -1)."
+                                )
+                            }
+                            db.setTransactionSuccessful()
+                        } finally {
+                            db.endTransaction()
                         }
                     }
                 }
