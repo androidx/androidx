@@ -34,9 +34,12 @@ abstract class ProjectParser : BuildService<BuildServiceParameters.None> {
 
     data class ParsedProject(
         val softwareType: SoftwareType = SoftwareType.UNSET,
-        val specifiesVersion: Boolean = false,
+        val mavenVersionGroup: String? = null,
         val singleQuoteViolations: List<String> = emptyList(),
     ) {
+        val specifiesVersion: Boolean
+            get() = mavenVersionGroup != null
+
         fun shouldPublish(): Boolean = softwareType.publish.shouldPublish()
 
         fun shouldRelease(): Boolean = softwareType.publish.shouldRelease()
@@ -49,7 +52,7 @@ abstract class ProjectParser : BuildService<BuildServiceParameters.None> {
             var inQuotes = false
             var prevType = 0
             var softwareType: SoftwareType = SoftwareType.UNSET
-            var specifiesVersion = false
+            var mavenVersionGroup: String? = null
 
             for (token in lexer.tokens()) {
                 when (token.type) {
@@ -66,15 +69,15 @@ abstract class ProjectParser : BuildService<BuildServiceParameters.None> {
                             if (token.text.startsWith("SoftwareType.")) {
                                 softwareType =
                                     SoftwareType.valueOf(token.text.removePrefix("SoftwareType."))
-                            } else if (token.text == "mavenVersion") {
-                                specifiesVersion = true
+                            } else if (token.text.startsWith("LibraryVersions.")) {
+                                mavenVersionGroup = token.text.removePrefix("LibraryVersions.")
                             }
                         }
                 }
                 prevType = token.type
             }
 
-            return ParsedProject(softwareType, specifiesVersion, violations)
+            return ParsedProject(softwareType, mavenVersionGroup, violations)
         }
 
         private fun GradleScriptLexer.tokens(): Sequence<Token> = generateSequence {

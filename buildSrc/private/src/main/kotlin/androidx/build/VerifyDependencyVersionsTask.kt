@@ -207,13 +207,14 @@ internal fun Project.getLibraryProjectCoordinates(
     val projectVersion = Version.parse(version.toString())
     val projectGroup = group.toString()
     val projectArtifact = name
+    val mavenVersionGroup = parse().mavenVersionGroup
     return libraryVersionsService.map { service ->
         ProjectCoordinates(
             projectPath = projectPath,
             groupId = projectGroup,
             artifactId = projectArtifact,
             version = projectVersion,
-            versionGroup = service.versionGroupFor(projectPath, projectGroup),
+            versionGroup = service.versionGroupFor(projectPath, projectGroup) ?: mavenVersionGroup,
         )
     }
 }
@@ -235,6 +236,9 @@ internal fun Project.getTipOfTreeDependencies(
                             groupId = dependency.group!!,
                             artifactId = dependency.name,
                             version = dependency.version?.let { Version.parseOrNull(it) },
+                            versionGroup =
+                                parseBuildFile(project(dependency.path).buildFile)
+                                    .mavenVersionGroup,
                         )
                     }
             }
@@ -245,6 +249,7 @@ internal fun Project.getTipOfTreeDependencies(
                 dependency.copy(
                     versionGroup =
                         service.versionGroupFor(dependency.projectPath, dependency.groupId)
+                            ?: dependency.versionGroup
                 )
             }
             .toSet()

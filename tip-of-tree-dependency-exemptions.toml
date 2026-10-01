@@ -118,24 +118,6 @@ validThroughLibraryVersion = "1.0.0-beta01"
 reason = "b/567547623 - quarantined to release together with :a2ui while it's in early alphas"
 
 [[tipOfTreeExemptions]]
-library = ":compose:material:material"
-dependsOn = ":compose:runtime:runtime"
-validThroughLibraryVersion = "1.13.0-rc01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":compose:material:material-navigation"
-dependsOn = ":compose:material:material"
-validThroughLibraryVersion = "1.13.0-rc01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":compose:material:material-ripple"
-dependsOn = ":compose:runtime:runtime"
-validThroughLibraryVersion = "1.13.0-rc01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
 library = ":compose:remote:foundation:foundation"
 dependsOn = ":compose:remote:remote-creation"
 validThroughLibraryVersion = "1.0.0-beta01"
@@ -166,57 +148,9 @@ validThroughLibraryVersion = "1.1.0-alpha01"
 reason = "b/TODO - <reason>"
 
 [[tipOfTreeExemptions]]
-library = ":core:core-ktx"
-dependsOn = ":core:core"
-validThroughLibraryVersion = "1.20.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":core:core-location-altitude"
-dependsOn = ":core:core-location-altitude-proto"
-validThroughLibraryVersion = "1.0.0"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":core:core-location-altitude-proto"
-dependsOn = ":core:core-location-altitude-external-protobuf"
-validThroughLibraryVersion = "1.0.0"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":core:core-performance-play-services"
-dependsOn = ":core:core-performance"
-validThroughLibraryVersion = "1.1.0-alpha01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":core:core-performance-testing"
-dependsOn = ":core:core-performance"
-validThroughLibraryVersion = "1.1.0-alpha01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":core:core-testing"
-dependsOn = ":core:core"
-validThroughLibraryVersion = "1.20.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
 library = ":credentials:registry:registry-provider"
 dependsOn = ":credentials:credentials"
 validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":emoji:emoji-appcompat"
-dependsOn = ":emoji:emoji"
-validThroughLibraryVersion = "1.2.0"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":emoji:emoji-bundled"
-dependsOn = ":emoji:emoji"
-validThroughLibraryVersion = "1.2.0"
 reason = "b/TODO - <reason>"
 
 [[tipOfTreeExemptions]]
@@ -262,24 +196,6 @@ validThroughLibraryVersion = "1.0.0-beta01"
 reason = "b/TODO - <reason>"
 
 [[tipOfTreeExemptions]]
-library = ":health:health-services-client"
-dependsOn = ":health:health-services-client-proto"
-validThroughLibraryVersion = "1.1.0-rc01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":health:health-services-client-proto"
-dependsOn = ":health:health-services-client-external-protobuf"
-validThroughLibraryVersion = "1.1.0-rc01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":hilt:hilt-lifecycle-viewmodel-compose"
-dependsOn = ":hilt:hilt-lifecycle-viewmodel"
-validThroughLibraryVersion = "1.5.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
 library = ":hilt:hilt-navigation"
 dependsOn = ":hilt:hilt-lifecycle-viewmodel"
 validThroughLibraryVersion = "1.5.0-beta01"
@@ -294,12 +210,6 @@ reason = "b/TODO - <reason>"
 [[tipOfTreeExemptions]]
 library = ":hilt:hilt-navigation-fragment"
 dependsOn = ":hilt:hilt-lifecycle-viewmodel"
-validThroughLibraryVersion = "1.5.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":hilt:hilt-work"
-dependsOn = ":hilt:hilt-common"
 validThroughLibraryVersion = "1.5.0-beta01"
 reason = "b/TODO - <reason>"
 
@@ -373,12 +283,6 @@ reason = "b/TODO - <reason>"
 library = ":security:security-app-authenticator-testing"
 dependsOn = ":security:security-app-authenticator"
 validThroughLibraryVersion = "1.0.0"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":security:security-crypto-ktx"
-dependsOn = ":security:security-crypto"
-validThroughLibraryVersion = "1.1.0"
 reason = "b/TODO - <reason>"
 
 [[tipOfTreeExemptions]]
