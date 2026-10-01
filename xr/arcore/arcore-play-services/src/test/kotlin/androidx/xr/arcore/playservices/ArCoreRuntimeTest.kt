@@ -19,7 +19,6 @@ package androidx.xr.arcore.playservices
 import android.app.Activity
 import android.hardware.Sensor
 import android.hardware.SensorManager
-import android.util.Range
 import androidx.kruth.assertThrows
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -39,7 +38,6 @@ import androidx.xr.runtime.internal.UnsupportedDeviceException
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.ArCoreApk.Availability
 import com.google.ar.core.Camera
-import com.google.ar.core.CameraConfig
 import com.google.ar.core.Config as ArConfig
 import com.google.ar.core.Config.PlaneFindingMode
 import com.google.ar.core.Config.TextureUpdateMode
@@ -86,11 +84,6 @@ class ArCoreRuntimeTest {
     private lateinit var mockArCoreApk: ArCoreApk
 
     @get:Rule val activityRule = ActivityScenarioRule(Activity::class.java)
-
-    private companion object {
-        private const val MIN_FPS: Int = 25
-        private const val MAX_FPS: Int = 35
-    }
 
     @Before
     fun setUp() {
@@ -327,11 +320,8 @@ class ArCoreRuntimeTest {
     @Test
     fun update_updatesPerceptionManager() {
         val mockFrame = mock<Frame>()
-        val mockCameraConfig = mock<CameraConfig>()
         whenever(mockFrame.camera).thenReturn(mockCamera)
         whenever(mockSession.update()).thenReturn(mockFrame)
-        whenever(mockSession.cameraConfig).thenReturn(mockCameraConfig)
-        whenever(mockCameraConfig.fpsRange).thenReturn(Range(MIN_FPS, MAX_FPS))
         underTest._session = mockSession
         underTest.perceptionManager.session = mockSession
         underTest.resume()
@@ -347,7 +337,6 @@ class ArCoreRuntimeTest {
     fun update_returnsTimeMarkFromTimeSource() {
         val mockFrame1 = mock<Frame>()
         val mockFrame2 = mock<Frame>()
-        val mockCameraConfig = mock<CameraConfig>()
         val firstTimestampNs =
             1000L // first timestamp becomes the zero time mark for the time source
         val secondTimestampNs = 2000L
@@ -356,8 +345,6 @@ class ArCoreRuntimeTest {
         whenever(mockFrame1.camera).thenReturn(mockCamera)
         whenever(mockFrame2.camera).thenReturn(mockCamera)
         whenever(mockSession.update()).thenReturn(mockFrame1, mockFrame2)
-        whenever(mockSession.cameraConfig).thenReturn(mockCameraConfig)
-        whenever(mockCameraConfig.fpsRange).thenReturn(Range(MIN_FPS, MAX_FPS))
         underTest._session = mockSession
         underTest.perceptionManager.session = mockSession
         underTest.resume()
@@ -372,31 +359,36 @@ class ArCoreRuntimeTest {
     }
 
     @Test
-    fun update_delaysForExpectedTimeBetweenFrames() {
+    fun prepareForUpdate_delaysForExpectedTimeBetweenFrames() {
         val mockFrame = mock<Frame>()
-        val mockCameraConfig = mock<CameraConfig>()
         whenever(mockFrame.camera).thenReturn(mockCamera)
         whenever(mockSession.update()).thenReturn(mockFrame)
-        whenever(mockSession.cameraConfig).thenReturn(mockCameraConfig)
-        whenever(mockCameraConfig.fpsRange).thenReturn(Range(MIN_FPS, MAX_FPS))
         underTest._session = mockSession
         underTest.perceptionManager.session = mockSession
         underTest.resume()
 
         runTest {
-            var wasUpdated = false
+            var firstIterationComplete = false
+            var secondIterationComplete = false
             launch {
+                // First iteration should run immediately.
                 underTest.prepareForUpdate()
                 underTest.update()
-                wasUpdated = true
+                firstIterationComplete = true
+
+                // Second iteration should pace itself based on expectedDelayMs.
+                underTest.prepareForUpdate()
+                underTest.update()
+                secondIterationComplete = true
             }
 
-            val expectedDelayMs = 1000L / ((MIN_FPS + MAX_FPS) / 2)
+            val expectedDelayMs = ArCoreRuntime.TARGET_UPDATE_DURATION.inWholeMilliseconds
             advanceTimeBy(expectedDelayMs - 1)
-            assertThat(wasUpdated).isFalse()
+            assertThat(firstIterationComplete).isTrue()
+            assertThat(secondIterationComplete).isFalse()
 
             advanceTimeBy(2)
-            assertThat(wasUpdated).isTrue()
+            assertThat(secondIterationComplete).isTrue()
         }
     }
 
