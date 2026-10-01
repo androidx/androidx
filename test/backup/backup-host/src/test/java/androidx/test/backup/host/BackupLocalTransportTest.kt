@@ -23,6 +23,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
 import kotlinx.coroutines.runBlocking
@@ -132,7 +133,7 @@ class BackupLocalTransportTest {
             }
         }
 
-        assertFailsWith<IOException> { runBlocking { transport.restore() } }
+        assertFailsWith<IOException> { runBlocking { transport.restore(1.minutes) } }
         assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
     }
 
@@ -155,10 +156,27 @@ class BackupLocalTransportTest {
             )
 
         val elapsed = measureTime {
-            assertNull(withTimeoutOrNull(300.milliseconds) { boundedTransport.restore() })
+            assertNull(withTimeoutOrNull(300.milliseconds) { boundedTransport.restore(1.minutes) })
         }
 
         assertTrue(elapsed < 2.seconds, "Restore took $elapsed")
+        assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
+    }
+
+    /**
+     * A restore that ends before the first check is never seen. With a short timeout, restore stops
+     * looking for it after half the timeout, so that it still completes within the timeout.
+     */
+    @Test
+    fun restoreLooksForTheRestorePassForHalfOfAShortTimeout() = runBlocking {
+        device.onShell { command ->
+            if (command == "bmgr list transports") shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
+            else shellOutput()
+        }
+
+        val elapsed = measureTime { transport.restore(1.seconds) }
+
+        assertTrue(elapsed < 1.seconds, "Restore took $elapsed")
         assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
     }
 
@@ -185,7 +203,7 @@ class BackupLocalTransportTest {
             }
         }
 
-        transport.restore()
+        transport.restore(1.minutes)
 
         assertEquals(3, dumpsysCount)
         assertEquals(
