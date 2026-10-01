@@ -20,13 +20,9 @@ import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
-import androidx.compose.runtime.remember
 
 /**
  * A class representing a remote boolean value.
@@ -38,7 +34,7 @@ import androidx.compose.runtime.remember
 @Stable
 public open class RemoteBoolean
 internal constructor(
-    internal val intValue: RemoteInt,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val intValue: RemoteInt,
     internal val floatComparison: SelectFloatCondition.FloatComparison? = null,
     internal val intComparison: SelectIntCondition.IntComparison? = null,
 ) : BaseRemoteState<Boolean>(RemoteStateInstanceKey()) {
@@ -46,7 +42,8 @@ internal constructor(
     public override val cacheKey: RemoteStateCacheKey
         get() = intValue.cacheKey
 
-    internal enum class OperationKey : RemoteOperation {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public enum class OperationKey : RemoteOperation {
         SelectString,
         SelectFloat,
         SelectInt,
@@ -473,7 +470,8 @@ internal constructor(
          * @param id The remote ID (stored as a [RemoteInt]).
          * @return A [RemoteBoolean] referencing the ID.
          */
-        internal fun createForId(id: Int): RemoteBoolean =
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun createForId(id: Int): RemoteBoolean =
             RemoteBoolean(RemoteInt.createForId(0x100000000L + id))
 
         /**
@@ -540,7 +538,8 @@ internal constructor(remoteInt: MutableRemoteInt) :
          * @param id The ID for this mutable boolean.
          * @return A [MutableRemoteBoolean] instance.
          */
-        internal fun createMutableForId(id: Long): MutableRemoteBoolean =
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun createMutableForId(id: Long): MutableRemoteBoolean =
             MutableRemoteBoolean(MutableRemoteInt.createMutableForId(id))
 
         /**
@@ -562,41 +561,3 @@ public val Boolean.rb: RemoteBoolean
     get() {
         return RemoteBoolean(this)
     }
-
-/**
- * Factory composable for mutable remote boolean state.
- *
- * @param initialValue The initial [Boolean] value.
- * @return A [MutableRemoteBoolean] instance that will be remembered across recompositions.
- */
-@Deprecated(
-    message = "Use remember { MutableRemoteBoolean(initialValue) } instead.",
-    replaceWith =
-        ReplaceWith(
-            "remember { MutableRemoteBoolean(initialValue) }",
-            "androidx.compose.runtime.remember",
-        ),
-)
-@Composable
-@RemoteComposable
-public fun rememberMutableRemoteBoolean(initialValue: Boolean): MutableRemoteBoolean {
-    return remember { MutableRemoteBoolean(initialValue) }
-}
-
-/**
- * Remembers a named remote boolean expression.
- *
- * @param name A unique name to identify this state within its [domain].
- * @param initialValue The initial [Boolean] value.
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
- * @return A [RemoteBoolean] instance representing the named expression.
- */
-@Composable
-@RemoteComposable
-public fun rememberNamedRemoteBoolean(
-    name: String,
-    initialValue: Boolean,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-): RemoteBoolean {
-    return remember(name, domain) { createNamedRemoteBoolean(name, initialValue, domain) }
-}

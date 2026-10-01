@@ -35,6 +35,7 @@ import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.state.toRemoteString
 import androidx.compose.remote.player.compose.embedded.RcPlayerTestRule
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color

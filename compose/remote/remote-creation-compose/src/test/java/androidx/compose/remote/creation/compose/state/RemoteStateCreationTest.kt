@@ -519,20 +519,6 @@ class RemoteStateCreationTest {
         }
     }
 
-    @Suppress("DEPRECATION")
-    @Test
-    fun creation_rememberMutableRemote_isStandardized() = runTest {
-        remoteCaptureRule.captureDocument(context) {
-            val state = LocalRemoteComposeCreationState.current
-            rememberMutableRemoteInt(1).writeToDocument(state)
-            rememberMutableRemoteFloat(1f).writeToDocument(state)
-            rememberMutableRemoteLong(1L).writeToDocument(state)
-            rememberMutableRemoteBoolean(true).writeToDocument(state)
-            rememberMutableRemoteString("h").writeToDocument(state)
-            // Color and Dp do not have rememberMutableRemoteX versions.
-        }
-    }
-
     @Test
     fun creation_rememberNamedRemote_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
@@ -551,25 +537,11 @@ class RemoteStateCreationTest {
         }
     }
 
-    @Suppress("DEPRECATION")
-    @Test
-    fun creation_rememberRemote_nonStandardized() = runTest {
-        remoteCaptureRule.captureDocument(context) {
-            val state = LocalRemoteComposeCreationState.current
-
-            // Only non-deprecated unnamed rememberRemoteX functions are tested here.
-
-            // This form provides a RemoteContext
-            rememberRemoteFloatExpression { 1f.rf }.writeToDocument(state)
-        }
-    }
-
-    @Suppress("DEPRECATION")
     @Test
     fun creation_rememberRemote_withInt_doesNotCrash() = runTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val useLargeScroll = rememberMutableRemoteBoolean(true)
+                val useLargeScroll = remember { MutableRemoteBoolean(true) }
                 RemoteText(useLargeScroll.select("True".rs, "False".rs), color = Color.Black.rc)
             }
         val playbackContext = AndroidRemoteContext()
