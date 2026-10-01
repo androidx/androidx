@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.ink.brush.BrushPaint.AnimationRepeatMode
 import androidx.ink.brush.BrushPaint.ColorFunction
 import androidx.ink.brush.BrushPaint.StampingTexture
 import androidx.ink.brush.BrushPaint.TextureLayer
@@ -43,7 +44,7 @@ class BrushPaintTest {
     }
 
     @Test
-    fun brushTip_usesPassedInTextureLayers() {
+    fun brushPaint_usesPassedInTextureLayers() {
         val textureLayer = makeTestTextureLayer()
         val brushPaint = BrushPaint(textureLayers = listOf(textureLayer))
         assertThat(brushPaint.textureLayers).hasSize(1)
@@ -51,7 +52,7 @@ class BrushPaintTest {
     }
 
     @Test
-    fun brushTip_usesPassedInColorFunctions() {
+    fun brushPaint_usesPassedInColorFunctions() {
         val colorFunction = ColorFunction.OpacityMultiplier(0.75f)
         val brushPaint = BrushPaint(colorFunctions = listOf(colorFunction))
         assertThat(brushPaint.colorFunctions).hasSize(1)
@@ -100,6 +101,44 @@ class BrushPaintTest {
     @Test
     fun constructor_withDefaultArguments_returnsABrushPaint() {
         assertThat(BrushPaint()).isNotNull()
+    }
+
+    @Test
+    fun paintAnimationLoopDurationMillis_returnsZeroForBrushPaintWithNoTextureLayers() {
+        assertThat(BrushPaint().paintAnimationLoopDurationMillis).isEqualTo(0L)
+    }
+
+    @Test
+    fun paintAnimationLoopDurationMillis_returnsZeroForTilingTexturedBrushPaint() {
+        val tilingTexture =
+            TilingTexture(clientTextureId = TEST_TEXTURE_ID, sizeX = 10f, sizeY = 10f)
+        assertThat(BrushPaint(listOf(tilingTexture)).paintAnimationLoopDurationMillis).isEqualTo(0L)
+    }
+
+    @Test
+    fun paintAnimationLoopDurationMillis_returnsZeroForNonAnimatedStampingTexturedBrushPaint() {
+        val nonAnimatedStampingTexture =
+            StampingTexture(
+                clientTextureId = TEST_TEXTURE_ID,
+                animationFrames = 1,
+                animationDurationMillis = 12345L,
+            )
+        assertThat(BrushPaint(listOf(nonAnimatedStampingTexture)).paintAnimationLoopDurationMillis)
+            .isEqualTo(0L)
+    }
+
+    @Test
+    fun paintAnimationLoopDurationMillis_returnsDurationForAnimatedStampingTexturedBrushPaint() {
+        val animatedStampingTexture =
+            StampingTexture(
+                clientTextureId = TEST_TEXTURE_ID,
+                animationFrames = 2,
+                animationRows = 1,
+                animationColumns = 2,
+                animationDurationMillis = 12345L,
+            )
+        assertThat(BrushPaint(listOf(animatedStampingTexture)).paintAnimationLoopDurationMillis)
+            .isEqualTo(12345L)
     }
 
     @Test
@@ -351,7 +390,7 @@ class BrushPaintTest {
                 animationRows = 3,
                 animationColumns = 4,
                 animationDurationMillis = 5000,
-                animationRepeatMode = TextureLayer.AnimationRepeatMode.REVERSE,
+                animationRepeatMode = AnimationRepeatMode.REVERSE,
                 blendMode = TextureLayer.BlendMode.SRC_IN,
             )
 
@@ -364,7 +403,7 @@ class BrushPaintTest {
                     animationRows = 3,
                     animationColumns = 4,
                     animationDurationMillis = 5000,
-                    animationRepeatMode = TextureLayer.AnimationRepeatMode.REVERSE,
+                    animationRepeatMode = AnimationRepeatMode.REVERSE,
                     blendMode = TextureLayer.BlendMode.SRC_IN,
                 )
             )
@@ -378,9 +417,7 @@ class BrushPaintTest {
         assertThat(layer).isNotEqualTo(layer.copy(animationColumns = 7))
         assertThat(layer).isNotEqualTo(layer.copy(animationDurationMillis = 8000))
         assertThat(layer)
-            .isNotEqualTo(
-                layer.copy(animationRepeatMode = TextureLayer.AnimationRepeatMode.RESTART)
-            )
+            .isNotEqualTo(layer.copy(animationRepeatMode = AnimationRepeatMode.RESTART))
         assertThat(layer).isNotEqualTo(layer.copy(blendMode = TextureLayer.BlendMode.MODULATE))
     }
 
@@ -442,7 +479,7 @@ class BrushPaintTest {
                 animationRows = 3,
                 animationColumns = 4,
                 animationDurationMillis = 5000,
-                animationRepeatMode = TextureLayer.AnimationRepeatMode.REVERSE,
+                animationRepeatMode = AnimationRepeatMode.REVERSE,
                 blendMode = TextureLayer.BlendMode.SRC_IN,
             )
         val changedAnimationRows = originalLayer.copy(animationRows = 9)
@@ -459,7 +496,7 @@ class BrushPaintTest {
                     animationRows = 9, // Changed
                     animationColumns = 4,
                     animationDurationMillis = 5000,
-                    animationRepeatMode = TextureLayer.AnimationRepeatMode.REVERSE,
+                    animationRepeatMode = AnimationRepeatMode.REVERSE,
                     blendMode = TextureLayer.BlendMode.SRC_IN,
                 )
             )
@@ -570,9 +607,9 @@ class BrushPaintTest {
             .isEqualTo(Version.V0)
         assertThat(TextureLayer.SizeUnit.BRUSH_SIZE.calculateMinimumRequiredVersion())
             .isEqualTo(Version.V0)
-        assertThat(TextureLayer.AnimationRepeatMode.RESTART.calculateMinimumRequiredVersion())
+        assertThat(AnimationRepeatMode.RESTART.calculateMinimumRequiredVersion())
             .isEqualTo(Version.V0)
-        assertThat(TextureLayer.AnimationRepeatMode.REVERSE.calculateMinimumRequiredVersion())
+        assertThat(AnimationRepeatMode.REVERSE.calculateMinimumRequiredVersion())
             .isEqualTo(Version.DEVELOPMENT)
         assertThat(
                 TilingTexture(
@@ -611,7 +648,7 @@ class BrushPaintTest {
             animationRows = 3,
             animationColumns = 4,
             animationDurationMillis = 5000,
-            animationRepeatMode = TextureLayer.AnimationRepeatMode.REVERSE,
+            animationRepeatMode = AnimationRepeatMode.REVERSE,
             blendMode = TextureLayer.BlendMode.SRC_IN,
         )
 

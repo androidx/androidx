@@ -16,6 +16,7 @@
 
 package androidx.ink.storage
 
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.strokes.MutableStrokeInputBatch
 import androidx.ink.strokes.StrokeInput
@@ -33,6 +34,7 @@ import kotlin.test.Test
  * this just covers basic plumbing, the tests for detailed error behavior are in the KMP-common
  * tests.
  */
+@OptIn(ExperimentalInkBarrelTwistApi::class)
 class JvmStrokeInputBatchExtensionsTest {
     private fun assertBatchesAreNearEqual(
         batch1: StrokeInputBatch,
@@ -52,6 +54,8 @@ class JvmStrokeInputBatchExtensionsTest {
             assertThat(abs(s1.pressure - s2.pressure)).isLessThan(tolerance)
             assertThat(abs(s1.tiltRadians - s2.tiltRadians)).isLessThan(tolerance)
             assertThat(abs(s1.orientationRadians - s2.orientationRadians)).isLessThan(tolerance)
+            assertThat(abs(s1.getBarrelTwistRadians() - s2.getBarrelTwistRadians()))
+                .isLessThan(tolerance)
         }
     }
 
@@ -66,6 +70,7 @@ class JvmStrokeInputBatchExtensionsTest {
                     pressure = 0.1f,
                     tiltRadians = 0.2f,
                     orientationRadians = 0.3f,
+                    barrelTwistRadians = 0.4f,
                 )
             )
             .add(
@@ -77,6 +82,7 @@ class JvmStrokeInputBatchExtensionsTest {
                     pressure = 0.7f,
                     tiltRadians = 0.8f,
                     orientationRadians = 0.9f,
+                    barrelTwistRadians = 1.0f,
                 )
             )
             .toImmutable()

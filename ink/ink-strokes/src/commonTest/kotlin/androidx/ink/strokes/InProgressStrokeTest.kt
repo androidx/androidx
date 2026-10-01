@@ -88,17 +88,17 @@ class InProgressStrokeTest {
     }
 
     @Test
-    fun startStroke_setsNoiseSeedAndBaseAnimationPhase() {
+    fun startStroke_setsNoiseSeedAndBasePaintAnimationPhase() {
         val inProgressStroke = InProgressStroke()
-        inProgressStroke.start(makeBrush(), noiseSeed = 12345, baseAnimationPhase = 0.25f)
+        inProgressStroke.start(makeBrush(), noiseSeed = 12345, basePaintAnimationPhase = 0.25f)
 
-        assertThat(inProgressStroke.getBaseAnimationPhase()).isEqualTo(0.25f)
+        assertThat(inProgressStroke.getBasePaintAnimationPhase()).isEqualTo(0.25f)
 
         val strokeInputBatch = MutableStrokeInputBatch()
         inProgressStroke.populateInputs(strokeInputBatch)
 
         assertThat(strokeInputBatch.getNoiseSeed()).isEqualTo(12345)
-        assertThat(strokeInputBatch.getBaseAnimationPhase()).isEqualTo(0.25f)
+        assertThat(strokeInputBatch.getBasePaintAnimationPhase()).isEqualTo(0.25f)
     }
 
     @Test

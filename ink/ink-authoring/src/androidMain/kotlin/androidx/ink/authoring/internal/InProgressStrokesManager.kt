@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.graphics.Matrix
 import android.view.MotionEvent
 import androidx.annotation.AnyThread
-import androidx.annotation.CheckResult
 import androidx.annotation.Size
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
@@ -33,6 +32,7 @@ import androidx.ink.authoring.ShapeWorkflow
 import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.authoring.latency.LatencyDataCallback
 import androidx.ink.authoring.latency.LatencyDataPool
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.MutableBox
 import androidx.ink.strokes.ImmutableStrokeInputBatch
@@ -61,7 +61,11 @@ import java.util.concurrent.atomic.AtomicReference
  * synchronization depends on HWUI frames while user inputs may happen multiple times per HWUI frame
  * without a guaranteed order.
  */
-@OptIn(ExperimentalInkLatencyDataApi::class, ExperimentalInkCustomShapeWorkflowApi::class)
+@OptIn(
+    ExperimentalInkLatencyDataApi::class,
+    ExperimentalInkCustomShapeWorkflowApi::class,
+    ExperimentalInkBarrelTwistApi::class,
+)
 internal class InProgressStrokesManager<
     ShapeSpecT : Any,
     InProgressShapeT : InProgressShape<ShapeSpecT, CompletedShapeT>,
@@ -578,10 +582,11 @@ internal class InProgressStrokesManager<
                             // from the return
                             // values themselves as the return value when absent (0) is within the
                             // valid range for
-                            // pressure/tilt/orientation.
+                            // pressure/tilt/orientation/twist.
                             forceHasPressure = realInputs.hasPressure(),
                             forceHasTilt = realInputs.hasTilt(),
                             forceHasOrientation = realInputs.hasOrientation(),
+                            forceHasBarrelTwist = realInputs.hasBarrelTwist(),
                             outBatch = predictedInputs,
                         )
                         // TODO b/306361370 - Generate LatencyData only for those inputs that pass
@@ -763,7 +768,6 @@ internal class InProgressStrokesManager<
      * whether a task should be scheduled to check again in a short period of time, or whether more
      * external input is needed to change the state.
      */
-    @CheckResult
     @UiThread
     private fun claimStrokesToHandOff(): ClaimStrokesToHandOffResult {
         // First, make sure that any finished (input complete and fully generated) strokes that the

@@ -100,6 +100,21 @@ private constructor(
         SelfOverlap.fromInt(BrushPaintNative.getSelfOverlapInt(nativePointer))
 
     /**
+     * Returns the duration of a complete paint animation loop for this brush paint (such that the
+     * paint goes through one complete loop and returns to its starting point), or zero if this
+     * brush paint is not animated. If nonzero, this duration will be no greater than 2^24
+     * milliseconds (about 4.66 hours).
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkAnimationApi
+    @get:IntRange(from = 0, to = 1 shl 24)
+    // Uses lazy to avoid the opt-in annotation not applying to Java callers (can't be applied to
+    // getters, and just applies to the backing field if there is one).
+    public val paintAnimationLoopDurationMillis: Long by lazy {
+        BrushPaintNative.getPaintAnimationLoopDurationMillis(nativePointer)
+    }
+
+    /**
      * Creates a [BrushPaint] with the given [textureLayers].
      *
      * @param textureLayers The textures to apply to the stroke.
@@ -168,6 +183,43 @@ private constructor(
     @InkInternalOnlyApi
     public fun isCompatibleWithMeshFormat(meshFormat: MeshFormat): Boolean =
         BrushPaintNative.isCompatibleWithMeshFormat(nativePointer, meshFormat.nativePointer)
+
+    /** Specifies what should happen when a brush paint animation repeats. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkAnimationApi
+    public class AnimationRepeatMode
+    private constructor(internal val value: Int, private val name: String) {
+        init {
+            check(value !in VALUE_TO_INSTANCE) { "Duplicate AnimationRepeatMode value: $value." }
+            VALUE_TO_INSTANCE[value] = this
+        }
+
+        override fun toString(): String = "AnimationRepeatMode.$name"
+
+        /**
+         * Returns the minimum required [Version] for this [AnimationRepeatMode].
+         *
+         * By default, decoding a [BrushFamily] containing an [AnimationRepeatMode] with a minimum
+         * required version higher than [Version.MAX_SUPPORTED] will fail.
+         */
+        @ExperimentalInkAnimationApi
+        public fun calculateMinimumRequiredVersion(): Version =
+            Version.fromInt(BrushPaintNative.getAnimationRepeatModeMinimumRequiredVersion(value))
+
+        public companion object {
+            private val VALUE_TO_INSTANCE = MutableIntObjectMap<AnimationRepeatMode>()
+
+            internal fun fromInt(value: Int): AnimationRepeatMode =
+                checkNotNull(VALUE_TO_INSTANCE.get(value)) {
+                    "Invalid AnimationRepeatMode value: $value"
+                }
+
+            /** Return to the start of the animation for the next repetition. */
+            @JvmField public val RESTART: AnimationRepeatMode = AnimationRepeatMode(0, "RESTART")
+            /** Reverse animation direction for the next repetition. */
+            @JvmField public val REVERSE: AnimationRepeatMode = AnimationRepeatMode(1, "REVERSE")
+        }
+    }
 
     // Abstract base class for a texture layer.
     public abstract class TextureLayer internal constructor(nativeAlloc: () -> Long) {
@@ -485,49 +537,6 @@ private constructor(
                  * preserve alpha adjustments from anti-aliasing).
                  */
                 @JvmField public val XOR: BlendMode = BlendMode(11, "XOR")
-            }
-        }
-
-        /** Specifies what should happen when a brush paint animation repeats. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-        @ExperimentalInkAnimationApi
-        public class AnimationRepeatMode
-        private constructor(internal val value: Int, private val name: String) {
-            init {
-                check(value !in VALUE_TO_INSTANCE) {
-                    "Duplicate AnimationRepeatMode value: $value."
-                }
-                VALUE_TO_INSTANCE[value] = this
-            }
-
-            override fun toString(): String = "TextureLayer.AnimationRepeatMode.$name"
-
-            /**
-             * Returns the minimum required [Version] for this [AnimationRepeatMode].
-             *
-             * By default, decoding a [BrushFamily] containing an [AnimationRepeatMode] with a
-             * minimum required version higher than [Version.MAX_SUPPORTED] will fail.
-             */
-            @ExperimentalInkAnimationApi
-            public fun calculateMinimumRequiredVersion(): Version =
-                Version.fromInt(
-                    BrushPaintNative.getAnimationRepeatModeMinimumRequiredVersion(value)
-                )
-
-            public companion object {
-                private val VALUE_TO_INSTANCE = MutableIntObjectMap<AnimationRepeatMode>()
-
-                internal fun fromInt(value: Int): AnimationRepeatMode =
-                    checkNotNull(VALUE_TO_INSTANCE.get(value)) {
-                        "Invalid AnimationRepeatMode value: $value"
-                    }
-
-                /** Return to the start of the animation for the next repetition. */
-                @JvmField
-                public val RESTART: AnimationRepeatMode = AnimationRepeatMode(0, "RESTART")
-                /** Reverse animation direction for the next repetition. */
-                @JvmField
-                public val REVERSE: AnimationRepeatMode = AnimationRepeatMode(1, "REVERSE")
             }
         }
     }
@@ -971,15 +980,17 @@ private constructor(
          *   are close to each other, but just large enough such that [animationFrames] <=
          *   [animationRows] * [animationColumns].
          * @param animationColumns Like [animationRows], but for columns.
-         * @param animationDurationMillis The length of time that it takes to loop through all of
-         *   the [animationFrames] frames in the texture (in which case each frame will be displayed
-         *   for [animationDurationMillis] / [animationFrames] milliseconds on average), or zero to
-         *   disable looping animations (in which case the animation frame is controlled solely by
-         *   any `PAINT_ANIMATION_PROGRESS_OFFSET` behavior targets). Must be between 0 and 2^24
-         *   (inclusive). Ignored if [animationFrames] is 1 (its default value), because that
-         *   indicates that animation is disabled.
-         * @param animationRepeatMode Specifies what should happen when this texture layer's
-         *   animation repeats. Ignored if [animationFrames] is 1 (its default value), because that
+         * @param animationDurationMillis The duration of one complete animation loop for this
+         *   texture (either passing through each frame once if [animationRepeatMode] is
+         *   [AnimationRepeatMode.RESTART], or passing back and forth through each frame if
+         *   [animationRepeatMode] is [AnimationRepeatMode.REVERSE]), or zero to disable automatic
+         *   looping animations (in which case the current animation frame will be controlled solely
+         *   by any [androidx.ink.brush.behavior.TargetNode.Target.PAINT_ANIMATION_PROGRESS_OFFSET]
+         *   behavior targets). Must be between 0 and 2^24 (inclusive). Ignored if [animationFrames]
+         *   is 1 (its default value), because that indicates that animation is disabled.
+         * @param animationRepeatMode Specifies what should happen when the animation reaches the
+         *   last frame: either it can immediately restart back at the first frame, or it can
+         *   reverse direction. Ignored if [animationFrames] is 1 (its default value), because that
          *   indicates that animation is disabled.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
@@ -1594,6 +1605,8 @@ expect internal object BrushPaintNative {
     fun newCopyOfColorFunction(nativePointer: Long, index: Int): Long
 
     fun getSelfOverlapInt(nativePointer: Long): Int
+
+    fun getPaintAnimationLoopDurationMillis(nativePointer: Long): Long
 
     fun isCompatibleWithMeshFormat(nativePointer: Long, meshFormatNativePointer: Long): Boolean
 

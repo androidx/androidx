@@ -59,9 +59,38 @@ abstract class AbstractStrokeRendererTest {
      */
     protected abstract fun loadCursiveHelloInputs(): ImmutableStrokeInputBatch
 
+    private val cursiveHelloInputs: ImmutableStrokeInputBatch by lazy { loadCursiveHelloInputs() }
+
+    protected val simpleStrokeTexturedTestCase: TestCase by lazy {
+        createTestCase(
+            name = "simple_stroke_textured",
+            brush =
+                Brush.createWithColorIntArgb(
+                    family =
+                        BrushFamily(
+                            paint =
+                                BrushPaint(
+                                    listOf(
+                                        BrushPaint.TilingTexture(
+                                            clientTextureId = "checkerboard",
+                                            sizeX = 10f,
+                                            sizeY = 10f,
+                                            sizeUnit =
+                                                BrushPaint.TextureLayer.SizeUnit.STROKE_COORDINATES,
+                                        )
+                                    )
+                                )
+                        ),
+                    colorIntArgb = 0xFF0000FF.toInt(),
+                    size = 15f,
+                    epsilon = 0.1f,
+                ),
+            inputs = cursiveHelloInputs,
+        )
+    }
+
     @OptIn(ExperimentalInkCustomBrushApi::class)
     protected val testCases: List<TestCase> by lazy {
-        val cursiveHelloInputs = loadCursiveHelloInputs()
         listOf(
             // =========================================================================
             // 1. SIMPLE STROKE (SOLID, SINGLE COAT)
@@ -81,32 +110,7 @@ abstract class AbstractStrokeRendererTest {
             // =========================================================================
             // 2. SIMPLE STROKE WITH A SIMPLE TEXTURE
             // =========================================================================
-            createTestCase(
-                name = "simple_stroke_textured",
-                brush =
-                    Brush.createWithColorIntArgb(
-                        family =
-                            BrushFamily(
-                                paint =
-                                    BrushPaint(
-                                        listOf(
-                                            BrushPaint.TilingTexture(
-                                                clientTextureId = "checkerboard",
-                                                sizeX = 10f,
-                                                sizeY = 10f,
-                                                sizeUnit =
-                                                    BrushPaint.TextureLayer.SizeUnit
-                                                        .STROKE_COORDINATES,
-                                            )
-                                        )
-                                    )
-                            ),
-                        colorIntArgb = 0xFF0000FF.toInt(),
-                        size = 15f,
-                        epsilon = 0.1f,
-                    ),
-                inputs = cursiveHelloInputs,
-            ),
+            simpleStrokeTexturedTestCase,
         )
     }
 
@@ -199,9 +203,9 @@ abstract class AbstractStrokeRendererTest {
         assertLazyAssertsPass()
     }
 
-    private class RenderParams(val transform: AffineTransform, val width: Int, val height: Int)
+    protected class RenderParams(val transform: AffineTransform, val width: Int, val height: Int)
 
-    private fun computeRenderParams(testCase: TestCase): RenderParams {
+    protected fun computeRenderParams(testCase: TestCase): RenderParams {
         val rawBox =
             checkNotNull(testCase.dryStroke.shape.computeBoundingBox()) {
                 "Stroke bounding box must not be null"

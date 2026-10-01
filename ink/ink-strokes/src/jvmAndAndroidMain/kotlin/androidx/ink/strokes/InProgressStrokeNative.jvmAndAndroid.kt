@@ -38,7 +38,7 @@ internal actual object InProgressStrokeNative {
         nativePointer: Long,
         brushNativePointer: Long,
         noiseSeed: Int,
-        baseAnimationPhase: Float,
+        basePaintAnimationPhase: Float,
     )
 
     @UsedByNative
@@ -80,7 +80,7 @@ internal actual object InProgressStrokeNative {
     @UsedByNative
     actual external fun getAndOverwriteInput(nativePointer: Long, input: StrokeInput, index: Int)
 
-    @UsedByNative actual external fun getBaseAnimationPhase(nativePointer: Long): Float
+    @UsedByNative actual external fun getBasePaintAnimationPhase(nativePointer: Long): Float
 
     @UsedByNative actual external fun getBrushCoatCount(nativePointer: Long): Int
 

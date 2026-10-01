@@ -31,7 +31,7 @@ import androidx.ink.strokes.Stroke
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.CFunction
 import kotlinx.cinterop.COpaque
-import kotlinx.cinterop.CPointed
+import kotlinx.cinterop.COpaquePointer
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.interpretCPointer
@@ -51,9 +51,7 @@ import platform.Metal.MTLRenderCommandEncoderProtocol
  *   not being used, this should be `MTLPixelFormatInvalid`.
  * @param sampleCount The number of samples per pixel for MSAA. If unset or null, shader-based
  *   antialiasing will be used instead.
- * @param textureImageStore An optional callback for retrieving texture images by ID. Currently only
- *   supports loading textures from pre-loaded `UIImage` objects (ones that wrap `CGImage` instead
- *   of `CIImage`).
+ * @param textureImageStore An optional callback for retrieving texture images by ID.
  */
 @ExperimentalInkCrossPlatformRenderingApi
 @OptIn(InkInternalOnlyApi::class, ExperimentalForeignApi::class)
@@ -93,10 +91,13 @@ public class MetalRenderer(
 
         @OptIn(ExperimentalForeignApi::class)
         private val textureForIdCallback:
-            CPointer<CFunction<(Long, CPointer<ByteVar>?) -> CPointer<out CPointed>?>> =
+            CPointer<CFunction<(Long, CPointer<ByteVar>?) -> COpaquePointer?>> =
             staticCFunction({ metalRendererNativePtr, textureIdPtr ->
                 textureImageStoresByPtr[metalRendererNativePtr]?.let { store ->
-                    textureIdPtr?.toKString()?.let { store[it]?.CGImage }
+                    textureIdPtr
+                        ?.toKString()
+                        ?.let { (store[it]?.objcPtr()) }
+                        ?.let { interpretCPointer<COpaque>(it) }
                 }
             })
     }
@@ -106,45 +107,31 @@ public class MetalRenderer(
      *
      * @param renderEncoder `MTLRenderCommandEncoder` to draw with.
      * @param inProgressStroke The in-progress stroke to draw.
-     * @param modelTransform Affine transform from stroke coordinates to world coordinates, an
-     *   identity transform by default. Can be omitted if the stroke coordinates are all in the same
-     *   world coordinate space.
-     * @param viewTransform Affine transform from world coordinates to view coordinates, an identity
-     *   transform by default. Can be omitted if the world coordinate space is the same as the view
-     *   coordinate space.
-     * @param projectionTransform The projection transform to use for drawing, an identity transform
-     *   by default. Must transform from the world coordinate space to Y-up normalized device
-     *   coordinates (the lower-left corner is (-1, -1) and the upper-right corner is (1, 1)).
+     * @param textureWidth Width of the texture [renderEncoder] is drawing to, used to compute the
+     *   projection transform.
+     * @param textureHeight Height of the texture [renderEncoder] is drawing to, used to compute the
+     *   projection transform.
+     * @param strokeToScreenTransform Affine transform from stroke coordinates to view coordinates.
      */
     public fun draw(
         renderEncoder: MTLRenderCommandEncoderProtocol,
         inProgressStroke: InProgressStroke,
-        modelTransform: AffineTransform = AffineTransform.IDENTITY,
-        viewTransform: AffineTransform = AffineTransform.IDENTITY,
-        projectionTransform: AffineTransform = AffineTransform.IDENTITY,
+        textureWidth: Double,
+        textureHeight: Double,
+        strokeToScreenTransform: AffineTransform,
     ) {
         MetalRendererNative_drawInProgressStroke(
             nativePointer,
             interpretCPointer<COpaque>(renderEncoder.objcPtr()),
             inProgressStroke.nativePointer,
-            modelTransform.m00,
-            modelTransform.m10,
-            modelTransform.m20,
-            modelTransform.m01,
-            modelTransform.m11,
-            modelTransform.m21,
-            viewTransform.m00,
-            viewTransform.m10,
-            viewTransform.m20,
-            viewTransform.m01,
-            viewTransform.m11,
-            viewTransform.m21,
-            projectionTransform.m00,
-            projectionTransform.m10,
-            projectionTransform.m20,
-            projectionTransform.m01,
-            projectionTransform.m11,
-            projectionTransform.m21,
+            textureWidth,
+            textureHeight,
+            strokeToScreenTransform.m00,
+            strokeToScreenTransform.m10,
+            strokeToScreenTransform.m20,
+            strokeToScreenTransform.m01,
+            strokeToScreenTransform.m11,
+            strokeToScreenTransform.m21,
         )
     }
 
@@ -153,45 +140,31 @@ public class MetalRenderer(
      *
      * @param renderEncoder `MTLRenderCommandEncoder` to draw with.
      * @param stroke The stroke to draw.
-     * @param modelTransform Affine transform from stroke coordinates to world coordinates, an
-     *   identity transform by default. Can be omitted if the stroke coordinates are all in the same
-     *   document coordinate space.
-     * @param viewTransform Affine transform from world coordinates to view coordinates, an identity
-     *   transform by default. Can be omitted if the coordinate space used for the document is the
-     *   same as the view coordinate space.
-     * @param projectionTransform The projection transform to use for drawing, an identity transform
-     *   by default. Must transform from the world coordinate space to Y-up normalized device
-     *   coordinates (the lower-left corner is (-1, -1) and the upper-right corner is (1, 1)).
+     * @param textureWidth Width of the texture [renderEncoder] is drawing to, used to compute the
+     *   projection transform.
+     * @param textureHeight Height of the texture [renderEncoder] is drawing to, used to compute the
+     *   projection transform.
+     * @param strokeToScreenTransform Affine transform from stroke coordinates to view coordinates.
      */
     public fun draw(
         renderEncoder: MTLRenderCommandEncoderProtocol,
         stroke: Stroke,
-        modelTransform: AffineTransform = AffineTransform.IDENTITY,
-        viewTransform: AffineTransform = AffineTransform.IDENTITY,
-        projectionTransform: AffineTransform = AffineTransform.IDENTITY,
+        textureWidth: Double,
+        textureHeight: Double,
+        strokeToScreenTransform: AffineTransform,
     ) {
         MetalRendererNative_drawStroke(
             nativePointer,
             interpretCPointer<COpaque>(renderEncoder.objcPtr()),
             stroke.nativePointer,
-            modelTransform.m00,
-            modelTransform.m10,
-            modelTransform.m20,
-            modelTransform.m01,
-            modelTransform.m11,
-            modelTransform.m21,
-            viewTransform.m00,
-            viewTransform.m10,
-            viewTransform.m20,
-            viewTransform.m01,
-            viewTransform.m11,
-            viewTransform.m21,
-            projectionTransform.m00,
-            projectionTransform.m10,
-            projectionTransform.m20,
-            projectionTransform.m01,
-            projectionTransform.m11,
-            projectionTransform.m21,
+            textureWidth,
+            textureHeight,
+            strokeToScreenTransform.m00,
+            strokeToScreenTransform.m10,
+            strokeToScreenTransform.m20,
+            strokeToScreenTransform.m01,
+            strokeToScreenTransform.m11,
+            strokeToScreenTransform.m21,
         )
     }
 }

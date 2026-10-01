@@ -16,6 +16,7 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.Version
 import androidx.ink.brush.behavior.SourceNode.Source
@@ -26,7 +27,7 @@ import kotlin.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-@OptIn(InkInternalOnlyApi::class)
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkBarrelTwistApi::class)
 class SourceNodeTest {
 
     @Test
@@ -46,6 +47,10 @@ class SourceNodeTest {
             .isEqualTo("Source.ORIENTATION_IN_RADIANS")
         assertThat(Source.ORIENTATION_ABOUT_ZERO_IN_RADIANS.toString())
             .isEqualTo("Source.ORIENTATION_ABOUT_ZERO_IN_RADIANS")
+        assertThat(Source.BARREL_TWIST_IN_RADIANS.toString())
+            .isEqualTo("Source.BARREL_TWIST_IN_RADIANS")
+        assertThat(Source.BARREL_TWIST_ABOUT_ZERO_IN_RADIANS.toString())
+            .isEqualTo("Source.BARREL_TWIST_ABOUT_ZERO_IN_RADIANS")
         assertThat(Source.SPEED_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND.toString())
             .isEqualTo("Source.SPEED_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND")
         assertThat(Source.VELOCITY_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND.toString())

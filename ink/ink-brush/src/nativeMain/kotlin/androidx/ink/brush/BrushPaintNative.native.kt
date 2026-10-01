@@ -24,6 +24,7 @@ import androidx.ink.nativeloader.cinterop.BrushPaintNative_getAnimationRepeatMod
 import androidx.ink.nativeloader.cinterop.BrushPaintNative_getBlendModeMinimumRequiredVersion
 import androidx.ink.nativeloader.cinterop.BrushPaintNative_getColorFunctionCount
 import androidx.ink.nativeloader.cinterop.BrushPaintNative_getColorFunctionParametersTypeInt
+import androidx.ink.nativeloader.cinterop.BrushPaintNative_getPaintAnimationLoopDurationMillis
 import androidx.ink.nativeloader.cinterop.BrushPaintNative_getSelfOverlapInt
 import androidx.ink.nativeloader.cinterop.BrushPaintNative_getTextureLayerCount
 import androidx.ink.nativeloader.cinterop.BrushPaintNative_getTextureLayerMappingInt
@@ -118,6 +119,9 @@ actual internal object BrushPaintNative {
 
     actual fun getSelfOverlapInt(nativePointer: Long): Int =
         BrushPaintNative_getSelfOverlapInt(nativePointer)
+
+    actual fun getPaintAnimationLoopDurationMillis(nativePointer: Long): Long =
+        BrushPaintNative_getPaintAnimationLoopDurationMillis(nativePointer)
 
     actual fun isCompatibleWithMeshFormat(
         nativePointer: Long,
