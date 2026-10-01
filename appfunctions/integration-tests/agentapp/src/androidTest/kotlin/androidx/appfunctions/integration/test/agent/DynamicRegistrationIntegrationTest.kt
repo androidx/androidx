@@ -18,6 +18,7 @@ package androidx.appfunctions.integration.test.agent
 
 import android.Manifest
 import android.app.AppInteractionAttribution
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -33,6 +34,7 @@ import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.TestUtil.assertAppFunctionEnabledState
 import androidx.appfunctions.integration.test.agent.TestUtil.doBlocking
+import androidx.appfunctions.integration.test.agent.TestUtil.forceStop
 import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.retryAssert
 import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppFunctionAccess
@@ -51,7 +53,6 @@ import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 @OptIn(ExperimentalAppFunctionsApi::class)
@@ -120,15 +121,13 @@ class DynamicRegistrationIntegrationTest {
     }
 
     @Test
-    @Ignore("b/553962620 - Disable until the test is fixed")
     fun executeAppFunction_activityScopedRegistration_success() = doBlocking {
-        // Start the activity which will register the app function
-        val intent =
+        targetContext.startActivity(
             Intent(ACTION_REGISTER_ACTIVITY_SCOPED).apply {
-                setPackage(TARGET_APP_PACKAGE)
+                component = ComponentName(TARGET_APP_PACKAGE, DYNAMIC_REGISTRATION_ACTIVITY)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-        val activity = InstrumentationRegistry.getInstrumentation().startActivitySync(intent)
+        )
 
         try {
             // Wait for the app function to be indexed and enabled
@@ -170,8 +169,8 @@ class DynamicRegistrationIntegrationTest {
 
             assertIs<ExecuteAppFunctionResponse.Success>(dynamicResponse)
         } finally {
-            // Cleanup: Stop the activity
-            activity.finish()
+            // Cleanup: Stop the target app, which destroys the activity and its registration
+            uiAutomation.forceStop(TARGET_APP_PACKAGE)
         }
     }
 
@@ -712,6 +711,8 @@ class DynamicRegistrationIntegrationTest {
         const val TARGET_APP_PACKAGE = "androidx.appfunctions.integration.testapp"
         const val DYNAMIC_REGISTRATION_SERVICE =
             "androidx.appfunctions.integration.testapp.DynamicRegistrationService"
+        const val DYNAMIC_REGISTRATION_ACTIVITY =
+            "androidx.appfunctions.integration.testapp.DynamicRegistrationActivity"
         const val GLOBAL_SIGNATURE_FORMAT_MESSAGE =
             "androidx.appfunctions.integration.testapp.FormatMessageSignature#formatMessage"
 
