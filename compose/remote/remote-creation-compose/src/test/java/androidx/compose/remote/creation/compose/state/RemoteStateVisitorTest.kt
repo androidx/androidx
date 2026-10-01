@@ -187,7 +187,7 @@ class RemoteStateVisitorTest {
 
         val replaced = dpVal.replaceNamedVariables(mapOf(namedDp to 20.rdp))
         assertThat(replaced.hasConstantValue).isTrue()
-        assertThat(replaced.constantValue).isEqualTo(25.dp)
+        assertThat(replaced.asDp).isEqualTo(25.dp)
     }
 
     @Test
