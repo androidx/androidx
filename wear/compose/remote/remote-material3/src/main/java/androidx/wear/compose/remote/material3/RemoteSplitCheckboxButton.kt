@@ -40,6 +40,7 @@ import androidx.compose.remote.creation.compose.modifier.role
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.widthIn
+import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.shapes.drawOutline
@@ -113,7 +114,8 @@ public fun RemoteSplitCheckboxButton(
             targetValue = checked.select(1f.rf, 0f.rf),
             animationSpec = SelectionAnimationSpec,
         )
-    val containerShape = RemoteSplitCheckboxButtonDefaults.splitSectionsShape
+    val (startSectionShape, endSectionShape) =
+        splitSectionShapes(shape, RemoteSplitCheckboxButtonDefaults.splitSectionsShape)
     val containerColor =
         colors.containerColor(enabled = enabled, checked = checked, progress = progress)
     val contentColor =
@@ -136,7 +138,7 @@ public fun RemoteSplitCheckboxButton(
             modifier =
                 RemoteModifier.weight(1f.rf)
                     .heightIn(min = RemoteSplitCheckboxButtonDefaults.Height)
-                    .clip(containerShape)
+                    .clip(startSectionShape)
                     .clickable(
                         action = onContainerClick,
                         enabled =
@@ -144,7 +146,7 @@ public fun RemoteSplitCheckboxButton(
                                 onContainerClick != Action.Empty,
                     )
                     .drawWithContent {
-                        drawSolidColorShape(containerShape, containerColor)
+                        drawSolidColorShape(startSectionShape, containerColor)
                         drawContent()
                     }
                     .padding(contentPadding)
@@ -194,7 +196,7 @@ public fun RemoteSplitCheckboxButton(
             modifier =
                 RemoteModifier.widthIn(min = 48.rdp)
                     .heightIn(min = RemoteSplitCheckboxButtonDefaults.Height)
-                    .clip(containerShape)
+                    .clip(endSectionShape)
                     .clickable(
                         action = onCheckedChange,
                         enabled =
@@ -203,10 +205,10 @@ public fun RemoteSplitCheckboxButton(
                     )
                     .drawWithContent {
                         drawSolidColorShape(
-                            containerShape,
+                            endSectionShape,
                             enabled.select(containerColor, Color.Black.rc),
                         )
-                        drawSolidColorShape(containerShape, splitContainerColor)
+                        drawSolidColorShape(endSectionShape, splitContainerColor)
                         drawContent()
                     }
                     .padding(contentPadding)
@@ -751,3 +753,22 @@ internal fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: Remo
             this.color = color
         },
     )
+
+/**
+ * Returns the shapes of the start (label) and end (selection control) sections of a split button.
+ *
+ * Each section keeps the corners of [sectionShape] on the side facing the other section and takes
+ * the corners of the container [shape] on its outer side. The sections then draw the container
+ * outline themselves rather than relying only on `clip(shape)`, which is not applied by every
+ * renderer. If [shape] is not corner based, both sections use [sectionShape].
+ */
+internal fun splitSectionShapes(
+    shape: RemoteShape,
+    sectionShape: RemoteCornerBasedShape,
+): Pair<RemoteShape, RemoteShape> =
+    if (shape is RemoteCornerBasedShape) {
+        sectionShape.copy(topStart = shape.topStart, bottomStart = shape.bottomStart) to
+            sectionShape.copy(topEnd = shape.topEnd, bottomEnd = shape.bottomEnd)
+    } else {
+        sectionShape to sectionShape
+    }
