@@ -130,9 +130,10 @@ private const val SYSTEM_DOMAIN: String = "SYSTEM"
 
 /** Common base class for all Remote types. */
 public abstract class BaseRemoteState<T : Any>
-internal constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    internal open val cacheKey: RemoteStateCacheKey = initialCacheKey
+    public open val cacheKey: RemoteStateCacheKey = initialCacheKey
 
     init {
         // Register with BaseRemoteStateCacheKey.
@@ -271,7 +272,7 @@ public fun Hoist(vararg states: RemoteState<*>) {
 
 /** The cache key for this remote state within the RemoteComposeCreationState. */
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-internal val RemoteState<*>.cacheKey: RemoteStateCacheKey
+public val RemoteState<*>.cacheKey: RemoteStateCacheKey
     get() =
         if (this is BaseRemoteState<*>) cacheKey
         else throw IllegalArgumentException("Not a BaseRemoteState")

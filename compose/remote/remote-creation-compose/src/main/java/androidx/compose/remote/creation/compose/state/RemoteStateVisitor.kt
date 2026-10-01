@@ -128,7 +128,7 @@ private fun hasArgsChanged(
     original: List<RemoteStateCacheKey>,
     visited: List<BaseRemoteState<*>>,
 ): Boolean {
-    for (i in original.indices) {
+    for (i in 0 until original.size) {
         if (visited[i].cacheKey != original[i]) return true
     }
     return false
