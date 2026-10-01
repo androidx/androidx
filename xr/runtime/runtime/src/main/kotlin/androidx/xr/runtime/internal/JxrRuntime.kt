@@ -52,9 +52,13 @@ public interface JxrRuntime {
     public fun configure(config: Config) {}
 
     /**
-     * Called immediately before [update]. Allows [androidx.xr.runtime.Session] to execute logic
-     * necessary for updating the runtime _without_ holding the configuration mutex. This method can
-     * only be called when the runtime is resumed.
+     * Called immediately before [update]. Allows this runtime to perform necessary actions in the
+     * time immediately before [update], such as update loop pacing. Unlike [update], the
+     * configuration mutex _will not_ be held when this method is called, meaning it is not safe to
+     * access the configuration during this call. On the other hand, it is preferable to wait in
+     * this method because the configuration mutex is not being held.
+     *
+     * This method can only be called when the runtime is resumed.
      */
     public suspend fun prepareForUpdate() {}
 
