@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -40,14 +41,19 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 /**
  * The five Material 3 button variants, from highest to lowest emphasis, in each content arrangement
@@ -78,6 +84,58 @@ fun ButtonVariantsDemo() {
         ) {
             ButtonVariant.entries.forEach { variant ->
                 VariantButton(variant, ContentArrangement.LabelOnly, enabled = false)
+            }
+        }
+    }
+}
+
+/**
+ * The expressive button size ladder. Each size uses the matching [ButtonDefaults] helpers for its
+ * shapes, content padding, icon size, icon spacing and text style.
+ */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalLayoutApi::class)
+@Composable
+fun ButtonSizesDemo() {
+    val sizes =
+        listOf(
+            "Extra small" to ButtonDefaults.ExtraSmallContainerHeight,
+            "Small" to ButtonDefaults.MinHeight,
+            "Medium" to ButtonDefaults.MediumContainerHeight,
+            "Large" to ButtonDefaults.LargeContainerHeight,
+            "Extra large" to ButtonDefaults.ExtraLargeContainerHeight,
+        )
+    // Bottom-aligned so the height progression is visible at a glance; wraps on narrow screens.
+    FlowRow(
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        itemVerticalAlignment = Alignment.Bottom,
+    ) {
+        sizes.forEach { (label, height) ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Button(
+                    onClick = {},
+                    shapes = ButtonDefaults.shapesFor(height),
+                    modifier = Modifier.heightIn(height),
+                    contentPadding = ButtonDefaults.contentPaddingFor(height, hasStartIcon = true),
+                ) {
+                    ButtonContent(
+                        arrangement = ContentArrangement.LeadingIcon,
+                        icon = Icons.Filled.Edit,
+                        label = label,
+                        iconSize = ButtonDefaults.iconSizeFor(height),
+                        iconSpacing = ButtonDefaults.iconSpacingFor(height),
+                        textStyle = ButtonDefaults.textStyleFor(height),
+                    )
+                }
+                Text(
+                    text = "${height.value.roundToInt()}dp",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }
@@ -169,32 +227,35 @@ private fun VariantButton(
 
 /**
  * Lays out a button's content according to [arrangement]: an optional leading [icon], the [label],
- * and an optional trailing arrow, separated by [ButtonDefaults.IconSpacing].
+ * and an optional trailing arrow, separated by [iconSpacing].
  */
 @Composable
 private fun RowScope.ButtonContent(
     arrangement: ContentArrangement,
     icon: ImageVector,
     label: String,
+    iconSize: Dp = ButtonDefaults.IconSize,
+    iconSpacing: Dp = ButtonDefaults.IconSpacing,
+    textStyle: TextStyle = LocalTextStyle.current,
 ) {
     if (arrangement.hasLeadingIcon) {
         Icon(
             imageVector = icon,
             // Without a visible label, the icon must describe the button.
             contentDescription = if (arrangement.hasLabel) null else label,
-            modifier = Modifier.size(ButtonDefaults.IconSize),
+            modifier = Modifier.size(iconSize),
         )
     }
     if (arrangement.hasLabel) {
-        if (arrangement.hasLeadingIcon) Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-        Text(label)
+        if (arrangement.hasLeadingIcon) Spacer(Modifier.size(iconSpacing))
+        Text(label, style = textStyle)
     }
     if (arrangement.hasTrailingIcon) {
-        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+        Spacer(Modifier.size(iconSpacing))
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
             contentDescription = null,
-            modifier = Modifier.size(ButtonDefaults.IconSize),
+            modifier = Modifier.size(iconSize),
         )
     }
 }
