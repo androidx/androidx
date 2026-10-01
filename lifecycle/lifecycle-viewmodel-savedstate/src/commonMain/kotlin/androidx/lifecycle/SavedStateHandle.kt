@@ -21,6 +21,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.savedstate.SavedState
+import androidx.savedstate.SavedStateContainer
 import androidx.savedstate.SavedStateRegistry.SavedStateProvider
 import androidx.savedstate.SavedStateRegistryOwner
 import kotlin.jvm.JvmStatic
@@ -39,6 +40,13 @@ import kotlinx.coroutines.flow.StateFlow
  * [set] or by updating the returned flow via [getMutableStateFlow].
  */
 public expect class SavedStateHandle {
+
+    /**
+     * Creates a handle backed by the given [SavedStateContainer].
+     *
+     * @param container the [SavedStateContainer] to back this [SavedStateHandle]
+     */
+    internal constructor(container: SavedStateContainer)
 
     /**
      * Creates a handle with the given initial arguments.
@@ -67,8 +75,6 @@ public expect class SavedStateHandle {
      * with the current [SavedStateRegistryOwner].
      */
     @VisibleForTesting public constructor()
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun savedStateProvider(): SavedStateProvider
 
     /**
      * @param key identifier of the value
@@ -221,6 +227,27 @@ public expect class SavedStateHandle {
      * @param key identifier previously used with [setSavedStateProvider]
      */
     @MainThread public fun clearSavedStateProvider(key: String)
+
+    /** Returns the underlying [SavedStateContainer] managing this [SavedStateHandle]. */
+    @MainThread public fun asContainer(): SavedStateContainer
+
+    /**
+     * Retrieves an existing nested [SavedStateContainer] associated with [key], or creates and
+     * registers a new child [SavedStateContainer] if none exists.
+     *
+     * @param key identifier of the container
+     * @return existing or newly created child [SavedStateContainer] instance
+     */
+    @MainThread public fun createOrGetContainer(key: String): SavedStateContainer
+
+    /**
+     * Retrieves an existing nested [SavedStateHandle] associated with [key], or creates and
+     * registers a new child [SavedStateHandle] backed by the child container if none exists.
+     *
+     * @param key identifier of the child handle
+     * @return existing or newly created child [SavedStateHandle] instance
+     */
+    @MainThread public fun createOrGetSavedStateHandle(key: String): SavedStateHandle
 
     public companion object {
 
