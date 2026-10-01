@@ -109,7 +109,7 @@ internal object CallEndpointUuidTracker {
      * process for individual Sessions so there isn't any memory leak.
      */
     private fun trackDeviceForSession(sessionId: Int, deviceName: String) {
-        Log.i(TAG, "sessionId=[$sessionId], btName=[$deviceName]")
+        Log.d(TAG, "sessionId=[$sessionId], btName=[$deviceName]")
         val btDevices = mSessionToBtDevicesMap.computeIfAbsent(sessionId) { mutableSetOf() }
         btDevices.add(deviceName)
     }

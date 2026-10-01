@@ -80,7 +80,7 @@ internal class EndpointUtils {
                 }
             }
             omittedDevices.append("]")
-            Log.i(TAG, omittedDevices.toString())
+            Log.d(TAG, omittedDevices.toString())
             if (foundWiredHeadset) {
                 endpoints.removeIf { it.type == CallEndpointCompat.TYPE_EARPIECE }
             }
@@ -488,7 +488,7 @@ internal class EndpointUtils {
                     val name = endpoint.name.toString().lowercase()
                     // Returns true (non-wearable) ONLY if the name contains NONE of the keywords
                     val isNonWearable = wearableKeywords.none { keyword -> name.contains(keyword) }
-                    Log.i(
+                    Log.d(
                         TAG,
                         "isNonWearableDeviceByHeuristic: Endpoint name=[$name] " +
                             "isNonWearable=[$isNonWearable]",
