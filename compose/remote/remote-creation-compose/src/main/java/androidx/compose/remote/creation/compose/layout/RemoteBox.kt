@@ -31,7 +31,7 @@ internal class RemoteBoxNode : RemoteLayoutNode() {
     var verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
-        val scope = overriddenScope(creationState)
+        val scope = overriddenScope(remoteCanvas)
         val recordingModifier = scope.toRecordingModifier(modifier)
         creationState.document.startBox(
             recordingModifier,

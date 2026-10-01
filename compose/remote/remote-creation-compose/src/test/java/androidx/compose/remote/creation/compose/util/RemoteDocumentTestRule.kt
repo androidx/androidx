@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
@@ -74,15 +75,15 @@ class RemoteDocumentTestRule : ExternalResource() {
             density = this@RemoteDocumentTestRule.density.density.constantValue
         }
 
-    val creationState by lazy {
-        RemoteComposeCreationState(
+    val creationState: RemoteComposeCaptureState by lazy {
+        RemoteComposeCaptureState(
             creationDisplayInfo = createCreationDisplayInfo(androidContext, Size(1f, 1f)),
             contentDescription = null,
             profile = RcPlatformProfiles.ANDROIDX,
         )
     }
 
-    inline fun <T> initialise(crossinline body: (RemoteComposeCreationState) -> T): T {
+    inline fun <T> initialise(crossinline body: (RemoteComposeCaptureState) -> T): T {
         return body(creationState).also { makeAndPaintCoreDocument() }
     }
 

@@ -18,24 +18,32 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.capture.RemoteDocumentScope
 import androidx.compose.remote.creation.compose.state.RemoteComponentCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
-import androidx.compose.remote.creation.compose.state.RemoteStateScope
 
+/** Receiver scope providing access to dynamic layout measurements of the active component. */
 public class RemoteFloatContext
 private constructor(
-    internal val state: RemoteStateScope?,
+    internal val scope: RemoteDocumentScope?,
     internal val token: RemoteComponentToken?,
 ) {
-    internal constructor(state: RemoteStateScope) : this(state = state, token = null)
+    /** Creates a [RemoteFloatContext] backed by [scope]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(scope: RemoteDocumentScope) : this(scope = scope, token = null)
 
-    internal constructor(token: RemoteComponentToken?) : this(state = null, token = token)
+    /** Creates a [RemoteFloatContext] bound to [token]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(token: RemoteComponentToken?) : this(scope = null, token = token)
 
-    private fun activeToken(): RemoteComponentToken? = token ?: state?.resolveComponentToken()
+    internal val document: RemoteComposeWriter
+        get() = requireDocument("unknown")
+
+    private fun activeToken(): RemoteComponentToken? = token ?: scope?.resolveComponentToken()
 
     private fun requireDocument(type: String): RemoteComposeWriter =
-        checkNotNull(state) {
+        checkNotNull(scope) {
                 "Component value '$type' requires an enclosing RemoteCompose layout component " +
                     "or RemoteStateScope."
             }
@@ -56,6 +64,7 @@ private constructor(
         )
     }
 
+    /** Returns the width of the active component in pixels. */
     public fun componentWidth(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
@@ -70,6 +79,7 @@ private constructor(
         )
     }
 
+    /** Returns the height of the active component in pixels. */
     public fun componentHeight(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
@@ -84,6 +94,7 @@ private constructor(
         )
     }
 
+    /** Returns the horizontal center (`width / 2`) of the active component in pixels. */
     public fun componentCenterX(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
@@ -117,6 +128,7 @@ private constructor(
         )
     }
 
+    /** Returns the vertical center (`height / 2`) of the active component in pixels. */
     public fun componentCenterY(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
@@ -150,6 +162,7 @@ private constructor(
         )
     }
 
+    /** Returns the horizontal offset of the active component relative to its parent in pixels. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun componentX(): RemoteFloat {
         val capturedToken = activeToken()
@@ -165,6 +178,7 @@ private constructor(
         )
     }
 
+    /** Returns the vertical offset of the active component relative to its parent in pixels. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun componentY(): RemoteFloat {
         val capturedToken = activeToken()
@@ -180,6 +194,7 @@ private constructor(
         )
     }
 
+    /** Returns the horizontal offset of the active component relative to the root in pixels. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun componentRootX(): RemoteFloat {
         val capturedToken = activeToken()
@@ -195,6 +210,7 @@ private constructor(
         )
     }
 
+    /** Returns the vertical offset of the active component relative to the root in pixels. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun componentRootY(): RemoteFloat {
         val capturedToken = activeToken()
@@ -213,11 +229,11 @@ private constructor(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteFloatContext) return false
-        return state == other.state && token == other.token
+        return scope == other.scope && token == other.token
     }
 
     override fun hashCode(): Int {
-        var result = state?.hashCode() ?: 0
+        var result = scope?.hashCode() ?: 0
         result = 31 * result + (token?.hashCode() ?: 0)
         return result
     }

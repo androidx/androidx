@@ -49,10 +49,10 @@ internal class RemoteColumnNode : RemoteLayoutNode() {
     var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
-        val scope = overriddenScope(creationState)
+        val scope = overriddenScope(remoteCanvas)
         val recordingModifier = scope.toRecordingModifier(modifier)
         (verticalArrangement as? RemoteSpaced)?.let {
-            recordingModifier.spacedBy(it.getSpacingFloatId(creationState))
+            recordingModifier.spacedBy(it.getSpacingFloatId(scope))
         }
         creationState.document.startColumn(
             recordingModifier,

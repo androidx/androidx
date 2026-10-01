@@ -23,7 +23,9 @@ import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreati
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
+import androidx.compose.remote.creation.compose.capture.RemoteDocumentScope
 import androidx.compose.remote.creation.compose.capture.toRemotePath
+import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.toComposeLayoutDirection
@@ -33,7 +35,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.LayoutDirection
 
 /** Scope for accessing remote state IDs. */
-public interface RemoteStateScope {
+@Suppress("HiddenSuperclass")
+public interface RemoteStateScope : RemoteDocumentScope {
     /** The parent [RemoteStateScope] associated with the document being drawn into. */
     @get:Suppress("HiddenAbstractMethodInInterface")
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -52,8 +55,13 @@ public interface RemoteStateScope {
 
     /** The [RemoteComposeWriter] associated with the document being drawn into. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val document: RemoteComposeWriter
+    override val document: RemoteComposeWriter
         get() = parentScope.document
+
+    /** Resolves the active [RemoteComponentToken] for this scope, or `null` if none is bound. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun resolveComponentToken(): RemoteComponentToken? =
+        parentScope.resolveComponentToken()
 
     /** The density behavior associated with the document being drawn into. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

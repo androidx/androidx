@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices.LogCategory
+import androidx.compose.remote.creation.compose.capture.platform
 import androidx.compose.remote.creation.compose.layout.OverriddenScope
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.creationState

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,48 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:JvmName("RemoteComposeCreationStateKt")
-@file:JvmMultifileClass
 
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
 import androidx.collection.MutableObjectIntMap
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
-import androidx.compose.remote.creation.compose.layout.RemoteComposeNode
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
-import androidx.compose.remote.creation.compose.layout.toComposeLayoutDirection
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.nanIdContentEquals
 import androidx.compose.remote.creation.compose.state.nanIdContentHashCode
-import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.LayoutDirection
 
+/** Provider for resolving a layout component's [RemoteComponentToken] during rendering. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RemoteComposeCreationState : RemoteStateScope {
+public fun interface RemoteComponentTokenProvider {
+    /** Returns the [RemoteComponentToken] for the active layout component, or `null` if none. */
+    public fun getOrCreateComponentToken(): RemoteComponentToken?
+}
 
-    override val parentScope: RemoteComposeCreationState
+/** Scope providing access to a [RemoteComposeWriter] document. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface RemoteDocumentScope {
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val document: RemoteComposeWriter
+
+    /** Resolves the active [RemoteComponentToken] for this scope, or `null` if none is bound. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun resolveComponentToken(): RemoteComponentToken? = null
+}
+
+/** Base state for remote creation, holding expression caches and variable ID mappings. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public open class RemoteComposeCreationState : RemoteDocumentScope, RemoteStateScope {
+    public override val parentScope: RemoteStateScope
         get() = this
 
-    public val creationDisplayInfo: RemoteCreationDisplayInfo
-    public val profile: Profile
-    public final override val remoteDensity: RemoteDensity
-    public final override val remoteLayoutDirection: RemoteLayoutDirection
-    public final override val layoutDirection: LayoutDirection
-        get() = remoteLayoutDirection.toComposeLayoutDirection()
+    public override val layoutDirection: LayoutDirection
+        get() = LayoutDirection.Ltr
 
-    public final override val densityBehavior: RemoteDensityBehavior
+    public override val remoteLayoutDirection: RemoteLayoutDirection
+        get() = RemoteLayoutDirection.Ltr
+
+    public override val densityBehavior: RemoteDensityBehavior
+        get() = RemoteDensityBehavior.Dp
+
+    public override lateinit var document: RemoteComposeWriter
+    public override lateinit var remoteDensity: RemoteDensity
 
     /**
      * Ids of float expressions already written to [document], keyed by their lowered RPN array and
@@ -69,11 +77,10 @@ public open class RemoteComposeCreationState : RemoteStateScope {
      */
     internal val intExpressionIds: MutableObjectIntMap<LoweredIntExpressionKey> =
         MutableObjectIntMap()
-    public override lateinit var document: RemoteComposeWriter
-    internal val remoteVariableToId: MutableObjectIntMap<RemoteStateCacheKey> =
-        MutableObjectIntMap()
-    internal val floatArrayCache: HashMap<RemoteStateCacheKey, FloatArray> = HashMap()
-    internal val longArrayCache: HashMap<RemoteStateCacheKey, LongArray> = HashMap()
+    public var ready: Boolean = true
+    public val remoteVariableToId: MutableObjectIntMap<RemoteStateCacheKey> = MutableObjectIntMap()
+    public val floatArrayCache: HashMap<RemoteStateCacheKey, FloatArray> = HashMap()
+    public val longArrayCache: HashMap<RemoteStateCacheKey, LongArray> = HashMap()
 
     /**
      * Per-document emission state for a [RemoteComponentToken] during a single render pass.
@@ -120,17 +127,20 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     private val tokenComponentStates: HashMap<RemoteComponentToken, TokenComponentState> = HashMap()
 
     /**
-     * The [RemoteComposeNode] currently rendering its content or canvas commands, used to resolve
-     * component tokens from [RemoteStateScope]s that are not tied to a specific modifier node.
+     * The [RemoteComponentTokenProvider] currently rendering its content or canvas commands, used
+     * to resolve component tokens from scopes that are not tied to a specific modifier node.
      */
-    internal var currentRenderingNode: RemoteComposeNode? = null
+    public var currentRenderingNode: RemoteComponentTokenProvider? = null
+
+    public override fun resolveComponentToken(): RemoteComponentToken? =
+        currentRenderingNode?.getOrCreateComponentToken()
 
     /**
      * Marks the start of [token]'s component body in [document] and emits `ComponentValue`
      * operations for any properties already requested on [token] (either from an earlier expression
      * evaluation in this render pass or recorded on [token] during a prior pass).
      */
-    internal fun beginComponentContent(token: RemoteComponentToken, componentId: Int = -1) {
+    public fun beginComponentContent(token: RemoteComponentToken, componentId: Int = -1) {
         val state = tokenComponentStates.getOrPut(token) { TokenComponentState() }
         if (componentId != -1) {
             state.componentId = componentId
@@ -161,7 +171,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
      * reserve a float variable ID instead of emitting directly, leaving the `ComponentValue`
      * operation to be emitted in [endComponentContent] inside [token]'s own container body.
      */
-    internal fun disableDirectComponentEmission(token: RemoteComponentToken) {
+    public fun disableDirectComponentEmission(token: RemoteComponentToken) {
         tokenComponentStates[token]?.canEmitDirectly = false
     }
 
@@ -169,7 +179,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
      * Flushes any deferred `ComponentValue` operations reserved for [token] while rendering its
      * children, writing them into [token]'s component body before the container closes.
      */
-    internal fun endComponentContent(token: RemoteComponentToken) {
+    public fun endComponentContent(token: RemoteComponentToken) {
         val state = tokenComponentStates[token] ?: return
         state.canEmitDirectly = false
         for (propIndex in 0 until RemoteComponentToken.PROP_COUNT) {
@@ -236,19 +246,12 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         return Utils.idFromNan(nanEncodedId)
     }
 
-    internal val platformImageProvider: PlatformImageProvider
-
-    public fun addBitmap(image: ImageBitmap): Int = platformImageProvider.addBitmap(document, image)
-
-    public fun addNamedBitmap(name: String, image: ImageBitmap): Int =
-        platformImageProvider.addNamedBitmap(document, name, image)
-
-    internal inline fun getOrPutFloatArray(
+    public inline fun getOrPutFloatArray(
         key: RemoteStateCacheKey,
         crossinline compute: () -> FloatArray,
     ): FloatArray = floatArrayCache.getOrPut(key) { compute() }
 
-    internal inline fun getOrPutLongArray(
+    public inline fun getOrPutLongArray(
         key: RemoteStateCacheKey,
         crossinline compute: () -> LongArray,
     ): LongArray = longArrayCache.getOrPut(key) { compute() }
@@ -273,7 +276,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     ): Int = intExpressionIds.getOrPut(LoweredIntExpressionKey(array)) { write() }
 
     /** Clears all caches tied to the current [document]. */
-    internal fun clearDocumentCaches() {
+    public fun clearDocumentCaches() {
         floatExpressionIds.clear()
         intExpressionIds.clear()
         remoteVariableToId.clear()
@@ -283,7 +286,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         currentRenderingNode = null
     }
 
-    internal inline fun getOrPutVariableId(
+    public inline fun getOrPutVariableId(
         key: RemoteStateCacheKey,
         crossinline compute: () -> Int,
     ): Int {
@@ -294,71 +297,6 @@ public open class RemoteComposeCreationState : RemoteStateScope {
             return nextId
         }
         return id
-    }
-
-    public val platform: RcPlatformServices
-        get() = profile.platform
-
-    public constructor(
-        creationDisplayInfo: RemoteCreationDisplayInfo,
-        profile: Profile,
-        writerCallback: Any?,
-        remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
-        layoutDirection: RemoteLayoutDirection = RemoteLayoutDirection.Ltr,
-        platformImageProvider: PlatformImageProvider,
-    ) {
-        this.creationDisplayInfo = creationDisplayInfo
-        this.profile = profile
-        document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), writerCallback)
-        this.remoteDensity = remoteDensity
-        this.remoteLayoutDirection = layoutDirection
-        this.densityBehavior = creationDisplayInfo.densityBehavior
-        this.platformImageProvider = platformImageProvider
-    }
-
-    public constructor(
-        creationDisplayInfo: RemoteCreationDisplayInfo,
-        contentDescription: String?,
-        profile: Profile,
-        platformImageProvider: PlatformImageProvider,
-    ) {
-        this.creationDisplayInfo = creationDisplayInfo
-        this.profile = profile
-        document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)
-        this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
-        this.remoteLayoutDirection = RemoteLayoutDirection.Ltr
-        this.densityBehavior = creationDisplayInfo.densityBehavior
-        this.platformImageProvider = platformImageProvider
-    }
-
-    public constructor(
-        creationDisplayInfo: RemoteCreationDisplayInfo,
-        profile: Profile,
-        writer: RemoteComposeWriter,
-        platformImageProvider: PlatformImageProvider,
-    ) {
-        this.creationDisplayInfo = creationDisplayInfo
-        this.profile = profile
-        this.document = writer
-        this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
-        this.remoteLayoutDirection = RemoteLayoutDirection.Ltr
-        this.densityBehavior = creationDisplayInfo.densityBehavior
-        this.platformImageProvider = platformImageProvider
-    }
-
-    public constructor(
-        size: Size,
-        profile: Profile,
-        platformImageProvider: PlatformImageProvider,
-    ) {
-        this.profile = profile
-        this.creationDisplayInfo =
-            RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160, 1.0f)
-        this.document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)
-        this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
-        this.remoteLayoutDirection = RemoteLayoutDirection.Ltr
-        this.densityBehavior = creationDisplayInfo.densityBehavior
-        this.platformImageProvider = platformImageProvider
     }
 }
 
@@ -397,44 +335,3 @@ internal class LoweredIntExpressionKey(private val array: LongArray) {
 
     override fun hashCode(): Int = hashCode
 }
-
-internal object NoOpPlatformImageProvider : PlatformImageProvider {
-    override fun addBitmap(document: RemoteComposeWriter, image: ImageBitmap): Int = -1
-
-    override fun addNamedBitmap(
-        document: RemoteComposeWriter,
-        name: String,
-        image: ImageBitmap,
-    ): Int = -1
-}
-
-// Density and Size should be taken from Compose in this mode
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class NoRemoteCompose :
-    RemoteComposeCreationState(
-        RemoteCreationDisplayInfo(1, 1, 160, 1.0f),
-        null,
-        Profile(
-            CoreDocument.DOCUMENT_API_LEVEL,
-            0,
-            RcPlatformServices.None,
-            { creationDisplayInfo, profile, callback ->
-                RemoteComposeWriter(creationDisplayInfo, null, profile, callback)
-            },
-        ),
-        NoOpPlatformImageProvider,
-    )
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface PlatformImageProvider {
-    public fun addBitmap(document: RemoteComposeWriter, image: ImageBitmap): Int
-
-    public fun addNamedBitmap(document: RemoteComposeWriter, name: String, image: ImageBitmap): Int
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public val LocalRemoteComposeCreationState: ProvidableCompositionLocal<RemoteComposeCreationState> =
-    compositionLocalOf {
-        NoRemoteCompose()
-    }

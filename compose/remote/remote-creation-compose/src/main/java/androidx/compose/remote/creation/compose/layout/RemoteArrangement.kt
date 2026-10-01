@@ -18,10 +18,10 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
@@ -354,7 +354,7 @@ internal data class HorizontalOrVerticalArrangement(val type: Int) :
 }
 
 internal interface RemoteSpaced {
-    fun getSpacingFloatId(creationState: RemoteComposeCreationState): Float
+    fun getSpacingFloatId(scope: RemoteStateScope): Float
 }
 
 internal data class RemoteSpacedArrangement(val space: RemoteDp) :
@@ -364,13 +364,14 @@ internal data class RemoteSpacedArrangement(val space: RemoteDp) :
 
     override fun toRemote(): Int = ColumnLayout.TOP
 
-    override fun getSpacingFloatId(creationState: RemoteComposeCreationState): Float {
-        return if (creationState.densityBehavior == RemoteDensityBehavior.Dp) {
-            space.value.getFloatIdForCreationState(creationState)
-        } else {
-            space.toPx().getFloatIdForCreationState(creationState)
+    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+        with(scope) {
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                space.value.floatId
+            } else {
+                space.toPx().floatId
+            }
         }
-    }
 }
 
 internal data class RemoteFloatSpacedArrangement(val space: RemoteFloat) :
@@ -380,13 +381,14 @@ internal data class RemoteFloatSpacedArrangement(val space: RemoteFloat) :
 
     override fun toRemote(): Int = ColumnLayout.TOP
 
-    override fun getSpacingFloatId(creationState: RemoteComposeCreationState): Float {
-        return if (creationState.densityBehavior == RemoteDensityBehavior.Dp) {
-            (space / creationState.remoteDensity.density).getFloatIdForCreationState(creationState)
-        } else {
-            space.getFloatIdForCreationState(creationState)
+    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+        with(scope) {
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                (space / remoteDensity.density).floatId
+            } else {
+                space.floatId
+            }
         }
-    }
 }
 
 internal data class RemoteSpacedHorizontalArrangement(
@@ -397,13 +399,14 @@ internal data class RemoteSpacedHorizontalArrangement(
     override fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
         alignment.toRemote(layoutDirection)
 
-    override fun getSpacingFloatId(creationState: RemoteComposeCreationState): Float {
-        return if (creationState.densityBehavior == RemoteDensityBehavior.Dp) {
-            space.value.getFloatIdForCreationState(creationState)
-        } else {
-            space.toPx().getFloatIdForCreationState(creationState)
+    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+        with(scope) {
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                space.value.floatId
+            } else {
+                space.toPx().floatId
+            }
         }
-    }
 }
 
 internal data class RemoteFloatSpacedHorizontalArrangement(
@@ -414,13 +417,14 @@ internal data class RemoteFloatSpacedHorizontalArrangement(
     override fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
         alignment.toRemote(layoutDirection)
 
-    override fun getSpacingFloatId(creationState: RemoteComposeCreationState): Float {
-        return if (creationState.densityBehavior == RemoteDensityBehavior.Dp) {
-            (space / creationState.remoteDensity.density).getFloatIdForCreationState(creationState)
-        } else {
-            space.getFloatIdForCreationState(creationState)
+    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+        with(scope) {
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                (space / remoteDensity.density).floatId
+            } else {
+                space.floatId
+            }
         }
-    }
 }
 
 internal data class RemoteSpacedAbsoluteHorizontalArrangement(
@@ -431,13 +435,14 @@ internal data class RemoteSpacedAbsoluteHorizontalArrangement(
     override fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
         alignment.toRemote(layoutDirection)
 
-    override fun getSpacingFloatId(creationState: RemoteComposeCreationState): Float {
-        return if (creationState.densityBehavior == RemoteDensityBehavior.Dp) {
-            space.value.getFloatIdForCreationState(creationState)
-        } else {
-            space.toPx().getFloatIdForCreationState(creationState)
+    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+        with(scope) {
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                space.value.floatId
+            } else {
+                space.toPx().floatId
+            }
         }
-    }
 }
 
 internal data class RemoteFloatSpacedAbsoluteHorizontalArrangement(
@@ -448,13 +453,14 @@ internal data class RemoteFloatSpacedAbsoluteHorizontalArrangement(
     override fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
         alignment.toRemote(layoutDirection)
 
-    override fun getSpacingFloatId(creationState: RemoteComposeCreationState): Float {
-        return if (creationState.densityBehavior == RemoteDensityBehavior.Dp) {
-            (space / creationState.remoteDensity.density).getFloatIdForCreationState(creationState)
-        } else {
-            space.getFloatIdForCreationState(creationState)
+    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+        with(scope) {
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                (space / remoteDensity.density).floatId
+            } else {
+                space.floatId
+            }
         }
-    }
 }
 
 internal data class RemoteSpacedVerticalArrangement(
@@ -464,13 +470,14 @@ internal data class RemoteSpacedVerticalArrangement(
 
     override fun toRemote(): Int = alignment.toRemote()
 
-    override fun getSpacingFloatId(creationState: RemoteComposeCreationState): Float {
-        return if (creationState.densityBehavior == RemoteDensityBehavior.Dp) {
-            space.value.getFloatIdForCreationState(creationState)
-        } else {
-            space.toPx().getFloatIdForCreationState(creationState)
+    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+        with(scope) {
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                space.value.floatId
+            } else {
+                space.toPx().floatId
+            }
         }
-    }
 }
 
 internal data class RemoteFloatSpacedVerticalArrangement(
@@ -480,11 +487,12 @@ internal data class RemoteFloatSpacedVerticalArrangement(
 
     override fun toRemote(): Int = alignment.toRemote()
 
-    override fun getSpacingFloatId(creationState: RemoteComposeCreationState): Float {
-        return if (creationState.densityBehavior == RemoteDensityBehavior.Dp) {
-            (space / creationState.remoteDensity.density).getFloatIdForCreationState(creationState)
-        } else {
-            space.getFloatIdForCreationState(creationState)
+    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+        with(scope) {
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                (space / remoteDensity.density).floatId
+            } else {
+                space.floatId
+            }
         }
-    }
 }

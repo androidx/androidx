@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
 import androidx.compose.remote.creation.compose.capture.LocalRemoteLayoutDirection
+import androidx.compose.remote.creation.compose.capture.RemoteComponentTokenProvider
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.modifier.DrawWithContentModifier
@@ -42,7 +43,7 @@ import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.Updater
 import androidx.compose.runtime.remember
 
-internal abstract class RemoteComposeNode {
+internal abstract class RemoteComposeNode : RemoteComponentTokenProvider {
     val children = mutableListOf<RemoteComposeNode>()
     var modifier: RemoteModifier = RemoteModifier
     var remoteDensity: RemoteDensity = RemoteDensity.Host
@@ -51,7 +52,7 @@ internal abstract class RemoteComposeNode {
     internal open val supportsComponentToken: Boolean
         get() = true
 
-    internal fun getOrCreateComponentToken(): RemoteComponentToken? =
+    override fun getOrCreateComponentToken(): RemoteComponentToken? =
         if (supportsComponentToken) {
             componentToken ?: RemoteComponentToken().also { componentToken = it }
         } else {
@@ -73,11 +74,11 @@ internal abstract class RemoteComposeNode {
         }
     }
 
-    fun overriddenScope(creationState: RemoteComposeCreationState): RemoteStateScope {
+    fun overriddenScope(scope: RemoteStateScope): RemoteStateScope {
         return OverriddenScope(
-            parentScope = creationState,
+            parentScope = scope,
             remoteDensity = remoteDensity,
-            remoteLayoutDirection = creationState.remoteLayoutDirection,
+            remoteLayoutDirection = scope.remoteLayoutDirection,
             node = this,
         )
     }
@@ -117,7 +118,7 @@ internal abstract class RemoteComposeNode {
         remoteCanvas: RemoteCanvas,
         reversed: Boolean,
     ) {
-        val scope = overriddenScope(creationState)
+        val scope = overriddenScope(remoteCanvas)
         val drawEntries = mutableListOf<DrawWithContentEntry>()
         var paddingLeft: RemoteFloat? = null
         var paddingTop: RemoteFloat? = null
@@ -362,19 +363,6 @@ internal class OverriddenScope(
     override val remoteDensity: RemoteDensity,
     override val remoteLayoutDirection: RemoteLayoutDirection,
     val node: RemoteComposeNode,
-) : PlatformRemoteStateScope
-
-internal fun RemoteStateScope.resolveComponentToken(): RemoteComponentToken? {
-    var scope: RemoteStateScope = this
-    while (true) {
-        if (scope is OverriddenScope) {
-            return scope.node.getOrCreateComponentToken()
-        }
-        if (scope is RemoteComposeCreationState) {
-            return scope.currentRenderingNode?.getOrCreateComponentToken()
-        }
-        val parent = scope.parentScope
-        if (parent === scope) return null
-        scope = parent
-    }
+) : PlatformRemoteStateScope {
+    override fun resolveComponentToken(): RemoteComponentToken? = node.getOrCreateComponentToken()
 }

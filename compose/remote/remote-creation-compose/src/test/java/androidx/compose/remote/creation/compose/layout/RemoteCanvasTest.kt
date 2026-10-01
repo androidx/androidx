@@ -38,6 +38,7 @@ import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.CanvasOp
 import androidx.compose.remote.creation.compose.capture.CanvasOperationBuffer
 import androidx.compose.remote.creation.compose.capture.PaintTrackerTest.TestPaintChanges
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.size
@@ -103,7 +104,7 @@ class RemoteCanvasTest {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
     private val fakeBuffer = TestRemoteComposeBuffer()
-    private lateinit var creationState: RemoteComposeCreationState
+    private lateinit var creationState: RemoteComposeCaptureState
     private lateinit var remoteCanvas: RemoteCanvas
 
     @Before
@@ -125,7 +126,7 @@ class RemoteCanvasTest {
             }
 
         creationState =
-            RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
+            RemoteComposeCaptureState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
         remoteCanvas = RemoteCanvas(creationState)
     }
 

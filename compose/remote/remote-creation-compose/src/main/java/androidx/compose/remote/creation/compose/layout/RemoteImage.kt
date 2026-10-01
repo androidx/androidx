@@ -40,7 +40,7 @@ internal class RemoteImageNode : RemoteComposeNode() {
             remoteBitmap?.getIdForCreationState(creationState)
                 ?: image?.let { creationState.document.addBitmap(it) }
                 ?: 0
-        val scope = overriddenScope(creationState)
+        val scope = overriddenScope(remoteCanvas)
         creationState.document.image(
             scope.toRecordingModifier(modifier),
             bitmapId,

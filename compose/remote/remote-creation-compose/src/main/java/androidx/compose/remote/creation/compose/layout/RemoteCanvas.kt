@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.capture.CanvasOp
 import androidx.compose.remote.creation.compose.capture.CanvasOperationBuffer
 import androidx.compose.remote.creation.compose.capture.PaintTracker
 import androidx.compose.remote.creation.compose.capture.PendingOp
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -55,7 +56,7 @@ import androidx.compose.remote.creation.compose.state.StandardRemotePaint
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteCanvas(
-    internal val creationState: RemoteComposeCreationState,
+    internal val creationState: RemoteComposeCaptureState,
     enableOptimizations: Boolean = false,
 ) : RemoteStateScope by creationState {
 

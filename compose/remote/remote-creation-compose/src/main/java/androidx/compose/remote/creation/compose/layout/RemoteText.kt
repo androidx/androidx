@@ -233,16 +233,17 @@ internal class RemoteTextNode : RemoteComposeNode() {
         val letterSpacingId = letterSpacing.getFloatIdForCreationState(creationState)
         val lineHeightMultiplyId = lineHeightMultiply.getFloatIdForCreationState(creationState)
 
+        val scope = overriddenScope(remoteCanvas)
         val resolvedTextAlign =
             when (textAlign) {
                 RemoteTextAlign.Start ->
-                    if (creationState.remoteLayoutDirection == RemoteLayoutDirection.Rtl) {
+                    if (scope.remoteLayoutDirection == RemoteLayoutDirection.Rtl) {
                         RemoteTextAlign.End
                     } else {
                         RemoteTextAlign.Start
                     }
                 RemoteTextAlign.End ->
-                    if (creationState.remoteLayoutDirection == RemoteLayoutDirection.Rtl) {
+                    if (scope.remoteLayoutDirection == RemoteLayoutDirection.Rtl) {
                         RemoteTextAlign.Start
                     } else {
                         RemoteTextAlign.End
@@ -261,7 +262,6 @@ internal class RemoteTextNode : RemoteComposeNode() {
                     .coerceIn(FONT_WEIGHT_MIN, FONT_WEIGHT_MAX)
             }
 
-        val scope = overriddenScope(creationState)
         creationState.document.startTextComponent(
             scope.toRecordingModifier(modifier),
             textIdValue,

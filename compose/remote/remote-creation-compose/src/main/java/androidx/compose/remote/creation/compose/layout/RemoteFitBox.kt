@@ -26,7 +26,7 @@ internal class RemoteFitBoxNode : RemoteLayoutNode() {
     var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
-        val scope = overriddenScope(creationState)
+        val scope = overriddenScope(remoteCanvas)
         val recordingModifier = scope.toRecordingModifier(modifier)
         creationState.document.startFitBox(
             recordingModifier,
