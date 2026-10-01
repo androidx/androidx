@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.metadata
 
+import androidx.annotation.RestrictTo
 import java.util.Objects
 
 /**
@@ -51,6 +52,17 @@ public class AppFunctionAppMetadata(
      */
     public val displayDescription: String = "",
 ) {
+
+    /**
+     * Legacy name of [instructions].
+     *
+     * Kept temporarily so that existing callers compiled against both older and newer library
+     * versions keep working during the migration. Use [instructions] instead.
+     */
+    // TODO: b/487929963 - Remove before the first beta release.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val description: String
+        get() = instructions
 
     override fun equals(other: Any?): Boolean =
         this === other ||
