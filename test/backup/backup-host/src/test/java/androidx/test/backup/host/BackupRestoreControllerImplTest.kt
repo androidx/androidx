@@ -18,12 +18,20 @@ package androidx.test.backup.host
 
 import com.android.adblib.ShellCommandOutput
 import java.io.IOException
+import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.measureTime
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -294,6 +302,151 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
+    fun runOnDeviceReturnsAFailureAndStopsTheAppWhenTheActionTimesOut() = runBlocking {
+        device.hangOn { it.startsWith("am instrument") }
+
+        val result = controller.runOnDevice("com.example.MyAction", timeout = SHORT_TIMEOUT)
+
+        assertEquals(BackupActionResult.Failure("Timed out after 200ms"), result)
+        assertEquals("am force-stop $PACKAGE", device.commands.last())
+    }
+
+    /** A force-stop that fails must not replace the timeout as the reported outcome. */
+    @Test
+    fun runOnDeviceReportsTheTimeoutWhenForceStopFails() = runBlocking {
+        device.onShell { command ->
+            if (command.startsWith("am force-stop")) throw IOException("device offline")
+            shellOutput()
+        }
+        device.hangOn { it.startsWith("am instrument") }
+
+        val result = controller.runOnDevice("com.example.MyAction", timeout = SHORT_TIMEOUT)
+
+        assertEquals(BackupActionResult.Failure("Timed out after 200ms"), result)
+        assertEquals("am force-stop $PACKAGE", device.commands.last())
+    }
+
+    /** A force-stop that never returns is abandoned after its own bound. */
+    @Test
+    fun runOnDeviceReportsTheTimeoutWhenForceStopHangs() = runBlocking {
+        val controller =
+            BackupRestoreControllerImpl(
+                device.session,
+                FAKE_SERIAL,
+                34,
+                PACKAGE,
+                cleanupTimeout = 100.milliseconds,
+            )
+        device.hangOn { it.startsWith("am instrument") || it.startsWith("am force-stop") }
+
+        val elapsed = measureTime {
+            val result = controller.runOnDevice("com.example.MyAction", timeout = SHORT_TIMEOUT)
+            assertEquals(BackupActionResult.Failure("Timed out after 200ms"), result)
+        }
+
+        assertTrue(elapsed < 2.seconds, "runOnDevice took $elapsed")
+        assertEquals("am force-stop $PACKAGE", device.commands.last())
+    }
+
+    @Test
+    fun runOnDeviceRunsTheActionForASubMillisecondTimeout() = runBlocking {
+        device.hangOn { it.startsWith("am instrument") }
+
+        val result = controller.runOnDevice("com.example.MyAction", timeout = Duration.ofNanos(500))
+
+        assertEquals(BackupActionResult.Failure("Timed out after 500ns"), result)
+        assertTrue(device.commands.first().startsWith("am instrument"), "${device.commands}")
+    }
+
+    @Test
+    fun runOnDeviceRejectsANonPositiveTimeout() {
+        assertFailsWith<IllegalArgumentException> {
+            runBlocking { controller.runOnDevice("com.example.MyAction", timeout = Duration.ZERO) }
+        }
+        assertTrue(device.commands.isEmpty(), "${device.commands}")
+    }
+
+    @Test
+    fun performBackupThrowsAndStopsTheAppWhenTheBackupTimesOut() {
+        onHealthyDevice()
+        device.hangOn { it == "bmgr backupnow $PACKAGE" }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { controller.performBackup(LOCAL, outputDir(), SHORT_TIMEOUT) }
+            }
+
+        assertEquals("Backup (LOCAL) timed out after 200ms", e.message)
+        assertEquals("am force-stop $PACKAGE", device.commands.last())
+    }
+
+    @Test
+    fun performRestoreThrowsAndStopsTheAppWhenTheRestoreTimesOut() {
+        onHealthyDevice()
+        device.hangOn { it == "bmgr run" }
+        val archive = tempFolder.newFile("backup_local_device.zip").toPath()
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { controller.performRestore(archive, SHORT_TIMEOUT) }
+            }
+
+        assertEquals("Restore timed out after 200ms", e.message)
+        assertEquals("am force-stop $PACKAGE", device.commands.last())
+    }
+
+    @Test
+    fun performRestoreWaitsForTheRestorePassUntilItsTimeout() {
+        var restoreProgressChecks = 0
+        onHealthyDevice { command ->
+            if (command == "dumpsys backup") {
+                restoreProgressChecks++
+                shellOutput("Restore in progress: true\n")
+            } else {
+                null
+            }
+        }
+        val archive = tempFolder.newFile("backup_local_device.zip").toPath()
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { controller.performRestore(archive, Duration.ofSeconds(1)) }
+            }
+
+        assertEquals("Restore timed out after 1s", e.message)
+        assertTrue(restoreProgressChecks > 1, "Checks: $restoreProgressChecks")
+    }
+
+    /**
+     * A local restore that ends before its first progress check is never seen in progress. It must
+     * still succeed within a timeout shorter than the usual window for detecting the restore pass.
+     */
+    @Test
+    fun performRestoreCompletesAnUnseenLocalRestoreWithinAShortTimeout() = runBlocking {
+        onHealthyDevice { command ->
+            if (command == "dumpsys backup") shellOutput("Restore in progress: false\n") else null
+        }
+        val archive = tempFolder.newFile("backup_local_device.zip").toPath()
+
+        controller.performRestore(archive, Duration.ofSeconds(1))
+
+        assertTrue(device.commands.none { it.startsWith("am force-stop") }, "${device.commands}")
+    }
+
+    @Test
+    fun runOnDeviceDoesNotReportCancellationAsATimeout() = runBlocking {
+        device.hangOn { it.startsWith("am instrument") }
+        var result: BackupActionResult? = null
+
+        val job = launch { result = controller.runOnDevice("com.example.MyAction") }
+        delay(200)
+        job.cancelAndJoin()
+
+        assertNull(result)
+        assertTrue(device.commands.none { it.startsWith("am force-stop") }, "${device.commands}")
+    }
+
+    @Test
     fun flowRunsEveryStageInOrderAndPublishesTheSummary() {
         onHealthyDevice()
 
@@ -501,6 +654,7 @@ class BackupRestoreControllerImplTest {
         const val RESULT_MARKER = "BACKUP_RESTORE_RESULT: "
         val LOCAL = BackupTransportMode.LOCAL
         val PREFERENCE = StorageDomain.Preference("app_prefs", "key", "val")
+        val SHORT_TIMEOUT: Duration = Duration.ofMillis(200)
 
         /** Wraps an action payload in the envelope the on-device runner prints to stdout. */
         fun runnerStdout(payloadJson: String): String {
