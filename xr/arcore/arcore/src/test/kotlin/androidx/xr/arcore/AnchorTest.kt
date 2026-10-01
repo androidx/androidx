@@ -159,6 +159,61 @@ class AnchorTest {
         }
 
     @Test
+    fun update_trackingState_matchesDeviceCameraTrackingState() =
+        runTest(testDispatcher) {
+            val anchor = (Anchor.create(session, Pose()) as AnchorCreateSuccess).anchor
+            assertThat(anchor.state.value.trackingState).isEqualTo(TrackingState.TRACKING)
+
+            arCoreTestRule.deviceTester.isCameraTracking = false
+            advanceUntilIdle()
+
+            assertThat(anchor.state.value.trackingState).isEqualTo(TrackingState.PAUSED)
+        }
+
+    @Test
+    fun update_trackingState_matchesAnchorableTrackingState() =
+        runTest(testDispatcher) {
+            val testPlane = TestPlane(PlaneType.VERTICAL, PlaneLabel.WALL)
+            arCoreTestRule.addTrackables(testPlane)
+            advanceUntilIdle()
+            var anchorable: Plane? = null
+            testScope.launch() {
+                Plane.subscribe(session).collect { anchorable = it.first() }
+            }
+            advanceUntilIdle()
+            check(anchorable != null)
+
+            val anchor = (anchorable.createAnchor(Pose()) as AnchorCreateSuccess).anchor
+            assertThat(anchor.state.value.trackingState).isEqualTo(TrackingState.TRACKING)
+
+            testPlane.isVisible = false
+            advanceUntilIdle()
+            assertThat(anchor.state.value.trackingState).isEqualTo(TrackingState.PAUSED)
+        }
+
+    @Test
+    fun update_trackingState_matchesStoppedAnchorableTrackingState() =
+        runTest(testDispatcher) {
+            val testPlane = TestPlane(PlaneType.VERTICAL, PlaneLabel.WALL)
+            arCoreTestRule.addTrackables(testPlane)
+            advanceUntilIdle()
+            var anchorable: Plane? = null
+            testScope.launch() {
+                Plane.subscribe(session).collect { anchorable = it.first() }
+            }
+            advanceUntilIdle()
+            check(anchorable != null)
+
+            val anchor = (anchorable.createAnchor(Pose()) as AnchorCreateSuccess).anchor
+            val newConfig =
+                Config.Builder(session.config).setPlaneTracking(PlaneTrackingMode.DISABLED).build()
+            session.configure(newConfig)
+            advanceUntilIdle()
+
+            assertThat(anchor.state.value.trackingState).isEqualTo(TrackingState.STOPPED)
+        }
+
+    @Test
     fun persist_runtimeAnchorIsPersisted() =
         runTest(testDispatcher) {
             val underTest = (Anchor.create(session, Pose()) as AnchorCreateSuccess).anchor
