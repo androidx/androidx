@@ -17,9 +17,13 @@
 package androidx.xr.glimmer
 
 import androidx.compose.foundation.Image
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -67,9 +71,21 @@ class CardScreenshotTest {
     }
 
     @Test
+    fun card_withTrailingIcon_rtl() {
+        rule.setGlimmerThemeContent { Rtl { CardWithTrailingIconSample() } }
+        rule.assertRootAgainstGolden("card_trailingIcon_rtl", screenshotRule)
+    }
+
+    @Test
     fun card_withTitleAndSubtitleAndLeadingIcon() {
         rule.setGlimmerThemeContent { CardWithTitleAndSubtitleAndLeadingIconSample() }
         rule.assertRootAgainstGolden("card_titleSubtitleLeadingIcon", screenshotRule)
+    }
+
+    @Test
+    fun card_withTitleAndSubtitleAndLeadingIcon_rtl() {
+        rule.setGlimmerThemeContent { Rtl { CardWithTitleAndSubtitleAndLeadingIconSample() } }
+        rule.assertRootAgainstGolden("card_titleSubtitleLeadingIcon_rtl", screenshotRule)
     }
 
     @Test
@@ -279,6 +295,12 @@ class CardScreenshotTest {
     }
 
     @Test
+    fun leadingImageCard_rtl() {
+        rule.setGlimmerThemeContent { Rtl { LeadingImageCardSample() } }
+        rule.assertRootAgainstGolden("leading_image_card_rtl", screenshotRule)
+    }
+
+    @Test
     fun leadingImageCard_focused() {
         rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
@@ -326,6 +348,12 @@ class CardScreenshotTest {
     }
 
     @Test
+    fun trailingImageCard_rtl() {
+        rule.setGlimmerThemeContent { Rtl { TrailingImageCardSample() } }
+        rule.assertRootAgainstGolden("trailing_image_card_rtl", screenshotRule)
+    }
+
+    @Test
     fun trailingImageCard_focused() {
         rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
@@ -368,3 +396,8 @@ class CardScreenshotTest {
 }
 
 private val TestImage = placeholderImagePainter(Size(1000f, 1000f))
+
+@Composable
+private fun Rtl(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl, content = content)
+}
