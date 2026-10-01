@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import androidx.compose.runtime.Immutable
 import kotlin.math.sqrt
@@ -43,7 +44,11 @@ public sealed interface RemoteAnimationSpec {
 /** Defines the easing curve used for Remote Compose animations. */
 @Immutable
 public class RemoteEasing
-internal constructor(internal val type: Int, internal val spec: FloatArray? = null) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val type: Int,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val spec: FloatArray? = null,
+) {
     public companion object {
         /** Standard cubic bezier easing curve. */
         public val Standard: RemoteEasing = RemoteEasing(CUBIC_STANDARD)

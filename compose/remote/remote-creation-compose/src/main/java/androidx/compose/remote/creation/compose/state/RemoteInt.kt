@@ -184,17 +184,16 @@ internal constructor(
     }
 
     /**
-     * Retrieves the [LongArray] representing this [RemoteInt]\'s expression using the provided
+     * Retrieves the [LongArray] representing this [RemoteInt]'s expression using the provided
      * [creationState]. It utilizes a cache within the [creationState] to avoid redundant
      * computations, improving performance.
      *
-     * @param stateScope The current [RemoteStateScope].
-     * @return The [LongArray] representing this remote integer\'s expression.
+     * @param creationState The current [RemoteComposeCreationState].
+     * @return The [LongArray] representing this remote integer's expression.
      */
-    internal fun arrayForCreationState(stateScope: RemoteStateScope): LongArray {
-        return stateScope.creationState.getOrPutLongArray(cacheKey) {
-            arrayProvider(stateScope.creationState)
-        }
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun arrayForCreationState(creationState: RemoteComposeCreationState): LongArray {
+        return creationState.getOrPutLongArray(cacheKey) { arrayProvider(creationState) }
     }
 
     internal fun hasBeenWrittenToDoc(creationState: RemoteComposeCreationState) =
@@ -686,8 +685,8 @@ internal fun combineToLongArray(
     vararg extras: Long,
 ): LongArray {
     var totalSizeInline = extras.size
-    var totalSizeReference = extras.size + remoteInts.size
-    var arrays =
+    val totalSizeReference = extras.size + remoteInts.size
+    val arrays =
         Array<LongArray>(remoteInts.size) { i ->
             val remoteInt = remoteInts[i]
             // If remoteInt has already been written to the document then use a reference
@@ -696,7 +695,7 @@ internal fun combineToLongArray(
                 totalSizeInline += 1
                 longArrayOf(remoteInt.getLongIdForCreationState(creationState))
             } else {
-                var array = remoteInt.arrayForCreationState(creationState)
+                val array = remoteInt.arrayForCreationState(creationState)
                 totalSizeInline += array.size
                 array
             }
@@ -1067,7 +1066,7 @@ internal constructor(
             MutableRemoteInt(
                 constantValueOrNull = null,
                 cacheKey = RemoteStateIdKey(id.toInt()),
-                idProvider = { creationState -> id },
+                idProvider = { _ -> id },
             )
     }
 

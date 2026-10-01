@@ -21,12 +21,12 @@ import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.util.fastMap
 
 /** Represents an array of floats. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteFloatArray
-internal constructor(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
     public override val constantValueOrNull: List<RemoteFloat>?,
     cacheKey: RemoteStateCacheKey,
     internal val idProvider: ((creationState: RemoteComposeCreationState) -> Int)? = null,
@@ -50,7 +50,7 @@ internal constructor(
 
     internal enum class OperationKey : RemoteOperation {
         Create {
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 "arrayOf(${args.joinToDebugString()})"
 
             override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
@@ -60,7 +60,7 @@ internal constructor(
             override val precedence: Int
                 get() = 100
 
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 args.formatArrayAccess(precedence)
 
             override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
@@ -73,7 +73,7 @@ internal constructor(
             }
         },
         IdList {
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 "${args[0].toDebugString()}.asIdList()"
 
             override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> = args[0]
@@ -93,7 +93,9 @@ internal constructor(
             return idProvider.invoke(creationState)
         }
         val asFloat =
-            with(creationState) { constantValueOrNull!!.fastMap { it.floatId }.toFloatArray() }
+            constantValueOrNull!!
+                .fastMap { it.getFloatIdForCreationState(creationState) }
+                .toFloatArray()
         return Utils.idFromNan(creationState.document.addFloatArray(asFloat))
     }
 
@@ -106,7 +108,8 @@ internal constructor(
      * @param creationState creation state associated with the document being written
      * @return document ID allocated for the ID list
      */
-    internal fun getIdListForCreationState(creationState: RemoteComposeCreationState): Int {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun getIdListForCreationState(creationState: RemoteComposeCreationState): Int {
         if (cacheKey is RemoteStateIdKey) {
             return (cacheKey as RemoteStateIdKey).id
         }

@@ -95,7 +95,7 @@ class RemoteBooleanTest {
 
         assertThat(context.getInteger(resultId)).isEqualTo(10)
         assertThat(result.arrayProvider(creationState).size).isEqualTo(1)
-        assertThat(result.arrayProvider(creationState)[0]).isEqualTo(10)
+        assertThat(result.arrayProvider(creationState)[0]).isEqualTo(10L)
     }
 
     @Test
@@ -107,7 +107,7 @@ class RemoteBooleanTest {
 
         assertThat(context.getInteger(resultId)).isEqualTo(20)
         assertThat(result.arrayProvider(creationState).size).isEqualTo(1)
-        assertThat(result.arrayProvider(creationState)[0]).isEqualTo(20)
+        assertThat(result.arrayProvider(creationState)[0]).isEqualTo(20L)
     }
 
     @Test

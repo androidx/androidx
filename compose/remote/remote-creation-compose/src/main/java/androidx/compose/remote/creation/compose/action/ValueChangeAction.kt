@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.isLiteral
 
 /** Update a value on click. */
@@ -45,7 +46,7 @@ internal class ValueChangeAction<T>(
 
         return if (actualMutable is MutableRemoteInt) {
             actualValue as RemoteInt
-            val array = actualValue.arrayForCreationState(this)
+            val array = actualValue.arrayForCreationState(creationState)
 
             if (array.isLiteral()) {
                 ValueIntegerChange(actualMutable.id, array[0].toInt())

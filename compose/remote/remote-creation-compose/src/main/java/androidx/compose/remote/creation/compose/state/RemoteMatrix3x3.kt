@@ -32,30 +32,30 @@ internal constructor(
 
     internal enum class OperationKey(override val precedence: Int = 100) : RemoteOperation {
         IDENTITY {
-            override fun toDebugString(args: List<RemoteStateCacheKey>) = "identity()"
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String = "identity()"
         },
         ROTATE {
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 "rotate(${args[0].toDebugString()})"
         },
         TRANSLATE_X {
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 "translateX(${args[0].toDebugString()})"
         },
         TRANSLATE_Y {
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 "translateY(${args[0].toDebugString()})"
         },
         TRANSLATE_XY {
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 "translate(${args[0].toDebugString()}, ${args[1].toDebugString()})"
         },
         SCALE_X {
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 "scaleX(${args[0].toDebugString()})"
         },
         SCALE_Y {
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 "scaleY(${args[0].toDebugString()})"
         },
         ROTATION_AROUND {
@@ -65,7 +65,7 @@ internal constructor(
             }
         },
         MUL(3) {
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 args.formatOp("*", precedence)
         };
 
@@ -92,7 +92,9 @@ internal constructor(
     override val constantValueOrNull: Any?
         get() = null
 
-    internal val isIdentity: Boolean
+    /** Returns `true` if this [RemoteMatrix3x3] is the identity matrix. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val isIdentity: Boolean
         get() = (cacheKey as? RemoteOperationCacheKey)?.op == OperationKey.IDENTITY
 
     /**

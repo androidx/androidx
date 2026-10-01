@@ -22,12 +22,9 @@ import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
-import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
-import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.nanIdContentEquals
 import androidx.compose.remote.creation.compose.state.nanIdContentHashCode
-import androidx.compose.ui.unit.LayoutDirection
 
 /** Provider for resolving a layout component's [RemoteComponentToken] during rendering. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -48,21 +45,9 @@ public interface RemoteDocumentScope {
 
 /** Base state for remote creation, holding expression caches and variable ID mappings. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RemoteComposeCreationState : RemoteDocumentScope, RemoteStateScope {
-    public override val parentScope: RemoteStateScope
-        get() = this
-
-    public override val layoutDirection: LayoutDirection
-        get() = LayoutDirection.Ltr
-
-    public override val remoteLayoutDirection: RemoteLayoutDirection
-        get() = RemoteLayoutDirection.Ltr
-
-    public override val densityBehavior: RemoteDensityBehavior
-        get() = RemoteDensityBehavior.Dp
-
+public open class RemoteComposeCreationState : RemoteDocumentScope {
     public override lateinit var document: RemoteComposeWriter
-    public override lateinit var remoteDensity: RemoteDensity
+    public open lateinit var remoteDensity: RemoteDensity
 
     /**
      * Ids of float expressions already written to [document], keyed by their lowered RPN array and
