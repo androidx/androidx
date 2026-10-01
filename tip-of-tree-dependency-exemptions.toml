@@ -341,12 +341,6 @@ reason = "b/TODO - <reason>"
 
 [[tipOfTreeExemptions]]
 library = ":room3:room3-runtime"
-dependsOn = ":sqlite:sqlite-bundled"
-validThroughLibraryVersion = "3.1.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":room3:room3-runtime"
 dependsOn = ":sqlite:sqlite-framework"
 validThroughLibraryVersion = "3.1.0-beta01"
 reason = "b/TODO - <reason>"
@@ -505,12 +499,6 @@ reason = "b/TODO - <reason>"
 library = ":wear:wear-input-testing"
 dependsOn = ":wear:wear-input"
 validThroughLibraryVersion = "1.2.0"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":window:window"
-dependsOn = ":window:extensions:extensions"
-validThroughLibraryVersion = "1.6.0-beta01"
 reason = "b/TODO - <reason>"
 
 [[tipOfTreeExemptions]]
