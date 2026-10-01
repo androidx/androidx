@@ -89,6 +89,7 @@ class VirtualCameraAdapterTest {
     }
 
     private val surfaceEdgesToClose = mutableListOf<SurfaceEdge>()
+    private val deferrableSurfacesToClose = mutableListOf<DeferrableSurface>()
     private val parentCamera = FakeCamera()
     private val child1 = FakeUseCaseConfig.Builder().setTargetRotation(Surface.ROTATION_0).build()
     private val child2 = FakeUseCaseConfig.Builder().setMirrorMode(MIRROR_MODE_ON).build()
@@ -142,6 +143,9 @@ class VirtualCameraAdapterTest {
     fun tearDown() {
         for (surfaceEdge in surfaceEdgesToClose) {
             surfaceEdge.close()
+        }
+        for (surface in deferrableSurfacesToClose) {
+            surface.close()
         }
     }
 
@@ -481,6 +485,69 @@ class VirtualCameraAdapterTest {
         // inactive!
         shadowOf(getMainLooper()).idle()
         assertThat(updateConfigAndOutputTriggered).isTrue()
+    }
+
+    @Test
+    fun setChildrenEdgesBeforeSessionStart_connectsSurfaceCreatedOnSessionStart() {
+        // Arrange: child1 is still active with a closed surface from a previous binding.
+        val staleSurface = createFakeDeferrableSurface().apply { close() }
+        child1.notifyActiveForTesting()
+        child1.updateSessionConfigForTesting(createSessionConfig(staleSurface))
+        adapter.bindChildren()
+        adapter.setChildrenEdges(childrenEdges, selectedChildSizes)
+
+        // Act: child1 creates a new surface when the session starts, like VideoCapture does.
+        val newSurface = createFakeDeferrableSurface()
+        child1.updateSessionConfigForTesting(createSessionConfig(newSurface))
+        adapter.notifySessionStart()
+
+        // Assert: the edge is connected to the new surface.
+        verifyEdgeConnectedTo(child1, newSurface)
+    }
+
+    @Test
+    fun sessionStopAndStart_reconnectsActiveChild() {
+        // Arrange: child1 is active and connected in a session.
+        val oldSurface = createFakeDeferrableSurface()
+        adapter.bindChildren()
+        adapter.setChildrenEdges(childrenEdges, selectedChildSizes)
+        adapter.notifySessionStart()
+        child1.updateSessionConfigForTesting(createSessionConfig(oldSurface))
+        child1.notifyActiveForTesting()
+
+        // Act: stop the session and close the child surface, then start a new session with a new
+        // child surface.
+        adapter.notifySessionStop()
+        oldSurface.close()
+        val newSurface = createFakeDeferrableSurface()
+        child1.updateSessionConfigForTesting(createSessionConfig(newSurface))
+        adapter.notifySessionStart()
+
+        // Assert: the edge is connected to the new surface.
+        verifyEdgeConnectedTo(child1, newSurface)
+    }
+
+    private fun createFakeDeferrableSurface(): FakeDeferrableSurface =
+        FakeDeferrableSurface(INPUT_SIZE, ImageFormat.PRIVATE).also {
+            deferrableSurfacesToClose.add(it)
+        }
+
+    private fun createSessionConfig(surface: DeferrableSurface): SessionConfig =
+        SessionConfig.Builder().addSurface(surface).build()
+
+    private fun verifyEdgeConnectedTo(child: UseCase, childSurface: FakeDeferrableSurface) {
+        val surfaceTexture = SurfaceTexture(0)
+        val surface = Surface(surfaceTexture)
+        try {
+            childSurface.setSurface(surface)
+            shadowOf(getMainLooper()).idle()
+            val edgeSurface = childrenEdges[child]!!.deferrableSurfaceForTesting.surface
+            assertThat(edgeSurface.isDone).isTrue()
+            assertThat(edgeSurface.get()).isSameInstanceAs(surface)
+        } finally {
+            surface.release()
+            surfaceTexture.release()
+        }
     }
 
     private fun createSurfaceEdge(
