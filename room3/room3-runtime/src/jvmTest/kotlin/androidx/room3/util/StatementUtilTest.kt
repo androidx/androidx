@@ -95,17 +95,24 @@ class BufferedSQLiteStatementTest {
         // Column 1: TEXT ('alice')
         assertThat(bufferedStmt.getColumnType(1)).isEqualTo(SQLITE_DATA_TEXT)
         assertThat(bufferedStmt.getText(1)).isEqualTo("alice")
+        assertThat(bufferedStmt.getLong(1)).isEqualTo(0L)
+        assertThat(bufferedStmt.getDouble(1)).isEqualTo(0.0)
+        assertThat(bufferedStmt.getBlob(1)).isEqualTo("alice".encodeToByteArray())
         assertThat(bufferedStmt.isNull(1)).isFalse()
 
         // Column 2: FLOAT (3.14)
         assertThat(bufferedStmt.getColumnType(2)).isEqualTo(SQLITE_DATA_FLOAT)
         assertThat(bufferedStmt.getDouble(2)).isEqualTo(3.14)
         assertThat(bufferedStmt.getFloat(2)).isEqualTo(3.14f)
+        assertThat(bufferedStmt.getLong(2)).isEqualTo(3L)
+        assertThat(bufferedStmt.getInt(2)).isEqualTo(3)
+        assertThat(bufferedStmt.getText(2)).isEqualTo("3.14")
         assertThat(bufferedStmt.isNull(2)).isFalse()
 
         // Column 3: BLOB (x'0102')
         assertThat(bufferedStmt.getColumnType(3)).isEqualTo(SQLITE_DATA_BLOB)
         assertThat(bufferedStmt.getBlob(3)).isEqualTo(byteArrayOf(1, 2))
+        assertThat(bufferedStmt.getText(3)).isEqualTo(byteArrayOf(1, 2).decodeToString())
         assertThat(bufferedStmt.isNull(3)).isFalse()
 
         bufferedStmt.close()
@@ -119,6 +126,10 @@ class BufferedSQLiteStatementTest {
         assertThat(bufferedStmt.step()).isTrue()
         assertThat(bufferedStmt.isNull(1)).isTrue()
         assertThat(bufferedStmt.getColumnType(1)).isEqualTo(SQLITE_DATA_NULL)
+        assertThat(bufferedStmt.getLong(1)).isEqualTo(0L)
+        assertThat(bufferedStmt.getDouble(1)).isEqualTo(0.0)
+        assertThat(bufferedStmt.getText(1)).isEqualTo("")
+        assertThat(bufferedStmt.getBlob(1)).isEqualTo(ByteArray(0))
 
         bufferedStmt.close()
     }
@@ -153,6 +164,38 @@ class BufferedSQLiteStatementTest {
             }
         }
         assertThat(allIds).isEqualTo(listOf(1L, 2L, 3L))
+
+        bufferedStmt.close()
+    }
+
+    @Test
+    fun bufferStatementResizesCapacityEachTimeCapacityIsReached() {
+        for (i in 4..20) {
+            // The initial array size is 8. The size will be dynamically doubled each time the
+            // capacity is reached.
+            connection.execSQL("INSERT INTO test_table VALUES ($i, 'user_$i', ${i + 0.5}, x'0102')")
+        }
+        val rawStmt =
+            connection.prepare(
+                "SELECT id, name, val, data FROM test_table WHERE id >= 4 ORDER BY id"
+            )
+        val bufferedStmt = bufferStatement(rawStmt)
+
+        for (i in 4..20) {
+            assertThat(bufferedStmt.step()).isTrue()
+        }
+        assertThat(bufferedStmt.step()).isFalse()
+
+        bufferedStmt.reset()
+
+        for (i in 4..20) {
+            assertThat(bufferedStmt.step()).isTrue()
+            assertThat(bufferedStmt.getLong(0)).isEqualTo(i.toLong())
+            assertThat(bufferedStmt.getText(1)).isEqualTo("user_$i")
+            assertThat(bufferedStmt.getDouble(2)).isEqualTo(i + 0.5)
+            assertThat(bufferedStmt.getBlob(3)).isEqualTo(byteArrayOf(1, 2))
+        }
+        assertThat(bufferedStmt.step()).isFalse()
 
         bufferedStmt.close()
     }
