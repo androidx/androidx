@@ -107,7 +107,10 @@ public sealed class StorageDomain {
      * @property primaryKeyVal The value of the primary key used to identify the target record.
      *   Supported types are: String, Int, Long, Float, Double, Boolean.
      * @property columnValues A Map of column names to their values to populate or verify. Supported
-     *   types are: String, Int, Long, Float, Double, Boolean, or null.
+     *   types are: String, Int, Long, Float, Double, Boolean, or null. It may include
+     *   [primaryKeyCol], matched case-insensitively like SQLite column names, but only with a value
+     *   whose string form equals that of [primaryKeyVal]; otherwise construction fails with an
+     *   [IllegalArgumentException]. When it is omitted, [primaryKeyVal] is written to that column.
      */
     public class Database(
         public val dbName: String,
@@ -128,6 +131,13 @@ public sealed class StorageDomain {
                         "Unsupported Database column value type for column '$col': " +
                             "${valItem.javaClass.name}. Supported types are: String, Int, " +
                             "Long, Float, Double, Boolean."
+                    }
+                }
+                // Both values travel to the device as strings, so they are compared as strings.
+                if (col.equals(primaryKeyCol, ignoreCase = true)) {
+                    require(valItem?.toString() == primaryKeyVal.toString()) {
+                        "Column '$col' is the primary key column, so its value '$valItem' must " +
+                            "match primaryKeyVal '$primaryKeyVal'."
                     }
                 }
             }
