@@ -109,8 +109,9 @@ internal enum class BackupExecutionStage {
             CLEAR_DATA -> BackupErrorCode.CLEAR_DATA_FAILED
             RESTORE ->
                 when {
-                    msg.contains("timeout") || msg.contains("polling") ->
-                        BackupErrorCode.RESTORE_POLL_TIMEOUT
+                    msg.contains("timeout") ||
+                        msg.contains("timed out") ||
+                        msg.contains("polling") -> BackupErrorCode.RESTORE_POLL_TIMEOUT
                     isGmsCore -> BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING
                     isBmgr -> BackupErrorCode.BMGR_INIT_FAILED
                     else -> BackupErrorCode.RESTORE_FAILED
