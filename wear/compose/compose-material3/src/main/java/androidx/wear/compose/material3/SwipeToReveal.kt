@@ -259,7 +259,6 @@ import kotlinx.coroutines.launch
  *   Custom accessibility actions should always be added to the content using [Modifier.semantics] -
  *   examples are shown in the code samples.
  */
-@OptIn(ExperimentalWearComposeMaterial3Api::class)
 @Composable
 public fun SwipeToReveal(
     primaryAction: @Composable SwipeToRevealScope.() -> Unit,
@@ -385,22 +384,15 @@ public fun SwipeToReveal(
 
                         if (revealingAnchorPx != null) {
                             revealState.revealThreshold =
-                                if (
-                                    WearComposeMaterial3Flags
-                                        .isSwipeToRevealDualFlingThresholdEnabled
-                                ) {
-                                    FULL_SWIPE_THRESHOLD_FRACTION * screenWidthPx -
-                                        (screenWidthPx - width) / 2f
-                                } else {
-                                    revealingAnchorPx
-                                }
+                                FULL_SWIPE_THRESHOLD_FRACTION * screenWidthPx -
+                                    (screenWidthPx - width) / 2f
 
                             revealState.revealedRatio =
                                 calculateRevealedRatio(
                                     hasNoSecondaryAction,
                                     anchorWidthPx,
                                     screenWidthPx,
-                                    componentWidthPx,
+                                    revealState.revealThreshold,
                                     revealingAnchorPx,
                                 )
                         }
@@ -685,8 +677,7 @@ public fun SwipeToReveal(
                 if (isFullReveal) {
                     performHapticFeedback(hapticFeedback, revealState)
                 } else if (
-                    WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled &&
-                        isPartialReveal &&
+                    isPartialReveal &&
                         current == Covered &&
                         abs(revealState.offset) < revealState.revealThreshold
                 ) {
@@ -988,16 +979,15 @@ private fun calculateRevealedRatio(
     hasNoSecondaryAction: Boolean,
     anchorWidthPx: Float,
     screenWidthPx: Float,
-    componentWidthPx: Float,
+    revealThreshold: Float,
     revealingAnchorPx: Float,
 ): Float =
     if (hasNoSecondaryAction || anchorWidthPx / screenWidthPx == 1f) {
         0.5f
     } else {
-        ((FULL_SWIPE_THRESHOLD_FRACTION * screenWidthPx -
-                (screenWidthPx - componentWidthPx) / 2f -
-                revealingAnchorPx) / (screenWidthPx - revealingAnchorPx))
-            .coerceAtLeast(0f)
+        ((revealThreshold - revealingAnchorPx) / (screenWidthPx - revealingAnchorPx)).coerceAtLeast(
+            0f
+        )
     }
 
 /**
@@ -1178,7 +1168,6 @@ public object SwipeToRevealDefaults {
      * @param revealState The [RevealState] associated with the component.
      * @return A [TargetedFlingBehavior] configured for SwipeToReveal gestures.
      */
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     @Composable
     public fun flingBehavior(revealState: RevealState): TargetedFlingBehavior {
         val density = LocalDensity.current
@@ -1188,10 +1177,7 @@ public object SwipeToRevealDefaults {
                 state = revealState.anchoredDraggableState,
                 snapAnimationSpec = AnchoredDraggableDefaults.SnapAnimationSpec,
                 positionalThreshold = { distance, isCompleting ->
-                    if (
-                        isCompleting &&
-                            WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled
-                    ) {
+                    if (isCompleting) {
                         distance * revealState.revealedRatio
                     } else {
                         AnchoredDraggableDefaults.PositionalThreshold(distance)
@@ -1689,10 +1675,9 @@ public class RevealState @RememberInComposition constructor(initialValue: Reveal
     internal var lastActionType: RevealActionType by mutableStateOf(RevealActionType.None)
 
     /**
-     * The threshold, in pixels, where the revealed actions are fully visible but the existing
-     * content would be left in place if the reveal action was stopped. This threshold is defined by
-     * the [RightRevealing] anchor. If there is no such anchor defined for [RightRevealing], it
-     * returns 0.0f.
+     * The threshold, in pixels, beyond which a full swipe is triggered. This is calculated as a
+     * fraction of the screen width, adjusted for the component's width if it is smaller than the
+     * full screen.
      */
     /* @FloatRange(from = 0.0) */
     internal var revealThreshold: Float by mutableFloatStateOf(0.0f)
@@ -1993,7 +1978,6 @@ private fun <T> anchoredDraggableLayoutInfoProvider(
     }
 
 /** Exact copy from [androidx.compose.foundation.gestures.computeTarget]. */
-@OptIn(ExperimentalWearComposeMaterial3Api::class)
 private fun <T> DraggableAnchors<T>.computeTarget(
     currentOffset: Float,
     velocity: Float,
@@ -2008,10 +1992,7 @@ private fun <T> DraggableAnchors<T>.computeTarget(
     // When we're not moving, pick the closest anchor and don't consider directionality
     return if (!isMoving) {
         currentAnchors.closestAnchor(currentOffset)!!
-    } else if (
-        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled &&
-            abs(velocity) >= abs(velocityThreshold(VelocityNearThreshold))
-    ) {
+    } else if (abs(velocity) >= abs(velocityThreshold(VelocityNearThreshold))) {
         if (abs(velocity) >= abs(velocityThreshold(VelocityRevealedThreshold))) {
             onFastFling()
             if (velocity < 0) currentAnchors.closestAnchor(currentAnchors.minPosition())!!
@@ -2019,11 +2000,6 @@ private fun <T> DraggableAnchors<T>.computeTarget(
         } else {
             currentAnchors.closestAnchor(currentOffset, searchUpwards = isMovingForward)!!
         }
-    } else if (
-        !WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled &&
-            abs(velocity) >= abs(velocityThreshold(800.dp))
-    ) {
-        currentAnchors.closestAnchor(currentOffset, searchUpwards = isMovingForward)!!
     } else {
         val left = currentAnchors.closestAnchor(currentOffset, false)!!
         val leftAnchorPosition = currentAnchors.positionOf(left)
@@ -2047,13 +2023,9 @@ private fun <T> DraggableAnchors<T>.computeTarget(
     }
 }
 
-@OptIn(ExperimentalWearComposeMaterial3Api::class)
 private fun performHapticFeedback(hapticFeedback: HapticFeedback, revealState: RevealState) {
     val currentTime = System.currentTimeMillis()
-    val shouldPerformHaptics =
-        !WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled ||
-            (currentTime > revealState.lastHapticFeedbackTime + HAPTIC_DEBOUNCING_TIME)
-    if (shouldPerformHaptics) {
+    if (currentTime > revealState.lastHapticFeedbackTime + HAPTIC_DEBOUNCING_TIME) {
         revealState.lastHapticFeedbackTime = currentTime
         // Use GestureThresholdActivate for both haptics, as it triggers
         // HapticConstant#23

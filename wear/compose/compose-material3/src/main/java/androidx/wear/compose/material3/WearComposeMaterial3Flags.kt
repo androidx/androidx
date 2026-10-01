@@ -48,18 +48,4 @@ package androidx.wear.compose.material3
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
-@ExperimentalWearComposeMaterial3Api
-public object WearComposeMaterial3Flags {
-    /**
-     * Determines whether dual-threshold logic is enabled for flinging in
-     * [androidx.wear.compose.material3.SwipeToReveal].
-     * * When true, users can swipe at a normal speed to reach the next immediate anchor, or perform
-     *   a fast swipe (fling) to bypass positional checks and snap directly to the end state.
-     * * If false, fast swipes will not bypass positional checks, meaning a fling may not result in
-     *   the end state being revealed unless the positional threshold is also met.
-     */
-    // TODO: b/497773496
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isSwipeToRevealDualFlingThresholdEnabled: Boolean = true
-}
+@ExperimentalWearComposeMaterial3Api public object WearComposeMaterial3Flags
