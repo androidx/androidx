@@ -367,7 +367,6 @@ class StyleEquivalenceTests {
         )
     }
 
-    @SdkSuppress(minSdkVersion = 28)
     @Test
     fun border_customOutline_generic_background() {
         val customShape =
