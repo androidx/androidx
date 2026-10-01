@@ -578,6 +578,7 @@ public actual abstract class RoomDatabase actual constructor() {
         private var allowDataLossOnRecovery: Boolean = false
 
         private var inMemoryTrackingTableMode = true
+        private var preparedStatementCacheSize = 25
 
         /**
          * Configures Room to create and open the database using a pre-packaged database located in
@@ -1209,6 +1210,29 @@ public actual abstract class RoomDatabase actual constructor() {
             }
 
         /**
+         * Sets the maximum number of prepared statements cached per database connection.
+         *
+         * The statement cache is only used if the supplied [SQLiteDriver] has no internal pool,
+         * i.e., [SQLiteDriver.hasConnectionPool] returns `false`. If the configured driver has an
+         * internal pool then calling this function has no effect.
+         *
+         * Defaults to `25`. Setting [maxCacheSize] to `0` disables the cache.
+         *
+         * @param maxCacheSize The maximum number of prepared statements to cache per connection.
+         *   Must be non-negative.
+         * @return This builder instance.
+         * @throws IllegalArgumentException if [maxCacheSize] is negative.
+         */
+        @ExperimentalRoomApi
+        @Suppress("MissingGetterMatchingBuilder")
+        public fun setPreparedStatementCacheSize(
+            @IntRange(from = 0) maxCacheSize: Int
+        ): Builder<T> = apply {
+            require(maxCacheSize >= 0) { "Cache size must be >= 0" }
+            this.preparedStatementCacheSize = maxCacheSize
+        }
+
+        /**
          * Creates the databases and initializes it.
          *
          * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
@@ -1300,6 +1324,7 @@ public actual abstract class RoomDatabase actual constructor() {
                         this.useTempTrackingTable = inMemoryTrackingTableMode
                         this.copyFromConfig = copyFromConfig
                         this.autoCloseConfig = autoCloseConfig
+                        this.preparedStatementCacheSize = this@Builder.preparedStatementCacheSize
                     }
             val db = factory?.invoke() ?: findAndInstantiateDatabaseImpl(klass.java)
             db.init(configuration)
