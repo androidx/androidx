@@ -21,6 +21,7 @@ import java.time.Duration
 import java.util.logging.Logger
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.time.Duration as KotlinDuration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -33,6 +34,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 internal class BackupLocalTransport(
     private val shell: BackupDeviceShell,
     private val applicationId: String,
+    private val reselectTransportTimeout: KotlinDuration = DEFAULT_CLEANUP_TIMEOUT,
 ) {
     private val logger = Logger.getLogger(BackupLocalTransport::class.java.name)
 
@@ -64,7 +66,8 @@ internal class BackupLocalTransport(
 
     /**
      * Runs [block] with the local transport selected, then selects the original one again, even
-     * when [block] fails.
+     * when [block] fails or is cancelled. Selecting it again is bounded by
+     * [reselectTransportTimeout], so an unresponsive device cannot block the caller.
      */
     private suspend fun withLocalTransport(block: suspend () -> Unit) {
         val originalTransport =
@@ -80,7 +83,8 @@ internal class BackupLocalTransport(
                 if (originalTransport != LOCAL_TRANSPORT) {
                     shell.exec("bmgr transport ${BackupDeviceShell.quote(originalTransport)}")
                 }
-            }
+            },
+            cleanupTimeout = reselectTransportTimeout,
         ) {
             shell.exec("bmgr transport $LOCAL_TRANSPORT")
             block()

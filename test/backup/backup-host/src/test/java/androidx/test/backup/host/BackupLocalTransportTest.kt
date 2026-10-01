@@ -20,8 +20,13 @@ import java.io.IOException
 import java.util.zip.ZipFile
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.measureTime
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -128,6 +133,32 @@ class BackupLocalTransportTest {
         }
 
         assertFailsWith<IOException> { runBlocking { transport.restore() } }
+        assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
+    }
+
+    /**
+     * Selecting the original transport again is bounded, so a device that stops responding cannot
+     * keep a timed-out caller waiting.
+     */
+    @Test
+    fun restoreStopsWaitingForAnUnresponsiveTransportReselection() = runBlocking {
+        device.onShell { command ->
+            if (command == "bmgr list transports") shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
+            else shellOutput()
+        }
+        device.hangOn { it == "bmgr run" || it.startsWith("bmgr transport '") }
+        val boundedTransport =
+            BackupLocalTransport(
+                BackupDeviceShell(device.session, FAKE_SERIAL),
+                PACKAGE,
+                reselectTransportTimeout = 200.milliseconds,
+            )
+
+        val elapsed = measureTime {
+            assertNull(withTimeoutOrNull(300.milliseconds) { boundedTransport.restore() })
+        }
+
+        assertTrue(elapsed < 2.seconds, "Restore took $elapsed")
         assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
     }
 
