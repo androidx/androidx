@@ -146,10 +146,8 @@ class SwipeToRevealTest {
         )
     }
 
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     @Test
     fun onStateChangeToRevealing_performsHaptics() {
-        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
         assertHapticFeedback(
             initialValue = Covered,
             action = { coroutineScope, revealState ->
@@ -159,10 +157,8 @@ class SwipeToRevealTest {
         )
     }
 
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     @Test
     fun onSwipeSlowlyToFullyRevealed_performsHapticsTwice() {
-        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
         assertHapticFeedback(
             initialValue = Covered,
             action = { _, _ ->
@@ -190,10 +186,8 @@ class SwipeToRevealTest {
         )
     }
 
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     @Test
     fun onFastFlingBeforeRevealing_performsHapticsOnce() {
-        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
         assertHapticFeedback(
             initialValue = Covered,
             action = { _, _ ->
@@ -205,10 +199,8 @@ class SwipeToRevealTest {
         )
     }
 
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     @Test
     fun onFastFlingAfterRevealing_performsHapticsOnce() {
-        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
         assertHapticFeedback(
             initialValue = Covered,
             action = { _, _ ->
@@ -418,10 +410,8 @@ class SwipeToRevealTest {
         rule.onNodeWithTag(SECONDARY_ACTION_TAG).assertExists()
     }
 
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     @Test
     fun onSwipeRight_twoActions_swipePastRevealingState_doesNotShowSecondAction() {
-        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
         verifyGestureTwoActions(
             gesture = { swipeRight(startX = 0f, endX = 140 * density) },
             assertions = {
@@ -432,10 +422,8 @@ class SwipeToRevealTest {
         )
     }
 
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     @Test
     fun onSwipeRight_twoActions_swipeBelowRevealingThreshold_showsSecondAction() {
-        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
         verifyGestureTwoActions(
             gesture = { swipeRight(startX = 0f, endX = 120 * density) },
             assertions = {
@@ -446,10 +434,8 @@ class SwipeToRevealTest {
         )
     }
 
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     @Test
     fun onSwipeRight_twoActions_swipePast75Percent_triggersAction() {
-        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
         var onSwipePrimaryAction = false
         verifyGestureTwoActions(
             onSwipePrimaryAction = { onSwipePrimaryAction = true },
@@ -467,10 +453,8 @@ class SwipeToRevealTest {
         )
     }
 
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     @Test
     fun onSwipeRight_twoActions_swipeBelow75Percent_doesNotTriggerAction() {
-        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
         var onSwipePrimaryAction = false
 
         verifyGestureTwoActions(
@@ -491,10 +475,8 @@ class SwipeToRevealTest {
         )
     }
 
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     @Test
     fun onSwipeLeft_twoActions_swipePastRevealingThreshold_doesNotShowSecondAction() {
-        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
         verifyGestureTwoActions(
             gesture = { swipeLeft(startX = 140 * density, endX = 0f) },
             assertions = {
@@ -517,10 +499,8 @@ class SwipeToRevealTest {
         )
     }
 
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     @Test
     fun onSwipeLeft_twoActions_swipePast75Percent_triggersAction() {
-        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
         var onSwipePrimaryAction = false
         verifyGestureTwoActions(
             onSwipePrimaryAction = { onSwipePrimaryAction = true },
@@ -538,10 +518,8 @@ class SwipeToRevealTest {
         )
     }
 
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     @Test
     fun onSwipeLeft_twoActions_swipeBelow75Percent_doesNotTriggerAction() {
-        WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
         var onSwipePrimaryAction = false
 
         verifyGestureTwoActions(
@@ -1800,52 +1778,32 @@ class SwipeToRevealTest {
         )
     }
 
-    @Test()
-    fun isSwipeToRevealDualFlingThresholdEnabled_true() {
-        verify_isSwipeToRevealDualFlingThresholdEnabled(true)
-    }
-
-    @Test()
-    fun isSwipeToRevealDualFlingThresholdEnabled_false() {
-        verify_isSwipeToRevealDualFlingThresholdEnabled(false)
-    }
-
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
-    private fun verify_isSwipeToRevealDualFlingThresholdEnabled(enabled: Boolean) {
-        try {
-            WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = enabled
-            rule.setContent {
-                ScreenConfiguration(SCREEN_SIZE_LARGE) {
-                    val revealState = rememberRevealState(initialValue = Covered)
-                    SwipeToRevealWithDefaults(
-                        modifier = Modifier.testTag(TEST_TAG),
-                        primaryAction = { DefaultPrimaryActionButton(onClick = {}) },
-                        revealState = revealState,
-                        secondaryAction = { DefaultSecondaryActionButton(onClick = {}) },
-                        undoPrimaryAction = {
-                            DefaultUndoActionButton(
-                                modifier = Modifier.testTag(UNDO_PRIMARY_ACTION_TAG),
-                                onClick = {},
-                            )
-                        },
-                    )
-                }
+    @Test
+    fun onFastFling_twoActions_fullSwipes() {
+        rule.setContent {
+            ScreenConfiguration(SCREEN_SIZE_LARGE) {
+                val revealState = rememberRevealState(initialValue = Covered)
+                SwipeToRevealWithDefaults(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    primaryAction = { DefaultPrimaryActionButton(onClick = {}) },
+                    revealState = revealState,
+                    secondaryAction = { DefaultSecondaryActionButton(onClick = {}) },
+                    undoPrimaryAction = {
+                        DefaultUndoActionButton(
+                            modifier = Modifier.testTag(UNDO_PRIMARY_ACTION_TAG),
+                            onClick = {},
+                        )
+                    },
+                )
             }
-
-            rule.onNodeWithTag(TEST_TAG).performTouchInput {
-                swipeLeft(startX = centerX, endX = 0f, 100)
-            }
-            rule.waitForIdle()
-
-            if (enabled) {
-                rule.onNodeWithTag(UNDO_PRIMARY_ACTION_TAG).assertExists()
-            } else {
-                rule.onNodeWithTag(UNDO_PRIMARY_ACTION_TAG).assertDoesNotExist()
-            }
-        } finally {
-            // reset flag back
-            WearComposeMaterial3Flags.isSwipeToRevealDualFlingThresholdEnabled = true
         }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeLeft(startX = centerX, endX = 0f, 100)
+        }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(UNDO_PRIMARY_ACTION_TAG).assertExists()
     }
 
     private fun verifyAnimateToIllegalState(
