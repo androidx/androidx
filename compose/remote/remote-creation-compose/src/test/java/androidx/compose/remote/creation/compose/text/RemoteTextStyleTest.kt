@@ -17,7 +17,9 @@
 package androidx.compose.remote.creation.compose.text
 
 import androidx.compose.remote.core.operations.layout.managers.CoreText
+import androidx.compose.remote.creation.compose.state.RemoteTextUnitType
 import androidx.compose.remote.creation.compose.state.asConstantColorOrNull
+import androidx.compose.remote.creation.compose.state.asConstantTextUnitOrNull
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rsp
@@ -34,7 +36,6 @@ import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -98,11 +99,11 @@ class RemoteTextStyleTest {
                 )
             )
 
-        assertThat(remoteStyle.fontSize?.type).isEqualTo(TextUnitType.Sp)
-        assertThat(remoteStyle.fontSize?.constantValueOrNull).isEqualTo(16.sp)
+        assertThat(remoteStyle.fontSize?.type).isEqualTo(RemoteTextUnitType.Sp)
+        assertThat(remoteStyle.fontSize?.asConstantTextUnitOrNull()).isEqualTo(16.sp)
         assertThat(remoteStyle.color?.asConstantColorOrNull()).isEqualTo(Color.Red)
-        assertThat(remoteStyle.letterSpacing?.constantValueOrNull).isEqualTo(1.2f.sp)
-        assertThat(remoteStyle.lineHeight?.constantValueOrNull).isEqualTo(20.sp)
+        assertThat(remoteStyle.letterSpacing?.asConstantTextUnitOrNull()).isEqualTo(1.2f.sp)
+        assertThat(remoteStyle.lineHeight?.asConstantTextUnitOrNull()).isEqualTo(20.sp)
         assertThat(remoteStyle.background?.asConstantColorOrNull()).isEqualTo(Color.Blue)
         assertThat(remoteStyle.fontWeight).isEqualTo(FontWeight.Bold)
         assertThat(remoteStyle.fontStyle).isEqualTo(FontStyle.Italic)

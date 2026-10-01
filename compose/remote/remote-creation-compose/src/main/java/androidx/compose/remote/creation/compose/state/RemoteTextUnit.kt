@@ -22,48 +22,54 @@ import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit.OperationKey
 import androidx.compose.remote.creation.compose.text.RemoteFontScaleConverter
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
-import androidx.compose.ui.unit.em
-import androidx.compose.ui.unit.isSpecified
-import androidx.compose.ui.unit.sp
+
+/** The type of a [RemoteTextUnit]. */
+public enum class RemoteTextUnitType {
+    Sp
+}
 
 /**
- * Represents a TextUnit value (Sp or Em) backed by a [RemoteFloat].
+ * Represents a TextUnit value backed by a [RemoteFloat].
  *
  * @property value The [RemoteFloat] that holds the scalar value.
- * @property type The [TextUnitType] (Sp or Em).
+ * @property type The [RemoteTextUnitType].
  */
 @Stable
 public class RemoteTextUnit
-internal constructor(public val value: RemoteFloat, public val type: TextUnitType) :
-    BaseRemoteState<TextUnit>(RemoteStateInstanceKey()) {
+public constructor(
+    public val value: RemoteFloat,
+    public val type: RemoteTextUnitType = RemoteTextUnitType.Sp,
+) : BaseRemoteState<Float>(RemoteStateInstanceKey()) {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override val cacheKey: RemoteStateCacheKey
-        get() = toPx().cacheKey
+        get() = RemoteOperationCacheKey.create(OperationKey.Sp, value, type)
 
-    internal enum class OperationKey {
-        ToPx,
-        DpToSp,
-    }
+    /**
+     * Creates a [RemoteTextUnit] with the given literal [Float] [value] and [type].
+     *
+     * @param value The literal float value.
+     * @param type The [RemoteTextUnitType]. Defaults to [RemoteTextUnitType.Sp].
+     */
+    public constructor(
+        value: Float,
+        type: RemoteTextUnitType = RemoteTextUnitType.Sp,
+    ) : this(value.rf, type)
 
-    init {
-        require(type == TextUnitType.Sp || type == TextUnitType.Em) {
-            "TextUnitType must be Sp or Em, but was $type"
-        }
-    }
+    internal enum class OperationKey : RemoteOperation {
+        Sp,
+        ToPx;
 
-    override val constantValueOrNull: TextUnit?
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        get() {
-            val constValue = value.constantValueOrNull ?: return null
-            return when (type) {
-                TextUnitType.Sp -> constValue.sp
-                TextUnitType.Em -> constValue.em
-                else -> throw IllegalStateException("Unsupported TextUnitType: $type")
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String {
+            return when (this) {
+                Sp -> "${args[0].toOperandString(100)}.sp"
+                ToPx -> "${args[0].toOperandString(100)}.toPx()"
             }
         }
+    }
+
+    @get:Suppress("AutoBoxing")
+    override val constantValueOrNull: Float?
+        get() = value.constantValueOrNull
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
@@ -92,6 +98,7 @@ internal constructor(public val value: RemoteFloat, public val type: TextUnitTyp
                 RemoteOperationCacheKey.create(
                     OperationKey.ToPx,
                     value,
+                    type,
                     density.density,
                     density.fontScale,
                 ),
@@ -106,7 +113,7 @@ internal constructor(public val value: RemoteFloat, public val type: TextUnitTyp
         checkTextUnit()
         return RemoteFloatExpression(
             constantValueOrNull = null,
-            cacheKey = RemoteOperationCacheKey.create(OperationKey.ToPx, value),
+            cacheKey = RemoteOperationCacheKey.create(OperationKey.ToPx, value, type),
         ) { creationState ->
             val density = creationState.remoteDensity
             val dp = RemoteFontScaleConverter.NonLinear.convertSpToDp(this, density.fontScale)
@@ -115,16 +122,16 @@ internal constructor(public val value: RemoteFloat, public val type: TextUnitTyp
     }
 
     private fun checkTextUnit() =
-        check(type == TextUnitType.Sp) { "Only Sp is supported for conversion to pixels" }
+        check(type == RemoteTextUnitType.Sp) { "Only Sp is supported for conversion to pixels" }
 }
 
 /** Extension property to convert an [Int] to a [RemoteTextUnit] in Sp. */
 public val Int.rsp: RemoteTextUnit
-    get() = RemoteTextUnit(this.rf, TextUnitType.Sp)
+    get() = RemoteTextUnit(this.rf, RemoteTextUnitType.Sp)
 
 /** Extension property to convert a [Float] to a [RemoteTextUnit] in Sp. */
 public val Float.rsp: RemoteTextUnit
-    get() = RemoteTextUnit(this.rf, TextUnitType.Sp)
+    get() = RemoteTextUnit(this.rf, RemoteTextUnitType.Sp)
 
 /**
  * Extension property to convert a [RemoteFloat] to a [RemoteTextUnit] in Sp.
@@ -132,23 +139,4 @@ public val Float.rsp: RemoteTextUnit
  * @sample androidx.compose.remote.creation.compose.samples.RemoteTextDynamicFontSizeSample
  */
 public val RemoteFloat.rsp: RemoteTextUnit
-    get() = RemoteTextUnit(this, TextUnitType.Sp)
-
-/** Extension function to convert a [TextUnit] to a [RemoteTextUnit]. */
-public fun TextUnit.asRemoteTextUnit(): RemoteTextUnit = RemoteTextUnit(this.value.rf, this.type)
-
-/** Extension function to convert a [Dp] to a [RemoteTextUnit] in Sp. */
-public fun Dp.toRsp(): RemoteTextUnit {
-    check(isSpecified) { "Dp conversion not possible for unspecified Dp" }
-    return RemoteTextUnit(
-        value =
-            RemoteFloatExpression(
-                constantValueOrNull = null,
-                cacheKey = RemoteOperationCacheKey.create(OperationKey.DpToSp, value),
-            ) { creationState ->
-                val fontScale = creationState.remoteDensity.fontScale
-                (value.rf / fontScale).arrayForCreationState(creationState)
-            },
-        type = TextUnitType.Sp,
-    )
-}
+    get() = RemoteTextUnit(this, RemoteTextUnitType.Sp)

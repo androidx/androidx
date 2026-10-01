@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,20 +50,43 @@ class RemoteTextUnitTest {
         val remoteTextUnit = RemoteTextUnit(remoteFloat, TextUnitType.Sp)
 
         assertThat(remoteTextUnit.value).isEqualTo(remoteFloat)
-        assertThat(remoteTextUnit.type).isEqualTo(TextUnitType.Sp)
-        assertThat(remoteTextUnit.constantValueOrNull).isEqualTo(floatValue.sp)
+        assertThat(remoteTextUnit.type).isEqualTo(RemoteTextUnitType.Sp)
+        assertThat(remoteTextUnit.asConstantTextUnitOrNull()).isEqualTo(floatValue.sp)
+        assertThat(remoteTextUnit.asConstantTextUnit()).isEqualTo(floatValue.sp)
+    }
+
+    @Test
+    fun constructors_createCorrectly() {
+        val floatValue = 16f
+        val remoteFloat = RemoteFloat(floatValue)
+
+        val fromRemoteFloatDefault = RemoteTextUnit(remoteFloat)
+        assertThat(fromRemoteFloatDefault.value).isEqualTo(remoteFloat)
+        assertThat(fromRemoteFloatDefault.type).isEqualTo(RemoteTextUnitType.Sp)
+
+        val fromRemoteFloatExplicit = RemoteTextUnit(remoteFloat, RemoteTextUnitType.Sp)
+        assertThat(fromRemoteFloatExplicit.value).isEqualTo(remoteFloat)
+        assertThat(fromRemoteFloatExplicit.type).isEqualTo(RemoteTextUnitType.Sp)
+
+        val fromFloatDefault = RemoteTextUnit(floatValue)
+        assertThat(fromFloatDefault.value.constantValue).isEqualTo(floatValue)
+        assertThat(fromFloatDefault.type).isEqualTo(RemoteTextUnitType.Sp)
+
+        val fromFloatExplicit = RemoteTextUnit(floatValue, RemoteTextUnitType.Sp)
+        assertThat(fromFloatExplicit.value.constantValue).isEqualTo(floatValue)
+        assertThat(fromFloatExplicit.type).isEqualTo(RemoteTextUnitType.Sp)
     }
 
     @Test
     fun extensionProperties_createCorrectly() {
         assertThat(16.rsp.value.constantValue).isEqualTo(16f)
-        assertThat(16.rsp.type).isEqualTo(TextUnitType.Sp)
+        assertThat(16.rsp.type).isEqualTo(RemoteTextUnitType.Sp)
         assertThat(16.5f.rsp.value.constantValue).isEqualTo(16.5f)
-        assertThat(16.5f.rsp.type).isEqualTo(TextUnitType.Sp)
+        assertThat(16.5f.rsp.type).isEqualTo(RemoteTextUnitType.Sp)
         assertThat(18f.rf.rsp.value.constantValue).isEqualTo(18f)
-        assertThat(18f.rf.rsp.type).isEqualTo(TextUnitType.Sp)
+        assertThat(18f.rf.rsp.type).isEqualTo(RemoteTextUnitType.Sp)
         assertThat(16.sp.asRemoteTextUnit().value.constantValue).isEqualTo(16f)
-        assertThat(16.sp.asRemoteTextUnit().type).isEqualTo(TextUnitType.Sp)
+        assertThat(16.sp.asRemoteTextUnit().type).isEqualTo(RemoteTextUnitType.Sp)
     }
 
     @Test
@@ -105,13 +129,10 @@ class RemoteTextUnitTest {
     }
 
     @Test
-    fun constantValueOrNull_handlesEmCorrectly() {
-        val floatValue = 1.5f
-        val remoteTextUnit = RemoteTextUnit(floatValue.rf, TextUnitType.Em)
-        val textUnit = remoteTextUnit.constantValueOrNull
-
-        assertThat(textUnit?.type).isEqualTo(TextUnitType.Em)
-        assertThat(textUnit?.value).isEqualTo(floatValue)
+    fun constructor_unsupportedTextUnitType_throws() {
+        assertThrows(IllegalArgumentException::class.java) {
+            RemoteTextUnit(1.5f.rf, TextUnitType.Em)
+        }
     }
 
     @Test
