@@ -26,26 +26,26 @@ class CheckApiCompatibilityTaskTest {
     fun `Finalized APIs should not change within a version`() {
         assertFalse(
             shouldFreezeApis(
-                Version("1.0.0"),
-                Version("1.1.0-alpha01"),
+                Version.parse("1.0.0"),
+                Version.parse("1.1.0-alpha01"),
             )
         )
         assertFalse(
             shouldFreezeApis(
-                Version("1.1.0-alpha01"),
-                Version("1.1.0-beta01"),
+                Version.parse("1.1.0-alpha01"),
+                Version.parse("1.1.0-beta01"),
             )
         )
         assertTrue(
             shouldFreezeApis(
-                Version("1.1.0-beta01"),
-                Version("1.1.0-beta01"),
+                Version.parse("1.1.0-beta01"),
+                Version.parse("1.1.0-beta01"),
             )
         )
         assertTrue(
             shouldFreezeApis(
-                Version("1.1.0-beta01"),
-                Version("1.1.0"),
+                Version.parse("1.1.0-beta01"),
+                Version.parse("1.1.0"),
             )
         )
     }

@@ -30,7 +30,7 @@ class GenerateApiLevelsTest {
         val v100beta01 = File("/api/1.0.0-beta01.txt")
         val v110beta01 = File("/api/1.1.0-beta01.txt")
         val current = File("/api/current.txt")
-        val currentVersion = Version("1.2.0-alpha03")
+        val currentVersion = Version.parse("1.2.0-alpha03")
 
         val actualFiles =
             getFilesForApiLevels(listOf(v100beta01, v110beta01, current), currentVersion)
@@ -48,7 +48,7 @@ class GenerateApiLevelsTest {
                 File("/api/res-1.1.0-beta01.txt"),
                 File("/api/res-current.txt"),
             )
-        val currentVersion = Version("1.2.0-alpha03")
+        val currentVersion = Version.parse("1.2.0-alpha03")
 
         val actualFiles = getFilesForApiLevels(inputFiles, currentVersion)
         val expectedFiles = listOf(v100beta01)
@@ -58,7 +58,7 @@ class GenerateApiLevelsTest {
     @Test
     fun testOnlyCurrentVersion() {
         val actualFiles =
-            getFilesForApiLevels(setOf(File("/api/current.txt")), Version("1.0.0-alpha05"))
+            getFilesForApiLevels(setOf(File("/api/current.txt")), Version.parse("1.0.0-alpha05"))
         assertEquals(actualFiles, emptyList<File>())
     }
 
@@ -79,7 +79,7 @@ class GenerateApiLevelsTest {
                 File("/api/1.3.0-beta02.txt"),
                 File("/api/current.txt"),
             )
-        val currentVersion = Version("1.3.0-beta02")
+        val currentVersion = Version.parse("1.3.0-beta02")
 
         val actualFiles = getFilesForApiLevels(inputFiles, currentVersion)
         val expectedFiles = listOf(v100beta03, v110beta02, v120beta01)

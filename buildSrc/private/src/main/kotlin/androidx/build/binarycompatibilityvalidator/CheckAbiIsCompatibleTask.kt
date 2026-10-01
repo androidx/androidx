@@ -93,7 +93,10 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
         val (currentApiPath, currentApiDumpText) =
             currentApiDump.get().asFile.let { it.path to it.readText() }
         val shouldFreeze =
-            shouldFreezeApis(Version(referenceVersion.get()), Version(projectVersion.get()))
+            shouldFreezeApis(
+                Version.parse(referenceVersion.get()),
+                Version.parse(projectVersion.get()),
+            )
 
         // Execute BCV code as a WorkAction to allow setting the classpath for the action.
         // This is to work around the kotlin compiler needing to be a compileOnly dependency for

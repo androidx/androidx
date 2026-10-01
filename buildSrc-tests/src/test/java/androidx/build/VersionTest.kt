@@ -25,14 +25,14 @@ import org.junit.runners.JUnit4
 class VersionTest {
     @Test
     fun testComparisons() {
-        val version2600 = Version("26.0.0")
-        val version2610 = Version("26.1.0")
-        val version2611 = Version("26.1.1")
-        val version2620 = Version("26.2.0")
-        val version2621 = Version("26.2.1")
-        val version2700 = Version("27.0.0")
-        val version2700SNAPSHOT = Version("27.0.0-SNAPSHOT")
-        val version2700TNAPSHOT = Version("27.0.0-TNAPSHOT")
+        val version2600 = Version.parse("26.0.0")
+        val version2610 = Version.parse("26.1.0")
+        val version2611 = Version.parse("26.1.1")
+        val version2620 = Version.parse("26.2.0")
+        val version2621 = Version.parse("26.2.1")
+        val version2700 = Version.parse("27.0.0")
+        val version2700SNAPSHOT = Version.parse("27.0.0-SNAPSHOT")
+        val version2700TNAPSHOT = Version.parse("27.0.0-TNAPSHOT")
 
         assertEquals(version2600, version2600)
 
@@ -67,5 +67,17 @@ class VersionTest {
         assert(Version.isDependencyRange("(1.0.0)") == false)
         assert(Version.isDependencyRange("(1.0.0,2.0.0)") == true)
         assert(Version.isDependencyRange("(1.0.0-beta01,2.0.0)") == true)
+    }
+
+    @Test
+    fun testParsingPreReleaseIteration() {
+        assert(Version.parse("1.0.0").preReleaseIteration == null)
+        assert(Version.parse("1.0.0-SNAPSHOT").preReleaseIteration == null)
+        assert(Version.parse("1.0.0-alpha01").preReleaseIteration == 1)
+        assert(Version.parse("1.0.0-alpha10").preReleaseIteration == 10)
+        assert(Version.parse("1.0.0-beta01").preReleaseIteration == 1)
+        assert(Version.parse("1.0.0-dev01").preReleaseIteration == 1)
+        assert(Version.parse("1.0.0-rc01").preReleaseIteration == 1)
+        assert(Version.parse("1.0.0-rc02").preReleaseIteration == 2)
     }
 }

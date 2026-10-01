@@ -31,27 +31,6 @@ data class Version(
     val buildMetadata: String? = null, // Used in JetBrains fork
 ) : Comparable<Version>, java.io.Serializable {
 
-    constructor(
-        versionString: String
-    ) : this(
-        major = Integer.parseInt(checkedMatcher(versionString).group(1)),
-        minor = Integer.parseInt(checkedMatcher(versionString).group(2)),
-        patch = Integer.parseInt(checkedMatcher(versionString).group(3)),
-        preRelease = checkedMatcher(versionString).group(4)?.ifEmpty { null },
-        preReleaseIteration =
-            when (
-                val preRelease =
-                    checkedMatcher(versionString).group(4)?.lowercase(Locale.getDefault())
-            ) {
-                ALPHA -> preRelease.substring(ALPHA.length).toIntOrNull()
-                BETA -> preRelease.substring(BETA.length).toIntOrNull()
-                DEV -> preRelease.substring(DEV.length).toIntOrNull()
-                RC -> preRelease.substring(RC.length).toIntOrNull()
-                else -> null
-            },
-        buildMetadata = checkedMatcher(versionString).group(5)?.ifEmpty { null },
-    )
-
     fun isSnapshot(): Boolean = "-SNAPSHOT" == preRelease
 
     fun isPrereleasePrefix(prefix: String): Boolean =
@@ -94,6 +73,33 @@ data class Version(
     }
 
     companion object {
+        fun parse(versionString: String): Version {
+            val matched = checkedMatcher(versionString)
+            val major = Integer.parseInt(matched.group(1))
+            val minor = Integer.parseInt(matched.group(2))
+            val patch = Integer.parseInt(matched.group(3))
+            // This includes both the alpha/beta/dev/rc prefix and number (e.g. "rc01" or "alpha02")
+            val preRelease = matched.group(4)?.ifEmpty { null }
+            val buildMetadata = matched.group(5)?.ifEmpty { null }
+            val preReleaseIteration =
+                when {
+                    preRelease == null -> null
+                    preRelease.startsWith(ALPHA) -> preRelease.substring(ALPHA.length).toIntOrNull()
+                    preRelease.startsWith(BETA) -> preRelease.substring(BETA.length).toIntOrNull()
+                    preRelease.startsWith(DEV) -> preRelease.substring(DEV.length).toIntOrNull()
+                    preRelease.startsWith(RC) -> preRelease.substring(RC.length).toIntOrNull()
+                    else -> null
+                }
+            return Version(
+                major = major,
+                minor = minor,
+                patch = patch,
+                preRelease = preRelease,
+                preReleaseIteration = preReleaseIteration,
+                buildMetadata = buildMetadata,
+            )
+        }
+
         private const val serialVersionUID = 345435634563L
 
         private const val ALPHA = "alpha"
@@ -126,7 +132,7 @@ data class Version(
         /** @return Version or null, if the given string doesn't match */
         fun parseOrNull(versionString: String): Version? {
             val matcher = SEMVER_VERSION_REGEX.matcher(versionString)
-            return if (matcher.matches()) Version(versionString) else null
+            return if (matcher.matches()) parse(versionString) else null
         }
 
         /** Tells whether a version string would refer to a dependency range */

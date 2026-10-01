@@ -46,7 +46,7 @@ class LibraryVersionsServiceTest {
                     .trimIndent()
             )
         assertThat(service.libraryGroups["G1"])
-            .isEqualTo(LibraryGroup(group = "g.g1", atomicGroupVersion = Version("1.2.3")))
+            .isEqualTo(LibraryGroup(group = "g.g1", atomicGroupVersion = Version.parse("1.2.3")))
         assertThat(service.libraryGroups["G2"])
             .isEqualTo(LibraryGroup(group = "g.g2", atomicGroupVersion = null))
     }
@@ -117,7 +117,7 @@ class LibraryVersionsServiceTest {
             """
             )
         assertThat(service.overrideLibraryGroupsByProjectPath.get(":otherGroup:subproject"))
-            .isEqualTo(LibraryGroup(group = "g.g1", atomicGroupVersion = Version("1.2.3")))
+            .isEqualTo(LibraryGroup(group = "g.g1", atomicGroupVersion = Version.parse("1.2.3")))
         assertThat(service.overrideLibraryGroupsByProjectPath.get(":normalGroup:subproject"))
             .isEqualTo(null)
     }
@@ -170,8 +170,8 @@ class LibraryVersionsServiceTest {
                 """
                     .trimIndent()
             )
-        assertThat(service.libraryVersions["V1"]).isEqualTo(Version("1.2.3"))
-        assertThat(service.libraryVersions["V2"]).isEqualTo(Version("2.0.0-alpha01"))
+        assertThat(service.libraryVersions["V1"]).isEqualTo(Version.parse("1.2.3"))
+        assertThat(service.libraryVersions["V2"]).isEqualTo(Version.parse("2.0.0-alpha01"))
     }
 
     @Test
@@ -289,13 +289,13 @@ class LibraryVersionsServiceTest {
                     .trimIndent()
             )
         assertThat(service.libraryGroupsByGroupId["androidx.camera"]?.atomicGroupVersion)
-            .isEqualTo(Version("1.0.0"))
+            .isEqualTo(Version.parse("1.0.0"))
         assertThat(service.libraryGroupsByGroupId["androidx.camera"]?.requireSameVersion).isTrue()
         assertThat(
                 service.overrideLibraryGroupsByProjectPath[":camera:camera-extensions"]
                     ?.atomicGroupVersion
             )
-            .isEqualTo(Version("1.1.0"))
+            .isEqualTo(Version.parse("1.1.0"))
         assertThat(
                 service.overrideLibraryGroupsByProjectPath[":camera:camera-extensions"]
                     ?.requireSameVersion
