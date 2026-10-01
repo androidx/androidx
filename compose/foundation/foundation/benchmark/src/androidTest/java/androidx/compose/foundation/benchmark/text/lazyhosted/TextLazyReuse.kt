@@ -84,7 +84,12 @@ class TextLazyReuseSameText {
 
     @Test
     fun recomposeMeasureLayout() {
-        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(caseFactory)
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            caseFactory,
+            // Disabled: Forced root dimension changes cause 'measure called on deactivated node'
+            // exceptions for node pooling.
+            invalidateLayoutCache = false,
+        )
     }
 
     @Test
@@ -108,7 +113,12 @@ class TextLazyReuseChangedText {
 
     @Test
     fun recomposeMeasureLayout() {
-        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(caseFactory)
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            caseFactory,
+            // Disabled: Forced root dimension changes cause 'measure called on deactivated node'
+            // exceptions for node pooling.
+            invalidateLayoutCache = false,
+        )
     }
 
     @Test

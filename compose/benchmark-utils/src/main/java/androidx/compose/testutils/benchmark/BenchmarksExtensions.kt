@@ -184,14 +184,37 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkRecompose(
  *   after the first recomposition. By default this is true to enforce correctness in the benchmark,
  *   but for components that have animations after being recomposed this can be turned off to
  *   benchmark just the first remeasure without any pending animations.
+ * @param invalidateLayoutCache Forces cache invalidation across iterations by overriding
+ *   measurement specs. By default, this is true to enforce cold-cache consistency across the
+ *   benchmark runs. Set to `false` ONLY if forced size modifications break component's internal
+ *   logic. Examples include LazyLists attempting to measure deactivated pooled nodes, or
+ *   animation-dependent components that timeout in infinite layout loops when external constraints
+ *   constantly override their fixed internal animation targets.
  */
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
     caseFactory: () -> T,
     toggleCausesRecompose: Boolean = true,
     assertOneRecomposition: Boolean = true,
+    invalidateLayoutCache: Boolean = true,
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        runOnUiThread { doFramesUntilNoChangesPending() }
+        val measureSpecs = if (invalidateLayoutCache) IntArray(4) else IntArray(0)
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+
+            if (invalidateLayoutCache) {
+                val width = measuredWidth
+                val height = measuredHeight
+
+                measureSpecs[0] = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+                measureSpecs[1] = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+                measureSpecs[2] =
+                    View.MeasureSpec.makeMeasureSpec(width + 10, View.MeasureSpec.EXACTLY)
+                measureSpecs[3] =
+                    View.MeasureSpec.makeMeasureSpec(height + 10, View.MeasureSpec.EXACTLY)
+            }
+        }
+
         measureRepeatedOnUiThread {
             runWithMeasurementDisabled {
                 getTestCase().toggleState()
@@ -206,9 +229,22 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
                     assertNoPendingChanges()
                 }
             }
-            measure()
+            if (invalidateLayoutCache) {
+                measureWithSpec(measureSpecs[0], measureSpecs[1])
+            } else {
+                measure()
+            }
             if (assertOneRecomposition) {
                 assertNoPendingChanges()
+            }
+            runWithMeasurementDisabled {
+                layout()
+                if (invalidateLayoutCache) {
+                    // Re-measure and layout with different specs to invalidate layout caches for
+                    // next iteration.
+                    measureWithSpec(measureSpecs[2], measureSpecs[3])
+                    layout()
+                }
             }
         }
     }
@@ -225,14 +261,36 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
  *   after the first recomposition. By default this is true to enforce correctness in the benchmark,
  *   but for components that have animations after being recomposed this can be turned off to
  *   benchmark just the first relayout without any pending animations.
+ * @param invalidateLayoutCache Forces cache invalidation across iterations by overriding
+ *   measurement specs. By default, this is true to enforce cold-cache consistency across the
+ *   benchmark runs. Set to `false` ONLY if forced size modifications break component's internal
+ *   logic. Examples include LazyLists attempting to measure deactivated pooled nodes, or
+ *   animation-dependent components that timeout in infinite layout loops when external constraints
+ *   constantly override their fixed internal animation targets.
  */
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
     caseFactory: () -> T,
     toggleCausesRecompose: Boolean = true,
     assertOneRecomposition: Boolean = true,
+    invalidateLayoutCache: Boolean = true,
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        runOnUiThread { doFramesUntilNoChangesPending() }
+        val measureSpecs = if (invalidateLayoutCache) IntArray(4) else IntArray(0)
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+
+            if (invalidateLayoutCache) {
+                val width = measuredWidth
+                val height = measuredHeight
+
+                measureSpecs[0] = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+                measureSpecs[1] = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+                measureSpecs[2] =
+                    View.MeasureSpec.makeMeasureSpec(width + 10, View.MeasureSpec.EXACTLY)
+                measureSpecs[3] =
+                    View.MeasureSpec.makeMeasureSpec(height + 10, View.MeasureSpec.EXACTLY)
+            }
+        }
 
         measureRepeatedOnUiThread {
             runWithMeasurementDisabled {
@@ -244,7 +302,11 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
                     Snapshot.sendApplyNotifications()
                 }
                 requestLayout()
-                measure()
+                if (invalidateLayoutCache) {
+                    measureWithSpec(measureSpecs[0], measureSpecs[1])
+                } else {
+                    measure()
+                }
                 if (assertOneRecomposition) {
                     assertNoPendingChanges()
                 }
@@ -252,6 +314,14 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
             layout()
             if (assertOneRecomposition) {
                 assertNoPendingChanges()
+            }
+            runWithMeasurementDisabled {
+                if (invalidateLayoutCache) {
+                    // Re-measure and layout with different specs to invalidate layout caches for
+                    // next iteration.
+                    measureWithSpec(measureSpecs[2], measureSpecs[3])
+                    layout()
+                }
             }
         }
     }
@@ -362,31 +432,112 @@ internal fun spinForMs(timeMillis: Long) {
     }
 }
 
-/** Measures measure time of the hierarchy after changing a state. */
-fun <T> AndroidBenchmarkRule.toggleStateBenchmarkMeasure(caseFactory: () -> T)
-    where T : AndroidTestCase, T : ToggleableTestCase {
+/**
+ * Measures measure time of the hierarchy after changing a state.
+ *
+ * @param invalidateLayoutCache Forces cache invalidation across iterations by overriding
+ *   measurement specs. By default, this is true to enforce cold-cache consistency across the
+ *   benchmark runs. Set to `false` ONLY if forced size modifications break component's internal
+ *   logic. Examples include LazyLists attempting to measure deactivated pooled nodes, or
+ *   animation-dependent components that timeout in infinite layout loops when external constraints
+ *   constantly override their fixed internal animation targets.
+ */
+fun <T> AndroidBenchmarkRule.toggleStateBenchmarkMeasure(
+    caseFactory: () -> T,
+    invalidateLayoutCache: Boolean = true,
+) where T : AndroidTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        runOnUiThread { doFrame() }
+        val measureSpecs = if (invalidateLayoutCache) IntArray(4) else IntArray(0)
+        runOnUiThread {
+            doFrame()
 
-        measureRepeatedOnUiThread {
-            runWithMeasurementDisabled { getTestCase().toggleState() }
-            measure()
+            if (invalidateLayoutCache) {
+                val width = measuredWidth
+                val height = measuredHeight
+
+                measureSpecs[0] = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+                measureSpecs[1] = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+                measureSpecs[2] =
+                    View.MeasureSpec.makeMeasureSpec(width + 10, View.MeasureSpec.EXACTLY)
+                measureSpecs[3] =
+                    View.MeasureSpec.makeMeasureSpec(height + 10, View.MeasureSpec.EXACTLY)
+            }
         }
-    }
-}
-
-/** Measures layout time of the hierarchy after changing a state. */
-fun <T> AndroidBenchmarkRule.toggleStateBenchmarkLayout(caseFactory: () -> T)
-    where T : AndroidTestCase, T : ToggleableTestCase {
-    runBenchmarkFor(caseFactory) {
-        runOnUiThread { doFrame() }
 
         measureRepeatedOnUiThread {
             runWithMeasurementDisabled {
                 getTestCase().toggleState()
+                requestLayout()
+            }
+            if (invalidateLayoutCache) {
+                measureWithSpec(measureSpecs[0], measureSpecs[1])
+            } else {
                 measure()
             }
+            runWithMeasurementDisabled {
+                layout()
+                if (invalidateLayoutCache) {
+                    // Re-measure and layout with different specs to invalidate layout caches for
+                    // next iteration.
+                    measureWithSpec(measureSpecs[2], measureSpecs[3])
+                    layout()
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Measures layout time of the hierarchy after changing a state.
+ *
+ * @param invalidateLayoutCache Forces cache invalidation across iterations by overriding
+ *   measurement specs. By default, this is true to enforce cold-cache consistency across the
+ *   benchmark runs. Set to `false` ONLY if forced size modifications break component's internal
+ *   logic. Examples include LazyLists attempting to measure deactivated pooled nodes, or
+ *   animation-dependent components that timeout in infinite layout loops when external constraints
+ *   constantly override their fixed internal animation targets.
+ */
+fun <T> AndroidBenchmarkRule.toggleStateBenchmarkLayout(
+    caseFactory: () -> T,
+    invalidateLayoutCache: Boolean = true,
+) where T : AndroidTestCase, T : ToggleableTestCase {
+    runBenchmarkFor(caseFactory) {
+        val measureSpecs = if (invalidateLayoutCache) IntArray(4) else IntArray(0)
+        runOnUiThread {
+            doFrame()
+
+            if (invalidateLayoutCache) {
+                val width = measuredWidth
+                val height = measuredHeight
+
+                measureSpecs[0] = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+                measureSpecs[1] = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+                measureSpecs[2] =
+                    View.MeasureSpec.makeMeasureSpec(width + 10, View.MeasureSpec.EXACTLY)
+                measureSpecs[3] =
+                    View.MeasureSpec.makeMeasureSpec(height + 10, View.MeasureSpec.EXACTLY)
+            }
+        }
+
+        measureRepeatedOnUiThread {
+            runWithMeasurementDisabled {
+                getTestCase().toggleState()
+                requestLayout()
+                if (invalidateLayoutCache) {
+                    measureWithSpec(measureSpecs[0], measureSpecs[1])
+                } else {
+                    measure()
+                }
+            }
             layout()
+            runWithMeasurementDisabled {
+                if (invalidateLayoutCache) {
+                    // Re-measure and layout with different specs to invalidate layout caches for
+                    // next iteration.
+                    measureWithSpec(measureSpecs[2], measureSpecs[3])
+                    layout()
+                }
+            }
         }
     }
 }
@@ -421,14 +572,37 @@ fun <T> AndroidBenchmarkRule.toggleStateBenchmarkDraw(caseFactory: () -> T)
  *   recompositions after the state toggle. By default, this is true to enforce correctness in the
  *   benchmark, but for components where the state toggle might not always cause a recomposition
  *   this can be turned off.
+ * @param invalidateLayoutCache Forces cache invalidation across iterations by overriding
+ *   measurement specs. By default, this is true to enforce cold-cache consistency across the
+ *   benchmark runs. Set to `false` ONLY if forced size modifications break component's internal
+ *   logic. Examples include LazyLists attempting to measure deactivated pooled nodes, or
+ *   animation-dependent components that timeout in infinite layout loops when external constraints
+ *   constantly override their fixed internal animation targets.
  */
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
     caseFactory: () -> T,
     assertOneRecomposition: Boolean = true,
     requireRecomposition: Boolean = true,
+    invalidateLayoutCache: Boolean = true,
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        runOnUiThread { doFramesUntilNoChangesPending() }
+        val measureSpecs = if (invalidateLayoutCache) IntArray(4) else IntArray(0)
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+
+            if (invalidateLayoutCache) {
+                val width = measuredWidth
+                val height = measuredHeight
+
+                measureSpecs[0] = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+                measureSpecs[1] = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+                measureSpecs[2] =
+                    View.MeasureSpec.makeMeasureSpec(width + 10, View.MeasureSpec.EXACTLY)
+                measureSpecs[3] =
+                    View.MeasureSpec.makeMeasureSpec(height + 10, View.MeasureSpec.EXACTLY)
+            }
+        }
+
         measureRepeatedOnUiThread {
             getTestCase().toggleState()
             if (requireRecomposition) {
@@ -439,12 +613,22 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             if (assertOneRecomposition) {
                 assertNoPendingChanges()
             }
-            measure()
+            if (invalidateLayoutCache) {
+                measureWithSpec(measureSpecs[0], measureSpecs[1])
+            } else {
+                measure()
+            }
             layout()
             runWithMeasurementDisabled {
                 drawPrepare()
                 draw()
                 drawFinish()
+                if (invalidateLayoutCache) {
+                    // Re-measure and layout with different specs to invalidate layout caches for
+                    // next iteration.
+                    measureWithSpec(measureSpecs[2], measureSpecs[3])
+                    layout()
+                }
             }
         }
     }
@@ -461,25 +645,35 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
  *   recompositions after the state toggle. By default this is true to enforce correctness in the
  *   benchmark, but for components where the state toggle might not always cause a recomposition
  *   this can be turned off.
+ * @param invalidateLayoutCache Forces cache invalidation across iterations by overriding
+ *   measurement specs. By default, this is true to enforce cold-cache consistency across the
+ *   benchmark runs. Set to `false` ONLY if forced size modifications break component's internal
+ *   logic. Examples include LazyLists attempting to measure deactivated pooled nodes, or
+ *   animation-dependent components that timeout in infinite layout loops when external constraints
+ *   constantly override their fixed internal animation targets.
  */
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkComposeMeasureLayoutDraw(
     caseFactory: () -> T,
     assertOneRecomposition: Boolean = true,
     requireRecomposition: Boolean = true,
+    invalidateLayoutCache: Boolean = true,
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        val measureSpecs = IntArray(4)
+        val measureSpecs = if (invalidateLayoutCache) IntArray(4) else IntArray(0)
         runOnUiThread {
             doFramesUntilNoChangesPending()
 
-            val width = measuredWidth
-            val height = measuredHeight
+            if (invalidateLayoutCache) {
+                val width = measuredWidth
+                val height = measuredHeight
 
-            measureSpecs[0] = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
-            measureSpecs[1] = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
-            measureSpecs[2] = View.MeasureSpec.makeMeasureSpec(width + 10, View.MeasureSpec.EXACTLY)
-            measureSpecs[3] =
-                View.MeasureSpec.makeMeasureSpec(height + 10, View.MeasureSpec.EXACTLY)
+                measureSpecs[0] = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+                measureSpecs[1] = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+                measureSpecs[2] =
+                    View.MeasureSpec.makeMeasureSpec(width + 10, View.MeasureSpec.EXACTLY)
+                measureSpecs[3] =
+                    View.MeasureSpec.makeMeasureSpec(height + 10, View.MeasureSpec.EXACTLY)
+            }
         }
 
         measureRepeatedOnUiThread {
@@ -492,15 +686,22 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkComposeMeasureLayoutDraw(
             if (assertOneRecomposition) {
                 assertNoPendingChanges()
             }
-            measureWithSpec(measureSpecs[0], measureSpecs[1])
+            if (invalidateLayoutCache) {
+                measureWithSpec(measureSpecs[0], measureSpecs[1])
+            } else {
+                measure()
+            }
             layout()
             drawPrepare()
             draw()
             runWithMeasurementDisabled {
                 drawFinish()
-                // re measure with different specs to invalidate caches b/508509475
-                measureWithSpec(measureSpecs[2], measureSpecs[3])
-                layout()
+                if (invalidateLayoutCache) {
+                    // Re-measure and layout with different specs to invalidate layout caches for
+                    // next iteration.
+                    measureWithSpec(measureSpecs[2], measureSpecs[3])
+                    layout()
+                }
             }
         }
     }
@@ -554,13 +755,35 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkCompose(
  *   after the first recomposition. By default this is true to enforce correctness in the benchmark,
  *   but for components that have animations after being recomposed this can be turned off to
  *   benchmark just the first remeasure and relayout without any pending animations.
+ * @param invalidateLayoutCache Forces cache invalidation across iterations by overriding
+ *   measurement specs. By default, this is true to enforce cold-cache consistency across the
+ *   benchmark runs. Set to `false` ONLY if forced size modifications break component's internal
+ *   logic. Examples include LazyLists attempting to measure deactivated pooled nodes, or
+ *   animation-dependent components that timeout in infinite layout loops when external constraints
+ *   constantly override their fixed internal animation targets.
  */
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasureLayout(
     caseFactory: () -> T,
     assertOneRecomposition: Boolean = true,
+    invalidateLayoutCache: Boolean = true,
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
-        runOnUiThread { doFramesUntilNoChangesPending() }
+        val measureSpecs = if (invalidateLayoutCache) IntArray(4) else IntArray(0)
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+
+            if (invalidateLayoutCache) {
+                val width = measuredWidth
+                val height = measuredHeight
+
+                measureSpecs[0] = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+                measureSpecs[1] = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+                measureSpecs[2] =
+                    View.MeasureSpec.makeMeasureSpec(width + 10, View.MeasureSpec.EXACTLY)
+                measureSpecs[3] =
+                    View.MeasureSpec.makeMeasureSpec(height + 10, View.MeasureSpec.EXACTLY)
+            }
+        }
 
         measureRepeatedOnUiThread {
             runWithMeasurementDisabled {
@@ -569,9 +792,22 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasureLayout(
                     assertNoPendingChanges()
                 }
             }
-            measure()
+            if (invalidateLayoutCache) {
+                measureWithSpec(measureSpecs[0], measureSpecs[1])
+            } else {
+                measure()
+            }
+            layout()
             if (assertOneRecomposition) {
                 assertNoPendingChanges()
+            }
+            runWithMeasurementDisabled {
+                if (invalidateLayoutCache) {
+                    // Re-measure and layout with different specs to invalidate layout caches for
+                    // next iteration.
+                    measureWithSpec(measureSpecs[2], measureSpecs[3])
+                    layout()
+                }
             }
         }
     }
