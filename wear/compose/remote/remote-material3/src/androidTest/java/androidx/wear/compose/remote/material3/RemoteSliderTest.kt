@@ -26,6 +26,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteSliderCustomColors
 import androidx.wear.compose.remote.material3.previews.RemoteSliderDefault
 import androidx.wear.compose.remote.material3.previews.RemoteSliderDisabled
+import androidx.wear.compose.remote.material3.previews.RemoteSliderMaxValue
 import androidx.wear.compose.remote.material3.previews.RemoteSliderNotSegmented
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
@@ -86,6 +87,16 @@ class RemoteSliderTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteSliderCustomColors() }
+        }
+    }
+
+    @Test
+    fun remote_slider_max_value() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteSliderMaxValue() }
         }
     }
 }
