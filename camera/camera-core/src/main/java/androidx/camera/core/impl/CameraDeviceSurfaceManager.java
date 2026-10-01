@@ -93,14 +93,14 @@ public interface CameraDeviceSurfaceManager extends InternalCameraPresenceListen
      * @param isFeatureComboInvocation           whether a code flow invoked through feature combo
      *                                           APIs (e.g. {@link
      *                                           SessionConfig#requiredFeatureGroup}).
-     * @param findMaxSupportedFrameRate          if {@code true}, the maximum supported frame
-     *                                           rate will be calculated and returned in
-     *                              {@link SurfaceStreamSpecQueryResult#getMaxSupportedFrameRate()}
+     * @param findSupportedFrameRateRanges       if {@code true}, the supported frame rate ranges
+     *                                           will be calculated and returned in
+     *                  {@link SurfaceStreamSpecQueryResult#getSupportedFrameRateRanges()}
      *                                           and the target frame rate settings in use cases
      *                                           will be ignored while calculating the stream spec.
      *                                           If {@code false}, the value of
-     *                               {@link SurfaceStreamSpecQueryResult#getMaxSupportedFrameRate()}
-     *                                           is undetermined.
+     *                  {@link SurfaceStreamSpecQueryResult#getSupportedFrameRateRanges()}
+     *                                           is {@code null}.
      * @return a {@link SurfaceStreamSpecQueryResult}.
      * @throws IllegalStateException    if not initialized
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
@@ -116,5 +116,5 @@ public interface CameraDeviceSurfaceManager extends InternalCameraPresenceListen
             @NonNull VideoStabilization videoStabilization,
             boolean hasVideoCapture,
             boolean isFeatureComboInvocation,
-            boolean findMaxSupportedFrameRate);
+            boolean findSupportedFrameRateRanges);
 }

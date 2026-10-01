@@ -540,7 +540,7 @@ package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) androidx
   public final class FakeStreamSpecsCalculator {
     ctor public FakeStreamSpecsCalculator();
     method public void addSupportedStreamSpecs(androidx.camera.testing.impl.FakeStreamSpecsCalculator.ExtendedStreamSpec... streamSpecs);
-    method public androidx.camera.core.internal.StreamSpecQueryResult calculateSuggestedStreamSpecs(int cameraMode, androidx.camera.core.impl.CameraInfoInternal cameraInfoInternal, java.util.List<? extends androidx.camera.core.UseCase> newUseCases, optional java.util.List<? extends androidx.camera.core.UseCase> attachedUseCases, optional androidx.camera.core.impl.CameraConfig cameraConfig, optional int sessionType, optional android.util.Range<java.lang.Integer> targetFrameRate, optional boolean isFeatureComboInvocation, optional boolean findMaxSupportedFrameRate);
+    method public androidx.camera.core.internal.StreamSpecQueryResult calculateSuggestedStreamSpecs(int cameraMode, androidx.camera.core.impl.CameraInfoInternal cameraInfoInternal, java.util.List<? extends androidx.camera.core.UseCase> newUseCases, optional java.util.List<? extends androidx.camera.core.UseCase> attachedUseCases, optional androidx.camera.core.impl.CameraConfig cameraConfig, optional int sessionType, optional android.util.Range<java.lang.Integer> targetFrameRate, optional boolean isFeatureComboInvocation, optional boolean findSupportedFrameRateRanges);
     field public static final androidx.camera.testing.impl.FakeStreamSpecsCalculator.Companion Companion;
     field public static final androidx.camera.core.internal.StreamSpecsCalculator NO_OP_STREAM_SPECS_CALCULATOR;
   }
@@ -1028,7 +1028,6 @@ package androidx.camera.testing.impl.fakes {
     method public void setValidSurfaceCombos(java.util.Set<java.util.List<java.lang.Integer!>!>);
     method public androidx.camera.core.impl.SurfaceConfig transformSurfaceConfig(@androidx.camera.core.impl.CameraMode.Mode int, String, int, android.util.Size, androidx.camera.core.impl.StreamUseCase);
     field public static final android.util.Size! MAX_OUTPUT_SIZE;
-    field public static final int MAX_SUPPORTED_FRAME_RATE = 60; // 0x3c
   }
 
   @RequiresApi(31) public final class FakeCameraExtensionCapabilities implements androidx.camera.core.impl.CameraExtensionCapabilities {

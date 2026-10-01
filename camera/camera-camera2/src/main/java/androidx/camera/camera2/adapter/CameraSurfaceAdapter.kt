@@ -237,7 +237,7 @@ public class CameraSurfaceAdapter(
         videoStabilization: VideoStabilization,
         hasVideoCapture: Boolean,
         isFeatureComboInvocation: Boolean,
-        findMaxSupportedFrameRate: Boolean,
+        findSupportedFrameRateRanges: Boolean,
     ): SurfaceStreamSpecQueryResult {
 
         Preconditions.checkArgument(
@@ -258,7 +258,7 @@ public class CameraSurfaceAdapter(
             videoStabilization,
             hasVideoCapture,
             isFeatureComboInvocation,
-            findMaxSupportedFrameRate,
+            findSupportedFrameRateRanges,
         )
     }
 }
