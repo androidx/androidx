@@ -128,6 +128,10 @@ constructor(context: Context, @StyleRes themeResId: Int = 0) :
         onBackPressedInput.backCompleted()
     }
 
+    override fun getWindow(): Window {
+        return super.getWindow()!!
+    }
+
     override fun setContentView(layoutResID: Int) {
         initializeViewTreeOwners()
         super.setContentView(layoutResID)
