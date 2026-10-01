@@ -53,6 +53,7 @@ class HistogramLatencyAggregatorTest {
     fun histogramLatencyAggregator_reportsOneMoreBucketThanTheNumberOfBoundaries() =
         testScope.runTest {
             var numBuckets = -1
+            @Suppress("UNUSED_VARIABLE")
             val unused =
                 HistogramLatencyAggregator.create(
                     window = 10.seconds,
@@ -73,6 +74,7 @@ class HistogramLatencyAggregatorTest {
     fun histogramLatencyAggregator_reportsTwoBucketsWhenSetUpWithASingleBoundary() =
         testScope.runTest {
             var numBuckets = -1
+            @Suppress("UNUSED_VARIABLE")
             val unused =
                 HistogramLatencyAggregator.create(
                     window = 10.seconds,
@@ -92,6 +94,7 @@ class HistogramLatencyAggregatorTest {
     @Test
     fun histogramLatencyAggregator_reportsOneBucketWhenSetUpWithNoBoundaries() = testScope.runTest {
         var numBuckets = -1
+        @Suppress("UNUSED_VARIABLE")
         val unused =
             HistogramLatencyAggregator.create(
                 window = 10.seconds,

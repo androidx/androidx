@@ -423,6 +423,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     klibDir.dir("org.jetbrains.kotlin.native.platform.Metal"),
                     klibDir.dir("org.jetbrains.kotlin.native.platform.posix"),
                     klibDir.dir("org.jetbrains.kotlin.native.platform.UIKit"),
+                    klibDir.dir("org.jetbrains.kotlin.native.platform.CFCGTypes"),
                 )
             }
         }

@@ -23,14 +23,13 @@ import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkAnimationApi
-import androidx.ink.brush.TextureAnimationProgressHelper
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.populateMatrix
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
-import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
+import androidx.ink.strokes.StrokePaintAnimationClock
 
 /**
  * Renders Ink objects using [CanvasMeshRenderer], but falls back to using [CanvasPathRenderer] when
@@ -105,13 +104,13 @@ internal class CanvasStrokeUnifiedRenderer(
                 ) {
                     val paint = coat.paintPreferences[paintPreferenceIndex]
                     val paintAnimationProgress =
-                        StrokePaintAnimationClock.calculateCurrentPhaseForPaint(
+                        StrokePaintAnimationClock.calculateCurrentAnimationPhaseForBrushPaint(
                             clockStateMillis = animatorClockStateMillis,
-                            strokeAnimationLoopDurationMillis =
+                            brushFamilyLoopDurationMillis =
                                 stroke.brush.family.paintAnimationLoopDurationMillis,
-                            paintAnimationLoopDurationMillis =
-                                TextureAnimationProgressHelper.getAnimationDurationMillis(paint),
-                            strokeBasePhase = stroke.inputs.getBaseAnimationPhase(),
+                            brushPaintLoopDurationMillis = paint.paintAnimationLoopDurationMillis,
+                            strokeBasePaintAnimationPhase =
+                                stroke.inputs.getBasePaintAnimationPhase(),
                         )
                     lazyRenderer.value.draw(
                         canvas = canvas,
@@ -183,13 +182,13 @@ internal class CanvasStrokeUnifiedRenderer(
                 ) {
                     val paint = coat.paintPreferences[paintPreferenceIndex]
                     val paintAnimationProgress =
-                        StrokePaintAnimationClock.calculateCurrentPhaseForPaint(
+                        StrokePaintAnimationClock.calculateCurrentAnimationPhaseForBrushPaint(
                             clockStateMillis = animatorClockStateMillis,
-                            strokeAnimationLoopDurationMillis =
+                            brushFamilyLoopDurationMillis =
                                 brush.family.paintAnimationLoopDurationMillis,
-                            paintAnimationLoopDurationMillis =
-                                TextureAnimationProgressHelper.getAnimationDurationMillis(paint),
-                            strokeBasePhase = inProgressStroke.getBaseAnimationPhase(),
+                            brushPaintLoopDurationMillis = paint.paintAnimationLoopDurationMillis,
+                            strokeBasePaintAnimationPhase =
+                                inProgressStroke.getBasePaintAnimationPhase(),
                         )
                     lazyRenderer.value.draw(
                         canvas = canvas,

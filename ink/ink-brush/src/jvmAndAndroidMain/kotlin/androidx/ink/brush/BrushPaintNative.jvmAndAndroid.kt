@@ -53,6 +53,8 @@ actual internal object BrushPaintNative {
 
     @UsedByNative actual external fun getSelfOverlapInt(nativePointer: Long): Int
 
+    @UsedByNative actual external fun getPaintAnimationLoopDurationMillis(nativePointer: Long): Long
+
     @UsedByNative
     actual external fun isCompatibleWithMeshFormat(
         nativePointer: Long,

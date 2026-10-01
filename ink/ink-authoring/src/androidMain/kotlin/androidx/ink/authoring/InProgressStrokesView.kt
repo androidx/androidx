@@ -32,12 +32,12 @@ import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
-import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
 import androidx.ink.rendering.android.view.StrokePaintAnimator
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInput
 import androidx.ink.strokes.StrokeInputBatch
+import androidx.ink.strokes.StrokePaintAnimationClock
 import androidx.test.espresso.idling.CountingIdlingResource
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit

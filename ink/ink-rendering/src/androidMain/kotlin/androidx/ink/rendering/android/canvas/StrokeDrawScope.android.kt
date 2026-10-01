@@ -19,6 +19,7 @@ package androidx.ink.rendering.android.canvas
 import android.graphics.Canvas
 import android.graphics.Matrix
 import androidx.annotation.RestrictTo
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.strokes.Stroke
 
@@ -68,6 +69,7 @@ public class StrokeDrawScope private constructor(private val renderer: CanvasStr
      */
     private val initialCanvasToScreenTransform = Matrix()
     private lateinit var canvas: Canvas
+    private var animatorClockStateMillis: Long = 0L
 
     /**
      * Pre-allocated total transform from drawn object local coordinates to screen coordinates
@@ -78,8 +80,13 @@ public class StrokeDrawScope private constructor(private val renderer: CanvasStr
     /** Overwrite this object for reuse. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @InkInternalOnlyApi
-    public fun onDrawStart(canvasToScreenTransform: Matrix, newCanvas: Canvas) {
+    public fun onDrawStart(
+        canvasToScreenTransform: Matrix,
+        newCanvas: Canvas,
+        newAnimatorClockStateMillis: Long,
+    ) {
         canvas = newCanvas
+        animatorClockStateMillis = newAnimatorClockStateMillis
         with(initialCanvasToScreenTransform) {
             // (Canvas -> Initial)
             @Suppress("DEPRECATION") canvas.getMatrix(this)
@@ -91,6 +98,7 @@ public class StrokeDrawScope private constructor(private val renderer: CanvasStr
     }
 
     /** Draw the given [Stroke] to the [Canvas] represented by this scope. */
+    @OptIn(ExperimentalInkAnimationApi::class)
     public fun drawStroke(stroke: Stroke) {
         // First, calculate (Local -> Screen). That is the transform that the renderer needs.
         with(localToScreenTransform) {
@@ -99,7 +107,7 @@ public class StrokeDrawScope private constructor(private val renderer: CanvasStr
             // (Local -> Screen) = (Initial -> Screen) * (Local -> Initial)
             postConcat(initialCanvasToScreenTransform)
         }
-        renderer.draw(canvas, stroke, localToScreenTransform)
+        renderer.draw(canvas, stroke, localToScreenTransform, animatorClockStateMillis)
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi

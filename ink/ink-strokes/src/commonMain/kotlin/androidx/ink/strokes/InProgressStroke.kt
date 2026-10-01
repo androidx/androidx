@@ -104,8 +104,8 @@ public class InProgressStroke private constructor(nativeAlloc: () -> Long) {
 
     /**
      * Clears and starts a new stroke with the given [brush], using the given per-stroke seed value
-     * to help seed the brush's noise behaviors, if any, and using the given base animation phase
-     * for any animated brush paints.
+     * to help seed the brush's noise behaviors, if any, and using the given base paint animation
+     * phase (in `[0, 1)`, wrapped modulo 1 if outside that range) for any animated brush paints.
      *
      * This includes clearing or resetting any existing inputs, mesh data, and updated region. This
      * method must be called at least once after construction before making any calls to
@@ -113,12 +113,16 @@ public class InProgressStroke private constructor(nativeAlloc: () -> Long) {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
-    public fun start(brush: Brush, noiseSeed: Int, baseAnimationPhase: Float) {
+    public fun start(
+        brush: Brush,
+        noiseSeed: Int,
+        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) basePaintAnimationPhase: Float,
+    ) {
         InProgressStrokeNative.start(
             nativePointer,
             brush.nativePointer,
             noiseSeed,
-            baseAnimationPhase,
+            basePaintAnimationPhase,
         )
         this.brush = brush
         version++
@@ -319,8 +323,8 @@ public class InProgressStroke private constructor(nativeAlloc: () -> Long) {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
-    public fun getBaseAnimationPhase(): Float =
-        InProgressStrokeNative.getBaseAnimationPhase(nativePointer)
+    public fun getBasePaintAnimationPhase(): Float =
+        InProgressStrokeNative.getBasePaintAnimationPhase(nativePointer)
 
     /**
      * Returns the number of `BrushCoats` for the current brush, or zero if [start] has not been
@@ -542,7 +546,7 @@ internal expect object InProgressStrokeNative {
         nativePointer: Long,
         brushNativePointer: Long,
         noiseSeed: Int,
-        baseAnimationPhase: Float,
+        basePaintAnimationPhase: Float,
     )
 
     fun enqueueInputs(
@@ -580,7 +584,7 @@ internal expect object InProgressStrokeNative {
 
     fun getAndOverwriteInput(nativePointer: Long, input: StrokeInput, index: Int)
 
-    fun getBaseAnimationPhase(nativePointer: Long): Float
+    fun getBasePaintAnimationPhase(nativePointer: Long): Float
 
     fun getBrushCoatCount(nativePointer: Long): Int
 

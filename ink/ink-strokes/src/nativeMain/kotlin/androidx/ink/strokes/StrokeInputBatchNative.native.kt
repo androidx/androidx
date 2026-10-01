@@ -16,23 +16,25 @@
 
 package androidx.ink.strokes
 
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_appendBatch
 import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_appendSingle
 import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_clear
 import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_newCopy
-import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_setBaseAnimationPhase
+import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_setBasePaintAnimationPhase
 import androidx.ink.nativeloader.cinterop.MutableStrokeInputBatchNative_setNoiseSeed
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_create
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_free
-import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_getBaseAnimationPhase
+import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_getBasePaintAnimationPhase
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_getDurationMillis
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_getNoiseSeed
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_getSize
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_getStrokeInput
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_getStrokeUnitLengthCm
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_getToolType
+import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_hasBarrelTwist
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_hasOrientation
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_hasPressure
 import androidx.ink.nativeloader.cinterop.StrokeInputBatchNative_hasStrokeUnitLength
@@ -41,7 +43,11 @@ import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 
-@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
+@OptIn(
+    ExperimentalForeignApi::class,
+    InkInternalOnlyApi::class,
+    ExperimentalInkBarrelTwistApi::class,
+)
 actual internal object StrokeInputBatchNative {
     actual fun create(): Long = StrokeInputBatchNative_create()
 
@@ -71,11 +77,14 @@ actual internal object StrokeInputBatchNative {
     actual fun hasOrientation(nativePointer: Long): Boolean =
         StrokeInputBatchNative_hasOrientation(nativePointer)
 
+    actual fun hasBarrelTwist(nativePointer: Long): Boolean =
+        StrokeInputBatchNative_hasBarrelTwist(nativePointer)
+
     actual fun getNoiseSeed(nativePointer: Long): Int =
         StrokeInputBatchNative_getNoiseSeed(nativePointer)
 
-    actual fun getBaseAnimationPhase(nativePointer: Long): Float =
-        StrokeInputBatchNative_getBaseAnimationPhase(nativePointer)
+    actual fun getBasePaintAnimationPhase(nativePointer: Long): Float =
+        StrokeInputBatchNative_getBasePaintAnimationPhase(nativePointer)
 
     actual fun populate(nativePointer: Long, index: Int, input: StrokeInput) {
         StrokeInputBatchNative_getStrokeInput(nativePointer, index).useContents {
@@ -88,6 +97,7 @@ actual internal object StrokeInputBatchNative {
                 pressure = pressure,
                 tiltRadians = tilt_radians,
                 orientationRadians = orientation_radians,
+                barrelTwistRadians = barrel_twist_radians,
             )
         }
     }
@@ -109,6 +119,7 @@ actual internal object MutableStrokeInputBatchNative {
         pressure: Float,
         tilt: Float,
         orientation: Float,
+        barrelTwist: Float,
     ): Boolean =
         MutableStrokeInputBatchNative_appendSingle(
             jni_env_pass_through = null,
@@ -121,6 +132,7 @@ actual internal object MutableStrokeInputBatchNative {
             pressure,
             tilt,
             orientation,
+            barrelTwist,
             throwForNonOkStatusCallback,
         )
 
@@ -139,7 +151,7 @@ actual internal object MutableStrokeInputBatchNative {
         MutableStrokeInputBatchNative_setNoiseSeed(nativePointer, seed)
     }
 
-    actual fun setBaseAnimationPhase(nativePointer: Long, phase: Float) {
-        MutableStrokeInputBatchNative_setBaseAnimationPhase(nativePointer, phase)
+    actual fun setBasePaintAnimationPhase(nativePointer: Long, phase: Float) {
+        MutableStrokeInputBatchNative_setBasePaintAnimationPhase(nativePointer, phase)
     }
 }

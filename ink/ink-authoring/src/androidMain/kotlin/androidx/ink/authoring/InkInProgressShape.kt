@@ -22,10 +22,10 @@ import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.geometry.Box
 import androidx.ink.geometry.BoxAccumulator
-import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInputBatch
+import androidx.ink.strokes.StrokePaintAnimationClock
 import kotlin.random.Random
 
 /**
@@ -36,7 +36,7 @@ import kotlin.random.Random
 @OptIn(ExperimentalInkAnimationApi::class)
 public class InkInProgressShape
 @ExperimentalInkAnimationApi
-public constructor(private val animationClock: StrokePaintAnimationClock) :
+public constructor(private val strokePaintAnimationClock: StrokePaintAnimationClock) :
     InProgressShape<Brush, Stroke> {
 
     public constructor() : this(StrokePaintAnimationClock.STOPPED_CLOCK)
@@ -82,18 +82,18 @@ public constructor(private val animationClock: StrokePaintAnimationClock) :
         if (!shouldPreserveNoiseSeed) {
             this.noiseSeed = Random.Default.nextInt()
         }
-        val paintAnimationLoopDurationMillis = shapeSpec.family.paintAnimationLoopDurationMillis
-        val baseAnimationPhase =
-            StrokePaintAnimationClock.calculateBasePhaseForNewStroke(
-                clockStateMillis = animationClock.getClockStateMillis(),
-                animationLoopDurationMillis = paintAnimationLoopDurationMillis,
+        val brushFamilyLoopDurationMillis = shapeSpec.family.paintAnimationLoopDurationMillis
+        val basePaintAnimationPhase =
+            StrokePaintAnimationClock.calculateBasePaintAnimationPhaseForNewStroke(
+                clockStateMillis = strokePaintAnimationClock.getClockStateMillis(),
+                brushFamilyLoopDurationMillis = brushFamilyLoopDurationMillis,
             )
         inProgressStroke.start(
             brush = shapeSpec,
             noiseSeed = noiseSeed,
-            baseAnimationPhase = baseAnimationPhase,
+            basePaintAnimationPhase = basePaintAnimationPhase,
         )
-        hasBrushPaintAnimation = paintAnimationLoopDurationMillis > 0L
+        hasBrushPaintAnimation = brushFamilyLoopDurationMillis > 0L
         hasBrushTipAnimation = inProgressStroke.changesWithTime()
     }
 

@@ -19,7 +19,6 @@ package androidx.ink.rendering.metal
 import androidx.ink.brush.ExperimentalInkCrossPlatformRenderingApi
 import androidx.ink.brush.TextureImageStore
 import androidx.ink.geometry.AffineTransform
-import androidx.ink.geometry.ImmutableAffineTransform
 import androidx.ink.rendering.test.AbstractStrokeRendererTest
 import androidx.ink.storage.decode
 import androidx.ink.strokes.ImmutableStrokeInputBatch
@@ -76,9 +75,10 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
     private fun findPathForResource(name: String, extension: String): String =
         checkNotNull(
             // Resources are packed into bundles differently across different build systems, so look
-            // at all bundles and use the first one that has the file being looked up. This looks
-            // for
-            // the file in the root directory of each bundle.
+            // at
+            // all bundles and use the first one that has the file being looked up. This looks for
+            // the
+            // file in the root directory of each bundle.
             @Suppress("UNCHECKED_CAST") // Kotlin doesn't understand the type of NSBundle.allBundles
             (NSBundle.allBundles as List<NSBundle>).firstNotNullOfOrNull {
                 it.pathForResource(name, ofType = extension)
@@ -91,23 +91,15 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
         checkNotNull(MTLCreateSystemDefaultDevice()) { "Could not create Metal device." }
     private val commandQueue =
         checkNotNull(device.newCommandQueue()) { "Could not create Metal command queue." }
-    private val checkerboardUIImage: UIImage? by lazy {
-        findPathForResource("checkerboard", "png")?.let { UIImage(contentsOfFile = it) }
+    private val checkerboardUIImage: UIImage by lazy {
+        UIImage(contentsOfFile = findPathForResource("checkerboard", "png"))
     }
-    private val textureStore = TextureImageStore { id ->
+    private val defaultTextureStore = TextureImageStore { id ->
         when (id) {
             "checkerboard" -> checkerboardUIImage
             else -> null
         }
     }
-    private val renderer =
-        MetalRenderer(
-            device,
-            MTLPixelFormatBGRA8Unorm_sRGB,
-            MTLPixelFormatDepth32Float_Stencil8,
-            sampleCount = null,
-            textureImageStore = textureStore,
-        )
 
     fun MTLTextureProtocol.toImage(): UIImage {
         val ciImage =
@@ -130,21 +122,28 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
         }
     }
 
-    fun screenCoordsToNormalized(width: Int, height: Int) =
-        ImmutableAffineTransform(
-            m00 = 2f / width.toFloat(), // Scale x from [0, width] to [0, 2]
-            m10 = 0f,
-            m20 = -1f, // Translate x from [0, 2] to [-1, 1]
-            m01 = 0f,
-            m11 = -2f / height.toFloat(), // Scale y from [0, height] to [-2, 0]
-            m21 = 1f, // Translate y from [-2, 0] to [1, -1]
-        )
+    fun renderToImage(
+        width: Int,
+        height: Int,
+        block: (MetalRenderer, MTLRenderCommandEncoderProtocol) -> Unit,
+    ): UIImage {
+        return renderToImage(width, height, defaultTextureStore, block)
+    }
 
     fun renderToImage(
         width: Int,
         height: Int,
-        block: (MTLRenderCommandEncoderProtocol) -> Unit,
+        textureStore: TextureImageStore,
+        block: (MetalRenderer, MTLRenderCommandEncoderProtocol) -> Unit,
     ): UIImage {
+        val renderer =
+            MetalRenderer(
+                device,
+                MTLPixelFormatBGRA8Unorm_sRGB,
+                MTLPixelFormatDepth32Float_Stencil8,
+                sampleCount = null,
+                textureImageStore = textureStore,
+            )
         val colorTexture =
             checkNotNull(
                 device.newTextureWithDescriptor(
@@ -199,7 +198,7 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
         val renderEncoder =
             checkNotNull(commandBuffer.renderCommandEncoderWithDescriptor(renderPassDescriptor))
 
-        block(renderEncoder)
+        block(renderer, renderEncoder)
 
         renderEncoder.endEncoding()
         commandBuffer.commit()
@@ -209,15 +208,52 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
     }
 
     private val emptyImageData =
-        UIImagePNGRepresentation(renderToImage(width = 200, height = 200) {})!!
+        UIImagePNGRepresentation(
+            renderToImage(width = 200, height = 200) { renderer, renderEncoder ->
+                // No-op.
+            }
+        )!!
 
     @Test
     fun renderToImage_comparisonTest() {
         // Verifies that comparing the results of renderToImage works as expected.
         val otherEmptyImageData =
-            UIImagePNGRepresentation(renderToImage(width = 200, height = 200) {})
+            UIImagePNGRepresentation(
+                renderToImage(width = 200, height = 200) { renderer, renderEncoder ->
+                    // No-op.
+                }
+            )
         assertThat(emptyImageData).isEqualTo(otherEmptyImageData)
         assertThat(emptyImageData).isNotSameInstanceAs(otherEmptyImageData)
+    }
+
+    @Test
+    fun textureStore_containsUiImageWrappingCiImage() {
+        val testCase = simpleStrokeTexturedTestCase
+        val params = computeRenderParams(testCase)
+        val uiImageWrappingCiImage = UIImage(CIImage(checkerboardUIImage?.CGImage!!))
+        assertThat(uiImageWrappingCiImage.CGImage).isNull()
+        val textureStore = TextureImageStore { id ->
+            when (id) {
+                "checkerboard" -> uiImageWrappingCiImage
+                else -> null
+            }
+        }
+        val image =
+            renderToImage(
+                width = params.width,
+                height = params.height,
+                textureStore = textureStore,
+            ) { renderer, renderEncoder ->
+                renderer.draw(
+                    renderEncoder,
+                    testCase.dryStroke,
+                    params.width.toDouble(),
+                    params.height.toDouble(),
+                    params.transform,
+                )
+            }
+        assertImage(image, "stroke_with_texture_from_ci_image")
     }
 
     override fun renderAndCompareToGolden(
@@ -228,12 +264,13 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
         goldenName: String,
     ) {
         val image =
-            renderToImage(width = imageWidth, height = imageHeight) { renderEncoder ->
+            renderToImage(width = imageWidth, height = imageHeight) { renderer, renderEncoder ->
                 renderer.draw(
                     renderEncoder,
                     stroke,
-                    viewTransform = transform,
-                    projectionTransform = screenCoordsToNormalized(imageWidth, imageHeight),
+                    imageWidth.toDouble(),
+                    imageHeight.toDouble(),
+                    transform,
                 )
             }
         assertImage(image, goldenName)
@@ -247,12 +284,13 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
         goldenName: String,
     ) {
         val image =
-            renderToImage(width = imageWidth, height = imageHeight) { renderEncoder ->
+            renderToImage(width = imageWidth, height = imageHeight) { renderer, renderEncoder ->
                 renderer.draw(
                     renderEncoder,
                     inProgressStroke,
-                    viewTransform = transform,
-                    projectionTransform = screenCoordsToNormalized(imageWidth, imageHeight),
+                    imageWidth.toDouble(),
+                    imageHeight.toDouble(),
+                    transform,
                 )
             }
         assertImage(image, goldenName)

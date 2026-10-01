@@ -16,6 +16,7 @@
 
 package androidx.ink.storage
 
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.strokes.MutableStrokeInputBatch
 import androidx.ink.strokes.StrokeInput
@@ -31,7 +32,7 @@ import okio.GzipSink
 import okio.buffer
 import okio.use
 
-@OptIn(ExperimentalEncodingApi::class)
+@OptIn(ExperimentalEncodingApi::class, ExperimentalInkBarrelTwistApi::class)
 class StrokeInputBatchExtensionsTest {
     private val testBatch =
         MutableStrokeInputBatch()
@@ -44,6 +45,7 @@ class StrokeInputBatchExtensionsTest {
                     pressure = 0.1f,
                     tiltRadians = 0.2f,
                     orientationRadians = 0.3f,
+                    barrelTwistRadians = 0.4f,
                 )
             )
             .add(
@@ -55,6 +57,7 @@ class StrokeInputBatchExtensionsTest {
                     pressure = 0.7f,
                     tiltRadians = 0.8f,
                     orientationRadians = 0.9f,
+                    barrelTwistRadians = 1.0f,
                 )
             )
             .toImmutable()
@@ -104,6 +107,8 @@ class StrokeInputBatchExtensionsTest {
             assertThat(abs(s1.pressure - s2.pressure)).isLessThan(tolerance)
             assertThat(abs(s1.tiltRadians - s2.tiltRadians)).isLessThan(tolerance)
             assertThat(abs(s1.orientationRadians - s2.orientationRadians)).isLessThan(tolerance)
+            assertThat(abs(s1.getBarrelTwistRadians() - s2.getBarrelTwistRadians()))
+                .isLessThan(tolerance)
         }
     }
 

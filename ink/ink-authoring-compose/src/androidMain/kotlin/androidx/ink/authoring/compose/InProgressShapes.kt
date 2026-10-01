@@ -475,9 +475,9 @@ private fun PointerEvent.obtainLocalMotionEvent(
     val pointerCoords = obtainPointerCoordsArray(pointerCount)
 
     for (pointerIndex in 0 until pointerCount) {
-        // Copy most of the data, including pressure/tilt/orientation, from the nonLocalMotionEvent,
-        // but
-        // then replace the position data with local positions from PointerInputChange below.
+        // Copy most of the data, including pressure/tilt/orientation/twist, from the
+        // nonLocalMotionEvent, but then replace the position data with local positions from
+        // PointerInputChange below.
         nonLocalMotionEvent.getPointerProperties(pointerIndex, pointerProperties[pointerIndex])
         nonLocalMotionEvent.getPointerCoords(pointerIndex, pointerCoords[pointerIndex])
 
@@ -531,10 +531,9 @@ private fun PointerEvent.obtainLocalMotionEvent(
         // Re-use same array of PointerCoords - copied into native memory during obtain and
         // addBatch.
         for (pointerIndex in 0 until pointerCount) {
-            // Copy most of the data, including pressure/tilt/orientation, from the
-            // nonLocalMotionEvent,
-            // but then replace the position data with local positions from PointerInputChange
-            // below.
+            // Copy most of the data, including pressure/tilt/orientation/twist, from the
+            // nonLocalMotionEvent, but then replace the position data with local positions from
+            // PointerInputChange below.
             nonLocalMotionEvent.getHistoricalPointerCoords(
                 pointerIndex,
                 historicalIndex,
@@ -552,8 +551,9 @@ private fun PointerEvent.obtainLocalMotionEvent(
             pointerCoords[pointerIndex].apply {
                 // The PointerCoords already is full of data from nonLocalMotionEvent, including
                 // pressure,
-                // tilt, and orientation, so only the position needs to be updated to be in local
-                // coordinates.
+                // tilt, orientation, and barrel twist, so only the position needs to be updated to
+                // be in
+                // local coordinates.
                 x = historicalChange.position.x
                 y = historicalChange.position.y
             }

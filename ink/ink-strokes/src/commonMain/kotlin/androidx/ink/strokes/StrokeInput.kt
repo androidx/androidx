@@ -17,7 +17,9 @@
 package androidx.ink.strokes
 
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.UsedByNative
@@ -27,7 +29,7 @@ import kotlin.jvm.JvmStatic
 
 /**
  * A single input specifying position, time since the start of the stream, and optionally
- * [pressure], [tiltRadians], and [orientationRadians].
+ * [pressure], [tiltRadians], [orientationRadians], and barrel twist (via [getBarrelTwistRadians]).
  *
  * This data type is used as an input to [StrokeInputBatch] and [InProgressStroke]. If these are to
  * be created as part of real-time input, it is recommended to use some sort of object pool so that
@@ -36,7 +38,7 @@ import kotlin.jvm.JvmStatic
  * input path. This class has the [update] method for that purpose, rather than being immutable.
  */
 @UsedByNative
-@OptIn(InkInternalOnlyApi::class)
+@OptIn(InkInternalOnlyApi::class, ExperimentalInkBarrelTwistApi::class)
 public class StrokeInput {
     /** The x-coordinate of the input position in stroke space. */
     public var x: Float = 0F
@@ -116,6 +118,33 @@ public class StrokeInput {
     public val hasOrientation: Boolean
         get() = orientationRadians != NO_ORIENTATION
 
+    // Backing storage for [getBarrelTwistRadians], which is declared as a function rather than a
+    // property so that @ExperimentalInkBarrelTwistApi is preserved for Java callers. This should be
+    // converted to a standard property when barrel twist graduates from experimental.
+    private var _barrelTwistRadians: Float = NO_BARREL_TWIST
+
+    /**
+     * The angle that indicates the rotation of the stylus around its longitudinal axis. A value of
+     * zero means that the stylus is not rotated around its longitudinal axis, and values increase
+     * as the stylus rotates from the positive x axis towards the positive y axis (when looking down
+     * the stylus from its top towards its tip). The value should be normalized to fall between 0
+     * and 2π in radians.
+     *
+     * [NO_BARREL_TWIST] indicates that barrel twist is not reported, which can be checked with
+     * [hasBarrelTwist].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBarrelTwistApi
+    public fun getBarrelTwistRadians(): Float = _barrelTwistRadians
+
+    /**
+     * Whether the barrel twist value returned by [getBarrelTwistRadians] is a valid barrel twist
+     * value.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBarrelTwistApi
+    public fun hasBarrelTwist(): Boolean = _barrelTwistRadians != NO_BARREL_TWIST
+
     /**
      * Set new values on this instance, clearing values corresponding to optional parameters that
      * are not specified.
@@ -155,6 +184,67 @@ public class StrokeInput {
         tiltRadians: Float = NO_TILT,
         orientationRadians: Float = NO_ORIENTATION,
     ) {
+        update(
+            x,
+            y,
+            elapsedTimeMillis,
+            toolType,
+            strokeUnitLengthCm,
+            pressure,
+            tiltRadians,
+            orientationRadians,
+            NO_BARREL_TWIST,
+        )
+    }
+
+    /**
+     * Set new values on this instance, clearing values corresponding to optional parameters that
+     * are not specified.
+     *
+     * @param x The `x` position coordinate of the input in the stroke's coordinate space.
+     * @param y The `y` position coordinate of the input in the stroke's coordinate space.
+     * @param elapsedTimeMillis Marks the number of milliseconds since the stroke started. On
+     *   Android, this should be a non-negative timestamp in the
+     *   `android.os.SystemClock.elapsedRealtime` time base.
+     * @param toolType The type of tool used to create this input data.
+     * @param strokeUnitLengthCm The physical distance in centimeters that the pointer must travel
+     *   in order to produce an input motion of one stroke unit. For stylus/touch, this is the
+     *   real-world distance that the stylus/fingertip must move in physical space; for mouse, this
+     *   is the visual distance that the mouse pointer must travel along the surface of the display.
+     *   A value of [NO_STROKE_UNIT_LENGTH] indicates that the relationship between stroke space and
+     *   physical space is unknown or ill-defined.
+     * @param pressure Must be within [0, 1], though that's not enforced until added to a
+     *   [StrokeInputBatch] object. Absence of [pressure] data is represented with [NO_PRESSURE].
+     * @param tiltRadians Must be within [0, π/2], though that's not enforced until added to a
+     *   [StrokeInputBatch] object. The angle in radians between a stylus and the line perpendicular
+     *   to the plane of the screen. 0 is perpendicular to the screen and π/2 is flat against the
+     *   drawing surface. Absence of [tiltRadians] data is represented with [NO_TILT].
+     * @param orientationRadians Must be within [0, 2π], though that's not enforced until added to a
+     *   [StrokeInputBatch] object. Indicates the direction in which the stylus is pointing in
+     *   relation to the positive x axis in radians. A value of 0 means the ray from the stylus tip
+     *   to the end is along positive x and values increase towards the positive y-axis. Absence of
+     *   [orientationRadians] data is represented with [NO_ORIENTATION].
+     * @param barrelTwistRadians Must be within [0, 2π], though that's not enforced until added to a
+     *   [StrokeInputBatch] object. Indicates the rotation of the stylus around its longitudinal
+     *   axis. A value of zero means that the stylus is not rotated around its longitudinal axis,
+     *   and values increase as the stylus rotates from the positive x axis towards the positive y
+     *   axis (when looking down the stylus from its top towards its tip). Absence of
+     *   [barrelTwistRadians] data is represented with [NO_BARREL_TWIST].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBarrelTwistApi
+    @Suppress("MissingJvmstatic") // @JvmOverloads is on the non-experimental overload
+    public fun update(
+        x: Float,
+        y: Float,
+        @IntRange(from = 0) elapsedTimeMillis: Long,
+        toolType: InputToolType = InputToolType.UNKNOWN,
+        strokeUnitLengthCm: Float = NO_STROKE_UNIT_LENGTH,
+        pressure: Float = NO_PRESSURE,
+        tiltRadians: Float = NO_TILT,
+        orientationRadians: Float = NO_ORIENTATION,
+        barrelTwistRadians: Float = NO_BARREL_TWIST,
+    ) {
         this.toolType = toolType
         this.x = x
         this.y = y
@@ -163,6 +253,7 @@ public class StrokeInput {
         this.pressure = pressure
         this.tiltRadians = tiltRadians
         this.orientationRadians = orientationRadians
+        this._barrelTwistRadians = barrelTwistRadians
     }
 
     /**
@@ -179,6 +270,7 @@ public class StrokeInput {
         pressure: Float,
         tiltRadians: Float,
         orientationRadians: Float,
+        barrelTwistRadians: Float,
     ) =
         update(
             x,
@@ -189,6 +281,7 @@ public class StrokeInput {
             pressure,
             tiltRadians,
             orientationRadians,
+            barrelTwistRadians,
         )
 
     public override fun equals(other: Any?): Boolean {
@@ -203,7 +296,8 @@ public class StrokeInput {
             strokeUnitLengthCm == other.strokeUnitLengthCm &&
             pressure == other.pressure &&
             tiltRadians == other.tiltRadians &&
-            orientationRadians == other.orientationRadians
+            orientationRadians == other.orientationRadians &&
+            _barrelTwistRadians == other._barrelTwistRadians
     }
 
     // NOMUTANTS -- not testing exact hashCode values, just that equality implies same hashCode
@@ -216,13 +310,14 @@ public class StrokeInput {
         result = 31 * result + pressure.hashCode()
         result = 31 * result + tiltRadians.hashCode()
         result = 31 * result + orientationRadians.hashCode()
+        result = 31 * result + _barrelTwistRadians.hashCode()
         return result
     }
 
     public override fun toString(): String {
         return "StrokeInput(x=$x, y=$y, elapsedTimeMillis=$elapsedTimeMillis, toolType=$toolType, " +
             "strokeUnitLengthCm=$strokeUnitLengthCm, pressure=$pressure, tiltRadians=$tiltRadians, " +
-            "orientationRadians=$orientationRadians)"
+            "orientationRadians=$orientationRadians, barrelTwistRadians=$_barrelTwistRadians)"
     }
 
     public companion object {
@@ -230,6 +325,9 @@ public class StrokeInput {
         public const val NO_PRESSURE: Float = -1f
         public const val NO_TILT: Float = -1f
         public const val NO_ORIENTATION: Float = -1f
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        @ExperimentalInkBarrelTwistApi
+        public const val NO_BARREL_TWIST: Float = -1f
 
         /**
          * Allocate and return a new [StrokeInput]. Only intended for test code - real code should
@@ -248,6 +346,39 @@ public class StrokeInput {
             pressure: Float = NO_PRESSURE,
             tiltRadians: Float = NO_TILT,
             orientationRadians: Float = NO_ORIENTATION,
+        ): StrokeInput =
+            create(
+                x,
+                y,
+                elapsedTimeMillis,
+                toolType,
+                strokeUnitLengthCm,
+                pressure,
+                tiltRadians,
+                orientationRadians,
+                NO_BARREL_TWIST,
+            )
+
+        /**
+         * Allocate and return a new [StrokeInput]. Only intended for test code - real code should
+         * use a recycling pattern to avoid allocating during latency-sensitive real-time input,
+         * using [update] on an instance allocated with the zero-argument constructor.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        @ExperimentalInkBarrelTwistApi
+        @VisibleForTesting
+        @JvmStatic
+        @Suppress("MissingJvmstatic") // @JvmOverloads is on the non-experimental overload
+        public fun create(
+            x: Float,
+            y: Float,
+            @IntRange(from = 0) elapsedTimeMillis: Long,
+            toolType: InputToolType = InputToolType.UNKNOWN,
+            strokeUnitLengthCm: Float = NO_STROKE_UNIT_LENGTH,
+            pressure: Float = NO_PRESSURE,
+            tiltRadians: Float = NO_TILT,
+            orientationRadians: Float = NO_ORIENTATION,
+            barrelTwistRadians: Float = NO_BARREL_TWIST,
         ): StrokeInput {
             return StrokeInput().apply {
                 update(
@@ -259,6 +390,7 @@ public class StrokeInput {
                     pressure,
                     tiltRadians,
                     orientationRadians,
+                    barrelTwistRadians,
                 )
             }
         }

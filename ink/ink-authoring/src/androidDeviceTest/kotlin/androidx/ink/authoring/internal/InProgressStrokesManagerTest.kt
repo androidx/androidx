@@ -1748,6 +1748,7 @@ internal class InProgressStrokesManagerTest {
         manager.addListener { strokes -> strokes.mapTo(finishedStrokes) { it.strokeId } }
 
         val event = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+        @Suppress("UNUSED_VARIABLE")
         val unused =
             manager.startStroke(
                 event,

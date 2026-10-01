@@ -33,7 +33,6 @@ import platform.CoreGraphics.CGImageRelease
 import platform.CoreImage.CIContext
 import platform.CoreImage.CIImage
 import platform.CoreImage.createCGImage
-import platform.CoreImage.kCIContextUseSoftwareRenderer
 import platform.CoreImage.kCIFormatRGBA8
 import platform.Foundation.NSData
 import platform.Foundation.dataWithBytes
@@ -68,14 +67,13 @@ public fun interface OnDecodeTextureUiImage {
  * including fallbacks for this [BrushFamily] will be used instead of recomputing the proto from the
  * [BrushFamily] object.
  *
- * Raises an [IllegalStateException] if a [UIImage] is returned from the [TextureImageStore] but it
- * cannot be encoded to PNG.
- *
  * @param textureImageStore The [TextureImageStore] to use to encode the texture images within the
  *   encoded [BrushFamily]. If this is not desired behavior, e.g. if the application has a static
  *   set of texture images that it includes as resources, then this can be a [TextureImageStore]
  *   that always returns `null`.
  * @receiver The [BrushFamily] object to encode.
+ * @throws [IllegalStateException] If a [UIImage] is returned from the [TextureImageStore] but it
+ *   cannot be encoded to PNG.
  */
 @ExperimentalInkCrossPlatformRenderingApi
 public fun BrushFamily.encode(textureImageStore: TextureImageStore): ByteArray =
@@ -91,14 +89,13 @@ public fun BrushFamily.encode(textureImageStore: TextureImageStore): ByteArray =
  * fallbacks from the [BrushFamily] objects passed in, overriding any existing fallbacks on any
  * individual [BrushFamily].
  *
- * Raises an [IllegalStateException] if a [UIImage] is returned from the [TextureImageStore] but it
- * cannot be encoded to PNG.
- *
  * @param textureImageStore The [TextureImageStore] to use to encode the texture images within the
  *   encoded [BrushFamily]s. If this is not desired behavior, e.g. if the application has a static
  *   set of texture images that it includes as resources, then this can be a [TextureImageStore]
  *   that always returns `null`.
  * @receiver The [List] of [BrushFamily] objects to encode.
+ * @throws [IllegalStateException] If a [UIImage] is returned from the [TextureImageStore] but it
+ *   cannot be encoded to PNG.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkBrushCompatibilityApi
@@ -220,13 +217,6 @@ private fun CIImage.toUiImageWrappingCgImage(): UIImage? {
                     format = kCIFormatRGBA8,
                     colorSpace = colorSpace,
                 )
-                ?: CIContext.contextWithOptions(mapOf(kCIContextUseSoftwareRenderer to true))
-                    .createCGImage(
-                        this,
-                        fromRect = extent,
-                        format = kCIFormatRGBA8,
-                        colorSpace = colorSpace,
-                    )
         return cgImage?.let { UIImage(it).also { _ -> CGImageRelease(it) } }
     } finally {
         CGColorSpaceRelease(colorSpace)

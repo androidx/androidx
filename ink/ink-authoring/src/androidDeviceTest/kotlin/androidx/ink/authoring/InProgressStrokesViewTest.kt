@@ -970,7 +970,9 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
     fun flush_whenUnfinishedStrokesCanceled_shouldCancelAllAndNotCallStrokesFinishedListener() {
         activityScenarioRule.scenario.onActivity { activity ->
             val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+            @Suppress("UNUSED_VARIABLE")
             val unused1 = activity.inProgressStrokesView.startStroke(downEvent, 0, testBrush)
+            @Suppress("UNUSED_VARIABLE")
             val unused2 = activity.inProgressStrokesView.startStroke(downEvent, 0, testBrush)
 
             assertThat(
