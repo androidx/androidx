@@ -36,26 +36,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Tests symbolic execution branches for [HorizontalRubySpanLayout].
+ * Tests branches in [HorizontalRubySpanLayout] derived from Kex symbolic execution paths.
  *
- * Kex 0.0.11 generated these 20 branch paths with the KSMT portfolio solver. Each `@Test` method
- * maps 1:1 to a symbolic path from the pre-minimized and post-minimized Kex test suites.
- *
- * Coverage summary from Kex symbolic analysis:
- * - `HorizontalRubySpanLayout`: 100.00% line (63/63), 95.95% instruction (355/370), 75.00% branch
- *   (6/8).
- *
- * Raw Kex output accounting (72 pre-minimized files, 5 post-minimized files):
- * - Core branch paths: 15 (`getSpanWidth_2959412260`, `fillFontMetrics_17100359501`,
- *   `init_18604126515`, `init_18604126518`, `init_18604126519`, `init_186041265110`,
- *   `init_186041265112`, `init_186041265114`, `init_186041265115`, `draw_171303816616`,
- *   `draw_171303816628`, `draw_171303816633`, `draw_171303816645`, `draw_171303816646`,
- *   `draw_171303816649`).
- * - Synthetic SMT edge cases: 5 (`init_18604126514`, `init_18604126517`, `init_186041265111`,
- *   `init_186041265113`, `init_186041265116` for unrecognized `AnnotationPosition` fallback to
- *   `isRubyOver = true` and plain `Paint` initialization).
- * - Infrastructure and non-null NPEs: 52 (`EqualityUtils`, `ReflectionUtils`, 1 `fillFontMetrics`
- *   NPE, 5 `init` NPE/CCEs, 44 `draw` NPE/CCEs on `Unsafe`-allocated null fields).
+ * Covers initialization, [HorizontalRubySpanLayout.spanWidth],
+ * [HorizontalRubySpanLayout.fillFontMetrics], and [HorizontalRubySpanLayout.draw].
  */
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -74,7 +58,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         canvasBitmap = null
     }
 
-    // Kex: HorizontalRubySpanLayout_getSpanWidth_2959412260
     // Returns the measured spanWidth max(bodyWidth, rubyWidth).
     @Test
     fun kex_rubyLayout_getSpanWidth_returnsMaxOfBodyAndRubyWidth() {
@@ -100,8 +83,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(layout.spanWidth).isEqualTo(max(expectedBodyWidth, expectedRubyWidth))
     }
 
-    // Kex: HorizontalRubySpanLayout_fillFontMetrics_17100359501
-    // Post-minimized representative for HorizontalRubySpanLayout.fillFontMetrics.
     // Overwrites ascent, descent, top, and bottom with boxAscent and boxDescent.
     @Test
     fun kex_rubyLayout_fillFontMetrics_setsAscentDescentTopAndBottom() {
@@ -134,7 +115,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(fm.bottom).isEqualTo(fm.descent)
     }
 
-    // Kex: HorizontalRubySpanLayout_init_18604126519
     // Branch: empty body range (start == end), position == AnnotationPosition.Before, TextPaint.
     // Places ruby over the empty body range and sets spanWidth to the ruby width.
     @Test
@@ -168,7 +148,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(fm.descent).isEqualTo(bodyLayout.getLineDescent(0))
     }
 
-    // Kex: HorizontalRubySpanLayout_init_186041265110
     // Branch: non-empty body range (start < end), position == AnnotationPosition.Before, TextPaint.
     // Places ruby over the body line and expands boxAscent upward by rubyLineHeight.
     @Test
@@ -200,7 +179,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(fm.descent).isEqualTo(bodyLayout.getLineDescent(0))
     }
 
-    // Kex: HorizontalRubySpanLayout_init_18604126515
     // Branch: non-empty body range (start < end), position == AnnotationPosition.After, TextPaint.
     // Sets isRubyOver = false and expands boxDescent downward by rubyLineHeight.
     @Test
@@ -232,7 +210,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(fm.descent).isEqualTo(bodyLayout.getLineDescent(0) + rubyLineHeight)
     }
 
-    // Kex: HorizontalRubySpanLayout_init_18604126518
     // Branch: empty body range (start == end), position == AnnotationPosition.After, TextPaint.
     // Sets isRubyOver = false on an empty body range and expands boxDescent downward.
     @Test
@@ -266,7 +243,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(fm.descent).isEqualTo(bodyLayout.getLineDescent(0) + rubyLineHeight)
     }
 
-    // Kex: HorizontalRubySpanLayout_init_186041265112
     // Branch: non-empty body range (start < end), position == AnnotationPosition.After, plain
     // Paint.
     // Initializes workingPaintCache from plain Paint and expands boxDescent downward.
@@ -301,7 +277,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(fm.descent).isEqualTo(bodyLayout.getLineDescent(0) + rubyLineHeight)
     }
 
-    // Kex: HorizontalRubySpanLayout_init_186041265114
     // Branch: empty body range (start == end), position == AnnotationPosition.Before, plain Paint.
     // Initializes workingPaintCache from plain Paint on an empty body range with ruby over.
     @Test
@@ -336,7 +311,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(fm.descent).isEqualTo(bodyLayout.getLineDescent(0))
     }
 
-    // Kex: HorizontalRubySpanLayout_init_186041265115
     // Branch: empty body range (start == end), position == AnnotationPosition.After, plain Paint.
     // Initializes workingPaintCache from plain Paint on an empty body range with ruby under.
     @Test
@@ -371,8 +345,7 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(fm.descent).isEqualTo(bodyLayout.getLineDescent(0) + rubyLineHeight)
     }
 
-    // Kex: HorizontalRubySpanLayout_init_18604126514
-    // SMT Edge Case: non-empty body range, position == AnnotationPosition.Unknown, TextPaint.
+    // Branch: non-empty body range, position == AnnotationPosition.Unknown, TextPaint.
     // Proves fallback `position != AnnotationPosition.After` treats Unknown as line-over.
     @Test
     fun kex_rubyLayout_init_positionUnknownWithTextPaint_treatsAsRubyOver() {
@@ -410,8 +383,7 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(fmUnknown.descent).isEqualTo(fmBefore.descent)
     }
 
-    // Kex: HorizontalRubySpanLayout_init_18604126517
-    // SMT Edge Case: non-empty body range, position == AnnotationPosition.Before, plain Paint when
+    // Branch: non-empty body range, position == AnnotationPosition.Before, plain Paint when
     // workingPaintCache already holds a dirty TextPaint instance.
     @Test
     fun kex_rubyLayout_init_positionBeforeWithPlainPaintAndDirtyCache_resetsCacheAndMeasures() {
@@ -438,13 +410,12 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
             )
 
         assertThat(layout.spanWidth).isGreaterThan(0)
-        assertThat(workingPaintCache.get()?.bgColor).isEqualTo(0)
+        assertThat(workingPaintCache.get()?.bgColor).isEqualTo(Color.TRANSPARENT)
         assertThat(workingPaintCache.get()?.baselineShift).isEqualTo(0)
         assertThat(workingPaintCache.get()?.linkColor).isEqualTo(0)
     }
 
-    // Kex: HorizontalRubySpanLayout_init_186041265111
-    // SMT Edge Case: non-empty body range, position == AnnotationPosition.Before, plain Paint on
+    // Branch: non-empty body range, position == AnnotationPosition.Before, plain Paint on
     // cold workingPaintCache.
     @Test
     fun kex_rubyLayout_init_positionBeforeWithPlainPaint_expandsBoxAscentUpward() {
@@ -476,8 +447,7 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(fm.descent).isEqualTo(bodyLayout.getLineDescent(0))
     }
 
-    // Kex: HorizontalRubySpanLayout_init_186041265113
-    // SMT Edge Case: non-empty body range, position == AnnotationPosition.Unknown, plain Paint.
+    // Branch: non-empty body range, position == AnnotationPosition.Unknown, plain Paint.
     // Treats Unknown as ruby-over when initialized with a plain Paint.
     @Test
     fun kex_rubyLayout_init_positionUnknownWithPlainPaint_treatsAsRubyOver() {
@@ -515,9 +485,7 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(fmUnknown.descent).isEqualTo(fmBefore.descent)
     }
 
-    // Kex: HorizontalRubySpanLayout_init_186041265116
-    // Post-minimized representative for HorizontalRubySpanLayout.<init>.
-    // SMT Edge Case: empty body range (start == end), position == AnnotationPosition.Unknown,
+    // Branch: empty body range (start == end), position == AnnotationPosition.Unknown,
     // plain Paint. Treats Unknown as ruby-over on an empty body range.
     @Test
     fun kex_rubyLayout_init_emptyRangePositionUnknownWithPlainPaint_treatsAsRubyOver() {
@@ -556,7 +524,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(fmUnknown.descent).isEqualTo(fmBefore.descent)
     }
 
-    // Kex: HorizontalRubySpanLayout_draw_171303816616
     // Branch: isRubyOver == true, paint is TextPaint with bgColor != 0.
     // Fills the span background box once and resets bgColor and baselineShift on layout paints.
     @Test
@@ -594,11 +561,10 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
                 RectF(10f, 100f + fm.ascent, 10f + layout.spanWidth, 100f + fm.descent)
             )
         assertThat(drawnColors).containsExactly(Color.YELLOW)
-        assertThat(workingPaintCache.get()?.bgColor).isEqualTo(0)
+        assertThat(workingPaintCache.get()?.bgColor).isEqualTo(Color.TRANSPARENT)
         assertThat(workingPaintCache.get()?.baselineShift).isEqualTo(0)
     }
 
-    // Kex: HorizontalRubySpanLayout_draw_171303816633
     // Branch: isRubyOver == true, paint is TextPaint with bgColor == 0.
     // Skips background rect fill and draws body and ruby text above the body line.
     @Test
@@ -621,7 +587,7 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         val drawPaint =
             TextPaint().apply {
                 textSize = 40f
-                bgColor = 0
+                bgColor = Color.TRANSPARENT
             }
 
         layout.draw(canvas, 10f, 100f, drawPaint)
@@ -629,7 +595,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(drawnRects).isEmpty()
     }
 
-    // Kex: HorizontalRubySpanLayout_draw_171303816628
     // Branch: isRubyOver == true, paint !is TextPaint (plain Paint).
     // Skips background rect fill and resets working TextPaint fields from defaultTextPaint.
     @Test
@@ -661,8 +626,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(workingPaintCache.get()?.linkColor).isEqualTo(0)
     }
 
-    // Kex: HorizontalRubySpanLayout_draw_171303816646
-    // Post-minimized representative for HorizontalRubySpanLayout.draw.
     // Branch: isRubyOver == false (AnnotationPosition.After), paint is TextPaint with bgColor != 0.
     // Fills the span background box including the lower ruby band.
     @Test
@@ -700,7 +663,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(drawnColors).containsExactly(Color.CYAN)
     }
 
-    // Kex: HorizontalRubySpanLayout_draw_171303816649
     // Branch: isRubyOver == false (AnnotationPosition.After), paint is TextPaint with bgColor == 0.
     // Skips background rect fill and draws ruby text below the body line.
     @Test
@@ -723,7 +685,7 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         val drawPaint =
             TextPaint().apply {
                 textSize = 40f
-                bgColor = 0
+                bgColor = Color.TRANSPARENT
             }
 
         layout.draw(canvas, 20f, 120f, drawPaint)
@@ -731,7 +693,6 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
         assertThat(drawnRects).isEmpty()
     }
 
-    // Kex: HorizontalRubySpanLayout_draw_171303816645
     // Branch: isRubyOver == false (AnnotationPosition.After), paint !is TextPaint (plain Paint).
     // Skips background rect fill and resets working TextPaint fields.
     @Test
