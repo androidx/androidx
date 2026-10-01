@@ -192,7 +192,6 @@ public class SandboxedPdfLoader(
 }
 
 /** Represents the loading status of a PDF file. */
-// TODO(b/425827955): Clean up status codes and handle runtime exceptions directly
 internal enum class PdfLoadingStatus {
     SUCCESS, // The PDF was loaded successfully.
     WRONG_PASSWORD, // Incorrect password was provided for a password-protected PDF.
