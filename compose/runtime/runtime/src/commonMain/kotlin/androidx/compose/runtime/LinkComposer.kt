@@ -35,6 +35,7 @@ import androidx.compose.runtime.composer.gapbuffer.BitVector
 import androidx.compose.runtime.composer.linkbuffer.GroupAddress
 import androidx.compose.runtime.composer.linkbuffer.GroupHandle
 import androidx.compose.runtime.composer.linkbuffer.HasMovableContentFlag
+import androidx.compose.runtime.composer.linkbuffer.HasRecompositionRequiredFlag
 import androidx.compose.runtime.composer.linkbuffer.HasSubcompositionContextFlag
 import androidx.compose.runtime.composer.linkbuffer.IsMovableContentFlag
 import androidx.compose.runtime.composer.linkbuffer.IsNodeFlag
@@ -663,6 +664,7 @@ internal class LinkComposer(
                 return
             }
             changeListWriter.deactivateCurrentGroup()
+            removeInvalidations(reader.parentGroup)
             reader.skipToGroupEnd()
         }
     }
@@ -1267,6 +1269,12 @@ internal class LinkComposer(
     override fun updateComposerInvalidations(
         invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>
     ) {
+        // Remove any invalidations that are no longer in the slot table.
+        invalidations.removeValueIf { scope ->
+            val anchor = scope.anchor?.asLinkAnchor()
+            anchor == null || !anchor.valid
+        }
+
         // Add the requested invalidations
         invalidationsRequested.map.forEach { scope, instances ->
             scope as RecomposeScopeImpl
@@ -1621,6 +1629,7 @@ internal class LinkComposer(
             // Remove nodes and release movableContent first. We'll delete the group data next.
             readerTable.traverseSiblings(reader.currentGroup) { group ->
                 reportFreeMovableContent(makeGroupHandle(reader.parentGroup, predecessor, group))
+                removeInvalidations(group)
                 val nodesToRemove = reader.nodeCount(group)
                 changeListWriter.removeNode(removeIndex, nodesToRemove)
                 changeListWriter.endNodeMovement()
@@ -2208,7 +2217,33 @@ internal class LinkComposer(
         // It is import that the movable content is reported first so it can be removed before the
         // group itself is removed.
         reportFreeMovableContent(reader.handle())
+        removeInvalidations(reader.currentGroup)
         changeListWriter.removeGroup()
+    }
+
+    private fun removeInvalidations(group: GroupAddress) {
+        val reader = reader
+        val invalidations = invalidations
+        if (group <= 0 || invalidations.isEmpty()) return
+
+        if (reader.recomposeRequired(group)) {
+            reader.getRecomposeScopeOrNull(group)?.let { invalidations.remove(it) }
+        }
+
+        if (HasRecompositionRequiredFlag in reader.flagsOf(group)) {
+            reader.traverseChildrenConditionally(
+                group = group,
+                enter = { child -> HasRecompositionRequiredFlag in reader.flagsOf(child) },
+                block = { child ->
+                    if (reader.recomposeRequired(child)) {
+                        reader.getRecomposeScopeOrNull(child)?.let { invalidations.remove(it) }
+                    }
+                    false
+                },
+                exit = {},
+                skip = {},
+            )
+        }
     }
 
     private fun recordInsert(source: GroupHandle) {
