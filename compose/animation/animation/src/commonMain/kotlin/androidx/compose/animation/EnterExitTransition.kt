@@ -1340,9 +1340,13 @@ private class EnterExitTransitionTracker {
             activeState.clear()
         }
 
+        if (!isMutating) {
+            startTransformStateCatchup = false
+        } else if (!wasMutating) {
+            startTransformStateCatchup = !isSettled
+        }
         lastTarget = targetState
         wasMutating = isMutating
-        startTransformStateCatchup = isMutating && !isSettled
     }
 
     private fun trackActiveEnter(

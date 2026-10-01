@@ -1313,4 +1313,67 @@ class DeferredAnimatedVisibilityTest {
             handoffVeilAlpha > capturedColor.alpha,
         )
     }
+
+    @Test
+    fun visibility_midAnimation_deferContinuesCatchUpWhenUnderlyingTransitionSettles() {
+        lateinit var state: DeferredTransitionState<Boolean>
+        var measuredWidth = 0f
+
+        rule.setContent {
+            state = remember { DeferredTransitionState(false) }
+            val transition = rememberDeferredTransition(state)
+
+            transition.DeferredAnimatedVisibility(
+                visible = { it },
+                enter = scaleIn(tween(100, easing = LinearEasing), initialScale = 0f),
+                exit = scaleOut(tween(100, easing = LinearEasing), targetScale = 0f),
+                mutableTransform = remember { MutableTransform { scale = 0.9f } },
+            ) {
+                Box(
+                    Modifier.size(100.dp).onGloballyPositioned { coords ->
+                        measuredWidth = coords.boundsInRoot().width
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // 1. Start a 100ms enter transition (false -> true; scale 0f -> 1f)
+        rule.runOnIdle { state.animateTo(true) }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(50)
+        rule.waitForIdle()
+
+        val expectedFullWidth = with(rule.density) { 100.dp.roundToPx().toFloat() }
+        assertEquals(expectedFullWidth * 0.5f, measuredWidth, expectedFullWidth * 0.1f)
+
+        // 2. Interrupt mid-enter with defer(false) and a manual preview scale of 0.9f.
+        // The catch-up spring (~130ms) starts interpolating from the transition scale towards 0.9f.
+        rule.runOnIdle { state.defer(false) }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // 3. Advance past the remaining 50ms of the 100ms enter transition so the underlying
+        // transition settles (currentState == targetState == Visible), while the ~130ms catch-up
+        // spring is still mid-flight.
+        rule.mainClock.advanceTimeBy(32)
+        rule.waitForIdle()
+        val widthBeforeSettle = measuredWidth
+
+        // Advance across the 100ms enter transition completion boundary and one frame after
+        rule.mainClock.advanceTimeBy(32)
+        rule.waitForIdle()
+        val widthAfterSettle = measuredWidth
+
+        // Verify the catch-up spring was not cancelled when the underlying transition settled
+        // (it must continue interpolating smoothly rather than snapping straight to 0.9f).
+        assertTrue(
+            "Width should not snap straight to 0.9 * fullWidth ($expectedFullWidth) when " +
+                "the underlying enter transition settles (widthBeforeSettle=$widthBeforeSettle, " +
+                "widthAfterSettle=$widthAfterSettle)",
+            widthAfterSettle < expectedFullWidth * 0.85f,
+        )
+    }
 }
