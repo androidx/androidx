@@ -27,6 +27,7 @@ import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.ToggleButton
 import androidx.xr.glimmer.list.GlimmerLazyColumn
 import androidx.xr.glimmer.samples.ButtonSampleUsage
+import androidx.xr.glimmer.samples.CustomColorsIconToggleButtonSample
 import androidx.xr.glimmer.samples.IconButtonSample
 import androidx.xr.glimmer.samples.IconToggleButtonSample
 import androidx.xr.glimmer.samples.LargeToggleButtonSample
@@ -64,6 +65,7 @@ fun IconToggleButtonsDemo() {
         modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
     ) {
         item { IconToggleButtonSample() }
+        item { CustomColorsIconToggleButtonSample() }
         item { DisabledIconToggleButtonDemo(checked = false) }
         item { DisabledIconToggleButtonDemo(checked = true) }
     }
