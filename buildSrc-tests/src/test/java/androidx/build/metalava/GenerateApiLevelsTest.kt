@@ -77,7 +77,7 @@ class GenerateApiLevelsTest {
                 v120beta01,
                 File("/api/1.3.0-beta01.txt"),
                 File("/api/1.3.0-beta02.txt"),
-                File("/api/current.txt")
+                File("/api/current.txt"),
             )
         val currentVersion = Version("1.3.0-beta02")
 

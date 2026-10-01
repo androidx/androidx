@@ -24,9 +24,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
 class CheckApiTest {
-    @Rule
-    @JvmField
-    val tmpFolder = TemporaryFolder()
+    @Rule @JvmField val tmpFolder = TemporaryFolder()
 
     @Test
     fun getRequiredCompatibilityApiFileFromDirTest() {
@@ -37,10 +35,11 @@ class CheckApiTest {
         assertEquals(
             "1.1.0-beta02.txt",
             getRequiredCompatibilityApiFileFromDir(
-                apiDir,
-                Version("1.1.0-beta03"),
-                ApiType.CLASSAPI
-            )?.name
+                    apiDir,
+                    Version("1.1.0-beta03"),
+                    ApiType.CLASSAPI,
+                )
+                ?.name,
         )
 
         // If we already committed the current version's API surface to a file, then we should
@@ -48,19 +47,21 @@ class CheckApiTest {
         assertEquals(
             "1.1.0-beta02.txt",
             getRequiredCompatibilityApiFileFromDir(
-                apiDir,
-                Version("1.1.0-beta02"),
-                ApiType.CLASSAPI
-            )?.name
+                    apiDir,
+                    Version("1.1.0-beta02"),
+                    ApiType.CLASSAPI,
+                )
+                ?.name,
         )
 
         assertEquals(
             "1.3.0-beta01.txt",
             getRequiredCompatibilityApiFileFromDir(
-                apiDir,
-                Version("1.4.0-alpha01"),
-                ApiType.CLASSAPI
-            )?.name
+                    apiDir,
+                    Version("1.4.0-alpha01"),
+                    ApiType.CLASSAPI,
+                )
+                ?.name,
         )
     }
 
@@ -73,37 +74,36 @@ class CheckApiTest {
         }
 }
 
-/**
- * List of API files representing `androidx.core:core:1.3.0-beta01`.
- */
-private val CORE_API_FILES = listOf(
-    "1.1.0-beta01.txt",
-    "1.1.0-beta02.txt",
-    "1.1.0-rc01.txt",
-    "1.2.0-beta01.txt",
-    "1.2.0-beta02.txt",
-    "1.3.0-beta01.txt",
-    "api_lint.ignore",
-    "current.txt",
-    "public_plus_experimental_1.0.0.txt",
-    "public_plus_experimental_1.1.0-beta01.txt",
-    "public_plus_experimental_1.1.0-rc01.txt",
-    "public_plus_experimental_1.2.0-beta01.txt",
-    "public_plus_experimental_1.2.0-beta02.txt",
-    "public_plus_experimental_1.3.0-beta01.txt",
-    "res-1.1.0-beta01.txt",
-    "res-1.1.0-beta02.txt",
-    "res-1.1.0-rc01.txt",
-    "res-1.2.0-beta01.txt",
-    "res-1.2.0-beta02.txt",
-    "res-1.3.0-beta01.txt",
-    "res-current.txt",
-    "restricted_1.0.0.txt",
-    "restricted_1.1.0-beta01.txt",
-    "restricted_1.1.0-beta02.txt",
-    "restricted_1.1.0-rc01.txt",
-    "restricted_1.2.0-beta01.txt",
-    "restricted_1.2.0-beta02.txt",
-    "restricted_1.3.0-beta01.txt",
-    "restricted_current.txt"
-)
+/** List of API files representing `androidx.core:core:1.3.0-beta01`. */
+private val CORE_API_FILES =
+    listOf(
+        "1.1.0-beta01.txt",
+        "1.1.0-beta02.txt",
+        "1.1.0-rc01.txt",
+        "1.2.0-beta01.txt",
+        "1.2.0-beta02.txt",
+        "1.3.0-beta01.txt",
+        "api_lint.ignore",
+        "current.txt",
+        "public_plus_experimental_1.0.0.txt",
+        "public_plus_experimental_1.1.0-beta01.txt",
+        "public_plus_experimental_1.1.0-rc01.txt",
+        "public_plus_experimental_1.2.0-beta01.txt",
+        "public_plus_experimental_1.2.0-beta02.txt",
+        "public_plus_experimental_1.3.0-beta01.txt",
+        "res-1.1.0-beta01.txt",
+        "res-1.1.0-beta02.txt",
+        "res-1.1.0-rc01.txt",
+        "res-1.2.0-beta01.txt",
+        "res-1.2.0-beta02.txt",
+        "res-1.3.0-beta01.txt",
+        "res-current.txt",
+        "restricted_1.0.0.txt",
+        "restricted_1.1.0-beta01.txt",
+        "restricted_1.1.0-beta02.txt",
+        "restricted_1.1.0-rc01.txt",
+        "restricted_1.2.0-beta01.txt",
+        "restricted_1.2.0-beta02.txt",
+        "restricted_1.3.0-beta01.txt",
+        "restricted_current.txt",
+    )

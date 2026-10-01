@@ -408,6 +408,7 @@ class LibraryVersionsServiceTest {
         assertThat(service.versionGroupFor(":core:core", "androidx.core")).isNull()
         assertThat(service.versionGroupFor(":core:core-splashscreen", "androidx.core")).isNull()
     }
+
     private fun createLibraryVersionsService(
         tomlFileContents: String,
         tomlFileName: String = "libraryversions.toml",
