@@ -422,7 +422,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
 
         val TEST_APP_METADATA =
             AppFunctionAppMetadata(
-                description =
+                instructions =
                     "* Use noSchema_enabledByDefault and noSchema_disabledByDefault for testing setAppFunctionEnabled API and enabledByDefault behavior. " +
                         "* Use noSchema_executionSucceed for testing successful execution. " +
                         "* Use noSchema_executionFail for testing execution failure. " +
@@ -433,7 +433,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
 
         val TEST_APP_METADATA_IN_FRENCH =
             AppFunctionAppMetadata(
-                description = TEST_APP_METADATA.description,
+                instructions = TEST_APP_METADATA.instructions,
                 displayDescription = "Tester l'API AppFunctionManager",
             )
     }

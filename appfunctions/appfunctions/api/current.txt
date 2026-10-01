@@ -461,12 +461,12 @@ package androidx.appfunctions.metadata {
 
   public final class AppFunctionAppMetadata {
     ctor public AppFunctionAppMetadata();
-    ctor public AppFunctionAppMetadata(optional String description, optional String displayDescription);
+    ctor public AppFunctionAppMetadata(optional String instructions, optional String displayDescription);
     ctor @BytecodeOnly public AppFunctionAppMetadata(String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @InaccessibleFromKotlin public String getDescription();
     method @InaccessibleFromKotlin public String getDisplayDescription();
-    property public String description;
+    method @InaccessibleFromKotlin public String getInstructions();
     property public String displayDescription;
+    property public String instructions;
   }
 
   public final class AppFunctionArrayTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
