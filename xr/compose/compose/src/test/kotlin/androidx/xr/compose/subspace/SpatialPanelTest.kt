@@ -250,6 +250,28 @@ class SpatialPanelTest {
     }
 
     @Test
+    fun spatialPanel_composePanel_sizesItselfWithContentChange() {
+        var contentSize by mutableStateOf(100.dp)
+        composeTestRule.setContent {
+            Subspace(modifier = SubspaceModifier.sizeIn(0.dp, 2000.dp, 0.dp, 2000.dp)) {
+                SpatialPanel(SubspaceModifier.testTag("panel")) {
+                    Box(Modifier.size(contentSize))
+                }
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("panel").assertExists()
+        composeTestRule.onSubspaceNodeWithTag("panel").assertWidthIsEqualTo(100.dp)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertHeightIsEqualTo(100.dp)
+
+        contentSize = 50.dp
+
+        composeTestRule.onSubspaceNodeWithTag("panel").assertExists()
+        composeTestRule.onSubspaceNodeWithTag("panel").assertWidthIsEqualTo(50.dp)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertHeightIsEqualTo(50.dp)
+    }
+
+    @Test
     fun spatialPanel_androidViewBasedPanel_composes() {
         lateinit var view: TextView
         composeTestRule.setContent {
