@@ -212,6 +212,8 @@ class BackupActionWireProtocolTest {
                 "db_name" to "app.db",
                 "table" to "users",
                 "values" to "name=Ann&id=42",
+                "key_col" to "id",
+                "key_val" to "42",
             ),
             args,
         )
@@ -231,6 +233,8 @@ class BackupActionWireProtocolTest {
             )
 
         assertEquals("ID=42&note=", args["values"])
+        assertEquals("id", args["key_col"])
+        assertEquals("42", args["key_val"])
     }
 
     @Test
@@ -289,12 +293,7 @@ class BackupActionWireProtocolTest {
 
         assertEquals(
             BackupActionWireProtocol.populateArgs(domain) +
-                mapOf(
-                    "key_col" to "id",
-                    "key_val" to "42",
-                    "expected_col" to "name",
-                    "expected_val" to "",
-                ),
+                mapOf("expected_col" to "name", "expected_val" to ""),
             BackupActionWireProtocol.assertArgs(domain),
         )
     }

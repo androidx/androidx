@@ -994,4 +994,141 @@ public class StorageActionTest {
             assertEquals(-1L, db.insert(table, null, cv))
         }
     }
+
+    /**
+     * Reseeding a database row with the same primary key replaces the existing row instead of
+     * appending duplicate rows.
+     */
+    @Test
+    public fun testDatabaseReseedReplacesExistingRow() {
+        val dbName = "test_reseed_db.db"
+        val table = "test_table"
+        val keyCol = "id"
+        val keyVal = "row1"
+
+        context.deleteDatabase(dbName)
+
+        val populate = PopulateStorageAction()
+
+        // 1. Initial populate
+        val initialResult =
+            populate.execute(
+                context,
+                BackupDeviceActionArgs(
+                    mapOf(
+                        BackupActionInputKeys.STORAGE_TYPE to
+                            BackupActionValues.STORAGE_TYPE_DATABASE,
+                        BackupActionInputKeys.DB_NAME to dbName,
+                        BackupActionInputKeys.TABLE to table,
+                        BackupActionInputKeys.KEY_COL to keyCol,
+                        BackupActionInputKeys.KEY_VAL to keyVal,
+                        BackupActionInputKeys.VALUES to "$keyCol=$keyVal&payload=initial",
+                    )
+                ),
+            )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            initialResult.payload[BackupActionOutputKeys.STATUS],
+        )
+
+        // 2. Reseed same key with updated payload
+        val reseedResult =
+            populate.execute(
+                context,
+                BackupDeviceActionArgs(
+                    mapOf(
+                        BackupActionInputKeys.STORAGE_TYPE to
+                            BackupActionValues.STORAGE_TYPE_DATABASE,
+                        BackupActionInputKeys.DB_NAME to dbName,
+                        BackupActionInputKeys.TABLE to table,
+                        BackupActionInputKeys.KEY_COL to keyCol,
+                        BackupActionInputKeys.KEY_VAL to keyVal,
+                        BackupActionInputKeys.VALUES to "$keyCol=$keyVal&payload=updated",
+                    )
+                ),
+            )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            reseedResult.payload[BackupActionOutputKeys.STATUS],
+        )
+
+        // Verify exactly one row exists in the database
+        context.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null).use { db ->
+            db.rawQuery("SELECT count(*) FROM `$table`", null).use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals(1, cursor.getInt(0))
+            }
+        }
+
+        // Verify AssertStorageAction passes for the updated payload
+        val verifyResult =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to table,
+                            BackupActionInputKeys.KEY_COL to keyCol,
+                            BackupActionInputKeys.KEY_VAL to keyVal,
+                            BackupActionInputKeys.VALUES to "$keyCol=$keyVal&payload=updated",
+                        )
+                    ),
+                )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+    }
+
+    /**
+     * If the table contains duplicate rows matching the primary key, verification fails with a
+     * clear error rather than inspecting only the first row.
+     */
+    @Test
+    public fun testDatabaseDuplicateRowsFailAssertion() {
+        val dbName = "test_dup_db.db"
+        val table = "test_table"
+        val keyCol = "id"
+        val keyVal = "row1"
+
+        context.deleteDatabase(dbName)
+
+        context.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null).use { db ->
+            db.execSQL("CREATE TABLE `$table` (`$keyCol` TEXT, `payload` TEXT)")
+            db.execSQL("INSERT INTO `$table` VALUES ('$keyVal', 'first')")
+            db.execSQL("INSERT INTO `$table` VALUES ('$keyVal', 'second')")
+        }
+
+        val verifyResult =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to table,
+                            BackupActionInputKeys.KEY_COL to keyCol,
+                            BackupActionInputKeys.KEY_VAL to keyVal,
+                            BackupActionInputKeys.VALUES to "$keyCol=$keyVal&payload=first",
+                        )
+                    ),
+                )
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+        val error = verifyResult.payload[BackupActionOutputKeys.ERROR]
+        assertTrue(
+            "Expected duplicate row error but was: $error",
+            error != null &&
+                error.contains(
+                    "Found 2 rows with $keyCol='$keyVal' in table '$table'; expected exactly one."
+                ),
+        )
+    }
 }

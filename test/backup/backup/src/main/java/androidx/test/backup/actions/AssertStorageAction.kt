@@ -184,6 +184,12 @@ public class AssertStorageAction : BackupDeviceAction {
                                         "No row with $keyCol='$keyVal' in table '$table'."
                                     )
                                 }
+                                if (cursor.count > 1) {
+                                    return failure(
+                                        "Found ${cursor.count} rows with $keyCol='$keyVal' in " +
+                                            "table '$table'; expected exactly one."
+                                    )
+                                }
                                 // Report every mismatch at once; failing on the first would hide
                                 // the shape of a partial restore.
                                 val mismatches =
