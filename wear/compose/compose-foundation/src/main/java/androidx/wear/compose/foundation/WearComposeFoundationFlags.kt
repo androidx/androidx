@@ -50,13 +50,5 @@ package androidx.wear.compose.foundation
  */
 @ExperimentalWearFoundationApi
 public object WearComposeFoundationFlags {
-    /**
-     * Whether to use warped curved text, true by default. Warping provides higher quality rendering
-     * for curved text, specially for cursive fonts, but can have a slight performance impact for
-     * big curved text.
-     */
-    // TODO: b/455602158
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isWarpingCurvedTextEnabled: Boolean = true
+    // Empty for now, kept for future flags.
 }

@@ -284,7 +284,6 @@ internal class CurvedTextDelegate {
     private var prevWarping = CurvedTextStyle.WarpOffset.None
     private var warpRadiusOffset = 0f
 
-    @OptIn(ExperimentalWearFoundationApi::class)
     fun updateIfNeeded(
         text: String,
         clockwise: Boolean,
@@ -297,10 +296,9 @@ internal class CurvedTextDelegate {
         var needsUpdate = false
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val actualWarping =
-                if (WearComposeFoundationFlags.isWarpingCurvedTextEnabled) {
-                    warpOffset.takeOrElse { CurvedTextStyle.WarpOffset.HalfOpticalHeight }
-                } else CurvedTextStyle.WarpOffset.None
+            val actualWarping = warpOffset.takeOrElse {
+                CurvedTextStyle.WarpOffset.HalfOpticalHeight
+            }
 
             if (actualWarping != prevWarping) {
                 prevWarping = actualWarping
