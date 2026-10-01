@@ -31,6 +31,7 @@ import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.remote.material3.previews.RemoteSliderCustomColors
 import androidx.wear.compose.remote.material3.previews.RemoteSliderDefault
 import androidx.wear.compose.remote.material3.previews.RemoteSliderDisabled
+import androidx.wear.compose.remote.material3.previews.RemoteSliderMaxValue
 import androidx.wear.compose.remote.material3.previews.RemoteSliderNotSegmented
 import androidx.wear.compose.remote.material3.samples.RemoteSliderIntegerSample
 import androidx.wear.compose.remote.material3.samples.RemoteSliderSample
@@ -64,6 +65,7 @@ fun RemoteSliderDemos(modifier: Modifier = Modifier) {
             remoteDemoItem("Disabled") { RemoteSliderDisabled() }
             remoteDemoItem("Not Segmented") { RemoteSliderNotSegmented() }
             remoteDemoItem("Custom Colors") { RemoteSliderCustomColors() }
+            remoteDemoItem("Max Value") { RemoteSliderMaxValue() }
             remoteDemoItem("Float Sample") { RemoteSliderSample() }
             remoteDemoItem("Integer Sample") { RemoteSliderIntegerSample() }
         }

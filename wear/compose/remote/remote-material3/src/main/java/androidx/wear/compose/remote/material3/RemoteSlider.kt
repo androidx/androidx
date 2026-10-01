@@ -558,10 +558,16 @@ private fun RemoteDrawScope.drawProgressBar(
     val separatorRadiusInPx = RemoteSliderDefaults.BarSeparatorRadius.toPx()
     val segmentBarPaddingInPx = RemoteSliderDefaults.SegmentBarPadding.toPx()
 
+    // The segmented width formula extends past the canvas bounds when the value is at (or near)
+    // the end of the range. Compose Slider clips the bar to the slider shape; clamp it here so the
+    // selected bar never overflows into the increase/decrease buttons.
     val barWidthInPx =
         if (segmented) {
             val nonZeroWidth =
-                (width + separatorRadiusInPx * 2f.rf) * valueRatio + segmentBarPaddingInPx
+                min(
+                    (width + separatorRadiusInPx * 2f.rf) * valueRatio + segmentBarPaddingInPx,
+                    width,
+                )
             valueRatio.isGreaterThan(0f.rf).select(nonZeroWidth, 0f.rf)
         } else {
             width * valueRatio
