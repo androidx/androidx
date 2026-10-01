@@ -115,6 +115,24 @@ private fun RemoteSliderCustomColorsPreview(
 
 @Composable
 @RemoteComposable
+public fun RemoteSliderMaxValue() {
+    val value = remember { MutableRemoteFloat(5f) }
+    RemoteSlider(
+        value = value,
+        steps = 4,
+        decreaseAction = valueChange(value, max(value - 1f.rf, 0f.rf)),
+        increaseAction = valueChange(value, min(value + 1f.rf, 5f.rf)),
+    )
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteSliderMaxValuePreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteSliderMaxValue() } }
+
+@Composable
+@RemoteComposable
 private fun Container(
     modifier: RemoteModifier = RemoteModifier.fillMaxSize().padding(horizontal = 10.rdp),
     content: @Composable @RemoteComposable () -> Unit,
