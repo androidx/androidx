@@ -114,6 +114,36 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
+    fun addAnnotationHandle_newId_returnsNull() {
+        val id = SpatialAnnotationId.fromString("test_annotation")
+
+        val replaced =
+            underTest.xrResources.addAnnotationHandle(
+                id,
+                42L,
+                SpatialAnnotationQuadAlignment.SCREEN,
+            )
+
+        assertThat(replaced).isNull()
+    }
+
+    @Test
+    fun addAnnotationHandle_existingId_returnsReplacedHandle() {
+        val id = SpatialAnnotationId.fromString("test_annotation")
+        underTest.xrResources.addAnnotationHandle(id, 42L, SpatialAnnotationQuadAlignment.SCREEN)
+
+        val replaced =
+            underTest.xrResources.addAnnotationHandle(
+                id,
+                43L,
+                SpatialAnnotationQuadAlignment.SCREEN,
+            )
+
+        assertThat(replaced).isEqualTo(42L)
+        assertThat(underTest.xrResources.annotationConfigs[id]?.handle).isEqualTo(43L)
+    }
+
+    @Test
     fun stopSpatialAnnotationTracking_emptyListAndNoConfigs_doesNothing() {
         underTest.stopSpatialAnnotationTracking(emptyList())
 
