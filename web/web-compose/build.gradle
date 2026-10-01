@@ -32,12 +32,18 @@ plugins {
 }
 
 dependencies {
+    def compose_version = "1.9.0"
+
     api(project(":web:web"))
     api("androidx.annotation:annotation:1.8.1")
-    api(project(":compose:runtime:runtime"))
-    api(project(":compose:ui:ui"))
-    implementation(project(":compose:ui:ui-graphics"))
-    implementation(project(":compose:ui:ui-unit"))
+    api("androidx.compose.runtime:runtime:$compose_version")
+    api("androidx.compose.ui:ui:$compose_version")
+    implementation("androidx.compose.ui:ui-graphics:$compose_version")
+    implementation("androidx.compose.ui:ui-unit:$compose_version")
+    implementation("androidx.compose.ui:ui-util:$compose_version")
+
+    // Older versions of lifecycle-runtime lint checks use a deleted lint API
+    implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 }
 
 
