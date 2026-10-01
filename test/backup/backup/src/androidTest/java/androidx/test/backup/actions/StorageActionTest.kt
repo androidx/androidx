@@ -32,6 +32,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.Locale
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -1129,6 +1130,80 @@ public class StorageActionTest {
                 error.contains(
                     "Found 2 rows with $keyCol='$keyVal' in table '$table'; expected exactly one."
                 ),
+        )
+    }
+
+    /**
+     * Verifies that populating a preference with expect_null removes the key from
+     * SharedPreferences.
+     */
+    @Test
+    public fun testPrefsPopulateNullRemovesKey() {
+        val prefName = "test_pref_null_populate"
+        val key = "test_key"
+
+        val sharedPrefs = context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
+        sharedPrefs.edit().putString(key, "existing_value").commit()
+        assertTrue(sharedPrefs.contains(key))
+
+        // Populate with EXPECT_NULL to remove the key
+        val putAction = PopulateStorageAction()
+        val putArgs =
+            BackupDeviceActionArgs(
+                mapOf(
+                    BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_PREFS,
+                    BackupActionInputKeys.PREF_NAME to prefName,
+                    BackupActionInputKeys.PREF_KEY to key,
+                    BackupActionInputKeys.EXPECT_NULL to "true",
+                )
+            )
+        val putResult = putAction.execute(context, putArgs)
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            putResult.payload[BackupActionOutputKeys.STATUS],
+        )
+
+        // Assert preference was removed from disk
+        assertFalse(sharedPrefs.contains(key))
+
+        // Assert verification of null succeeds
+        val verifyAction = AssertStorageAction()
+        val verifyResult = verifyAction.execute(context, putArgs)
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+    }
+
+    /** A key expected to be absent is reported as present, whatever type it is stored with. */
+    @Test
+    public fun testPrefsExpectNullReportsAPresentKeyOfAnyType() {
+        val prefName = "test_pref_expect_null_int"
+        val key = "int_key"
+        context.getSharedPreferences(prefName, Context.MODE_PRIVATE).edit().putInt(key, 42).commit()
+
+        val verifyResult =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_PREFS,
+                            BackupActionInputKeys.PREF_NAME to prefName,
+                            BackupActionInputKeys.PREF_KEY to key,
+                            BackupActionInputKeys.EXPECT_NULL to "true",
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+        assertEquals(
+            "Expected preference '$key' in '$prefName' to be absent, but found '42'.",
+            verifyResult.payload[BackupActionOutputKeys.ERROR],
         )
     }
 }

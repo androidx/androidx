@@ -60,7 +60,9 @@ public sealed class StorageDomain {
      * @property prefName The name of the SharedPreferences XML file (excluding the .xml extension).
      * @property key The specific preference key to seed or verify.
      * @property value The value associated with the preference key, or `null` if asserting missing
-     *   state. Supported types are: String, Int, Long, Float, Boolean, or null.
+     *   state. Supported types are: String, Int, Long, Float, Boolean, or null. A `null` value is
+     *   seeded by removing the key and verified by checking that the key is absent. Clearing app
+     *   data also removes the key, so a `null` value cannot detect a restore that loses data.
      */
     public class Preference
     @JvmOverloads

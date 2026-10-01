@@ -21,6 +21,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import androidx.test.backup.BackupActionInputKeys.DB_NAME
+import androidx.test.backup.BackupActionInputKeys.EXPECT_NULL
 import androidx.test.backup.BackupActionInputKeys.IS_BINARY
 import androidx.test.backup.BackupActionInputKeys.IS_DEVICE_PROTECTED
 import androidx.test.backup.BackupActionInputKeys.KEY_COL
@@ -79,22 +80,32 @@ public class PopulateStorageAction : BackupDeviceAction {
                     val key =
                         args[PREF_KEY]
                             ?: return failure("Missing '$PREF_KEY' argument for PREFS populate.")
-                    val value =
-                        args[VALUE]
-                            ?: return failure("Missing '$VALUE' argument for PREFS populate.")
-                    val valueType = args[VALUE_TYPE]?.uppercase() ?: VALUE_TYPE_STRING
-
+                    val expectNull = args[EXPECT_NULL]?.toBoolean() ?: false
                     val editor =
                         targetContext.getSharedPreferences(prefName, Context.MODE_PRIVATE).edit()
-                    when (valueType) {
-                        VALUE_TYPE_INT -> editor.putInt(key, value.toInt())
-                        VALUE_TYPE_LONG -> editor.putLong(key, value.toLong())
-                        VALUE_TYPE_FLOAT -> editor.putFloat(key, value.toFloat())
-                        VALUE_TYPE_BOOLEAN -> editor.putBoolean(key, value.toBoolean())
-                        VALUE_TYPE_STRING -> editor.putString(key, value)
-                        else -> return failure("Unsupported $VALUE_TYPE: ${args[VALUE_TYPE]}")
+
+                    if (expectNull) {
+                        editor.remove(key)
+                    } else {
+                        val value =
+                            args[VALUE]
+                                ?: return failure("Missing '$VALUE' argument for PREFS populate.")
+                        val valueType = args[VALUE_TYPE]?.uppercase() ?: VALUE_TYPE_STRING
+
+                        when (valueType) {
+                            VALUE_TYPE_INT -> editor.putInt(key, value.toInt())
+                            VALUE_TYPE_LONG -> editor.putLong(key, value.toLong())
+                            VALUE_TYPE_FLOAT -> editor.putFloat(key, value.toFloat())
+                            VALUE_TYPE_BOOLEAN -> editor.putBoolean(key, value.toBoolean())
+                            VALUE_TYPE_STRING -> editor.putString(key, value)
+                            else -> return failure("Unsupported $VALUE_TYPE: ${args[VALUE_TYPE]}")
+                        }
                     }
-                    editor.commit()
+                    if (!editor.commit()) {
+                        return failure(
+                            "Failed to commit SharedPreferences changes for '$prefName'."
+                        )
+                    }
                 }
 
                 STORAGE_TYPE_DATABASE -> {

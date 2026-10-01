@@ -83,9 +83,21 @@ public class AssertStorageAction : BackupDeviceAction {
                                 "Missing '$PREF_KEY' argument for PREFS verification."
                             )
 
-                    val expectNull = args[EXPECT_NULL]?.toBoolean() ?: false
                     val sharedPrefs =
                         targetContext.getSharedPreferences(prefName, Context.MODE_PRIVATE)
+                    // Absence is checked before any typed read, so a key stored with an
+                    // unexpected type is reported as present rather than as a type mismatch.
+                    if (args[EXPECT_NULL]?.toBoolean() == true) {
+                        return if (!sharedPrefs.contains(key)) {
+                            BackupDeviceActionResult.success()
+                        } else {
+                            failure(
+                                "Expected preference '$key' in '$prefName' to be absent, but " +
+                                    "found '${sharedPrefs.all[key]}'."
+                            )
+                        }
+                    }
+
                     val valueType = args[VALUE_TYPE]?.uppercase() ?: VALUE_TYPE_STRING
 
                     val actual =
@@ -103,26 +115,16 @@ public class AssertStorageAction : BackupDeviceAction {
                             }
                         }
 
-                    if (expectNull) {
-                        if (actual == null) {
-                            BackupDeviceActionResult.success()
-                        } else {
-                            failure(
-                                "Expected preference '$key' to be absent (null), but found '$actual'"
+                    val expected =
+                        args[EXPECTED]
+                            ?: args[VALUE]
+                            ?: return failure(
+                                "Missing '$EXPECTED' or '$VALUE' argument for PREFS verification."
                             )
-                        }
+                    if (actual == expected) {
+                        BackupDeviceActionResult.success()
                     } else {
-                        val expected =
-                            args[EXPECTED]
-                                ?: args[VALUE]
-                                ?: return failure(
-                                    "Missing '$EXPECTED' or '$VALUE' argument for PREFS verification."
-                                )
-                        if (actual == expected) {
-                            BackupDeviceActionResult.success()
-                        } else {
-                            failure("Expected '$expected' but found '$actual'")
-                        }
+                        failure("Expected '$expected' but found '$actual'")
                     }
                 }
 

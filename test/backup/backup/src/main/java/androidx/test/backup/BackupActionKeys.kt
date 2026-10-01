@@ -164,9 +164,10 @@ public object BackupActionInputKeys {
     public const val EXPECTED_VAL: String = "expected_val"
 
     /**
-     * Whether verification should assert that the preference is absent instead of comparing it.
+     * Whether the preference is expected to be absent.
      *
-     * Parsed with [String.toBoolean]. When enabled, [EXPECTED] and [VALUE] are not consulted.
+     * Parsed with [String.toBoolean]. When enabled, population removes the key and verification
+     * asserts that it is absent; [VALUE], [VALUE_TYPE] and [EXPECTED] are not consulted.
      */
     public const val EXPECT_NULL: String = "expect_null"
 }
