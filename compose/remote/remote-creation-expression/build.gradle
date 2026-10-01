@@ -1,0 +1,46 @@
+/*
+ * Copyright (C) 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("java-library")
+    id("org.jetbrains.kotlin.jvm")
+}
+
+dependencies {
+    api(libs.jspecify)
+    api("androidx.annotation:annotation:1.9.1")
+    api("androidx.collection:collection:1.5.0")
+    api(project(":compose:remote:remote-core"))
+    api(project(":compose:remote:remote-creation-core"))
+    api("androidx.compose.runtime:runtime-annotation:1.11.0")
+
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
+    testImplementation(project(":compose:remote:remote-core-testutils"))
+}
+
+androidx {
+    name = "Remote Compose Creation Expression"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2026"
+    description = "Provides expressions and state capabilities for RemoteCompose"
+}

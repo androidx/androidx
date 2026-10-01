@@ -91,6 +91,7 @@ dependencies {
     kmpDocs(project(":compose:remote:remote-creation"))
     docs(project(":compose:remote:remote-creation-compose"))
     docs(project(":compose:remote:remote-creation-core"))
+    docs(project(":compose:remote:remote-creation-expression"))
     docs(project(":compose:remote:remote-player-compose"))
     docs(project(":compose:remote:remote-player-core"))
     docs(project(":compose:remote:remote-player-view"))
