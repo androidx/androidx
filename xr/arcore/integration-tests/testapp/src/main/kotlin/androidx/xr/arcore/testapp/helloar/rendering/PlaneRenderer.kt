@@ -235,6 +235,7 @@ internal class PlaneRenderer(val session: Session) : DefaultLifecycleObserver {
     }
 
     private suspend fun addPlaneModel(plane: Plane, planesToRender: MutableList<PlaneModel>) {
+        val planeId = plane.hashCode()
         val initialState = plane.state.value
         val initialMesh = createPlaneMesh(session, initialState.vertices) ?: return
 
@@ -266,9 +267,9 @@ internal class PlaneRenderer(val session: Session) : DefaultLifecycleObserver {
 
         var currentLabel = label
         var lastVertices = initialState.vertices
-        val planeModel =
+        var planeModel =
             PlaneModel(
-                id = plane.hashCode(),
+                id = planeId,
                 planeType = plane.type,
                 stateFlow = plane.state,
                 modelEntity = modelEntity,
@@ -304,13 +305,28 @@ internal class PlaneRenderer(val session: Session) : DefaultLifecycleObserver {
                             newModelEntity.setEnabled(tracking)
                             newModelEntity.setAlpha(1.0f)
                             val oldModelEntity = modelEntity
+                            val existingComponents = oldModelEntity.getComponents()
+                            // Transfer attached components (such as InteractableComponent) to the
+                            // replacement MeshEntity so colliders and input listeners remain
+                            // active.
+                            for (component in existingComponents) {
+                                oldModelEntity.removeComponent(component)
+                                newModelEntity.addComponent(component)
+                            }
                             oldModelEntity.parent = null
                             // Explicitly dispose old MeshEntity to synchronously release the
                             // native Impress borrow on the underlying imp::Mesh before GC.
                             oldModelEntity.dispose()
 
                             modelEntity = newModelEntity
-                            planeModel.modelEntity = newModelEntity
+                            // Create a new PlaneModel copy BEFORE mutating so StateFlow sees a
+                            // structural change and notifies collectors (e.g. AnchorRenderer).
+                            val updatedPlaneModel = planeModel.copy(modelEntity = newModelEntity)
+                            planeModel = updatedPlaneModel
+                            _renderedPlanes.value =
+                                _renderedPlanes.value.map {
+                                    if (it.id == planeId) updatedPlaneModel else it
+                                }
                         }
                     }
                 }
