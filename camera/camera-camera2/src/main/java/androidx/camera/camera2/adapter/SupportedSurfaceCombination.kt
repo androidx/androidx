@@ -35,6 +35,7 @@ import androidx.camera.camera2.adapter.SupportedSurfaceCombination.CheckingMetho
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination.CheckingMethod.WITHOUT_FEATURE_COMBO_FIRST_AND_THEN_WITH_IT
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination.CheckingMethod.WITH_FEATURE_COMBO
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.compat.quirk.CameraQuirks
 import androidx.camera.camera2.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.compat.workaround.ResolutionCorrector
 import androidx.camera.camera2.compat.workaround.TargetAspectRatio
@@ -131,6 +132,7 @@ public class SupportedSurfaceCombination(
     internal lateinit var surfaceSizeDefinition: SurfaceSizeDefinition
     private val surfaceSizeDefinitionFormats = mutableListOf<Int>()
     private val streamConfigurationMapCompat = getStreamConfigurationMapCompat()
+    private val cameraQuirks = CameraQuirks(cameraMetadata, streamConfigurationMapCompat)
     private val displayInfoManager = DisplayInfoManager.getInstance(context)
     private val resolutionCorrector = ResolutionCorrector()
     private val targetAspectRatio: TargetAspectRatio = TargetAspectRatio()
@@ -2052,7 +2054,9 @@ public class SupportedSurfaceCombination(
     private fun generateStreamUseCaseSupportedCombinationList() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             surfaceCombinationsStreamUseCase.addAll(
-                GuaranteedConfigurationsUtil.getStreamUseCaseSupportedCombinationList()
+                GuaranteedConfigurationsUtil.getStreamUseCaseSupportedCombinationList(
+                    cameraQuirks.quirks
+                )
             )
         }
     }
