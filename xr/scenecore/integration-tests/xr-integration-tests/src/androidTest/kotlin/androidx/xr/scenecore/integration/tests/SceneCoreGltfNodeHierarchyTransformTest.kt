@@ -34,10 +34,10 @@ import org.junit.runner.RunWith
 /** Automated integration tests for SceneCore glTF node hierarchy and transformation matrices. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@XrDeviceTest
 class SceneCoreGltfNodeHierarchyTransformTest {
 
     @Test
+    @XrDeviceTest
     fun nodeHierarchy_inspection_matchesGltfAssetSchema() = runTestWithSession { session ->
         val gltfModel = GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))
         val entity =
@@ -59,6 +59,7 @@ class SceneCoreGltfNodeHierarchyTransformTest {
     }
 
     @Test
+    @XrDeviceTest
     fun nodeTransforms_localVsModelAccumulation_computesCorrectly() =
         runTestWithSession { session ->
             val gltfModel = GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))
@@ -95,6 +96,7 @@ class SceneCoreGltfNodeHierarchyTransformTest {
         }
 
     @Test
+    @XrDeviceTest
     fun nodeTransforms_modifiedWhileEntityDisabled_persistsWhenEnabled() =
         runTestWithSession { session ->
             val gltfModel = GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))

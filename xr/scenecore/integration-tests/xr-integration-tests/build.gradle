@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXConfig
 import androidx.build.ApkCopyHelperKt
 import androidx.build.SoftwareType
 
@@ -46,9 +45,6 @@ androidx {
     type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2026"
     description = "Integration tests app for JXR SceneCore."
-    deviceTests {
-        enabled = false
-    }
 }
 
 dependencies {
