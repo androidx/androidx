@@ -1034,7 +1034,8 @@ internal class LinkComposer(
             invalidateStack.size +
             providersInvalidStack.size +
             pendingStack.size +
-            parentStateStack.size
+            parentStateStack.size +
+            invalidations.size
     }
 
     /** See [InternalComposer.stackTraceForValue] */
@@ -1499,6 +1500,7 @@ internal class LinkComposer(
                 observer?.onEndComposition(composition)
                 observerHolder.unpin()
                 isComposing = false
+                invalidations.clear()
                 if (!complete) abortRoot()
                 resetInsertBuilder(dispose = !complete)
             }
@@ -2110,10 +2112,9 @@ internal class LinkComposer(
                 if (reader.recomposeRequired(group)) {
                     reader.reposition(group)
                     val scope = requireRecomposeScope(group)
-                    val invalidation = invalidations[scope]
+                    val invalidation = invalidations.remove(scope)
 
                     if (scope.isInvalidFor(invalidation)) {
-                        invalidations.remove(scope)
                         recomposed = true
 
                         // We have moved so the cached lookup of the provider is invalid

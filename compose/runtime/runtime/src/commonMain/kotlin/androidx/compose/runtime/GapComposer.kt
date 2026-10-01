@@ -3141,7 +3141,8 @@ internal class GapComposer(
             invalidateStack.size +
             providersInvalidStack.size +
             pendingStack.size +
-            parentStateStack.size
+            parentStateStack.size +
+            invalidations.size
     }
 
     override val recomposeScope: RecomposeScope?

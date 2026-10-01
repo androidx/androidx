@@ -5150,6 +5150,34 @@ class CompositionTests {
             events.joinToString(),
         )
     }
+
+    @Test // b/565042559
+    fun removedScopeInvalidationsAreCleared() = compositionTest {
+        var visible by mutableStateOf(true)
+        var childState by mutableIntStateOf(0)
+
+        compose {
+            if (visible) {
+                Wrap { Text("Child: $childState") }
+            }
+        }
+
+        validate { Text("Child: 0") }
+
+        val composer = (composition as CompositionImpl).composer
+        assertEquals(0, composer.stacksSize())
+
+        // Both ancestor (`visible`) and descendant scope (`childState`) are invalidated in the
+        // same snapshot, and the ancestor removes the descendant scope.
+        // The unvisited descendant invalidation must be cleared when composition finishes.
+        Snapshot.withMutableSnapshot {
+            visible = false
+            childState += 1
+        }
+        expectChanges()
+        validate {}
+        assertEquals(0, composer.stacksSize())
+    }
 }
 
 class SomeUnstableClass(val a: Any = "abc")
