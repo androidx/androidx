@@ -202,8 +202,9 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
                 else -> TrackingState.TRACKING // ASSUMED INERTIAL
             }
         if (config.planeTracking == PlaneTrackingMode.DISABLED) {
-            trackables.filterIsInstance<FakeRuntimePlane>().forEach {
-                it.trackingState = TrackingState.STOPPED
+            trackables.filterIsInstance<FakeRuntimePlane>().forEach { plane ->
+                plane.trackingState = TrackingState.STOPPED
+                plane.anchors.forEach { anchor -> anchor.trackingState = TrackingState.STOPPED }
             }
         }
         if (config.faceTracking != FaceTrackingMode.MESHES) {
@@ -244,6 +245,14 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
         }
         if (config.geospatial == GeospatialMode.DISABLED) {
             fakeGeospatial.state = androidx.xr.arcore.runtime.Geospatial.State.NOT_RUNNING
+        }
+        anchors.forEach {
+            it.trackingState =
+                if (isCameraTracking) {
+                    TrackingState.TRACKING
+                } else {
+                    TrackingState.PAUSED
+                }
         }
     }
 
