@@ -110,7 +110,8 @@ public fun RemoteSplitRadioButton(
             targetValue = selected.select(1f.rf, 0f.rf),
             animationSpec = SelectionAnimationSpec,
         )
-    val containerShape = RemoteSplitRadioButtonDefaults.splitSectionsShape
+    val (startSectionShape, endSectionShape) =
+        splitSectionShapes(shape, RemoteSplitRadioButtonDefaults.splitSectionsShape)
     val containerColor =
         colors.containerColor(enabled = enabled, selected = selected, progress = progress)
     val contentColor =
@@ -133,7 +134,7 @@ public fun RemoteSplitRadioButton(
             modifier =
                 RemoteModifier.weight(1f.rf)
                     .heightIn(min = RemoteSplitRadioButtonDefaults.Height)
-                    .clip(containerShape)
+                    .clip(startSectionShape)
                     .clickable(
                         action = onContainerClick,
                         enabled =
@@ -141,7 +142,7 @@ public fun RemoteSplitRadioButton(
                                 onContainerClick != Action.Empty,
                     )
                     .drawWithContent {
-                        drawSolidColorShape(containerShape, containerColor)
+                        drawSolidColorShape(startSectionShape, containerColor)
                         drawContent()
                     }
                     .padding(contentPadding)
@@ -191,7 +192,7 @@ public fun RemoteSplitRadioButton(
             modifier =
                 RemoteModifier.widthIn(min = 48.rdp)
                     .heightIn(min = RemoteSplitRadioButtonDefaults.Height)
-                    .clip(containerShape)
+                    .clip(endSectionShape)
                     .clickable(
                         action = onSelectionClick,
                         enabled =
@@ -200,10 +201,10 @@ public fun RemoteSplitRadioButton(
                     )
                     .drawWithContent {
                         drawSolidColorShape(
-                            containerShape,
+                            endSectionShape,
                             enabled.select(containerColor, Color.Black.rc),
                         )
-                        drawSolidColorShape(containerShape, splitContainerColor)
+                        drawSolidColorShape(endSectionShape, splitContainerColor)
                         drawContent()
                     }
                     .padding(contentPadding)
