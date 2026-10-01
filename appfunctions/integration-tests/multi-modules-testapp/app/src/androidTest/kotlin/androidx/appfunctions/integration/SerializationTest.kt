@@ -42,7 +42,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 class SerializationTest {
@@ -105,28 +104,6 @@ class SerializationTest {
             )
 
         assertThat(afd.getInt("value")).isEqualTo(10)
-    }
-
-    @Test
-    @Ignore(
-        "b/446606781: Re-enable once serialization no longer relies on aggregation mode to validate"
-    )
-    fun deserializeAppFunctionSerializable_failsForInvalidValues() {
-        assertFailsWith<IllegalArgumentException> {
-            AppFunctionData.Builder(
-                    listOf(
-                        AppFunctionParameterMetadata(
-                            name = "value",
-                            isRequired = false,
-                            dataType = AppFunctionIntTypeMetadata(isNullable = true),
-                        )
-                    ),
-                    AppFunctionComponentsMetadata(),
-                )
-                .setInt("value", -1)
-                .build()
-                .deserialize(IntEnumSerializable::class.java)
-        }
     }
 
     @Test
