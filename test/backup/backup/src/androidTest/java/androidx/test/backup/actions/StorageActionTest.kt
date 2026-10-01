@@ -32,6 +32,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.Locale
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -1129,6 +1130,323 @@ public class StorageActionTest {
                 error.contains(
                     "Found 2 rows with $keyCol='$keyVal' in table '$table'; expected exactly one."
                 ),
+        )
+    }
+
+    /**
+     * Verifies that populating a preference with expect_null removes the key from
+     * SharedPreferences.
+     */
+    @Test
+    public fun testPrefsPopulateNullRemovesKey() {
+        val prefName = "test_pref_null_populate"
+        val key = "test_key"
+
+        val sharedPrefs = context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
+        sharedPrefs.edit().putString(key, "existing_value").commit()
+        assertTrue(sharedPrefs.contains(key))
+
+        // Populate with EXPECT_NULL to remove the key
+        val putAction = PopulateStorageAction()
+        val putArgs =
+            BackupDeviceActionArgs(
+                mapOf(
+                    BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_PREFS,
+                    BackupActionInputKeys.PREF_NAME to prefName,
+                    BackupActionInputKeys.PREF_KEY to key,
+                    BackupActionInputKeys.EXPECT_NULL to "true",
+                )
+            )
+        val putResult = putAction.execute(context, putArgs)
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            putResult.payload[BackupActionOutputKeys.STATUS],
+        )
+
+        // Assert preference was removed from disk
+        assertFalse(sharedPrefs.contains(key))
+
+        // Assert verification of null succeeds
+        val verifyAction = AssertStorageAction()
+        val verifyResult = verifyAction.execute(context, putArgs)
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+    }
+
+    /**
+     * Typed preference verification compares parsed typed values, so alternative string
+     * representations of the same typed value round-trip successfully.
+     */
+    @Test
+    public fun testPrefsVerifyTypedEquivalence() {
+        val prefName = "test_pref_typed_equiv"
+
+        // 1. Boolean: "True" vs "true"
+        val boolKey = "bool_key"
+        val boolPopulate =
+            PopulateStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_PREFS,
+                            BackupActionInputKeys.PREF_NAME to prefName,
+                            BackupActionInputKeys.PREF_KEY to boolKey,
+                            BackupActionInputKeys.VALUE to "true",
+                            BackupActionInputKeys.VALUE_TYPE to
+                                BackupActionValues.VALUE_TYPE_BOOLEAN,
+                        )
+                    ),
+                )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            boolPopulate.payload[BackupActionOutputKeys.STATUS],
+        )
+        val boolVerify =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_PREFS,
+                            BackupActionInputKeys.PREF_NAME to prefName,
+                            BackupActionInputKeys.PREF_KEY to boolKey,
+                            BackupActionInputKeys.EXPECTED to "True",
+                            BackupActionInputKeys.VALUE_TYPE to
+                                BackupActionValues.VALUE_TYPE_BOOLEAN,
+                        )
+                    ),
+                )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            boolVerify.payload[BackupActionOutputKeys.STATUS],
+        )
+
+        // 2. Float: "1.5" vs "1.50"
+        val floatKey = "float_key"
+        val floatPopulate =
+            PopulateStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_PREFS,
+                            BackupActionInputKeys.PREF_NAME to prefName,
+                            BackupActionInputKeys.PREF_KEY to floatKey,
+                            BackupActionInputKeys.VALUE to "1.5",
+                            BackupActionInputKeys.VALUE_TYPE to BackupActionValues.VALUE_TYPE_FLOAT,
+                        )
+                    ),
+                )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            floatPopulate.payload[BackupActionOutputKeys.STATUS],
+        )
+        val floatVerify =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_PREFS,
+                            BackupActionInputKeys.PREF_NAME to prefName,
+                            BackupActionInputKeys.PREF_KEY to floatKey,
+                            BackupActionInputKeys.EXPECTED to "1.50",
+                            BackupActionInputKeys.VALUE_TYPE to BackupActionValues.VALUE_TYPE_FLOAT,
+                        )
+                    ),
+                )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            floatVerify.payload[BackupActionOutputKeys.STATUS],
+        )
+
+        // 3. Long: "7" vs "007"
+        val longKey = "long_key"
+        val longPopulate =
+            PopulateStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_PREFS,
+                            BackupActionInputKeys.PREF_NAME to prefName,
+                            BackupActionInputKeys.PREF_KEY to longKey,
+                            BackupActionInputKeys.VALUE to "7",
+                            BackupActionInputKeys.VALUE_TYPE to BackupActionValues.VALUE_TYPE_LONG,
+                        )
+                    ),
+                )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            longPopulate.payload[BackupActionOutputKeys.STATUS],
+        )
+        val longVerify =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_PREFS,
+                            BackupActionInputKeys.PREF_NAME to prefName,
+                            BackupActionInputKeys.PREF_KEY to longKey,
+                            BackupActionInputKeys.EXPECTED to "007",
+                            BackupActionInputKeys.VALUE_TYPE to BackupActionValues.VALUE_TYPE_LONG,
+                        )
+                    ),
+                )
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            longVerify.payload[BackupActionOutputKeys.STATUS],
+        )
+    }
+
+    /**
+     * Strict boolean parsing rejects non-boolean strings like "not_a_bool" instead of silently
+     * converting them to false.
+     */
+    @Test
+    public fun testPrefsStrictBooleanParsingRejectsInvalid() {
+        val result =
+            PopulateStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_PREFS,
+                            BackupActionInputKeys.PREF_NAME to "test_bad_bool_prefs",
+                            BackupActionInputKeys.PREF_KEY to "k",
+                            BackupActionInputKeys.VALUE to "not_a_bool",
+                            BackupActionInputKeys.VALUE_TYPE to
+                                BackupActionValues.VALUE_TYPE_BOOLEAN,
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            result.payload[BackupActionOutputKeys.STATUS],
+        )
+        val error = result.payload[BackupActionOutputKeys.ERROR]
+        assertTrue(
+            "Expected invalid boolean error but was: $error",
+            error != null && error.contains("Invalid boolean"),
+        )
+    }
+
+    /**
+     * If the stored preference on device has a different type than what was requested, verification
+     * fails with a type-mismatch error instead of crashing or returning an unhandled error.
+     */
+    @Test
+    public fun testPrefsTypeMismatchInStoreFailsVerification() {
+        val prefName = "test_pref_type_mismatch"
+        val key = "mismatch_key"
+
+        context
+            .getSharedPreferences(prefName, Context.MODE_PRIVATE)
+            .edit()
+            .putString(key, "string_value")
+            .commit()
+
+        val verifyResult =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_PREFS,
+                            BackupActionInputKeys.PREF_NAME to prefName,
+                            BackupActionInputKeys.PREF_KEY to key,
+                            BackupActionInputKeys.EXPECTED to "42",
+                            BackupActionInputKeys.VALUE_TYPE to BackupActionValues.VALUE_TYPE_INT,
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+        val error = verifyResult.payload[BackupActionOutputKeys.ERROR]
+        assertTrue(
+            "Expected type mismatch error but was: $error",
+            error != null && error.contains("is not of expected type"),
+        )
+    }
+
+    /** A key missing from the restored file is reported as missing, with the key and file named. */
+    @Test
+    public fun testPrefsMissingKeyFailsVerificationAsNotFound() {
+        val prefName = "test_pref_missing_key"
+        val key = "missing_key"
+        context.getSharedPreferences(prefName, Context.MODE_PRIVATE).edit().clear().commit()
+
+        val verifyResult =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_PREFS,
+                            BackupActionInputKeys.PREF_NAME to prefName,
+                            BackupActionInputKeys.PREF_KEY to key,
+                            BackupActionInputKeys.EXPECTED to "42",
+                            BackupActionInputKeys.VALUE_TYPE to BackupActionValues.VALUE_TYPE_INT,
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+        assertEquals(
+            "Preference '$key' not found in '$prefName'; expected '42'.",
+            verifyResult.payload[BackupActionOutputKeys.ERROR],
+        )
+    }
+
+    /** A key expected to be absent is reported as present, whatever type it is stored with. */
+    @Test
+    public fun testPrefsExpectNullReportsAPresentKeyOfAnyType() {
+        val prefName = "test_pref_expect_null_int"
+        val key = "int_key"
+        context.getSharedPreferences(prefName, Context.MODE_PRIVATE).edit().putInt(key, 42).commit()
+
+        val verifyResult =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_PREFS,
+                            BackupActionInputKeys.PREF_NAME to prefName,
+                            BackupActionInputKeys.PREF_KEY to key,
+                            BackupActionInputKeys.EXPECT_NULL to "true",
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+        assertEquals(
+            "Expected preference '$key' in '$prefName' to be absent, but found '42'.",
+            verifyResult.payload[BackupActionOutputKeys.ERROR],
         )
     }
 }
