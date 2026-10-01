@@ -43,13 +43,13 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@XrDeviceTest
 class PanelTransformationTest {
 
     private val uiDevice: UiDevice =
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @Test
+    @XrDeviceTest
     fun panelSeparation_matchesPhysicalMetricDistanceInSystem() =
         runTestWithSession { activity, session ->
             // Create Primary Panel at (0, 0, -1) and Secondary Panel at (0, 0, 1) directly under
@@ -106,6 +106,7 @@ class PanelTransformationTest {
         }
 
     @Test
+    @XrDeviceTest
     fun panelRotation_rotatesInSystem() = runTestWithSession { activity, session ->
         // Unrotated reference panel under activity space (Identity rotation)
         val unrotatedPanel =
@@ -164,6 +165,7 @@ class PanelTransformationTest {
     }
 
     @Test
+    @XrDeviceTest
     fun hierarchicalScale_doublesPhysicalDistanceAndNodeScale() =
         runTestWithSession { activity, session ->
             // Unscaled reference panel at origin (1.0x scale)

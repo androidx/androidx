@@ -44,10 +44,10 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@XrDeviceTest
 class EntityTransformationTest {
 
     @Test
+    @XrDeviceTest
     fun hierarchy_parentingAndReparentingUpdatesChildrenLists() = runTestWithSession { session ->
         val parentA =
             Entity.create(
@@ -87,6 +87,7 @@ class EntityTransformationTest {
     }
 
     @Test
+    @XrDeviceTest
     fun multiLevelHierarchy_poseAndRotationPropagatesToActivitySpace() =
         runTestWithSession { session ->
             // Root entity at (0, 1, -2) rotated 90° Yaw around Y
@@ -119,6 +120,7 @@ class EntityTransformationTest {
         }
 
     @Test
+    @XrDeviceTest
     fun setPoseInActivitySpace_computesCorrectLocalPoseRelativeToParent() =
         runTestWithSession { session ->
             val root =
@@ -141,6 +143,7 @@ class EntityTransformationTest {
         }
 
     @Test
+    @XrDeviceTest
     fun scalePropagation_propagatesThroughHierarchyAndScalesOffsets() =
         runTestWithSession { session ->
             val root =
@@ -169,6 +172,7 @@ class EntityTransformationTest {
         }
 
     @Test
+    @XrDeviceTest
     fun transformPoseTo_transformsPosesBetweenSiblingEntitiesAndActivitySpace() =
         runTestWithSession { session ->
             val entityA =
@@ -200,6 +204,7 @@ class EntityTransformationTest {
         }
 
     @Test
+    @XrDeviceTest
     fun transformSpatialMath_positionVectorAndDirectionHandleScaleAndRotation() =
         runTestWithSession { session ->
             // Entity with 90° Yaw rotation and 2.0x scale

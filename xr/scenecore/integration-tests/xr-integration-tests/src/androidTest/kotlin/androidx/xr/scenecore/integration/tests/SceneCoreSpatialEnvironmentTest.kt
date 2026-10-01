@@ -36,10 +36,10 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@XrDeviceTest
 class SceneCoreSpatialEnvironmentTest {
 
     @Test
+    @XrDeviceTest
     fun spatialEnvironment_passthroughOpacity_updatesAndNotifiesListeners() =
         runTestWithSession { session ->
             val env = session.scene.spatialEnvironment
@@ -66,6 +66,7 @@ class SceneCoreSpatialEnvironmentTest {
         }
 
     @Test
+    @XrDeviceTest
     fun spatialEnvironment_loadIblFromPathAndBytes_createsValidAssets() =
         runTestWithSession { activity, session ->
             val iblFromPath =
@@ -86,6 +87,7 @@ class SceneCoreSpatialEnvironmentTest {
         }
 
     @Test
+    @XrDeviceTest
     fun spatialEnvironment_geometryAndSkyboxSwapping_updatesPreferences() =
         runTestWithSession { session ->
             val ibl =

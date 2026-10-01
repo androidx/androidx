@@ -33,10 +33,10 @@ import org.junit.runner.RunWith
 /** Automated integration tests for glTF material overrides. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@XrDeviceTest
 class SceneCoreGltfMaterialAndIblVisualTest {
 
     @Test
+    @XrDeviceTest
     fun materialOverride_applyAndClear_updatesNativeMaterialOverrides() =
         runTestWithSession { session ->
             val gltfModel = GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))
