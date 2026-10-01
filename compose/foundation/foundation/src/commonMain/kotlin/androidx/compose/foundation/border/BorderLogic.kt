@@ -474,10 +474,10 @@ private fun createRoundRectPath(
 
 private fun createInsetRoundedRect(widthPx: Float, roundedRect: RoundRect) =
     RoundRect(
-        left = widthPx,
-        top = widthPx,
-        right = roundedRect.width - widthPx,
-        bottom = roundedRect.height - widthPx,
+        left = roundedRect.left + widthPx,
+        top = roundedRect.top + widthPx,
+        right = roundedRect.right - widthPx,
+        bottom = roundedRect.bottom - widthPx,
         topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(widthPx),
         topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(widthPx),
         bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(widthPx),

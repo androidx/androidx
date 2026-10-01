@@ -362,6 +362,17 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isTextFieldWaitWindowFocusForInputSessionEnabled: Boolean = true
+
+    /**
+     * Controls a fix for using [border] with custom shape implementations that return
+     * [androidx.compose.ui.graphics.Outline.Rounded] where the outline does not start at (0,0). For
+     * most cases, such as when using a high level
+     * [androidx.compose.foundation.shape.RoundedCornerShape], this flag should have no effect.
+     */
+    // TODO: Remove this flag once it has soaked (b/568463028)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isRoundedRectangleBorderRenderingFixEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */

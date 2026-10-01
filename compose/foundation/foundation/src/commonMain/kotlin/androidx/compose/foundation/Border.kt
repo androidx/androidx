@@ -458,17 +458,32 @@ private fun createRoundRectPath(
     }
 }
 
-private fun createInsetRoundedRect(widthPx: Float, roundedRect: RoundRect) =
-    RoundRect(
-        left = widthPx,
-        top = widthPx,
-        right = roundedRect.width - widthPx,
-        bottom = roundedRect.height - widthPx,
-        topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(widthPx),
-        topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(widthPx),
-        bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(widthPx),
-        bottomRightCornerRadius = roundedRect.bottomRightCornerRadius.shrink(widthPx),
-    )
+@OptIn(ExperimentalFoundationApi::class)
+private fun createInsetRoundedRect(widthPx: Float, roundedRect: RoundRect): RoundRect {
+    return if (ComposeFoundationFlags.isRoundedRectangleBorderRenderingFixEnabled) {
+        RoundRect(
+            left = roundedRect.left + widthPx,
+            top = roundedRect.top + widthPx,
+            right = roundedRect.right - widthPx,
+            bottom = roundedRect.bottom - widthPx,
+            topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(widthPx),
+            topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(widthPx),
+            bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(widthPx),
+            bottomRightCornerRadius = roundedRect.bottomRightCornerRadius.shrink(widthPx),
+        )
+    } else {
+        RoundRect(
+            left = widthPx,
+            top = widthPx,
+            right = roundedRect.width - widthPx,
+            bottom = roundedRect.height - widthPx,
+            topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(widthPx),
+            topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(widthPx),
+            bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(widthPx),
+            bottomRightCornerRadius = roundedRect.bottomRightCornerRadius.shrink(widthPx),
+        )
+    }
+}
 
 /**
  * Helper method to shrink the corner radius by the given value, clamping to 0 if the resultant
