@@ -29,6 +29,7 @@ import java.nio.file.Path
 import java.time.Duration
 import java.util.Locale
 import java.util.logging.Logger
+import kotlin.time.toKotlinDuration
 import kotlinx.coroutines.guava.future
 
 internal class BackupRestoreControllerImpl(
@@ -250,7 +251,7 @@ internal class BackupRestoreControllerImpl(
         timeout: Duration,
     ): BackupRestoreController {
         if (backupFile.fileName.toString() == backupFileName(BackupTransportMode.LOCAL)) {
-            localTransport.restore()
+            localTransport.restore(timeout.toKotlinDuration())
             return this
         }
         // Moves any foreground activity to the background so the restore agent can bind.
