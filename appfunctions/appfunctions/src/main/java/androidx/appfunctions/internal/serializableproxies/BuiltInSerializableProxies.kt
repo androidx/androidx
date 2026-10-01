@@ -34,23 +34,29 @@ import java.time.ZoneId
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object BuiltInSerializableProxies {
+    /**
+     * Factories of the built-in proxy types, keyed by the simple name of each proxy class.
+     *
+     * Lookups must not rely on [Class] identity: when an app enables Java library desugaring, the
+     * `java.time` class references in this library are rewritten to backported classes, while
+     * callers still resolve e.g. `java.time.LocalDateTime` by name. Simple names are unaffected.
+     */
     // LINT.IfChange(supported_proxies)
-    private val FACTORY_MAP: Map<Class<*>, () -> AppFunctionSerializableFactory<*>> =
+    private val FACTORY_MAP: Map<String, () -> AppFunctionSerializableFactory<*>> =
         mapOf(
-            LocalDate::class.java to { `$LocalDateFactory`() },
-            LocalTime::class.java to { `$LocalTimeFactory`() },
-            LocalDateTime::class.java to { `$LocalDateTimeFactory`() },
-            Uri::class.java to { `$UriFactory`() },
-            Instant::class.java to { `$InstantFactory`() },
-            ZoneId::class.java to { `$ZoneIdFactory`() },
+            LocalDate::class.java.simpleName to { `$LocalDateFactory`() },
+            LocalTime::class.java.simpleName to { `$LocalTimeFactory`() },
+            LocalDateTime::class.java.simpleName to { `$LocalDateTimeFactory`() },
+            Uri::class.java.simpleName to { `$UriFactory`() },
+            Instant::class.java.simpleName to { `$InstantFactory`() },
+            ZoneId::class.java.simpleName to { `$ZoneIdFactory`() },
         )
+
     // LINT.ThenChange(/appfunctions/appfunctions-compiler/src/main/java/androidx/appfunctions/compiler/core/AppFunctionTypeReference.kt:supported_proxies, /appfunctions/appfunctions/src/main/java/androidx/appfunctions/AppFunctionSerializable.kt:supported_proxies)
 
-    /** The set of classes supported as built-in serializable proxies. */
-    public val supportedProxyClasses: Set<Class<*>> = FACTORY_MAP.keys
-
     /** Checks whether the provided [clazz] is supported as a built-in proxy type. */
-    public fun isSupportedProxy(clazz: Class<*>): Boolean = FACTORY_MAP.containsKey(clazz)
+    public fun isSupportedProxy(clazz: Class<*>): Boolean =
+        FACTORY_MAP.containsKey(clazz.simpleName)
 
     /**
      * Returns an [AppFunctionSerializableFactory] for the provided [clazz] if it is a built-in
@@ -58,5 +64,5 @@ public object BuiltInSerializableProxies {
      */
     @Suppress("UNCHECKED_CAST")
     public fun <T : Any> getFactory(clazz: Class<T>): AppFunctionSerializableFactory<T>? =
-        FACTORY_MAP[clazz]?.invoke() as? AppFunctionSerializableFactory<T>
+        FACTORY_MAP[clazz.simpleName]?.invoke() as? AppFunctionSerializableFactory<T>
 }
