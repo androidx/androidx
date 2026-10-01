@@ -25,9 +25,12 @@ import java.io.IOException
 import java.nio.file.Path
 import java.time.Duration
 import java.util.logging.Logger
+import kotlin.time.Duration as KotlinDuration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Runs shell commands and file transfers on one device over ADB.
@@ -264,25 +267,43 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
     }
 }
 
+/** Upper bound for a [withCleanup] cleanup, which cannot be cancelled. */
+internal val DEFAULT_CLEANUP_TIMEOUT = 10.seconds
+
 /**
  * Runs [block], then [cleanup], even when [block] fails or its coroutine is cancelled.
+ *
+ * [cleanup] cannot be cancelled, so it is bounded by [cleanupTimeout] instead: an unresponsive
+ * device must not keep a cancelled or timed-out caller waiting. A cleanup that does not finish in
+ * time fails with an [IOException].
  *
  * When both fail, the failure of [block] is thrown with that of [cleanup] suppressed, so a cleanup
  * that fails for the same underlying reason, such as a disconnected device, never hides the root
  * cause.
  */
-internal suspend fun <T> withCleanup(cleanup: suspend () -> Unit, block: suspend () -> T): T {
+internal suspend fun <T> withCleanup(
+    cleanup: suspend () -> Unit,
+    cleanupTimeout: KotlinDuration = DEFAULT_CLEANUP_TIMEOUT,
+    block: suspend () -> T,
+): T {
     val result =
         try {
             block()
         } catch (e: Throwable) {
             try {
-                withContext(NonCancellable) { cleanup() }
+                runCleanup(cleanup, cleanupTimeout)
             } catch (cleanupFailure: Throwable) {
                 e.addSuppressed(cleanupFailure)
             }
             throw e
         }
-    withContext(NonCancellable) { cleanup() }
+    runCleanup(cleanup, cleanupTimeout)
     return result
+}
+
+private suspend fun runCleanup(cleanup: suspend () -> Unit, timeout: KotlinDuration) {
+    withContext(NonCancellable) {
+        withTimeoutOrNull(timeout) { cleanup() }
+            ?: throw IOException("Cleanup did not finish within $timeout")
+    }
 }
