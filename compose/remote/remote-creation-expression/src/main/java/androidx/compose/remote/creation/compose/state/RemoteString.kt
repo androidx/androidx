@@ -36,8 +36,7 @@ import androidx.compose.runtime.annotation.RememberInComposition
 public abstract class RemoteString internal constructor(cacheKey: RemoteStateCacheKey) :
     BaseRemoteState<String>(cacheKey) {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public enum class OperationKey(override val precedence: Int = 100) : RemoteOperation {
+    internal enum class OperationKey(override val precedence: Int = 100) : RemoteOperation {
         Concat(3),
         Substring,
         Uppercase,

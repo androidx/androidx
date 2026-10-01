@@ -52,14 +52,14 @@ import androidx.compose.runtime.annotation.RememberInComposition
 @Stable
 public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCacheKey) :
     BaseRemoteState<Float>(cacheKey) {
+    /** Provides the RPN [FloatArray] expression for the given [RemoteComposeCreationState]. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public enum class OperationKey(
-        public val opCode: Float,
+    internal enum class OperationKey(
+        internal val opCode: Float,
         override val precedence: Int = 100,
-        public val symbol: String? = null,
+        internal val symbol: String? = null,
     ) : RemoteOperation {
         ToRemoteInt(Float.NaN),
         ToRemoteString(Float.NaN),

@@ -231,11 +231,23 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
         return Utils.idFromNan(nanEncodedId)
     }
 
+    /**
+     * Returns the cached [FloatArray] for [key], or computes and caches it using [compute].
+     *
+     * @param key cache key identifying the float expression
+     * @param compute provider invoked on cache miss
+     */
     public inline fun getOrPutFloatArray(
         key: RemoteStateCacheKey,
         crossinline compute: () -> FloatArray,
     ): FloatArray = floatArrayCache.getOrPut(key) { compute() }
 
+    /**
+     * Returns the cached [LongArray] for [key], or computes and caches it using [compute].
+     *
+     * @param key cache key identifying the integer expression
+     * @param compute provider invoked on cache miss
+     */
     public inline fun getOrPutLongArray(
         key: RemoteStateCacheKey,
         crossinline compute: () -> LongArray,
@@ -261,6 +273,7 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
     ): Int = intExpressionIds.getOrPut(LoweredIntExpressionKey(array)) { write() }
 
     /** Clears all caches tied to the current [document]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun clearDocumentCaches() {
         floatExpressionIds.clear()
         intExpressionIds.clear()
@@ -271,6 +284,12 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
         currentRenderingNode = null
     }
 
+    /**
+     * Returns the variable ID cached for [key], or allocates and caches one using [compute].
+     *
+     * @param key cache key identifying the remote state
+     * @param compute allocator invoked on cache miss
+     */
     public inline fun getOrPutVariableId(
         key: RemoteStateCacheKey,
         crossinline compute: () -> Int,

@@ -1431,10 +1431,9 @@ class RemoteFloatTest {
 
         val op = constant + named
         // flipped because peephole
-        assertThat(op.cacheKey)
-            .isEqualTo(
-                RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Plus, named, constant)
-            )
+        val key = op.cacheKey as RemoteOperationCacheKey
+        assertThat(key.op.name).isEqualTo("Plus")
+        assertThat(key.args).isEqualTo(listOf(named.cacheKey, constant.cacheKey))
     }
 
     @Test
@@ -2207,8 +2206,7 @@ class RemoteFloatTest {
     @Test
     fun toDebugString_customFormatting_singleArgFallback() {
         val x = createNamedRemoteFloat("x", 10f)
-        val singleArgKey =
-            RemoteOperationCacheKey.create(RemoteFloat.OperationKey.ToRemoteString, x)
+        val singleArgKey = x.toRemoteString().cacheKey
         assertThat(singleArgKey.toDebugString()).isEqualTo("user:x.toRemoteString()")
     }
 

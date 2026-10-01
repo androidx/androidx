@@ -42,8 +42,7 @@ internal constructor(
     public override val cacheKey: RemoteStateCacheKey
         get() = intValue.cacheKey
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public enum class OperationKey : RemoteOperation {
+    internal enum class OperationKey : RemoteOperation {
         SelectString,
         SelectFloat,
         SelectInt,

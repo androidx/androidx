@@ -13,10 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-@file:JvmName("RemoteStateKt")
-@file:JvmMultifileClass
-
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
@@ -119,12 +115,6 @@ public interface RemoteState<T> {
         }
     }
 }
-
-/** The canonical domain identifier for user-defined state in the RemoteCompose wire protocol. */
-private const val USER_DOMAIN: String = "USER"
-
-/** The canonical domain identifier for system-defined state in the RemoteCompose wire protocol. */
-private const val SYSTEM_DOMAIN: String = "SYSTEM"
 
 /** Common base class for all Remote types. */
 public abstract class BaseRemoteState<T : Any>
@@ -237,10 +227,3 @@ public interface MutableRemoteState<T> : RemoteState<T> {
     public val asEncodedMutable: MutableRemoteState<*>
         get() = this
 }
-
-/** The cache key for this remote state within the RemoteComposeCreationState. */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public val RemoteState<*>.cacheKey: RemoteStateCacheKey
-    get() =
-        if (this is BaseRemoteState<*>) cacheKey
-        else throw IllegalArgumentException("Not a BaseRemoteState")

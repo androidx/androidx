@@ -64,13 +64,13 @@ public abstract class RemoteInt
 internal constructor(
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: Int?,
     cacheKey: RemoteStateCacheKey,
+    /** Provides the RPN [LongArray] expression for the given [RemoteComposeCreationState]. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
 ) : BaseRemoteState<Int>(cacheKey) {
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public enum class OperationKey(
+    internal enum class OperationKey(
         override val precedence: Int = 100,
-        public val symbol: String? = null,
+        internal val symbol: String? = null,
     ) : RemoteOperation {
         ToRemoteString,
         Add(3, "+"),
@@ -299,106 +299,160 @@ internal constructor(
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun plus(v: Int): RemoteInt {
-        if (v == 0) {
+    /**
+     * Adds [other] to this [RemoteInt].
+     *
+     * @param other integer value to add
+     * @return a [RemoteInt] evaluating to `this + other`
+     */
+    public operator fun plus(other: Int): RemoteInt {
+        if (other == 0) {
             return this
         }
-        return binaryOp(this, v, OperationKey.Add, OP_ADD) { a, b -> a + b }
+        return binaryOp(this, other, OperationKey.Add, OP_ADD) { a, b -> a + b }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun minus(v: Int): RemoteInt {
-        if (v == 0) {
+    /**
+     * Subtracts [other] from this [RemoteInt].
+     *
+     * @param other integer value to subtract
+     * @return a [RemoteInt] evaluating to `this - other`
+     */
+    public operator fun minus(other: Int): RemoteInt {
+        if (other == 0) {
             return this
         }
-        return binaryOp(this, v, OperationKey.Sub, OP_SUB) { a, b -> a - b }
+        return binaryOp(this, other, OperationKey.Sub, OP_SUB) { a, b -> a - b }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun times(v: Int): RemoteInt {
-        if (v == 0) {
+    /**
+     * Multiplies this [RemoteInt] by [other].
+     *
+     * @param other integer multiplier
+     * @return a [RemoteInt] evaluating to `this * other`
+     */
+    public operator fun times(other: Int): RemoteInt {
+        if (other == 0) {
             return RemoteInt(0)
         }
-        if (v == 1) {
+        if (other == 1) {
             return this
         }
         if (constantValueOrNull != null && constantValueOrNull == 1) {
-            return RemoteInt(v)
+            return RemoteInt(other)
         }
-        return binaryOp(this, v, OperationKey.Mul, OP_MUL) { a, b -> a * b }
+        return binaryOp(this, other, OperationKey.Mul, OP_MUL) { a, b -> a * b }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun div(v: Int): RemoteInt {
+    /**
+     * Divides this [RemoteInt] by [other] using truncating integer division.
+     *
+     * @param other integer divisor
+     * @return a [RemoteInt] evaluating to `this / other`
+     */
+    public operator fun div(other: Int): RemoteInt {
         if (constantValueOrNull != null && constantValueOrNull == 0) {
             return RemoteInt(0)
         }
-        if (v == 1) {
+        if (other == 1) {
             return this
         }
-        return binaryOp(this, v, OperationKey.Div, OP_DIV) { a, b -> a / b }
+        return binaryOp(this, other, OperationKey.Div, OP_DIV) { a, b -> a / b }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun rem(v: Int): RemoteInt =
-        binaryOp(this, v, OperationKey.Mod, OP_MOD) { a, b -> a % b }
+    /**
+     * Computes the remainder of truncating division of this [RemoteInt] by [other].
+     *
+     * @param other integer divisor
+     * @return a [RemoteInt] evaluating to `this % other`
+     */
+    public operator fun rem(other: Int): RemoteInt =
+        binaryOp(this, other, OperationKey.Mod, OP_MOD) { a, b -> a % b }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun plus(v: RemoteInt): RemoteInt {
-        v.constantValueOrNull?.let {
+    /**
+     * Adds [other] to this [RemoteInt].
+     *
+     * @param other [RemoteInt] to add
+     * @return a [RemoteInt] evaluating to `this + other`
+     */
+    public operator fun plus(other: RemoteInt): RemoteInt {
+        other.constantValueOrNull?.let {
             return plus(it)
         }
         constantValueOrNull?.let {
-            return v.plus(it)
+            return other.plus(it)
         }
-        return binaryOp(this, v, OperationKey.Add, OP_ADD) { a, b -> a + b }
+        return binaryOp(this, other, OperationKey.Add, OP_ADD) { a, b -> a + b }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun minus(v: RemoteInt): RemoteInt {
-        v.constantValueOrNull?.let {
+    /**
+     * Subtracts [other] from this [RemoteInt].
+     *
+     * @param other [RemoteInt] to subtract
+     * @return a [RemoteInt] evaluating to `this - other`
+     */
+    public operator fun minus(other: RemoteInt): RemoteInt {
+        other.constantValueOrNull?.let {
             return minus(it)
         }
         constantValueOrNull?.let {
-            return (-v).plus(it)
+            return (-other).plus(it)
         }
-        return binaryOp(this, v, OperationKey.Sub, OP_SUB) { a, b -> a - b }
+        return binaryOp(this, other, OperationKey.Sub, OP_SUB) { a, b -> a - b }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun times(v: RemoteInt): RemoteInt {
+    /**
+     * Multiplies this [RemoteInt] by [other].
+     *
+     * @param other [RemoteInt] multiplier
+     * @return a [RemoteInt] evaluating to `this * other`
+     */
+    public operator fun times(other: RemoteInt): RemoteInt {
         if (
             (constantValueOrNull != null && constantValueOrNull == 0) ||
-                (v.constantValueOrNull != null && v.constantValueOrNull == 0)
+                (other.constantValueOrNull != null && other.constantValueOrNull == 0)
         ) {
             return RemoteInt(0)
         }
-        v.constantValueOrNull?.let {
+        other.constantValueOrNull?.let {
             return times(it)
         }
         constantValueOrNull?.let {
-            return v.times(it)
+            return other.times(it)
         }
-        return binaryOp(this, v, OperationKey.Mul, OP_MUL) { a, b -> a * b }
+        return binaryOp(this, other, OperationKey.Mul, OP_MUL) { a, b -> a * b }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun div(v: RemoteInt): RemoteInt {
+    /**
+     * Divides this [RemoteInt] by [other] using truncating integer division.
+     *
+     * @param other [RemoteInt] divisor
+     * @return a [RemoteInt] evaluating to `this / other`
+     */
+    public operator fun div(other: RemoteInt): RemoteInt {
         if (constantValueOrNull != null && constantValueOrNull == 0) {
             return RemoteInt(0)
         }
-        v.constantValueOrNull?.let {
+        other.constantValueOrNull?.let {
             return div(it)
         }
-        return binaryOp(this, v, OperationKey.Div, OP_DIV) { a, b -> a / b }
+        return binaryOp(this, other, OperationKey.Div, OP_DIV) { a, b -> a / b }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun rem(v: RemoteInt): RemoteInt =
-        binaryOp(this, v, OperationKey.Mod, OP_MOD) { a, b -> a % b }
+    /**
+     * Computes the remainder of truncating division of this [RemoteInt] by [other].
+     *
+     * @param other [RemoteInt] divisor
+     * @return a [RemoteInt] evaluating to `this % other`
+     */
+    public operator fun rem(other: RemoteInt): RemoteInt =
+        binaryOp(this, other, OperationKey.Mod, OP_MOD) { a, b -> a % b }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /**
+     * Negates this [RemoteInt].
+     *
+     * @return a [RemoteInt] evaluating to `-this`
+     */
     public operator fun unaryMinus(): RemoteInt = unaryOp(OperationKey.Neg, OP_NEG) { v -> -v }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

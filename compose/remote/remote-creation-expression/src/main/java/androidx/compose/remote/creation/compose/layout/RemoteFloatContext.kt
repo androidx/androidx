@@ -23,17 +23,25 @@ import androidx.compose.remote.creation.compose.state.RemoteComponentCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
 
-/** Receiver scope providing access to dynamic layout measurements of the active component. */
+/** Exposes component-relative [RemoteFloat] bounds for remote float expressions. */
 public class RemoteFloatContext
 private constructor(
     internal val scope: RemoteDocumentScope?,
     internal val token: RemoteComponentToken?,
 ) {
-    /** Creates a [RemoteFloatContext] backed by [scope]. */
+    /**
+     * Creates a [RemoteFloatContext] backed by [scope].
+     *
+     * @param scope scope providing the target [RemoteComposeWriter]
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(scope: RemoteDocumentScope) : this(scope = scope, token = null)
 
-    /** Creates a [RemoteFloatContext] bound to [token]. */
+    /**
+     * Creates a [RemoteFloatContext] bound to [token].
+     *
+     * @param token identity token of the target layout component
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(token: RemoteComponentToken?) : this(scope = null, token = token)
 
@@ -64,7 +72,7 @@ private constructor(
         )
     }
 
-    /** Returns the width of the active component in pixels. */
+    /** Returns the width of the current component in pixels as a [RemoteFloat]. */
     public fun componentWidth(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
@@ -79,7 +87,7 @@ private constructor(
         )
     }
 
-    /** Returns the height of the active component in pixels. */
+    /** Returns the height of the current component in pixels as a [RemoteFloat]. */
     public fun componentHeight(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
@@ -94,7 +102,11 @@ private constructor(
         )
     }
 
-    /** Returns the horizontal center (`width / 2`) of the active component in pixels. */
+    /**
+     * Returns the horizontal center (`width / 2`) of the current component in pixels.
+     *
+     * @return horizontal center offset as a [RemoteFloat]
+     */
     public fun componentCenterX(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
@@ -128,7 +140,11 @@ private constructor(
         )
     }
 
-    /** Returns the vertical center (`height / 2`) of the active component in pixels. */
+    /**
+     * Returns the vertical center (`height / 2`) of the current component in pixels.
+     *
+     * @return vertical center offset as a [RemoteFloat]
+     */
     public fun componentCenterY(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
@@ -162,7 +178,7 @@ private constructor(
         )
     }
 
-    /** Returns the horizontal offset of the active component relative to its parent in pixels. */
+    /** Returns the parent-relative X coordinate of the current component in pixels. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun componentX(): RemoteFloat {
         val capturedToken = activeToken()
@@ -178,7 +194,7 @@ private constructor(
         )
     }
 
-    /** Returns the vertical offset of the active component relative to its parent in pixels. */
+    /** Returns the parent-relative Y coordinate of the current component in pixels. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun componentY(): RemoteFloat {
         val capturedToken = activeToken()
@@ -194,7 +210,7 @@ private constructor(
         )
     }
 
-    /** Returns the horizontal offset of the active component relative to the root in pixels. */
+    /** Returns the root-relative X coordinate of the current component in pixels. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun componentRootX(): RemoteFloat {
         val capturedToken = activeToken()
@@ -210,7 +226,7 @@ private constructor(
         )
     }
 
-    /** Returns the vertical offset of the active component relative to the root in pixels. */
+    /** Returns the root-relative Y coordinate of the current component in pixels. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun componentRootY(): RemoteFloat {
         val capturedToken = activeToken()

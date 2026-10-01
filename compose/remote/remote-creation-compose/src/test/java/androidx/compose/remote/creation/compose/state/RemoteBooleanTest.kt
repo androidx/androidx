@@ -766,14 +766,9 @@ class RemoteBooleanTest {
 
         val named = createNamedRemoteBoolean("test", false)
         val op = constant and named
-        assertThat(op.cacheKey)
-            .isEqualTo(
-                RemoteOperationCacheKey.create(
-                    RemoteInt.OperationKey.And,
-                    constant.intValue,
-                    named.intValue,
-                )
-            )
+        val key = op.cacheKey as RemoteOperationCacheKey
+        assertThat(key.op.name).isEqualTo("And")
+        assertThat(key.args).isEqualTo(listOf(constant.intValue.cacheKey, named.intValue.cacheKey))
     }
 
     @Test
