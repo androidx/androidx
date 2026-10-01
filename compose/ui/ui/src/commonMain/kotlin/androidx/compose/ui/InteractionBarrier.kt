@@ -31,10 +31,8 @@ import androidx.compose.ui.unit.IntSize
 /**
  * Declares that this component blocks all forms of interaction (touch, keyboard/D-pad focus, and
  * screen reader accessibility) for elements geometrically behind it.
- *
- * @sample androidx.compose.ui.samples.InteractionBarrierSample
  */
-public fun Modifier.interactionBarrier(): Modifier = this then InteractionBarrierElement
+internal fun Modifier.interactionBarrier(): Modifier = this then InteractionBarrierElement
 
 private object InteractionBarrierElement : ModifierNodeElement<InteractionBarrierNode>() {
     override fun create(): InteractionBarrierNode = InteractionBarrierNode()
