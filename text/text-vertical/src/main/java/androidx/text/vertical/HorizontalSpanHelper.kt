@@ -74,15 +74,16 @@ internal fun Spanned.getCoveringStyles(start: Int, end: Int): List<CharacterStyl
     }
 
 /**
- * Returns the background color of a [ReplacementSpan].
+ * Returns the background color of a span from [paint] and [coveringStyles].
  *
- * The platform applies only the covering [MetricAffectingSpan]s to the paint that it passes to
- * [ReplacementSpan.draw]. It does not apply other [CharacterStyle]s, such as
- * [android.text.style.BackgroundColorSpan]. This function applies all of [coveringStyles] in order,
- * so the last style that sets [TextPaint.bgColor] gives the color, the same as in plain text.
+ * In horizontal text, the platform applies only the covering [MetricAffectingSpan]s to the paint
+ * that it passes to [ReplacementSpan.draw]. It does not apply other [CharacterStyle]s, such as
+ * [android.text.style.BackgroundColorSpan]. This function applies all of [coveringStyles] in order
+ * on top of [paint], so the last style that sets [TextPaint.bgColor] gives the color, the same as
+ * in plain text.
  *
- * @param paint the paint that the platform passes to [ReplacementSpan.draw]
- * @param coveringStyles the styles that [getCoveringStyles] returns for the span
+ * @param paint the base paint for the span or layout run
+ * @param coveringStyles the styles that [getCoveringStyles] returns for the span range
  */
 @ColorInt
 internal fun resolveBackgroundColor(paint: Paint, coveringStyles: List<CharacterStyle>): Int {
@@ -102,9 +103,8 @@ internal fun resolveBackgroundColor(paint: Paint, coveringStyles: List<Character
 /**
  * Fills a box with [bgColor].
  *
- * The platform does not fill the background of a [ReplacementSpan], so each span fills the box that
- * [HorizontalSpanLayout.fillFontMetrics] reports with this function. This function does nothing if
- * [bgColor] is 0 or if the box is empty.
+ * Horizontal [ReplacementSpan] layouts and vertical [LayoutRun] instances use this function to fill
+ * their background boxes. This function does nothing if [bgColor] is 0 or if the box is empty.
  */
 internal fun Canvas.drawSpanBackground(
     left: Float,
