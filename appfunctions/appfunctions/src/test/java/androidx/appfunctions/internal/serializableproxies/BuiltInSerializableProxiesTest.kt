@@ -34,19 +34,6 @@ import org.robolectric.annotation.Config
 class BuiltInSerializableProxiesTest {
 
     @Test
-    fun supportedProxyClasses_containsExpectedTypes() {
-        assertThat(BuiltInSerializableProxies.supportedProxyClasses)
-            .containsExactly(
-                LocalDate::class.java,
-                LocalTime::class.java,
-                LocalDateTime::class.java,
-                Uri::class.java,
-                Instant::class.java,
-                ZoneId::class.java,
-            )
-    }
-
-    @Test
     fun isSupportedProxy_returnsTrueForSupportedTypes() {
         assertThat(BuiltInSerializableProxies.isSupportedProxy(LocalDate::class.java)).isTrue()
         assertThat(BuiltInSerializableProxies.isSupportedProxy(LocalTime::class.java)).isTrue()
