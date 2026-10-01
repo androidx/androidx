@@ -23,6 +23,10 @@ internal actual constructor(private val impl: SavedStateRegistryImpl) {
 
     public actual constructor() : this(SavedStateRegistryImpl())
 
+    internal actual constructor(
+        container: SavedStateContainer
+    ) : this(SavedStateRegistryImpl(container))
+
     public actual constructor(
         initialState: SavedState?
     ) : this(SavedStateRegistryImpl(initialState))
@@ -30,6 +34,12 @@ internal actual constructor(private val impl: SavedStateRegistryImpl) {
     @get:MainThread
     public actual val isRestored: Boolean
         get() = impl.isRestored
+
+    @MainThread public actual fun asContainer(): SavedStateContainer = impl.asContainer()
+
+    @MainThread
+    public actual fun createOrGetContainer(key: String): SavedStateContainer =
+        impl.createOrGetContainer(key)
 
     @MainThread
     public actual fun consumeRestoredStateForKey(key: String): SavedState? =
