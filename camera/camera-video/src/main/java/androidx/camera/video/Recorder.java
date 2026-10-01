@@ -513,8 +513,9 @@ public final class Recorder implements VideoOutput {
     private SurfaceRequest.@Nullable TransformationInfo mInProgressTransformationInfo = null;
     private SurfaceRequest.@Nullable TransformationInfo mSourceTransformationInfo = null;
     private @Nullable MediaInfo mResolvedMediaInfo = null;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final List<ListenableFuture<Void>> mEncodingFutures = new ArrayList<>();
+    private @Nullable ListenableFuture<Void> mVideoEncodingFuture = null;
+    private @Nullable ListenableFuture<Void> mAudioEncodingFuture = null;
+    private CallbackToFutureAdapter.@Nullable Completer<Void> mVideoEncoderCompleter = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Integer mAudioTrackIndex = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -2079,17 +2080,18 @@ public final class Recorder implements VideoOutput {
     @ExecutedBy("mSequentialExecutor")
     private void updateEncoderCallbacks(@NonNull RecordingRecord recordingToStart,
             boolean videoOnly) {
-        // If there are uncompleted futures, cancel them first.
-        if (!mEncodingFutures.isEmpty()) {
-            ListenableFuture<List<Void>> listFuture = Futures.allAsList(mEncodingFutures);
-            if (!listFuture.isDone()) {
-                listFuture.cancel(true);
-            }
-            mEncodingFutures.clear();
+        if (mVideoEncodingFuture != null) {
+            mVideoEncodingFuture.cancel(true);
+            mVideoEncodingFuture = null;
+        }
+        if (!videoOnly && mAudioEncodingFuture != null) {
+            mAudioEncodingFuture.cancel(true);
+            mAudioEncodingFuture = null;
         }
 
-        mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
+        mVideoEncodingFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
+                    mVideoEncoderCompleter = completer;
                     mVideoEncoder.setEncoderCallback(new EncoderCallback() {
                         @ExecutedBy("mSequentialExecutor")
                         @Override
@@ -2100,12 +2102,18 @@ public final class Recorder implements VideoOutput {
                         @ExecutedBy("mSequentialExecutor")
                         @Override
                         public void onEncodeStop() {
+                            if (mVideoEncoderCompleter == completer) {
+                                mVideoEncoderCompleter = null;
+                            }
                             completer.set(null);
                         }
 
                         @ExecutedBy("mSequentialExecutor")
                         @Override
                         public void onEncodeError(@NonNull EncodeException e) {
+                            if (mVideoEncoderCompleter == completer) {
+                                mVideoEncoderCompleter = null;
+                            }
                             completer.setException(e);
                         }
 
@@ -2185,10 +2193,10 @@ public final class Recorder implements VideoOutput {
                         }
                     }, mSequentialExecutor);
                     return "videoEncodingFuture";
-                }));
+                });
 
         if (isAudioEnabled() && !videoOnly) {
-            mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
+            mAudioEncodingFuture = CallbackToFutureAdapter.getFuture(
                     completer -> {
                         Consumer<Throwable> audioErrorConsumer = throwable -> {
                             if (mAudioErrorCause == null) {
@@ -2311,11 +2319,21 @@ public final class Recorder implements VideoOutput {
                             }
                         }, mSequentialExecutor);
                         return "audioEncodingFuture";
-                    }));
+                    });
         }
 
-        Futures.addCallback(Futures.allAsList(mEncodingFutures),
-                new FutureCallback<List<Void>>() {
+        // Aggregate non-cancellation-propagating views of the futures. Futures.allAsList() cancels
+        // all its inputs once any input is cancelled, so without the wrapping, cancelling a
+        // replaced video future would also cancel the retained audio future through the previous
+        // aggregated future.
+        List<ListenableFuture<Void>> encodingFutures = new ArrayList<>();
+        encodingFutures.add(Futures.nonCancellationPropagating(checkNotNull(mVideoEncodingFuture)));
+        ListenableFuture<Void> audioEncodingFuture = mAudioEncodingFuture;
+        if (audioEncodingFuture != null) {
+            encodingFutures.add(Futures.nonCancellationPropagating(audioEncodingFuture));
+        }
+        Futures.addCallback(Futures.allAsList(encodingFutures),
+                new FutureCallback<>() {
                     @Override
                     public void onSuccess(@Nullable List<Void> result) {
                         Logger.d(TAG, "Encodings end successfully.");
@@ -2328,7 +2346,7 @@ public final class Recorder implements VideoOutput {
                                 "In-progress recording shouldn't be null");
                         // If the active recording should be retained, the previous encoder future
                         // has to be canceled without finalizing the recording.
-                        if (!shouldRetainRecording()) {
+                        if (!shouldRetainRecording() || mInProgressRecordingStopping) {
                             Logger.d(TAG, "Encodings end with error: " + t);
                             finalizeInProgressRecording(mMuxer == null ? ERROR_NO_VALID_DATA
                                     : ERROR_ENCODING_FAILED, t);
@@ -2569,31 +2587,35 @@ public final class Recorder implements VideoOutput {
                 mPendingFirstVideoData = null;
             }
 
-            if (mSourceState != SourceState.ACTIVE_NON_STREAMING) {
-                // As b/197047288, if the source is still ACTIVE, we will wait for the source to
-                // become non-streaming before notifying the encoder the source has stopped.
-                // Similarly, if the source is already INACTIVE, we won't know that the source
-                // has stopped until the surface request callback, so we'll wait for that.
-                // In both cases, we set a timeout to ensure the source is always signalled on
-                // devices that require it and to act as a flag that we need to signal the source
-                // stopped.
-                mSourceNonStreamingTimeout = scheduleTask(() ->
-                    Logger.d(TAG, "The source didn't become non-streaming "
-                            + "before timeout. Waited " + SOURCE_NON_STREAMING_TIMEOUT_MS
-                            + "ms"),
-                        mSequentialExecutor, SOURCE_NON_STREAMING_TIMEOUT_MS,
-                        TimeUnit.MILLISECONDS);
-            } else {
-                // Source is already non-streaming. Signal source is stopped right away.
-                notifyEncoderSourceStopped(mVideoEncoder);
-            }
-
-            // Stop the encoder. This will tell the encoder to stop encoding new data. We'll notify
-            // the encoder when the source has actually stopped in the FutureCallback.
-            // If the recording is explicitly stopped by the user, pass the stop timestamp to the
-            // encoder so that the encoding can be stop as close as to the actual stop time.
             if (mVideoEncoder != null) {
+                if (mSourceState != SourceState.ACTIVE_NON_STREAMING) {
+                    // As b/197047288, if the source is still ACTIVE, we will wait for the source
+                    // to become non-streaming before notifying the encoder the source has stopped.
+                    // Similarly, if the source is already INACTIVE, we won't know that the source
+                    // has stopped until the surface request callback, so we'll wait for that.
+                    // In both cases, we set a timeout to ensure the source is always signalled
+                    // on devices that require it and to act as a flag that we need to signal the
+                    // source stopped.
+                    mSourceNonStreamingTimeout = scheduleTask(() ->
+                        Logger.d(TAG, "The source didn't become non-streaming "
+                                + "before timeout. Waited " + SOURCE_NON_STREAMING_TIMEOUT_MS
+                                + "ms"),
+                            mSequentialExecutor, SOURCE_NON_STREAMING_TIMEOUT_MS,
+                            TimeUnit.MILLISECONDS);
+                } else {
+                    // Source is already non-streaming. Signal source is stopped right away.
+                    notifyEncoderSourceStopped(mVideoEncoder);
+                }
+
+                // Stop the encoder. This will tell the encoder to stop encoding new data. We'll
+                // notify the encoder when the source has actually stopped in the FutureCallback.
+                // If the recording is explicitly stopped by the user, pass the stop timestamp to
+                // the encoder so that the encoding can be stop as close as to the actual stop time.
                 mVideoEncoder.stop(explicitlyStopTime);
+            } else if (mVideoEncoderCompleter != null) {
+                CallbackToFutureAdapter.Completer<Void> completer = mVideoEncoderCompleter;
+                mVideoEncoderCompleter = null;
+                completer.set(null);
             }
         }
     }
@@ -2829,7 +2851,9 @@ public final class Recorder implements VideoOutput {
         mInProgressRecordingStopping = false;
         mAudioTrackIndex = null;
         mVideoTrackIndex = null;
-        mEncodingFutures.clear();
+        mVideoEncodingFuture = null;
+        mAudioEncodingFuture = null;
+        mVideoEncoderCompleter = null;
         mOutputUri = Uri.EMPTY;
         mRecordingBytes = 0L;
         mRecordingAudioBytes = 0L;
