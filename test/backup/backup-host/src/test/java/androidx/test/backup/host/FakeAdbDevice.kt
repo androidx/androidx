@@ -37,6 +37,8 @@ import java.nio.file.Path
 import java.time.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.mockito.Mockito.RETURNS_DEFAULTS
@@ -85,6 +87,7 @@ internal class FakeAdbDevice {
 
     private var shellHandler: (String) -> ShellCommandOutput = { shellOutput() }
     private var pullHandler: (String) -> String = { "" }
+    private var hangPredicate: (String) -> Boolean = { false }
     private var lastCreatedHostFile: Path? = null
 
     /** Answers every later shell command with [handler]; an exception it throws is propagated. */
@@ -95,6 +98,14 @@ internal class FakeAdbDevice {
     /** Answers every later pull of a device file with the content returned by [handler]. */
     fun onPull(handler: (devicePath: String) -> String) {
         pullHandler = handler
+    }
+
+    /**
+     * Makes every later shell command matching [predicate] run until it is cancelled, as on an
+     * unresponsive device. The command is still recorded.
+     */
+    fun hangOn(predicate: (command: String) -> Boolean) {
+        hangPredicate = predicate
     }
 
     init {
@@ -201,7 +212,11 @@ internal class FakeAdbDevice {
                     flowOf("")
                 } else {
                     _commands += command
-                    flowOf(shellHandler(command))
+                    if (hangPredicate(command)) {
+                        flow<ShellCommandOutput> { awaitCancellation() }
+                    } else {
+                        flowOf(shellHandler(command))
+                    }
                 }
             }
     }
