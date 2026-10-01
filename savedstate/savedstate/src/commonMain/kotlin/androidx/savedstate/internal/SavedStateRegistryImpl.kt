@@ -17,22 +17,23 @@
 package androidx.savedstate.internal
 
 import androidx.annotation.MainThread
-import androidx.collection.mutableScatterMapOf
 import androidx.savedstate.SavedState
+import androidx.savedstate.SavedStateContainer
 import androidx.savedstate.SavedStateRegistry
-import androidx.savedstate.read
-import androidx.savedstate.savedState
-import androidx.savedstate.write
 
 internal class SavedStateRegistryImpl(
-    initialState: SavedState? = null,
+    val container: SavedStateContainer = SavedStateContainer(),
     private val onConsumeRestoredStateForKey: (key: String) -> Unit = {},
 ) : SavedStateRegistry.SavedStateProvider, SavedStateRegistry.SavedStateRestorer {
 
-    private val lock = SynchronizedObject()
-    private val keyToProviders =
-        mutableScatterMapOf<String, SavedStateRegistry.SavedStateProvider>()
-    private var restoredState: SavedState? = initialState
+    constructor(
+        initialState: SavedState?,
+        onConsumeRestoredStateForKey: (key: String) -> Unit = {},
+    ) : this(SavedStateContainer(), onConsumeRestoredStateForKey) {
+        if (initialState != null) {
+            container.restoreState(initialState)
+        }
+    }
 
     @get:MainThread
     var isRestored = false
@@ -40,80 +41,65 @@ internal class SavedStateRegistryImpl(
 
     internal var isAllowingSavingState: Boolean = true
 
+    fun asContainer(): SavedStateContainer = container
+
+    fun createOrGetContainer(key: String): SavedStateContainer = container.createOrGetContainer(key)
+
     override fun saveState(): SavedState {
-        return savedState {
-            // Keep unconsumed state from previous restore.
-            restoredState?.let { putAll(from = it) }
-            synchronized(lock) {
-                // Collect state from all registered providers.
-                keyToProviders.forEach { key, provider -> putSavedState(key, provider.saveState()) }
-            }
-        }
+        return container.saveState()
     }
 
     override fun restoreState(savedState: SavedState?) {
-        // Merge incoming state with existing restored state so prior state is not lost.
-        val mergedState =
-            savedState(initialState = savedState ?: savedState()) {
-                restoredState?.let { putAll(from = it) }
-            }
-        restoredState = mergedState
         isRestored = true
-
-        synchronized(lock) {
-            keyToProviders.forEach { key, provider ->
-                // Automatically restore components that implement SavedStateRestorer.
-                if (provider is SavedStateRegistry.SavedStateRestorer && isRestored) {
-                    provider.restoreState(savedState = consumeRestoredStateForKey(key))
-                }
-            }
-        }
+        container.restoreState(savedState)
     }
 
     @MainThread
     fun consumeRestoredStateForKey(key: String): SavedState? {
         onConsumeRestoredStateForKey(key)
-        val state = restoredState ?: return null
-
-        val consumed = state.read { getSavedStateOrNull(key) }
-        if (consumed != null) {
-            state.write { remove(key) }
-            if (state.read { isEmpty() }) {
-                restoredState = null
+        val savedStateValue =
+            container.getSavedStateValue<
+                SavedStateRegistry.SavedStateProvider,
+                ProviderSavedStateValue,
+            >(
+                key
+            )
+        if (savedStateValue != null) {
+            return savedStateValue.savedState.also {
+                savedStateValue.savedState = null
             }
         }
-
-        return consumed
+        return container.consumeForKey(key)
     }
 
     @MainThread
     fun registerSavedStateProvider(key: String, provider: SavedStateRegistry.SavedStateProvider) {
-        synchronized(lock) {
-            val oldProvider = keyToProviders.put(key, provider)
-
-            // Allow idempotent re-registration of the exact same provider instance.
-            if (oldProvider === provider) {
-                return@synchronized
-            }
-
-            // Prevent key collisions between different provider instances.
-            require(oldProvider == null) {
-                "SavedStateProvider with key '$key' already registered. Existing instance: '$oldProvider'. New instance: '$provider'."
-            }
-
-            // If registry is restored, restore state immediately for late registration.
-            if (provider is SavedStateRegistry.SavedStateRestorer && isRestored) {
-                provider.restoreState(savedState = consumeRestoredStateForKey(key))
+        val providerValue = ProviderSavedStateValue(provider)
+        if (container.registerSavedStateValue(key, providerValue)) {
+            if (isRestored && !providerValue.isRestored) {
+                providerValue.restoreState(null)
             }
         }
     }
 
     fun getSavedStateProvider(key: String): SavedStateRegistry.SavedStateProvider? {
-        return synchronized(lock) { keyToProviders[key] }
+        return container
+            .getSavedStateValue<
+                SavedStateRegistry.SavedStateProvider,
+                ProviderSavedStateValue,
+            >(
+                key
+            )
+            ?.value
     }
 
     @MainThread
     fun unregisterSavedStateProvider(key: String) {
-        synchronized(lock) { keyToProviders.remove(key) }
+        container.removeSavedStateValue<
+            SavedStateRegistry.SavedStateProvider,
+            ProviderSavedStateValue,
+        >(
+            key
+        )
     }
 }
