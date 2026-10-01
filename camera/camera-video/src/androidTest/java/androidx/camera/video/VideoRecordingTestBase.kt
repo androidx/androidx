@@ -601,6 +601,24 @@ abstract class VideoRecordingTestBase(
 
     @FirstAvailableCameraOnly
     @Test
+    fun persistentRecording_unbindAndRebind_producesValidFile() {
+        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+
+        checkAndBindUseCases(preview, videoCapture)
+        val recording =
+            recordingSession.createRecording(asPersistentRecording = true).startAndVerify()
+
+        instrumentation.runOnMainSync { cameraProvider.unbindAll() }
+        checkAndBindUseCases(preview, videoCapture)
+
+        recording.clearEvents()
+        recording.verifyStatus()
+
+        recording.stopAndVerify()
+    }
+
+    @FirstAvailableCameraOnly
+    @Test
     fun canRecordWithCorrectTransformation() {
         assumeTrue(
             "No OppositeCamera for test.",

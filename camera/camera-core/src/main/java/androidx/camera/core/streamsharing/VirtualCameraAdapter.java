@@ -94,6 +94,9 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     private final @NonNull Map<UseCase, VirtualCamera> mChildrenVirtualCameras = new HashMap<>();
     // Whether a child is in the active state. See: UseCase.State.ACTIVE
     final @NonNull Map<UseCase, Boolean> mChildrenActiveState = new HashMap<>();
+    // Whether the children are in a session, i.e. between notifySessionStart() and
+    // notifySessionStop().
+    private boolean mIsInSession = false;
     // Config factory for getting children's config.
     private final @NonNull UseCaseConfigFactory mUseCaseConfigFactory;
     // The parent camera instance.
@@ -218,8 +221,14 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     }
 
     void notifySessionStart() {
+        mIsInSession = true;
         for (UseCase useCase : mChildren) {
             useCase.onSessionStart();
+        }
+        // Sync the children's state once their SessionConfigs are up to date, like
+        // CameraUseCaseAdapter does after attaching use cases to the camera.
+        for (UseCase useCase : mChildren) {
+            useCase.notifyState();
         }
     }
 
@@ -227,6 +236,12 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         for (UseCase useCase : mChildren) {
             useCase.onSessionStop();
         }
+        // Treat the children as inactive when the session stops, like a camera does when use
+        // cases are detached. Their state is synced again when the next session starts.
+        for (UseCase useCase : mChildren) {
+            mChildrenActiveState.put(useCase, false);
+        }
+        mIsInSession = false;
     }
 
     void notifyCameraControlReady() {
@@ -395,7 +410,12 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
             StreamSpec streamSpec = getChildStreamSpec(useCase, surfaceEdge.getStreamSpec(),
                     selectedChildSizes);
             useCase.updateSuggestedStreamSpec(streamSpec, null);
-            useCase.notifyState();
+            // Before the session starts, a child's SessionConfig may be stale, e.g. VideoCapture
+            // creates its pipeline in onSessionStart(). The state is synced in
+            // notifySessionStart() in that case.
+            if (mIsInSession) {
+                useCase.notifyState();
+            }
         }
     }
 
