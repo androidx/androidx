@@ -178,6 +178,14 @@ constructor(
         }
         if (
             quirkSettings.shouldEnableQuirk(
+                LowLightBoostStreamUseCaseQuirk::class.java,
+                LowLightBoostStreamUseCaseQuirk.isEnabled(cameraMetadata),
+            )
+        ) {
+            quirks.add(LowLightBoostStreamUseCaseQuirk())
+        }
+        if (
+            quirkSettings.shouldEnableQuirk(
                 PreviewOrientationIncorrectQuirk::class.java,
                 PreviewOrientationIncorrectQuirk.isEnabled(cameraMetadata),
             )

@@ -32,6 +32,7 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter.CameraException
@@ -39,6 +40,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.util.Camera2InteropUtil
 import androidx.test.core.app.ApplicationProvider
@@ -244,7 +246,10 @@ class CameraControlDeviceTest(
     fun setLowLightBoost_resultUpdated() {
         assumeTrue(cameraProvider.getCameraInfo(cameraSelector).isLowLightBoostSupported)
 
-        bindUseCases()
+        // Low Light Boost is primarily intended for Preview. Binds a Preview instead of the
+        // ImageAnalysis used by bindUseCases(), because the camera framework does not require
+        // Low Light Boost to be supported for a standalone ImageAnalysis YUV stream.
+        bindPreview()
 
         cameraControl.enableLowLightBoostAsync(true).get(3000, TimeUnit.MILLISECONDS)
 
@@ -272,6 +277,31 @@ class CameraControlDeviceTest(
                         .build()
                         .apply { setAnalyzer(CameraXExecutors.ioExecutor(), analyzer) }
                 camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, useCase)
+                cameraControl = camera.cameraControl as CameraControlInternal
+            } catch (e: CameraException) {
+                throw IllegalArgumentException(e)
+            }
+        }
+    }
+
+    private fun bindPreview() {
+        instrumentation.runOnMainSync {
+            try {
+                val preview =
+                    Preview.Builder()
+                        .also { previewBuilder ->
+                            Camera2InteropUtil.setCamera2InteropOptions(
+                                implName = implName,
+                                builder = previewBuilder,
+                                captureCallback = captureCallback,
+                            )
+                        }
+                        .build()
+                        .apply {
+                            surfaceProvider =
+                                SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()
+                        }
+                camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
                 cameraControl = camera.cameraControl as CameraControlInternal
             } catch (e: CameraException) {
                 throw IllegalArgumentException(e)
