@@ -16,6 +16,7 @@
 
 package androidx.ink.strokes
 
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.MutableVec
@@ -26,7 +27,7 @@ import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_create
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_enqueueInputs
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_finishInput
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_free
-import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_getBaseAnimationPhase
+import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_getBasePaintAnimationPhase
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_getBrushCoatCount
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_getInput
 import androidx.ink.nativeloader.cinterop.InProgressStrokeNative_getInputCount
@@ -55,7 +56,11 @@ import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 
-@OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
+@OptIn(
+    ExperimentalForeignApi::class,
+    InkInternalOnlyApi::class,
+    ExperimentalInkBarrelTwistApi::class,
+)
 internal actual object InProgressStrokeNative {
     actual fun create(): Long = InProgressStrokeNative_create()
 
@@ -65,13 +70,13 @@ internal actual object InProgressStrokeNative {
         nativePointer: Long,
         brushNativePointer: Long,
         noiseSeed: Int,
-        baseAnimationPhase: Float,
+        basePaintAnimationPhase: Float,
     ) =
         InProgressStrokeNative_start(
             nativePointer,
             brushNativePointer,
             noiseSeed,
-            baseAnimationPhase,
+            basePaintAnimationPhase,
         )
 
     actual fun enqueueInputs(
@@ -145,12 +150,13 @@ internal actual object InProgressStrokeNative {
                 pressure = pressure,
                 tiltRadians = tilt_radians,
                 orientationRadians = orientation_radians,
+                barrelTwistRadians = barrel_twist_radians,
             )
         }
     }
 
-    actual fun getBaseAnimationPhase(nativePointer: Long): Float =
-        InProgressStrokeNative_getBaseAnimationPhase(nativePointer)
+    actual fun getBasePaintAnimationPhase(nativePointer: Long): Float =
+        InProgressStrokeNative_getBasePaintAnimationPhase(nativePointer)
 
     actual fun getBrushCoatCount(nativePointer: Long): Int =
         InProgressStrokeNative_getBrushCoatCount(nativePointer)

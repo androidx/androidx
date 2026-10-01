@@ -19,8 +19,8 @@ package androidx.ink.brush.behavior
 import androidx.ink.nativeloader.InkInternalOnlyApi
 
 /**
- * A [ValueNode] that damps changes in an input value, causing the output value to slowly follow
- * changes in the input value over a specified time or distance.
+ * A [ValueNode] that applies damping to an input value, smoothing out rapid changes by causing the
+ * output value to asymptotically decay towards the input value over a specified time or distance.
  */
 @OptIn(InkInternalOnlyApi::class)
 public class DampingNode
@@ -34,15 +34,27 @@ private constructor(
      * Creates a [DampingNode] that damps changes in an input value, causing the output value to
      * slowly follow changes in the input value over a specified time or distance.
      *
+     * Damping smooths changes in the input value using standard
+     * [exponential decay](https://en.wikipedia.org/wiki/Exponential_decay), where [strength] acts
+     * as the decay constant, measured in [dampOver] units. The greater the damping strength, the
+     * longer it takes for the output value to asymptotically approach the input value. For example,
+     * if [dampOver] is set to [ProgressDomain.TIME_IN_SECONDS] and [strength] is 0.5, then it will
+     * take about half a second for the output value to decay most of the way (see the documentation
+     * of the [strength] property) towards the input value; if [strength] is 0.25 then it will take
+     * only a quarter second. If [strength] is zero, then there is no damping at all, and the output
+     * value will instantly snap to the input value whenever that value changes.
+     *
      * If [dampOver] is [ProgressDomain.DISTANCE_IN_CENTIMETERS] and the stroke input data does not
      * indicate the relationship between stroke units and physical units (e.g. as may be the case
      * for programmatically-generated inputs), then the output value will be null regardless of the
      * input.
      *
      * @param dampOver The domain units over which damping is applied.
-     * @param strength A scaling factor, in `dampOver` units, for the damping. A smaller `strength`
-     *   value results in less damping, so the output follows the input more closely.
-     * @param input input node that produces the value to be modified by the damping
+     * @param strength The amount of damping to apply, measured in [dampOver] units. Must be finite
+     *   and non-negative. Smaller values result in less damping (i.e. faster transitions, following
+     *   the input more closely), while larger values result in more damping (i.e. slower
+     *   transitions and heavier smoothing).
+     * @param input The input node that produces the value to be modified by the damping.
      */
     public constructor(
         dampOver: ProgressDomain,
@@ -55,11 +67,25 @@ private constructor(
             DampingNode(nativeAlloc, input = inputStack.removeLast())
     }
 
-    /** The domain units over which damping is applied. */
+    /** The domain units over which damping is applied (whether distance or time). */
     public val dampOver: ProgressDomain =
         ProgressDomain.fromInt(DampingNodeNative.getDampOverInt(nativePointer))
 
-    /** The amount of damping to apply. */
+    /**
+     * The strength of the damping to apply, measured in [dampOver] units.
+     *
+     * This represents the amount of distance or time it will take for the output value of this node
+     * to exponentially decay most of the way (see note below) towards the input value.
+     *
+     * This value will always be finite and non-negative.
+     *
+     * *Note:* This value is used as the decay constant for a standard
+     * [exponential decay](https://en.wikipedia.org/wiki/Exponential_decay) function, so "most of
+     * the way" above means specifically 1 - 1/e, about 63%. This may seem like an arbitrary amount,
+     * but using a standard natural-base exponential decay function has nicer mathematical
+     * properties than using another base, and tends to feel more intuitive when tuning the
+     * [strength] value by hand.
+     */
     public val strength: Float
         get() = DampingNodeNative.getStrength(nativePointer)
 

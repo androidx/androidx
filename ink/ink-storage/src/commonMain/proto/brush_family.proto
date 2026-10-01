@@ -917,6 +917,14 @@ message BrushBehavior {
     // last input in the stroke.
     SOURCE_TIME_FROM_INPUT_TO_STROKE_END_IN_SECONDS = 41
         [(ink.proto.enum_value_min_version) = 2147483647];
+
+    // Stylus barrel twist with values reported in the range [0, 2π).
+    SOURCE_BARREL_TWIST_IN_RADIANS = 42
+        [(ink.proto.enum_value_min_version) = 2147483647];
+
+    // Stylus barrel twist with values reported in the range (-π, π].
+    SOURCE_BARREL_TWIST_ABOUT_ZERO_IN_RADIANS = 43
+        [(ink.proto.enum_value_min_version) = 2147483647];
   }
 
 

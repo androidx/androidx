@@ -174,7 +174,12 @@ private constructor(
         @ColorInt get(): Int = internalColor.toArgb()
 
     // Base implementation of copy() that all public versions call.
-    private fun copy(family: BrushFamily, color: ComposeColor, size: Float, epsilon: Float): Brush {
+    internal fun copy(
+        family: BrushFamily,
+        color: ComposeColor,
+        size: Float,
+        epsilon: Float,
+    ): Brush {
         return if (
             family == this.family &&
                 color == this.internalColor &&

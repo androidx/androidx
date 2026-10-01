@@ -16,10 +16,12 @@
 
 package androidx.ink.strokes
 
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.InputToolType
 import androidx.kruth.assertThat
 import kotlin.test.Test
 
+@OptIn(ExperimentalInkBarrelTwistApi::class)
 class StrokeInputTest {
 
     @Test
@@ -34,10 +36,11 @@ class StrokeInputTest {
             pressure = 0.2f,
             tiltRadians = 0.3f,
             orientationRadians = 0.4f,
+            barrelTwistRadians = 0.5f,
         )
         assertThat(input.toString())
             .isEqualTo(
-                "StrokeInput(x=2.0, y=3.0, elapsedTimeMillis=4, toolType=InputToolType.STYLUS, strokeUnitLengthCm=0.1, pressure=0.2, tiltRadians=0.3, orientationRadians=0.4)"
+                "StrokeInput(x=2.0, y=3.0, elapsedTimeMillis=4, toolType=InputToolType.STYLUS, strokeUnitLengthCm=0.1, pressure=0.2, tiltRadians=0.3, orientationRadians=0.4, barrelTwistRadians=0.5)"
             )
     }
 
@@ -46,6 +49,9 @@ class StrokeInputTest {
         val input = StrokeInput()
         input.update(1f, 2f, 3L, InputToolType.TOUCH)
         input.update(2f, 3f, 4L, InputToolType.STYLUS, 0.1f, 0.2f, 0.3f, 0.4f)
+        assertThat(input.getBarrelTwistRadians()).isEqualTo(StrokeInput.NO_BARREL_TWIST)
+        assertThat(input.hasBarrelTwist()).isFalse()
+        input.update(2f, 3f, 4L, InputToolType.STYLUS, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f)
         assertThat(input).isNotNull()
         assertThat(input.x).isEqualTo(2f)
         assertThat(input.y).isEqualTo(3f)
@@ -55,6 +61,8 @@ class StrokeInputTest {
         assertThat(input.pressure).isEqualTo(0.2f)
         assertThat(input.tiltRadians).isEqualTo(0.3f)
         assertThat(input.orientationRadians).isEqualTo(0.4f)
+        assertThat(input.getBarrelTwistRadians()).isEqualTo(0.5f)
+        assertThat(input.hasBarrelTwist()).isTrue()
     }
 
     @Test
@@ -69,7 +77,9 @@ class StrokeInputTest {
             pressure = 0.5f,
             tiltRadians = 0.7f,
             orientationRadians = 0.9F,
+            barrelTwistRadians = 1.1F,
         )
+        assertThat(input.hasBarrelTwist()).isTrue()
         input.update(2f, 3f, 4L, InputToolType.TOUCH)
         assertThat(input).isNotNull()
         assertThat(input.x).isEqualTo(2f)
@@ -80,6 +90,8 @@ class StrokeInputTest {
         assertThat(input.pressure).isEqualTo(StrokeInput.NO_PRESSURE)
         assertThat(input.tiltRadians).isEqualTo(StrokeInput.NO_TILT)
         assertThat(input.orientationRadians).isEqualTo(StrokeInput.NO_ORIENTATION)
+        assertThat(input.getBarrelTwistRadians()).isEqualTo(StrokeInput.NO_BARREL_TWIST)
+        assertThat(input.hasBarrelTwist()).isFalse()
     }
 
     @Test
@@ -94,6 +106,7 @@ class StrokeInputTest {
                 pressure = 5F,
                 tiltRadians = 6F,
                 orientationRadians = 7F,
+                barrelTwistRadians = 8F,
             )
         val input2 =
             StrokeInput.create(
@@ -105,6 +118,7 @@ class StrokeInputTest {
                 pressure = 5F,
                 tiltRadians = 6F,
                 orientationRadians = 7F,
+                barrelTwistRadians = 8F,
             )
 
         // Same instance.
@@ -129,11 +143,12 @@ class StrokeInputTest {
                 pressure = 5F,
                 tiltRadians = 6F,
                 orientationRadians = 7F,
+                barrelTwistRadians = 8F,
             )
 
         assertThat(
                 StrokeInput.create(
-                    x = 999F,
+                    x = 999F, // different
                     y = 2F,
                     elapsedTimeMillis = 3L,
                     toolType = InputToolType.STYLUS,
@@ -141,6 +156,7 @@ class StrokeInputTest {
                     pressure = 5F,
                     tiltRadians = 6F,
                     orientationRadians = 7F,
+                    barrelTwistRadians = 8F,
                 )
             )
             .isNotEqualTo(input)
@@ -148,27 +164,14 @@ class StrokeInputTest {
         assertThat(
                 StrokeInput.create(
                     x = 1F,
-                    y = 999F,
+                    y = 999F, // different
                     elapsedTimeMillis = 3L,
                     toolType = InputToolType.STYLUS,
                     strokeUnitLengthCm = 4F,
                     pressure = 5F,
                     tiltRadians = 6F,
                     orientationRadians = 7F,
-                )
-            )
-            .isNotEqualTo(input)
-
-        assertThat(
-                StrokeInput.create(
-                    x = 1F,
-                    y = 2F,
-                    elapsedTimeMillis = 999L,
-                    toolType = InputToolType.STYLUS,
-                    strokeUnitLengthCm = 4F,
-                    pressure = 5F,
-                    tiltRadians = 6F,
-                    orientationRadians = 7F,
+                    barrelTwistRadians = 8F,
                 )
             )
             .isNotEqualTo(input)
@@ -177,12 +180,13 @@ class StrokeInputTest {
                 StrokeInput.create(
                     x = 1F,
                     y = 2F,
-                    elapsedTimeMillis = 3L,
-                    toolType = InputToolType.MOUSE,
+                    elapsedTimeMillis = 999L, // different
+                    toolType = InputToolType.STYLUS,
                     strokeUnitLengthCm = 4F,
                     pressure = 5F,
                     tiltRadians = 6F,
                     orientationRadians = 7F,
+                    barrelTwistRadians = 8F,
                 )
             )
             .isNotEqualTo(input)
@@ -192,11 +196,12 @@ class StrokeInputTest {
                     x = 1F,
                     y = 2F,
                     elapsedTimeMillis = 3L,
-                    toolType = InputToolType.STYLUS,
-                    strokeUnitLengthCm = 999F,
+                    toolType = InputToolType.MOUSE, // different
+                    strokeUnitLengthCm = 4F,
                     pressure = 5F,
                     tiltRadians = 6F,
                     orientationRadians = 7F,
+                    barrelTwistRadians = 8F,
                 )
             )
             .isNotEqualTo(input)
@@ -207,10 +212,11 @@ class StrokeInputTest {
                     y = 2F,
                     elapsedTimeMillis = 3L,
                     toolType = InputToolType.STYLUS,
-                    strokeUnitLengthCm = 4F,
-                    pressure = 999F,
+                    strokeUnitLengthCm = 999F, // different
+                    pressure = 5F,
                     tiltRadians = 6F,
                     orientationRadians = 7F,
+                    barrelTwistRadians = 8F,
                 )
             )
             .isNotEqualTo(input)
@@ -222,9 +228,10 @@ class StrokeInputTest {
                     elapsedTimeMillis = 3L,
                     toolType = InputToolType.STYLUS,
                     strokeUnitLengthCm = 4F,
-                    pressure = 5F,
-                    tiltRadians = 999F,
+                    pressure = 999F, // different
+                    tiltRadians = 6F,
                     orientationRadians = 7F,
+                    barrelTwistRadians = 8F,
                 )
             )
             .isNotEqualTo(input)
@@ -237,8 +244,39 @@ class StrokeInputTest {
                     toolType = InputToolType.STYLUS,
                     strokeUnitLengthCm = 4F,
                     pressure = 5F,
+                    tiltRadians = 999F, // different
+                    orientationRadians = 7F,
+                    barrelTwistRadians = 8F,
+                )
+            )
+            .isNotEqualTo(input)
+
+        assertThat(
+                StrokeInput.create(
+                    x = 1F,
+                    y = 2F,
+                    elapsedTimeMillis = 3L,
+                    toolType = InputToolType.STYLUS,
+                    strokeUnitLengthCm = 4F,
+                    pressure = 5F,
                     tiltRadians = 6F,
-                    orientationRadians = 999F,
+                    orientationRadians = 999F, // different
+                    barrelTwistRadians = 8F,
+                )
+            )
+            .isNotEqualTo(input)
+
+        assertThat(
+                StrokeInput.create(
+                    x = 1F,
+                    y = 2F,
+                    elapsedTimeMillis = 3L,
+                    toolType = InputToolType.STYLUS,
+                    strokeUnitLengthCm = 4F,
+                    pressure = 5F,
+                    tiltRadians = 6F,
+                    orientationRadians = 7F,
+                    barrelTwistRadians = 999F, // different
                 )
             )
             .isNotEqualTo(input)

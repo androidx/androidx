@@ -20,6 +20,8 @@ import android.graphics.Matrix
 import android.view.MotionEvent
 import androidx.annotation.IntRange
 import androidx.annotation.UiThread
+import androidx.annotation.VisibleForTesting
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.strokes.MutableStrokeInputBatch
 import androidx.ink.strokes.StrokeInput
@@ -45,6 +47,7 @@ import kotlin.math.PI
  *   of instances that will ever be needed simultaneously, then the allocation risk (with potential
  *   garbage collection penalty) can be paid once up front instead of possibly later.
  */
+@OptIn(ExperimentalInkBarrelTwistApi::class)
 internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
 
     private val pool =
@@ -72,6 +75,7 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
         pressure: Float = StrokeInput.NO_PRESSURE,
         tiltRadians: Float = StrokeInput.NO_TILT,
         orientationRadians: Float = StrokeInput.NO_ORIENTATION,
+        barrelTwistRadians: Float = StrokeInput.NO_BARREL_TWIST,
     ): StrokeInput {
         return (pool.poll() ?: StrokeInput()).apply {
             update(
@@ -83,6 +87,7 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
                 pressure = pressure,
                 tiltRadians = tiltRadians,
                 orientationRadians = orientationRadians,
+                barrelTwistRadians = barrelTwistRadians,
             )
         }
     }
@@ -162,6 +167,8 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
      * @param forceHasTilt Like [forceHasPressure], but with [StrokeInput.tiltRadians].
      * @param forceHasOrientation Like [forceHasPressure], but with
      *   [StrokeInput.orientationRadians].
+     * @param forceHasBarrelTwist Like [forceHasPressure], but with
+     *   [StrokeInput.getBarrelTwistRadians].
      * @param outBatch The [MutableStrokeInputBatch] that will contain the produced result values.
      *   Any existing data in here will be lost.
      */
@@ -175,6 +182,7 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
         forceHasPressure: Boolean? = null,
         forceHasTilt: Boolean? = null,
         forceHasOrientation: Boolean? = null,
+        forceHasBarrelTwist: Boolean? = null,
         outBatch: MutableStrokeInputBatch,
     ) {
         // This does not trim the capacity of the list, so if it was pre-allocated to a big enough
@@ -195,6 +203,7 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
                     forceHasPressure,
                     forceHasTilt,
                     forceHasOrientation,
+                    forceHasBarrelTwist,
                 )
             runCatching { outBatch.add(input) }
             recycle(input)
@@ -227,6 +236,8 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
      * @param forceHasTilt Like [forceHasPressure], but with [StrokeInput.tiltRadians].
      * @param forceHasOrientation Like [forceHasPressure], but with
      *   [StrokeInput.orientationRadians].
+     * @param forceHasBarrelTwist Like [forceHasPressure], but with
+     *   [StrokeInput.getBarrelTwistRadians].
      */
     @UiThread
     private fun obtainHistoricalValueForMotionEvent(
@@ -239,6 +250,7 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
         forceHasPressure: Boolean? = null,
         forceHasTilt: Boolean? = null,
         forceHasOrientation: Boolean? = null,
+        forceHasBarrelTwist: Boolean? = null,
     ): StrokeInput {
         scratchPoint[0] =
             event.getMaybeHistoricalAxisValue(MotionEvent.AXIS_X, pointerIndex, historyIndex)
@@ -280,19 +292,17 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
                     historyIndex = historyIndex,
                     absentValue = StrokeInput.NO_ORIENTATION,
                     forceHasValue = forceHasOrientation,
-                ) {
-                    // Convert MotionEvent orientation angles into StrokeInput orientation angles.
-                    // MotionEvent orientation values lie in [-PI, PI] with zero where the tip of
-                    // the stylus
-                    // is pointing "up" (think the tool bar), positive values are the tip pointing
-                    // "right" and
-                    // the negative values are the tip pointing "left".
-                    // StrokeInput orientationRadians values lie in [0, 2PI] with zero being where
-                    // the tip
-                    // points to the "left" and increases as you rotate clockwise (towards "up", and
-                    // so on).
-                    (it + 2.5f * PI.toFloat()).mod(2 * PI.toFloat())
-                },
+                    convertValue = ::convertAxisOrientationToOrientationRadians,
+                ),
+            barrelTwistRadians =
+                event.getOptionalHistoricalStylusAxisValue(
+                    axis = MotionEvent.AXIS_RZ,
+                    pointerIndex = pointerIndex,
+                    historyIndex = historyIndex,
+                    absentValue = StrokeInput.NO_BARREL_TWIST,
+                    forceHasValue = forceHasBarrelTwist,
+                    convertValue = ::convertAxisRzToBarrelTwistRadians,
+                ),
         )
     }
 
@@ -378,3 +388,26 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
         }
     }
 }
+
+/**
+ * Converts a [MotionEvent.AXIS_ORIENTATION] value into a [StrokeInput.orientationRadians] angle:
+ * - [MotionEvent.AXIS_ORIENTATION] values lie in [-PI, PI] with zero where the tip of the stylus is
+ *   pointing "up" (think the tool bar), positive values are the tip pointing "right" and the
+ *   negative values are the tip pointing "left".
+ * - [StrokeInput.orientationRadians] values lie in [0, 2PI) with zero being where the tip points to
+ *   the "left" and increases as you rotate clockwise (towards "up", and so on).
+ */
+@VisibleForTesting
+internal fun convertAxisOrientationToOrientationRadians(axisOrientation: Float): Float =
+    (axisOrientation + 2.5f * PI.toFloat()).mod(2 * PI.toFloat())
+
+/**
+ * Converts a [MotionEvent.AXIS_RZ] value into a [StrokeInput] barrel twist angle:
+ * - [MotionEvent.AXIS_RZ] values lie in [-1, 1], and increase as the barrel is rotated
+ *   counter-clockwise (when looking down the barrel towards the stylus tip).
+ * - [StrokeInput] `barrelTwistRadians` values lie in [0, 2PI), and increase as the barrel is
+ *   rotated clockwise (when looking down the barrel towards the stylus tip).
+ */
+@VisibleForTesting
+internal fun convertAxisRzToBarrelTwistRadians(axisRz: Float): Float =
+    (axisRz * -PI.toFloat()).mod(2 * PI.toFloat())

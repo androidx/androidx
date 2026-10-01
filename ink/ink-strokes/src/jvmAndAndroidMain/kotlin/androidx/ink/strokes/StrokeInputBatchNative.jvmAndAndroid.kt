@@ -47,9 +47,11 @@ actual internal object StrokeInputBatchNative {
 
     @UsedByNative actual external fun hasOrientation(nativePointer: Long): Boolean
 
+    @UsedByNative actual external fun hasBarrelTwist(nativePointer: Long): Boolean
+
     @UsedByNative actual external fun getNoiseSeed(nativePointer: Long): Int
 
-    @UsedByNative actual external fun getBaseAnimationPhase(nativePointer: Long): Float
+    @UsedByNative actual external fun getBasePaintAnimationPhase(nativePointer: Long): Float
 
     @UsedByNative actual external fun populate(nativePointer: Long, index: Int, input: StrokeInput)
 }
@@ -74,6 +76,7 @@ actual internal object MutableStrokeInputBatchNative {
         pressure: Float,
         tilt: Float,
         orientation: Float,
+        barrelTwist: Float,
     ): Boolean
 
     @UsedByNative
@@ -83,5 +86,5 @@ actual internal object MutableStrokeInputBatchNative {
 
     @UsedByNative actual external fun setNoiseSeed(nativePointer: Long, seed: Int)
 
-    @UsedByNative actual external fun setBaseAnimationPhase(nativePointer: Long, phase: Float)
+    @UsedByNative actual external fun setBasePaintAnimationPhase(nativePointer: Long, phase: Float)
 }

@@ -19,8 +19,8 @@ import androidx.annotation.RestrictTo
 import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
-import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
 import androidx.ink.strokes.Stroke
+import androidx.ink.strokes.StrokePaintAnimationClock
 
 /** Internal implementation of [ShapeWorkflow] for constructing Ink's standard [Stroke]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
@@ -29,7 +29,7 @@ import androidx.ink.strokes.Stroke
 public class InkShapeWorkflow
 @ExperimentalInkAnimationApi
 public constructor(
-    private val animationClock: StrokePaintAnimationClock,
+    private val strokePaintAnimationClock: StrokePaintAnimationClock,
     customRendererFactory: () -> CanvasStrokeRenderer,
 ) : ShapeWorkflow<Brush, InkInProgressShape, Stroke> {
 
@@ -42,11 +42,12 @@ public constructor(
     // continuous), then that could be differentiated here for further optimization.
     override fun getShapeType(shapeSpec: Brush): Int = 9_14_11 // INK
 
-    override fun create(shapeType: Int): InkInProgressShape = InkInProgressShape(animationClock)
+    override fun create(shapeType: Int): InkInProgressShape =
+        InkInProgressShape(strokePaintAnimationClock)
 
     // Creates its own instance of CanvasStrokeRenderer to be used on the render thread.
     override val inProgressShapeRenderer: InProgressShapeRenderer<InkInProgressShape> =
-        InkInProgressShapeRenderer(animationClock, customRendererFactory())
+        InkInProgressShapeRenderer(strokePaintAnimationClock, customRendererFactory())
 
     // Creates its own instance of CanvasStrokeRenderer to be used on the UI thread.
     override val completedShapeRenderer: CompletedShapeRenderer<Stroke> =

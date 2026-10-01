@@ -98,4 +98,16 @@ message CodedStrokeInputBatch {
   optional fixed32 noise_seed = 9;
 
   reserved 10;
+
+  // The stylus barrel twist for each input point, from zero (inclusive) to 2*pi
+  // (exclusive). A value of zero means that the stylus is not rotated around
+  // its longitudinal axis, and values increase as the stylus rotates from the
+  // positive x-axis towards the positive y-axis when looking down the stylus
+  // from its top towards its tip (i.e. counter-clockwise if positive-y is up,
+  // or clockwise if positive-y is down).
+  //
+  // This field can be omitted for clients that will never use any
+  // barrel-twist-sensitive brush tips, or for input streams from sources that
+  // don't report barrel twist (e.g. mouse or touch).
+  optional CodedNumericRun barrel_twist = 11;
 }

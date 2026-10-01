@@ -21,7 +21,7 @@ import androidx.annotation.AnyThread
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.ink.brush.ExperimentalInkAnimationApi
-import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
+import androidx.ink.strokes.StrokePaintAnimationClock
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.jvm.JvmName

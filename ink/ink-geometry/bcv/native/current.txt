@@ -578,3 +578,7 @@ final object androidx.ink.geometry/Intersection { // androidx.ink.geometry/Inter
     final fun (androidx.ink.geometry/Vec).intersects(androidx.ink.geometry/Triangle): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Vec(androidx.ink.geometry.Triangle){}[0]
     final fun (androidx.ink.geometry/Vec).intersects(androidx.ink.geometry/Vec): kotlin/Boolean // androidx.ink.geometry/Intersection.intersects|intersects@androidx.ink.geometry.Vec(androidx.ink.geometry.Vec){}[0]
 }
+
+final fun (androidx.ink.geometry/AffineTransform).androidx.ink.geometry/toCgAffineTransform(): kotlinx.cinterop/CValue<platform.CoreGraphics/CGAffineTransform> // androidx.ink.geometry/toCgAffineTransform|toCgAffineTransform@androidx.ink.geometry.AffineTransform(){}[0]
+final fun (androidx.ink.geometry/ImmutableAffineTransform.Companion).androidx.ink.geometry/from(kotlinx.cinterop/CValue<platform.CoreGraphics/CGAffineTransform>): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/from|from@androidx.ink.geometry.ImmutableAffineTransform.Companion(kotlinx.cinterop.CValue<platform.CoreGraphics.CGAffineTransform>){}[0]
+final fun (androidx.ink.geometry/MutableAffineTransform).androidx.ink.geometry/populateFrom(kotlinx.cinterop/CValue<platform.CoreGraphics/CGAffineTransform>): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/populateFrom|populateFrom@androidx.ink.geometry.MutableAffineTransform(kotlinx.cinterop.CValue<platform.CoreGraphics.CGAffineTransform>){}[0]

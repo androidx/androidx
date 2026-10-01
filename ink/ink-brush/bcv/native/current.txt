@@ -10,6 +10,10 @@ open annotation class androidx.ink.brush/ExperimentalInkAnimationApi : kotlin/An
     constructor <init>() // androidx.ink.brush/ExperimentalInkAnimationApi.<init>|<init>(){}[0]
 }
 
+open annotation class androidx.ink.brush/ExperimentalInkBarrelTwistApi : kotlin/Annotation { // androidx.ink.brush/ExperimentalInkBarrelTwistApi|null[0]
+    constructor <init>() // androidx.ink.brush/ExperimentalInkBarrelTwistApi.<init>|<init>(){}[0]
+}
+
 open annotation class androidx.ink.brush/ExperimentalInkBrushCompatibilityApi : kotlin/Annotation { // androidx.ink.brush/ExperimentalInkBrushCompatibilityApi|null[0]
     constructor <init>() // androidx.ink.brush/ExperimentalInkBrushCompatibilityApi.<init>|<init>(){}[0]
 }
@@ -355,6 +359,10 @@ final class androidx.ink.brush.behavior/SourceNode : androidx.ink.brush.behavior
                 final fun <get-ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED>(): androidx.ink.brush.behavior/SourceNode.Source // androidx.ink.brush.behavior/SourceNode.Source.Companion.ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED.<get-ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED>|<get-ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED>(){}[0]
             final val ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED // androidx.ink.brush.behavior/SourceNode.Source.Companion.ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED|{}ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED[0]
                 final fun <get-ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED>(): androidx.ink.brush.behavior/SourceNode.Source // androidx.ink.brush.behavior/SourceNode.Source.Companion.ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED.<get-ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED>|<get-ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED>(){}[0]
+            final val BARREL_TWIST_ABOUT_ZERO_IN_RADIANS // androidx.ink.brush.behavior/SourceNode.Source.Companion.BARREL_TWIST_ABOUT_ZERO_IN_RADIANS|{}BARREL_TWIST_ABOUT_ZERO_IN_RADIANS[0]
+                final fun <get-BARREL_TWIST_ABOUT_ZERO_IN_RADIANS>(): androidx.ink.brush.behavior/SourceNode.Source // androidx.ink.brush.behavior/SourceNode.Source.Companion.BARREL_TWIST_ABOUT_ZERO_IN_RADIANS.<get-BARREL_TWIST_ABOUT_ZERO_IN_RADIANS>|<get-BARREL_TWIST_ABOUT_ZERO_IN_RADIANS>(){}[0]
+            final val BARREL_TWIST_IN_RADIANS // androidx.ink.brush.behavior/SourceNode.Source.Companion.BARREL_TWIST_IN_RADIANS|{}BARREL_TWIST_IN_RADIANS[0]
+                final fun <get-BARREL_TWIST_IN_RADIANS>(): androidx.ink.brush.behavior/SourceNode.Source // androidx.ink.brush.behavior/SourceNode.Source.Companion.BARREL_TWIST_IN_RADIANS.<get-BARREL_TWIST_IN_RADIANS>|<get-BARREL_TWIST_IN_RADIANS>(){}[0]
             final val DIRECTION_ABOUT_ZERO_IN_RADIANS // androidx.ink.brush.behavior/SourceNode.Source.Companion.DIRECTION_ABOUT_ZERO_IN_RADIANS|{}DIRECTION_ABOUT_ZERO_IN_RADIANS[0]
                 final fun <get-DIRECTION_ABOUT_ZERO_IN_RADIANS>(): androidx.ink.brush.behavior/SourceNode.Source // androidx.ink.brush.behavior/SourceNode.Source.Companion.DIRECTION_ABOUT_ZERO_IN_RADIANS.<get-DIRECTION_ABOUT_ZERO_IN_RADIANS>|<get-DIRECTION_ABOUT_ZERO_IN_RADIANS>(){}[0]
             final val DIRECTION_IN_RADIANS // androidx.ink.brush.behavior/SourceNode.Source.Companion.DIRECTION_IN_RADIANS|{}DIRECTION_IN_RADIANS[0]
@@ -982,3 +990,7 @@ final object androidx.ink.brush/StockBrushes { // androidx.ink.brush/StockBrushe
         }
     }
 }
+
+final fun (androidx.ink.brush/Brush).androidx.ink.brush/copyWithUiColor(platform.UIKit/UIColor, androidx.ink.brush/BrushFamily = ..., kotlin/Float = ..., kotlin/Float = ...): androidx.ink.brush/Brush // androidx.ink.brush/copyWithUiColor|copyWithUiColor@androidx.ink.brush.Brush(platform.UIKit.UIColor;androidx.ink.brush.BrushFamily;kotlin.Float;kotlin.Float){}[0]
+final fun (androidx.ink.brush/Brush).androidx.ink.brush/createUiColor(): platform.UIKit/UIColor // androidx.ink.brush/createUiColor|createUiColor@androidx.ink.brush.Brush(){}[0]
+final fun (androidx.ink.brush/Brush.Companion).androidx.ink.brush/createWithUiColor(androidx.ink.brush/BrushFamily, platform.UIKit/UIColor, kotlin/Float, kotlin/Float): androidx.ink.brush/Brush // androidx.ink.brush/createWithUiColor|createWithUiColor@androidx.ink.brush.Brush.Companion(androidx.ink.brush.BrushFamily;platform.UIKit.UIColor;kotlin.Float;kotlin.Float){}[0]
