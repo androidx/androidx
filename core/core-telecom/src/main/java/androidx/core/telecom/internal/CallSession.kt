@@ -170,7 +170,7 @@ internal open class CallSession(
                 platformEndpoint.endpointType,
                 jetpackUuid,
             )
-        Log.i(TAG, " n=[${platformEndpoint.endpointName}]  plat=[${platformEndpoint}] --> jet=[$j]")
+        Log.d(TAG, " n=[${platformEndpoint.endpointName}]  plat=[${platformEndpoint}] --> jet=[$j]")
         return j
     }
 
@@ -181,7 +181,7 @@ internal open class CallSession(
         mCurrentCallEndpoint = toRemappedCallEndpointCompat(endpoint)
         // send the current call endpoint out to the client
         callChannels.currentEndpointChannel.trySend(mCurrentCallEndpoint!!).getOrThrow()
-        Log.i(TAG, "onCallEndpointChanged: endpoint=[$endpoint]")
+        Log.d(TAG, "onCallEndpointChanged: endpoint=[$endpoint]")
         // maybeSwitchToSpeakerOnCallStart needs to know when the initial current endpoint is set
         if (!mIsCurrentEndpointSet.isCompleted) {
             mIsCurrentEndpointSet.complete(Unit)
@@ -286,7 +286,7 @@ internal open class CallSession(
                 isSpeakerEndpoint(mLastClientRequestedEndpoint) &&
                 isSpeakerEndpoint(nextEndpoint)
         ) {
-            Log.i(
+            Log.d(
                 TAG,
                 "avoidSpeakerOverrideOnCallStart: User explicitly requested SPEAKER " +
                     "($mLastClientRequestedEndpoint). Current endpoint is $nextEndpoint. " +
@@ -307,7 +307,7 @@ internal open class CallSession(
             return
         }
 
-        Log.i(
+        Log.d(
             TAG,
             "avoidSpeakerOverrideOnCallStart: Evaluating. " +
                 "mPreferredStartingCallEndpoint=[$mPreferredStartingCallEndpoint], " +
@@ -328,7 +328,7 @@ internal open class CallSession(
             mWasPreferredOverrideChecked = true
             mStartingEndpointStabilizationJob?.cancel()
             CoroutineScope(coroutineContext).launch {
-                Log.i(
+                Log.d(
                     TAG,
                     "avoidSpeakerOverrideOnCallStart: Unwanted switch from preferred" +
                         "starting endpoint to SPEAKER detected. " +
@@ -350,7 +350,7 @@ internal open class CallSession(
         maybeRemoveEarpieceIfWiredEndpointPresent(mAvailableEndpoints)
         // send the current call endpoints out to the client
         callChannels.availableEndpointChannel.trySend(mAvailableEndpoints).getOrThrow()
-        Log.i(TAG, "onAvailableCallEndpointsChanged: endpoints=[$endpoints]")
+        Log.d(TAG, "onAvailableCallEndpointsChanged: endpoints=[$endpoints]")
         // maybeSwitchToSpeakerOnCallStart needs to know when the initial current endpoints are set
         if (!mIsAvailableEndpointsSet.isCompleted) {
             mIsAvailableEndpointsSet.complete(Unit)
