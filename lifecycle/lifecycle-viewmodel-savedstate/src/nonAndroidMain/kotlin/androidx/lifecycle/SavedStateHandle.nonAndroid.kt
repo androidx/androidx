@@ -22,6 +22,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.internal.SavedStateHandleImpl
 import androidx.lifecycle.internal.isAcceptableType
 import androidx.savedstate.SavedState
+import androidx.savedstate.SavedStateContainer
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.read
 import kotlin.jvm.JvmStatic
@@ -33,6 +34,10 @@ public actual class SavedStateHandle {
 
     private var impl: SavedStateHandleImpl
 
+    internal actual constructor(container: SavedStateContainer) {
+        impl = SavedStateHandleImpl(container)
+    }
+
     @VisibleForTesting
     public actual constructor(initialState: Map<String, Any?>) {
         impl = SavedStateHandleImpl(initialState)
@@ -42,10 +47,6 @@ public actual class SavedStateHandle {
     public actual constructor() {
         impl = SavedStateHandleImpl()
     }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public actual fun savedStateProvider(): SavedStateRegistry.SavedStateProvider =
-        impl.savedStateProvider()
 
     @MainThread public actual operator fun contains(key: String): Boolean = key in impl
 
@@ -81,6 +82,16 @@ public actual class SavedStateHandle {
     public actual fun clearSavedStateProvider(key: String) {
         impl.clearSavedStateProvider(key)
     }
+
+    @MainThread public actual fun asContainer(): SavedStateContainer = impl.asContainer()
+
+    @MainThread
+    public actual fun createOrGetContainer(key: String): SavedStateContainer =
+        impl.createOrGetContainer(key)
+
+    @MainThread
+    public actual fun createOrGetSavedStateHandle(key: String): SavedStateHandle =
+        SavedStateHandle(impl.createOrGetContainer(key))
 
     public actual companion object {
 

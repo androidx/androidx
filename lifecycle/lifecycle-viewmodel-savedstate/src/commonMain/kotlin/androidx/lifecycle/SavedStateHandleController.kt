@@ -119,7 +119,7 @@ private constructor(
 
             // Prefer the state of active ViewModels over the restored state.
             for ((key, handle) in stateHolder.handles) {
-                val savedState = handle.savedStateProvider().saveState()
+                val savedState = handle.asContainer().saveState()
                 if (savedState.read { !isEmpty() }) {
                     putSavedState(key, savedState)
                 }

@@ -20,6 +20,8 @@ import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.savedstate.SavedState
+import androidx.savedstate.SavedStateValue
 import androidx.savedstate.read
 import androidx.savedstate.savedState
 import androidx.test.annotation.UiThreadTest
@@ -350,24 +352,23 @@ class SavedStateHandleTest {
     }
 
     @Test
-    @UiThreadTest
-    fun flow_setByLiveDataSetValue() = runTest {
+    fun getStateFlow_keyUsedByLiveData() = runTest {
         val handle = SavedStateHandle()
-        val flow = handle.getStateFlow("aa", "xx")
+        handle.getLiveData(key = "key", initialValue = "test")
 
-        flow
-            .take(1)
-            .onEach {
-                assertWithMessage("Flow should emit the initial value").that(it).isEqualTo("xx")
-            }
-            .collect()
+        assertThrows(IllegalArgumentException::class.java) {
+            handle.getStateFlow(key = "key", initialValue = "test")
+        }
+    }
 
-        assertThat(flow.value).isEqualTo("xx")
+    @Test
+    fun getLiveData_keyUsedByStateFlow() = runTest {
+        val handle = SavedStateHandle()
+        handle.getStateFlow(key = "key", initialValue = "test")
 
-        val ld = handle.getLiveData<String>("aa")
-        ld.value = "yy"
-        ld.assertValue("yy")
-        assertThat(flow.value).isEqualTo("yy")
+        assertThrows(IllegalArgumentException::class.java) {
+            handle.getLiveData(key = "key", initialValue = "test")
+        }
     }
 
     @Test
@@ -547,27 +548,87 @@ class SavedStateHandleTest {
             )
         }
 
-        val savedState = handle.savedStateProvider().saveState()
+        val savedState = handle.asContainer().saveState()
+        val restoredHandle = SavedStateHandle.createHandle(savedState, null)
 
         assertThat(savedState.size()).isEqualTo(50)
         for (i in 1..10) {
-            val regularValue = savedState.read { getInt("Regular$i") }
+            val regularValue = restoredHandle.get<Int>("Regular$i")
             assertThat(regularValue).isEqualTo(i)
 
-            val mutableLiveDataValue = savedState.read { getInt("MutableLiveData$i") }
+            val mutableLiveDataValue = restoredHandle.get<Int>("MutableLiveData$i")
             assertThat(mutableLiveDataValue).isEqualTo(i)
 
-            val stateFlowValue = savedState.read { getInt("StateFlow$i") }
+            val stateFlowValue = restoredHandle.get<Int>("StateFlow$i")
             assertThat(stateFlowValue).isEqualTo(i)
 
-            val mutableStateFlowValue = savedState.read { getInt("MutableStateFlow$i") }
+            val mutableStateFlowValue = restoredHandle.get<Int>("MutableStateFlow$i")
             assertThat(mutableStateFlowValue).isEqualTo(i)
 
-            val actualSavedState = savedState.read { getSavedState("SavedStateProvider$i") }
+            val actualSavedState = restoredHandle.get<SavedState>("SavedStateProvider$i")
             val expectedSavedState = savedState(mapOf("SavedState$i" to i))
-            val isDeepEquals = actualSavedState.read { contentDeepEquals(expectedSavedState) }
+            val isDeepEquals = actualSavedState!!.read { contentDeepEquals(expectedSavedState) }
             assertThat(isDeepEquals).isTrue()
         }
+    }
+
+    @Test
+    @UiThreadTest
+    fun testAsContainer() {
+        val handle = SavedStateHandle(mapOf("key1" to "value1"))
+        val container = handle.asContainer()
+        assertThat("key1" in container).isTrue()
+        assertThat(container.getSavedStateValue<String, SavedStateValue<String>>("key1")?.value)
+            .isEqualTo("value1")
+
+        handle["key2"] = "value2"
+        assertThat("key1" in container).isTrue()
+        assertThat("key2" in container).isTrue()
+        assertThat(container.getSavedStateValue<String, SavedStateValue<String>>("key2")?.value)
+            .isEqualTo("value2")
+    }
+
+    @Test
+    @UiThreadTest
+    fun testCreateOrGetContainer() {
+        val handle = SavedStateHandle()
+        val childContainer = handle.createOrGetContainer("nested")
+        val sameChildContainer = handle.createOrGetContainer("nested")
+        assertThat(childContainer).isSameInstanceAs(sameChildContainer)
+
+        val childChildContainer = childContainer.createOrGetContainer("subNested")
+        assertThat(childChildContainer).isNotNull()
+    }
+
+    @Test
+    @UiThreadTest
+    fun testCreateOrGetSavedStateHandle() {
+        val handle = SavedStateHandle()
+        val childHandle = handle.createOrGetSavedStateHandle("nested")
+        childHandle["childKey"] = "childValue"
+        assertThat(childHandle.get<String>("childKey")).isEqualTo("childValue")
+
+        val sameChildHandle = handle.createOrGetSavedStateHandle("nested")
+        assertThat(sameChildHandle.get<String>("childKey")).isEqualTo("childValue")
+
+        sameChildHandle["childKey2"] = "childValue2"
+        assertThat(childHandle.get<String>("childKey2")).isEqualTo("childValue2")
+    }
+
+    @Test
+    @UiThreadTest
+    fun testNestedSavedStateHandleSaveState() {
+        val handle = SavedStateHandle()
+        handle["parentKey"] = "parentValue"
+        val childHandle = handle.createOrGetSavedStateHandle("child")
+        childHandle["childKey"] = "childValue"
+
+        val savedState = handle.asContainer().saveState()
+        val restoredHandle = SavedStateHandle.createHandle(savedState, null)
+        assertThat(restoredHandle.get<String>("parentKey")).isEqualTo("parentValue")
+
+        val restoredChildHandle = restoredHandle.createOrGetSavedStateHandle("child")
+        assertThat(restoredChildHandle.get<String>("childKey")).isEqualTo("childValue")
     }
 
     @MainThread
