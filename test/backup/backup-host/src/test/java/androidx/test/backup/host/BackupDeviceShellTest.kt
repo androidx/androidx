@@ -24,6 +24,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
@@ -411,6 +412,40 @@ class BackupDeviceShellTest {
             .join()
 
         assertTrue(cleanedUp)
+    }
+
+    @Test
+    fun withCleanupFailsWhenCleanupDoesNotFinishInTime() {
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking {
+                    withCleanup(
+                        cleanup = { awaitCancellation() },
+                        cleanupTimeout = 100.milliseconds,
+                    ) {}
+                }
+            }
+        assertEquals("Cleanup did not finish within 100ms", e.message)
+    }
+
+    @Test
+    fun withCleanupKeepsTheBlockFailureWhenCleanupDoesNotFinishInTime() {
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking {
+                    withCleanup(
+                        cleanup = { awaitCancellation() },
+                        cleanupTimeout = 100.milliseconds,
+                    ) {
+                        throw IOException("bmgr restore failed")
+                    }
+                }
+            }
+        assertEquals("bmgr restore failed", e.message)
+        assertEquals(
+            listOf("Cleanup did not finish within 100ms"),
+            e.suppressed.map { it.message },
+        )
     }
 
     @Test
