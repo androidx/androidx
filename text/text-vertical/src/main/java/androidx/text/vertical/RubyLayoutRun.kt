@@ -85,8 +85,9 @@ private class ScaledCoveringCharacterStyle(
 /**
  * Returns [rubyText] with [coveringSpans] from the base text attached.
  *
- * The spans of [rubyText] override [coveringSpans]. This function wraps each [MetricAffectingSpan]
- * in [coveringSpans] with [ScaledCoveringCharacterStyle], except [FontShearSpan].
+ * The spans of [rubyText] override [coveringSpans] regardless of their [Spanned.SPAN_PRIORITY].
+ * This function wraps each [MetricAffectingSpan] in [coveringSpans] with
+ * [ScaledCoveringCharacterStyle], except [FontShearSpan].
  *
  * @param rubyText the text of the ruby annotation
  * @param rubyScale the text scale of the ruby text, relative to the base text
@@ -110,10 +111,17 @@ private fun buildStyledRubyText(
                     is MetricAffectingSpan -> ScaledCoveringCharacterStyle(underlying, rubyScale)
                     else -> CharacterStyle.wrap(underlying)
                 }
-            setSpan(rubyStyle, 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            setSpan(
+                rubyStyle,
+                0,
+                length,
+                Spanned.SPAN_INCLUSIVE_EXCLUSIVE or Spanned.SPAN_PRIORITY,
+            )
         }
-        // Re-attach existing spans from rubyText second so they win in getSpans insertion order
-        // when neither span sets SPAN_PRIORITY.
+        // Re-attach the spans from rubyText after the covering spans. getSpans returns the
+        // spans with a higher SPAN_PRIORITY first. For equal priorities, it keeps the insertion
+        // order. The covering spans use the maximum priority, so the rubyText spans of all
+        // priorities override them.
         if (rubyText is Spanned) {
             for (span in rubyText.getSpans(0, rubyText.length, Any::class.java)) {
                 if (span is NoCopySpan) continue

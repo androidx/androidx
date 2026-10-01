@@ -23,6 +23,7 @@ import android.graphics.Typeface
 import android.os.Build
 import android.text.NoCopySpan
 import android.text.SpannableString
+import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.BackgroundColorSpan
@@ -716,6 +717,40 @@ class RubyLayoutRunTest {
                     color = Color.YELLOW,
                 ),
             )
+    }
+
+    @Test
+    fun rubyLayoutRun_rubyTextSpanWithPriority_overridesCoveringSpan() {
+        val lowPriorityFlags = SPAN_FLAG or (1 shl Spanned.SPAN_PRIORITY_SHIFT)
+        // The covering spans also use the maximum priority. RubyLayoutRun attaches them
+        // first, so a ruby text span with this priority must still win.
+        val maxPriorityFlags = SPAN_FLAG or Spanned.SPAN_PRIORITY
+        val styledRuby =
+            SpannableString("あいう").apply {
+                setSpan(ForegroundColorSpan(Color.BLUE), 0, 1, lowPriorityFlags)
+                setSpan(ForegroundColorSpan(Color.GREEN), 1, 2, maxPriorityFlags)
+            }
+        val rubySpan = RubySpan(styledRuby, orientation = TextOrientation.Upright)
+        val styledBody =
+            SpannableString("漢字").apply {
+                setSpan(ForegroundColorSpan(Color.RED), 0, 2, SPAN_FLAG)
+                setSpan(rubySpan, 0, 2, SPAN_FLAG)
+            }
+
+        val run = RubyLayoutRun(styledBody, 0, 2, TextOrientation.Upright, PAINT, rubySpan)
+        val mock = MockCanvas()
+        run.draw(mock, 60f, 10f, PAINT)
+
+        val rubyCalls = mock.invocations.filter { it.text.toString() == "あいう" }
+        val firstCharCalls = rubyCalls.filter { it.start == 0 }
+        val secondCharCalls = rubyCalls.filter { it.start == 1 }
+        val thirdCharCalls = rubyCalls.filter { it.start == 2 }
+        assertThat(firstCharCalls).hasSize(1)
+        assertThat(secondCharCalls).hasSize(1)
+        assertThat(thirdCharCalls).hasSize(1)
+        assertThat(firstCharCalls[0].paint.color).isEqualTo(Color.BLUE)
+        assertThat(secondCharCalls[0].paint.color).isEqualTo(Color.GREEN)
+        assertThat(thirdCharCalls[0].paint.color).isEqualTo(Color.RED)
     }
 }
 
