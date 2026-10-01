@@ -32,6 +32,19 @@ Available in `:compose:remote:remote-player-compose-testutils`:
     }
     ```
 
+  - Plays content with the View based `RemoteDocumentPlayer`.
+
+- **`RemoteEmbeddedScreenshotTestRule`**: Same as `RemoteScreenshotTestRule`, but plays content with the embedded player (`RcPlayer`). It enables `RemoteComposePlayerFlags.isEmbeddedPlayerEnabled` for the duration of each test, and only exposes the play options `RcPlayer` supports (e.g. `typefaceResolver`).
+  - Usage:
+    ```kotlin
+    @get:Rule
+    val remoteComposeTestRule =
+        RemoteEmbeddedScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
+    ```
+
 - **`RemoteDocScreenshotTestRule`**: Use when you already have a pre-existing `CoreDocument` (e.g., loaded from disk, test assets, or procedurally built) and want to render and verify it against golden screenshots.
   - Usage:
     ```kotlin
