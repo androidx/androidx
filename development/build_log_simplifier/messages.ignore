@@ -648,8 +648,6 @@ w: .*\/generated\/ksp\/.*\.kt:[0-9]+:[0-9]+ This 'var' property is never written
 # b/555167593
 w: .*\/androidx\/room3\/integration-tests\/room-testapp-kotlin\/build\/generated\/ksp\/withKspGenKotlinDebugAndroidTest\/kotlin\/androidx\/room3\/integration\/kotlintestapp\/dao\/SchoolDao_Impl\.kt:[0-9]+:[0-9]+ Variable is never read\.
 w: .*\/androidx\/room3\/integration-tests\/room-testapp-kotlin\/build\/generated\/ksp\/withKspGenKotlinDebugAndroidTest\/kotlin\/androidx\/room3\/integration\/kotlintestapp\/dao\/SchoolDao_Impl\.kt:[0-9]+:[0-9]+ Assigned value is never read\.
-# b/552571938
-w: .*\/webgpu\/webgpu\/src\/main\/java\/androidx\/webgpu\/helper\/GPUSyncFenceHelper\.kt:[0-9]+:[0-9]+ Variable is unused\.
 # b/554101833
 w: .*\/glance\/.*.kt:[0-9]+:[0-9]+ Initializer is redundant\.
 w: .*\/glance\/.*.kt:[0-9]+:[0-9]+ Variable is unused\.
