@@ -39,10 +39,6 @@ import androidx.test.backup.BackupActionValues.DEFAULT_PREF_NAME
 import androidx.test.backup.BackupActionValues.STORAGE_TYPE_DATABASE
 import androidx.test.backup.BackupActionValues.STORAGE_TYPE_FILES
 import androidx.test.backup.BackupActionValues.STORAGE_TYPE_PREFS
-import androidx.test.backup.BackupActionValues.VALUE_TYPE_BOOLEAN
-import androidx.test.backup.BackupActionValues.VALUE_TYPE_FLOAT
-import androidx.test.backup.BackupActionValues.VALUE_TYPE_INT
-import androidx.test.backup.BackupActionValues.VALUE_TYPE_LONG
 import androidx.test.backup.BackupActionValues.VALUE_TYPE_STRING
 import androidx.test.backup.BackupDeviceAction
 import androidx.test.backup.BackupDeviceActionArgs
@@ -90,15 +86,22 @@ public class PopulateStorageAction : BackupDeviceAction {
                         val value =
                             args[VALUE]
                                 ?: return failure("Missing '$VALUE' argument for PREFS populate.")
-                        val valueType = args[VALUE_TYPE]?.uppercase() ?: VALUE_TYPE_STRING
+                        val valueType = args[VALUE_TYPE] ?: VALUE_TYPE_STRING
 
-                        when (valueType) {
-                            VALUE_TYPE_INT -> editor.putInt(key, value.toInt())
-                            VALUE_TYPE_LONG -> editor.putLong(key, value.toLong())
-                            VALUE_TYPE_FLOAT -> editor.putFloat(key, value.toFloat())
-                            VALUE_TYPE_BOOLEAN -> editor.putBoolean(key, value.toBoolean())
-                            VALUE_TYPE_STRING -> editor.putString(key, value)
-                            else -> return failure("Unsupported $VALUE_TYPE: ${args[VALUE_TYPE]}")
+                        val parsedValue =
+                            try {
+                                parsePreferenceValue(value, valueType)
+                            } catch (e: IllegalArgumentException) {
+                                return failure(e.message ?: "Invalid preference value.")
+                            }
+
+                        when (parsedValue) {
+                            is Int -> editor.putInt(key, parsedValue)
+                            is Long -> editor.putLong(key, parsedValue)
+                            is Float -> editor.putFloat(key, parsedValue)
+                            is Boolean -> editor.putBoolean(key, parsedValue)
+                            is String -> editor.putString(key, parsedValue)
+                            else -> error("Unexpected parsed preference value: $parsedValue")
                         }
                     }
                     if (!editor.commit()) {
