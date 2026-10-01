@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
+import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -55,6 +56,8 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
@@ -62,6 +65,7 @@ import androidx.test.filters.SdkSuppress
 import kotlin.math.floor
 import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -254,7 +258,6 @@ class BorderTest(val shape: Shape) {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = 32) // b/257069369
     @Test
     fun border_non_simple_rounded_rect() {
         val topleft = 0f
@@ -562,6 +565,237 @@ class BorderTest(val shape: Shape) {
             // Base of the triangle on the rounded rect shape has the border rendered
             currentX += arrowBaseWidthPx / 2f
             assertEquals(Color.Red, map[currentX.toInt(), (offset.y + borderStrokePx / 2).toInt()])
+        }
+    }
+
+    /**
+     * b/546074983 - for [Outline.Rectangle] the current behavior of border ignores the outline
+     * bounds and always draws within the layout bounds of the border. This is a bug, but it's a
+     * pre-existing behavior that will be a very destructive breaking change for existing callers.
+     *
+     * This test exists to ensure we don't accidentally change the current behavior. We may want to
+     * consider changing this in the future, if we can do so safely.
+     */
+    @Test
+    fun border_rectangleOutline_ignoresOutlineBounds() {
+        val fixedRectOutlineShape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density,
+                ): Outline = Outline.Rectangle(Rect(10f, 10f, 30f, 30f))
+            }
+
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                        .background(color = Color.Blue)
+                        .border(BorderStroke(4.0f.toDp(), Color.Red), fixedRectOutlineShape)
+                ) {}
+            }
+        }
+
+        // The outline bounds are ignored, so this should just render a 4px border around the full
+        // 40x40 layout bounds.
+        val inset = IntRect(4, 4, 36, 36)
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels(IntSize(40, 40)) { pos ->
+            if (inset.contains(pos)) Color.Blue else Color.Red
+        }
+    }
+
+    /**
+     * b/546074983 - for simple (all corner radii equal) [Outline.Rounded] the current behavior of
+     * border ignores the outline bounds and always draws within the layout bounds of the border.
+     * This is a bug, but it's a pre-existing behavior that will be a very destructive breaking
+     * change for existing callers.
+     *
+     * This test exists to ensure we don't accidentally change the current behavior. We may want to
+     * consider changing this in the future, if we can do so safely.
+     */
+    @Test
+    fun border_simpleRoundedOutline_ignoresOutlineBounds() {
+        val fixedSimpleRoundedOutlineShape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density,
+                ): Outline =
+                    Outline.Rounded(RoundRect(10f, 10f, 30f, 30f, cornerRadius = CornerRadius(8f)))
+            }
+
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                        .background(color = Color.Blue)
+                        .border(
+                            BorderStroke(4.0f.toDp(), Color.Red),
+                            fixedSimpleRoundedOutlineShape,
+                        )
+                ) {}
+            }
+        }
+
+        // The outline bounds are ignored, so this should just render a 4px border around the full
+        // 40x40 layout bounds.
+        val inset = IntRect(4, 4, 36, 36)
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels(IntSize(40, 40)) { pos ->
+            val inCornerSquare = (pos.x !in 8..<32) && (pos.y !in 8..<32)
+            val inExtremeCorner = (pos.x !in 2..<38) && (pos.y !in 2..<38)
+            when {
+                // The extreme corner pixels of the layout lie outside the rounded corners of the
+                // ring, so they show the background
+                inExtremeCorner -> Color.Blue
+                // Ignore the corner due to antialiasing
+                inCornerSquare -> null
+                // Inside should be blue
+                inset.contains(pos) -> Color.Blue
+                // Border should be red
+                else -> Color.Red
+            }
+        }
+    }
+
+    /**
+     * Border should respect the outline bounds when using [Outline.Rounded], with a non-simple
+     * (different corner radii) outline that starts at (0,0). This is in contrast to the behavior
+     * for some other outlines, but this behavior is correct.
+     *
+     * This test case is separate from
+     * [border_nonSimpleRoundedOutline_nonZeroOffsetOriginOutline_respectsOutlineBounds], which is
+     * the same test case but with an outline that does _not_ start at (0,0), to catch b/546074983
+     */
+    @Test
+    fun border_nonSimpleRoundedOutline_zeroOffsetOriginOutline_respectsOutlineBounds() {
+        val fixedOutlineShape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density,
+                ): Outline =
+                    Outline.Rounded(
+                        RoundRect(0f, 0f, 20f, 20f, bottomRightCornerRadius = CornerRadius(8f))
+                    )
+            }
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                        .background(color = Color.Blue)
+                        .border(BorderStroke(4.0f.toDp(), Color.Red), fixedOutlineShape)
+                ) {}
+            }
+        }
+        val outlineBounds = IntRect(0, 0, 20, 20)
+        // Outline inset by the stroke width
+        val inset = IntRect(4, 4, 16, 16)
+        // The bottom right corner is rounded and so will be antialiased, so we want to ignore it
+        val outlineCorner = IntRect(12, 12, 20, 20)
+        // This should draw a 4px rectangle, with the bottom right corner rounded, starting at (0,0)
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels(IntSize(40, 40)) { pos ->
+            when {
+                // Ignore the corner due to antialiasing
+                outlineCorner.contains(pos) -> null
+                // Border should be red
+                outlineBounds.contains(pos) && !inset.contains(pos) -> Color.Red
+                // Inside the border, and outside the bounds of the border should be blue
+                else -> Color.Blue
+            }
+        }
+    }
+
+    /**
+     * Border should respect the outline bounds when using [Outline.Rounded], with a non-simple
+     * (different corner radii) outline that does _not_ start at (0,0). This is in contrast to the
+     * behavior for some other outlines, but this behavior is correct.
+     *
+     * This test case is separate from
+     * [border_nonSimpleRoundedOutline_zeroOffsetOriginOutline_respectsOutlineBounds], which is the
+     * same test case but with an outline that _does_ start at (0,0), to catch b/546074983
+     */
+    @Ignore("b/546074983 - the position is correct but the border rendering is broken")
+    @Test
+    fun border_nonSimpleRoundedOutline_nonZeroOffsetOriginOutline_respectsOutlineBounds() {
+        val fixedNonSimpleRoundedOutlineShape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density,
+                ): Outline =
+                    Outline.Rounded(
+                        RoundRect(10f, 10f, 30f, 30f, bottomRightCornerRadius = CornerRadius(8f))
+                    )
+            }
+
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                        .background(color = Color.Blue)
+                        .border(
+                            BorderStroke(4.0f.toDp(), Color.Red),
+                            fixedNonSimpleRoundedOutlineShape,
+                        )
+                ) {}
+            }
+        }
+
+        val outlineBounds = IntRect(10, 10, 30, 30)
+        // Outline inset by the stroke width
+        val inset = IntRect(14, 14, 26, 26)
+        // The bottom right corner is rounded and so will be antialiased, so we want to ignore it
+        val outlineCorner = IntRect(22, 22, 30, 30)
+        // This should draw a 4px rectangle, with the bottom right corner rounded, starting at
+        // (10,10)
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels(IntSize(40, 40)) { pos ->
+            when {
+                // Ignore the corner due to antialiasing
+                outlineCorner.contains(pos) -> null
+                // Border should be red
+                outlineBounds.contains(pos) && !inset.contains(pos) -> Color.Red
+                // Inside the border, and outside the bounds of the border should be blue
+                else -> Color.Blue
+            }
+        }
+    }
+
+    /**
+     * Border should respect the outline size when using [Outline.Generic]. This is in contrast to
+     * the behavior for some other outlines, but this behavior is correct.
+     */
+    @Test
+    fun border_outlineGeneric_respectsOutlineSize() {
+        val fixedGenericOutlineShape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density,
+                ): Outline = Outline.Generic(Path().apply { addRect(Rect(10f, 10f, 30f, 30f)) })
+            }
+
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                        .background(color = Color.Blue)
+                        .border(BorderStroke(4.0f.toDp(), Color.Red), fixedGenericOutlineShape)
+                ) {}
+            }
+        }
+
+        // This should draw a 4px rectangle starting at (10,10)
+        val outlineBounds = IntRect(10, 10, 30, 30)
+        val inset = IntRect(14, 14, 26, 26)
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels(IntSize(40, 40)) { pos ->
+            // Inside the border, and outside the bounds of the border should be blue. The border
+            // should be red.
+            if (outlineBounds.contains(pos) && !inset.contains(pos)) Color.Red else Color.Blue
         }
     }
 
