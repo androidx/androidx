@@ -15,7 +15,7 @@
   -->
 
 <AppFunctionAppMetadata xmlns:appfn="http://schemas.android.com/apk/res-auto"
-    appfn:description="* Use noSchema_enabledByDefault and noSchema_disabledByDefault for testing setAppFunctionEnabled API and enabledByDefault behavior.
+    appfn:instructions="* Use noSchema_enabledByDefault and noSchema_disabledByDefault for testing setAppFunctionEnabled API and enabledByDefault behavior.
 * Use noSchema_executionSucceed for testing successful execution.
 * Use noSchema_executionFail for testing execution failure.
 * Use notesSchema_print and mediaSchema_print for schema-based enabled functions.

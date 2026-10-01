@@ -15,16 +15,16 @@
   -->
 
 <resources>
-    <!-- Natural language description provided to the large language model, describing the available app functions and guidance on how to use them individually or in combination. -->
-    <attr name="description" format="string" />
+    <!-- Instructions for the LLM on how to use the app's functions together, conveying context that individual function descriptions cannot, such as the order in which functions should be called (for example, searching for an entity before updating or deleting it) and constraints that apply across functions. Keep instructions concise and factual, and do not restate individual function descriptions or include guidance unrelated to the app's functions. Agents may choose how, or whether, to use these instructions, so do not rely on them to enforce critical behavior. -->
+    <attr name="instructions" format="string" />
 
     <!-- A short, user-visible description string resource summarizing what the app functions enable the agents to do. -->
     <attr name="displayDescription" format="reference|string" />
 
     <!-- Metadata describing how an app exposes its functions for use by an agent. -->
     <declare-styleable name="AppFunctionAppMetadata">
-        <!-- Natural language description provided to the large language model, describing the available app functions and guidance on how to use them individually or in combination. -->
-        <attr name="description" />
+        <!-- Instructions for the LLM on how to use the app's functions together, conveying context that individual function descriptions cannot, such as the order in which functions should be called (for example, searching for an entity before updating or deleting it) and constraints that apply across functions. Keep instructions concise and factual, and do not restate individual function descriptions or include guidance unrelated to the app's functions. Agents may choose how, or whether, to use these instructions, so do not rely on them to enforce critical behavior. -->
+        <attr name="instructions" />
 
         <!-- A short, user-visible description string resource summarizing what the app functions enable the agents to do. -->
         <attr name="displayDescription" />

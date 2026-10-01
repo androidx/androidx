@@ -30,13 +30,18 @@ import java.util.Objects
 // TODO: b/429149071 - Link to the dev site explaining the attributes.
 public class AppFunctionAppMetadata(
     /**
-     * Natural language description guiding the LLM on how to use the app's functions.
+     * App-provided instructions for the LLM on how to use the app's functions together.
      *
-     * Corresponds to the `description` attribute in the
+     * Agents should use these instructions as context when planning calls to the app's functions,
+     * for example to follow a required order across functions (such as searching for an entity
+     * before updating or deleting it) or to respect constraints that apply across functions.
+     * Instructions complement, and do not replace, the descriptions of individual functions.
+     *
+     * Corresponds to the `instructions` attribute in the
      * [&lt;AppFunctionAppMetadata&gt;](androidx.appfunctions.R.styleable.AppFunctionAppMetadata)
      * styleable. Defaults to empty string if not specified.
      */
-    public val description: String = "",
+    public val instructions: String = "",
     /**
      * A short, user-visible description of what the app functions enable the agent to do.
      *
@@ -50,12 +55,12 @@ public class AppFunctionAppMetadata(
     override fun equals(other: Any?): Boolean =
         this === other ||
             other is AppFunctionAppMetadata &&
-                this.description == other.description &&
+                this.instructions == other.instructions &&
                 this.displayDescription == other.displayDescription
 
-    override fun hashCode(): Int = Objects.hash(description, displayDescription)
+    override fun hashCode(): Int = Objects.hash(instructions, displayDescription)
 
     override fun toString(): String {
-        return "AppFunctionAppMetadata(description='$description', displayDescription='$displayDescription')"
+        return "AppFunctionAppMetadata(instructions='$instructions', displayDescription='$displayDescription')"
     }
 }

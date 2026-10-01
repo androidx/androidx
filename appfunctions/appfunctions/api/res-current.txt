@@ -1,2 +1,2 @@
-attr description
 attr displayDescription
+attr instructions

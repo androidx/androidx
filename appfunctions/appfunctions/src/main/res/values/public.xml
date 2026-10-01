@@ -15,6 +15,6 @@
   -->
 
 <resources>
-    <public type="attr" name="description" />
+    <public type="attr" name="instructions" />
     <public type="attr" name="displayDescription" />
 </resources>
