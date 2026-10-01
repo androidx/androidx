@@ -38,7 +38,7 @@ private class BufferedSQLiteStatement(private val delegate: SQLiteStatement) :
     override fun step(): Boolean {
         rowIndex++
         return when {
-            rowIndex < rows.size -> true
+            rowIndex < rowCount -> true
             fullyBuffered -> false
             delegate.step() -> {
                 saveRow()
