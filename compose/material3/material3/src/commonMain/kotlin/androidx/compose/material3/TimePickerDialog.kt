@@ -133,6 +133,8 @@ public fun TimePickerDialog(
  * @param shape defines the dialog's surface shape as well its shadow
  * @param containerColor the color of the dialog's container
  * @param content the content of the dialog (i.e. a [TimePicker], for example)
+ *
+ * @material3expressive
  */
 @Composable
 public fun VibrantTimePickerDialog(
