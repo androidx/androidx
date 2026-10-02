@@ -23,36 +23,36 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionActivityState
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
-import androidx.appfunctions.AppFunctionServiceDelegate
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.RegisterAppFunctionRequest
-import androidx.appfunctions.internal.AggregatedAppFunctionInvoker
 import androidx.appfunctions.internal.AppFunctionManagerApi
-import androidx.appfunctions.internal.findImpl
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalAppFunctionsApi::class)
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@RequiresApi(Build.VERSION_CODES.BAKLAVA)
 internal class FakeAppFunctionManagerApi(
     private val context: Context,
     private val appFunctionReader: FakeAppFunctionReader,
+    private val inventory: FakeAppFunctionInventory,
 ) : AppFunctionManagerApi {
-    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun executeAppFunction(
         request: ExecuteAppFunctionRequest,
         functionMetadata: AppFunctionMetadata,
-    ): ExecuteAppFunctionResponse =
-        AppFunctionServiceDelegate(
-                context,
-                Dispatchers.Default,
-                AggregatedAppFunctionInvoker::class.java.findImpl(prefix = "$", suffix = "_Impl"),
-            )
-            .executeFunction(request, functionMetadata)
+    ): ExecuteAppFunctionResponse {
+        val serviceClassContainingFunction =
+            inventory.getServiceClassForFunction(request.functionIdentifier)
+                ?: throw AppFunctionFunctionNotFoundException(
+                    "No function found with identifier: ${request.functionIdentifier} in package ${request.targetPackageName}"
+                )
+        return AppFunctionServiceUtils.executeFunction(
+            serviceClassContainingFunction,
+            request,
+            functionMetadata,
+        )
+    }
 
     override suspend fun isAppFunctionEnabled(packageName: String, functionId: String): Boolean =
         appFunctionReader
