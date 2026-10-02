@@ -97,25 +97,25 @@ reason = "b/TODO - <reason>"
 library = ":compose:material3:material3-a2ui"
 dependsOn = ":a2ui:a2ui-engine"
 validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
+reason = "b/567547623 - quarantined to release together with :a2ui while it's in early alphas"
 
 [[tipOfTreeExemptions]]
 library = ":compose:material3:material3-a2ui"
 dependsOn = ":a2ui:a2ui-model"
 validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
+reason = "b/567547623 - quarantined to release together with :a2ui while it's in early alphas"
 
 [[tipOfTreeExemptions]]
 library = ":compose:material3:material3-a2ui"
 dependsOn = ":a2ui:compose:compose-runtime"
 validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
+reason = "b/567547623 - quarantined to release together with :a2ui while it's in early alphas"
 
 [[tipOfTreeExemptions]]
 library = ":compose:material3:material3-a2ui"
 dependsOn = ":a2ui:compose:compose-ui"
 validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
+reason = "b/567547623 - quarantined to release together with :a2ui while it's in early alphas"
 
 [[tipOfTreeExemptions]]
 library = ":compose:material:material"
