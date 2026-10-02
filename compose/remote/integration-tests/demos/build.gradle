@@ -32,6 +32,9 @@ androidx {
     name = "Remote Compose demos"
     inceptionYear = "2025"
     description = "Demo app for the Remote Compose players and Frontend APIs."
+    deviceTests {
+        maxShardCount = 1
+    }
 }
 
 dependencies {
