@@ -116,10 +116,16 @@ public object BackupActionInputKeys {
      */
     public const val VALUES: String = "values"
 
-    /** Name of the column used to locate the row to verify. Required for database verification. */
+    /**
+     * Name of the column that identifies the row.
+     *
+     * Required for database verification, which checks that exactly one row has [KEY_VAL] in this
+     * column. Optional for population: when both this key and [KEY_VAL] are present, rows with that
+     * key are deleted before the insert, so repeating a populate leaves a single row.
+     */
     public const val KEY_COL: String = "key_col"
 
-    /** Value of [KEY_COL] identifying the row to verify. Required for database verification. */
+    /** Value of [KEY_COL] identifying the row. Required for database verification. */
     public const val KEY_VAL: String = "key_val"
 
     /**

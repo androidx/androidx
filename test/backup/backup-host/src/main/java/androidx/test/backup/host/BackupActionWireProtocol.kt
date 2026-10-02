@@ -138,6 +138,8 @@ internal object BackupActionWireProtocol {
                     BackupActionInputKeys.TABLE to storage.table,
                     BackupActionInputKeys.VALUES to
                         encodeColumnValues(if (hasKeyColumn) columns else columns + keyColumn),
+                    BackupActionInputKeys.KEY_COL to storage.primaryKeyCol,
+                    BackupActionInputKeys.KEY_VAL to storage.primaryKeyVal.toString(),
                 )
             }
             is StorageDomain.TextFile ->
@@ -173,9 +175,9 @@ internal object BackupActionWireProtocol {
                         mapOf(BackupActionInputKeys.EXPECT_NULL to "true")
                     }
                 is StorageDomain.Database -> {
-                    // The action verifies every column in VALUES within the row identified by the
-                    // primary key. The first column is also sent on its own, which is all that
-                    // device libraries predating VALUES verification check.
+                    // populateArgs already carries the primary key and every column in VALUES,
+                    // which the action verifies. The first column is also sent on its own, which
+                    // is all that device libraries predating VALUES verification check.
                     val (expectedCol, expectedVal) =
                         storage.columnValues.entries.firstOrNull()
                             ?: throw IllegalArgumentException(
@@ -183,8 +185,6 @@ internal object BackupActionWireProtocol {
                                     "pair to verify."
                             )
                     mapOf(
-                        BackupActionInputKeys.KEY_COL to storage.primaryKeyCol,
-                        BackupActionInputKeys.KEY_VAL to storage.primaryKeyVal.toString(),
                         BackupActionInputKeys.EXPECTED_COL to expectedCol,
                         BackupActionInputKeys.EXPECTED_VAL to expectedVal.orEmpty(),
                     )
