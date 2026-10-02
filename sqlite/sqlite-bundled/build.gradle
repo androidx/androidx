@@ -70,8 +70,8 @@ def prepareSqliteSourcesTask = ext.registerPrepareSqliteSourcesTask(
         project, // project
         "prepareSqliteSourcesTask" // task name
 ) {
-    it.sqliteVersion.set("3.50.1")
-    it.sqliteReleaseYear.set(2025)
+    it.sqliteVersion.set("3.53.4")
+    it.sqliteReleaseYear.set(2026)
     it.destinationDirectory.set(project.layout.buildDirectory.dir("sqlite3/src"))
     if (!ProjectLayoutType.isPlayground(project)) {
         it.sqlitePrebuiltsDirectory.set(
