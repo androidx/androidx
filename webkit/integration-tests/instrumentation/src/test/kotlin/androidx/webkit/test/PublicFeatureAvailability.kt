@@ -79,7 +79,6 @@ internal val PUBLIC_FEATURE_UNHIDE_CLS =
         WF.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS to "https://crrev.com/c/4300277",
         WF.WEB_MESSAGE_ARRAY_BUFFER to "https://crrev.com/c/4568044",
         WF.USER_AGENT_METADATA to "https://crrev.com/c/4894976",
-        WF.USER_AGENT_METADATA_FORM_FACTORS to "https://crrev.com/c/4894976",
         WF.MULTI_PROFILE to "https://crrev.com/c/4895669",
         WF.ATTRIBUTION_REGISTRATION_BEHAVIOR to "https://crrev.com/c/4898539",
         WF.WEBVIEW_MEDIA_INTEGRITY_API_STATUS to "https://crrev.com/c/5066170",
@@ -119,4 +118,5 @@ internal val PUBLIC_FEATURE_UNHIDE_CLS =
         WF.DOWNLOAD_FAVICONS_ENABLED to "https://crrev.com/c/7984627",
         WF.CROSS_ORIGIN_ISOLATED_ALLOWLIST to "https://crrev.com/c/8233544",
         WF.WEBVIEW_NAVIGATE_DRAIN_PREFETCH to "https://crrev.com/c/8256949",
+        WF.USER_AGENT_METADATA_FORM_FACTORS to "https://crrev.com/c/8503916",
     )
