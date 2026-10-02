@@ -23,10 +23,10 @@ import androidx.annotation.Nullable
 import androidx.annotation.RequiresFeature
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
+import androidx.web.WebGlueCommunicator.asProxy
 import java.util.function.BiConsumer
-import org.chromium.support_lib_boundary.WebSurfaceBoundaryInterface
-import org.chromium.support_lib_boundary.WebSurfaceEvent
-import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil
+import org.chromium.support_lib_boundary.web.WebSurfaceBoundaryInterface
+import org.chromium.support_lib_boundary.web.WebSurfaceEvent
 
 /** Internal adapter wrapping the Chromium [WebSurfaceBoundaryInterface]. */
 @InternalWebApi
@@ -73,11 +73,10 @@ private constructor(private val boundary: WebSurfaceBoundaryInterface) {
                         WebSurfaceEvent.INVALIDATE -> listener.onInvalidate()
                     }
                 }
-            val boundary: WebSurfaceBoundaryInterface =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                    WebSurfaceBoundaryInterface::class.java,
-                    WebGlueCommunicator.factory.createWebSurface(eventListener),
-                )!!
+            val boundary =
+                WebGlueCommunicator.factory
+                    .createWebSurface(eventListener)
+                    .asProxy<WebSurfaceBoundaryInterface>()
             return WebSurfaceChromium(boundary)
         }
     }
