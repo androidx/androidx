@@ -31,3 +31,11 @@ These live inside a module's own `.agents/skills/` and apply only within that mo
 | [`screenshot_testing`](../compose/remote/remote-creation-compose/.agents/skills/screenshot_testing/SKILL.md) | `compose/remote/remote-creation-compose` | Building Remote Compose screenshot tests with `RemoteScreenshotTestRule`. |
 | [`grid_screenshot_testing`](../compose/remote/remote-creation-compose/.agents/skills/grid_screenshot_testing/SKILL.md) | `compose/remote/remote-creation-compose` | Building Remote Compose instrumented tests with `GridScreenshotUI`. |
 | [`scaffold-remote-component`](../wear/compose/remote/remote-material3/.agents/skills/scaffold-remote-component/SKILL.md) | `wear/compose/remote/remote-material3` | Scaffolding a new RemoteCompose Wear Material 3 component with test, sample, and preview. |
+
+## External plugins (`.agents/plugins.json`)
+
+Plugins only relevant to internal Google tools are registered in `plugins.json`.
+
+| Plugin / Skill | Use when |
+| --- | --- |
+| `gob_vcs` | Version control |
