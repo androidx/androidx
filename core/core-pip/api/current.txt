@@ -57,10 +57,24 @@ package androidx.core.pip.contentpip {
   }
 
   public interface ContentPipCallback {
-    method public void onAttachContentPip(androidx.activity.ComponentActivity pipActivity);
-    method public void onFinishContentPip(boolean isDismissed);
-    method public boolean onInitContentPip();
-    method public boolean onPrepareContentPip();
+    method public void onAttach(androidx.activity.ComponentActivity pipActivity);
+    method public void onError(Throwable throwable);
+    method public void onFinish(androidx.core.pip.contentpip.ContentPipCallback.FinishReason reason);
+    method public boolean onInit();
+    method public boolean onPrepare();
+  }
+
+  public static final class ContentPipCallback.FinishReason {
+    field public static final androidx.core.pip.contentpip.ContentPipCallback.FinishReason.Companion Companion;
+    field public static final androidx.core.pip.contentpip.ContentPipCallback.FinishReason DISMISSED;
+    field public static final androidx.core.pip.contentpip.ContentPipCallback.FinishReason RESTORED;
+    field public static final androidx.core.pip.contentpip.ContentPipCallback.FinishReason UNKNOWN;
+  }
+
+  public static final class ContentPipCallback.FinishReason.Companion {
+    property public androidx.core.pip.contentpip.ContentPipCallback.FinishReason DISMISSED;
+    property public androidx.core.pip.contentpip.ContentPipCallback.FinishReason RESTORED;
+    property public androidx.core.pip.contentpip.ContentPipCallback.FinishReason UNKNOWN;
   }
 
   public final class ContentPipToken {

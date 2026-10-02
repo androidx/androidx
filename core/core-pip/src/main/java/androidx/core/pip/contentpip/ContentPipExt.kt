@@ -67,7 +67,7 @@ public fun ComponentActivity.enablePipOnAppSwitch(callback: ContentPipCallback):
     }
     val onUserLeaveHintListener = Runnable {
         // Triggered synchronously to avoid interrupting system transitions
-        if (callback.onInitContentPip()) {
+        if (callback.onInit()) {
             ContentPipManager.triggerFallback(this, callback)
         }
     }

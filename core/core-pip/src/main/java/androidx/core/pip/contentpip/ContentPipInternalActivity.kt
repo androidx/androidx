@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
+import androidx.core.pip.contentpip.ContentPipCallback.FinishReason
 
 /** An internal translucent Activity that serves as the PiP container in a separate task. */
 internal class ContentPipInternalActivity : ComponentActivity() {
@@ -44,7 +45,7 @@ internal class ContentPipInternalActivity : ComponentActivity() {
         }
 
         callback = cb
-        cb.onAttachContentPip(this)
+        cb.onAttach(this)
 
         // Register the finish hook so the main activity can "pull back" the player
         ContentPipManager.setFinishProxyHook { finishAndRemoveTask() }
@@ -62,9 +63,10 @@ internal class ContentPipInternalActivity : ComponentActivity() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     val entered = enterPictureInPictureMode(pictureInPictureParams)
                     if (!entered) {
-                        // The enterPictureInPictureMode attempt failed, finish content PiP process
-                        // as if PiP is closed.
-                        teardown(isDismissed = true)
+                        // The enterPictureInPictureMode attempt failed, finish content PiP process.
+                        teardownOnError(
+                            IllegalStateException("enterPictureInPictureMode returned false")
+                        )
                         return
                     }
                 } else {
@@ -72,7 +74,7 @@ internal class ContentPipInternalActivity : ComponentActivity() {
                 }
             } catch (e: IllegalStateException) {
                 Log.w(TAG, "enterPictureInPictureMode failed", e)
-                teardown(isDismissed = true)
+                teardownOnError(e)
                 return
             }
         }
@@ -97,7 +99,7 @@ internal class ContentPipInternalActivity : ComponentActivity() {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
         if (!isInPictureInPictureMode) {
             // Expanding, teardown the task
-            teardown(isDismissed = isStopped)
+            teardown(if (isStopped) FinishReason.DISMISSED else FinishReason.RESTORED)
         }
     }
 
@@ -106,8 +108,13 @@ internal class ContentPipInternalActivity : ComponentActivity() {
         isStopped = true
     }
 
-    private fun teardown(isDismissed: Boolean) {
-        ContentPipManager.onTeardown(isDismissed)
+    private fun teardown(reason: FinishReason) {
+        ContentPipManager.onTeardown(reason)
+        finishAndRemoveTask()
+    }
+
+    private fun teardownOnError(throwable: Throwable) {
+        ContentPipManager.onError(throwable)
         finishAndRemoveTask()
     }
 

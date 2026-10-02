@@ -24,10 +24,11 @@ import androidx.activity.ComponentActivity
  *
  * After registering [ContentPipCallback] via [enablePipOnAppSwitch], application can expect the
  * callbacks in the following order
- * 1. [onInitContentPip], app can return the PiP eligibility
- * 2. [onPrepareContentPip], app prepares for the handoff
- * 3. [onAttachContentPip], app attaches the content to the new Activity (that will enter PiP)
- * 4. [onFinishContentPip], app is notified that content PiP is finished
+ * 1. [onInit], app can return the PiP eligibility
+ * 2. [onPrepare], app prepares for the handoff
+ * 3. [onAttach], app attaches the content to the new Activity (that will enter PiP)
+ * 4. [onFinish], app is notified that content PiP is finished, or [onError] if the Content PiP
+ *    fails
  */
 public interface ContentPipCallback {
     /**
@@ -36,7 +37,7 @@ public interface ContentPipCallback {
      * @return `true` if the application is eligible to enter PiP. If `false` is returned, the PiP
      *   flow is canceled.
      */
-    public fun onInitContentPip(): Boolean
+    public fun onInit(): Boolean
 
     /**
      * Called on the main Activity to prepare for the handoff (e.g., detaching a Player from its
@@ -45,7 +46,7 @@ public interface ContentPipCallback {
      * @return `true` if the handoff is successful on the main Activity. If `false` is returned, the
      *   PiP flow is canceled.
      */
-    public fun onPrepareContentPip(): Boolean
+    public fun onPrepare(): Boolean
 
     /**
      * Called once the proxy PiP Activity is ready. The app should attach its content (e.g., a
@@ -53,16 +54,58 @@ public interface ContentPipCallback {
      *
      * @param pipActivity The new Activity serving as the PiP container.
      */
-    public fun onAttachContentPip(pipActivity: ComponentActivity)
+    public fun onAttach(pipActivity: ComponentActivity)
 
     /**
-     * Called when the PiP task is finishing or the enter PiP attempt is failed.
+     * Called when the PiP task is finishing. If the Content PiP fails, for instance, the attempt to
+     * enter PiP fails, [onError] is called instead.
      *
-     * For instance, a video app can use [isDismissed] to determine if it needs to stop playback.
-     * This is `true` when the user dismisses or closes the PiP, and `false` when the user expands
-     * the PiP to full-screen mode.
+     * For instance, a video app can use [reason] to determine if it needs to stop playback. It can
+     * stop the playback on [FinishReason.DISMISSED], and continue the playback in the main Activity
+     * on [FinishReason.RESTORED].
      *
-     * @param isDismissed whether the PiP task is explicitly dismissed by the user.
+     * @param reason the reason why the Content PiP is finished, see [FinishReason].
      */
-    public fun onFinishContentPip(isDismissed: Boolean)
+    public fun onFinish(reason: FinishReason)
+
+    /**
+     * Represents the reason why the Content PiP is finished, see [onFinish].
+     *
+     * New reasons may be added in the future, so apps should handle unknown reasons, for instance,
+     * with an `else` branch in `when`.
+     */
+    public class FinishReason private constructor(private val value: Int) {
+        override fun toString(): String {
+            return when (value) {
+                VALUE_DISMISSED -> "PiP is dismissed"
+                VALUE_RESTORED -> "PiP is restored"
+                else -> "Unknown reason"
+            }
+        }
+
+        public companion object {
+            private const val VALUE_UNKNOWN = 0
+            private const val VALUE_DISMISSED = 1
+            private const val VALUE_RESTORED = 2
+
+            /** The reason is unknown or not covered by the other reasons. */
+            @JvmField public val UNKNOWN: FinishReason = FinishReason(VALUE_UNKNOWN)
+            /** The user dismissed or closed the PiP. */
+            @JvmField public val DISMISSED: FinishReason = FinishReason(VALUE_DISMISSED)
+            /** The user expanded the PiP to full-screen mode. */
+            @JvmField public val RESTORED: FinishReason = FinishReason(VALUE_RESTORED)
+        }
+    }
+
+    /**
+     * Called when the Content PiP fails, for instance, the attempt to enter PiP fails. This is
+     * called instead of [onFinish].
+     *
+     * Note that [onAttach] has been called before this callback, so the app should reclaim the
+     * content (e.g., a Player) from the PiP Activity, which is about to finish.
+     *
+     * @param throwable the exception that describes the failure, for instance, an
+     *   [IllegalStateException] if the system rejected the request to enter PiP.
+     */
+    public fun onError(throwable: Throwable)
 }
