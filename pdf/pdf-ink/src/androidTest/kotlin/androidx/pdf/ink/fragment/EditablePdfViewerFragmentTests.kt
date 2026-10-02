@@ -237,6 +237,38 @@ class EditablePdfViewerFragmentTests {
         onView(withId(PdfR.id.pdf_wet_strokes_view)).check(matches(matchesToolbarMask(toolbar!!)))
     }
 
+    @SdkSuppress(maxSdkVersion = 36) // b/537524951
+    @OptIn(ExperimentalPdfApi::class)
+    @Test
+    fun test_annotationToolbar_updatesWetStrokesMaskPath_afterRotation() {
+        if (!isAnnotationsFeatureAvailable()) return
+
+        loadDocumentAndSetupFragment()
+        enterEditMode()
+
+        // Open and dismiss brush size slider before rotation
+        onView(withId(PdfR.id.pen_button)).perform(click())
+        onView(withId(PdfR.id.brush_size_selector)).check(matches(isDisplayed()))
+        onView(withId(PdfR.id.pen_button)).perform(click())
+        onView(withId(PdfR.id.brush_size_selector)).check(matches(not(isDisplayed())))
+
+        // Rotate the device to Landscape
+        scenario.onFragment { fragment ->
+            fragment.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
+        onIdle()
+
+        var toolbarAfterRotation: AnnotationToolbarView? = null
+        scenario.onFragment { fragment ->
+            toolbarAfterRotation = fragment.view?.findViewById(PdfR.id.annotationToolbar)
+        }
+
+        onView(withId(PdfR.id.brush_size_selector)).check(matches(not(isDisplayed())))
+        onView(withId(PdfR.id.color_palette)).check(matches(not(isDisplayed())))
+        onView(withId(PdfR.id.pdf_wet_strokes_view))
+            .check(matches(matchesToolbarMask(toolbarAfterRotation!!)))
+    }
+
     @OptIn(ExperimentalPdfApi::class)
     @Test
     fun test_annotationToolbar_reExpands_onLongPressWithoutMove() {
