@@ -584,17 +584,22 @@ public class WebViewFeatureInternal {
      */
     public static final ApiFeature.NoFramework USER_AGENT_METADATA_FORM_FACTORS =
             new ApiFeature.NoFramework(WebViewFeature.USER_AGENT_METADATA_FORM_FACTORS,
-                    Features.USER_AGENT_METADATA) {
+                    Features.USER_AGENT_METADATA_FORM_FACTORS) {
                 @Override
                 public boolean isSupportedByWebView() {
-                    if (!super.isSupportedByWebView()) {
+                    if (super.isSupportedByWebView()) {
+                        return true;
+                    }
+                    if (!USER_AGENT_METADATA.isSupportedByWebView()) {
                         return false;
                     }
                     PackageInfo info = WebViewCompat.getCurrentLoadedWebViewPackage();
                     if (info == null) return false;
-                    // Since version 124.0.6367.0 (crrev.com/c/5374782), Chromium WebView has
-                    // supported override form factor client hint.
-                    return PackageInfoCompat.getLongVersionCode(info) >= 6367_000_00L;
+                    // Fallback for WebViews between 124.0.6367.0 (crrev.com/c/5374782) and
+                    // 157.0.8083.0 (crrev.com/c/8503916) where form factor client hint was
+                    // supported before the boundary feature flag was introduced.
+                    long versionCode = PackageInfoCompat.getLongVersionCode(info);
+                    return versionCode >= 6367_000_00L && versionCode < 8083_000_00L;
                 }
             };
 

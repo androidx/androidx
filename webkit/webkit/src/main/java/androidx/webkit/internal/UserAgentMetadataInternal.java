@@ -224,13 +224,17 @@ public class UserAgentMetadataInternal {
             builder.setWow64(isWow64);
         }
 
-        String[] formFactors = (String[]) uaMetadataMap.get(FORM_FACTORS);
-        if (formFactors != null) {
-            List<String> formFactorsList = new ArrayList<>();
-            for (String formFactor : formFactors) {
-                formFactorsList.add(formFactor);
+        ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.USER_AGENT_METADATA_FORM_FACTORS;
+        if (feature.isSupportedByWebView()) {
+            String[] formFactors = (String[]) uaMetadataMap.get(FORM_FACTORS);
+            if (formFactors != null) {
+                List<String> formFactorsList = new ArrayList<>();
+                for (String formFactor : formFactors) {
+                    formFactorsList.add(formFactor);
+                }
+                builder.setFormFactors(formFactorsList);
             }
-            builder.setFormFactors(formFactorsList);
         }
 
         return builder.build();
