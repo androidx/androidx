@@ -73,8 +73,10 @@ import org.robolectric.shadows.ShadowLog
 @RunWith(RobolectricTestRunner::class)
 class BaseWidgetDelegateTest {
 
-    private class TestTemplate(override val templateId: String = "TestTemplate") :
-        AdaptiveGlanceTemplate
+    private class TestTemplate(
+        override val templateName: String = "TestTemplate",
+        override val templateId: Int = 1,
+    ) : AdaptiveGlanceTemplate
 
     private class TestReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "test_widget"
@@ -708,7 +710,8 @@ class BaseWidgetDelegateTest {
     }
 
     private class DimensionAwareTemplate : AdaptiveGlanceTemplate {
-        override val templateId: String = "dimension_template"
+        override val templateName: String = "dimension_template"
+        override val templateId: Int = 2
     }
 
     /**
@@ -737,7 +740,8 @@ class BaseWidgetDelegateTest {
         setupBoundWidget(601, TestReceiver::class.java.name)
         registerReceiverInManifest(TestReceiver::class.java.name)
 
-        delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+        delegate()
+            .pushUpdate(widgetName = "test_widget", currentData = TestTemplate(templateId = 2))
 
         // Written first so that a host reading the extras on update sees current values.
         val inOrder = inOrder(appWidgetManager)
@@ -746,13 +750,13 @@ class BaseWidgetDelegateTest {
         assertThat(
                 appWidgetManager
                     .getAppWidgetOptions(601)
-                    .getString(WidgetTelemetryHandler.EXTRA_XFF_TEMPLATE_ID)
+                    .getInt(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE)
             )
-            .isEqualTo("TestTemplate")
+            .isEqualTo(2)
     }
 
     @Test
-    fun pushUpdate_populatesArchetypeIdFromDimensions_andRendersMatchingArchetype() = runTest {
+    fun pushUpdate_rendersMatchingArchetypeFromDimensions_andWritesTemplateType() = runTest {
         var renderedArchetype: TestArchetype? = null
         registerDimensionAwareTemplate { renderedArchetype = it }
         setupBoundWidget(
@@ -771,18 +775,17 @@ class BaseWidgetDelegateTest {
         assertThat(
                 appWidgetManager
                     .getAppWidgetOptions(606)
-                    .getString(WidgetTelemetryHandler.EXTRA_XFF_ARCHETYPE_ID)
+                    .getInt(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE)
             )
-            .isEqualTo("SPLIT_ROW")
+            .isEqualTo(2)
         assertThat(renderedArchetype).isEqualTo(TestArchetype.SPLIT_ROW)
     }
 
     @Test
-    fun pushUpdate_whenHostReportsWidthOnly_reportsTheRenderedArchetype() = runTest {
+    fun pushUpdate_widthOnly_rendersUnspecifiedArchetype_andWritesTemplateType() = runTest {
         var renderedArchetype: TestArchetype? = null
         registerDimensionAwareTemplate { renderedArchetype = it }
-        // The composer renders a width without a height at unspecified (0, 0) dimensions, so the
-        // reported archetype must come from that render target, not from the raw 280 dp width.
+        // The composer renders a width without a height at unspecified (0, 0) dimensions.
         setupBoundWidget(
             appWidgetId = 608,
             receiverName = TestReceiver::class.java.name,
@@ -797,9 +800,9 @@ class BaseWidgetDelegateTest {
         assertThat(
                 appWidgetManager
                     .getAppWidgetOptions(608)
-                    .getString(WidgetTelemetryHandler.EXTRA_XFF_ARCHETYPE_ID)
+                    .getInt(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE)
             )
-            .isEqualTo("COMPACT_HERO")
+            .isEqualTo(2)
     }
 
     @Test
