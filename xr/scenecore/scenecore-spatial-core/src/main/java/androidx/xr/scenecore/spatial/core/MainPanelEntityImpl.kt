@@ -25,11 +25,7 @@ import androidx.xr.scenecore.runtime.requiresApiLevel
 import com.android.extensions.xr.XrExtensionResult
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
-import java.util.concurrent.Executor
-import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * MainPanelEntity is a special instance of a PanelEntity that is backed by the WindowLeash CPM
@@ -54,52 +50,6 @@ internal class MainPanelEntityImpl(
         }
         super.cornerRadiusValue = cornerRadius
     }
-
-    private val resizeCompleteListeners = AtomicReference<Map<Runnable, Executor>>(emptyMap())
-
-    /**
-     * Registers a callback to be invoked after an asynchronous set size operation completes.
-     *
-     * The callback is guaranteed to be invoked whether the underlying IPC call succeeds or fails
-     * (e.g., throws an exception), ensuring listeners can safely recover their state.
-     *
-     * The listener will be executed on the provided [executor].
-     *
-     * @param executor The executor on which to run the listener.
-     * @param listener The task to execute upon completion.
-     */
-    internal fun addOnSetSizeCompleteListener(executor: Executor, listener: Runnable) {
-        resizeCompleteListeners.updateAndGet { it + (listener to executor) }
-    }
-
-    /**
-     * Unregisters a previously added size-change listener. The provided `listener` must be the same
-     * instance used for registration to prevent memory leaks.
-     *
-     * @param listener The listener instance to unregister.
-     */
-    internal fun removeOnSetSizeCompleteListener(listener: Runnable) {
-        resizeCompleteListeners.updateAndGet { it - listener }
-    }
-
-    private fun notifyOnSetSizeComplete() {
-        val currentListeners = resizeCompleteListeners.get()
-        for ((listener, executor) in currentListeners) {
-            try {
-                executor.execute(listener)
-            } catch (e: RejectedExecutionException) {
-                // Catch this exception to prevent the loop from terminating early,
-                // ensuring subsequent listeners are still notified.
-            } catch (e: RuntimeException) {
-                // Catch this exception to prevent the loop from terminating early,
-                // ensuring subsequent listeners are still notified.
-            }
-        }
-    }
-
-    private val isSetSizePending = AtomicBoolean(false)
-
-    internal fun isWaitingForSetSize(): Boolean = isSetSizePending.get()
 
     private val resizeLock = Any()
 

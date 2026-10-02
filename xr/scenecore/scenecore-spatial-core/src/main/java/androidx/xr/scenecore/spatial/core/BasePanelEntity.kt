@@ -32,7 +32,11 @@ import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.spatial.core.RuntimeUtils.getDefaultPixelsPerMeter
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
+import java.util.concurrent.Executor
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.min
 
 /** BasePanelEntity provides implementations of capabilities common to PanelEntities. */
@@ -44,6 +48,65 @@ internal abstract class BasePanelEntity(
     executor: ScheduledExecutorService,
 ) : AndroidXrEntity(context, node, extensions, sceneNodeRegistry, executor), PanelEntity {
     protected val defaultPixelDensity: Float by lazy { getDefaultPixelsPerMeter(extensions) }
+
+    protected val isSetSizePending = AtomicBoolean(false)
+
+    private val setSizeCompleteListeners = AtomicReference<Map<Runnable, Executor>>(emptyMap())
+
+    /**
+     * Checks if the entity is currently waiting for an asynchronous size update to complete.
+     *
+     * This is used to synchronize UI state (such as hiding/restoring content) with the completion
+     * of the underlying resize transaction.
+     */
+    internal val isWaitingForSetSize: Boolean
+        get() = isSetSizePending.get()
+
+    /**
+     * Registers a callback to be invoked after an asynchronous set size operation completes.
+     *
+     * The callback is guaranteed to be invoked whether the underlying IPC call succeeds or fails
+     * (e.g., throws an exception), ensuring listeners can safely recover their state.
+     *
+     * The listener will be executed on the provided [executor].
+     *
+     * @param executor The executor on which to run the listener.
+     * @param listener The task to execute upon completion.
+     */
+    internal fun addOnSetSizeCompleteListener(executor: Executor, listener: Runnable) {
+        setSizeCompleteListeners.updateAndGet { it + (listener to executor) }
+    }
+
+    /**
+     * Unregisters a previously added size-change listener. The provided `listener` must be the same
+     * instance used for registration to prevent memory leaks.
+     *
+     * @param listener The listener instance to unregister.
+     */
+    internal fun removeOnSetSizeCompleteListener(listener: Runnable) {
+        setSizeCompleteListeners.updateAndGet { it - listener }
+    }
+
+    protected fun notifyOnSetSizeComplete() {
+        val currentListeners = setSizeCompleteListeners.get()
+        for ((listener, executor) in currentListeners) {
+            try {
+                executor.execute(listener)
+            } catch (e: RejectedExecutionException) {
+                // Catch this exception to prevent the loop from terminating early,
+                // ensuring subsequent listeners are still notified.
+            } catch (e: RuntimeException) {
+                // Catch this exception to prevent the loop from terminating early,
+                // ensuring subsequent listeners are still notified.
+            }
+        }
+    }
+
+    override fun dispose() {
+        isSetSizePending.set(false)
+        setSizeCompleteListeners.set(emptyMap())
+        super.dispose()
+    }
 
     protected val defaultCornerRadiusInMeters: Float
         get() {
