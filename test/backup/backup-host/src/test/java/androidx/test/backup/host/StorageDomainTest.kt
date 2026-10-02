@@ -83,6 +83,41 @@ class StorageDomainTest {
     }
 
     @Test
+    fun testDatabase_primaryKeyColumnMatchingPrimaryKeyVal_isAccepted() {
+        StorageDomain.Database("db", "users", "id", 42, mapOf("id" to 42, "name" to "Ann"))
+        // Values are sent as strings, so an Int and a Long of the same number match.
+        StorageDomain.Database("db", "users", "id", 42L, mapOf("ID" to 42))
+    }
+
+    @Test
+    fun testDatabase_primaryKeyColumnConflictingWithPrimaryKeyVal_throws() {
+        val e =
+            assertThrows(IllegalArgumentException::class.java) {
+                StorageDomain.Database("db", "users", "id", 42, mapOf("id" to 7, "name" to "Ann"))
+            }
+        assertEquals(
+            "Column 'id' is the primary key column, so its value '7' must match " +
+                "primaryKeyVal '42'.",
+            e.message,
+        )
+    }
+
+    /** SQLite column names are case-insensitive, so `ID` is the primary key column too. */
+    @Test
+    fun testDatabase_primaryKeyColumnIsMatchedCaseInsensitively() {
+        assertThrows(IllegalArgumentException::class.java) {
+            StorageDomain.Database("db", "users", "id", 42, mapOf("ID" to 7))
+        }
+    }
+
+    @Test
+    fun testDatabase_nullPrimaryKeyColumn_throws() {
+        assertThrows(IllegalArgumentException::class.java) {
+            StorageDomain.Database("db", "users", "id", 42, mapOf("id" to null))
+        }
+    }
+
+    @Test
     fun testBinaryFile_immutabilityCloning() {
         val originalBytes = byteArrayOf(1, 2, 3)
         val binaryFile = StorageDomain.BinaryFile("files/data.bin", originalBytes)
