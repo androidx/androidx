@@ -90,6 +90,45 @@ class AppFunctionStringTypeMetadataTest {
     }
 
     @Test
+    fun legacyPatternConstructor_ignoresPattern() {
+        val metadata =
+            AppFunctionStringTypeMetadata(isNullable = false, pattern = "^content:", format = "uri")
+
+        assertThat(metadata.patternMatchers).isNull()
+        assertThat(metadata.regexPattern).isNull()
+        assertThat(metadata.pattern).isNull()
+        assertThat(metadata.format).isEqualTo("uri")
+        assertThat(metadata)
+            .isEqualTo(AppFunctionStringTypeMetadata(isNullable = false, format = "uri"))
+    }
+
+    @Test
+    fun legacyPatternConstructor_passesThroughDescriptionAndEnumValues() {
+        val metadata =
+            AppFunctionStringTypeMetadata(
+                isNullable = true,
+                description = "A content URI",
+                enumValues = setOf("content://a", "content://b"),
+                pattern = "^content:",
+            )
+
+        assertThat(metadata.isNullable).isTrue()
+        assertThat(metadata.description).isEqualTo("A content URI")
+        assertThat(metadata.enumValues).containsExactly("content://a", "content://b")
+        assertThat(metadata.patternMatchers).isNull()
+        assertThat(metadata.format).isNull()
+    }
+
+    @Test
+    fun primaryConstructor_withoutPattern_resolvesUnambiguously() {
+        val namedArgs = AppFunctionStringTypeMetadata(isNullable = false)
+        val positionalNullArgs = AppFunctionStringTypeMetadata(false, "", null, null)
+
+        assertThat(namedArgs.patternMatchers).isNull()
+        assertThat(positionalNullArgs.patternMatchers).isNull()
+    }
+
+    @Test
     fun toDocumentAndBack_preservesPatterns() {
         val metadata =
             AppFunctionStringTypeMetadata(
