@@ -78,6 +78,8 @@ internal class MeshFeatureImpl(
                     )
                     val state = impressApi.getReformAffordanceState(impressNode)
                     entity.affordanceState = GeometryAffordanceState.fromInt(state)
+                    val transform = impressApi.getRecommendedAffordanceTransform(impressNode)
+                    entity.recommendedAffordanceScale = transform.scale
                     (entity as AndroidXrEntity).handleInputEvent(inputEvent)
                 }
             }

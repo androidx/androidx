@@ -33,6 +33,7 @@ internal class FakeResizableComponent(
     @get:Suppress("GetterSetterNames") override var autoHideContent: Boolean = false,
     @get:Suppress("GetterSetterNames") override var autoUpdateSize: Boolean = false,
     @get:Suppress("GetterSetterNames") override var forceShowResizeOverlay: Boolean = false,
+    override var geometryGestureType: Int = ResizableComponent.GeometryGestureType.ALL,
 ) : FakeComponent(), ResizableComponent {
 
     /**
