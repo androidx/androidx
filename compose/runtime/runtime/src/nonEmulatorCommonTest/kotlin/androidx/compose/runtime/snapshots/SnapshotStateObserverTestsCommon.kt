@@ -1270,6 +1270,29 @@ class SnapshotStateObserverTestsCommon {
         }
     }
 
+    @Test
+    fun computedState_readInWithoutReadObservation_doesNotClearDependencies() {
+        var changes = 0
+        val changeBlock: (Any) -> Unit = { changes++ }
+
+        runSimpleTest { stateObserver, _ ->
+            var a by mutableIntStateOf(0)
+            val computed = computedStateOf { a }
+            val scope = ValueWrapper("scope")
+
+            Snapshot.notifyObjectsInitialized()
+
+            stateObserver.observeReads(scope, changeBlock) {
+                computed.value
+                Snapshot.withoutReadObservation { computed.value }
+            }
+
+            a++
+            Snapshot.sendApplyNotifications()
+            assertEquals(1, changes)
+        }
+    }
+
     private fun runSimpleTest(
         block: (modelObserver: SnapshotStateObserver, data: MutableState<Int>) -> Unit
     ) {

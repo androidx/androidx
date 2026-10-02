@@ -36,7 +36,9 @@ private class ComputedSnapshotState<T>(
 
     override val value: T
         get() {
-            Snapshot.current.readObserver?.invoke(this)
+            // If the read isn't observed, there's nothing to notify; go straight to the calculation
+            Snapshot.current.readObserver?.invoke(this) ?: return Snapshot.readOnly(calculation)
+
             // Read observer could advance the snapshot, so get current snapshot again
             return Snapshot.readOnly {
                 notifyObservers(this, calculation)

@@ -653,7 +653,9 @@ class CompositionAndComputedStateTests {
 
         b++
         expectNoChanges()
-        assertEquals(3, invocationCount)
+        // Calculation lambda still executes twice, once to compare the new value, and once to
+        // re-register observers.
+        assertEquals(5, invocationCount)
 
         revalidate()
     }
@@ -820,6 +822,65 @@ class CompositionAndComputedStateTests {
         expectChanges()
         revalidate()
         assertEquals(2, compositionCount)
+    }
+
+    @Test
+    fun nestedComputedStateObservedDirectlyInvalidatesOuterComputedState() = compositionTest {
+        var a by mutableIntStateOf(1)
+        val inner = computedStateOf { a }
+        val outer = computedStateOf { inner.value * 10 }
+
+        compose {
+            DisplayItem("inner", inner)
+            DisplayItem("outer", outer)
+        }
+
+        validate {
+            Text("inner = $a")
+            Text("outer = ${a * 10}")
+        }
+
+        a++
+        expectChanges()
+        revalidate()
+    }
+
+    @Test
+    fun nestedComputedStateChangesDependenciesWithoutChangingValue() = compositionTest {
+        var cond by mutableStateOf(true)
+        var a by mutableIntStateOf(1)
+        var b by mutableIntStateOf(1)
+        val inner = computedStateOf { if (cond) a else b }
+        val outer = computedStateOf { inner.value * 10 }
+
+        compose { DisplayItem("outer", outer) }
+
+        validate { Text("outer = ${(if (cond) a else b) * 10}") }
+
+        cond = false
+        expectNoChanges()
+        revalidate()
+
+        b = 2
+        expectChanges()
+        revalidate()
+    }
+
+    @Test
+    fun readingComputedStateWithoutObservationDoesNotClearDependencies() = compositionTest {
+        var a by mutableIntStateOf(0)
+        val computed = computedStateOf { a }
+
+        compose {
+            DisplayItem("computed", computed)
+            Snapshot.withoutReadObservation { computed.value }
+        }
+
+        validate { Text("computed = $a") }
+
+        a++
+        expectChanges()
+        revalidate()
     }
 }
 
