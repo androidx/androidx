@@ -1302,6 +1302,31 @@ constructor(
         get() = regexPattern
 
     /**
+     * Legacy constructor that accepts a regex [pattern] for source compatibility only.
+     *
+     * Kept temporarily so that callers compiled against both older and newer library versions keep
+     * compiling during the migration. [pattern] is **ignored**: the resulting metadata has no
+     * pattern constraint ([patternMatchers] is `null`). Use the primary constructor with
+     * [patternMatchers] instead.
+     */
+    // TODO: b/487929963 - Remove before the first beta release.
+    @Suppress("UNUSED_PARAMETER")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
+        isNullable: Boolean,
+        description: String = "",
+        enumValues: Set<String>? = null,
+        pattern: String,
+        format: String? = null,
+    ) : this(
+        isNullable = isNullable,
+        description = description,
+        enumValues = enumValues,
+        patternMatchers = null,
+        format = format,
+    )
+
+    /**
      * Converts this [AppFunctionStringTypeMetadata] to an [AppFunctionDataTypeMetadataDocument].
      */
     override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
