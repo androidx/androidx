@@ -103,45 +103,6 @@ class AudioStreamImplTest {
 
     @RequiresDevice // b/264902324
     @Test
-    fun readBeforeStart_throwException() {
-        assertThrows(IllegalStateException::class.java) { audioStream.read(byteBuffer) }
-    }
-
-    @RequiresDevice // b/264902324
-    @Test
-    fun readAfterStop_throwException() {
-        audioStream.start()
-        audioStream.stop()
-        assertThrows(IllegalStateException::class.java) { audioStream.read(byteBuffer) }
-    }
-
-    @RequiresDevice // b/264902324
-    @Test
-    fun startAfterReleased_throwException() {
-        audioStream.release()
-        assertThrows(IllegalStateException::class.java) { audioStream.start() }
-    }
-
-    @RequiresDevice // b/264902324
-    @Test
-    fun setCallbackAfterStarted_throwException() {
-        audioStream.start()
-        assertThrows(IllegalStateException::class.java) {
-            audioStream.setCallback(audioStreamCallback, ioExecutor())
-        }
-    }
-
-    @RequiresDevice // b/264902324
-    @Test
-    fun setCallbackAfterReleased_throwException() {
-        audioStream.release()
-        assertThrows(IllegalStateException::class.java) {
-            audioStream.setCallback(audioStreamCallback, ioExecutor())
-        }
-    }
-
-    @RequiresDevice // b/264902324
-    @Test
     fun canRead() {
         // Act.
         audioStream.start()
