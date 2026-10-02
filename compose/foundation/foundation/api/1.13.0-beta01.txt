@@ -180,6 +180,7 @@ package androidx.compose.foundation {
     property public boolean isPreferDefaultCacheWindowOverPrefetchStrategyLazyGrid;
     property public boolean isPreferDefaultCacheWindowOverPrefetchStrategyLazyList;
     property public boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
+    property public boolean isRoundedRectangleBorderRenderingFixEnabled;
     property public boolean isSelectionAutoScrollEnabled;
     property public boolean isSmartSelectionEnabled;
     property public boolean isTextFieldWaitWindowFocusForInputSessionEnabled;
@@ -210,6 +211,7 @@ package androidx.compose.foundation {
     field public static boolean isPreferDefaultCacheWindowOverPrefetchStrategyLazyGrid;
     field public static boolean isPreferDefaultCacheWindowOverPrefetchStrategyLazyList;
     field public static boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
+    field public static boolean isRoundedRectangleBorderRenderingFixEnabled;
     field public static boolean isSelectionAutoScrollEnabled;
     field public static boolean isSmartSelectionEnabled;
     field public static boolean isTextFieldWaitWindowFocusForInputSessionEnabled;
