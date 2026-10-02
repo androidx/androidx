@@ -301,6 +301,20 @@ class CardScreenshotTest {
     }
 
     @Test
+    fun leadingImageCard_longText() {
+        rule.setGlimmerThemeContent {
+            LeadingImageCard(
+                image = { Image(TestImage, "Localized description") },
+                title = { Text("Title") },
+                subtitle = { Text("Subtitle") },
+            ) {
+                Text(LongCardText)
+            }
+        }
+        rule.assertRootAgainstGolden("leading_image_card_longText", screenshotRule)
+    }
+
+    @Test
     fun leadingImageCard_focused() {
         rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
@@ -354,6 +368,20 @@ class CardScreenshotTest {
     }
 
     @Test
+    fun trailingImageCard_longText() {
+        rule.setGlimmerThemeContent {
+            TrailingImageCard(
+                image = { Image(TestImage, "Localized description") },
+                title = { Text("Title") },
+                subtitle = { Text("Subtitle") },
+            ) {
+                Text(LongCardText)
+            }
+        }
+        rule.assertRootAgainstGolden("trailing_image_card_longText", screenshotRule)
+    }
+
+    @Test
     fun trailingImageCard_focused() {
         rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
@@ -396,6 +424,10 @@ class CardScreenshotTest {
 }
 
 private val TestImage = placeholderImagePainter(Size(1000f, 1000f))
+
+private const val LongCardText =
+    "This is a card with a lot of text that will wrap to multiple lines. The maximum recommended " +
+        "number of lines of text for a card is 10."
 
 @Composable
 private fun Rtl(content: @Composable () -> Unit) {
