@@ -513,10 +513,12 @@ private constructor(
         dateTimeMillis in startDateTimeMillis..endDateTimeMillis
 
     /**
-     * Removes any extras from this complication data, including from placeholders and timelines.
+     * Removes any extras from this complication data, including from placeholders, timelines, and
+     * list entries.
      */
     public fun stripExtras() {
         fields.remove(FIELD_EXTRAS)
+        _bundle?.remove(FIELD_EXTRAS)
 
         (fields[FIELD_PLACEHOLDER_FIELDS] as ComplicationData?)?.stripExtras()
         (fields[FIELD_ORIGINAL_FIELDS] as ComplicationData?)?.stripExtras()
@@ -526,6 +528,13 @@ private constructor(
                 complicationEntry.stripExtras()
             }
         }
+        listEntries?.let {
+            for (complicationEntry in it) {
+                complicationEntry.stripExtras()
+            }
+        }
+
+        _bundle = null
     }
 
     /**
