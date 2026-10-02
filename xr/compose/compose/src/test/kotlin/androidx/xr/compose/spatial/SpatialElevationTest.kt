@@ -20,6 +20,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.verticalScroll
@@ -54,6 +55,8 @@ import androidx.compose.ui.window.Popup
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.SpatialCapabilities
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_WIDTH_PX
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.session
@@ -850,5 +853,31 @@ class SpatialElevationTest {
 
         composeTestRule.onNodeWithTag("ZeroContent").assertExists()
         composeTestRule.onNodeWithTag("ZeroContent").assertWidthIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun spatialElevation_exceedingMaxSafeSize_clampsSize() {
+        composeTestRule.setContent {
+            Box(Modifier.requiredSize(10000.dp)) {
+                SpatialElevation {
+                    Box(Modifier.size(9000.dp).testTag("elevatedContent"))
+                }
+            }
+        }
+
+        val expectedMaxWidthDp = with(composeTestRule.density) { MAX_SAFE_PANEL_WIDTH_PX.toDp() }
+        val expectedMaxHeightDp = with(composeTestRule.density) { MAX_SAFE_PANEL_HEIGHT_PX.toDp() }
+        composeTestRule
+            .onNodeWithTag("elevatedContent")
+            .assertWidthIsEqualTo(expectedMaxWidthDp)
+            .assertHeightIsEqualTo(expectedMaxHeightDp)
+
+        val elevatedEntity =
+            checkNotNull(composeTestRule.session)
+                .scene
+                .getEntitiesOfType(PanelEntity::class.java)
+                .single { !it.isMainPanelEntity }
+        assertThat(elevatedEntity.sizeInPixels.width).isEqualTo(MAX_SAFE_PANEL_WIDTH_PX)
+        assertThat(elevatedEntity.sizeInPixels.height).isEqualTo(MAX_SAFE_PANEL_HEIGHT_PX)
     }
 }
