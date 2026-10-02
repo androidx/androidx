@@ -63,5 +63,6 @@ abstract class DaoReturnTypeConverter(val to: XType, val operationTypes: List<Op
         TABLE_NAMES_LIST,
         IN_TRANSACTION,
         RAW_QUERY,
+        ARGS,
     }
 }

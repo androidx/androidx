@@ -34,7 +34,8 @@ package androidx.room3
  *    `executeAndConvert`), which MUST be a `suspend` lambda and have at most one
  *    [androidx.room3.RoomRawQuery] parameter.
  * 3. **Additional Parameters:** The function can have optional parameters for `database:
- *    RoomDatabase`, `inTransaction: Boolean` and `tableNames: List<String>`.
+ *    RoomDatabase`, `inTransaction: Boolean`, `tableNames: List<String>` and `args: Map<String,
+ *    Any?>`.
  *
  * ### Lambda Parameter Rules (`executeAndConvert`)
  * The lambda can have a parameter of type [androidx.room3.RoomRawQuery] to be used if query
@@ -67,6 +68,7 @@ package androidx.room3
  * suspend fun <T> convertGeneric(
  *   database: RoomDatabase,
  *   tableNames: List<String>,
+ *   args: Map<String, Any?>,
  *   executeAndConvert: suspend () -> T
  * ): Result<T> {
  *   runCatching { executeAndConvert.invoke() }
@@ -78,7 +80,6 @@ package androidx.room3
  * @DaoReturnTypeConverter([OperationType.WRITE])
  * suspend fun convertNonGeneric(
  *   database: RoomDatabase,
- *   tableNames: List<String>,
  *   executeAndConvert: suspend () -> Unit
  * ): OperationStatus {
  *   try {
@@ -111,7 +112,7 @@ public annotation class DaoReturnTypeConverter(val operations: Array<OperationTy
  *
  * If a converter function is used for a write operation, its return type's parameterized types are
  * limited to those supported by Room's write operations. Write converters can't also have a
- * `RoomRawQuery` or tables names as parameters.
+ * `RoomRawQuery`, tables names or args as parameters.
  */
 public enum class OperationType {
     READ,

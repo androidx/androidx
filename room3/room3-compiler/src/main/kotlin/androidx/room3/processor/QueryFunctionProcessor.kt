@@ -236,7 +236,11 @@ private class InternalQueryProcessor(
         returnType: XType,
         query: ParsedQuery,
     ): QueryFunction {
-        val resultBinder = delegate.findResultBinder(returnType, query)
+        val parameters = delegate.extractQueryParams(query)
+        val resultBinder =
+            delegate.findResultBinder(returnType, query) {
+                putData(QueryParameters::class, QueryParameters(parameters))
+            }
         context.checker.check(
             resultBinder.adapter != null,
             executableElement,
@@ -338,8 +342,6 @@ private class InternalQueryProcessor(
                     }
             }
         }
-
-        val parameters = delegate.extractQueryParams(query)
 
         return ReadQueryFunction(
             element = executableElement,

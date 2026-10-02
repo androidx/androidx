@@ -20,6 +20,7 @@ import androidx.room3.OperationType
 import androidx.room3.compiler.processing.XType
 import androidx.room3.parser.ParsedQuery
 import androidx.room3.processor.Context
+import androidx.room3.processor.QueryParameters
 import androidx.room3.solver.QueryResultBinderProvider
 import androidx.room3.solver.TypeAdapterExtras
 import androidx.room3.solver.query.result.DaoConverterQueryResultBinder
@@ -44,12 +45,14 @@ class DaoConverterQueryResultBinderProvider(
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query, extras)
         val tableNames =
             ((adapter?.accessedTableNames() ?: emptyList()) + query.tables.map { it.name }).toSet()
+        val parameters = extras.getData(QueryParameters::class)?.parameters ?: emptyList()
 
         return DaoConverterQueryResultBinder(
             typeArg = typeArg,
             tableNames = tableNames,
             adapter = adapter,
             converter = returnTypeConverter,
+            parameters = parameters,
         )
     }
 }

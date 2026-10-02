@@ -223,6 +223,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
                   @Query("SELECT * FROM MyEntity")
                   suspend fun getD(): D<MyEntity>
+
+                  @Query("SELECT * FROM MyEntity WHERE pk = :id")
+                  suspend fun getE(id: Int): E<MyEntity>
+
+                  @Query("SELECT * FROM MyEntity")
+                  suspend fun getF(): E<MyEntity>
                 }
 
                 @Entity
@@ -232,6 +238,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 class B<T>
                 class C<T>
                 class D<T>
+                class E<T>
 
                 class LettersReturnTypeConverter {
                     @DaoReturnTypeConverter([OperationType.READ])
@@ -272,6 +279,15 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                     ): D<T> {
                         executeAndConvert.invoke()
                         return D()
+                    }
+
+                    @DaoReturnTypeConverter([OperationType.READ])
+                    suspend fun <T> convertE(
+                        args: Map<String, Any?>,
+                        executeAndConvert: suspend () -> T,
+                    ): E<T> {
+                        executeAndConvert.invoke()
+                        return E()
                     }
                 }
                 """
