@@ -101,6 +101,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
 import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTargetAttribute
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmTargetDsl
 import org.jetbrains.kotlin.gradle.targets.js.toAttribute
+import org.jetbrains.kotlin.konan.target.Family
 
 /**
  * Plugin that allows to build documentation for a given set of prebuilt and tip of tree projects.
@@ -416,15 +417,21 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         private fun klibsForTarget(target: KotlinNativeTarget): Provider<List<Directory>> {
             return platformKlibDir.map {
                 val klibDir = it.dir(target.konanTarget.name)
-                listOf(
-                    klibDir.dir("org.jetbrains.kotlin.native.platform.CoreFoundation"),
-                    klibDir.dir("org.jetbrains.kotlin.native.platform.CoreGraphics"),
-                    klibDir.dir("org.jetbrains.kotlin.native.platform.CoreImage"),
-                    klibDir.dir("org.jetbrains.kotlin.native.platform.Metal"),
-                    klibDir.dir("org.jetbrains.kotlin.native.platform.posix"),
-                    klibDir.dir("org.jetbrains.kotlin.native.platform.UIKit"),
-                    klibDir.dir("org.jetbrains.kotlin.native.platform.CFCGTypes"),
-                )
+                when (target.konanTarget.family) {
+                    Family.IOS ->
+                        listOf(
+                            klibDir.dir("org.jetbrains.kotlin.native.platform.CoreFoundation"),
+                            klibDir.dir("org.jetbrains.kotlin.native.platform.CoreGraphics"),
+                            klibDir.dir("org.jetbrains.kotlin.native.platform.CoreImage"),
+                            klibDir.dir("org.jetbrains.kotlin.native.platform.Metal"),
+                            klibDir.dir("org.jetbrains.kotlin.native.platform.UIKit"),
+                            klibDir.dir("org.jetbrains.kotlin.native.platform.CFCGTypes"),
+                        )
+                    Family.LINUX,
+                    Family.MINGW ->
+                        listOf(klibDir.dir("org.jetbrains.kotlin.native.platform.posix"))
+                    else -> emptyList()
+                }
             }
         }
 
