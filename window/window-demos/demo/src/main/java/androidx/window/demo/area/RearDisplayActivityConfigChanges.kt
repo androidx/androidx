@@ -22,7 +22,6 @@ import androidx.core.util.Consumer
 import androidx.window.area.WindowArea
 import androidx.window.area.WindowAreaCapability
 import androidx.window.area.WindowAreaController
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.common.infolog.InfoLogAdapter
 import androidx.window.demo.databinding.ActivityRearDisplayBinding
@@ -35,7 +34,6 @@ import java.util.concurrent.Executor
  * Demo Activity that showcases listening for RearDisplay Status as well as enabling/disabling
  * RearDisplay mode.
  */
-@OptIn(ExperimentalWindowApi::class)
 class RearDisplayActivityConfigChanges : EdgeToEdgeActivity() {
 
     private lateinit var windowAreaController: WindowAreaController

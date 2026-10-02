@@ -94,9 +94,9 @@ package androidx.window.area {
 
   public abstract class WindowAreaController {
     method public abstract void addWindowAreasListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.area.WindowArea>> listener);
-    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public abstract androidx.window.area.WindowAreaSessionPresenter? getActivePresentationSession(androidx.window.area.WindowAreaToken windowAreaToken);
+    method public abstract androidx.window.area.WindowAreaSessionPresenter? getActivePresentationSession(androidx.window.area.WindowAreaToken windowAreaToken);
     method @InaccessibleFromKotlin public static final androidx.window.area.WindowAreaController getOrCreate();
-    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public abstract void presentContentOnWindowArea(androidx.window.area.WindowAreaToken windowAreaToken, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaPresentationSessionCallback windowAreaPresentationSessionCallback);
+    method public abstract void presentContentOnWindowArea(androidx.window.area.WindowAreaToken windowAreaToken, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaPresentationSessionCallback windowAreaPresentationSessionCallback);
     method public abstract void removeWindowAreasListener(androidx.core.util.Consumer<java.util.List<androidx.window.area.WindowArea>> listener);
     method public abstract void transferToWindowArea(androidx.window.area.WindowAreaToken? windowAreaToken, android.app.Activity activity);
     field public static final androidx.window.area.WindowAreaController.Companion Companion;
@@ -106,13 +106,13 @@ package androidx.window.area {
     method public androidx.window.area.WindowAreaController getOrCreate();
   }
 
-  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaPresentationSessionCallback {
+  public interface WindowAreaPresentationSessionCallback {
     method public void onContainerVisibilityChanged(boolean isVisible);
     method public void onSessionEnded(Throwable? t);
     method public void onSessionStarted(androidx.window.area.WindowAreaSessionPresenter session);
   }
 
-  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaSessionPresenter extends java.lang.AutoCloseable {
+  public interface WindowAreaSessionPresenter extends java.lang.AutoCloseable {
     method public void close();
     method @InaccessibleFromKotlin public android.content.Context getContext();
     method @InaccessibleFromKotlin public android.view.Window? getWindow();

@@ -27,7 +27,6 @@ import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_P
 import androidx.window.area.WindowAreaController
 import androidx.window.area.WindowAreaPresentationSessionCallback
 import androidx.window.area.WindowAreaSessionPresenter
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.demo.R
 import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.common.infolog.InfoLogAdapter
@@ -45,7 +44,6 @@ import kotlin.toString
  *
  * This Activity overrides configuration changes for simplicity.
  */
-@OptIn(ExperimentalWindowApi::class)
 class RearDisplayPresentationActivity :
     EdgeToEdgeActivity(), WindowAreaPresentationSessionCallback {
 
