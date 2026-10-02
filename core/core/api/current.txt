@@ -897,8 +897,9 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
     method public java.util.List<androidx.core.app.NotificationCompat.Action!> getActions();
     method public android.app.PendingIntent? getContentIntent();
-    method public boolean hasActions();
+    method public androidx.core.app.NotificationCompat.ProjectedExtender resetActions();
     method public androidx.core.app.NotificationCompat.ProjectedExtender setContentIntent(android.app.PendingIntent?);
+    method public boolean shouldUseExtenderActions();
   }
 
   public abstract static class NotificationCompat.Style {

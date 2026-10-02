@@ -985,8 +985,9 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
     method public java.util.List<androidx.core.app.NotificationCompat.Action!> getActions();
     method public android.app.PendingIntent? getContentIntent();
-    method public boolean hasActions();
+    method public androidx.core.app.NotificationCompat.ProjectedExtender resetActions();
     method public androidx.core.app.NotificationCompat.ProjectedExtender setContentIntent(android.app.PendingIntent?);
+    method public boolean shouldUseExtenderActions();
   }
 
   @IntDef({androidx.core.app.NotificationCompat.SEMANTIC_STYLE_UNSPECIFIED, androidx.core.app.NotificationCompat.SEMANTIC_STYLE_INFO, androidx.core.app.NotificationCompat.SEMANTIC_STYLE_SAFE, androidx.core.app.NotificationCompat.SEMANTIC_STYLE_CAUTION, androidx.core.app.NotificationCompat.SEMANTIC_STYLE_DANGER}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.SemanticStyle {
