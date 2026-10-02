@@ -19,12 +19,14 @@ package androidx.compose.material3.integration.a2ui.ui.samples
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.List.Align
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.List.Direction
 import androidx.a2ui.model.protocol.A2uiComponentPayload
+import androidx.collection.intListOf
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.integration.a2ui.ui.ChoiceChips
 import androidx.compose.material3.integration.a2ui.ui.ControlCard
+import androidx.compose.material3.integration.a2ui.ui.SwitchControl
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,12 +42,14 @@ internal fun ListSample(
     onPayloadUpdated: (List<A2uiComponentPayload>, Map<String, Any?>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var isLoading by rememberSaveable { mutableStateOf(false) }
     var direction by rememberSaveable { mutableStateOf(Direction.Vertical) }
     var align by rememberSaveable { mutableStateOf(Align.Stretch) }
     var itemCount by rememberSaveable { mutableIntStateOf(5) }
 
     LaunchedEffect(Unit) {
         updatePayload(
+            isLoading = isLoading,
             direction = direction,
             align = align,
             itemCount = itemCount,
@@ -54,6 +58,29 @@ internal fun ListSample(
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
+        ControlCard(
+            title = "Loading State",
+            subtitle = "Preview the sequential shimmer sweep and staggered breathing skeleton",
+        ) {
+            SwitchControl(
+                title = "Simulate Loading",
+                subtitle = "Keep child components in loading state",
+                checked = isLoading,
+                onCheckedChange = {
+                    isLoading = it
+                    updatePayload(
+                        isLoading = it,
+                        direction = direction,
+                        align = align,
+                        itemCount = itemCount,
+                        onPayloadUpdated = onPayloadUpdated,
+                    )
+                },
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
         ControlCard(title = "Layout Direction", subtitle = "Scroll direction of the list") {
             ChoiceChips(
                 options = Direction.entries,
@@ -61,6 +88,7 @@ internal fun ListSample(
                 onOptionSelected = {
                     direction = it
                     updatePayload(
+                        isLoading = isLoading,
                         direction = it,
                         align = align,
                         itemCount = itemCount,
@@ -83,6 +111,7 @@ internal fun ListSample(
                 onOptionSelected = {
                     align = it
                     updatePayload(
+                        isLoading = isLoading,
                         direction = direction,
                         align = it,
                         itemCount = itemCount,
@@ -97,11 +126,12 @@ internal fun ListSample(
 
         ControlCard(title = "Item Count", subtitle = "Number of child card elements in the list") {
             ChoiceChips(
-                options = listOf(3, 5, 8),
+                options = ItemCountOptions,
                 selectedOption = itemCount,
                 onOptionSelected = {
                     itemCount = it
                     updatePayload(
+                        isLoading = isLoading,
                         direction = direction,
                         align = align,
                         itemCount = it,
@@ -114,7 +144,10 @@ internal fun ListSample(
     }
 }
 
+private val ItemCountOptions = intListOf(3, 5, 8)
+
 private fun updatePayload(
+    isLoading: Boolean,
     direction: Direction,
     align: Align,
     itemCount: Int,
@@ -135,22 +168,35 @@ private fun updatePayload(
             )
         )
 
-        childIds.forEachIndexed { index, id ->
-            val textId = "${id}_text"
-            add(
-                A2uiComponentPayload(
-                    id = id,
-                    type = "Card",
-                    properties = mapOf("child" to textId),
+        if (isLoading) {
+            childIds.forEach { id ->
+                add(
+                    A2uiComponentPayload(
+                        id = id,
+                        type = "Text",
+                        properties = mapOf("text" to mapOf("path" to "/loading")),
+                    )
                 )
-            )
-            add(
-                A2uiComponentPayload(
-                    id = textId,
-                    type = "Text",
-                    properties = mapOf("text" to "List Item #${index + 1}", "variant" to "body"),
+            }
+        } else {
+            childIds.forEachIndexed { index, id ->
+                val textId = "${id}_text"
+                add(
+                    A2uiComponentPayload(
+                        id = id,
+                        type = "Card",
+                        properties = mapOf("child" to textId),
+                    )
                 )
-            )
+                add(
+                    A2uiComponentPayload(
+                        id = textId,
+                        type = "Text",
+                        properties =
+                            mapOf("text" to "List Item #${index + 1}", "variant" to "body"),
+                    )
+                )
+            }
         }
     }
 
