@@ -37,7 +37,6 @@ import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_ST
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNAVAILABLE
 import androidx.window.area.WindowAreaControllerImpl.Companion.REAR_DISPLAY_WINDOW_AREA_TOKEN
 import androidx.window.area.adapter.WindowAreaAdapter
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.ExtensionWindowAreaPresentation
 import androidx.window.extensions.area.ExtensionWindowAreaStatus
 import androidx.window.extensions.area.WindowAreaComponent
@@ -62,7 +61,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalWindowApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class WindowAreaControllerImplTest {
 
     @get:Rule

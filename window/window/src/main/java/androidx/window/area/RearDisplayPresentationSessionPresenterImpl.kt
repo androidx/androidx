@@ -20,11 +20,9 @@ import android.content.Context
 import android.view.View
 import android.view.Window
 import androidx.window.area.utils.PresentationWindowCompatUtils
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.ExtensionWindowAreaPresentation
 import androidx.window.extensions.area.WindowAreaComponent
 
-@ExperimentalWindowApi
 internal class RearDisplayPresentationSessionPresenterImpl(
     private val windowAreaComponent: WindowAreaComponent,
     private val presentation: ExtensionWindowAreaPresentation,

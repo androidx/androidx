@@ -21,7 +21,6 @@ import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_ST
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNAVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
 import androidx.window.area.adapter.WindowAreaAdapter
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_ACTIVE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_AVAILABLE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNAVAILABLE
@@ -30,7 +29,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /** Tests for [WindowAreaAdapter]. */
-@ExperimentalWindowApi
 class WindowAreaAdapterTest {
 
     @Test
