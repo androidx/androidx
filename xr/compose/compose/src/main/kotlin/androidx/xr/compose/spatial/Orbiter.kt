@@ -66,6 +66,8 @@ import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.findNearestParentEntity
 import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_WIDTH_PX
 import androidx.xr.compose.subspace.SpatialComposeView
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
@@ -1609,7 +1611,10 @@ private class SpatialOrbiter(
                 }
             val anchorSize = IntSize(panelSize.width, panelSize.height)
             val constraints =
-                safeConstraints(maxWidth = panelSize.width, maxHeight = panelSize.height)
+                safeConstraints(
+                    maxWidth = panelSize.width.coerceAtMost(MAX_SAFE_PANEL_WIDTH_PX),
+                    maxHeight = panelSize.height.coerceAtMost(MAX_SAFE_PANEL_HEIGHT_PX),
+                )
             Layout(content = content) { measurables, _ ->
                 val placeables = measurables.fastMap { it.measure(constraints) }
                 val contentSize =

@@ -47,6 +47,8 @@ import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.SpatialCapabilities
 import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_WIDTH_PX
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -71,6 +73,7 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 @Suppress("DEPRECATION") // TODO(b/462428503) Remove when deprecated Orbiter is removed.
@@ -2000,6 +2003,31 @@ class OrbiterTest {
         assertThat(orbiterEntity.getPose().translation.x).isWithin(0.001f).of(75.dp.toMeter().toM())
         assertThat(orbiterEntity.getPose().translation.y).isWithin(0.001f).of(65.dp.toMeter().toM())
         assertThat(orbiterEntity.getPose().translation.z).isWithin(0.001f).of(5.dp.toMeter().toM())
+    }
+
+    @Test
+    @Config(qualifiers = "w10000dp-h10000dp")
+    fun orbiter_exceedingMaxSafeSize_clampsSize() {
+        composeTestRule.setContent {
+            Orbiter(ContentEdge.Top) {
+                Box(modifier = Modifier.size(9000.dp).testTag("orbiterContentBox"))
+            }
+        }
+
+        val expectedMaxWidthDp = with(composeTestRule.density) { MAX_SAFE_PANEL_WIDTH_PX.toDp() }
+        val expectedMaxHeightDp = with(composeTestRule.density) { MAX_SAFE_PANEL_HEIGHT_PX.toDp() }
+        composeTestRule
+            .onNodeWithTag("orbiterContentBox")
+            .assertWidthIsEqualTo(expectedMaxWidthDp)
+            .assertHeightIsEqualTo(expectedMaxHeightDp)
+
+        val orbiterEntity =
+            checkNotNull(composeTestRule.session)
+                .scene
+                .getEntitiesOfType(PanelEntity::class.java)
+                .single { !it.isMainPanelEntity }
+        assertThat(orbiterEntity.sizeInPixels.width).isEqualTo(MAX_SAFE_PANEL_WIDTH_PX)
+        assertThat(orbiterEntity.sizeInPixels.height).isEqualTo(MAX_SAFE_PANEL_HEIGHT_PX)
     }
 
     private fun getOrbiterEntity(size: Dp, density: Density): PanelEntity {

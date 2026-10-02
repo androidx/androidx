@@ -57,7 +57,8 @@ import java.util.concurrent.atomic.AtomicReference
  *   within this panel. It provides a mechanism to queue and dispatch [android.content.Intent]s to
  *   the embedded Activity environment.
  * @param modifier SubspaceModifiers to apply to the SpatialPanel. The layout size of the panel will
- *   dictate the viewport size allocated to the embedded Activity.
+ *   dictate the viewport size allocated to the embedded Activity. A [SpatialActivityPanel]
+ *   automatically applies size constraints to stay within safe hardware rendering limits.
  * @param shape The shape of this Spatial Panel.
  * @sample androidx.xr.compose.samples.SpatialActivityPanelSample
  * @sample androidx.xr.compose.samples.SpatialActivityPanelLaunchedEffectSample
@@ -98,7 +99,10 @@ public fun SpatialActivityPanel(
         onDispose { controller.setIntentListener(null) }
     }
 
-    SubspaceLayout(modifier = modifier, coreEntity = corePanelEntity) { _, constraints ->
+    SubspaceLayout(
+        modifier = modifier.clampToMaxSafePanelSize(),
+        coreEntity = corePanelEntity,
+    ) { _, constraints ->
         val width = DEFAULT_SIZE_PX.coerceIn(constraints.minWidth, constraints.maxWidth)
         val height = DEFAULT_SIZE_PX.coerceIn(constraints.minHeight, constraints.maxHeight)
         val depth = constraints.minDepth.coerceAtLeast(0)
