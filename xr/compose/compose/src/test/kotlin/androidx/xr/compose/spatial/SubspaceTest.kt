@@ -673,7 +673,7 @@ class SubspaceTest {
 
     @Test
     fun subspace_withRequiredSizeModifier_overridesDefaultContentBox() {
-        val requiredSize = 50000.dp
+        val requiredSize = 4000.dp
         configureSessionWithRecommendedBox()
         composeTestRule.setContent {
             // The user provides a requiredSize.
@@ -689,7 +689,7 @@ class SubspaceTest {
 
     @Test
     fun subspace_withRequiredSizeInModifier_overridesDefaultContentBox() {
-        val requiredMaxSize = 50000.dp
+        val requiredMaxSize = 4000.dp
         configureSessionWithRecommendedBox()
         composeTestRule.setContent {
             // The user provides a requiredSizeIn.
@@ -2253,7 +2253,7 @@ class SubspaceTest {
     @Test
     fun followingSubspace_withRequiredSizeModifier_overridesDefaultContentBox() {
         val session = configureSessionWithDeviceTrackingMode()
-        val requiredSize = 50000.dp
+        val requiredSize = 4000.dp
 
         composeTestRule.setContent {
             // The user provides a requiredSize.
@@ -2275,7 +2275,7 @@ class SubspaceTest {
     @Test
     fun followingSubspace_withRequiredSizeInModifier_overridesDefaultContentBox() {
         val session = configureSessionWithDeviceTrackingMode()
-        val requiredMaxSize = 50000.dp
+        val requiredMaxSize = 4000.dp
 
         composeTestRule.setContent {
             // The user provides a requiredSizeIn.

@@ -70,6 +70,8 @@ import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetCompos
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetCoreEntity
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetMeasurePolicy
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetModifier
+import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode
+import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
@@ -78,8 +80,11 @@ import androidx.xr.scenecore.scene
 
 internal const val DEFAULT_SIZE_PX = 400
 
-// Max allowed size for makeMeasureSpec is (1 << MeasureSpec.MODE_SHIFT) - 1.
-private const val MAX_MEASURE_SPEC_SIZE = (1 shl 30) - 1
+/** Maximum safe hardware rendering width for a spatial panel in pixels. */
+internal const val MAX_SAFE_PANEL_WIDTH_PX = 7800
+
+/** Maximum safe hardware rendering height for a spatial panel in pixels. */
+internal const val MAX_SAFE_PANEL_HEIGHT_PX = 4000
 
 /** Set the scrim alpha to 32% opacity across all spatial panels. */
 internal const val DEFAULT_SCRIM_ALPHA = 0x52000000
@@ -117,7 +122,8 @@ public object SpatialPanelDefaults {
  * @param modifier SubspaceModifiers to apply to the SpatialPanel. The depth field in size-based
  *   modifiers affects this panel's layout size, but will not affect how the panel is rendered. The
  *   rendered shape will be a flat rectangle that is positioned on the front face of the rectangular
- *   prism created by the layout size.
+ *   prism created by the layout size. A [SpatialAndroidViewPanel] automatically applies size
+ *   constraints to stay within safe hardware rendering limits.
  * @param update A lambda that allows updating the created Android View [T].
  * @param shape The shape of this Spatial Panel.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
@@ -219,13 +225,14 @@ private fun <T : View> AndroidViewPanel(
     val measurePolicy = SpatialViewPanelMeasurePolicy(view)
 
     val compositionLocalMap = currentComposer.currentCompositionLocalMap
+    val clampedModifier = modifier.clampToMaxSafePanelSize()
     ComposeNode<ComposeSubspaceNode, Applier<Any>>(
         factory = ComposeSubspaceNode.Constructor,
         update = {
             set(compositionLocalMap, SetCompositionLocalMap)
             set(measurePolicy, SetMeasurePolicy)
             set(corePanelEntity, SetCoreEntity)
-            set(modifier, SetModifier)
+            set(clampedModifier, SetModifier)
             update(view)
         },
     )
@@ -238,7 +245,8 @@ private fun <T : View> AndroidViewPanel(
  * @param modifier SubspaceModifiers to apply to the SpatialPanel. The depth field in size-based
  *   modifiers affects this panel's layout size, but will not affect how the panel is rendered. The
  *   rendered shape will be a flat rectangle that is positioned on the front face of the rectangular
- *   prism created by the layout size.
+ *   prism created by the layout size. A [SpatialPanel] automatically applies size constraints to
+ *   stay within safe hardware rendering limits.
  * @param shape The shape of this Spatial Panel.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
  *   events. Setting this will not intercept 2D input events and is intended to provide additional
@@ -349,7 +357,8 @@ public fun SpatialPanel(
  *   and position within the parent. The depth field in size-based modifiers affects this panel's
  *   layout size, but will not affect how the panel is rendered. The rendered shape will be a flat
  *   rectangle that is positioned on the front face of the rectangular prism created by the layout
- *   size.
+ *   size. A [SpatialMainPanel] automatically applies size constraints to stay within safe hardware
+ *   rendering limits.
  * @param shape The shape of this Spatial Panel.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
  *   events. Setting this will not intercept 2D input events and is intended to provide additional
@@ -365,6 +374,7 @@ public fun SpatialMainPanel(
 ) {
     val finalModifier =
         buildSpatialPanelModifier(baseModifier = modifier, interactionPolicy = interactionPolicy)
+            .clampToMaxSafePanelSize()
     val mainPanel = requestMainPanelOwnership().value ?: return
     val density = LocalDensity.current
     val view = LocalView.current
@@ -520,16 +530,8 @@ private class SpatialViewPanelMeasurePolicy(private val view: View) : SubspaceMe
  */
 private fun createViewPanelMeasureSpec(minSize: Int, maxSize: Int, hasBoundedSize: Boolean): Int =
     when {
-        minSize == maxSize ->
-            MeasureSpec.makeMeasureSpec(
-                maxSize.coerceAtMost(MAX_MEASURE_SPEC_SIZE),
-                MeasureSpec.EXACTLY,
-            )
-        hasBoundedSize ->
-            MeasureSpec.makeMeasureSpec(
-                maxSize.coerceAtMost(MAX_MEASURE_SPEC_SIZE),
-                MeasureSpec.AT_MOST,
-            )
+        minSize == maxSize -> MeasureSpec.makeMeasureSpec(maxSize, MeasureSpec.EXACTLY)
+        hasBoundedSize -> MeasureSpec.makeMeasureSpec(maxSize, MeasureSpec.AT_MOST)
         else -> MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
     }
 
@@ -557,6 +559,42 @@ internal fun buildSpatialPanelModifier(
     }
 
     return finalModifier
+}
+
+// Clamps the incoming constraints before the caller's modifier chain runs (handling .size(),
+// .width(), .height(), .fillMaxSize(), etc.).
+internal fun SubspaceModifier.clampToMaxSafePanelSize(): SubspaceModifier =
+    PanelMaxSafeSizeElement.then(this)
+
+private object PanelMaxSafeSizeElement : SubspaceModifierNodeElement<PanelMaxSafeSizeNode>() {
+    override fun create(): PanelMaxSafeSizeNode = PanelMaxSafeSizeNode()
+
+    override fun update(node: PanelMaxSafeSizeNode) {}
+
+    override fun hashCode(): Int = "PanelMaxSafeSizeElement".hashCode()
+
+    override fun equals(other: Any?): Boolean = other === this
+}
+
+private class PanelMaxSafeSizeNode : SubspaceLayoutModifierNode, SubspaceModifier.Node() {
+    override fun SubspaceMeasureScope.measure(
+        measurable: SubspaceMeasurable,
+        constraints: VolumeConstraints,
+    ): SubspaceMeasureResult {
+        val clampedConstraints =
+            VolumeConstraints(
+                minWidth = constraints.minWidth.coerceAtMost(MAX_SAFE_PANEL_WIDTH_PX),
+                maxWidth = constraints.maxWidth.coerceAtMost(MAX_SAFE_PANEL_WIDTH_PX),
+                minHeight = constraints.minHeight.coerceAtMost(MAX_SAFE_PANEL_HEIGHT_PX),
+                maxHeight = constraints.maxHeight.coerceAtMost(MAX_SAFE_PANEL_HEIGHT_PX),
+                minDepth = constraints.minDepth,
+                maxDepth = constraints.maxDepth,
+            )
+        val placeable = measurable.measure(clampedConstraints)
+        return layout(placeable.width, placeable.height, placeable.depth) {
+            placeable.place(Pose.Identity)
+        }
+    }
 }
 
 private class TouchBlockingFrameLayout(context: Context) : FrameLayout(context) {

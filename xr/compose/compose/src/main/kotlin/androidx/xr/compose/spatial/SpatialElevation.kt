@@ -47,6 +47,8 @@ import androidx.xr.compose.R
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.findNearestParentEntity
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_WIDTH_PX
 import androidx.xr.compose.subspace.SpatialComposeView
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
@@ -271,20 +273,31 @@ private class SpatialElevationRenderer(
     }
 
     fun measureSynchronously(constraints: Constraints) {
-        incomingConstraints = constraints
+        incomingConstraints =
+            constraints.copy(
+                minWidth = constraints.minWidth.coerceAtMost(MAX_SAFE_PANEL_WIDTH_PX),
+                maxWidth = constraints.maxWidth.coerceAtMost(MAX_SAFE_PANEL_WIDTH_PX),
+                minHeight = constraints.minHeight.coerceAtMost(MAX_SAFE_PANEL_HEIGHT_PX),
+                maxHeight = constraints.maxHeight.coerceAtMost(MAX_SAFE_PANEL_HEIGHT_PX),
+            )
         val view = this.view ?: return
 
         if (!view.isAttachedToWindow) {
             return
         }
 
-        val widthSpec = toMeasureSpec(constraints.maxWidth, constraints.minWidth)
-        val heightSpec = toMeasureSpec(constraints.maxHeight, constraints.minHeight)
+        val widthSpec = toMeasureSpec(incomingConstraints.maxWidth, incomingConstraints.minWidth)
+        val heightSpec = toMeasureSpec(incomingConstraints.maxHeight, incomingConstraints.minHeight)
 
         view.measure(widthSpec, heightSpec)
 
-        val width = view.measuredWidth.coerceIn(constraints.minWidth, constraints.maxWidth)
-        val height = view.measuredHeight.coerceIn(constraints.minHeight, constraints.maxHeight)
+        val width =
+            view.measuredWidth.coerceIn(incomingConstraints.minWidth, incomingConstraints.maxWidth)
+        val height =
+            view.measuredHeight.coerceIn(
+                incomingConstraints.minHeight,
+                incomingConstraints.maxHeight,
+            )
 
         view.layout(0, 0, width, height)
     }

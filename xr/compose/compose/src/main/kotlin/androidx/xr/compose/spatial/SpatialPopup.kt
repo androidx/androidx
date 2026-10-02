@@ -65,6 +65,8 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.findNearestParentEntity
 import androidx.xr.compose.platform.getActivity
 import androidx.xr.compose.platform.isEmbedded
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_WIDTH_PX
 import androidx.xr.compose.subspace.SpatialComposeView
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
@@ -315,7 +317,12 @@ private class SpatialPopupRenderer(
                             enabled = popupProperties.dismissOnClickOutside,
                             onClickOutside = { onDismissRequest?.invoke() },
                         )
-                        .constrainTo(Constraints()),
+                        .constrainTo(
+                            Constraints(
+                                maxWidth = MAX_SAFE_PANEL_WIDTH_PX,
+                                maxHeight = MAX_SAFE_PANEL_HEIGHT_PX,
+                            )
+                        ),
             ) { measurables, constraints ->
                 val placeables = measurables.fastMap { it.measure(constraints) }
                 val contentSize =

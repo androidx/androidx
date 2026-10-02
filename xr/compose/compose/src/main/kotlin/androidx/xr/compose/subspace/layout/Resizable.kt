@@ -19,7 +19,10 @@ package androidx.xr.compose.subspace.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.isSpecified
 import androidx.xr.compose.platform.LocalSession
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_WIDTH_PX
 import androidx.xr.compose.subspace.node.CompositionLocalConsumerSubspaceModifierNode
 import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
@@ -28,9 +31,12 @@ import androidx.xr.compose.subspace.node.invalidateMeasurement
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
+import androidx.xr.compose.unit.pxToMeters
 import androidx.xr.compose.unit.toDimensionsInMeters
 import androidx.xr.compose.unit.toIntVolumeSize
+import androidx.xr.compose.unit.toMeters
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.PixelDensity
 import androidx.xr.scenecore.ResizableComponent
@@ -92,7 +98,8 @@ internal data class CustomResizePolicy(val onResize: (SpatialResizeEvent) -> Uni
  *   The object cannot be scaled down beyond these dimensions. Defaults to [DpVolumeSize.Zero].
  * @param maximumSize The maximum allowable size for the object, represented by a [DpVolumeSize].
  *   The object cannot be scaled up beyond these dimensions. Defaults to a [DpVolumeSize] with all
- *   dimensions set to [Dp.Infinity], meaning no upper limit by default.
+ *   dimensions set to [Dp.Unspecified]. This default will dynamically determine a safe maximum size
+ *   that is within hardware rendering capabilities.
  * @param maintainAspectRatio If `true`, the object's aspect ratio (proportions) will be preserved
  *   during resizing. If `false`, individual dimensions can be changed independently. Defaults to
  *   `false`.
@@ -104,7 +111,7 @@ internal data class CustomResizePolicy(val onResize: (SpatialResizeEvent) -> Uni
 public fun SubspaceModifier.resizable(
     enabled: Boolean = true,
     minimumSize: DpVolumeSize = DpVolumeSize.Zero,
-    maximumSize: DpVolumeSize = DpVolumeSize(Dp.Infinity, Dp.Infinity, Dp.Infinity),
+    maximumSize: DpVolumeSize = DpVolumeSize(Dp.Unspecified, Dp.Unspecified, Dp.Unspecified),
     maintainAspectRatio: Boolean = false,
     resizePolicy: ResizePolicy = ResizePolicy.Default,
 ): SubspaceModifier =
@@ -156,9 +163,9 @@ private class ResizableElement(
 
     init {
         require(
-            minimumSize.depth <= maximumSize.depth &&
-                minimumSize.height <= maximumSize.height &&
-                minimumSize.width <= maximumSize.width
+            (!maximumSize.depth.isSpecified || minimumSize.depth <= maximumSize.depth) &&
+                (!maximumSize.height.isSpecified || minimumSize.height <= maximumSize.height) &&
+                (!maximumSize.width.isSpecified || minimumSize.width <= maximumSize.width)
         ) {
             "minimumSize must be less than or equal to maximumSize"
         }
@@ -263,7 +270,42 @@ internal class ResizableNode(
 
         component?.let {
             it.minimumEntitySize = minimumSize.toDimensionsInMeters(density, pixelDensity)
-            it.maximumEntitySize = maximumSize.toDimensionsInMeters(density, pixelDensity)
+            // Panels have a maximum safe rendering size; clamp explicit maximum sizes on panels
+            // while allowing non-panel 3D entities to use larger explicit maximum sizes.
+            val isPanel = coreEntity is CoreBasePanelEntity
+            val defaultMaxWidthMeters = MAX_SAFE_PANEL_WIDTH_PX.pxToMeters(pixelDensity)
+            val defaultMaxHeightMeters = MAX_SAFE_PANEL_HEIGHT_PX.pxToMeters(pixelDensity)
+            it.maximumEntitySize =
+                FloatSize3d(
+                    width =
+                        if (maximumSize.width.isSpecified) {
+                            val widthMeters = maximumSize.width.toMeters(density, pixelDensity)
+                            if (isPanel) {
+                                widthMeters.coerceAtMost(defaultMaxWidthMeters)
+                            } else {
+                                widthMeters
+                            }
+                        } else {
+                            defaultMaxWidthMeters
+                        },
+                    height =
+                        if (maximumSize.height.isSpecified) {
+                            val heightMeters = maximumSize.height.toMeters(density, pixelDensity)
+                            if (isPanel) {
+                                heightMeters.coerceAtMost(defaultMaxHeightMeters)
+                            } else {
+                                heightMeters
+                            }
+                        } else {
+                            defaultMaxHeightMeters
+                        },
+                    depth =
+                        if (maximumSize.depth.isSpecified) {
+                            maximumSize.depth.toMeters(density, pixelDensity)
+                        } else {
+                            defaultMaxWidthMeters
+                        },
+                )
         }
     }
 

@@ -67,6 +67,7 @@ import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
+import androidx.xr.compose.subspace.layout.requiredSizeIn
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.sizeIn
 import androidx.xr.compose.subspace.layout.width
@@ -1221,6 +1222,97 @@ class SpatialPanelTest {
         assertThat(mainPanelEntity.contentDescription).isEqualTo("")
         assertThat(mainPanelEntity.parent).isNotNull()
         assertThat(mainPanelEntity.sizeInPixels).isNotEqualTo(subspaceSize)
+    }
+
+    @Test
+    fun spatialPanel_exceedingMaxSafeSize_clampsSize() {
+        composeTestRule.setContent {
+            Subspace(modifier = SubspaceModifier.requiredSizeIn(0.dp, 10000.dp, 0.dp, 10000.dp)) {
+                SpatialPanel(SubspaceModifier.width(9000.dp).height(9000.dp).testTag("panel")) {
+                    Box(Modifier.fillMaxSize().testTag("contentBox"))
+                }
+            }
+        }
+
+        val expectedMaxWidthDp = with(composeTestRule.density) { MAX_SAFE_PANEL_WIDTH_PX.toDp() }
+        val expectedMaxHeightDp = with(composeTestRule.density) { MAX_SAFE_PANEL_HEIGHT_PX.toDp() }
+        composeTestRule.onSubspaceNodeWithTag("panel").assertWidthIsEqualTo(expectedMaxWidthDp)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertHeightIsEqualTo(expectedMaxHeightDp)
+
+        val panelEntity =
+            composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+                as PanelEntity
+        assertThat(panelEntity.sizeInPixels.width).isEqualTo(MAX_SAFE_PANEL_WIDTH_PX)
+        assertThat(panelEntity.sizeInPixels.height).isEqualTo(MAX_SAFE_PANEL_HEIGHT_PX)
+    }
+
+    @Test
+    fun spatialAndroidViewPanel_exceedingMaxSafeSize_clampsSize() {
+        composeTestRule.setContent {
+            Subspace(modifier = SubspaceModifier.requiredSizeIn(0.dp, 10000.dp, 0.dp, 10000.dp)) {
+                SpatialAndroidViewPanel(
+                    factory = { context -> TextView(context) },
+                    modifier = SubspaceModifier.width(9000.dp).height(9000.dp).testTag("panel"),
+                )
+            }
+        }
+
+        val expectedMaxWidthDp = with(composeTestRule.density) { MAX_SAFE_PANEL_WIDTH_PX.toDp() }
+        val expectedMaxHeightDp = with(composeTestRule.density) { MAX_SAFE_PANEL_HEIGHT_PX.toDp() }
+        composeTestRule.onSubspaceNodeWithTag("panel").assertWidthIsEqualTo(expectedMaxWidthDp)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertHeightIsEqualTo(expectedMaxHeightDp)
+
+        val panelEntity =
+            composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+                as PanelEntity
+        assertThat(panelEntity.sizeInPixels.width).isEqualTo(MAX_SAFE_PANEL_WIDTH_PX)
+        assertThat(panelEntity.sizeInPixels.height).isEqualTo(MAX_SAFE_PANEL_HEIGHT_PX)
+    }
+
+    @Test
+    fun spatialMainPanel_exceedingMaxSafeSize_clampsSize() {
+        composeTestRule.setContent {
+            Subspace(modifier = SubspaceModifier.requiredSizeIn(0.dp, 10000.dp, 0.dp, 10000.dp)) {
+                SpatialMainPanel(SubspaceModifier.width(9000.dp).height(9000.dp).testTag("panel"))
+            }
+        }
+
+        val expectedMaxWidthDp = with(composeTestRule.density) { MAX_SAFE_PANEL_WIDTH_PX.toDp() }
+        val expectedMaxHeightDp = with(composeTestRule.density) { MAX_SAFE_PANEL_HEIGHT_PX.toDp() }
+        composeTestRule.onSubspaceNodeWithTag("panel").assertWidthIsEqualTo(expectedMaxWidthDp)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertHeightIsEqualTo(expectedMaxHeightDp)
+
+        val panelEntity =
+            composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+                as PanelEntity
+        assertThat(panelEntity.sizeInPixels.width).isEqualTo(MAX_SAFE_PANEL_WIDTH_PX)
+        assertThat(panelEntity.sizeInPixels.height).isEqualTo(MAX_SAFE_PANEL_HEIGHT_PX)
+    }
+
+    @Test
+    fun spatialActivityPanel_exceedingMaxSafeSize_clampsSize() {
+        composeTestRule.setContent {
+            Subspace(modifier = SubspaceModifier.requiredSizeIn(0.dp, 10000.dp, 0.dp, 10000.dp)) {
+                SpatialActivityPanel(
+                    controller =
+                        rememberSpatialActivityPanelController(
+                            Intent(composeTestRule.activity, SpatialPanelActivity::class.java)
+                        ),
+                    modifier = SubspaceModifier.width(9000.dp).height(9000.dp).testTag("panel"),
+                )
+            }
+        }
+
+        val expectedMaxWidthDp = with(composeTestRule.density) { MAX_SAFE_PANEL_WIDTH_PX.toDp() }
+        val expectedMaxHeightDp = with(composeTestRule.density) { MAX_SAFE_PANEL_HEIGHT_PX.toDp() }
+        composeTestRule.onSubspaceNodeWithTag("panel").assertWidthIsEqualTo(expectedMaxWidthDp)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertHeightIsEqualTo(expectedMaxHeightDp)
+
+        val panelEntity =
+            composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+                as PanelEntity
+        assertThat(panelEntity.sizeInPixels.width).isEqualTo(MAX_SAFE_PANEL_WIDTH_PX)
+        assertThat(panelEntity.sizeInPixels.height).isEqualTo(MAX_SAFE_PANEL_HEIGHT_PX)
     }
 
     private class SpatialPanelActivity : ComponentActivity() {}

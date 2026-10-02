@@ -57,6 +57,8 @@ import androidx.xr.compose.platform.DefaultDialogManager
 import androidx.xr.compose.platform.LocalDialogManager
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.SpatialCapabilities
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
+import androidx.xr.compose.subspace.MAX_SAFE_PANEL_WIDTH_PX
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.semantics.testTag
@@ -66,6 +68,7 @@ import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
 import androidx.xr.compose.unit.toMeters
+import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import java.util.UUID
@@ -1142,5 +1145,29 @@ class SpatialDialogTest {
         composeTestRule.onNodeWithText("Fallback Content").assertExists()
 
         ShadowActivityEmbeddingController.isEmbedded = false
+    }
+
+    @Test
+    fun spatialDialog_exceedingMaxSafeSize_clampsSize() {
+        composeTestRule.setContent {
+            SpatialDialog(onDismissRequest = {}) {
+                Box(modifier = Modifier.size(9000.dp).testTag("dialogContent"))
+            }
+        }
+
+        val expectedMaxWidthDp = with(composeTestRule.density) { MAX_SAFE_PANEL_WIDTH_PX.toDp() }
+        val expectedMaxHeightDp = with(composeTestRule.density) { MAX_SAFE_PANEL_HEIGHT_PX.toDp() }
+        composeTestRule
+            .onNodeWithTag("dialogContent")
+            .assertWidthIsEqualTo(expectedMaxWidthDp)
+            .assertHeightIsEqualTo(expectedMaxHeightDp)
+
+        val dialogEntity =
+            checkNotNull(composeTestRule.session)
+                .scene
+                .getEntitiesOfType(PanelEntity::class.java)
+                .single { !it.isMainPanelEntity }
+        assertThat(dialogEntity.sizeInPixels.width).isEqualTo(MAX_SAFE_PANEL_WIDTH_PX)
+        assertThat(dialogEntity.sizeInPixels.height).isEqualTo(MAX_SAFE_PANEL_HEIGHT_PX)
     }
 }
