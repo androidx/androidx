@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.integration.a2ui.ui
 
+import androidx.collection.IntList
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -86,6 +87,38 @@ internal fun <T> ChoiceChips(
     onOptionSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
     label: (T) -> String = { it.toString() },
+) {
+    FlowRow(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        options.forEach { option ->
+            val isSelected = option == selectedOption
+            FilterChip(
+                selected = isSelected,
+                onClick = { onOptionSelected(option) },
+                label = {
+                    Text(
+                        text = label(option),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                    )
+                },
+                shape = CircleShape,
+            )
+        }
+    }
+}
+
+/** A row of selectable chips for selecting an integer option among a set of choices. */
+@Composable
+internal fun ChoiceChips(
+    options: IntList,
+    selectedOption: Int,
+    onOptionSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    label: (Int) -> String = { it.toString() },
 ) {
     FlowRow(
         modifier = modifier.fillMaxWidth(),

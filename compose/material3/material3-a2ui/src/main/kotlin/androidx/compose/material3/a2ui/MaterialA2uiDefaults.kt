@@ -23,15 +23,18 @@ import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntSize
@@ -44,19 +47,52 @@ internal object MaterialA2uiDefaults {
     internal const val LOADING_INDICATOR_TEST_TAG = "LoadingIndicator"
 
     /**
-     * Displays an indicator while content is loading.
+     * Coordinates a shared radial shimmer sweep and breathing pulse across multiple child
+     * [LoadingIndicator] instances within a single component container (such as a Row, Column, or
+     * List).
      *
-     * @param modifier [Modifier] to apply to the indicator
+     * The highlight ring originates from the top-left corner of the container measured via the
+     * [Modifier] passed to [content], so each child [LoadingIndicator] renders a slice of the same
+     * expanding ring based on its relative position inside the container.
      */
     @Composable
-    fun LoadingIndicator(modifier: Modifier = Modifier) {
-        // TODO(b/546038727): Replace the static loading indicator with an animated shimmer effect
+    fun LoadingIndicatorGroup(content: @Composable (Modifier) -> Unit) {
+        val coroutineScope = rememberCoroutineScope()
+        val groupState = remember(coroutineScope) { ShimmerIndicatorGroupState(coroutineScope) }
+        val rootModifier =
+            remember(groupState) {
+                Modifier.onPlaced { groupState.rootCoordinates = it }
+            }
+        CompositionLocalProvider(LocalShimmerIndicatorGroupState provides groupState) {
+            content(rootModifier)
+        }
+    }
+
+    /**
+     * Displays an indicator while content is loading.
+     *
+     * When placed inside a [LoadingIndicatorGroup], this indicator shares the group's expanding
+     * radial highlight ring (offset by its own position within the group container) and staggers
+     * its breathing pulse by [index].
+     *
+     * @param modifier [Modifier] to apply to the indicator
+     * @param index 0-based index of this indicator within its group, used to stagger the breathing
+     *   opacity pulse
+     */
+    @Composable
+    fun LoadingIndicator(modifier: Modifier = Modifier, index: Int = 0) {
+        val groupState = LocalShimmerIndicatorGroupState.current
+        val isLight = MaterialTheme.colorScheme.surface.luminance() > 0.5f
+        val shape = MaterialTheme.shapes.medium
+
         Box(
             modifier =
                 modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        shape = MaterialTheme.shapes.medium,
+                    .shimmerIndicator(
+                        isLight = isLight,
+                        shape = shape,
+                        index = index,
+                        groupState = groupState,
                     )
                     .testTag(LOADING_INDICATOR_TEST_TAG)
         )

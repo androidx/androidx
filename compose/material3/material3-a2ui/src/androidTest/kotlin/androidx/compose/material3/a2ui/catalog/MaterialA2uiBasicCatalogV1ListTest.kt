@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -910,4 +911,61 @@ class MaterialA2uiBasicCatalogV1ListTest {
         onNodeWithContentDescription("List Label - Scrollable list of items").assertIsDisplayed()
         onNodeWithContentDescription("Item Label - Item - Item Description").assertIsDisplayed()
     }
+
+    @Test
+    fun children_multipleLoading_rendersSharedShimmerIndicatorsWithExpectedHeight() =
+        runComposeUiTest {
+            val listPayload =
+                A2uiComponentPayload(
+                    id = "root",
+                    type = "List",
+                    properties = mapOf("children" to listOf("item_1", "item_2", "item_3")),
+                )
+            val item1Payload =
+                A2uiComponentPayload(
+                    id = "item_1",
+                    type = "Text",
+                    properties = mapOf("text" to mapOf("path" to "/pending_1")),
+                )
+            val item2Payload =
+                A2uiComponentPayload(
+                    id = "item_2",
+                    type = "Text",
+                    properties = mapOf("text" to mapOf("path" to "/pending_2")),
+                )
+            val item3Payload =
+                A2uiComponentPayload(
+                    id = "item_3",
+                    type = "Text",
+                    properties = mapOf("text" to mapOf("path" to "/pending_3")),
+                )
+            val controller =
+                A2uiTestController(
+                    catalog = testCatalog,
+                    initialComponents =
+                        listOf(listPayload, item1Payload, item2Payload, item3Payload),
+                )
+            val surface = controller.start()
+
+            setContent {
+                MaterialTheme {
+                    A2uiTestSurface(surface = surface, modifier = Modifier.width(200.dp))
+                }
+            }
+
+            val loadingNodes = onAllNodesWithTag(MaterialA2uiDefaults.LOADING_INDICATOR_TEST_TAG)
+            assertThat(loadingNodes.fetchSemanticsNodes().size).isEqualTo(3)
+
+            loadingNodes[0].assertIsDisplayed()
+            loadingNodes[1].assertIsDisplayed()
+            loadingNodes[2].assertIsDisplayed()
+
+            val bounds0 = loadingNodes[0].getUnclippedBoundsInRoot()
+            val bounds1 = loadingNodes[1].getUnclippedBoundsInRoot()
+            val bounds2 = loadingNodes[2].getUnclippedBoundsInRoot()
+
+            assertThat((bounds0.bottom - bounds0.top).value).isWithin(0.5f).of(56f)
+            assertThat((bounds1.bottom - bounds1.top).value).isWithin(0.5f).of(56f)
+            assertThat((bounds2.bottom - bounds2.top).value).isWithin(0.5f).of(56f)
+        }
 }

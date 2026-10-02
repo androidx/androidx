@@ -34,7 +34,7 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 
 /** A Jetpack Compose Material 3 implementation of the A2UI Basic Catalog `"Column"` component. */
 internal object MaterialA2uiBasicCatalogV1Column : A2uiBasicCatalogV1.Column {
@@ -77,35 +77,38 @@ internal object MaterialA2uiBasicCatalogV1Column : A2uiBasicCatalogV1.Column {
             )
         val baseChildModifier = if (isStretchAlignment) Modifier.fillMaxWidth() else Modifier
 
-        Column(
-            modifier = columnModifier,
-            verticalArrangement = verticalArrangement,
-            horizontalAlignment = horizontalAlignment,
-        ) {
-            children.fastForEach { reference ->
-                key(reference.id, reference.baseDataPath) {
-                    val childState = observeA2uiComponentState(reference)
-                    val childWeightPropertyValue =
-                        (childState as? A2uiComponentState.Success)
-                            ?.component
-                            ?.properties
-                            ?.get(WeightProperty)
-                            ?.toFloat()
-                    val childWeight =
-                        childWeightPropertyValue
-                            ?: if (isStretchJustify) StretchJustifyChildWeight else null
-                    val childModifier =
-                        if (childWeight != null) {
-                            baseChildModifier.weight(childWeight)
-                        } else {
-                            baseChildModifier
-                        }
+        MaterialA2uiDefaults.LoadingIndicatorGroup { shimmerRootModifier ->
+            Column(
+                modifier = columnModifier.then(shimmerRootModifier),
+                verticalArrangement = verticalArrangement,
+                horizontalAlignment = horizontalAlignment,
+            ) {
+                children.fastForEachIndexed { index, reference ->
+                    key(reference.id, reference.baseDataPath) {
+                        val childState = observeA2uiComponentState(reference)
+                        val childWeightPropertyValue =
+                            (childState as? A2uiComponentState.Success)
+                                ?.component
+                                ?.properties
+                                ?.get(WeightProperty)
+                                ?.toFloat()
+                        val childWeight =
+                            childWeightPropertyValue
+                                ?: if (isStretchJustify) StretchJustifyChildWeight else null
+                        val childModifier =
+                            if (childWeight != null) {
+                                baseChildModifier.weight(childWeight)
+                            } else {
+                                baseChildModifier
+                            }
 
-                    ColumnChildItem(
-                        modifier = childModifier,
-                        childState = childState,
-                        reference = reference,
-                    )
+                        ColumnChildItem(
+                            modifier = childModifier,
+                            childState = childState,
+                            reference = reference,
+                            index = index,
+                        )
+                    }
                 }
             }
         }
@@ -116,6 +119,7 @@ internal object MaterialA2uiBasicCatalogV1Column : A2uiBasicCatalogV1.Column {
         modifier: Modifier,
         childState: A2uiComponentState,
         reference: A2uiComponentReference,
+        index: Int,
     ) {
         AnimatedContent(
             targetState = childState,
@@ -132,7 +136,10 @@ internal object MaterialA2uiBasicCatalogV1Column : A2uiBasicCatalogV1.Column {
         ) { state ->
             when (state) {
                 is A2uiComponentState.Loading -> {
-                    MaterialA2uiDefaults.LoadingIndicator(modifier = LoadingModifier)
+                    MaterialA2uiDefaults.LoadingIndicator(
+                        modifier = LoadingModifier,
+                        index = index,
+                    )
                 }
 
                 is A2uiComponentState.Error -> {
@@ -147,6 +154,6 @@ internal object MaterialA2uiBasicCatalogV1Column : A2uiBasicCatalogV1.Column {
     }
 
     internal val ItemSpacing = 8.dp
-    private val LoadingModifier = Modifier.fillMaxWidth().height(48.dp)
+    private val LoadingModifier = Modifier.fillMaxWidth().height(40.dp)
     private const val StretchJustifyChildWeight = 1f
 }

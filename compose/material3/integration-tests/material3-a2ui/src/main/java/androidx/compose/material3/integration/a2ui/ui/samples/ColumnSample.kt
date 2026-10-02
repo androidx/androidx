@@ -19,12 +19,14 @@ package androidx.compose.material3.integration.a2ui.ui.samples
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column.Align
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column.Justify
 import androidx.a2ui.model.protocol.A2uiComponentPayload
+import androidx.collection.intListOf
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.integration.a2ui.ui.ChoiceChips
 import androidx.compose.material3.integration.a2ui.ui.ControlCard
+import androidx.compose.material3.integration.a2ui.ui.SwitchControl
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,6 +42,7 @@ internal fun ColumnSample(
     onPayloadUpdated: (List<A2uiComponentPayload>, Map<String, Any?>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var isLoading by rememberSaveable { mutableStateOf(false) }
     var justify by rememberSaveable { mutableStateOf(Justify.Start) }
     var align by rememberSaveable { mutableStateOf(Align.Center) }
     var weightPreset by rememberSaveable { mutableStateOf(ChildWeightPreset.NONE) }
@@ -47,6 +50,7 @@ internal fun ColumnSample(
 
     LaunchedEffect(Unit) {
         updatePayload(
+            isLoading = isLoading,
             justify = justify,
             align = align,
             weightPreset = weightPreset,
@@ -57,6 +61,30 @@ internal fun ColumnSample(
 
     Column(modifier = modifier.fillMaxWidth()) {
         ControlCard(
+            title = "Loading State",
+            subtitle = "Preview the sequential shimmer sweep and staggered breathing skeleton",
+        ) {
+            SwitchControl(
+                title = "Simulate Loading",
+                subtitle = "Keep child components in loading state",
+                checked = isLoading,
+                onCheckedChange = {
+                    isLoading = it
+                    updatePayload(
+                        isLoading = it,
+                        justify = justify,
+                        align = align,
+                        weightPreset = weightPreset,
+                        itemCount = itemCount,
+                        onPayloadUpdated = onPayloadUpdated,
+                    )
+                },
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        ControlCard(
             title = "Vertical Arrangement (justify)",
             subtitle = "Arrangement of children along the vertical main axis",
         ) {
@@ -66,6 +94,7 @@ internal fun ColumnSample(
                 onOptionSelected = {
                     justify = it
                     updatePayload(
+                        isLoading = isLoading,
                         justify = it,
                         align = align,
                         weightPreset = weightPreset,
@@ -89,6 +118,7 @@ internal fun ColumnSample(
                 onOptionSelected = {
                     align = it
                     updatePayload(
+                        isLoading = isLoading,
                         justify = justify,
                         align = it,
                         weightPreset = weightPreset,
@@ -112,6 +142,7 @@ internal fun ColumnSample(
                 onOptionSelected = {
                     weightPreset = it
                     updatePayload(
+                        isLoading = isLoading,
                         justify = justify,
                         align = align,
                         weightPreset = it,
@@ -127,11 +158,12 @@ internal fun ColumnSample(
 
         ControlCard(title = "Number of Items", subtitle = "Number of child buttons in the column") {
             ChoiceChips(
-                options = listOf(2, 3),
+                options = ItemCountOptions,
                 selectedOption = itemCount,
                 onOptionSelected = {
                     itemCount = it
                     updatePayload(
+                        isLoading = isLoading,
                         justify = justify,
                         align = align,
                         weightPreset = weightPreset,
@@ -145,7 +177,10 @@ internal fun ColumnSample(
     }
 }
 
+private val ItemCountOptions = intListOf(2, 3)
+
 private fun updatePayload(
+    isLoading: Boolean,
     justify: Justify,
     align: Align,
     weightPreset: ChildWeightPreset,
@@ -167,38 +202,50 @@ private fun updatePayload(
             )
         )
 
-        childIds.forEachIndexed { index, id ->
-            val textId = "${id}_text"
-            val weight =
-                when (weightPreset) {
-                    ChildWeightPreset.NONE -> null
-                    ChildWeightPreset.EQUAL -> 1
-                    ChildWeightPreset.WEIGHTED -> if (index == 0) 2 else 1
-                }
-            val variant =
-                when (index) {
-                    0 -> "primary"
-                    1 -> "borderless"
-                    else -> "default"
-                }
-            val buttonProps =
-                buildMap<String, Any?> {
-                    put("child", textId)
-                    put("variant", variant)
-                    put("action", mapOf("event" to mapOf("name" to "${id}_click")))
-                    if (weight != null) {
-                        put("weight", weight)
-                    }
-                }
-
-            add(A2uiComponentPayload(id = id, type = "Button", properties = buttonProps))
-            add(
-                A2uiComponentPayload(
-                    id = textId,
-                    type = "Text",
-                    properties = mapOf("text" to "Action Item ${index + 1}"),
+        if (isLoading) {
+            childIds.forEach { id ->
+                add(
+                    A2uiComponentPayload(
+                        id = id,
+                        type = "Text",
+                        properties = mapOf("text" to mapOf("path" to "/loading")),
+                    )
                 )
-            )
+            }
+        } else {
+            childIds.forEachIndexed { index, id ->
+                val textId = "${id}_text"
+                val weight =
+                    when (weightPreset) {
+                        ChildWeightPreset.NONE -> null
+                        ChildWeightPreset.EQUAL -> 1
+                        ChildWeightPreset.WEIGHTED -> if (index == 0) 2 else 1
+                    }
+                val variant =
+                    when (index) {
+                        0 -> "primary"
+                        1 -> "borderless"
+                        else -> "default"
+                    }
+                val buttonProps =
+                    buildMap<String, Any?> {
+                        put("child", textId)
+                        put("variant", variant)
+                        put("action", mapOf("event" to mapOf("name" to "${id}_click")))
+                        if (weight != null) {
+                            put("weight", weight)
+                        }
+                    }
+
+                add(A2uiComponentPayload(id = id, type = "Button", properties = buttonProps))
+                add(
+                    A2uiComponentPayload(
+                        id = textId,
+                        type = "Text",
+                        properties = mapOf("text" to "Action Item ${index + 1}"),
+                    )
+                )
+            }
         }
     }
 
