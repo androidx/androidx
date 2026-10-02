@@ -58,16 +58,12 @@ python3 .agents/scripts/cl_session_setup.py sync --clean <target_ref> <conversat
 > Whenever syncing to a specific Gerrit CL, change number, or git ref (e.g. `aosp/4209909` or `refs/changes/...`), **ALWAYS pass `--clean`**. Syncing to a target ref implies checking out that exact revision without overlaying local workstation WIP.
 
 > [!NOTE]
-> **Stacked Local Commits & CoG Workspace Sync**:
+> **Stacked Local Commits**:
 > When `cl_session_setup.py sync` provisions a CoG workspace, local workstation commits are copied over as un-published local draft nodes.
-> If the parent commits were already published to Gerrit, CoG will throw `Base <node_id> doesn't exist` when publishing `@`. To resolve this, check if local parent nodes have un-uploaded edits (publish/amend parent first if so), run `git citc patch <parent_cl_number>`, and rebase `@` onto the imported Gerrit node ID as documented in [`manage_commits`](../manage_commits/SKILL.md).
-
-> [!WARNING]
-> **Do NOT re-run `cl_session_setup.py sync` to fix Gerrit `Base doesn't exist` publish errors mid-session**, as syncing resets working copy edits. Instead, use `git citc patch` and `git citc api.call Rebase` as documented in [`manage_commits`](../manage_commits/SKILL.md) to resolve base dependencies in place.
 
 #### Committing & Uploading Changes
 
-For creating commits, amending, rebasing, squashing CoG nodes, and uploading changes to Gerrit, refer to the [`manage_commits`](../manage_commits/SKILL.md) skill.
+For creating commits, amending, rebasing, squashing, and uploading changes to Gerrit, refer to the [`manage_commits`](../manage_commits/SKILL.md) and `gob_vcs` skills.
 
 ### 2. Isolated Development & Building
 
