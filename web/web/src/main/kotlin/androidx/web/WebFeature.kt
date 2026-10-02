@@ -18,8 +18,7 @@ package androidx.web
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
-import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil
-import org.chromium.support_lib_boundary.util.Features
+import org.chromium.support_lib_boundary.web.util.WebFeatures as Features
 
 /** Utility class for checking which Web features are supported on the device. */
 public object WebFeature {
@@ -57,7 +56,7 @@ public object WebFeature {
      */
     @JvmStatic
     public fun isFeatureSupported(@WebFeatures feature: String): Boolean {
-        return BoundaryInterfaceReflectionUtil.containsFeature(supportedFeatures, feature)
+        return Features.containsFeature(supportedFeatures, feature)
     }
 
     internal fun checkSupported(@WebFeatures feature: String) {
