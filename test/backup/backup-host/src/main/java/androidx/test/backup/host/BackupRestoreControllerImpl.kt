@@ -29,8 +29,11 @@ import java.nio.file.Path
 import java.time.Duration
 import java.util.Locale
 import java.util.logging.Logger
+import kotlin.time.Duration as KotlinDuration
 import kotlin.time.toKotlinDuration
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.guava.future
+import kotlinx.coroutines.withTimeoutOrNull
 
 internal class BackupRestoreControllerImpl(
     private val adbSession: AdbSession,
@@ -38,6 +41,7 @@ internal class BackupRestoreControllerImpl(
     override val apiLevel: Int,
     override val applicationId: String,
     private val telemetryPublisher: ((key: String, value: String) -> Unit)? = null,
+    private val cleanupTimeout: KotlinDuration = DEFAULT_CLEANUP_TIMEOUT,
 ) : BackupRestoreController {
 
     internal var lastExecutionSummary: BackupExecutionSummary? = null
@@ -47,7 +51,7 @@ internal class BackupRestoreControllerImpl(
 
     private val shell = BackupDeviceShell(adbSession, serialNumber)
 
-    private val localTransport = BackupLocalTransport(shell, applicationId)
+    private val localTransport = BackupLocalTransport(shell, applicationId, cleanupTimeout)
 
     private val backupService: Service by lazy {
         val platformLogger = PlatformLogger.getInstance(BackupRestoreControllerImpl::class.java)
@@ -148,10 +152,44 @@ internal class BackupRestoreControllerImpl(
         }
     }
 
+    /**
+     * Returns the result of [block], or null when it does not complete within [timeout].
+     *
+     * On timeout, force-stops the app, so that nothing [block] started keeps running on the device.
+     * Cancellation of the caller is propagated, not reported as a timeout.
+     */
+    private suspend fun <T : Any> withinTimeout(timeout: Duration, block: suspend () -> T): T? {
+        require(!timeout.isNegative && !timeout.isZero) { "Timeout must be positive: $timeout" }
+        // The kotlin.time overload rounds a sub-millisecond remainder up instead of truncating it.
+        val result = withTimeoutOrNull(timeout.toKotlinDuration()) { block() }
+        if (result == null) {
+            logger.warning(
+                "Timed out after ${timeout.toKotlinDuration()}; force-stopping $applicationId."
+            )
+            try {
+                withTimeoutOrNull(cleanupTimeout) { stopApp() }
+                    ?: logger.warning("Force-stopping $applicationId did not complete.")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.warning("Failed to force-stop $applicationId: ${e.message}")
+            }
+        }
+        return result
+    }
+
     override suspend fun runOnDevice(
         actionClassName: String,
         args: Map<String, String>,
         timeout: Duration,
+        waitForDebugger: Boolean,
+    ): BackupActionResult =
+        withinTimeout(timeout) { runAction(actionClassName, args, waitForDebugger) }
+            ?: BackupActionResult.Failure("Timed out after ${timeout.toKotlinDuration()}")
+
+    private suspend fun runAction(
+        actionClassName: String,
+        args: Map<String, String>,
         waitForDebugger: Boolean,
     ): BackupActionResult {
         val stdout =
@@ -206,7 +244,11 @@ internal class BackupRestoreControllerImpl(
         mode: BackupTransportMode,
         outputDir: Path,
         timeout: Duration,
-    ): Path {
+    ): Path =
+        withinTimeout(timeout) { backup(mode, outputDir) }
+            ?: throw IOException("Backup ($mode) timed out after ${timeout.toKotlinDuration()}")
+
+    private suspend fun backup(mode: BackupTransportMode, outputDir: Path): Path {
         if (mode == BackupTransportMode.LOCAL) {
             val archive = prepareBackupFile(outputDir, mode)
             localTransport.backup(archive)
@@ -250,9 +292,15 @@ internal class BackupRestoreControllerImpl(
         backupFile: Path,
         timeout: Duration,
     ): BackupRestoreController {
+        withinTimeout(timeout) { restore(backupFile, timeout) }
+            ?: throw IOException("Restore timed out after ${timeout.toKotlinDuration()}")
+        return this
+    }
+
+    private suspend fun restore(backupFile: Path, timeout: Duration) {
         if (backupFile.fileName.toString() == backupFileName(BackupTransportMode.LOCAL)) {
             localTransport.restore(timeout.toKotlinDuration())
-            return this
+            return
         }
         // Moves any foreground activity to the background so the restore agent can bind.
         shell.pressHome()
@@ -273,7 +321,6 @@ internal class BackupRestoreControllerImpl(
             is BackupResult.Error -> throw result.throwable
             else -> logger.warning("Restore finished with result: $result")
         }
-        return this
     }
 
     override suspend fun fetchDeviceLogs(

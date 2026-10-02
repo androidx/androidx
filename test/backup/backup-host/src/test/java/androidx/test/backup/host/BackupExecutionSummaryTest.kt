@@ -55,6 +55,10 @@ class BackupExecutionSummaryTest {
             BackupExecutionStage.RESTORE.errorCodeFor(IOException("POLLING FAILED")),
         )
         assertEquals(
+            BackupErrorCode.RESTORE_POLL_TIMEOUT,
+            BackupExecutionStage.RESTORE.errorCodeFor(IOException("Restore TIMED OUT after 5s")),
+        )
+        assertEquals(
             BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING,
             BackupExecutionStage.BACKUP.errorCodeFor(IOException("MISSING GMSCORE")),
         )
