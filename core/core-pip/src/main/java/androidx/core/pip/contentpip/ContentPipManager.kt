@@ -19,6 +19,7 @@ package androidx.core.pip.contentpip
 import android.app.ActivityOptions
 import android.content.Intent
 import androidx.activity.ComponentActivity
+import androidx.core.pip.contentpip.ContentPipCallback.FinishReason
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal object ContentPipManager {
@@ -36,7 +37,7 @@ internal object ContentPipManager {
 
         cleanupInternalStates()
 
-        if (!callback.onPrepareContentPip()) {
+        if (!callback.onPrepare()) {
             isTransitioning.set(false)
             return
         }
@@ -76,8 +77,14 @@ internal object ContentPipManager {
     }
 
     /** Clears the current session. */
-    internal fun onTeardown(isDismissed: Boolean) {
-        activeCallback?.onFinishContentPip(isDismissed)
+    internal fun onTeardown(reason: FinishReason) {
+        activeCallback?.onFinish(reason)
+        cleanupInternalStates()
+    }
+
+    /** Notifies the Content PiP error and clears the current session. */
+    internal fun onError(throwable: Throwable) {
+        activeCallback?.onError(throwable)
         cleanupInternalStates()
     }
 
