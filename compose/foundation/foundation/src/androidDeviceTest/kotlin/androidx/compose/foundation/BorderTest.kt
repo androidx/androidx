@@ -65,7 +65,6 @@ import androidx.test.filters.SdkSuppress
 import kotlin.math.floor
 import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -717,7 +716,6 @@ class BorderTest(val shape: Shape) {
      * [border_nonSimpleRoundedOutline_zeroOffsetOriginOutline_respectsOutlineBounds], which is the
      * same test case but with an outline that _does_ start at (0,0), to catch b/546074983
      */
-    @Ignore("b/546074983 - the position is correct but the border rendering is broken")
     @Test
     fun border_nonSimpleRoundedOutline_nonZeroOffsetOriginOutline_respectsOutlineBounds() {
         val fixedNonSimpleRoundedOutlineShape =
