@@ -276,21 +276,16 @@ public sealed class PKeySet {
         val lastIndex = m.size - 2 // We always have 0 or at least 2 elements
 
         for (i in 0..lastIndex) {
-            var slot = m[i]
-            if (slot.maskEmptyOrDeleted() != BitmaskMsb) {
-                // Branch-less if (i == lastIndex) 7 else 8
-                // i - lastIndex returns a negative value when i < lastIndex,
-                // so 1 is set as the MSB. By inverting and shifting we get
-                // 0 when i < lastIndex, 1 otherwise.
-                val bitCount = 8 - ((i - lastIndex).inv() ushr 31)
-                for (j in 0 until bitCount) {
-                    if (isFull(slot and 0xFFL)) {
-                        val index = (i shl 3) + j
-                        block(index)
-                    }
-                    slot = slot shr 8
-                }
-                if (bitCount != 8) return
+            val slot = m[i]
+            // In metadata, Empty (0x80), Deleted (0xFE), and Sentinel (0xFF) all have bit 7
+            // set; Full slots have bit 7 unset (< 0x80). Inverting the word and masking
+            // with BitmaskMsb sets bit (8j + 7) iff slot j is Full. Sentinel (0xFF) at
+            // capacity index is naturally skipped since its bit 7 is set.
+            var mask = slot.inv() and BitmaskMsb
+            while (mask != 0L) {
+                val index = (i shl 3) + (mask.countTrailingZeroBits() ushr 3)
+                block(index)
+                mask = mask and (mask - 1L)
             }
         }
     }

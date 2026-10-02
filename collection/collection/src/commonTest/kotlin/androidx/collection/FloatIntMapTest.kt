@@ -80,22 +80,50 @@ class FloatIntMapTest {
 
     @Test
     fun floatIntMapInitFunction() {
-        val map1 = floatIntMapOf(1f, 1)
+        val map1 =
+            floatIntMapOf(
+                1f,
+                1,
+            )
         assertEquals(1, map1.size)
         assertEquals(1, map1[1f])
 
-        val map2 = floatIntMapOf(1f, 1, 2f, 2)
+        val map2 =
+            floatIntMapOf(
+                1f,
+                1,
+                2f,
+                2,
+            )
         assertEquals(2, map2.size)
         assertEquals(1, map2[1f])
         assertEquals(2, map2[2f])
 
-        val map3 = floatIntMapOf(1f, 1, 2f, 2, 3f, 3)
+        val map3 =
+            floatIntMapOf(
+                1f,
+                1,
+                2f,
+                2,
+                3f,
+                3,
+            )
         assertEquals(3, map3.size)
         assertEquals(1, map3[1f])
         assertEquals(2, map3[2f])
         assertEquals(3, map3[3f])
 
-        val map4 = floatIntMapOf(1f, 1, 2f, 2, 3f, 3, 4f, 4)
+        val map4 =
+            floatIntMapOf(
+                1f,
+                1,
+                2f,
+                2,
+                3f,
+                3,
+                4f,
+                4,
+            )
 
         assertEquals(4, map4.size)
         assertEquals(1, map4[1f])
@@ -103,7 +131,19 @@ class FloatIntMapTest {
         assertEquals(3, map4[3f])
         assertEquals(4, map4[4f])
 
-        val map5 = floatIntMapOf(1f, 1, 2f, 2, 3f, 3, 4f, 4, 5f, 5)
+        val map5 =
+            floatIntMapOf(
+                1f,
+                1,
+                2f,
+                2,
+                3f,
+                3,
+                4f,
+                4,
+                5f,
+                5,
+            )
 
         assertEquals(5, map5.size)
         assertEquals(1, map5[1f])
@@ -115,22 +155,50 @@ class FloatIntMapTest {
 
     @Test
     fun mutableFloatIntMapInitFunction() {
-        val map1 = mutableFloatIntMapOf(1f, 1)
+        val map1 =
+            mutableFloatIntMapOf(
+                1f,
+                1,
+            )
         assertEquals(1, map1.size)
         assertEquals(1, map1[1f])
 
-        val map2 = mutableFloatIntMapOf(1f, 1, 2f, 2)
+        val map2 =
+            mutableFloatIntMapOf(
+                1f,
+                1,
+                2f,
+                2,
+            )
         assertEquals(2, map2.size)
         assertEquals(1, map2[1f])
         assertEquals(2, map2[2f])
 
-        val map3 = mutableFloatIntMapOf(1f, 1, 2f, 2, 3f, 3)
+        val map3 =
+            mutableFloatIntMapOf(
+                1f,
+                1,
+                2f,
+                2,
+                3f,
+                3,
+            )
         assertEquals(3, map3.size)
         assertEquals(1, map3[1f])
         assertEquals(2, map3[2f])
         assertEquals(3, map3[3f])
 
-        val map4 = mutableFloatIntMapOf(1f, 1, 2f, 2, 3f, 3, 4f, 4)
+        val map4 =
+            mutableFloatIntMapOf(
+                1f,
+                1,
+                2f,
+                2,
+                3f,
+                3,
+                4f,
+                4,
+            )
 
         assertEquals(4, map4.size)
         assertEquals(1, map4[1f])
@@ -138,7 +206,19 @@ class FloatIntMapTest {
         assertEquals(3, map4[3f])
         assertEquals(4, map4[4f])
 
-        val map5 = mutableFloatIntMapOf(1f, 1, 2f, 2, 3f, 3, 4f, 4, 5f, 5)
+        val map5 =
+            mutableFloatIntMapOf(
+                1f,
+                1,
+                2f,
+                2,
+                3f,
+                3,
+                4f,
+                4,
+                5f,
+                5,
+            )
 
         assertEquals(5, map5.size)
         assertEquals(1, map5[1f])
@@ -253,7 +333,9 @@ class FloatIntMapTest {
         val map = MutableFloatIntMap()
         map[1f] = 1
 
-        assertFailsWith<NoSuchElementException> { map[2f] }
+        assertFailsWith<NoSuchElementException> {
+            map[2f]
+        }
     }
 
     @Test
@@ -539,10 +621,14 @@ class FloatIntMapTest {
     @Test
     fun joinToString() {
         val map = MutableFloatIntMap()
-        repeat(5) { map[it.toFloat()] = it.toInt() }
+        repeat(5) {
+            map[it.toFloat()] = it.toInt()
+        }
         val order = IntArray(5)
         var index = 0
-        map.forEach { key, _ -> order[index++] = key.toInt() }
+        map.forEach { key, _ ->
+            order[index++] = key.toInt()
+        }
         assertEquals(
             "${order[0].toFloat()}=${order[0].toInt()}, ${order[1].toFloat()}=" +
                 "${order[1].toInt()}, ${order[2].toFloat()}=${order[2].toInt()}," +
@@ -586,7 +672,20 @@ class FloatIntMapTest {
 
         // Same number of items but different keys to test that looking up
         // a non-existing entry doesn't throw during equals()
-        assertNotEquals(mutableFloatIntMapOf(1f, 1, 2f, 2), mutableFloatIntMapOf(1f, 1, 3f, 2))
+        assertNotEquals(
+            mutableFloatIntMapOf(
+                1f,
+                1,
+                2f,
+                2,
+            ),
+            mutableFloatIntMapOf(
+                1f,
+                1,
+                3f,
+                2,
+            ),
+        )
     }
 
     @Test
@@ -714,7 +813,10 @@ class FloatIntMapTest {
         for (i in 0..1000000) {
             map[i.toFloat()] = i.toInt()
             map.remove(i.toFloat())
-            assertTrue(map.capacity < 16, "Map grew larger than 16 after step $i")
+            assertTrue(
+                map.capacity < 16,
+                "Map grew larger than 16 after step $i",
+            )
         }
     }
 }

@@ -84,7 +84,9 @@ class IntSetTest {
         assertEquals(2, set.size)
         val elements = IntArray(2)
         var index = 0
-        set.forEach { element -> elements[index++] = element }
+        set.forEach { element ->
+            elements[index++] = element
+        }
         elements.sort()
         assertEquals(1, elements[0])
         assertEquals(2, elements[1])
@@ -305,7 +307,9 @@ class IntSetTest {
 
             val elements = IntArray(i)
             var index = 0
-            set.forEach { element -> elements[index++] = element }
+            set.forEach { element ->
+                elements[index++] = element
+            }
             elements.sort()
 
             index = 0
@@ -346,7 +350,9 @@ class IntSetTest {
         val set = intSetOf(1, 2, 3, 4, 5)
         val order = IntArray(5)
         var index = 0
-        set.forEach { element -> order[index++] = element.toInt() }
+        set.forEach { element ->
+            order[index++] = element.toInt()
+        }
         assertEquals(
             "${order[0].toInt()}, ${order[1].toInt()}, ${order[2].toInt()}, " +
                 "${order[3].toInt()}, ${order[4].toInt()}",
@@ -468,7 +474,24 @@ class IntSetTest {
         set.clear()
         assertEquals(capacity, set.trim())
         assertEquals(0, set.capacity)
-        set.addAll(intArrayOf(1, 2, 3, 4, 5, 7, 6, 8, 9, 10, 11, 12, 13, 14))
+        set.addAll(
+            intArrayOf(
+                1,
+                2,
+                3,
+                4,
+                5,
+                7,
+                6,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+            )
+        )
         set.removeAll(intArrayOf(6, 8, 9, 10, 11, 12, 13, 14))
         assertTrue(set.trim() > 0)
         assertEquals(capacity, set.capacity)
@@ -591,7 +614,10 @@ class IntSetTest {
         for (i in 0..1000000) {
             set.add(i.toInt())
             set.remove(i.toInt())
-            assertTrue(set.capacity < 16, "Set grew larger than 16 after step $i")
+            assertTrue(
+                set.capacity < 16,
+                "Set grew larger than 16 after step $i",
+            )
         }
     }
 }

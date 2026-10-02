@@ -139,22 +139,30 @@ class LongListTest {
 
     @Test
     fun getOutOfBounds() {
-        assertFailsWith(IndexOutOfBoundsException::class) { list[5] }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            list[5]
+        }
     }
 
     @Test
     fun getOutOfBoundsNegative() {
-        assertFailsWith(IndexOutOfBoundsException::class) { list[-1] }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            list[-1]
+        }
     }
 
     @Test
     fun elementAtOfBounds() {
-        assertFailsWith(IndexOutOfBoundsException::class) { list.elementAt(5) }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            list.elementAt(5)
+        }
     }
 
     @Test
     fun elementAtOfBoundsNegative() {
-        assertFailsWith(IndexOutOfBoundsException::class) { list.elementAt(-1) }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            list.elementAt(-1)
+        }
     }
 
     @Test
@@ -323,7 +331,9 @@ class LongListTest {
 
     @Test
     fun firstException() {
-        assertFailsWith(NoSuchElementException::class) { mutableLongListOf().first() }
+        assertFailsWith(NoSuchElementException::class) {
+            mutableLongListOf().first()
+        }
     }
 
     @Test
@@ -334,7 +344,9 @@ class LongListTest {
 
     @Test
     fun firstWithPredicateException() {
-        assertFailsWith(NoSuchElementException::class) { mutableLongListOf().first { it == 8L } }
+        assertFailsWith(NoSuchElementException::class) {
+            mutableLongListOf().first { it == 8L }
+        }
     }
 
     @Test
@@ -344,7 +356,9 @@ class LongListTest {
 
     @Test
     fun lastException() {
-        assertFailsWith(NoSuchElementException::class) { mutableLongListOf().last() }
+        assertFailsWith(NoSuchElementException::class) {
+            mutableLongListOf().last()
+        }
     }
 
     @Test
@@ -355,7 +369,9 @@ class LongListTest {
 
     @Test
     fun lastWithPredicateException() {
-        assertFailsWith(NoSuchElementException::class) { mutableLongListOf().last { it == 8L } }
+        assertFailsWith(NoSuchElementException::class) {
+            mutableLongListOf().last { it == 8L }
+        }
     }
 
     @Test
@@ -367,7 +383,9 @@ class LongListTest {
     fun foldIndexed() {
         assertEquals(
             "01-12-23-34-45-",
-            list.foldIndexed("") { index, acc, i -> "$acc$index${i.toInt()}-" },
+            list.foldIndexed("") { index, acc, i ->
+                "$acc$index${i.toInt()}-"
+            },
         )
     }
 
@@ -380,7 +398,9 @@ class LongListTest {
     fun foldRightIndexed() {
         assertEquals(
             "45-34-23-12-01-",
-            list.foldRightIndexed("") { index, i, acc -> "$acc$index${i.toInt()}-" },
+            list.foldRightIndexed("") { index, i, acc ->
+                "$acc$index${i.toInt()}-"
+            },
         )
     }
 
@@ -399,8 +419,12 @@ class LongListTest {
         l.add(0, 1L)
         l.add(2, 3L)
         assertEquals(list, l)
-        assertFailsWith(IndexOutOfBoundsException::class) { l.add(-1, 2L) }
-        assertFailsWith(IndexOutOfBoundsException::class) { l.add(6, 2L) }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.add(-1, 2L)
+        }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.add(6, 2L)
+        }
     }
 
     @Test
@@ -414,8 +438,12 @@ class LongListTest {
         assertTrue(l4.addAll(3, l))
         assertFalse(l4.addAll(0, mutableLongListOf()))
         assertEquals(list, l4)
-        assertFailsWith(IndexOutOfBoundsException::class) { l4.addAll(6, mutableLongListOf()) }
-        assertFailsWith(IndexOutOfBoundsException::class) { l4.addAll(-1, mutableLongListOf()) }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l4.addAll(6, mutableLongListOf())
+        }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l4.addAll(-1, mutableLongListOf())
+        }
     }
 
     @Test
@@ -452,8 +480,12 @@ class LongListTest {
         assertTrue(l.addAll(3, a1))
         assertFalse(l.addAll(0, longArrayOf()))
         assertEquals(list, l)
-        assertFailsWith(IndexOutOfBoundsException::class) { l.addAll(6, longArrayOf()) }
-        assertFailsWith(IndexOutOfBoundsException::class) { l.addAll(-1, longArrayOf()) }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.addAll(6, longArrayOf())
+        }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.addAll(-1, longArrayOf())
+        }
     }
 
     @Test
@@ -520,8 +552,12 @@ class LongListTest {
         val l = mutableLongListOf(1L, 2L, 3L, 4L, 5L)
         l.removeAt(2)
         assertEquals(mutableLongListOf(1L, 2L, 4L, 5L), l)
-        assertFailsWith(IndexOutOfBoundsException::class) { l.removeAt(6) }
-        assertFailsWith(IndexOutOfBoundsException::class) { l.removeAt(-1) }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.removeAt(6)
+        }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.removeAt(-1)
+        }
     }
 
     @Test
@@ -533,8 +569,12 @@ class LongListTest {
         l[1] = 2L
         l[3] = 4L
         assertEquals(list, l)
-        assertFailsWith<IndexOutOfBoundsException> { l.set(-1, 1L) }
-        assertFailsWith<IndexOutOfBoundsException> { l.set(6, 1L) }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.set(-1, 1L)
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.set(6, 1L)
+        }
         assertEquals(4L, l.set(3, 1L))
     }
 
@@ -603,10 +643,18 @@ class LongListTest {
         val l = mutableLongListOf(1L, 9L, 7L, 6L, 2L, 3L, 4L, 5L)
         l.removeRange(1, 4)
         assertEquals(list, l)
-        assertFailsWith<IndexOutOfBoundsException> { l.removeRange(6, 6) }
-        assertFailsWith<IndexOutOfBoundsException> { l.removeRange(100, 200) }
-        assertFailsWith<IndexOutOfBoundsException> { l.removeRange(-1, 0) }
-        assertFailsWith<IllegalArgumentException> { l.removeRange(3, 2) }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.removeRange(6, 6)
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.removeRange(100, 200)
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.removeRange(-1, 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            l.removeRange(3, 2)
+        }
     }
 
     @Test

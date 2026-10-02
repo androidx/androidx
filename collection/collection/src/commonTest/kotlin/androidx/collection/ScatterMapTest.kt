@@ -638,6 +638,23 @@ class ScatterMapTest {
     }
 
     @Test
+    fun forEachWithDeletedEntries() {
+        val map = MutableScatterMap<Int, String>()
+        for (i in 0 until 100) {
+            map[i] = i.toString()
+        }
+        for (i in 0 until 100 step 2) {
+            map.remove(i)
+        }
+        val visited = mutableListOf<Int>()
+        map.forEach { key, value ->
+            assertEquals(key.toString(), value)
+            visited.add(key)
+        }
+        assertEquals((1 until 100 step 2).toList(), visited.sorted())
+    }
+
+    @Test
     fun forEachKey() {
         for (i in 0..48) {
             val map = MutableScatterMap<String, String>()

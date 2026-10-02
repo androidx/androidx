@@ -83,7 +83,9 @@ public fun mutableFloatSetOf(): MutableFloatSet = MutableFloatSet()
 
 /** Returns a new [MutableFloatSet] with only [element1] in it. */
 public fun mutableFloatSetOf(element1: Float): MutableFloatSet =
-    MutableFloatSet(1).apply { plusAssign(element1) }
+    MutableFloatSet(1).apply {
+        plusAssign(element1)
+    }
 
 /** Returns a new [MutableFloatSet] with only [element1] and [element2] in it. */
 public fun mutableFloatSetOf(element1: Float, element2: Float): MutableFloatSet =
@@ -229,21 +231,16 @@ public sealed class FloatSet {
         val lastIndex = m.size - 2 // We always have 0 or at least 2 elements
 
         for (i in 0..lastIndex) {
-            var slot = m[i]
-            if (slot.maskEmptyOrDeleted() != BitmaskMsb) {
-                // Branch-less if (i == lastIndex) 7 else 8
-                // i - lastIndex returns a negative value when i < lastIndex,
-                // so 1 is set as the MSB. By inverting and shifting we get
-                // 0 when i < lastIndex, 1 otherwise.
-                val bitCount = 8 - ((i - lastIndex).inv() ushr 31)
-                for (j in 0 until bitCount) {
-                    if (isFull(slot and 0xFFL)) {
-                        val index = (i shl 3) + j
-                        block(index)
-                    }
-                    slot = slot shr 8
-                }
-                if (bitCount != 8) return
+            val slot = m[i]
+            // In metadata, Empty (0x80), Deleted (0xFE), and Sentinel (0xFF) all have bit 7
+            // set; Full slots have bit 7 unset (< 0x80). Inverting the word and masking
+            // with BitmaskMsb sets bit (8j + 7) iff slot j is Full. Sentinel (0xFF) at
+            // capacity index is naturally skipped since its bit 7 is set.
+            var mask = slot.inv() and BitmaskMsb
+            while (mask != 0L) {
+                val index = (i shl 3) + (mask.countTrailingZeroBits() ushr 3)
+                block(index)
+                mask = mask and (mask - 1L)
             }
         }
     }
@@ -257,7 +254,9 @@ public sealed class FloatSet {
         contract { callsInPlace(block) }
         val k = elements
 
-        forEachIndex { index -> block(k[index]) }
+        forEachIndex { index ->
+            block(k[index])
+        }
     }
 
     /**
@@ -268,7 +267,9 @@ public sealed class FloatSet {
      */
     public inline fun all(predicate: (element: Float) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
-        forEach { element -> if (!predicate(element)) return false }
+        forEach { element ->
+            if (!predicate(element)) return false
+        }
         return true
     }
 
@@ -280,7 +281,9 @@ public sealed class FloatSet {
      */
     public inline fun any(predicate: (element: Float) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
-        forEach { element -> if (predicate(element)) return true }
+        forEach { element ->
+            if (predicate(element)) return true
+        }
         return false
     }
 
@@ -297,7 +300,9 @@ public sealed class FloatSet {
     public inline fun count(predicate: (element: Float) -> Boolean): Int {
         contract { callsInPlace(predicate) }
         var count = 0
-        forEach { element -> if (predicate(element)) count++ }
+        forEach { element ->
+            if (predicate(element)) count++
+        }
         return count
     }
 
@@ -384,7 +389,9 @@ public sealed class FloatSet {
     public override fun hashCode(): Int {
         var hash = 0
 
-        forEach { element -> hash += element.hashCode() }
+        forEach { element ->
+            hash += element.hashCode()
+        }
 
         return hash
     }
@@ -505,7 +512,9 @@ public class MutableFloatSet(initialCapacity: Int = DefaultScatterCapacity) : Fl
             } else {
                 // Round up to the next multiple of 8 and find how many longs we need
                 val size = (((capacity + 1 + ClonedMetadataCount) + 7) and 0x7.inv()) shr 3
-                LongArray(size).apply { fill(AllEmpty) }
+                LongArray(size).apply {
+                    fill(AllEmpty)
+                }
             }
         writeRawMetadata(metadata, capacity, Sentinel)
         initializeGrowth()
@@ -558,7 +567,9 @@ public class MutableFloatSet(initialCapacity: Int = DefaultScatterCapacity) : Fl
      * @param elements An array of elements to add to the set.
      */
     public operator fun plusAssign(@Suppress("ArrayReturn") elements: FloatArray) {
-        elements.forEach { element -> plusAssign(element) }
+        elements.forEach { element ->
+            plusAssign(element)
+        }
     }
 
     /**
@@ -580,7 +591,9 @@ public class MutableFloatSet(initialCapacity: Int = DefaultScatterCapacity) : Fl
      * @param elements A [FloatSet] of elements to add to this set.
      */
     public operator fun plusAssign(elements: FloatSet) {
-        elements.forEach { element -> plusAssign(element) }
+        elements.forEach { element ->
+            plusAssign(element)
+        }
     }
 
     /**
@@ -629,7 +642,9 @@ public class MutableFloatSet(initialCapacity: Int = DefaultScatterCapacity) : Fl
      * @param elements An array of elements to be removed from the set.
      */
     public operator fun minusAssign(@Suppress("ArrayReturn") elements: FloatArray) {
-        elements.forEach { element -> minusAssign(element) }
+        elements.forEach { element ->
+            minusAssign(element)
+        }
     }
 
     /**
@@ -650,7 +665,9 @@ public class MutableFloatSet(initialCapacity: Int = DefaultScatterCapacity) : Fl
      * @param elements An [FloatSet] of elements to be removed from the set.
      */
     public operator fun minusAssign(elements: FloatSet) {
-        elements.forEach { element -> minusAssign(element) }
+        elements.forEach { element ->
+            minusAssign(element)
+        }
     }
 
     private fun removeElementAt(index: Int) {
