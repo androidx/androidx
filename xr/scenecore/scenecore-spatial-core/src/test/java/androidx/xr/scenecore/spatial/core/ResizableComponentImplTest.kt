@@ -1593,7 +1593,7 @@ class ResizableComponentImplTest {
 
         // Trigger a size update, which will now be pending due to the paused callback.
         entity.size = Dimensions(100f, 100f, 100f)
-        assertThat(entity.isWaitingForSetSize()).isTrue()
+        assertThat(entity.isWaitingForSetSize).isTrue()
 
         // 3. End the resize event
         // This triggers the localReformEventConsumer which should evaluate the anti-flicker logic.

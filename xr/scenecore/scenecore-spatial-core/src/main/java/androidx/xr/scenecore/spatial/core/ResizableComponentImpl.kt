@@ -237,7 +237,7 @@ internal class ResizableComponentImpl(
             }
         }
 
-        if (entity is MainPanelEntityImpl) {
+        if (entity is BasePanelEntity) {
             entity.addOnSetSizeCompleteListener(executor, onSetSizeCompleteListener)
         }
 
@@ -267,10 +267,9 @@ internal class ResizableComponentImpl(
         // execute after 'this.entity' has already been set to null below, resulting in a failure to
         // restore the UI.
         if (isContentHidden.compareAndSet(true, false)) {
+            val androidXrEntity = entity as AndroidXrEntity
             xrExtensions.createNodeTransaction().use { transaction ->
-                transaction
-                    .setAlpha((entity as AndroidXrEntity).getNode(), entity.getAlpha())
-                    .apply()
+                transaction.setAlpha(androidXrEntity.getNode(), androidXrEntity.getAlpha()).apply()
             }
         }
 
@@ -278,7 +277,7 @@ internal class ResizableComponentImpl(
         reformOptions.enabledReform =
             reformOptions.enabledReform and ReformOptions.ALLOW_RESIZE.inv()
         entity.updateReformOptions()
-        if (entity is MainPanelEntityImpl) {
+        if (entity is BasePanelEntity) {
             entity.removeOnSetSizeCompleteListener(onSetSizeCompleteListener)
         }
         reformEventConsumer?.let { entity.removeReformEventConsumer(it) }
@@ -363,23 +362,23 @@ internal class ResizableComponentImpl(
     /**
      * Handles the content restoration logic at the end of a resize operation.
      *
-     * This checks the state of the resize event and, if applicable (e.g. for MainPanelEntity),
+     * This checks the state of the resize event and, if applicable (e.g. for BasePanelEntity),
      * defers the restoration if an asynchronous size update is currently in-flight.
      */
     private fun restoreContentIfNotWaitingForSize(reformState: Int, currentEntity: Entity?) {
         if (reformState != ReformEvent.REFORM_STATE_END) return
-        // For MainPanelEntityImpl, setting the size is an asynchronous operation.
+        // For some entities, setting the size is an asynchronous operation.
         // We must wait for it to complete before restoring the content's visibility
         // to prevent visual artifacts. If an IPC call is in-flight (regardless of
         // what triggered it), return early and defer restoration to the completion listener.
         //
         // TODO(b/502252493): Fix potential race condition with async size updates.
-        // This mechanism assumes that the `size` property of MainPanelEntity is set
+        // This mechanism assumes that the `size` property is set
         // synchronously within the onResizeEvent callback above, which allows
-        // `isWaitingForSetSize()` to return true immediately.
+        // `isWaitingForSetSize` to return true immediately.
         // If an app developer defers setting the property (e.g., using `post`),
         // this check will fail, and content may be restored prematurely.
-        if (currentEntity is MainPanelEntityImpl && currentEntity.isWaitingForSetSize()) {
+        if (currentEntity is BasePanelEntity && currentEntity.isWaitingForSetSize) {
             return
         }
         if (autoHideContent) {
