@@ -508,36 +508,6 @@ validThroughLibraryVersion = "1.2.0"
 reason = "b/TODO - <reason>"
 
 [[tipOfTreeExemptions]]
-library = ":web:web"
-dependsOn = ":webkit:webkit"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":web:web-compose"
-dependsOn = ":compose:runtime:runtime"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":web:web-compose"
-dependsOn = ":compose:ui:ui"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":web:web-compose"
-dependsOn = ":compose:ui:ui-graphics"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":web:web-compose"
-dependsOn = ":compose:ui:ui-unit"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
 library = ":window:window"
 dependsOn = ":window:extensions:extensions"
 validThroughLibraryVersion = "1.6.0-beta01"
