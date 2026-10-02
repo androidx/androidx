@@ -23,13 +23,13 @@ import androidx.annotation.NonNull
 import androidx.annotation.RequiresFeature
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
+import androidx.web.WebGlueCommunicator.asProxy
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Proxy
 import java.util.function.BiConsumer
 import java.util.function.Function
-import org.chromium.support_lib_boundary.WebContentBoundaryInterface
-import org.chromium.support_lib_boundary.WebContentConfig
-import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil
+import org.chromium.support_lib_boundary.web.WebContentBoundaryInterface
+import org.chromium.support_lib_boundary.web.WebContentConfig
 
 /** Creates and configures a [WebContent] instance. */
 @JvmSynthetic
@@ -189,13 +189,10 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
         /** Builds a [WebContent] instance. */
         @NonNull
         public fun build(): WebContent {
-            val factory = WebGlueCommunicator.factory
-            val contentHandler = factory.buildWebContent(::transfer)
             val contentBoundary =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                    WebContentBoundaryInterface::class.java,
-                    contentHandler,
-                )!!
+                WebGlueCommunicator.factory
+                    .buildWebContent(::transfer)
+                    .asProxy<WebContentBoundaryInterface>()
 
             return WebContent(contentBoundary)
         }

@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
-    <!-- Ignore RestrictedApiAndroidX warnings when accessing internal webkit boundary classes. -->
-    <!-- androidx.web acts as a sibling to androidx.webkit and safely assumes this responsibility. -->
-    <issue id="RestrictedApiAndroidX">
-        <ignore regexp=".*androidx\.webkit\:webkit.*" />
+    <!-- UnknownNullness is configured as fatal in buildSrc, so the catch-all
+         ignore below does not cover it. Explicitly ignore it for external Chromium code. -->
+    <issue id="UnknownNullness">
+        <ignore path="**/org/chromium/support_lib_boundary/**" />
+    </issue>
+
+    <!-- Ignore all other warnings (e.g. BanNullMarked) for external Chromium code. -->
+    <issue id="all">
+        <ignore path="**/org/chromium/support_lib_boundary/**" />
     </issue>
 </lint>
-
