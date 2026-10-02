@@ -133,12 +133,15 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
                 rubyScale = 0.5f,
             )
 
-        val bodyLayout = StaticLayout.Builder.obtain("", 0, 0, paint, 0).build()
+        val bodyLayout =
+            StaticLayout.Builder.obtain("", 0, 0, paint, 0).setIncludePad(false).build()
         val rubyPaint = TextPaint(paint).apply { textSize *= 0.5f }
         val expectedRubyWidth =
             ceil(Layout.getDesiredWidth(ruby, 0, ruby.length, rubyPaint)).toInt()
         val rubyLayout =
-            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, expectedRubyWidth).build()
+            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, expectedRubyWidth)
+                .setIncludePad(false)
+                .build()
         val rubyLineHeight = rubyLayout.getLineDescent(0) - rubyLayout.getLineAscent(0)
 
         val fm = Paint.FontMetricsInt()
@@ -167,10 +170,14 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
             )
 
         val bodyLayout =
-            StaticLayout.Builder.obtain(text, 0, text.length, paint, Int.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(text, 0, text.length, paint, Int.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         val rubyPaint = TextPaint(paint).apply { textSize *= 0.5f }
         val rubyLayout =
-            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, Int.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, Int.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         val rubyLineHeight = rubyLayout.getLineDescent(0) - rubyLayout.getLineAscent(0)
 
         val fm = Paint.FontMetricsInt()
@@ -198,10 +205,14 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
             )
 
         val bodyLayout =
-            StaticLayout.Builder.obtain(text, 0, text.length, paint, Int.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(text, 0, text.length, paint, Int.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         val rubyPaint = TextPaint(paint).apply { textSize *= 0.5f }
         val rubyLayout =
-            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, Int.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, Int.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         val rubyLineHeight = rubyLayout.getLineDescent(0) - rubyLayout.getLineAscent(0)
 
         val fm = Paint.FontMetricsInt()
@@ -228,12 +239,15 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
                 rubyScale = 0.5f,
             )
 
-        val bodyLayout = StaticLayout.Builder.obtain("", 0, 0, paint, 0).build()
+        val bodyLayout =
+            StaticLayout.Builder.obtain("", 0, 0, paint, 0).setIncludePad(false).build()
         val rubyPaint = TextPaint(paint).apply { textSize *= 0.5f }
         val expectedRubyWidth =
             ceil(Layout.getDesiredWidth(ruby, 0, ruby.length, rubyPaint)).toInt()
         val rubyLayout =
-            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, expectedRubyWidth).build()
+            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, expectedRubyWidth)
+                .setIncludePad(false)
+                .build()
         val rubyLineHeight = rubyLayout.getLineDescent(0) - rubyLayout.getLineAscent(0)
 
         val fm = Paint.FontMetricsInt()
@@ -264,10 +278,14 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
 
         val refTextPaint = TextPaint().apply { set(plainPaint) }
         val bodyLayout =
-            StaticLayout.Builder.obtain(text, 0, text.length, refTextPaint, Int.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(text, 0, text.length, refTextPaint, Int.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         val rubyPaint = TextPaint(refTextPaint).apply { textSize *= 0.5f }
         val rubyLayout =
-            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, Int.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, Int.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         val rubyLineHeight = rubyLayout.getLineDescent(0) - rubyLayout.getLineAscent(0)
 
         val fm = Paint.FontMetricsInt()
@@ -296,12 +314,15 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
             )
 
         val refTextPaint = TextPaint().apply { set(plainPaint) }
-        val bodyLayout = StaticLayout.Builder.obtain("", 0, 0, refTextPaint, 0).build()
+        val bodyLayout =
+            StaticLayout.Builder.obtain("", 0, 0, refTextPaint, 0).setIncludePad(false).build()
         val rubyPaint = TextPaint(refTextPaint).apply { textSize *= 0.5f }
         val expectedRubyWidth =
             ceil(Layout.getDesiredWidth(ruby, 0, ruby.length, rubyPaint)).toInt()
         val rubyLayout =
-            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, expectedRubyWidth).build()
+            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, expectedRubyWidth)
+                .setIncludePad(false)
+                .build()
         val rubyLineHeight = rubyLayout.getLineDescent(0) - rubyLayout.getLineAscent(0)
 
         val fm = Paint.FontMetricsInt()
@@ -330,12 +351,15 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
             )
 
         val refTextPaint = TextPaint().apply { set(plainPaint) }
-        val bodyLayout = StaticLayout.Builder.obtain("", 0, 0, refTextPaint, 0).build()
+        val bodyLayout =
+            StaticLayout.Builder.obtain("", 0, 0, refTextPaint, 0).setIncludePad(false).build()
         val rubyPaint = TextPaint(refTextPaint).apply { textSize *= 0.5f }
         val expectedRubyWidth =
             ceil(Layout.getDesiredWidth(ruby, 0, ruby.length, rubyPaint)).toInt()
         val rubyLayout =
-            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, expectedRubyWidth).build()
+            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, expectedRubyWidth)
+                .setIncludePad(false)
+                .build()
         val rubyLineHeight = rubyLayout.getLineDescent(0) - rubyLayout.getLineAscent(0)
 
         val fm = Paint.FontMetricsInt()
@@ -435,10 +459,14 @@ class HorizontalRubySpanLayoutKexVerifiedTest {
 
         val refTextPaint = TextPaint().apply { set(plainPaint) }
         val bodyLayout =
-            StaticLayout.Builder.obtain(text, 0, text.length, refTextPaint, Int.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(text, 0, text.length, refTextPaint, Int.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         val rubyPaint = TextPaint(refTextPaint).apply { textSize *= 0.5f }
         val rubyLayout =
-            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, Int.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(ruby, 0, ruby.length, rubyPaint, Int.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         val rubyLineHeight = rubyLayout.getLineDescent(0) - rubyLayout.getLineAscent(0)
 
         val fm = Paint.FontMetricsInt()

@@ -88,6 +88,7 @@ internal class HorizontalRubySpanLayout(
                     workPaint,
                     bodyWidth,
                 )
+                .setIncludePad(false)
                 .build()
 
         // Create Ruby Layout
@@ -97,7 +98,9 @@ internal class HorizontalRubySpanLayout(
         // MetricAffectingSpan spans to the paint that it passes to RubySpan.
         rubyLayout =
             workPaint.withTextScale(rubyScale) {
-                StaticLayout.Builder.obtain(rubyText, 0, rubyText.length, this, rubyWidth).build()
+                StaticLayout.Builder.obtain(rubyText, 0, rubyText.length, this, rubyWidth)
+                    .setIncludePad(false)
+                    .build()
             }
     }
 

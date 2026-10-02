@@ -31,6 +31,7 @@ import android.text.style.SuperscriptSpan
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.ceil
 import kotlin.math.max
 import org.junit.Before
@@ -100,9 +101,12 @@ class HorizontalRubySpanLayoutTest {
                 1.0f,
             )
         val bodyLayout =
-            StaticLayout.Builder.obtain(text, 0, text.length, paint, Integer.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(text, 0, text.length, paint, Integer.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         val rubyLayout =
             StaticLayout.Builder.obtain(rubyText, 0, rubyText.length, paint, Integer.MAX_VALUE)
+                .setIncludePad(false)
                 .build()
 
         val bodyAscent = bodyLayout.getLineAscent(0)
@@ -115,6 +119,61 @@ class HorizontalRubySpanLayoutTest {
         assertThat(fm.descent).isEqualTo(bodyDescent)
         assertThat(fm.top).isEqualTo(bodyAscent - rubyLineHeight)
         assertThat(fm.bottom).isEqualTo(bodyDescent)
+    }
+
+    @Test
+    fun fillFontMetrics_usesAscentAndDescentWithoutFontPadding() {
+        val rubyScale = 0.5f
+        val basePaint = TextPaint().apply { textSize = 100f }
+        val bodyFm = basePaint.fontMetricsInt
+        val rubyFm = TextPaint(basePaint).apply { textSize *= rubyScale }.fontMetricsInt
+        // Precondition: the default font has non-zero padding beyond ascent and descent, so this
+        // test cannot pass vacuously if font padding is included.
+        assertWithMessage("font padding above body ascent")
+            .that(bodyFm.top)
+            .isLessThan(bodyFm.ascent)
+        assertWithMessage("font padding below body descent")
+            .that(bodyFm.bottom)
+            .isGreaterThan(bodyFm.descent)
+        assertWithMessage("font padding above ruby ascent")
+            .that(rubyFm.top)
+            .isLessThan(rubyFm.ascent)
+        assertWithMessage("font padding below ruby descent")
+            .that(rubyFm.bottom)
+            .isGreaterThan(rubyFm.descent)
+        val rubyLineHeight = rubyFm.descent - rubyFm.ascent
+
+        val beforeFm = Paint.FontMetricsInt()
+        HorizontalRubySpanLayout(
+                text,
+                0,
+                text.length,
+                rubyText,
+                AnnotationPosition.Before,
+                basePaint,
+                rubyScale,
+            )
+            .fillFontMetrics(beforeFm)
+        assertThat(beforeFm.ascent).isEqualTo(bodyFm.ascent - rubyLineHeight)
+        assertThat(beforeFm.descent).isEqualTo(bodyFm.descent)
+        assertThat(beforeFm.top).isEqualTo(beforeFm.ascent)
+        assertThat(beforeFm.bottom).isEqualTo(beforeFm.descent)
+
+        val afterFm = Paint.FontMetricsInt()
+        HorizontalRubySpanLayout(
+                text,
+                0,
+                text.length,
+                rubyText,
+                AnnotationPosition.After,
+                basePaint,
+                rubyScale,
+            )
+            .fillFontMetrics(afterFm)
+        assertThat(afterFm.ascent).isEqualTo(bodyFm.ascent)
+        assertThat(afterFm.descent).isEqualTo(bodyFm.descent + rubyLineHeight)
+        assertThat(afterFm.top).isEqualTo(afterFm.ascent)
+        assertThat(afterFm.bottom).isEqualTo(afterFm.descent)
     }
 
     @Test
