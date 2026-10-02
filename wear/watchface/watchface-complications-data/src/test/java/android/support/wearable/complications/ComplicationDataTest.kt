@@ -1558,6 +1558,196 @@ public class ComplicationDataTest {
         assertThat(deserialized).isEqualTo(data)
     }
 
+    @Test
+    fun stripExtras_clearsExtrasAfterParcelRoundTrip() {
+        val extras = PersistableBundle().apply { putInt("oem.secret", 1) }
+        val data =
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(plainText("text"))
+                .setExtras(extras)
+                .build()
+
+        val p1 = Parcel.obtain()
+        data.writeToParcel(p1, 0)
+        p1.setDataPosition(0)
+        val received = ComplicationData.CREATOR.createFromParcel(p1)
+        p1.recycle()
+
+        assertThat(received.extras.getInt("oem.secret")).isEqualTo(1)
+
+        received.stripExtras()
+        assertThat(received.extras.isEmpty).isTrue()
+
+        val p2 = Parcel.obtain()
+        received.writeToParcel(p2, 0)
+        p2.setDataPosition(0)
+        val forwarded = ComplicationData.CREATOR.createFromParcel(p2)
+        p2.recycle()
+
+        assertThat(forwarded.extras.isEmpty).isTrue()
+    }
+
+    @Test
+    fun stripExtras_clearsCachedBundleWhenNotUnparcelled() {
+        val extras = PersistableBundle().apply { putInt("oem.secret", 1) }
+        val data =
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(plainText("text"))
+                .setExtras(extras)
+                .build()
+
+        // Cache _bundle by writing to parcel prior to stripExtras
+        val p1 = Parcel.obtain()
+        data.writeToParcel(p1, 0)
+        p1.recycle()
+
+        data.stripExtras()
+        assertThat(data.extras.isEmpty).isTrue()
+
+        val p2 = Parcel.obtain()
+        data.writeToParcel(p2, 0)
+        p2.setDataPosition(0)
+        val forwarded = ComplicationData.CREATOR.createFromParcel(p2)
+        p2.recycle()
+
+        assertThat(forwarded.extras.isEmpty).isTrue()
+    }
+
+    @Test
+    fun stripExtras_clearsExtrasInListEntries() {
+        val extras = PersistableBundle().apply { putInt("oem.secret", 1) }
+        val item =
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(plainText("item"))
+                .setExtras(extras)
+                .build()
+        val listData =
+            ComplicationData.Builder(ComplicationData.EXP_TYPE_LIST)
+                .setListEntryCollection(listOf(item))
+                .build()
+
+        val p1 = Parcel.obtain()
+        listData.writeToParcel(p1, 0)
+        p1.setDataPosition(0)
+        val received = ComplicationData.CREATOR.createFromParcel(p1)
+        p1.recycle()
+
+        assertThat(received.listEntries?.first()?.extras?.getInt("oem.secret")).isEqualTo(1)
+
+        received.stripExtras()
+        assertThat(received.listEntries?.first()?.extras?.isEmpty).isTrue()
+
+        val p2 = Parcel.obtain()
+        received.writeToParcel(p2, 0)
+        p2.setDataPosition(0)
+        val forwarded = ComplicationData.CREATOR.createFromParcel(p2)
+        p2.recycle()
+
+        assertThat(forwarded.listEntries?.first()?.extras?.isEmpty).isTrue()
+    }
+
+    @Test
+    fun stripExtras_clearsExtrasInTimelineEntries() {
+        val extras = PersistableBundle().apply { putInt("oem.secret", 1) }
+        val timelineEntry =
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(plainText("timeline_entry"))
+                .setExtras(extras)
+                .build()
+        timelineEntry.timelineStartEpochSecond = 100
+        timelineEntry.timelineEndEpochSecond = 1000
+        val data =
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(plainText("base"))
+                .build()
+        data.setTimelineEntryCollection(listOf(timelineEntry))
+
+        val p1 = Parcel.obtain()
+        data.writeToParcel(p1, 0)
+        p1.setDataPosition(0)
+        val received = ComplicationData.CREATOR.createFromParcel(p1)
+        p1.recycle()
+
+        assertThat(received.timelineEntries?.first()?.extras?.getInt("oem.secret")).isEqualTo(1)
+
+        received.stripExtras()
+        assertThat(received.timelineEntries?.first()?.extras?.isEmpty).isTrue()
+
+        val p2 = Parcel.obtain()
+        received.writeToParcel(p2, 0)
+        p2.setDataPosition(0)
+        val forwarded = ComplicationData.CREATOR.createFromParcel(p2)
+        p2.recycle()
+
+        assertThat(forwarded.timelineEntries?.first()?.extras?.isEmpty).isTrue()
+    }
+
+    @Test
+    fun stripExtras_clearsExtrasInPlaceholder() {
+        val extras = PersistableBundle().apply { putInt("oem.secret", 1) }
+        val placeholder =
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(plainText("placeholder"))
+                .setExtras(extras)
+                .build()
+        val data =
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setPlaceholder(placeholder)
+                .build()
+
+        val p1 = Parcel.obtain()
+        data.writeToParcel(p1, 0)
+        p1.setDataPosition(0)
+        val received = ComplicationData.CREATOR.createFromParcel(p1)
+        p1.recycle()
+
+        assertThat(received.placeholder?.extras?.getInt("oem.secret")).isEqualTo(1)
+
+        received.stripExtras()
+        assertThat(received.placeholder?.extras?.isEmpty).isTrue()
+
+        val p2 = Parcel.obtain()
+        received.writeToParcel(p2, 0)
+        p2.setDataPosition(0)
+        val forwarded = ComplicationData.CREATOR.createFromParcel(p2)
+        p2.recycle()
+
+        assertThat(forwarded.placeholder?.extras?.isEmpty).isTrue()
+    }
+
+    @Test
+    fun stripExtras_clearsExtrasInInvalidatedData() {
+        val extras = PersistableBundle().apply { putInt("oem.secret", 1) }
+        val invalidatedData =
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(plainText("invalidated"))
+                .setExtras(extras)
+                .build()
+        val data =
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setInvalidatedData(invalidatedData)
+                .build()
+
+        val p1 = Parcel.obtain()
+        data.writeToParcel(p1, 0)
+        p1.setDataPosition(0)
+        val received = ComplicationData.CREATOR.createFromParcel(p1)
+        p1.recycle()
+
+        assertThat(received.invalidatedData?.extras?.getInt("oem.secret")).isEqualTo(1)
+
+        received.stripExtras()
+        assertThat(received.invalidatedData?.extras?.isEmpty).isTrue()
+
+        val p2 = Parcel.obtain()
+        received.writeToParcel(p2, 0)
+        p2.setDataPosition(0)
+        val forwarded = ComplicationData.CREATOR.createFromParcel(p2)
+        p2.recycle()
+
+        assertThat(forwarded.invalidatedData?.extras?.isEmpty).isTrue()
+    }
+
     private companion object {
         val TEST_CONTENT_DESCRIPTION: CharSequence = "This is a test description!"
         const val TEST_LONG_TITLE = "what a long title such a long title"
