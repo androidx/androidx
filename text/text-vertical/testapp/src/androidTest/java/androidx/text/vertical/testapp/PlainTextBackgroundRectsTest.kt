@@ -50,7 +50,7 @@ class PlainTextBackgroundRectsTest {
     }
 
     @Test
-    fun plainText_returnsOneBoxFromFontTopToFontBottom() {
+    fun plainText_returnsOneBoxFromAscentToDescent() {
         val text = SpannableString("abc")
         val layout = layoutOf(text)
 
@@ -199,8 +199,8 @@ class PlainTextBackgroundRectsTest {
     /**
      * Asserts that [rect] covers the text from [start] to [end] on [line].
      *
-     * The top and the bottom of [rect] are at the top and the bottom of [metrics] from the baseline
-     * of [line].
+     * The top and the bottom of [rect] are at the ascent and the descent of [metrics] from the
+     * baseline of [line].
      */
     private fun assertBox(
         rect: RectF,
@@ -219,8 +219,8 @@ class PlainTextBackgroundRectsTest {
             }
         assertThat(rect.left).isEqualTo(layout.getPrimaryHorizontal(start))
         assertThat(rect.right).isEqualTo(expectedRight)
-        assertThat(rect.top).isEqualTo(baseline + metrics.top)
-        assertThat(rect.bottom).isEqualTo(baseline + metrics.bottom)
+        assertThat(rect.top).isEqualTo(baseline + metrics.ascent)
+        assertThat(rect.bottom).isEqualTo(baseline + metrics.descent)
     }
 
     /**
