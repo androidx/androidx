@@ -122,6 +122,8 @@ internal object BackupActionWireProtocol {
                     if (value != null) {
                         put(BackupActionInputKeys.VALUE, value.toString())
                         put(BackupActionInputKeys.VALUE_TYPE, valueTypeOf(value))
+                    } else {
+                        put(BackupActionInputKeys.EXPECT_NULL, "true")
                     }
                 }
             is StorageDomain.Database -> {
@@ -168,12 +170,10 @@ internal object BackupActionWireProtocol {
     fun assertArgs(storage: StorageDomain): Map<String, String> =
         populateArgs(storage) +
             when (storage) {
+                // A null value already carries EXPECT_NULL from populateArgs.
                 is StorageDomain.Preference ->
-                    if (storage.value != null) {
-                        mapOf(BackupActionInputKeys.EXPECTED to storage.value.toString())
-                    } else {
-                        mapOf(BackupActionInputKeys.EXPECT_NULL to "true")
-                    }
+                    storage.value?.let { mapOf(BackupActionInputKeys.EXPECTED to it.toString()) }
+                        ?: emptyMap()
                 is StorageDomain.Database -> {
                     // populateArgs already carries the primary key and every column in VALUES,
                     // which the action verifies. The first column is also sent on its own, which

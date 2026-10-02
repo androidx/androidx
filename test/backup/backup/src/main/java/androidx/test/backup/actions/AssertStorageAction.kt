@@ -39,10 +39,6 @@ import androidx.test.backup.BackupActionValues.DEFAULT_PREF_NAME
 import androidx.test.backup.BackupActionValues.STORAGE_TYPE_DATABASE
 import androidx.test.backup.BackupActionValues.STORAGE_TYPE_FILES
 import androidx.test.backup.BackupActionValues.STORAGE_TYPE_PREFS
-import androidx.test.backup.BackupActionValues.VALUE_TYPE_BOOLEAN
-import androidx.test.backup.BackupActionValues.VALUE_TYPE_FLOAT
-import androidx.test.backup.BackupActionValues.VALUE_TYPE_INT
-import androidx.test.backup.BackupActionValues.VALUE_TYPE_LONG
 import androidx.test.backup.BackupActionValues.VALUE_TYPE_STRING
 import androidx.test.backup.BackupDeviceAction
 import androidx.test.backup.BackupDeviceActionArgs
@@ -83,46 +79,62 @@ public class AssertStorageAction : BackupDeviceAction {
                                 "Missing '$PREF_KEY' argument for PREFS verification."
                             )
 
-                    val expectNull = args[EXPECT_NULL]?.toBoolean() ?: false
                     val sharedPrefs =
                         targetContext.getSharedPreferences(prefName, Context.MODE_PRIVATE)
-                    val valueType = args[VALUE_TYPE]?.uppercase() ?: VALUE_TYPE_STRING
-
-                    val actual =
-                        if (!sharedPrefs.contains(key)) {
-                            null
-                        } else {
-                            when (valueType) {
-                                VALUE_TYPE_INT -> sharedPrefs.getInt(key, 0).toString()
-                                VALUE_TYPE_LONG -> sharedPrefs.getLong(key, 0L).toString()
-                                VALUE_TYPE_FLOAT -> sharedPrefs.getFloat(key, 0.0f).toString()
-                                VALUE_TYPE_BOOLEAN -> sharedPrefs.getBoolean(key, false).toString()
-                                VALUE_TYPE_STRING -> sharedPrefs.getString(key, null)
-                                else ->
-                                    return failure("Unsupported $VALUE_TYPE: ${args[VALUE_TYPE]}")
-                            }
-                        }
-
-                    if (expectNull) {
-                        if (actual == null) {
+                    // Absence is checked before any typed read, so a key stored with an
+                    // unexpected type is reported as present rather than as a type mismatch.
+                    if (args[EXPECT_NULL]?.toBoolean() == true) {
+                        return if (!sharedPrefs.contains(key)) {
                             BackupDeviceActionResult.success()
                         } else {
                             failure(
-                                "Expected preference '$key' to be absent (null), but found '$actual'"
+                                "Expected preference '$key' in '$prefName' to be absent, but " +
+                                    "found '${sharedPrefs.all[key]}'."
                             )
                         }
-                    } else {
-                        val expected =
-                            args[EXPECTED]
-                                ?: args[VALUE]
-                                ?: return failure(
-                                    "Missing '$EXPECTED' or '$VALUE' argument for PREFS verification."
-                                )
-                        if (actual == expected) {
-                            BackupDeviceActionResult.success()
-                        } else {
-                            failure("Expected '$expected' but found '$actual'")
+                    }
+
+                    val expectedRaw =
+                        args[EXPECTED]
+                            ?: args[VALUE]
+                            ?: return failure(
+                                "Missing '$EXPECTED' or '$VALUE' argument for PREFS verification."
+                            )
+                    val valueType = args[VALUE_TYPE] ?: VALUE_TYPE_STRING
+                    val expected =
+                        try {
+                            parsePreferenceValue(expectedRaw, valueType)
+                        } catch (e: IllegalArgumentException) {
+                            return failure(e.message ?: "Invalid expected preference value.")
                         }
+                    if (!sharedPrefs.contains(key)) {
+                        return failure(
+                            "Preference '$key' not found in '$prefName'; expected '$expected'."
+                        )
+                    }
+                    val actual =
+                        try {
+                            when (expected) {
+                                is Int -> sharedPrefs.getInt(key, 0)
+                                is Long -> sharedPrefs.getLong(key, 0L)
+                                is Float -> sharedPrefs.getFloat(key, 0.0f)
+                                is Boolean -> sharedPrefs.getBoolean(key, false)
+                                is String -> sharedPrefs.getString(key, null)
+                                else -> error("Unexpected parsed preference value: $expected")
+                            }
+                        } catch (e: ClassCastException) {
+                            return failure(
+                                "Preference '$key' in '$prefName' is not of expected type " +
+                                    "${valueType.uppercase()}: ${e.message}"
+                            )
+                        }
+                    if (actual == expected) {
+                        BackupDeviceActionResult.success()
+                    } else {
+                        failure(
+                            "Preference '$key' in '$prefName': expected '$expected' " +
+                                "but found '$actual'."
+                        )
                     }
                 }
 
