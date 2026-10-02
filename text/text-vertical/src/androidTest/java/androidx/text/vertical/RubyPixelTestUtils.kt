@@ -64,7 +64,9 @@ internal object RubyPixel {
     fun lineMetrics(paint: TextPaint, text: CharSequence, scale: Float): Pair<Int, Int> {
         val scaledPaint = TextPaint(paint).apply { textSize *= scale }
         val layout =
-            StaticLayout.Builder.obtain(text, 0, text.length, scaledPaint, Int.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(text, 0, text.length, scaledPaint, Int.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         return layout.getLineAscent(0) to layout.getLineDescent(0)
     }
 }

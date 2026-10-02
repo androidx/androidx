@@ -182,7 +182,9 @@ class HorizontalEmphasisAnnotationPositionTest {
     /** Body metrics, measured independently of the layout under test. */
     private fun bodyMetrics(): Paint.FontMetricsInt {
         val bodyLayout =
-            StaticLayout.Builder.obtain(text, 0, BASE_TEXT.length, paint, Integer.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(text, 0, BASE_TEXT.length, paint, Integer.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         return Paint.FontMetricsInt().apply {
             ascent = bodyLayout.getLineAscent(0)
             descent = bodyLayout.getLineDescent(0)
@@ -201,6 +203,7 @@ class HorizontalEmphasisAnnotationPositionTest {
                     scaledPaint,
                     Integer.MAX_VALUE,
                 )
+                .setIncludePad(false)
                 .build()
         return markLayout.getLineDescent(0) - markLayout.getLineAscent(0)
     }

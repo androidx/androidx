@@ -30,6 +30,7 @@ import android.text.style.SuperscriptSpan
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.ceil
 import org.junit.Before
 import org.junit.Test
@@ -97,7 +98,9 @@ class HorizontalEmphasisSpanLayoutTest {
                 1.0f,
             )
         val bodyLayout =
-            StaticLayout.Builder.obtain(text, 0, text.length, paint, Integer.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(text, 0, text.length, paint, Integer.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         val emLayout =
             StaticLayout.Builder.obtain(
                     emphasisMark,
@@ -106,6 +109,7 @@ class HorizontalEmphasisSpanLayoutTest {
                     paint,
                     Integer.MAX_VALUE,
                 )
+                .setIncludePad(false)
                 .build()
 
         val bodyAscent = bodyLayout.getLineAscent(0)
@@ -118,6 +122,61 @@ class HorizontalEmphasisSpanLayoutTest {
         assertThat(fm.descent).isEqualTo(bodyDescent)
         assertThat(fm.top).isEqualTo(bodyAscent - emLineHeight)
         assertThat(fm.bottom).isEqualTo(bodyDescent)
+    }
+
+    @Test
+    fun fillFontMetrics_usesAscentAndDescentWithoutFontPadding() {
+        val relSize = 0.5f
+        val basePaint = TextPaint().apply { textSize = 100f }
+        val bodyFm = basePaint.fontMetricsInt
+        val markFm = TextPaint(basePaint).apply { textSize *= relSize }.fontMetricsInt
+        // Precondition: the default font has non-zero padding beyond ascent and descent, so this
+        // test cannot pass vacuously if font padding is included.
+        assertWithMessage("font padding above body ascent")
+            .that(bodyFm.top)
+            .isLessThan(bodyFm.ascent)
+        assertWithMessage("font padding below body descent")
+            .that(bodyFm.bottom)
+            .isGreaterThan(bodyFm.descent)
+        assertWithMessage("font padding above mark ascent")
+            .that(markFm.top)
+            .isLessThan(markFm.ascent)
+        assertWithMessage("font padding below mark descent")
+            .that(markFm.bottom)
+            .isGreaterThan(markFm.descent)
+        val markLineHeight = markFm.descent - markFm.ascent
+
+        val beforeFm = Paint.FontMetricsInt()
+        HorizontalEmphasisSpanLayout(
+                text,
+                0,
+                text.length,
+                emphasisMark,
+                AnnotationPosition.Before,
+                basePaint,
+                relSize,
+            )
+            .fillFontMetrics(beforeFm)
+        assertThat(beforeFm.ascent).isEqualTo(bodyFm.ascent - markLineHeight)
+        assertThat(beforeFm.descent).isEqualTo(bodyFm.descent)
+        assertThat(beforeFm.top).isEqualTo(beforeFm.ascent)
+        assertThat(beforeFm.bottom).isEqualTo(beforeFm.descent)
+
+        val afterFm = Paint.FontMetricsInt()
+        HorizontalEmphasisSpanLayout(
+                text,
+                0,
+                text.length,
+                emphasisMark,
+                AnnotationPosition.After,
+                basePaint,
+                relSize,
+            )
+            .fillFontMetrics(afterFm)
+        assertThat(afterFm.ascent).isEqualTo(bodyFm.ascent)
+        assertThat(afterFm.descent).isEqualTo(bodyFm.descent + markLineHeight)
+        assertThat(afterFm.top).isEqualTo(afterFm.ascent)
+        assertThat(afterFm.bottom).isEqualTo(afterFm.descent)
     }
 
     // A relative size of 1.0f cannot show a scaling defect, because scaled and unscaled
@@ -311,7 +370,9 @@ class HorizontalEmphasisSpanLayoutTest {
                 relSize,
             )
         val bodyLayout =
-            StaticLayout.Builder.obtain(text, 0, text.length, basePaint, Integer.MAX_VALUE).build()
+            StaticLayout.Builder.obtain(text, 0, text.length, basePaint, Integer.MAX_VALUE)
+                .setIncludePad(false)
+                .build()
         val scaledPaint = TextPaint(basePaint).apply { textSize = basePaint.textSize * relSize }
         val markLayout =
             StaticLayout.Builder.obtain(
@@ -321,6 +382,7 @@ class HorizontalEmphasisSpanLayoutTest {
                     scaledPaint,
                     Integer.MAX_VALUE,
                 )
+                .setIncludePad(false)
                 .build()
         val markLineHeight = markLayout.getLineDescent(0) - markLayout.getLineAscent(0)
 
@@ -360,7 +422,9 @@ class HorizontalEmphasisSpanLayoutTest {
             )
         val bodyWidth = ceil(Layout.getDesiredWidth(text, 0, text.length, basePaint)).toInt()
         val bodyLayout =
-            StaticLayout.Builder.obtain(text, 0, text.length, basePaint, bodyWidth).build()
+            StaticLayout.Builder.obtain(text, 0, text.length, basePaint, bodyWidth)
+                .setIncludePad(false)
+                .build()
         val scaledPaint = TextPaint(basePaint).apply { textSize = basePaint.textSize * relSize }
         val emphasisWidth =
             ceil(Layout.getDesiredWidth(emphasisMark, 0, emphasisMark.length, scaledPaint)).toInt()
@@ -372,6 +436,7 @@ class HorizontalEmphasisSpanLayoutTest {
                     scaledPaint,
                     emphasisWidth,
                 )
+                .setIncludePad(false)
                 .build()
         val markedIndices = (0 until text.length).filter { isEmphasisTarget(text[it].code) }
         val expectedXs = markedIndices.map { i ->
