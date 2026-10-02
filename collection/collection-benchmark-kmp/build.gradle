@@ -31,6 +31,9 @@ plugins {
 
 androidXMultiplatform {
     ios()
+    js {
+        nodejs()
+    }
     mac()
     linux()
 
@@ -39,7 +42,8 @@ androidXMultiplatform {
             dependencies {
                 implementation(project(":collection:collection"))
                 implementation(libs.kotlinBenchmarkRuntime)
-                implementation(libs.kotlinTest)
+                // commonMain assertions need kotlin-test's JS ABI to match the Kotlin compiler.
+                implementation("org.jetbrains.kotlin:kotlin-test:${libs.versions.kotlin.get()}")
             }
         }
     }
@@ -56,14 +60,17 @@ benchmark {
 
     targets {
         if (HostManager.hostIsLinux) {
+            register("js")
             register("linuxX64")
         }
 
         if (HostManager.host == KonanTarget.MACOS_X64) {
+            register("js")
             register("macosX64")
         }
 
-        if (HostManager.host == KonanTarget.MACOS_ARM64) {
+        if (HostManager.host == KonanTarget.MACOS_ARM64.INSTANCE) {
+            register("js")
             register("macosArm64")
         }
     }
@@ -72,4 +79,3 @@ benchmark {
 androidx {
     type = SoftwareType.UNSET
 }
-
