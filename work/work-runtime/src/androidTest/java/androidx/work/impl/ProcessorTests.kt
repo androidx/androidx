@@ -28,7 +28,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.work.Configuration
 import androidx.work.DatabaseTest
 import androidx.work.ForegroundInfo
@@ -118,7 +117,6 @@ class ProcessorTests : DatabaseTest() {
         processor = Processor(context, configuration, taskExecutor, mDatabase)
     }
 
-    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testInterruptNotInCriticalSection() {
@@ -160,7 +158,6 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(context.intents.isEmpty())
     }
 
-    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testStartForegroundStopWork() {
@@ -182,7 +179,6 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(executionFinished.await(3, TimeUnit.SECONDS))
     }
 
-    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testInterruptStopsService() {
@@ -206,7 +202,6 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(intent.filterEquals(stopIntentExpected))
     }
 
-    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testStartOldGenerationDoesntStopCurrentWorker() {
@@ -232,7 +227,6 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(executionFinished.await(3, TimeUnit.SECONDS))
     }
 
-    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testStartNewGenerationDoesntStopCurrentWorker() {
@@ -259,7 +253,6 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(executionFinished.await(3, TimeUnit.SECONDS))
     }
 
-    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testOldGenerationDoesntStart() {
@@ -280,7 +273,6 @@ class ProcessorTests : DatabaseTest() {
         assertTrue(called)
     }
 
-    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testListenerCanModifyListDuringRunOnExecuted() {
@@ -321,7 +313,6 @@ class ProcessorTests : DatabaseTest() {
         assertFalse(firstListenerCalled)
     }
 
-    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testListenerCanModifyListDuringOnExecuted() {
@@ -385,7 +376,6 @@ class ProcessorTests : DatabaseTest() {
         assertFalse(firstListenerCalled)
     }
 
-    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testForegroundStart_notifiesListener() = runBlocking {
@@ -419,7 +409,6 @@ class ProcessorTests : DatabaseTest() {
         withTimeout(3000) { executionFinished.await() }
     }
 
-    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testExecutionFinishes_notifiesForegroundListener() = runBlocking {
@@ -455,7 +444,6 @@ class ProcessorTests : DatabaseTest() {
         assertFalse(foregroundState)
     }
 
-    @SdkSuppress(minSdkVersion = 25) // b/560357724
     @Test
     @MediumTest
     fun testStopForegroundWork_notifiesListener() = runBlocking {
@@ -495,10 +483,36 @@ class ProcessorTests : DatabaseTest() {
 
     @After
     fun tearDown() {
+        // Workers first: they are what enqueues follow up work onto the task executor.
         defaultExecutor.shutdownNow()
-        backgroundExecutor.shutdownNow()
         assertTrue(defaultExecutor.awaitTermination(3, TimeUnit.SECONDS))
+        // Then drain before shutting the task executor down. Shutting its delegate down while
+        // SerialExecutorImpl still holds queued work makes it hand a task to a dead executor, and
+        // that rejection surfaces on the task executor's own thread, where no caller can catch it,
+        // so it kills the test process instead of failing a test. b/560357724
+        awaitSerialExecutorIdle()
+        backgroundExecutor.shutdownNow()
         assertTrue(backgroundExecutor.awaitTermination(3, TimeUnit.SECONDS))
+    }
+
+    /**
+     * Blocks until the task executor has run everything queued on it.
+     *
+     * A single barrier isn't enough, because a drained task can enqueue more work behind the
+     * barrier. The runnable re-posts itself until it finds the queue empty.
+     */
+    private fun awaitSerialExecutorIdle() {
+        val drained = CountDownLatch(1)
+        lateinit var idleRunnable: Runnable
+        idleRunnable = Runnable {
+            if (serialExecutor.hasPendingTasks()) {
+                serialExecutor.execute(idleRunnable)
+            } else {
+                drained.countDown()
+            }
+        }
+        serialExecutor.execute(idleRunnable)
+        assertTrue(drained.await(TIMEOUT_SECONDS, TimeUnit.SECONDS))
     }
 
     private class TrackingContext(base: Context) : ContextWrapper(base) {
@@ -515,5 +529,11 @@ class ProcessorTests : DatabaseTest() {
             // simply track it
             return startService(service)
         }
+    }
+
+    private companion object {
+        // Satisfied immediately in the happy path; the bound exists so a regression fails the
+        // test rather than hanging it.
+        const val TIMEOUT_SECONDS = 10L
     }
 }
