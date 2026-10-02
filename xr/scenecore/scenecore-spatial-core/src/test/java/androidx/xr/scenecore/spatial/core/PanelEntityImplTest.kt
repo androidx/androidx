@@ -578,6 +578,40 @@ class PanelEntityImplTest : AndroidXrEntityImplTest() {
         Truth.assertThat(childView.parent).isNull()
     }
 
+    @Test
+    fun setSize_notifiesSetSizeCompleteListener() {
+        val panelEntity = createPanelEntity(K_VGA_RESOLUTION_PX)
+        var observedSize: Dimensions? = null
+        val listener = Runnable { observedSize = panelEntity.size }
+        panelEntity.addOnSetSizeCompleteListener(fakeExecutor, listener)
+
+        panelEntity.size = Dimensions(0.4f, 0.3f, 0f)
+        Truth.assertThat(panelEntity.isWaitingForSetSize).isTrue()
+
+        fakeExecutor.runAll()
+
+        Truth.assertThat(observedSize).isEqualTo(Dimensions(0.4f, 0.3f, 0f))
+        Truth.assertThat(panelEntity.isWaitingForSetSize).isFalse()
+    }
+
+    @Test
+    fun dispose_clearsSetSizeCompleteListeners() {
+        val panelEntity = createPanelEntity(K_VGA_RESOLUTION_PX)
+        var listenerInvoked = false
+        val listener = Runnable { listenerInvoked = true }
+        panelEntity.addOnSetSizeCompleteListener(fakeExecutor, listener)
+
+        panelEntity.size = Dimensions(0.4f, 0.3f, 0f)
+        Truth.assertThat(panelEntity.isWaitingForSetSize).isTrue()
+
+        panelEntity.dispose()
+        Truth.assertThat(panelEntity.isWaitingForSetSize).isFalse()
+
+        fakeExecutor.runAll()
+
+        Truth.assertThat(listenerInvoked).isFalse()
+    }
+
     companion object {
         private val K_VGA_RESOLUTION_PX = Dimensions(640f, 480f, 0f)
         private val K_HD_RESOLUTION_PX = Dimensions(1280f, 720f, 0f)
