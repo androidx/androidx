@@ -19,14 +19,18 @@ package androidx.appsearch.localstorage.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.stats.BaseStats;
 import androidx.appsearch.stats.SchemaMigrationStats;
+import androidx.collection.ArraySet;
 
 import com.google.android.icing.proto.PersistType;
 import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 public class AppSearchStatsTest {
@@ -167,6 +171,9 @@ public class AppSearchStatsTest {
                 + "  numIcingCalls=2\n"
                 + "}";
         assertThat(cStats.toString()).isEqualTo(expectedString);
+
+        final CallStats copyCStats = new CallStats.Builder(cStats).build();
+        assertThat(copyCStats.toString()).isEqualTo(expectedString);
     }
 
     @Test
@@ -715,6 +722,10 @@ public class AppSearchStatsTest {
                 + "}";
         assertThat(qStats.toString()).isEqualTo(expectedString);
         assertThat(qStats.getGetVmLatencyMillis()).isEqualTo(getVmLatencyMillis);
+
+        final QueryStats copyQStats = new QueryStats.Builder(qStats).build();
+        assertThat(copyQStats.toString()).isEqualTo(expectedString);
+        assertThat(copyQStats.getGetVmLatencyMillis()).isEqualTo(getVmLatencyMillis);
     }
 
     @Test
@@ -1291,4 +1302,233 @@ public class AppSearchStatsTest {
                 + "}";
         assertThat(pStats.toString()).isEqualTo(expectedString);
     }
+
+    @Test
+    public void testCallStats_accumulate() {
+        CallStats callStats1 =
+                new CallStats.Builder()
+                        // BaseStats fields
+                        .setLaunchVmEnabled(true)
+                        .setLaunchAiSealEnabled(true)
+                        .setJavaLockAcquisitionLatencyMillis(10)
+                        .setLastBlockingOperation(BaseStats.CALL_TYPE_PUT_DOCUMENTS)
+                        .setLastBlockingOperationLatencyMillis(20)
+                        .addGetVmLatencyMillis(5)
+                        .setUnblockedAppSearchLatencyMillis(30)
+                        // CallStats fields
+                        .setPackageName("com.example.package")
+                        .setDatabase("testDb")
+                        .setCallType(CallStats.CALL_TYPE_SEARCH)
+                        .setStatusCode(AppSearchResult.RESULT_OK)
+                        .setTotalLatencyMillis(100)
+                        .setEstimatedBinderLatencyMillis(15)
+                        .setNumOperationsSucceeded(5)
+                        .setNumOperationsFailed(1)
+                        .setCallReceivedTimestampMillis(123456789L)
+                        .setLastCallTypeHoldExecutor(CallStats.CALL_TYPE_SEARCH)
+                        .setExecutorAcquisitionLatencyMillis(8)
+                        .setOnExecutorLatencyMillis(50)
+                        .setGetUserInstanceLatency(12)
+                        .setPvmBinderLatency(6)
+                        .addIcingSearchEngineRequestBytes(200)
+                        .addIcingSearchEngineResponseBytes(500)
+                        .addAppSearchRequestBytes(300)
+                        .addAppSearchResponseBytes(600)
+                        .build();
+
+        CallStats callStats2 =
+                new CallStats.Builder()
+                        // BaseStats fields
+                        .setUnblockedAppSearchLatencyMillis(40)
+                        // CallStats fields
+                        .setStatusCode(AppSearchResult.RESULT_OK)
+                        .setTotalLatencyMillis(60)
+                        .setEstimatedBinderLatencyMillis(10)
+                        .setNumOperationsSucceeded(3)
+                        .setNumOperationsFailed(2)
+                        .setExecutorAcquisitionLatencyMillis(5)
+                        .setOnExecutorLatencyMillis(30)
+                        .setGetUserInstanceLatency(7)
+                        .setPvmBinderLatency(4)
+                        .addIcingSearchEngineRequestBytes(100)
+                        .addIcingSearchEngineResponseBytes(250)
+                        .addAppSearchRequestBytes(150)
+                        .addAppSearchResponseBytes(350)
+                        .build();
+
+        CallStats result = CallStats.accumulate(callStats1, callStats2);
+
+        // Verify preserved BaseStats fields
+        assertThat(result.getJavaLockAcquisitionLatencyMillis()).isEqualTo(10);
+        assertThat(result.getLastBlockingOperation()).isEqualTo(BaseStats.CALL_TYPE_PUT_DOCUMENTS);
+        assertThat(result.getLastBlockingOperationLatencyMillis()).isEqualTo(20);
+        assertThat(result.getGetVmLatencyMillis()).isEqualTo(5);
+        assertThat(result.getNumIcingCalls()).isEqualTo(1);
+        assertThat(
+                        BaseStats.areFeaturesOn(
+                                result.getEnabledFeatures(),
+                                Collections.singletonList(BaseStats.LAUNCH_VM)))
+                .isTrue();
+
+        // Verify preserved CallStats fields
+        assertThat(result.getPackageName()).isEqualTo("com.example.package");
+        assertThat(result.getDatabase()).isEqualTo("testDb");
+        assertThat(result.getCallType()).isEqualTo(CallStats.CALL_TYPE_SEARCH);
+        assertThat(result.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
+        assertThat(result.getCallReceivedTimestampMillis()).isEqualTo(123456789L);
+        assertThat(result.getLastCallTypeHoldExecutor()).isEqualTo(CallStats.CALL_TYPE_SEARCH);
+
+        // Verify accumulated fields
+        assertThat(result.getTotalLatencyMillis()).isEqualTo(100 + 60);
+        assertThat(result.getEstimatedBinderLatencyMillis()).isEqualTo(15 + 10);
+        assertThat(result.getNumOperationsSucceeded()).isEqualTo(5 + 3);
+        assertThat(result.getNumOperationsFailed()).isEqualTo(1 + 2);
+        assertThat(result.getExecutorAcquisitionLatencyMillis()).isEqualTo(8 + 5);
+        assertThat(result.getOnExecutorLatencyMillis()).isEqualTo(50 + 30);
+        assertThat(result.getGetUserInstanceLatencyMillis()).isEqualTo(12 + 7);
+        assertThat(result.getPvmBinderLatencyMillis()).isEqualTo(6 + 4);
+        assertThat(result.getIcingSearchEngineRequestBytes()).isEqualTo(200 + 100);
+        assertThat(result.getIcingSearchEngineResponseBytes()).isEqualTo(500 + 250);
+        assertThat(result.getAppSearchRequestBytes()).isEqualTo(300 + 150);
+        assertThat(result.getAppSearchResponseBytes()).isEqualTo(600 + 350);
+        assertThat(result.getUnblockedAppSearchLatencyMillis()).isEqualTo(30 + 40);
+    }
+
+    @Test
+    public void testQueryStats_accumulate() {
+        Set<String> schemas1 = new ArraySet<>(Arrays.asList("SchemaA", "SchemaB"));
+        SearchStats parentStats = new SearchStats.Builder().build();
+        SearchStats childStats = new SearchStats.Builder().build();
+        QueryStats queryStats1 =
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, "com.example.query")
+                        // BaseStats fields
+                        .setLaunchVmEnabled(true)
+                        .setLaunchAiSealEnabled(true)
+                        .setJavaLockAcquisitionLatencyMillis(11)
+                        .setLastBlockingOperation(BaseStats.CALL_TYPE_PUT_DOCUMENT)
+                        .setLastBlockingOperationLatencyMillis(22)
+                        .addGetVmLatencyMillis(7)
+                        .setUnblockedAppSearchLatencyMillis(35)
+                        // QueryStats fields
+                        .setDatabase("queryDb")
+                        .setStatusCode(AppSearchResult.RESULT_OK)
+                        .setTotalLatencyMillis(200)
+                        .setRewriteSearchSpecLatencyMillis(10)
+                        .setRewriteSearchResultLatencyMillis(12)
+                        .setAclCheckLatencyMillis(14)
+                        .setSearchSourceLogTag("logTag")
+                        .setIsFirstPage(true)
+                        .setParentSearchStats(parentStats)
+                        .setChildSearchStats(childStats)
+                        .setAdditionalPageCount(0)
+                        .setRequestedPageSize(10)
+                        .setCurrentPageReturnedResultCount(10)
+                        .setAdditionalPagesReturnedResultCount(0)
+                        .setNativeLatencyMillis(100)
+                        .setFirstNativeCallLatency(50)
+                        .setAdditionalPageRetrievalLatencyMillis(0)
+                        .setRankingLatencyMillis(25)
+                        .setDocumentRetrievingLatencyMillis(30)
+                        .setResultWithSnippetsCount(8)
+                        .setNativeLockAcquisitionLatencyMillis(5)
+                        .setJavaToNativeJniLatencyMillis(6)
+                        .setNativeToJavaJniLatencyMillis(7)
+                        .setNativeJoinLatencyMillis(15)
+                        .setNativeNumJoinedResultsCurrentPage(3)
+                        .setJoinType(
+                                AppSearchSchema.StringPropertyConfig
+                                        .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .setLiteIndexHitBufferByteSize(1024)
+                        .setLiteIndexHitBufferUnsortedByteSize(512)
+                        .setPageTokenType(QueryStats.PAGE_TOKEN_TYPE_VALID)
+                        .setNumResultStatsEvicted(1)
+                        .setResultSchemas(schemas1)
+                        .build();
+
+        Set<String> schemas2 = new ArraySet<>(Arrays.asList("SchemaB", "SchemaC"));
+        QueryStats queryStats2 =
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, "com.example.query")
+                        .setDatabase("queryDb")
+                        // BaseStats fields
+                        .setUnblockedAppSearchLatencyMillis(45)
+                        // QueryStats fields
+                        .setStatusCode(AppSearchResult.RESULT_OK)
+                        .setTotalLatencyMillis(150)
+                        .setRewriteSearchSpecLatencyMillis(5)
+                        .setRewriteSearchResultLatencyMillis(6)
+                        .setAclCheckLatencyMillis(7)
+                        .setAdditionalPageCount(1)
+                        .setCurrentPageReturnedResultCount(5)
+                        .setAdditionalPagesReturnedResultCount(5)
+                        .setNativeLatencyMillis(80)
+                        .setFirstNativeCallLatency(0)
+                        .setAdditionalPageRetrievalLatencyMillis(40)
+                        .setRankingLatencyMillis(20)
+                        .setDocumentRetrievingLatencyMillis(25)
+                        .setResultWithSnippetsCount(4)
+                        .setNativeLockAcquisitionLatencyMillis(3)
+                        .setJavaToNativeJniLatencyMillis(4)
+                        .setNativeToJavaJniLatencyMillis(5)
+                        .setNativeJoinLatencyMillis(10)
+                        .setNativeNumJoinedResultsCurrentPage(2)
+                        .setPageTokenType(QueryStats.PAGE_TOKEN_TYPE_EMPTY)
+                        .setNumResultStatsEvicted(2)
+                        .setResultSchemas(schemas2)
+                        .build();
+
+        QueryStats result = QueryStats.accumulate(queryStats1, queryStats2);
+
+        // Verify preserved BaseStats fields
+        assertThat(result.getJavaLockAcquisitionLatencyMillis()).isEqualTo(11);
+        assertThat(result.getLastBlockingOperation()).isEqualTo(BaseStats.CALL_TYPE_PUT_DOCUMENT);
+        assertThat(result.getLastBlockingOperationLatencyMillis()).isEqualTo(22);
+        assertThat(result.getGetVmLatencyMillis()).isEqualTo(7);
+        assertThat(result.getNumIcingCalls()).isEqualTo(1);
+        assertThat(
+                        BaseStats.areFeaturesOn(
+                                result.getEnabledFeatures(),
+                                Collections.singletonList(BaseStats.LAUNCH_VM)))
+                .isTrue();
+
+        // Verify preserved QueryStats fields
+        assertThat(result.getPackageName()).isEqualTo("com.example.query");
+        assertThat(result.getDatabase()).isEqualTo("queryDb");
+        assertThat(result.getVisibilityScope()).isEqualTo(QueryStats.VISIBILITY_SCOPE_LOCAL);
+        assertThat(result.getSearchSourceLogTag()).isEqualTo("logTag");
+        assertThat(result.isFirstPage()).isTrue();
+        assertThat(result.getParentSearchStats()).isEqualTo(parentStats);
+        assertThat(result.getChildSearchStats()).isEqualTo(childStats);
+        assertThat(result.getRequestedPageSize()).isEqualTo(10);
+        assertThat(result.getJoinType())
+                .isEqualTo(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
+        assertThat(result.getLiteIndexHitBufferByteSize()).isEqualTo(1024);
+        assertThat(result.getLiteIndexHitBufferUnsortedByteSize()).isEqualTo(512);
+
+        // Verify accumulated fields
+        assertThat(result.getTotalLatencyMillis()).isEqualTo(200 + 150);
+        assertThat(result.getRewriteSearchSpecLatencyMillis()).isEqualTo(10 + 5);
+        assertThat(result.getRewriteSearchResultLatencyMillis()).isEqualTo(12 + 6);
+        assertThat(result.getAclCheckLatencyMillis()).isEqualTo(14 + 7);
+        assertThat(result.getNativeLatencyMillis()).isEqualTo(100 + 80);
+        assertThat(result.getFirstNativeCallLatencyMillis()).isEqualTo(50 + 0);
+        assertThat(result.getAdditionalPageRetrievalLatencyMillis()).isEqualTo(0 + 40);
+        assertThat(result.getRankingLatencyMillis()).isEqualTo(25 + 20);
+        assertThat(result.getDocumentRetrievingLatencyMillis()).isEqualTo(30 + 25);
+        assertThat(result.getResultWithSnippetsCount()).isEqualTo(8 + 4);
+        assertThat(result.getNativeLockAcquisitionLatencyMillis()).isEqualTo(5 + 3);
+        assertThat(result.getJavaToNativeJniLatencyMillis()).isEqualTo(6 + 4);
+        assertThat(result.getNativeToJavaJniLatencyMillis()).isEqualTo(7 + 5);
+        assertThat(result.getJoinLatencyMillis()).isEqualTo(15 + 10);
+        assertThat(result.getNumJoinedResultsCurrentPage()).isEqualTo(3 + 2);
+        assertThat(result.getAdditionalPageCount()).isEqualTo(0 + 1);
+        assertThat(result.getCurrentPageReturnedResultCount()).isEqualTo(10 + 5);
+        assertThat(result.getAdditionalPagesReturnedResultCount()).isEqualTo(0 + 5);
+        assertThat(result.getNumResultStatesEvicted()).isEqualTo(1 + 2);
+        assertThat(result.getUnblockedAppSearchLatencyMillis()).isEqualTo(35 + 45);
+
+        // Verify latest pageTokenType and merged schemas
+        assertThat(result.getPageTokenType()).isEqualTo(QueryStats.PAGE_TOKEN_TYPE_EMPTY);
+        assertThat(result.getResultSchemas()).containsExactly("SchemaA", "SchemaB", "SchemaC");
+    }
 }
+

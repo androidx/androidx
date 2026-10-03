@@ -1086,8 +1086,11 @@ public class AppSearchLoggerTest {
                         .setRankingStrategy(SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP)
                         .build();
         String queryStr = "testPut e";
+        QueryStats.Builder queryStatsBuilder =
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, testPackageName)
+                        .setDatabase(testDatabase);
         SearchResultPage searchResultPage = mAppSearchImpl.query(testPackageName, testDatabase,
-                queryStr, searchSpec, /*logger=*/ mLogger,
+                queryStr, searchSpec, queryStatsBuilder,
                 /*callStatsBuilder=*/null);
 
         assertThat(searchResultPage.getResults()).hasSize(2);
@@ -1095,7 +1098,7 @@ public class AppSearchLoggerTest {
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document2);
         assertThat(searchResultPage.getResults().get(1).getGenericDocument()).isEqualTo(document1);
 
-        QueryStats sStats = mLogger.mQueryStats;
+        QueryStats sStats = queryStatsBuilder.build();
 
         assertThat(sStats).isNotNull();
         // If the process goes really fast, the total latency could be 0. Since the default of total
@@ -1151,13 +1154,16 @@ public class AppSearchLoggerTest {
                         .addFilterPackageNames("anotherPackage")
                         .build();
 
+        QueryStats.Builder queryStatsBuilder =
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, testPackageName)
+                        .setDatabase(testPackageName);
         mAppSearchImpl.query(testPackageName,
                 testPackageName,
                 /* queryExpression= */ "",
-                searchSpec, /*logger=*/ mLogger,
+                searchSpec, queryStatsBuilder,
                 /*callStatsBuilder=*/null);
 
-        QueryStats sStats = mLogger.mQueryStats;
+        QueryStats sStats = queryStatsBuilder.build();
         assertThat(sStats).isNotNull();
         assertThat(sStats.getPackageName()).isEqualTo(testPackageName);
         assertThat(sStats.getDatabase()).isEqualTo(testPackageName);
@@ -1294,15 +1300,18 @@ public class AppSearchLoggerTest {
                 .build();
 
         String queryStr = "entity";
+        QueryStats.Builder queryStatsBuilder =
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, testPackageName)
+                        .setDatabase(testDatabase);
         SearchResultPage searchResultPage = mAppSearchImpl.query(testPackageName, testDatabase,
-                queryStr, searchSpec, /*logger=*/ mLogger,
+                queryStr, searchSpec, queryStatsBuilder,
                 /*callStatsBuilder=*/null);
 
         assertThat(searchResultPage.getResults()).hasSize(2);
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(entity1);
         assertThat(searchResultPage.getResults().get(1).getGenericDocument()).isEqualTo(entity2);
 
-        QueryStats sStats = mLogger.mQueryStats;
+        QueryStats sStats = queryStatsBuilder.build();
 
         assertThat(sStats).isNotNull();
 

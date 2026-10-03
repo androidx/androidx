@@ -29,6 +29,7 @@ import org.jspecify.annotations.NonNull;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Encapsulates base statistics information for AppSearch results.
@@ -365,6 +366,24 @@ public class BaseStats {
         @SuppressWarnings("unchecked")
         public Builder() {
             mBuilderTypeInstance = (BuilderType) this;
+        }
+
+        /**
+         * Copy constructor for {@link BaseStats.Builder}.
+         *
+         * @param baseStats The {@link BaseStats} to copy from.
+         */
+        @SuppressWarnings("unchecked")
+        public Builder(@NonNull BaseStats baseStats) {
+            Objects.requireNonNull(baseStats);
+            mBuilderTypeInstance = (BuilderType) this;
+            mEnabledFeatures = baseStats.getEnabledFeatures();
+            mJavaLockAcquisitionLatencyMillis = baseStats.getJavaLockAcquisitionLatencyMillis();
+            mLastBlockingOperation = baseStats.getLastBlockingOperation();
+            mLastBlockingOperationLatencyMillis = baseStats.getLastBlockingOperationLatencyMillis();
+            mGetVmLatencyMillis = baseStats.getGetVmLatencyMillis();
+            mUnblockedAppSearchLatencyMillis = baseStats.getUnblockedAppSearchLatencyMillis();
+            mNumIcingCalls = baseStats.getNumIcingCalls();
         }
 
         /** Sets bitmask for enable the vm features . */

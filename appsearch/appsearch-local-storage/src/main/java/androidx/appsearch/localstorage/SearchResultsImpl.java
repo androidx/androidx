@@ -91,18 +91,32 @@ class SearchResultsImpl implements SearchResults {
             SearchResultPage searchResultPage;
             if (mIsFirstLoad) {
                 mIsFirstLoad = false;
+                QueryStats.Builder sStatsBuilder = null;
                 if (mDatabaseName == null) {
                     mVisibilityScope = QueryStats.VISIBILITY_SCOPE_GLOBAL;
+                    if (mLogger != null) {
+                        sStatsBuilder =
+                                new QueryStats.Builder(mVisibilityScope, mPackageName);
+                    }
                     // Global queries aren't restricted to a single database
                     searchResultPage = mAppSearchImpl.globalQuery(
-                            mQueryExpression, mSearchSpec, mSelfCallerAccess, mLogger,
+                            mQueryExpression, mSearchSpec, mSelfCallerAccess, sStatsBuilder,
                             /*callStatsBuilder=*/null);
                 } else {
                     mVisibilityScope = QueryStats.VISIBILITY_SCOPE_LOCAL;
+                    if (mLogger != null) {
+                        sStatsBuilder =
+                                new QueryStats.Builder(mVisibilityScope, mPackageName)
+                                        .setDatabase(mDatabaseName);
+                    }
                     // Normal local query, pass in specified database.
                     searchResultPage = mAppSearchImpl.query(
-                            mPackageName, mDatabaseName, mQueryExpression, mSearchSpec, mLogger,
+                            mPackageName, mDatabaseName, mQueryExpression, mSearchSpec,
+                            sStatsBuilder,
                             /*callStatsBuilder=*/null);
+                }
+                if (mLogger != null && sStatsBuilder != null) {
+                    mLogger.logStats(sStatsBuilder.build());
                 }
             } else {
                 if (mNextPageToken == SearchResultPage.EMPTY_PAGE_TOKEN) {

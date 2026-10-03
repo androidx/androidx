@@ -2990,7 +2990,7 @@ public final class AppSearchImpl implements Closeable {
      * @param databaseName    The databaseName this query for.
      * @param queryExpression Query String to search.
      * @param searchSpec      Spec for setting filters, raw query etc.
-     * @param logger          logger to collect query stats
+     * @param queryStatsBuilder Optional builder for QueryStats.
      * @return The results of performing this search. It may contain an empty list of results if
      * no documents matched the query.
      * @throws AppSearchException on IcingSearchEngine error.
@@ -3000,28 +3000,25 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String databaseName,
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec,
-            @Nullable AppSearchLogger logger,
+            QueryStats.@Nullable Builder queryStatsBuilder,
             CallStats.@Nullable Builder callStatsBuilder) throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
-        QueryStats.Builder sStatsBuilder = null;
 
         long javaLockAcquisitionEndTimeMillis = 0;
         mReadWriteLock.readLock().lock();
         try {
             javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
-            if (logger != null) {
-                sStatsBuilder =
-                        new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, packageName)
-                                .setDatabase(databaseName)
-                                .setSearchSourceLogTag(searchSpec.getSearchSourceLogTag())
-                                .setLaunchVmEnabled(mLaunchVmFeatures.isVmEnabled())
-                                .setLaunchAiSealEnabled(mLaunchVmFeatures.isAiSealEnabled())
-                                .setLastBlockingOperation(mLastWriteOperationLocked)
-                                .setLastBlockingOperationLatencyMillis(
-                                        mLastWriteOperationLatencyMillisLocked)
-                                .setJavaLockAcquisitionLatencyMillis(
-                                        (int) (javaLockAcquisitionEndTimeMillis
-                                                - totalLatencyStartMillis));
+            if (queryStatsBuilder != null) {
+                queryStatsBuilder
+                        .setSearchSourceLogTag(searchSpec.getSearchSourceLogTag())
+                        .setLaunchVmEnabled(mLaunchVmFeatures.isVmEnabled())
+                        .setLaunchAiSealEnabled(mLaunchVmFeatures.isAiSealEnabled())
+                        .setLastBlockingOperation(mLastWriteOperationLocked)
+                        .setLastBlockingOperationLatencyMillis(
+                                mLastWriteOperationLatencyMillisLocked)
+                        .setJavaLockAcquisitionLatencyMillis(
+                                (int) (javaLockAcquisitionEndTimeMillis
+                                        - totalLatencyStartMillis));
             }
             if (callStatsBuilder != null) {
                 callStatsBuilder.setLastBlockingOperation(mLastWriteOperationLocked)
@@ -3034,8 +3031,8 @@ public final class AppSearchImpl implements Closeable {
             if (!filterPackageNames.isEmpty() && !filterPackageNames.contains(packageName)) {
                 // Client wanted to query over some packages that weren't its own. This isn't
                 // allowed through local query so we can return early with no results.
-                if (sStatsBuilder != null && logger != null) {
-                    sStatsBuilder.setStatusCode(RESULT_SECURITY_ERROR);
+                if (queryStatsBuilder != null) {
+                    queryStatsBuilder.setStatusCode(RESULT_SECURITY_ERROR);
                 }
                 return new SearchResultPage();
             }
@@ -3054,7 +3051,7 @@ public final class AppSearchImpl implements Closeable {
             SearchResultPage searchResultPage =
                     doQueryLocked(
                             searchSpecToProtoConverter,
-                            sStatsBuilder,
+                            queryStatsBuilder,
                             callStatsBuilder);
             addNextPageToken(packageName, searchResultPage.getNextPageToken());
             return searchResultPage;
@@ -3065,10 +3062,9 @@ public final class AppSearchImpl implements Closeable {
                     BaseStats.CALL_TYPE_SEARCH,
                     callStatsBuilder);
             mReadWriteLock.readLock().unlock();
-            if (sStatsBuilder != null && logger != null) {
-                sStatsBuilder.setTotalLatencyMillis(
+            if (queryStatsBuilder != null) {
+                queryStatsBuilder.setTotalLatencyMillis(
                         (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
-                logger.logStats(sStatsBuilder.build());
             }
         }
     }
@@ -3082,7 +3078,7 @@ public final class AppSearchImpl implements Closeable {
      * @param queryExpression Query String to search.
      * @param searchSpec      Spec for setting filters, raw query etc.
      * @param callerAccess    Visibility access info of the calling app
-     * @param logger          logger to collect globalQuery stats
+     * @param queryStatsBuilder Optional builder for QueryStats.
      * @return The results of performing this search. It may contain an empty list of results if
      * no documents matched the query.
      * @throws AppSearchException on IcingSearchEngine error.
@@ -3091,29 +3087,25 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec,
             @NonNull CallerAccess callerAccess,
-            @Nullable AppSearchLogger logger,
+            QueryStats.@Nullable Builder queryStatsBuilder,
             CallStats.@Nullable Builder callStatsBuilder) throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
-        QueryStats.Builder sStatsBuilder = null;
 
         long javaLockAcquisitionEndTimeMillis = 0;
         mReadWriteLock.readLock().lock();
         try {
             javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
-            if (logger != null) {
-                sStatsBuilder =
-                        new QueryStats.Builder(
-                                QueryStats.VISIBILITY_SCOPE_GLOBAL,
-                                callerAccess.getCallingPackageName())
-                                .setSearchSourceLogTag(searchSpec.getSearchSourceLogTag())
-                                .setLaunchVmEnabled(mLaunchVmFeatures.isVmEnabled())
-                                .setLaunchAiSealEnabled(mLaunchVmFeatures.isAiSealEnabled())
-                                .setLastBlockingOperation(mLastWriteOperationLocked)
-                                .setLastBlockingOperationLatencyMillis(
-                                        mLastWriteOperationLatencyMillisLocked)
-                                .setJavaLockAcquisitionLatencyMillis(
-                                        (int) (javaLockAcquisitionEndTimeMillis
-                                                - totalLatencyStartMillis));
+            if (queryStatsBuilder != null) {
+                queryStatsBuilder
+                        .setSearchSourceLogTag(searchSpec.getSearchSourceLogTag())
+                        .setLaunchVmEnabled(mLaunchVmFeatures.isVmEnabled())
+                        .setLaunchAiSealEnabled(mLaunchVmFeatures.isAiSealEnabled())
+                        .setLastBlockingOperation(mLastWriteOperationLocked)
+                        .setLastBlockingOperationLatencyMillis(
+                                mLastWriteOperationLatencyMillisLocked)
+                        .setJavaLockAcquisitionLatencyMillis(
+                                (int) (javaLockAcquisitionEndTimeMillis
+                                        - totalLatencyStartMillis));
             }
             if (callStatsBuilder != null) {
                 callStatsBuilder.setLastBlockingOperation(mLastWriteOperationLocked)
@@ -3169,14 +3161,14 @@ public final class AppSearchImpl implements Closeable {
                 // empty SearchResult and skip sending request to Icing.
                 return new SearchResultPage();
             }
-            if (sStatsBuilder != null) {
-                sStatsBuilder.setAclCheckLatencyMillis(
+            if (queryStatsBuilder != null) {
+                queryStatsBuilder.setAclCheckLatencyMillis(
                         (int) (SystemClock.elapsedRealtime() - aclLatencyStartMillis));
             }
             SearchResultPage searchResultPage =
                     doQueryLocked(
                             searchSpecToProtoConverter,
-                            sStatsBuilder,
+                            queryStatsBuilder,
                             callStatsBuilder);
             addNextPageToken(
                     callerAccess.getCallingPackageName(), searchResultPage.getNextPageToken());
@@ -3189,10 +3181,9 @@ public final class AppSearchImpl implements Closeable {
                     callStatsBuilder);
             mReadWriteLock.readLock().unlock();
 
-            if (sStatsBuilder != null && logger != null) {
-                sStatsBuilder.setTotalLatencyMillis(
+            if (queryStatsBuilder != null) {
+                queryStatsBuilder.setTotalLatencyMillis(
                         (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
-                logger.logStats(sStatsBuilder.build());
             }
         }
     }
