@@ -18,6 +18,7 @@ package androidx.biometric.internal.viewmodel
 
 import android.content.DialogInterface
 import android.graphics.Bitmap
+import android.os.Build
 import androidx.biometric.AuthenticationRequest.Biometric.Fallback
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -173,13 +174,22 @@ internal class AuthenticationViewModel(
     private val fallbackOptions: List<Fallback>
         get() = promptConfigRepository.fallbackOptionList
 
+    /** Checks if a single custom option is set alongside a device credential. */
+    private val isCustomOptionWithDeviceCredential: Boolean
+        get() =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&
+                Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1 &&
+                AuthenticatorUtils.isSomeBiometricAllowed(allowedAuthenticators) &&
+                AuthenticatorUtils.isDeviceCredentialAllowed(allowedAuthenticators) &&
+                fallbackOptions.singleOrNull() is Fallback.CustomOption
+
     /** List of options if multiple exist; otherwise null. */
     val multipleFallbackOptionList: List<Fallback>?
-        get() = fallbackOptions.takeIf { it.size > 1 }
+        get() = fallbackOptions.takeIf { it.size > 1 || isCustomOptionWithDeviceCredential }
 
     /** The single fallback option if exactly one exists. */
     val singleFallbackOption: Fallback?
-        get() = fallbackOptions.singleOrNull()
+        get() = fallbackOptions.singleOrNull()?.takeUnless { isCustomOptionWithDeviceCredential }
 
     /** Checks if the single option is a device credential override. */
     val isOverriddenDeviceCredential: Boolean
