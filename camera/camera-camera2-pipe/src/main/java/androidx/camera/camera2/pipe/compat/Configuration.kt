@@ -163,6 +163,7 @@ internal class AndroidOutputConfiguration(
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
             physicalCameraId: CameraId? = null,
+            useReadoutTimestamp: Boolean? = null,
         ): OutputConfigurationWrapper? {
             // Create the OutputConfiguration using the groupId via the constructor (if set)
             val configuration: OutputConfiguration
@@ -277,6 +278,17 @@ internal class AndroidOutputConfiguration(
                         "Cannot add sensorPixelModeUsed value on API ${Build.VERSION.SDK_INT}. " +
                             "This may result in unexpected behavior. Requested $sensorPixelModes"
                     }
+                }
+            }
+
+            if (useReadoutTimestamp != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    Api34Compat.setReadoutTimestampEnabled(configuration, useReadoutTimestamp)
+                } else {
+                    throw IllegalStateException(
+                        "useReadoutTimestamp is not supported on API ${Build.VERSION.SDK_INT} " +
+                            "(requires API 34)"
+                    )
                 }
             }
 

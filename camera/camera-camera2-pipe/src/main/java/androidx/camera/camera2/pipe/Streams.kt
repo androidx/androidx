@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.OutputStream.MirrorMode.Companion.MIRROR_MOD
 import androidx.camera.camera2.pipe.OutputStream.StreamUseCase.Companion.DEFAULT
 import androidx.camera.camera2.pipe.OutputStream.TimestampBase.Companion.TIMESTAMP_BASE_DEFAULT
 import androidx.camera.camera2.pipe.compat.Api33Compat
+import androidx.camera.camera2.pipe.compat.Api34Compat
 
 /**
  * A [CameraStream] is used on a [CameraGraph] to control what outputs that graph produces.
@@ -102,7 +103,7 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
                 streamUseHint: OutputStream.StreamUseHint? = null,
                 sensorPixelModes: List<OutputStream.SensorPixelMode> = emptyList(),
                 imageSourceConfig: ImageSourceConfig? = null,
-                useReadoutTimestamp: Boolean = false,
+                useReadoutTimestamp: Boolean? = null,
             ): Config =
                 create(
                     OutputStream.Config.create(
@@ -192,10 +193,10 @@ public interface OutputStream {
         public val streamUseCase: StreamUseCase?,
         public val streamUseHint: StreamUseHint?,
         public val sensorPixelModes: List<SensorPixelMode>,
-        public val useReadoutTimestamp: Boolean = false,
+        public val useReadoutTimestamp: Boolean? = null,
     ) {
         init {
-            check(!useReadoutTimestamp || Build.VERSION.SDK_INT >= 34) {
+            check(useReadoutTimestamp == null || Build.VERSION.SDK_INT >= 34) {
                 "onReadoutStarted is not supported with API < 34"
             }
         }
@@ -212,7 +213,7 @@ public interface OutputStream {
                 streamUseCase: StreamUseCase? = null,
                 streamUseHint: StreamUseHint? = null,
                 sensorPixelModes: List<SensorPixelMode> = emptyList(),
-                useReadoutTimestamp: Boolean = false,
+                useReadoutTimestamp: Boolean? = null,
             ): Config =
                 // TODO(b/430431303): Move this lazy/non-lazy selection logic to backend
                 if (outputType.isLazilyConfigurable()) {
@@ -264,7 +265,6 @@ public interface OutputStream {
                 externalOutputConfig: OutputConfiguration,
                 streamUseHint: StreamUseHint?,
                 sensorPixelModes: List<SensorPixelMode> = emptyList(),
-                useReadoutTimestamp: Boolean = false,
             ): Config =
                 ExternalOutputConfig(
                     size,
@@ -273,7 +273,6 @@ public interface OutputStream {
                     output = externalOutputConfig,
                     streamUseHint,
                     sensorPixelModes,
-                    useReadoutTimestamp,
                 )
         }
 
@@ -288,7 +287,7 @@ public interface OutputStream {
             streamUseCase: StreamUseCase?,
             streamUseHint: StreamUseHint?,
             sensorPixelModes: List<SensorPixelMode>,
-            useReadoutTimestamp: Boolean,
+            useReadoutTimestamp: Boolean?,
         ) :
             Config(
                 size,
@@ -323,7 +322,7 @@ public interface OutputStream {
             streamUseCase: StreamUseCase?,
             streamUseHint: StreamUseHint?,
             sensorPixelModes: List<SensorPixelMode>,
-            useReadoutTimestamp: Boolean,
+            useReadoutTimestamp: Boolean?,
         ) :
             Config(
                 size,
@@ -356,7 +355,6 @@ public interface OutputStream {
             val output: OutputConfiguration,
             streamUseHint: StreamUseHint?,
             sensorPixelModes: List<SensorPixelMode>,
-            useReadoutTimestamp: Boolean,
         ) :
             Config(
                 size,
@@ -368,7 +366,8 @@ public interface OutputStream {
                 StreamUseCase(Api33Compat.getStreamUseCase(output)),
                 streamUseHint,
                 sensorPixelModes,
-                useReadoutTimestamp,
+                if (Build.VERSION.SDK_INT >= 34) Api34Compat.isReadoutTimestampEnabled(output)
+                else null,
             )
 
         override fun toString(): String {

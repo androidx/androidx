@@ -17,8 +17,11 @@
 package androidx.camera.camera2.pipe.graph
 
 import android.content.Context
+import android.graphics.SurfaceTexture
+import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.util.Size
+import android.view.Surface
 import androidx.camera.camera2.pipe.CameraBackendFactory
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
@@ -769,6 +772,135 @@ internal class StreamGraphImplTest {
         val stream2 = streamGraph[config.streamConfig8]!!
         assertThat(stream2.outputs.single().streamUseHint)
             .isEqualTo(OutputStream.StreamUseHint.VIDEO_RECORD)
+    }
+
+    @Test
+    @Config(minSdk = 34)
+    fun testDefaultAndPropagatedUseReadoutTimestamp() {
+        val unsetConfig = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
+        val explicitFalseConfig =
+            CameraStream.Config.create(
+                Size(640, 480),
+                StreamFormat.YUV_420_888,
+                useReadoutTimestamp = false,
+            )
+        val streamGraph =
+            createStreamGraphImpl(
+                config.fakeMetadata,
+                CameraGraph.Config(
+                    camera = config.fakeMetadata.camera,
+                    streams = listOf(unsetConfig, explicitFalseConfig),
+                ),
+                imageSources,
+                cameraControllerProvider,
+            )
+        cameraController.streamGraph = streamGraph
+
+        val unsetOutput = streamGraph[unsetConfig]!!.outputs.single()
+        assertThat(unsetOutput.useReadoutTimestamp).isFalse()
+        assertThat(streamGraph.outputConfigMap[unsetOutput]!!.useReadoutTimestamp).isNull()
+
+        val explicitFalseOutput = streamGraph[explicitFalseConfig]!!.outputs.single()
+        assertThat(explicitFalseOutput.useReadoutTimestamp).isFalse()
+        assertThat(streamGraph.outputConfigMap[explicitFalseOutput]!!.useReadoutTimestamp).isFalse()
+    }
+
+    @Test
+    @Config(minSdk = 34)
+    fun testUseReadoutTimestampAboveApi34() {
+        val surfaceTexture = SurfaceTexture(0)
+        val surface = Surface(surfaceTexture)
+        val preEnabledOutputConfiguration =
+            OutputConfiguration(surface).apply { setReadoutTimestampEnabled(true) }
+        val defaultOutputConfiguration = OutputConfiguration(surface)
+
+        val explicitTrueConfig =
+            CameraStream.Config.create(
+                Size(640, 480),
+                StreamFormat.YUV_420_888,
+                useReadoutTimestamp = true,
+            )
+        val externalPreEnabledConfig =
+            CameraStream.Config.create(
+                OutputStream.Config.external(
+                    Size(640, 480),
+                    StreamFormat.YUV_420_888,
+                    externalOutputConfig = preEnabledOutputConfiguration,
+                    streamUseHint = null,
+                )
+            )
+        val externalDefaultConfig =
+            CameraStream.Config.create(
+                OutputStream.Config.external(
+                    Size(640, 480),
+                    StreamFormat.YUV_420_888,
+                    externalOutputConfig = defaultOutputConfiguration,
+                    streamUseHint = null,
+                )
+            )
+        val streamGraph =
+            createStreamGraphImpl(
+                config.fakeMetadata,
+                CameraGraph.Config(
+                    camera = config.fakeMetadata.camera,
+                    streams =
+                        listOf(explicitTrueConfig, externalPreEnabledConfig, externalDefaultConfig),
+                ),
+                imageSources,
+                cameraControllerProvider,
+            )
+        cameraController.streamGraph = streamGraph
+
+        val explicitTrueOutput = streamGraph[explicitTrueConfig]!!.outputs.single()
+        assertThat(explicitTrueOutput.useReadoutTimestamp).isTrue()
+        assertThat(streamGraph.outputConfigMap[explicitTrueOutput]!!.useReadoutTimestamp).isTrue()
+
+        val externalPreEnabledOutput = streamGraph[externalPreEnabledConfig]!!.outputs.single()
+        assertThat(externalPreEnabledOutput.useReadoutTimestamp).isTrue()
+        assertThat(streamGraph.outputConfigMap[externalPreEnabledOutput]!!.useReadoutTimestamp)
+            .isTrue()
+
+        val externalDefaultOutput = streamGraph[externalDefaultConfig]!!.outputs.single()
+        assertThat(externalDefaultOutput.useReadoutTimestamp).isFalse()
+        assertThat(streamGraph.outputConfigMap[externalDefaultOutput]!!.useReadoutTimestamp)
+            .isFalse()
+
+        surface.release()
+        surfaceTexture.release()
+    }
+
+    @Test
+    @Config(sdk = [33])
+    fun testUseReadoutTimestampBelowApi34() {
+        val surfaceTexture = SurfaceTexture(0)
+        val surface = Surface(surfaceTexture)
+        val externalConfig =
+            CameraStream.Config.create(
+                OutputStream.Config.external(
+                    Size(640, 480),
+                    StreamFormat.YUV_420_888,
+                    externalOutputConfig = OutputConfiguration(surface),
+                    streamUseHint = null,
+                )
+            )
+        val streamGraph =
+            createStreamGraphImpl(
+                config.fakeMetadata,
+                CameraGraph.Config(
+                    camera = config.fakeMetadata.camera,
+                    streams = listOf(externalConfig),
+                ),
+                imageSources,
+                cameraControllerProvider,
+            )
+        cameraController.streamGraph = streamGraph
+
+        val externalOutput = streamGraph[externalConfig]!!.outputs.single()
+        assertThat(externalOutput.useReadoutTimestamp).isFalse()
+        assertThat(streamGraph.outputConfigMap[externalOutput]!!.useReadoutTimestamp).isNull()
+
+        surface.release()
+        surfaceTexture.release()
     }
 
     @Test
