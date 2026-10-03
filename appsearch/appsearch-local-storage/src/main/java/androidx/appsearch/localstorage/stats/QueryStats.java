@@ -15,8 +15,6 @@
  */
 package androidx.appsearch.localstorage.stats;
 
-import android.util.ArraySet;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
@@ -25,6 +23,7 @@ import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JoinableValueType;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.stats.BaseStats;
+import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -34,6 +33,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -404,6 +404,71 @@ public final class QueryStats extends BaseStats {
         return mResultSchemas;
     }
 
+    /**
+     * Returns a new {@link QueryStats} instance accumulating latencies, result counts, and merged
+     * schemas from {@code rhs} into {@code lhs}.
+     */
+    public static @NonNull QueryStats accumulate(@NonNull QueryStats lhs, @NonNull QueryStats rhs) {
+        Objects.requireNonNull(lhs);
+        Objects.requireNonNull(rhs);
+        Set<String> mergedSchemas = new ArraySet<>(lhs.mResultSchemas);
+        mergedSchemas.addAll(rhs.getResultSchemas());
+
+        return new Builder(lhs)
+                .setStatusCode(rhs.getStatusCode())
+                .setTotalLatencyMillis(lhs.mTotalLatencyMillis + rhs.getTotalLatencyMillis())
+                .setRewriteSearchSpecLatencyMillis(
+                        lhs.mRewriteSearchSpecLatencyMillis
+                                + rhs.getRewriteSearchSpecLatencyMillis())
+                .setRewriteSearchResultLatencyMillis(
+                        lhs.mRewriteSearchResultLatencyMillis
+                                + rhs.getRewriteSearchResultLatencyMillis())
+                .setAclCheckLatencyMillis(
+                        lhs.mAclCheckLatencyMillis + rhs.getAclCheckLatencyMillis())
+                .setNativeLatencyMillis(
+                        lhs.mNativeLatencyMillis + rhs.getNativeLatencyMillis())
+                .setFirstNativeCallLatency(
+                        lhs.mFirstNativeCallLatencyMillis + rhs.getFirstNativeCallLatencyMillis())
+                .setAdditionalPageRetrievalLatencyMillis(
+                        lhs.mAdditionalPageRetrievalLatencyMillis
+                                + rhs.getAdditionalPageRetrievalLatencyMillis())
+                .setRankingLatencyMillis(
+                        lhs.mNativeRankingLatencyMillis + rhs.getRankingLatencyMillis())
+                .setDocumentRetrievingLatencyMillis(
+                        lhs.mNativeDocumentRetrievingLatencyMillis
+                                + rhs.getDocumentRetrievingLatencyMillis())
+                .setResultWithSnippetsCount(
+                        lhs.mNativeNumResultsWithSnippets + rhs.getResultWithSnippetsCount())
+                .setNativeLockAcquisitionLatencyMillis(
+                        lhs.mNativeLockAcquisitionLatencyMillis
+                                + rhs.getNativeLockAcquisitionLatencyMillis())
+                .setJavaToNativeJniLatencyMillis(
+                        lhs.mJavaToNativeJniLatencyMillis + rhs.getJavaToNativeJniLatencyMillis())
+                .setNativeToJavaJniLatencyMillis(
+                        lhs.mNativeToJavaJniLatencyMillis + rhs.getNativeToJavaJniLatencyMillis())
+                .setNativeJoinLatencyMillis(
+                        lhs.mNativeJoinLatencyMillis + rhs.getJoinLatencyMillis())
+                .setNativeNumJoinedResultsCurrentPage(
+                        lhs.mNativeNumJoinedResultsCurrentPage
+                                + rhs.getNumJoinedResultsCurrentPage())
+                .setAdditionalPageCount(
+                        lhs.mAdditionalPageCount + rhs.getAdditionalPageCount())
+                .setCurrentPageReturnedResultCount(
+                        lhs.mNativeNumResultsReturnedCurrentPage
+                                + rhs.getCurrentPageReturnedResultCount())
+                .setAdditionalPagesReturnedResultCount(
+                        lhs.mNumResultsReturnedAdditionalPages
+                                + rhs.getAdditionalPagesReturnedResultCount())
+                .setNumResultStatsEvicted(
+                        lhs.mNumResultStatesEvicted + rhs.getNumResultStatesEvicted())
+                .setUnblockedAppSearchLatencyMillis(
+                        lhs.getUnblockedAppSearchLatencyMillis()
+                                + rhs.getUnblockedAppSearchLatencyMillis())
+                .setPageTokenType(rhs.getPageTokenType())
+                .setResultSchemas(mergedSchemas)
+                .build();
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -527,6 +592,52 @@ public final class QueryStats extends BaseStats {
         public Builder(@VisibilityScope int visibilityScope, @NonNull String packageName) {
             mVisibilityScope = visibilityScope;
             mPackageName = Preconditions.checkNotNull(packageName);
+        }
+
+        /**
+         * Copy constructor for {@link QueryStats.Builder}.
+         *
+         * @param queryStats The {@link QueryStats} to copy from.
+         */
+        public Builder(@NonNull QueryStats queryStats) {
+            super(Objects.requireNonNull(queryStats));
+            mVisibilityScope = queryStats.getVisibilityScope();
+            mPackageName = queryStats.getPackageName();
+            mDatabase = queryStats.getDatabase();
+            mStatusCode = queryStats.getStatusCode();
+            mTotalLatencyMillis = queryStats.getTotalLatencyMillis();
+            mRewriteSearchSpecLatencyMillis = queryStats.getRewriteSearchSpecLatencyMillis();
+            mRewriteSearchResultLatencyMillis = queryStats.getRewriteSearchResultLatencyMillis();
+            mAclCheckLatencyMillis = queryStats.getAclCheckLatencyMillis();
+            mSearchSourceLogTag = queryStats.getSearchSourceLogTag();
+            mNativeIsFirstPage = queryStats.isFirstPage();
+            mAdditionalPageCount = queryStats.getAdditionalPageCount();
+            mNativeRequestedPageSize = queryStats.getRequestedPageSize();
+            mNativeNumResultsReturnedCurrentPage = queryStats.getCurrentPageReturnedResultCount();
+            mNumResultsReturnedAdditionalPages = queryStats.getAdditionalPagesReturnedResultCount();
+            mNativeLatencyMillis = queryStats.getNativeLatencyMillis();
+            mFirstNativeCallLatencyMillis = queryStats.getFirstNativeCallLatencyMillis();
+            mAdditionalPageRetrievalLatencyMillis =
+                    queryStats.getAdditionalPageRetrievalLatencyMillis();
+            mNativeRankingLatencyMillis = queryStats.getRankingLatencyMillis();
+            mNativeDocumentRetrievingLatencyMillis =
+                    queryStats.getDocumentRetrievingLatencyMillis();
+            mNativeNumResultsWithSnippets = queryStats.getResultWithSnippetsCount();
+            mNativeLockAcquisitionLatencyMillis =
+                    queryStats.getNativeLockAcquisitionLatencyMillis();
+            mJavaToNativeJniLatencyMillis = queryStats.getJavaToNativeJniLatencyMillis();
+            mNativeToJavaJniLatencyMillis = queryStats.getNativeToJavaJniLatencyMillis();
+            mNativeJoinLatencyMillis = queryStats.getJoinLatencyMillis();
+            mNativeNumJoinedResultsCurrentPage = queryStats.getNumJoinedResultsCurrentPage();
+            mJoinType = queryStats.getJoinType();
+            mParentSearchStats = queryStats.getParentSearchStats();
+            mChildSearchStats = queryStats.getChildSearchStats();
+            mLiteIndexHitBufferByteSize = queryStats.getLiteIndexHitBufferByteSize();
+            mLiteIndexHitBufferUnsortedByteSize =
+                    queryStats.getLiteIndexHitBufferUnsortedByteSize();
+            mPageTokenType = queryStats.getPageTokenType();
+            mNumResultStatesEvicted = queryStats.getNumResultStatesEvicted();
+            mResultSchemas = new ArraySet<>(queryStats.getResultSchemas());
         }
 
         /** Sets the database used by the session. */

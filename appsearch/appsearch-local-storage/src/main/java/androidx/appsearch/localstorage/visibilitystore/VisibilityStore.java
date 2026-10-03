@@ -389,7 +389,7 @@ public class VisibilityStore {
                 databaseName,
                 /*queryExpression=*/ "",
                 searchSpec,
-                /*logger=*/null,
+                /*queryStatsBuilder=*/null,
                 callStatsBuilder);
         List<GenericDocument> visibilityDocuments = new ArrayList<>();
         List<SearchResult> searchResults = searchResultPage.getResults();
