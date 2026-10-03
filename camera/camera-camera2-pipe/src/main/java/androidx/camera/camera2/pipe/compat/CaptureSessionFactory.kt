@@ -450,6 +450,7 @@ internal fun buildOutputConfigurations(
                         } else {
                             null
                         },
+                    useReadoutTimestamp = outputConfig.useReadoutTimestamp,
                 )
             if (output == null) {
                 Log.warn { "Failed to create AndroidOutputConfiguration for $outputConfig" }
@@ -485,6 +486,7 @@ internal fun buildOutputConfigurations(
                     } else {
                         null
                     },
+                useReadoutTimestamp = outputConfig.useReadoutTimestamp,
             )
         if (output == null) {
             Log.warn { "Failed to create AndroidOutputConfiguration for $outputConfig" }
