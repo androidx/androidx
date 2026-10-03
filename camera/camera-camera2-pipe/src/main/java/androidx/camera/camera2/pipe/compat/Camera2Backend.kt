@@ -169,6 +169,7 @@ constructor(
                             } else {
                                 null
                             },
+                        useReadoutTimestamp = outputConfig.useReadoutTimestamp,
                     )
                     ?.unwrapAs<OutputConfiguration>()
                     ?.let { outputConfigSet.add(it) }
