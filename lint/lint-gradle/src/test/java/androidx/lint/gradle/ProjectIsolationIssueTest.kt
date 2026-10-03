@@ -177,6 +177,126 @@ class ProjectIsolationIssueTest :
     }
 
     @Test
+    fun `Test task graph APIs in Kotlin`() {
+        val input =
+            kotlin(
+                """
+                import groovy.lang.Closure
+                import org.gradle.api.Action
+                import org.gradle.api.Task
+                import org.gradle.api.execution.TaskExecutionGraph
+                import org.gradle.api.invocation.Gradle
+
+                fun configure(gradle: Gradle, task: Task, action: Action<TaskExecutionGraph>, closure: Closure) {
+                    gradle.taskGraph.hasTask(":lint")
+                    gradle.taskGraph.hasTask(task)
+                    gradle.taskGraph.whenReady(action)
+                    gradle.taskGraph.whenReady(closure)
+                }
+                """
+                    .trimIndent()
+            )
+
+        check(input)
+            .expect(
+                """
+                src/test.kt:8: Error: Avoid using method hasTask [GradleProjectIsolation]
+                    gradle.taskGraph.hasTask(":lint")
+                                     ~~~~~~~
+                src/test.kt:9: Error: Avoid using method hasTask [GradleProjectIsolation]
+                    gradle.taskGraph.hasTask(task)
+                                     ~~~~~~~
+                src/test.kt:10: Error: Avoid using method whenReady [GradleProjectIsolation]
+                    gradle.taskGraph.whenReady(action)
+                                     ~~~~~~~~~
+                src/test.kt:11: Error: Avoid using method whenReady [GradleProjectIsolation]
+                    gradle.taskGraph.whenReady(closure)
+                                     ~~~~~~~~~
+                4 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+            .expectFixDiffs("")
+    }
+
+    @Test
+    fun `Test inherited task graph APIs in Java`() {
+        val input =
+            java(
+                """
+                import groovy.lang.Closure;
+                import org.gradle.api.Action;
+                import org.gradle.api.Task;
+                import org.gradle.api.execution.TaskExecutionGraph;
+
+                abstract class CustomGraph implements TaskExecutionGraph {}
+
+                class GraphUsage {
+                    void configure(CustomGraph graph, Task task, Action<TaskExecutionGraph> action, Closure closure) {
+                        graph.hasTask(":lint");
+                        graph.hasTask(task);
+                        graph.whenReady(action);
+                        graph.whenReady(closure);
+                    }
+                }
+                """
+                    .trimIndent()
+            )
+
+        check(input)
+            .expect(
+                """
+                src/CustomGraph.java:10: Error: Avoid using method hasTask [GradleProjectIsolation]
+                        graph.hasTask(":lint");
+                              ~~~~~~~
+                src/CustomGraph.java:11: Error: Avoid using method hasTask [GradleProjectIsolation]
+                        graph.hasTask(task);
+                              ~~~~~~~
+                src/CustomGraph.java:12: Error: Avoid using method whenReady [GradleProjectIsolation]
+                        graph.whenReady(action);
+                              ~~~~~~~~~
+                src/CustomGraph.java:13: Error: Avoid using method whenReady [GradleProjectIsolation]
+                        graph.whenReady(closure);
+                              ~~~~~~~~~
+                4 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+            .expectFixDiffs("")
+    }
+
+    @Test
+    fun `Test unrelated task graph method names are allowed`() {
+        val input =
+            kotlin(
+                """
+                import org.gradle.api.Project
+                import org.gradle.api.execution.TaskExecutionGraph
+
+                class OtherGraph {
+                    fun hasTask(path: String) = false
+                    fun whenReady(action: () -> Unit) = action()
+                }
+
+                fun Project.hasTask(path: String) = false
+                fun TaskExecutionGraph.hasTask(id: Int) = false
+                fun TaskExecutionGraph.whenReady(id: Int) = Unit
+
+                fun configure(project: Project, graph: TaskExecutionGraph, other: OtherGraph) {
+                    project.hasTask("lint")
+                    graph.hasTask(1)
+                    graph.whenReady(1)
+                    other.hasTask("lint")
+                    other.whenReady { }
+                }
+                """
+                    .trimIndent()
+            )
+
+        check(input).expectClean()
+    }
+
+    @Test
     fun `Test usage of getAt on build service registrations`() {
         val input =
             kotlin(
