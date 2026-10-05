@@ -27,7 +27,7 @@ import platform.CoreGraphics.CGAffineTransformMake
 /*
  * Extensions for [AffineTransform] for use on iOS.
  *
- * `CGAffineTransform` is row-major with row vectors, structured like:
+ * [CGAffineTransform] is row-major with row vectors, structured like:
  * ```
  *   ⎡a   b    0 ⎤
  *   ⎢c   d    0 ⎥
@@ -42,7 +42,7 @@ import platform.CoreGraphics.CGAffineTransformMake
  * ```
  */
 
-/** Returns a [CValue] holding a `CGAffineTransform` with the values from this [AffineTransform]. */
+/** Returns a [CValue] holding a [CGAffineTransform] with the values from this [AffineTransform]. */
 public fun AffineTransform.toCgAffineTransform(): CValue<CGAffineTransform> =
     CGAffineTransformMake(
         a = m00.toDouble(),
