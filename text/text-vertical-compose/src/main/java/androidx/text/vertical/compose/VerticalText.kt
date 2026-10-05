@@ -17,8 +17,6 @@
 package androidx.text.vertical.compose
 
 import android.graphics.Typeface
-import android.os.Build
-import android.os.LocaleList
 import android.text.TextPaint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,9 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
@@ -43,8 +39,6 @@ import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.isSpecified
-import androidx.compose.ui.unit.sp
 import androidx.text.vertical.TextOrientation
 import androidx.text.vertical.VerticalTextLayout
 import kotlin.math.ceil
@@ -84,7 +78,6 @@ public fun VerticalText(
         maxColumns = maxColumns,
         minColumns = minColumns,
         orientation = orientation,
-        semanticsText = text.toString(),
     )
 }
 
@@ -120,13 +113,13 @@ internal class VerticalTextLayoutCache {
             return cached
         }
         val paint = cachedPaint ?: TextPaint().also { cachedPaint = it }
-        paint.reset()
         setStyleToPaint(style, typeface, density, paint)
+        val layoutText = if (text is AnnotatedString) text.toSpanned(density) else text
         val newLayout =
             VerticalTextLayout(
-                text = text,
+                text = layoutText,
                 start = 0,
-                end = text.length,
+                end = layoutText.length,
                 paint = paint,
                 height = height.toFloat(),
                 orientation = orientation,
@@ -151,14 +144,14 @@ private fun VerticalTextImpl(
     maxColumns: Int,
     minColumns: Int,
     orientation: TextOrientation,
-    semanticsText: String,
 ) {
     check(minColumns <= maxColumns) { "maxColumn must be bigger than minColumns!" }
 
     val cache = remember { VerticalTextLayoutCache() }
     var textLayout by remember { mutableStateOf<VerticalTextLayout?>(null) }
     val clipModifier = if (overflow == TextOverflow.Clip) Modifier.clipToBounds() else Modifier
-    val semanticsModifier = Modifier.semantics { this.text = AnnotatedString(semanticsText) }
+    val semanticsText = text as? AnnotatedString ?: AnnotatedString(text.toString())
+    val semanticsModifier = Modifier.semantics { this.text = semanticsText }
     val drawModifier = Modifier.drawBehind {
         drawIntoCanvas { canvas -> textLayout?.draw(canvas.nativeCanvas, size.width, 0f) }
     }
@@ -202,37 +195,3 @@ private fun VerticalTextImpl(
         layout(layoutWidth, constraints.maxHeight) {}
     }
 }
-
-private fun setStyleToPaint(
-    style: VerticalTextStyle,
-    typeface: Typeface,
-    density: Density,
-    out: TextPaint,
-) {
-    with(density) {
-        out.textSize =
-            if (style.fontSize.isSpecified) style.fontSize.toPx() else DefaultFontSize.toPx()
-        out.typeface = typeface
-        out.fontFeatureSettings = style.fontFeatureSettings
-        if (style.color.isSpecified) {
-            out.color = style.color.toArgb()
-        }
-        // The caller reuses the TextPaint, and Paint.reset() does not reset the fields that
-        // TextPaint adds, such as bgColor. Assign each TextPaint field that this function sets
-        // every time, also when the style does not specify a value.
-        out.bgColor =
-            if (style.background.isSpecified) {
-                style.background.toArgb()
-            } else {
-                android.graphics.Color.TRANSPARENT
-            }
-        if (Build.VERSION.SDK_INT >= 25) {
-            style.localeList
-                ?.map { it.platformLocale }
-                ?.toTypedArray()
-                ?.let { out.textLocales = LocaleList(*it) }
-        }
-    }
-}
-
-private val DefaultFontSize = 16.sp
