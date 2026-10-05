@@ -31,8 +31,10 @@ import androidx.camera.video.AudioSpec
 import androidx.camera.video.AudioSpec.Companion.CHANNEL_COUNT_MONO
 import androidx.camera.video.AudioSpec.Companion.SOURCE_FORMAT_PCM_16BIT
 import androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED
+import androidx.camera.video.internal.audio.AudioSource
 import androidx.camera.video.internal.encoder.EncoderConfig.CODEC_PROFILE_NONE
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -319,6 +321,87 @@ class AudioConfigUtilTest {
         assertThat(settings.captureSampleRate).isEqualTo(AudioConfigUtil.AUDIO_SAMPLE_RATE_DEFAULT)
         assertThat(settings.encodeSampleRate).isEqualTo(AudioConfigUtil.AUDIO_SAMPLE_RATE_DEFAULT)
         assertThat(settings.channelCount).isEqualTo(AudioConfigUtil.AUDIO_CHANNEL_COUNT_DEFAULT)
+    }
+
+    @Test
+    fun resolveAudioSettings_sampleRateCanOverrideEncoderProfiles_ifSupported() {
+        val audioProfile =
+            createFakeAudioProfileProxy(
+                bitrate = 156000,
+                sampleRate = 48000,
+                channelCount = 2,
+                profile = AACObjectLC,
+            )
+        // Both 44100 and 48000 are supported
+        ShadowAudioRecord.setSupportedSettings(
+            listOf(
+                ShadowAudioRecord.Setting(44100, 2),
+                ShadowAudioRecord.Setting(48000, 2),
+            )
+        )
+        val overrideSampleRate = 44100
+        val audioSpec = AudioSpec.builder().setSampleRate(overrideSampleRate).build()
+
+        val resolvedAudioSettings = AudioConfigUtil.resolveAudioSettings(audioSpec, audioProfile)
+
+        assertThat(resolvedAudioSettings.encodeSampleRate).isNotEqualTo(audioProfile.sampleRate)
+        assertThat(resolvedAudioSettings.encodeSampleRate).isEqualTo(overrideSampleRate)
+    }
+
+    @Test
+    fun resolveAudioSettings_nonDefaultAudioSpec_resolvesToSupportedSettings() {
+        val audioProfile =
+            createFakeAudioProfileProxy(
+                bitrate = 156000,
+                sampleRate = 48000,
+                channelCount = 2,
+                profile = AACObjectLC,
+            )
+        ShadowAudioRecord.setSupportedSettings(
+            listOf(
+                ShadowAudioRecord.Setting(44100, 1),
+                ShadowAudioRecord.Setting(44100, 2),
+                ShadowAudioRecord.Setting(48000, 1),
+                ShadowAudioRecord.Setting(48000, 2),
+            )
+        )
+
+        val audioSpecs =
+            listOf(
+                AudioSpec.builder().setSampleRate(1000).build(),
+                AudioSpec.builder().setSampleRate(10000).build(),
+                AudioSpec.builder().setSampleRate(44100).build(),
+                AudioSpec.builder().setSampleRate(48000).build(),
+                AudioSpec.builder().setSampleRate(100000).build(),
+                AudioSpec.builder().setChannelCount(1).build(),
+                AudioSpec.builder().setChannelCount(2).build(),
+                AudioSpec.builder().setSampleRate(1000).setChannelCount(1).build(),
+                AudioSpec.builder().setSampleRate(10000).setChannelCount(2).build(),
+                AudioSpec.builder().setSampleRate(44100).setChannelCount(1).build(),
+                AudioSpec.builder().setSampleRate(44100).setChannelCount(2).build(),
+                AudioSpec.builder().setSampleRate(48000).setChannelCount(1).build(),
+                AudioSpec.builder().setSampleRate(48000).setChannelCount(2).build(),
+                AudioSpec.builder().setSampleRate(100000).setChannelCount(2).build(),
+            )
+
+        audioSpecs.forEach { spec ->
+            val settings = AudioConfigUtil.resolveAudioSettings(spec, audioProfile)
+            assertWithMessage(
+                    "Combination failed: spec[sampleRate=${spec.sampleRate}, " +
+                        "channelCount=${spec.channelCount}], " +
+                        "resolved[captureSampleRate=${settings.captureSampleRate}, " +
+                        "channelCount=${settings.channelCount}, " +
+                        "audioFormat=${settings.audioFormat}]"
+                )
+                .that(
+                    AudioSource.isSettingsSupported(
+                        settings.captureSampleRate,
+                        settings.channelCount,
+                        settings.audioFormat,
+                    )
+                )
+                .isTrue()
+        }
     }
 
     @Implements(AudioRecord::class)
