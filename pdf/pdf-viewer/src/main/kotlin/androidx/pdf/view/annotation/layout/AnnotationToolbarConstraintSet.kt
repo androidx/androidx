@@ -18,6 +18,7 @@ package androidx.pdf.view.annotation.layout
 
 import android.content.Context
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.constraintlayout.widget.ConstraintSet.VISIBILITY_MODE_IGNORE
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
 import androidx.pdf.view.annotation.AnnotationToolbarView
@@ -55,6 +56,16 @@ internal class AnnotationToolbarConstraintSet(context: Context) {
             applyColorPaletteConstraints(dockState)
             applyBrushSliderConstraints(dockState)
             applyCollapsedToolConstraints(dockState)
+
+            // ConstraintSet defaults each constrained view's visibility to View.VISIBLE
+            // (with VISIBILITY_MODE_NORMAL), which would overwrite the views' XML or
+            // state-driven visibility (e.g. GONE popups/collapsed icon) whenever dock
+            // constraints are applied. Ignore visibility here so AnnotationToolbarView
+            // remains the sole source of truth for child visibility.
+            setVisibilityMode(R.id.scrollable_tool_tray_container, VISIBILITY_MODE_IGNORE)
+            setVisibilityMode(R.id.color_palette, VISIBILITY_MODE_IGNORE)
+            setVisibilityMode(R.id.brush_size_selector, VISIBILITY_MODE_IGNORE)
+            setVisibilityMode(R.id.collapsed_tool, VISIBILITY_MODE_IGNORE)
         }
     }
 
