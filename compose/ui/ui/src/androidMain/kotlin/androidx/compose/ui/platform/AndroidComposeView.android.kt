@@ -90,7 +90,6 @@ import androidx.collection.ScatterMap
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
@@ -514,11 +513,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     internal val window: Window?
         get() = findDialogWindow(this) ?: findActivityWindow(this)
 
-    // This is only needed because the existing XR implementation is lacking. It is currently
-    // relying on the derivedStateOf() notification change. This can be removed when
-    // b/442011315 is fixed.
     private var isAttached by mutableStateOf(false)
-    private val derivedIsAttached by derivedStateOf { isAttached }
 
     /**
      * Because AndroidComposeView always accepts focus, we have to divert focus to another View if
@@ -2544,10 +2539,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      * ready.
      */
     fun setOnReadyForComposition(callback: (ComposeViewContext) -> Unit) {
-        // Use a derivedStateOf so that the caller is notified when the attachment state
-        // changes. This is relied on by XR.
-        derivedIsAttached
-        if (isAttachedToWindow || composeViewContextIncrementedDuringInit) {
+        if (isAttached || composeViewContextIncrementedDuringInit) {
             callback(composeViewContext)
         } else {
             onReadyForComposition = callback
