@@ -229,5 +229,30 @@ class VideoEncoderSessionTest {
 
         // Assert
         assertThat(session.activeSurface).isNull()
+        assertThat(session.isReady).isFalse()
+    }
+
+    @Test
+    fun isReady_returnsCorrectState() {
+        // Arrange
+        val session = VideoEncoderSession(encoderFactory, sequentialExecutor, executor)
+
+        // Act & Assert: NOT_INITIALIZED -> false
+        assertThat(session.isReady).isFalse()
+
+        // READY -> true
+        session.configure(surfaceRequest, videoEncoderConfig)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        assertThat(session.isReady).isTrue()
+
+        // PENDING_RELEASE -> false
+        session.signalTermination()
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        assertThat(session.isReady).isFalse()
+
+        // RELEASED -> false
+        session.terminateNow()
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        assertThat(session.isReady).isFalse()
     }
 }

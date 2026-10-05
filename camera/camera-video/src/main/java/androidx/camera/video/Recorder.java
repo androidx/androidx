@@ -1689,9 +1689,12 @@ public final class Recorder implements VideoOutput {
                         restoreNonPendingState(); // Equivalent to setState(mNonPendingState)
                         error = ERROR_SOURCE_INACTIVE;
                         errorCause = PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE;
-                    } else {
+                    } else if (isVideoEncoderReadyForNewRecording()) {
                         recordingToStart = makePendingRecordingActiveLocked(mState);
                     }
+                    // Otherwise, a newer SurfaceRequest has arrived and the just configured
+                    // VideoEncoderSession is pending release. The pending recording will be
+                    // serviced when the new VideoEncoderSession is configured.
                     break;
             }
         }
@@ -1716,6 +1719,28 @@ public final class Recorder implements VideoOutput {
             finalizePendingRecording(pendingRecordingToFinalize, error, errorCause);
         }
         mRetainRecordingOnReconfiguring = false;
+    }
+
+    /**
+     * Returns whether the current video encoder can be used to start a new recording.
+     *
+     * <p>The video encoder can't be used if it doesn't exist, or if its
+     * {@link VideoEncoderSession} is not ready, e.g. it is pending release because a new
+     * {@link SurfaceRequest} has arrived. Starting a recording on such an encoder would bind the
+     * recording to a surface that the camera is about to release, which leads to
+     * {@link VideoRecordEvent.Finalize#ERROR_SOURCE_INACTIVE}. In that case, the pending
+     * recording will be started in {@link #onConfigured()} once the new video encoder is
+     * configured.
+     */
+    @ExecutedBy("mSequentialExecutor")
+    private boolean isVideoEncoderReadyForNewRecording() {
+        if (mVideoEncoder != null && mVideoEncoderSession.isReady()) {
+            return true;
+        }
+        Logger.d(TAG, "Defer the pending recording since the video encoder is not ready. "
+                + "VideoEncoder: " + mVideoEncoder + ", VideoEncoderSession: "
+                + mVideoEncoderSession);
+        return false;
     }
 
     private static boolean isSameRecording(@NonNull Recording activeRecording,
@@ -2940,16 +2965,23 @@ public final class Recorder implements VideoOutput {
                     startRecordingPaused = true;
                     // Fall-through
                 case PENDING_RECORDING:
+                    if (mNonPendingState == State.RESETTING) {
+                        needsReset = true;
+                    }
                     if (mSourceState == SourceState.INACTIVE) {
                         pendingRecordingToFinalize = mPendingRecordingRecord;
                         mPendingRecordingRecord = null;
                         setState(State.CONFIGURING);
                         error = ERROR_SOURCE_INACTIVE;
                         errorCause = PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE;
-                    } else if (mVideoEncoder != null) {
-                        // If there's no VideoEncoder, it may need to wait for the new
-                        // VideoEncoder to be configured.
-                        recordingToStart = makePendingRecordingActiveLocked(mState);
+                    } else if (!needsReset) {
+                        if (isVideoEncoderReadyForNewRecording()) {
+                            recordingToStart = makePendingRecordingActiveLocked(mState);
+                        } else {
+                            // If there's no VideoEncoder or the session is not ready, it may need
+                            // to wait for the new VideoEncoder to be configured.
+                            updateNonPendingState(State.CONFIGURING);
+                        }
                     }
                     break;
                 case ERROR:
@@ -2968,7 +3000,8 @@ public final class Recorder implements VideoOutput {
         // Perform required actions from state changes inline on sequential executor but unlocked.
         if (needsReset) {
             reset();
-        } else if (recordingToStart != null) {
+        }
+        if (recordingToStart != null) {
             startRecording(recordingToStart, startRecordingPaused);
         } else if (pendingRecordingToFinalize != null) {
             finalizePendingRecording(pendingRecordingToFinalize, error, errorCause);
@@ -3047,9 +3080,9 @@ public final class Recorder implements VideoOutput {
                         // Active recording is still finalizing or the Recorder is expected to be
                         // reset. Pending recording will be serviced in onRecordingFinalized() or
                         // in onReset().
-                    } else if (mVideoEncoder != null) {
-                        // If there's no VideoEncoder, it may need to wait for the new
-                        // VideoEncoder to be configured.
+                    } else if (isVideoEncoderReadyForNewRecording()) {
+                        // If there's no VideoEncoder or the session is not ready, it may need to
+                        // wait for the new VideoEncoder to be configured.
                         recordingToStart = makePendingRecordingActiveLocked(mState);
                     }
                     break;
