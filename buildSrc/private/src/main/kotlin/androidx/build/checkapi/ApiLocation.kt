@@ -65,7 +65,7 @@ data class ApiLocation(
         if (baseName == CURRENT) {
             return null
         }
-        return Version(baseName)
+        return Version.parse(baseName)
     }
 
     /** File to write traces to. */

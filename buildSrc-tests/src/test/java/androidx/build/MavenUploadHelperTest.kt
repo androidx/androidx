@@ -367,7 +367,7 @@ class MavenUploadHelperTest {
 """
 
         val xmlProvider = XmlProviderImpl(pom)
-        val mavenGroup = LibraryGroup("androidx.example", Version("1.0.0"))
+        val mavenGroup = LibraryGroup("androidx.example", Version.parse("1.0.0"))
         assignSingleVersionDependenciesInGroupForPom(xmlProvider, mavenGroup)
 
         val actual = xmlProvider.toString()
