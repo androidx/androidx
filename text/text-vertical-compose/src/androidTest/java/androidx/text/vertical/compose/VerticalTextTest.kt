@@ -22,16 +22,22 @@ import android.graphics.Typeface
 import android.text.SpannableString
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.text.vertical.TextOrientation
 import androidx.text.vertical.VerticalTextLayout
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.ceil
 import org.junit.Assert.assertNotSame
@@ -53,6 +59,25 @@ class VerticalTextTest {
 
         // Modern Compose testing relies on finding nodes by their semantic text
         onNodeWithText("Hello Vertical").assertExists().assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun annotatedString_preservesSpansAndAnnotationsInSemantics() = runComposeUiTest {
+        val annotated = buildAnnotatedString {
+            pushStringAnnotation(tag = "ruby", annotation = "かんじ")
+            withStyle(SpanStyle(color = Color.Red)) { append("漢字") }
+            pop()
+        }
+
+        setContent { VerticalText(text = annotated, style = VerticalTextStyle(fontSize = 30.sp)) }
+
+        val node = onNodeWithText("漢字").assertExists().fetchSemanticsNode()
+        val semanticsText = node.config[SemanticsProperties.Text].single()
+        assertThat(semanticsText).isEqualTo(annotated)
+        assertThat(semanticsText.spanStyles).isEqualTo(annotated.spanStyles)
+        assertThat(semanticsText.getStringAnnotations(0, semanticsText.length))
+            .isEqualTo(annotated.getStringAnnotations(0, annotated.length))
     }
 }
 
@@ -186,6 +211,56 @@ class VerticalTextLayoutCacheTest {
         assertWithMessage("layout2 must draw black text")
             .that(layout2.countColorPixels(Color.Black.toArgb(), layoutHeight))
             .isGreaterThan(0)
+    }
+
+    @Test
+    fun cache_convertsAnnotatedStringToSpanned_andInvalidatesWhenSpanStylesChange() {
+        val cache = VerticalTextLayoutCache()
+        val styledText = buildAnnotatedString {
+            withStyle(SpanStyle(background = Color.Yellow)) { append("Hello") }
+        }
+        val plainText = AnnotatedString("Hello")
+        val style = VerticalTextStyle(fontSize = 24.sp)
+        val typeface = Typeface.DEFAULT
+        val density = Density(1f)
+        val layoutHeight = 200
+
+        val layout1 =
+            cache.getLayout(
+                styledText,
+                layoutHeight,
+                TextOrientation.Mixed,
+                style,
+                typeface,
+                density,
+            )
+        val layout1Cached =
+            cache.getLayout(
+                styledText,
+                layoutHeight,
+                TextOrientation.Mixed,
+                style,
+                typeface,
+                density,
+            )
+        assertSame(layout1, layout1Cached)
+        assertWithMessage("AnnotatedString SpanStyle background must be rendered")
+            .that(layout1.countColorPixels(Color.Yellow.toArgb(), layoutHeight))
+            .isGreaterThan(0)
+
+        val layout2 =
+            cache.getLayout(
+                plainText,
+                layoutHeight,
+                TextOrientation.Mixed,
+                style,
+                typeface,
+                density,
+            )
+        assertNotSame(layout1, layout2)
+        assertWithMessage("Plain AnnotatedString must not draw yellow background")
+            .that(layout2.countColorPixels(Color.Yellow.toArgb(), layoutHeight))
+            .isEqualTo(0)
     }
 }
 
