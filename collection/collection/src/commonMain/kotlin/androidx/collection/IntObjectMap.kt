@@ -15,7 +15,11 @@
  */
 
 // Facade class name cannot be updated, the Kt name has been released
-@file:Suppress("RedundantVisibilityModifier", "NOTHING_TO_INLINE", "FacadeClassJvmName")
+@file:Suppress(
+    "RedundantVisibilityModifier",
+    "NOTHING_TO_INLINE",
+    "FacadeClassJvmName",
+)
 @file:OptIn(ExperimentalContracts::class)
 
 package androidx.collection
@@ -52,14 +56,24 @@ public fun <V> emptyIntObjectMap(): IntObjectMap<V> = EmptyIntObjectMap as IntOb
 public fun <V> intObjectMapOf(): IntObjectMap<V> = EmptyIntObjectMap as IntObjectMap<V>
 
 /** Returns a new [IntObjectMap] with [key1] associated with [value1]. */
-public fun <V> intObjectMapOf(key1: Int, value1: V): IntObjectMap<V> =
-    MutableIntObjectMap<V>().also { map -> map[key1] = value1 }
+public fun <V> intObjectMapOf(
+    key1: Int,
+    value1: V,
+): IntObjectMap<V> =
+    MutableIntObjectMap<V>().also { map ->
+        map[key1] = value1
+    }
 
 /**
  * Returns a new [IntObjectMap] with [key1], and [key2] associated with [value1], and [value2],
  * respectively.
  */
-public fun <V> intObjectMapOf(key1: Int, value1: V, key2: Int, value2: V): IntObjectMap<V> =
+public fun <V> intObjectMapOf(
+    key1: Int,
+    value1: V,
+    key2: Int,
+    value2: V,
+): IntObjectMap<V> =
     MutableIntObjectMap<V>().also { map ->
         map[key1] = value1
         map[key2] = value2
@@ -132,8 +146,13 @@ public fun <V> intObjectMapOf(
 public fun <V> mutableIntObjectMapOf(): MutableIntObjectMap<V> = MutableIntObjectMap()
 
 /** Returns a new [MutableIntObjectMap] with [key1] associated with [value1]. */
-public fun <V> mutableIntObjectMapOf(key1: Int, value1: V): MutableIntObjectMap<V> =
-    MutableIntObjectMap<V>().also { map -> map[key1] = value1 }
+public fun <V> mutableIntObjectMapOf(
+    key1: Int,
+    value1: V,
+): MutableIntObjectMap<V> =
+    MutableIntObjectMap<V>().also { map ->
+        map[key1] = value1
+    }
 
 /**
  * Returns a new [MutableIntObjectMap] with [key1], and [key2] associated with [value1], and
@@ -353,21 +372,16 @@ public sealed class IntObjectMap<V> {
         val lastIndex = m.size - 2 // We always have 0 or at least 2 entries
 
         for (i in 0..lastIndex) {
-            var slot = m[i]
-            if (slot.maskEmptyOrDeleted() != BitmaskMsb) {
-                // Branch-less if (i == lastIndex) 7 else 8
-                // i - lastIndex returns a negative value when i < lastIndex,
-                // so 1 is set as the MSB. By inverting and shifting we get
-                // 0 when i < lastIndex, 1 otherwise.
-                val bitCount = 8 - ((i - lastIndex).inv() ushr 31)
-                for (j in 0 until bitCount) {
-                    if (isFull(slot and 0xFFL)) {
-                        val index = (i shl 3) + j
-                        block(index)
-                    }
-                    slot = slot shr 8
-                }
-                if (bitCount != 8) return
+            val slot = m[i]
+            // In metadata, Empty (0x80), Deleted (0xFE), and Sentinel (0xFF) all have bit 7
+            // set; Full slots have bit 7 unset (< 0x80). Inverting the word and masking
+            // with BitmaskMsb sets bit (8j + 7) iff slot j is Full. Sentinel (0xFF) at
+            // capacity index is naturally skipped since its bit 7 is set.
+            var mask = slot.inv() and BitmaskMsb
+            while (mask != 0L) {
+                val index = (i shl 3) + (mask.countTrailingZeroBits() ushr 3)
+                block(index)
+                mask = mask and (mask - 1L)
             }
         }
     }
@@ -380,32 +394,42 @@ public sealed class IntObjectMap<V> {
         val k = keys
         val v = values
 
-        forEachIndexed { index -> @Suppress("UNCHECKED_CAST") block(k[index], v[index] as V) }
+        forEachIndexed { index ->
+            @Suppress("UNCHECKED_CAST") block(k[index], v[index] as V)
+        }
     }
 
     /** Iterates over every key stored in this map by invoking the specified [block] lambda. */
     public inline fun forEachKey(block: (key: Int) -> Unit) {
         val k = keys
 
-        forEachIndexed { index -> block(k[index]) }
+        forEachIndexed { index ->
+            block(k[index])
+        }
     }
 
     /** Iterates over every value stored in this map by invoking the specified [block] lambda. */
     public inline fun forEachValue(block: (value: V) -> Unit) {
         val v = values
 
-        forEachIndexed { index -> @Suppress("UNCHECKED_CAST") block(v[index] as V) }
+        forEachIndexed { index ->
+            @Suppress("UNCHECKED_CAST") block(v[index] as V)
+        }
     }
 
     /** Returns true if all entries match the given [predicate]. */
     public inline fun all(predicate: (Int, V) -> Boolean): Boolean {
-        forEach { key, value -> if (!predicate(key, value)) return false }
+        forEach { key, value ->
+            if (!predicate(key, value)) return false
+        }
         return true
     }
 
     /** Returns true if at least one entry matches the given [predicate]. */
     public inline fun any(predicate: (Int, V) -> Boolean): Boolean {
-        forEach { key, value -> if (predicate(key, value)) return true }
+        forEach { key, value ->
+            if (predicate(key, value)) return true
+        }
         return false
     }
 
@@ -415,7 +439,9 @@ public sealed class IntObjectMap<V> {
     /** Returns the number of entries matching the given [predicate]. */
     public inline fun count(predicate: (Int, V) -> Boolean): Int {
         var count = 0
-        forEach { key, value -> if (predicate(key, value)) count++ }
+        forEach { key, value ->
+            if (predicate(key, value)) count++
+        }
         return count
     }
 
@@ -427,7 +453,9 @@ public sealed class IntObjectMap<V> {
 
     /** Returns true if the specified [value] is present in this map, false otherwise. */
     public fun containsValue(value: V): Boolean {
-        forEachValue { v -> if (value == v) return true }
+        forEachValue { v ->
+            if (value == v) return true
+        }
         return false
     }
 
@@ -509,7 +537,9 @@ public sealed class IntObjectMap<V> {
     public override fun hashCode(): Int {
         var hash = 0
 
-        forEach { key, value -> hash += key.hashCode() xor value.hashCode() }
+        forEach { key, value ->
+            hash += key.hashCode() xor value.hashCode()
+        }
 
         return hash
     }
@@ -662,7 +692,9 @@ public class MutableIntObjectMap<V>(initialCapacity: Int = DefaultScatterCapacit
             } else {
                 // Round up to the next multiple of 8 and find how many longs we need
                 val size = (((capacity + 1 + ClonedMetadataCount) + 7) and 0x7.inv()) shr 3
-                LongArray(size).apply { fill(AllEmpty) }
+                LongArray(size).apply {
+                    fill(AllEmpty)
+                }
             }
         writeRawMetadata(metadata, capacity, Sentinel)
         initializeGrowth()
@@ -725,7 +757,9 @@ public class MutableIntObjectMap<V>(initialCapacity: Int = DefaultScatterCapacit
 
     /** Puts all the key/value mappings in the [from] map into this map. */
     public fun putAll(from: IntObjectMap<V>) {
-        from.forEach { key, value -> this[key] = value }
+        from.forEach { key, value ->
+            this[key] = value
+        }
     }
 
     /** Puts all the key/value mappings in the [from] map into this map. */
@@ -782,12 +816,16 @@ public class MutableIntObjectMap<V>(initialCapacity: Int = DefaultScatterCapacit
 
     /** Removes the specified [keys] and their associated value from the map. */
     public inline operator fun minusAssign(keys: IntSet) {
-        keys.forEach { key -> minusAssign(key) }
+        keys.forEach { key ->
+            minusAssign(key)
+        }
     }
 
     /** Removes the specified [keys] and their associated value from the map. */
     public inline operator fun minusAssign(keys: IntList) {
-        keys.forEach { key -> minusAssign(key) }
+        keys.forEach { key ->
+            minusAssign(key)
+        }
     }
 
     @PublishedApi

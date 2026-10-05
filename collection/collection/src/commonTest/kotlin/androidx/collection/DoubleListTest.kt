@@ -139,22 +139,30 @@ class DoubleListTest {
 
     @Test
     fun getOutOfBounds() {
-        assertFailsWith(IndexOutOfBoundsException::class) { list[5] }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            list[5]
+        }
     }
 
     @Test
     fun getOutOfBoundsNegative() {
-        assertFailsWith(IndexOutOfBoundsException::class) { list[-1] }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            list[-1]
+        }
     }
 
     @Test
     fun elementAtOfBounds() {
-        assertFailsWith(IndexOutOfBoundsException::class) { list.elementAt(5) }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            list.elementAt(5)
+        }
     }
 
     @Test
     fun elementAtOfBoundsNegative() {
-        assertFailsWith(IndexOutOfBoundsException::class) { list.elementAt(-1) }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            list.elementAt(-1)
+        }
     }
 
     @Test
@@ -323,7 +331,9 @@ class DoubleListTest {
 
     @Test
     fun firstException() {
-        assertFailsWith(NoSuchElementException::class) { mutableDoubleListOf().first() }
+        assertFailsWith(NoSuchElementException::class) {
+            mutableDoubleListOf().first()
+        }
     }
 
     @Test
@@ -334,7 +344,9 @@ class DoubleListTest {
 
     @Test
     fun firstWithPredicateException() {
-        assertFailsWith(NoSuchElementException::class) { mutableDoubleListOf().first { it == 8.0 } }
+        assertFailsWith(NoSuchElementException::class) {
+            mutableDoubleListOf().first { it == 8.0 }
+        }
     }
 
     @Test
@@ -344,7 +356,9 @@ class DoubleListTest {
 
     @Test
     fun lastException() {
-        assertFailsWith(NoSuchElementException::class) { mutableDoubleListOf().last() }
+        assertFailsWith(NoSuchElementException::class) {
+            mutableDoubleListOf().last()
+        }
     }
 
     @Test
@@ -355,7 +369,9 @@ class DoubleListTest {
 
     @Test
     fun lastWithPredicateException() {
-        assertFailsWith(NoSuchElementException::class) { mutableDoubleListOf().last { it == 8.0 } }
+        assertFailsWith(NoSuchElementException::class) {
+            mutableDoubleListOf().last { it == 8.0 }
+        }
     }
 
     @Test
@@ -367,7 +383,9 @@ class DoubleListTest {
     fun foldIndexed() {
         assertEquals(
             "01-12-23-34-45-",
-            list.foldIndexed("") { index, acc, i -> "$acc$index${i.toInt()}-" },
+            list.foldIndexed("") { index, acc, i ->
+                "$acc$index${i.toInt()}-"
+            },
         )
     }
 
@@ -380,7 +398,9 @@ class DoubleListTest {
     fun foldRightIndexed() {
         assertEquals(
             "45-34-23-12-01-",
-            list.foldRightIndexed("") { index, i, acc -> "$acc$index${i.toInt()}-" },
+            list.foldRightIndexed("") { index, i, acc ->
+                "$acc$index${i.toInt()}-"
+            },
         )
     }
 
@@ -399,8 +419,12 @@ class DoubleListTest {
         l.add(0, 1.0)
         l.add(2, 3.0)
         assertEquals(list, l)
-        assertFailsWith(IndexOutOfBoundsException::class) { l.add(-1, 2.0) }
-        assertFailsWith(IndexOutOfBoundsException::class) { l.add(6, 2.0) }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.add(-1, 2.0)
+        }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.add(6, 2.0)
+        }
     }
 
     @Test
@@ -414,8 +438,12 @@ class DoubleListTest {
         assertTrue(l4.addAll(3, l))
         assertFalse(l4.addAll(0, mutableDoubleListOf()))
         assertEquals(list, l4)
-        assertFailsWith(IndexOutOfBoundsException::class) { l4.addAll(6, mutableDoubleListOf()) }
-        assertFailsWith(IndexOutOfBoundsException::class) { l4.addAll(-1, mutableDoubleListOf()) }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l4.addAll(6, mutableDoubleListOf())
+        }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l4.addAll(-1, mutableDoubleListOf())
+        }
     }
 
     @Test
@@ -452,8 +480,12 @@ class DoubleListTest {
         assertTrue(l.addAll(3, a1))
         assertFalse(l.addAll(0, doubleArrayOf()))
         assertEquals(list, l)
-        assertFailsWith(IndexOutOfBoundsException::class) { l.addAll(6, doubleArrayOf()) }
-        assertFailsWith(IndexOutOfBoundsException::class) { l.addAll(-1, doubleArrayOf()) }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.addAll(6, doubleArrayOf())
+        }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.addAll(-1, doubleArrayOf())
+        }
     }
 
     @Test
@@ -520,8 +552,12 @@ class DoubleListTest {
         val l = mutableDoubleListOf(1.0, 2.0, 3.0, 4.0, 5.0)
         l.removeAt(2)
         assertEquals(mutableDoubleListOf(1.0, 2.0, 4.0, 5.0), l)
-        assertFailsWith(IndexOutOfBoundsException::class) { l.removeAt(6) }
-        assertFailsWith(IndexOutOfBoundsException::class) { l.removeAt(-1) }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.removeAt(6)
+        }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.removeAt(-1)
+        }
     }
 
     @Test
@@ -533,8 +569,12 @@ class DoubleListTest {
         l[1] = 2.0
         l[3] = 4.0
         assertEquals(list, l)
-        assertFailsWith<IndexOutOfBoundsException> { l.set(-1, 1.0) }
-        assertFailsWith<IndexOutOfBoundsException> { l.set(6, 1.0) }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.set(-1, 1.0)
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.set(6, 1.0)
+        }
         assertEquals(4.0, l.set(3, 1.0))
     }
 
@@ -603,10 +643,18 @@ class DoubleListTest {
         val l = mutableDoubleListOf(1.0, 9.0, 7.0, 6.0, 2.0, 3.0, 4.0, 5.0)
         l.removeRange(1, 4)
         assertEquals(list, l)
-        assertFailsWith<IndexOutOfBoundsException> { l.removeRange(6, 6) }
-        assertFailsWith<IndexOutOfBoundsException> { l.removeRange(100, 200) }
-        assertFailsWith<IndexOutOfBoundsException> { l.removeRange(-1, 0) }
-        assertFailsWith<IllegalArgumentException> { l.removeRange(3, 2) }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.removeRange(6, 6)
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.removeRange(100, 200)
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.removeRange(-1, 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            l.removeRange(3, 2)
+        }
     }
 
     @Test

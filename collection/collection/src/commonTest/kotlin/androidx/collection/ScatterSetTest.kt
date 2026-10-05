@@ -548,6 +548,22 @@ class ScatterSetTest {
     }
 
     @Test
+    fun forEachWithDeletedEntries() {
+        val set = MutableScatterSet<Int>()
+        for (i in 0 until 100) {
+            set += i
+        }
+        for (i in 0 until 100 step 2) {
+            set.remove(i)
+        }
+        val visited = mutableListOf<Int>()
+        set.forEach { element ->
+            visited.add(element)
+        }
+        assertEquals((1 until 100 step 2).toList(), visited.sorted())
+    }
+
+    @Test
     fun clear() {
         val set = MutableScatterSet<String>()
 
