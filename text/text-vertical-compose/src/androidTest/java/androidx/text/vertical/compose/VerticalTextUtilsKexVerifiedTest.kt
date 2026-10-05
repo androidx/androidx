@@ -24,8 +24,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
@@ -41,6 +40,7 @@ import androidx.text.vertical.RubySpan
 import androidx.text.vertical.TextOrientation
 import androidx.text.vertical.TextOrientationSpan
 import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -55,6 +55,8 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class VerticalTextUtilsKexVerifiedTest {
+
+    @get:Rule val rule = createComposeRule()
 
     // =========================================================================
     // Target 1: VerticalTextScope.TextStyleSpan
@@ -680,34 +682,28 @@ class VerticalTextUtilsKexVerifiedTest {
 
     // Reads LocalDensity.current from the composition and delegates to buildVerticalText(Density).
     @MediumTest
-    @OptIn(ExperimentalTestApi::class)
     @Test
-    fun kex_buildVerticalText_composableOverload_readsLocalDensityFromComposition() =
-        runComposeUiTest {
-            val expectedDensity = Density(density = 2.5f, fontScale = 2f)
-            lateinit var spanned: Spanned
-            setContent {
-                CompositionLocalProvider(LocalDensity provides expectedDensity) {
-                    spanned = buildVerticalText {
-                        withStyle(fontSize = 10.sp) { sideways("CD") }
-                    }
-                }
+    fun kex_buildVerticalText_composableOverload_readsLocalDensityFromComposition() {
+        val expectedDensity = Density(density = 2.5f, fontScale = 2f)
+        lateinit var spanned: Spanned
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides expectedDensity) {
+                spanned = buildVerticalText { withStyle(fontSize = 10.sp) { sideways("CD") } }
             }
-
-            waitForIdle()
-            assertThat(spanned.toString()).isEqualTo("CD")
-            val sidewaysSpan =
-                spanned
-                    .getSpans(0, spanned.length, TextOrientationSpan.Sideways::class.java)
-                    .single()
-            assertThat(spanned.getSpanStart(sidewaysSpan)).isEqualTo(0)
-            assertThat(spanned.getSpanEnd(sidewaysSpan)).isEqualTo(2)
-
-            val styleSpan =
-                spanned.getSpans(0, spanned.length, MetricAffectingSpan::class.java).single()
-            val paint = TextPaint()
-            styleSpan.updateMeasureState(paint)
-            assertThat(paint.textSize).isEqualTo(with(expectedDensity) { 10.sp.toPx() })
-            assertThat(paint.textSize).isEqualTo(50f)
         }
+
+        rule.waitForIdle()
+        assertThat(spanned.toString()).isEqualTo("CD")
+        val sidewaysSpan =
+            spanned.getSpans(0, spanned.length, TextOrientationSpan.Sideways::class.java).single()
+        assertThat(spanned.getSpanStart(sidewaysSpan)).isEqualTo(0)
+        assertThat(spanned.getSpanEnd(sidewaysSpan)).isEqualTo(2)
+
+        val styleSpan =
+            spanned.getSpans(0, spanned.length, MetricAffectingSpan::class.java).single()
+        val paint = TextPaint()
+        styleSpan.updateMeasureState(paint)
+        assertThat(paint.textSize).isEqualTo(with(expectedDensity) { 10.sp.toPx() })
+        assertThat(paint.textSize).isEqualTo(50f)
+    }
 }

@@ -31,10 +31,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
@@ -56,6 +55,7 @@ import kotlin.math.ceil
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertThrows
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -69,6 +69,8 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class VerticalTextKexVerifiedTest {
+
+    @get:Rule val rule = createComposeRule()
 
     // =========================================================================
     // Target 1: VerticalTextLayoutCache.getLayout
@@ -377,14 +379,11 @@ class VerticalTextKexVerifiedTest {
 
     // Branch: minColumns > maxColumns -> check(minColumns <= maxColumns) throws
     // IllegalStateException.
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun kex_verticalText_whenMinColumnsExceedsMaxColumns_throwsIllegalStateException() {
         val exception =
             assertThrows(IllegalStateException::class.java) {
-                runComposeUiTest {
-                    setContent { VerticalText(text = "Hello", maxColumns = 1, minColumns = 2) }
-                }
+                rule.setContent { VerticalText(text = "Hello", maxColumns = 1, minColumns = 2) }
             }
 
         assertThat(exception).hasMessageThat().contains("maxColumn must be bigger than minColumns!")
@@ -392,60 +391,57 @@ class VerticalTextKexVerifiedTest {
 
     // Branch: overflow == TextOverflow.Visible (takes the else Modifier branch instead of
     // Modifier.clipToBounds()) and non-null fontWeight, fontStyle, and fontSynthesis in style.
-    @OptIn(ExperimentalTestApi::class)
     @Test
-    fun kex_verticalText_whenOverflowIsVisibleAndFontPropertiesSpecified_composesAndDisplays() =
-        runComposeUiTest {
-            var measuredSize = IntSize.Zero
-            var capturedTypeface: Typeface? = null
-            val probeText =
-                SpannableString("VisibleVertical").apply {
-                    setSpan(
-                        object : CharacterStyle() {
-                            override fun updateDrawState(tp: TextPaint) {
-                                capturedTypeface = tp.typeface
-                            }
-                        },
-                        0,
-                        length,
-                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE,
-                    )
-                }
-            val style =
-                VerticalTextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontStyle = FontStyle.Italic,
-                    fontSynthesis = FontSynthesis.None,
-                    fontFamily = FontFamily.Serif,
-                )
-
-            setContent {
-                VerticalText(
-                    text = probeText,
-                    modifier = Modifier.fixedHeight(300).onSizeChanged { measuredSize = it },
-                    style = style,
-                    overflow = TextOverflow.Visible,
-                    maxColumns = 3,
-                    minColumns = 1,
-                    orientation = TextOrientation.Upright,
+    fun kex_verticalText_whenOverflowIsVisibleAndFontPropertiesSpecified_composesAndDisplays() {
+        var measuredSize = IntSize.Zero
+        var capturedTypeface: Typeface? = null
+        val probeText =
+            SpannableString("VisibleVertical").apply {
+                setSpan(
+                    object : CharacterStyle() {
+                        override fun updateDrawState(tp: TextPaint) {
+                            capturedTypeface = tp.typeface
+                        }
+                    },
+                    0,
+                    length,
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE,
                 )
             }
+        val style =
+            VerticalTextStyle(
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                fontSynthesis = FontSynthesis.None,
+                fontFamily = FontFamily.Serif,
+            )
 
-            onNodeWithText("VisibleVertical").assertExists().assertIsDisplayed()
-            assertThat(measuredSize.width).isGreaterThan(0)
-            assertThat(capturedTypeface?.isBold).isTrue()
-            assertThat(capturedTypeface?.isItalic).isTrue()
+        rule.setContent {
+            VerticalText(
+                text = probeText,
+                modifier = Modifier.fixedHeight(300).onSizeChanged { measuredSize = it },
+                style = style,
+                overflow = TextOverflow.Visible,
+                maxColumns = 3,
+                minColumns = 1,
+                orientation = TextOrientation.Upright,
+            )
         }
+
+        rule.onNodeWithText("VisibleVertical").assertExists().assertIsDisplayed()
+        assertThat(measuredSize.width).isGreaterThan(0)
+        assertThat(capturedTypeface?.isBold).isTrue()
+        assertThat(capturedTypeface?.isItalic).isTrue()
+    }
 
     // Branch: maxColumns == 0 && minColumns == 0 -> effectiveColumns == 0, so desiredWidth == 0f,
     // minWidth == 0f, and layoutWidth == 0.
-    @OptIn(ExperimentalTestApi::class)
     @Test
-    fun kex_verticalText_whenMinAndMaxColumnsAreZero_measuresZeroLayoutWidth() = runComposeUiTest {
+    fun kex_verticalText_whenMinAndMaxColumnsAreZero_measuresZeroLayoutWidth() {
         var measuredSize = IntSize(-1, -1)
 
-        setContent {
+        rule.setContent {
             VerticalText(
                 text = "あいうえお",
                 modifier = Modifier.fixedHeight(300).onSizeChanged { measuredSize = it },
@@ -455,115 +451,109 @@ class VerticalTextKexVerifiedTest {
             )
         }
 
-        waitForIdle()
+        rule.waitForIdle()
         assertThat(measuredSize.width).isEqualTo(0)
     }
 
     // Branch: minColumns > vtl.lineCount -> minWidth = columnWidth * minColumns exceeds
     // desiredWidth, so maxOf(desiredWidth, minWidth) expands layoutWidth to minColumns columns.
-    @OptIn(ExperimentalTestApi::class)
     @Test
-    fun kex_verticalText_whenMinColumnsExceedsLineCount_expandsWidthToMinColumns() =
-        runComposeUiTest {
-            var oneColumnSize = IntSize.Zero
-            var fourColumnMinSize = IntSize.Zero
+    fun kex_verticalText_whenMinColumnsExceedsLineCount_expandsWidthToMinColumns() {
+        var oneColumnSize = IntSize.Zero
+        var fourColumnMinSize = IntSize.Zero
 
-            setContent {
-                VerticalText(
-                    text = "あ",
-                    modifier = Modifier.fixedHeight(300).onSizeChanged { oneColumnSize = it },
-                    style = VerticalTextStyle(fontSize = 20.sp),
-                    minColumns = 1,
-                )
-                VerticalText(
-                    text = "あ",
-                    modifier = Modifier.fixedHeight(300).onSizeChanged { fourColumnMinSize = it },
-                    style = VerticalTextStyle(fontSize = 20.sp),
-                    minColumns = 4,
-                )
-            }
-
-            waitForIdle()
-            assertThat(oneColumnSize.width).isGreaterThan(0)
-            assertThat(fourColumnMinSize.width).isGreaterThan(oneColumnSize.width * 3)
+        rule.setContent {
+            VerticalText(
+                text = "あ",
+                modifier = Modifier.fixedHeight(300).onSizeChanged { oneColumnSize = it },
+                style = VerticalTextStyle(fontSize = 20.sp),
+                minColumns = 1,
+            )
+            VerticalText(
+                text = "あ",
+                modifier = Modifier.fixedHeight(300).onSizeChanged { fourColumnMinSize = it },
+                style = VerticalTextStyle(fontSize = 20.sp),
+                minColumns = 4,
+            )
         }
+
+        rule.waitForIdle()
+        assertThat(oneColumnSize.width).isGreaterThan(0)
+        assertThat(fourColumnMinSize.width).isGreaterThan(oneColumnSize.width * 3)
+    }
 
     // Branch: maxColumns < vtl.lineCount (with minColumns <= maxColumns) -> effectiveColumns =
     // min(vtl.lineCount, maxColumns) caps desiredWidth at maxColumns columns.
-    @OptIn(ExperimentalTestApi::class)
     @Test
-    fun kex_verticalText_whenMaxColumnsIsLessThanLineCount_capsWidthAtMaxColumns() =
-        runComposeUiTest {
-            val longText = "あいうえおかきくけこさしすせそたちつてと"
-            var uncappedSize = IntSize.Zero
-            var cappedSize = IntSize.Zero
+    fun kex_verticalText_whenMaxColumnsIsLessThanLineCount_capsWidthAtMaxColumns() {
+        val longText = "あいうえおかきくけこさしすせそたちつてと"
+        var uncappedSize = IntSize.Zero
+        var cappedSize = IntSize.Zero
 
-            setContent {
-                VerticalText(
-                    text = longText,
-                    modifier = Modifier.fixedHeight(80).onSizeChanged { uncappedSize = it },
-                    style = VerticalTextStyle(fontSize = 24.sp),
-                    maxColumns = Int.MAX_VALUE,
-                    minColumns = 1,
-                )
-                VerticalText(
-                    text = longText,
-                    modifier = Modifier.fixedHeight(80).onSizeChanged { cappedSize = it },
-                    style = VerticalTextStyle(fontSize = 24.sp),
-                    maxColumns = 1,
-                    minColumns = 1,
-                )
-            }
-
-            waitForIdle()
-            assertThat(cappedSize.width).isGreaterThan(0)
-            assertThat(uncappedSize.width).isGreaterThan(cappedSize.width)
+        rule.setContent {
+            VerticalText(
+                text = longText,
+                modifier = Modifier.fixedHeight(80).onSizeChanged { uncappedSize = it },
+                style = VerticalTextStyle(fontSize = 24.sp),
+                maxColumns = Int.MAX_VALUE,
+                minColumns = 1,
+            )
+            VerticalText(
+                text = longText,
+                modifier = Modifier.fixedHeight(80).onSizeChanged { cappedSize = it },
+                style = VerticalTextStyle(fontSize = 24.sp),
+                maxColumns = 1,
+                minColumns = 1,
+            )
         }
+
+        rule.waitForIdle()
+        assertThat(cappedSize.width).isGreaterThan(0)
+        assertThat(uncappedSize.width).isGreaterThan(cappedSize.width)
+    }
 
     // Branch: coerceIn(constraints.minWidth, constraints.maxWidth) clamps layoutWidth to both
     // minWidth (when desired width < minWidth) and maxWidth (when desired width > maxWidth).
-    @OptIn(ExperimentalTestApi::class)
     @Test
-    fun kex_verticalText_whenFixedWidthConstraintProvided_coercesWidthToConstraints() =
-        runComposeUiTest {
-            var minClampedSize = IntSize.Zero
-            var maxClampedSize = IntSize.Zero
+    fun kex_verticalText_whenFixedWidthConstraintProvided_coercesWidthToConstraints() {
+        var minClampedSize = IntSize.Zero
+        var maxClampedSize = IntSize.Zero
 
-            setContent {
-                VerticalText(
-                    text = "あ",
-                    modifier =
-                        Modifier.layout { measurable, _ ->
-                                val placeable = measurable.measure(Constraints.fixed(300, 200))
-                                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-                            }
-                            .onSizeChanged { minClampedSize = it },
-                    style = VerticalTextStyle(fontSize = 16.sp),
-                )
-                VerticalText(
-                    text = "あいうえおかきくけこ",
-                    modifier =
-                        Modifier.layout { measurable, _ ->
-                                val placeable =
-                                    measurable.measure(
-                                        Constraints(
-                                            minWidth = 0,
-                                            maxWidth = 10,
-                                            minHeight = 80,
-                                            maxHeight = 80,
-                                        )
+        rule.setContent {
+            VerticalText(
+                text = "あ",
+                modifier =
+                    Modifier.layout { measurable, _ ->
+                            val placeable = measurable.measure(Constraints.fixed(300, 200))
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        }
+                        .onSizeChanged { minClampedSize = it },
+                style = VerticalTextStyle(fontSize = 16.sp),
+            )
+            VerticalText(
+                text = "あいうえおかきくけこ",
+                modifier =
+                    Modifier.layout { measurable, _ ->
+                            val placeable =
+                                measurable.measure(
+                                    Constraints(
+                                        minWidth = 0,
+                                        maxWidth = 10,
+                                        minHeight = 80,
+                                        maxHeight = 80,
                                     )
-                                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-                            }
-                            .onSizeChanged { maxClampedSize = it },
-                    style = VerticalTextStyle(fontSize = 24.sp),
-                )
-            }
-
-            waitForIdle()
-            assertThat(minClampedSize.width).isEqualTo(300)
-            assertThat(maxClampedSize.width).isEqualTo(10)
+                                )
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        }
+                        .onSizeChanged { maxClampedSize = it },
+                style = VerticalTextStyle(fontSize = 24.sp),
+            )
         }
+
+        rule.waitForIdle()
+        assertThat(minClampedSize.width).isEqualTo(300)
+        assertThat(maxClampedSize.width).isEqualTo(10)
+    }
 }
 
 private fun Modifier.fixedHeight(heightPx: Int): Modifier = layout { measurable, constraints ->
