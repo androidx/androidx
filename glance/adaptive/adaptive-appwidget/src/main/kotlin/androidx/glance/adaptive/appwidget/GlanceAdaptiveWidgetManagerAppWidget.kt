@@ -16,6 +16,7 @@
 
 package androidx.glance.adaptive.appwidget
 
+import android.app.PendingIntent
 import android.content.Context
 import android.util.Log
 import androidx.annotation.RestrictTo
@@ -57,6 +58,52 @@ public suspend fun GlanceAdaptiveWidgetManager.setPreview(
         return
     }
     delegate.setPreview(widgetName = widgetName, previewData = previewData)
+}
+
+/**
+ * Requests that the launcher pin the specified widget definition to the home screen.
+ *
+ * It is up to the launcher to accept the request, typically after asking the user to confirm, so
+ * `true` only means that the request was sent. [successCallback] is sent once the widget is pinned.
+ *
+ * Pinning is only supported by AppWidget hosts, so this operation is provided by this artifact as
+ * an extension rather than by [GlanceAdaptiveWidgetManager] itself.
+ *
+ * On devices running Android 7.1 and earlier (pre-API 26), pinning is not supported by the platform
+ * and this returns `false`. It also returns `false` if the launcher does not support pinning, if no
+ * receiver matching [widgetName] can be placed on the home screen, or if this manager is not backed
+ * by an AppWidget delegate.
+ *
+ * Widget names should be unique per app. If several receivers match [widgetName], a warning is
+ * logged and the first one that can be placed on the home screen is pinned.
+ *
+ * @param widgetName Developer widget definition String identifier matching
+ *   [GlanceAdaptiveWidgetReceiver.widgetName].
+ * @param initialData Optional declarative template data payload implementing
+ *   [AdaptiveGlanceTemplate] to render as the preview shown while the launcher asks the user to
+ *   confirm. If omitted, the launcher shows the preview declared by the widget instead.
+ * @param successCallback Optional [PendingIntent] sent once the widget is pinned.
+ * @return `true` if the request was sent to the launcher, `false` otherwise.
+ * @throws IllegalStateException if the app has no foreground activity or foreground service.
+ * @see android.appwidget.AppWidgetManager.requestPinAppWidget
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public suspend fun GlanceAdaptiveWidgetManager.requestPin(
+    widgetName: String,
+    initialData: AdaptiveGlanceTemplate? = null,
+    successCallback: PendingIntent? = null,
+): Boolean {
+    // A local copy, as Kotlin can't smart cast a property declared in another module.
+    val delegate = delegate
+    if (delegate !is GlanceAdaptiveAppWidgetDelegate) {
+        Log.w(TAG, "Ignoring requestPin for widgetName $widgetName: no AppWidget delegate")
+        return false
+    }
+    return delegate.requestPin(
+        widgetName = widgetName,
+        initialData = initialData,
+        successCallback = successCallback,
+    )
 }
 
 private const val TAG = "GlanceAdaptiveAppWidget"

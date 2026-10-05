@@ -16,6 +16,7 @@
 
 package androidx.glance.adaptive.appwidget
 
+import android.app.PendingIntent
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
@@ -37,4 +38,19 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
      * @param previewData The declarative template data payload to render as a preview.
      */
     suspend fun setPreview(widgetName: String, previewData: AdaptiveGlanceTemplate)
+
+    /**
+     * Requests that the launcher pin [widgetName] to the home screen.
+     *
+     * @param widgetName The developer-defined identifier of the widget definition.
+     * @param initialData The declarative template data payload to render as the preview shown while
+     *   the launcher asks the user to confirm, if any.
+     * @param successCallback The [PendingIntent] to send once the widget is pinned, if any.
+     * @return true if the request was sent to the launcher, false otherwise.
+     */
+    suspend fun requestPin(
+        widgetName: String,
+        initialData: AdaptiveGlanceTemplate?,
+        successCallback: PendingIntent?,
+    ): Boolean
 }
