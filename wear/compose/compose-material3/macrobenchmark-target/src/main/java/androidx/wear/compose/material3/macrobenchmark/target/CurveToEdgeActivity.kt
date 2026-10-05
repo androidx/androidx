@@ -45,7 +45,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.ExperimentalWearComposeMaterial3Api
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
@@ -58,7 +57,6 @@ import androidx.wear.compose.material3.curveToEdge
 
 class SimpleCurveToEdgeActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -83,7 +81,6 @@ class SimpleCurveToEdgeActivity : ComponentActivity() {
 
 class ComplexCurveToEdgeActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    @OptIn(ExperimentalWearComposeMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

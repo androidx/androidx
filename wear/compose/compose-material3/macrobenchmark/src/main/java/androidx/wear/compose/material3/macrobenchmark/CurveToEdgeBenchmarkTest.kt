@@ -17,12 +17,14 @@
 package androidx.wear.compose.material3.macrobenchmark
 
 import android.content.Intent
+import android.os.Build
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
@@ -38,6 +40,7 @@ import org.junit.runners.Parameterized
 
 @OptIn(ExperimentalMetricApi::class)
 @LargeTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 @RunWith(Parameterized::class)
 class CurveModifierBenchmark(private val compilationMode: CompilationMode) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
