@@ -356,7 +356,8 @@ class CustomLayoutAndMeasureTest {
     @Test
     fun testLayoutBeforeDraw_forRecomposingNodesNotAffectingRootSize() {
         val offset = mutableStateOf(0)
-        var laidOut = false
+        var laidOutValue = -1
+        var drawnValue = -1
         rule.setContent {
             val container =
                 @Composable { content: @Composable () -> Unit ->
@@ -378,11 +379,11 @@ class CustomLayoutAndMeasureTest {
                         content = {},
                         modifier =
                             Modifier.drawBehind {
-                                assertEquals(offset.value, value)
-                                assertTrue(laidOut)
+                                assertEquals(value, laidOutValue)
+                                drawnValue = value
                             },
                     ) { _, _ ->
-                        laidOut = true
+                        laidOutValue = value
                         layout(0, 0) {}
                     }
                 }
@@ -390,8 +391,15 @@ class CustomLayoutAndMeasureTest {
             container { recomposingChild { assumeLayoutBeforeDraw(it) } }
         }
 
-        rule.runOnIdle { offset.value = 10 }
-        rule.waitForIdle()
+        rule.runOnIdle {
+            assertEquals(0, laidOutValue)
+            assertEquals(0, drawnValue)
+            offset.value = 10
+        }
+        rule.runOnIdle {
+            assertEquals(10, laidOutValue)
+            assertEquals(10, drawnValue)
+        }
     }
 
     @Test
