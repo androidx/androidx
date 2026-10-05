@@ -41,10 +41,18 @@ public final class FocusMeteringResult {
     }
 
     /**
-     * Returns if auto focus is successful.
+     * Returns whether auto focus is successful.
      *
-     * <p>If AF is requested in {@link FocusMeteringAction} but current camera does not support
-     * AF, it will return true. If AF is not requested, it will return false.
+     * <p>Auto focus is successful if focus is locked when the {@link FocusMeteringAction}
+     * completes, for example when the autofocus scan triggered for the action's AF
+     * {@link MeteringPoint}s converges. If the camera applies the AF points but doesn't support
+     * triggering an autofocus scan, auto focus is also considered successful.
+     *
+     * <p>Auto focus is not successful if, for example, the action has no AF points, the camera
+     * doesn't support AF regions, {@link FocusMeteringAction#FLAG_AF} is excluded from the locking
+     * mode and focus isn't already locked, or autofocus fails or doesn't complete in time.
+     *
+     * @return {@code true} if auto focus is successful, {@code false} otherwise.
      */
     public boolean isFocusSuccessful() {
         return mIsFocusSuccessful;
