@@ -79,10 +79,8 @@ import java.util.concurrent.TimeUnit;
  *     locked by a previous action).
  *   </ul>
  * <li><b>Completion:</b> The returned {@link ListenableFuture} completes when the regions are
- * updated and the requested locks are acquired. {@link FocusMeteringResult#isFocusSuccessful()}
- * will be {@code true} if an AF lock was requested and successfully acquired, or if AF is not
- * supported on the device. It will be {@code false} if the AF lock failed, if no AF points were
- * specified, or if {@link #FLAG_AF} was excluded from the locking mode.
+ * updated and the requested locks are acquired. Use
+ * {@link FocusMeteringResult#isFocusSuccessful()} to check whether focus is locked.
  * </ul>
  *
  * <p>App can set a auto-cancel duration to let CameraX call
@@ -113,18 +111,45 @@ import java.util.concurrent.TimeUnit;
 public final class FocusMeteringAction {
 
     /**
-     * A flag used in metering mode indicating the AF (Auto Focus) region is enabled. An autofocus
-     * scan is also triggered when FLAG_AF is assigned.
+     * Flag for AF (auto focus), used in metering mode and locking mode.
+     *
+     * <p>In a metering mode (see {@link Builder#Builder(MeteringPoint, int)} and
+     * {@link Builder#addPoint(MeteringPoint, int)}), it indicates that the {@link MeteringPoint}
+     * is used to set an AF region.
+     *
+     * <p>In the locking mode (see {@link Builder#setLockingMode(int)}), it indicates that an
+     * autofocus scan is triggered and focus is locked, if the action has AF points and the camera
+     * supports it.
+     *
+     * <p>By default, it is included in both the metering mode and the locking mode.
      */
     public static final int FLAG_AF = 1;
 
     /**
-     * A flag used in metering mode indicating the AE (Auto Exposure) region is enabled.
+     * Flag for AE (auto exposure), used in metering mode and locking mode.
+     *
+     * <p>In a metering mode (see {@link Builder#Builder(MeteringPoint, int)} and
+     * {@link Builder#addPoint(MeteringPoint, int)}), it indicates that the {@link MeteringPoint}
+     * is used to set an AE region.
+     *
+     * <p>In the locking mode (see {@link Builder#setLockingMode(int)}), it indicates that auto
+     * exposure is locked, if the action has AE points and the camera supports it.
+     *
+     * <p>By default, it is included in the metering mode but not in the locking mode.
      */
     public static final int FLAG_AE = 1 << 1;
 
     /**
-     * A flag used in metering mode indicating the AWB (Auto White Balance) region is enabled.
+     * Flag for AWB (auto white balance), used in metering mode and locking mode.
+     *
+     * <p>In a metering mode (see {@link Builder#Builder(MeteringPoint, int)} and
+     * {@link Builder#addPoint(MeteringPoint, int)}), it indicates that the {@link MeteringPoint}
+     * is used to set an AWB region.
+     *
+     * <p>In the locking mode (see {@link Builder#setLockingMode(int)}), it indicates that auto
+     * white balance is locked, if the action has AWB points and the camera supports it.
+     *
+     * <p>By default, it is included in the metering mode but not in the locking mode.
      */
     public static final int FLAG_AWB = 1 << 2;
 
