@@ -16,7 +16,6 @@
 
 package androidx.xr.glimmer
 
-import android.os.Build
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -201,7 +200,7 @@ internal class BorderLogic @RememberInComposition constructor() {
         val pathBoundsSize =
             IntSize(ceil(pathBounds.width).toInt(), ceil(pathBounds.height).toInt())
 
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        return if (shouldUseGraphicsLayerForGenericBorder()) {
             createDrawGenericBorderWithGraphicsLayer(
                 brush = brush,
                 graphicsLayerProvider = graphicsLayerProvider,
@@ -501,3 +500,13 @@ private fun createRoundRectPath(
  */
 private fun CornerRadius.shrink(value: Float): CornerRadius =
     CornerRadius(max(0f, this.x - value), max(0f, this.y - value))
+
+// TODO: b/570069301 currently disabled due to minor anti-aliasing differences on API 28+.
+//  Investigate making this enabled on 28+ again.
+/**
+ * On API 28+, we use a GraphicsLayer as it is more performant than allocating an offscreen bitmap.
+ * On API < 28, GraphicsLayer uses the legacy OpenGL ES pipeline which rasterizes generic paths and
+ * BlendMode.Clear differently from Skia, so we fall back to an offscreen ImageBitmap for consistent
+ * rendering.
+ */
+internal fun shouldUseGraphicsLayerForGenericBorder(): Boolean = false

@@ -16,4 +16,6 @@
 
 package androidx.compose.foundation.border
 
-internal actual fun shouldUseGraphicsLayerForGenericBorder(): Boolean = true
+// TODO: b/570069301 currently disabled due to Android also disabling this.
+//  Investigate making this enabled again.
+internal actual fun shouldUseGraphicsLayerForGenericBorder(): Boolean = false
