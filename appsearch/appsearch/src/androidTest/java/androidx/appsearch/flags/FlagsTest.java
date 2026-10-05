@@ -301,4 +301,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_APPS_INDEXER_PWA_MULTI_CERT)
                 .isEqualTo("com.android.appsearch.flags.enable_apps_indexer_pwa_multi_cert");
     }
+
+    @Test
+    public void testFlagValue_enableUseNeedsPersistTypeFromIcing() {
+        assertThat(Flags.FLAG_ENABLE_USE_NEEDS_PERSIST_TYPE_FROM_ICING)
+                .isEqualTo("com.android.appsearch.flags.enable_use_needs_persist_type_from_icing");
+    }
 }
