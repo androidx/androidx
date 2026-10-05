@@ -28,6 +28,9 @@ import android.view.animation.OvershootInterpolator
 import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.constraintlayout.widget.ConstraintSet.PARENT_ID
+import androidx.constraintlayout.widget.ConstraintSet.VISIBILITY_MODE_IGNORE
+import androidx.constraintlayout.widget.ConstraintSet.WRAP_CONTENT
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
 import androidx.pdf.view.annotation.AnnotationToolbarView
@@ -297,12 +300,15 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         ConstraintSet().apply {
             clone(container)
             clear(toolbarId)
+            // clear() resets the constraint's visibility to View.VISIBLE; ignore visibility
+            // so applying dock layout params does not override the toolbar's current visibility.
+            setVisibilityMode(toolbarId, VISIBILITY_MODE_IGNORE)
 
-            constrainWidth(toolbarId, ConstraintSet.WRAP_CONTENT)
-            constrainHeight(toolbarId, ConstraintSet.WRAP_CONTENT)
+            constrainWidth(toolbarId, WRAP_CONTENT)
+            constrainHeight(toolbarId, WRAP_CONTENT)
 
             // Center toolbar by default, then bias it toward the specific dock edge
-            center(toolbarId, ConstraintSet.PARENT_ID)
+            center(toolbarId, PARENT_ID)
 
             when (state) {
                 DOCK_STATE_START -> {

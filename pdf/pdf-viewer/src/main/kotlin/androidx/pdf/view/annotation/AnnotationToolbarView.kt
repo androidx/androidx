@@ -355,7 +355,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     private suspend fun collectUiStates() = coroutineScope {
         var lastDockedState: Int? = null
-        launch {
+        launch(start = CoroutineStart.UNDISPATCHED) {
             viewModel.state.collect { state ->
                 addAnimatorIfRequired(state)
 
@@ -386,7 +386,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             }
         }
 
-        launch {
+        launch(start = CoroutineStart.UNDISPATCHED) {
             viewModel.effects.collect {
                 when (it) {
                     is ToolbarEffect.ToolUpdated -> {
