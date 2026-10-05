@@ -16,6 +16,8 @@
 
 package androidx.xr.arcore.testapp.helloar
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -26,6 +28,7 @@ import android.util.Size
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -121,6 +124,21 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
     private var activeFrameHeight by
         mutableFloatStateOf(CameraFrameAnalyzer.DEFAULT_FRAME_HEIGHT.toFloat())
 
+    private var cameraPermissionRequested = false
+    // The permission dialog pauses this activity, so onResume() binds the camera once it is
+    // granted.
+    private val cameraPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (!granted) {
+                Toast.makeText(
+                        this,
+                        "Camera permission is required for the viewfinder.",
+                        Toast.LENGTH_LONG,
+                    )
+                    .show()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -166,7 +184,18 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         if (!isTrackingStarted) {
+            bindCameraUseCasesIfPermitted()
+        }
+    }
+
+    // The CameraX viewfinder is owned by this sample, not the ARCore library, so the library never
+    // requests CAMERA on our behalf. Check and request it here before binding the camera.
+    private fun bindCameraUseCasesIfPermitted() {
+        if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             lifecycleScope.launch { bindCameraUseCases() }
+        } else if (!cameraPermissionRequested) {
+            cameraPermissionRequested = true
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
 

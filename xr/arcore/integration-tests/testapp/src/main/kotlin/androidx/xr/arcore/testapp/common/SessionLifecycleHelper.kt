@@ -98,7 +98,6 @@ class SessionLifecycleHelper(
     private fun getRequiredPermissions(config: Config): List<String> {
         val permissions = mutableListOf<String>()
         if (config.getSpatialAnnotationTracking() != SpatialAnnotationTrackingMode.DISABLED) {
-            permissions.add(android.Manifest.permission.CAMERA)
             permissions.add(SCENE_UNDERSTANDING_FINE)
         }
         if (config.planeTracking != PlaneTrackingMode.DISABLED) {
