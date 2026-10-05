@@ -143,6 +143,8 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
         transactionHandle: Long,
     ): Boolean
 
+    private external fun nativeRequestVisible(handle: Long, visible: Boolean): Boolean
+
     private external fun nativeShutdown(handle: Long)
 
     private external fun nativeDestroy(handle: Long)
@@ -291,6 +293,14 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
             "SceneCoreOpenXrNative has been destroyed."
         }
         return nativeCancelSceneTransaction(nativeScenecore, transactionHandle)
+    }
+
+    /** Requests the spatial container to be shown or hidden. */
+    open fun requestSpatialContainerVisible(visible: Boolean): Boolean {
+        check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
+            "SceneCoreOpenXrNative has been destroyed."
+        }
+        return nativeRequestVisible(nativeScenecore, visible)
     }
 
     /**
