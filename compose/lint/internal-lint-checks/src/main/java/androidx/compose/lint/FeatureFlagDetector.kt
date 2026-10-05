@@ -26,6 +26,7 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiComment
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiTypes
 import com.intellij.psi.PsiWhiteSpace
 import java.util.EnumSet
@@ -110,41 +111,59 @@ class FeatureFlagDetector : Detector(), SourceCodeScanner {
 
     private fun hasTodoComment(property: KtProperty): Boolean {
         // Check preceding siblings
+        val precedingElements = mutableListOf<PsiElement>()
         var sibling = property.prevSibling
         while (sibling != null) {
-            if (sibling is PsiComment) {
-                if (isTodoWithBug(sibling.text)) return true
-            }
             if (sibling !is PsiWhiteSpace && sibling !is PsiComment) {
                 break
             }
+            precedingElements.add(sibling)
             sibling = sibling.prevSibling
         }
+        if (hasTodoCommentBlock(precedingElements.asReversed())) return true
 
         // Check children (sometimes the comment is part of the property range)
+        val childElements = mutableListOf<PsiElement>()
         var child = property.firstChild
         while (child != null) {
-            if (child is PsiComment) {
-                if (isTodoWithBug(child.text)) return true
-            }
-            if (
-                child !is PsiWhiteSpace &&
-                    child !is PsiComment &&
-                    child !is org.jetbrains.kotlin.psi.KtAnnotationEntry &&
-                    child !is org.jetbrains.kotlin.psi.KtModifierList
-            ) {
-                // If we hit something else, we might have passed the comments/annotations
-            }
             if (child.text == "var" || child.text == "val") break
+            childElements.add(child)
             child = child.nextSibling
         }
-
-        return false
+        return hasTodoCommentBlock(childElements)
     }
 
-    private fun isTodoWithBug(text: String): Boolean = text.contains(Regex("""TODO.*b/\d+"""))
+    /**
+     * Returns true if [elements], given in source order, contain a block of consecutive comments
+     * that together form a TODO with a bug link. Comments are part of the same block when only
+     * whitespace without a blank line separates them, so a TODO comment can wrap its bug link onto
+     * the next line:
+     * ```
+     * // TODO: Remove this flag once it has soaked and the old code path is deleted
+     * //  (b/123456789)
+     * ```
+     */
+    private fun hasTodoCommentBlock(elements: List<PsiElement>): Boolean {
+        val block = StringBuilder()
+        for (element in elements) {
+            when {
+                element is PsiComment -> block.append(element.text).append('\n')
+                element is PsiWhiteSpace && element.text.count { it == '\n' } <= 1 -> {}
+                else -> {
+                    if (isTodoWithBug(block)) return true
+                    block.clear()
+                }
+            }
+        }
+        return isTodoWithBug(block)
+    }
+
+    private fun isTodoWithBug(text: CharSequence): Boolean = TodoWithBugRegex.containsMatchIn(text)
 
     companion object {
+        /** Matches a TODO followed by a bug link, which may be on a later line of the comment. */
+        private val TodoWithBugRegex = Regex("""TODO[\s\S]*?b/\d+""")
+
         val ISSUE =
             Issue.create(
                 id = "FeatureFlagSetup",
