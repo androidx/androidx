@@ -50,7 +50,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import org.junit.After
-import org.junit.AssumptionViolatedException
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -192,9 +192,8 @@ class BorderBenchmark(
             brushName == "RuntimeShader" &&
                 (shapeName == "SimpleGeneric" || shapeName == "ComplexGeneric")
         ) {
-            throw AssumptionViolatedException(
-                "b/570461408 - currently unsupported for generic shapes"
-            )
+            // Runtime shaders for generic shapes are only supported in the new implementation
+            Assume.assumeTrue(newImplementation)
         }
         return BorderTestCase(shape, brush, alternateBrush, hasBackgroundColor, onToggle)
     }
