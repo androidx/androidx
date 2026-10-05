@@ -39,6 +39,7 @@ class ProjectParserTest {
             )
         assertThat(parsed.softwareType).isEqualTo(SoftwareType.PUBLISHED_LIBRARY)
         assertThat(parsed.specifiesVersion).isTrue()
+        assertThat(parsed.mavenVersionGroup).isEqualTo("ACTIVITY")
         assertThat(parsed.shouldPublish()).isTrue()
         assertThat(parsed.shouldRelease()).isTrue()
     }
@@ -57,6 +58,7 @@ class ProjectParserTest {
             )
         assertThat(parsed.softwareType).isEqualTo(SoftwareType.SAMPLES)
         assertThat(parsed.specifiesVersion).isFalse()
+        assertThat(parsed.mavenVersionGroup).isNull()
         assertThat(parsed.shouldPublish()).isTrue()
         assertThat(parsed.shouldRelease()).isTrue()
     }
@@ -77,6 +79,7 @@ class ProjectParserTest {
             )
         assertThat(parsed.softwareType).isEqualTo(SoftwareType.PUBLISHED_LIBRARY)
         assertThat(parsed.specifiesVersion).isFalse()
+        assertThat(parsed.mavenVersionGroup).isNull()
     }
 
     @Test
@@ -95,6 +98,7 @@ class ProjectParserTest {
             )
         assertThat(parsed.softwareType).isEqualTo(SoftwareType.UNSET)
         assertThat(parsed.specifiesVersion).isFalse()
+        assertThat(parsed.mavenVersionGroup).isNull()
         assertThat(parsed.shouldPublish()).isFalse()
         assertThat(parsed.shouldRelease()).isFalse()
     }
@@ -114,6 +118,7 @@ class ProjectParserTest {
             )
         assertThat(parsed.softwareType).isEqualTo(SoftwareType.INTERNAL_TEST_LIBRARY)
         assertThat(parsed.specifiesVersion).isTrue()
+        assertThat(parsed.mavenVersionGroup).isEqualTo("ROOM")
     }
 
     @Test
@@ -146,6 +151,7 @@ class ProjectParserTest {
         assertThat(parsed.softwareType)
             .isEqualTo(SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS)
         assertThat(parsed.specifiesVersion).isTrue()
+        assertThat(parsed.mavenVersionGroup).isEqualTo("COMPOSE")
         assertThat(parsed.shouldPublish()).isTrue()
         assertThat(parsed.shouldRelease()).isTrue()
     }
@@ -163,6 +169,23 @@ class ProjectParserTest {
             )
         assertThat(parsed.softwareType).isEqualTo(SoftwareType.INTERNAL_TEST_LIBRARY)
         assertThat(parsed.specifiesVersion).isFalse()
+        assertThat(parsed.mavenVersionGroup).isNull()
+    }
+
+    @Test
+    fun parseIgnoresLibraryVersionsOutsideMavenVersion() {
+        val parsed =
+            ProjectParser.parseProject(
+                """
+                val version = androidx.LibraryVersions.TRACING_PERFETTO
+                androidx {
+                    type = SoftwareType.PUBLISHED_LIBRARY
+                }
+                """
+                    .trimIndent()
+            )
+        assertThat(parsed.specifiesVersion).isFalse()
+        assertThat(parsed.mavenVersionGroup).isNull()
     }
 
     @Test
