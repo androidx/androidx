@@ -26,7 +26,6 @@ import android.util.Log
 import androidx.collection.MutableIntList
 import androidx.collection.MutableObjectIntMap
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurfaceDetector
-import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
 import androidx.glance.adaptive.core.WidgetInstanceInfo
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
@@ -35,7 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Platform AppWidget implementation of [GlanceAdaptiveWidgetDelegate].
+ * Platform AppWidget implementation of [GlanceAdaptiveAppWidgetDelegate].
  *
  * Translates cross-surface declarative [AdaptiveGlanceTemplate] updates into concrete platform
  * [android.widget.RemoteViews] updates targeting active [AppWidgetManager] widget instances and
@@ -48,7 +47,7 @@ internal class BaseWidgetDelegate(
     private val composer: GlanceRemoteViewsComposer =
         GlanceRemoteViewsComposer(context, appWidgetManager),
     private val telemetry: WidgetTelemetryHandler = WidgetTelemetryHandler(appWidgetManager),
-) : GlanceAdaptiveWidgetDelegate {
+) : GlanceAdaptiveAppWidgetDelegate {
 
     /**
      * Resolves active target widget instances for the given [widgetName] and optional [widgetIds],

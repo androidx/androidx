@@ -19,7 +19,13 @@ package androidx.glance.adaptive.core
 import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 
-/** Internal interface abstracting underlying framework vs compat widget operations. */
+/**
+ * Internal interface abstracting the surface-specific implementations of widget operations.
+ *
+ * Only operations supported by every surface belong here. Operations specific to one surface, such
+ * as setting dynamic widget picker previews on phones, are implemented by that surface's delegate
+ * and exposed by the surface artifact as extension functions on [GlanceAdaptiveWidgetManager].
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GlanceAdaptiveWidgetDelegate {
     /**
@@ -44,12 +50,4 @@ public interface GlanceAdaptiveWidgetDelegate {
      * @param widgetName The developer-defined identifier of the widget definition.
      */
     public suspend fun getActiveInstances(widgetName: String): List<WidgetInstanceInfo>
-
-    /**
-     * Sets or updates dynamic preview data rendered in host widget pickers for [widgetName].
-     *
-     * @param widgetName The developer-defined identifier of the widget definition.
-     * @param previewData The declarative template data payload to render as a preview.
-     */
-    public suspend fun setPreview(widgetName: String, previewData: AdaptiveGlanceTemplate)
 }
