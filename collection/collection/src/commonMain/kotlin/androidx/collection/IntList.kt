@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 // Facade class name cannot be updated, the Kt name has been released
-@file:Suppress("NOTHING_TO_INLINE", "RedundantVisibilityModifier", "FacadeClassJvmName")
+@file:Suppress(
+    "NOTHING_TO_INLINE",
+    "RedundantVisibilityModifier",
+    "FacadeClassJvmName",
+)
 @file:OptIn(ExperimentalContracts::class)
 
 package androidx.collection
@@ -164,7 +168,9 @@ public sealed class IntList(initialCapacity: Int) {
      */
     public inline fun first(predicate: (element: Int) -> Boolean): Int {
         contract { callsInPlace(predicate) }
-        forEach { item -> if (predicate(item)) return item }
+        forEach { item ->
+            if (predicate(item)) return item
+        }
         throw NoSuchElementException("IntList contains no element matching the predicate.")
     }
 
@@ -180,7 +186,9 @@ public sealed class IntList(initialCapacity: Int) {
     public inline fun <R> fold(initial: R, operation: (acc: R, element: Int) -> R): R {
         contract { callsInPlace(operation) }
         var acc = initial
-        forEach { item -> acc = operation(acc, item) }
+        forEach { item ->
+            acc = operation(acc, item)
+        }
         return acc
     }
 
@@ -194,7 +202,9 @@ public sealed class IntList(initialCapacity: Int) {
     ): R {
         contract { callsInPlace(operation) }
         var acc = initial
-        forEachIndexed { i, item -> acc = operation(i, acc, item) }
+        forEachIndexed { i, item ->
+            acc = operation(i, acc, item)
+        }
         return acc
     }
 
@@ -210,7 +220,9 @@ public sealed class IntList(initialCapacity: Int) {
     public inline fun <R> foldRight(initial: R, operation: (element: Int, acc: R) -> R): R {
         contract { callsInPlace(operation) }
         var acc = initial
-        forEachReversed { item -> acc = operation(item, acc) }
+        forEachReversed { item ->
+            acc = operation(item, acc)
+        }
         return acc
     }
 
@@ -224,7 +236,9 @@ public sealed class IntList(initialCapacity: Int) {
     ): R {
         contract { callsInPlace(operation) }
         var acc = initial
-        forEachReversedIndexed { i, item -> acc = operation(i, item, acc) }
+        forEachReversedIndexed { i, item ->
+            acc = operation(i, item, acc)
+        }
         return acc
     }
 
@@ -550,7 +564,9 @@ public sealed class IntList(initialCapacity: Int) {
     /** Returns a hash code based on the contents of the [IntList]. */
     override fun hashCode(): Int {
         var hashCode = 0
-        forEach { element -> hashCode += 31 * element.hashCode() }
+        forEach { element ->
+            hashCode += 31 * element.hashCode()
+        }
         return hashCode
     }
 
@@ -638,7 +654,10 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      * @return `true` if the [MutableIntList] was changed or `false` if [elements] was empty
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive.
      */
-    public fun addAll(@IntRange(from = 0) index: Int, elements: IntArray): Boolean {
+    public fun addAll(
+        @IntRange(from = 0) index: Int,
+        elements: IntArray,
+    ): Boolean {
         if (index !in 0.._size) {
             throwIndexOutOfBoundsException("")
         }
@@ -665,7 +684,10 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      * @return `true` if the [MutableIntList] was changed or `false` if [elements] was empty
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
-    public fun addAll(@IntRange(from = 0) index: Int, elements: IntList): Boolean {
+    public fun addAll(
+        @IntRange(from = 0) index: Int,
+        elements: IntList,
+    ): Boolean {
         if (index !in 0.._size) {
             throwIndexOutOfBoundsException("")
         }
@@ -799,12 +821,16 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
 
     /** Removes all [elements] from the [MutableIntList]. */
     public operator fun minusAssign(elements: IntArray) {
-        elements.forEach { element -> remove(element) }
+        elements.forEach { element ->
+            remove(element)
+        }
     }
 
     /** Removes all [elements] from the [MutableIntList]. */
     public operator fun minusAssign(elements: IntList) {
-        elements.forEach { element -> remove(element) }
+        elements.forEach { element ->
+            remove(element)
+        }
     }
 
     /**
@@ -836,7 +862,10 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      * @throws IndexOutOfBoundsException if [start] or [end] isn't between 0 and [size], inclusive
      * @throws IllegalArgumentException if [start] is greater than [end]
      */
-    public fun removeRange(@IntRange(from = 0) start: Int, @IntRange(from = 0) end: Int) {
+    public fun removeRange(
+        @IntRange(from = 0) start: Int,
+        @IntRange(from = 0) end: Int,
+    ) {
         if (start !in 0.._size || end !in 0.._size) {
             throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
@@ -896,7 +925,10 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      * @return the previous value set at [index]
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [lastIndex], inclusive
      */
-    public operator fun set(@IntRange(from = 0) index: Int, element: Int): Int {
+    public operator fun set(
+        @IntRange(from = 0) index: Int,
+        element: Int,
+    ): Int {
         if (index !in 0 until _size) {
             throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
