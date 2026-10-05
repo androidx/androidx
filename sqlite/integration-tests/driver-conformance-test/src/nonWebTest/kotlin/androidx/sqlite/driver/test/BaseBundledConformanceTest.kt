@@ -150,6 +150,6 @@ abstract class BaseBundledConformanceTest : BaseConformanceTest() {
     }
 
     companion object {
-        const val EXPECTED_SQLITE_VERSION = "3.50.1"
+        const val EXPECTED_SQLITE_VERSION = "3.53.4"
     }
 }
