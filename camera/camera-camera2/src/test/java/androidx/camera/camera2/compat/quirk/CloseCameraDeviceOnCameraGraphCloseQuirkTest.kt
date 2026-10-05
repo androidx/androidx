@@ -76,6 +76,18 @@ class CloseCameraDeviceOnCameraGraphCloseQuirkTest(
                     false,
                     false,
                 ),
+                // Samsung Galaxy S22 / S23 / S24 series (Snapdragon) - enabled unconditionally on
+                // API 36+
+                arrayOf<Any>("Samsung", "sm-s908u", "b0q", "qcom", "taro", false, false),
+                arrayOf<Any>("Samsung", "sm-s908u1", "b0q", "qcom", "taro", false, false),
+                arrayOf<Any>("Samsung", "sm-s916u", "dm2q", "qcom", "kalama", false, false),
+                arrayOf<Any>("Samsung", "sm-s918u1", "dm3q", "qcom", "kalama", false, false),
+                arrayOf<Any>("Samsung", "sm-s921u1", "e1q", "qcom", "pineapple", false, false),
+                arrayOf<Any>("Samsung", "sm-s926u", "e2q", "qcom", "pineapple", false, false),
+                arrayOf<Any>("Samsung", "sm-s928u1", "e3q", "qcom", "pineapple", false, false),
+                // Samsung Galaxy S22 / S24 series (Exynos - not affected without extensions)
+                arrayOf<Any>("Samsung", "sm-s908b", "b0s", "s5e9925", "s5e9925", false, false),
+                arrayOf<Any>("Samsung", "sm-s921b", "e1s", "s5e9945", "s5e9945", false, false),
                 // Samsung Galaxy J6 (Exynos 7870)
                 arrayOf<Any>(
                     "Samsung",
@@ -116,15 +128,23 @@ class CloseCameraDeviceOnCameraGraphCloseQuirkTest(
         val isSamsungProblematic =
             brand.equals("Samsung", ignoreCase = true) &&
                 Build.VERSION.SDK_INT in Build.VERSION_CODES.S..Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-        val isQuirkEnabled = expectedEnabled || isSamsungProblematic
+        val isSamsungS22ToS24SnapdragonApi36 =
+            brand.equals("Samsung", ignoreCase = true) &&
+                Build.VERSION.SDK_INT >= 36 &&
+                hardware.equals("qcom", ignoreCase = true) &&
+                listOf("sm-s90", "sm-s91", "sm-s92").any { model.startsWith(it, ignoreCase = true) }
+
+        val isQuirkEnabled =
+            expectedEnabled || isSamsungProblematic || isSamsungS22ToS24SnapdragonApi36
+        val shouldCloseWithoutExtensions =
+            expectedShouldCloseWithoutExtensions || isSamsungS22ToS24SnapdragonApi36
 
         assertThat(CloseCameraDeviceOnCameraGraphCloseQuirk.isEnabled()).isEqualTo(isQuirkEnabled)
 
         if (isQuirkEnabled) {
             val quirk = CloseCameraDeviceOnCameraGraphCloseQuirk()
-            assertThat(quirk.shouldCloseCameraDevice(false))
-                .isEqualTo(expectedShouldCloseWithoutExtensions)
-            if (!expectedShouldCloseWithoutExtensions) {
+            assertThat(quirk.shouldCloseCameraDevice(false)).isEqualTo(shouldCloseWithoutExtensions)
+            if (!shouldCloseWithoutExtensions) {
                 assertThat(quirk.shouldCloseCameraDevice(true)).isTrue()
             }
         }

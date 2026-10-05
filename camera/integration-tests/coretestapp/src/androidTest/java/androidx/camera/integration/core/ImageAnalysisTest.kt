@@ -72,6 +72,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -82,6 +83,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -452,9 +454,16 @@ internal class ImageAnalysisTest(
     @Test
     @Throws(InterruptedException::class)
     fun useCaseCanBeReusedInDifferentCamera() = runBlocking {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
+
         val useCase = ImageAnalysis.Builder().build()
         withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, useCase)
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                useCase,
+            )
         }
         useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), analyzer)
         assertThat(analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
@@ -462,9 +471,97 @@ internal class ImageAnalysisTest(
         analysisResultsSemaphore = Semaphore(/* permits= */ 0)
         // Rebind the use case to different camera.
         withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, useCase)
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                useCase,
+            )
         }
         assertThat(analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
+    fun analyzerAnalyzesImages_afterFrontToBackCameraSwitchWithUnbindAll() = runBlocking {
+        // Regression test for b/538140458:
+        // 1. Bind ImageAnalysis using DEFAULT_FRONT_CAMERA.
+        // 2. Wait until the analyzer receives an ImageProxy.
+        // 3. Close the image.
+        // 4. Call unbindAll().
+        // 5. Bind the back camera using DEFAULT_BACK_CAMERA.
+        // 6. Verify that an ImageProxy arrives within 3 seconds.
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
+
+        val analysisExecutor = CameraXExecutors.newHandlerExecutor(handler)
+        val currentLatchRef = AtomicReference<CountDownLatch>()
+        val reusedUseCase =
+            ImageAnalysis.Builder().build().apply {
+                setAnalyzer(analysisExecutor) { image ->
+                    image.close()
+                    currentLatchRef.get()?.countDown()
+                }
+            }
+
+        for (iteration in 1..5) {
+            val reuseUseCase = iteration % 2 == 1
+            val frontLatch = CountDownLatch(1)
+            currentLatchRef.set(frontLatch)
+            val frontUseCase =
+                if (reuseUseCase) {
+                    reusedUseCase
+                } else {
+                    ImageAnalysis.Builder().build().apply {
+                        setAnalyzer(analysisExecutor) { image ->
+                            image.close()
+                            frontLatch.countDown()
+                        }
+                    }
+                }
+
+            withContext(Dispatchers.Main) {
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner,
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    frontUseCase,
+                )
+            }
+
+            assertWithMessage("Front camera did not deliver ImageProxy on iteration $iteration")
+                .that(frontLatch.await(5, TimeUnit.SECONDS))
+                .isTrue()
+
+            val backLatch = CountDownLatch(1)
+            currentLatchRef.set(backLatch)
+            val backUseCase =
+                if (reuseUseCase) {
+                    reusedUseCase
+                } else {
+                    ImageAnalysis.Builder().build().apply {
+                        setAnalyzer(analysisExecutor) { image ->
+                            image.close()
+                            backLatch.countDown()
+                        }
+                    }
+                }
+
+            withContext(Dispatchers.Main) {
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner,
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    backUseCase,
+                )
+            }
+
+            assertWithMessage(
+                    "Back camera did not deliver ImageProxy within 3s on iteration $iteration " +
+                        "(reuseUseCase=$reuseUseCase)"
+                )
+                .that(backLatch.await(3, TimeUnit.SECONDS))
+                .isTrue()
+
+            withContext(Dispatchers.Main) { cameraProvider.unbindAll() }
+        }
     }
 
     @Test
