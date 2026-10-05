@@ -18,6 +18,7 @@ package androidx.glance.adaptive.appwidget
 
 import android.app.PendingIntent
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
@@ -79,10 +80,16 @@ public suspend fun GlanceAdaptiveWidgetManager.setPreview(
  *
  * @param widgetName Developer widget definition String identifier matching
  *   [GlanceAdaptiveWidgetReceiver.widgetName].
+ * @param widgetId Optional developer-assigned widget instance String identifier for the pinned
+ *   widget. If omitted or blank, the [GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID] in [options] is
+ *   used, or a unique identifier is generated if there is none.
  * @param initialData Optional declarative template data payload implementing
  *   [AdaptiveGlanceTemplate] to render as the preview shown while the launcher asks the user to
  *   confirm. If omitted, the launcher shows the preview declared by the widget instead.
- * @param successCallback Optional [PendingIntent] sent once the widget is pinned.
+ * @param options Optional initial configuration options to store in the options of the pinned
+ *   widget.
+ * @param successCallback Optional [PendingIntent] sent once the widget is pinned and [widgetId] and
+ *   [options] are stored.
  * @return `true` if the request was sent to the launcher, `false` otherwise.
  * @throws IllegalStateException if the app has no foreground activity or foreground service.
  * @see android.appwidget.AppWidgetManager.requestPinAppWidget
@@ -90,7 +97,9 @@ public suspend fun GlanceAdaptiveWidgetManager.setPreview(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend fun GlanceAdaptiveWidgetManager.requestPin(
     widgetName: String,
+    widgetId: String? = null,
     initialData: AdaptiveGlanceTemplate? = null,
+    options: Bundle = Bundle.EMPTY,
     successCallback: PendingIntent? = null,
 ): Boolean {
     // A local copy, as Kotlin can't smart cast a property declared in another module.
@@ -101,7 +110,9 @@ public suspend fun GlanceAdaptiveWidgetManager.requestPin(
     }
     return delegate.requestPin(
         widgetName = widgetName,
+        widgetId = widgetId,
         initialData = initialData,
+        options = options,
         successCallback = successCallback,
     )
 }

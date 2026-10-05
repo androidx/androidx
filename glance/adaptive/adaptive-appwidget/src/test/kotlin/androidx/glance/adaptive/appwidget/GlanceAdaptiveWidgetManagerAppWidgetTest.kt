@@ -19,6 +19,7 @@ package androidx.glance.adaptive.appwidget
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
@@ -64,7 +65,9 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
     /** Arguments of one [GlanceAdaptiveAppWidgetDelegate.requestPin] call. */
     private data class RequestPinCall(
         val widgetName: String,
+        val widgetId: String?,
         val initialData: AdaptiveGlanceTemplate?,
+        val options: Bundle,
         val successCallback: PendingIntent?,
     )
 
@@ -88,10 +91,13 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
 
         override suspend fun requestPin(
             widgetName: String,
+            widgetId: String?,
             initialData: AdaptiveGlanceTemplate?,
+            options: Bundle,
             successCallback: PendingIntent?,
         ): Boolean {
-            requestPinCalls += RequestPinCall(widgetName, initialData, successCallback)
+            requestPinCalls +=
+                RequestPinCall(widgetName, widgetId, initialData, options, successCallback)
             return true
         }
     }
@@ -143,6 +149,7 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
         val delegate = FakeAppWidgetDelegate()
         val manager = GlanceAdaptiveWidgetManager(delegate)
         val initialData = TestTemplate()
+        val options = Bundle().apply { putString("config_key", "config_value") }
         val successCallback =
             PendingIntent.getBroadcast(
                 context,
@@ -154,13 +161,17 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
         val result =
             manager.requestPin(
                 widgetName = "test_widget",
+                widgetId = "instance_1",
                 initialData = initialData,
+                options = options,
                 successCallback = successCallback,
             )
 
         assertThat(result).isTrue()
         assertThat(delegate.requestPinCalls)
-            .containsExactly(RequestPinCall("test_widget", initialData, successCallback))
+            .containsExactly(
+                RequestPinCall("test_widget", "instance_1", initialData, options, successCallback)
+            )
         assertThat(fallbackWarnings()).isEmpty()
     }
 
@@ -175,7 +186,9 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
             .containsExactly(
                 RequestPinCall(
                     widgetName = "test_widget",
+                    widgetId = null,
                     initialData = null,
+                    options = Bundle.EMPTY,
                     successCallback = null,
                 )
             )

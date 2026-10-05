@@ -237,18 +237,27 @@ internal class BaseWidgetDelegate(
      * Requests that the launcher pin the first receiver for [widgetName] that can be placed on the
      * home screen, logging a warning if several receivers match [widgetName].
      *
-     * Mirrors [androidx.glance.appwidget.GlanceAppWidgetManager.requestPinGlanceAppWidget].
+     * Mirrors [androidx.glance.appwidget.GlanceAppWidgetManager.requestPinGlanceAppWidget], apart
+     * from [widgetId] and [options]. [AppWidgetManager.requestPinAppWidget] only hands its extras
+     * to the launcher, so they cannot reach the pinned widget that way. When either is set, the
+     * request is instead sent with a success callback handled by [RequestPinCallbackReceiver],
+     * which stores them in the options of the pinned widget and then sends [successCallback].
      *
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @param widgetId Widget instance String identifier to assign to the pinned widget. If null or
+     *   blank, the one in [options] is used, or one is generated if there is none.
      * @param initialData Declarative template data payload implementing [AdaptiveGlanceTemplate] to
      *   render as the preview shown while the launcher asks the user to confirm, if any.
+     * @param options Configuration options to store in the options of the pinned widget.
      * @param successCallback [PendingIntent] to send once the widget is pinned, if any.
      * @return true if the request was sent to the launcher, false otherwise.
      */
     override suspend fun requestPin(
         widgetName: String,
+        widgetId: String?,
         initialData: AdaptiveGlanceTemplate?,
+        options: Bundle,
         successCallback: PendingIntent?,
     ): Boolean =
         withContext(Dispatchers.IO) {
@@ -280,8 +289,53 @@ internal class BaseWidgetDelegate(
                         putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, preview)
                     }
                 }
-            appWidgetManager.requestPinAppWidget(providerInfo.provider, extras, successCallback)
+            appWidgetManager.requestPinAppWidget(
+                providerInfo.provider,
+                extras,
+                pinSuccessCallback(widgetId, options, successCallback),
+            )
         }
+
+    /**
+     * Returns the success callback of a pin request: [successCallback] itself if there is nothing
+     * to store, or otherwise one that first stores [widgetId] and [options] in the options of the
+     * pinned widget.
+     */
+    private fun pinSuccessCallback(
+        widgetId: String?,
+        options: Bundle,
+        successCallback: PendingIntent?,
+    ): PendingIntent? {
+        // An identifier already in [options] is kept unless [widgetId] is set, and a blank one is
+        // treated as absent, as GlanceAdaptiveWidgetReceiver does.
+        val requestedWidgetId =
+            widgetId?.takeUnless { it.isBlank() }
+                ?: options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)?.takeUnless {
+                    it.isBlank()
+                }
+        if (requestedWidgetId == null && options.isEmpty) {
+            // A default widgetId is still generated later by GlanceAdaptiveWidgetReceiver once the
+            // widget is placed, so there is nothing to store here.
+            return successCallback
+        }
+
+        val optionsToStore =
+            Bundle(options).apply {
+                // Generated now if not requested, rather than by the receiver once the widget is
+                // placed: the receiver updates a placed widget again when its identifier changes,
+                // but not when only other options do, so this makes sure the widget is updated with
+                // [options] even if it was first updated before they were stored.
+                putString(
+                    GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID,
+                    requestedWidgetId ?: GlanceAdaptiveWidgetReceiver.generateWidgetId(),
+                )
+            }
+        return RequestPinCallbackReceiver.createSuccessCallback(
+            context = context,
+            options = optionsToStore,
+            successCallback = successCallback,
+        )
+    }
 
     /**
      * Resolves the installed [AppWidgetProviderInfo] of each receiver matching [widgetName],
