@@ -69,6 +69,8 @@ internal class BorderLogic @RememberInComposition constructor() {
     // This object is only used for generic shapes and rounded rectangles with different corner
     // radius sizes.
     private var borderPath: Path? = null
+    // This path is only used for rounded rectangles with different corner radius sizes.
+    private var roundRectInsetPath: Path? = null
 
     // Lazily allocated when offscreen ImageBitmap rendering is used for generic shapes.
     private var imageBitmap: ImageBitmap? = null
@@ -323,7 +325,7 @@ internal class BorderLogic @RememberInComposition constructor() {
                 }
                 translate(pathBounds.left, pathBounds.top) {
                     drawImage(
-                        cacheImageBitmap!!,
+                        cacheImageBitmap,
                         srcSize = pathBoundsSize,
                         colorFilter = colorFilter,
                     )
@@ -367,6 +369,9 @@ internal class BorderLogic @RememberInComposition constructor() {
     }
 
     private fun obtainPath(): Path = borderPath ?: Path().also { borderPath = it }
+
+    private fun obtainRoundRectInsetPath(): Path =
+        roundRectInsetPath ?: Path().also { roundRectInsetPath = it }
 
     /** Border implementation for simple rounded rects and those with different corner radii */
     private fun createDrawRoundRectBorder(
@@ -421,6 +426,7 @@ internal class BorderLogic @RememberInComposition constructor() {
             }
         } else {
             val path = obtainPath()
+            val insetPath = obtainRoundRectInsetPath()
             var lastStrokeWidth = Float.NaN
             var roundedRectPath: Path? = null
 
@@ -428,7 +434,8 @@ internal class BorderLogic @RememberInComposition constructor() {
                 val strokeWidthPx = strokeWidthPx(widthPx)
                 val fillArea = fillArea(strokeWidthPx)
                 if (lastStrokeWidth != strokeWidthPx) {
-                    roundedRectPath = createRoundRectPath(path, roundRect, strokeWidthPx, fillArea)
+                    roundedRectPath =
+                        createRoundRectPath(path, insetPath, roundRect, strokeWidthPx, fillArea)
                     lastStrokeWidth = strokeWidthPx
                 }
                 drawPath(roundedRectPath!!, brush = brush)
@@ -460,6 +467,7 @@ internal class BorderLogic @RememberInComposition constructor() {
  */
 private fun createRoundRectPath(
     targetPath: Path,
+    insetPath: Path,
     roundedRect: RoundRect,
     strokeWidth: Float,
     fillArea: Boolean,
@@ -467,23 +475,25 @@ private fun createRoundRectPath(
     reset()
     addRoundRect(roundedRect)
     if (!fillArea) {
-        val insetPath =
-            Path().apply { addRoundRect(createInsetRoundedRect(strokeWidth, roundedRect)) }
+        val insetPath = insetPath.apply {
+            reset()
+            addRoundRect(
+                RoundRect(
+                    left = roundedRect.left + strokeWidth,
+                    top = roundedRect.top + strokeWidth,
+                    right = roundedRect.right - strokeWidth,
+                    bottom = roundedRect.bottom - strokeWidth,
+                    topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(strokeWidth),
+                    topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(strokeWidth),
+                    bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(strokeWidth),
+                    bottomRightCornerRadius =
+                        roundedRect.bottomRightCornerRadius.shrink(strokeWidth),
+                )
+            )
+        }
         op(this, insetPath, PathOperation.Difference)
     }
 }
-
-private fun createInsetRoundedRect(widthPx: Float, roundedRect: RoundRect) =
-    RoundRect(
-        left = roundedRect.left + widthPx,
-        top = roundedRect.top + widthPx,
-        right = roundedRect.right - widthPx,
-        bottom = roundedRect.bottom - widthPx,
-        topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(widthPx),
-        topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(widthPx),
-        bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(widthPx),
-        bottomRightCornerRadius = roundedRect.bottomRightCornerRadius.shrink(widthPx),
-    )
 
 /**
  * Helper method to shrink the corner radius by the given value, clamping to 0 if the resultant
