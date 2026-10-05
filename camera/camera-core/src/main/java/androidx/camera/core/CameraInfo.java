@@ -50,7 +50,17 @@ import java.util.concurrent.Executor;
 /**
  * An interface for retrieving camera information.
  *
- * <p>Applications can retrieve an instance via {@link Camera#getCameraInfo()}.
+ * <p>Applications can retrieve an instance for a bound camera via {@link Camera#getCameraInfo()},
+ * or query camera capabilities before binding use cases via
+ * {@link CameraProvider#getCameraInfo(CameraSelector)},
+ * {@link CameraProvider#getCameraInfo(CameraSelector, SessionConfig)}, or
+ * {@link CameraProvider#getAvailableCameraInfos()}.
+ *
+ * <p>The capabilities reported by a {@code CameraInfo} can depend on the {@link SessionConfig} it
+ * is obtained for. For example, a {@code CameraInfo} obtained for an
+ * {@link androidx.camera.extensions.ExtensionSessionConfig} reflects the supported zoom range and
+ * whether torch, focus and metering, and exposure compensation are supported while that extension
+ * is enabled.
  */
 public interface CameraInfo {
 
@@ -106,8 +116,9 @@ public interface CameraInfo {
     /**
      * Returns whether the shutter sound must be played in accordance to regional restrictions.
      *
-     * <p>This method provides the general rule of playing shutter sounds. The exact
-     * requirements of playing shutter sounds may vary among regions.
+     * <p>CameraX does not play shutter or recording sounds automatically. This method provides the
+     * general rule of playing shutter sounds. The exact requirements of playing shutter sounds may
+     * vary among regions.
      *
      * <p>For image capture, the shutter sound is recommended to be played when receiving
      * {@link ImageCapture.OnImageCapturedCallback#onCaptureStarted()} or
@@ -136,6 +147,10 @@ public interface CameraInfo {
      * Returns the sensor rotation in degrees, relative to the device's "natural" (default)
      * orientation.
      *
+     * <p>Note that to orient {@link ImageAnalysis} or in-memory {@link ImageCapture} frames, use
+     * {@link ImageInfo#getRotationDegrees()} from {@link ImageProxy#getImageInfo()} instead, which
+     * already accounts for the use case's target rotation.
+     *
      * <p>See <a href="https://developer.android.com/guide/topics/sensors/sensors_overview#sensors-coords">Sensor Coordinate System</a>
      * for more information.
      *
@@ -154,7 +169,11 @@ public interface CameraInfo {
      */
     int getSensorRotationDegrees(@ImageOutputConfig.RotationValue int relativeRotation);
 
-    /** Returns if flash unit is available or not. */
+    /**
+     * Returns whether the camera has a flash unit.
+     *
+     * @return {@code true} if the camera has a flash unit, {@code false} otherwise.
+     */
     boolean hasFlashUnit();
 
     /**
@@ -167,6 +186,11 @@ public interface CameraInfo {
      *
      * <p>If the camera doesn't have a flash unit (see {@link #hasFlashUnit()}), then the torch
      * state will be {@link TorchState#OFF}.
+     *
+     * <p>When {@link CameraControl#enableTorch(boolean)} is called while the camera is open and
+     * has a flash unit, the value is updated without waiting for the camera to apply the change.
+     * The torch state is reset to {@link TorchState#OFF} when all {@link UseCase}s are unbound
+     * from the camera or the camera is closed because the lifecycle it is bound to is stopped.
      *
      * @return a {@link LiveData} containing current torch state.
      */
@@ -181,13 +205,23 @@ public interface CameraInfo {
      * methods, the {@link ZoomState} value in this {@link LiveData} is updated without waiting for
      * the asynchronous camera operation to complete. The zoom state can also change anytime a
      * camera starts up, for example when a {@link UseCase} is bound to it.
+     *
+     * @return a {@link LiveData} containing the current {@link ZoomState}.
      */
     @NonNull LiveData<ZoomState> getZoomState();
 
     /**
-     * Returns a {@link ExposureState}.
+     * Returns a snapshot of the current {@link ExposureState}.
      *
-     * <p>The {@link ExposureState} contains the current exposure related information.
+     * <p>The {@link ExposureState} contains the current exposure related information. When a valid
+     * exposure compensation index is set via
+     * {@link CameraControl#setExposureCompensationIndex(int)} while the camera is open,
+     * subsequent calls to {@code getExposureState()} immediately reflect the new index in
+     * {@link ExposureState#getExposureCompensationIndex()}. The exposure compensation index is
+     * reset to {@code 0} when all {@link UseCase}s are unbound from the camera or the camera is
+     * closed because the lifecycle it is bound to is stopped.
+     *
+     * @return the current {@link ExposureState}.
      */
     @NonNull ExposureState getExposureState();
 
@@ -254,7 +288,7 @@ public interface CameraInfo {
     /**
      * Returns a {@link CameraSelector} unique to this camera.
      *
-     * @return {@link CameraSelector} unique to this camera.
+     * @return a {@link CameraSelector} unique to this camera.
      */
     @NonNull CameraSelector getCameraSelector();
 
@@ -305,34 +339,37 @@ public interface CameraInfo {
     }
 
     /**
-     * Returns if the given {@link FocusMeteringAction} is supported on the devices.
+     * Returns whether the given {@link FocusMeteringAction} is supported on this camera.
      *
-     * <p>It returns true if at least one valid AF/AE/AWB region generated by the given
+     * <p>It returns {@code true} if at least one valid AF/AE/AWB region generated by the given
      * {@link FocusMeteringAction} is supported on the current camera. For example, on a camera
      * supporting only AF regions, passing in a {@link FocusMeteringAction} specifying AF/AE regions
-     * to this API will still return true. But it will return false if the
+     * to this API will still return {@code true}. But it will return {@code false} if the
      * {@link FocusMeteringAction} specifies only the AE region since none of the specified
      * regions are supported.
      *
-     * <p>If it returns false, invoking
+     * <p>If it returns {@code false}, invoking
      * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} with the given
      * {@link FocusMeteringAction} will always fail.
+     *
+     * @param action the {@link FocusMeteringAction} to check.
+     * @return {@code true} if the given {@link FocusMeteringAction} is supported on this camera,
+     * {@code false} otherwise.
      */
     default boolean isFocusMeteringSupported(@NonNull FocusMeteringAction action) {
         return false;
     }
 
     /**
-     * Returns if {@link ImageCapture#CAPTURE_MODE_ZERO_SHUTTER_LAG} is supported on the current
-     * device.
+     * Returns whether {@link ImageCapture#CAPTURE_MODE_ZERO_SHUTTER_LAG} is supported on this
+     * camera.
      *
-     * <p>ZERO_SHUTTER_LAG will be supported when all of the following conditions are met
-     * <ul>
-     *     <li> API Level >= 23
-     *     <li> {@link ImageFormat#PRIVATE} reprocessing is supported
-     * </ul>
+     * <p>Zero-shutter lag requires API level 23 or higher and {@link ImageFormat#PRIVATE}
+     * reprocessing support, and may be unavailable on some devices even when these requirements
+     * are met.
      *
-     * @return true if supported, otherwise false.
+     * @return {@code true} if {@link ImageCapture#CAPTURE_MODE_ZERO_SHUTTER_LAG} is supported on
+     * this camera, {@code false} otherwise.
      */
     @ExperimentalZeroShutterLag
     default boolean isZslSupported() {
@@ -399,12 +436,13 @@ public interface CameraInfo {
     }
 
     /**
-     * Returns if logical multi camera is supported on the device.
+     * Returns whether logical multi-camera is supported on this camera.
      *
-     * <p>A logical camera is a grouping of two or more of those physical cameras.
-     * See <a href="https://developer.android.com/media/camera/camera2/multi-camera">Multi-camera API</a>
+     * <p>A logical camera is a grouping of two or more physical cameras. See
+     * <a href="https://developer.android.com/media/camera/camera2/multi-camera">Multi-camera API</a>.
      *
-     * @return true if supported, otherwise false.
+     * @return {@code true} if logical multi-camera is supported on this camera, {@code false}
+     * otherwise.
      * @see android.hardware.camera2.CameraMetadata
      * #REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
      */
@@ -490,14 +528,20 @@ public interface CameraInfo {
     /**
      * Returns a set of physical camera {@link CameraInfo}s.
      *
-     * <p>A logical camera is a grouping of two or more of those physical cameras.
-     * See <a href="https://developer.android.com/media/camera/camera2/multi-camera">Multi-camera API</a>
+     * <p>A logical camera is a grouping of two or more physical cameras. See
+     * <a href="https://developer.android.com/media/camera/camera2/multi-camera">Multi-camera API</a>.
      *
-     * <p> Check {@link #isLogicalMultiCameraSupported()} to see if the device is supporting
-     * physical camera or not. If the device doesn't support physical camera, empty set will
-     * be returned.
+     * <p>Use {@link #isLogicalMultiCameraSupported()} to check whether logical multi-camera is
+     * supported on this camera. If it isn't, an empty set is returned.
      *
-     * @return Set of physical camera {@link CameraInfo}s.
+     * <p>Each returned {@code CameraInfo} represents a physical camera of this logical camera and
+     * can be used to query its static properties, such as {@link #getCameraIdentifier()},
+     * {@link #getLensFacing()}, {@link #getSensorRotationDegrees()}, and
+     * {@link #getIntrinsicZoomRatio()}. Camera states and supported capabilities should be queried
+     * on the logical camera.
+     *
+     * @return the set of physical {@code CameraInfo} instances of this logical camera, or an empty
+     * set if logical multi-camera is not supported on this camera.
      * @see #isLogicalMultiCameraSupported()
      */
     default @NonNull Set<CameraInfo> getPhysicalCameraInfos() {
@@ -507,7 +551,7 @@ public interface CameraInfo {
     /**
      * Returns the maximum torch strength level.
      *
-     * @return The maximum strength level, or {@link #TORCH_STRENGTH_LEVEL_UNSUPPORTED} if the
+     * @return the maximum strength level, or {@link #TORCH_STRENGTH_LEVEL_UNSUPPORTED} if the
      * device doesn't have a flash unit or doesn't support configuring torch strength.
      */
     @IntRange(from = 0)
@@ -523,13 +567,15 @@ public interface CameraInfo {
      *
      * <p>The value of the {@link LiveData} will be {@link #TORCH_STRENGTH_LEVEL_UNSUPPORTED} if
      * the device doesn't have a flash unit or doesn't support configuring torch strength.
+     *
+     * @return a {@link LiveData} containing the current torch strength level.
      */
     default @NonNull LiveData<Integer> getTorchStrengthLevel() {
         return new MutableLiveData<>(TORCH_STRENGTH_LEVEL_UNSUPPORTED);
     }
 
     /**
-     * Returns if configuring torch strength is supported on the device.
+     * Returns whether configuring torch strength is supported on this camera.
      *
      * <p>If supported, {@link CameraControl#setTorchStrengthLevel(int)} can be used to configure
      * torch strength.
@@ -555,12 +601,11 @@ public interface CameraInfo {
     }
 
     /**
-     * Returns if low-light boost is supported on the device. Low-light boost can be turned on via
-     * {@link CameraControl#enableLowLightBoostAsync(boolean)}.
+     * Returns whether low-light boost is supported on this camera. Low-light boost can be turned
+     * on via {@link CameraControl#enableLowLightBoostAsync(boolean)}.
      *
-     * @return true if
-     * {@link CaptureRequest#CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY} is supported,
-     * otherwise false.
+     * @return {@code true} if low-light boost is supported on this camera, {@code false}
+     * otherwise.
      * @see CameraControl#enableLowLightBoostAsync(boolean)
      * @see CaptureRequest#CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
      */
@@ -587,10 +632,10 @@ public interface CameraInfo {
     }
 
     /**
-     * Returns whether the night mode indicator is supported.
+     * Returns whether the night mode indicator is supported on this camera.
      *
-     * @return true if {@link CaptureResult#EXTENSION_NIGHT_MODE_INDICATOR} is supported,
-     * otherwise false.
+     * @return {@code true} if the night mode indicator is supported on this camera, {@code false}
+     * otherwise.
      * @see CaptureResult#EXTENSION_NIGHT_MODE_INDICATOR
      */
     default boolean isNightModeIndicatorSupported() {
