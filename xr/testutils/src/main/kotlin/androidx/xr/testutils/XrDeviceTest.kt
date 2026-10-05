@@ -19,6 +19,8 @@ import android.os.Build
 import androidx.test.filters.AbstractFilter
 import androidx.test.filters.CustomFilter
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.xr.runtime.RequiresSpatialApi
+import androidx.xr.runtime.SpatialApiVersionHelper
 import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
 import org.junit.runner.Description
 
@@ -43,6 +45,14 @@ class XrDeviceFilter : AbstractFilter() {
         }
 
         val annotationValue = description.getAnnotation(XrDeviceTest::class.java) ?: return true
+        val requiresSpatialApi = description.getAnnotation(RequiresSpatialApi::class.java)
+        if (
+            requiresSpatialApi != null &&
+                SpatialApiVersionHelper.spatialApiVersion < requiresSpatialApi.value
+        ) {
+            return false
+        }
+
         val include = annotationValue.include
         val exclude = annotationValue.exclude
 

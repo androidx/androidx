@@ -20,6 +20,8 @@ import androidx.activity.ComponentActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
@@ -77,3 +79,17 @@ internal inline fun runTestWithSession(crossinline testBody: suspend (Session) -
     runTestWithSession { _, session ->
         testBody(session)
     }
+
+internal fun assertPose(actual: Pose, expected: Pose, epsilon: Float = 1e-5f) {
+    assertVector3(actual.translation, expected.translation, epsilon)
+    assertThat(actual.rotation.x).isWithin(epsilon).of(expected.rotation.x)
+    assertThat(actual.rotation.y).isWithin(epsilon).of(expected.rotation.y)
+    assertThat(actual.rotation.z).isWithin(epsilon).of(expected.rotation.z)
+    assertThat(actual.rotation.w).isWithin(epsilon).of(expected.rotation.w)
+}
+
+internal fun assertVector3(actual: Vector3, expected: Vector3, epsilon: Float = 1e-5f) {
+    assertThat(actual.x).isWithin(epsilon).of(expected.x)
+    assertThat(actual.y).isWithin(epsilon).of(expected.y)
+    assertThat(actual.z).isWithin(epsilon).of(expected.z)
+}

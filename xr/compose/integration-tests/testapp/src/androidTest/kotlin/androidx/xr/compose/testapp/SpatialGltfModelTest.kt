@@ -27,6 +27,8 @@ import androidx.xr.compose.subspace.SpatialGltfModelSource
 import androidx.xr.compose.subspace.SpatialGltfModelState
 import androidx.xr.compose.subspace.SpatialGltfModelStatus
 import androidx.xr.compose.subspace.rememberSpatialGltfModelState
+import androidx.xr.runtime.RequiresSpatialApi
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.testutils.XrDeviceConfig
 import androidx.xr.testutils.XrDeviceTest
 import com.google.common.truth.Truth.assertThat
@@ -58,6 +60,7 @@ class SpatialGltfModelTest {
      */
     @Test
     @XrDeviceTest(include = [XrDeviceConfig.PHYSICAL_DEVICE])
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun spatialGltfModel_loadsSuccessfully() {
         var state: SpatialGltfModelState? = null
 

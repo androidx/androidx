@@ -100,6 +100,7 @@ class SpatialAnimationTest {
      * out).
      */
     @Test
+    @XrDeviceTest
     fun spatialAnimation_alphaFadeInAndOut_animatesOpacity() {
         var targetAlpha by mutableFloatStateOf(0.0f)
 
@@ -153,6 +154,7 @@ class SpatialAnimationTest {
      * Validates scale-based growth and collapse of a side panel triggered by interactive buttons.
      */
     @Test
+    @XrDeviceTest
     fun spatialAnimation_scaleGrowth_expandsAndCollapsesSidePanel() {
         composeTestRule.setContent {
             var isExpanded by remember { mutableStateOf(false) }
@@ -223,6 +225,7 @@ class SpatialAnimationTest {
 
     /** Validates concurrent animation of width, height, and depth offset on a SpatialPanel. */
     @Test
+    @XrDeviceTest
     fun spatialAnimation_concurrentDimensionAndOffsetAnimation_updatesDimensionsAndOffset() {
         composeTestRule.setContent {
             var isExpanded by remember { mutableStateOf(false) }
@@ -294,6 +297,7 @@ class SpatialAnimationTest {
 
     /** Validates value-based animation of Orbiter elevation depth offset. */
     @Test
+    @XrDeviceTest
     fun spatialAnimation_orbiterElevationAnimation_animatesElevationOffset() {
         composeTestRule.setContent {
             var isElevated by remember { mutableStateOf(false) }

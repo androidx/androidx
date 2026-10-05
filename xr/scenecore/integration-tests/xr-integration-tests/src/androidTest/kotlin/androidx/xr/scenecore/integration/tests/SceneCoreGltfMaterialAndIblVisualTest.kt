@@ -18,6 +18,8 @@ package androidx.xr.scenecore.integration.tests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.xr.runtime.RequiresSpatialApi
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AlphaMode
@@ -37,6 +39,7 @@ class SceneCoreGltfMaterialAndIblVisualTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun materialOverride_applyAndClear_updatesNativeMaterialOverrides() =
         runTestWithSession { session ->
             val gltfModel = GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))
