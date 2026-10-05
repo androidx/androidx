@@ -474,7 +474,9 @@ public final class AppSearchImpl implements Closeable {
                             initializeResultProto.getInitializeStats(), initStatsBuilder);
                 }
                 checkSuccess(initializeResultProto.getStatus());
-                if (hasDatabaseStateChangedAfterInit(initializeResultProto)) {
+                if (Flags.enableUseNeedsPersistTypeFromIcing()) {
+                    updateNeedsPersistType(initializeResultProto.getNeedsPersistType());
+                } else if (hasDatabaseStateChangedAfterInit(initializeResultProto)) {
                     updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
                 }
 
@@ -1228,10 +1230,9 @@ public final class AppSearchImpl implements Closeable {
         // Determine whether it succeeded.
         try {
             checkSuccess(setSchemaResultProto.getStatus());
-            // TODO(b/417463182): add boolean field(s) into SetSchemaResultProto indicating whether
-            //   ground truths and derived files have changed or not, and we can have a simpler way
-            //   here to decide if persistToDisk is needed or not.
-            if (setSchemaResultProto.getNewSchemaTypesCount() > 0
+            if (Flags.enableUseNeedsPersistTypeFromIcing()) {
+                updateNeedsPersistType(setSchemaResultProto.getNeedsPersistType());
+            } else if (setSchemaResultProto.getNewSchemaTypesCount() > 0
                     || setSchemaResultProto.getDeletedSchemaTypesCount() > 0
                     || setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0
                     || setSchemaResultProto.getDeletedDocumentCount() > 0
@@ -4753,8 +4754,11 @@ public final class AppSearchImpl implements Closeable {
 
                     // Determine whether it succeeded.
                     checkSuccess(setSchemaResultProto.getStatus());
-                    // TODO(b/417463182): switch to use needsPersistType in setSchemaResultProto.
-                    updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
+                    if (Flags.enableUseNeedsPersistTypeFromIcing()) {
+                        updateNeedsPersistType(setSchemaResultProto.getNeedsPersistType());
+                    } else {
+                        updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
+                    }
                 }
                 successfullyDeletedData = true;
             }
@@ -4832,8 +4836,11 @@ public final class AppSearchImpl implements Closeable {
 
         // Determine whether it succeeded.
         checkSuccess(setSchemaResultProto.getStatus());
-        // TODO(b/417463182): switch to use needsPersistType in setSchemaResultProto.
-        updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
+        if (Flags.enableUseNeedsPersistTypeFromIcing()) {
+            updateNeedsPersistType(setSchemaResultProto.getNeedsPersistType());
+        } else {
+            updateNeedsPersistType(DEFAULT_PERSIST_TYPE);
+        }
     }
 
     /**

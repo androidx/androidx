@@ -12461,7 +12461,7 @@ public class AppSearchImplTest {
                         mUnlimitedConfig,
                         new AppSearchUserPlugins.Builder()
                                 .setInitStatsBuilder(initStatsBuilder).build(),
-                ALWAYS_OPTIMIZE);
+                        ALWAYS_OPTIMIZE);
         // Sanity check for initStats.
         InitializeStats initStats = initStatsBuilder.build();
         assertThat(initStats.getNativeSchemaStoreRecoveryCause())
@@ -12484,7 +12484,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testNeedsPersistType_defaultTypeForInitializationWithRecovery() throws Exception {
+    public void testNeedsPersistType_desiredTypeForInitializationWithRecovery() throws Exception {
         // Set schema
         List<AppSearchSchema> schemas =
                 Collections.singletonList(
@@ -12558,7 +12558,7 @@ public class AppSearchImplTest {
                         mUnlimitedConfig,
                         new AppSearchUserPlugins.Builder()
                                 .setInitStatsBuilder(initStatsBuilder).build(),
-                ALWAYS_OPTIMIZE);
+                        ALWAYS_OPTIMIZE);
         // Sanity check for initStats.
         InitializeStats initStats = initStatsBuilder.build();
         assertThat(initStats.getNativeSchemaStoreRecoveryCause())
@@ -12573,11 +12573,12 @@ public class AppSearchImplTest {
                 .isEqualTo(InitializeStats.RECOVERY_CAUSE_IO_ERROR);
 
         assertThat(anotherAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
+                .isEqualTo(PersistType.Code.RECOVERY_PROOF);
     }
 
     @Test
-    public void testNeedsPersistType_defaultTypeForNewSetSchema() throws Exception {
+    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_USE_NEEDS_PERSIST_TYPE_FROM_ICING)
+    public void testNeedsPersistType_defaultTypeForNewSetSchema_flagDisabled() throws Exception {
         // Set schema
         List<AppSearchSchema> schemas = Collections.singletonList(
                 new AppSearchSchema.Builder("Type")
@@ -12606,7 +12607,100 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testNeedsPersistType_defaultTypeForDeletedSetSchema()
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_USE_NEEDS_PERSIST_TYPE_FROM_ICING)
+    public void testNeedsPersistType_unknownTypeForNewSetSchema_flagEnabled() throws Exception {
+        // Set schema
+        List<AppSearchSchema> schemas = Collections.singletonList(
+                new AppSearchSchema.Builder("Type")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
+                                .build())
+                        .build());
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ ImmutableMap.of(),
+                /* forceOverride= */ false,
+                /* version= */ 0,
+                /* setSchemaStatsBuilder= */ null,
+                /* callStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        // New schema does not require flush.
+        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                .isEqualTo(PersistType.Code.UNKNOWN);
+    }
+
+    @Test
+    public void testNeedsPersistType_desiredTypeForDeletedSetSchemaWithDocsDeleted()
+            throws Exception {
+        // This test should pass regardless of FLAG_ENABLE_USE_NEEDS_PERSIST_TYPE_FROM_ICING.
+        // Set schema
+        List<AppSearchSchema> schemas = Collections.singletonList(
+                new AppSearchSchema.Builder("Type")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
+                                .build())
+                        .build());
+        InternalSetSchemaResponse internalSetSchemaResponse1 = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ ImmutableMap.of(),
+                /* forceOverride= */ false,
+                /* version= */ 0,
+                /* setSchemaStatsBuilder= */ null,
+                /* callStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
+        // Put a document.
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id", "Type")
+                .setPropertyString("body", "foo bar baz")
+                .build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                document,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                /* callStatsBuilder= */ null);
+        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
+        // Sanity check that the type is reset.
+        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                .isEqualTo(PersistType.Code.UNKNOWN);
+
+        // Delete the schema by calling SetSchema with empty list. Since an incompatible document
+        // was deleted, persistToDisk is required after deleting the schema.
+        InternalSetSchemaResponse internalSetSchemaResponse2 = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                /* schemas= */ Collections.emptyList(),
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ ImmutableMap.of(),
+                /* forceOverride= */ true,
+                /* version= */ 0,
+                /* setSchemaStatsBuilder= */ null,
+                /* callStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse2.isSuccess()).isTrue();
+        assertThat(internalSetSchemaResponse2.getSetSchemaResponse().getDeletedTypes()).hasSize(1);
+        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                .isEqualTo(PersistType.Code.RECOVERY_PROOF);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_USE_NEEDS_PERSIST_TYPE_FROM_ICING)
+    public void testNeedsPersistType_unknownTypeForDeletedSetSchemaWithNoDocsDeleted()
             throws Exception {
         // Set schema
         List<AppSearchSchema> schemas = Collections.singletonList(
@@ -12630,14 +12724,12 @@ public class AppSearchImplTest {
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
-        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
-
-        // Sanity check that the type is reset.
+        // New schema does not require flush.
         assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
                 .isEqualTo(PersistType.Code.UNKNOWN);
 
-        // Delete the schema by calling SetSchema with empty list. Need persistToDisk.
+        // Delete the schema by calling SetSchema with empty list. Since there was no incompatible
+        // document, persistToDisk is not required after deleting the schema.
         InternalSetSchemaResponse internalSetSchemaResponse2 = mAppSearchImpl.setSchema(
                 "package",
                 "database",
@@ -12651,12 +12743,13 @@ public class AppSearchImplTest {
         assertThat(internalSetSchemaResponse2.isSuccess()).isTrue();
         assertThat(internalSetSchemaResponse2.getSetSchemaResponse().getDeletedTypes()).hasSize(1);
         assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
+                .isEqualTo(PersistType.Code.UNKNOWN);
     }
 
     @Test
-    public void testNeedsPersistType_defaultTypeForIncompatibleSetSchema()
+    public void testNeedsPersistType_desiredTypeForIncompatibleSetSchemaWithDocsDeleted()
             throws Exception {
+        // This test should pass regardless of FLAG_ENABLE_USE_NEEDS_PERSIST_TYPE_FROM_ICING.
         // Set schema
         List<AppSearchSchema> schemas1 = Collections.singletonList(
                 new AppSearchSchema.Builder("Type")
@@ -12679,15 +12772,24 @@ public class AppSearchImplTest {
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
+        // Put a document without the "body" property.
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id", "Type").build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                document,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                /* callStatsBuilder= */ null);
         assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
                 .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
-
         // Sanity check that the type is reset.
         assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
                 .isEqualTo(PersistType.Code.UNKNOWN);
 
         // Set schema again with incompatible changes (property cardinality OPTIONAL -> REQUIRED).
-        // Need persistToDisk.
+        // Since an incompatible document was deleted, persistToDisk is required after the
+        // incompatible schema change.
         List<AppSearchSchema> schemas2 = Collections.singletonList(
                 new AppSearchSchema.Builder("Type")
                         .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
@@ -12712,11 +12814,84 @@ public class AppSearchImplTest {
         assertThat(internalSetSchemaResponse2.getSetSchemaResponse().getIncompatibleTypes())
                 .hasSize(1);
         assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
+                .isEqualTo(PersistType.Code.RECOVERY_PROOF);
     }
 
     @Test
-    public void testNeedsPersistType_defaultTypeForIndexIncompatibleSetSchema() throws Exception {
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_USE_NEEDS_PERSIST_TYPE_FROM_ICING)
+    public void testNeedsPersistType_unknownTypeForIncompatibleSetSchemaWithNoDocsDeleted()
+            throws Exception {
+        // Set schema
+        List<AppSearchSchema> schemas1 = Collections.singletonList(
+                new AppSearchSchema.Builder("Type")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
+                                .build())
+                        .build());
+        InternalSetSchemaResponse internalSetSchemaResponse1 = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas1,
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ ImmutableMap.of(),
+                /* forceOverride= */ false,
+                /* version= */ 0,
+                /* setSchemaStatsBuilder= */ null,
+                /* callStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
+        // Put a document with the "body" property.
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id", "Type")
+                .setPropertyString("body", "foo bar baz")
+                .build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                document,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                /* callStatsBuilder= */ null);
+        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
+        // Sanity check that the type is reset.
+        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                .isEqualTo(PersistType.Code.UNKNOWN);
+
+        // Set schema again with incompatible changes (property cardinality OPTIONAL -> REQUIRED).
+        // Since the document was not deleted, persistToDisk is NOT required after the incompatible
+        // schema change.
+        List<AppSearchSchema> schemas2 = Collections.singletonList(
+                new AppSearchSchema.Builder("Type")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
+                                .build())
+                        .build());
+        InternalSetSchemaResponse internalSetSchemaResponse2 = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas2,
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ ImmutableMap.of(),
+                /* forceOverride= */ true,
+                /* version= */ 0,
+                /* setSchemaStatsBuilder= */ null,
+                /* callStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse2.isSuccess()).isTrue();
+        assertThat(internalSetSchemaResponse2.getSetSchemaResponse().getIncompatibleTypes())
+                .hasSize(1);
+        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                .isEqualTo(PersistType.Code.UNKNOWN);
+    }
+
+    @Test
+    public void testNeedsPersistType_desiredTypeForIndexIncompatibleSetSchema() throws Exception {
         // Set schema
         List<AppSearchSchema> schemas1 = Collections.singletonList(
                 new AppSearchSchema.Builder("Type")
@@ -12781,7 +12956,7 @@ public class AppSearchImplTest {
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse2.isSuccess()).isTrue();
         assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
+                .isEqualTo(PersistType.Code.RECOVERY_PROOF);
     }
 
     @Test
@@ -12808,12 +12983,18 @@ public class AppSearchImplTest {
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
-        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
+        if (Flags.enableUseNeedsPersistTypeFromIcing()) {
+            // New schema does not require flush.
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(PersistType.Code.UNKNOWN);
+        } else {
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
 
-        // Sanity check that the type is reset.
-        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(PersistType.Code.UNKNOWN);
+            // Sanity check that the type is reset.
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(PersistType.Code.UNKNOWN);
+        }
 
         // Set the same schema again. No need persistToDisk.
         InternalSetSchemaResponse internalSetSchemaResponse2 = mAppSearchImpl.setSchema(
@@ -12832,7 +13013,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testNeedsPersistType_defaultTypeForSameSetSchemaWithVisibilityChange()
+    public void testNeedsPersistType_desiredTypeForSameSetSchemaWithVisibilityChange()
             throws Exception {
         List<AppSearchSchema> schemas = Collections.singletonList(
                 new AppSearchSchema.Builder("Type")
@@ -12863,12 +13044,18 @@ public class AppSearchImplTest {
                         /* schemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
-        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
+        if (Flags.enableUseNeedsPersistTypeFromIcing()) {
+            // New schema does not require flush.
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(PersistType.Code.UNKNOWN);
+        } else {
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
 
-        // Sanity check that the type is reset.
-        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(PersistType.Code.UNKNOWN);
+            // Sanity check that the type is reset.
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(PersistType.Code.UNKNOWN);
+        }
 
         // Set the same schema again with different visibility settings. Need persistToDisk.
         InternalSetSchemaResponse internalSetSchemaResponse2 =
@@ -12884,7 +13071,7 @@ public class AppSearchImplTest {
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse2.isSuccess()).isTrue();
         assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
+                .isEqualTo(PersistType.Code.RECOVERY_PROOF);
     }
 
     @Test
@@ -12911,12 +13098,18 @@ public class AppSearchImplTest {
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
-        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
+        if (Flags.enableUseNeedsPersistTypeFromIcing()) {
+            // New schema does not require flush.
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(PersistType.Code.UNKNOWN);
+        } else {
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
 
-        // Sanity check that the type is reset.
-        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(PersistType.Code.UNKNOWN);
+            // Sanity check that the type is reset.
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(PersistType.Code.UNKNOWN);
+        }
 
         // Put a document. Need persistToDisk.
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id", "Type")
@@ -12957,12 +13150,18 @@ public class AppSearchImplTest {
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
-        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
+        if (Flags.enableUseNeedsPersistTypeFromIcing()) {
+            // New schema does not require flush.
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(PersistType.Code.UNKNOWN);
+        } else {
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
 
-        // Sanity check that the type is reset.
-        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(PersistType.Code.UNKNOWN);
+            // Sanity check that the type is reset.
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(PersistType.Code.UNKNOWN);
+        }
 
         // Put a document. Need persistToDisk.
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id", "Type")
@@ -13018,12 +13217,18 @@ public class AppSearchImplTest {
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
-        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
+        if (Flags.enableUseNeedsPersistTypeFromIcing()) {
+            // New schema does not require flush.
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(PersistType.Code.UNKNOWN);
+        } else {
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
 
-        // Sanity check that the type is reset.
-        assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
-                .isEqualTo(PersistType.Code.UNKNOWN);
+            // Sanity check that the type is reset.
+            assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
+                    .isEqualTo(PersistType.Code.UNKNOWN);
+        }
 
         // Put a document. Need persistToDisk.
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id", "Type")
@@ -13069,11 +13274,10 @@ public class AppSearchImplTest {
         byte[] digest = calculateDigest(data);
         AppSearchBlobHandle handle = AppSearchBlobHandle.createWithSha256(
                 digest, "package", "db1", "ns");
-        try (ParcelFileDescriptor writePfd =
-                     mAppSearchImpl.openWriteBlob(
-                             "package", "db1", handle, /* callStatsBuilder= */ null);
-                OutputStream outputStream =
-                        new ParcelFileDescriptor.AutoCloseOutputStream(writePfd)) {
+        try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob(
+                "package", "db1", handle, /* callStatsBuilder= */ null);
+                OutputStream outputStream = new ParcelFileDescriptor
+                        .AutoCloseOutputStream(writePfd)) {
             outputStream.write(data);
             outputStream.flush();
         }
