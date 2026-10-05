@@ -34,7 +34,7 @@ repackage {
     // Must match what is in health/connect/connect-client-external-protobuf/build.gradle
     addRelocation {
         sourcePackage = "com.google.protobuf"
-        targetPackage =  "androidx.health.platform.client.proto"
+        targetPackage =  "androidx.health.platform.client.protobuf"
     }
 }
 

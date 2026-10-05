@@ -18,8 +18,8 @@ package androidx.health.platform.client.impl.data
 import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.health.platform.client.proto.ByteString
-import androidx.health.platform.client.proto.BytesValue
+import androidx.health.platform.client.protobuf.ByteString
+import androidx.health.platform.client.protobuf.BytesValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

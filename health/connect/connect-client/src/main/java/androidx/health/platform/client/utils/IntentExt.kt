@@ -21,7 +21,7 @@ package androidx.health.platform.client.utils
 import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.RestrictTo
-import androidx.health.platform.client.proto.AbstractMessageLite
+import androidx.health.platform.client.protobuf.AbstractMessageLite
 
 public fun Intent.putProtoMessages(
     name: String,
