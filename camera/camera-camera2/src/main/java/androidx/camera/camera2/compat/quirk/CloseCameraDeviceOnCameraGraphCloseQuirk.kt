@@ -30,7 +30,7 @@ import androidx.camera.core.impl.Quirk
  * the camera device.
  *
  * QuirkSummary
- * - Bug Id: 282871038, 369300443, 425588561, 426104225, 369291594, 385881561
+ * - Bug Id: 282871038, 369300443, 425588561, 426104225, 369291594, 385881561, 538140458
  * - Description: Instructs CameraPipe to close the camera device before creating a new capture
  *   session to avoid undesirable behaviors
  *
@@ -55,9 +55,10 @@ public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
         @JvmStatic
         public fun isEnabled(): Boolean {
             if (isSamsungUnconditionalDevice) {
-                // On Exynos7570, Exynos7870, and Snapdragon 845 Galaxy S9 platforms, recreating
-                // a capture session without closing the camera device can trigger native HAL
-                // crashes or pipeline stalls. Closing the camera device resolves this issue.
+                // On Exynos7570, Exynos7870, Snapdragon 845 Galaxy S9, and Snapdragon Galaxy
+                // S22-S24 platforms, recreating a capture session without closing the camera
+                // device can trigger native HAL crashes or pipeline stalls. Closing the camera
+                // device resolves this issue.
                 return true
             } else if (
                 Build.VERSION.SDK_INT in Build.VERSION_CODES.R..Build.VERSION_CODES.TIRAMISU &&
@@ -89,7 +90,8 @@ public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
             get() =
                 isSamsungExynos7570Device ||
                     isSamsungExynos7870Device ||
-                    isSamsungGalaxyS9SnapdragonDevice
+                    isSamsungGalaxyS9SnapdragonDevice ||
+                    isSamsungS22ToS24SnapdragonDevice
 
         private val isSamsungExynos7570Device: Boolean
             get() =
@@ -118,6 +120,25 @@ public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
                                 "sm-g965w",
                             )
                             .any { Build.MODEL.startsWith(it, ignoreCase = true) })
+
+        // Samsung Galaxy S22, S23, and S24 Snapdragon series on Android 16+ (b/538140458).
+        private val isSamsungS22ToS24SnapdragonDevice: Boolean
+            get() =
+                isSamsungDevice() &&
+                    Build.VERSION.SDK_INT >= 36 &&
+                    Build.HARDWARE.equals("qcom", ignoreCase = true) &&
+                    listOf(
+                            "sm-s901",
+                            "sm-s906",
+                            "sm-s908",
+                            "sm-s911",
+                            "sm-s916",
+                            "sm-s918",
+                            "sm-s921",
+                            "sm-s926",
+                            "sm-s928",
+                        )
+                        .any { Build.MODEL.startsWith(it, ignoreCase = true) }
 
         // Xiaomi 14 Ultra and Xiaomi 14 to apply the quirk when Extensions is enabled.
         private val isXiaomiProblematicDevice: Boolean
