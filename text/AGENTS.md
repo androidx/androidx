@@ -13,7 +13,7 @@
 - **Scope & Gradle:** Touch only `:text:text-vertical`,
   `:text:text-vertical-compose`, and `:text:text-vertical-testapp` unless asked.
   Include `:annotation` in `PROJECT_PREFIX` so
-  `:annotation:annotation-keep-lint` resolves, and run `:updateApi` only on the
+  `:annotation:keep:lint` resolves, and run `:updateApi` only on the
   two library modules:
   ```bash
   PROJECT_PREFIX=:text,:annotation ./gradlew <tasks>
