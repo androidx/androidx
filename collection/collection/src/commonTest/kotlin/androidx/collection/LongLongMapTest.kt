@@ -80,22 +80,50 @@ class LongLongMapTest {
 
     @Test
     fun longLongMapInitFunction() {
-        val map1 = longLongMapOf(1L, 1L)
+        val map1 =
+            longLongMapOf(
+                1L,
+                1L,
+            )
         assertEquals(1, map1.size)
         assertEquals(1L, map1[1L])
 
-        val map2 = longLongMapOf(1L, 1L, 2L, 2L)
+        val map2 =
+            longLongMapOf(
+                1L,
+                1L,
+                2L,
+                2L,
+            )
         assertEquals(2, map2.size)
         assertEquals(1L, map2[1L])
         assertEquals(2L, map2[2L])
 
-        val map3 = longLongMapOf(1L, 1L, 2L, 2L, 3L, 3L)
+        val map3 =
+            longLongMapOf(
+                1L,
+                1L,
+                2L,
+                2L,
+                3L,
+                3L,
+            )
         assertEquals(3, map3.size)
         assertEquals(1L, map3[1L])
         assertEquals(2L, map3[2L])
         assertEquals(3L, map3[3L])
 
-        val map4 = longLongMapOf(1L, 1L, 2L, 2L, 3L, 3L, 4L, 4L)
+        val map4 =
+            longLongMapOf(
+                1L,
+                1L,
+                2L,
+                2L,
+                3L,
+                3L,
+                4L,
+                4L,
+            )
 
         assertEquals(4, map4.size)
         assertEquals(1L, map4[1L])
@@ -103,7 +131,19 @@ class LongLongMapTest {
         assertEquals(3L, map4[3L])
         assertEquals(4L, map4[4L])
 
-        val map5 = longLongMapOf(1L, 1L, 2L, 2L, 3L, 3L, 4L, 4L, 5L, 5L)
+        val map5 =
+            longLongMapOf(
+                1L,
+                1L,
+                2L,
+                2L,
+                3L,
+                3L,
+                4L,
+                4L,
+                5L,
+                5L,
+            )
 
         assertEquals(5, map5.size)
         assertEquals(1L, map5[1L])
@@ -115,22 +155,50 @@ class LongLongMapTest {
 
     @Test
     fun mutableLongLongMapInitFunction() {
-        val map1 = mutableLongLongMapOf(1L, 1L)
+        val map1 =
+            mutableLongLongMapOf(
+                1L,
+                1L,
+            )
         assertEquals(1, map1.size)
         assertEquals(1L, map1[1L])
 
-        val map2 = mutableLongLongMapOf(1L, 1L, 2L, 2L)
+        val map2 =
+            mutableLongLongMapOf(
+                1L,
+                1L,
+                2L,
+                2L,
+            )
         assertEquals(2, map2.size)
         assertEquals(1L, map2[1L])
         assertEquals(2L, map2[2L])
 
-        val map3 = mutableLongLongMapOf(1L, 1L, 2L, 2L, 3L, 3L)
+        val map3 =
+            mutableLongLongMapOf(
+                1L,
+                1L,
+                2L,
+                2L,
+                3L,
+                3L,
+            )
         assertEquals(3, map3.size)
         assertEquals(1L, map3[1L])
         assertEquals(2L, map3[2L])
         assertEquals(3L, map3[3L])
 
-        val map4 = mutableLongLongMapOf(1L, 1L, 2L, 2L, 3L, 3L, 4L, 4L)
+        val map4 =
+            mutableLongLongMapOf(
+                1L,
+                1L,
+                2L,
+                2L,
+                3L,
+                3L,
+                4L,
+                4L,
+            )
 
         assertEquals(4, map4.size)
         assertEquals(1L, map4[1L])
@@ -138,7 +206,19 @@ class LongLongMapTest {
         assertEquals(3L, map4[3L])
         assertEquals(4L, map4[4L])
 
-        val map5 = mutableLongLongMapOf(1L, 1L, 2L, 2L, 3L, 3L, 4L, 4L, 5L, 5L)
+        val map5 =
+            mutableLongLongMapOf(
+                1L,
+                1L,
+                2L,
+                2L,
+                3L,
+                3L,
+                4L,
+                4L,
+                5L,
+                5L,
+            )
 
         assertEquals(5, map5.size)
         assertEquals(1L, map5[1L])
@@ -253,7 +333,9 @@ class LongLongMapTest {
         val map = MutableLongLongMap()
         map[1L] = 1L
 
-        assertFailsWith<NoSuchElementException> { map[2L] }
+        assertFailsWith<NoSuchElementException> {
+            map[2L]
+        }
     }
 
     @Test
@@ -539,10 +621,14 @@ class LongLongMapTest {
     @Test
     fun joinToString() {
         val map = MutableLongLongMap()
-        repeat(5) { map[it.toLong()] = it.toLong() }
+        repeat(5) {
+            map[it.toLong()] = it.toLong()
+        }
         val order = IntArray(5)
         var index = 0
-        map.forEach { key, _ -> order[index++] = key.toInt() }
+        map.forEach { key, _ ->
+            order[index++] = key.toInt()
+        }
         assertEquals(
             "${order[0].toLong()}=${order[0].toLong()}, ${order[1].toLong()}=" +
                 "${order[1].toLong()}, ${order[2].toLong()}=${order[2].toLong()}," +
@@ -586,7 +672,20 @@ class LongLongMapTest {
 
         // Same number of items but different keys to test that looking up
         // a non-existing entry doesn't throw during equals()
-        assertNotEquals(mutableLongLongMapOf(1L, 1L, 2L, 2L), mutableLongLongMapOf(1L, 1L, 3L, 2L))
+        assertNotEquals(
+            mutableLongLongMapOf(
+                1L,
+                1L,
+                2L,
+                2L,
+            ),
+            mutableLongLongMapOf(
+                1L,
+                1L,
+                3L,
+                2L,
+            ),
+        )
     }
 
     @Test
@@ -714,7 +813,10 @@ class LongLongMapTest {
         for (i in 0..1000000) {
             map[i.toLong()] = i.toLong()
             map.remove(i.toLong())
-            assertTrue(map.capacity < 16, "Map grew larger than 16 after step $i")
+            assertTrue(
+                map.capacity < 16,
+                "Map grew larger than 16 after step $i",
+            )
         }
     }
 }

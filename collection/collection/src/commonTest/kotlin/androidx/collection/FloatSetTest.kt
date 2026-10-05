@@ -84,7 +84,9 @@ class FloatSetTest {
         assertEquals(2, set.size)
         val elements = FloatArray(2)
         var index = 0
-        set.forEach { element -> elements[index++] = element }
+        set.forEach { element ->
+            elements[index++] = element
+        }
         elements.sort()
         assertEquals(1f, elements[0])
         assertEquals(2f, elements[1])
@@ -305,7 +307,9 @@ class FloatSetTest {
 
             val elements = FloatArray(i)
             var index = 0
-            set.forEach { element -> elements[index++] = element }
+            set.forEach { element ->
+                elements[index++] = element
+            }
             elements.sort()
 
             index = 0
@@ -346,7 +350,9 @@ class FloatSetTest {
         val set = floatSetOf(1f, 2f, 3f, 4f, 5f)
         val order = IntArray(5)
         var index = 0
-        set.forEach { element -> order[index++] = element.toInt() }
+        set.forEach { element ->
+            order[index++] = element.toInt()
+        }
         assertEquals(
             "${order[0].toFloat()}, ${order[1].toFloat()}, ${order[2].toFloat()}, " +
                 "${order[3].toFloat()}, ${order[4].toFloat()}",
@@ -468,7 +474,24 @@ class FloatSetTest {
         set.clear()
         assertEquals(capacity, set.trim())
         assertEquals(0, set.capacity)
-        set.addAll(floatArrayOf(1f, 2f, 3f, 4f, 5f, 7f, 6f, 8f, 9f, 10f, 11f, 12f, 13f, 14f))
+        set.addAll(
+            floatArrayOf(
+                1f,
+                2f,
+                3f,
+                4f,
+                5f,
+                7f,
+                6f,
+                8f,
+                9f,
+                10f,
+                11f,
+                12f,
+                13f,
+                14f,
+            )
+        )
         set.removeAll(floatArrayOf(6f, 8f, 9f, 10f, 11f, 12f, 13f, 14f))
         assertTrue(set.trim() > 0)
         assertEquals(capacity, set.capacity)
@@ -591,7 +614,10 @@ class FloatSetTest {
         for (i in 0..1000000) {
             set.add(i.toFloat())
             set.remove(i.toFloat())
-            assertTrue(set.capacity < 16, "Set grew larger than 16 after step $i")
+            assertTrue(
+                set.capacity < 16,
+                "Set grew larger than 16 after step $i",
+            )
         }
     }
 }
