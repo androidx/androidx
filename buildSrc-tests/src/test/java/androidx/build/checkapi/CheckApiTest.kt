@@ -36,7 +36,7 @@ class CheckApiTest {
             "1.1.0-beta02.txt",
             getRequiredCompatibilityApiFileFromDir(
                     apiDir,
-                    Version("1.1.0-beta03"),
+                    Version.parse("1.1.0-beta03"),
                     ApiType.CLASSAPI,
                 )
                 ?.name,
@@ -48,7 +48,7 @@ class CheckApiTest {
             "1.1.0-beta02.txt",
             getRequiredCompatibilityApiFileFromDir(
                     apiDir,
-                    Version("1.1.0-beta02"),
+                    Version.parse("1.1.0-beta02"),
                     ApiType.CLASSAPI,
                 )
                 ?.name,
@@ -58,7 +58,7 @@ class CheckApiTest {
             "1.3.0-beta01.txt",
             getRequiredCompatibilityApiFileFromDir(
                     apiDir,
-                    Version("1.4.0-alpha01"),
+                    Version.parse("1.4.0-alpha01"),
                     ApiType.CLASSAPI,
                 )
                 ?.name,

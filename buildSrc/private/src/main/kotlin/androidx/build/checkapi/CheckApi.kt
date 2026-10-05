@@ -85,7 +85,8 @@ fun Project.getRequiredCompatibilityApiLocation(): ApiLocation? {
  */
 fun getApiFileVersion(version: Version): Version {
     if (!isValidArtifactVersion(version)) {
-        val suggestedVersion = Version("${version.major}.${version.minor}.${version.patch}-rc01")
+        val suggestedVersion =
+            Version.parse("${version.major}.${version.minor}.${version.patch}-rc01")
         throw GradleException(
             "Illegal version $version . It is not allowed to have a nonzero " +
                 "patch number and be alpha or beta at the same time.\n" +

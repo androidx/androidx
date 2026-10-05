@@ -29,7 +29,7 @@ class PinnedDependenciesTest {
             projectPath = ":fragment:fragment",
             groupId = "androidx.fragment",
             artifactId = "fragment",
-            version = Version("1.9.0-beta01"),
+            version = Version.parse("1.9.0-beta01"),
             versionGroup = "FRAGMENT",
         )
 
@@ -38,7 +38,7 @@ class PinnedDependenciesTest {
             projectPath = ":tracing:tracing",
             groupId = "androidx.tracing",
             artifactId = "tracing",
-            version = Version("2.0.0-beta01"),
+            version = Version.parse("2.0.0-beta01"),
             versionGroup = "TRACING",
         )
 
@@ -94,28 +94,28 @@ class PinnedDependenciesTest {
 
     @Test
     fun exemptionExpiresOnceTheLibraryMovesPastIt() {
-        val past = fragment.copy(version = Version("1.9.0-rc02"))
+        val past = fragment.copy(version = Version.parse("1.9.0-rc02"))
         val errors = findVerificationErrors(past, listOf(tracing), listOf(exemption()))
         assertThat(errors.single()).contains("has moved past 1.9.0-rc01")
     }
 
     @Test
     fun exemptionIsStillValidAtExactlyItsVersion() {
-        val atBoundary = fragment.copy(version = Version("1.9.0-rc01"))
+        val atBoundary = fragment.copy(version = Version.parse("1.9.0-rc01"))
         assertThat(findVerificationErrors(atBoundary, listOf(tracing), listOf(exemption())))
             .isEmpty()
     }
 
     @Test
     fun aNewMajorLineExpiresTheExemption() {
-        val nextMajor = fragment.copy(version = Version("2.0.0-alpha01"))
+        val nextMajor = fragment.copy(version = Version.parse("2.0.0-alpha01"))
         val errors = findVerificationErrors(nextMajor, listOf(tracing), listOf(exemption()))
         assertThat(errors.single()).contains("has moved past 1.9.0-rc01")
     }
 
     @Test
     fun skippingThePhaseTheExemptionNamesStillExpiresIt() {
-        val skippedBeta = fragment.copy(version = Version("1.9.0-rc01"))
+        val skippedBeta = fragment.copy(version = Version.parse("1.9.0-rc01"))
         val errors =
             findVerificationErrors(
                 skippedBeta,
@@ -169,19 +169,21 @@ class PinnedDependenciesTest {
 
     @Test
     fun suggestedExemptionVersionAdvancesExactlyOnePhase() {
-        assertThat(suggestedExemptionVersion(Version("1.9.0-alpha03"))).isEqualTo("1.9.0-beta01")
-        assertThat(suggestedExemptionVersion(Version("1.9.0-beta01"))).isEqualTo("1.9.0-rc01")
-        assertThat(suggestedExemptionVersion(Version("1.9.0-rc01"))).isEqualTo("1.9.0")
-        assertThat(suggestedExemptionVersion(Version("1.9.0"))).isEqualTo("1.10.0-alpha01")
-        assertThat(suggestedExemptionVersion(Version("1.2.1-alpha01"))).isEqualTo("1.2.1-beta01")
-        assertThat(suggestedExemptionVersion(Version("1.2.1-beta01"))).isEqualTo("1.2.1-rc01")
-        assertThat(suggestedExemptionVersion(Version("1.2.1-rc01"))).isEqualTo("1.2.1")
-        assertThat(suggestedExemptionVersion(Version("1.2.1"))).isEqualTo("1.3.0-alpha01")
+        assertThat(suggestedExemptionVersion(Version.parse("1.9.0-alpha03")))
+            .isEqualTo("1.9.0-beta01")
+        assertThat(suggestedExemptionVersion(Version.parse("1.9.0-beta01"))).isEqualTo("1.9.0-rc01")
+        assertThat(suggestedExemptionVersion(Version.parse("1.9.0-rc01"))).isEqualTo("1.9.0")
+        assertThat(suggestedExemptionVersion(Version.parse("1.9.0"))).isEqualTo("1.10.0-alpha01")
+        assertThat(suggestedExemptionVersion(Version.parse("1.2.1-alpha01")))
+            .isEqualTo("1.2.1-beta01")
+        assertThat(suggestedExemptionVersion(Version.parse("1.2.1-beta01"))).isEqualTo("1.2.1-rc01")
+        assertThat(suggestedExemptionVersion(Version.parse("1.2.1-rc01"))).isEqualTo("1.2.1")
+        assertThat(suggestedExemptionVersion(Version.parse("1.2.1"))).isEqualTo("1.3.0-alpha01")
     }
 
     @Test
     fun duplicateDependenciesAreReportedAtMostOnce() {
-        val duplicateTracing = tracing.copy(version = Version("1.0.0"))
+        val duplicateTracing = tracing.copy(version = Version.parse("1.0.0"))
         val errors = findVerificationErrors(fragment, listOf(tracing, duplicateTracing), listOf())
         assertThat(errors).hasSize(1)
     }
@@ -191,7 +193,7 @@ class PinnedDependenciesTest {
         val self = tracing.copy(projectPath = ":fragment:fragment", versionGroup = null)
         val sibling =
             tracing.copy(projectPath = ":fragment:fragment-ktx", versionGroup = "FRAGMENT")
-        val duplicateTracing = tracing.copy(version = Version("1.0.0"))
+        val duplicateTracing = tracing.copy(version = Version.parse("1.0.0"))
 
         val unpinned =
             findUnpinnedDependencies(fragment, listOf(self, sibling, tracing, duplicateTracing))

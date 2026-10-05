@@ -95,8 +95,8 @@ private abstract class IgnoreChangesWorker : WorkAction<IgnoreChangesParameters>
         val currentDump = MergedKlibDumpParser(parameters.currentApiDump.get().asFile).parse()
         val shouldFreeze =
             shouldFreezeApis(
-                Version(parameters.referenceVersion.get()),
-                Version(parameters.projectVersion.get()),
+                Version.parse(parameters.referenceVersion.get()),
+                Version.parse(parameters.projectVersion.get()),
             )
         val ignoredErrors =
             BinaryCompatibilityChecker.checkAllBinariesAreCompatible(
