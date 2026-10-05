@@ -26,8 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.mediaQuery
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
@@ -220,4 +222,25 @@ fun TestCompositionLocalWrapperPreview() {
         throw IllegalArgumentException("Expected 'Injected', but got '$value'")
     }
     Text(text = "Value is $value")
+}
+
+@OptIn(ExperimentalMediaQueryApi::class)
+@Preview
+@Composable
+fun TestMediaQueryPreview() {
+    val isTabletop = mediaQuery { windowPosture.isTabletop }
+    val keyboard = mediaQuery { keyboardKind }
+    val pointer = mediaQuery { pointerPrecision }
+    Text(text = "isTabletop=$isTabletop, keyboard=$keyboard, pointer=$pointer")
+}
+
+@OptIn(ExperimentalMediaQueryApi::class)
+@Preview
+@Composable
+fun TestTabletopMediaQueryPreview() {
+    val isTabletop = mediaQuery { windowPosture.isTabletop }
+    if (!isTabletop) {
+        throw IllegalArgumentException("Expected tabletop posture, but was not")
+    }
+    Text(text = "Tabletop verified")
 }
