@@ -115,7 +115,7 @@ internal abstract class VerifyDependencyVersionsTask : DefaultTask() {
         // unspecified then any non alpha project won't be able to depend on it to ensure safety.
         val version =
             if (versionString != AndroidXExtension.DEFAULT_UNSPECIFIED_VERSION) {
-                Version(versionString)
+                Version.parse(versionString)
             } else {
                 return 1
             }
@@ -319,7 +319,7 @@ internal fun Project.getLibraryProjectCoordinates(
     libraryVersionsService: Provider<LibraryVersionsService>
 ): Provider<ProjectCoordinates> {
     val projectPath = path
-    val projectVersion = Version(version.toString())
+    val projectVersion = Version.parse(version.toString())
     val projectGroup = group.toString()
     val projectArtifact = name
     return libraryVersionsService.map { service ->
