@@ -92,6 +92,9 @@ applicable. Prioritize clarity and conciseness.
     *   **Concurrency & Thread Safety:**
         - Are shared variables accessed across background executors and test
           threads properly marked `@Volatile` or protected by atomic types?
+        - When evaluating state transitions inside a `synchronized` block, are
+          all mutable session/resource references read inside the same critical
+          section rather than captured before acquiring the lock?
         - Do `CountDownLatch` or synchronization primitives guarantee release
           in `finally` blocks so test runners never hang on timeouts?
         - Are blocking calls (`get()`, `await()`, thread sleep) strictly
@@ -632,6 +635,13 @@ CameraX involves complex hardware interactions, making robust testing essential.
   - Simulate background/foreground transitions using
     `fakeLifecycleOwner.pauseAndStop()` and `startAndResume()` to verify
     pipeline recovery.
+- **Deterministic Testing of In-Flight Async Transitions**:
+  - When fixing races during asynchronous transitions (e.g. a request arriving
+    while a session or codec is configuring, stopping, or releasing), use
+    delegating test doubles that hold back completion callbacks until
+    explicitly triggered. This deterministically pauses the state machine in
+    intermediate states to verify interleaved calls and cancellations on the
+    JVM without timing flakiness.
 - **Hierarchical Pre-Flight Verification & Fault Domain Isolation**:
   - **Pre-Flight Primary Baseline Check**: When writing integration or device
     tests for specialized, secondary, or composite camera features (e.g.
@@ -1050,6 +1060,14 @@ Before finalizing changes to shared infrastructure (e.g. `UseCase`,
 3. **Audit Binary & API Compatibility**: Verify that public and restricted
    (`LIBRARY_GROUP`) API contracts and binary signatures remain fully backward
    compatible.
+4. **Audit Composite State Machines & Coupled Observables**: When adding a
+   deferral or early-return branch to a state transition:
+   - Verify all entry states so pending teardown/reset signals from the
+     previous state are preserved rather than silently dropped.
+   - Update any coupled secondary or observable states (e.g. backed-up
+     non-pending state, `StreamState.ACTIVE` / `INACTIVE`) alongside the
+     primary state so downstream observers and cancellation paths remain
+     consistent.
 
 #### 8. Capability & Hardware Abstraction Problem-Solving Framework
 
