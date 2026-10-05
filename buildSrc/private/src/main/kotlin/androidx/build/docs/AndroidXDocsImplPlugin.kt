@@ -420,6 +420,13 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 when (target.konanTarget.family) {
                     Family.IOS ->
                         listOf(
+                            // These paths correspond to the exact klib a symbol comes from, not the
+                            // package name it is imported as. For example,
+                            // platform.CoreGraphics.CGAffineTransform comes from the header
+                            // CoreFoundation/CFCGTypes.h. But the klib is neither CoreGraphics nor
+                            // CoreFoundation. Instead, you have to look at the specific name of the
+                            // klib which imports that header, which is CFCGTypes defined here:
+                            // https://github.com/JetBrains/kotlin/blob/master/kotlin-native/platformLibs/src/platform/ios/CFCGTypes.def
                             klibDir.dir("org.jetbrains.kotlin.native.platform.CoreFoundation"),
                             klibDir.dir("org.jetbrains.kotlin.native.platform.CoreGraphics"),
                             klibDir.dir("org.jetbrains.kotlin.native.platform.CoreImage"),
