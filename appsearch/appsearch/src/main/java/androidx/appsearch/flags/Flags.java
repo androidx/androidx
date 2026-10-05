@@ -298,6 +298,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_INDEX_RESTORATION_CRITICAL_ERROR_HANDLING_FIX =
             FLAG_PREFIX + "enable_index_restoration_critical_error_handling_fix";
 
+    /** Whether to enable AppSearch to use needsPersistType decided by Icing. */
+    public static final String FLAG_ENABLE_USE_NEEDS_PERSIST_TYPE_FROM_ICING =
+            FLAG_PREFIX + "enable_use_needs_persist_type_from_icing";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -656,5 +660,11 @@ public final class Flags {
      */
     public static boolean enableAppsIndexerPwaMultiCert() {
         return true;
+    }
+
+    /** Whether to enable AppSearch to use needsPersistType decided by Icing. */
+    public static boolean enableUseNeedsPersistTypeFromIcing() {
+        // TODO(b/417463182): Enable this once the feature is rolled out to Nextfood in platform.
+        return false;
     }
 }
