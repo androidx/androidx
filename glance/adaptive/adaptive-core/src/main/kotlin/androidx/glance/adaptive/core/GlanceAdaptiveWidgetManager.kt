@@ -17,13 +17,17 @@
 package androidx.glance.adaptive.core
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 
-/** Entry point for managing Glance Adaptive widgets. */
+/**
+ * Entry point for managing Glance Adaptive widgets.
+ *
+ * Only operations supported by every surface are members of this class. Surface-specific
+ * operations, such as setting dynamic widget picker previews on phones, are provided as extension
+ * functions by the corresponding surface artifact (for example `adaptive-appwidget`).
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GlanceAdaptiveWidgetManager(
-    @get:VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val delegate: GlanceAdaptiveWidgetDelegate
 ) {
@@ -103,20 +107,4 @@ public class GlanceAdaptiveWidgetManager(
      */
     public suspend fun getActiveInstances(widgetName: String): List<WidgetInstanceInfo> =
         delegate.getActiveInstances(widgetName)
-
-    /**
-     * Sets dynamic preview data rendered in host widget pickers for the specified widget
-     * definition.
-     *
-     * On devices running Android 14 and earlier (pre-API 35), dynamic widget previews are not
-     * supported by the platform and this operation completes as a safe no-op.
-     *
-     * @param widgetName Developer widget definition String identifier matching
-     *   `GlanceAdaptiveWidgetReceiver.widgetName`.
-     * @param previewData Declarative template data payload implementing [AdaptiveGlanceTemplate] to
-     *   render as a preview.
-     */
-    public suspend fun setPreview(widgetName: String, previewData: AdaptiveGlanceTemplate) {
-        delegate.setPreview(widgetName = widgetName, previewData = previewData)
-    }
 }
