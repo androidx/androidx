@@ -32,22 +32,18 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.web.WebContent
-import androidx.web.WebContentView
 import androidx.web.WebFeature
 import androidx.web.compose.WebSurface
+import androidx.web.compose.WebViewBridge
 
 /**
  * Creates and retains a [WebContent] instance across configuration changes, automatically releasing
@@ -66,33 +62,8 @@ fun rememberWebContent(block: WebContent.Builder.() -> Unit = {}): WebContent {
 }
 
 /**
- * Returns a [WebContentView] instance that is bound to the given [WebContent].
- *
- * @param content The [WebContent] instance to bind.
- * @param init The initialization block to apply to the [WebContentView].
- * @return The retained [WebContentView] instance.
- */
-@Composable
-fun rememberWebView(
-    content: WebContent,
-    init: WebContentView.() -> Unit = {},
-): WebContentView {
-    val context = LocalContext.current
-    val webView =
-        remember(content, context) {
-            content.attach(context, ::WebContentView).apply(init)
-        }
-    DisposableEffect(content, context) {
-        onDispose {
-            content.detach()
-        }
-    }
-    return webView
-}
-
-/**
- * The primary Compose-based Activity demonstrating [WebContent] usage. Showcases embedding a
- * WebContentView within Compose and retaining WebContent instances.
+ * The primary Compose-based Activity demonstrating [WebContent] and [WebSurface] usage. Showcases
+ * presenting [WebContent] within Compose via [WebSurface] and retaining [WebContent] instances.
  */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,20 +84,10 @@ fun AppContent() {
     }
 
     val webContent = rememberWebContent()
-    val webView =
-        rememberWebView(webContent) {
-            settings.javaScriptEnabled = true
-            webViewClient = WebViewClient()
-        }
 
     val urlInputState = rememberTextFieldState("https://www.google.com")
+    var pendingUrl by retain { mutableStateOf<String?>("https://www.google.com") }
     var showWebView by rememberSaveable { mutableStateOf(true) }
-
-    LaunchedEffect(webContent) {
-        if (webView.url == null) {
-            webView.loadUrl(urlInputState.text.toString())
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -138,7 +99,7 @@ fun AppContent() {
                         lineLimits = TextFieldLineLimits.SingleLine,
                     )
                     Button(
-                        onClick = { webView.loadUrl(urlInputState.text.toString()) },
+                        onClick = { pendingUrl = urlInputState.text.toString() },
                         modifier = Modifier.padding(start = 8.dp),
                     ) {
                         Text("Go")
@@ -159,6 +120,18 @@ fun AppContent() {
             WebSurface(
                 content = webContent,
                 modifier = Modifier.fillMaxSize().padding(paddingValues),
+                bridgeFactory = { context ->
+                    WebViewBridge(context).apply {
+                        settings.javaScriptEnabled = true
+                        webViewClient = WebViewClient()
+                    }
+                },
+                bridgeUpdate = { bridge ->
+                    pendingUrl?.let { url ->
+                        bridge.loadUrl(url)
+                        pendingUrl = null
+                    }
+                },
             )
         }
     }
