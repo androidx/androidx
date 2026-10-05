@@ -31,9 +31,6 @@ class GlanceAdaptiveWidgetManagerTest {
         var lastWidgetName: String? = null
         var lastWidgetIds: Set<String>? = null
         var lastData: AdaptiveGlanceTemplate? = null
-        var lastPreviewWidgetName: String? = null
-        var lastPreviewData: AdaptiveGlanceTemplate? = null
-        var setPreviewCalled: Boolean = false
         var lastActiveInstancesWidgetName: String? = null
         var activeInstances: List<WidgetInstanceInfo> = emptyList()
 
@@ -50,12 +47,6 @@ class GlanceAdaptiveWidgetManagerTest {
         override suspend fun getActiveInstances(widgetName: String): List<WidgetInstanceInfo> {
             lastActiveInstancesWidgetName = widgetName
             return activeInstances
-        }
-
-        override suspend fun setPreview(widgetName: String, previewData: AdaptiveGlanceTemplate) {
-            setPreviewCalled = true
-            lastPreviewWidgetName = widgetName
-            lastPreviewData = previewData
         }
     }
 
@@ -104,19 +95,6 @@ class GlanceAdaptiveWidgetManagerTest {
         assertThat(fakeDelegate.lastWidgetName).isEqualTo("test_widget")
         assertThat(fakeDelegate.lastWidgetIds).containsExactly("widget_123")
         assertThat(fakeDelegate.lastData).isSameInstanceAs(testTemplate)
-    }
-
-    @Test
-    fun setPreview_delegatesToDelegate() = runTest {
-        val fakeDelegate = FakeWidgetDelegate()
-        val manager = GlanceAdaptiveWidgetManager(fakeDelegate)
-        val testTemplate = TestTemplate()
-
-        manager.setPreview(widgetName = "profile_widget", previewData = testTemplate)
-
-        assertThat(fakeDelegate.setPreviewCalled).isTrue()
-        assertThat(fakeDelegate.lastPreviewWidgetName).isEqualTo("profile_widget")
-        assertThat(fakeDelegate.lastPreviewData).isSameInstanceAs(testTemplate)
     }
 
     @Test
