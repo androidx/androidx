@@ -175,6 +175,7 @@ package androidx.compose.foundation {
     property public boolean isLinkMinimumTouchTargetSizeZeroEnabled;
     property public boolean isMouseSelectionBetweenTextEnabled;
     property public boolean isMultiLaneCacheWindowEnabled;
+    property public boolean isNewBorderImplementationEnabled;
     property public boolean isNewContextMenuEnabled;
     property public boolean isPreferDefaultCacheWindowOverPrefetchStrategyLazyGrid;
     property public boolean isPreferDefaultCacheWindowOverPrefetchStrategyLazyList;
@@ -207,6 +208,7 @@ package androidx.compose.foundation {
     field public static boolean isLinkMinimumTouchTargetSizeZeroEnabled;
     field public static boolean isMouseSelectionBetweenTextEnabled;
     field public static boolean isMultiLaneCacheWindowEnabled;
+    field public static boolean isNewBorderImplementationEnabled;
     field public static boolean isNewContextMenuEnabled;
     field public static boolean isPreferDefaultCacheWindowOverPrefetchStrategyLazyGrid;
     field public static boolean isPreferDefaultCacheWindowOverPrefetchStrategyLazyList;
