@@ -23,7 +23,6 @@ import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.provider.ListProperty
@@ -151,18 +150,19 @@ internal fun Project.createVerifyDependencyVersionsTask(
             task.library.set(getLibraryProjectCoordinates(libraryVersionsService))
             task.androidXDependencySet.set(
                 project.provider {
-                    project.configurations.matching(project::shouldVerifyConfiguration).flatMap {
-                        configuration ->
-                        configuration.allDependencies.filter(::shouldVerifyDependency).map {
-                            dependency ->
-                            AndroidXDependency(
-                                dependency.group!!,
-                                dependency.name,
-                                dependency.version!!,
-                                configuration.name,
-                            )
+                    project.configurations
+                        .matching { it.isCanBeConsumed }
+                        .flatMap { configuration ->
+                            configuration.allDependencies.filter(::shouldVerifyDependency).map {
+                                dependency ->
+                                AndroidXDependency(
+                                    dependency.group!!,
+                                    dependency.name,
+                                    dependency.version!!,
+                                    configuration.name,
+                                )
+                            }
                         }
-                    }
                 }
             )
             task.tipOfTreeDependencies.set(getTipOfTreeDependencies(libraryVersionsService))
@@ -185,125 +185,10 @@ internal fun Project.createVerifyDependencyVersionsTask(
     return taskProvider
 }
 
-internal fun Project.shouldVerifyConfiguration(configuration: Configuration): Boolean {
-    // Only verify configurations that are exported to POM. In an ideal world, this would be an
-    // inclusion derived from the mappings used by the Maven Publish Plugin; however, since we
-    // don't have direct access to those, this should remain an exclusion list.
-    val name = configuration.name
-
-    // Don't check any Android-specific variants of Java plugin configurations -- releaseApi for
-    // api, debugImplementation for implementation, etc. -- or test configurations.
-    if (name.startsWith("androidTest")) return false
-    if (name.startsWith("androidAndroidTest")) return false
-    if (name.startsWith("androidCommonTest")) return false
-    if (name.startsWith("androidDeviceTest")) return false
-    if (name.startsWith("androidReleaseUnitTest")) return false
-    if (name.startsWith("androidHostTest")) return false
-    if (name.startsWith("debug")) return false
-    if (name.startsWith("androidDebug")) return false
-    if (name.startsWith("releaseAndroidTest")) return false
-    if (name.startsWith("releaseAnnotationProcessor")) return false
-    // releaseApi, and releaseImplementation are for declaring dependencies
-    // for the release variant. They extend the releaseCompileClasspath and
-    // releaseRuntimeClasspath (both resolvable configurations) respectively.
-    if (name.startsWith("releaseApi")) return false
-    if (name.startsWith("releaseImplementation")) return false
-    if (name.startsWith("releaseTest")) return false
-    if (name.startsWith("releaseUnitTest")) return false
-
-    if (name.startsWith("test")) return false
-    if (name.startsWith("jvmTest")) return false
-    if (name.startsWith("_agp_internal")) return false
-
-    // Don't check any tooling configurations.
-    if (name == "annotationProcessor") return false
-    if (name == "errorprone") return false
-    if (name.startsWith("lint")) return false
-    if (name == ("androidLintTool")) return false
-    if (name.endsWith("LintChecksClasspath")) return false
-    if (name == "metalava") return false
-    if (name.startsWith("kotlinBuild")) return false
-    if (name.startsWith("kotlinCompiler")) return false
-    if (name.startsWith("kotlinKaptWorkerDependencies")) return false
-    if (name.startsWith("kotlinKlib")) return false
-    if (name.startsWith("kapt")) return false
-    if (name.startsWith("ksp")) return false
-
-    // Don't check bundled inspector configurations.
-    if (name == "consumeInspector") return false
-    if (name == "importInspectorImplementation") return false
-
-    // Don't check any configurations that directly bundle the dependencies with the output
-    if (name == "bundleInside") return false
-    if (name == "embedThemesDebug") return false
-    if (name == "embedThemesRelease") return false
-
-    // Don't check any compile-only configurations
-    if (name.startsWith("compile")) return false
-
-    // allow tip of tree compose compiler
-    if (name.startsWith("kotlinPlugin")) return false
-
-    // Don't check Hilt compile-only configurations
-    if (name.startsWith("hiltCompileOnly")) return false
-
-    // Don't check Desktop configurations since we don't publish them anyway
-    if (name.startsWith("desktop")) return false
-    if (name.startsWith("skiko")) return false
-
-    // Doesn't affect the .pom / .module
-    // https://github.com/JetBrains/kotlin/blob/v1.9.10/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/plugin/mpp/resolvableMetadataConfiguration.kt#L102
-    if (name.endsWith("DependenciesMetadata")) return false
-
-    // Don't check KGP internal configuration used for tooling
-    if (name == "kotlinInternalAbiValidation") return false
-    if (name == "kotlinAbiValidationCompatClasspath") return false
-
-    // don't verify these configurations of KMP projects since we don't publish them anyway
-    if (name.endsWith("CompileKlibraries")) return false
-    if (name.endsWith("CompilationApi")) return false
-    if (name == "jsCompileClasspath") return false
-    if (name == "jsNpmAggregated") return false
-    if (name == "jsRuntimeClasspath") return false
-    if (name == "wasmJsCompileClasspath") return false
-    if (name == "wasmJsNpmAggregated") return false
-    if (name == "wasmJsRuntimeClasspath") return false
-
-    // don't verify test configurations of KMP projects
-    if (name.contains("TestCompilation")) return false
-    if (name.contains("TestCompile")) return false
-    if (name.contains("commonTest", ignoreCase = true)) return false
-    if (name.contains("nativeTest", ignoreCase = true)) return false
-    if (name.contains("TestCInterop", ignoreCase = true)) return false
-    if (
-        multiplatformExtension?.targets?.any {
-            name.contains("${it.name}Test", ignoreCase = true)
-        } == true
-    ) {
-        return false
-    }
-
-    // don't verify swift export because we don't have any libraries that use it
-    if (name == "swiftExportClasspathResolvable") return false
-
-    // don't verify baseline profile generating project dependencies
-    if (name == "baselineProfile") return false
-    if (name == "releaseBaselineProfile") return false
-
-    // Only used to run kotlinx benchmarks. Artifacts are not published by this configuration.
-    if (name == "benchmarkGenerator.resolver") return false
-
-    // don't verify samples
-    if (name == "samples") return false
-
-    return true
-}
-
 private fun shouldVerifyDependency(dependency: Dependency): Boolean {
     // Only verify dependencies within the scope of our versioning policies.
     if (dependency.group == null) return false
     if (!dependency.group!!.startsWith("androidx.")) return false
-    if (dependency.name == "annotation-sampled") return false
     if (dependency.version == SNAPSHOT_MARKER) {
         // This only happens in playground builds where this magic version gets replaced with
         // the version from the snapshotBuildId defined in playground-common/playground.properties.
@@ -322,13 +207,14 @@ internal fun Project.getLibraryProjectCoordinates(
     val projectVersion = Version.parse(version.toString())
     val projectGroup = group.toString()
     val projectArtifact = name
+    val mavenVersionGroup = parse().mavenVersionGroup
     return libraryVersionsService.map { service ->
         ProjectCoordinates(
             projectPath = projectPath,
             groupId = projectGroup,
             artifactId = projectArtifact,
             version = projectVersion,
-            versionGroup = service.versionGroupFor(projectPath, projectGroup),
+            versionGroup = service.versionGroupFor(projectPath, projectGroup) ?: mavenVersionGroup,
         )
     }
 }
@@ -337,21 +223,25 @@ internal fun Project.getTipOfTreeDependencies(
     libraryVersionService: Provider<LibraryVersionsService>
 ): Provider<Set<ProjectCoordinates>> {
     val declaredDependencies =
-        project.configurations.matching(project::shouldVerifyConfiguration).flatMap { configuration
-            ->
-            configuration.allDependencies
-                .filter(::shouldVerifyDependency)
-                .filterIsInstance<ProjectDependency>()
-                .distinctBy { it.path }
-                .map { dependency ->
-                    ProjectCoordinates(
-                        projectPath = dependency.path,
-                        groupId = dependency.group!!,
-                        artifactId = dependency.name,
-                        version = dependency.version?.let { Version.parseOrNull(it) },
-                    )
-                }
-        }
+        project.configurations
+            .matching { it.isCanBeConsumed }
+            .flatMap { configuration ->
+                configuration.allDependencies
+                    .filter(::shouldVerifyDependency)
+                    .filterIsInstance<ProjectDependency>()
+                    .distinctBy { it.path }
+                    .map { dependency ->
+                        ProjectCoordinates(
+                            projectPath = dependency.path,
+                            groupId = dependency.group!!,
+                            artifactId = dependency.name,
+                            version = dependency.version?.let { Version.parseOrNull(it) },
+                            versionGroup =
+                                parseBuildFile(project(dependency.path).buildFile)
+                                    .mavenVersionGroup,
+                        )
+                    }
+            }
 
     return libraryVersionService.map { service ->
         declaredDependencies
@@ -359,6 +249,7 @@ internal fun Project.getTipOfTreeDependencies(
                 dependency.copy(
                     versionGroup =
                         service.versionGroupFor(dependency.projectPath, dependency.groupId)
+                            ?: dependency.versionGroup
                 )
             }
             .toSet()

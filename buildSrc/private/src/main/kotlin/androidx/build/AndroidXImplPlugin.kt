@@ -1623,6 +1623,12 @@ fun Project.validateProjectParser(androidXExtension: AndroidXExtension) {
             "$errorPrefix Incorrectly computed specifiesVersion = ${parsed.specifiesVersion} " +
                 " instead of ${androidXExtension.projectDirectlySpecifiesMavenVersion}"
         }
+        val parsedMavenVersion =
+            parsed.mavenVersionGroup?.let { androidXExtension.LibraryVersions[it] }
+        check(androidXExtension.mavenVersion == parsedMavenVersion) {
+            "$errorPrefix Incorrectly computed mavenVersion = $parsedMavenVersion " +
+                "(from ${parsed.mavenVersionGroup}) instead of ${androidXExtension.mavenVersion}"
+        }
     }
 }
 
