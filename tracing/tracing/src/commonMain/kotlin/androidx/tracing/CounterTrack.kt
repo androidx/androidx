@@ -27,11 +27,10 @@ public open class CounterTrack(
     /** The parent track the counter belongs to. */
     public val parent: Track,
 ) : Track(context = parent.context, uuid = monotonicId()), Counter {
-    internal val packetLock = Any()
 
     init {
         if (context.isGloballyEnabled) {
-            synchronized(packetLock) {
+            synchronized(lock) {
                 val event = obtainTraceEvent()
                 if (event != null) {
                     event.setPreamble(
@@ -52,7 +51,7 @@ public open class CounterTrack(
 
     public override fun setValue(value: Long) {
         if (context.isGloballyEnabled) {
-            synchronized(packetLock) {
+            synchronized(lock) {
                 val event = obtainTraceEvent()
                 event?.setCounterLong(trackUuid = uuid, value = value)
                 dispatchTraceEvent(event)
@@ -62,7 +61,7 @@ public open class CounterTrack(
 
     public override fun setValue(value: Double) {
         if (context.isGloballyEnabled) {
-            synchronized(packetLock) {
+            synchronized(lock) {
                 val event = obtainTraceEvent()
                 event?.setCounterDouble(trackUuid = uuid, value = value)
                 dispatchTraceEvent(event)

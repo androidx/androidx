@@ -81,55 +81,65 @@ public abstract class Track(
     internal var currentPacketArray: PooledTracePacketArray? = null
 
     internal fun flush() {
-        val currentPacketArray = this.currentPacketArray
-        if (currentPacketArray != null) {
-            context.sink.enqueue(currentPacketArray)
-            // Try obtaining a new pooled trace packet.
-            this.currentPacketArray = protoPool().obtainTracePacketArray()
+        synchronized(lock) {
+            val currentPacketArray = this.currentPacketArray
+            if (currentPacketArray != null && currentPacketArray.fillCount > 0) {
+                context.sink.enqueue(currentPacketArray)
+                // Try obtaining a new pooled trace packet.
+                this.currentPacketArray = protoPool().obtainTracePacketArray()
+            }
         }
     }
 
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun obtainTraceEvent(): TraceEvent? {
-        if (currentPacketArray == null) {
-            // Try obtaining a pooled trace packet array.
-            currentPacketArray = protoPool().obtainTracePacketArray()
-        }
-        // If we still cannot obtain a PooledTracePacketArray, then just mark the trace event
-        // as lost.
-        val currentPacketArray = currentPacketArray
-        return if (currentPacketArray == null) {
-            context.sink.onDroppedTraceEvent()
-            null
-        } else {
-            currentPacketArray.packets[currentPacketArray.fillCount]
+        return synchronized(lock) {
+            if (currentPacketArray == null) {
+                // Try obtaining a pooled trace packet array.
+                currentPacketArray = protoPool().obtainTracePacketArray()
+            }
+            // If we still cannot obtain a PooledTracePacketArray, then just mark the trace event
+            // as lost.
+            val currentPacketArray = currentPacketArray
+            if (currentPacketArray == null) {
+                context.sink.onDroppedTraceEvent()
+                null
+            } else {
+                currentPacketArray.packets[currentPacketArray.fillCount]
+            }
         }
     }
 
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun dispatchTraceEvent(event: TraceEvent?, immediateDispatch: Boolean = false) {
         if (event == null) return
-        val currentTracePacketArray = currentPacketArray ?: return
-        val currentPacketArraySize = currentPacketArray?.packets?.size
-        currentTracePacketArray.apply {
-            fillCount += 1
-            if (fillCount == currentPacketArraySize || immediateDispatch) {
-                context.sink.enqueue(pooledPacketArray = this)
-                // greedy reset / reallocate array
-                this@Track.currentPacketArray = protoPool().obtainTracePacketArray()
+        synchronized(lock) {
+            val currentTracePacketArray = currentPacketArray ?: return@synchronized
+            val currentPacketArraySize = currentPacketArray?.packets?.size
+            currentTracePacketArray.apply {
+                fillCount += 1
+                if (fillCount == currentPacketArraySize || immediateDispatch) {
+                    context.sink.enqueue(pooledPacketArray = this)
+                    // greedy reset / reallocate array
+                    this@Track.currentPacketArray = protoPool().obtainTracePacketArray()
+                }
             }
         }
     }
 
     /** Test API for benchmarking */
     public fun enqueueSingleUnmodifiedEvent() {
-        dispatchTraceEvent(event = obtainTraceEvent(), immediateDispatch = true)
+        synchronized(lock) {
+            dispatchTraceEvent(event = obtainTraceEvent(), immediateDispatch = true)
+        }
     }
 
     /** Test API for benchmarking */
     public fun resetTraceEvents() {
-        currentPacketArray?.forEach { event -> event.reset() }
-        currentPacketArray?.fillCount = 0
+        synchronized(lock) {
+            currentPacketArray?.forEach { event -> event.reset() }
+            currentPacketArray?.fillCount = 0
+        }
     }
 
     override fun close() {
