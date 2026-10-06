@@ -221,7 +221,6 @@ public fun DeviceConfigurationOverride.Companion.FontWeightAdjustment(
  *   content under test.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideRoundScreenSample
  */
-@RequiresApi(23)
 public fun DeviceConfigurationOverride.Companion.RoundScreen(
     isScreenRound: Boolean
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
