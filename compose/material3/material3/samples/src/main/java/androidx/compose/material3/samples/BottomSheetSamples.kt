@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
@@ -181,10 +182,8 @@ fun ModalBottomSheetSample() {
                     Text("Hide Bottom Sheet")
                 }
             }
-            var text by remember { mutableStateOf("") }
             OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
+                state = rememberTextFieldState(),
                 modifier = Modifier.padding(horizontal = 16.dp),
                 label = { Text("Text field") },
             )
