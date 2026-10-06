@@ -251,6 +251,84 @@ class SliderScreenshotTest {
         }
     }
 
+    @Test
+    fun slider_steps_overload_min_value() {
+        verifyScreenshot {
+            Slider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = 1,
+                steps = 4,
+                onValueChange = {},
+            )
+        }
+    }
+
+    @Test
+    fun slider_steps_overload_max_value() {
+        verifyScreenshot {
+            Slider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = 4,
+                steps = 4,
+                onValueChange = {},
+            )
+        }
+    }
+
+    @Test
+    fun slider_float_show_minimum_segment_min_value() {
+        verifyScreenshot {
+            Slider(
+                modifier = Modifier.testTag(TEST_TAG),
+                valueRange = 0f..4f,
+                value = 0f,
+                steps = 3,
+                showMinimumSegment = true,
+                onValueChange = {},
+            )
+        }
+    }
+
+    @Test
+    fun slider_float_show_minimum_segment_max_value() {
+        verifyScreenshot {
+            Slider(
+                modifier = Modifier.testTag(TEST_TAG),
+                valueRange = 0f..4f,
+                value = 4f,
+                steps = 3,
+                showMinimumSegment = true,
+                onValueChange = {},
+            )
+        }
+    }
+
+    @Test
+    fun slider_int_show_minimum_segment_min_value() {
+        verifyScreenshot {
+            Slider(
+                modifier = Modifier.testTag(TEST_TAG),
+                valueProgression = 1..4,
+                value = 1,
+                showMinimumSegment = true,
+                onValueChange = {},
+            )
+        }
+    }
+
+    @Test
+    fun slider_int_show_minimum_segment_max_value() {
+        verifyScreenshot {
+            Slider(
+                modifier = Modifier.testTag(TEST_TAG),
+                valueProgression = 1..4,
+                value = 4,
+                showMinimumSegment = true,
+                onValueChange = {},
+            )
+        }
+    }
+
     private fun verifyScreenshot(content: @Composable () -> Unit) {
         rule.setContentWithTheme {
             Box(
