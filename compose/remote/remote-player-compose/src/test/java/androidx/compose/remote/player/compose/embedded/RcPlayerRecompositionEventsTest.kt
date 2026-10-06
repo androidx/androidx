@@ -25,6 +25,7 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.action.hostAction
+import androidx.compose.remote.creation.compose.capture.CaptureUpdateThrottle
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.WriterEvents
 import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
@@ -531,6 +532,9 @@ class RcPlayerRecompositionEventsTest {
             captureRemoteDocument(
                 context = context,
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
+                // 100 back-to-back updates far exceed the default rate limit, and its delay()
+                // never resumes on the paused main looper.
+                updateThrottle = CaptureUpdateThrottle.None,
                 writerEvents = WriterEvents(),
                 coroutineContext = Dispatchers.Main,
                 content = {
