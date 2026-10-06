@@ -17,6 +17,7 @@
 package androidx.test.backup.host
 
 import java.io.File
+import java.io.IOException
 import java.util.logging.Logger
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -42,10 +43,14 @@ internal class BackupLocalTransport(
     suspend fun backup(archive: File) {
         logger.info("Executing robust local transport backup simulation...")
         shell.unstopPackage(applicationId)
-        shell.exec("bmgr enable true")
+        bmgr(
+            "enable true",
+            "Failed to enable the backup manager with bmgr",
+            "Backup Manager now enabled",
+        )
         withLocalTransport {
-            shell.exec("bmgr backupnow @pm@")
-            shell.exec("bmgr backupnow ${BackupDeviceShell.quoteIfNeeded(applicationId)}")
+            backUpNow(PACKAGE_MANAGER_SENTINEL)
+            backUpNow(applicationId)
         }
         ZipOutputStream(archive.outputStream()).use { zip ->
             zip.putNextEntry(ZipEntry("token.txt"))
@@ -64,9 +69,47 @@ internal class BackupLocalTransport(
     suspend fun restore(timeout: Duration) {
         logger.info("Executing robust local transport restore simulation...")
         withLocalTransport {
-            shell.exec("bmgr restore 1 ${BackupDeviceShell.quoteIfNeeded(applicationId)}")
+            bmgr(
+                "restore 1 ${BackupDeviceShell.quoteIfNeeded(applicationId)}",
+                "Local restore of $applicationId failed",
+                "restoreFinished: 0",
+            )
             shell.exec("bmgr run")
             waitForRestorePassCompletion(minOf(RESTORE_DISPATCH_TIMEOUT, timeout / 2))
+        }
+    }
+
+    /** Backs up [packageName] now, and throws unless both the package and the pass succeed. */
+    private suspend fun backUpNow(packageName: String) {
+        bmgr(
+            "backupnow ${BackupDeviceShell.quoteIfNeeded(packageName)}",
+            "Local backup of $packageName failed",
+            // The pass reports success even when it skips the package, e.g. if it doesn't allow
+            // backups, so the result of the package is checked as well.
+            "Package $packageName with result: Success",
+            "Backup finished with result: Success",
+        )
+    }
+
+    /** Selects [transport] as the backup transport of the device. */
+    private suspend fun selectTransport(transport: String) {
+        bmgr(
+            "transport ${BackupDeviceShell.quote(transport)}",
+            "Failed to select backup transport $transport",
+            "Selected transport $transport",
+        )
+    }
+
+    /**
+     * Runs `bmgr` with [arguments], and throws an [IOException] with [failureMessage] unless its
+     * output contains every one of [expected].
+     *
+     * bmgr reports failures only in its output: its exit code is 0 either way.
+     */
+    private suspend fun bmgr(arguments: String, failureMessage: String, vararg expected: String) {
+        val output = shell.exec("bmgr $arguments")
+        if (!expected.all { output.stdout.contains(it) }) {
+            throw commandFailure(failureMessage, output.stderr, output.stdout)
         }
     }
 
@@ -86,13 +129,11 @@ internal class BackupLocalTransport(
                 ?.trim() ?: DEFAULT_TRANSPORT
         withCleanup(
             cleanup = {
-                if (originalTransport != LOCAL_TRANSPORT) {
-                    shell.exec("bmgr transport ${BackupDeviceShell.quote(originalTransport)}")
-                }
+                if (originalTransport != LOCAL_TRANSPORT) selectTransport(originalTransport)
             },
             cleanupTimeout = reselectTransportTimeout,
         ) {
-            shell.exec("bmgr transport $LOCAL_TRANSPORT")
+            selectTransport(LOCAL_TRANSPORT)
             block()
         }
     }
@@ -130,6 +171,9 @@ internal class BackupLocalTransport(
 
     private companion object {
         const val LOCAL_TRANSPORT = "com.android.localtransport/.LocalTransport"
+
+        /** Pseudo-package for the package metadata that a restore checks the app against. */
+        const val PACKAGE_MANAGER_SENTINEL = "@pm@"
 
         /** Assumed to be the selected transport when `bmgr` does not mark one. */
         const val DEFAULT_TRANSPORT = "com.google.android.gms/.backup.BackupTransportService"

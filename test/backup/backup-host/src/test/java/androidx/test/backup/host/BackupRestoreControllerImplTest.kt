@@ -573,6 +573,65 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
+    fun flowClassifiesAPackageThatIsNotBackedUpAsABackupFailure() {
+        onHealthyDevice { command ->
+            if (command == "bmgr backupnow $PACKAGE") {
+                shellOutput(
+                    "Running incremental backup for 1 requested packages.\n" +
+                        "Package $PACKAGE with result: Backup is not allowed\n" +
+                        "Backup finished with result: Success\n"
+                )
+            } else {
+                null
+            }
+        }
+
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.BACKUP, BackupErrorCode.BACKUP_FAILED)
+    }
+
+    @Test
+    fun flowClassifiesAnUnknownLocalTransportAsABmgrFailure() {
+        onHealthyDevice { command ->
+            if (command == "bmgr transport '$LOCAL_TRANSPORT'") {
+                shellOutput("Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n")
+            } else {
+                null
+            }
+        }
+
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.BACKUP, BackupErrorCode.BMGR_INIT_FAILED)
+    }
+
+    @Test
+    fun flowClassifiesAMissingLocalBackupAsARestoreFailure() {
+        onHealthyDevice { command ->
+            if (command == "bmgr restore 1 $PACKAGE") {
+                shellOutput("No available restore sets; no restore performed\ndone\n")
+            } else {
+                null
+            }
+        }
+
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.RESTORE, BackupErrorCode.RESTORE_FAILED)
+        assertTrue(
+            device.commands.none { it.contains(BackupRestoreController.ACTION_ASSERT_STORAGE) },
+            "${device.commands}",
+        )
+    }
+
+    @Test
     fun flowClassifiesARestorePollingTimeout() {
         onHealthyDevice { command ->
             if (command == "dumpsys backup") {
@@ -651,8 +710,7 @@ class BackupRestoreControllerImplTest {
                 ?: when {
                     command.startsWith("am instrument") -> shellOutput(runnerStdout("{}"))
                     command.startsWith("pm clear") -> shellOutput("Success\n")
-                    command == "bmgr list transports" ->
-                        shellOutput("  * com.android.localtransport/.LocalTransport\n")
+                    command == "bmgr list transports" -> shellOutput("  * $LOCAL_TRANSPORT\n")
                     // The restore pass is reported as registered once and then as ended.
                     command == "dumpsys backup" ->
                         if (++restoreProgressChecks == 1) {
@@ -660,7 +718,7 @@ class BackupRestoreControllerImplTest {
                         } else {
                             shellOutput("Restore in progress: false\n")
                         }
-                    else -> shellOutput()
+                    else -> null
                 }
         }
     }
