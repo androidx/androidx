@@ -213,14 +213,13 @@ private fun LazyStaggeredGridCacheWindowLogic.keepAroundItems(scope: LazyLayoutM
 
                 // 2. Compose items in the cache window AFTER the last visible item
                 if (lastVisible != InvalidIndex) {
-                    val nextAfterLastVisible =
-                        cacheWindowScope.getNextEndItemIndexInLane(lane, lastVisible)
-                    current = nextAfterLastVisible
-                    while (current != InvalidIndex && current <= endIndex) {
+                    current = lastVisible
+                    while (current != InvalidIndex && current < endIndex) {
+                        current = cacheWindowScope.getNextEndItemIndexInLane(lane, current)
+                        if (current == InvalidIndex || current > endIndex) break
                         if (current >= 0) {
                             scope.compose(current)
                         }
-                        current = cacheWindowScope.getNextEndItemIndexInLane(lane, current)
                     }
                 }
             }
