@@ -222,7 +222,10 @@ internal class MultiLaneCacheWindow(
                 if (index != InvalidIndex) {
                     debugLog { "cacheVisibleItemsInfo item=$index size=$mainAxisSize key=$key" }
                     cacheVisibleItemsInfo(index, key, mainAxisSize, lane) { cachedSize, cachedKey ->
-                        if (cachedSize != mainAxisSize || cachedKey != key) {
+                        if (
+                            cachedSize != mainAxisSize ||
+                                (cachedKey !== CachedItem.NoKey && cachedKey != key)
+                        ) {
                             shouldRefillWindow = true
                         }
                     }

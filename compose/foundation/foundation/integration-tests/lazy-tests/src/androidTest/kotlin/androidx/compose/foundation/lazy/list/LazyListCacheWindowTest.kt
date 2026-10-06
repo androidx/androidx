@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -187,6 +188,58 @@ class LazyListCacheWindowTest(orientation: Orientation) :
             rule.onNodeWithTag("${item - 1}").assertExists()
             rule.onNodeWithTag("${item - 2}").assertExists()
             rule.onNodeWithTag("${item - 3}").assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun scrollForward_prefetchedItemBecomingVisible_doesNotRecomposePrefetchedItems() {
+        val cacheWindow =
+            LazyLayoutCacheWindow(
+                aheadFraction = 1f,
+                behindFraction = 0f,
+                isNonScrollCachingEnabled = false,
+            )
+        val activationCounts = mutableMapOf<Int, Int>()
+        composeList(cacheWindow = cacheWindow) { index ->
+            activationCounts[index] = (activationCounts[index] ?: 0) + 1
+        }
+
+        val steps = 3
+        repeat(20 * steps) {
+            rule.runOnIdle { runBlocking { state.scrollBy(itemsSizePx.toFloat() / steps) } }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isAtLeast(19)
+            activationCounts.forEach { (index, count) ->
+                assertWithMessage("Item $index was composed $count times").that(count).isEqualTo(1)
+            }
+        }
+    }
+
+    @Test
+    fun scrollBackward_prefetchedItemBecomingVisible_doesNotRecomposePrefetchedItems() {
+        val cacheWindow =
+            LazyLayoutCacheWindow(
+                aheadFraction = 1f,
+                behindFraction = 0f,
+                isNonScrollCachingEnabled = false,
+            )
+        val activationCounts = mutableMapOf<Int, Int>()
+        composeList(firstItem = 50, cacheWindow = cacheWindow) { index ->
+            activationCounts[index] = (activationCounts[index] ?: 0) + 1
+        }
+
+        val steps = 3
+        repeat(20 * steps) {
+            rule.runOnIdle { runBlocking { state.scrollBy(-itemsSizePx.toFloat() / steps) } }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isAtMost(31)
+            activationCounts.forEach { (index, count) ->
+                assertWithMessage("Item $index was composed $count times").that(count).isEqualTo(1)
+            }
         }
     }
 
@@ -559,6 +612,7 @@ class LazyListCacheWindowTest(orientation: Orientation) :
         numItems: State<Int> = mutableStateOf(100),
         numberOfItemsInTheList: Float = 1.5f,
         cacheWindow: LazyLayoutCacheWindow,
+        onItemActivated: (index: Int) -> Unit = {},
     ) {
         rule.setContent {
             scope = rememberCoroutineScope()
@@ -584,6 +638,7 @@ class LazyListCacheWindowTest(orientation: Orientation) :
                 items(numItems.value) {
                     DisposableEffect(it) {
                         activeNodes.add(it)
+                        onItemActivated(it)
                         onDispose { activeNodes.remove(it) }
                     }
                     Spacer(
