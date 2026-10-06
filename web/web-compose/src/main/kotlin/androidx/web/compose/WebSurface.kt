@@ -16,6 +16,7 @@
 
 package androidx.web.compose
 
+import android.content.Context
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -23,6 +24,8 @@ import androidx.annotation.NonNull
 import androidx.annotation.RequiresFeature
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.RememberObserver
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -36,24 +39,34 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.invalidateDraw
+import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.node.requireView
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.viewinterop.NoOpUpdate
 import androidx.web.WebContent
 import androidx.web.WebContentView
 import androidx.web.WebFeature
 import androidx.web.WebSurfaceChromium
 
 /**
- * A composable that renders [WebContent] directly into the hardware canvas via Chromium's draw
- * functor without intermediate View hierarchy nodes.
+ * Presents the web page hosted by [WebContent].
  *
- * @param content The [WebContent] instance to render.
- * @param modifier The modifier to be applied to the layout.
+ * Before calling this composable, verify that [WebFeature.isFeatureSupported] returns `true` for
+ * [WebFeature.WEB_SURFACE].
+ *
+ * @param content The [WebContent] hosting the web session to present.
+ * @param modifier The [Modifier] to be applied to this layout node.
+ * @throws IllegalStateException if [content] is already attached to a [WebContentView] or another
+ *   [WebSurface].
+ * @see WebContent
+ * @see WebFeature.WEB_SURFACE
  */
 @Suppress("MissingJvmstatic")
 @Composable
@@ -66,32 +79,173 @@ public fun WebSurface(
     @NonNull content: WebContent,
     modifier: Modifier = Modifier,
 ) {
-    Layout(modifier = modifier.clipToBounds().then(WebSurfaceElement(content))) { _, constraints ->
+    WebSurface(
+        content = content,
+        modifier = modifier,
+        bridgeFactory = ::WebViewBridge,
+    )
+}
+
+/**
+ * Presents the web page hosted by [WebContent], using a [WebViewBridge] to access
+ * [android.webkit.WebView] APIs that are not yet available directly on [WebContent].
+ *
+ * When this composable enters composition, [bridgeFactory] is invoked on the UI thread to create
+ * and attach a [WebViewBridge] to [content]. The provided [Context] _must_ be used to construct the
+ * [WebViewBridge]. In addition to creating the [WebViewBridge], the [bridgeFactory] block can also
+ * be used to perform one-off initializations and set constant properties. The [bridgeUpdate] block
+ * can run multiple times (on the UI thread as well) due to recomposition, and it is the right place
+ * to set new properties or trigger state-driven updates on the [WebViewBridge]. Note that
+ * [bridgeUpdate] will also run once right after the [bridgeFactory] block completes. When this
+ * composable leaves composition, [bridgeRelease] is invoked and the [WebViewBridge] is
+ * automatically detached from [content].
+ *
+ * Before calling this composable, verify that [WebFeature.isFeatureSupported] returns `true` for
+ * [WebFeature.WEB_SURFACE].
+ *
+ * @param content The [WebContent] hosting the web session to present.
+ * @param modifier The [Modifier] to be applied to this layout node.
+ * @param bridgeFactory The block creating the [WebViewBridge] to be attached to [content]. This
+ *   block is called once when the composable enters composition, or if the [content] instance
+ *   changes. The provided [Context] must be passed to the [WebViewBridge] constructor.
+ * @param bridgeUpdate A callback to be invoked after the [WebViewBridge] is created and upon
+ *   recomposition to update the information and state of the [WebViewBridge].
+ * @param bridgeRelease A callback invoked as a signal that the [WebViewBridge] instance has exited
+ *   the composition hierarchy entirely and is being detached from [content]. Any external
+ *   references or resources tied to the [WebViewBridge] should be freed at this time.
+ * @throws IllegalStateException if [content] is already attached to a [WebContentView] or another
+ *   [WebSurface].
+ * @see WebContent
+ * @see WebViewBridge
+ * @see WebFeature.WEB_SURFACE
+ */
+@Suppress("MissingJvmstatic")
+@Composable
+@RequiresFeature(
+    name = WebFeature.WEB_SURFACE,
+    enforcement = "androidx.web.WebFeature#isFeatureSupported",
+)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <T : WebViewBridge> WebSurface(
+    @NonNull content: WebContent,
+    modifier: Modifier = Modifier,
+    @NonNull bridgeFactory: (Context) -> T,
+    @NonNull bridgeUpdate: (T) -> Unit = NoOpUpdate,
+    @NonNull bridgeRelease: (T) -> Unit = NoOpUpdate,
+) {
+    val context = LocalContext.current
+    val state =
+        remember(content, context) {
+            WebSurfaceState(
+                content = content,
+                context = context,
+                bridgeFactory = bridgeFactory,
+                bridgeUpdate = bridgeUpdate,
+                bridgeRelease = bridgeRelease,
+            )
+        }
+    Layout(
+        modifier =
+            modifier
+                .clipToBounds()
+                .then(
+                    WebSurfaceElement(
+                        state = state,
+                        bridgeFactory = bridgeFactory,
+                        bridgeUpdate = bridgeUpdate,
+                        bridgeRelease = bridgeRelease,
+                    )
+                )
+    ) { _, constraints ->
         layout(constraints.minWidth, constraints.minHeight) {}
     }
 }
 
-internal data class WebSurfaceElement(val content: WebContent) :
-    ModifierNodeElement<WebSurfaceNode>() {
+internal class WebSurfaceState<T : WebViewBridge>(
+    val content: WebContent,
+    val context: Context,
+    var bridgeFactory: (Context) -> T,
+    var bridgeUpdate: (T) -> Unit,
+    var bridgeRelease: (T) -> Unit,
+) : RememberObserver {
+    var bridge: T? = null
+        private set
 
-    override fun create(): WebSurfaceNode = WebSurfaceNode(content)
+    var node: WebSurfaceNode<T>? = null
 
-    override fun update(node: WebSurfaceNode) {
-        node.update(content)
+    override fun onRemembered() {
+        check(!content.isAttached()) {
+            "WebContent is already attached to a WebContentView or another WebSurface."
+        }
+        val createdBridge = content.attach(context, bridgeFactory)
+        bridge = createdBridge
+        node?.onBridgeAttached(createdBridge)
     }
 
-    override fun InspectorInfo.inspectableProperties() {
-        name = "webSurface"
-        properties["content"] = content
+    override fun onForgotten() {
+        val currentBridge = bridge ?: return
+        bridge = null
+        node?.onBridgeDetached()
+        node = null
+        (currentBridge.parent as? ViewGroup)?.removeView(currentBridge)
+        bridgeRelease(currentBridge)
+        content.detach()
+    }
+
+    override fun onAbandoned() {
+        // Nothing to do as [onRemembered] was not called.
     }
 }
 
-internal class WebSurfaceNode(private var content: WebContent) :
-    Modifier.Node(), DrawModifierNode, PointerInputModifierNode, GlobalPositionAwareModifierNode {
+internal class WebSurfaceElement<T : WebViewBridge>(
+    val state: WebSurfaceState<T>,
+    val bridgeFactory: (Context) -> T,
+    val bridgeUpdate: (T) -> Unit,
+    val bridgeRelease: (T) -> Unit,
+) : ModifierNodeElement<WebSurfaceNode<T>>() {
+
+    override fun create(): WebSurfaceNode<T> = WebSurfaceNode(state)
+
+    override fun update(node: WebSurfaceNode<T>) {
+        node.update(state, bridgeFactory, bridgeUpdate, bridgeRelease)
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        // Internal modifier element; parameters are already exposed on the WebSurface composable.
+        // We will fail lint checks if we don't override this.
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is WebSurfaceElement<*>) return false
+        return state === other.state &&
+            bridgeFactory === other.bridgeFactory &&
+            bridgeUpdate === other.bridgeUpdate &&
+            bridgeRelease === other.bridgeRelease
+    }
+
+    override fun hashCode(): Int {
+        var result = state.hashCode()
+        result = 31 * result + bridgeFactory.hashCode()
+        result = 31 * result + bridgeUpdate.hashCode()
+        result = 31 * result + bridgeRelease.hashCode()
+        return result
+    }
+}
+
+// TODO: Integrate Chromium's AccessibilityNodeProvider with Compose's semantics and accessibility
+// tree so screen readers and UI automation can inspect and interact with WebSurface content.
+// TODO: Expose scroll position and programmatic scroll control on WebSurface / WebContent instead
+// of relying on View scroll APIs.
+internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceState<T>) :
+    Modifier.Node(),
+    DrawModifierNode,
+    PointerInputModifierNode,
+    GlobalPositionAwareModifierNode,
+    ObserverModifierNode {
 
     private var webSurface: WebSurfaceChromium? = null
     private var holder: HeadlessViewHolder? = null
-    private val viewListener: (WebContentView?) -> Unit = { holder?.view = it }
 
     // If Chromium invalidates during draw (e.g. computeScroll), Compose ignores
     // the synchronous invalidateDraw() call because the layer's dirty flag is
@@ -108,36 +262,74 @@ internal class WebSurfaceNode(private var content: WebContent) :
         }
     }
 
-    fun update(newContent: WebContent) {
-        if (content != newContent) {
-            if (isAttached) {
-                content.setCurrentViewListener(null)
+    private fun runUpdate() {
+        val currentBridge = state.bridge ?: return
+        if (!isAttached) return
+        observeReads { state.bridgeUpdate(currentBridge) }
+    }
+
+    override fun onObservedReadsChanged() {
+        runUpdate()
+    }
+
+    fun onBridgeAttached(bridge: T) {
+        if (!isAttached) return
+        holder?.view = bridge
+        webSurface?.setWebContent(state.content)
+        runUpdate()
+        invalidateDraw()
+    }
+
+    fun onBridgeDetached() {
+        webSurface?.setWebContent(null)
+        holder?.view = null
+    }
+
+    fun update(
+        newState: WebSurfaceState<T>,
+        newBridgeFactory: (Context) -> T,
+        newBridgeUpdate: (T) -> Unit,
+        newBridgeRelease: (T) -> Unit,
+    ) {
+        newState.bridgeFactory = newBridgeFactory
+        newState.bridgeUpdate = newBridgeUpdate
+        newState.bridgeRelease = newBridgeRelease
+        if (state !== newState) {
+            if (state.node === this) {
+                state.node = null
             }
-            content = newContent
-            if (isAttached) {
-                content.setCurrentViewListener(viewListener)
-                webSurface?.setWebContent(newContent)
+            state = newState
+            state.node = this
+            val currentBridge = newState.bridge
+            if (currentBridge != null) {
+                onBridgeAttached(currentBridge)
+            } else {
+                onBridgeDetached()
             }
-        }
-        if (isAttached) {
-            invalidateDraw()
+        } else {
+            runUpdate()
+            if (isAttached) {
+                invalidateDraw()
+            }
         }
     }
 
     override fun onAttach() {
         super.onAttach()
+        state.node = this
         (requireView() as? ViewGroup)?.let { host ->
             holder = HeadlessViewHolder(host.context).also { host.addView(it) }
         }
-        val surface = WebSurfaceChromium.create(::onInvalidate).also { webSurface = it }
-        content.setCurrentViewListener(viewListener)
-        surface.setWebContent(content)
-        invalidateDraw()
+        // TODO: Ensure WebSurface uses a transparent base background color by default so Compose
+        // Modifier.background on WebSurface or parent layouts is not covered by WebView's default
+        // white background.
+        webSurface = WebSurfaceChromium.create(::onInvalidate)
+        state.bridge?.let { onBridgeAttached(it) }
     }
 
     override fun onDetach() {
-        content.setCurrentViewListener(null)
         webSurface?.setWebContent(null)
+        holder?.view = null
         (requireView() as? ViewGroup)?.removeView(holder)
         holder = null
         webSurface?.destroy()
@@ -174,6 +366,9 @@ internal class WebSurfaceNode(private var content: WebContent) :
             ?.takeIf { pass == PointerEventPass.Main }
             ?.let { motionEvent ->
                 if (motionEvent.actionMasked == MotionEvent.ACTION_DOWN) {
+                    // TODO: Integrate WebSurfaceNode with Compose's focus system
+                    // (FocusTargetModifierNode) so Modifier.onFocusChanged and FocusRequester work
+                    // natively on WebSurface.
                     val view = holder?.view
                     if (view != null && !view.hasFocus()) {
                         view.requestFocus()
