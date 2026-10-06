@@ -77,6 +77,7 @@ constructor(workerExecutor: WorkerExecutor, private val objectFactory: ObjectFac
             apiLevelsArgs = emptyList(),
             // Even if this is a KMP project, don't run multiplatform checks on it
             multiplatform = false,
+            generateTrace = false,
         )
     }
 
