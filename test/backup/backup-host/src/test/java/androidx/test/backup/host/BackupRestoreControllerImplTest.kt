@@ -38,6 +38,8 @@ import kotlinx.serialization.json.put
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
 
 class BackupRestoreControllerImplTest {
 
@@ -296,6 +298,14 @@ class BackupRestoreControllerImplTest {
     @Test
     fun asyncMethodsCompleteWithTheController() {
         assertEquals(controller, controller.stopAppAsync().get())
+    }
+
+    /** Other controllers can run on the same session, so closing one must leave it open. */
+    @Test
+    fun closeLeavesTheAdbSessionOpen() {
+        controller.close()
+
+        verify(device.session, never()).close()
     }
 
     @Test

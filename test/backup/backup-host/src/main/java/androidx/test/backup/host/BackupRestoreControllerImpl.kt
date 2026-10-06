@@ -523,7 +523,7 @@ internal class BackupRestoreControllerImpl(
     override fun stopAppAsync(): ListenableFuture<BackupRestoreController> = asFuture { stopApp() }
 
     override fun close() {
-        adbSession.close()
+        // Holds no resources of its own. The ADB session can be shared, and its owner closes it.
     }
 
     private companion object {
