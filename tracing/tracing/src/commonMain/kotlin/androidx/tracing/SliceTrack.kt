@@ -55,12 +55,13 @@ public abstract class SliceTrack(
 
     @Suppress("NOTHING_TO_INLINE")
     internal inline fun emitPreamble() {
-        // This method is intentionally not being synchronized. This is because PerfettoTracer
-        // always uses the currentThreadTrack() to dispatch emitPreamble(). This method effectively
-        // ends up running on the same thread as a result.
         if (!preamble) {
-            dispatchTraceEvent(preamblePacket(), immediateDispatch = true)
-            preamble = true
+            synchronized(lock) {
+                if (!preamble) {
+                    dispatchTraceEvent(preamblePacket(), immediateDispatch = true)
+                    preamble = true
+                }
+            }
         }
     }
 
@@ -84,9 +85,6 @@ public abstract class SliceTrack(
         name: String,
         token: PropagationUnsupportedToken,
     ): EventMetadataCloseable {
-        // This method is intentionally not being synchronized. This is because PerfettoTracer
-        // always uses the currentThreadTrack() to dispatch beginSection. This method effectively
-        // ends up running on the same thread as a result.
         eventMetadataCloseable.metadata = EmptyEventMetadata
         eventMetadataCloseable.closeable = EmptyCloseable
         eventMetadataCloseable.propagationToken = PropagationUnsupportedToken
@@ -144,10 +142,12 @@ public abstract class SliceTrack(
      */
     public open fun endSection() {
         if (!context.isGloballyEnabled) return
-        val event = obtainTraceEvent()
-        event?.apply {
-            event.setEndSection(trackUuid = uuid)
-            dispatchTraceEvent(event)
+        synchronized(lock) {
+            val event = obtainTraceEvent()
+            event?.apply {
+                event.setEndSection(trackUuid = uuid)
+                dispatchTraceEvent(event)
+            }
         }
     }
 
