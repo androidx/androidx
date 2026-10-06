@@ -33,6 +33,5 @@ dependencies {
 androidx {
     name = "Compose Animation Tooling"
     description = "Compose Animation APIs for tooling support. Internal use only."
-    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    doNotDocumentReason = "Only used externally by Android Studio"
+    type = SoftwareType.STUBS
 }

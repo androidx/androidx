@@ -101,13 +101,7 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
     }
 
     fun requireNoDocs(projectPath: String, projectDependency: String, fileContents: String) {
-        // A projects without docs can still appear in the docs-tip-of-tree file as a `stubs`
-        // dependency, which means it is included on the classpath for docs. Check if the project
-        // appears with one of the docs types that do get included in the docs.
-        val possibleTypes = DocsType.entries.joinToString("|") { "(${it.prefix})" }
-        val escapedDependency = Regex.escape(projectDependency)
-        val notStubsConfig = "($possibleTypes)\\($escapedDependency\\)".toRegex()
-        if (fileContents.contains(notStubsConfig)) {
+        if (fileContents.contains(projectDependency)) {
             throw GradleException(
                 "Project $projectPath is not configured for refdocs generation but is present in " +
                     "docs-tip-of-tree/build.gradle.\n\n" +
@@ -125,6 +119,8 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
                     val kmpExtension = multiplatformExtension
                     if (softwareType == SoftwareType.SAMPLES) {
                         DocsType.SAMPLES
+                    } else if (softwareType == SoftwareType.STUBS) {
+                        DocsType.STUBS
                     } else if (kmpExtension != null) {
                         if (!kmpExtension.hasJvmTarget() && !kmpExtension.hasAndroidTarget()) {
                             DocsType.KMP_WITHOUT_API_SINCE
@@ -158,11 +154,14 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
             KMP("kmpDocs"),
             KMP_WITHOUT_API_SINCE("kmpDocsWithoutApiSince"),
             SAMPLES("samples"),
+            STUBS("stubs"),
         }
 
         /**
-         * Whether the project should have public docs. True for API-tracked projects and samples,
-         * unless opted-out with [AndroidXExtension.doNotDocumentReason]
+         * Whether the project should be included in docs-tip-of-tree/build.gradle and
+         * docs-public/build.gradle (used by this task and in library build info for Jetpad). True
+         * for API-tracked projects, samples, and stubs, unless opted-out with
+         * [AndroidXExtension.doNotDocumentReason].
          */
         fun AndroidXExtension.requiresDocs() =
             shouldConfigureApiTasks().map { it && doNotDocumentReason == null }

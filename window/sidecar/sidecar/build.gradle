@@ -34,11 +34,10 @@ dependencies {
 
 androidx {
     name = "WindowManager Sidecar"
-    type = SoftwareType.PUBLISHED_LIBRARY // Only to generate per-project-zips
+    type = SoftwareType.STUBS
     inceptionYear = "2020"
     description = "This version of the OEM extension is deprecated. Please use window:extensions:extensions." +
             "module instead."
-    doNotDocumentReason = "Should not be published"
 }
 
 android {

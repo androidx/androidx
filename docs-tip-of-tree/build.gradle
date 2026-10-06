@@ -396,7 +396,7 @@ dependencies {
     docs(project(":window:window"))
     stubs(fileTree(dir: "../window/stubs/", include: ["window-sidecar-release.aar"]))
     docs(project(":window:extensions:core:core"))
-    docs(project(":window:extensions:extensions"))
+    stubs(project(":window:extensions:extensions"))
     stubs(project(":window:sidecar:sidecar"))
     kmpDocs(project(":window:window-core"))
     docs(project(":window:window-java"))
