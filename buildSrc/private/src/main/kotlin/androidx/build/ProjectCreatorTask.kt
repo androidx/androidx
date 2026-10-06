@@ -488,7 +488,13 @@ internal class DocsTotBuildGradleEditor(val docsTotBuildGradleFile: File) {
             return null
         }
         val gradlePath = getGradleProjectCoordinates(this)
-        return """    ${if (projectType == ProjectType.KMP) "kmpDocs" else "docs"}(project("$gradlePath"))"""
+        val config =
+            when {
+                "stub" in artifactId -> "stubs"
+                projectType == ProjectType.KMP -> "kmpDocs"
+                else -> "docs"
+            }
+        return """    $config(project("$gradlePath"))"""
     }
 }
 
@@ -903,6 +909,7 @@ internal fun getGradleProjectCoordinates(spec: ProjectSpec): String {
 internal fun getLibraryType(artifactId: String): String =
     when {
         "sample" in artifactId -> "SAMPLES"
+        "stub" in artifactId -> "STUBS"
         "compiler" in artifactId -> "ANNOTATION_PROCESSOR"
         "lint" in artifactId -> "LINT"
         "inspection" in artifactId -> "IDE_PLUGIN"

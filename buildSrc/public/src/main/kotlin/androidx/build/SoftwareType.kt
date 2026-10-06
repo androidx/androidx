@@ -243,6 +243,15 @@ sealed class SoftwareType(
                 checkApi = RunApiTasks.No("Sample Library"),
             )
 
+        // Stubs library
+        @JvmStatic
+        val STUBS =
+            ConfigurableSoftwareType(
+                name = "STUBS",
+                publish = Publish.SNAPSHOT_AND_RELEASE,
+                checkApi = RunApiTasks.Yes(),
+            )
+
         // IDE libraries
         @JvmStatic
         val IDE_PLUGIN =
@@ -325,6 +334,7 @@ sealed class SoftwareType(
                     INTERNAL_OTHER_CODE_PROCESSOR,
                     INTERNAL_TEST_LIBRARY,
                     SAMPLES,
+                    STUBS,
                     SNAPSHOT_ONLY_LIBRARY,
                     SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS,
                     SNAPSHOT_ONLY_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS,
