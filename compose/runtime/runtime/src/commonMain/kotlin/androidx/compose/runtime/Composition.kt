@@ -562,6 +562,15 @@ internal class CompositionImpl(
     /** The outermost [ComputedState] that is currently being calculated. */
     private var currentComputedState: ComputedState<*>? = null
 
+    /**
+     * The number of [DerivedState] instances that have started, but not finished, being calculated.
+     * This represents how many [DerivedState] reads deep a calculation currently is, with 0
+     * indicating that no [DerivedState] read is executing, 1 indicating a read with no nesting is
+     * currently executing, and 2+ indicating that a nested read is currently executing.
+     */
+    var derivedStateDepth: Int = 0
+        private set
+
     internal val indirectStateObserver =
         object : IndirectStateObserver {
             /**
@@ -572,13 +581,19 @@ internal class CompositionImpl(
             private var currentComputedStateReentrantDepth = 0
 
             override fun start(state: IndirectState<*>) {
-                if (state === currentComputedState) {
+                if (state is DerivedState<*>) {
+                    derivedStateDepth++
+                } else if (state === currentComputedState) {
                     currentComputedStateReentrantDepth++
                 }
             }
 
             override fun done(state: IndirectState<*>, calculatedValue: Any?) {
-                if (state === currentComputedState && --currentComputedStateReentrantDepth == 0) {
+                if (state is DerivedState<*>) {
+                    derivedStateDepth--
+                } else if (
+                    state === currentComputedState && --currentComputedStateReentrantDepth == 0
+                ) {
                     composer.currentRecomposeScope?.recordDerivedStateValue(state, calculatedValue)
                     currentComputedState = null
                 }
@@ -1159,7 +1174,7 @@ internal class CompositionImpl(
             return
         }
 
-        if (!areChildrenComposing) {
+        if (!areChildrenComposing && derivedStateDepth == 0) {
             composer.currentRecomposeScope?.let { scope ->
                 scope.used = true
 
