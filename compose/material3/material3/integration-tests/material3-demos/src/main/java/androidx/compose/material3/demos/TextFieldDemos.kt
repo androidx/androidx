@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -54,7 +56,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MaterialTextFieldDemo() {
     Column(Modifier.verticalScroll(rememberScrollState()).padding(PaddingValues(10.dp))) {
-        var text by rememberSaveable { mutableStateOf("") }
+        val state = rememberTextFieldState()
         var leadingChecked by rememberSaveable { mutableStateOf(false) }
         var trailingChecked by rememberSaveable { mutableStateOf(false) }
         val characterCounterChecked by rememberSaveable { mutableStateOf(false) }
@@ -66,14 +68,19 @@ fun MaterialTextFieldDemo() {
 
         val textField: @Composable () -> Unit =
             @Composable {
+                val lineLimits =
+                    if (singleLineChecked) {
+                        TextFieldLineLimits.SingleLine
+                    } else {
+                        TextFieldLineLimits.Default
+                    }
                 when (selectedTextField) {
                     TextFieldType.Filled ->
                         TextField(
-                            value = text,
-                            onValueChange = { text = it },
+                            state = state,
                             enabled = !disabled,
                             readOnly = readOnly,
-                            singleLine = singleLineChecked,
+                            lineLimits = lineLimits,
                             label = {
                                 val label =
                                     "Label" + if (selectedOption == Option.Error) "*" else ""
@@ -96,11 +103,10 @@ fun MaterialTextFieldDemo() {
                         )
                     TextFieldType.Outlined ->
                         OutlinedTextField(
-                            value = text,
-                            onValueChange = { text = it },
+                            state = state,
                             enabled = !disabled,
                             readOnly = readOnly,
-                            singleLine = singleLineChecked,
+                            lineLimits = lineLimits,
                             label = {
                                 val label =
                                     "Label" + if (selectedOption == Option.Error) "*" else ""

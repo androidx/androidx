@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.integration.demos.common.Demo
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -63,32 +64,23 @@ fun DemoFilter(launchableDemos: List<Demo>, filterText: String, onNavigate: (Dem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterAppBar(
-    filterText: String,
-    onFilter: (String) -> Unit,
+    filterText: TextFieldState,
     onClose: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
     TopAppBar(
         navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.Filled.Close, null) } },
-        title = { FilterField(filterText, onFilter, Modifier.fillMaxWidth()) },
+        title = { FilterField(filterText, Modifier.fillMaxWidth()) },
         scrollBehavior = scrollBehavior,
     )
 }
 
-/** [TextField] that edits the current [filterText], providing [onFilter] when edited. */
+/** [TextField] that edits the current [filterText]. */
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun FilterField(
-    filterText: String,
-    onFilter: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun FilterField(filterText: TextFieldState, modifier: Modifier = Modifier) {
     val focusRequester = remember { FocusRequester() }
-    TextField(
-        modifier = modifier.focusRequester(focusRequester),
-        value = filterText,
-        onValueChange = onFilter,
-    )
+    TextField(state = filterText, modifier = modifier.focusRequester(focusRequester))
     DisposableEffect(focusRequester) {
         focusRequester.requestFocus()
         onDispose {}

@@ -32,6 +32,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -178,18 +181,16 @@ class SpatialArrangementUsageActivity : ComponentActivity() {
                     Modifier.fillMaxSize().background(Color.White).padding(padding).padding(20.dp)
             ) {
                 MyRow {
-                    var mainAxisTextFieldValue by remember { mutableStateOf(uiState.mainAxis) }
+                    val mainAxisTextFieldState = rememberTextFieldState(uiState.mainAxis)
                     MyTextBox(text = "Main Axis:    ")
-                    TextField(
-                        value = mainAxisTextFieldValue,
-                        onValueChange = { mainAxisTextFieldValue = it },
-                    )
+                    TextField(state = mainAxisTextFieldState)
                     Button(
                         onClick = {
-                            if (mainAxisTextFieldValue.isEmpty() || mainAxisTextFieldValue == "0") {
-                                mainAxisTextFieldValue = uiState.mainAxis
+                            val mainAxisText = mainAxisTextFieldState.text.toString()
+                            if (mainAxisText.isEmpty() || mainAxisText == "0") {
+                                mainAxisTextFieldState.setTextAndPlaceCursorAtEnd(uiState.mainAxis)
                             } else {
-                                onUiStateChange(uiState.copy(mainAxis = mainAxisTextFieldValue))
+                                onUiStateChange(uiState.copy(mainAxis = mainAxisText))
                             }
                         }
                     ) {
@@ -197,20 +198,18 @@ class SpatialArrangementUsageActivity : ComponentActivity() {
                     }
                 }
                 MyRow {
-                    var crossAxisTextFieldValue by remember { mutableStateOf(uiState.crossAxis) }
+                    val crossAxisTextFieldState = rememberTextFieldState(uiState.crossAxis)
                     MyTextBox(text = "Cross Axis:    ")
-                    TextField(
-                        value = crossAxisTextFieldValue,
-                        onValueChange = { crossAxisTextFieldValue = it },
-                    )
+                    TextField(state = crossAxisTextFieldState)
                     Button(
                         onClick = {
-                            if (
-                                crossAxisTextFieldValue.isEmpty() || crossAxisTextFieldValue == "0"
-                            ) {
-                                crossAxisTextFieldValue = uiState.crossAxis
+                            val crossAxisText = crossAxisTextFieldState.text.toString()
+                            if (crossAxisText.isEmpty() || crossAxisText == "0") {
+                                crossAxisTextFieldState.setTextAndPlaceCursorAtEnd(
+                                    uiState.crossAxis
+                                )
                             } else {
-                                onUiStateChange(uiState.copy(crossAxis = crossAxisTextFieldValue))
+                                onUiStateChange(uiState.copy(crossAxis = crossAxisText))
                             }
                         }
                     ) {
@@ -307,6 +306,7 @@ class SpatialArrangementUsageActivity : ComponentActivity() {
         onValueSelected: (T) -> Unit,
     ) {
         var expanded by remember { mutableStateOf(false) }
+        val state = remember(selectedValue) { TextFieldState(selectedValue.toString()) }
         MyRow {
             MyTextBox(text = label)
             Box {
@@ -321,8 +321,7 @@ class SpatialArrangementUsageActivity : ComponentActivity() {
                                 true,
                             ),
                         readOnly = true,
-                        value = selectedValue.toString(),
-                        onValueChange = {},
+                        state = state,
                         label = { Text("Select") },
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)

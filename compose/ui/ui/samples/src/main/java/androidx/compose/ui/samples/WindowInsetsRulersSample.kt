@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -84,7 +85,7 @@ fun WindowInsetsRulersSample() {
 fun SourceAndTargetInsetsSample() {
     Column(Modifier.fillMaxSize()) {
         // TextField will show the IME when it is focused.
-        TextField("HelloWorld", {}, Modifier.fillMaxWidth())
+        TextField(rememberTextFieldState("HelloWorld"), Modifier.fillMaxWidth())
         // When the IME shows, animate the content to align with the top of the IME.
         // When the IME hides, animate the content to the top of the Box.
         val verticalPosition = remember { Animatable(0f) }

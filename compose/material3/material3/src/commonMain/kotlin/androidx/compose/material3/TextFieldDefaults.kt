@@ -362,6 +362,15 @@ public object TextFieldDefaults {
      * @param container the container to be drawn behind the text field. By default, this uses
      *   [Container]. Default colors for the container come from the [colors].
      */
+    @Deprecated(
+        "Use TextFieldDefaults.decorator with the BasicTextField(state: TextFieldState, ...) " +
+            "overload instead. To migrate: pass TextFieldDefaults.decorator(...) to the " +
+            "decorator parameter of BasicTextField, and replace value with state, " +
+            "visualTransformation with outputTransformation (OutputTransformation), and " +
+            "singleLine with lineLimits (TextFieldLineLimits). See " +
+            "https://developer.android.com/develop/ui/compose/text/migrate-state-based for full " +
+            "migration guidance."
+    )
     @Composable
     public fun DecorationBox(
         value: String,
@@ -1239,6 +1248,16 @@ public object OutlinedTextFieldDefaults {
      *   automatically added by the framework. Default colors for the container come from the
      *   [colors].
      */
+    @Deprecated(
+        "Use OutlinedTextFieldDefaults.decorator with the " +
+            "BasicTextField(state: TextFieldState, ...) overload instead. To migrate: pass " +
+            "OutlinedTextFieldDefaults.decorator(...) to the decorator parameter of " +
+            "BasicTextField, and replace value with state, visualTransformation with " +
+            "outputTransformation (OutputTransformation), and singleLine with lineLimits " +
+            "(TextFieldLineLimits). See " +
+            "https://developer.android.com/develop/ui/compose/text/migrate-state-based for full " +
+            "migration guidance."
+    )
     @Composable
     public fun DecorationBox(
         value: String,

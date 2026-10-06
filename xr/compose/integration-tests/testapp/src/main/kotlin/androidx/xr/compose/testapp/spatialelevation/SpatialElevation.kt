@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
@@ -63,7 +64,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -335,7 +335,7 @@ class SpatialElevation : ComponentActivity() {
 
     @Composable
     private fun EditItem(index: Int, modifier: Modifier = Modifier) {
-        var text by rememberSaveable { mutableStateOf("Test item $index") }
+        val state = rememberTextFieldState("Test item $index")
         var showEditPopup by remember { mutableStateOf(false) }
 
         Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
@@ -343,7 +343,7 @@ class SpatialElevation : ComponentActivity() {
                 SpatialElevation(SpatialElevationLevel.Level4) {
                     Surface(color = MaterialTheme.colorScheme.primaryContainer) {
                         Row(modifier = Modifier.padding(10.dp)) {
-                            TextField(value = text, onValueChange = { text = it })
+                            TextField(state = state)
                             Spacer(modifier = Modifier.size(10.dp))
                             Button(onClick = { showEditPopup = false }, modifier = Modifier) {
                                 Text("Done")
@@ -352,7 +352,10 @@ class SpatialElevation : ComponentActivity() {
                     }
                 }
             } else {
-                Text(text = text, fontSize = MaterialTheme.typography.headlineLarge.fontSize)
+                Text(
+                    text = state.text.toString(),
+                    fontSize = MaterialTheme.typography.headlineLarge.fontSize,
+                )
                 IconButton(onClick = { showEditPopup = true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit")
                 }

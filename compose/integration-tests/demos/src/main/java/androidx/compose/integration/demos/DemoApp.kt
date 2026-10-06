@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.integration.demos.common.ActivityDemo
 import androidx.compose.integration.demos.common.ComposableDemo
@@ -57,10 +59,6 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -86,7 +84,7 @@ fun DemoApp(
 ) {
     val navigationIcon = (@Composable { AppBarIcons.Back(onNavigateUp) }).takeIf { canNavigateUp }
 
-    var filterText by rememberSaveable { mutableStateOf("") }
+    val filterText = rememberTextFieldState()
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
@@ -99,7 +97,6 @@ fun DemoApp(
                 launchSettings = launchSettings,
                 isFiltering = isFiltering,
                 filterText = filterText,
-                onFilter = { filterText = it },
                 onStartFiltering = onStartFiltering,
                 onEndFiltering = onEndFiltering,
             )
@@ -111,7 +108,14 @@ fun DemoApp(
                 // as scaffold currently doesn't consume - consume what's needed
                 .consumeWindowInsets(innerPadding)
                 .padding(innerPadding)
-        DemoContent(modifier, currentDemo, isFiltering, filterText, onNavigateToDemo, onNavigateUp)
+        DemoContent(
+            modifier,
+            currentDemo,
+            isFiltering,
+            filterText.text.toString(),
+            onNavigateToDemo,
+            onNavigateUp,
+        )
     }
 }
 
@@ -222,8 +226,7 @@ private fun DemoAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     navigationIcon: @Composable () -> Unit,
     isFiltering: Boolean,
-    filterText: String,
-    onFilter: (String) -> Unit,
+    filterText: TextFieldState,
     onStartFiltering: () -> Unit,
     onEndFiltering: () -> Unit,
     launchSettings: () -> Unit,
@@ -231,7 +234,6 @@ private fun DemoAppBar(
     if (isFiltering) {
         FilterAppBar(
             filterText = filterText,
-            onFilter = onFilter,
             onClose = onEndFiltering,
             scrollBehavior = scrollBehavior,
         )
