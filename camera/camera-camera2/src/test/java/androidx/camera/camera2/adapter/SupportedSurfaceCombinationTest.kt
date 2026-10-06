@@ -1847,13 +1847,15 @@ class SupportedSurfaceCombinationTest {
         supportedHighSpeedSizeAndFpsMap: Map<Size, List<Range<Int>>>? =
             commonHighSpeedSupportedSizeFpsMap,
         compareExpectedFps: Range<Int>? = null,
-    ) {
-        getSuggestedSpecsAndVerify(
+        findSupportedFrameRateRanges: Boolean = false,
+    ): SurfaceStreamSpecQueryResult {
+        return getSuggestedSpecsAndVerify(
             useCasesExpectedSizeMap,
             capabilities = intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO),
             useCasesOutputSizesMap = useCasesOutputSizesMap,
             supportedHighSpeedSizeAndFpsMap = supportedHighSpeedSizeAndFpsMap,
             compareExpectedFps = compareExpectedFps,
+            findSupportedFrameRateRanges = findSupportedFrameRateRanges,
             expectedSessionType = SESSION_TYPE_HIGH_SPEED,
         )
     }
@@ -1874,7 +1876,7 @@ class SupportedSurfaceCombinationTest {
         default10BitProfile: Long? = null,
         videoStabilization: VideoStabilization = VideoStabilization.UNSPECIFIED,
         hasVideoCapture: Boolean = false,
-        findMaxSupportedFrameRate: Boolean = false,
+        findSupportedFrameRateRanges: Boolean = false,
         expectedSessionType: Int = SESSION_TYPE_REGULAR,
         maxFpsBySizeMap: Map<Size, Int> = emptyMap(),
         minFrameDurationMap: Map<Size, Long> = emptyMap(),
@@ -1919,7 +1921,7 @@ class SupportedSurfaceCombinationTest {
                 videoStabilization,
                 hasVideoCapture,
                 isFeatureComboInvocation,
-                findMaxSupportedFrameRate,
+                findSupportedFrameRateRanges,
             )
         val suggestedStreamSpecsForNewUseCases = result.useCaseStreamSpecs
         val suggestedStreamSpecsForOldSurfaces = result.attachedSurfaceStreamSpecs
@@ -3390,7 +3392,7 @@ class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    fun getSuggestedStreamSpec_singleUseCase_returnMaxSupportedFrameRate() {
+    fun getSuggestedStreamSpec_singleUseCase_returnSupportedFrameRateRanges() {
         // Arrange.
         val useCase = createUseCase(CaptureType.PREVIEW)
 
@@ -3412,16 +3414,46 @@ class SupportedSurfaceCombinationTest {
                 useCaseExpectedResultMap,
                 hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 useCasesOutputSizesMap = useCasesOutputSizesMap,
-                findMaxSupportedFrameRate = true,
+                findSupportedFrameRateRanges = true,
             )
 
         // Verify.
-        assertThat(result.maxSupportedFrameRate).isEqualTo(35)
+        assertThat(result.supportedFrameRateRanges)
+            .containsExactly(Range(10, 22), Range(22, 22), Range(30, 30))
     }
 
     @Test
-    fun getSuggestedStreamSpec_singleUseCaseWithTargetFpsSet_returnMaxSupportedFrameRate() {
+    fun getSuggestedStreamSpec_findSupportedFrameRateRangesIsFalse_supportedFrameRateRangesIsNull() {
         // Arrange.
+        val useCase = createUseCase(CaptureType.PREVIEW)
+        val useCasesOutputSizesMap =
+            mapOf(
+                useCase to
+                    listOf(
+                        Size(3840, 2160), // MaxFps = 25
+                        Size(1920, 1080), // MaxFps = 35
+                    )
+            )
+        val useCaseExpectedResultMap = mapOf(useCase to Size(3840, 2160))
+
+        // Act.
+        val result =
+            getSuggestedSpecsAndVerify(
+                useCaseExpectedResultMap,
+                hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                useCasesOutputSizesMap = useCasesOutputSizesMap,
+                findSupportedFrameRateRanges = false,
+            )
+
+        // Verify.
+        assertThat(result.supportedFrameRateRanges).isNull()
+    }
+
+    @Test
+    fun getSuggestedStreamSpec_singleUseCaseWithTargetFpsSet_returnSupportedFrameRateRanges() {
+        // Arrange.
+        // If targetFrameRate were honored, 3840x2160 (maxFps 25) couldn't meet 30fps and 1920x1080
+        // would be picked. Getting 3840x2160 proves findSupportedFrameRateRanges skips it.
         val useCase = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range(30, 30))
 
         val useCasesOutputSizesMap =
@@ -3442,16 +3474,19 @@ class SupportedSurfaceCombinationTest {
                 useCaseExpectedResultMap,
                 hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 useCasesOutputSizesMap = useCasesOutputSizesMap,
-                findMaxSupportedFrameRate = true,
+                findSupportedFrameRateRanges = true,
             )
 
         // Verify.
-        assertThat(result.maxSupportedFrameRate).isEqualTo(35)
+        assertThat(result.supportedFrameRateRanges)
+            .containsExactly(Range(10, 22), Range(22, 22), Range(30, 30))
     }
 
     @Test
-    fun getSuggestedStreamSpec_singleUseCaseWithStrictFpsSet_returnMaxSupportedFrameRate() {
+    fun getSuggestedStreamSpec_singleUseCaseWithStrictFpsSet_returnSupportedFrameRateRanges() {
         // Arrange.
+        // If targetFrameRate were honored, 3840x2160 (maxFps 25) couldn't meet 30fps and 1920x1080
+        // would be picked. Getting 3840x2160 proves findSupportedFrameRateRanges skips it.
         val useCase =
             createUseCase(
                 CaptureType.PREVIEW,
@@ -3477,15 +3512,16 @@ class SupportedSurfaceCombinationTest {
                 useCaseExpectedResultMap,
                 hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 useCasesOutputSizesMap = useCasesOutputSizesMap,
-                findMaxSupportedFrameRate = true,
+                findSupportedFrameRateRanges = true,
             )
 
         // Verify.
-        assertThat(result.maxSupportedFrameRate).isEqualTo(35)
+        assertThat(result.supportedFrameRateRanges)
+            .containsExactly(Range(10, 22), Range(22, 22), Range(30, 30))
     }
 
     @Test
-    fun getSuggestedStreamSpec_multipleUseCases_returnMaxSupportedFrameRate() {
+    fun getSuggestedStreamSpec_multipleUseCases_returnSupportedFrameRateRanges() {
         // Arrange.
         val useCase1 = createUseCase(CaptureType.PREVIEW)
         val useCase2 = createUseCase(CaptureType.VIDEO_CAPTURE)
@@ -3516,16 +3552,20 @@ class SupportedSurfaceCombinationTest {
                 useCaseExpectedResultMap,
                 hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 useCasesOutputSizesMap = useCasesOutputSizesMap,
-                findMaxSupportedFrameRate = true,
+                findSupportedFrameRateRanges = true,
             )
 
         // Verify.
-        assertThat(result.maxSupportedFrameRate).isEqualTo(35)
+        assertThat(result.supportedFrameRateRanges)
+            .containsExactly(Range(10, 22), Range(22, 22), Range(30, 30))
     }
 
     @Test
-    fun getSuggestedStreamSpec_multipleUseCasesWithTargetFpsSet_returnMaxSupportedFrameRate() {
+    fun getSuggestedStreamSpec_multipleUseCasesWithTargetFpsSet_returnSupportedFrameRateRanges() {
         // Arrange.
+        // If targetFrameRate were honored, 3840x2160 + 1280x720 (maxFps 25) couldn't meet 30fps and
+        // 1920x1080 + 1280x720 would be picked. Getting the former proves
+        // findSupportedFrameRateRanges skips it.
         val useCase1 = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range(30, 30))
         val useCase2 = createUseCase(CaptureType.VIDEO_CAPTURE, targetFrameRate = Range(30, 30))
 
@@ -3555,11 +3595,12 @@ class SupportedSurfaceCombinationTest {
                 useCaseExpectedResultMap,
                 hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 useCasesOutputSizesMap = useCasesOutputSizesMap,
-                findMaxSupportedFrameRate = true,
+                findSupportedFrameRateRanges = true,
             )
 
         // Verify.
-        assertThat(result.maxSupportedFrameRate).isEqualTo(35)
+        assertThat(result.supportedFrameRateRanges)
+            .containsExactly(Range(10, 22), Range(22, 22), Range(30, 30))
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////
@@ -4277,6 +4318,93 @@ class SupportedSurfaceCombinationTest {
                 useCasesOutputSizesMap = useCasesOutputSizesMap,
             )
         }
+    }
+
+    @Test
+    fun getSuggestedStreamSpec_highSpeed_findSupportedFrameRateRanges_returnsSupportedFpsRanges() {
+        val previewUseCase =
+            createUseCase(CaptureType.PREVIEW, sessionType = SESSION_TYPE_HIGH_SPEED)
+        val videoUseCase =
+            createUseCase(
+                CaptureType.VIDEO_CAPTURE,
+                sessionType = SESSION_TYPE_HIGH_SPEED,
+                customMaxFpsMap = mapOf(RESOLUTION_1080P to 240),
+            )
+        val useCasesOutputSizesMap =
+            mapOf(
+                previewUseCase to listOf(RESOLUTION_1080P),
+                videoUseCase to listOf(RESOLUTION_1080P),
+            )
+        val useCaseExpectedResultMap =
+            mapOf(previewUseCase to RESOLUTION_1080P, videoUseCase to RESOLUTION_1080P)
+        val customHighSpeedSizeAndFpsMap =
+            mapOf(
+                RESOLUTION_1080P to listOf(Range.create(30, 240), Range.create(240, 240)),
+                RESOLUTION_720P to
+                    listOf(
+                        Range.create(30, 120),
+                        Range.create(120, 120),
+                        Range.create(30, 240),
+                        Range.create(240, 240),
+                    ),
+            )
+
+        val result =
+            getSuggestedSpecsAndVerifyForHighSpeed(
+                useCaseExpectedResultMap,
+                useCasesOutputSizesMap = useCasesOutputSizesMap,
+                supportedHighSpeedSizeAndFpsMap = customHighSpeedSizeAndFpsMap,
+                findSupportedFrameRateRanges = true,
+            )
+
+        assertThat(result.supportedFrameRateRanges).containsExactly(Range.create(240, 240))
+    }
+
+    @Test
+    fun getSuggestedStreamSpec_highSpeedStrictFps_selectsSizeSupportingTargetFps() {
+        val targetFrameRate = Range.create(120, 120)
+        // High-speed frame rate is set via SessionConfig.frameRateRange, which requires strict fps.
+        val previewUseCase =
+            createUseCase(
+                CaptureType.PREVIEW,
+                sessionType = SESSION_TYPE_HIGH_SPEED,
+                targetFrameRate = targetFrameRate,
+                isStrictFpsRequired = true,
+            )
+        val videoUseCase =
+            createUseCase(
+                CaptureType.VIDEO_CAPTURE,
+                sessionType = SESSION_TYPE_HIGH_SPEED,
+                targetFrameRate = targetFrameRate,
+                isStrictFpsRequired = true,
+            )
+        val useCasesOutputSizesMap =
+            mapOf(
+                previewUseCase to listOf(RESOLUTION_1080P, RESOLUTION_720P),
+                videoUseCase to listOf(RESOLUTION_1080P, RESOLUTION_720P),
+            )
+        // 1080p only supports 240fps, while 720p supports 120fps and 240fps.
+        // Requesting 120fps should select 720p.
+        val customHighSpeedSizeAndFpsMap =
+            mapOf(
+                RESOLUTION_1080P to listOf(Range.create(30, 240), Range.create(240, 240)),
+                RESOLUTION_720P to
+                    listOf(
+                        Range.create(30, 120),
+                        Range.create(120, 120),
+                        Range.create(30, 240),
+                        Range.create(240, 240),
+                    ),
+            )
+        val useCaseExpectedResultMap =
+            mapOf(previewUseCase to RESOLUTION_720P, videoUseCase to RESOLUTION_720P)
+
+        getSuggestedSpecsAndVerifyForHighSpeed(
+            useCaseExpectedResultMap,
+            useCasesOutputSizesMap = useCasesOutputSizesMap,
+            supportedHighSpeedSizeAndFpsMap = customHighSpeedSizeAndFpsMap,
+            compareExpectedFps = targetFrameRate,
+        )
     }
 
     @Test

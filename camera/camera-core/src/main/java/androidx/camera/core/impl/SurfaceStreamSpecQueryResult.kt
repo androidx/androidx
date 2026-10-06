@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl
 
+import android.util.Range
 import androidx.annotation.RestrictTo
 
 /**
@@ -24,11 +25,14 @@ import androidx.annotation.RestrictTo
  * @param useCaseStreamSpecs A map of [UseCaseConfig] to its corresponding [StreamSpec].
  * @param attachedSurfaceStreamSpecs A map of [AttachedSurfaceInfo] to its corresponding
  *   [StreamSpec], representing existing UseCases.
- * @param maxSupportedFrameRate The maximum supported frame rate during the stream spec query.
+ * @param supportedFrameRateRanges The supported frame rate ranges during the stream spec query, or
+ *   `null` if they were not calculated.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class SurfaceStreamSpecQueryResult(
+public data class SurfaceStreamSpecQueryResult
+@JvmOverloads
+constructor(
     val useCaseStreamSpecs: Map<UseCaseConfig<*>, StreamSpec>,
     val attachedSurfaceStreamSpecs: Map<AttachedSurfaceInfo, StreamSpec>,
-    val maxSupportedFrameRate: Int,
+    val supportedFrameRateRanges: Set<Range<Int>>? = null,
 )

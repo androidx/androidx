@@ -15,13 +15,18 @@
  */
 package androidx.camera.core.impl
 
+import android.util.Range
 import androidx.camera.core.CameraUseCaseAdapterProvider
 import androidx.camera.core.CompositionSettings
 import androidx.camera.core.SessionConfig
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.internal.StreamSpecQueryResult
+import androidx.camera.core.internal.StreamSpecsCalculator
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_1080P
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_720P
 import androidx.camera.testing.impl.FakeStreamSpecsCalculator
 import androidx.camera.testing.impl.FrameRateUtil.FPS_120_120
@@ -96,16 +101,65 @@ internal class CameraInfoInternalTest {
         assertThat(supportedFrameRateRanges).containsExactly(FPS_120_120, FPS_240_240)
     }
 
+    @Test
+    fun getSupportedFrameRateRanges_highSpeedSession_respectsStreamSpecSupportedFrameRateRanges() {
+        val streamSpecsCalculator =
+            object : StreamSpecsCalculator {
+                override fun calculateSuggestedStreamSpecs(
+                    cameraMode: Int,
+                    cameraInfoInternal: CameraInfoInternal,
+                    newUseCases: List<UseCase>,
+                    attachedUseCases: List<UseCase>,
+                    cameraConfig: CameraConfig,
+                    sessionType: Int,
+                    targetFrameRate: Range<Int>,
+                    isFeatureComboInvocation: Boolean,
+                    findSupportedFrameRateRanges: Boolean,
+                ): StreamSpecQueryResult {
+                    return StreamSpecQueryResult(
+                        supportedFrameRateRanges = setOf(FPS_30_240, FPS_240_240)
+                    )
+                }
+            }
+        val cameraInfo =
+            FakeCameraInfoInternal().apply {
+                setCameraUseCaseAdapterProvider(
+                    createFakeCameraUseCaseAdapterProvider(streamSpecsCalculator)
+                )
+                setSupportedHighSpeedResolutions(FPS_30_120, listOf(RESOLUTION_720P))
+                setSupportedHighSpeedResolutions(FPS_120_120, listOf(RESOLUTION_720P))
+                setSupportedHighSpeedResolutions(
+                    FPS_30_240,
+                    listOf(RESOLUTION_720P, RESOLUTION_1080P),
+                )
+                setSupportedHighSpeedResolutions(
+                    FPS_240_240,
+                    listOf(RESOLUTION_720P, RESOLUTION_1080P),
+                )
+            }
+        val supportedFrameRateRanges =
+            cameraInfo.getSupportedFrameRateRanges(
+                SessionConfig(
+                    emptyList(),
+                    sessionType = SESSION_TYPE_HIGH_SPEED,
+                    requireNonEmptyUseCases = false,
+                )
+            )
+        assertThat(supportedFrameRateRanges).containsExactly(FPS_240_240)
+    }
+
     private fun createCamerasWithIds(ids: Array<Int>): List<CameraInternal> {
         return ids.map { FakeCamera(it.toString()) }
     }
 
-    private fun createFakeCameraUseCaseAdapterProvider(): CameraUseCaseAdapterProvider {
+    private fun createFakeCameraUseCaseAdapterProvider(
+        streamSpecsCalculator: StreamSpecsCalculator = FakeStreamSpecsCalculator()
+    ): CameraUseCaseAdapterProvider {
         val cameraUseCaseAdapter =
             CameraUseCaseAdapter(
                 FakeCamera(),
                 FakeCameraCoordinator(),
-                FakeStreamSpecsCalculator(),
+                streamSpecsCalculator,
                 FakeUseCaseConfigFactory(),
             )
         return object : CameraUseCaseAdapterProvider {

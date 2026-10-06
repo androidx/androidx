@@ -59,9 +59,9 @@ public object UseCaseAdditionSimulator {
      *   If there are any unresolved configurations in the session config (e.g.
      *   [SessionConfig.preferredFeatureGroup]]), they will be resolved in the same manner as actual
      *   binding flow.
-     * @param findMaxSupportedFrameRate Whether to find the maximum supported frame rate during the
-     *   simulation, false by default to improve latency in cases where this info is not required.
-     *   This info will be able available through the [StreamSpecQueryResult]s of the returned
+     * @param findSupportedFrameRateRanges Whether to find the supported frame rate ranges during
+     *   the simulation, false by default to improve latency in cases where this info is not
+     *   required. This info will be available through the [StreamSpecQueryResult]s of the returned
      *   [CalculatedUseCaseInfo].
      * @return A [CalculatedUseCaseInfo] object containing the simulated configuration result.
      * @throws IllegalStateException If a [CameraUseCaseAdapterProvider] has not been set yet.
@@ -76,7 +76,7 @@ public object UseCaseAdditionSimulator {
     public fun simulateAddUseCases(
         cameraInfoInternal: CameraInfoInternal,
         sessionConfig: SessionConfig,
-        findMaxSupportedFrameRate: Boolean = false,
+        findSupportedFrameRateRanges: Boolean = false,
         resolvedFeatureGroup: ResolvedFeatureGroup? = null,
     ): CalculatedUseCaseInfo {
         check(::cameraUseCaseAdapterProvider.isInitialized) {
@@ -92,7 +92,7 @@ public object UseCaseAdditionSimulator {
         return cameraUseCaseAdapter.simulateAddUseCases(
             sessionConfig.useCases,
             resolvedFeatureGroup ?: sessionConfig.resolveFeatureGroup(cameraInfoInternal),
-            /*findMaxSupportedFrameRate=*/ findMaxSupportedFrameRate,
+            /*findSupportedFrameRateRanges=*/ findSupportedFrameRateRanges,
         )
     }
 }

@@ -56,7 +56,6 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
     private static final String TAG = "FakeCameraDeviceSurfaceManager";
 
     public static final Size MAX_OUTPUT_SIZE = new Size(4032, 3024); // 12.2 MP
-    public static final int MAX_SUPPORTED_FRAME_RATE = 60;
 
     private final Map<String, Map<Class<? extends UseCaseConfig<?>>, StreamSpec>>
             mDefinedStreamSpecs = new HashMap<>();
@@ -101,7 +100,7 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
             @NonNull VideoStabilization videoStabilization,
             boolean hasVideoCapture, boolean isFeatureComboInvocation,
-            boolean findMaxSupportedFrameRate) {
+            boolean findSupportedFrameRateRanges) {
         List<UseCaseConfig<?>> newUseCaseConfigs =
                 new ArrayList<>(newUseCaseConfigsSupportedSizeMap.keySet());
         checkSurfaceCombo(existingSurfaces, newUseCaseConfigs);
@@ -121,8 +120,7 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
                     hasVideoCapture));
         }
 
-        return new SurfaceStreamSpecQueryResult(suggestedStreamSpecs, existingStreamSpecs,
-                MAX_SUPPORTED_FRAME_RATE);
+        return new SurfaceStreamSpecQueryResult(suggestedStreamSpecs, existingStreamSpecs);
     }
 
     private @NonNull StreamSpec getStreamSpec(@NonNull String cameraId, @NonNull Class<?> classType,

@@ -447,13 +447,14 @@ public final class CameraUseCaseAdapter implements Camera {
      * @param featureGroup              A {@link ResolvedFeatureGroup} to use for all the use cases
      *                                  after adding these use cases. A null value represents
      *                                  that the feature combination API is not being used.
-     * @param findMaxSupportedFrameRate whether to find the maximum supported frame rates. If true,
-     *                                  the {@link StreamSpecQueryResult#maxSupportedFrameRate} in
-     *                                  returned {@link CalculatedUseCaseInfo} will contain the
-     *                                  maximum supported frame rate. However, the calculation of
-     *                                  {@link StreamSpecQueryResult} will ignore the target
-     *                                  frame rate settings in SessionConfig and UseCases. So the
-     *                                  flag shouldn't be set for normal flow of adding UseCases.
+     * @param findSupportedFrameRateRanges whether to find the supported frame rate ranges. If true,
+     *                                     the
+     *                                   {@link StreamSpecQueryResult#getSupportedFrameRateRanges()}
+     *                                     in returned {@link CalculatedUseCaseInfo} will contain
+     *                                     the supported frame rate ranges. However, the calculation
+     *                                     of {@link StreamSpecQueryResult} will ignore the target
+     *                                     frame rate settings in SessionConfig and UseCases. So the
+     *                                     flag shouldn't be set for normal flow of adding UseCases.
      * @return the CalculatedUseCaseInfo
      * @throws CameraException Thrown if the combination of newly added UseCases and the
      *                         currently added UseCases exceed the capability of the camera.
@@ -462,7 +463,7 @@ public final class CameraUseCaseAdapter implements Camera {
     public CalculatedUseCaseInfo simulateAddUseCases(
             @NonNull Collection<UseCase> appUseCasesToAdd,
             @Nullable ResolvedFeatureGroup featureGroup,
-            boolean findMaxSupportedFrameRate)
+            boolean findSupportedFrameRateRanges)
             throws CameraException {
         Logger.d(TAG, "simulateAddUseCases: appUseCasesToAdd = " + appUseCasesToAdd
                 + ", featureGroup = " + featureGroup);
@@ -479,7 +480,7 @@ public final class CameraUseCaseAdapter implements Camera {
                 return calculateAndValidateUseCases(
                         appUseCases,
                         mSecondaryCameraInternal != null,
-                        findMaxSupportedFrameRate
+                        findSupportedFrameRateRanges
                 );
             } catch (IllegalArgumentException e) {
                 throw new CameraException(e);
@@ -501,7 +502,7 @@ public final class CameraUseCaseAdapter implements Camera {
             applyCalculatedUseCaseChanges(calculateAndValidateUseCases(
                     appUseCases,
                     mSecondaryCameraInternal != null,
-                    /*findMaxSupportedFrameRate=*/false
+                    /*findSupportedFrameRateRanges=*/false
             ));
         }
     }
@@ -517,7 +518,7 @@ public final class CameraUseCaseAdapter implements Camera {
     private CalculatedUseCaseInfo calculateAndValidateUseCases(
             @NonNull Collection<UseCase> appUseCases,
             boolean applyStreamSharing,
-            boolean findMaxSupportedFrameRate)
+            boolean findSupportedFrameRateRanges)
             throws IllegalArgumentException {
         checkUnsupportedFeatureCombinationAndThrow(appUseCases);
 
@@ -526,7 +527,7 @@ public final class CameraUseCaseAdapter implements Camera {
         // VideoCapture and Extensions is enabled.
         if (!applyStreamSharing && shouldForceEnableStreamSharing(appUseCases)) {
             return calculateAndValidateUseCases(appUseCases, /*applyStreamSharing*/true,
-                    findMaxSupportedFrameRate);
+                    findSupportedFrameRateRanges);
         }
 
         // Calculate camera UseCases and keep the result in local variables in case they don't
@@ -567,7 +568,7 @@ public final class CameraUseCaseAdapter implements Camera {
                     mSessionType,
                     mFrameRate,
                     isFeatureComboInvocation,
-                    findMaxSupportedFrameRate);
+                    findSupportedFrameRateRanges);
             if (mSecondaryCameraInternal != null) {
                 secondaryStreamSpecResult = mStreamSpecsCalculator.calculateSuggestedStreamSpecs(
                         getCameraMode(),
@@ -578,7 +579,7 @@ public final class CameraUseCaseAdapter implements Camera {
                         mSessionType,
                         mFrameRate,
                         isFeatureComboInvocation,
-                        findMaxSupportedFrameRate);
+                        findSupportedFrameRateRanges);
             }
             // TODO(b/265704882): enable stream sharing for LEVEL_3 and high preview
             //  resolution. Throw exception here if (applyStreamSharing == false), both video
@@ -591,7 +592,7 @@ public final class CameraUseCaseAdapter implements Camera {
             if (!applyStreamSharing && isStreamSharingAllowed()) {
                 // Try again and see if StreamSharing resolves the issue.
                 return calculateAndValidateUseCases(appUseCases, /*applyStreamSharing*/true,
-                        findMaxSupportedFrameRate);
+                        findSupportedFrameRateRanges);
             } else {
                 // If StreamSharing already on or not enabled, throw exception.
                 throw exception;
