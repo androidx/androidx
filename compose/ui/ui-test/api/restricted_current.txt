@@ -263,7 +263,7 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.DeviceConfigurationOverride Locales(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, androidx.compose.ui.text.intl.LocaleList locales);
     method public static androidx.compose.ui.test.DeviceConfigurationOverride Navigation(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, int navigationType, optional boolean isHidden);
     method @BytecodeOnly public static androidx.compose.ui.test.DeviceConfigurationOverride! Navigation$default(androidx.compose.ui.test.DeviceConfigurationOverride.Companion!, int, boolean, int, Object!);
-    method @RequiresApi(23) public static androidx.compose.ui.test.DeviceConfigurationOverride RoundScreen(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, boolean isScreenRound);
+    method public static androidx.compose.ui.test.DeviceConfigurationOverride RoundScreen(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, boolean isScreenRound);
     method public static androidx.compose.ui.test.DeviceConfigurationOverride Touchscreen(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, boolean isTouchScreen);
     method public static androidx.compose.ui.test.DeviceConfigurationOverride UiMode(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, int uiModeType);
     method public static androidx.compose.ui.test.DeviceConfigurationOverride WindowInsets(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, androidx.core.view.WindowInsetsCompat windowInsets);
