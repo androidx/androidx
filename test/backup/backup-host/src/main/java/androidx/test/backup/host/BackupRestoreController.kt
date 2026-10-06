@@ -46,7 +46,12 @@ public interface BackupRestoreController : AutoCloseable {
             "androidx.test.backup.actions.AssertStorageAction"
     }
 
-    /** Closes open resources, including ADB connections. */
+    /**
+     * Releases the resources held by this controller.
+     *
+     * The ADB session that the controller runs on stays open, since other controllers can share it.
+     * The session is closed by whoever created it.
+     */
     @Throws(IOException::class) override fun close()
 
     /** Serial number of this device or emulator. */
