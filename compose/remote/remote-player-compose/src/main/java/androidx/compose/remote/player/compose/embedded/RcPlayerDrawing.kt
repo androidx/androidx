@@ -75,6 +75,7 @@ import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
 import androidx.compose.remote.core.operations.TextMeasure
+import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.ContainerEnd
@@ -227,7 +228,7 @@ private fun DrawScope.executeOperationsInPass(
     var mainCanvas: Canvas? = null
     operations.fastForEach { op ->
         remoteContext.incrementOpCount()
-        if (op is VariableSupport) {
+        if (op is VariableSupport && op !is TouchExpression) {
             op.updateVariables(read)
         }
         when (op) {
@@ -247,10 +248,17 @@ private fun DrawScope.executeOperationsInPass(
                 updatePaintFromBundle(op.mPaintData, paintState, remoteContext, read)
             }
             is FloatExpression -> {
-                // Evaluate reactively (time/variables via the graph); write the result to the real
-                // store so later ops/draws in this stream that read the id by store see it.
-                val v = op.evaluate(read)
-                remoteContext.loadFloat(op.mId, v)
+                val snapshotState = remoteContext.mRemoteComposeState as? SnapshotRemoteComposeState
+                if (
+                    graph?.isTouchExpression(op.mId) != true &&
+                        snapshotState?.isFloatOverridden(op.mId) != true
+                ) {
+                    // Evaluate reactively (time/variables via the graph); write the result to the
+                    // real store so later ops/draws in this stream that read the id by store see
+                    // it.
+                    val v = op.evaluate(read)
+                    remoteContext.loadFloat(op.mId, v)
+                }
             }
             is ColorConstant -> op.apply(remoteContext)
             is ColorExpression -> op.apply(remoteContext)

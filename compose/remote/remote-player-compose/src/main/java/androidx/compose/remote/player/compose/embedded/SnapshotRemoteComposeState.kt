@@ -50,10 +50,7 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
 
     // --- Float ---
     override fun getFloat(id: Int): Float {
-        if (id !in floats) {
-            floats[id] = super.getFloat(id)
-        }
-        return floats[id] ?: 0f
+        return floats[id] ?: super.getFloat(id)
     }
 
     override fun cacheFloat(id: Int, item: Float) {
@@ -95,8 +92,8 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
 
     // --- Integer ---
     override fun getInteger(id: Int): Int {
-        if (id in integers) {
-            return integers[id] ?: 0
+        integers[id]?.let {
+            return it
         }
         // IDs below START_ID (42) are reserved for built-in system variables and literal enum
         // constants (e.g. Component.Visibility.VISIBLE = 1). Explicit integer updates are already
@@ -105,8 +102,10 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
         if (id in 0 until RemoteComposeState.START_ID) {
             return id
         }
-        integers[id] = super.getInteger(id)
-        return integers[id] ?: 0
+        floats[id]?.let {
+            return it.toInt()
+        }
+        return super.getInteger(id)
     }
 
     override fun updateInteger(id: Int, value: Int) {
@@ -145,10 +144,7 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
 
     // --- Color ---
     override fun getColor(id: Int): Int {
-        if (id !in colors) {
-            colors[id] = super.getColor(id)
-        }
-        return colors[id] ?: 0
+        return colors[id] ?: super.getColor(id)
     }
 
     override fun overrideColor(id: Int, color: Int) {

@@ -19,8 +19,10 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.collection.IntObjectMap
+import androidx.collection.IntSet
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableIntSet
+import androidx.collection.emptyIntSet
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.PaintOperation
 import androidx.compose.remote.core.RemoteClock
@@ -66,6 +68,7 @@ internal class GraphContext(
     timeMillis: State<Float> = mutableFloatStateOf(0f),
     clock: RemoteClock = RemoteClock.SYSTEM,
     internal var componentValues: Map<Int, State<Float>> = emptyMap(),
+    private val touchExpressionIds: IntSet = emptyIntSet(),
 ) : StoreBackedRemoteContext(clock) {
 
     internal var typefaceResolver: TypefaceResolver? = null
@@ -131,6 +134,8 @@ internal class GraphContext(
     private val evalState = ThreadLocal.withInitial { EvalPassState() }
 
     internal fun isComputed(id: Int): Boolean = computedOps.containsKey(id)
+
+    internal fun isTouchExpression(id: Int): Boolean = touchExpressionIds.contains(id)
 
     private fun computedValue(id: Int): Any? {
         val state = evalState.get()!!
