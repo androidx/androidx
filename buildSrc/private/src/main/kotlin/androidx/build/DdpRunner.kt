@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,10 +43,11 @@ import org.gradle.process.ExecSpec
 import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault(because = "Expected to rerun every time")
-abstract class FtlRunner : DefaultTask() {
+abstract class DdpRunner : DefaultTask() {
+
     init {
         group = "Verification"
-        description = "Runs devices tests in Firebase Test Lab filtered by --className"
+        description = "Runs devices tests in Developer Device Platform filtered by --className"
     }
 
     @get:Inject abstract val execOperations: ExecOperations
@@ -83,14 +84,14 @@ abstract class FtlRunner : DefaultTask() {
 
     @get:Optional
     @get:Input
-    @get:Option(option = "testTimeout", description = "timeout to pass to FTL test runner")
+    @get:Option(option = "testTimeout", description = "timeout to pass to DDP test runner")
     abstract val testTimeout: Property<String>
 
     @get:Optional
     @get:Input
     @get:Option(
         option = "instrumentationArgs",
-        description = "instrumentation arguments to pass to FTL test runner",
+        description = "instrumentation arguments to pass to DDP test runner",
     )
     abstract val instrumentationArgs: Property<String>
 
@@ -99,8 +100,8 @@ abstract class FtlRunner : DefaultTask() {
     @get:Option(
         option = "api",
         description =
-            "repeatable argument for which apis to run ftl tests on. " +
-                "Only relevant to $FTL_ON_APIS_NAME. Can be 23, 26, 28, 30, 33, 34, 35.",
+            "repeatable argument for which apis to run ddp tests on. " +
+                "Only relevant to $DDP_ON_APIS_NAME. Can be 23, 26, 28, 30, 33, 34, 35.",
     )
     abstract val apis: ListProperty<Int>
 
@@ -108,7 +109,7 @@ abstract class FtlRunner : DefaultTask() {
     @get:Input
     @get:Option(
         option = "shardCount",
-        description = "Number of shards to split tests into (requires gcloud beta)",
+        description = "Number of shards to split tests into",
     )
     abstract val shardCount: Property<Int>
 
@@ -126,9 +127,11 @@ abstract class FtlRunner : DefaultTask() {
 
     @TaskAction
     fun execThings() {
-        if (!System.getenv().containsKey("GOOGLE_APPLICATION_CREDENTIALS")) {
+        if (
+            project.providers.environmentVariable("GOOGLE_APPLICATION_CREDENTIALS").get().isEmpty()
+        ) {
             throw Exception(
-                "Running tests in FTL requires credentials, you have not set up " +
+                "Running tests in DDP requires credentials, you have not set up " +
                     "GOOGLE_APPLICATION_CREDENTIALS, follow go/androidx-onboarding#remote-build-cache"
             )
         }
@@ -166,38 +169,32 @@ abstract class FtlRunner : DefaultTask() {
 
         val shouldPull = pullScreenshots.isPresent && pullScreenshots.get() == "true"
 
-        val needsBeta = shardCount.isPresent
         execOperations.printCommandAndExec {
             it.commandLine(
                 listOfNotNull(
                     "gcloud",
-                    if (needsBeta) "beta" else null,
+                    "beta",
                     "--project",
                     "androidx-dev-prod",
-                    "firebase",
-                    "test",
-                    "android",
-                    "run",
-                    "--type",
+                    "device-run",
+                    "sessions",
+                    "submit",
                     "instrumentation",
-                    "--no-performance-metrics",
-                    "--no-auto-google-login",
-                    "--app",
-                    appApkPath,
-                    "--test",
-                    testApkPath,
-                    "--results-bucket=androidx-dev-prod-test-results",
+                    "--apps=$appApkPath",
+                    "--test=$testApkPath",
+                    "--bucket-name=androidx-dev-prod-test-results",
                     if (hasFilters) "--test-targets" else null,
                     if (hasFilters) filters else null,
-                    if (shouldPull) "--directories-to-pull" else null,
+                    if (shouldPull) "--paths-to-pull" else null,
                     if (shouldPull) {
                         "/sdcard/Android/data/${apkPackageName.get()}/cache/androidx_screenshots"
                     } else null,
-                    if (testTimeout.isPresent) "--timeout" else null,
+                    if (testTimeout.isPresent) "--instrumentation-timeout" else null,
                     if (testTimeout.isPresent) testTimeout.get() else null,
-                    if (shardCount.isPresent) "--num-uniform-shards" else null,
+                    if (shardCount.isPresent) "--sharding-option=uniform" else null,
+                    if (shardCount.isPresent) "--uniform-sharding-count" else null,
                     if (shardCount.isPresent) shardCount.get() else null,
-                    if (instrumentationArgs.isPresent) "--environment-variables" else null,
+                    if (instrumentationArgs.isPresent) "--additional-test-options" else null,
                     if (instrumentationArgs.isPresent) instrumentationArgs.get() else null,
                 ) + getDeviceArguments()
             )
@@ -206,13 +203,13 @@ abstract class FtlRunner : DefaultTask() {
 
     private fun getDeviceArguments(): List<String> {
         val devices = device.get().ifEmpty { readApis() }
-        return devices.flatMap { listOf("--device", "model=$it,locale=en_US,orientation=portrait") }
+        return devices.flatMap { listOf("--device=$it") }
     }
 
     private fun readApis(): Collection<String> {
         val apis = apis.get()
         if (apis.isEmpty()) {
-            throw RuntimeException("--api must be specified when using $FTL_ON_APIS_NAME.")
+            throw RuntimeException("--api must be specified when using $DDP_ON_APIS_NAME.")
         }
 
         val apisWithoutModels = apis.filter { it !in API_TO_MODEL_MAP }
@@ -224,23 +221,23 @@ abstract class FtlRunner : DefaultTask() {
     }
 }
 
-private const val NEXUS_6P = "Nexus6P,version=27"
-private const val A10 = "a10,version=29"
-private const val PETTYL = "pettyl,version=27"
-private const val HWCOR = "HWCOR,version=27"
-private const val Q2Q = "q2q,version=31"
+private const val NEXUS_6P = "nexus6p-27"
+private const val A10 = "a10-29"
+private const val PETTYL = "pettyl-27"
+private const val HWCOR = "hwcor-27"
+private const val Q2Q = "q2q-31"
 
-private const val PHYSICAL_PIXEL9 = "tokay,version=34"
-private const val MEDIUM_PHONE_37 = "MediumPhone_ps16k.arm,version=37"
-private const val MEDIUM_PHONE_36 = "MediumPhone.arm,version=36"
-private const val MEDIUM_PHONE_35 = "MediumPhone.arm,version=35"
-private const val MEDIUM_PHONE_34 = "MediumPhone.arm,version=34"
-private const val MEDIUM_PHONE_33 = "MediumPhone.arm,version=33"
-private const val MEDIUM_PHONE_30 = "MediumPhone.arm,version=30"
-private const val MEDIUM_PHONE_28 = "MediumPhone.arm,version=28"
-private const val MEDIUM_PHONE_26 = "MediumPhone.arm,version=26"
-private const val NEXUS5X_24 = "Nexus5X,version=24"
-private const val NEXUS5_23 = "Nexus5.gce_x86,version=23"
+private const val PHYSICAL_PIXEL9 = "tokay-34"
+private const val MEDIUM_PHONE_37 = "mediumphone-ps16k-arm-37"
+private const val MEDIUM_PHONE_36 = "mediumphone-arm-36"
+private const val MEDIUM_PHONE_35 = "mediumphone-arm-35"
+private const val MEDIUM_PHONE_34 = "mediumphone-arm-34"
+private const val MEDIUM_PHONE_33 = "mediumphone-arm-33"
+private const val MEDIUM_PHONE_30 = "mediumphone-arm-30"
+private const val MEDIUM_PHONE_28 = "mediumphone-arm-28"
+private const val MEDIUM_PHONE_26 = "mediumphone-arm-26"
+private const val NEXUS5X_24 = "nexus5x-24"
+private const val NEXUS5_23 = "nexus5-gce-x86-23"
 
 private val API_TO_MODEL_MAP =
     mapOf(
@@ -256,40 +253,25 @@ private val API_TO_MODEL_MAP =
         23 to NEXUS5_23,
     )
 
-private const val FTL_ON_APIS_NAME = "ftlOnApis"
+private const val DDP_ON_APIS_NAME = "ddpOnApis"
 private val devicesToRunOn =
     listOf(
-        FTL_ON_APIS_NAME to listOf(), // instead read devices via repeatable --api
-        "ftlphysicalpixel9api34" to listOf(PHYSICAL_PIXEL9),
-        "ftlmediumphoneapi37" to listOf(MEDIUM_PHONE_37),
-        "ftlmediumphoneapi36" to listOf(MEDIUM_PHONE_36),
-        "ftlmediumphoneapi35" to listOf(MEDIUM_PHONE_35),
-        "ftlmediumphoneapi34" to listOf(MEDIUM_PHONE_34),
-        "ftlmediumphoneapi33" to listOf(MEDIUM_PHONE_33),
-        "ftlmediumphoneapi30" to listOf(MEDIUM_PHONE_30),
-        "ftlmediumphoneapi28" to listOf(MEDIUM_PHONE_28),
-        "ftlmediumphoneapi26" to listOf(MEDIUM_PHONE_26),
-        "ftlnexus5xapi24" to listOf(NEXUS5X_24),
-        "ftlnexus5api23" to listOf(NEXUS5_23),
-        "ftlCoreTelecomDeviceSet" to listOf(NEXUS_6P, A10, PETTYL, HWCOR, Q2Q),
+        DDP_ON_APIS_NAME to listOf(), // instead read devices via repeatable --api
+        "ddpphysicalpixel9api34" to listOf(PHYSICAL_PIXEL9),
+        "ddpmediumphoneapi37" to listOf(MEDIUM_PHONE_37),
+        "ddpmediumphoneapi36" to listOf(MEDIUM_PHONE_36),
+        "ddpmediumphoneapi35" to listOf(MEDIUM_PHONE_35),
+        "ddpmediumphoneapi34" to listOf(MEDIUM_PHONE_34),
+        "ddpmediumphoneapi33" to listOf(MEDIUM_PHONE_33),
+        "ddpmediumphoneapi30" to listOf(MEDIUM_PHONE_30),
+        "ddpmediumphoneapi28" to listOf(MEDIUM_PHONE_28),
+        "ddpmediumphoneapi26" to listOf(MEDIUM_PHONE_26),
+        "ddpnexus5xapi24" to listOf(NEXUS5X_24),
+        "ddpnexus5api23" to listOf(NEXUS5_23),
+        "ddpCoreTelecomDeviceSet" to listOf(NEXUS_6P, A10, PETTYL, HWCOR, Q2Q),
     )
 
-private fun Project.registerRunner(
-    name: String,
-    artifacts: Artifacts,
-    namespace: Provider<String>,
-) {
-    devicesToRunOn.forEach { (taskPrefix, model) ->
-        tasks.register("$taskPrefix$name", FtlRunner::class.java) { task ->
-            task.device.set(model)
-            task.apkPackageName.set(namespace)
-            task.testFolder.set(artifacts.get(SingleArtifact.APK))
-            task.testLoader.set(artifacts.getBuiltArtifactsLoader())
-        }
-    }
-}
-
-fun Project.configureFtlRunner(androidComponentsExtension: AndroidComponentsExtension<*, *, *>) {
+fun Project.configureDdpRunner(androidComponentsExtension: AndroidComponentsExtension<*, *, *>) {
     androidComponentsExtension.apply {
         onVariants { variant ->
             when {
@@ -306,12 +288,12 @@ fun Project.configureFtlRunner(androidComponentsExtension: AndroidComponentsExte
     }
 }
 
-fun Project.addAppApkToFtlRunner() {
+fun Project.addAppApkToDdpRunner() {
     extensions.getByType<ApplicationAndroidComponentsExtension>().apply {
         onVariants(selector().withBuildType("debug")) { appVariant ->
             devicesToRunOn.forEach { (taskPrefix, _) ->
                 tasks.named("$taskPrefix${appVariant.name}AndroidTest") { configTask ->
-                    configTask as FtlRunner
+                    configTask as DdpRunner
                     configTask.appFolder.set(appVariant.artifacts.get(SingleArtifact.APK))
                     configTask.appLoader.set(appVariant.artifacts.getBuiltArtifactsLoader())
                 }
@@ -327,5 +309,20 @@ private fun ExecOperations.printCommandAndExec(action: (ExecSpec) -> Unit) {
         // Just approximating the command for user verification.
         val commandLine = spec.commandLine.map { if (" " in it) "\"$it\"" else it }
         println("Executing command: `${commandLine.joinToString(" ")}`")
+    }
+}
+
+private fun Project.registerRunner(
+    name: String,
+    artifacts: Artifacts,
+    namespace: Provider<String>,
+) {
+    devicesToRunOn.forEach { (taskPrefix, model) ->
+        tasks.register("$taskPrefix$name", DdpRunner::class.java) { task ->
+            task.device.set(model)
+            task.apkPackageName.set(namespace)
+            task.testFolder.set(artifacts.get(SingleArtifact.APK))
+            task.testLoader.set(artifacts.getBuiltArtifactsLoader())
+        }
     }
 }
