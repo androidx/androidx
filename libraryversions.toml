@@ -3,7 +3,7 @@ A2UI = "1.0.0-alpha01"
 ACTIVITY = "1.14.0-alpha03"
 ANNOTATION = "1.11.0-rc01"
 ANNOTATION_EXPERIMENTAL = "1.6.0"
-ANNOTATION_KEEP_QUARANTINE = "1.0.0-alpha01"
+ANNOTATION_KEEP = "1.0.0-alpha01"
 APPCOMPAT = "1.8.0-rc01"
 APPFUNCTIONS = "1.0.0-alpha13"
 APPSEARCH = "1.2.0-beta01"
@@ -198,6 +198,7 @@ A2UI = { group = "androidx.a2ui", atomicGroupVersion = "versions.A2UI" }
 A2UI_COMPOSE = { group = "androidx.a2ui.compose", atomicGroupVersion = "versions.A2UI" }
 ACTIVITY = { group = "androidx.activity", atomicGroupVersion = "versions.ACTIVITY" }
 ANNOTATION = { group = "androidx.annotation" }
+ANNOTATION_KEEP = { group = "androidx.annotation.keep", atomicGroupVersion = "versions.ANNOTATION_KEEP" }
 APPCOMPAT = { group = "androidx.appcompat", atomicGroupVersion = "versions.APPCOMPAT" }
 APPFUNCTIONS = { group = "androidx.appfunctions", atomicGroupVersion = "versions.APPFUNCTIONS" }
 APPSEARCH = { group = "androidx.appsearch", atomicGroupVersion = "versions.APPSEARCH" }
