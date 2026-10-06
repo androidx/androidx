@@ -37,6 +37,7 @@ target_link_options(
         image_processing_util_jni
         PRIVATE
         "-Wl,-z,max-page-size=16384"
+        "-Wl,-z,common-page-size=16384"
 )
 
 target_link_libraries(surface_util_jni  ${android-lib})
@@ -44,4 +45,5 @@ target_link_options(
         surface_util_jni
         PRIVATE
         "-Wl,-z,max-page-size=16384"
+        "-Wl,-z,common-page-size=16384"
 )
