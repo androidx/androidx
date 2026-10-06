@@ -20,5 +20,10 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 
 internal fun BenchmarkRule.runCollectionBenchmark(benchmark: CollectionBenchmark) {
-    measureRepeated { benchmark.measuredBlock() }
+    measureRepeated {
+        runWithMeasurementDisabled {
+            benchmark.prepare()
+        }
+        benchmark.measuredBlock()
+    }
 }
