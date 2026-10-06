@@ -24,6 +24,7 @@ import com.android.adblib.shellAsText
 import java.io.IOException
 import java.nio.file.Path
 import java.time.Duration
+import java.util.Locale
 import java.util.logging.Logger
 import kotlin.time.Duration as KotlinDuration
 import kotlin.time.Duration.Companion.seconds
@@ -180,16 +181,10 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
             output.exitCode == 0 &&
                 output.stdout.lineSequence().any { it.trim().equals("Success", ignoreCase = true) }
         if (!succeeded) {
-            val details =
-                listOf(output.stderr, output.stdout)
-                    .map { it.trim() }
-                    .filter { it.isNotEmpty() }
-                    .distinct()
-                    .joinToString(" ")
-            val detailsSuffix = if (details.isNotEmpty()) ": $details" else ""
-            throw IOException(
-                "Failed to clear app data for $packageName " +
-                    "(exit code ${output.exitCode})$detailsSuffix"
+            throw commandFailure(
+                "Failed to clear app data for $packageName (exit code ${output.exitCode})",
+                output.stderr,
+                output.stdout,
             )
         }
     }
@@ -224,9 +219,41 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
         exec("input keyevent KEYCODE_HOME")
     }
 
-    /** Returns the logcat entries logged within the last [duration]. */
-    suspend fun dumpLogcat(duration: Duration): String =
-        exec("logcat -d -t ${duration.toSeconds()}s").stdout
+    /**
+     * Returns the logcat entries logged within the last [duration], as measured by the device
+     * clock.
+     *
+     * @throws IOException if the device clock cannot be read or logcat fails
+     */
+    suspend fun dumpLogcat(duration: Duration): String {
+        val now = timeSinceEpoch()
+        val start = now - duration.coerceIn(Duration.ZERO, now)
+        // logcat takes no relative window, only a start time, here as `<epoch seconds>.<millis>`.
+        val startArg = String.format(Locale.ROOT, "%d.%03d", start.seconds, start.nano / 1_000_000)
+        val output = exec("logcat -d -t $startArg")
+        if (output.exitCode != 0) {
+            // stdout is left out of the message, since it can hold entries read before the failure.
+            throw commandFailure("logcat failed (exit code ${output.exitCode})", output.stderr)
+        }
+        return output.stdout
+    }
+
+    /**
+     * Returns the time since the epoch on the device clock, to the second.
+     *
+     * @throws IOException unless `date` prints the number of seconds since the epoch
+     */
+    private suspend fun timeSinceEpoch(): Duration {
+        val output = exec("date +%s")
+        val seconds =
+            output.stdout.trim().toLongOrNull()?.takeIf { it >= 0 }
+                ?: throw commandFailure(
+                    "Failed to read the device clock (exit code ${output.exitCode})",
+                    output.stderr,
+                    output.stdout,
+                )
+        return Duration.ofSeconds(seconds)
+    }
 
     /** Clears the logcat buffer. */
     suspend fun clearLogcat() {
@@ -265,6 +292,15 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
         /** Characters, besides letters and digits, that the shell never interprets in a word. */
         private const val SHELL_SAFE = "._/:=@%+,-"
     }
+}
+
+/**
+ * Returns an [IOException] with [message], followed by [output]: what a failed command printed, so
+ * that the failure explains itself. Blank and repeated entries of [output] are left out.
+ */
+internal fun commandFailure(message: String, vararg output: String): IOException {
+    val details = output.map { it.trim() }.filter { it.isNotEmpty() }.distinct().joinToString(" ")
+    return IOException(if (details.isEmpty()) message else "$message: $details")
 }
 
 /** Upper bound for a [withCleanup] cleanup, which cannot be cancelled. */
