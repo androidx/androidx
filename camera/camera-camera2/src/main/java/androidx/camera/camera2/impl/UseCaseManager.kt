@@ -21,7 +21,6 @@ package androidx.camera.camera2.impl
 import android.content.Context
 import android.graphics.ImageFormat
 import android.media.MediaCodec
-import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.annotation.OptIn
 import androidx.annotation.VisibleForTesting
@@ -365,6 +364,19 @@ constructor(
             }
         }
 
+        if (newUseCases.contains(meteringRepeating)) {
+            newUseCases
+                .filter { it != meteringRepeating }
+                .getMeteringRepeatingDynamicRange()
+                ?.let { meteringDynamicRange ->
+                    if (
+                        meteringRepeating.attachedStreamSpec?.dynamicRange != meteringDynamicRange
+                    ) {
+                        meteringRepeating.setupSession(meteringDynamicRange)
+                    }
+                }
+        }
+
         val extensionMode =
             sessionProcessor?.implementationType?.let { implType ->
                 if (implType.first == SessionProcessor.TYPE_CAMERA2_EXTENSION) {
@@ -557,8 +569,11 @@ constructor(
 
     @GuardedBy("lock")
     private fun addRepeatingUseCase() {
+        val meteringDynamicRange =
+            attachedUseCases.filter { it != meteringRepeating }.getMeteringRepeatingDynamicRange()
+                ?: DynamicRange.SDR
         meteringRepeating.bindToCamera(cameraInternal.get(), null, null, null)
-        meteringRepeating.setupSession()
+        meteringRepeating.setupSession(meteringDynamicRange)
         attach(listOf(meteringRepeating))
         activate(meteringRepeating)
     }
@@ -571,15 +586,14 @@ constructor(
     }
 
     private fun Collection<UseCase>.isMeteringCombinationSupported(): Boolean {
-        if (meteringRepeating.attachedSurfaceResolution == null) {
-            meteringRepeating.setupSession()
-        }
-
         val attachedSurfaceInfoList = getAttachedSurfaceInfoList()
 
         if (attachedSurfaceInfoList.isEmpty()) {
             return false
         }
+
+        val meteringDynamicRange =
+            resolveMeteringRepeatingDynamicRange(attachedSurfaceInfoList) ?: return false
 
         val sessionSurfacesConfigs = getSessionSurfacesConfigs()
 
@@ -588,7 +602,7 @@ constructor(
             .checkSupported(
                 SupportedSurfaceCombination.FeatureSettings(
                     getCameraMode(),
-                    getRequiredMaxBitDepth(attachedSurfaceInfoList),
+                    getRequiredMaxBitDepth(attachedSurfaceInfoList, meteringDynamicRange),
                     hasVideoCapture = containsVideoCapture(),
                     videoStabilization = getVideoStabilization(),
                     isUltraHdrOn = isUltraHdrOn(),
@@ -618,23 +632,43 @@ constructor(
         return CameraMode.DEFAULT
     }
 
-    private fun getRequiredMaxBitDepth(attachedSurfaceInfoList: List<AttachedSurfaceInfo>): Int {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+    private fun Collection<UseCase>.getMeteringRepeatingDynamicRange(): DynamicRange? {
+        val attachedSurfaceInfoList = getAttachedSurfaceInfoList()
+        if (attachedSurfaceInfoList.isEmpty()) {
+            return null
+        }
+        return resolveMeteringRepeatingDynamicRange(attachedSurfaceInfoList)
+    }
+
+    private fun resolveMeteringRepeatingDynamicRange(
+        attachedSurfaceInfoList: List<AttachedSurfaceInfo>
+    ): DynamicRange? =
+        try {
             dynamicRangeResolver
                 .resolveAndValidateDynamicRanges(
                     attachedSurfaceInfoList,
                     listOf(meteringRepeating.currentConfig),
                     listOf(0),
-                )
-                .forEach { (_, u) ->
-                    if (u.bitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
-                        return DynamicRange.BIT_DEPTH_10_BIT
-                    }
-                }
+                )[meteringRepeating.currentConfig]
+        } catch (e: IllegalArgumentException) {
+            Camera2Logger.warn(e) { "Failed to resolve dynamic range for MeteringRepeating" }
+            null
         }
 
-        return DynamicRange.BIT_DEPTH_8_BIT
-    }
+    private fun getRequiredMaxBitDepth(
+        attachedSurfaceInfoList: List<AttachedSurfaceInfo>,
+        meteringDynamicRange: DynamicRange,
+    ): Int =
+        if (
+            meteringDynamicRange.bitDepth == DynamicRange.BIT_DEPTH_10_BIT ||
+                attachedSurfaceInfoList.any {
+                    it.dynamicRange.bitDepth == DynamicRange.BIT_DEPTH_10_BIT
+                }
+        ) {
+            DynamicRange.BIT_DEPTH_10_BIT
+        } else {
+            DynamicRange.BIT_DEPTH_8_BIT
+        }
 
     private fun Collection<UseCase>.getAttachedSurfaceInfoList(): List<AttachedSurfaceInfo> =
         mutableListOf<AttachedSurfaceInfo>().apply {
@@ -707,7 +741,7 @@ constructor(
         supportedSurfaceCombination.transformSurfaceConfig(
             getCameraMode(),
             meteringRepeating.imageFormat,
-            meteringRepeating.attachedSurfaceResolution!!,
+            meteringRepeating.meteringSurfaceSize,
             meteringRepeating.currentConfig.streamUseCase,
         )
 

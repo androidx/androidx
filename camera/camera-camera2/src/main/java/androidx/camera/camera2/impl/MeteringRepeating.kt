@@ -25,6 +25,7 @@ import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.compat.workaround.getSupportedRepeatingSurfaceSizes
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -61,7 +62,7 @@ public class MeteringRepeating(
     private val displayInfoManager: DisplayInfoManager,
 ) : UseCase(config) {
 
-    private val meteringSurfaceSize = getProperPreviewSize(cameraProperties, displayInfoManager)
+    internal val meteringSurfaceSize = getProperPreviewSize(cameraProperties, displayInfoManager)
 
     private val deferrableSurfaceLock = Any()
 
@@ -81,7 +82,9 @@ public class MeteringRepeating(
         primaryStreamSpec: StreamSpec,
         secondaryStreamSpec: StreamSpec?,
     ): StreamSpec {
-        updateSessionConfig(listOf(createPipeline(meteringSurfaceSize).build()))
+        updateSessionConfig(
+            listOf(createPipeline(meteringSurfaceSize, primaryStreamSpec.dynamicRange).build())
+        )
         return primaryStreamSpec.toBuilder().setResolution(meteringSurfaceSize).build()
     }
 
@@ -95,27 +98,33 @@ public class MeteringRepeating(
     }
 
     /** Sets up the use case's session configuration, mainly its [DeferrableSurface]. */
-    public fun setupSession() {
-        // The suggested stream spec passed to `updateSuggestedStreamSpec` doesn't matter since
-        // this use case uses the min preview size.
-        updateSuggestedStreamSpec(StreamSpec.builder(DEFAULT_PREVIEW_SIZE).build(), null)
+    public fun setupSession(dynamicRange: DynamicRange = DynamicRange.SDR) {
+        // The suggested stream spec resolution passed to `updateSuggestedStreamSpec` doesn't
+        // matter since this use case uses the min preview size.
+        updateSuggestedStreamSpec(
+            StreamSpec.builder(DEFAULT_PREVIEW_SIZE).setDynamicRange(dynamicRange).build(),
+            null,
+        )
     }
 
-    private fun createPipeline(resolution: Size): SessionConfig.Builder {
+    private fun createPipeline(
+        resolution: Size,
+        dynamicRange: DynamicRange,
+    ): SessionConfig.Builder {
         val surface =
             synchronized(deferrableSurfaceLock) { createAndManageDeferrableSurface(resolution) }
 
         // Closes the old error listener if there is
         closeableErrorListener?.close()
         val errorListener = CloseableErrorListener { _, _ ->
-            updateSessionConfig(listOf(createPipeline(resolution).build()))
+            updateSessionConfig(listOf(createPipeline(resolution, dynamicRange).build()))
             notifyReset()
         }
         closeableErrorListener = errorListener
 
         return SessionConfig.Builder.createFrom(MeteringRepeatingConfig(), resolution).apply {
             setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-            addSurface(surface)
+            addSurface(surface, dynamicRange)
             setErrorListener(errorListener)
         }
     }

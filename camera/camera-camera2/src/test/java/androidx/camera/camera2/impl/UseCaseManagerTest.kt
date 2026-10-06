@@ -29,6 +29,7 @@ import android.hardware.camera2.CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
 import android.hardware.camera2.params.DynamicRangeProfiles
 import android.hardware.camera2.params.SessionConfiguration.SESSION_HIGH_SPEED
+import android.media.MediaCodec
 import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.adapter.CameraCoordinatorAdapter
@@ -627,6 +628,158 @@ class UseCaseManagerTest {
         assertThat(streamConfig.outputs.size).isEqualTo(1)
         val dynamicRangeProfile = streamConfig.outputs[0].dynamicRangeProfile
         assertThat(dynamicRangeProfile).isEqualTo(DynamicRangeProfile.HLG10)
+    }
+
+    @Config(minSdk = 33)
+    @Test
+    fun meteringRepeatingEnabled_withHlg10VideoOnly_resolvesMeteringRepeatingToHlg10() = runTest {
+        // Arrange: Configure HLG10 constrained to HLG10 only (matching Pixel 7+ behavior)
+        initializeUseCaseThreads(this)
+        val useCaseManager =
+            createUseCaseManager(
+                characteristicsMap =
+                    mapOf(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to
+                            streamConfigurationMap,
+                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to
+                            intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT),
+                        REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                            DynamicRangeProfiles(
+                                longArrayOf(
+                                    DynamicRangeProfiles.HLG10,
+                                    DynamicRangeProfiles.HLG10,
+                                    0L,
+                                )
+                            ),
+                    )
+            )
+        val videoSurface = createTestDeferrableSurface(MediaCodec::class.java)
+        val fakeVideoUseCase =
+            FakeUseCase().apply {
+                bindToCamera(
+                    FakeCamera("0"),
+                    null,
+                    null,
+                    getDefaultConfig(
+                        true,
+                        CameraUseCaseAdapter(ApplicationProvider.getApplicationContext()),
+                    ),
+                )
+                updateSuggestedStreamSpec(
+                    StreamSpec.builder(supportedSizes[0])
+                        .setDynamicRange(DynamicRange.HLG_10_BIT)
+                        .build(),
+                    null,
+                )
+                updateSessionConfigForTesting(
+                    SessionConfig.Builder()
+                        .setTemplateType(TEMPLATE_RECORD)
+                        .addSurface(videoSurface, DynamicRange.HLG_10_BIT)
+                        .build()
+                )
+                useCaseList.add(this)
+            }
+
+        // Act
+        useCaseManager.attach(listOf(fakeVideoUseCase))
+        useCaseManager.activate(fakeVideoUseCase)
+
+        // Assert
+        val runningUseCases = useCaseManager.getRunningUseCasesForTest()
+        val meteringRepeating = runningUseCases.filterIsInstance<MeteringRepeating>().single()
+        assertThat(meteringRepeating.attachedStreamSpec?.dynamicRange)
+            .isEqualTo(DynamicRange.HLG_10_BIT)
+        assertThat(meteringRepeating.sessionConfig.outputConfigs.single().dynamicRange)
+            .isEqualTo(DynamicRange.HLG_10_BIT)
+
+        val graphConfig =
+            useCaseManager
+                .createUseCaseCameraConfig(SessionConfigAdapter(runningUseCases), null)
+                .cameraGraphConfig
+        assertThat(graphConfig.streams).hasSize(2)
+        for (stream in graphConfig.streams) {
+            assertThat(stream.outputs.single().dynamicRangeProfile)
+                .isEqualTo(DynamicRangeProfile.HLG10)
+        }
+        videoSurface.close()
+    }
+
+    @Config(minSdk = 33)
+    @Test
+    fun meteringRepeatingDynamicRangeUpdates_whenHlg10AttachedWhileMeteringAttached() = runTest {
+        // Arrange: Configure HLG10 unconstrained (supports STANDARD | HLG10)
+        initializeUseCaseThreads(this)
+        val useCaseManager =
+            createUseCaseManager(
+                characteristicsMap =
+                    mapOf(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to
+                            streamConfigurationMap,
+                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to
+                            intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT),
+                        REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                            DynamicRangeProfiles(
+                                longArrayOf(
+                                    DynamicRangeProfiles.HLG10,
+                                    DynamicRangeProfiles.STANDARD or DynamicRangeProfiles.HLG10,
+                                    0L,
+                                )
+                            ),
+                    )
+            )
+        val imageCapture = createImageCapture()
+        useCaseManager.attach(listOf(imageCapture))
+        useCaseManager.activate(imageCapture)
+
+        val initialMetering =
+            useCaseManager
+                .getRunningUseCasesForTest()
+                .filterIsInstance<MeteringRepeating>()
+                .single()
+        assertThat(initialMetering.attachedStreamSpec?.dynamicRange).isEqualTo(DynamicRange.SDR)
+
+        val videoSurface = createTestDeferrableSurface(MediaCodec::class.java)
+        val fakeVideoUseCase =
+            FakeUseCase().apply {
+                bindToCamera(
+                    FakeCamera("0"),
+                    null,
+                    null,
+                    getDefaultConfig(
+                        true,
+                        CameraUseCaseAdapter(ApplicationProvider.getApplicationContext()),
+                    ),
+                )
+                updateSuggestedStreamSpec(
+                    StreamSpec.builder(supportedSizes[0])
+                        .setDynamicRange(DynamicRange.HLG_10_BIT)
+                        .build(),
+                    null,
+                )
+                updateSessionConfigForTesting(
+                    SessionConfig.Builder()
+                        .setTemplateType(TEMPLATE_RECORD)
+                        .addNonRepeatingSurface(videoSurface, DynamicRange.HLG_10_BIT)
+                        .build()
+                )
+                useCaseList.add(this)
+            }
+
+        // Act: Attach HLG10 non-repeating use case while MeteringRepeating is already attached
+        useCaseManager.attach(listOf(fakeVideoUseCase))
+        useCaseManager.activate(fakeVideoUseCase)
+
+        // Assert: MeteringRepeating updates its dynamic range to HLG_10_BIT
+        val updatedMetering =
+            useCaseManager
+                .getRunningUseCasesForTest()
+                .filterIsInstance<MeteringRepeating>()
+                .single()
+        assertThat(updatedMetering.attachedStreamSpec?.dynamicRange)
+            .isEqualTo(DynamicRange.HLG_10_BIT)
+        assertThat(updatedMetering.sessionConfig.outputConfigs.single().dynamicRange)
+            .isEqualTo(DynamicRange.HLG_10_BIT)
+        videoSurface.close()
     }
 
     @Test
