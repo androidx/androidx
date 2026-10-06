@@ -190,6 +190,7 @@ private fun TextTestContent(colorScheme: ColorScheme) {
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 private fun FilledTextFieldTestContent(colorScheme: ColorScheme) {
     MaterialTheme(colorScheme) {
@@ -204,6 +205,7 @@ private fun FilledTextFieldTestContent(colorScheme: ColorScheme) {
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 private fun OutlinedTextFieldTestContent(colorScheme: ColorScheme) {
     MaterialTheme(colorScheme) {

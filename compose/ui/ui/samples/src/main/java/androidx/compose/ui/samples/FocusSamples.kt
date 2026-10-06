@@ -28,14 +28,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -82,15 +85,20 @@ fun FocusableSampleUsingLowerLevelFocusTarget() {
 @Composable
 fun CaptureFocusSample() {
     val focusRequester = remember { FocusRequester() }
-    var value by remember { mutableStateOf("apple") }
+    val state = rememberTextFieldState("apple")
     var borderColor by remember { mutableStateOf(Transparent) }
-    TextField(
-        value = value,
-        onValueChange = {
-            value = it.apply {
-                if (length > 5) focusRequester.captureFocus() else focusRequester.freeFocus()
+    LaunchedEffect(state) {
+        snapshotFlow { state.text.length > 5 }
+            .collect {
+                if (it) {
+                    focusRequester.captureFocus()
+                } else {
+                    focusRequester.freeFocus()
+                }
             }
-        },
+    }
+    TextField(
+        state = state,
         modifier =
             Modifier.border(2.dp, borderColor).focusRequester(focusRequester).onFocusChanged {
                 borderColor = if (it.isCaptured) Red else Transparent
