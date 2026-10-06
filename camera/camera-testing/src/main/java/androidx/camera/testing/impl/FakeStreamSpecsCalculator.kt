@@ -53,7 +53,7 @@ public class FakeStreamSpecsCalculator : StreamSpecsCalculator {
         sessionType: Int,
         targetFrameRate: Range<Int>,
         isFeatureComboInvocation: Boolean,
-        findMaxSupportedFrameRate: Boolean,
+        findSupportedFrameRateRanges: Boolean,
     ): StreamSpecQueryResult {
         Logger.d(TAG, "calculateSuggestedStreamSpecs: supportedStreamSpecs = $supportedStreamSpecs")
 
@@ -103,7 +103,7 @@ public class FakeStreamSpecsCalculator : StreamSpecsCalculator {
             }
         }
 
-        return StreamSpecQueryResult(streamSpecs, MAX_SUPPORTED_FRAME_RATE)
+        return StreamSpecQueryResult(streamSpecs)
     }
 
     /**
@@ -170,6 +170,5 @@ public class FakeStreamSpecsCalculator : StreamSpecsCalculator {
 
     public companion object {
         private const val TAG = "FakeStreamSpecsCalculator"
-        private const val MAX_SUPPORTED_FRAME_RATE = Int.MAX_VALUE
     }
 }

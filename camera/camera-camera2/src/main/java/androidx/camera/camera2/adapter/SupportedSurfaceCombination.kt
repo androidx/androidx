@@ -383,9 +383,9 @@ public class SupportedSurfaceCombination(
      * @param hasVideoCapture whether the use cases has video capture.
      * @param isFeatureComboInvocation whether the code flow involves CameraX feature combo API
      *   (e.g. [androidx.camera.core.SessionConfig.requiredFeatureGroup]).
-     * @param findMaxSupportedFrameRate whether to find the max supported frame rate. If this is
-     *   true, the target frame rate settings will be ignored. If false, the returned value of
-     *   [SurfaceStreamSpecQueryResult.maxSupportedFrameRate] is undetermined.
+     * @param findSupportedFrameRateRanges whether to find the supported frame rate ranges. If this
+     *   is true, the target frame rate settings will be ignored. If false, the returned value of
+     *   [SurfaceStreamSpecQueryResult.supportedFrameRateRanges] will be null.
      * @return a [SurfaceStreamSpecQueryResult].
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
      *   found. This may be due to no available output size or no available surface combination.
@@ -398,7 +398,7 @@ public class SupportedSurfaceCombination(
         videoStabilization: VideoStabilization = VideoStabilization.UNSPECIFIED,
         hasVideoCapture: Boolean = false,
         isFeatureComboInvocation: Boolean,
-        findMaxSupportedFrameRate: Boolean,
+        findSupportedFrameRateRanges: Boolean,
     ): SurfaceStreamSpecQueryResult {
         // Refresh Preview Size based on current display configurations.
         refreshPreviewSize()
@@ -459,9 +459,10 @@ public class SupportedSurfaceCombination(
 
         // Calculates the target FPS range
         val (isStrictFpsRequired, targetFpsRange) =
-            if (findMaxSupportedFrameRate) {
-                // In finding maxFps mode, ignore targetFpsRange and isStrictFpsRequired so that the
-                // calculations won't be interrupted by any frame rate checks.
+            if (findSupportedFrameRateRanges) {
+                // When finding supported frame rate ranges, ignore targetFpsRange and
+                // isStrictFpsRequired so that the calculations won't be interrupted by any frame
+                // rate checks.
                 false to FRAME_RATE_RANGE_UNSPECIFIED
             } else {
                 val isStrictFpsRequired = isStrictFpsRequired(attachedSurfaces, newUseCaseConfigs)
@@ -523,7 +524,7 @@ public class SupportedSurfaceCombination(
             newUseCaseConfigs,
             useCasesPriorityOrder,
             resolvedDynamicRanges,
-            findMaxSupportedFrameRate,
+            findSupportedFrameRateRanges,
         )
     }
 
@@ -555,7 +556,7 @@ public class SupportedSurfaceCombination(
         newUseCaseConfigs: List<UseCaseConfig<*>>,
         useCasesPriorityOrder: List<Int>,
         resolvedDynamicRanges: Map<UseCaseConfig<*>, DynamicRange>,
-        findMaxSupportedFrameRate: Boolean,
+        findSupportedFrameRateRanges: Boolean,
     ): SurfaceStreamSpecQueryResult {
         Camera2Logger.debug { "resolveSpecsByCheckingMethod: checkingMethod = $checkingMethod" }
 
@@ -568,7 +569,7 @@ public class SupportedSurfaceCombination(
                     newUseCaseConfigs,
                     useCasesPriorityOrder,
                     resolvedDynamicRanges,
-                    findMaxSupportedFrameRate,
+                    findSupportedFrameRateRanges,
                 )
             WITH_FEATURE_COMBO -> {
                 // Use FpsRangeFeature.DEFAULT_FPS_RANGE when Camera2 FCQ checking is required
@@ -595,7 +596,7 @@ public class SupportedSurfaceCombination(
                     newUseCaseConfigs,
                     useCasesPriorityOrder,
                     resolvedDynamicRanges,
-                    findMaxSupportedFrameRate,
+                    findSupportedFrameRateRanges,
                 )
             }
             WITHOUT_FEATURE_COMBO_FIRST_AND_THEN_WITH_IT -> {
@@ -607,7 +608,7 @@ public class SupportedSurfaceCombination(
                         newUseCaseConfigs,
                         useCasesPriorityOrder,
                         resolvedDynamicRanges,
-                        findMaxSupportedFrameRate,
+                        findSupportedFrameRateRanges,
                     )
                 } catch (e: IllegalArgumentException) {
                     Camera2Logger.debug(e) {
@@ -622,7 +623,7 @@ public class SupportedSurfaceCombination(
                         newUseCaseConfigs,
                         useCasesPriorityOrder,
                         resolvedDynamicRanges,
-                        findMaxSupportedFrameRate,
+                        findSupportedFrameRateRanges,
                     )
                 }
             }
@@ -645,7 +646,7 @@ public class SupportedSurfaceCombination(
         newUseCaseConfigs: List<UseCaseConfig<*>>,
         useCasesPriorityOrder: List<Int>,
         resolvedDynamicRanges: Map<UseCaseConfig<*>, DynamicRange>,
-        findMaxSupportedFrameRate: Boolean,
+        findSupportedFrameRateRanges: Boolean,
     ): SurfaceStreamSpecQueryResult {
         Camera2Logger.debug { "resolveSpecsBySettings: featureSettings = $featureSettings" }
 
@@ -672,7 +673,7 @@ public class SupportedSurfaceCombination(
             filterSupportedSizes(
                 filteredNewUseCaseConfigsSupportedSizeMap,
                 featureSettings,
-                /*forceUniqueMaxFpsFiltering=*/ findMaxSupportedFrameRate,
+                /*forceUniqueMaxFpsFiltering=*/ findSupportedFrameRateRanges,
             )
         val supportedOutputSizesList =
             getSupportedOutputSizesList(
@@ -726,7 +727,7 @@ public class SupportedSurfaceCombination(
                 featureSettings,
                 orderedSurfaceConfigListForStreamUseCase,
                 resolvedDynamicRanges,
-                findMaxSupportedFrameRate,
+                findSupportedFrameRateRanges,
             )
 
         require(bestSizesAndFps != null) {
@@ -761,7 +762,7 @@ public class SupportedSurfaceCombination(
         return SurfaceStreamSpecQueryResult(
             useCaseStreamSpecs = suggestedStreamSpecMap,
             attachedSurfaceStreamSpecs = attachedSurfaceStreamSpecMap,
-            maxSupportedFrameRate = bestSizesAndFps.maxFpsForAllSizes,
+            supportedFrameRateRanges = bestSizesAndFps.supportedFrameRateRanges,
         )
     }
 
@@ -1261,7 +1262,7 @@ public class SupportedSurfaceCombination(
         featureSettings: FeatureSettings,
         orderedSurfaceConfigListForStreamUseCase: List<SurfaceConfig>?,
         resolvedDynamicRanges: Map<UseCaseConfig<*>, DynamicRange>,
-        findMaxFpsForAllSizes: Boolean,
+        findSupportedFrameRateRanges: Boolean,
     ): BestSizesAndMaxFpsForConfigs? {
         var bestSizes: List<Size>? = null
         var maxFpsForBestSizes = FRAME_RATE_UNLIMITED
@@ -1269,7 +1270,7 @@ public class SupportedSurfaceCombination(
         var maxFpsForStreamUseCase = FRAME_RATE_UNLIMITED
         var supportedSizesFound = false
         var supportedSizesForStreamUseCaseFound = false
-        var maxFpsForAllSizes = Int.MAX_VALUE
+        val supportedFrameRateRanges = mutableSetOf<Range<Int>>()
 
         // Transform use cases to SurfaceConfig list and find the first (best) workable combination
         for (possibleSizeList in allPossibleSizeArrangements) {
@@ -1297,11 +1298,18 @@ public class SupportedSurfaceCombination(
                     existingSurfaceFrameRateCeiling,
                     featureSettings.isHighSpeedOn,
                 )
+            val configSupportedFpsRanges =
+                getSupportedFpsRangesFor(
+                    featureSettings,
+                    attachedSurfaces.map { it.size } + possibleSizeList,
+                    currentConfigFrameRateCeiling,
+                )
             val isConfigFrameRateAcceptable =
                 isConfigFrameRateAcceptable(
+                    featureSettings,
                     existingSurfaceFrameRateCeiling,
-                    featureSettings.targetFpsRange,
                     currentConfigFrameRateCeiling,
+                    configSupportedFpsRanges,
                 )
 
             val dynamicRangesBySurfaceConfig = mutableMapOf<SurfaceConfig, DynamicRange>()
@@ -1325,12 +1333,8 @@ public class SupportedSurfaceCombination(
                     )
                 }
 
-            if (findMaxFpsForAllSizes && isSupported) {
-                if (maxFpsForAllSizes == Int.MAX_VALUE) {
-                    maxFpsForAllSizes = currentConfigFrameRateCeiling
-                } else if (maxFpsForAllSizes < currentConfigFrameRateCeiling) {
-                    maxFpsForAllSizes = currentConfigFrameRateCeiling
-                }
+            if (findSupportedFrameRateRanges && isSupported) {
+                supportedFrameRateRanges.addAll(configSupportedFpsRanges)
             }
 
             // Find the same possible size arrangement that is supported by stream use case again
@@ -1355,8 +1359,8 @@ public class SupportedSurfaceCombination(
                     supportedSizesFound = true
 
                     // if we have a configuration where the max fps is acceptable for our target,
-                    // break. But never break when findMaxFpsForAllSizes flag is set.
-                    if (supportedSizesForStreamUseCaseFound && !findMaxFpsForAllSizes) {
+                    // break. But never break when findSupportedFrameRateRanges flag is set.
+                    if (supportedSizesForStreamUseCaseFound && !findSupportedFrameRateRanges) {
                         break
                     }
                 }
@@ -1386,8 +1390,8 @@ public class SupportedSurfaceCombination(
                     maxFpsForStreamUseCase = currentConfigFrameRateCeiling
                     bestSizesForStreamUseCase = possibleSizeList
                     supportedSizesForStreamUseCaseFound = true
-                    // Never break when findMaxFpsForAllSizes flag is set.
-                    if (supportedSizesFound && !findMaxFpsForAllSizes) {
+                    // Never break when findSupportedFrameRateRanges flag is set.
+                    if (supportedSizesFound && !findSupportedFrameRateRanges) {
                         break
                     }
                 }
@@ -1414,37 +1418,76 @@ public class SupportedSurfaceCombination(
             bestSizesForStreamUseCase,
             maxFpsForBestSizes,
             maxFpsForStreamUseCase,
-            maxFpsForAllSizes,
+            if (findSupportedFrameRateRanges) supportedFrameRateRanges else null,
         )
     }
 
-    private fun isConfigFrameRateAcceptable(
-        existingSurfaceFrameRateCeiling: Int,
-        targetFpsRange: Range<Int>,
-        currentConfigFrameRateCeiling: Int,
-    ): Boolean {
-        var isConfigFrameRateAcceptable = true
-        if (targetFpsRange != FRAME_RATE_RANGE_UNSPECIFIED) {
-            // TODO: b/402372530 - currentConfigFrameRateCeiling < targetFpsRange.getUpper() to
-            //  return false means that there should still be other better choice because
-            //  currentConfigFrameRateCeiling is still smaller than both maxSupportedFps and
-            //  targetFpsRange.getUpper(). However, for feature combo cases, we should strictly
-            //  maintain the target FPS range being fully supported. It doesn't need to be handled
-            //  right now though since feature combo API supports lower == upper case (i.e. FPS_60)
-            //  only right now.
-            if (
-                currentConfigFrameRateCeiling < existingSurfaceFrameRateCeiling &&
-                    currentConfigFrameRateCeiling < targetFpsRange.upper
-            ) {
-                // if the max fps before adding new use cases supports our target fps range
-                // BUT the max fps of the new configuration is below
-                // our target fps range, we'll want to check the next configuration until we
-                // get one that supports our target FPS
-                isConfigFrameRateAcceptable = false
+    /**
+     * Returns the frame rate ranges that the device can run with the given surface sizes.
+     *
+     * This is the only place where regular and high-speed sessions differ when evaluating frame
+     * rates, due to how Camera2 exposes the information:
+     * - Regular session: the device-wide
+     *   [CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES] applies to all sizes,
+     *   bounded only by the per-size minimum frame duration (i.e. [frameRateCeiling]).
+     * - High-speed session: each size has its own explicit list of ranges from
+     *   [android.hardware.camera2.params.StreamConfigurationMap.getHighSpeedVideoFpsRangesFor]. A
+     *   size is NOT guaranteed to support lower ranges than its maximum, e.g. 1080p may only
+     *   support [240, 240] but not [120, 120].
+     *
+     * @param featureSettings the feature settings, used to determine the session type.
+     * @param surfaceSizes the sizes of all surfaces in the configuration.
+     * @param frameRateCeiling the maximum frame rate of the configuration.
+     * @return the supported frame rate ranges whose upper bound doesn't exceed [frameRateCeiling].
+     */
+    private fun getSupportedFpsRangesFor(
+        featureSettings: FeatureSettings,
+        surfaceSizes: List<Size>,
+        frameRateCeiling: Int,
+    ): List<Range<Int>> {
+        val candidateRanges =
+            if (featureSettings.isHighSpeedOn) {
+                highSpeedResolver.getFrameRateRangesFor(surfaceSizes)
+            } else {
+                cameraMetadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES]
             }
+        return candidateRanges?.filter { it.upper <= frameRateCeiling } ?: emptyList()
+    }
+
+    /**
+     * Checks whether a configuration's frame rate capability is acceptable for the target frame
+     * rate in [featureSettings].
+     * - If the target frame rate is unspecified, any configuration is acceptable.
+     * - If strict frame rate is required, the configuration must support the exact target range.
+     * - Otherwise (best-effort), a configuration is acceptable as long as its frame rate ceiling
+     *   isn't the limiting factor. The closest device-supported range is resolved later by
+     *   [getClosestSupportedDeviceFrameRate].
+     */
+    private fun isConfigFrameRateAcceptable(
+        featureSettings: FeatureSettings,
+        existingSurfaceFrameRateCeiling: Int,
+        currentConfigFrameRateCeiling: Int,
+        configSupportedFpsRanges: List<Range<Int>>,
+    ): Boolean {
+        val targetFpsRange = featureSettings.targetFpsRange
+        if (targetFpsRange == FRAME_RATE_RANGE_UNSPECIFIED) {
+            return true
         }
 
-        return isConfigFrameRateAcceptable
+        if (featureSettings.isStrictFpsRequired) {
+            return configSupportedFpsRanges.contains(targetFpsRange)
+        }
+
+        // Best-effort: accept the first (i.e. largest) configuration that either
+        // - doesn't lower the frame rate ceiling of the existing surfaces. A configuration's
+        //   ceiling can't exceed that of the existing surfaces, so no other configuration can get
+        //   closer to the target, or
+        // - still reaches the target upper bound.
+        // Otherwise, the new surfaces are what limits the target FPS, so check the next
+        // configuration.
+        val isExistingCeilingKept = existingSurfaceFrameRateCeiling <= currentConfigFrameRateCeiling
+        val isTargetWithinCeiling = targetFpsRange.upper <= currentConfigFrameRateCeiling
+        return isExistingCeilingKept || isTargetWithinCeiling
     }
 
     private fun generateSuggestedStreamSpecMap(
@@ -2429,7 +2472,7 @@ public class SupportedSurfaceCombination(
         val bestSizesForStreamUseCase: List<Size>?,
         val maxFpsForBestSizes: Int,
         val maxFpsForStreamUseCase: Int,
-        val maxFpsForAllSizes: Int,
+        val supportedFrameRateRanges: Set<Range<Int>>?,
     )
 
     internal enum class CheckingMethod {
