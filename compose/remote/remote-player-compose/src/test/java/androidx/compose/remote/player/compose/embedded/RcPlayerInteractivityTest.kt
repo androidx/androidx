@@ -17,18 +17,28 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.content.Context
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable as hostClickable
+import androidx.compose.foundation.combinedClickable as hostCombinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll as hostVerticalScroll
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
+import androidx.compose.remote.core.operations.TouchExpression
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
+import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.action.hostAction
@@ -36,15 +46,25 @@ import androidx.compose.remote.creation.compose.action.lambdaAction
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn
+import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteFitBox
+import androidx.compose.remote.creation.compose.layout.RemoteFlowRow
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
+import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
+import androidx.compose.remote.creation.compose.modifier.combinedClickable
 import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.height
+import androidx.compose.remote.creation.compose.modifier.onTouchCancel
+import androidx.compose.remote.creation.compose.modifier.onTouchDown
+import androidx.compose.remote.creation.compose.modifier.onTouchUp
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
@@ -80,6 +100,7 @@ import androidx.compose.remote.creation.compose.state.pow
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remoteTween
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.round
 import androidx.compose.remote.creation.compose.state.rs
@@ -94,8 +115,10 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
@@ -103,12 +126,13 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
@@ -117,6 +141,7 @@ import java.io.ByteArrayInputStream
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
+import kotlin.math.abs as mathAbs
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -128,9 +153,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerInteractivityTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     private val experimentalProfile =
         Profile(
@@ -160,9 +183,7 @@ class RcPlayerInteractivityTest {
                                 MutableRemoteInt(Component.Visibility.VISIBLE)
                             }
 
-                            androidx.compose.remote.creation.compose.layout.RemoteColumn(
-                                modifier = RemoteModifier.size(100.rdp)
-                            ) {
+                            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                                 // Clickable "button": sets the target's visibility to GONE (8).
                                 RemoteBox(
                                     modifier =
@@ -243,9 +264,7 @@ class RcPlayerInteractivityTest {
                             // IntegerExpression rather than folding to a constant.
                             val visibilityExpr = visibilityState * 1.ri
 
-                            androidx.compose.remote.creation.compose.layout.RemoteColumn(
-                                modifier = RemoteModifier.size(100.rdp)
-                            ) {
+                            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.size(100.rdp, 40.rdp)
@@ -316,16 +335,14 @@ class RcPlayerInteractivityTest {
                         content = {
                             val n = remember { MutableRemoteInt(0) }
                             val label = n.toRemoteString()
-                            androidx.compose.remote.creation.compose.layout.RemoteColumn(
-                                modifier = RemoteModifier.size(100.rdp)
-                            ) {
+                            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.size(100.rdp, 40.rdp)
                                             .background(Color(0xFF3F51B5).rc)
                                             .clickable(action = valueChange(n, 7.ri))
                                 )
-                                androidx.compose.remote.creation.compose.layout.RemoteText(label)
+                                RemoteText(label)
                             }
                         },
                     )
@@ -372,16 +389,14 @@ class RcPlayerInteractivityTest {
                             val n = remember { MutableRemoteInt(0) }
                             val doubled = n * 2.ri // intermediate IntegerExpression, not displayed
                             val label = doubled.toRemoteString()
-                            androidx.compose.remote.creation.compose.layout.RemoteColumn(
-                                modifier = RemoteModifier.size(100.rdp)
-                            ) {
+                            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.size(100.rdp, 40.rdp)
                                             .background(Color(0xFF3F51B5).rc)
                                             .clickable(action = valueChange(n, 3.ri))
                                 )
-                                androidx.compose.remote.creation.compose.layout.RemoteText(label)
+                                RemoteText(label)
                             }
                         },
                     )
@@ -782,9 +797,7 @@ class RcPlayerInteractivityTest {
                                     "compound" to sqrt(a * a + b * b),
                                 )
 
-                            androidx.compose.remote.creation.compose.layout.RemoteColumn(
-                                modifier = RemoteModifier.size(400.rdp)
-                            ) {
+                            RemoteColumn(modifier = RemoteModifier.size(400.rdp)) {
                                 cases.forEach { (tag, expr) ->
                                     renderedTags.add(tag)
                                     RemoteBox(
@@ -822,7 +835,7 @@ class RcPlayerInteractivityTest {
             assert(control > 0f) { "Control box has zero width — pipeline not rendering" }
             renderedTags.forEach { tag ->
                 val w = widthOf(tag)
-                assert(kotlin.math.abs(w - control) < 1f) {
+                assert(mathAbs(w - control) < 1f) {
                     "Operator '$tag' produced width $w but expected ~$control (all evaluate to 60px)"
                 }
             }
@@ -842,9 +855,7 @@ class RcPlayerInteractivityTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            androidx.compose.remote.creation.compose.layout.RemoteColumn(
-                                modifier = RemoteModifier.size(400.rdp)
-                            ) {
+                            RemoteColumn(modifier = RemoteModifier.size(400.rdp)) {
                                 // max: child wants 200 but the box is capped at 50.
                                 RemoteBox(
                                     modifier =
@@ -887,10 +898,10 @@ class RcPlayerInteractivityTest {
 
             val maxW = widthOf("maxc")
             val minW = widthOf("minc")
-            assert(kotlin.math.abs(maxW - 50f) < 3f) {
+            assert(mathAbs(maxW - 50f) < 3f) {
                 "max-constrained width $maxW, expected ~50dp"
             }
-            assert(kotlin.math.abs(minW - 80f) < 3f) {
+            assert(mathAbs(minW - 80f) < 3f) {
                 "min-constrained width $minW, expected ~80dp"
             }
         }
@@ -910,7 +921,7 @@ class RcPlayerInteractivityTest {
                         context = context,
                         profile = experimentalProfile,
                         content = {
-                            androidx.compose.remote.creation.compose.layout.RemoteFlowRow(
+                            RemoteFlowRow(
                                 modifier = RemoteModifier.size(300.rdp),
                                 maxItemsInEachRow = 2,
                             ) {
@@ -950,7 +961,7 @@ class RcPlayerInteractivityTest {
             val f2 = boundsOf("f2")
 
             // f0 and f1 share the first row.
-            assert(kotlin.math.abs(f0.top.value - f1.top.value) < 1f) {
+            assert(mathAbs(f0.top.value - f1.top.value) < 1f) {
                 "f0/f1 should share a row (tops ${f0.top.value} vs ${f1.top.value})"
             }
             // f2 wrapped to the next row (its top is at/below f0's bottom).
@@ -1019,9 +1030,7 @@ class RcPlayerInteractivityTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn(
-                                modifier = RemoteModifier.size(100.rdp)
-                            ) {
+                            RemoteCollapsibleColumn(modifier = RemoteModifier.size(100.rdp)) {
                                 repeat(3) { i ->
                                     RemoteBox(
                                         modifier =
@@ -1068,9 +1077,7 @@ class RcPlayerInteractivityTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            androidx.compose.remote.creation.compose.layout.RemoteFitBox(
-                                modifier = RemoteModifier.size(100.rdp)
-                            ) {
+                            RemoteFitBox(modifier = RemoteModifier.size(100.rdp)) {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.semantics { contentDescription = "big".rs }
@@ -1153,9 +1160,7 @@ class RcPlayerInteractivityTest {
                         context = context,
                         content = {
                             val scrollState = remember { RemoteScrollState() }
-                            androidx.compose.remote.creation.compose.layout.RemoteColumn(
-                                modifier = RemoteModifier.size(200.rdp)
-                            ) {
+                            RemoteColumn(modifier = RemoteModifier.size(200.rdp)) {
                                 // A 100dp viewport scrolling a 400dp-tall column.
                                 RemoteBox(
                                     modifier =
@@ -1163,7 +1168,7 @@ class RcPlayerInteractivityTest {
                                             .verticalScroll(scrollState)
                                             .semantics { contentDescription = "scroller".rs }
                                 ) {
-                                    androidx.compose.remote.creation.compose.layout.RemoteColumn {
+                                    RemoteColumn {
                                         repeat(5) {
                                             RemoteBox(modifier = RemoteModifier.size(80.rdp))
                                         }
@@ -1511,5 +1516,559 @@ class RcPlayerInteractivityTest {
         state.clearFloatOverride(100)
         assertThat(state.getInteger(21)).isEqualTo(42)
         assertThat(state.getInteger(100)).isEqualTo(999)
+    }
+
+    @Test
+    fun clickableComponent_consumesWhenClickingInteractiveComponent() {
+        var parentClicked = false
+        val actionLog = mutableListOf<String>()
+        rule.setRemoteContent(
+            onNamedAction = { name, value, _ -> actionLog.add("$name:$value") },
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(300.dp).hostClickable { parentClicked = true }) {
+                    content()
+                }
+            },
+        ) {
+            LeftBoxInteractiveContent(isClickable = true, isScrollable = false)
+        }
+
+        rule.onNodeWithContentDescription("LeftBox").performClick()
+        rule.waitForIdle()
+
+        assertThat(actionLog).containsExactly("myActionName:1")
+        assertThat(parentClicked).isFalse()
+    }
+
+    @Test
+    fun clickableComponent_consecutiveClicks_dispatchesEachClick() {
+        var clickCount = 0
+        rule.setRemoteContent(
+            onNamedAction = { name, _, _ ->
+                if (name == "myActionName") {
+                    clickCount++
+                }
+            },
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(300.dp)) { content() }
+            },
+        ) {
+            LeftBoxInteractiveContent(isClickable = true, isScrollable = false)
+        }
+
+        val leftBox = rule.onNodeWithContentDescription("LeftBox")
+        leftBox.performClick()
+        rule.waitForIdle()
+        assertThat(clickCount).isEqualTo(1)
+
+        leftBox.performClick()
+        rule.waitForIdle()
+        assertThat(clickCount).isEqualTo(2)
+    }
+
+    @Test
+    fun clickableComponent_doesNotConsumeWhenClickingNonInteractiveComponent() {
+        var parentClicked = false
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(300.dp).hostClickable { parentClicked = true }) {
+                    content()
+                }
+            }
+        ) {
+            LeftBoxInteractiveContent(isClickable = true, isScrollable = false)
+        }
+
+        // Click on the right side (inside the non-clickable box).
+        rule.onNodeWithContentDescription("RightBox").performClick()
+        rule.waitForIdle()
+
+        assertThat(parentClicked).isTrue()
+    }
+
+    @Test
+    fun clickableComponent_doesNotClickWhenReleasingDragGesture() {
+        var actionTriggered = false
+        lateinit var hostScrollState: ScrollState
+        rule.setRemoteContent(
+            onNamedAction = { name, _, _ ->
+                if (name == "myActionName") {
+                    actionTriggered = true
+                }
+            },
+            playComposableWrapper = { content ->
+                hostScrollState = rememberScrollState()
+                Column(modifier = Modifier.size(300.dp).hostVerticalScroll(hostScrollState)) {
+                    Box(modifier = Modifier.size(300.dp)) { content() }
+                    Box(modifier = Modifier.size(300.dp))
+                }
+            },
+        ) {
+            LeftBoxInteractiveContent(isClickable = true, isScrollable = false)
+        }
+
+        // Swipe vertically starting inside the clickable left box -> host Column scrolls and click
+        // action does not trigger on drag release.
+        rule.onNodeWithContentDescription("LeftBox").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+
+        assertThat(actionTriggered).isFalse()
+        assertThat(hostScrollState.value).isGreaterThan(0)
+    }
+
+    @Test
+    fun touchUpComponent_doesNotTriggerActionWhenReleasingDragGesture() {
+        var actionTriggered = false
+        lateinit var hostScrollState: ScrollState
+        rule.setRemoteContent(
+            onNamedAction = { name, _, _ ->
+                if (name == "myActionName") {
+                    actionTriggered = true
+                }
+            },
+            playComposableWrapper = { content ->
+                hostScrollState = rememberScrollState()
+                Column(modifier = Modifier.size(300.dp).hostVerticalScroll(hostScrollState)) {
+                    Box(modifier = Modifier.size(300.dp)) { content() }
+                    Box(modifier = Modifier.size(300.dp))
+                }
+            },
+        ) {
+            LeftBoxInteractiveContent(
+                isClickable = false,
+                isScrollable = false,
+                isTouchUp = true,
+            )
+        }
+
+        // A clean tap fires onTouchUp.
+        rule.onNodeWithContentDescription("LeftBox").performClick()
+        rule.waitForIdle()
+        assertThat(actionTriggered).isTrue()
+
+        actionTriggered = false
+        // Swiping starting inside the touchUp box scrolls the host Column and cancels onTouchUp.
+        rule.onNodeWithContentDescription("LeftBox").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+
+        assertThat(actionTriggered).isFalse()
+        assertThat(hostScrollState.value).isGreaterThan(0)
+    }
+
+    @Test
+    fun scrollableComponent_propagatesClickToParentWhenClickingNonClickableScrollableComponent() {
+        var parentClicked = false
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(300.dp).hostClickable { parentClicked = true }) {
+                    content()
+                }
+            }
+        ) {
+            LeftBoxInteractiveContent(isClickable = false, isScrollable = true)
+        }
+
+        // Click on the left box (scrollable, not clickable) -> propagates to Compose host parent.
+        rule.onNodeWithContentDescription("LeftBox").performClick()
+        rule.waitForIdle()
+
+        assertThat(parentClicked).isTrue()
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun scrollableComponent_propagatesDoubleTapToParentWhenClickingNonClickableScrollableComponent() {
+        var singleClickCount = 0
+        var doubleClickCount = 0
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(
+                    modifier =
+                        Modifier.size(300.dp)
+                            .hostCombinedClickable(
+                                onClick = { singleClickCount++ },
+                                onDoubleClick = { doubleClickCount++ },
+                            )
+                ) {
+                    content()
+                }
+            }
+        ) {
+            LeftBoxInteractiveContent(isClickable = false, isScrollable = true)
+        }
+
+        // Double-click on the left box (scrollable, not clickable) -> propagates to Compose host
+        // parent.
+        rule.onNodeWithContentDescription("LeftBox").performTouchInput { doubleClick() }
+        rule.mainClock.advanceTimeBy(400L)
+        rule.waitForIdle()
+
+        assertThat(doubleClickCount).isEqualTo(1)
+        assertThat(singleClickCount).isEqualTo(0)
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun scrollableComponent_propagatesLongClickToParentWhenClickingNonClickableScrollableComponent() {
+        var parentLongClicked = false
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(
+                    modifier =
+                        Modifier.size(300.dp)
+                            .hostCombinedClickable(
+                                onClick = {},
+                                onLongClick = { parentLongClicked = true },
+                            )
+                ) {
+                    content()
+                }
+            }
+        ) {
+            LeftBoxInteractiveContent(isClickable = false, isScrollable = true)
+        }
+
+        rule.onNodeWithContentDescription("LeftBox").performTouchInput { longClick() }
+        rule.waitForIdle()
+
+        assertThat(parentLongClicked).isTrue()
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun scrollableComponent_propagatesLongClickDuringHoldBeforeTouchUp() {
+        var parentLongClicked = false
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(
+                    modifier =
+                        Modifier.size(300.dp)
+                            .hostCombinedClickable(
+                                onClick = {},
+                                onLongClick = { parentLongClicked = true },
+                            )
+                ) {
+                    content()
+                }
+            }
+        ) {
+            LeftBoxInteractiveContent(isClickable = false, isScrollable = true)
+        }
+
+        val leftBox = rule.onNodeWithContentDescription("LeftBox")
+        leftBox.performTouchInput {
+            down(center)
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis + 100L)
+        }
+        rule.mainClock.advanceTimeBy(600L)
+        rule.waitForIdle()
+
+        // Host parent receives long click during the hold phase before finger is released.
+        assertThat(parentLongClicked).isTrue()
+
+        leftBox.performTouchInput { up() }
+        rule.waitForIdle()
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun scrollableComponent_releasingLongPressDoesNotTriggerRegularClick() {
+        var parentClicked = false
+        var parentLongClicked = false
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(
+                    modifier =
+                        Modifier.size(300.dp)
+                            .hostCombinedClickable(
+                                onClick = { parentClicked = true },
+                                onLongClick = { parentLongClicked = true },
+                            )
+                ) {
+                    content()
+                }
+            }
+        ) {
+            LeftBoxInteractiveContent(isClickable = false, isScrollable = true)
+        }
+
+        rule.onNodeWithContentDescription("LeftBox").performTouchInput { longClick() }
+        rule.mainClock.advanceTimeBy(400L)
+        rule.waitForIdle()
+
+        assertThat(parentLongClicked).isTrue()
+        assertThat(parentClicked).isFalse()
+    }
+
+    @Test
+    fun combinedClickable_handlesClickDoubleAndLongClickWithHostActionAndValueChange() {
+        val actionLog = mutableListOf<String>()
+        rule.setRemoteContent(
+            profile = experimentalProfile,
+            onNamedAction = { name, value, _ -> actionLog.add("$name:$value") },
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(200.dp)) { content() }
+            },
+        ) {
+            val state = remember { MutableRemoteInt(0) }
+            val label = state.toRemoteString()
+            RemoteColumn(modifier = RemoteModifier.size(200.rdp)) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp)
+                            .semantics { contentDescription = "CombinedBox".rs }
+                            .combinedClickable(
+                                onClick =
+                                    combinedAction(
+                                        valueChange(state, 10.ri),
+                                        hostAction("single".rs, 10.ri),
+                                    ),
+                                onDoubleClick =
+                                    combinedAction(
+                                        valueChange(state, 20.ri),
+                                        hostAction("double".rs, 20.ri),
+                                    ),
+                                onLongClick =
+                                    combinedAction(
+                                        valueChange(state, 30.ri),
+                                        hostAction("long".rs, 30.ri),
+                                    ),
+                            )
+                )
+                RemoteText(label)
+            }
+        }
+
+        val node = rule.onNodeWithContentDescription("CombinedBox")
+
+        // Single click triggers both ValueChange (10) and HostAction ("single:10").
+        node.performClick()
+        rule.mainClock.advanceTimeBy(400L)
+        rule.waitForIdle()
+        rule.onNodeWithText("10").assertExists()
+        assertThat(actionLog).contains("single:10")
+
+        // Double click triggers both ValueChange (20) and HostAction ("double:20").
+        node.performTouchInput { doubleClick() }
+        rule.mainClock.advanceTimeBy(400L)
+        rule.waitForIdle()
+        rule.onNodeWithText("20").assertExists()
+        assertThat(actionLog).contains("double:20")
+
+        // Long click triggers both ValueChange (30) and HostAction ("long:30").
+        node.performTouchInput { longClick() }
+        rule.mainClock.advanceTimeBy(400L)
+        rule.waitForIdle()
+        rule.onNodeWithText("30").assertExists()
+        assertThat(actionLog).contains("long:30")
+    }
+
+    @Composable
+    @RemoteComposable
+    private fun LeftBoxInteractiveContent(
+        isClickable: Boolean = false,
+        isScrollable: Boolean = false,
+        isTouchUp: Boolean = false,
+        hasTouchExpression: Boolean = false,
+        scrollContentFits: Boolean = false,
+    ) {
+        val scrollState = remember { RemoteScrollState() }
+        RemoteRow(modifier = RemoteModifier.size(300.rdp)) {
+            var leftModifier =
+                RemoteModifier.size(150.rdp, 300.rdp).semantics {
+                    contentDescription = "LeftBox".rs
+                }
+            if (isTouchUp) {
+                leftModifier =
+                    leftModifier
+                        .onTouchDown(hostAction("touchDown".rs, 0.ri))
+                        .onTouchUp(hostAction("myActionName".rs, 1.ri))
+            }
+            if (isClickable) {
+                leftModifier = leftModifier.clickable(hostAction("myActionName".rs, 1.ri))
+            }
+            if (isScrollable) {
+                leftModifier = leftModifier.verticalScroll(scrollState)
+            }
+            RemoteBox(modifier = leftModifier) {
+                if (isScrollable && !hasTouchExpression) {
+                    // Content taller than the 300dp viewport, unless it should fit.
+                    val contentHeight = if (scrollContentFits) 300.rdp else 900.rdp
+                    RemoteBox(modifier = RemoteModifier.size(150.rdp, contentHeight))
+                }
+                if (hasTouchExpression) {
+                    val touchYFloat = remember { MutableRemoteFloat(0f) }
+                    RemoteCanvas(modifier = RemoteModifier.size(150.rdp, 300.rdp)) {
+                        val doc = remoteComposeCreationState.document
+                        val outputId =
+                            Utils.idFromNan(
+                                touchYFloat.getFloatIdForCreationState(remoteComposeCreationState)
+                            )
+                        doc.buffer.addTouchExpression(
+                            outputId,
+                            0f,
+                            0f,
+                            300f,
+                            0f,
+                            0,
+                            floatArrayOf(
+                                RemoteContext.FLOAT_TOUCH_POS_Y,
+                                1f,
+                                Rc.FloatExpression.MUL,
+                            ),
+                            TouchExpression.STOP_INSTANTLY,
+                            null,
+                            null,
+                        )
+                    }
+                    RemoteText(touchYFloat.toRemoteInt().toRemoteString())
+                }
+            }
+            RemoteBox(
+                modifier =
+                    RemoteModifier.size(150.rdp, 300.rdp).semantics {
+                        contentDescription = "RightBox".rs
+                    }
+            )
+        }
+    }
+
+    @Test
+    fun touchUpAndClickable_onSameComponent_firesBothOnTapAndOnlyTouchUpAfterUnconsumedDrag() {
+        val actionLog = mutableListOf<String>()
+        rule.setRemoteContent(
+            onNamedAction = { name, value, _ -> actionLog.add("$name:$value") },
+            profile = experimentalProfile,
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(200.dp)) { content() }
+            },
+        ) {
+            RemoteBox(
+                modifier =
+                    RemoteModifier.size(150.rdp)
+                        .clickable(hostAction("click".rs, 1.ri))
+                        .onTouchDown(hostAction("down".rs, 1.ri))
+                        .onTouchUp(hostAction("up".rs, 1.ri))
+                        .onTouchCancel(hostAction("cancel".rs, 1.ri))
+                        .semantics { contentDescription = "TouchAndClickBox".rs }
+            )
+        }
+
+        val box = rule.onNodeWithContentDescription("TouchAndClickBox")
+
+        // 1. A tap on a component with both clickable and onTouchUp must fire down, up, AND click
+        // (not cancel).
+        box.performClick()
+        rule.waitForIdle()
+        assertThat(actionLog).containsExactly("down:1", "up:1", "click:1")
+
+        // 2. An unconsumed drag that moves past the component bounds still fires down and up on
+        // release (matching RemoteComposeView), without firing click or cancel.
+        actionLog.clear()
+        box.performTouchInput {
+            swipe(
+                start = Offset(width * 0.2f, height / 2f),
+                end = Offset(width * 1.2f, height / 2f),
+                durationMillis = 100,
+            )
+        }
+        rule.waitForIdle()
+        assertThat(actionLog).containsExactly("down:1", "up:1").inOrder()
+    }
+
+    @Test
+    fun touchActions_componentRemovedMidGesture_firesTouchCancel() {
+        val actionLog = mutableListOf<String>()
+        val showContent = mutableStateOf(true)
+        rule.setRemoteContent(
+            onNamedAction = { name, value, _ -> actionLog.add("$name:$value") },
+            profile = experimentalProfile,
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(200.dp).testTag("host")) {
+                    if (showContent.value) {
+                        content()
+                    }
+                }
+            },
+        ) {
+            RemoteBox(
+                modifier =
+                    RemoteModifier.size(150.rdp)
+                        .onTouchDown(hostAction("down".rs, 1.ri))
+                        .onTouchUp(hostAction("up".rs, 1.ri))
+                        .onTouchCancel(hostAction("cancel".rs, 1.ri))
+            )
+        }
+
+        rule.onNodeWithTag("host").performTouchInput { down(Offset(20f, 20f)) }
+        rule.waitForIdle()
+        assertThat(actionLog).containsExactly("down:1")
+
+        // Disposing the handler mid-gesture must still end the gesture.
+        showContent.value = false
+        rule.waitForIdle()
+        assertThat(actionLog).containsExactly("down:1", "cancel:1").inOrder()
+
+        rule.onNodeWithTag("host").performTouchInput { up() }
+        rule.waitForIdle()
+        assertThat(actionLog).containsExactly("down:1", "cancel:1").inOrder()
+    }
+
+    @Test
+    fun touchActionsBeforeClickable_onSameComponent_firesDownUpAndClickOnTap() {
+        val actionLog = mutableListOf<String>()
+        rule.setRemoteContent(
+            onNamedAction = { name, value, _ -> actionLog.add("$name:$value") },
+            profile = experimentalProfile,
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(200.dp)) { content() }
+            },
+        ) {
+            RemoteBox(
+                modifier =
+                    RemoteModifier.size(150.rdp)
+                        .onTouchDown(hostAction("down".rs, 1.ri))
+                        .onTouchUp(hostAction("up".rs, 1.ri))
+                        .onTouchCancel(hostAction("cancel".rs, 1.ri))
+                        .clickable(hostAction("click".rs, 1.ri))
+                        .semantics { contentDescription = "TouchThenClickBox".rs }
+            )
+        }
+
+        // touchActions is outer here, so the click consumes the release first. That must still
+        // count as TouchUp, not TouchCancel.
+        rule.onNodeWithContentDescription("TouchThenClickBox").performClick()
+        rule.waitForIdle()
+        assertThat(actionLog).containsExactly("down:1", "up:1", "click:1")
+    }
+
+    @Test
+    fun touchActions_recompositionMidGesture_doesNotEndGesture() {
+        val actionLog = mutableListOf<String>()
+        rule.setRemoteContent(
+            onNamedAction = { name, value, _ -> actionLog.add("$name:$value") },
+            profile = experimentalProfile,
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(200.dp).testTag("host")) { content() }
+            },
+        ) {
+            val boxWidth = remember { MutableRemoteFloat(150f) }
+            RemoteBox(
+                modifier =
+                    RemoteModifier.width(boxWidth)
+                        .height(150.rdp)
+                        // Touch down resizes the box, which recomposes its modifiers mid-gesture.
+                        .onTouchDown(hostAction("down".rs, 1.ri))
+                        .onTouchDown(valueChange(boxWidth, 160f.rf))
+                        .onTouchUp(hostAction("up".rs, 1.ri))
+                        .onTouchCancel(hostAction("cancel".rs, 1.ri))
+            )
+        }
+
+        rule.onNodeWithTag("host").performTouchInput { down(Offset(20f, 20f)) }
+        rule.waitForIdle()
+        rule.onNodeWithTag("host").performTouchInput { up() }
+        rule.waitForIdle()
+        assertThat(actionLog).containsExactly("down:1", "up:1").inOrder()
     }
 }
