@@ -16,6 +16,7 @@
 
 package androidx.camera.core.internal
 
+import android.util.Range
 import androidx.annotation.RestrictTo
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.StreamSpec
@@ -24,10 +25,13 @@ import androidx.camera.core.impl.StreamSpec
  * Result of querying stream specifications for different use cases.
  *
  * @param streamSpecs A map of [UseCase] to its corresponding [StreamSpec].
- * @param maxSupportedFrameRate The maximum supported frame rate during the stream spec query.
+ * @param supportedFrameRateRanges The supported frame rate ranges during the stream spec query, or
+ *   `null` if they were not calculated.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class StreamSpecQueryResult(
+public data class StreamSpecQueryResult
+@JvmOverloads
+constructor(
     val streamSpecs: Map<UseCase, StreamSpec> = emptyMap(),
-    val maxSupportedFrameRate: Int = Int.MAX_VALUE,
+    val supportedFrameRateRanges: Set<Range<Int>>? = null,
 )

@@ -21,6 +21,7 @@ import static androidx.camera.core.impl.utils.RangeUtil.filterFixedRanges;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Collections.emptySet;
+import static java.util.Collections.unmodifiableSet;
 
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
@@ -46,6 +47,7 @@ import androidx.camera.core.featuregroup.GroupableFeature;
 import androidx.camera.core.featuregroup.impl.ResolvedFeatureGroup;
 import androidx.camera.core.internal.CalculatedUseCaseInfo;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.core.internal.StreamSpecQueryResult;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -205,37 +207,45 @@ public interface CameraInfoInternal extends CameraInfo {
     @NonNull
     Rect getSensorRect();
 
-    @SuppressWarnings("MixedMutabilityReturnType")
     @Override
     default @NonNull Set<Range<Integer>> getSupportedFrameRateRanges(
             @NonNull SessionConfig sessionConfig) {
-        int maxSupportedFrameRate;
+        Set<Range<Integer>> streamSpecSupportedFrameRateRanges;
         try {
             CalculatedUseCaseInfo info = UseCaseAdditionSimulator.simulateAddUseCases(this,
-                    sessionConfig, /*findMaxSupportedFrameRate=*/ true);
-            maxSupportedFrameRate = info.getPrimaryStreamSpecResult().getMaxSupportedFrameRate();
+                    sessionConfig, /*findSupportedFrameRateRanges=*/ true);
+            StreamSpecQueryResult streamSpecQueryResult = info.getPrimaryStreamSpecResult();
+            streamSpecSupportedFrameRateRanges =
+                    streamSpecQueryResult.getSupportedFrameRateRanges();
         } catch (Throwable t) {
             Logger.w("CameraInfoInternal",
-                    "Failed to get max supported frameRate by SessionConfig: " + sessionConfig, t);
+                    "Failed to get supported frame rate ranges by SessionConfig: "
+                            + sessionConfig, t);
             return emptySet();
         }
 
-        Set<Range<Integer>> allSupportedFrameRates =
+        Set<Range<Integer>> deviceSupportedFrameRates =
                 sessionConfig.getSessionType() == SESSION_TYPE_HIGH_SPEED
                         ? filterFixedRanges(getSupportedHighSpeedFrameRateRanges())
                         : getSupportedFrameRateRanges();
 
-        if (allSupportedFrameRates.isEmpty()) {
+        if (deviceSupportedFrameRates.isEmpty()) {
             return emptySet();
         }
 
+        // Null means the stream spec query didn't calculate the ranges, e.g. there were no new
+        // use cases to configure, so there is no additional constraint to apply.
+        if (streamSpecSupportedFrameRateRanges == null) {
+            return unmodifiableSet(deviceSupportedFrameRates);
+        }
+
         LinkedHashSet<Range<Integer>> filteredFrameRates = new LinkedHashSet<>();
-        for (Range<Integer> frameRate : allSupportedFrameRates) {
-            if (frameRate.getUpper() <= maxSupportedFrameRate) {
+        for (Range<Integer> frameRate : deviceSupportedFrameRates) {
+            if (streamSpecSupportedFrameRateRanges.contains(frameRate)) {
                 filteredFrameRates.add(frameRate);
             }
         }
-        return filteredFrameRates;
+        return unmodifiableSet(filteredFrameRates);
     }
 
     /**
@@ -361,7 +371,7 @@ public interface CameraInfoInternal extends CameraInfo {
             }
 
             UseCaseAdditionSimulator.simulateAddUseCases(this,
-                    sessionConfig, /*findMaxSupportedFrameRate=*/ false);
+                    sessionConfig, /*findSupportedFrameRateRanges=*/ false);
             return true;
         } catch (IllegalArgumentException | CameraUseCaseAdapter.CameraException e) {
             Logger.d("CameraInfoInternal",
@@ -397,7 +407,7 @@ public interface CameraInfoInternal extends CameraInfo {
 
         try {
             UseCaseAdditionSimulator.simulateAddUseCases(this,
-                    sessionConfig, /*findMaxSupportedFrameRate=*/ false,
+                    sessionConfig, /*findSupportedFrameRateRanges=*/ false,
                     resolvedFeatureGroup);
             return true;
         } catch (IllegalArgumentException | CameraUseCaseAdapter.CameraException e) {

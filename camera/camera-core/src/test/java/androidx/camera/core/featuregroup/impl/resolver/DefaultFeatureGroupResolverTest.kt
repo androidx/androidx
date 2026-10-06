@@ -752,7 +752,7 @@ class DefaultFeatureGroupResolverTest {
                             sessionType: Int,
                             targetFrameRate: Range<Int>,
                             isFeatureComboInvocation: Boolean,
-                            findMaxSupportedFrameRate: Boolean,
+                            findSupportedFrameRateRanges: Boolean,
                         ): StreamSpecQueryResult {
                             assertThat(isFeatureComboInvocation).isEqualTo(true)
                             return StreamSpecQueryResult()
@@ -781,7 +781,7 @@ class DefaultFeatureGroupResolverTest {
                             sessionType: Int,
                             targetFrameRate: Range<Int>,
                             isFeatureComboInvocation: Boolean,
-                            findMaxSupportedFrameRate: Boolean,
+                            findSupportedFrameRateRanges: Boolean,
                         ): StreamSpecQueryResult {
                             assertThat(isFeatureComboInvocation).isEqualTo(true)
                             return StreamSpecQueryResult()

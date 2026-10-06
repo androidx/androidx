@@ -65,7 +65,7 @@ public interface StreamSpecsCalculator {
         sessionType: Int = SESSION_TYPE_REGULAR,
         targetFrameRate: Range<Int> = FRAME_RATE_RANGE_UNSPECIFIED,
         isFeatureComboInvocation: Boolean = false,
-        findMaxSupportedFrameRate: Boolean = false,
+        findSupportedFrameRateRanges: Boolean = false,
     ): StreamSpecQueryResult
 
     public companion object {
@@ -81,7 +81,7 @@ public interface StreamSpecsCalculator {
                     sessionType: Int,
                     targetFrameRate: Range<Int>,
                     isFeatureComboInvocation: Boolean,
-                    findMaxSupportedFrameRate: Boolean,
+                    findSupportedFrameRateRanges: Boolean,
                 ): StreamSpecQueryResult {
                     return StreamSpecQueryResult()
                 }
@@ -107,7 +107,7 @@ public interface StreamSpecsCalculator {
             attachedUseCases: List<UseCase> = emptyList(),
             sessionType: Int = SESSION_TYPE_REGULAR,
             targetFrameRate: Range<Int> = FRAME_RATE_RANGE_UNSPECIFIED,
-            findMaxSupportedFrameRate: Boolean = false,
+            findSupportedFrameRateRanges: Boolean = false,
         ): StreamSpecQueryResult {
             return calculateSuggestedStreamSpecs(
                 cameraMode = cameraMode,
@@ -118,7 +118,7 @@ public interface StreamSpecsCalculator {
                 sessionType = sessionType,
                 targetFrameRate = targetFrameRate,
                 isFeatureComboInvocation = isFeatureComboInvocation,
-                findMaxSupportedFrameRate = findMaxSupportedFrameRate,
+                findSupportedFrameRateRanges = findSupportedFrameRateRanges,
             )
         }
     }
@@ -143,7 +143,7 @@ public class StreamSpecsCalculatorImpl(
         sessionType: Int,
         targetFrameRate: Range<Int>,
         isFeatureComboInvocation: Boolean,
-        findMaxSupportedFrameRate: Boolean,
+        findSupportedFrameRateRanges: Boolean,
     ): StreamSpecQueryResult {
         // Calculate stream specs for use cases already attached.
         val result =
@@ -168,12 +168,12 @@ public class StreamSpecsCalculatorImpl(
                     targetFrameRate,
                 ),
                 isFeatureComboInvocation,
-                findMaxSupportedFrameRate,
+                findSupportedFrameRateRanges,
             )
 
         return StreamSpecQueryResult(
             result.first + surfaceStreamSpecQueryResult.streamSpecs,
-            surfaceStreamSpecQueryResult.maxSupportedFrameRate,
+            surfaceStreamSpecQueryResult.supportedFrameRateRanges,
         )
     }
 
@@ -238,11 +238,11 @@ public class StreamSpecsCalculatorImpl(
         attachedSurfaceInfoToUseCaseMap: Map<AttachedSurfaceInfo, UseCase>,
         configPairMap: Map<UseCase, CameraUseCaseAdapter.ConfigPair>,
         isFeatureComboInvocation: Boolean,
-        findMaxSupportedFrameRate: Boolean,
+        findSupportedFrameRateRanges: Boolean,
     ): StreamSpecQueryResult {
         val cameraId = cameraInfoInternal.getCameraId()
         val suggestedStreamSpecs = mutableMapOf<UseCase, StreamSpec>()
-        var maxSupportedFrameRate = Int.MAX_VALUE
+        var supportedFrameRateRanges: Set<Range<Int>>? = null
 
         // Calculate resolution for new use cases.
         if (!newUseCases.isEmpty()) {
@@ -288,18 +288,21 @@ public class StreamSpecsCalculatorImpl(
             }
 
             // Get suggested stream specifications and update the use case session configuration
-            val (streamSpecMapForNewUseCases, streamSpecMapForAttachedSurfaces, maxSupportedFps) =
-                checkNotNull(cameraDeviceSurfaceManager)
-                    .getSuggestedStreamSpecs(
-                        cameraMode,
-                        cameraId,
-                        ArrayList<AttachedSurfaceInfo?>(attachedSurfaceInfoToUseCaseMap.keys),
-                        configToSupportedSizesMap,
-                        videoStabilization,
-                        newUseCases.containsVideoCapture(),
-                        isFeatureComboInvocation,
-                        findMaxSupportedFrameRate,
-                    )
+            val (
+                streamSpecMapForNewUseCases,
+                streamSpecMapForAttachedSurfaces,
+                supportedFpsRanges,
+            ) = checkNotNull(cameraDeviceSurfaceManager)
+                .getSuggestedStreamSpecs(
+                    cameraMode,
+                    cameraId,
+                    ArrayList<AttachedSurfaceInfo?>(attachedSurfaceInfoToUseCaseMap.keys),
+                    configToSupportedSizesMap,
+                    videoStabilization,
+                    newUseCases.containsVideoCapture(),
+                    isFeatureComboInvocation,
+                    findSupportedFrameRateRanges,
+                )
 
             for (entry in configToUseCaseMap.entries) {
                 suggestedStreamSpecs.put(
@@ -316,9 +319,9 @@ public class StreamSpecsCalculatorImpl(
                 }
             }
 
-            maxSupportedFrameRate = maxSupportedFps
+            supportedFrameRateRanges = supportedFpsRanges
         }
-        return StreamSpecQueryResult(suggestedStreamSpecs, maxSupportedFrameRate)
+        return StreamSpecQueryResult(suggestedStreamSpecs, supportedFrameRateRanges)
     }
 
     private companion object {

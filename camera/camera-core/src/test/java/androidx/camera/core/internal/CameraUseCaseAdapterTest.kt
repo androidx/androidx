@@ -378,7 +378,7 @@ class CameraUseCaseAdapterTest {
         adapter.simulateAddUseCases(
             setOf(preview),
             ResolvedFeatureGroup(features = supportedFeatures),
-            /*findMaxSupportedFrameRate=*/ false,
+            /*findSupportedFrameRateRanges=*/ false,
         )
 
         // Assert.
