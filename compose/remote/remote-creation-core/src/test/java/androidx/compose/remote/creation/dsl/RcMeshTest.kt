@@ -20,12 +20,15 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.WireBuffer
 import androidx.compose.remote.core.operations.AddMesh2D
 import androidx.compose.remote.core.operations.DrawMesh2D
+import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.MatrixFromMesh2D
 import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.profile.Profile
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -379,6 +382,137 @@ class RcMeshTest {
 
         assertThrows(RuntimeException::class.java) {
             scope.remoteMesh2DRoundStrip(path, segments = 8, widths = floatArrayOf())
+        }
+    }
+
+    private fun wireOf(operation: Operation): ByteArray {
+        val wire = WireBuffer()
+        operation.write(wire)
+        return wire.buffer.copyOf(wire.size)
+    }
+
+    /** The skirt width, which an antialiased mesh writes as the last float of its payload. */
+    private fun antialiasWidthOf(add: AddMesh2D): Float {
+        val wire = WireBuffer()
+        add.write(wire)
+        wire.index = wire.size - 4
+        return wire.readFloat()
+    }
+
+    @Test
+    fun antialiasedMeshReachesTheWireWithItsFlagAndWidth() {
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+
+        val mesh =
+            scope.remoteMesh2DAntialias(
+                RcMeshLayout.Ring,
+                uCount = 48,
+                vCount = 4,
+                antialiasWidth = RcFloat(1.5f),
+            ) {
+                xy(u * 300f, v * 200f)
+                color(red = u, green = v, blue = RcFloat(0.5f))
+            }
+        scope.drawMesh2D(mesh)
+
+        val add = operationsOf(writer).filterIsInstance<AddMesh2D>().single()
+        assertTrue(add.toString(), add.toString().contains("type=${AddMesh2D.TYPE_EXPRESSION}"))
+        assertTrue(add.toString(), add.toString().contains("layout=${Mesh2DGenerator.LAYOUT_RING}"))
+        assertTrue(add.toString(), add.toString().contains("flags=${AddMesh2D.FLAG_ANTIALIAS}"))
+        assertEquals(1.5f, antialiasWidthOf(add), 0f)
+    }
+
+    @Test
+    fun antialiasWidthThatIsAnExpressionIsWrittenAsAVariable() {
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+
+        // A unit mesh drawn under scale(w, w) wants a skirt 1 / w wide, which is only known on the
+        // player, so the width goes out as the id of a variable holding it.
+        val width = RcFloat(1f) / (scope.continuousSeconds() + 1f)
+        val mesh =
+            scope.remoteMesh2DAntialias(RcMeshLayout.Grid, uCount = 8, vCount = 8, width) {
+                color(red = u, green = v, blue = RcFloat(1f))
+            }
+        scope.drawMesh2D(mesh)
+
+        val ops = operationsOf(writer)
+        val add = ops.filterIsInstance<AddMesh2D>().single()
+        val written = antialiasWidthOf(add)
+        assertTrue("$written", written.isNaN())
+        // The variable is defined before the mesh that reads it.
+        val definition = ops.indexOfFirst { it is FloatExpression }
+        assertTrue("$definition", definition in 0 until ops.indexOf(add))
+    }
+
+    /** A 3 by 2 grid of literal vertices, in the order the grid layout numbers them. */
+    private val gridVerts = floatArrayOf(0f, 0f, 10f, 0f, 20f, 0f, 0f, 10f, 10f, 10f, 20f, 10f)
+
+    private val gridColors = IntArray(6) { 0xFF336699.toInt() }
+
+    private fun literalAntialiasedGrid(indices: IntArray?): AddMesh2D {
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+        scope.remoteMesh2DValuesAntialias(
+            verts = gridVerts,
+            colors = gridColors,
+            layout = RcMeshLayout.Grid,
+            uCount = 3,
+            vCount = 2,
+            antialiasWidth = RcFloat(1f),
+            indices = indices,
+        )
+        return operationsOf(writer).filterIsInstance<AddMesh2D>().single()
+    }
+
+    @Test
+    fun antialiasedLiteralMeshDefaultsToItsLayoutsTriangles() {
+        val layoutTriangles =
+            IntArray(Mesh2DGenerator.indexCount(Mesh2DGenerator.LAYOUT_GRID, 3, 2))
+        Mesh2DGenerator.generateIndices(Mesh2DGenerator.LAYOUT_GRID, 3, 2, layoutTriangles)
+
+        val defaulted = literalAntialiasedGrid(indices = null)
+        assertTrue(
+            defaulted.toString(),
+            defaulted.toString().contains("type=${AddMesh2D.TYPE_VALUES}"),
+        )
+        assertTrue(
+            defaulted.toString(),
+            defaulted.toString().contains("flags=${AddMesh2D.FLAG_ANTIALIAS}"),
+        )
+        // Unlike remoteMesh2DValues, which draws the vertices in order, the skirt needs the layout
+        // to describe the vertices anyway, so the layout's own triangulation is the default.
+        assertArrayEquals(wireOf(literalAntialiasedGrid(layoutTriangles)), wireOf(defaulted))
+    }
+
+    @Test
+    fun antialiasedLiteralMeshNeedsALayoutAndAColourForEveryVertex() {
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+
+        // A 2 by 2 grid accounts for four of the six vertices, so there is no telling where the
+        // edge is.
+        assertThrows(RuntimeException::class.java) {
+            scope.remoteMesh2DValuesAntialias(
+                verts = gridVerts,
+                colors = gridColors,
+                layout = RcMeshLayout.Grid,
+                uCount = 2,
+                vCount = 2,
+                antialiasWidth = RcFloat(1f),
+            )
+        }
+        // Five colours for six vertices leaves a vertex with no colour for its skirt to fade.
+        assertThrows(RuntimeException::class.java) {
+            scope.remoteMesh2DValuesAntialias(
+                verts = gridVerts,
+                colors = gridColors.copyOf(5),
+                layout = RcMeshLayout.Grid,
+                uCount = 3,
+                vCount = 2,
+                antialiasWidth = RcFloat(1f),
+            )
         }
     }
 }

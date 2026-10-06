@@ -162,3 +162,80 @@ public class RcMesh2DScope internal constructor(writer: RemoteComposeWriter) {
         this.alpha = alpha
     }
 }
+
+/**
+ * The vertex colour of an antialiased mesh, made by [RcMesh2DAntialiasScope.color].
+ *
+ * It exists so the block of [RcScope.remoteMesh2DAntialias] can be required to return one. The
+ * skirt that softens the mesh's edges is its vertex colours faded to transparent, so a mesh without
+ * them has nothing to fade; making colour the block's result turns forgetting it into a compile
+ * error rather than a mesh that is rejected when written.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RcMeshColor
+internal constructor(
+    internal val red: RcFloat,
+    internal val green: RcFloat,
+    internal val blue: RcFloat,
+    internal val alpha: RcFloat,
+)
+
+/**
+ * Builder for the channels of an antialiased parametric 2D mesh.
+ *
+ * As [RcMesh2DScope], except that colour is not optional. Position, uv and width are set the same
+ * way, but the block must end with [color], whose result is the block's value:
+ * ```
+ * remoteMesh2DAntialias(RcMeshLayout.Ring, uCount = 96, vCount = 4, antialiasWidth = 1f.rf) {
+ *     xy(cx + cos(u * TAU) * r, cy + sin(u * TAU) * r)
+ *     color(red = u, green = 0.4f.rf, blue = 1f.rf - u)
+ * }
+ * ```
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RcMesh2DAntialiasScope internal constructor(private val writer: RemoteComposeWriter) {
+    /** The first domain parameter, 0..1. Its meaning comes from the layout. */
+    public val u: RcFloat = RcFloat(writer, floatArrayOf(Rc.FloatExpression.VAR1))
+
+    /** The second domain parameter, 0..1. Its meaning comes from the layout. */
+    public val v: RcFloat = RcFloat(writer, floatArrayOf(Rc.FloatExpression.VAR2))
+
+    /** Vertex x, or null for the layout's default geometry. */
+    public var x: RcFloat? = null
+
+    /** Vertex y, or null for the layout's default geometry. */
+    public var y: RcFloat? = null
+
+    /** Texture u in 0..1, or null for the identity mapping from the domain. */
+    public var texU: RcFloat? = null
+
+    /** Texture v in 0..1, or null for the identity mapping from the domain. */
+    public var texV: RcFloat? = null
+
+    /** The cross width of a [RcMeshLayout.PathStrip], in the path's own units. */
+    public var width: RcFloat? = null
+
+    /** Set [x] and [y] to one expression each, in one statement. */
+    public fun xy(x: RcFloat, y: RcFloat) {
+        this.x = x
+        this.y = y
+    }
+
+    /** Set [texU] and [texV] to one expression each, in one statement. */
+    public fun texUv(u: RcFloat, v: RcFloat) {
+        this.texU = u
+        this.texV = v
+    }
+
+    /**
+     * The vertex colour, each channel 0..1. Return it from the block.
+     *
+     * With an image, the colour multiplies the texel, so pass white to show the image as it is.
+     */
+    public fun color(
+        red: RcFloat,
+        green: RcFloat,
+        blue: RcFloat,
+        alpha: RcFloat = RcFloat(writer, 1f),
+    ): RcMeshColor = RcMeshColor(red, green, blue, alpha)
+}

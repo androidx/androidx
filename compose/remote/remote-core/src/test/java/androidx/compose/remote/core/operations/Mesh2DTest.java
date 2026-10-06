@@ -16,7 +16,9 @@
 
 package androidx.compose.remote.core.operations;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
@@ -33,6 +35,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Tests for the 2D mesh operations, checked by rasterising them.
@@ -82,10 +86,12 @@ public class Mesh2DTest {
         return new float[] {var, scale, AnimatedFloatExpressionOps.MUL};
     }
 
-    /** The multiply opcode, named so the expressions above read as arithmetic. */
+    /** The multiply and add opcodes, named so the expressions here read as arithmetic. */
     private static final class AnimatedFloatExpressionOps {
         static final float MUL =
                 androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.MUL;
+        static final float ADD =
+                androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.ADD;
     }
 
     private static final float VAR_U =
@@ -1319,5 +1325,783 @@ public class Mesh2DTest {
                 () ->
                         AddMesh2D.applySplineRoundStrip(
                                 buffer, 1, 8, 2, new float[] {1f, 2f, 3f}, new float[] {0f, 1f}));
+    }
+
+    // -------------------------------------------------------------- antialias
+
+    /** The RPN for {@code var * scale + offset}. */
+    private static float[] affine(float var, float scale, float offset) {
+        return new float[] {
+            var, scale, AnimatedFloatExpressionOps.MUL, offset, AnimatedFloatExpressionOps.ADD
+        };
+    }
+
+    /**
+     * Expression groups with a position, or null for the layout's default, and an opaque constant
+     * colour, which a skirt needs.
+     */
+    private static float[][] withColour(float[] x, float[] y, float red, float green, float blue) {
+        return new float[][] {
+            x, y, null, null, constant(1f), constant(red), constant(green), constant(blue), null,
+        };
+    }
+
+    /** A solid red 8x8 grid from (32, 32) to (96, 96), in pixels. */
+    private static AddMesh2D redSquare(int flags, float antialiasWidth) {
+        return new AddMesh2D(
+                1,
+                AddMesh2D.TYPE_EXPRESSION,
+                Mesh2DGenerator.LAYOUT_GRID,
+                8,
+                8,
+                flags,
+                0,
+                withColour(affine(VAR_U, 64f, 32f), affine(VAR_V, 64f, 32f), 1f, 0f, 0f),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                antialiasWidth);
+    }
+
+    /** Expand a mesh with nothing to resolve, for a test of the arrays rather than the pixels. */
+    private static AddMesh2D expanded(AddMesh2D mesh) {
+        HeadlessRemoteContext context = new HeadlessRemoteContext();
+        mesh.updateVariables(context);
+        mesh.expand(context);
+        return mesh;
+    }
+
+    /** A directed edge, as one value for a set. */
+    private static long edge(int from, int to) {
+        return ((long) from << 32) | (to & 0xFFFFFFFFL);
+    }
+
+    @Test
+    public void antialiasLoopsRunAroundEachLayoutAsItsTrianglesDo() {
+        // A 3x2 grid: down the first column, along the last row, up the last column, and back
+        // along the first row.
+        assertArrayEquals(
+                new int[][] {{0, 3, 4, 5, 2, 1}},
+                Mesh2DGenerator.antialiasLoops(Mesh2DGenerator.LAYOUT_GRID, 3, 2));
+        // A ring has two loops, its first row backwards and its last forwards.
+        assertArrayEquals(
+                new int[][] {{0, 3, 2, 1}, {4, 5, 6, 7}},
+                Mesh2DGenerator.antialiasLoops(Mesh2DGenerator.LAYOUT_RING, 4, 2));
+        // A fan has one, its rim, which starts after the centre.
+        assertArrayEquals(
+                new int[][] {{1, 2, 3, 4}},
+                Mesh2DGenerator.antialiasLoops(Mesh2DGenerator.LAYOUT_FAN, 4, 2));
+        // Counts that describe no area have no edges.
+        assertEquals(0, Mesh2DGenerator.antialiasLoops(Mesh2DGenerator.LAYOUT_GRID, 1, 8).length);
+        assertEquals(0, Mesh2DGenerator.antialiasLoops(Mesh2DGenerator.LAYOUT_STRIP, 8, 1).length);
+        assertEquals(0, Mesh2DGenerator.antialiasLoops(Mesh2DGenerator.LAYOUT_POLAR, 2, 8).length);
+        assertEquals(0, Mesh2DGenerator.antialiasLoops(Mesh2DGenerator.LAYOUT_FAN, 2, 2).length);
+
+        int[][] ring = Mesh2DGenerator.antialiasLoops(Mesh2DGenerator.LAYOUT_RING, 4, 2);
+        assertEquals(8, Mesh2DGenerator.antialiasVertexCount(ring));
+        assertEquals(48, Mesh2DGenerator.antialiasIndexCount(ring));
+    }
+
+    @Test
+    public void everyLoopEdgeIsABoundaryEdgeOfTheBodyRunTheSameWay() {
+        // The skirt's winding rests on this: each loop edge belongs to exactly one body triangle,
+        // and that triangle runs along it in the loop's direction.
+        int[] layouts = {
+            Mesh2DGenerator.LAYOUT_GRID,
+            Mesh2DGenerator.LAYOUT_POLAR,
+            Mesh2DGenerator.LAYOUT_RING,
+            Mesh2DGenerator.LAYOUT_STRIP,
+            Mesh2DGenerator.LAYOUT_FAN,
+            Mesh2DGenerator.LAYOUT_PATH_STRIP,
+        };
+        for (int layout : layouts) {
+            for (int uCount = 3; uCount <= 6; uCount++) {
+                for (int vCount = 2; vCount <= 4; vCount++) {
+                    int[] indices = new int[Mesh2DGenerator.indexCount(layout, uCount, vCount)];
+                    Mesh2DGenerator.generateIndices(layout, uCount, vCount, indices);
+                    HashSet<Long> edges = new HashSet<>();
+                    for (int t = 0; t + 2 < indices.length; t += 3) {
+                        for (int s = 0; s < 3; s++) {
+                            edges.add(edge(indices[t + s], indices[t + (s + 1) % 3]));
+                        }
+                    }
+                    String where = "layout " + layout + " " + uCount + "x" + vCount + " ";
+                    for (int[] loop : Mesh2DGenerator.antialiasLoops(layout, uCount, vCount)) {
+                        for (int e = 0; e < loop.length; e++) {
+                            int a = loop[e];
+                            int b = loop[(e + 1) % loop.length];
+                            assertTrue(where + a + "->" + b, edges.contains(edge(a, b)));
+                            assertFalse(where + b + "->" + a, edges.contains(edge(b, a)));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void antialiasSkirtSitsOneWidthOutsideAGridAndIsClear() {
+        AddMesh2D mesh = expanded(redSquare(AddMesh2D.FLAG_ANTIALIAS, 2f));
+
+        int body = 8 * 8;
+        int skirt = 2 * (8 + 8) - 4;
+        assertEquals((body + skirt) * 2, mesh.getVerts().length);
+        assertEquals((body + skirt) * 2, mesh.getUv().length);
+        assertEquals(body + skirt, mesh.getColors().length);
+        assertEquals(7 * 7 * 6 + skirt * 6, mesh.getIndices().length);
+
+        float[] verts = mesh.getVerts();
+        // The loop starts at the top left corner, which is pushed out along its diagonal by
+        // sqrt(2) widths, so that both of its sides stay one width wide...
+        assertEquals(30f, verts[body * 2], 1e-4f);
+        assertEquals(30f, verts[body * 2 + 1], 1e-4f);
+        // ...and runs down the left side, each vertex straight out from its neighbour.
+        for (int k = 1; k < 7; k++) {
+            assertEquals(30f, verts[(body + k) * 2], 1e-4f);
+            assertEquals(verts[k * 8 * 2 + 1], verts[(body + k) * 2 + 1], 1e-4f);
+        }
+        // Every skirt vertex is its neighbour's colour at alpha 0.
+        for (int k = body; k < body + skirt; k++) {
+            assertEquals(0x00FF0000, mesh.getColors()[k]);
+        }
+    }
+
+    @Test
+    public void antialiasedEdgeFadesIntoTheBackgroundWhereAPlainOneStops() throws IOException {
+        HeadlessRemoteContext plainContext = new HeadlessRemoteContext();
+        SoftwareRasterPaintContext plain = newRaster(plainContext);
+        addAndDraw(plainContext, plain, redSquare(0, 1f), 1);
+
+        HeadlessRemoteContext context = new HeadlessRemoteContext();
+        SoftwareRasterPaintContext raster = newRaster(context);
+        addAndDraw(context, raster, redSquare(AddMesh2D.FLAG_ANTIALIAS, 1f), 1);
+        java.io.File png = raster.writePng("grid_antialias");
+
+        // Column 31 is centred half a pixel outside the left edge. The plain mesh stops short of
+        // it; the skirt covers it at about half alpha.
+        assertEquals(BACKGROUND, plain.pixelAt(31, 64));
+        int red = (raster.pixelAt(31, 64) >> 16) & 0xFF;
+        assertTrue("red " + red + ", see " + png, red > 96 && red < 160);
+        assertEquals("see " + png, 0, raster.pixelAt(31, 64) & 0xFFFF);
+        // The same on the right, where the loop runs the other way.
+        int farRed = (raster.pixelAt(96, 64) >> 16) & 0xFF;
+        assertTrue("red " + farRed + ", see " + png, farRed > 96 && farRed < 160);
+        // Inside, the skirt changes nothing, and beyond it the background is untouched.
+        assertEquals(plain.pixelAt(32, 64), raster.pixelAt(32, 64));
+        assertEquals(plain.pixelAt(64, 64), raster.pixelAt(64, 64));
+        assertEquals("see " + png, BACKGROUND, raster.pixelAt(29, 64));
+        assertEquals("see " + png, BACKGROUND, raster.pixelAt(64, 98));
+    }
+
+    @Test
+    public void antialiasSkirtFindsTheOutsideOfAMirroredGrid() {
+        // x runs right to left, so the loop goes round the other way; the skirt must still grow
+        // away from the body rather than into it.
+        AddMesh2D mesh =
+                expanded(
+                        new AddMesh2D(
+                                1,
+                                AddMesh2D.TYPE_EXPRESSION,
+                                Mesh2DGenerator.LAYOUT_GRID,
+                                8,
+                                8,
+                                AddMesh2D.FLAG_ANTIALIAS,
+                                0,
+                                withColour(
+                                        affine(VAR_U, -64f, 96f),
+                                        affine(VAR_V, 64f, 32f),
+                                        1f,
+                                        1f,
+                                        1f),
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                2f));
+
+        float[] verts = mesh.getVerts();
+        int body = 8 * 8;
+        // Vertex 0, where the loop starts, is now the top right corner.
+        assertEquals(98f, verts[body * 2], 1e-4f);
+        assertEquals(30f, verts[body * 2 + 1], 1e-4f);
+        for (int k = 1; k < 7; k++) {
+            assertEquals(98f, verts[(body + k) * 2], 1e-4f);
+        }
+    }
+
+    @Test
+    public void antialiasSkirtOfARingGrowsIntoTheHoleAndOutOfTheRim() {
+        int uCount = 32;
+        AddMesh2D mesh =
+                expanded(
+                        new AddMesh2D(
+                                1,
+                                AddMesh2D.TYPE_EXPRESSION,
+                                Mesh2DGenerator.LAYOUT_RING,
+                                uCount,
+                                3,
+                                AddMesh2D.FLAG_ANTIALIAS,
+                                0,
+                                withColour(null, null, 1f, 1f, 1f),
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0.05f));
+
+        float[] verts = mesh.getVerts();
+        int body = uCount * 3;
+        assertEquals((body + 2 * uCount) * 2, verts.length);
+        // The default ring runs from radius 0.5 to 1. Each skirt vertex sits on the bisector of
+        // its two edges, which for a regular polygon is radial, 1/cos(pi/uCount) widths out.
+        float reach = 0.05f / (float) Math.cos(Math.PI / uCount);
+        for (int k = 0; k < uCount; k++) {
+            int inner = body + k;
+            int outer = body + uCount + k;
+            assertEquals(
+                    0.5f - reach,
+                    (float) Math.hypot(verts[inner * 2], verts[inner * 2 + 1]),
+                    1e-4f);
+            assertEquals(
+                    1f + reach, (float) Math.hypot(verts[outer * 2], verts[outer * 2 + 1]), 1e-4f);
+        }
+    }
+
+    @Test
+    public void antialiasSkirtOfAPolarCentreHasNoArea() {
+        int uCount = 16;
+        AddMesh2D mesh =
+                expanded(
+                        new AddMesh2D(
+                                1,
+                                AddMesh2D.TYPE_EXPRESSION,
+                                Mesh2DGenerator.LAYOUT_POLAR,
+                                uCount,
+                                4,
+                                AddMesh2D.FLAG_ANTIALIAS,
+                                0,
+                                withColour(null, null, 1f, 1f, 1f),
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0.1f));
+
+        float[] verts = mesh.getVerts();
+        int body = uCount * 4;
+        // The first row of the default disc is its centre, a loop with no length. Its skirt keeps
+        // its slots, so the arrays are the same size whatever the geometry, but sits on the
+        // centre.
+        for (int k = 0; k < uCount; k++) {
+            assertEquals(0f, verts[(body + k) * 2], 1e-6f);
+            assertEquals(0f, verts[(body + k) * 2 + 1], 1e-6f);
+        }
+        // The rim is softened as usual.
+        float reach = 0.1f / (float) Math.cos(Math.PI / uCount);
+        for (int k = 0; k < uCount; k++) {
+            int outer = body + uCount + k;
+            assertEquals(
+                    1f + reach, (float) Math.hypot(verts[outer * 2], verts[outer * 2 + 1]), 1e-4f);
+        }
+    }
+
+    @Test
+    public void antialiasMiterIsCappedAtASharpTip() {
+        // A long thin triangle as a three spoke fan. Its tip turns through almost a half turn,
+        // where an uncapped miter would push the skirt a hundred widths out.
+        float[] body = {66f, 0f, 0f, 0f, 100f, 1f, 100f, -1f};
+        int[][] loops = Mesh2DGenerator.antialiasLoops(Mesh2DGenerator.LAYOUT_FAN, 3, 2);
+        float[] verts =
+                Arrays.copyOf(body, body.length + 2 * Mesh2DGenerator.antialiasVertexCount(loops));
+        Mesh2DGenerator.appendAntialiasSkirt(
+                Mesh2DGenerator.LAYOUT_FAN,
+                3,
+                2,
+                loops,
+                1f,
+                verts,
+                new float[0],
+                new int[0],
+                4,
+                null);
+
+        // Skirt vertex 4 belongs to rim vertex 1, the tip.
+        assertEquals(-Mesh2DGenerator.ANTIALIAS_MAX_MITER, verts[4 * 2], 1e-3f);
+        assertEquals(0f, verts[4 * 2 + 1], 1e-3f);
+    }
+
+    @Test
+    public void antialiasSkirtCarriesOnPastATaperedTip() {
+        // A 3x2 literal grid whose last column has closed to a point, as a tapered ribbon's does.
+        // The edge across it has no length and so no normal: both of the tip's skirt vertices
+        // take the bisector of the edges either side, which puts them together, straight ahead.
+        float[] verts = {0f, 0f, 10f, 0f, 20f, 5f, 0f, 10f, 10f, 10f, 20f, 5f};
+        int[] indices = new int[Mesh2DGenerator.indexCount(Mesh2DGenerator.LAYOUT_GRID, 3, 2)];
+        Mesh2DGenerator.generateIndices(Mesh2DGenerator.LAYOUT_GRID, 3, 2, indices);
+        AddMesh2D mesh =
+                expanded(
+                        new AddMesh2D(
+                                1,
+                                AddMesh2D.TYPE_VALUES,
+                                Mesh2DGenerator.LAYOUT_GRID,
+                                3,
+                                2,
+                                AddMesh2D.FLAG_ANTIALIAS,
+                                0,
+                                null,
+                                indices,
+                                verts,
+                                null,
+                                new int[] {-1, -1, -1, -1, -1, -1},
+                                null,
+                                null,
+                                1f));
+
+        float[] out = mesh.getVerts();
+        assertEquals((6 + 6) * 2, out.length);
+        for (float value : out) {
+            assertTrue(!Float.isNaN(value) && !Float.isInfinite(value));
+        }
+        // The loop is 0, 3, 4, 5, 2, 1, so skirt vertices 3 and 4 belong to the tip.
+        float ahead = 20f + (float) Math.sqrt(5);
+        assertEquals(ahead, out[(6 + 3) * 2], 1e-4f);
+        assertEquals(5f, out[(6 + 3) * 2 + 1], 1e-4f);
+        assertEquals(ahead, out[(6 + 4) * 2], 1e-4f);
+        assertEquals(5f, out[(6 + 4) * 2 + 1], 1e-4f);
+    }
+
+    @Test
+    public void antialiasSkirtRepeatsItsNeighboursTextureAndColour() {
+        float[] quad = {0f, 0f, 10f, 0f, 0f, 10f, 10f, 10f};
+        float[] uv = {0f, 0f, 1f, 0f, 0f, 1f, 1f, 1f};
+        int[] colors = {0xFF102030, 0x80405060, 0xFF708090, 0x7FA0B0C0};
+        int[] indices = {0, 2, 1, 1, 2, 3};
+        AddMesh2D mesh =
+                expanded(
+                        new AddMesh2D(
+                                1,
+                                AddMesh2D.TYPE_VALUES,
+                                Mesh2DGenerator.LAYOUT_GRID,
+                                2,
+                                2,
+                                AddMesh2D.FLAG_ANTIALIAS,
+                                0,
+                                null,
+                                indices,
+                                quad,
+                                uv,
+                                colors,
+                                null,
+                                null,
+                                1f));
+
+        int[] loop = Mesh2DGenerator.antialiasLoops(Mesh2DGenerator.LAYOUT_GRID, 2, 2)[0];
+        assertEquals(8, mesh.getColors().length);
+        for (int k = 0; k < loop.length; k++) {
+            int neighbour = loop[k];
+            int skirt = 4 + k;
+            assertEquals(colors[neighbour] & 0x00FFFFFF, mesh.getColors()[skirt]);
+            assertEquals(uv[neighbour * 2], mesh.getUv()[skirt * 2], 0f);
+            assertEquals(uv[neighbour * 2 + 1], mesh.getUv()[skirt * 2 + 1], 0f);
+        }
+        // The author's triangles keep their order, each followed by the skirt along its outer
+        // edges: the first borders the left and top of the square, the second the bottom and right.
+        assertArrayEquals(
+                new int[] {
+                    0, 2, 1, 2, 0, 4, 2, 4, 5, 0, 1, 7, 0, 7, 4,
+                    1, 2, 3, 3, 2, 5, 3, 5, 6, 1, 3, 6, 1, 6, 7,
+                },
+                mesh.getIndices());
+    }
+
+    private static boolean hasCorner(int[] triangle, int vertex) {
+        return triangle[0] == vertex || triangle[1] == vertex || triangle[2] == vertex;
+    }
+
+    @Test
+    public void antialiasSkirtIsDrawnStraightAfterTheTriangleItBorders() {
+        // So that where a mesh overlaps itself, such as a ribbon crossing its own path, the part
+        // drawn later covers the earlier part's skirt as well as its body. Were the skirt drawn
+        // after the whole body, the fringe of the part underneath would be laid over the top.
+        int[] layouts = {
+            Mesh2DGenerator.LAYOUT_GRID,
+            Mesh2DGenerator.LAYOUT_POLAR,
+            Mesh2DGenerator.LAYOUT_RING,
+            Mesh2DGenerator.LAYOUT_STRIP,
+            Mesh2DGenerator.LAYOUT_FAN,
+            Mesh2DGenerator.LAYOUT_PATH_STRIP,
+        };
+        for (int layout : layouts) {
+            int uCount = 5;
+            int vCount = 3;
+            String where = "layout " + layout + " ";
+            int[] body = new int[Mesh2DGenerator.indexCount(layout, uCount, vCount)];
+            Mesh2DGenerator.generateIndices(layout, uCount, vCount, body);
+            int[][] loops = Mesh2DGenerator.antialiasLoops(layout, uCount, vCount);
+            int bodyVertices = Mesh2DGenerator.vertexCount(layout, uCount, vCount);
+            int[] out = new int[body.length + Mesh2DGenerator.antialiasIndexCount(loops)];
+            Mesh2DGenerator.antialiasIndices(body, loops, bodyVertices, out);
+
+            int bodyTriangles = 0;
+            int[] last = null;
+            HashSet<Long> hung = new HashSet<>();
+            int t = 0;
+            while (t < out.length) {
+                boolean isBody = Math.max(out[t], Math.max(out[t + 1], out[t + 2])) < bodyVertices;
+                if (isBody) {
+                    // The body's triangles keep their order...
+                    last = Arrays.copyOfRange(out, t, t + 3);
+                    int from = bodyTriangles * 3;
+                    assertArrayEquals(where, Arrays.copyOfRange(body, from, from + 3), last);
+                    bodyTriangles++;
+                    t += 3;
+                } else {
+                    // ...and each skirt quad, (b, a, a') then (b, a', b'), hangs from an edge of
+                    // the body triangle just before it.
+                    assertTrue(where + t, last != null);
+                    assertTrue(where + t, hasCorner(last, out[t]) && hasCorner(last, out[t + 1]));
+                    assertTrue(where + t, hung.add(edge(out[t + 1], out[t])));
+                    t += 6;
+                }
+            }
+            assertEquals(where, body.length / 3, bodyTriangles);
+            assertEquals(where, Mesh2DGenerator.antialiasVertexCount(loops), hung.size());
+        }
+    }
+
+    @Test
+    public void aMeshBuiltWithoutColoursIsDrawnWithoutASkirt() {
+        // The wire refuses this, but a mesh constructed directly can still ask for it. It gets the
+        // body alone rather than a skirt with nothing to fade.
+        AddMesh2D mesh =
+                expanded(
+                        new AddMesh2D(
+                                1,
+                                AddMesh2D.TYPE_EXPRESSION,
+                                Mesh2DGenerator.LAYOUT_GRID,
+                                4,
+                                4,
+                                AddMesh2D.FLAG_ANTIALIAS,
+                                0,
+                                new float[][] {scaled(VAR_U, 10f), scaled(VAR_V, 10f)},
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                1f));
+
+        assertEquals(16 * 2, mesh.getVerts().length);
+        assertEquals(3 * 3 * 6, mesh.getIndices().length);
+        assertEquals(0, mesh.getColors().length);
+    }
+
+    @Test
+    public void antialiasIsRefusedWhereNoSkirtCanBeBuilt() {
+        WireBuffer buffer = new WireBuffer();
+        int flag = AddMesh2D.FLAG_ANTIALIAS;
+        int expression = AddMesh2D.TYPE_EXPRESSION;
+        int values = AddMesh2D.TYPE_VALUES;
+        int grid = Mesh2DGenerator.LAYOUT_GRID;
+        float[][] uncoloured = {scaled(VAR_U, 10f), scaled(VAR_V, 10f)};
+        float[][] coloured = withColour(scaled(VAR_U, 10f), scaled(VAR_V, 10f), 1f, 1f, 1f);
+        float[] quad = {0f, 0f, 10f, 0f, 0f, 10f, 10f, 10f};
+        int[] indices = {0, 2, 1, 1, 2, 3};
+        int[] white = {-1, -1, -1, -1};
+
+        // Without colours there is nothing to fade.
+        assertThrows(
+                RuntimeException.class,
+                () ->
+                        AddMesh2D.apply(
+                                buffer,
+                                1,
+                                expression,
+                                grid,
+                                4,
+                                4,
+                                flag,
+                                0,
+                                uncoloured,
+                                null,
+                                null,
+                                null,
+                                null,
+                                1f));
+        assertThrows(
+                RuntimeException.class,
+                () ->
+                        AddMesh2D.apply(
+                                buffer, 1, values, grid, 2, 2, flag, 0, null, indices, quad, null,
+                                null, 1f));
+        // A grid one sample wide has no edge.
+        assertThrows(
+                RuntimeException.class,
+                () ->
+                        AddMesh2D.apply(
+                                buffer,
+                                1,
+                                expression,
+                                grid,
+                                1,
+                                4,
+                                flag,
+                                0,
+                                coloured,
+                                null,
+                                null,
+                                null,
+                                null,
+                                1f));
+        // The boundary comes from the layout, so the layout has to account for every vertex.
+        assertThrows(
+                RuntimeException.class,
+                () ->
+                        AddMesh2D.apply(
+                                buffer, 1, values, grid, 3, 2, flag, 0, null, indices, quad, null,
+                                white, 1f));
+        assertThrows(
+                RuntimeException.class,
+                () ->
+                        AddMesh2D.apply(
+                                buffer, 1, values, grid, 0, 0, flag, 0, null, indices, quad, null,
+                                white, 1f));
+        // A width is a distance.
+        assertThrows(
+                RuntimeException.class,
+                () ->
+                        AddMesh2D.apply(
+                                buffer, 1, values, grid, 2, 2, flag, 0, null, indices, quad, null,
+                                white, -1f));
+        assertThrows(
+                RuntimeException.class,
+                () ->
+                        AddMesh2D.apply(
+                                buffer,
+                                1,
+                                values,
+                                grid,
+                                2,
+                                2,
+                                flag,
+                                0,
+                                null,
+                                indices,
+                                quad,
+                                null,
+                                white,
+                                Float.POSITIVE_INFINITY));
+
+        // With all of that in order it is accepted, and so is a width held in a variable.
+        AddMesh2D.apply(
+                buffer, 1, values, grid, 2, 2, flag, 0, null, indices, quad, null, white, 0f);
+        AddMesh2D.apply(
+                buffer,
+                1,
+                values,
+                grid,
+                2,
+                2,
+                flag,
+                0,
+                null,
+                indices,
+                quad,
+                null,
+                white,
+                Utils.asNan(42));
+        AddMesh2D.apply(
+                buffer, 1, expression, grid, 4, 4, flag, 0, coloured, null, null, null, null, 1f);
+    }
+
+    @Test
+    public void antialiasFlagOnASplineStripIsRejectedOnRead() {
+        // Spline strips carry no colours, so a document that sets the flag on one is corrupt.
+        WireBuffer buffer = new WireBuffer();
+        buffer.start(AddMesh2D.id());
+        buffer.writeInt(1); // meshId
+        buffer.writeInt(AddMesh2D.TYPE_PATH_SPLINE_STRIP);
+        buffer.writeInt(Mesh2DGenerator.LAYOUT_PATH_STRIP);
+        buffer.writeInt(9); // uCount
+        buffer.writeInt(2); // vCount
+        buffer.writeInt(AddMesh2D.FLAG_ANTIALIAS);
+        buffer.writeInt(21); // aux, the path
+        buffer.writeInt(1); // one width
+        buffer.writeFloat(4f);
+        buffer.writeInt(0); // evenly spaced
+        buffer.writeFloat(1f); // the antialias width
+        buffer.setIndex(0);
+        buffer.readByte();
+
+        assertThrows(RuntimeException.class, () -> AddMesh2D.read(buffer, new ArrayList<>()));
+    }
+
+    @Test
+    public void antialiasWidthSurvivesTheWireAndMayBeAVariable() {
+        int widthId = 42;
+        AddMesh2D original = redSquare(AddMesh2D.FLAG_ANTIALIAS, Utils.asNan(widthId));
+        WireBuffer buffer = new WireBuffer();
+        original.write(buffer);
+
+        // The width costs one float, and only with the flag.
+        WireBuffer plain = new WireBuffer();
+        redSquare(0, Utils.asNan(widthId)).write(plain);
+        assertEquals(plain.getSize() + 4, buffer.getSize());
+
+        buffer.setIndex(0);
+        buffer.readByte();
+        ArrayList<Operation> operations = new ArrayList<>();
+        AddMesh2D.read(buffer, operations);
+        assertEquals(buffer.getSize(), buffer.getIndex());
+        AddMesh2D restored = (AddMesh2D) operations.get(0);
+
+        // The variable is resolved on every update, so the skirt follows it. Skirt vertex 1 is
+        // beside the left edge, at x = 32.
+        HeadlessRemoteContext context = new HeadlessRemoteContext();
+        context.loadFloat(widthId, 3f);
+        restored.updateVariables(context);
+        restored.expand(context);
+        assertEquals(29f, restored.getVerts()[(64 + 1) * 2], 1e-4f);
+
+        context.loadFloat(widthId, 0.5f);
+        restored.updateVariables(context);
+        restored.expand(context);
+        assertEquals(31.5f, restored.getVerts()[(64 + 1) * 2], 1e-4f);
+    }
+
+    @Test
+    public void antialiasedLiteralMeshSurvivesTheWire() {
+        float[] quad = {0f, 0f, 16f, 0f, 0f, 16f, 16f, 16f};
+        int[] indices = {0, 2, 1, 1, 2, 3};
+        int[] colors = {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF};
+        for (int type : new int[] {AddMesh2D.TYPE_VALUES, AddMesh2D.TYPE_F16_VALUES}) {
+            AddMesh2D original =
+                    expanded(
+                            new AddMesh2D(
+                                    5,
+                                    type,
+                                    Mesh2DGenerator.LAYOUT_GRID,
+                                    2,
+                                    2,
+                                    AddMesh2D.FLAG_ANTIALIAS,
+                                    0,
+                                    null,
+                                    indices,
+                                    quad,
+                                    null,
+                                    colors,
+                                    null,
+                                    null,
+                                    0.75f));
+            WireBuffer buffer = new WireBuffer();
+            original.write(buffer);
+            buffer.setIndex(0);
+            buffer.readByte();
+
+            ArrayList<Operation> operations = new ArrayList<>();
+            AddMesh2D.read(buffer, operations);
+            // The width follows the colours, and is all that does.
+            assertEquals(buffer.getSize(), buffer.getIndex());
+            AddMesh2D restored = expanded((AddMesh2D) operations.get(0));
+            assertArrayEquals(original.getVerts(), restored.getVerts(), 0f);
+            assertArrayEquals(original.getColors(), restored.getColors());
+            assertArrayEquals(original.getIndices(), restored.getIndices());
+        }
+    }
+
+    @Test
+    public void antialiasSkirtIsNoPartOfTheFrameAMatrixIsReadFrom() {
+        AddMesh2D plain = expanded(redSquare(0, 2f));
+        AddMesh2D smooth = expanded(redSquare(AddMesh2D.FLAG_ANTIALIAS, 2f));
+        assertNotEquals(plain.getVerts().length, smooth.getVerts().length);
+
+        float[] expected = new float[6];
+        float[] actual = new float[6];
+        for (float[] at : new float[][] {{0f, 0f}, {0.5f, 0.5f}, {1f, 1f}, {0.25f, 0.9f}}) {
+            Mesh2DGenerator.computeMatrixFromMesh(
+                    Mesh2DGenerator.LAYOUT_GRID,
+                    8,
+                    8,
+                    plain.getVerts(),
+                    at[0],
+                    at[1],
+                    Mesh2DGenerator.FLAG_FULL,
+                    expected);
+            Mesh2DGenerator.computeMatrixFromMesh(
+                    Mesh2DGenerator.LAYOUT_GRID,
+                    8,
+                    8,
+                    smooth.getVerts(),
+                    at[0],
+                    at[1],
+                    Mesh2DGenerator.FLAG_FULL,
+                    actual);
+            assertArrayEquals(expected, actual, 0f);
+        }
+
+        // A fan's frame comes from its centre and rim, which come before its skirt too.
+        float[][] fanGroups = withColour(null, null, 1f, 1f, 1f);
+        AddMesh2D plainFan =
+                expanded(
+                        new AddMesh2D(
+                                1,
+                                AddMesh2D.TYPE_EXPRESSION,
+                                Mesh2DGenerator.LAYOUT_FAN,
+                                12,
+                                2,
+                                0,
+                                0,
+                                fanGroups,
+                                null,
+                                null,
+                                null,
+                                null));
+        AddMesh2D smoothFan =
+                expanded(
+                        new AddMesh2D(
+                                1,
+                                AddMesh2D.TYPE_EXPRESSION,
+                                Mesh2DGenerator.LAYOUT_FAN,
+                                12,
+                                2,
+                                AddMesh2D.FLAG_ANTIALIAS,
+                                0,
+                                fanGroups,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0.1f));
+        Mesh2DGenerator.computeMatrixFromMesh(
+                Mesh2DGenerator.LAYOUT_FAN,
+                12,
+                2,
+                plainFan.getVerts(),
+                0.3f,
+                0.5f,
+                Mesh2DGenerator.FLAG_FULL,
+                expected);
+        Mesh2DGenerator.computeMatrixFromMesh(
+                Mesh2DGenerator.LAYOUT_FAN,
+                12,
+                2,
+                smoothFan.getVerts(),
+                0.3f,
+                0.5f,
+                Mesh2DGenerator.FLAG_FULL,
+                actual);
+        assertArrayEquals(expected, actual, 0f);
     }
 }

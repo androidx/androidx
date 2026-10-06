@@ -1080,6 +1080,74 @@ public interface RcScope {
     ): RcMesh
 
     /**
+     * Adds a parametric 2D mesh whose edges fade out over [antialiasWidth] instead of stopping at a
+     * hard, stepped edge.
+     *
+     * Meshes are drawn with `drawVertices`, which does not antialias, so a mesh's outline aliases
+     * visibly. This grows a thin skirt around the outline whose vertices repeat their neighbours'
+     * colour at alpha 0, so the edge fades out. The fade is made from the vertex colours, which is
+     * why the block must end with [RcMesh2DAntialiasScope.color]:
+     * ```
+     * val trail = remoteMesh2DAntialias(
+     *     RcMeshLayout.PathStrip, uCount = 96, vCount = 2, antialiasWidth = 1f.rf, path = orbit,
+     * ) {
+     *     width = w * 0.005f + u * w * 0.065f
+     *     color(red = 0.55f + u * 0.45f, green = 0.25f + u * 0.62f, blue = 1f.rf, alpha = u * u)
+     * }
+     * ```
+     *
+     * The skirt only grows outward, so an edge looks about half a skirt heavier than without it.
+     *
+     * @param layout the domain topology, which also decides the default geometry
+     * @param uCount the resolution along u
+     * @param vCount the resolution along v
+     * @param antialiasWidth how far the fade reaches beyond the edge, in the mesh's own units.
+     *   About one pixel: `1f.rf` for a mesh authored in pixels, `1f.rf / w` for a unit mesh drawn
+     *   under `scale(w, h)`
+     * @param path the path a [RcMeshLayout.PathStrip] follows; ignored by every other layout
+     * @param block sets the channel expressions and returns the colour; see
+     *   [RcMesh2DAntialiasScope]
+     */
+    public fun remoteMesh2DAntialias(
+        layout: RcMeshLayout,
+        uCount: Int,
+        vCount: Int,
+        antialiasWidth: RcFloat,
+        path: RcPath? = null,
+        block: RcMesh2DAntialiasScope.() -> RcMeshColor,
+    ): RcMesh
+
+    /**
+     * Adds a 2D mesh from explicit geometry whose edges fade out over [antialiasWidth].
+     *
+     * As [remoteMesh2DValues], plus the skirt described at [remoteMesh2DAntialias]. The skirt is
+     * grown from the outline the layout describes and fades the vertex colours, so both are
+     * required: one colour per vertex, and a [layout], [uCount] and [vCount] that account for every
+     * vertex, in the order the layout numbers them.
+     *
+     * @param verts x, y pairs
+     * @param colors packed ARGB per vertex
+     * @param layout the domain topology the vertices are laid out in
+     * @param uCount the resolution along u
+     * @param vCount the resolution along v
+     * @param antialiasWidth how far the fade reaches beyond the edge, in the mesh's own units
+     * @param indices the triangle list, or null for the layout's own triangulation
+     * @param uv u, v pairs in 0..1, or null
+     * @param halfFloat write positions and uv as IEEE half floats, halving the wire size
+     */
+    public fun remoteMesh2DValuesAntialias(
+        verts: FloatArray,
+        colors: IntArray,
+        layout: RcMeshLayout,
+        uCount: Int,
+        vCount: Int,
+        antialiasWidth: RcFloat,
+        indices: IntArray? = null,
+        uv: FloatArray? = null,
+        halfFloat: Boolean = false,
+    ): RcMesh
+
+    /**
      * Adds a ribbon that follows a path, its cross width a monotonic spline through [widths].
      *
      * The variable width stroke, without spending expression tokens on it. One width is a constant

@@ -26,7 +26,9 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 
 import androidx.compose.remote.integration.view.demos.blog.ComposeDragDSLKt;
+import androidx.compose.remote.integration.view.demos.blog.DslAnimatedChangesKt;
 import androidx.compose.remote.integration.view.demos.blog.DslAnimatedRadiusKt;
+import androidx.compose.remote.integration.view.demos.blog.DslCanvasOperationsKt;
 import androidx.compose.remote.integration.view.demos.blog.DslCollisionDetectionKt;
 import androidx.compose.remote.integration.view.demos.blog.DslDiscoBallKt;
 import androidx.compose.remote.integration.view.demos.blog.DslFlappyDroidKt;
@@ -93,6 +95,7 @@ import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dL
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dMoreDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dPolarDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dRelationDemosKt;
+import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DAntialiasDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DGapDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.mesh2d.DslMesh2DMoreDemosKt;
@@ -134,6 +137,7 @@ import androidx.compose.remote.integration.view.demos.examples.PieChartKt;
 import androidx.compose.remote.integration.view.demos.examples.PlotWaveKt;
 import androidx.compose.remote.integration.view.demos.examples.PressureGaugeKt;
 import androidx.compose.remote.integration.view.demos.examples.RCPlayerInfoKt;
+import androidx.compose.remote.integration.view.demos.examples.RcJsonStopwatchKt;
 import androidx.compose.remote.integration.view.demos.examples.ServerSideKt;
 import androidx.compose.remote.integration.view.demos.examples.ShaderCalendarKt;
 import androidx.compose.remote.integration.view.demos.examples.SimpleShader2Kt;
@@ -241,6 +245,7 @@ public abstract class DemosCreation {
                     get("0/031/ModernShowcaseDemo",
                             DslModernShowcaseDemoKt::dslModernShowcaseDemo),
                     get("0/034/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
+                    get("0/034b/rcJsonStopwatch", RcJsonStopwatchKt::rcJsonStopwatch),
                     get("0/035/dslMetronome", DslMetronomeKt::dslMetronomeDemo),
                     get("0/033/Demo3", RcDslDemoKt::dslDemo),
                     get("0/021/gameAstroDodger", DslGameAstroDodgerKt::dslGameAstroDodger),
@@ -380,8 +385,14 @@ public abstract class DemosCreation {
                             DslMesh2DSplineStripDemosKt::dslMesh2DSplineBreathingRibbon),
                     get("1/81/dslMesh2DRoundStrip",
                             DslMesh2DSplineStripDemosKt::dslMesh2DRoundStrip),
-                    get("1/82/dslMesh2DRoundStripBreathing",
-                            DslMesh2DSplineStripDemosKt::dslMesh2DRoundStripBreathing)
+                    get("#1/82/dslMesh2DRoundStripBreathing",
+                            DslMesh2DSplineStripDemosKt::dslMesh2DRoundStripBreathing),
+                    get("#1/83/dslMesh2DAntialiasShapes",
+                            DslMesh2DAntialiasDemosKt::dslMesh2DAntialiasShapes),
+                    get("#1/84/dslMesh2DAntialiasZoom",
+                            DslMesh2DAntialiasDemosKt::dslMesh2DAntialiasZoom),
+                    get("#1/85/dslMesh2DAntialiasTextured",
+                            DslMesh2DAntialiasDemosKt::dslMesh2DAntialiasTextured)
             ));
         }
 
@@ -488,6 +499,8 @@ public abstract class DemosCreation {
                     get("1/38b/DragCirclesDsl", ComposeDragDSLKt::dslDragCirclesDsl_old2),
                     get("1/39b/dslJetpackDroid", DSLJetpackDroidKt::dslJetpackDroid),
                     get("1/40b/FlappyDroid", DslFlappyDroidKt::dslFlappyDroid),
+                    get("#/041b/CanvasOperations", DslCanvasOperationsKt::dslCanvasOperations),
+                    get("#1/42b/AnimatedChanges", DslAnimatedChangesKt::dslAnimatedChanges),
 
 //                    get("1/0/RcScrollview", DslRcScrollviewKt::dslRcScrollview),
                     get("1/37/RcSimpleSwitch", DslRcSimpleSwitchKt::dslRcSimpleSwitchDemo),

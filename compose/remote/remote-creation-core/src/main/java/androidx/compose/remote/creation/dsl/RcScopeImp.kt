@@ -36,6 +36,7 @@ import androidx.compose.remote.core.operations.DrawMesh2D
 import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.Custom
+import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator
 import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RcPaint
@@ -1553,6 +1554,67 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
                 layout.value,
                 uCount,
                 vCount,
+            )
+        )
+
+    override fun remoteMesh2DAntialias(
+        layout: RcMeshLayout,
+        uCount: Int,
+        vCount: Int,
+        antialiasWidth: RcFloat,
+        path: RcPath?,
+        block: RcMesh2DAntialiasScope.() -> RcMeshColor,
+    ): RcMesh {
+        val scope = RcMesh2DAntialiasScope(writer)
+        val color = scope.block()
+        return RcMesh(
+            writer.addMesh2DAntialias(
+                layout.value,
+                uCount,
+                vCount,
+                scope.x.toExpression(),
+                scope.y.toExpression(),
+                scope.texU.toExpression(),
+                scope.texV.toExpression(),
+                color.alpha.toExpression(),
+                color.red.toExpression(),
+                color.green.toExpression(),
+                color.blue.toExpression(),
+                scope.width.toExpression(),
+                // One wire float: a literal, or the NaN id of a variable the mesh listens to.
+                antialiasWidth.withWriter(writer).toFloat(),
+                path?.id ?: 0,
+            )
+        )
+    }
+
+    override fun remoteMesh2DValuesAntialias(
+        verts: FloatArray,
+        colors: IntArray,
+        layout: RcMeshLayout,
+        uCount: Int,
+        vCount: Int,
+        antialiasWidth: RcFloat,
+        indices: IntArray?,
+        uv: FloatArray?,
+        halfFloat: Boolean,
+    ): RcMesh =
+        RcMesh(
+            writer.addMesh2DValuesAntialias(
+                // The layout has to describe the vertices for the skirt anyway, so it can wire
+                // them too.
+                indices
+                    ?: IntArray(Mesh2DGenerator.indexCount(layout.value, uCount, vCount)).also {
+                        Mesh2DGenerator.generateIndices(layout.value, uCount, vCount, it)
+                    },
+                verts,
+                uv,
+                colors,
+                halfFloat,
+                layout.value,
+                uCount,
+                vCount,
+                antialiasWidth.withWriter(writer).toFloat(),
             )
         )
 
