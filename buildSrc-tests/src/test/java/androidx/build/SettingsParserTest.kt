@@ -25,14 +25,14 @@ class SettingsParserTest {
         val projects =
             SettingsParser.findProjects(
                 """
-            includeProject(":no:filepath", [BuildType.MAIN])
-            includeProject(":with:filepath", "some/dir", [BuildType.COMPOSE])
-                includeProject(":has:spaces:before:include", "dir2", [BuildType.MAIN])
-            includeProject(":has:comments:after", "dir3", [BuildType.MAIN]) // some comment
-            // includeProject("commented", "should not be there", [BuildType.MAIN])
-            includeProject("no:build:type")
-            includeProject("no:build:type:with:path", "dir4")
-            """
+                includeProject(":no:filepath", [BuildType.MAIN])
+                includeProject(":with:filepath", "some/dir", [BuildType.COMPOSE])
+                    includeProject(":has:spaces:before:include", "dir2", [BuildType.MAIN])
+                includeProject(":has:comments:after", "dir3", [BuildType.MAIN]) // some comment
+                // includeProject("commented", "should not be there", [BuildType.MAIN])
+                includeProject("no:build:type")
+                includeProject("no:build:type:with:path", "dir4")
+                """
                     .trimIndent()
             )
         assertThat(projects)
@@ -42,7 +42,7 @@ class SettingsParserTest {
                 IncludedProject(gradlePath = ":has:spaces:before:include", filePath = "dir2"),
                 IncludedProject(gradlePath = ":has:comments:after", filePath = "dir3"),
                 IncludedProject(gradlePath = "no:build:type", filePath = "no/build/type"),
-                IncludedProject(gradlePath = "no:build:type:with:path", filePath = "dir4")
+                IncludedProject(gradlePath = "no:build:type:with:path", filePath = "dir4"),
             )
     }
 }
