@@ -18,7 +18,7 @@ package androidx.appsearch.localstorage.converter;
 
 import static androidx.appsearch.localstorage.util.PrefixUtil.getDatabaseName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPackageName;
-import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromDocument;
+import static androidx.appsearch.localstorage.util.PrefixUtil.getPrefix;
 
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
@@ -93,10 +93,10 @@ public class SearchResultToProtoConverter {
             @NonNull SchemaCache schemaCache,
             @NonNull AppSearchConfig config) throws AppSearchException {
 
-        DocumentProto.Builder documentBuilder = proto.getDocument().toBuilder();
-        String prefix = removePrefixesFromDocument(documentBuilder);
+        DocumentProto documentProto = proto.getDocument();
+        String prefix = getPrefix(documentProto.getSchema());
         GenericDocument document =
-                GenericDocumentToProtoConverter.toGenericDocument(documentBuilder, prefix,
+                GenericDocumentToProtoConverter.toGenericDocument(documentProto, prefix,
                         schemaCache, config);
         SearchResult.Builder builder =
                 new SearchResult.Builder(getPackageName(prefix), getDatabaseName(prefix))
@@ -132,7 +132,7 @@ public class SearchResultToProtoConverter {
         }
         if (config.shouldRetrieveParentInfo() && Flags.enableSearchResultParentTypes()) {
             Map<String, List<String>> parentTypeMap = new ArrayMap<>();
-            collectParentTypeMap(documentBuilder, prefix, schemaCache, parentTypeMap);
+            collectParentTypeMap(documentProto, prefix, schemaCache, parentTypeMap);
             builder.setParentTypeMap(parentTypeMap);
         }
         return builder.build();
@@ -143,11 +143,15 @@ public class SearchResultToProtoConverter {
             @NonNull String prefix,
             @NonNull SchemaCache schemaCache,
             @NonNull Map<String, List<String>> parentTypeMap) throws AppSearchException {
-        if (!parentTypeMap.containsKey(proto.getSchema())) {
+        String unprefixedSchema = proto.getSchema();
+        if (unprefixedSchema.startsWith(prefix)) {
+            unprefixedSchema = unprefixedSchema.substring(prefix.length());
+        }
+        if (!parentTypeMap.containsKey(unprefixedSchema)) {
             List<String> parentSchemaTypes = schemaCache.getTransitiveUnprefixedParentSchemaTypes(
-                    prefix, prefix + proto.getSchema());
+                    prefix, proto.getSchema());
             if (!parentSchemaTypes.isEmpty()) {
-                parentTypeMap.put(proto.getSchema(), parentSchemaTypes);
+                parentTypeMap.put(unprefixedSchema, parentSchemaTypes);
             }
         }
         // Handling nested documents
