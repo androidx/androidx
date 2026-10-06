@@ -3718,8 +3718,13 @@ public final class Recorder implements VideoOutput {
                         // This helps display the video duration on the Google Photos thumbnails.
                         ContentValues contentValues = new ContentValues();
                         contentValues.put(MediaStore.Video.Media.IS_PENDING, NOT_PENDING);
-                        mediaStoreOutputOptions.getContentResolver().update(outputUri,
-                                contentValues, null, null);
+                        try {
+                            mediaStoreOutputOptions.getContentResolver().update(outputUri,
+                                    contentValues, null, null);
+                        } catch (RuntimeException e) {
+                            Logger.w(TAG, "Unable to update MediaStoreOutputOptions with URI: "
+                                    + outputUri, e);
+                        }
                     };
                 } else {
                     // Context will only be held in local scope of the consumer so it will not be
