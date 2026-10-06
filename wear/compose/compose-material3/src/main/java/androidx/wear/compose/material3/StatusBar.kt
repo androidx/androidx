@@ -23,6 +23,7 @@ import android.view.View
 import android.view.WindowInsets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -38,15 +39,48 @@ import androidx.wear.utils.WearApiVersionHelper
 import com.google.wear.settings.WearSettings
 
 /**
- * Suppresses the system status bar for full-screen or overlay components.
+ * Suppresses the system status bar for all composables within [content].
  *
- * This is intended for rare situations where it is undesirable for a full-screen component (such as
- * a full-screen progress indicator or edge-to-edge overlay) to overlap with the status bar.
+ * Use this overload to wrap a [ScreenScaffold] (or multiple screen destinations) to enforce status
+ * bar suppression. Child [ScreenScaffold]s within [content] inherit the suppression, hiding the
+ * status bar and automatically setting their top status bar inset padding to 0.dp.
+ *
+ * **Placement:** Place this around a [ScreenScaffold] or around navigation destinations. For
+ * suppressing the status bar from *within* an individual component or screen body, use the
+ * zero-argument [StatusBarSuppression] overload instead.
  *
  * Inside an [AppScaffold], coordinates with [ScaffoldState.screenContent] to suppress the status
- * bar and seamlessly coordinate with underlying screens. Outside an [AppScaffold], hides the status
- * bar directly on the current window and restores the initial visibility state when leaving
+ * bar and coordinate with underlying screens. Outside an [AppScaffold], hides the status bar
+ * directly on the current window and restores the initial visibility state when leaving
  * composition.
+ *
+ * An example of wrapping a screen with [StatusBarSuppression]:
+ *
+ * @sample androidx.wear.compose.material3.samples.StatusBarSuppressionContentSample
+ */
+@Composable
+public fun StatusBarSuppression(content: @Composable () -> Unit) {
+    StatusBarSuppression()
+    CompositionLocalProvider(LocalInheritedShowStatusBar provides false, content = content)
+}
+
+/**
+ * Suppresses the system status bar within full-screen or overlay components.
+ *
+ * Call this within a component (such as [TimePicker] or a full-screen progress indicator) or inside
+ * a [ScreenScaffold] content block to suppress the status bar while that component is active. When
+ * leaving composition, the previous status bar visibility is automatically restored.
+ *
+ * **Placement:** Place this inside the [ScreenScaffold] of the screen that requires suppression, or
+ * inside a component rendered on that screen. To wrap and suppress a [ScreenScaffold], use the
+ * [StatusBarSuppression] overload that accepts a `content` lambda instead.
+ *
+ * Inside an [AppScaffold], coordinates with [ScaffoldState.screenContent] to suppress the status
+ * bar and coordinate with underlying screens. Outside an [AppScaffold], hides the status bar
+ * directly on the current window and restores the initial visibility state when leaving
+ * composition.
+ *
+ * An example of suppressing the status bar from within a component:
  *
  * @sample androidx.wear.compose.material3.samples.StatusBarSuppressionSample
  */
