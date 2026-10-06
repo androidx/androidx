@@ -105,6 +105,8 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             ApiLintMode.CheckBaseline(baselines.get().apiLintFile, targetsJavaConsumers.get()),
             levelsArgs,
             multiplatform.get(),
+            // b/570135466
+            generateTrace = false,
         )
     }
 
@@ -117,6 +119,7 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
         apiLintMode: ApiLintMode,
         apiLevelsArgs: List<String>,
         multiplatform: Boolean,
+        generateTrace: Boolean,
     ) {
         val generateApiConfigs: MutableList<Pair<GenerateApiMode, ApiLintMode>> =
             mutableListOf(GenerateApiMode.PublicApi to apiLintMode)
@@ -138,11 +141,13 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
         }
 
         val args = buildList {
-            val traceFile = apiLocation.get().traceFile
-            // Remove existing trace file to write the new one.
-            traceFile.delete()
-            add("--trace-file")
-            add(traceFile.absolutePath)
+            if (generateTrace) {
+                val traceFile = apiLocation.get().traceFile
+                // Remove existing trace file to write the new one.
+                traceFile.delete()
+                add("--trace-file")
+                add(traceFile.absolutePath)
+            }
 
             addAll(
                 getMultiSurfaceArgs(projectXml, sourcePaths.files, includeCompiledSources = true)
