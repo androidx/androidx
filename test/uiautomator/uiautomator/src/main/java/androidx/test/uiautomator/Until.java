@@ -477,19 +477,27 @@ public class Until {
                         default:
                             throw new IllegalArgumentException("Invalid Direction");
                     }
-                } else if (event.getScrollX() != -1 && event.getScrollY() != -1) {
+                } else {
                     switch (direction) {
                         case UP:
-                            mResult = (event.getScrollY() == 0);
+                            if (event.getScrollY() != -1) {
+                                mResult = (event.getScrollY() == 0);
+                            }
                             break;
                         case DOWN:
-                            mResult = (event.getScrollY() == event.getMaxScrollY());
+                            if (event.getScrollY() != -1) {
+                                mResult = (event.getScrollY() == event.getMaxScrollY());
+                            }
                             break;
                         case LEFT:
-                            mResult = (event.getScrollX() == 0);
+                            if (event.getScrollX() != -1) {
+                                mResult = (event.getScrollX() == 0);
+                            }
                             break;
                         case RIGHT:
-                            mResult = (event.getScrollX() == event.getMaxScrollX());
+                            if (event.getScrollX() != -1) {
+                                mResult = (event.getScrollX() == event.getMaxScrollX());
+                            }
                             break;
                         default:
                             throw new IllegalArgumentException("Invalid Direction");

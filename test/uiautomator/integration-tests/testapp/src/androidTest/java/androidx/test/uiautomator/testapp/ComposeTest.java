@@ -53,4 +53,14 @@ public class ComposeTest extends BaseTest {
         assertTrue("Text not updated after click",
                 text.wait(Until.textEquals("Updated"), TIMEOUT_MS));
     }
+
+    @Test
+    public void scrollUntil_scrollFinished_reachesEndInSingleAxisComposeContainer() {
+        launchTestActivity(ComposeTestActivity.class);
+
+        UiObject2 column = mDevice.findObject(By.scrollable(true));
+        assertNotNull("Scrollable container not found", column);
+        assertTrue(column.scrollUntil(Direction.DOWN, Until.scrollFinished(Direction.DOWN)));
+        assertTrue(column.scrollUntil(Direction.UP, Until.scrollFinished(Direction.UP)));
+    }
 }
