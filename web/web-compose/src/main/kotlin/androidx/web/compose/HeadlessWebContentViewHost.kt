@@ -24,10 +24,9 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.web.WebContentView
 
-/**
- * A headless [FrameLayout] that anchors a [WebContentView] into the View hierarchy for lifecycle,
- * insets, focus, IME, autofill, and accessibility, without Compose draw or pointer input overhead.
- */
+// TODO: Migrate remaining View-anchored integrations (IME InputConnection, Autofill virtual
+// structure, and floating text-selection ActionMode positioning) to Compose / WebSurfaceChromium so
+// HeadlessViewHolder is no longer needed.
 @SuppressLint("ViewConstructor")
 internal class HeadlessViewHolder(context: Context) : FrameLayout(context) {
 
