@@ -16,10 +16,13 @@
 
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.gridtemplates;
 
+import static android.content.pm.PackageManager.FEATURE_AUTOMOTIVE;
+
 import static androidx.car.app.model.Action.BACK;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -28,8 +31,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -57,6 +62,8 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import org.jspecify.annotations.NonNull;
+
+import java.util.List;
 
 /** A simple screen that demonstrates how to use notifications in a car app. */
 public final class NotificationDemoScreen extends Screen implements DefaultLifecycleObserver {
@@ -121,7 +128,8 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
                 new GridItem.Builder()
                         .setTitle(getCarContext().getString(R.string.send_notification_title))
                         .setImage(CarIcon.createTintedIcon(mIcon))
-                        .setOnClickListener(this::sendNotification)
+                        .setOnClickListener(
+                                () -> runWithNotificationPermission(this::sendNotification))
                         .build());
 
         // Start a repeating notification with the settings configured by other buttons.
@@ -129,8 +137,8 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
                 new GridItem.Builder()
                         .setTitle(getCarContext().getString(R.string.start_notifications_title))
                         .setImage(CarIcon.createTintedIcon(mIcon))
-                        .setOnClickListener(() -> mHandler.sendMessage(
-                                mHandler.obtainMessage(MSG_SEND_NOTIFICATION)))
+                        .setOnClickListener(
+                                () -> runWithNotificationPermission(this::sendNotificationMessage))
                         .build());
 
         // Stop the repeating notification and reset the count.
@@ -219,6 +227,10 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
         }
     }
 
+    private void sendNotificationMessage() {
+        mHandler.sendMessage(mHandler.obtainMessage(MSG_SEND_NOTIFICATION));
+    }
+
     // Suppressing 'ObsoleteSdkInt' as this code is shared between APKs with different min SDK
     // levels
     @SuppressLint("ObsoleteSdkInt")
@@ -282,6 +294,42 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
                                 .build());
 
         carNotificationManager.notify(notificationId, builder);
+    }
+
+    private void runWithNotificationPermission(Runnable action) {
+        if (hasNotificationPermission()) {
+            action.run();
+            return;
+        }
+
+        getCarContext().requestPermissions(
+                List.of(Manifest.permission.POST_NOTIFICATIONS),
+                (grantedPermissions, rejectedPermissions) -> {
+                    if (grantedPermissions.contains(Manifest.permission.POST_NOTIFICATIONS)) {
+                        action.run();
+                    } else {
+                        CarToast.makeText(getCarContext(),
+                                "Notifications permission denied, notifications are blocked.",
+                                CarToast.LENGTH_LONG).show();
+                    }
+                });
+
+        // On AAP the permission dialog shows on the phone, so tell the user to look there.
+        if (!getCarContext().getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
+            CarToast.makeText(getCarContext(),
+                    getCarContext().getString(R.string.phone_screen_permission_msg),
+                    CarToast.LENGTH_LONG).show();
+        }
+    }
+
+    /** Returns whether the app is allowed to post notifications. */
+    private boolean hasNotificationPermission() {
+        // POST_NOTIFICATIONS is granted at install time below API 33.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return true;
+        }
+        return getCarContext().checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
     private PendingIntent createPendingIntentForCall() {
