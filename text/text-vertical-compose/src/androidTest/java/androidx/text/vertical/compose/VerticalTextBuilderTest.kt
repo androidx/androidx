@@ -19,8 +19,7 @@ package androidx.text.vertical.compose
 import android.text.Spanned
 import android.text.style.MetricAffectingSpan
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -30,11 +29,14 @@ import androidx.text.vertical.FontShearSpan
 import androidx.text.vertical.RubySpan
 import androidx.text.vertical.TextOrientationSpan
 import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class VerticalTextBuilderTest {
+
+    @get:Rule val rule = createComposeRule()
 
     private val density = Density(density = 2f, fontScale = 1f)
 
@@ -176,12 +178,11 @@ class VerticalTextBuilderTest {
         assertThat(innerSpans).hasLength(1)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
-    fun composableOverload_returnsExpectedSpanned() = runComposeUiTest {
+    fun composableOverload_returnsExpectedSpanned() {
         var result: Spanned? = null
-        setContent { result = buildVerticalText { text("abc", mapOf("b" to "x")) } }
-        waitForIdle()
+        rule.setContent { result = buildVerticalText { text("abc", mapOf("b" to "x")) } }
+        rule.waitForIdle()
 
         val snapshot =
             checkNotNull(result) { "composable buildVerticalText did not produce a value" }
