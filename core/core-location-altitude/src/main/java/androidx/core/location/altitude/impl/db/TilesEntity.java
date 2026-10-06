@@ -18,8 +18,8 @@ package androidx.core.location.altitude.impl.db;
 
 import android.util.Log;
 
-import androidx.core.location.altitude.impl.proto.InvalidProtocolBufferException;
 import androidx.core.location.altitude.impl.proto.S2TileProto;
+import androidx.core.location.altitude.impl.protobuf.InvalidProtocolBufferException;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
