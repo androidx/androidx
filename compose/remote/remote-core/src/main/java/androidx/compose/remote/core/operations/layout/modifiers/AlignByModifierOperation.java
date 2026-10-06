@@ -147,7 +147,6 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
                 .addedVersion(7)
-                .experimental(true)
                 .description("Align a component based on a specific baseline or anchor")
                 .field(
                         DocumentedOperation.FLOAT,
