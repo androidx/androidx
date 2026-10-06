@@ -722,15 +722,6 @@
     </issue>
 
     <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="@RequiresApi(23)"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/ui/test/DeviceConfigurationOverride.android.kt"/>
-    </issue>
-
-    <issue
         id="PrimitiveInCollection"
         message="variable absoluteHistoricalTimes with type List&lt;? extends Long>: replace with LongList"
         errorLine1="        val absoluteHistoricalTimes = relativeHistoricalTimes.map { currentTime + it }"
