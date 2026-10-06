@@ -249,6 +249,12 @@ internal class ResizableNode(
      */
     private var originalSize: IntVolumeSize = IntVolumeSize.Zero
 
+    /**
+     * The width-to-height aspect ratio of the content, used to constrain minimum and maximum entity
+     * sizes when [maintainAspectRatio] is true.
+     */
+    private var aspectRatio: Float = 0f
+
     override fun onAttach() {
         super.onAttach()
         updateState()
@@ -269,43 +275,58 @@ internal class ResizableNode(
         }
 
         component?.let {
-            it.minimumEntitySize = minimumSize.toDimensionsInMeters(density, pixelDensity)
+            val rawMinSize = minimumSize.toDimensionsInMeters(density, pixelDensity)
+            var minWidth = rawMinSize.width
+            var minHeight = rawMinSize.height
+            val minDepth = rawMinSize.depth
+
             // Panels have a maximum safe rendering size; clamp explicit maximum sizes on panels
             // while allowing non-panel 3D entities to use larger explicit maximum sizes.
             val isPanel = coreEntity is CoreBasePanelEntity
             val defaultMaxWidthMeters = MAX_SAFE_PANEL_WIDTH_PX.pxToMeters(pixelDensity)
             val defaultMaxHeightMeters = MAX_SAFE_PANEL_HEIGHT_PX.pxToMeters(pixelDensity)
-            it.maximumEntitySize =
-                FloatSize3d(
-                    width =
-                        if (maximumSize.width.isSpecified) {
-                            val widthMeters = maximumSize.width.toMeters(density, pixelDensity)
-                            if (isPanel) {
-                                widthMeters.coerceAtMost(defaultMaxWidthMeters)
-                            } else {
-                                widthMeters
-                            }
-                        } else {
-                            defaultMaxWidthMeters
-                        },
-                    height =
-                        if (maximumSize.height.isSpecified) {
-                            val heightMeters = maximumSize.height.toMeters(density, pixelDensity)
-                            if (isPanel) {
-                                heightMeters.coerceAtMost(defaultMaxHeightMeters)
-                            } else {
-                                heightMeters
-                            }
-                        } else {
-                            defaultMaxHeightMeters
-                        },
-                    depth =
-                        if (maximumSize.depth.isSpecified) {
-                            maximumSize.depth.toMeters(density, pixelDensity)
-                        } else {
-                            defaultMaxWidthMeters
-                        },
-                )
+            var maxWidth =
+                if (maximumSize.width.isSpecified) {
+                    val widthMeters = maximumSize.width.toMeters(density, pixelDensity)
+                    if (isPanel) {
+                        widthMeters.coerceAtMost(defaultMaxWidthMeters)
+                    } else {
+                        widthMeters
+                    }
+                } else {
+                    defaultMaxWidthMeters
+                }
+            var maxHeight =
+                if (maximumSize.height.isSpecified) {
+                    val heightMeters = maximumSize.height.toMeters(density, pixelDensity)
+                    if (isPanel) {
+                        heightMeters.coerceAtMost(defaultMaxHeightMeters)
+                    } else {
+                        heightMeters
+                    }
+                } else {
+                    defaultMaxHeightMeters
+                }
+            val maxDepth =
+                if (maximumSize.depth.isSpecified) {
+                    maximumSize.depth.toMeters(density, pixelDensity)
+                } else {
+                    defaultMaxWidthMeters
+                }
+
+            // Constrain the min and max resize bounds to match the content's aspect ratio so
+            // hitting a bound on one axis does not skew the panel's proportions on the other axis.
+            val currentAspectRatio = aspectRatio
+            if (maintainAspectRatio && currentAspectRatio > 0f) {
+                maxWidth = minOf(maxWidth, maxHeight * currentAspectRatio)
+                maxHeight = minOf(maxHeight, maxWidth / currentAspectRatio)
+                minWidth = maxOf(minWidth, minHeight * currentAspectRatio).coerceAtMost(maxWidth)
+                minHeight = maxOf(minHeight, minWidth / currentAspectRatio).coerceAtMost(maxHeight)
+            }
+
+            it.minimumEntitySize = FloatSize3d(minWidth, minHeight, minDepth)
+            it.maximumEntitySize = FloatSize3d(maxWidth, maxHeight, maxDepth)
+            it.isFixedAspectRatioEnabled = maintainAspectRatio
         }
     }
 
@@ -373,28 +394,49 @@ internal class ResizableNode(
         val isSystemHandled = resizePolicy is SystemResizePolicy
         val userSize = userSize
 
+        var newAspectRatio = aspectRatio
         val placeable =
             if (!isSystemHandled || userSize == null) {
                 measurable.measure(constraints).also {
                     originalSize = IntVolumeSize(it.width, it.height, it.depth)
+                    // Capture the initial or layout-driven aspect ratio of the content.
+                    if (it.width > 0 && it.height > 0) {
+                        newAspectRatio = it.width.toFloat() / it.height.toFloat()
+                    }
                 }
             } else {
                 // Measuring this node using userSize as the constraints to force the rendered size.
-                measurable.measure(
-                    VolumeConstraints(
-                        minWidth = userSize.width,
-                        maxWidth = userSize.width,
-                        minHeight = userSize.height,
-                        maxHeight = userSize.height,
-                        minDepth = userSize.depth,
-                        maxDepth = userSize.depth,
+                measurable
+                    .measure(
+                        VolumeConstraints(
+                            minWidth = userSize.width,
+                            maxWidth = userSize.width,
+                            minHeight = userSize.height,
+                            maxHeight = userSize.height,
+                            minDepth = userSize.depth,
+                            maxDepth = userSize.depth,
+                        )
                     )
-                )
+                    .also {
+                        // Update aspectRatio after resize events in case maintainAspectRatio is
+                        // enabled later; skip when already enabled.
+                        if (!maintainAspectRatio && it.width > 0 && it.height > 0) {
+                            newAspectRatio = it.width.toFloat() / it.height.toFloat()
+                        }
+                    }
             }
 
         component?.affordanceSize =
             IntVolumeSize(placeable.width, placeable.height, placeable.depth)
                 .toDimensionsInMeters(pixelDensity)
+
+        // Refresh the component's min/max bounds when the content's aspect ratio changes.
+        if (newAspectRatio != aspectRatio) {
+            aspectRatio = newAspectRatio
+            if (maintainAspectRatio) {
+                updateState()
+            }
+        }
 
         val layoutWidth = if (isSystemHandled) originalSize.width else placeable.width
         val layoutHeight = if (isSystemHandled) originalSize.height else placeable.height
