@@ -23,13 +23,11 @@ import android.view.View.OnAttachStateChangeListener
 import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
 import android.widget.photopicker.EmbeddedPhotoPickerProvider
 import android.widget.photopicker.EmbeddedPhotoPickerProviderFactory
-import android.widget.photopicker.EmbeddedPhotoPickerSession
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -45,6 +43,11 @@ internal val DEFAULT_FEATURE_INFO = EmbeddedPhotoPickerFeatureInfo.Builder().bui
  * Compose entry-point into the EmbeddedPhotoPicker. This composable hosts a remote view from the
  * [EmbeddedPhotoPickerProvider] and interacts with the provided [EmbeddedPhotoPickerState] and
  * coordinates the state between the local compose view and remote view.
+ *
+ * If a terminal session error occurs during the session, it is reported to the client via the
+ * `onError` callback configured in [rememberEmbeddedPhotoPickerState], and the session terminates
+ * cleanly. In this case, the client should remove or close the composable and display fallback UI
+ * or prompt the user to retry.
  *
  * @param state The state object for the EmbeddedPhotoPicker which can be manually implemented, or a
  *   default implementation may be obtained via the [rememberEmbeddedPhotoPickerState] composable.
@@ -64,11 +67,6 @@ public fun EmbeddedPhotoPicker(
     provider: EmbeddedPhotoPickerProvider? = null,
     embeddedPhotoPickerFeatureInfo: EmbeddedPhotoPickerFeatureInfo = DEFAULT_FEATURE_INFO,
 ) {
-
-    // A reference is required to the open session here so that the surfacePackage can
-    // be obtained by the AndroidView which hosts the SurfaceView.
-    var openedSession by remember { mutableStateOf<EmbeddedPhotoPickerSession?>(null) }
-
     // There isn't a compose native SurfaceView, so wrap with AndroidView, as SurfaceView is
     // a required component for the EmbeddedPicker architecture.
     AndroidView(
@@ -81,7 +79,6 @@ public fun EmbeddedPhotoPicker(
             },
         factory = { viewContext ->
             SurfaceView(viewContext).apply {
-
                 // The EmbeddedPhotoPicker wants to draw above the window to prevent other UI
                 // elements from drawing on top of it.
                 setZOrderOnTop(true)
@@ -107,9 +104,16 @@ public fun EmbeddedPhotoPicker(
         },
 
         // update will run immediately after the factory, and when any observed state changes.
-        // In this case, openedSession won't exist after the factory, so this will get run again
-        // once we receive the session from the provider so that the surfacePackage can be attached.
-        update = { view -> openedSession?.surfacePackage?.let { view.setChildSurfacePackage(it) } },
+        // In this case, surfacePackage will be attached once received from state.
+        update = { view ->
+            val surfacePackage = state.surfacePackage
+            if (surfacePackage != null) {
+                view.setChildSurfacePackage(surfacePackage)
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                // TODO(b/570105781): Fallback to a loading screen whenever surfacePackage is null.
+                view.clearChildSurfacePackage()
+            }
+        },
     )
 
     // Either use the (provided) provider or create one that binds to the applicationContext
@@ -131,7 +135,6 @@ public fun EmbeddedPhotoPicker(
             state.runSession(
                 provider = photopickerProvider,
                 featureInfo = embeddedPhotoPickerFeatureInfo,
-                onReceiveSession = { openedSession = it },
             )
         }
     }
