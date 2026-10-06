@@ -436,15 +436,15 @@ public class GeospatialMode private constructor(public val mode: Int) {
          *
          * Using this mode requires your app do the following, depending on the device:
          *
-         * On mobile, projected and immersive devices:
-         * - Include the
-         *   [INTERNET](https://developer.android.com/training/basics/network-ops/connecting)
-         *   permission to the app's AndroidManifest
+         * On all devices:
          * - Request and be granted the
          *   [ACCESS_FINE_LOCATION permission](https://developer.android.com/training/location/permissions);
          *   otherwise, [Session.configure] throws [SecurityException].
          *
-         * On mobile devices:
+         * On mobile devices only:
+         * - Include the
+         *   [INTERNET](https://developer.android.com/training/basics/network-ops/connecting)
+         *   permission in the app's AndroidManifest
          * - Include the Google Play Services Location Library as a dependency for your app. See
          *   [dependencies for Google Play services](https://developers.google.com/android/guides/setup#declare-dependencies)
          *   for instructions on how to include this library in your app. If this library is not
@@ -471,11 +471,9 @@ public class GeospatialMode private constructor(public val mode: Int) {
          * - Play Services (on supported devices)
          *
          * Required permissions:
-         * - [INTERNET][android.Manifest.permission.INTERNET]
          * - [ACCESS_FINE_LOCATION][android.Manifest.permission.ACCESS_FINE_LOCATION]
-         * - [SCENE_UNDERSTANDING_COARSE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE]
-         *   (Immersive devices only)
          * - [CAMERA][android.Manifest.permission.CAMERA] (Mobile devices only)
+         * - [INTERNET][android.Manifest.permission.INTERNET] (Mobile devices only)
          */
         @JvmField public val SPATIAL: GeospatialMode = GeospatialMode(1)
 
