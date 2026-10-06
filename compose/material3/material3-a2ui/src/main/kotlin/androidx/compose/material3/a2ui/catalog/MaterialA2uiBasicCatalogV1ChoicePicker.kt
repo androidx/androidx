@@ -271,6 +271,7 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
         errorMessage: String?,
         onToggleOption: (String) -> Unit,
     ) {
+        @Suppress("DEPRECATION")
         OutlinedTextField(
             value = textFieldValue,
             onValueChange = { newValue ->
@@ -490,6 +491,7 @@ internal object MaterialA2uiBasicCatalogV1ChoicePicker : A2uiBasicCatalogV1.Choi
         onToggleOption: (String) -> Unit,
     ) {
         if (isFilterable) {
+            @Suppress("DEPRECATION")
             OutlinedTextField(
                 value = filterQuery,
                 onValueChange = onFilterQueryChange,
