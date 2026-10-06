@@ -362,6 +362,7 @@ public class RcPlatformProfiles {
      * <p>This will be moved to the glance:wear:wear module when creation APIs are public, before
      * stable APIs.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final @NonNull Profile WEAR_WIDGETS =
             new Profile(
                     CoreDocument.DOCUMENT_API_LEVEL,
