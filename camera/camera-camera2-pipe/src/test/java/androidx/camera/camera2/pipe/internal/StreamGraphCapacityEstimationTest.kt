@@ -86,6 +86,7 @@ class StreamGraphCapacityEstimationTest {
     @After
     fun teardown() {
         frameGraph.close()
+        simulator.checkImagesClosed()
         simulator.close()
     }
 
