@@ -274,7 +274,7 @@ private val devicesToRunOn =
         "ftlCoreTelecomDeviceSet" to listOf(NEXUS_6P, A10, PETTYL, HWCOR, Q2Q),
     )
 
-internal fun Project.registerRunner(
+private fun Project.registerRunner(
     name: String,
     artifacts: Artifacts,
     namespace: Provider<String>,

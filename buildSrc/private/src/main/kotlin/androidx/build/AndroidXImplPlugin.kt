@@ -1098,6 +1098,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         val componentsExtension =
             project.extensions.getByType(AndroidComponentsExtension::class.java)
         project.configureFtlRunner(componentsExtension)
+        project.configureDdpRunner(componentsExtension)
 
         // If a dependency is missing a debug variant, use release instead.
         buildTypes.getByName("debug").matchingFallbacks.add("release")
@@ -1159,6 +1160,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             androidXExtension,
         )
         project.configureFtlRunner(componentsExtension)
+        project.configureDdpRunner(componentsExtension)
     }
 
     // TODO(b/425976012): Set targetSdkForTests to project.defaultAndroidConfig.targetSdk
@@ -1267,6 +1269,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         )
         project.addAppApkToTestConfigGeneration(androidXExtension)
         project.addAppApkToFtlRunner()
+        project.addAppApkToDdpRunner()
     }
 
     private fun Project.configureDependencyVerification(androidXExtension: AndroidXExtension) =
