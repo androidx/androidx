@@ -56,4 +56,7 @@ androidx {
     description = "Provides a persistence bridge between StateStore and DataStore."
     samples(project(":appstate:statestore:statestore-datastore:statestore-datastore-samples"))
     kotlinTarget = KotlinTarget.KOTLIN_2_3
+    deviceTests {
+        maxShardCount = 1
+    }
 }
