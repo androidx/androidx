@@ -373,7 +373,7 @@ class ProjectDependencyGraph {
     private static Pattern publishedLibrary = Pattern.compile(
             "(type = SoftwareType\\.(PUBLISHED_LIBRARY|GRADLE_PLUGIN|ANNOTATION_PROCESSOR|ANNOTATION_PROCESSOR_UTILS|OTHER_CODE_PROCESSOR" +
                     "|STANDALONE_PUBLISHED_LINT|PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS" +
-                    "|PUBLISHED_TEST_LIBRARY|PUBLISHED_PROTO_LIBRARY|PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY)|" +
+                    "|PUBLISHED_TEST_LIBRARY|PUBLISHED_PROTO_LIBRARY|PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY|STUBS)|" +
                     "publish = Publish\\.SNAPSHOT_AND_RELEASE)"
     )
     private static Pattern publishProjectReference = Pattern.compile("\"(.*):publish\"")
