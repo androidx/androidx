@@ -3317,7 +3317,7 @@ class RecordingCanvasTest {
     @Test
     fun testUnbalancedSaveInChildSpanThrowsIllegalStateException() {
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-        val canvas = RecordingCanvas(bitmap, enableOptimizations = false)
+        val canvas = RecordingCanvas(bitmap, creationState, enableOptimizations = false)
 
         canvas.save()
         assertEquals(1, canvas.saveCount)
@@ -3343,7 +3343,7 @@ class RecordingCanvasTest {
     @Test
     fun testChildSpanUnbalancedSaveRestoresCanvasState() {
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-        val canvas = RecordingCanvas(bitmap, enableOptimizations = false)
+        val canvas = RecordingCanvas(bitmap, creationState, enableOptimizations = false)
 
         val outerInsertPoint = canvas.buffer.insertPoint
         canvas.save()
@@ -3374,7 +3374,7 @@ class RecordingCanvasTest {
     @Test
     fun testChildSpanExceptionNotMaskedByUnbalancedSave() {
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-        val canvas = RecordingCanvas(bitmap, enableOptimizations = false)
+        val canvas = RecordingCanvas(bitmap, creationState, enableOptimizations = false)
 
         class CustomUserException(msg: String) : RuntimeException(msg)
 
@@ -3392,7 +3392,7 @@ class RecordingCanvasTest {
     @Test
     fun testChildSpanCanPopAndReinstateOuterSaveFrames() {
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-        val canvas = RecordingCanvas(bitmap, enableOptimizations = false)
+        val canvas = RecordingCanvas(bitmap, creationState, enableOptimizations = false)
 
         // 1. Push 2 saves on outer span
         canvas.save()

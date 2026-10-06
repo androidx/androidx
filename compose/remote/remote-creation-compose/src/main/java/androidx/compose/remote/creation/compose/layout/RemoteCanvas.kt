@@ -53,9 +53,9 @@ public class RemoteCanvas(
 
     public val creationDisplayInfo: RemoteCreationDisplayInfo = creationState.creationDisplayInfo
 
-    private val tracker: PaintTracker = PaintTracker()
+    internal val tracker: PaintTracker = PaintTracker()
 
-    private val buffer: CanvasOperationBuffer = CanvasOperationBuffer(enableOptimizations)
+    internal val buffer: CanvasOperationBuffer = CanvasOperationBuffer(enableOptimizations)
 
     private var forceSendingPaint: Boolean = false
 
@@ -113,11 +113,11 @@ public class RemoteCanvas(
         }
     }
 
-    private fun snapshotPaint(paint: RemotePaint?): RemotePaint? = paint?.let {
+    internal fun snapshotPaint(paint: RemotePaint?): RemotePaint? = paint?.let {
         StandardRemotePaint(it)
     }
 
-    private fun usePaintInternal(paint: RemotePaint?) {
+    internal fun usePaintInternal(paint: RemotePaint?) {
         if (paint == null) {
             return
         }
@@ -133,11 +133,11 @@ public class RemoteCanvas(
         forceSendingPaint = false
     }
 
-    private fun recordRenderingOp(action: () -> Unit): CanvasOperationBuffer.SpanOp {
+    internal fun recordRenderingOp(action: () -> Unit): CanvasOperationBuffer.SpanOp {
         return buffer.recordRenderingOp(CanvasOp.Draw { action() })
     }
 
-    private fun recordRenderingOp(
+    internal fun recordRenderingOp(
         paint: RemotePaint?,
         action: () -> Unit,
     ): CanvasOperationBuffer.SpanOp {
@@ -148,7 +148,7 @@ public class RemoteCanvas(
         }
     }
 
-    private inline fun recordInOffscreenChildSpan(
+    internal inline fun recordInOffscreenChildSpan(
         bitmapId: Int,
         action: () -> Unit,
     ): CanvasOperationBuffer.Span {
@@ -171,6 +171,11 @@ public class RemoteCanvas(
     /** Restores the previous canvas state. */
     public fun restore() {
         buffer.restore()
+    }
+
+    /** Restores canvas state to the given [saveCount]. */
+    internal fun restoreToCount(saveCount: Int) {
+        buffer.restoreToCount(saveCount)
     }
 
     /**
@@ -204,9 +209,13 @@ public class RemoteCanvas(
      * @param pivot The pivot point around which to scale.
      */
     public fun scale(sx: RemoteFloat, sy: RemoteFloat, pivot: RemoteOffset) {
-        val op =
-            buffer.recordRenderingOp(CanvasOp.Transform(PendingOp.Scale(sx, sy, pivot.x, pivot.y)))
-        buffer.addRoots(op, sx, sy, pivot.x, pivot.y)
+        scale(sx, sy, pivot.x, pivot.y)
+    }
+
+    /** Scales the canvas by [sx] and [sy] around the pivot point ([px], [py]). */
+    internal fun scale(sx: RemoteFloat, sy: RemoteFloat, px: RemoteFloat, py: RemoteFloat) {
+        val op = buffer.recordRenderingOp(CanvasOp.Transform(PendingOp.Scale(sx, sy, px, py)))
+        buffer.addRoots(op, sx, sy, px, py)
     }
 
     /**
