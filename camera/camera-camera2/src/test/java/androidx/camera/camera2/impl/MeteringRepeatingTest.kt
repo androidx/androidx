@@ -26,6 +26,8 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.TestShadowWindowManager
+import androidx.camera.core.DynamicRange
+import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -125,6 +127,9 @@ class MeteringRepeatingTest {
 
     @After
     fun tearDown() {
+        if (::meteringRepeating.isInitialized) {
+            meteringRepeating.onUnbind()
+        }
         DisplayInfoManager.releaseInstance()
     }
 
@@ -197,5 +202,36 @@ class MeteringRepeatingTest {
         meteringRepeating.updateSuggestedStreamSpec(dummyZeroSizeStreamSpec, null)
 
         assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(240, 144))
+    }
+
+    @Test
+    fun setupSessionWithSdr_setsSdrInStreamSpecAndOutputConfig() {
+        meteringRepeating = getMeteringRepeatingAndInitDisplay(dummySizeListWith640x480)
+
+        meteringRepeating.setupSession(DynamicRange.SDR)
+
+        assertThat(meteringRepeating.attachedStreamSpec?.dynamicRange).isEqualTo(DynamicRange.SDR)
+        assertThat(meteringRepeating.sessionConfig.outputConfigs.single().dynamicRange)
+            .isEqualTo(DynamicRange.SDR)
+    }
+
+    @Test
+    fun setupSessionWithDynamicRange_setsDynamicRangeInStreamSpecAndOutputConfig() {
+        meteringRepeating = getMeteringRepeatingAndInitDisplay(dummySizeListWith640x480)
+
+        meteringRepeating.setupSession(DynamicRange.HLG_10_BIT)
+
+        assertThat(meteringRepeating.attachedStreamSpec?.dynamicRange)
+            .isEqualTo(DynamicRange.HLG_10_BIT)
+        assertThat(meteringRepeating.sessionConfig.outputConfigs.single().dynamicRange)
+            .isEqualTo(DynamicRange.HLG_10_BIT)
+
+        // Verify error listener recreation preserves the dynamic range
+        meteringRepeating.sessionConfig.errorListener?.onError(
+            meteringRepeating.sessionConfig,
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET,
+        )
+        assertThat(meteringRepeating.sessionConfig.outputConfigs.single().dynamicRange)
+            .isEqualTo(DynamicRange.HLG_10_BIT)
     }
 }

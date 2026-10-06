@@ -41,6 +41,7 @@ import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
@@ -707,6 +708,26 @@ abstract class VideoRecordingTestBase(
 
         // Act & Assert.
         recordingSession.createRecording(outputOptions = outputOptions).recordAndVerify()
+    }
+
+    @FirstAvailableCameraOnly
+    @IgnoreStreamSharing
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    fun canRecordWithHlg10_withoutPreview() {
+        assumeTrue(
+            "Device does not support HLG10",
+            videoCapabilities.supportedDynamicRanges.contains(HLG_10_BIT),
+        )
+
+        // Arrange: Bind only VideoCapture (no Preview) with HLG_10_BIT so MeteringRepeating is
+        // used.
+        val recorder = Recorder.Builder().build()
+        val videoCapture = VideoCapture.Builder(recorder).setDynamicRange(HLG_10_BIT).build()
+        checkAndBindUseCases(videoCapture)
+
+        // Act & Assert.
+        recordingSession.createRecording(recorder = recorder).recordAndVerify()
     }
 
     @FirstAvailableCameraOnly
