@@ -194,6 +194,9 @@ public class TestEmbeddedPhotoPickerSession(
      * as deselected by the user.
      */
     public fun deselectUris(uris: List<Uri>) {
+        check(_selectedUris.containsAll(uris)) {
+            "Cannot deselect URIs that are not part of the current selection: $uris"
+        }
         _selectedUris.removeAll(uris)
         clientCallback.onUriPermissionRevoked(uris)
     }
