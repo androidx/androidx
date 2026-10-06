@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:JvmName("RemoteComposeCreationStateKt")
+@file:JvmMultifileClass
 
 package androidx.compose.remote.creation.compose.capture
 
@@ -23,20 +25,17 @@ import androidx.collection.MutableObjectIntMap
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.unit.LayoutDirection
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -60,10 +59,12 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     internal val floatArrayCache: HashMap<RemoteStateCacheKey, FloatArray> = HashMap()
     internal val longArrayCache: HashMap<RemoteStateCacheKey, LongArray> = HashMap()
 
-    public fun addBitmap(image: ImageBitmap): Int = document.addBitmap(image.asAndroidBitmap())
+    internal val platformImageProvider: PlatformImageProvider
+
+    public fun addBitmap(image: ImageBitmap): Int = platformImageProvider.addBitmap(document, image)
 
     public fun addNamedBitmap(name: String, image: ImageBitmap): Int =
-        document.addNamedBitmap(name, image.asAndroidBitmap())
+        platformImageProvider.addNamedBitmap(document, name, image)
 
     internal inline fun getOrPutFloatArray(
         key: RemoteStateCacheKey,
@@ -96,22 +97,25 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     public constructor(
         creationDisplayInfo: RemoteCreationDisplayInfo,
         profile: Profile,
-        writerEvents: WriterEvents?,
+        writerCallback: Any?,
         remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
         layoutDirection: LayoutDirection,
+        platformImageProvider: PlatformImageProvider,
     ) {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
-        document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), writerEvents)
+        document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), writerCallback)
         this.remoteDensity = remoteDensity
         this.layoutDirection = layoutDirection
         this.densityBehavior = creationDisplayInfo.densityBehavior
+        this.platformImageProvider = platformImageProvider
     }
 
     public constructor(
         creationDisplayInfo: RemoteCreationDisplayInfo,
         contentDescription: String?,
         profile: Profile,
+        platformImageProvider: PlatformImageProvider,
     ) {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
@@ -119,61 +123,14 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
         this.densityBehavior = creationDisplayInfo.densityBehavior
-    }
-
-    public constructor(platform: RcPlatformServices, size: Size) {
-        this.profile =
-            Profile(
-                CoreDocument.DOCUMENT_API_LEVEL,
-                0,
-                platform,
-                { creationDisplayInfo, profile, callback ->
-                    RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
-                },
-            )
-        this.creationDisplayInfo =
-            RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160, 1.0f)
-        document = RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "", platform)
-        this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
-        this.layoutDirection = LayoutDirection.Ltr
-        this.densityBehavior = creationDisplayInfo.densityBehavior
-    }
-
-    public constructor(platform: RcPlatformServices, size: Size, apiLevel: Int, profiles: Int) {
-        this.profile =
-            Profile(
-                apiLevel,
-                profiles,
-                platform,
-                { creationDisplayInfo, profile, callback ->
-                    RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
-                },
-            )
-        this.creationDisplayInfo =
-            RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160, 1f)
-        if (apiLevel == CoreDocument.DOCUMENT_API_LEVEL && profiles == 0) {
-            document =
-                RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "", platform)
-        } else {
-            document =
-                RemoteComposeWriterAndroid(
-                    size.width.toInt(),
-                    size.height.toInt(),
-                    "",
-                    apiLevel,
-                    profiles,
-                    platform,
-                )
-        }
-        this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
-        this.layoutDirection = LayoutDirection.Ltr
-        this.densityBehavior = creationDisplayInfo.densityBehavior
+        this.platformImageProvider = platformImageProvider
     }
 
     public constructor(
         creationDisplayInfo: RemoteCreationDisplayInfo,
         profile: Profile,
         writer: RemoteComposeWriter,
+        platformImageProvider: PlatformImageProvider,
     ) {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
@@ -181,9 +138,14 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
         this.densityBehavior = creationDisplayInfo.densityBehavior
+        this.platformImageProvider = platformImageProvider
     }
 
-    public constructor(size: Size, profile: Profile) {
+    public constructor(
+        size: Size,
+        profile: Profile,
+        platformImageProvider: PlatformImageProvider,
+    ) {
         this.profile = profile
         this.creationDisplayInfo =
             RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160, 1.0f)
@@ -191,7 +153,18 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = LayoutDirection.Ltr
         this.densityBehavior = creationDisplayInfo.densityBehavior
+        this.platformImageProvider = platformImageProvider
     }
+}
+
+private object NoOpPlatformImageProvider : PlatformImageProvider {
+    override fun addBitmap(document: RemoteComposeWriter, image: ImageBitmap): Int = -1
+
+    override fun addNamedBitmap(
+        document: RemoteComposeWriter,
+        name: String,
+        image: ImageBitmap,
+    ): Int = -1
 }
 
 // Density and Size should be taken from Compose in this mode
@@ -200,9 +173,26 @@ public class NoRemoteCompose :
     RemoteComposeCreationState(
         RemoteCreationDisplayInfo(1, 1, 160, 1.0f),
         null,
-        RcPlatformProfiles.ANDROIDX,
+        Profile(
+            CoreDocument.DOCUMENT_API_LEVEL,
+            0,
+            RcPlatformServices.None,
+            { creationDisplayInfo, profile, callback ->
+                RemoteComposeWriter(creationDisplayInfo, null, profile, callback)
+            },
+        ),
+        NoOpPlatformImageProvider,
     )
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface PlatformImageProvider {
+    public fun addBitmap(document: RemoteComposeWriter, image: ImageBitmap): Int
+
+    public fun addNamedBitmap(document: RemoteComposeWriter, name: String, image: ImageBitmap): Int
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val LocalRemoteComposeCreationState: ProvidableCompositionLocal<RemoteComposeCreationState> =
     compositionLocalOf {
         NoRemoteCompose()
