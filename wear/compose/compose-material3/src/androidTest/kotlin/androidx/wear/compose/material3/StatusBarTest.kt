@@ -52,6 +52,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.ScrollInfoProvider
+import androidx.wear.compose.material3.samples.StatusBarSuppressionContentSample
 import androidx.wear.compose.material3.samples.StatusBarSuppressionSample
 import java.time.LocalDate
 import java.time.LocalTime
@@ -2629,6 +2630,55 @@ class StatusBarTest {
     @Test
     fun statusBarSuppression_sample_builds() {
         composeTestRule.setContent { StatusBarSuppressionSample() }
+    }
+
+    @Test
+    fun statusBarSuppression_content_sample_builds() {
+        composeTestRule.setContent { StatusBarSuppressionContentSample() }
+    }
+
+    @Test
+    fun statusBarSuppression_withContent_suppressesNestedScreenScaffold() {
+        var suppress by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold {
+                    scaffoldState = LocalScaffoldState.current
+                    if (suppress) {
+                        StatusBarSuppression {
+                            ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                        }
+                    } else {
+                        ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+
+        composeTestRule.runOnUiThread { suppress = true }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+
+        composeTestRule.runOnUiThread { suppress = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+    }
+
+    @Test
+    fun statusBarSuppression_withContent_providesLocalInheritedShowStatusBarFalse() {
+        var inheritedShow: Boolean? = null
+        composeTestRule.setContent {
+            StatusBarSuppression {
+                inheritedShow = LocalInheritedShowStatusBar.current
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(false, inheritedShow)
     }
 
     @Test

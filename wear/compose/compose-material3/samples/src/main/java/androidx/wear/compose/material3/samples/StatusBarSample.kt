@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.CircularProgressIndicatorDefaults
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.StatusBarSuppression
 
 @Sampled
@@ -42,5 +43,23 @@ fun StatusBarSuppressionSample() {
                 .fillMaxSize()
     ) {
         CircularProgressIndicator(progress = { 0.75f }, startAngle = 120f, endAngle = 60f)
+    }
+}
+
+@Sampled
+@Composable
+fun StatusBarSuppressionContentSample() {
+    // Suppress the status bar for a screen and its children.
+    StatusBarSuppression {
+        ScreenScaffold {
+            Box(
+                modifier =
+                    Modifier.background(MaterialTheme.colorScheme.background)
+                        .padding(CircularProgressIndicatorDefaults.FullScreenPadding)
+                        .fillMaxSize()
+            ) {
+                CircularProgressIndicator(progress = { 0.75f }, startAngle = 120f, endAngle = 60f)
+            }
+        }
     }
 }
