@@ -41,12 +41,12 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
 
     fun asContainer(): SavedStateContainer = container
 
-    fun createOrGetContainer(key: String): SavedStateContainer {
+    fun getOrCreateContainer(key: String): SavedStateContainer {
         val existing = container.getSavedStateValue<Any?, SavedStateValue<Any?>>(key)
         if (existing is SimpleSavedStateValue<*>) {
             val savedState = existing.value as? SavedState
             container.removeSavedStateValue<Any?, SavedStateValue<Any?>>(key)
-            return container.createOrGetContainer(key).also { childContainer ->
+            return container.getOrCreateContainer(key).also { childContainer ->
                 if (savedState != null) {
                     savedState.read {
                         for ((childKey, childValue) in toMap()) {
@@ -61,7 +61,7 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
                 }
             }
         }
-        return container.createOrGetContainer(key)
+        return container.getOrCreateContainer(key)
     }
 
     @MainThread operator fun contains(key: String): Boolean = key in container
