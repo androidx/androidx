@@ -42,6 +42,7 @@ internal class BackupRestoreControllerImpl(
     override val applicationId: String,
     private val telemetryPublisher: ((key: String, value: String) -> Unit)? = null,
     private val cleanupTimeout: KotlinDuration = DEFAULT_CLEANUP_TIMEOUT,
+    backupServiceProvider: () -> Service = { createBackupService(adbSession) },
 ) : BackupRestoreController {
 
     internal var lastExecutionSummary: BackupExecutionSummary? = null
@@ -53,10 +54,7 @@ internal class BackupRestoreControllerImpl(
 
     private val localTransport = BackupLocalTransport(shell, applicationId, cleanupTimeout)
 
-    private val backupService: Service by lazy {
-        val platformLogger = PlatformLogger.getInstance(BackupRestoreControllerImpl::class.java)
-        Service.getInstance(adbSession, platformLogger, MIN_GMS_VERSION)
-    }
+    private val backupService: Service by lazy(backupServiceProvider)
 
     override suspend fun runBackupRestoreFlow(
         storage: StorageDomain,
@@ -276,13 +274,21 @@ internal class BackupRestoreControllerImpl(
                 listener = null,
             )
         when (result) {
-            is BackupResult.Success,
-            is BackupResult.WithoutAppData -> {
+            is BackupResult.Success -> {
                 logger.info(
                     "BackupService successfully created production backup archive: " +
                         backupFile.absolutePath
                 )
                 return backupFile.toPath()
+            }
+            // The archive holds only data that is kept even for apps that opt out of backups,
+            // such as Block Store data, so restoring it cannot restore the app's own data.
+            is BackupResult.WithoutAppData -> {
+                backupFile.delete()
+                throw IOException(
+                    "Backup ($mode) of $applicationId contains no app data, because the app " +
+                        "does not allow backups (android:allowBackup=\"false\")"
+                )
             }
             is BackupResult.Error -> throw result.throwable
         }
@@ -532,6 +538,13 @@ internal class BackupRestoreControllerImpl(
          * backup transport emulation service library.
          */
         const val MIN_GMS_VERSION = 240913000
+
+        fun createBackupService(adbSession: AdbSession): Service =
+            Service.getInstance(
+                adbSession,
+                PlatformLogger.getInstance(BackupRestoreControllerImpl::class.java),
+                MIN_GMS_VERSION,
+            )
 
         fun backupFileName(mode: BackupTransportMode): String =
             "backup_${mode.toString().lowercase(Locale.ROOT)}_device.zip"
