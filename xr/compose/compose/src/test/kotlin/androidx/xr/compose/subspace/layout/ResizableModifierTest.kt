@@ -195,7 +195,7 @@ class ResizableModifierTest {
     }
 
     @Test
-    fun resizable_modifierMaxSizeIsNotSet() {
+    fun resizable_modifierMaxSizeIsDefault() {
         composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
@@ -204,7 +204,7 @@ class ResizableModifierTest {
                 ) {}
             }
         }
-        assertResizableComponentMaxSizeIsNotSet()
+        assertResizableComponentMaxSizeIsDefault()
     }
 
     @Test
@@ -234,7 +234,7 @@ class ResizableModifierTest {
                 ) {}
             }
         }
-        assertResizableComponentMaxSizeIsNotSet(testTag = "panel")
+        assertResizableComponentMaxSizeIsDefault(testTag = "panel")
     }
 
     @Test
@@ -252,7 +252,7 @@ class ResizableModifierTest {
     }
 
     @Test
-    fun resizable_modifierMinSizeIsNotSet() {
+    fun resizable_modifierMinSizeIsDefault() {
         composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
@@ -261,7 +261,7 @@ class ResizableModifierTest {
                 ) {}
             }
         }
-        assertResizableComponentMinSizeIsNotSet()
+        assertResizableComponentMinSizeIsDefault()
     }
 
     @Test
@@ -411,7 +411,7 @@ class ResizableModifierTest {
         assertEquals(size.height, maxHeight)
     }
 
-    private fun assertResizableComponentMaxSizeIsNotSet(testTag: String = "panel") {
+    private fun assertResizableComponentMaxSizeIsDefault(testTag: String = "panel") {
         val resizableComponent =
             composeTestRule
                 .onSubspaceNodeWithTag(testTag)
@@ -464,7 +464,7 @@ class ResizableModifierTest {
         assertEquals(size.height, minHeight)
     }
 
-    private fun assertResizableComponentMinSizeIsNotSet(testTag: String = "panel") {
+    private fun assertResizableComponentMinSizeIsDefault(testTag: String = "panel") {
         val resizableComponent =
             composeTestRule
                 .onSubspaceNodeWithTag(testTag)
@@ -484,8 +484,8 @@ class ResizableModifierTest {
                 session.scene.virtualPixelDensity,
             )
 
-        assertEquals(DpVolumeSize.Zero.width, minWidth)
-        assertEquals(DpVolumeSize.Zero.height, minHeight)
+        assertEquals(150.dp, minWidth)
+        assertEquals(150.dp, minHeight)
     }
 
     private inline fun <reified T> SubspaceSemanticsInfo.getLastComponent(): T {
