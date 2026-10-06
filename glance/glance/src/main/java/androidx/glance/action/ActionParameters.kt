@@ -25,6 +25,7 @@ import java.util.Collections
  * Construct action parameters using [actionParametersOf] or [mutableActionParametersOf], with typed
  * key-value pairs. The [Key] class enforces typing of the values inserted.
  */
+// TODO: b/442811110 Revisit how we handle types going into ActionParameters to remove bundleOf
 public abstract class ActionParameters internal constructor() {
 
     /**
