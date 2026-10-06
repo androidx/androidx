@@ -218,7 +218,8 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
             if (head == tail) {
                 throw createIndexOutOfBoundsException()
             }
-            return elements[head]!!
+            @Suppress("UNCHECKED_CAST")
+            return elements[head] as E
         }
 
     /**
@@ -232,7 +233,8 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
             if (head == tail) {
                 throw createIndexOutOfBoundsException()
             }
-            return elements[tail - 1 and capacityBitmask]!!
+            @Suppress("UNCHECKED_CAST")
+            return elements[tail - 1 and capacityBitmask] as E
         }
 
     /**
@@ -246,7 +248,8 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
         if (index < 0 || index >= size()) {
             throw createIndexOutOfBoundsException()
         }
-        return elements[(head + index) and capacityBitmask]!!
+        @Suppress("UNCHECKED_CAST")
+        return elements[(head + index) and capacityBitmask] as E
     }
 
     /**
