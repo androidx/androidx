@@ -16,7 +16,7 @@ dependencies {
     docs(project(":activity:activity-compose"))
     kmpDocs(project(":annotation:annotation"))
     docs(project(":annotation:annotation-experimental"))
-    kmpDocs(project(":annotation:annotation-keep"))
+    kmpDocs(project(":annotation:keep:keep"))
     docs(project(":appcompat:appcompat"))
     docs(project(":appcompat:appcompat-resources"))
     docs(project(":appfunctions:appfunctions"))

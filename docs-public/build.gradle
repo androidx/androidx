@@ -537,10 +537,10 @@ dependencies {
 }
 
 afterEvaluate {
-  tasks["docs"].doFirst {
-    println("docs-public:docs starting")
-  }
-  tasks["docs"].doLast {
-    println("docs-public:docs completing")
-  }
+    tasks["docs"].doFirst {
+        println("docs-public:docs starting")
+    }
+    tasks["docs"].doLast {
+        println("docs-public:docs completing")
+    }
 }
