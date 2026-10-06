@@ -39,7 +39,8 @@ import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
 import androidx.xr.runtime.manifest.HAND_TRACKING
 import kotlin.properties.Delegates
 import kotlin.time.ComparableTimeMark
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 
 /**
@@ -53,10 +54,17 @@ internal class OpenXrRuntime(
     override val perceptionManager: OpenXrPerceptionManager,
     val timeSource: OpenXrTimeSource,
 ) : PerceptionRuntime {
+
     companion object {
         private const val KEY_API_KEY = "com.google.android.ar.API_KEY"
         private val contextList = mutableListOf<Context>()
+
+        private const val TARGET_UPDATE_HZ = 50.0
+        val TARGET_UPDATE_DURATION = 1.0.seconds / TARGET_UPDATE_HZ
     }
+
+    /** Start time of the previous iteration of the update loop. */
+    private var startTimePreviousIteration = 0.nanoseconds
 
     /**
      * A pointer to the native OpenXrManager. Only valid after [initialize] and before [destroy]
@@ -154,12 +162,23 @@ internal class OpenXrRuntime(
         }
     }
 
+    /** Pace the update loop cadence according to [TARGET_UPDATE_HZ]. */
     override suspend fun prepareForUpdate() {
-        // Block the call for a time that is appropriate for OpenXR devices.
-        // TODO: b/359871229 - Implement dynamic delay. We start with a fixed 20ms delay as it is
-        // a nice round number that produces a reasonable frame rate @50 Hz, but this value may need
-        // to be adjusted in the future.
-        delay(20.milliseconds)
+        // Determine how long to delay based on the start time of the previous iteration.
+        val now = System.nanoTime().nanoseconds
+        val previousIterationDuration = now - startTimePreviousIteration
+        val delayDuration = TARGET_UPDATE_DURATION - previousIterationDuration
+
+        if (delayDuration > 0.nanoseconds) {
+            delay(delayDuration)
+            // In case the delay woke us up late, use the time when we should have awoken to
+            // preserve the update loop cadence.
+            startTimePreviousIteration += TARGET_UPDATE_DURATION
+        } else {
+            // The previous iteration took longer than expected. Proceed immediately. Also, the
+            // previous iteration's start time is too far in the past, reset it to now.
+            startTimePreviousIteration = now
+        }
     }
 
     override suspend fun update(): ComparableTimeMark {

@@ -24,6 +24,10 @@ import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.manifest.HAND_TRACKING
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,6 +35,7 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class OpenXrRuntimeTest {
 
@@ -102,5 +107,30 @@ class OpenXrRuntimeTest {
             .doesNotContain(perceptionManager.xrResources.leftHand)
         assertThat(perceptionManager.xrResources.updatables)
             .doesNotContain(perceptionManager.xrResources.rightHand)
+    }
+
+    @Test
+    fun prepareForUpdate_delaysForExpectedTimeBetweenFrames() = runTest {
+        var firstIterationComplete = false
+        var secondIterationComplete = false
+        launch {
+            // First iteration should run immediately.
+            underTest.prepareForUpdate()
+            // The call to update() should be here but it requires loading C++.
+            firstIterationComplete = true
+
+            // Second iteration should pace itself based on expectedDelayMs.
+            underTest.prepareForUpdate()
+            // The call to update() should be here but it requires loading C++.
+            secondIterationComplete = true
+        }
+
+        val expectedDelayMs = OpenXrRuntime.TARGET_UPDATE_DURATION.inWholeMilliseconds
+        advanceTimeBy(expectedDelayMs - 1)
+        assertThat(firstIterationComplete).isTrue()
+        assertThat(secondIterationComplete).isFalse()
+
+        advanceTimeBy(2)
+        assertThat(secondIterationComplete).isTrue()
     }
 }

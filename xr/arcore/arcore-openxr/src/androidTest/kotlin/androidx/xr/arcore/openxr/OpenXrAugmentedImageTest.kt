@@ -30,6 +30,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -89,7 +90,7 @@ class OpenXrAugmentedImageTest {
 
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
         // they
-        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        // come from `kPose` defined in //third_party/jetpack_xr_natives/common/openxr_stub.cc
         assertThat(underTest.centerPose)
             .isEqualTo(Pose(Vector3(0f, 0f, 2.0f), Quaternion(0f, 1.0f, 0f, 1.0f)))
     }
@@ -103,7 +104,7 @@ class OpenXrAugmentedImageTest {
 
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
         // they
-        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        // come from `kPose` defined in //third_party/jetpack_xr_natives/common/openxr_stub.cc
         assertThat(underTest.extents).isEqualTo(FloatSize2d(1.0f, 2.0f))
     }
 
@@ -121,8 +122,14 @@ class OpenXrAugmentedImageTest {
 
             openXrRuntime.configure(Config(augmentedImageDatabase = augmentedImageDatabase))
 
-            // Required to wait for the c++ polling event to finish
             runBlocking {
+                // The openXrRuntime.configure() call starts a C++ thread. We need to wait for one
+                // tick of this thread to load the values from openxr_stub.cc, which are used in the
+                // tests. We wait 50ms here to match the (arbitrary) xrTime used in the tests.
+                //
+                // TODO(b/566173036): Investigate removing this delay once changes are made to the
+                // OpenXR event loop.
+                delay(50)
                 openXrRuntime.prepareForUpdate()
                 openXrRuntime.update()
             }
