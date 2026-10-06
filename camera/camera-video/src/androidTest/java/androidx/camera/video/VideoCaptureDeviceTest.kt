@@ -371,6 +371,32 @@ class VideoCaptureDeviceTest(
 
     @SdkSuppress(minSdkVersion = 33) // HLG10 only supported on API 33+
     @Test
+    fun dynamicRangeHlg_withoutPreview_canReceiveFrame(): Unit = runBlocking {
+        assumeTrue(
+            "Device does not support HLG10",
+            cameraInfo.supportedDynamicRanges.contains(HLG_10_BIT),
+        )
+
+        // Arrange.
+        val videoOutput = createTestVideoOutput()
+        val videoCapture = VideoCapture.Builder(videoOutput).setDynamicRange(HLG_10_BIT).build()
+
+        // Act.
+        withContext(Dispatchers.Main) { cameraUseCaseAdapter.addUseCases(listOf(videoCapture)) }
+
+        // Assert.
+        val surfaceRequest =
+            checkNotNull(videoOutput.nextSurfaceRequest(5, TimeUnit.SECONDS)) {
+                "Timed out waiting for SurfaceRequest."
+            }
+        val frameCountFlow = surfaceRequest.provideUpdatingSurface()
+        val timeout = 10.seconds
+        withTimeoutOrNull(timeout) { frameCountFlow.first { frameCount -> frameCount >= 5 } }
+            ?: fail("Timed out waiting for `frameCount >= 5`. Waited $timeout.")
+    }
+
+    @SdkSuppress(minSdkVersion = 33) // HLG10 only supported on API 33+
+    @Test
     fun dynamicRange_isSetInSessionConfig(): Unit = runBlocking {
         assumeTrue(
             "Device does not support HLG10",
