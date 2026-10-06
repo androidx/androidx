@@ -16,8 +16,6 @@
 
 package androidx.appsearch.localstorage.converter;
 
-import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromDocument;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -103,8 +101,6 @@ public class SearchResultToProtoConverterTest {
                 ));
         SchemaCache schemaCache = new SchemaCache(schemaMap);
 
-        removePrefixesFromDocument(documentProtoBuilder);
-        removePrefixesFromDocument(joinedDocProtoBuilder);
         Set<String> resultSchemas = new ArraySet<>();
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto, schemaCache, config, resultSchemas);
@@ -185,7 +181,6 @@ public class SearchResultToProtoConverterTest {
         Map<String, Map<String, SchemaTypeConfigProto>> schemaMap = ImmutableMap.of(prefix,
                 ImmutableMap.of(schemaType, schemaTypeConfigProto));
 
-        removePrefixesFromDocument(documentProtoBuilder);
         Exception e = assertThrows(AppSearchException.class,
                 () -> SearchResultToProtoConverter.toSearchResultPage(searchResultProto,
                         new SchemaCache(schemaMap),

@@ -22,7 +22,6 @@ import static androidx.appsearch.app.AppSearchResult.RESULT_OUT_OF_SPACE;
 import static androidx.appsearch.localstorage.util.PrefixUtil.addPrefixToDocument;
 import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPrefix;
-import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromDocument;
 import static androidx.appsearch.localstorage.visibilitystore.VisibilityStore.BLOB_ANDROID_V_OVERLAY_DATABASE_NAME;
 import static androidx.appsearch.localstorage.visibilitystore.VisibilityStore.BLOB_VISIBILITY_DATABASE_NAME;
 import static androidx.appsearch.localstorage.visibilitystore.VisibilityStore.DOCUMENT_ANDROID_V_OVERLAY_DATABASE_NAME;
@@ -232,76 +231,6 @@ public class AppSearchImplTest {
         addPrefixToDocument(actualDocument, createPrefix("package",
                 "databaseName"));
         assertThat(actualDocument.build()).isEqualTo(expectedDocumentProto);
-    }
-
-    @Test
-    public void testRemoveDocumentTypePrefixes() throws Exception {
-        DocumentProto insideDocument = DocumentProto.newBuilder()
-                .setUri("inside-id")
-                .setSchema("package$databaseName/type")
-                .setNamespace("package$databaseName/namespace")
-                .build();
-        DocumentProto documentProto = DocumentProto.newBuilder()
-                .setUri("id")
-                .setSchema("package$databaseName/type")
-                .setNamespace("package$databaseName/namespace")
-                .addProperties(PropertyProto.newBuilder().addDocumentValues(insideDocument))
-                .build();
-
-        DocumentProto expectedInsideDocument = DocumentProto.newBuilder()
-                .setUri("inside-id")
-                .setSchema("type")
-                .setNamespace("namespace")
-                .build();
-
-        DocumentProto expectedDocumentProto = DocumentProto.newBuilder()
-                .setUri("id")
-                .setSchema("type")
-                .setNamespace("namespace")
-                .addProperties(PropertyProto.newBuilder().addDocumentValues(expectedInsideDocument))
-                .build();
-
-        DocumentProto.Builder actualDocument = documentProto.toBuilder();
-        assertThat(removePrefixesFromDocument(actualDocument)).isEqualTo(
-                "package$databaseName/");
-        assertThat(actualDocument.build()).isEqualTo(expectedDocumentProto);
-    }
-
-    @Test
-    public void testRemoveDatabasesFromDocumentThrowsException() {
-        // Set two different database names in the document, which should never happen
-        DocumentProto documentProto = DocumentProto.newBuilder()
-                .setUri("id")
-                .setSchema("prefix1/type")
-                .setNamespace("prefix2/namespace")
-                .build();
-
-        DocumentProto.Builder actualDocument = documentProto.toBuilder();
-        AppSearchException e = assertThrows(AppSearchException.class, () ->
-                removePrefixesFromDocument(actualDocument));
-        assertThat(e).hasMessageThat().contains("Found unexpected multiple prefix names");
-    }
-
-    @Test
-    public void testNestedRemoveDatabasesFromDocumentThrowsException() {
-        // Set two different database names in the outer and inner document, which should never
-        // happen.
-        DocumentProto insideDocument = DocumentProto.newBuilder()
-                .setUri("inside-id")
-                .setSchema("prefix1/type")
-                .setNamespace("prefix1/namespace")
-                .build();
-        DocumentProto documentProto = DocumentProto.newBuilder()
-                .setUri("id")
-                .setSchema("prefix2/type")
-                .setNamespace("prefix2/namespace")
-                .addProperties(PropertyProto.newBuilder().addDocumentValues(insideDocument))
-                .build();
-
-        DocumentProto.Builder actualDocument = documentProto.toBuilder();
-        AppSearchException e = assertThrows(AppSearchException.class, () ->
-                removePrefixesFromDocument(actualDocument));
-        assertThat(e).hasMessageThat().contains("Found unexpected multiple prefix names");
     }
 
     @Test

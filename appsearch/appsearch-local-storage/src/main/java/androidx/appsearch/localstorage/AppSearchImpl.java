@@ -26,7 +26,6 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.getDatabaseName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPackageName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefix;
-import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromDocument;
 import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromSchemaType;
 
 import android.accounts.Account;
@@ -2722,10 +2721,8 @@ public final class AppSearchImpl implements Closeable {
                         "Document (" + namespace + ", " + id + ") not found.");
             }
 
-            DocumentProto.Builder documentBuilder = documentProto.toBuilder();
-            removePrefixesFromDocument(documentBuilder);
             String prefix = createPrefix(packageName, databaseName);
-            return GenericDocumentToProtoConverter.toGenericDocument(documentBuilder.build(),
+            return GenericDocumentToProtoConverter.toGenericDocument(documentProto,
                     prefix, mSchemaCacheLocked, mConfig);
         } finally {
             logReadOperationLatencyLocked(totalLatencyStartMillis,
@@ -2771,14 +2768,12 @@ public final class AppSearchImpl implements Closeable {
             }
             DocumentProto documentProto = getDocumentProtoByIdLocked(packageName, databaseName,
                     namespace, id, typePropertyPaths, callStatsBuilder);
-            DocumentProto.Builder documentBuilder = documentProto.toBuilder();
-            removePrefixesFromDocument(documentBuilder);
 
             String prefix = createPrefix(packageName, databaseName);
             // The schema type map cannot be null at this point. It could only be null if no
             // schema had ever been set for that prefix. Given we have retrieved a document from
             // the index, we know a schema had to have been set.
-            return GenericDocumentToProtoConverter.toGenericDocument(documentBuilder.build(),
+            return GenericDocumentToProtoConverter.toGenericDocument(documentProto,
                     prefix, mSchemaCacheLocked, mConfig);
         } finally {
             logReadOperationLatencyLocked(totalLatencyStartMillis,
@@ -2852,15 +2847,12 @@ public final class AppSearchImpl implements Closeable {
                         throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND);
                     }
 
-                    DocumentProto.Builder documentBuilder =
-                            getResultProto.getDocument().toBuilder();
-                    removePrefixesFromDocument(documentBuilder);
                     String prefix = createPrefix(packageName, databaseName);
                     // The schema type map cannot be null at this point. It could only be null if no
                     // schema had ever been set for that prefix. Given we have retrieved a document
                     // from the index, we know a schema had to have been set.
                     GenericDocument doc = GenericDocumentToProtoConverter.toGenericDocument(
-                            documentBuilder.build(), prefix, mSchemaCacheLocked, mConfig);
+                            getResultProto.getDocument(), prefix, mSchemaCacheLocked, mConfig);
 
                     resultBuilder.setSuccess(id, doc);
                 } catch (Throwable t) {

@@ -148,8 +148,8 @@ public final class GenericDocumentToProtoConverter {
      * property based on the data type of the property defined by the schema type.
      *
      * @param proto         the document to convert to a {@link GenericDocument} instance. The
-     *                      document proto should have its package + database prefix stripped
-     *                      from its fields.
+     *                      document proto should have its package + database prefix preserved
+     *                      in its fields.
      * @param prefix        the package + database prefix used searching the {@code schemaTypeMap}.
      * @param schemaCache   The SchemaCache instance held in AppSearch.
      */
@@ -166,13 +166,23 @@ public final class GenericDocumentToProtoConverter {
         Map<String, SchemaTypeConfigProto> schemaTypeMap =
                 schemaCache.getSchemaMapForPrefix(prefix);
 
+        String schemaType = proto.getSchema();
+        String namespace = proto.getNamespace();
+        String prefixedSchemaType = schemaType;
+        if (schemaType.startsWith(prefix)) {
+            schemaType = schemaType.substring(prefix.length());
+        } else {
+            prefixedSchemaType = prefix + schemaType;
+        }
+        if (namespace.startsWith(prefix)) {
+            namespace = namespace.substring(prefix.length());
+        }
+
         GenericDocument.Builder<?> documentBuilder =
-                new GenericDocument.Builder<>(proto.getNamespace(), proto.getUri(),
-                        proto.getSchema())
+                new GenericDocument.Builder<>(namespace, proto.getUri(), schemaType)
                         .setScore(proto.getScore())
                         .setTtlMillis(proto.getTtlMs())
                         .setCreationTimestampMillis(proto.getCreationTimestampMs());
-        String prefixedSchemaType = prefix + proto.getSchema();
         if (config.shouldRetrieveParentInfo() && !Flags.enableSearchResultParentTypes()) {
             List<String> parentSchemaTypes =
                     schemaCache.getTransitiveUnprefixedParentSchemaTypes(
