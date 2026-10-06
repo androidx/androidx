@@ -158,7 +158,8 @@ internal fun createCharSequence(
                     val textDirInt =
                         resolveTextDirectionHeuristics(
                             contextTextStyle.textDirection,
-                            contextTextStyle.localeList?.firstOrNull() ?: defaultLocaleList.first(),
+                            contextTextStyle.localeList?.let { if (it.isEmpty()) null else it[0] }
+                                ?: defaultLocaleList[0],
                         )
                     getTextDirectionHeuristic(textDirInt)
                 } ||
