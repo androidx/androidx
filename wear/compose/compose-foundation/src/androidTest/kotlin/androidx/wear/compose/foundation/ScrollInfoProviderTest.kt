@@ -17,9 +17,11 @@
 package androidx.wear.compose.foundation
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,10 +29,13 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.dp
@@ -47,6 +52,7 @@ import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
@@ -767,6 +773,48 @@ class ScrollInfoProviderTest {
         rule.waitForIdle()
 
         rule.runOnIdle { assertThat(provider.anchorItemOffset).isNaN() }
+    }
+
+    @Test
+    fun transformingLazyColumn_contentPaddingDecreasesWhileScrolled_anchorItemOffset_isZeroWhenScrolledToTop() {
+        lateinit var provider: ScrollInfoProvider
+        lateinit var state: TransformingLazyColumnState
+        lateinit var scope: CoroutineScope
+        var topPadding by mutableStateOf(24.dp)
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            provider = remember(state) { ScrollInfoProvider(state) }
+            scope = rememberCoroutineScope()
+
+            // Observe anchorItemOffset across composition and scroll passes, mimicking components
+            // like ScreenScaffold or Modifier.scrollAway.
+            LaunchedEffect(provider) { snapshotFlow { provider.anchorItemOffset }.collect {} }
+
+            TransformingLazyColumn(
+                state = state,
+                contentPadding = PaddingValues(top = topPadding),
+                modifier = Modifier.requiredSize(100.dp),
+            ) {
+                items(10) { Box(Modifier.requiredSize(30.dp)) }
+            }
+        }
+
+        rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.0001f).of(0f) }
+
+        val scrollDelta = with(rule.density) { 50.dp.roundToPx().toFloat() }
+        rule.runOnIdle { scope.launch { state.scrollBy(scrollDelta) } }
+        rule.waitForIdle()
+
+        // Content padding changes (e.g. 24.dp -> 21.dp) while item 0 is scrolled
+        rule.runOnIdle { topPadding = 21.dp }
+        rule.waitForIdle()
+
+        // Smooth scroll back to the top of the list
+        rule.runOnIdle { scope.launch { state.animateScrollBy(-scrollDelta) } }
+        rule.waitForIdle()
+
+        rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.0001f).of(0f) }
     }
 
     @Test

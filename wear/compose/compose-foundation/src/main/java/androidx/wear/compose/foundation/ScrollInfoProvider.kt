@@ -304,7 +304,6 @@ private class TransformingLazyColumnStateScrollInfoProvider(
 
     // TODO: b/3364857296 - Rework using scroll anchor item.
     private var initialStartOffset: Float = Float.NaN
-    private var lastStartOffset: Float = Float.NaN
 
     override val anchorItemOffset: Float
         get() =
@@ -315,18 +314,12 @@ private class TransformingLazyColumnStateScrollInfoProvider(
                 val newStartOffset = item.offset.toFloat()
                 if (initialStartOffset.isNaN() || newStartOffset > initialStartOffset) {
                     initialStartOffset = newStartOffset
-                } else if (
-                    !state.isScrollInProgress &&
-                        !state.canScrollBackward &&
-                        !lastStartOffset.isNaN() &&
-                        newStartOffset != lastStartOffset
-                ) {
-                    // Reset the initialStartOffset if the position changes while idle
-                    // to account for layout mutations (like items shrinking) that would
-                    // otherwise cause a scroll desync.
+                } else if (!state.canScrollBackward && !state.isScrollInProgress) {
+                    // Reset the initialStartOffset if at the top boundary and idle to account
+                    // for layout mutations (like items shrinking or content padding changes)
+                    // that would otherwise cause a scroll desync.
                     initialStartOffset = newStartOffset
                 }
-                lastStartOffset = newStartOffset
                 initialStartOffset - newStartOffset
             } ?: Float.NaN
 
