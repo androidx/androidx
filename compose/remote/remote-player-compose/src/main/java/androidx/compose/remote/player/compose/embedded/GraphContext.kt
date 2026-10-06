@@ -69,6 +69,7 @@ internal class GraphContext(
     clock: RemoteClock = RemoteClock.SYSTEM,
     internal var componentValues: Map<Int, State<Float>> = emptyMap(),
     private val touchExpressionIds: IntSet = emptyIntSet(),
+    internal var animatedFloatStates: Map<Int, State<Float>> = emptyMap(),
 ) : StoreBackedRemoteContext(clock) {
 
     internal var typefaceResolver: TypefaceResolver? = null
@@ -157,7 +158,7 @@ internal class GraphContext(
         state.captured = null
         state.computing.add(id)
         try {
-            if (op is VariableSupport) {
+            if (op is VariableSupport && op !is FloatExpression) {
                 op.updateVariables(this) // reads inputs (tracked)
             }
             // Value-producing PaintOperations (e.g. ColorAttribute, TextMeasure, ImageAttribute)
@@ -166,6 +167,8 @@ internal class GraphContext(
             if (op is PaintOperation && op !is Component) {
                 graphPaintContext.paintState = textMeasurePaints[id] ?: ComposeLocalPaint()
                 op.paint(graphPaintContext)
+            } else if (op is FloatExpression) {
+                loadFloat(id, op.evaluate(this))
             } else {
                 op.apply(this) // writes output -> captured
             }
@@ -188,9 +191,11 @@ internal class GraphContext(
 
     override fun getFloat(id: Int): Float {
         val compVal = componentValues[id]
+        val animVal = animatedFloatStates[id]
         return when {
             compVal != null -> compVal.value
             realState.isFloatOverridden(id) -> super.getFloat(id)
+            animVal != null -> animVal.value
             isComputed(id) -> (computedValue(id) as? Number)?.toFloat() ?: 0f
             isTimeVariable(id) -> timeFloatState(id).value
             else -> super.getFloat(id)

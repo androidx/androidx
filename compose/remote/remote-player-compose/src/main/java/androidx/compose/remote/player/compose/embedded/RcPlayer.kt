@@ -31,6 +31,7 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.collection.IntSet
+import androidx.collection.MutableIntList
 import androidx.collection.emptyIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
@@ -117,6 +118,8 @@ import androidx.compose.remote.player.compose.embedded.layout.RcPlayerFlowRow
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerImageLayout
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerRow
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerStateLayout
+import androidx.compose.remote.player.compose.embedded.state.hasAnimation
+import androidx.compose.remote.player.compose.embedded.state.rememberAnimatedRemoteFloat
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.remote.player.core.state.StateUpdater
@@ -125,6 +128,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -504,6 +508,25 @@ public fun RcPlayer(
             LocalRcCustomPlugins provides customPlugins,
             LocalTypefaceResolver provides (typefaceResolver ?: remoteContext.typefaceResolver),
         ) {
+            val animatedExpressionIds =
+                remember(document) {
+                    val ids = MutableIntList()
+                    document.getFloatExpressionsReflection().forEach { (id, expr) ->
+                        if (expr.hasAnimation) ids.add(id)
+                    }
+                    ids.sort()
+                    ids
+                }
+            // Keyed to the document like animatedExpressionIds so the map isn't reallocated on
+            // every recomposition; the remembered animated States are stable across recompositions.
+            val animatedStates =
+                remember(document) { HashMap<Int, State<Float>>(animatedExpressionIds.size) }
+            for (i in animatedExpressionIds.indices) {
+                val animId = animatedExpressionIds[i]
+                animatedStates[animId] = rememberAnimatedRemoteFloat(animId)
+            }
+            graphContext.animatedFloatStates = animatedStates
+
             val root = document.rootLayoutComponent
             if (root != null) {
                 RcPlayerRootLayoutComponent(root)
@@ -1245,13 +1268,9 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
                     op !is PathTween &&
                     op !is PathExpression
             ) {
-                val animated = op is FloatExpression && op.mFloatAnimation != null
                 val id = op.id
                 if (
-                    !animated &&
-                        id > 0 &&
-                        !touchExpressionIds.contains(id) &&
-                        !computedOpIndex.containsKey(id)
+                    id > 0 && !touchExpressionIds.contains(id) && !computedOpIndex.containsKey(id)
                 ) {
                     computedOpIndex[id] = op
                 }

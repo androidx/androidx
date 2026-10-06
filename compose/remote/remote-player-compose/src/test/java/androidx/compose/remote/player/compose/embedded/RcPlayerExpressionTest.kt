@@ -916,4 +916,36 @@ class RcPlayerExpressionTest {
         assertThat(preprocessed.hasContinuousTime).isFalse()
         assertThat(preprocessed.hasDiscreteTime).isFalse()
     }
+
+    @Test
+    fun springAnimatedFloatExpression_evaluatesCorrectlyInGraphContextAfterSettling() {
+        val realState = SnapshotRemoteComposeState()
+        val springSpec = floatArrayOf(0f, 1400f, 74.833f, 0.001f, 0f)
+        val springOp = FloatExpression(100, floatArrayOf(1f), springSpec)
+        val opsMap = mutableIntObjectMapOf<Operation>()
+        opsMap[100] = springOp
+        val graph = GraphContext(realState, opsMap, mutableStateOf(0f), RemoteClock.SYSTEM)
+
+        // Simulate initial CoreDocument setup where updateVariables + apply settles the spring
+        springOp.updateVariables(graph)
+        springOp.apply(graph)
+
+        // Subsequent GraphContext evaluations must still return 1f (not null -> 0f)
+        assertThat(graph.getFloat(100)).isEqualTo(1f)
+        assertThat(graph.getFloat(100)).isEqualTo(1f)
+    }
+
+    @Test
+    fun testExpressionDependsOnAnimationDetectsSpringAnimation() {
+        val springSpec = floatArrayOf(0f, 1400f, 74.833f, 0.001f, 0f)
+        val innerSpring = FloatExpression(1, floatArrayOf(1f), springSpec)
+        val outer =
+            FloatExpression(2, floatArrayOf(Utils.asNan(1), 5f, AnimatedFloatExpression.ADD), null)
+        val standalone = FloatExpression(3, floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD), null)
+
+        val map = mapOf(1 to innerSpring, 2 to outer, 3 to standalone)
+        assertThat(expressionDependsOnAnimation(map, 1)).isTrue()
+        assertThat(expressionDependsOnAnimation(map, 2)).isTrue()
+        assertThat(expressionDependsOnAnimation(map, 3)).isFalse()
+    }
 }
