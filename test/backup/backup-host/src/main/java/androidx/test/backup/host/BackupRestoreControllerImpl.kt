@@ -192,7 +192,7 @@ internal class BackupRestoreControllerImpl(
     ): BackupActionResult {
         val stdout =
             shell.instrument(
-                BackupActionWireProtocol.runnerComponent(applicationId),
+                findRunner(),
                 BackupActionWireProtocol.instrumentationArgs(
                     actionClassName,
                     args,
@@ -236,6 +236,24 @@ internal class BackupRestoreControllerImpl(
         } finally {
             localFile.delete()
         }
+    }
+
+    /**
+     * Returns the instrumentation component of the runner that is installed for the app: the only
+     * one, or else the one AGP gives the test APK.
+     *
+     * Without any installed runner, `am instrument` then reports that the test APK is missing.
+     */
+    private suspend fun findRunner(): String {
+        val defaultRunner = BackupActionWireProtocol.runnerComponent(applicationId)
+        val runners =
+            shell.listInstrumentations(applicationId).filter {
+                it.substringAfter('/') == BackupActionWireProtocol.RUNNER_CLASS
+            }
+        if (runners.size > 1 && defaultRunner !in runners) {
+            logger.warning("Several test APKs have a runner for $applicationId: $runners")
+        }
+        return runners.singleOrNull() ?: defaultRunner
     }
 
     override suspend fun performBackup(

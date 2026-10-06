@@ -84,9 +84,11 @@ internal object BackupActionValues {
  */
 internal object BackupActionWireProtocol {
 
-    /** Returns the instrumentation component of the test APK built for [applicationId]. */
-    fun runnerComponent(applicationId: String): String =
-        "$applicationId.test/androidx.test.backup.BackupRestoreTestRunner"
+    /** Class of the instrumentation that runs the actions in the app's process. */
+    const val RUNNER_CLASS = "androidx.test.backup.BackupRestoreTestRunner"
+
+    /** Returns the instrumentation component that AGP gives the test APK of [applicationId]. */
+    fun runnerComponent(applicationId: String): String = "$applicationId.test/$RUNNER_CLASS"
 
     /**
      * Returns the instrumentation arguments that make the runner execute [actionClassName] with the

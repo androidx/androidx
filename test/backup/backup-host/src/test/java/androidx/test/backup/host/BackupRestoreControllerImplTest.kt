@@ -79,7 +79,7 @@ class BackupRestoreControllerImplTest {
         val result = controller.runOnDevice("com.example.MyAction", mapOf("user_id" to "123"))
 
         assertEquals(BackupActionResult.Success(mapOf("user_id" to "123")), result)
-        val command = device.commands.single()
+        val command = instrumentCommand()
         assertTrue(command.startsWith("am instrument -w -e action "), command)
         assertTrue(command.contains(" -e user_id '123' "), command)
         assertTrue(command.endsWith(" $PACKAGE.test/$RUNNER"), command)
@@ -120,7 +120,7 @@ class BackupRestoreControllerImplTest {
             )
 
         assertIs<BackupActionResult.Success>(result)
-        val cmd = device.commands.single()
+        val cmd = instrumentCommand()
         listOf(
                 "-e action 'com.example.MyTest\$CustomAction'",
                 "-e actionClass 'com.example.MyTest\$CustomAction'",
@@ -141,9 +141,55 @@ class BackupRestoreControllerImplTest {
 
         controller.runOnDevice("com.example.MyAction", emptyMap(), waitForDebugger = true)
 
-        assertTrue(
-            device.commands.single().startsWith("am instrument -w -e debug 'true' -e action "),
-            device.commands.single(),
+        val command = instrumentCommand()
+        assertTrue(command.startsWith("am instrument -w -e debug 'true' -e action "), command)
+    }
+
+    /** `<applicationId>.test` is only the package that AGP gives the test APK. */
+    @Test
+    fun runOnDeviceRunsTheRunnerInstalledForTheApp() = runBlocking {
+        onDeviceWithInstrumentations(
+            "com.example.tests/$RUNNER",
+            "$PACKAGE.test/androidx.test.runner.AndroidJUnitRunner",
+        )
+
+        controller.runOnDevice("com.example.MyAction")
+
+        assertTrue(instrumentCommand().endsWith(" com.example.tests/$RUNNER"), instrumentCommand())
+        assertEquals("pm list instrumentation $PACKAGE", device.commands.first())
+    }
+
+    @Test
+    fun runOnDevicePrefersTheRunnerOfAgpAmongSeveral() = runBlocking {
+        onDeviceWithInstrumentations("com.example.tests/$RUNNER", "$PACKAGE.test/$RUNNER")
+
+        controller.runOnDevice("com.example.MyAction")
+
+        assertTrue(instrumentCommand().endsWith(" $PACKAGE.test/$RUNNER"), instrumentCommand())
+    }
+
+    /**
+     * Without a runner, the default one is run, so that `am instrument` reports it missing. Every
+     * action looks the runner up, so it runs the one installed at that time.
+     */
+    @Test
+    fun runOnDeviceLooksUpTheRunnerForEveryAction() = runBlocking {
+        onDeviceWithInstrumentations()
+        controller.runOnDevice("com.example.MyAction")
+        onDeviceWithInstrumentations("com.example.tests/$RUNNER")
+        controller.runOnDevice("com.example.MyAction")
+        onDeviceWithInstrumentations("com.example.other/$RUNNER")
+        controller.runOnDevice("com.example.MyAction")
+
+        assertEquals(
+            listOf(
+                "$PACKAGE.test/$RUNNER",
+                "com.example.tests/$RUNNER",
+                "com.example.other/$RUNNER",
+            ),
+            device.commands
+                .filter { it.startsWith("am instrument") }
+                .map { it.substringAfterLast(' ') },
         )
     }
 
@@ -411,6 +457,7 @@ class BackupRestoreControllerImplTest {
         assertEquals("am force-stop $PACKAGE", device.commands.last())
     }
 
+    /** A timeout truncated to zero would expire before the action sends any command. */
     @Test
     fun runOnDeviceRunsTheActionForASubMillisecondTimeout() = runBlocking {
         device.hangOn { it.startsWith("am instrument") }
@@ -418,7 +465,12 @@ class BackupRestoreControllerImplTest {
         val result = controller.runOnDevice("com.example.MyAction", timeout = Duration.ofNanos(500))
 
         assertEquals(BackupActionResult.Failure("Timed out after 500ns"), result)
-        assertTrue(device.commands.first().startsWith("am instrument"), "${device.commands}")
+        // The action starts by looking up its runner, and the deadline may end it there.
+        assertEquals(
+            "pm list instrumentation $PACKAGE",
+            device.commands.first(),
+            "${device.commands}",
+        )
     }
 
     @Test
@@ -778,6 +830,29 @@ class BackupRestoreControllerImplTest {
                 }
         }
     }
+
+    /**
+     * Answers shell commands as a device on which [instrumentations] target the app, given as
+     * `package/class` components, and every action succeeds.
+     */
+    private fun onDeviceWithInstrumentations(vararg instrumentations: String) {
+        device.onShell { command ->
+            when {
+                command.startsWith("pm list instrumentation") ->
+                    shellOutput(
+                        instrumentations.joinToString("") {
+                            "instrumentation:$it (target=$PACKAGE)\n"
+                        }
+                    )
+                command.startsWith("am instrument") -> shellOutput(runnerStdout("{}"))
+                else -> null
+            }
+        }
+    }
+
+    /** Returns the only `am instrument` command run on the device. */
+    private fun instrumentCommand(): String =
+        device.commands.single { it.startsWith("am instrument") }
 
     /**
      * Returns a backup service whose backups end with [backupServiceResult]. Unless that is an

@@ -224,6 +224,33 @@ class BackupDeviceShellTest {
         assertNull(shell.resolveLauncherActivity("com.example.app"))
     }
 
+    /** `pm` shortens a class in the instrumentation's own package to `.<name>`. */
+    @Test
+    fun listInstrumentationsReturnsFullyQualifiedComponentsForTheTarget() = runBlocking {
+        device.onShell {
+            shellOutput(
+                "instrumentation:com.example.app.test/androidx.test.backup.BackupRestoreTestRunner" +
+                    " (target=com.example.app)\n" +
+                    "instrumentation:com.example.tests/.Runner (target=com.example.app)\n" +
+                    "instrumentation:com.other.test/.Runner (target=com.other)\n"
+            )
+        }
+
+        assertEquals(
+            listOf(
+                "com.example.app.test/androidx.test.backup.BackupRestoreTestRunner",
+                "com.example.tests/com.example.tests.Runner",
+            ),
+            shell.listInstrumentations("com.example.app"),
+        )
+        assertEquals(listOf("pm list instrumentation com.example.app"), device.commands)
+    }
+
+    @Test
+    fun listInstrumentationsReturnsNothingWhenNoneIsInstalled() = runBlocking {
+        assertEquals(emptyList(), shell.listInstrumentations("com.example.app"))
+    }
+
     @Test
     fun unstopPackageStartsTheLauncherActivityThenGoesHome() = runBlocking {
         device.onShell { command ->

@@ -136,6 +136,20 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
     }
 
     /**
+     * Returns the instrumentations installed for [targetPackage], as `package/class` components
+     * with a fully qualified class.
+     */
+    suspend fun listInstrumentations(targetPackage: String): List<String> =
+        exec("pm list instrumentation ${quoteIfNeeded(targetPackage)}")
+            .stdout
+            .lineSequence()
+            .mapNotNull { INSTRUMENTATION_LINE.matchEntire(it.trim())?.destructured }
+            .filter { (_, _, target) -> target == targetPackage }
+            // pm abbreviates a class inside the instrumentation's package as ".<name>".
+            .map { (pkg, cls, _) -> if (cls.startsWith(".")) "$pkg/$pkg$cls" else "$pkg/$cls" }
+            .toList()
+
+    /**
      * Takes [packageName] out of the stopped state (`FLAG_STOPPED`).
      *
      * Freshly installed or cleared packages are stopped, and `BackupManagerService` skips stopped
@@ -269,6 +283,14 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
 
         /** `rwxrwxrwx`, so the package manager can read the staged file. */
         private val PUSHED_FILE_MODE = RemoteFileMode.fromModeBits(511)
+
+        /**
+         * A line of `pm list instrumentation`, which reads `instrumentation:<package>/<class>
+         * (target=<package>)`. A class in the instrumentation's own package can be shortened to
+         * `.<name>`.
+         */
+        private val INSTRUMENTATION_LINE =
+            Regex("""instrumentation:([^/\s]+)/(\S+) \(target=([^)\s]+)\)""")
 
         /**
          * Quotes [arg] as a single POSIX shell word, so the shell passes it through unchanged:
