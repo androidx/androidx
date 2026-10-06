@@ -1174,6 +1174,51 @@ public class RemoteComposeComparisonTest {
     }
 
     @Test
+    public void testNamedDynamicFloatArrayComparison() throws JSONException {
+        String json = "{"
+                + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
+                + " \"height\": 400, \"contentDescription\": \"NamedDynamicFloatArray\" },"
+                + "  \"root\": {"
+                + "    \"type\": \"canvas\","
+                + "    \"modifiers\": [ { \"fillMaxSize\": 1.0 } ],"
+                + "    \"commands\": ["
+                + "      { \"type\": \"dynamicFloatArray\", \"name\": \"laps\", \"size\": 5.0 },"
+                + "      { \"type\": \"updateDynamicFloatList\", \"list\": \"@laps\","
+                + " \"index\": 0.0, \"value\": 42.0 },"
+                + "      { \"type\": \"setArrayValue\", \"id\": \"@laps\", \"index\": 1.0,"
+                + " \"value\": 7.0 },"
+                + "      { \"type\": \"variable\", \"name\": \"second\","
+                + " \"value\": \"arrayGet(@laps, 1)\", \"commit\": true }"
+                + "    ]"
+                + "  }"
+                + "}";
+        MockPlatform platform = new MockPlatform();
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.mTag, b.mTag));
+        RemoteComposeWriter expectedWriter = new RemoteComposeWriter(platform, 7, tags);
+        expectedWriter.root(() -> {
+            RecordingModifier mod = new RecordingModifier().fillMaxSize(1.0f);
+            expectedWriter.startCanvas(mod);
+            float laps = expectedWriter.addDynamicFloatArray(5.0f);
+            expectedWriter.setArrayValue(Utils.idFromNan(laps), 0.0f, 42.0f);
+            expectedWriter.setArrayValue(Utils.idFromNan(laps), 1.0f, 7.0f);
+            expectedWriter.floatExpression(laps, 1.0f, AnimatedFloatExpression.A_DEREF);
+            expectedWriter.endCanvas();
+        });
+        byte[] expected = expectedWriter.encodeToByteArray();
+
+        RemoteComposeWriter actualWriter = new RemoteComposeWriter(platform, 7, tags);
+        RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+        parser.parse(json);
+        byte[] actual = actualWriter.encodeToByteArray();
+
+        if (!Arrays.equals(expected, actual)) {
+            printMismatch("NamedDynamicFloatArray", expected, actual);
+        }
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
     public void testAttributeReflectionComparison() throws JSONException {
         String json = "{"
                 + "  \"header\": { \"apiLevel\": 7, \"profiles\": 769, \"width\": 400,"
