@@ -48,8 +48,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import org.junit.After
+import org.junit.Assume
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -187,11 +187,12 @@ class BorderTest(val shape: Shape, val isNewBorderImplementationEnabled: Boolean
         )
     }
 
-    @Ignore("b/570461408 - currently unsupported for generic shapes")
     // RuntimeShader not available below Tiramisu
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun border_shaderBrush() {
+        // Not supported for generic shapes with the old border
+        Assume.assumeTrue(ComposeFoundationFlags.isNewBorderImplementationEnabled)
         // Shader that just draws red
         val brush =
             ShaderBrush(

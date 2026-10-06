@@ -31,10 +31,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
+import androidx.compose.ui.graphics.LinearGradient
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.RadialGradient
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.SweepGradient
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -200,7 +204,19 @@ internal class BorderLogic @RememberInComposition constructor() {
         val pathBoundsSize =
             IntSize(ceil(pathBounds.width).toInt(), ceil(pathBounds.height).toInt())
 
-        return if (shouldUseGraphicsLayerForGenericBorder()) {
+        // RuntimeShaders can't be drawn in a software bitmap. Special case known types that don't
+        // need a runtime shader so we can render in software, and avoid minor visual regressions
+        // for Modifier.border b/570069301.
+        // Note that it's possible to use a ShaderBrush with a non-runtime shader, such as manually
+        // passing LinearGradientShader to a ShaderBrush, but these cases are rare and difficult to
+        // check for. In any case the only change will be minor antialiasing differences.
+        val brushCanDrawInSoftware =
+            brush !is ShaderBrush ||
+                brush is LinearGradient ||
+                brush is RadialGradient ||
+                brush is SweepGradient
+
+        return if (shouldUseGraphicsLayerForGenericBorder() || !brushCanDrawInSoftware) {
             createDrawGenericBorderWithGraphicsLayer(
                 brush = brush,
                 graphicsLayerProvider = graphicsLayerProvider,
