@@ -8454,7 +8454,7 @@
 
     <issue
         id="PrivateResource"
-        message="The resource `@string/tooltip_label` is marked as private in androidx.compose.foundation:foundation-android:1.12.0"
+        message="The resource `@string/tooltip_label` is marked as private in androidx.compose.foundation:foundation-android:1.13.0-alpha03"
         errorLine1="    @Composable actual fun label(): String = stringResource(R.string.tooltip_label)"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -8463,7 +8463,7 @@
 
     <issue
         id="PrivateResource"
-        message="The resource `@string/tooltip_description` is marked as private in androidx.compose.foundation:foundation-android:1.12.0"
+        message="The resource `@string/tooltip_description` is marked as private in androidx.compose.foundation:foundation-android:1.13.0-alpha03"
         errorLine1="    @Composable actual fun description(): String = stringResource(R.string.tooltip_description)"
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -8472,7 +8472,7 @@
 
     <issue
         id="PrivateResource"
-        message="The resource `@string/default_error_message` is marked as private in androidx.compose.ui:ui-android:1.12.0"
+        message="The resource `@string/default_error_message` is marked as private in androidx.compose.ui:ui-android:1.13.0-alpha03"
         errorLine1="            get() = Strings(R.string.default_error_message)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -8481,7 +8481,7 @@
 
     <issue
         id="PrivateResource"
-        message="The resource `@string/dropdown_menu` is marked as private in androidx.compose.ui:ui-android:1.12.0"
+        message="The resource `@string/dropdown_menu` is marked as private in androidx.compose.ui:ui-android:1.13.0-alpha03"
         errorLine1="            get() = Strings(R.string.dropdown_menu)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -8490,7 +8490,7 @@
 
     <issue
         id="PrivateResource"
-        message="The resource `@string/range_start` is marked as private in androidx.compose.ui:ui-android:1.12.0"
+        message="The resource `@string/range_start` is marked as private in androidx.compose.ui:ui-android:1.13.0-alpha03"
         errorLine1="            get() = Strings(R.string.range_start)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -8499,7 +8499,7 @@
 
     <issue
         id="PrivateResource"
-        message="The resource `@string/range_end` is marked as private in androidx.compose.ui:ui-android:1.12.0"
+        message="The resource `@string/range_end` is marked as private in androidx.compose.ui:ui-android:1.13.0-alpha03"
         errorLine1="            get() = Strings(R.string.range_end)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
@@ -8508,7 +8508,7 @@
 
     <issue
         id="PrivateResource"
-        message="The resource `@string/navigation_menu` is marked as private in androidx.compose.ui:ui-android:1.12.0"
+        message="The resource `@string/navigation_menu` is marked as private in androidx.compose.ui:ui-android:1.13.0-alpha03"
         errorLine1="            get() = Strings(R.string.navigation_menu)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -8517,7 +8517,7 @@
 
     <issue
         id="PrivateResource"
-        message="The resource `@string/close_drawer` is marked as private in androidx.compose.ui:ui-android:1.12.0"
+        message="The resource `@string/close_drawer` is marked as private in androidx.compose.ui:ui-android:1.13.0-alpha03"
         errorLine1="            get() = Strings(R.string.close_drawer)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -8526,7 +8526,7 @@
 
     <issue
         id="PrivateResource"
-        message="The resource `@string/close_sheet` is marked as private in androidx.compose.ui:ui-android:1.12.0"
+        message="The resource `@string/close_sheet` is marked as private in androidx.compose.ui:ui-android:1.13.0-alpha03"
         errorLine1="            get() = Strings(R.string.close_sheet)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
         <location
