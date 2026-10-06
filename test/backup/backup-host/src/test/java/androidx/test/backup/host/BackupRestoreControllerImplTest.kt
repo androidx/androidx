@@ -268,13 +268,29 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
-    fun fetchDeviceLogsWritesTheLogcatDump() = runBlocking {
-        device.onShell { shellOutput("line 1\nline 2\n") }
+    fun fetchDeviceLogsWritesTheLogcatEntriesOfTheLast30Seconds() = runBlocking {
+        device.onShell { command ->
+            if (command == "date +%s") shellOutput("1700000000\n")
+            else shellOutput("line 1\nline 2\n")
+        }
         val destination = tempFolder.root.toPath().resolve("logcat.txt")
 
         controller.fetchDeviceLogs(destination)
 
         assertEquals("line 1\nline 2\n", destination.toFile().readText())
+        assertEquals("logcat -d -t 1699999970.000", device.commands.last())
+    }
+
+    @Test
+    fun fetchDeviceLogsThrowsWithoutWritingTheFileWhenLogcatFails() {
+        device.onShell { command ->
+            if (command == "date +%s") shellOutput("1700000000\n")
+            else shellOutput(stderr = "logcat: Unexpected EOF!\n", exitCode = 1)
+        }
+        val destination = tempFolder.root.toPath().resolve("logcat.txt")
+
+        assertFailsWith<IOException> { runBlocking { controller.fetchDeviceLogs(destination) } }
+        assertFalse(destination.toFile().exists())
     }
 
     @Test

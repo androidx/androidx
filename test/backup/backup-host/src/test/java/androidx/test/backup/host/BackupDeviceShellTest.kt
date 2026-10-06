@@ -18,6 +18,7 @@ package androidx.test.backup.host
 
 import androidx.test.backup.host.BackupDeviceShell.Companion.quote
 import androidx.test.backup.host.BackupDeviceShell.Companion.quoteIfNeeded
+import com.android.adblib.ShellCommandOutput
 import java.io.IOException
 import java.time.Duration
 import kotlin.test.assertEquals
@@ -466,11 +467,78 @@ class BackupDeviceShellTest {
     }
 
     @Test
-    fun dumpLogcatReturnsTheRecentEntries() = runBlocking {
-        device.onShell { shellOutput("log line\n") }
+    fun dumpLogcatReadsTheEntriesSinceTheStartOfTheWindow() = runBlocking {
+        onDeviceClock(logcat = shellOutput("log line\n"))
 
         assertEquals("log line\n", shell.dumpLogcat(Duration.ofSeconds(30)))
-        assertEquals(listOf("logcat -d -t 30s"), device.commands)
+        assertEquals(listOf("date +%s", "logcat -d -t 1699999970.000"), device.commands)
+    }
+
+    @Test
+    fun dumpLogcatKeepsTheMillisecondsOfTheWindow() = runBlocking {
+        onDeviceClock()
+
+        shell.dumpLogcat(Duration.ofMillis(1_500))
+
+        assertEquals("logcat -d -t 1699999998.500", device.commands.last())
+    }
+
+    @Test
+    fun dumpLogcatLimitsTheWindowToTheTimeSinceTheEpoch() = runBlocking {
+        onDeviceClock()
+
+        shell.dumpLogcat(Duration.ofSeconds(Long.MAX_VALUE))
+        shell.dumpLogcat(Duration.ofSeconds(-30))
+
+        assertEquals(
+            listOf("logcat -d -t 0.000", "logcat -d -t 1700000000.000"),
+            device.commands.filter { it.startsWith("logcat") },
+        )
+    }
+
+    @Test
+    fun dumpLogcatThrowsWhenLogcatFails() {
+        onDeviceClock(
+            logcat =
+                shellOutput(
+                    stderr = "logcat: -t '1699999970.000' not in time format\n",
+                    exitCode = 1,
+                )
+        )
+
+        val e = assertFailsWith<IOException> { runBlocking { shell.dumpLogcat(THIRTY_SECONDS) } }
+        assertEquals(
+            "logcat failed (exit code 1): logcat: -t '1699999970.000' not in time format",
+            e.message,
+        )
+    }
+
+    @Test
+    fun dumpLogcatThrowsWhenTheDeviceClockCannotBeRead() {
+        device.onShell { shellOutput(stderr = "date: not found\n", exitCode = 127) }
+
+        val e = assertFailsWith<IOException> { runBlocking { shell.dumpLogcat(THIRTY_SECONDS) } }
+        assertEquals("Failed to read the device clock (exit code 127): date: not found", e.message)
+        assertEquals(listOf("date +%s"), device.commands)
+    }
+
+    /** A Linux clock cannot be set before the epoch, so a negative reading is not a time. */
+    @Test
+    fun dumpLogcatThrowsWhenTheDeviceClockReadsBeforeTheEpoch() {
+        onDeviceClock(epochSeconds = -1)
+
+        val e = assertFailsWith<IOException> { runBlocking { shell.dumpLogcat(THIRTY_SECONDS) } }
+        assertEquals("Failed to read the device clock (exit code 0): -1", e.message)
+        assertEquals(listOf("date +%s"), device.commands)
+    }
+
+    @Test
+    fun dumpLogcatDoesNotOverflowOnTheLargestClockReading() = runBlocking {
+        onDeviceClock(epochSeconds = Long.MAX_VALUE)
+
+        shell.dumpLogcat(THIRTY_SECONDS)
+
+        assertEquals("logcat -d -t ${Long.MAX_VALUE - 30}.000", device.commands.last())
     }
 
     @Test
@@ -480,10 +548,22 @@ class BackupDeviceShellTest {
         assertEquals(listOf("logcat -c"), device.commands)
     }
 
+    /** Answers `date +%s` with [epochSeconds] and logcat dumps with [logcat]. */
+    private fun onDeviceClock(
+        epochSeconds: Long = DEVICE_EPOCH_SECONDS,
+        logcat: ShellCommandOutput = shellOutput(),
+    ) {
+        device.onShell { command ->
+            if (command == "date +%s") shellOutput("$epochSeconds\n") else logcat
+        }
+    }
+
     private companion object {
         const val PACKAGE = "com.example.app"
         const val STAGED_APK = "/data/local/tmp/backup_test_temp.apk"
         const val RESOLVE_OUTPUT_PREFIX =
             "priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true\n"
+        const val DEVICE_EPOCH_SECONDS = 1_700_000_000L
+        val THIRTY_SECONDS: Duration = Duration.ofSeconds(30)
     }
 }
