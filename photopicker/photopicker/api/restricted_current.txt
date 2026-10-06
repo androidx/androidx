@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=restricted-non-atomic-group
 package @SuppressCompatibility androidx.photopicker {
 
   @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) @androidx.photopicker.ExperimentalPhotoPickerApi public final class EmbeddedPhotoPickerView extends android.view.ViewGroup {

@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=restricted-non-atomic-group
 package androidx.arch.core.executor {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ArchTaskExecutor extends androidx.arch.core.executor.TaskExecutor {

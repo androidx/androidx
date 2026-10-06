@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=restricted-non-atomic-group
 package com.android.extensions.appfunctions {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AppFunctionException extends java.lang.Exception {

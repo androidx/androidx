@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=restricted-non-atomic-group
 package @SuppressCompatibility androidx.xr.projected.testing {
 
   @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedTestRule implements org.junit.rules.TestRule {

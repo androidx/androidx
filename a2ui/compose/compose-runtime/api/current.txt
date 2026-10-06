@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.a2ui.compose.runtime {
 
   @androidx.compose.runtime.Stable public final class A2uiComponentModel {

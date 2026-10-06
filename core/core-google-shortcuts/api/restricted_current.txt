@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=restricted-atomic-group
 package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) androidx.core.google.shortcuts {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ShortcutInfoChangeListenerImpl extends androidx.core.content.pm.ShortcutInfoChangeListener {

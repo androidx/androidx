@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.lifecycle.testing {
 
   public final class TestLifecycleOwner implements androidx.lifecycle.LifecycleOwner {
