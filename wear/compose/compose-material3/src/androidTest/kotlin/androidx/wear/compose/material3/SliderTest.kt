@@ -254,6 +254,115 @@ class SliderTest {
     }
 
     @Test
+    fun reaches_min_clicking_left_with_steps_overload() {
+        val state = mutableStateOf(2)
+        rule.setContentWithTheme {
+            Slider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = state.value,
+                onValueChange = { state.value = it },
+                steps = 4,
+            )
+        }
+
+        // Clicking left decreases from 2 to 1
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(15f, height / 2f)) }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(1) }
+
+        // Clicking left again cannot decrease below 1 (decrease button disabled)
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(15f, height / 2f)) }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(1) }
+    }
+
+    @Test
+    fun reaches_max_clicking_right_with_steps_overload() {
+        val state = mutableStateOf(3)
+        rule.setContentWithTheme {
+            Slider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = state.value,
+                onValueChange = { state.value = it },
+                steps = 4,
+            )
+        }
+
+        // Clicking right increases from 3 to 4
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(width - 15f, height / 2f)) }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(4) }
+
+        // Clicking right again cannot increase above 4 (increase button disabled)
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(width - 15f, height / 2f)) }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(4) }
+    }
+
+    @Test
+    fun reaches_min_clicking_left_with_float_showMinimumSegment() {
+        val state = mutableStateOf(2f)
+        rule.setContentWithTheme {
+            Slider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = state.value,
+                onValueChange = { state.value = it },
+                valueRange = 1f..4f,
+                steps = 2,
+                showMinimumSegment = true,
+            )
+        }
+
+        // Clicking left decreases from 2f to 1f
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(15f, height / 2f)) }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(1f) }
+
+        // Clicking left again cannot decrease below 1f (decrease button disabled)
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(15f, height / 2f)) }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(1f) }
+    }
+
+    @Test
+    fun reaches_min_clicking_left_with_showMinimumSegment() {
+        val state = mutableStateOf(2)
+        rule.setContentWithTheme {
+            Slider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = state.value,
+                onValueChange = { state.value = it },
+                valueProgression = 1..4,
+                showMinimumSegment = true,
+            )
+        }
+
+        // Clicking left decreases from 2 to 1
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(15f, height / 2f)) }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(1) }
+
+        // Clicking left again cannot decrease below 1 (decrease button disabled)
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(15f, height / 2f)) }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(1) }
+    }
+
+    @Test
+    fun reaches_max_clicking_right_with_showMinimumSegment() {
+        val state = mutableStateOf(3)
+        rule.setContentWithTheme {
+            Slider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = state.value,
+                onValueChange = { state.value = it },
+                valueProgression = 1..4,
+                showMinimumSegment = true,
+            )
+        }
+
+        // Clicking right increases from 3 to 4
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(width - 15f, height / 2f)) }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(4) }
+
+        // Clicking right again cannot increase beyond 4 (increase button disabled)
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(width - 15f, height / 2f)) }
+        rule.runOnIdle { Truth.assertThat(state.value).isEqualTo(4) }
+    }
+
+    @Test
     fun reaches_max_clicking_right() {
         val state = mutableStateOf(4f)
         rule.setContentWithTheme {

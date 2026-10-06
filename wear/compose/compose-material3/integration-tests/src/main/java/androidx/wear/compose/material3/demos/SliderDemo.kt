@@ -46,6 +46,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.ChangedSliderSample
 import androidx.wear.compose.material3.samples.SliderSample
 import androidx.wear.compose.material3.samples.SliderSegmentedSample
+import androidx.wear.compose.material3.samples.SliderShowMinimumSegmentSample
 import androidx.wear.compose.material3.samples.SliderWithIntegerSample
 
 val SliderDemos =
@@ -59,6 +60,9 @@ val SliderDemos =
         ComposableDemo("Integer slider") {
             Centralize(Modifier.padding(horizontal = 10.dp)) { SliderWithIntegerSample() }
         },
+        ComposableDemo("ShowMinimumSegment Simple slider") {
+            Centralize(Modifier.padding(horizontal = 10.dp)) { SliderShowMinimumSegmentSample() }
+        },
         ComposableDemo("Color changing slider") {
             Centralize(Modifier.padding(horizontal = 10.dp)) { ChangedSliderSample() }
         },
@@ -67,6 +71,7 @@ val SliderDemos =
         ComposableDemo("Slider segmented") { SliderDemo(segmented = true) },
         ComposableDemo("With custom color") { SliderCustomColorsDemo() },
         ComposableDemo("Slider with integers") { SliderWithIntegersDemo() },
+        ComposableDemo("Slider with min segment") { ShowMinimumSegmentSliderDemo() },
     )
 
 @Composable
@@ -221,4 +226,54 @@ fun DefaultSlider(
         enabled = enabled,
         colors = colors,
     )
+}
+
+@Composable
+fun ShowMinimumSegmentSliderDemo() {
+    var stepsValue by remember { mutableIntStateOf(1) }
+    var intValue by remember { mutableIntStateOf(1) }
+    var floatValue by remember { mutableFloatStateOf(1f) }
+    val scrollState = rememberScalingLazyListState()
+
+    ScreenScaffold(scrollState = scrollState) {
+        ScalingLazyColumn(
+            state = scrollState,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement =
+                Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterVertically),
+            modifier = Modifier.fillMaxSize(),
+            autoCentering = AutoCenteringParams(itemIndex = 0),
+        ) {
+            item { Text("Steps Slider (steps=4): $stepsValue") }
+            item {
+                Slider(
+                    value = stepsValue,
+                    onValueChange = { stepsValue = it },
+                    steps = 4,
+                    modifier = Modifier.padding(horizontal = 10.dp),
+                )
+            }
+            item { Text("Int Slider (1..5): $intValue") }
+            item {
+                Slider(
+                    value = intValue,
+                    onValueChange = { intValue = it },
+                    valueProgression = 1..5,
+                    showMinimumSegment = true,
+                    modifier = Modifier.padding(horizontal = 10.dp),
+                )
+            }
+            item { Text("Float Slider (1..5, steps=7): ${"%.1f".format(floatValue)}") }
+            item {
+                Slider(
+                    value = floatValue,
+                    onValueChange = { floatValue = it },
+                    valueRange = 1f..5f,
+                    steps = 7,
+                    showMinimumSegment = true,
+                    modifier = Modifier.padding(horizontal = 10.dp),
+                )
+            }
+        }
+    }
 }
