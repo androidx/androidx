@@ -32,7 +32,9 @@ import java.util.logging.Logger
 import kotlin.time.Duration as KotlinDuration
 import kotlin.time.toKotlinDuration
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.guava.future
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 
 internal class BackupRestoreControllerImpl(
@@ -112,7 +114,11 @@ internal class BackupRestoreControllerImpl(
                 }
             }
         } catch (e: Exception) {
-            record(tracker.failed(e))
+            // A cancelled flow has no outcome to report. A CancellationException thrown while the
+            // flow is still active, such as the timeout of an inner withTimeout, is a failure.
+            if (e !is CancellationException || currentCoroutineContext().isActive) {
+                record(tracker.failed(e))
+            }
             throw e
         }
         val summary = tracker.succeeded()

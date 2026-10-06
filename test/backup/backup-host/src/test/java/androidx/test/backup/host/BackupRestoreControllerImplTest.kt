@@ -32,10 +32,12 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.Rule
@@ -805,6 +807,37 @@ class BackupRestoreControllerImplTest {
 
         assertFailure(BackupExecutionStage.PRECONDITION, BackupErrorCode.UNKNOWN_ERROR)
         assertTrue(device.commands.isEmpty(), "${device.commands}")
+    }
+
+    /** A cancelled flow, such as one that a test timeout stops, neither failed nor succeeded. */
+    @Test
+    fun flowRecordsNothingWhenCancelled() = runBlocking {
+        device.hangOn { it.startsWith("am instrument") }
+
+        val flow = launch { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        withTimeout(10.seconds) {
+            while (device.commands.none { it.startsWith("am instrument") }) delay(10)
+        }
+        flow.cancelAndJoin()
+
+        assertNull(controller.lastExecutionSummary)
+        assertTrue(publishedMetrics.isEmpty(), "$publishedMetrics")
+    }
+
+    /** A CancellationException that does not cancel the flow reports an error, like a timeout. */
+    @Test
+    fun flowRecordsACancellationExceptionOfAnActiveFlowAsAFailure() {
+        onHealthyDevice { command ->
+            if (command.startsWith("am instrument")) throw CancellationException("Timed out")
+            else null
+        }
+
+        assertFailsWith<CancellationException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.SEEDING, BackupErrorCode.SEEDING_FAILED)
+        assertEquals("FAILURE", publishedMetrics[BackupReportKeys.STATUS])
     }
 
     /**
