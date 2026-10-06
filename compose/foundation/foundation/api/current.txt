@@ -2,10 +2,8 @@
 package androidx.compose.foundation {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class AndroidComposeFoundationFlags {
-    property public boolean isOverscrollPixelRoundingEnabled;
     property public boolean isPrefetchSchedulerLateFrameDetectionEnabled;
     field public static final androidx.compose.foundation.AndroidComposeFoundationFlags INSTANCE;
-    field public static boolean isOverscrollPixelRoundingEnabled;
     field public static boolean isPrefetchSchedulerLateFrameDetectionEnabled;
   }
 
