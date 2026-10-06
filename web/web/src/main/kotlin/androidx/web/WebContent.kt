@@ -59,27 +59,12 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
 
     private var isDetached: Boolean = true
     private var isDestroyed: Boolean = false
+    private var currentView: WebContentView? = null
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var currentView: WebContentView? = null
-        private set
-
-    private var currentViewListener: ((WebContentView?) -> Unit)? = null
-
-    private val attachedView: WebContentView?
-        get() = currentView?.takeUnless { isDetached }
-
-    /** Sets a listener to be notified when the attached [WebContentView] changes. */
-    @UiThread
+    /** Returns whether this [WebContent] is currently attached to a [WebContentView]. */
     @InternalWebApi
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setCurrentViewListener(listener: ((WebContentView?) -> Unit)?) {
-        if (currentViewListener === listener) return
-        val previousListener = currentViewListener
-        currentViewListener = listener
-        previousListener?.invoke(null)
-        listener?.invoke(attachedView)
-    }
+    public fun isAttached(): Boolean = !isDetached && !isDestroyed
 
     private fun unwrapActivity(context: Context): Activity? {
         var ctx: Context? = context
@@ -149,8 +134,6 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
         boundaryInterface.destroy()
         isDestroyed = true
         currentView = null
-        currentViewListener?.invoke(null)
-        currentViewListener = null
     }
 
     internal fun <T : WebContentView> internalAttach(context: Context, factory: (Context) -> T): T {
@@ -166,7 +149,6 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
             currentView?.transferViewState(nextView)
             currentView = nextView
             isDetached = nextView is DetachedWebContentView
-            currentViewListener?.invoke(attachedView)
         }
     }
 
