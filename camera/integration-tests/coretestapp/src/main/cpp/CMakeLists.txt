@@ -36,4 +36,5 @@ target_link_options(
   opengl_renderer_jni
   PRIVATE
   "-Wl,-z,max-page-size=16384"
+  "-Wl,-z,common-page-size=16384"
 )
