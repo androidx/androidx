@@ -23,10 +23,9 @@ import android.text.SpannableString
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -42,6 +41,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.ceil
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -49,30 +49,32 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class VerticalTextTest {
 
-    @OptIn(ExperimentalTestApi::class)
+    @get:Rule val rule = createComposeRule()
+
     @Test
-    fun exposesSemantics_correctly() = runComposeUiTest {
+    fun exposesSemantics_correctly() {
         val text = SpannableString("Hello Vertical")
         val style = VerticalTextStyle(fontSize = 30.sp)
 
-        setContent { VerticalText(text = text, style = style) }
+        rule.setContent { VerticalText(text = text, style = style) }
 
         // Modern Compose testing relies on finding nodes by their semantic text
-        onNodeWithText("Hello Vertical").assertExists().assertIsDisplayed()
+        rule.onNodeWithText("Hello Vertical").assertExists().assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
-    fun annotatedString_preservesSpansAndAnnotationsInSemantics() = runComposeUiTest {
+    fun annotatedString_preservesSpansAndAnnotationsInSemantics() {
         val annotated = buildAnnotatedString {
             pushStringAnnotation(tag = "ruby", annotation = "かんじ")
             withStyle(SpanStyle(color = Color.Red)) { append("漢字") }
             pop()
         }
 
-        setContent { VerticalText(text = annotated, style = VerticalTextStyle(fontSize = 30.sp)) }
+        rule.setContent {
+            VerticalText(text = annotated, style = VerticalTextStyle(fontSize = 30.sp))
+        }
 
-        val node = onNodeWithText("漢字").assertExists().fetchSemanticsNode()
+        val node = rule.onNodeWithText("漢字").assertExists().fetchSemanticsNode()
         val semanticsText = node.config[SemanticsProperties.Text].single()
         assertThat(semanticsText).isEqualTo(annotated)
         assertThat(semanticsText.spanStyles).isEqualTo(annotated.spanStyles)
