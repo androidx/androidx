@@ -64,13 +64,12 @@ class PokedexScrollBenchmark(
             action = "$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_COMPOSE_ACTIVITY",
             setupBlock = {
                 device.waitForIdle()
-                val searchCondition = Until.hasObject(By.res("Pokemon"))
-                device.wait(searchCondition, 3_000)
-                val content = device.findObject(By.res("PokedexList"))
+                device.waitOrThrow(Until.hasObject(By.res("Ablazeon_card")), 3_000)
+                val content = device.findObjectOrThrow(By.res("PokedexList"))
                 // Set gesture margin to avoid triggering gesture navigation
                 content.setGestureMargin(device.displayWidth / 5)
             },
-            measureBlock = { scrollActions(device.findObject(By.res("PokedexList"))) },
+            measureBlock = { scrollActions(device.findObjectOrThrow(By.res("PokedexList"))) },
         )
 
     @Test
@@ -144,22 +143,26 @@ class PokedexScrollBenchmark(
     }
 
     private fun MacrobenchmarkScope.scrollActions(content: UiObject2) {
-        // Important: We perform up flings with the default fling speed, and down flings with a
-        // slightly lower speed. Injected input event velocity can be slightly varied, so the up
-        // fling could result in a gesture that hits the bounds and shows overscroll. We
-        // specifically only want to measure scroll here.
-        val upSpeed = (FLING_SPEED_DP_PER_SECOND * targetDisplayDensity).roundToInt()
-        val downSpeed = (upSpeed * OPPOSING_DIRECTION_FLING_FACTOR).roundToInt()
+        // Perform down flings (scrolling toward the bottom of the list) with the default fling
+        // speed, and up flings (scrolling back toward the top) with a lower speed. Injected input
+        // event velocity varies across gestures, so a lower up-fling speed prevents the return
+        // fling from hitting the top bound of the list.
+        val downSpeed = (FLING_SPEED_DP_PER_SECOND * targetDisplayDensity).roundToInt()
+        val upSpeed = (downSpeed * OPPOSING_DIRECTION_FLING_FACTOR).roundToInt()
         fun flingAndWaitForIdle(direction: Direction, speed: Int) {
             trace("PokedexScrollBenchmark#fling($direction, speed=$speed)") {
-                content.fling(direction, speed)
+                val canStillScroll = content.fling(direction, speed)
+                Trace.setCounter(
+                    "pokedex:scroll:canStillScroll",
+                    if (canStillScroll) 1 else 0,
+                )
                 device.waitForIdle()
             }
         }
-        flingAndWaitForIdle(Direction.DOWN, upSpeed)
-        flingAndWaitForIdle(Direction.UP, downSpeed)
-        flingAndWaitForIdle(Direction.DOWN, upSpeed)
-        flingAndWaitForIdle(Direction.UP, downSpeed)
+        flingAndWaitForIdle(Direction.DOWN, downSpeed)
+        flingAndWaitForIdle(Direction.UP, upSpeed)
+        flingAndWaitForIdle(Direction.DOWN, downSpeed)
+        flingAndWaitForIdle(Direction.UP, upSpeed)
     }
 
     /** Density of the instrumentation's target context, in DP. */
@@ -175,13 +178,10 @@ class PokedexScrollBenchmark(
         private const val FLING_SPEED_DP_PER_SECOND = 7_500
 
         /**
-         * The factor to be applied to a [UiObject2.fling]s in an opposing direction. For example,
-         * after a DOWN fling with 7500f, we want to perform an UP fling with 7000f to work around
-         * UiAutomator/ADB issues with velocity from injected input events.
-         *
-         * The value of 0.92 has been found through rigorous estimation and tests on this benchmark.
+         * Slows [Direction.UP] flings so they do not scroll past the start of the list when
+         * injected [android.view.MotionEvent] timing varies.
          */
-        private const val OPPOSING_DIRECTION_FLING_FACTOR = 0.92f
+        private const val OPPOSING_DIRECTION_FLING_FACTOR = 0.85f
 
         /**
          * Parameters for the benchmark. Uses abbreviations because of file length limit for

@@ -16,11 +16,11 @@
 
 package androidx.compose.integration.hero.pokedex.macrobenchmark.internal.mockserver
 
-import androidx.benchmark.inMemoryTrace
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.mockserver.PokemonInfo.Companion.MAX_ATTACK
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.mockserver.PokemonInfo.Companion.MAX_DEFENSE
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.mockserver.PokemonInfo.Companion.MAX_HP
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.mockserver.PokemonInfo.Companion.MAX_SPEED
+import androidx.compose.integration.hero.pokedex.macrobenchmark.trace
 import kotlin.random.Random
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -105,11 +105,11 @@ fun fakePokemonNetworkModels(pokemonNames: List<String>) = pokemonNames.map { na
 }
 
 fun fakePokemonNames(limit: Int, offset: Int = 0): List<String> =
-    inMemoryTrace("fakePokemonNames(limit=$limit, offset=$offset)") {
+    trace("fakePokemonNames") {
         val numberOfPokemon = AllPokemonNames.size
         val from = offset.coerceIn(0, numberOfPokemon)
         val max = (offset + limit).coerceAtMost(numberOfPokemon)
-        return AllPokemonNames.subList(from, max)
+        AllPokemonNames.subList(from, max)
     }
 
 val AllPokemonNames =
