@@ -47,11 +47,9 @@ import androidx.compose.runtime.internal.invokeComposable
 import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
 import androidx.compose.runtime.internal.trace
 import androidx.compose.runtime.snapshots.IndirectState
-import androidx.compose.runtime.snapshots.IndirectStateObserver
 import androidx.compose.runtime.snapshots.currentSnapshot
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastToSet
-import androidx.compose.runtime.snapshots.observeIndirectStateRecalculations
 import androidx.compose.runtime.tooling.ComposeStackTrace
 import androidx.compose.runtime.tooling.ComposeStackTraceFrame
 import androidx.compose.runtime.tooling.ComposeToolingApi
@@ -252,21 +250,6 @@ internal class GapComposer(
 
     override var sourceMarkersEnabled =
         parentContext.collectingSourceInformation || parentContext.collectingCallByInformation
-
-    private val indirectStateObserver =
-        object : IndirectStateObserver {
-            override fun start(state: IndirectState<*>) {
-                if (state is DerivedState<*>) {
-                    childrenComposing++
-                }
-            }
-
-            override fun done(state: IndirectState<*>, calculatedValue: Any?) {
-                if (state is DerivedState<*>) {
-                    childrenComposing--
-                }
-            }
-        }
 
     private val invalidateStack = Stack<RecomposeScopeImpl>()
 
@@ -1288,7 +1271,9 @@ internal class GapComposer(
 
     override val currentRecomposeScope: RecomposeScopeImpl?
         get() = invalidateStack.let {
-            if (childrenComposing == 0 && it.isNotEmpty()) it.peek() else null
+            if (childrenComposing == 0 && composition.derivedStateDepth == 0 && it.isNotEmpty())
+                it.peek()
+            else null
         }
 
     private fun ensureWriter() {
@@ -2307,9 +2292,7 @@ internal class GapComposer(
             val observer = observerHolder.pin()
             observer?.onBeginComposition(composition)
             try {
-                observeIndirectStateRecalculations(indirectStateObserver) {
-                    insertMovableContentGuarded(references)
-                }
+                insertMovableContentGuarded(references)
                 completed = true
             } finally {
                 observer?.onEndComposition(composition)
@@ -2665,25 +2648,23 @@ internal class GapComposer(
                 }
                 // ^^ Experimental for forced
 
-                // Ignore reads of derivedStateOf recalculations
-                observeIndirectStateRecalculations(indirectStateObserver) {
-                    if (content != null) {
-                        startGroup(invocationKey, invocation)
-                        invokeComposable(this, content)
-                        endGroup()
-                    } else if (
-                        (forciblyRecompose || providersInvalid) &&
-                            savedContent != null &&
-                            savedContent != Composer.Empty
-                    ) {
-                        startGroup(invocationKey, invocation)
-                        @Suppress("UNCHECKED_CAST")
-                        invokeComposable(this, savedContent as @Composable () -> Unit)
-                        endGroup()
-                    } else {
-                        skipCurrentGroup()
-                    }
+                if (content != null) {
+                    startGroup(invocationKey, invocation)
+                    invokeComposable(this, content)
+                    endGroup()
+                } else if (
+                    (forciblyRecompose || providersInvalid) &&
+                        savedContent != null &&
+                        savedContent != Composer.Empty
+                ) {
+                    startGroup(invocationKey, invocation)
+                    @Suppress("UNCHECKED_CAST")
+                    invokeComposable(this, savedContent as @Composable () -> Unit)
+                    endGroup()
+                } else {
+                    skipCurrentGroup()
                 }
+
                 endRoot()
                 complete = true
             } catch (e: Throwable) {
