@@ -16,6 +16,7 @@
 package androidx.camera.camera2.adapter
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.config.CameraAppComponent
 import androidx.camera.camera2.config.CameraAppConfig
 import androidx.camera.camera2.config.CameraConfig
@@ -42,6 +43,7 @@ import androidx.camera.core.impl.CameraUpdateException
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.StreamSpecsCalculator
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.concurrent.thread
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 
@@ -52,11 +54,13 @@ import kotlinx.coroutines.asCoroutineDispatcher
 internal class CameraFactoryAdapter(
     private val lazyCameraPipe: Lazy<CameraPipe>,
     context: Context,
-    threadConfig: CameraThreadConfig,
+    @get:VisibleForTesting internal val threadConfig: CameraThreadConfig,
     camera2InteropCallbacks: CameraInteropStateCallbackRepository,
     private val availableCamerasSelector: CameraSelector?,
     private val streamSpecsCalculator: StreamSpecsCalculator,
     private val cameraXConfig: CameraXConfig,
+    /** Whether [threadConfig]'s camera executor runs tasks inline on the calling thread. */
+    private val isDirectExecutor: Boolean = false,
 ) : CameraFactory, CameraFactory.Interrogator {
     private val cameraCoordinator: CameraCoordinatorAdapter =
         CameraCoordinatorAdapter(lazyCameraPipe.value, lazyCameraPipe.value.cameras())
@@ -194,8 +198,27 @@ internal class CameraFactoryAdapter(
         }
         cameraCoordinator.shutdown()
         pipeCameraPresenceObservable.stopMonitoring()
-        if (lazyCameraPipe.isInitialized()) {
-            lazyCameraPipe.value.shutdown()
+        if (!lazyCameraPipe.isInitialized()) {
+            return
+        }
+        val cameraPipe = lazyCameraPipe.value
+        if (isDirectExecutor) {
+            // With a direct executor, camera work runs inline on whichever thread completes it,
+            // so CameraX's shutdown chain (CameraInternalAdapter.release -> CameraRepository.deinit
+            // -> CameraFactory.shutdown) can reach this method on a thread owned by CameraPipe.
+            // CameraPipe.shutdown() stops CameraPipe's own threads (shutdownNow, awaitTermination,
+            // join) and cannot do so from one of them: it interrupts and waits on itself until
+            // timeouts expire (b/439976984). Tear CameraPipe down on a dedicated thread instead,
+            // leaving all camera work on the user's executor as requested.
+            thread(name = "CXCP-Shutdown") {
+                try {
+                    cameraPipe.shutdown()
+                } catch (e: Exception) {
+                    Camera2Logger.error(e) { "Failed to shut down $cameraPipe" }
+                }
+            }
+        } else {
+            cameraPipe.shutdown()
         }
     }
 }

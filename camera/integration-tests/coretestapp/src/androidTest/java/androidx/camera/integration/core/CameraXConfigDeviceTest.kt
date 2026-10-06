@@ -72,7 +72,6 @@ import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -404,12 +403,6 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
 
     @Test
     fun directExecutorAndCustomScheduler_canBindUseCase() {
-        // TODO(b/439976984): Enable this test for CameraPipe when the issue is resolved.
-        assumeFalse(
-            "CameraPipe fails with directExecutor (b/439976984)",
-            implName == Camera2Config::class.simpleName,
-        )
-
         // Arrange
         val handlerThread = HandlerThread("CustomScheduler").apply { start() }
         val customSchedulerHandler = Handler(handlerThread.looper)
@@ -428,6 +421,26 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
         // Cleanup
         cameraProvider?.shutdownAsync()?.get(10, TimeUnit.SECONDS)
         handlerThread.quitSafely()
+    }
+
+    @Test
+    fun directExecutor_reinitializeImmediatelyAfterShutdown_canBindUseCase() {
+        // Arrange: With a direct executor, CameraPipe is torn down asynchronously after CameraX
+        // shutdown completes, so the next instance may start while the previous one is closing.
+        val directExecutorConfig =
+            CameraXConfig.Builder.fromConfig(baseConfig)
+                .setCameraExecutor(CameraXExecutors.directExecutor())
+                .build()
+        initializeProviderWithConfig(directExecutorConfig)
+        bindPreviewAndVerify()
+
+        // Act: Shut down and immediately re-initialize with the same config.
+        InstrumentationRegistry.getInstrumentation().runOnMainSync { cameraProvider!!.unbindAll() }
+        cameraProvider!!.shutdownAsync()[10, TimeUnit.SECONDS]
+        initializeProviderWithConfig(directExecutorConfig)
+
+        // Assert: The camera can be opened and streams again.
+        bindPreviewAndVerify()
     }
 
     @Test
