@@ -440,7 +440,7 @@ class DaoReturnTypeConverterProcessorTest {
                 import androidx.room3.*
 
                 class FooReturnTypeConverter {
-                    @DaoReturnTypeConverter
+                    @DaoReturnTypeConverter(operations = [])
                     suspend fun <T> convert(
                         executeAndConvert: suspend () -> T,
                     ): Foo<T> {
