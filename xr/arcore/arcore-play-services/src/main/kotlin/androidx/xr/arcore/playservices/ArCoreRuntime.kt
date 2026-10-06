@@ -47,7 +47,8 @@ import com.google.ar.core.exceptions.FineLocationPermissionNotGrantedException
 import com.google.ar.core.exceptions.GooglePlayServicesLocationLibraryNotLinkedException as ARCore1xGooglePlayServicesLocationLibraryNotLinkedException
 import com.google.ar.core.exceptions.UnsupportedConfigurationException
 import kotlin.time.ComparableTimeMark
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 
 /**
@@ -68,6 +69,9 @@ internal constructor(
 ) : PerceptionRuntime {
 
     internal lateinit var _session: Session
+
+    /** Start time of the previous iteration of the update loop. */
+    private var startTimePreviousIteration = 0.nanoseconds
 
     /**
      * The underlying [Session] instance.
@@ -98,15 +102,27 @@ internal constructor(
         _session.pause()
     }
 
+    /** Pace the update loop cadence according to [TARGET_UPDATE_HZ]. */
     override suspend fun prepareForUpdate() {
-        // Delay for average time between frames based on camera config fps setting. This frees up
-        // the thread this method is scheduled to run on to do other work. Note that this can result
-        // in the emission of duplicated CoreStates by the core Session if the underlying ARCore 1.x
-        // Session has not produced a new frame by the time the delay has expired.
-        val avgFps =
-            (_session.cameraConfig.fpsRange.lower + _session.cameraConfig.fpsRange.upper) / 2
-        val delayTime = (1000L / avgFps).milliseconds
-        delay(delayTime)
+        // TODO(b/568916788): Revisit the loop pacing on mobile where there is additional pacing
+        // logic within update(). The logic there may not work with the pacing logic in this
+        // function.
+
+        // Determine how long to delay based on the start time of the previous iteration.
+        val now = System.nanoTime().nanoseconds
+        val previousIterationDuration = now - startTimePreviousIteration
+        val delayDuration = TARGET_UPDATE_DURATION - previousIterationDuration
+
+        if (delayDuration > 0.nanoseconds) {
+            delay(delayDuration)
+            // In case the delay woke us up late, use the time when we should have awoken to
+            // preserve the update loop cadence.
+            startTimePreviousIteration += TARGET_UPDATE_DURATION
+        } else {
+            // The previous iteration took longer than expected. Proceed immediately. Also, the
+            // previous iteration's start time is too far in the past, reset it to now.
+            startTimePreviousIteration = now
+        }
     }
 
     override suspend fun update(): ComparableTimeMark {
@@ -334,5 +350,8 @@ internal constructor(
         private const val ARCORE_GEOSPATIAL_MODE_INERTIAL =
             3 /* com.google.ar.core.Config.GeospatialMode.INERTIAL */
         private const val ARCORE_PACKAGE_NAME = "com.google.ar.core"
+
+        private const val TARGET_UPDATE_HZ = 30.0
+        val TARGET_UPDATE_DURATION = 1.0.seconds / TARGET_UPDATE_HZ
     }
 }
