@@ -17,9 +17,24 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.runtime.AbstractApplier
+import java.util.concurrent.atomic.AtomicLong
 
 internal class RemoteComposeApplier(root: RemoteComposeNode) :
     AbstractApplier<RemoteComposeNode>(root) {
+
+    private val changeBatches = AtomicLong()
+
+    /**
+     * Number of non-empty change batches applied to the node tree so far, including late changes
+     * (e.g. movable content). Safe to read from any thread.
+     */
+    val changeCount: Long
+        get() = changeBatches.get()
+
+    override fun onEndChanges() {
+        super.onEndChanges()
+        changeBatches.incrementAndGet()
+    }
 
     override fun insertTopDown(index: Int, instance: RemoteComposeNode) {
         // Ignored as we build the tree bottom-up for efficiency

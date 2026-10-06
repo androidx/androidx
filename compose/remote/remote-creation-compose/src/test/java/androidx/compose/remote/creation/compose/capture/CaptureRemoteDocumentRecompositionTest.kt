@@ -20,7 +20,12 @@ package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.LaunchedEffect
@@ -30,8 +35,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -39,6 +46,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -46,7 +54,9 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
+@Repeat(5)
 class CaptureRemoteDocumentRecompositionTest {
+    @get:Rule val repeatRule = RepeatRule()
 
     private lateinit var context: Context
 
@@ -143,10 +153,8 @@ class CaptureRemoteDocumentRecompositionTest {
         val doc2 = RemoteDocument(documents[1])
         val doc3 = RemoteDocument(documents[2])
 
-        // TODO: We fixed duplicate emissions (reducing to 3 docs) by using distinctUntilChanged on
-        //  the byte arrays. Investigate if we can use structural changes or track state
-        // changes/applier
-        //  events to avoid even generating the document byte array when nothing visually changed.
+        // Renders are skipped unless the node tree or a state read while rendering changed, and
+        // byte-identical documents are de-duplicated, so each distinct text emits exactly once.
         assertThat(doc1.document.displayHierarchy()).contains("Initial")
         assertThat(doc2.document.displayHierarchy()).contains("Updated 1")
         assertThat(doc3.document.displayHierarchy()).contains("Updated 2")
@@ -168,14 +176,8 @@ class CaptureRemoteDocumentRecompositionTest {
                 },
             )
 
-        // Start background snapshot apply observer loop to handle async writes from Flow collector
-        backgroundScope.launch {
-            while (true) {
-                Snapshot.sendApplyNotifications()
-                kotlinx.coroutines.delay(10)
-            }
-        }
-
+        // No manual Snapshot.sendApplyNotifications() loop: captureRemoteDocument's
+        // SnapshotWriteMonitor must deliver the collector's global write by itself.
         val documents = mutableListOf<ByteArray>()
         val job = launch { flow.take(2).toList(documents) }
 
@@ -193,5 +195,126 @@ class CaptureRemoteDocumentRecompositionTest {
 
         assertThat(doc1.document.displayHierarchy()).contains("Initial")
         assertThat(doc2.document.displayHierarchy()).contains("Updated")
+    }
+
+    /**
+     * A `RemoteCanvas` draw lambda runs at render time, so a state read only there never causes a
+     * composition change. The render-skip logic must still re-render when that state changes.
+     */
+    @Test
+    fun testStateReadOnlyWhileRenderingEmitsNewDocument() = runTest {
+        val fill = mutableStateOf(Color.Red)
+        val renders = AtomicInteger()
+
+        val flow =
+            captureRemoteDocument(
+                creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
+                context = context,
+                coroutineContext = coroutineContext,
+                content = {
+                    RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                        renders.incrementAndGet()
+                        drawRect(paint = RemotePaint { color = fill.value.rc })
+                    }
+                },
+            )
+
+        val documents = mutableListOf<ByteArray>()
+        val job = launch { flow.take(2).toList(documents) }
+        testScheduler.advanceUntilIdle()
+        assertThat(documents).hasSize(1)
+
+        Snapshot.withMutableSnapshot { fill.value = Color.Blue }
+        Snapshot.sendApplyNotifications()
+        testScheduler.advanceUntilIdle()
+
+        assertThat(documents).hasSize(2)
+        job.join()
+        assertThat(documents[1]).isNotEqualTo(documents[0])
+        assertThat(renders.get()).isEqualTo(2)
+    }
+
+    /**
+     * A global snapshot write that neither composition nor rendering reads must not cost a render.
+     * Byte de-duplication would hide an extra render from the emitted documents, so the render
+     * count is asserted directly.
+     */
+    @Test
+    fun testUnrelatedGlobalWriteDoesNotRender() = runTest {
+        val unrelated = mutableStateOf(0)
+        val renders = AtomicInteger()
+
+        val flow =
+            captureRemoteDocument(
+                creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
+                context = context,
+                coroutineContext = coroutineContext,
+                content = {
+                    RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                        renders.incrementAndGet()
+                        drawRect(paint = RemotePaint { color = Color.Red.rc })
+                    }
+                },
+            )
+
+        val documents = mutableListOf<ByteArray>()
+        val job = launch { flow.toList(documents) }
+        testScheduler.advanceUntilIdle()
+        assertThat(documents).hasSize(1)
+        assertThat(renders.get()).isEqualTo(1)
+
+        repeat(3) {
+            Snapshot.withMutableSnapshot { unrelated.value++ }
+            Snapshot.sendApplyNotifications()
+            testScheduler.advanceUntilIdle()
+        }
+
+        assertThat(renders.get()).isEqualTo(1)
+        assertThat(documents).hasSize(1)
+        job.cancel()
+    }
+
+    /**
+     * A recomposition whose output is identical applies no changes to the node tree, so the render
+     * is skipped.
+     */
+    @Test
+    fun testRecompositionWithoutAppliedChangesDoesNotRender() = runTest {
+        val trigger = mutableStateOf(0)
+        val compositions = AtomicInteger()
+        val renders = AtomicInteger()
+
+        val flow =
+            captureRemoteDocument(
+                creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
+                context = context,
+                coroutineContext = coroutineContext,
+                content = {
+                    // Read in composition so that writes recompose this scope, without feeding
+                    // any node.
+                    trigger.value
+                    compositions.incrementAndGet()
+                    val modifier = remember { RemoteModifier.fillMaxSize() }
+                    RemoteCanvas(modifier = modifier) {
+                        renders.incrementAndGet()
+                        drawRect(paint = RemotePaint { color = Color.Red.rc })
+                    }
+                },
+            )
+
+        val documents = mutableListOf<ByteArray>()
+        val job = launch { flow.toList(documents) }
+        testScheduler.advanceUntilIdle()
+        assertThat(renders.get()).isEqualTo(1)
+        val initialCompositions = compositions.get()
+
+        Snapshot.withMutableSnapshot { trigger.value++ }
+        Snapshot.sendApplyNotifications()
+        testScheduler.advanceUntilIdle()
+
+        assertThat(compositions.get()).isGreaterThan(initialCompositions)
+        assertThat(renders.get()).isEqualTo(1)
+        assertThat(documents).hasSize(1)
+        job.cancel()
     }
 }
