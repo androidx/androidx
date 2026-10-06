@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateResourcesExhausted
 import androidx.xr.arcore.AnchorCreateSuccess
@@ -135,7 +136,9 @@ class RotateToLookAtUserActivity : ComponentActivity() {
             }
             session.scene.activitySpace.addOriginChangedListener(listener)
             onDispose {
-                session.scene.activitySpace.removeOriginChangedListener(listener)
+                if (session.lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                    session.scene.activitySpace.removeOriginChangedListener(listener)
+                }
                 anchor?.detach()
             }
         }
