@@ -20,6 +20,7 @@ import android.app.UiAutomation
 import android.content.Intent
 import android.os.SystemClock
 import android.view.InputDevice
+import android.view.KeyEvent
 import android.view.MotionEvent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.MacrobenchmarkScope
@@ -27,6 +28,7 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
@@ -54,7 +56,7 @@ class GlimmerMacrobenchmark(private val compilationMode: CompilationMode) {
         ) {
             val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
 
-            device.waitOrThrow(Until.hasObject(By.text("Item: 0")), TIMEOUT_MS)
+            device.assertFocused("Item: 0")
 
             // Scroll through the list.
             trace("J<ScrollList>") {
@@ -86,6 +88,7 @@ class GlimmerMacrobenchmark(private val compilationMode: CompilationMode) {
             val distanceDp = device.displayWidth / density
 
             device.waitOrThrow(Until.hasObject(By.text("Page: 0")), TIMEOUT_MS)
+            device.assertFocused("Page Action")
 
             // Swipe to Page 1.
             trace("J<SwipeToPage1>") {
@@ -118,7 +121,7 @@ class GlimmerMacrobenchmark(private val compilationMode: CompilationMode) {
             val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
             val distanceDp = device.displayHeight / density
 
-            device.waitOrThrow(Until.hasObject(By.text("Stack: 0")), TIMEOUT_MS)
+            device.assertFocused("Stack: 0")
 
             // Swipe to Stack 1.
             trace("J<SwipeToStack1>") {
@@ -145,7 +148,19 @@ class GlimmerMacrobenchmark(private val compilationMode: CompilationMode) {
             intent.putExtra(EXTRA_DESTINATION, destination)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
+        enableNonTouchMode()
     }
+
+    private fun enableNonTouchMode() {
+        // setInTouchMode(false) is flaky, so we press a key to put the system in non-touch mode.
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_GRAVE)
+    }
+
+    /** Asserts that the element containing [text] is focused. */
+    private fun UiDevice.assertFocused(text: String) =
+        waitOrThrow(Until.hasObject(By.focused(true).hasDescendant(By.text(text))), TIMEOUT_MS) {
+            "Element containing '$text' is not focused."
+        }
 
     // TODO(b/532491869): Replace this with UiAutomator's helper functions.
     private fun simulateIndirectSwipe(
