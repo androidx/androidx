@@ -29,11 +29,11 @@ pre-release API level.
 In practice, this is limited by device and emulator availability and
 reliability. As of May 2026, we run tests on the following API levels:
 
--   API level 23: the lowest API level supported by Firebase Test Lab (FTL)
+-   API level 24: the lowest API level supported by Firebase Test Lab (FTL)
 -   API level 26: the lowest supported ARM-based emulator FTL runner, which has
     much greater performance and stability
--   API levels 28, 30, 33, 34, 35, 36: the latest supported API levels, which
-    represent the majority of devices in the field
+-   API levels 28, 30, 33, 34, 35, 36, 37: the latest supported API levels,
+    which represent the majority of devices in the field
 
 ## Adding tests {#adding}
 
@@ -430,14 +430,28 @@ from `framework/support`:
 ./gradlew <project-name>:connectedAndroidTest --info
 
 # Run instrumentation tests in Firebase Test Lab (remote)
-./gradlew <project-name>:ftlnexus4api21
+./gradlew <project-name>:ftlnexus5xapi24
 ./gradlew <project-name>:ftlmediumphoneapi26
 ./gradlew <project-name>:ftlmediumphoneapi30
 ./gradlew <project-name>:ftlmediumphoneapi33
 ./gradlew <project-name>:ftlmediumphoneapi34
 ./gradlew <project-name>:ftlmediumphoneapi35
+./gradlew <project-name>:ftlmediumphoneapi36
+./gradlew <project-name>:ftlmediumphoneapi37
 
 ./gradlew <project-name>:ftlmediumphoneapi28 (For compose tests only)
+
+# (Experimental) Run instrumentation tests on Developer Device Platform (remote)
+./gradlew <project-name>:ddpnexus5xapi24
+./gradlew <project-name>:ddpmediumphoneapi26
+./gradlew <project-name>:ddpmediumphoneapi30
+./gradlew <project-name>:ddpmediumphoneapi33
+./gradlew <project-name>:ddpmediumphoneapi34
+./gradlew <project-name>:ddpmediumphoneapi35
+./gradlew <project-name>:ddpmediumphoneapi36
+./gradlew <project-name>:ddpmediumphoneapi37
+
+./gradlew <project-name>:ddpmediumphoneapi28 (For compose tests only)
 
 # Run local unit tests
 ./gradlew <project-name>:test
