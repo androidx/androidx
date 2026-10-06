@@ -132,15 +132,16 @@ public class AsyncRequestWorker(appContext: Context, params: WorkerParameters) :
             )
         }
 
-        fun ActionParameters.toBytes(): ByteArray =
-            asMap()
-                .map { (key, value) -> key.name to value }
-                .toTypedArray()
-                .let {
+        fun ActionParameters.toBytes(): ByteArray {
+            val typedArray = asMap().map { (key, value) -> key.name to value }.toTypedArray()
+
+            return Bundle()
+                .apply {
                     @Suppress("DEPRECATION") // bundleOf is deprecated
-                    bundleOf(ExtraParameters to bundleOf(*it))
+                    putBundle(ExtraParameters, bundleOf(*typedArray))
                 }
                 .toBytes()
+        }
 
         fun actionParametersFromBytes(bytes: ByteArray): ActionParameters =
             getParameterExtras(bundleFromBytes(bytes))
