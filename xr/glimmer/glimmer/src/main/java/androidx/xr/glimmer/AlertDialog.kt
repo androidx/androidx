@@ -49,19 +49,25 @@ import androidx.compose.ui.window.DialogProperties
  * @sample androidx.xr.glimmer.samples.AlertDialogConfirmOnlySample
  * @param onDismissRequest called when the user tries to dismiss the dialog
  * @param confirmButton button used to confirm or accept the action. This will be the first button
- *   shown and takes focus upon the dialog being opened
+ *   shown and takes focus upon the dialog being opened. This button is placed outside the dialog
+ *   container, below it, so [containerShape], [containerColor], [containerContentColor], and
+ *   [containerContentPadding] do not apply to it
  * @param text body text providing additional details or explanation for the dialog, placed below
  *   the [title]
- * @param modifier the [Modifier] to be applied to the dialog
- * @param dismissButton optional button used to dismiss or cancel the alert dialog
+ * @param modifier the [Modifier] to be applied to the outer layout containing the dialog container,
+ *   [confirmButton], and [dismissButton]
+ * @param dismissButton optional button used to dismiss or cancel the alert dialog. This button is
+ *   placed outside the dialog container, next to [confirmButton], so [containerShape],
+ *   [containerColor], [containerContentColor], and [containerContentPadding] do not apply to it
  * @param icon optional icon displayed at the top of the dialog, above the [title]
  * @param title optional title displaying the primary headline of the dialog, placed below the
  *   [icon] and above the [text]
- * @param shape the [Shape] of the dialog container
+ * @param containerShape the [Shape] of the dialog container
  * @param containerColor the background [Color] of the dialog container
- * @param contentColor the default [Color] for content inside the dialog container
- * @param contentPadding the spacing values to apply internally between the container and the
- *   content
+ * @param containerContentColor the default [Color] for the [icon], [title], and [text] inside the
+ *   dialog container
+ * @param containerContentPadding the spacing values to apply internally between the dialog
+ *   container and its content
  */
 @Composable
 public fun AlertDialog(
@@ -72,10 +78,10 @@ public fun AlertDialog(
     dismissButton: @Composable (() -> Unit)? = null,
     icon: @Composable (() -> Unit)? = null,
     title: @Composable (() -> Unit)? = null,
-    shape: Shape = AlertDialogDefaults.shape,
+    containerShape: Shape = AlertDialogDefaults.containerShape,
     containerColor: Color = AlertDialogDefaults.containerColor,
-    contentColor: Color = AlertDialogDefaults.contentColor(containerColor),
-    contentPadding: PaddingValues = AlertDialogDefaults.contentPadding,
+    containerContentColor: Color = AlertDialogDefaults.containerContentColor(containerColor),
+    containerContentPadding: PaddingValues = AlertDialogDefaults.containerContentPadding,
 ) {
     Dialog(onDismissRequest = onDismissRequest, properties = AlertDialogProperties) {
         val typography = GlimmerTheme.typography
@@ -91,10 +97,10 @@ public fun AlertDialog(
         ) {
             Card(
                 focusable = false,
-                shape = shape,
+                shape = containerShape,
                 color = containerColor,
-                contentColor = contentColor,
-                contentPadding = contentPadding,
+                contentColor = containerContentColor,
+                contentPadding = containerContentPadding,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(
@@ -132,12 +138,12 @@ public fun AlertDialog(
 
 /** Default values and styling for [AlertDialog]. */
 public object AlertDialogDefaults {
-    /** Default content padding applied to the dialog content. */
-    public val contentPadding: PaddingValues
+    /** Default padding between the dialog container and its content. */
+    public val containerContentPadding: PaddingValues
         @Composable get() = CardDefaults.contentPadding
 
     /** Default shape for the dialog container. */
-    public val shape: Shape
+    public val containerShape: Shape
         @Composable get() = CardDefaults.shape
 
     /** Default background color for the dialog container. */
@@ -145,14 +151,14 @@ public object AlertDialogDefaults {
         @Composable get() = GlimmerTheme.colors.surface
 
     /**
-     * Calculates the default content color for an [AlertDialog] based on the provided
+     * Calculates the default content color for the [AlertDialog] container based on the provided
      * [containerColor].
      *
      * @param containerColor the color of the alert dialog container
      * @return the calculated content color
      */
     @Composable
-    public fun contentColor(containerColor: Color = GlimmerTheme.colors.surface): Color {
+    public fun containerContentColor(containerColor: Color = GlimmerTheme.colors.surface): Color {
         return calculateContentColor(containerColor)
     }
 }
