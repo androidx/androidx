@@ -20,7 +20,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.os.Parcelable.Creator
 import androidx.annotation.RestrictTo
-import androidx.health.services.client.proto.MessageLite
+import androidx.health.services.client.protobuf.MessageLite
 
 /**
  * Base class for parcelables backed by Protocol Buffers.

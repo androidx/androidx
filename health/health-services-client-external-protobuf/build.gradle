@@ -31,7 +31,7 @@ plugins {
 repackage {
     addRelocation {
         sourcePackage = "com.google.protobuf"
-        targetPackage =  "androidx.health.services.client.proto"
+        targetPackage =  "androidx.health.services.client.protobuf"
     }
     artifactId = "health-services-client-external-protobuf"
 }
