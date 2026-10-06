@@ -33,7 +33,7 @@ class KmpPlatformsTest {
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
                     PlatformGroup.ANDROID_NATIVE,
-                    PlatformGroup.JS
+                    PlatformGroup.JS,
                 )
             )
     }
@@ -140,7 +140,7 @@ class KmpPlatformsTest {
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
                     PlatformGroup.ANDROID_NATIVE,
-                    PlatformGroup.JS
+                    PlatformGroup.JS,
                 )
             )
     }
@@ -155,7 +155,7 @@ class KmpPlatformsTest {
                     PlatformGroup.WINDOWS,
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
-                    PlatformGroup.ANDROID_NATIVE
+                    PlatformGroup.ANDROID_NATIVE,
                 )
             )
     }
@@ -169,7 +169,7 @@ class KmpPlatformsTest {
                     PlatformGroup.WINDOWS,
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
-                    PlatformGroup.ANDROID_NATIVE
+                    PlatformGroup.ANDROID_NATIVE,
                 )
             )
     }
