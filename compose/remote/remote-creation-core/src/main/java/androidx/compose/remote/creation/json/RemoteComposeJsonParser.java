@@ -30,6 +30,7 @@ import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.paint.PaintPathEffects;
 import androidx.compose.remote.core.operations.utilities.MatrixOperations;
 import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator;
+import androidx.compose.remote.core.operations.utilities.NanMap;
 import androidx.compose.remote.creation.RcPaint;
 import androidx.compose.remote.creation.RemoteComposeShader;
 import androidx.compose.remote.creation.RemoteComposeWriter;
@@ -571,6 +572,8 @@ public class RemoteComposeJsonParser {
                 return Header.DOC_DENSITY_BEHAVIOR;
             case "featurePaintMeasure":
                 return Header.FEATURE_PAINT_MEASURE;
+            case "measureVersion":
+                return Header.FEATURE_MEASURE_VERSION;
             case "disallowInterceptTouch":
                 return Header.FEATURE_DISALLOW_INTERCEPT_TOUCH;
             case "dataPassCanvasOps":
@@ -1731,17 +1734,21 @@ public class RemoteComposeJsonParser {
             }
             case "dynamicfloatarray":
             case "dynamicfloatlist": {
-                int listId = command.optInt("id", mWriter.nextId());
+                int listId = command.has("id")
+                        ? command.getInt("id")
+                        : mWriter.createID(NanMap.TYPE_ARRAY);
                 float size = command.has("size") ? parseFloat(command.get("size")) : 0f;
                 String name = command.optString("name", null);
                 if (name != null) {
-                    mVariables.put(name, (float) listId);
+                    // NaN-encoded, like other variables, so "@name" works in expressions
+                    mVariables.put(name, Utils.asNan(listId));
                 }
                 mWriter.addDynamicFloatArray(listId, size);
                 break;
             }
             case "updatedynamicfloatlist": {
-                int listId = (int) parseFloat(command.get("list"));
+                float list = parseFloat(command.get("list"));
+                int listId = Float.isNaN(list) ? Utils.idFromNan(list) : (int) list;
                 float index = parseFloat(command.get("index"));
                 float value = parseFloat(command.get("value"));
                 mWriter.setArrayValue(listId, index, value);

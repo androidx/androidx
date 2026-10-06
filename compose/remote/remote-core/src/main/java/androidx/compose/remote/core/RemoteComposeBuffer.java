@@ -3146,6 +3146,55 @@ public class RemoteComposeBuffer {
     }
 
     /**
+     * Define a 2D vertex mesh, with the width of its antialiasing skirt.
+     *
+     * @param meshId the id the mesh is stored under
+     * @param type how the vertex data is supplied
+     * @param layout the domain topology
+     * @param uCount grid resolution along u
+     * @param vCount grid resolution along v
+     * @param flags {@link AddMesh2D#FLAG_ANTIALIAS}, or 0
+     * @param aux layout dependent, e.g. a path id for PATH_STRIP
+     * @param expressions the RPN expression groups, for the expression type
+     * @param indices the triangle list, for the literal types
+     * @param verts x,y pairs, for the literal types
+     * @param uv u,v pairs, for the literal types
+     * @param colors packed ARGB per vertex, for the literal types
+     * @param antialiasWidth how far the skirt reaches beyond the edge, in the mesh's own units, or
+     *     the NaN id of a variable; written only with {@link AddMesh2D#FLAG_ANTIALIAS}
+     */
+    public void addMesh2D(
+            int meshId,
+            int type,
+            int layout,
+            int uCount,
+            int vCount,
+            int flags,
+            int aux,
+            float @Nullable [] @Nullable [] expressions,
+            int @Nullable [] indices,
+            float @Nullable [] verts,
+            float @Nullable [] uv,
+            int @Nullable [] colors,
+            float antialiasWidth) {
+        AddMesh2D.apply(
+                mBuffer,
+                meshId,
+                type,
+                layout,
+                uCount,
+                vCount,
+                flags,
+                aux,
+                expressions,
+                indices,
+                verts,
+                uv,
+                colors,
+                antialiasWidth);
+    }
+
+    /**
      * Define a ribbon along a path whose cross width is a spline through control points.
      *
      * <p>{@code widths} and {@code positions} may hold NaN variable ids, so the profile can be

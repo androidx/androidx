@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT_ARRAY;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT_ARRAY;
@@ -138,6 +139,39 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
     /** The number of expression groups carried by {@link #TYPE_EXPRESSION}. */
     public static final int EXPRESSION_GROUPS = 9;
 
+    /**
+     * Set in {@code flags} to grow an alpha-fading skirt around the mesh's edges.
+     *
+     * <p>{@code drawVertices} does not antialias triangle edges, so a mesh stops at a hard, stepped
+     * edge. With this flag the player appends a band of vertices just outside each boundary loop
+     * that repeat their neighbour's colour at alpha 0, so the edge fades out instead; see {@link
+     * Mesh2DGenerator#appendAntialiasSkirt}. The skirt is built from the vertex colours, so the
+     * flag is only accepted where they are present and the layout describes the vertices:
+     *
+     * <ul>
+     *   <li>{@link #TYPE_EXPRESSION} with at least one colour channel.
+     *   <li>{@link #TYPE_VALUES} and {@link #TYPE_F16_VALUES} with one colour per vertex, and a
+     *       layout, {@code uCount} and {@code vCount} that account for every vertex.
+     *   <li>Not the spline strips, which carry no colours.
+     * </ul>
+     *
+     * <p>Anything else is rejected when written and when read. With the flag set the payload ends
+     * in one more float, the skirt's width in the mesh's own units, which may be a variable.
+     */
+    public static final int FLAG_ANTIALIAS = 1 << 8;
+
+    /**
+     * The bits of {@code flags} holding the cap columns of a {@link #TYPE_SPLINE_ROUND_STRIP}, so
+     * that the cap count and {@link #FLAG_ANTIALIAS} cannot collide.
+     */
+    public static final int CAP_SEGMENTS_MASK = 0xFF;
+
+    /**
+     * The skirt width a {@link #FLAG_ANTIALIAS} mesh gets when it is created without one: one unit,
+     * which is a pixel for a mesh authored in pixels.
+     */
+    public static final float DEFAULT_ANTIALIAS_WIDTH = 1f;
+
     /** A quarter turn, the angle a round end cap sweeps from its tip to the body of the strip. */
     private static final float HALF_PI = (float) (Math.PI * 0.5);
 
@@ -170,6 +204,18 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
     private @Nullable MonotonicSpline mWidthSpline;
 
     private boolean mWidthSplineValid;
+
+    // FLAG_ANTIALIAS: the skirt's width, possibly a variable, and its boundary loops, which depend
+    // only on the header and so are worked out once, as are the sizes they add.
+    private final float mAntialiasWidth;
+    private float mOutAntialiasWidth;
+    private final int[][] mAntialiasLoops;
+    private final int mSkirtVertexCount;
+    private final int mSkirtIndexCount;
+    private final float[] mScratchSkirt;
+
+    /** The triangle list with the skirt woven in, worked out on first use; see skirtIndices. */
+    private int @Nullable [] mSkirtIndices;
 
     // Expanded geometry, in the exact layout drawVertices wants.
     private float[] mVerts = new float[0];
@@ -230,6 +276,48 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
             int @Nullable [] colors,
             float @Nullable [] widths,
             float @Nullable [] widthPositions) {
+        this(
+                meshId,
+                type,
+                layout,
+                uCount,
+                vCount,
+                flags,
+                aux,
+                expressions,
+                indices,
+                verts,
+                uv,
+                colors,
+                widths,
+                widthPositions,
+                DEFAULT_ANTIALIAS_WIDTH);
+    }
+
+    /**
+     * Create a mesh definition, with every field of the wire format.
+     *
+     * @param antialiasWidth how far the {@link #FLAG_ANTIALIAS} skirt reaches beyond the edge, in
+     *                       the mesh's own units, or the NaN id of a variable holding it.
+     *                       Ignored without the flag.
+     */
+    @SuppressWarnings("UnknownNullness") // Annotations on a primitive array are compile error.
+    public AddMesh2D(
+            int meshId,
+            int type,
+            int layout,
+            int uCount,
+            int vCount,
+            int flags,
+            int aux,
+            float @Nullable [] @Nullable [] expressions,
+            int @Nullable [] indices,
+            float @Nullable [] verts,
+            float @Nullable [] uv,
+            int @Nullable [] colors,
+            float @Nullable [] widths,
+            float @Nullable [] widthPositions,
+            float antialiasWidth) {
         mMeshId = meshId;
         mType = type;
         mLayout = layout;
@@ -263,6 +351,31 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
         mWidthPositions = widthPositions != null ? widthPositions : new float[0];
         mOutWidthPositions = new float[mWidthPositions.length];
         System.arraycopy(mWidthPositions, 0, mOutWidthPositions, 0, mWidthPositions.length);
+
+        mAntialiasWidth = antialiasWidth;
+        mOutAntialiasWidth = antialiasWidth;
+        int loopUCount = Math.max(1, mUCount);
+        int loopVCount = Math.max(1, mVCount);
+        mAntialiasLoops =
+                isAntialiased()
+                        && layoutVertexCount(mLayout, loopUCount, loopVCount)
+                        <= Limits.MAX_MESH_2D_GRID
+                        ? Mesh2DGenerator.antialiasLoops(mLayout, loopUCount, loopVCount)
+                        : new int[0][];
+        mSkirtVertexCount = Mesh2DGenerator.antialiasVertexCount(mAntialiasLoops);
+        mSkirtIndexCount = Mesh2DGenerator.antialiasIndexCount(mAntialiasLoops);
+        int longestLoop = 0;
+        for (int[] loop : mAntialiasLoops) {
+            longestLoop = Math.max(longestLoop, loop.length);
+        }
+        mScratchSkirt = new float[longestLoop * 2];
+    }
+
+    /**
+     * Whether this mesh grows an antialiasing skirt; never a spline strip, which has no colours.
+     */
+    private boolean isAntialiased() {
+        return (mFlags & FLAG_ANTIALIAS) != 0 && !isSplineStrip(mType);
     }
 
     /**
@@ -340,6 +453,10 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
             mOutWidthPositions[i] =
                     isResolvableVariable(v) ? context.getFloat(Utils.idFromNan(v)) : v;
         }
+        mOutAntialiasWidth =
+                isResolvableVariable(mAntialiasWidth)
+                        ? context.getFloat(Utils.idFromNan(mAntialiasWidth))
+                        : mAntialiasWidth;
         // The fit is over the resolved values, so any of them moving retires it.
         mWidthSplineValid = false;
         mMeshChanged = true;
@@ -377,6 +494,9 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                 context.listensTo(Utils.idFromNan(v), this);
             }
         }
+        if (isAntialiased() && isResolvableVariable(mAntialiasWidth)) {
+            context.listensTo(Utils.idFromNan(mAntialiasWidth), this);
+        }
     }
 
     /** Whether {@code type} takes its width from control points rather than from an expression. */
@@ -406,7 +526,8 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                 mSrcIndices,
                 mSrcVerts,
                 mSrcUv,
-                mSrcColors);
+                mSrcColors,
+                mAntialiasWidth);
     }
 
     /**
@@ -427,14 +548,23 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
 
     private void expandLiteral() {
         int vertexCount = mOutSrcVerts.length / 2;
-        if (mVerts.length != mOutSrcVerts.length) {
-            mVerts = new float[mOutSrcVerts.length];
+        // The wire format guarantees these for an antialiased mesh; a mesh built directly might
+        // not have them, and then it is drawn without a skirt rather than with a wrong one.
+        boolean skirt =
+                mSkirtVertexCount > 0
+                        && mSrcColors.length == vertexCount
+                        && Mesh2DGenerator.vertexCount(mLayout, mUCount, mVCount) == vertexCount;
+        int totalVertices = vertexCount + (skirt ? mSkirtVertexCount : 0);
+        int totalIndices = mSrcIndices.length + (skirt ? mSkirtIndexCount : 0);
+
+        if (mVerts.length != totalVertices * 2) {
+            mVerts = new float[totalVertices * 2];
         }
         System.arraycopy(mOutSrcVerts, 0, mVerts, 0, mOutSrcVerts.length);
 
         if (mSrcUv.length == vertexCount * 2) {
-            if (mUv.length != mSrcUv.length) {
-                mUv = new float[mSrcUv.length];
+            if (mUv.length != totalVertices * 2) {
+                mUv = new float[totalVertices * 2];
             }
             System.arraycopy(mSrcUv, 0, mUv, 0, mSrcUv.length);
         } else {
@@ -442,18 +572,23 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
         }
 
         if (mSrcColors.length == vertexCount) {
-            if (mColors.length != mSrcColors.length) {
-                mColors = new int[mSrcColors.length];
+            if (mColors.length != totalVertices) {
+                mColors = new int[totalVertices];
             }
             System.arraycopy(mSrcColors, 0, mColors, 0, mSrcColors.length);
         } else {
             mColors = new int[0];
         }
 
-        if (mIndices.length != mSrcIndices.length) {
-            mIndices = new int[mSrcIndices.length];
+        if (mIndices.length != totalIndices) {
+            mIndices = new int[totalIndices];
         }
-        System.arraycopy(mSrcIndices, 0, mIndices, 0, mSrcIndices.length);
+        if (skirt) {
+            appendSkirt(vertexCount);
+            System.arraycopy(skirtIndices(vertexCount), 0, mIndices, 0, totalIndices);
+        } else {
+            System.arraycopy(mSrcIndices, 0, mIndices, 0, mSrcIndices.length);
+        }
     }
 
     private void expandParametric(@NonNull RemoteContext context) {
@@ -462,29 +597,34 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
         int vertexCount = Mesh2DGenerator.vertexCount(mLayout, uCount, vCount);
         int indexCount = Mesh2DGenerator.indexCount(mLayout, uCount, vCount);
 
-        if (mVerts.length != vertexCount * 2) {
-            mVerts = new float[vertexCount * 2];
+        boolean hasColor =
+                mOutExpressions[EXP_COLOR_A].length > 0
+                        || mOutExpressions[EXP_COLOR_R].length > 0
+                        || mOutExpressions[EXP_COLOR_G].length > 0
+                        || mOutExpressions[EXP_COLOR_B].length > 0;
+        // As for the literal types: the skirt is its colours, so without them there is none.
+        boolean skirt = mSkirtVertexCount > 0 && hasColor;
+        int totalVertices = vertexCount + (skirt ? mSkirtVertexCount : 0);
+        int totalIndices = indexCount + (skirt ? mSkirtIndexCount : 0);
+
+        if (mVerts.length != totalVertices * 2) {
+            mVerts = new float[totalVertices * 2];
         }
-        if (mIndices.length != indexCount) {
-            mIndices = new int[indexCount];
+        if (mIndices.length != totalIndices) {
+            mIndices = new int[totalIndices];
         }
 
         boolean hasTex =
                 mOutExpressions[EXP_TEX_U].length > 0 || mOutExpressions[EXP_TEX_V].length > 0;
         // uv is meaningful for every parametric mesh - the identity mapping is the common case -
         // so it is always produced; the backend simply ignores it when nothing is textured.
-        if (mUv.length != vertexCount * 2) {
-            mUv = new float[vertexCount * 2];
+        if (mUv.length != totalVertices * 2) {
+            mUv = new float[totalVertices * 2];
         }
 
-        boolean hasColor =
-                mOutExpressions[EXP_COLOR_A].length > 0
-                        || mOutExpressions[EXP_COLOR_R].length > 0
-                        || mOutExpressions[EXP_COLOR_G].length > 0
-                        || mOutExpressions[EXP_COLOR_B].length > 0;
         if (hasColor) {
-            if (mColors.length != vertexCount) {
-                mColors = new int[vertexCount];
+            if (mColors.length != totalVertices) {
+                mColors = new int[totalVertices];
             }
         } else {
             mColors = new int[0];
@@ -542,7 +682,52 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
             }
         }
 
-        Mesh2DGenerator.generateIndices(mLayout, uCount, vCount, mIndices);
+        if (skirt) {
+            appendSkirt(vertexCount);
+            System.arraycopy(skirtIndices(vertexCount), 0, mIndices, 0, totalIndices);
+        } else {
+            Mesh2DGenerator.generateIndices(mLayout, uCount, vCount, mIndices);
+        }
+    }
+
+    /**
+     * Grow the {@link #FLAG_ANTIALIAS} skirt's vertices into the tail of the expanded arrays, which
+     * the expansion has already sized for it.
+     */
+    private void appendSkirt(int bodyVertexCount) {
+        Mesh2DGenerator.appendAntialiasSkirt(
+                mLayout,
+                Math.max(1, mUCount),
+                Math.max(1, mVCount),
+                mAntialiasLoops,
+                mOutAntialiasWidth,
+                mVerts,
+                mUv,
+                mColors,
+                bodyVertexCount,
+                mScratchSkirt);
+    }
+
+    /**
+     * The body's triangles with the skirt's woven in, each piece after the triangle it borders, so
+     * that a mesh which overlaps itself keeps its painter's order. It depends only on the topology,
+     * so it is worked out once.
+     */
+    private int[] skirtIndices(int bodyVertexCount) {
+        int[] indices = mSkirtIndices;
+        if (indices == null) {
+            int[] body = mSrcIndices;
+            if (mType == TYPE_EXPRESSION || isSplineStrip(mType)) {
+                int uCount = Math.max(1, mUCount);
+                int vCount = Math.max(1, mVCount);
+                body = new int[Mesh2DGenerator.indexCount(mLayout, uCount, vCount)];
+                Mesh2DGenerator.generateIndices(mLayout, uCount, vCount, body);
+            }
+            indices = new int[body.length + mSkirtIndexCount];
+            Mesh2DGenerator.antialiasIndices(body, mAntialiasLoops, bodyVertexCount, indices);
+            mSkirtIndices = indices;
+        }
+        return indices;
     }
 
     private int preparePolyline(@NonNull RemoteContext context) {
@@ -566,14 +751,15 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
      * column must be left for the body or the strip would be nothing but caps.
      */
     private int roundCapColumns() {
-        if (mType != TYPE_SPLINE_ROUND_STRIP || mFlags < 1) {
+        int capSegments = mFlags & CAP_SEGMENTS_MASK;
+        if (mType != TYPE_SPLINE_ROUND_STRIP || capSegments < 1) {
             return 0;
         }
         int columns = mUCount - 1;
         if (columns < 3) {
             return 0;
         }
-        return Math.min(mFlags, (columns - 1) / 2);
+        return Math.min(capSegments, (columns - 1) / 2);
     }
 
     private void positionOnPath(@NonNull RemoteContext context, float u, float v, int points) {
@@ -607,8 +793,8 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
     /**
      * Place a vertex on one of the two round caps.
      *
-     * @param end 0 at the start of the path, 1 at its end
-     * @param sweep 0 at the tip of the cap, 1 where it meets the body
+     * @param end     0 at the start of the path, 1 at its end
+     * @param sweep   0 at the tip of the cap, 1 where it meets the body
      * @param outward 1 at the end of the path, -1 at the start, being the way the cap bulges
      */
     private void capPosition(
@@ -730,19 +916,22 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
     /**
      * Write a 2D mesh definition to the buffer.
      *
-     * @param buffer the buffer to add to
-     * @param meshId the id the mesh is stored under
-     * @param type how the vertex data is supplied
-     * @param layout the domain topology
-     * @param uCount grid resolution along u
-     * @param vCount grid resolution along v
-     * @param flags reserved
-     * @param aux layout dependent, e.g. a path id for PATH_STRIP
+     * <p>A {@link #FLAG_ANTIALIAS} mesh written this way gets a skirt {@link
+     * #DEFAULT_ANTIALIAS_WIDTH} wide.
+     *
+     * @param buffer      the buffer to add to
+     * @param meshId      the id the mesh is stored under
+     * @param type        how the vertex data is supplied
+     * @param layout      the domain topology
+     * @param uCount      grid resolution along u
+     * @param vCount      grid resolution along v
+     * @param flags       {@link #FLAG_ANTIALIAS}, or 0
+     * @param aux         layout dependent, e.g. a path id for PATH_STRIP
      * @param expressions the RPN expression groups, for TYPE_EXPRESSION
-     * @param indices the triangle list, for the literal types
-     * @param verts x,y pairs, for the literal types
-     * @param uv u,v pairs, for the literal types
-     * @param colors packed ARGB per vertex, for the literal types
+     * @param indices     the triangle list, for the literal types
+     * @param verts       x,y pairs, for the literal types
+     * @param uv          u,v pairs, for the literal types
+     * @param colors      packed ARGB per vertex, for the literal types
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -759,6 +948,72 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
             float @Nullable [] uv,
             int @Nullable [] colors) {
         validate(type, uCount, vCount, indices, verts, uv, colors);
+        apply(
+                buffer,
+                meshId,
+                type,
+                layout,
+                uCount,
+                vCount,
+                flags,
+                aux,
+                expressions,
+                indices,
+                verts,
+                uv,
+                colors,
+                DEFAULT_ANTIALIAS_WIDTH);
+    }
+
+    /**
+     * Write a 2D mesh definition to the buffer, with the width of its antialiasing skirt.
+     *
+     * @param buffer         the buffer to add to
+     * @param meshId         the id the mesh is stored under
+     * @param type           how the vertex data is supplied
+     * @param layout         the domain topology
+     * @param uCount         grid resolution along u
+     * @param vCount         grid resolution along v
+     * @param flags          {@link #FLAG_ANTIALIAS}, or 0
+     * @param aux            layout dependent, e.g. a path id for PATH_STRIP
+     * @param expressions    the RPN expression groups, for TYPE_EXPRESSION
+     * @param indices        the triangle list, for the literal types
+     * @param verts          x,y pairs, for the literal types
+     * @param uv             u,v pairs, for the literal types
+     * @param colors         packed ARGB per vertex, for the literal types
+     * @param antialiasWidth how far the skirt reaches beyond the edge, in the mesh's own units, or
+     *                       the NaN id of a variable holding it. Written only when {@code flags}
+     *                       has {@link
+     *                       #FLAG_ANTIALIAS}.
+     */
+    public static void apply(
+            @NonNull WireBuffer buffer,
+            int meshId,
+            int type,
+            int layout,
+            int uCount,
+            int vCount,
+            int flags,
+            int aux,
+            float @Nullable [] @Nullable [] expressions,
+            int @Nullable [] indices,
+            float @Nullable [] verts,
+            float @Nullable [] uv,
+            int @Nullable [] colors,
+            float antialiasWidth) {
+        validate(type, uCount, vCount, indices, verts, uv, colors);
+        boolean antialias = (flags & FLAG_ANTIALIAS) != 0;
+        if (antialias) {
+            validateAntialias(
+                    type,
+                    layout,
+                    uCount,
+                    vCount,
+                    hasColorGroup(expressions),
+                    verts != null ? verts.length / 2 : 0,
+                    colors != null ? colors.length : 0,
+                    antialiasWidth);
+        }
 
         buffer.start(OP_CODE);
         buffer.writeInt(meshId);
@@ -787,6 +1042,9 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                         buffer.writeFloat(datum);
                     }
                 }
+            }
+            if (antialias) {
+                buffer.writeFloat(antialiasWidth);
             }
             return;
         }
@@ -825,6 +1083,93 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
         for (int color : safeColors) {
             buffer.writeInt(color);
         }
+        if (antialias) {
+            buffer.writeFloat(antialiasWidth);
+        }
+    }
+
+    /** Whether any of the colour channels of a set of expression groups is present. */
+    private static boolean hasColorGroup(float @Nullable [] @Nullable [] expressions) {
+        if (expressions == null) {
+            return false;
+        }
+        for (int g = EXP_COLOR_A; g <= EXP_COLOR_B && g < expressions.length; g++) {
+            if (expressions[g] != null && expressions[g].length > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Reject a {@link #FLAG_ANTIALIAS} mesh whose skirt cannot be built.
+     *
+     * <p>The skirt fades the vertex colours' alpha, so they have to be there; and it is grown from
+     * the boundary the layout describes, so the layout has to describe every vertex. Called on both
+     * write and read, so a document that would draw a wrong skirt never gets that far.
+     */
+    private static void validateAntialias(
+            int type,
+            int layout,
+            int uCount,
+            int vCount,
+            boolean hasColorGroup,
+            int vertexCount,
+            int colorCount,
+            float antialiasWidth) {
+        if (isSplineStrip(type)) {
+            throw new RuntimeException("Mesh2D spline strips have no colours to antialias with");
+        }
+        // NaN is a variable, only known at playback.
+        if (!Float.isNaN(antialiasWidth)
+                && !(antialiasWidth >= 0f && antialiasWidth < Float.POSITIVE_INFINITY)) {
+            throw new RuntimeException(
+                    "Mesh2D antialias width must be finite and not negative: " + antialiasWidth);
+        }
+        if (type == TYPE_EXPRESSION) {
+            if (!hasColorGroup) {
+                throw new RuntimeException(
+                        "Mesh2D antialiasing needs vertex colours; set a colour channel");
+            }
+            int u = Math.max(1, uCount);
+            int v = Math.max(1, vCount);
+            if (layoutVertexCount(layout, u, v) > Limits.MAX_MESH_2D_GRID
+                    || Mesh2DGenerator.antialiasLoops(layout, u, v).length == 0) {
+                throw new RuntimeException(
+                        "Mesh2D grid " + uCount + "x" + vCount + " has no edges to antialias");
+            }
+            return;
+        }
+        if (colorCount != vertexCount) {
+            throw new RuntimeException(
+                    "Mesh2D antialiasing needs one colour per vertex, got "
+                            + colorCount
+                            + " for "
+                            + vertexCount
+                            + " vertices");
+        }
+        if (layoutVertexCount(layout, uCount, vCount) != vertexCount
+                || Mesh2DGenerator.antialiasLoops(layout, uCount, vCount).length == 0) {
+            throw new RuntimeException(
+                    "Mesh2D antialiasing needs a layout that describes every vertex, but "
+                            + uCount
+                            + "x"
+                            + vCount
+                            + " does not match "
+                            + vertexCount
+                            + " vertices");
+        }
+    }
+
+    /**
+     * The number of vertices a layout gives these counts, as {@link Mesh2DGenerator#vertexCount}
+     * but in long arithmetic, so a corrupt header cannot wrap round to a plausible value.
+     */
+    private static long layoutVertexCount(int layout, int uCount, int vCount) {
+        if (layout == Mesh2DGenerator.LAYOUT_FAN) {
+            return (long) uCount + 1L;
+        }
+        return (long) uCount * (long) vCount;
     }
 
     /**
@@ -837,11 +1182,11 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
      * <p>{@code widths} and {@code positions} may hold NaN variable ids, so the profile can be
      * animated; the fit is rebuilt whenever one of them changes.
      *
-     * @param buffer the buffer to add to
-     * @param meshId the id the mesh is stored under
-     * @param segments roughly how many quads to divide the path into; at least 1
-     * @param pathId the path to follow
-     * @param widths the width control points, at least one, in the path's own units
+     * @param buffer    the buffer to add to
+     * @param meshId    the id the mesh is stored under
+     * @param segments  roughly how many quads to divide the path into; at least 1
+     * @param pathId    the path to follow
+     * @param widths    the width control points, at least one, in the path's own units
      * @param positions where each width sits along the path, 0..1, empty for evenly spaced
      */
     public static void applyPathSplineStrip(
@@ -862,11 +1207,11 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
      * {@link #TYPE_SPLINE_ROUND_STRIP}. {@code segments} still describes the body alone, so a
      * rounded strip and a flat one with the same argument follow the path identically.
      *
-     * @param buffer the buffer to add to
-     * @param meshId the id the mesh is stored under
-     * @param segments roughly how many quads to divide the path into, excluding the caps
-     * @param pathId the path to follow
-     * @param widths the width control points, at least one, in the path's own units
+     * @param buffer    the buffer to add to
+     * @param meshId    the id the mesh is stored under
+     * @param segments  roughly how many quads to divide the path into, excluding the caps
+     * @param pathId    the path to follow
+     * @param widths    the width control points, at least one, in the path's own units
      * @param positions where each width sits along the path, 0..1, empty for evenly spaced
      */
     public static void applySplineRoundStrip(
@@ -1028,7 +1373,7 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -1154,6 +1499,20 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
             }
         }
 
+        float antialiasWidth = DEFAULT_ANTIALIAS_WIDTH;
+        if ((flags & FLAG_ANTIALIAS) != 0) {
+            antialiasWidth = buffer.readNanId();
+            validateAntialias(
+                    type,
+                    layout,
+                    uCount,
+                    vCount,
+                    hasColorGroup(expressions),
+                    verts != null ? verts.length / 2 : 0,
+                    colors != null ? colors.length : 0,
+                    antialiasWidth);
+        }
+
         operations.add(
                 new AddMesh2D(
                         meshId,
@@ -1169,7 +1528,8 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                         uv,
                         colors,
                         widths,
-                        widthPositions));
+                        widthPositions,
+                        antialiasWidth));
     }
 
     /**
@@ -1201,7 +1561,13 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                 .possibleValues("LAYOUT_PATH_STRIP", Mesh2DGenerator.LAYOUT_PATH_STRIP)
                 .field(INT, "uCount", "Grid resolution along u")
                 .field(INT, "vCount", "Grid resolution along v")
-                .field(INT, "flags", "Cap columns for TYPE_SPLINE_ROUND_STRIP, otherwise reserved")
+                .field(
+                        INT,
+                        "flags",
+                        "Bits 0-7: cap columns for TYPE_SPLINE_ROUND_STRIP. Bit 8: FLAG_ANTIALIAS,"
+                                + " grow an alpha-fading skirt around the edges; needs vertex"
+                                + " colours and a layout that describes every vertex")
+                .possibleValues("FLAG_ANTIALIAS", FLAG_ANTIALIAS)
                 .field(INT, "aux", "Layout dependent, e.g. a path id for PATH_STRIP")
                 .field(FLOAT_ARRAY, "expressions", "Eight RPN groups: x, y, texU, texV, a, r, g, b")
                 .field(INT_ARRAY, "indices", "Triangle list, 16 bit, for the literal types")
@@ -1212,7 +1578,12 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                 .field(
                         FLOAT_ARRAY,
                         "widthPositions",
-                        "Where each width sits along the path, 0..1, empty for evenly spaced");
+                        "Where each width sits along the path, 0..1, empty for evenly spaced")
+                .field(
+                        FLOAT,
+                        "antialiasWidth",
+                        "Only with FLAG_ANTIALIAS: how far the skirt reaches beyond the edge, in"
+                                + " the mesh's own units; may be a variable");
     }
 
     @Override
@@ -1226,5 +1597,8 @@ public class AddMesh2D extends PaintOperation implements VariableSupport, Serial
                 .add("vCount", mVCount)
                 .add("flags", mFlags)
                 .add("aux", mAux);
+        if (isAntialiased()) {
+            serializer.add("antialiasWidth", mAntialiasWidth, mOutAntialiasWidth);
+        }
     }
 }

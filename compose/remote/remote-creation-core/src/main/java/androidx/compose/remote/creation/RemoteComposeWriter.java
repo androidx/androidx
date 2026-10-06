@@ -921,6 +921,115 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Add a parametric 2D mesh whose edges fade out over {@code antialiasWidth} instead of stopping
+     * at a hard, aliased step.
+     *
+     * <p>As {@link #addMesh2D}, plus an alpha-fading skirt around the edges; see {@link
+     * AddMesh2D#FLAG_ANTIALIAS}. The skirt is built from the vertex colours, so at least one colour
+     * channel is required: a mesh without one is rejected rather than drawn with a skirt that
+     * cannot fade.
+     *
+     * @param layout the domain topology
+     * @param uCount grid resolution along u
+     * @param vCount grid resolution along v
+     * @param x the x position expression, or null for the layout default
+     * @param y the y position expression, or null for the layout default
+     * @param texU the texture u expression, or null for identity
+     * @param texV the texture v expression, or null for identity
+     * @param colorA the alpha expression, 0..1, or null
+     * @param colorR the red expression, 0..1, or null
+     * @param colorG the green expression, 0..1, or null
+     * @param colorB the blue expression, 0..1, or null
+     * @param width the strip cross width expression, read by {@code pathStrip} only, or null for 1
+     * @param antialiasWidth how far the skirt reaches beyond the edge, in the mesh's own units, or
+     *     the NaN id of a variable; about one pixel, so {@code 1 / scale} for a mesh drawn scaled
+     * @param aux layout dependent, e.g. a path id for a path strip
+     * @return the id of the mesh
+     */
+    public int addMesh2DAntialias(
+            int layout,
+            int uCount,
+            int vCount,
+            float @Nullable [] x,
+            float @Nullable [] y,
+            float @Nullable [] texU,
+            float @Nullable [] texV,
+            float @Nullable [] colorA,
+            float @Nullable [] colorR,
+            float @Nullable [] colorG,
+            float @Nullable [] colorB,
+            float @Nullable [] width,
+            float antialiasWidth,
+            int aux) {
+        int id = mState.createNextAvailableId();
+        float[][] expressions =
+                new float[][] {x, y, texU, texV, colorA, colorR, colorG, colorB, width};
+        mBuffer.addMesh2D(
+                id,
+                AddMesh2D.TYPE_EXPRESSION,
+                layout,
+                uCount,
+                vCount,
+                AddMesh2D.FLAG_ANTIALIAS,
+                aux,
+                expressions,
+                null,
+                null,
+                null,
+                null,
+                antialiasWidth);
+        return id;
+    }
+
+    /**
+     * Add a 2D mesh from explicit geometry whose edges fade out over {@code antialiasWidth}.
+     *
+     * <p>As {@link #addMesh2DValues}, plus an alpha-fading skirt around the edges; see {@link
+     * AddMesh2D#FLAG_ANTIALIAS}. The skirt is grown from the boundary the layout describes and
+     * fades the vertex colours, so both are required: one colour per vertex, and a layout, {@code
+     * uCount} and {@code vCount} that account for every vertex in row-major order.
+     *
+     * @param indices the triangle list
+     * @param verts x,y pairs
+     * @param uv u,v pairs, or null
+     * @param colors packed ARGB per vertex
+     * @param halfFloat true to write positions and uv as IEEE half floats, halving the wire size
+     * @param layout the domain topology the vertices are laid out in
+     * @param uCount grid resolution along u
+     * @param vCount grid resolution along v
+     * @param antialiasWidth how far the skirt reaches beyond the edge, in the mesh's own units, or
+     *     the NaN id of a variable
+     * @return the id of the mesh
+     */
+    public int addMesh2DValuesAntialias(
+            int @NonNull [] indices,
+            float @NonNull [] verts,
+            float @Nullable [] uv,
+            int @NonNull [] colors,
+            boolean halfFloat,
+            int layout,
+            int uCount,
+            int vCount,
+            float antialiasWidth) {
+        int id = mState.createNextAvailableId();
+        mBuffer.addMesh2D(
+                id,
+                halfFloat ? AddMesh2D.TYPE_F16_VALUES : AddMesh2D.TYPE_VALUES,
+                layout,
+                uCount,
+                vCount,
+                AddMesh2D.FLAG_ANTIALIAS,
+                0,
+                null,
+                indices,
+                verts,
+                uv,
+                colors,
+                antialiasWidth);
+        return id;
+    }
+
+    /**
      * Add a ribbon that follows a path, its cross width a monotonic spline through control points.
      *
      * <p>The common case for a variable width stroke. One width is a constant width; two or more
@@ -1790,6 +1899,24 @@ public class RemoteComposeWriter {
         if (pathId == -1) { // never been seen before
             pathId = addPathData(path);
         }
+        mBuffer.addDrawBitmapFontTextRunOnPath(
+                textId, bitmapFontId, pathId, start, end, yAdj, glyphSpacing);
+    }
+
+    /**
+     * Draw the text along an already registered path.
+     *
+     * @param textId       The id of the text to be drawn
+     * @param bitmapFontId The id of the bitmap font to draw with
+     * @param pathId       The id of the path to draw along
+     * @param start        The index of the first character in text to draw
+     * @param end          (end - 1) is the index of the last character in text to draw
+     * @param yAdj         Adjustment away from the path along the normal at that point
+     * @param glyphSpacing Horizontal spacing adjustment between glyphs in pixels
+     */
+    public void drawBitmapFontTextRunOnPath(
+            int textId, int bitmapFontId, int pathId, int start, int end, float yAdj,
+            float glyphSpacing) {
         mBuffer.addDrawBitmapFontTextRunOnPath(
                 textId, bitmapFontId, pathId, start, end, yAdj, glyphSpacing);
     }

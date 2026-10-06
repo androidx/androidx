@@ -19,6 +19,7 @@
 package androidx.compose.remote.creation.dsl
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.DrawTextAnchored
 import androidx.compose.remote.core.operations.MatrixFromPath
 import androidx.compose.remote.core.operations.SoundExpression
@@ -261,6 +262,44 @@ public value class RcTextStyle internal constructor(internal val id: Int)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcBitmapFont internal constructor(internal val id: Int)
+
+/**
+ * Builds a [BitmapFontData.Glyph] for [RcScope.createBitmapFont] whose image is [image].
+ *
+ * A glyph refers to its bitmap by raw id, which [RcImage] does not expose, so this is the only way
+ * to assemble a bitmap font from images registered through the DSL (for example with
+ * [RcScope.remoteBitmap] or [RcScope.createBitmap]).
+ *
+ * @param chars the character sequence this glyph renders
+ * @param image the glyph's bitmap
+ * @param width the bitmap width in pixels
+ * @param height the bitmap height in pixels
+ * @param marginLeft space before the bitmap, in pixels
+ * @param marginTop space above the bitmap, in pixels
+ * @param marginRight space after the bitmap, in pixels
+ * @param marginBottom space below the bitmap, in pixels
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun bitmapFontGlyph(
+    chars: String,
+    image: RcImage,
+    width: Int,
+    height: Int,
+    marginLeft: Int = 0,
+    marginTop: Int = 0,
+    marginRight: Int = 0,
+    marginBottom: Int = 0,
+): BitmapFontData.Glyph =
+    BitmapFontData.Glyph(
+        chars,
+        image.id,
+        marginLeft.toShort(),
+        marginTop.toShort(),
+        marginRight.toShort(),
+        marginBottom.toShort(),
+        width.toShort(),
+        height.toShort(),
+    )
 
 /**
  * Internal helper: extract the writer-side raw int from an [RcInteger] handle. Centralises the
