@@ -20,7 +20,6 @@ import androidx.build.logging.TERMINAL_RED
 import androidx.build.logging.TERMINAL_RESET
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.nio.file.Paths
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
@@ -94,28 +93,22 @@ abstract class BaseKtfmtTask : DefaultTask() {
 
     @[InputFiles PathSensitive(PathSensitivity.RELATIVE) SkipWhenEmpty]
     open fun getInputFiles(): FileTree {
-        val projectDirectory = overrideDirectory
-        val subdirectories = overrideSubdirectories
-        if (projectDirectory == null || subdirectories.isNullOrEmpty()) {
-            // If we have a valid override, use that as the default fileTree
-            return objects.fileTree().setDir(InputDir).apply {
+        val defaultFileTree: FileTree =
+            objects.fileTree().setDir(InputDir).apply {
                 include(IncludedFiles)
                 exclude(ExcludedDirectoryGlobs)
             }
-        }
-        return objects.fileTree().setDir(projectDirectory).apply {
-            subdirectories.forEach { include("$it/src/**/*.kt") }
+        return additionalDirectories.files.fold(defaultFileTree) { acc, dir ->
+            acc +
+                objects.fileTree().setDir(dir).apply {
+                    include("$InputDir/$IncludedFiles")
+                    exclude(ExcludedDirectoryGlobs)
+                }
         }
     }
 
-    /** Allows overriding to use a custom directory instead of default [Project.getProjectDir]. */
-    @get:Internal var overrideDirectory: File? = null
-
-    /**
-     * Used together with [overrideDirectory] to specify which specific subdirectories should be
-     * analyzed.
-     */
-    @get:Internal var overrideSubdirectories: List<String>? = null
+    /** Allows including additional directories alongside the default [Project.getProjectDir]. */
+    @get:Internal abstract val additionalDirectories: ConfigurableFileCollection
 
     protected fun runKtfmt(format: Boolean) {
         if (getInputFiles().files.isEmpty()) return
@@ -128,7 +121,6 @@ abstract class BaseKtfmtTask : DefaultTask() {
             javaExecSpec.classpath = ktfmtClasspath
             javaExecSpec.args = getArgsList(format = format)
             javaExecSpec.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
-            overrideDirectory?.let { javaExecSpec.workingDir = it }
             // Ignore exit value to allow printing the process's error stream before asserting a
             // successful exit value.
             javaExecSpec.isIgnoreExitValue = true

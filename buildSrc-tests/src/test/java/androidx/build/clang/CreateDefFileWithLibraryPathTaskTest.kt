@@ -23,49 +23,50 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
 class CreateDefFileWithLibraryPathTaskTest {
-    @get:Rule
-    val tmpFolder = TemporaryFolder()
+    @get:Rule val tmpFolder = TemporaryFolder()
 
     @Test
     fun buildDefFile() {
         val testDir = tmpFolder.newFolder()
-        val project = ProjectBuilder.builder().withProjectDir(
-            testDir.resolve("project")
-        ).build()
-        val inputFile = tmpFolder.newFile("input.def").apply {
-            writeText(
-                """
-                package=foo.bar
-                headers=foo.h
-                """.trimIndent()
-            )
-        }
-        val soFile = testDir.resolve("soFiles/myso.so").apply {
-            parentFile.mkdirs()
-            writeText("this is some so file contents")
-        }
+        val project = ProjectBuilder.builder().withProjectDir(testDir.resolve("project")).build()
+        val inputFile =
+            tmpFolder.newFile("input.def").apply {
+                writeText(
+                    """
+                    package=foo.bar
+                    headers=foo.h
+                    """
+                        .trimIndent()
+                )
+            }
+        val soFile =
+            testDir.resolve("soFiles/myso.so").apply {
+                parentFile.mkdirs()
+                writeText("this is some so file contents")
+            }
         val outputFile = project.layout.buildDirectory.file("output.def")
-        val task = project.tasks.register(
-            "testTask",
-            CreateDefFileWithLibraryPathTask::class.java
-        ) { task ->
-            task.original.set(inputFile)
-            task.objectFile.set(soFile)
-            task.target.set(outputFile)
-            task.projectDir.set(project.layout.projectDirectory)
-        }
+        val task =
+            project.tasks.register(
+                "testTask",
+                CreateDefFileWithLibraryPathTask::class.java,
+            ) { task ->
+                task.original.set(inputFile)
+                task.objectFile.set(soFile)
+                task.target.set(outputFile)
+                task.projectDir.set(project.layout.projectDirectory)
+            }
         task.get().createPlatformSpecificDefFile()
         // make sure the libraryPaths is relative to the projectDir for maximum cacheability since
         // the contents of this file will be a task input for cinterop task.
-        assertThat(
-            outputFile.get().asFile.readText()
-        ).contains(
-            """
-            package=foo.bar
-            headers=foo.h
-            libraryPaths="../soFiles"
-            staticLibraries=myso.so
-            """.trimIndent()
-        )
+        assertThat(outputFile.get().asFile.readText())
+            .contains(
+                """
+                package=foo.bar
+                headers=foo.h
+                libraryPaths="../soFiles"
+                staticLibraries=myso.so
+                """
+                    .trimIndent()
+            )
     }
 }

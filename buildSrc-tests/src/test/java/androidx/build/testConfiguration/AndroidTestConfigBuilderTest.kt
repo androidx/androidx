@@ -73,9 +73,7 @@ class AndroidTestConfigBuilderTest {
         val xml = builder.buildXml()
         MatcherAssert.assertThat(
             xml,
-            CoreMatchers.containsString(
-                "<option name=\"ajur-max-shard\" value=\"2\" />"
-            ),
+            CoreMatchers.containsString("<option name=\"ajur-max-shard\" value=\"2\" />"),
         )
         MatcherAssert.assertThat(
             xml,
