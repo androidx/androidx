@@ -37,7 +37,7 @@ internal actual val isNewContextMenuInitiallyEnabled: Boolean
  *
  *      class MyApplication : Application() {
  *          override fun onCreate() {
- *              AndroidComposeFoundationFlags.isOverscrollPixelRoundingEnabled = false
+ *              AndroidComposeFoundationFlags.isPrefetchSchedulerLateFrameDetectionEnabled = false
  *              super.onCreate()
  *          }
  *      }
@@ -48,21 +48,11 @@ internal actual val isNewContextMenuInitiallyEnabled: Boolean
  * performance impact.
  *
  *      -assumevalues class androidx.compose.foundation.AndroidComposeFoundationFlags {
- *          public static boolean isOverscrollPixelRoundingEnabled return false
+ *          public static boolean isPrefetchSchedulerLateFrameDetectionEnabled return false
  *      }
  */
 @ExperimentalFoundationApi
 public object AndroidComposeFoundationFlags {
-    /**
-     * This flag controls the fix where we round the maxElevation to integer pixels in
-     * StretchOverscrollNode to prevent sub-pixel rendering artifacts (like horizontal text
-     * shifting) during overscroll.
-     */
-    // TODO: Remove this flag once it has soaked (b/532081619)
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isOverscrollPixelRoundingEnabled: Boolean = true
-
     /**
      * This flag controls a fix in the lazy layout prefetch scheduler's idle detection. When
      * enabled, it prevents the scheduler from incorrectly identifying an idle state when a frame is

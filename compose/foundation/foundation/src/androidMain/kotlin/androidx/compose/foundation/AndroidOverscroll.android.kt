@@ -218,13 +218,7 @@ private class StretchOverscrollNode(
             drawContent()
             return
         }
-        @OptIn(ExperimentalFoundationApi::class)
-        val maxElevation =
-            if (AndroidComposeFoundationFlags.isOverscrollPixelRoundingEnabled) {
-                MaxSupportedElevation.roundToPx().toFloat()
-            } else {
-                MaxSupportedElevation.toPx()
-            }
+        val maxElevation = MaxSupportedElevation.roundToPx()
         var needsInvalidate = false
         with(edgeEffectWrapper) {
             val shouldDrawVerticalStretch = shouldDrawVerticalStretch()
@@ -240,7 +234,7 @@ private class StretchOverscrollNode(
                     renderNode.setPosition(
                         0,
                         0,
-                        canvas.width + (maxElevation.roundToInt() * 2),
+                        canvas.width + (maxElevation * 2),
                         canvas.height,
                     )
                 // Drawing horizontal stretch, so expand the height to prevent clipping
@@ -249,7 +243,7 @@ private class StretchOverscrollNode(
                         0,
                         0,
                         canvas.width,
-                        canvas.height + (maxElevation.roundToInt() * 2),
+                        canvas.height + (maxElevation * 2),
                     )
                 // Not drawing any stretch, so early return - we can draw into the existing canvas
                 else -> {
@@ -346,8 +340,8 @@ private class StretchOverscrollNode(
             // we need to re-center the content in the RenderNode.
             // We 'clip' in the direction of the stretch, so in that case there is no extra space
             // and hence no need to translate. Otherwise, add the extra space.
-            val left = if (shouldDrawHorizontalStretch) 0f else maxElevation
-            val top = if (shouldDrawVerticalStretch) 0f else maxElevation
+            val left = if (shouldDrawHorizontalStretch) 0f else maxElevation.toFloat()
+            val top = if (shouldDrawVerticalStretch) 0f else maxElevation.toFloat()
             val outerDraw = this@draw
             with(outerDraw) {
                 draw(this, this.layoutDirection, Canvas(recordingCanvas), size) {
