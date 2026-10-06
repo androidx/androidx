@@ -20,6 +20,18 @@
         <intent>
             <action android:name="android.car.template.host.RendererService" />
         </intent>
+        <!-- App stores, used to let the user install or update the host. -->
+        <intent>
+            <action android:name="android.intent.action.SHOW_APP_INFO" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="market" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.APP_MARKET" />
+        </intent>
     </queries>
     <uses-feature
         android:name="android.hardware.type.automotive"
