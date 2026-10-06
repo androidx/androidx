@@ -21,9 +21,14 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable as hostClickable
 import androidx.compose.foundation.combinedClickable as hostCombinedClickable
+import androidx.compose.foundation.horizontalScroll as hostHorizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll as hostVerticalScroll
 import androidx.compose.remote.core.CoreDocument
@@ -133,6 +138,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
+import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
@@ -1798,6 +1804,166 @@ class RcPlayerInteractivityTest {
 
         assertThat(parentLongClicked).isTrue()
         assertThat(parentClicked).isFalse()
+    }
+
+    @Test
+    fun scrollableComponent_onlyConsumesWhenScrollingInteractiveComponent() {
+        lateinit var hostScrollState: ScrollState
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                hostScrollState = rememberScrollState()
+                Column(modifier = Modifier.size(300.dp).hostVerticalScroll(hostScrollState)) {
+                    Box(modifier = Modifier.size(300.dp)) { content() }
+                    Box(modifier = Modifier.size(300.dp))
+                }
+            }
+        ) {
+            LeftBoxInteractiveContent(isClickable = false, isScrollable = true)
+        }
+
+        // 1. Swipe vertically on the left box (scrollable) -> consumed by the remote scrollable
+        // box, so the host Column does NOT scroll.
+        rule.onNodeWithContentDescription("LeftBox").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+        assertThat(hostScrollState.value).isEqualTo(0)
+
+        // 2. Swipe vertically on the right box (non-scrollable) -> not consumed by RcPlayer, so
+        // the host Column DOES scroll.
+        rule.onNodeWithContentDescription("RightBox").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+        assertThat(hostScrollState.value).isGreaterThan(0)
+    }
+
+    @Test
+    fun scrollableComponent_withContentThatFits_doesNotBlockHostScroll() {
+        lateinit var hostScrollState: ScrollState
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                hostScrollState = rememberScrollState()
+                Column(modifier = Modifier.size(300.dp).hostVerticalScroll(hostScrollState)) {
+                    Box(modifier = Modifier.size(300.dp)) { content() }
+                    Box(modifier = Modifier.size(300.dp))
+                }
+            }
+        ) {
+            LeftBoxInteractiveContent(isScrollable = true, scrollContentFits = true)
+        }
+
+        // The remote scroller has nothing to scroll, so the drag scrolls the host.
+        rule.onNodeWithContentDescription("LeftBox").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+        assertThat(hostScrollState.value).isGreaterThan(0)
+    }
+
+    @Test
+    fun scrollableComponent_insideHostLazyColumn_onlyScrollsHostOnNonScrollableArea() {
+        lateinit var hostLazyListState: LazyListState
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                hostLazyListState = rememberLazyListState()
+                LazyColumn(state = hostLazyListState, modifier = Modifier.size(300.dp)) {
+                    item { Box(modifier = Modifier.size(300.dp)) { content() } }
+                    item { Box(modifier = Modifier.size(300.dp)) }
+                }
+            }
+        ) {
+            LeftBoxInteractiveContent(isClickable = false, isScrollable = true)
+        }
+
+        // 1. Swipe vertically on the scrollable left box -> host LazyColumn does not scroll.
+        rule.onNodeWithContentDescription("LeftBox").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+        assertThat(hostLazyListState.firstVisibleItemIndex).isEqualTo(0)
+        assertThat(hostLazyListState.firstVisibleItemScrollOffset).isEqualTo(0)
+
+        // 2. Swipe vertically on the non-scrollable right box -> host LazyColumn scrolls.
+        rule.onNodeWithContentDescription("RightBox").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+        val scrolled =
+            hostLazyListState.firstVisibleItemIndex > 0 ||
+                hostLazyListState.firstVisibleItemScrollOffset > 0
+        assertThat(scrolled).isTrue()
+    }
+
+    @Test
+    fun nonInteractiveComponent_insideScrollableHostColumn_scrollsHostOnVerticalDrag() {
+        lateinit var hostScrollState: ScrollState
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                hostScrollState = rememberScrollState()
+                Column(modifier = Modifier.size(300.dp).hostVerticalScroll(hostScrollState)) {
+                    Box(modifier = Modifier.size(300.dp)) { content() }
+                    Box(modifier = Modifier.size(300.dp))
+                }
+            }
+        ) {
+            LeftBoxInteractiveContent(isClickable = false, isScrollable = false)
+        }
+
+        rule.onNodeWithContentDescription("LeftBox").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+
+        assertThat(hostScrollState.value).isGreaterThan(0)
+    }
+
+    @Test
+    fun clickableWithScrollableComponent_insideScrollableHostColumn_doesNotScrollHostOnVerticalDrag() {
+        var actionTriggered = false
+        lateinit var hostScrollState: ScrollState
+        rule.setRemoteContent(
+            onNamedAction = { name, _, _ ->
+                if (name == "myActionName") {
+                    actionTriggered = true
+                }
+            },
+            playComposableWrapper = { content ->
+                hostScrollState = rememberScrollState()
+                Column(modifier = Modifier.size(300.dp).hostVerticalScroll(hostScrollState)) {
+                    Box(modifier = Modifier.size(300.dp)) { content() }
+                    Box(modifier = Modifier.size(300.dp))
+                }
+            },
+        ) {
+            LeftBoxInteractiveContent(isClickable = true, isScrollable = true)
+        }
+
+        rule.onNodeWithContentDescription("LeftBox").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+
+        assertThat(actionTriggered).isFalse()
+        assertThat(hostScrollState.value).isEqualTo(0)
+    }
+
+    @Test
+    fun verticallyScrollableComponent_insideHorizontallyScrollableHostRow_scrollsHostWhenDragIsHorizontal() {
+        lateinit var hostHorizontalScrollState: ScrollState
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                hostHorizontalScrollState = rememberScrollState()
+                Row(
+                    modifier = Modifier.size(300.dp).hostHorizontalScroll(hostHorizontalScrollState)
+                ) {
+                    Box(modifier = Modifier.size(300.dp)) { content() }
+                    Box(modifier = Modifier.size(300.dp))
+                }
+            }
+        ) {
+            val scrollState = remember { RemoteScrollState() }
+            RemoteColumn(
+                modifier =
+                    RemoteModifier.size(300.rdp).verticalScroll(scrollState).semantics {
+                        contentDescription = "VerticalScrollPlayer".rs
+                    }
+            ) {
+                repeat(25) { RemoteBox(modifier = RemoteModifier.size(300.rdp, 44.rdp)) }
+            }
+        }
+
+        // Swipe horizontally on the vertically scrollable player -> host Row scrolls horizontally.
+        rule.onNodeWithContentDescription("VerticalScrollPlayer").performTouchInput { swipeLeft() }
+        rule.waitForIdle()
+
+        assertThat(hostHorizontalScrollState.value).isGreaterThan(0)
     }
 
     @Test
