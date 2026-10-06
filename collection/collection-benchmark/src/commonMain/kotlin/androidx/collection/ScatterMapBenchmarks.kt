@@ -86,9 +86,9 @@ class ScatterMapForEachBenchmark(dataSet: Array<String>) : CollectionBenchmark {
 }
 
 class ScatterMapRemoveBenchmark(private val dataSet: Array<String>) : CollectionBenchmark {
-    private val map = MutableScatterMap<String, String>()
+    private val map = MutableScatterMap<String, String>(dataSet.size)
 
-    init {
+    override fun prepare() {
         for (testValue in dataSet) {
             map[testValue] = testValue
         }
