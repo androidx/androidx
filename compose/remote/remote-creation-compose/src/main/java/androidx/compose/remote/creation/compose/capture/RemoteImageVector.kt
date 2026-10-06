@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+@file:JvmName("RemoteImageVectorKt")
+@file:JvmMultifileClass
+
 package androidx.compose.remote.creation.compose.capture
 
-import androidx.annotation.DrawableRes
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
@@ -29,8 +31,6 @@ import androidx.compose.remote.creation.compose.vector.RemotePathData
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
 import androidx.compose.remote.creation.compose.vector.toRemotePathNodes
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -42,7 +42,6 @@ import androidx.compose.ui.graphics.vector.DefaultFillType
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorGroup
 import androidx.compose.ui.graphics.vector.VectorPath
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.isSpecified
 
 /**
@@ -694,18 +693,6 @@ public fun ImageVector.toRemoteImageVector(): RemoteImageVector {
 
     addGroupToBuilder(root)
     return builder.build()
-}
-
-/**
- * Load a [RemoteImageVector] from an Android vector resource.
- *
- * @param id the drawable resource identifier of the vector drawable
- * @return the [RemoteImageVector] associated with the resource
- */
-@Composable
-public fun RemoteImageVector.Companion.vectorResource(@DrawableRes id: Int): RemoteImageVector {
-    val imageVector = ImageVector.vectorResource(id)
-    return remember(imageVector) { imageVector.toRemoteImageVector() }
 }
 
 private fun <T> ArrayList<T>.push(value: T): Boolean = add(value)
