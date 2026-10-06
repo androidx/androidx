@@ -57,6 +57,7 @@ import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.Container
+import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.LoopOperation
@@ -259,6 +260,9 @@ public fun Custom.readData(): CustomData {
     )
 }
 
+internal val Custom.CustomProperty.typeNameReflection: String
+    get() = customPropertyGetTypeNameMethod.invoke(this) as String
+
 // --- Private Reflective Fields ---
 
 private val clipPathIdField =
@@ -430,6 +434,8 @@ private val customConfigIdField =
     Custom::class.java.getDeclaredField("mConfigId").apply { isAccessible = true }
 private val customPropertiesField =
     Custom::class.java.getDeclaredField("mProperties").apply { isAccessible = true }
+private val customPropertyGetTypeNameMethod =
+    Custom.CustomProperty::class.java.getDeclaredMethod("getTypeName").apply { isAccessible = true }
 
 // --- Appended Reflection Helpers for Bypassing Core Changes ---
 
@@ -1545,3 +1551,106 @@ internal fun PathData.applyReflection(context: RemoteContext) {
     }
     apply(context)
 }
+
+private val pathDataFloatPathField =
+    PathData::class.java.getDeclaredField("mFloatPath").apply { isAccessible = true }
+
+internal val PathData.instanceIdReflection: Int
+    get() = pathDataInstanceIdField.getInt(this)
+
+internal val PathData.floatPathReflection: FloatArray
+    get() = pathDataFloatPathField.get(this) as FloatArray
+
+// 16. ConditionalOperations, LoopOperation, Function, Text, and Impulse Reflection
+
+private val condARawField =
+    ConditionalOperations::class.java.getDeclaredField("mVarA").apply { isAccessible = true }
+private val condBRawField =
+    ConditionalOperations::class.java.getDeclaredField("mVarB").apply { isAccessible = true }
+
+internal val ConditionalOperations.varARawReflection: Float
+    get() = condARawField.getFloat(this)
+
+internal val ConditionalOperations.varBRawReflection: Float
+    get() = condBRawField.getFloat(this)
+
+private val loopFromRawField =
+    LoopOperation::class.java.getDeclaredField("mFrom").apply { isAccessible = true }
+private val loopUntilRawField =
+    LoopOperation::class.java.getDeclaredField("mUntil").apply { isAccessible = true }
+private val loopStepRawField =
+    LoopOperation::class.java.getDeclaredField("mStep").apply { isAccessible = true }
+
+internal val LoopOperation.fromRawReflection: Float
+    get() = loopFromRawField.getFloat(this)
+
+internal val LoopOperation.untilRawReflection: Float
+    get() = loopUntilRawField.getFloat(this)
+
+internal val LoopOperation.stepRawReflection: Float
+    get() = loopStepRawField.getFloat(this)
+
+private val ffdIdField =
+    FloatFunctionDefine::class.java.getDeclaredField("mId").apply { isAccessible = true }
+private val ffdFloatVarIdsField =
+    FloatFunctionDefine::class.java.getDeclaredField("mFloatVarId").apply { isAccessible = true }
+
+internal val FloatFunctionDefine.idReflection: Int
+    get() = ffdIdField.getInt(this)
+
+internal val FloatFunctionDefine.floatVarIdsReflection: IntArray
+    get() = ffdFloatVarIdsField.get(this) as IntArray
+
+private val ffcIdField =
+    FloatFunctionCall::class.java.getDeclaredField("mId").apply { isAccessible = true }
+private val ffcArgsField =
+    FloatFunctionCall::class.java.getDeclaredField("mArgs").apply { isAccessible = true }
+
+internal val FloatFunctionCall.idReflection: Int
+    get() = ffcIdField.getInt(this)
+
+internal val FloatFunctionCall.argsReflection: FloatArray?
+    get() = ffcArgsField.get(this) as? FloatArray
+
+private val dtopHOffsetRawField =
+    DrawTextOnPath::class.java.getDeclaredField("mHOffset").apply { isAccessible = true }
+private val dtopVOffsetRawField =
+    DrawTextOnPath::class.java.getDeclaredField("mVOffset").apply { isAccessible = true }
+
+internal val DrawTextOnPath.hOffsetRawReflection: Float
+    get() = dtopHOffsetRawField.getFloat(this)
+
+internal val DrawTextOnPath.vOffsetRawReflection: Float
+    get() = dtopVOffsetRawField.getFloat(this)
+
+private val dtaXRawField =
+    DrawTextAnchored::class.java.getDeclaredField("mX").apply { isAccessible = true }
+private val dtaYRawField =
+    DrawTextAnchored::class.java.getDeclaredField("mY").apply { isAccessible = true }
+private val dtaPanXRawField =
+    DrawTextAnchored::class.java.getDeclaredField("mPanX").apply { isAccessible = true }
+private val dtaPanYRawField =
+    DrawTextAnchored::class.java.getDeclaredField("mPanY").apply { isAccessible = true }
+
+internal val DrawTextAnchored.xRawReflection: Float
+    get() = dtaXRawField.getFloat(this)
+
+internal val DrawTextAnchored.yRawReflection: Float
+    get() = dtaYRawField.getFloat(this)
+
+internal val DrawTextAnchored.panXRawReflection: Float
+    get() = dtaPanXRawField.getFloat(this)
+
+internal val DrawTextAnchored.panYRawReflection: Float
+    get() = dtaPanYRawField.getFloat(this)
+
+private val impulseDurationField =
+    ImpulseOperation::class.java.getDeclaredField("mDuration").apply { isAccessible = true }
+private val impulseStartAtField =
+    ImpulseOperation::class.java.getDeclaredField("mStartAt").apply { isAccessible = true }
+
+internal val ImpulseOperation.durationReflection: Float
+    get() = impulseDurationField.getFloat(this)
+
+internal val ImpulseOperation.startAtReflection: Float
+    get() = impulseStartAtField.getFloat(this)
