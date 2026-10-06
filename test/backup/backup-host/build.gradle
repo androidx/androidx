@@ -33,7 +33,7 @@ dependencies {
 
     // Android Studio dependencies
     implementation("com.android.tools.backup:backup-restore:32.5.0-alpha03")
-    implementation("com.android.tools.adblib:adblib:9.5.0-alpha03")
+    api("com.android.tools.adblib:adblib:9.5.0-alpha03")
     implementation("com.android.tools.adblib:adblib-tools:9.5.0-alpha03")
     implementation(libs.androidToolsCommon)
 
