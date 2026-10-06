@@ -33,7 +33,7 @@ repackage {
     // Must match what is in core/core-location-altitiude-external-protobuf/build.gradle
     addRelocation {
         sourcePackage = "com.google.protobuf"
-        targetPackage =  "androidx.core.location.altitude.impl.proto"
+        targetPackage =  "androidx.core.location.altitude.impl.protobuf"
     }
 }
 

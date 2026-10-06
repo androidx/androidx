@@ -31,7 +31,7 @@ plugins {
 repackage {
     addRelocation {
         sourcePackage = "com.google.protobuf"
-        targetPackage =  "androidx.core.location.altitude.impl.proto"
+        targetPackage =  "androidx.core.location.altitude.impl.protobuf"
     }
     artifactId = "core-location-altitude-external-protobuf"
 }
