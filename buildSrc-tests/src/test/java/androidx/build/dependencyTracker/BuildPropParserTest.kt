@@ -26,43 +26,47 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class BuildPropParserTest {
-    @Rule
-    @JvmField
-    val tmpFolder = TemporaryFolder()
+    @Rule @JvmField val tmpFolder = TemporaryFolder()
 
     @Test
     fun parseProps() {
         val repoProps = tmpFolder.newFile("repo.prop")
         repoProps.writeText(
-                """
-                    platform/external/flatbuffers b5c9b8e12b47d0597cd29b217e5765d325957d8a
-                    platform/external/noto-fonts d20a289eaebf2e371064dacc306b57d37b733f7c
-                    platform/frameworks/support fc9030edfe7e0a85a5545a342c7efbf93283f62f
-                    platform/manifest 446c4307abb8d676b308af55b06e1d1a01c858c7
-                    platform/prebuilts/androidx/external 28219bd26d4ef59e133a85189404db8e73ec0f70
-                    platform/prebuilts/androidx/internal dbbb264e785643cb8089c3a5ed7f8b25c4207738
-                    platform/prebuilts/checkstyle c52010acac9b638f45f66747762cc0ad187c1e39
-                    platform/tools/external/gradle 29b86bd23797fe0873ffe18f12907cd5eea5d427
-                    platform/tools/repohooks bbc97c1419402c3d0297189c2d34228cbb60c2e6
-                """.trimIndent(),
-                Charsets.UTF_8
+            """
+            platform/external/flatbuffers b5c9b8e12b47d0597cd29b217e5765d325957d8a
+            platform/external/noto-fonts d20a289eaebf2e371064dacc306b57d37b733f7c
+            platform/frameworks/support fc9030edfe7e0a85a5545a342c7efbf93283f62f
+            platform/manifest 446c4307abb8d676b308af55b06e1d1a01c858c7
+            platform/prebuilts/androidx/external 28219bd26d4ef59e133a85189404db8e73ec0f70
+            platform/prebuilts/androidx/internal dbbb264e785643cb8089c3a5ed7f8b25c4207738
+            platform/prebuilts/checkstyle c52010acac9b638f45f66747762cc0ad187c1e39
+            platform/tools/external/gradle 29b86bd23797fe0873ffe18f12907cd5eea5d427
+            platform/tools/repohooks bbc97c1419402c3d0297189c2d34228cbb60c2e6
+            """
+                .trimIndent(),
+            Charsets.UTF_8,
         )
         val appliedProp = tmpFolder.newFile("applied.prop")
         appliedProp.writeText(
-                """
-                    frameworks/support e31b2fa85ae9cb414023346684060d1009bf4c11
-                """.trimIndent(),
-                Charsets.UTF_8
+            """
+            frameworks/support e31b2fa85ae9cb414023346684060d1009bf4c11
+            """
+                .trimIndent(),
+            Charsets.UTF_8,
         )
-        val info = BuildPropParser.getShaForThisBuild(
+        val info =
+            BuildPropParser.getShaForThisBuild(
                 appliedPropsFile = appliedProp,
-                repoPropsFile = repoProps
-        )
-        MatcherAssert.assertThat(info, CoreMatchers.`is`(
+                repoPropsFile = repoProps,
+            )
+        MatcherAssert.assertThat(
+            info,
+            CoreMatchers.`is`(
                 BuildPropParser.BuildRange(
-                        repoSha = "fc9030edfe7e0a85a5545a342c7efbf93283f62f",
-                        buildSha = "e31b2fa85ae9cb414023346684060d1009bf4c11"
+                    repoSha = "fc9030edfe7e0a85a5545a342c7efbf93283f62f",
+                    buildSha = "e31b2fa85ae9cb414023346684060d1009bf4c11",
                 )
-        ))
+            ),
+        )
     }
 }
