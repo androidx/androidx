@@ -373,6 +373,21 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isRoundedRectangleBorderRenderingFixEnabled: Boolean = true
+
+    /**
+     * Controls whether lazy layout item animations use the state-based enter and exit transition
+     * model.
+     *
+     * When enabled, [androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimation] tracks
+     * transition states with an enum and uses
+     * [androidx.compose.foundation.lazy.layout.EnterExitFadeAnimation] to run
+     * [androidx.compose.animation.EnterTransition] and [androidx.compose.animation.ExitTransition]
+     * animations instead of boolean-based fade tracking.
+     */
+    // TODO: Remove this flag once it has soaked (b/570486457)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isLazyLayoutItemAnimationEnterExitTransitionsEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */

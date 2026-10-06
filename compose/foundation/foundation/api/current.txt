@@ -170,6 +170,7 @@ package androidx.compose.foundation {
     property public boolean isDraggableZeroDeltaConsumptionEnabled;
     property public boolean isInheritedTextStyleEnabled;
     property public boolean isKeepAroundDuringLookaheadDisabled;
+    property public boolean isLazyLayoutItemAnimationEnterExitTransitionsEnabled;
     property public boolean isLazyListItemAnimatorVisibleBoundsFixEnabled;
     property public boolean isLinkMinimumTouchTargetSizeZeroEnabled;
     property public boolean isMouseSelectionBetweenTextEnabled;
@@ -201,6 +202,7 @@ package androidx.compose.foundation {
     field public static boolean isDraggableZeroDeltaConsumptionEnabled;
     field public static boolean isInheritedTextStyleEnabled;
     field public static boolean isKeepAroundDuringLookaheadDisabled;
+    field public static boolean isLazyLayoutItemAnimationEnterExitTransitionsEnabled;
     field public static boolean isLazyListItemAnimatorVisibleBoundsFixEnabled;
     field public static boolean isLinkMinimumTouchTargetSizeZeroEnabled;
     field public static boolean isMouseSelectionBetweenTextEnabled;
