@@ -83,9 +83,11 @@ public class RcPlayerState(
                 computedOps = preprocessed.computedOpIndex,
                 timeMillis = currentTimeMillisState,
                 clock = document.clock,
+                touchExpressionIds = preprocessed.touchExpressionIds,
             )
             .also { gc ->
                 gc.setTypefaceResolver(remoteContext.typefaceResolver)
+                gc.touchVersion = remoteContext.touchVersion
             }
 
     /** The initial clock timestamp (in milliseconds) when this player state was initialized. */

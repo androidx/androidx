@@ -31,6 +31,9 @@ import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
+import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation
+import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation
+import androidx.compose.remote.core.operations.layout.TouchUpModifierOperation
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
@@ -58,19 +61,19 @@ import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.core.semantics.CoreSemantics
 import androidx.compose.remote.player.compose.embedded.modifier.background
 import androidx.compose.remote.player.compose.embedded.modifier.border
-import androidx.compose.remote.player.compose.embedded.modifier.click
 import androidx.compose.remote.player.compose.embedded.modifier.clipRect
+import androidx.compose.remote.player.compose.embedded.modifier.combinedClick
 import androidx.compose.remote.player.compose.embedded.modifier.dimensionConstraints
 import androidx.compose.remote.player.compose.embedded.modifier.graphicsLayer
 import androidx.compose.remote.player.compose.embedded.modifier.height
 import androidx.compose.remote.player.compose.embedded.modifier.heightIn
 import androidx.compose.remote.player.compose.embedded.modifier.marquee
-import androidx.compose.remote.player.compose.embedded.modifier.multiClick
 import androidx.compose.remote.player.compose.embedded.modifier.offset
 import androidx.compose.remote.player.compose.embedded.modifier.padding
 import androidx.compose.remote.player.compose.embedded.modifier.ripple
 import androidx.compose.remote.player.compose.embedded.modifier.roundedClipRect
 import androidx.compose.remote.player.compose.embedded.modifier.scroll
+import androidx.compose.remote.player.compose.embedded.modifier.touchActions
 import androidx.compose.remote.player.compose.embedded.modifier.width
 import androidx.compose.remote.player.compose.embedded.modifier.widthIn
 import androidx.compose.remote.player.compose.embedded.modifier.zIndex
@@ -92,7 +95,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 
@@ -120,9 +122,28 @@ internal fun ComponentModifiers.toModifier(
     // that subsequent clip operations are hoisted before drawWithContent without bypassing
     // preceding padding.
     var drawContentProcessed = false
-    var multiClickProcessed = ignoreClicks
-    val hasClickModifier =
-        !ignoreClicks && list.fastAny { it is ClickModifierOperation || it is MultiClickModifier }
+    var clickProcessed = ignoreClicks
+    var touchProcessed = false
+    // Collect the gesture operations in one pass so they can be coalesced into a single click
+    // modifier and a single touch action modifier.
+    val clickOps = ArrayList<ClickModifierOperation>()
+    val multiClickOps = ArrayList<MultiClickModifier>()
+    val touchDownOps = ArrayList<TouchDownModifierOperation>()
+    val touchUpOps = ArrayList<TouchUpModifierOperation>()
+    val touchCancelOps = ArrayList<TouchCancelModifierOperation>()
+    list.fastForEach {
+        when (it) {
+            is ClickModifierOperation -> clickOps.add(it)
+            is MultiClickModifier -> multiClickOps.add(it)
+            is TouchDownModifierOperation -> touchDownOps.add(it)
+            is TouchUpModifierOperation -> touchUpOps.add(it)
+            is TouchCancelModifierOperation -> touchCancelOps.add(it)
+        }
+    }
+    val hasClickModifier = !ignoreClicks && (clickOps.isNotEmpty() || multiClickOps.isNotEmpty())
+    // A custom plugin that handles clicks itself (ignoreClicks) consumes the release in its own
+    // content, which must not turn the component's TouchUp into TouchCancel.
+    val hasClickHandler = hasClickModifier || ignoreClicks
     list.fastForEach { op ->
         modifier = modifier.rcModifierInspector(op)
         modifier =
@@ -143,21 +164,38 @@ internal fun ComponentModifiers.toModifier(
                 is WidthInModifierOperation -> modifier.widthIn(op)
                 is HeightInModifierOperation -> modifier.heightIn(op)
                 is DimensionConstraintsModifierOperation -> modifier.dimensionConstraints(op)
-                is ClickModifierOperation -> if (ignoreClicks) modifier else modifier.click(op)
+                is ClickModifierOperation,
                 is MultiClickModifier -> {
-                    // RemoteCompose emits a separate MultiClickModifier operation per gesture type
-                    // (e.g. CLICK_TYPE_SINGLE, CLICK_TYPE_DOUBLE, CLICK_TYPE_LONG) on the same
-                    // component. Chaining multiple separate combinedClickable modifiers in Compose
-                    // causes the outer pointer handler to consume gestures before inner handlers
-                    // see them, so we coalesce all MultiClickModifier ops into a single
-                    // combinedClickable at the position of the first MultiClickModifier.
-                    if (!multiClickProcessed) {
-                        multiClickProcessed = true
-                        val multiClickOps =
-                            ArrayList<MultiClickModifier>().apply {
-                                list.fastForEach { if (it is MultiClickModifier) add(it) }
-                            }
-                        modifier.multiClick(multiClickOps)
+                    // RemoteCompose emits a ClickModifierOperation for CLICK_TYPE_SINGLE and
+                    // separate MultiClickModifier operations for CLICK_TYPE_DOUBLE and
+                    // CLICK_TYPE_LONG on the same component (e.g. in combinedClickable).
+                    // Coalesce them into a single gesture modifier, at the first click operation,
+                    // so an outer clickable doesn't swallow double/long clicks before
+                    // combinedClickable sees them.
+                    if (!clickProcessed) {
+                        clickProcessed = true
+                        modifier.combinedClick(clickOps, multiClickOps)
+                    } else {
+                        modifier
+                    }
+                }
+                is TouchDownModifierOperation,
+                is TouchUpModifierOperation,
+                is TouchCancelModifierOperation -> {
+                    // Coalesce all touch action operations into a single modifier. When a click
+                    // operation precedes it, combinedClick is outer to touchActions. The Main
+                    // pass delivers events from the innermost modifier outwards, so touchActions
+                    // sees the release before combinedClick consumes it, and leaves it unconsumed
+                    // for combinedClick to handle. In the other order, combinedClick consumes the
+                    // release first, which hasClickHandler makes touchActions treat as TouchUp.
+                    if (!touchProcessed) {
+                        touchProcessed = true
+                        modifier.touchActions(
+                            touchDownOps = touchDownOps,
+                            touchUpOps = touchUpOps,
+                            touchCancelOps = touchCancelOps,
+                            hasClickHandler = hasClickHandler,
+                        )
                     } else {
                         modifier
                     }

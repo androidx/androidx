@@ -21,6 +21,8 @@ package androidx.compose.remote.player.compose.embedded.modifier
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteContext
@@ -28,6 +30,9 @@ import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
+import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation
+import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation
+import androidx.compose.remote.core.operations.layout.TouchUpModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.core.operations.layout.modifiers.RunActionOperation
@@ -50,39 +55,15 @@ import androidx.compose.remote.player.compose.embedded.valueExpressionIdReflecti
 import androidx.compose.remote.player.compose.embedded.valueIdReflection
 import androidx.compose.remote.player.compose.embedded.valueReflection
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
-
-@Composable
-internal fun Modifier.click(op: ClickModifierOperation): Modifier {
-    val coreDocument = LocalCoreDocument.current
-    val remoteContext = LocalRemoteContext.current
-    val onAction = LocalRemoteActionHandler.current
-    val onNamedAction = LocalRemoteNamedActionHandler.current
-    val contentDescription = op.contentDescriptionId?.let { rememberRemoteStringAsState(it).value }
-
-    return this.clickable(onClickLabel = contentDescription) {
-        op.mList.fastForEach {
-            applyClickAction(it, coreDocument, remoteContext, onAction, onNamedAction)
-        }
-        coreDocument.updateVariablesReflection(
-            remoteContext,
-            Theme.SYSTEM,
-            coreDocument.getOperationsReflection(),
-        )
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-internal fun Modifier.multiClick(ops: List<MultiClickModifier>): Modifier {
-    val handlers = rememberClickActionHandlers(ops)
-    return this.combinedClickable(
-        onClick = { handlers.onClick?.invoke() },
-        onDoubleClick = handlers.onDoubleClick,
-        onLongClick = handlers.onLongClick,
-    )
-}
+import androidx.compose.ui.util.fastMap
 
 /**
  * The click action handlers for a component: each is `null` if the component has no actions for
@@ -141,6 +122,167 @@ internal fun rememberClickActionHandlers(ops: List<Operation>): ClickActionHandl
         onDoubleClick = handlerFor(doubleActions),
         onLongClick = handlerFor(longActions),
     )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun Modifier.combinedClick(
+    clickOps: List<ClickModifierOperation>,
+    multiClickOps: List<MultiClickModifier>,
+): Modifier {
+    val coreDocument = LocalCoreDocument.current
+    val remoteContext = LocalRemoteContext.current
+    val onAction = LocalRemoteActionHandler.current
+    val onNamedAction = LocalRemoteNamedActionHandler.current
+    val contentDescription =
+        clickOps
+            .fastFirstOrNull { it.contentDescriptionId != null }
+            ?.contentDescriptionId
+            ?.let {
+                rememberRemoteStringAsState(it).value
+            }
+
+    val singleActionLists =
+        ArrayList<List<Operation>>().apply {
+            clickOps.fastForEach { add(it.mList) }
+            multiClickOps.fastForEach {
+                if (it.clickTypeReflection == MultiClickModifier.CLICK_TYPE_SINGLE) {
+                    add(it.mList)
+                }
+            }
+        }
+    val doubleActionLists =
+        multiClickOps
+            .fastFilter { it.clickTypeReflection == MultiClickModifier.CLICK_TYPE_DOUBLE }
+            .fastMap { it.mList }
+    val longActionLists =
+        multiClickOps
+            .fastFilter { it.clickTypeReflection == MultiClickModifier.CLICK_TYPE_LONG }
+            .fastMap { it.mList }
+
+    fun dispatchActionLists(actionLists: List<List<Operation>>) {
+        actionLists.fastForEach { actions ->
+            actions.fastForEach { action ->
+                applyClickAction(action, coreDocument, remoteContext, onAction, onNamedAction)
+            }
+        }
+        coreDocument.updateVariablesReflection(
+            remoteContext,
+            Theme.SYSTEM,
+            coreDocument.getOperationsReflection(),
+        )
+    }
+
+    return if (doubleActionLists.isEmpty() && longActionLists.isEmpty()) {
+        this.clickable(onClickLabel = contentDescription) {
+            dispatchActionLists(singleActionLists)
+        }
+    } else {
+        this.combinedClickable(
+            onClickLabel = contentDescription,
+            onClick = { dispatchActionLists(singleActionLists) },
+            onDoubleClick =
+                if (doubleActionLists.isNotEmpty()) {
+                    { dispatchActionLists(doubleActionLists) }
+                } else {
+                    null
+                },
+            onLongClick =
+                if (longActionLists.isNotEmpty()) {
+                    { dispatchActionLists(longActionLists) }
+                } else {
+                    null
+                },
+        )
+    }
+}
+
+/**
+ * Dispatches the component's TouchDown, TouchUp and TouchCancel actions.
+ *
+ * Every TouchDown is followed by exactly one TouchUp or TouchCancel: TouchCancel is sent when a
+ * child or scroller consumes the gesture, when the pointer disappears, or when the handler is
+ * cancelled or restarted mid-gesture.
+ *
+ * @param hasClickHandler whether something else on the component handles clicks (the player's click
+ *   modifier or a custom plugin that handles clicks itself). The release is then left unconsumed
+ *   for that handler, and a release it consumed still counts as TouchUp.
+ */
+@Composable
+internal fun Modifier.touchActions(
+    touchDownOps: List<TouchDownModifierOperation>,
+    touchUpOps: List<TouchUpModifierOperation>,
+    touchCancelOps: List<TouchCancelModifierOperation>,
+    hasClickHandler: Boolean = false,
+): Modifier {
+    val coreDocument = LocalCoreDocument.current
+    val remoteContext = LocalRemoteContext.current
+    val onAction = LocalRemoteActionHandler.current
+    val onNamedAction = LocalRemoteNamedActionHandler.current
+
+    // The pointer handler outlives recompositions, so read the latest document, context, host
+    // handlers and actions through updated state instead of capturing them or restarting the
+    // handler (which would end an in-progress gesture) whenever new lists are passed in.
+    val dispatchActions by rememberUpdatedState { ops: List<List<Operation>> ->
+        if (ops.isNotEmpty()) {
+            ops.fastForEach { actions ->
+                actions.fastForEach { action ->
+                    applyClickAction(action, coreDocument, remoteContext, onAction, onNamedAction)
+                }
+            }
+            coreDocument.updateVariablesReflection(
+                remoteContext,
+                Theme.SYSTEM,
+                coreDocument.getOperationsReflection(),
+            )
+        }
+    }
+    val downLists by rememberUpdatedState(touchDownOps.fastMap { it.mList })
+    val upLists by rememberUpdatedState(touchUpOps.fastMap { it.mList })
+    val cancelLists by rememberUpdatedState(touchCancelOps.fastMap { it.mList })
+    val currentHasClickHandler by rememberUpdatedState(hasClickHandler)
+
+    return this.pointerInput(Unit) {
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = false)
+            val pointerId = down.id
+            dispatchActions(downLists)
+            var ended = false
+            try {
+                while (!ended) {
+                    val event = awaitPointerEvent(PointerEventPass.Main)
+                    val change = event.changes.fastFirstOrNull { it.id == pointerId } ?: break
+                    if (!change.pressed) {
+                        val hasClickHandler = currentHasClickHandler
+                        if (change.isConsumed && !hasClickHandler) {
+                            dispatchActions(cancelLists)
+                        } else {
+                            if (!hasClickHandler) {
+                                change.consume()
+                            }
+                            dispatchActions(upLists)
+                        }
+                        ended = true
+                    } else if (change.isConsumed) {
+                        dispatchActions(cancelLists)
+                        ended = true
+                    } else {
+                        val finalEvent = awaitPointerEvent(PointerEventPass.Final)
+                        val finalChange =
+                            finalEvent.changes.fastFirstOrNull { it.id == pointerId } ?: break
+                        if (finalChange.isConsumed) {
+                            dispatchActions(cancelLists)
+                            ended = true
+                        }
+                    }
+                }
+            } finally {
+                if (!ended) {
+                    dispatchActions(cancelLists)
+                }
+            }
+        }
+    }
 }
 
 private fun applyClickAction(
