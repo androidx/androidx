@@ -36,6 +36,7 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
 import androidx.xr.compose.subspace.MAX_SAFE_PANEL_WIDTH_PX
 import androidx.xr.compose.subspace.SpatialColumn
+import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
@@ -291,6 +292,74 @@ class ResizableModifierTest {
             }
         }
         assertResizableComponentMaxSizeIsSet(size = maxSize)
+    }
+
+    @Test
+    fun resizable_maintainAspectRatio_constrainsMaxSizeToMatchAspectRatio() {
+        composeTestRule.setContent {
+            Subspace(modifier = SubspaceModifier.size(DpVolumeSize(500.dp, 500.dp, 500.dp))) {
+                SpatialMainPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .fillMaxSize()
+                            .resizable(
+                                maintainAspectRatio = true,
+                                maximumSize = DpVolumeSize(3000.dp, 1000.dp, 1.dp),
+                            )
+                )
+            }
+        }
+        assertResizableComponentMaxSizeIsSet(size = DpVolumeSize(1000.dp, 1000.dp, 1.dp))
+    }
+
+    @Test
+    fun resizable_maintainAspectRatio_constrainsMinSizeToMatchAspectRatio() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .size(DpVolumeSize(500.dp, 500.dp, 0.dp))
+                            .resizable(
+                                maintainAspectRatio = true,
+                                minimumSize = DpVolumeSize(100.dp, 250.dp, 0.dp),
+                            )
+                ) {}
+            }
+        }
+        assertResizableComponentMinSizeIsSet(size = DpVolumeSize(250.dp, 250.dp, 0.dp))
+    }
+
+    @Test
+    fun resizable_maintainAspectRatio_contentAspectRatioChange_updatesMinAndMaxSize() {
+        var panelWidth by mutableStateOf(500.dp)
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .width(panelWidth)
+                            .height(500.dp)
+                            .resizable(
+                                maintainAspectRatio = true,
+                                minimumSize = DpVolumeSize(100.dp, 250.dp, 0.dp),
+                                maximumSize = DpVolumeSize(3000.dp, 1000.dp, 1.dp),
+                            )
+                ) {}
+            }
+        }
+
+        // Initial 500x500 (1:1 aspect ratio) -> min is 250x250, max is 1000x1000.
+        assertResizableComponentMinSizeIsSet(size = DpVolumeSize(250.dp, 250.dp, 0.dp))
+        assertResizableComponentMaxSizeIsSet(size = DpVolumeSize(1000.dp, 1000.dp, 1.dp))
+
+        // Update width to 1000dp -> 1000x500 (2:1 aspect ratio) -> min is 500x250, max is
+        // 2000x1000.
+        panelWidth = 1000.dp
+        composeTestRule.waitForIdle()
+
+        assertResizableComponentMinSizeIsSet(size = DpVolumeSize(500.dp, 250.dp, 0.dp))
+        assertResizableComponentMaxSizeIsSet(size = DpVolumeSize(2000.dp, 1000.dp, 1.dp))
     }
 
     private fun assertSingleResizableComponentExists(testTag: String = "panel") {
