@@ -42,6 +42,8 @@ import androidx.compose.remote.core.Operations.THEME
 import androidx.compose.remote.core.Operations.TOUCH_EXPRESSION
 import androidx.compose.remote.core.Operations.WAKE_IN
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.glance.wear.core.RendererVersion
+import androidx.glance.wear.core.mapToList
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -52,7 +54,7 @@ class WearWidgetsProfileTest {
 
     @Test
     fun testRequiredOperations() {
-        val profile = GlanceWearProfiles.wearWidgets()
+        val profile = GlanceWearProfiles.createWearWidgetsProfile()
         val operations = profile.supportedOperations
         val exclusions =
             setOf(
@@ -94,5 +96,20 @@ class WearWidgetsProfileTest {
         // Fail if things are added to AndroidX Baseline without consideration here
         assertThat(operations)
             .containsAtLeastElementsIn(RcPlatformProfiles.ANDROIDX.supportedOperations - exclusions)
+    }
+
+    @Test
+    fun testSafeFallbackOperations() {
+        val profile = GlanceWearProfiles.createWearWidgetsProfile()
+        val operations = profile.supportedOperations
+
+        assertThat(operations)
+            .containsAtLeastElementsIn(
+                RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS.mapToList { it }
+            )
+        assertThat(GlanceWearProfiles.WEAR_WIDGETS_ALLOWED_OPERATIONS.mapToList { it })
+            .containsAtLeastElementsIn(
+                RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS.mapToList { it }
+            )
     }
 }
