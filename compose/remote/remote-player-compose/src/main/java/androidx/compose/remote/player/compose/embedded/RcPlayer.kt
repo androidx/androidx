@@ -30,8 +30,10 @@ import android.app.PendingIntent
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
+import androidx.collection.IntSet
 import androidx.collection.emptyIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
+import androidx.collection.mutableIntSetOf
 import androidx.compose.animation.core.Easing as ComposeEasing
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -72,8 +74,10 @@ import androidx.compose.remote.core.operations.TextLookupInt
 import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.TimeAttribute
+import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.WakeIn
+import androidx.compose.remote.core.operations.layout.CanvasContent
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
@@ -87,10 +91,13 @@ import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
 import androidx.compose.remote.core.operations.layout.managers.FlowLayout
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout
+import androidx.compose.remote.core.operations.layout.managers.LayoutManager
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
+import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
+import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.Easing as RemoteEasing
@@ -121,8 +128,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -303,6 +316,7 @@ public fun RcPlayer(
                 ?.toFloat() ?: 0f
         }
 
+    val rootCoordsHolder = remember(document) { RootLayoutCoordinatesHolder() }
     var size by remember { mutableStateOf(IntSize.Zero) }
     BoxWithConstraints(
         modifier =
@@ -318,9 +332,105 @@ public fun RcPlayer(
                 )
                 .rcPlayerRootInspector(state)
                 .onPlaced {
+                    rootCoordsHolder.coordinates = it
                     val position = it.positionOnScreen()
                     document.setOrigin(position.x, position.y)
                     size = it.size
+                }
+                .pointerInput(document, remoteContext, preprocessed, graphContext) {
+                    val velocityTracker = VelocityTracker()
+                    fun dispatchRootCancel(pos: Offset) {
+                        val velocity = velocityTracker.calculateVelocity()
+                        document.withRootTouchDispatchSuppressed {
+                            document.touchCancel(
+                                remoteContext,
+                                pos.x,
+                                pos.y,
+                                velocity.x,
+                                velocity.y,
+                            )
+                        }
+                    }
+                    awaitPointerEventScope {
+                        while (true) {
+                            val downEvent = awaitPointerEvent(PointerEventPass.Initial)
+                            val down =
+                                downEvent.changes.fastFirstOrNull {
+                                    !it.previousPressed && it.pressed
+                                } ?: continue
+                            val pointerId = down.id
+                            var consumedByChild = false
+                            var ended = false
+                            var lastPos = down.position
+                            velocityTracker.resetTracking()
+                            velocityTracker.addPointerInputChange(down)
+                            preprocessed.rootTouchExpressions.fastForEach { te ->
+                                te.updateVariables(graphContext)
+                            }
+                            document.withRootTouchDispatchSuppressed {
+                                document.touchDown(remoteContext, down.position.x, down.position.y)
+                            }
+                            preprocessed.rootTouchExpressions.fastForEach { te ->
+                                te.apply(remoteContext)
+                            }
+                            try {
+                                while (true) {
+                                    val event = awaitPointerEvent(PointerEventPass.Final)
+                                    val change =
+                                        event.changes.fastFirstOrNull { it.id == pointerId }
+                                            ?: break
+                                    if (change.isConsumed) {
+                                        consumedByChild = true
+                                    }
+                                    val pos = change.position
+                                    lastPos = pos
+                                    if (!change.pressed) {
+                                        ended = true
+                                        if (consumedByChild) {
+                                            dispatchRootCancel(pos)
+                                        } else {
+                                            velocityTracker.addPointerInputChange(change)
+                                            val velocity = velocityTracker.calculateVelocity()
+                                            preprocessed.rootTouchExpressions.fastForEach { te ->
+                                                te.updateVariables(graphContext)
+                                            }
+                                            document.withRootTouchDispatchSuppressed {
+                                                document.touchUp(
+                                                    remoteContext,
+                                                    pos.x,
+                                                    pos.y,
+                                                    velocity.x,
+                                                    velocity.y,
+                                                )
+                                            }
+                                            preprocessed.rootTouchExpressions.fastForEach { te ->
+                                                te.apply(remoteContext)
+                                            }
+                                        }
+                                        break
+                                    }
+                                    if (event.type == PointerEventType.Move) {
+                                        velocityTracker.addPointerInputChange(change)
+                                        if (!consumedByChild) {
+                                            preprocessed.rootTouchExpressions.fastForEach { te ->
+                                                te.updateVariables(graphContext)
+                                            }
+                                            document.withRootTouchDispatchSuppressed {
+                                                document.touchDrag(remoteContext, pos.x, pos.y)
+                                            }
+                                        }
+                                    }
+                                }
+                            } finally {
+                                // The pointer disappeared or the handler was cancelled or
+                                // restarted mid-gesture: end the gesture rather than leave it
+                                // open.
+                                if (!ended) {
+                                    dispatchRootCancel(lastPos)
+                                }
+                            }
+                        }
+                    }
                 }
     ) {
         // ColorConstant / IntegerConstant / FloatExpression defaults already live in the
@@ -357,6 +467,9 @@ public fun RcPlayer(
             LocalRemoteContext provides remoteContext,
             LocalComponentValueMap provides componentValueMap,
             LocalComponentValueStateMap provides componentValueStateMap,
+            LocalComponentTouchExpressionsMap provides preprocessed.componentTouchExpressionsMap,
+            LocalHasTouchExpressions provides preprocessed.touchExpressions.isNotEmpty(),
+            LocalRootLayoutCoordinates provides rootCoordsHolder,
             LocalCurrentTimeMillis provides currentTimeMillisState,
             LocalGraphContext provides graphContext,
             LocalRcImageLoader provides resolvedImageLoader,
@@ -524,11 +637,45 @@ internal fun RcPlayerRootLayoutComponent(size: IntSize) {
     RcPlayerChildren(root)
 }
 
+private class ComponentPlacementHolder {
+    var rootOffset: Offset = Offset.Zero
+    var posInParent: Offset = Offset.Zero
+    var width: Float = Float.NaN
+    var height: Float = Float.NaN
+    var boundsInitialized: Boolean = false
+}
+
+private fun touchExpressionAxes(touchExpressions: List<TouchExpression>): Pair<Boolean, Boolean> {
+    var usesX = false
+    var usesY = false
+    touchExpressions.fastForEach { te ->
+        val exp = te.mSrcExp ?: return@fastForEach
+        for (v in exp) {
+            if (v.isNaN()) {
+                when (Utils.idFromNan(v)) {
+                    RemoteContext.ID_TOUCH_POS_X -> usesX = true
+                    RemoteContext.ID_TOUCH_POS_Y -> usesY = true
+                }
+            }
+        }
+    }
+    if (!usesX && !usesY) {
+        return true to true
+    }
+    return usesX to usesY
+}
+
 @Composable
 internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifier) {
     if (component is LayoutComponent) {
+        val document = LocalCoreDocument.current
         val componentValueMap = LocalComponentValueMap.current
         val componentValueStateMap = LocalComponentValueStateMap.current
+        val componentTouchExpressionsMap = LocalComponentTouchExpressionsMap.current
+        val hasTouchExpressions = LocalHasTouchExpressions.current
+        val rootCoordsHolder = LocalRootLayoutCoordinates.current
+        val remoteContext = LocalRemoteContext.current
+        val graphContext = LocalGraphContext.current
 
         val visibilityOp =
             component.componentModifiers.list.fastFirstOrNull { it is ComponentVisibilityOperation }
@@ -550,6 +697,8 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
         val customClickHandlers =
             if (component is Custom) rememberCustomClickHandlers(component) else null
 
+        val touchExpressions = componentTouchExpressionsMap[component.componentId].orEmpty()
+        val placement = remember(component) { ComponentPlacementHolder() }
         var modifier =
             Modifier.sharedElementTransition(component)
                 .then(
@@ -570,27 +719,266 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                     )
                 )
                 .rcComponentContentInspector(component)
+                .then(
+                    if (touchExpressions.isNotEmpty()) {
+                        val (usesX, usesY) =
+                            remember(touchExpressions) { touchExpressionAxes(touchExpressions) }
+                        Modifier.pointerInput(
+                            component,
+                            touchExpressions,
+                            remoteContext,
+                            graphContext,
+                        ) {
+                            val velocityTracker = VelocityTracker()
+                            val touchSlop = viewConfiguration.touchSlop
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val downEvent = awaitPointerEvent(PointerEventPass.Main)
+                                    val down =
+                                        downEvent.changes.fastFirstOrNull {
+                                            !it.previousPressed && it.pressed
+                                        } ?: continue
+                                    val pointerId = down.id
+                                    val downPos = down.position
+                                    var dragLocked = false
+                                    var dragRejected = false
+                                    val isLegacyTouch =
+                                        remoteContext.touchVersion != LayoutManager.FIX_TOUCH_EVENT
+                                    component.setWidth(size.width.toFloat())
+                                    component.setHeight(size.height.toFloat())
+                                    velocityTracker.resetTracking()
+                                    velocityTracker.addPointerInputChange(down)
+                                    val downRootX = placement.rootOffset.x + downPos.x
+                                    val downRootY = placement.rootOffset.y + downPos.y
+                                    val downTouchX = if (isLegacyTouch) downRootX else downPos.x
+                                    val downTouchY = if (isLegacyTouch) downRootY else downPos.y
+                                    remoteContext.loadFloat(
+                                        RemoteContext.ID_TOUCH_POS_X,
+                                        downRootX,
+                                    )
+                                    remoteContext.loadFloat(
+                                        RemoteContext.ID_TOUCH_POS_Y,
+                                        downRootY,
+                                    )
+                                    touchExpressions.fastForEach { te ->
+                                        te.updateVariables(graphContext ?: remoteContext)
+                                        // Bounds are only read by the touchDown hit test, so
+                                        // refresh them here (apply runs updateBounds) rather
+                                        // than on every placement. Legacy bounds depend on the
+                                        // ancestors' positions, which change while scrolling.
+                                        te.apply(remoteContext)
+                                        te.touchDown(remoteContext, downTouchX, downTouchY)
+                                        te.apply(remoteContext)
+                                    }
+                                    var ended = false
+                                    var lastTouchX = downTouchX
+                                    var lastTouchY = downTouchY
+                                    try {
+                                        while (true) {
+                                            val event = awaitPointerEvent(PointerEventPass.Main)
+                                            val change =
+                                                event.changes.fastFirstOrNull { it.id == pointerId }
+                                                    ?: break
+                                            val pos = change.position
+                                            val rootX = placement.rootOffset.x + pos.x
+                                            val rootY = placement.rootOffset.y + pos.y
+                                            val touchX = if (isLegacyTouch) rootX else pos.x
+                                            val touchY = if (isLegacyTouch) rootY else pos.y
+                                            lastTouchX = touchX
+                                            lastTouchY = touchY
+                                            if (!change.pressed) {
+                                                ended = true
+                                                val velocity =
+                                                    if (!dragRejected && !change.isConsumed) {
+                                                        velocityTracker.addPointerInputChange(
+                                                            change
+                                                        )
+                                                        velocityTracker.calculateVelocity()
+                                                    } else {
+                                                        null
+                                                    }
+                                                if (!dragRejected && !change.isConsumed) {
+                                                    remoteContext.loadFloat(
+                                                        RemoteContext.ID_TOUCH_POS_X,
+                                                        rootX,
+                                                    )
+                                                    remoteContext.loadFloat(
+                                                        RemoteContext.ID_TOUCH_POS_Y,
+                                                        rootY,
+                                                    )
+                                                }
+                                                touchExpressions.fastForEach { te ->
+                                                    te.updateVariables(
+                                                        graphContext ?: remoteContext
+                                                    )
+                                                    te.touchUp(
+                                                        remoteContext,
+                                                        touchX,
+                                                        touchY,
+                                                        velocity?.x ?: 0f,
+                                                        velocity?.y ?: 0f,
+                                                    )
+                                                    te.apply(remoteContext)
+                                                }
+                                                break
+                                            }
+                                            if (event.type == PointerEventType.Move) {
+                                                if (!dragLocked && !dragRejected) {
+                                                    val dx = abs(pos.x - downPos.x)
+                                                    val dy = abs(pos.y - downPos.y)
+                                                    if (usesX && !usesY) {
+                                                        if (dy > touchSlop && dy > dx) {
+                                                            dragRejected = true
+                                                        } else if (dx > touchSlop) {
+                                                            dragLocked = true
+                                                        }
+                                                    } else if (usesY && !usesX) {
+                                                        if (dx > touchSlop && dx > dy) {
+                                                            dragRejected = true
+                                                        } else if (dy > touchSlop) {
+                                                            dragLocked = true
+                                                        }
+                                                    } else if (
+                                                        dx * dx + dy * dy > touchSlop * touchSlop
+                                                    ) {
+                                                        dragLocked = true
+                                                    }
+                                                }
+                                                if (!dragRejected) {
+                                                    velocityTracker.addPointerInputChange(change)
+                                                    remoteContext.loadFloat(
+                                                        RemoteContext.ID_TOUCH_POS_X,
+                                                        rootX,
+                                                    )
+                                                    remoteContext.loadFloat(
+                                                        RemoteContext.ID_TOUCH_POS_Y,
+                                                        rootY,
+                                                    )
+                                                    touchExpressions.fastForEach { te ->
+                                                        te.updateVariables(
+                                                            graphContext ?: remoteContext
+                                                        )
+                                                        te.touchDrag(remoteContext, touchX, touchY)
+                                                    }
+                                                    if (dragLocked) {
+                                                        change.consume()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } finally {
+                                        // The pointer disappeared or the handler was cancelled or
+                                        // restarted mid-gesture. TouchExpression has no cancel, so
+                                        // release at the last position with no velocity and let
+                                        // it settle according to its stop mode.
+                                        if (!ended) {
+                                            touchExpressions.fastForEach { te ->
+                                                te.updateVariables(graphContext ?: remoteContext)
+                                                te.touchUp(
+                                                    remoteContext,
+                                                    lastTouchX,
+                                                    lastTouchY,
+                                                    0f,
+                                                    0f,
+                                                )
+                                                te.apply(remoteContext)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Modifier
+                    }
+                )
                 .then(modifier)
 
-        // Publish the component's measured WIDTH/HEIGHT (read by ComponentValue expressions) from
-        // an onSizeChanged callback rather than a custom Modifier.layout that wrote snapshot state
-        // during the measure pass (a relayout hazard) and sat ahead of the real modifiers (which
-        // disturbed constraint propagation, e.g. FILL children collapsing to wrap size). As the
-        // outermost modifier, onSizeChanged reports the full component size and fires after layout.
+        // Publish the component's measured dimensions and positions (read by ComponentValue
+        // expressions and TouchExpression) from an onPlaced callback rather than a custom
+        // Modifier.layout that wrote snapshot state during the measure pass (a relayout hazard) and
+        // sat ahead of the real modifiers (which disturbed constraint propagation, e.g. FILL
+        // children collapsing to wrap size). As the outermost modifier, onPlaced reports the full
+        // component size and placement and fires after layout.
         val sizeFeedbackOps = componentValueMap[component.getId()]
-        if (!sizeFeedbackOps.isNullOrEmpty()) {
+        if (
+            !sizeFeedbackOps.isNullOrEmpty() || touchExpressions.isNotEmpty() || hasTouchExpressions
+        ) {
             modifier =
-                Modifier.onSizeChanged { sz ->
-                        sizeFeedbackOps.fastForEach { op ->
-                            val state = componentValueStateMap[op.valueId] ?: return@fastForEach
-                            val w = sz.width.toFloat()
-                            val h = sz.height.toFloat()
-                            if (op.type == ComponentValue.WIDTH && abs(w - state.value) > 2.0f) {
-                                state.value = w
-                            } else if (
-                                op.type == ComponentValue.HEIGHT && abs(h - state.value) > 2.0f
-                            ) {
-                                state.value = h
+                Modifier.onPlaced { coords ->
+                        val posInParent = coords.positionInParent()
+                        val w = coords.size.width.toFloat()
+                        val h = coords.size.height.toFloat()
+                        val rootCoords = rootCoordsHolder.coordinates
+                        val rootOffset =
+                            if (rootCoords != null && rootCoords.isAttached) {
+                                rootCoords.localPositionOf(coords, Offset.Zero)
+                            } else {
+                                val posOnScreen = coords.positionOnScreen()
+                                Offset(
+                                    posOnScreen.x - document.originX,
+                                    posOnScreen.y - document.originY,
+                                )
+                            }
+                        val sizeChanged =
+                            !placement.boundsInitialized ||
+                                placement.width != w ||
+                                placement.height != h
+                        val parentPosChanged =
+                            !placement.boundsInitialized || placement.posInParent != posInParent
+                        val rootPosChanged =
+                            !placement.boundsInitialized || placement.rootOffset != rootOffset
+                        placement.boundsInitialized = true
+                        placement.width = w
+                        placement.height = h
+                        placement.posInParent = posInParent
+                        placement.rootOffset = rootOffset
+
+                        if (parentPosChanged) {
+                            component.setLayoutPosition(posInParent.x, posInParent.y)
+                        }
+                        if (sizeChanged) {
+                            component.setWidth(w)
+                            component.setHeight(h)
+                        }
+                        if (
+                            !sizeFeedbackOps.isNullOrEmpty() &&
+                                (sizeChanged || parentPosChanged || rootPosChanged)
+                        ) {
+                            val contentW =
+                                (w - component.paddingLeft - component.paddingRight).coerceAtLeast(
+                                    0f
+                                )
+                            val contentH =
+                                (h - component.paddingTop - component.paddingBottom).coerceAtLeast(
+                                    0f
+                                )
+                            sizeFeedbackOps.fastForEach { op ->
+                                val newVal =
+                                    when (op.type) {
+                                        ComponentValue.WIDTH -> w
+                                        ComponentValue.CONTENT_WIDTH -> contentW
+                                        ComponentValue.HEIGHT -> h
+                                        ComponentValue.CONTENT_HEIGHT -> contentH
+                                        ComponentValue.POS_X -> posInParent.x
+                                        ComponentValue.POS_Y -> posInParent.y
+                                        ComponentValue.POS_ROOT_X -> rootOffset.x
+                                        ComponentValue.POS_ROOT_Y -> rootOffset.y
+                                        else -> return@fastForEach
+                                    }
+                                remoteContext.loadFloat(op.valueId, newVal)
+                                val state = componentValueStateMap[op.valueId] ?: return@fastForEach
+                                if (abs(newVal - state.value) > 2.0f) {
+                                    state.value = newVal
+                                }
+                            }
+                        }
+                        // Position changes don't re-apply touch expressions: their bounds are
+                        // refreshed at touch down.
+                        if (touchExpressions.isNotEmpty() && sizeChanged) {
+                            touchExpressions.fastForEach { te ->
+                                te.updateVariables(graphContext ?: remoteContext)
+                                te.apply(remoteContext)
                             }
                         }
                     }
@@ -647,6 +1035,10 @@ internal fun RcPlayerChildren(
 internal class DocumentPreprocessResult(
     val globalOps: ArrayList<Operation>,
     val constantOps: ArrayList<Operation>,
+    val touchExpressions: ArrayList<TouchExpression>,
+    val rootTouchExpressions: ArrayList<TouchExpression>,
+    val componentTouchExpressionsMap: Map<Int, List<TouchExpression>>,
+    val touchExpressionIds: IntSet,
     val computedOpIndex: IntObjectMap<Operation>,
     val componentValueMap: Map<Int, List<ComponentValue>>,
     val hasParticles: Boolean,
@@ -670,13 +1062,19 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
     }
 
     val constantOps = ArrayList<Operation>()
+    val touchExpressions = ArrayList<TouchExpression>()
+    val rootTouchExpressions = ArrayList<TouchExpression>()
+    val componentTouchExpressionsMap = HashMap<Int, MutableList<TouchExpression>>()
     val computedOpIndex = mutableIntObjectMapOf<Operation>()
+    val touchExpressionIds = mutableIntSetOf()
     val rawComponentValues = ArrayList<ComponentValue>()
     val componentsById = mutableIntObjectMapOf<Component>()
     var hasParticles = false
     var hasWakeIn = false
     var hasContinuousTime = false
     var hasDiscreteTime = false
+    var currentLayoutComponent: LayoutComponent? = null
+    var inScrollModifier = false
 
     val timeListenerCollector =
         object : StoreBackedRemoteContext(document.clock) {
@@ -690,128 +1088,182 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
         }
 
     fun visitOp(op: Operation) {
-        val definedId =
-            when (op) {
-                is NamedVariable -> op.mVarId
-                is VariableProvider -> op.id
-                is TextMeasure -> op.mId
-                is ImageAttribute -> op.mId
-                else -> -1
-            }
-        // Warn when a document operation defines an ID that collides with a reserved system
-        // variable.
-        if (definedId > 0 && isTimeVariable(definedId)) {
-            Log.w(
-                "RcPlayer",
-                "Operation ${op.javaClass.simpleName} defines reserved system variable ID $definedId",
-            )
-        }
-
-        // Collect direct references to continuous or discrete time variables from expressions and
-        // variable-reading operations so we know which clock loop (if any) needs to run.
-        if (
-            op is FloatExpression ||
-                op is IntegerExpression ||
-                op is TextFromFloat ||
-                op is TextLookupInt ||
-                op is ComponentVisibilityOperation
-        ) {
-            op.registerListening(timeListenerCollector)
-        } else if (op is StateLayout) {
-            // StateLayout does not implement VariableSupport, so inspect its indexId directly.
-            val id = op.indexIdReflection
-            if (isContinuousTimeVariable(id)) {
-                hasContinuousTime = true
-            } else if (isDiscreteTimeVariable(id)) {
-                hasDiscreteTime = true
-            }
-        }
-
-        if (op is TimeAttribute) {
-            val type = op.mType.toInt() and 255
-            if (
-                type == TimeAttribute.TIME_FROM_NOW_SEC.toInt() ||
-                    type == TimeAttribute.TIME_FROM_NOW_MIN.toInt() ||
-                    type == TimeAttribute.TIME_FROM_NOW_HR.toInt() ||
-                    type == TimeAttribute.TIME_FROM_LOAD_SEC.toInt()
-            ) {
-                hasContinuousTime = true
-            } else {
-                hasDiscreteTime = true
-            }
-        }
-
-        if (
-            op is ColorConstant ||
-                op is FloatConstant ||
-                op is ColorTheme ||
-                op is NamedVariable ||
-                op.javaClass.simpleName.endsWith("Constant")
-        ) {
-            constantOps.add(op)
-        }
-
-        if (op is ParticlesLoop || op is ParticlesCompare) {
-            hasParticles = true
-        }
-
-        if (op is WakeIn) {
-            hasWakeIn = true
-        }
-
-        if (
-            op is VariableSupport &&
-                op is VariableProvider &&
-                op !is PathData &&
-                op !is PathCreate &&
-                op !is PathCombine &&
-                op !is PathTween &&
-                op !is PathExpression
-        ) {
-            val animated = op is FloatExpression && op.mFloatAnimation != null
-            val id = op.id
-            if (!animated && id > 0 && !computedOpIndex.containsKey(id)) {
-                computedOpIndex[id] = op
-            }
-        } else if (op is TextMeasure) {
-            val id = op.mId
-            if (id > 0 && !computedOpIndex.containsKey(id)) {
-                computedOpIndex[id] = op
-            }
-        } else if (op is ImageAttribute) {
-            val id = op.mId
-            if (id > 0 && !computedOpIndex.containsKey(id)) {
-                computedOpIndex[id] = op
-            }
-        }
-
-        if (op is ComponentValue) {
-            rawComponentValues.add(op)
-        }
-
-        if (op is Component) {
-            if (op.componentId !in componentsById) {
-                componentsById[op.componentId] = op
-            }
-        }
-
+        val prevLayoutComponent = currentLayoutComponent
+        val prevInScroll = inScrollModifier
         if (op is LayoutComponent) {
-            val content = op.getContentReflection()
-            if (content != null && content.componentId !in componentsById) {
-                componentsById[content.componentId] = content
-            }
-            op.componentModifiers?.list?.fastForEach { visitOp(it) }
-            val canvasOps = op.getCanvasOperations()
-            if (canvasOps != null) {
-                visitOp(canvasOps)
-            }
+            currentLayoutComponent = op
         }
-
-        if (op is Container) {
-            val list = op.getList()
-            for (i in 0 until list.size) {
-                visitOp(list[i])
+        if (op is ScrollModifierOperation) {
+            inScrollModifier = true
+        }
+        try {
+            val definedId =
+                when (op) {
+                    is NamedVariable -> op.mVarId
+                    is VariableProvider -> op.id
+                    is TextMeasure -> op.mId
+                    is ImageAttribute -> op.mId
+                    else -> -1
+                }
+            // Warn when a document operation defines an ID that collides with a reserved system
+            // variable.
+            if (definedId > 0 && isTimeVariable(definedId)) {
+                Log.w(
+                    "RcPlayer",
+                    "Operation ${op.javaClass.simpleName} defines reserved system variable ID $definedId",
+                )
             }
+
+            // Collect direct references to continuous or discrete time variables from expressions
+            // and
+            // variable-reading operations so we know which clock loop (if any) needs to run.
+            if (
+                op is FloatExpression ||
+                    op is IntegerExpression ||
+                    op is TextFromFloat ||
+                    op is TextLookupInt ||
+                    op is ComponentVisibilityOperation
+            ) {
+                op.registerListening(timeListenerCollector)
+            } else if (op is StateLayout) {
+                // StateLayout does not implement VariableSupport, so inspect its indexId directly.
+                val id = op.indexIdReflection
+                if (isContinuousTimeVariable(id)) {
+                    hasContinuousTime = true
+                } else if (isDiscreteTimeVariable(id)) {
+                    hasDiscreteTime = true
+                }
+            }
+
+            if (op is TimeAttribute) {
+                val type = op.mType.toInt() and 255
+                if (
+                    type == TimeAttribute.TIME_FROM_NOW_SEC.toInt() ||
+                        type == TimeAttribute.TIME_FROM_NOW_MIN.toInt() ||
+                        type == TimeAttribute.TIME_FROM_NOW_HR.toInt() ||
+                        type == TimeAttribute.TIME_FROM_LOAD_SEC.toInt()
+                ) {
+                    hasContinuousTime = true
+                } else {
+                    hasDiscreteTime = true
+                }
+            }
+
+            if (
+                op is ColorConstant ||
+                    op is FloatConstant ||
+                    op is ColorTheme ||
+                    op is NamedVariable ||
+                    op.javaClass.simpleName.endsWith("Constant")
+            ) {
+                constantOps.add(op)
+            }
+
+            if (op is ParticlesLoop || op is ParticlesCompare) {
+                hasParticles = true
+            }
+
+            if (op is WakeIn) {
+                hasWakeIn = true
+            }
+
+            if (op is TouchExpression) {
+                val id = op.id
+                if (id > 0) {
+                    touchExpressionIds.add(id)
+                    computedOpIndex.remove(id)
+                }
+                if (!inScrollModifier) {
+                    touchExpressions.add(op)
+                    val enclosingComponent = currentLayoutComponent
+                    if (enclosingComponent != null) {
+                        // Bind the enclosing LayoutComponent during preprocessing (before
+                        // initializePlayerRemoteContext runs registerVariables) so
+                        // TouchExpression.registerListening does not register component-scoped
+                        // TouchExpressions into CoreDocument.mTouchListeners.
+                        op.setComponent(enclosingComponent)
+                        val list =
+                            componentTouchExpressionsMap.getOrPut(enclosingComponent.componentId) {
+                                ArrayList()
+                            }
+                        if (!list.contains(op)) {
+                            list.add(op)
+                        }
+                    } else {
+                        if (!rootTouchExpressions.contains(op)) {
+                            rootTouchExpressions.add(op)
+                        }
+                    }
+                }
+            } else if (
+                op is VariableSupport &&
+                    op is VariableProvider &&
+                    op !is PathData &&
+                    op !is PathCreate &&
+                    op !is PathCombine &&
+                    op !is PathTween &&
+                    op !is PathExpression
+            ) {
+                val animated = op is FloatExpression && op.mFloatAnimation != null
+                val id = op.id
+                if (
+                    !animated &&
+                        id > 0 &&
+                        !touchExpressionIds.contains(id) &&
+                        !computedOpIndex.containsKey(id)
+                ) {
+                    computedOpIndex[id] = op
+                }
+            } else if (op is TextMeasure) {
+                val id = op.mId
+                if (id > 0 && !computedOpIndex.containsKey(id)) {
+                    computedOpIndex[id] = op
+                }
+            } else if (op is ImageAttribute) {
+                val id = op.mId
+                if (id > 0 && !computedOpIndex.containsKey(id)) {
+                    computedOpIndex[id] = op
+                }
+            }
+
+            if (op is ComponentValue) {
+                rawComponentValues.add(op)
+            }
+
+            if (op is Component) {
+                if (op.componentId !in componentsById) {
+                    componentsById[op.componentId] = op
+                }
+            }
+
+            if (op is LayoutComponent) {
+                val content = op.getContentReflection()
+                if (content != null && content.componentId !in componentsById) {
+                    componentsById[content.componentId] = content
+                }
+                op.componentModifiers?.list?.fastForEach { visitOp(it) }
+                val canvasOps = op.getCanvasOperations()
+                if (canvasOps != null) {
+                    canvasOps.list.fastForEach { childOp ->
+                        if (childOp is ComponentValue && childOp.componentId == -1) {
+                            childOp.componentId = op.componentId
+                        }
+                    }
+                    visitOp(canvasOps)
+                }
+            }
+
+            if (op is Container) {
+                val list = op.getList()
+                for (i in 0 until list.size) {
+                    val child = list[i]
+                    if (op is LayoutComponent && child is ComponentModifiers) continue
+                    visitOp(child)
+                }
+            }
+        } finally {
+            currentLayoutComponent = prevLayoutComponent
+            inScrollModifier = prevInScroll
         }
     }
 
@@ -824,7 +1276,7 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
         val op = rawComponentValues[i]
         var targetId = op.componentId
         val targetComponent = componentsById[targetId]
-        if (targetComponent is LayoutComponentContent) {
+        if (targetComponent is LayoutComponentContent || targetComponent is CanvasContent) {
             val parent = targetComponent.parent
             parent?.let { targetId = it.id }
         }
@@ -834,6 +1286,10 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
     return DocumentPreprocessResult(
         globalOps = globalOps,
         constantOps = constantOps,
+        touchExpressions = touchExpressions,
+        rootTouchExpressions = rootTouchExpressions,
+        componentTouchExpressionsMap = componentTouchExpressionsMap,
+        touchExpressionIds = touchExpressionIds,
         computedOpIndex = computedOpIndex,
         componentValueMap = componentValueMap,
         hasParticles = hasParticles,
@@ -885,6 +1341,10 @@ internal fun initializePlayerRemoteContext(
 ): AndroidRemoteContext {
     val ctx = AndroidRemoteContext(clock)
     ctx.useChoreographer = true
+    val touchVersion = document.featureIntValue(Header.FEATURE_TOUCH_VERSION)
+    if (touchVersion != -1) {
+        ctx.touchVersion = touchVersion
+    }
     if (document.remoteComposeState !is SnapshotRemoteComposeState) {
         document.setRemoteComposeState(SnapshotRemoteComposeState())
         document.recollectCollectionsReflection()
@@ -898,6 +1358,10 @@ internal fun initializePlayerRemoteContext(
         val dataOps = ArrayList<Operation>()
         document.rootLayoutComponent?.getData(dataOps, true)
         document.applyOperationsReflection(ctx, dataOps)
+        preprocessed.touchExpressions.fastForEach { te ->
+            te.updateVariables(ctx)
+            te.apply(ctx)
+        }
     }
     return ctx
 }

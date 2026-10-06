@@ -35,6 +35,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.roundToInt
 
@@ -99,9 +104,42 @@ internal fun Modifier.scroll(op: ScrollModifierOperation): Modifier {
             rememberSnapFlingBehavior(provider)
         } else null
 
-    return if (op.isVerticalScroll) {
-        this.verticalScroll(scrollState, flingBehavior = flingBehavior)
+    val isVertical = op.isVerticalScroll
+    // Keep leftover same-axis scroll and fling at the remote scroller's edge so a drag inside it
+    // does not scroll an enclosing host list. A scroller whose content already fits
+    // (maxValue == 0) has nothing to scroll and passes everything through, like any other
+    // non-scrolling content.
+    val consumeScrollOnAxis =
+        remember(isVertical, scrollState) {
+            object : NestedScrollConnection {
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset =
+                    when {
+                        scrollState.maxValue <= 0 -> Offset.Zero
+                        isVertical -> Offset(0f, available.y)
+                        else -> Offset(available.x, 0f)
+                    }
+
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity,
+                ): Velocity =
+                    when {
+                        scrollState.maxValue <= 0 -> Velocity.Zero
+                        isVertical -> Velocity(0f, available.y)
+                        else -> Velocity(available.x, 0f)
+                    }
+            }
+        }
+
+    return if (isVertical) {
+        this.nestedScroll(consumeScrollOnAxis)
+            .verticalScroll(scrollState, flingBehavior = flingBehavior)
     } else {
-        this.horizontalScroll(scrollState, flingBehavior = flingBehavior)
+        this.nestedScroll(consumeScrollOnAxis)
+            .horizontalScroll(scrollState, flingBehavior = flingBehavior)
     }
 }

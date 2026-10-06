@@ -19,6 +19,7 @@ package androidx.compose.remote.player.compose.embedded
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.collection.mutableIntObjectMapOf
+import androidx.collection.mutableIntSetOf
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -29,6 +30,7 @@ import androidx.compose.remote.core.VariableProvider
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.FloatExpression
+import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.player.core.platform.TypefaceResolver
@@ -37,6 +39,7 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.layout.LayoutCoordinates
 
 internal val LocalCoreDocument: ProvidableCompositionLocal<CoreDocument> = compositionLocalOf {
     throw IllegalStateException("No document")
@@ -61,12 +64,21 @@ internal val LocalGraphContext: ProvidableCompositionLocal<GraphContext?> = comp
  */
 internal fun buildComputedOpIndex(operations: Collection<Operation>): IntObjectMap<Operation> {
     val map = mutableIntObjectMapOf<Operation>()
+    val touchIds = mutableIntSetOf()
     fun walk(ops: Collection<Operation>) {
         for (op in ops) {
-            if (op is VariableSupport && op is VariableProvider) {
+            if (op is TouchExpression) {
+                val id = op.id
+                if (id > 0) {
+                    touchIds.add(id)
+                    map.remove(id)
+                }
+            } else if (op is VariableSupport && op is VariableProvider) {
                 val animated = op is FloatExpression && op.mFloatAnimation != null
                 val id = op.id
-                if (!animated && id > 0 && !map.containsKey(id)) map[id] = op as Operation
+                if (!animated && id > 0 && !touchIds.contains(id) && !map.containsKey(id)) {
+                    map[id] = op
+                }
             }
             if (op is Container) walk(op.getList())
             if (op is LayoutComponent) {
@@ -95,6 +107,23 @@ internal val LocalComponentValueStateMap:
     ProvidableCompositionLocal<Map<Int, MutableState<Float>>> =
     compositionLocalOf {
         emptyMap()
+    }
+
+internal val LocalComponentTouchExpressionsMap:
+    ProvidableCompositionLocal<Map<Int, List<TouchExpression>>> =
+    compositionLocalOf {
+        emptyMap()
+    }
+
+internal val LocalHasTouchExpressions: ProvidableCompositionLocal<Boolean> = compositionLocalOf {
+    false
+}
+
+internal class RootLayoutCoordinatesHolder(var coordinates: LayoutCoordinates? = null)
+
+internal val LocalRootLayoutCoordinates: ProvidableCompositionLocal<RootLayoutCoordinatesHolder> =
+    compositionLocalOf {
+        RootLayoutCoordinatesHolder()
     }
 
 internal val LocalCurrentTimeMillis: ProvidableCompositionLocal<State<Float>> = compositionLocalOf {

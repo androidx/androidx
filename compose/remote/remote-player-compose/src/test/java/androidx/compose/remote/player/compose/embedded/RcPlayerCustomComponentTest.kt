@@ -39,6 +39,9 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.combinedClickable
+import androidx.compose.remote.creation.compose.modifier.onTouchCancel
+import androidx.compose.remote.creation.compose.modifier.onTouchDown
+import androidx.compose.remote.creation.compose.modifier.onTouchUp
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.rc
@@ -482,6 +485,43 @@ class RcPlayerCustomComponentTest {
         rule.waitForIdle()
 
         assertThat(fired).isEqualTo("tap")
+    }
+
+    @Test
+    fun pluginHandlingClicks_withTouchActions_firesTouchUpNotCancelOnTap() {
+        val plugin =
+            object : CustomComposablePlugin<Unit> {
+                override val name: String = "test:button"
+                override val handlesClick: Boolean = true
+
+                @Composable override fun extract(component: RcCustomComponent): Unit = Unit
+
+                @Composable
+                override fun Content(data: Unit, component: RcCustomComponent, modifier: Modifier) {
+                    BasicText("label", Modifier.clickable { component.onClick?.invoke() })
+                }
+            }
+
+        val fired = mutableListOf<String>()
+        setCustomContent(
+            customPlugins = CustomPluginRegistry(plugin),
+            onNamedAction = { name, _, _ -> fired.add(name) },
+        ) {
+            RemoteCustomComponent(
+                name = "test:button",
+                modifier =
+                    RemoteModifier.clickable(hostAction("tap".rs), role = null)
+                        .onTouchDown(hostAction("down".rs))
+                        .onTouchUp(hostAction("up".rs))
+                        .onTouchCancel(hostAction("cancel".rs)),
+            )
+        }
+
+        rule.onNodeWithText("label").performClick()
+        rule.waitForIdle()
+
+        // The plugin's clickable consumes the release; that is a click, not a cancelled gesture.
+        assertThat(fired).containsExactly("down", "up", "tap")
     }
 
     @Test
