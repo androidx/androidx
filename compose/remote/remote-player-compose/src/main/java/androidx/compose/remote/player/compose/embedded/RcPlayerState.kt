@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import java.io.ByteArrayInputStream
 
 /**
@@ -97,11 +98,30 @@ public class RcPlayerState(
     override val valueOverride: Any
         get() = document
 
+    internal val rootComponentInspectable: RcComponentInspectable?
+        get() = document.rootLayoutComponent?.let { RcComponentInspectable.of(it, graphContext) }
+
+    internal val variablesInspectable: List<RcVariableInspectable>
+        get() = RcPlayerInspector.inspectVariables(this)
+
+    internal val functionsInspectable: List<RcFunctionDefineInspectable>
+        get() = RcPlayerInspector.inspectFunctions(this)
+
+    internal val operationsInspectable: List<InspectableValue>
+        get() =
+            document.getOperationsReflection().fastMap {
+                RcPlayerInspector.wrapOperation(it, graphContext)
+            }
+
     override val inspectableElements: Sequence<ValueElement>
         get() = sequence {
             yield(ValueElement("document", document))
             yield(ValueElement("remoteContext", remoteContext))
             yield(ValueElement("currentTimeMillis", currentTimeMillisState.floatValue))
+            yield(ValueElement("rootComponent", rootComponentInspectable))
+            yield(ValueElement("variables", variablesInspectable))
+            yield(ValueElement("functions", functionsInspectable))
+            yield(ValueElement("operations", operationsInspectable))
         }
 
     /**
