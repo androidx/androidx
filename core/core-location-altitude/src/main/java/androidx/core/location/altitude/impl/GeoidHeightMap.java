@@ -25,9 +25,9 @@ import androidx.annotation.GuardedBy;
 import androidx.core.location.altitude.impl.db.AltitudeConverterDatabase;
 import androidx.core.location.altitude.impl.db.MapParamsEntity;
 import androidx.core.location.altitude.impl.db.TilesEntity;
-import androidx.core.location.altitude.impl.proto.ByteString;
 import androidx.core.location.altitude.impl.proto.MapParamsProto;
 import androidx.core.location.altitude.impl.proto.S2TileProto;
+import androidx.core.location.altitude.impl.protobuf.ByteString;
 import androidx.core.util.Preconditions;
 import androidx.room.Room;
 
