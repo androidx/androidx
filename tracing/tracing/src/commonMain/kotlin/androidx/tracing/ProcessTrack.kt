@@ -43,7 +43,7 @@ public open class ProcessTrack(
 
     init {
         if (context.isGloballyEnabled) {
-            synchronized(traceEventScope) {
+            synchronized(lock) {
                 val event = obtainTraceEvent()
                 if (event != null) {
                     event.setPreamble(
