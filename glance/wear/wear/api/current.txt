@@ -10,6 +10,12 @@ package androidx.glance.wear {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceWearApi {
   }
 
+  public final class GlanceWearProfiles {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.profile.Profile getWearWidgets();
+    property public androidx.compose.remote.creation.profile.Profile wearWidgets;
+    field public static final androidx.glance.wear.GlanceWearProfiles INSTANCE;
+  }
+
   public abstract class GlanceWearWidget {
     ctor public GlanceWearWidget();
     method @MainThread public suspend Object? onAdded(android.content.Context context, androidx.glance.wear.core.ActiveWearWidgetHandle widgetHandle, kotlin.coroutines.Continuation<? super kotlin.Unit>);
