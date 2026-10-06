@@ -42,19 +42,16 @@ import org.junit.jupiter.api.extension.ParameterResolver
  * execution.
  */
 public class BackupRestoreExtension
-private constructor(
+internal constructor(
     private val isStandalone: Boolean,
     private val adbSessionProvider: () -> AdbSession,
 ) : ParameterResolver {
 
     /**
-     * Creates a standalone extension that automatically initializes and manages its own ADB
-     * session.
+     * Creates a standalone extension, which manages its own ADB session.
      *
-     * In this standalone mode, the extension is fully self-contained: it automatically initializes
-     * an independent ADB session on startup, and automatically closes/disposes of the session when
-     * the test execution completes to prevent resource/thread leaks. This is ideal for isolated
-     * test runs where no external or shared ADB lifecycle management is active.
+     * All standalone extensions in a test run share one session. It is created when a test first
+     * requests a [BackupRestoreController] and closed when the test run ends.
      */
     public constructor() : this(isStandalone = true, { createStandaloneSession() })
 
@@ -69,9 +66,26 @@ private constructor(
      */
     public constructor(adbSession: AdbSession) : this(isStandalone = false, { adbSession })
 
-    private val adbSession: AdbSession by lazy { adbSessionProvider() }
-
     private val logger = Logger.getLogger(BackupRestoreExtension::class.java.name)
+
+    /**
+     * Returns the ADB session to resolve parameters with in [context]. Callers must not close it.
+     *
+     * A standalone session is kept in the store of the root context, so that every standalone
+     * extension of the test run shares it, and JUnit closes it when the test run ends. A shared
+     * session stays open until the code that passed it to the constructor closes it.
+     */
+    internal fun sessionFor(context: ExtensionContext): AdbSession {
+        if (!isStandalone) return adbSessionProvider()
+        return context.root
+            .getStore(NAMESPACE)
+            .getOrComputeIfAbsent(
+                STANDALONE_SESSION_KEY,
+                { StandaloneSession(adbSessionProvider()) },
+                StandaloneSession::class.java,
+            )
+            .session
+    }
 
     override fun supportsParameter(
         parameterContext: ParameterContext?,
@@ -94,6 +108,7 @@ private constructor(
                 ?: throw IllegalStateException(
                     "BackupRestoreConfig annotation is required on class ${requiredClass.name}"
                 )
+        val adbSession = sessionFor(extensionContext)
 
         val deviceAnnotation = parameterContext?.parameter?.getAnnotation(Device::class.java)
         val requestedSerial = run {
@@ -296,25 +311,6 @@ private constructor(
             runBlocking { deviceImpl.clearAppData() }
         }
 
-        // Register standalone session for automatic disposal at root context close to prevent
-        // memory/socket leaks
-        if (isStandalone) {
-            val store = extensionContext.root.getStore(ExtensionContext.Namespace.GLOBAL)
-            val key = BackupRestoreExtension::class.java.name + "_session"
-            if (store.get(key) == null) {
-                store.put(
-                    key,
-                    CloseableResource {
-                        try {
-                            adbSession.close()
-                        } catch (e: Exception) {
-                            // ignore
-                        }
-                    },
-                )
-            }
-        }
-
         return deviceImpl
     }
 
@@ -337,8 +333,27 @@ private constructor(
         context.publishReportEntry(BackupReportKeys.ERROR_MESSAGE, errorMessage)
     }
 
+    /** A standalone ADB session, which JUnit closes when the context it is stored in ends. */
+    private class StandaloneSession(val session: AdbSession) : CloseableResource {
+        override fun close() {
+            try {
+                session.close()
+            } catch (e: Exception) {
+                Logger.getLogger(BackupRestoreExtension::class.java.name)
+                    .warning("Failed to close the ADB session: ${e.message}")
+            }
+        }
+    }
+
     /** Configuration constants and system property keys for device resolution and setup. */
     private companion object {
+        /** Store namespace for the state that this extension keeps in extension contexts. */
+        private val NAMESPACE =
+            ExtensionContext.Namespace.create(BackupRestoreExtension::class.java)
+
+        /** Store key of the [StandaloneSession] that all standalone extensions share. */
+        private const val STANDALONE_SESSION_KEY = "standaloneSession"
+
         /** Property specifying a comma-separated list of device serial numbers. */
         private const val PROP_DEVICE_SERIALS = "androidx.test.backup.device.serials"
 
