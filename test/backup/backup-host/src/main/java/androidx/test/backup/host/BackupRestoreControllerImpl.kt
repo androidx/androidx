@@ -555,7 +555,6 @@ internal class BackupRestoreControllerImpl(
             if (file.exists()) {
                 file.delete()
             }
-            file.deleteOnExit()
             file.parentFile?.mkdirs()
             return file
         }
