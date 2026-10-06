@@ -210,16 +210,18 @@ private constructor(
         return if (ids.lowerBound == this.lowerBound && ids.belowBound === this.belowBound) {
             val newUpper = this.upperSet and ids.upperSet.inv()
             val newLower = this.lowerSet and ids.lowerSet.inv()
-            if (newUpper == 0L && newLower == 0L && this.belowBound == null) {
+            if (newUpper == 0L && newLower == 0L) {
                 EMPTY
-            } else if (newUpper == this.upperSet && newLower == this.lowerSet) {
+            } else if (
+                newUpper == this.upperSet && newLower == this.lowerSet && this.belowBound == null
+            ) {
                 this
             } else {
                 SnapshotIdSet(
                     newUpper,
                     newLower,
                     this.lowerBound,
-                    this.belowBound,
+                    null,
                 )
             }
         } else {
