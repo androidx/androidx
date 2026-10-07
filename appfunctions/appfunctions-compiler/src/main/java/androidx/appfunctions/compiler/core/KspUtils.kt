@@ -325,3 +325,50 @@ private fun ClassName.withTypeArguments(arguments: List<TypeName>): TypeName {
 }
 
 fun KClass<*>.ensureQualifiedName(): String = checkNotNull(qualifiedName)
+
+/**
+ * Checks whether this class references a declaration annotated with [annotationClass].
+ *
+ * Returns `true` if the class itself, any of its supertypes, or the type of any of its properties
+ * (including type arguments) is annotated with [annotationClass].
+ *
+ * @param annotationClass the annotation class to look for
+ */
+fun KSClassDeclaration.referencesAnnotation(annotationClass: ClassName): Boolean {
+    val visited = mutableSetOf<KSClassDeclaration>()
+    if (isAnnotatedOrHasAnnotatedSuperType(annotationClass, visited)) {
+        return true
+    }
+    return getAllProperties().any {
+        it.type.resolve().referencesAnnotation(annotationClass, visited)
+    }
+}
+
+private fun KSClassDeclaration.isAnnotatedOrHasAnnotatedSuperType(
+    annotationClass: ClassName,
+    visited: MutableSet<KSClassDeclaration>,
+): Boolean {
+    if (!visited.add(this)) {
+        return false
+    }
+    if (annotations.findAnnotation(annotationClass) != null) {
+        return true
+    }
+    return superTypes.any {
+        val superDeclaration = it.resolve().declaration as? KSClassDeclaration
+        superDeclaration?.isAnnotatedOrHasAnnotatedSuperType(annotationClass, visited) ?: false
+    }
+}
+
+private fun KSType.referencesAnnotation(
+    annotationClass: ClassName,
+    visited: MutableSet<KSClassDeclaration>,
+): Boolean {
+    val classDeclaration = declaration as? KSClassDeclaration
+    if (classDeclaration?.isAnnotatedOrHasAnnotatedSuperType(annotationClass, visited) == true) {
+        return true
+    }
+    return arguments.any {
+        it.type?.resolve()?.referencesAnnotation(annotationClass, visited) ?: false
+    }
+}
