@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalAppFunctionsApi::class)
 
 package androidx.appfunction.integration.test.sharedschema
 
@@ -28,6 +29,7 @@ import androidx.appfunctions.AppFunctionStringValueConstraint
 import androidx.appfunctions.AppFunctionTextResource
 import androidx.appfunctions.AppFunctionUriGrant
 import androidx.appfunctions.AppFunctionUriValueConstraint
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime

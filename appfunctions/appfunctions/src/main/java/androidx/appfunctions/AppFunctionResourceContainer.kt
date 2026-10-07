@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo
  * The consuming application is responsible for determining the optimal presentation of these
  * resources, whether for the end-user's benefit or for further consumption by an AI model.
  */
+@ExperimentalAppFunctionsApi
 @AppFunctionSchemaCapability
 public interface AppFunctionResourceContainer {
 

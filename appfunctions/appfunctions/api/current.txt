@@ -215,7 +215,7 @@ package androidx.appfunctions {
   public abstract class AppFunctionRequestException extends androidx.appfunctions.AppFunctionException {
   }
 
-  public interface AppFunctionResourceContainer {
+  @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public interface AppFunctionResourceContainer {
     method @InaccessibleFromKotlin public default java.util.List<androidx.appfunctions.AppFunctionTextResource> getResources();
     property public default java.util.List<androidx.appfunctions.AppFunctionTextResource> resources;
   }
@@ -310,7 +310,7 @@ package androidx.appfunctions {
     ctor @BytecodeOnly public AppFunctionSystemUnknownException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  @androidx.appfunctions.AppFunctionSerializable(isDescribedByKDoc=true) public final class AppFunctionTextResource {
+  @SuppressCompatibility @androidx.appfunctions.AppFunctionSerializable(isDescribedByKDoc=true) @androidx.appfunctions.ExperimentalAppFunctionsApi public final class AppFunctionTextResource {
     ctor public AppFunctionTextResource(String mimeType, String content);
     method @InaccessibleFromKotlin public String getContent();
     method @InaccessibleFromKotlin public String getMimeType();

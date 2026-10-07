@@ -25,6 +25,7 @@ import androidx.appfunctions.internal.AppFunctionSerializableFactory
 // appfunctions module.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@OptIn(ExperimentalAppFunctionsApi::class)
 public class `$AppFunctionTextResourceFactory` :
     AppFunctionSerializableFactory<AppFunctionTextResource> {
     override fun fromAppFunctionData(appFunctionData: AppFunctionData): AppFunctionTextResource {
