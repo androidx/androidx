@@ -88,6 +88,9 @@ public sealed interface RemotePaint {
     /** The [RemoteTypeface] to use for drawing text. */
     public var typeface: RemoteTypeface?
 
+    /** The CSS-style font feature settings string (e.g., "tnum", "zero"). */
+    public var fontFeatureSettings: String?
+
     /** The [FontVariation.Settings] to use for drawing text. */
     public var fontVariationSettings: FontVariation.Settings?
 
@@ -119,6 +122,7 @@ public class StandardRemotePaint() : RemotePaint {
     public override var typeface: RemoteTypeface? = RemoteTypeface.Default
     public override var color: RemoteColor = Color.Black.rc
     public override var colorFilter: RemoteColorFilter? = null
+    public override var fontFeatureSettings: String? = null
     public override var fontVariationSettings: FontVariation.Settings? = null
 
     /**
@@ -140,6 +144,7 @@ public class StandardRemotePaint() : RemotePaint {
         this.textSize = other.textSize
         this.typeface = other.typeface
         this.color = other.color
+        this.fontFeatureSettings = other.fontFeatureSettings
         this.fontVariationSettings = other.fontVariationSettings
     }
 
@@ -148,5 +153,6 @@ public class StandardRemotePaint() : RemotePaint {
             "strokeWidth=$strokeWidth, strokeCap=$strokeCap, strokeJoin=$strokeJoin, " +
             "filterQuality=$filterQuality, shader=$shader, pathEffect=$pathEffect, " +
             "textSize=$textSize, typeface=$typeface, remoteColor=$color, " +
-            "colorFilter=$colorFilter, fontVariationSettings=$fontVariationSettings)"
+            "colorFilter=$colorFilter, fontFeatureSettings=$fontFeatureSettings, " +
+            "fontVariationSettings=$fontVariationSettings)"
 }

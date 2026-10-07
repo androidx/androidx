@@ -23,6 +23,7 @@ import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintChanges
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
@@ -346,7 +347,75 @@ class PaintTrackerTest {
     }
 
     @Test
-    @OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
+    fun testFontFeatureSettingsSync() {
+        val paint = RemotePaint { fontFeatureSettings = "tnum" }
+        val bundle = PaintBundle()
+
+        val tnumId = creationState.document.addText("tnum")
+        remoteContext.loadText(tnumId, "tnum")
+
+        tracker.updateWithPaint(paint, bundle, creationState)
+
+        assertThat(tracker.isChanged).isTrue()
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.fontVariationAxesSet).isTrue()
+        assertThat(changes.mFontAxisTags).isEqualTo(arrayOf("tnum"))
+        assertThat(changes.mFontAxisValues).isEqualTo(floatArrayOf(1f))
+    }
+
+    @Test
+    fun testMultipleFontFeatureSettingsSync() {
+        val paint = RemotePaint { fontFeatureSettings = "'tnum' 1, 'zero' 1" }
+        val bundle = PaintBundle()
+
+        val tnumId = creationState.document.addText("tnum")
+        val zeroId = creationState.document.addText("zero")
+        remoteContext.loadText(tnumId, "tnum")
+        remoteContext.loadText(zeroId, "zero")
+
+        tracker.updateWithPaint(paint, bundle, creationState)
+
+        assertThat(tracker.isChanged).isTrue()
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.fontVariationAxesSet).isTrue()
+        assertThat(changes.mFontAxisTags).isEqualTo(arrayOf("tnum", "zero"))
+        assertThat(changes.mFontAxisValues).isEqualTo(floatArrayOf(1f, 1f))
+    }
+
+    @Test
+    fun testFontFeatureAndVariationSettingsCombinedSync() {
+        val settings = FontVariation.Settings(FontVariation.weight(600))
+        val paint = RemotePaint {
+            fontFeatureSettings = "tnum"
+            fontVariationSettings = settings
+        }
+        val bundle = PaintBundle()
+
+        val wghtId = creationState.document.addText("wght")
+        val tnumId = creationState.document.addText("tnum")
+        remoteContext.loadText(wghtId, "wght")
+        remoteContext.loadText(tnumId, "tnum")
+
+        tracker.updateWithPaint(paint, bundle, creationState)
+
+        assertThat(tracker.isChanged).isTrue()
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.fontVariationAxesSet).isTrue()
+        assertThat(changes.mFontAxisTags).isEqualTo(arrayOf("wght", "tnum"))
+        assertThat(changes.mFontAxisValues).isEqualTo(floatArrayOf(600f, 1f))
+    }
+
+    @Test
+    @OptIn(ExperimentalRemoteCreationComposeApi::class)
     fun testFontVariationSettingsSync_FallbackToWeight400() {
         val originalFlag = RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis
         RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = false
