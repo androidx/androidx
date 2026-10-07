@@ -240,6 +240,18 @@ class RemoteStateCacheKeyTest {
     }
 
     @Test
+    fun floatArrayCacheKey_DistinguishesNanEncodedIds() {
+        val key1 = FloatArrayCacheKey(floatArrayOf(Utils.asNan(42), 1f))
+        val key1Dup = FloatArrayCacheKey(floatArrayOf(Utils.asNan(42), 1f))
+        val key2 = FloatArrayCacheKey(floatArrayOf(Utils.asNan(43), 1f))
+
+        assertThat(key1).isEqualTo(key1Dup)
+        assertThat(key1.hashCode()).isEqualTo(key1Dup.hashCode())
+
+        assertThat(key1).isNotEqualTo(key2)
+    }
+
+    @Test
     fun hashCode_IsStableAfterMemoization() {
         val keys =
             listOf(
