@@ -23,12 +23,16 @@ import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
+import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.IntegerExpression
+import androidx.compose.remote.core.operations.TextFromFloat
+import androidx.compose.remote.core.operations.TextLookupInt
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.CanvasOperations
 import androidx.compose.remote.core.operations.layout.LayoutComponent
+import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess
@@ -47,6 +51,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
@@ -805,6 +810,110 @@ class RcPlayerExpressionTest {
 
         val preprocessed = preprocessDocument(doc)
         assertThat(preprocessed.hasContinuousTime).isTrue()
+        assertThat(preprocessed.hasDiscreteTime).isFalse()
+    }
+
+    @Test
+    fun forEachListenedVariableId_matchesCoreRegisterListening() {
+        val ops =
+            listOf(
+                FloatExpression(
+                    100,
+                    floatArrayOf(
+                        Utils.asNan(RemoteContext.ID_CONTINUOUS_SEC),
+                        Utils.asNan(200),
+                        AnimatedFloatExpression.ADD,
+                        3f,
+                        AnimatedFloatExpression.MUL,
+                    ),
+                    null,
+                ),
+                FloatExpression(101, floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD), null),
+                IntegerExpression(
+                    102,
+                    0b101,
+                    intArrayOf(RemoteContext.ID_TIME_IN_SEC, 1, IntegerExpressionEvaluator.I_ADD),
+                ),
+                IntegerExpression(
+                    103,
+                    0b011,
+                    intArrayOf(300, RemoteContext.ID_YEAR, IntegerExpressionEvaluator.I_ADD),
+                ),
+                TextFromFloat(104, Utils.asNan(RemoteContext.ID_TIME_IN_MIN), 2, 0, 0),
+                TextFromFloat(105, 4f, 2, 0, 0),
+                TextLookupInt(106, 400, RemoteContext.ID_WEEK_DAY),
+                ComponentVisibilityOperation(RemoteContext.ID_ANIMATION_TIME),
+            )
+
+        for (op in ops) {
+            val expected = mutableListOf<Int>()
+            val probe =
+                object : StoreBackedRemoteContext(RemoteClock.SYSTEM) {
+                    override fun listensTo(id: Int, variableSupport: VariableSupport) {
+                        expected.add(id)
+                    }
+                }
+            (op as VariableSupport).registerListening(probe)
+
+            val actual = mutableListOf<Int>()
+            forEachListenedVariableId(op) { actual.add(it) }
+
+            assertWithMessage(op.toString())
+                .that(actual)
+                .containsExactlyElementsIn(expected)
+                .inOrder()
+        }
+    }
+
+    @Test
+    fun preprocessDocument_textFromFloatWithTimeVariable_setsHasDiscreteTime() {
+        val doc = CoreDocument()
+        doc.getOperationsReflection()
+            .add(TextFromFloat(100, Utils.asNan(RemoteContext.ID_TIME_IN_SEC), 2, 0, 0))
+
+        val preprocessed = preprocessDocument(doc)
+        assertThat(preprocessed.hasDiscreteTime).isTrue()
+        assertThat(preprocessed.hasContinuousTime).isFalse()
+    }
+
+    @Test
+    fun preprocessDocument_textLookupIntWithTimeVariable_setsHasDiscreteTime() {
+        val doc = CoreDocument()
+        doc.getOperationsReflection().add(TextLookupInt(100, 200, RemoteContext.ID_WEEK_DAY))
+
+        val preprocessed = preprocessDocument(doc)
+        assertThat(preprocessed.hasDiscreteTime).isTrue()
+        assertThat(preprocessed.hasContinuousTime).isFalse()
+    }
+
+    @Test
+    fun preprocessDocument_componentVisibilityWithContinuousTime_setsHasContinuousTime() {
+        val doc = CoreDocument()
+        doc.getOperationsReflection()
+            .add(ComponentVisibilityOperation(RemoteContext.ID_CONTINUOUS_SEC))
+
+        val preprocessed = preprocessDocument(doc)
+        assertThat(preprocessed.hasContinuousTime).isTrue()
+    }
+
+    @Test
+    fun preprocessDocument_noTimeReferences_doesNotEnableClock() {
+        val doc = CoreDocument()
+        doc.getOperationsReflection()
+            .addAll(
+                listOf(
+                    FloatExpression(100, floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD), null),
+                    IntegerExpression(
+                        101,
+                        0b000,
+                        intArrayOf(1, 2, IntegerExpressionEvaluator.I_ADD),
+                    ),
+                    TextFromFloat(102, 4f, 2, 0, 0),
+                )
+            )
+
+        val preprocessed = preprocessDocument(doc)
+        assertThat(preprocessed.hasContinuousTime).isFalse()
         assertThat(preprocessed.hasDiscreteTime).isFalse()
     }
 }
