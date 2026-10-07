@@ -1287,26 +1287,6 @@ private val docUpdateVariablesMethod =
         )
         .apply { isAccessible = true }
 
-private val docRootLayoutComponentField =
-    CoreDocument::class.java.getDeclaredField("mRootLayoutComponent").apply { isAccessible = true }
-
-/**
- * Temporarily suppresses [CoreDocument.mRootLayoutComponent] while invoking a root-level
- * [CoreDocument] touch method (`touchDown`, `touchDrag`, `touchUp`, `touchCancel`) so that root
- * touch forwarding updates `ID_TOUCH_POS_X`/`ID_TOUCH_POS_Y` and notifies document-level
- * `mTouchListeners` without re-traversing the component tree (whose touch handlers and component
- * [TouchExpression]s are dispatched by Compose modifiers).
- */
-internal inline fun <R> CoreDocument.withRootTouchDispatchSuppressed(block: () -> R): R {
-    val savedRoot = docRootLayoutComponentField.get(this)
-    docRootLayoutComponentField.set(this, null)
-    return try {
-        block()
-    } finally {
-        docRootLayoutComponentField.set(this, savedRoot)
-    }
-}
-
 // AlignByModifierOperation
 internal val AlignByModifierOperation.lineReflection: Float
     get() = alignByLineField.getFloat(this)
