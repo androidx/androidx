@@ -166,8 +166,7 @@ internal object BackupActionWireProtocol {
      * Returns the `AssertStorageAction` arguments that check that [storage] holds its value on the
      * device.
      *
-     * @throws IllegalArgumentException if [storage] is of an unsupported type, or is a
-     *   [StorageDomain.Database] with no column to verify
+     * @throws IllegalArgumentException if [storage] is of an unsupported type
      */
     fun assertArgs(storage: StorageDomain): Map<String, String> =
         populateArgs(storage) +
@@ -180,12 +179,7 @@ internal object BackupActionWireProtocol {
                     // populateArgs already carries the primary key and every column in VALUES,
                     // which the action verifies. The first column is also sent on its own, which
                     // is all that device libraries predating VALUES verification check.
-                    val (expectedCol, expectedVal) =
-                        storage.columnValues.entries.firstOrNull()
-                            ?: throw IllegalArgumentException(
-                                "DATABASE storage domain must specify at least one column/value " +
-                                    "pair to verify."
-                            )
+                    val (expectedCol, expectedVal) = storage.columnValues.entries.first()
                     mapOf(
                         BackupActionInputKeys.EXPECTED_COL to expectedCol,
                         BackupActionInputKeys.EXPECTED_VAL to expectedVal.orEmpty(),
