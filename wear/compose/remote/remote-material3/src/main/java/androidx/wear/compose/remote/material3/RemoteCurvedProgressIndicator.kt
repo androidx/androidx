@@ -306,7 +306,12 @@ private fun calculateCollapsibleArcParams(
 
     // Intro calculations (2-phase: track slides back, then active dot grows)
     val introProgress = clamp(animatedProgress / minProgress, 0f.rf, 1f.rf)
-    val trackSlideProgress = clamp(introProgress / max(EPSILON, slideFraction), 0f.rf, 1f.rf)
+    val trackSlideProgress =
+        lerp(
+            dotCollapseFreezeFraction,
+            1f.rf,
+            clamp(introProgress / max(EPSILON, slideFraction), 0f.rf, 1f.rf),
+        )
     val activeScaleUnclamped = clamp((introProgress - slideFraction) / growthFraction, 0f.rf, 1f.rf)
     val activeScale = lerp(dotCollapseFreezeFraction, 1f.rf, activeScaleUnclamped)
 
