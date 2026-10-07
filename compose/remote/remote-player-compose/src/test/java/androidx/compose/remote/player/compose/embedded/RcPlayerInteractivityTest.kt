@@ -1675,6 +1675,64 @@ class RcPlayerInteractivityTest {
         rule.onNodeWithTag("player").performTouchInput { up() }
     }
 
+    /**
+     * A TouchExpression directly under the root is bound by core to the RootLayoutComponent, so its
+     * hit bounds are the player's size and it responds to touches anywhere on the player.
+     */
+    @Test
+    fun rootPointerEvents_driveRootLevelTouchExpression() {
+        val playerWidthPx = with(rule.density) { 100.dp.toPx() }
+        rule.setRemoteContent {
+            val creationState = LocalRemoteComposeCreationState.current
+            // Touch X as a percentage of the player width. The 0.25 offset keeps the value off an
+            // integer boundary so toRemoteInt is stable whether it truncates or rounds.
+            val touchPercent = rememberRemoteFloatExpression {
+                val touchId =
+                    creationState.document.addTouch(
+                        -1f,
+                        -1f,
+                        100f,
+                        TouchExpression.STOP_ABSOLUTE_POS,
+                        0f,
+                        0,
+                        null,
+                        null,
+                        RemoteContext.FLOAT_TOUCH_POS_X,
+                        100f / playerWidthPx,
+                        AnimatedFloatExpression.MUL,
+                        0.25f,
+                        AnimatedFloatExpression.ADD,
+                    )
+                RemoteFloat(touchId)
+            }
+            // Hoisted before any layout, so the TouchExpression is emitted directly under the root.
+            Hoist(touchPercent)
+            RemoteBox(
+                modifier =
+                    RemoteModifier.size(100.rdp).semantics { contentDescription = "Player".rs }
+            ) {
+                RemoteText(
+                    touchPercent
+                        .isLessThan(0f.rf)
+                        .select("Unset".rs, touchPercent.toRemoteInt().toRemoteString())
+                )
+            }
+        }
+
+        val player = rule.onNodeWithContentDescription("Player")
+        rule.onNodeWithText("Unset").assertExists()
+
+        player.performTouchInput { down(Offset(width * 0.75f, height / 2f)) }
+        rule.waitForIdle()
+        rule.onNodeWithText("75").assertExists()
+
+        player.performTouchInput { moveTo(Offset(width * 0.25f, height / 2f)) }
+        rule.waitForIdle()
+        rule.onNodeWithText("25").assertExists()
+
+        player.performTouchInput { up() }
+    }
+
     @Test
     fun clickableComponent_consumesWhenClickingInteractiveComponent() {
         var parentClicked = false
