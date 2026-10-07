@@ -18,6 +18,8 @@ package androidx.test.backup.host
 
 import com.android.adblib.AdbSession
 import java.io.File
+import java.lang.reflect.Method
+import java.nio.file.Path
 import java.util.Properties
 import java.util.function.Function
 import kotlin.test.assertContains
@@ -43,6 +45,16 @@ class BackupRestoreExtensionTest {
 
     @Suppress("UNUSED_PARAMETER")
     private fun dummyMethod(device: BackupRestoreController, other: String) {}
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun migrationMethod(
+        source: BackupRestoreController,
+        dir: Path,
+        target: BackupRestoreController,
+    ) {}
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun deviceAfterDirMethod(dir: Path, device: BackupRestoreController) {}
 
     @BackupRestoreConfig(applicationId = "com.example.outer") class ConfiguredTestClass
 
@@ -78,6 +90,37 @@ class BackupRestoreExtensionTest {
         // Test when parameter is something else
         `when`(mockParameterContext.parameter).thenReturn(otherParameter)
         assertFalse(extension.supportsParameter(mockParameterContext, mockExtensionContext))
+    }
+
+    @Test
+    fun controllersSeparatedByAnotherParameterGetConsecutiveDevices() {
+        val method =
+            BackupRestoreExtensionTest::class
+                .java
+                .getDeclaredMethod(
+                    "migrationMethod",
+                    BackupRestoreController::class.java,
+                    Path::class.java,
+                    BackupRestoreController::class.java,
+                )
+        val extension = BackupRestoreExtension()
+
+        assertEquals(0, extension.deviceIndexOf(parameterContext(method, 0)))
+        assertEquals(1, extension.deviceIndexOf(parameterContext(method, 2)))
+    }
+
+    @Test
+    fun aControllerAfterAnotherParameterGetsTheFirstDevice() {
+        val method =
+            BackupRestoreExtensionTest::class
+                .java
+                .getDeclaredMethod(
+                    "deviceAfterDirMethod",
+                    Path::class.java,
+                    BackupRestoreController::class.java,
+                )
+
+        assertEquals(0, BackupRestoreExtension().deviceIndexOf(parameterContext(method, 1)))
     }
 
     @Test
@@ -248,6 +291,14 @@ class BackupRestoreExtensionTest {
             val context = mock(ExtensionContext::class.java)
             `when`(context.root).thenReturn(context)
             `when`(context.getStore(any())).thenReturn(store)
+            return context
+        }
+
+        /** Returns the [ParameterContext] of the parameter of [method] at [index]. */
+        fun parameterContext(method: Method, index: Int): ParameterContext {
+            val context = mock(ParameterContext::class.java)
+            `when`(context.parameter).thenReturn(method.parameters[index])
+            `when`(context.index).thenReturn(index)
             return context
         }
     }

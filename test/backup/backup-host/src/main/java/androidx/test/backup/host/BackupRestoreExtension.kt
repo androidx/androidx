@@ -16,6 +16,7 @@
 
 package androidx.test.backup.host
 
+import androidx.annotation.VisibleForTesting
 import com.android.adblib.AdbSession
 import com.android.adblib.connectedDevicesTracker
 import com.android.adblib.deviceProperties
@@ -24,6 +25,7 @@ import com.android.adblib.serialNumber
 import com.android.adblib.shellAsText
 import com.android.adblib.tools.createStandaloneSession
 import java.io.File
+import java.lang.reflect.Parameter
 import java.util.Properties
 import java.util.logging.Logger
 import kotlinx.coroutines.flow.first
@@ -96,9 +98,21 @@ internal constructor(
         parameterContext: ParameterContext?,
         extensionContext: ExtensionContext?,
     ): Boolean {
-        return parameterContext?.parameter?.type?.name ==
-            "androidx.test.backup.host.BackupRestoreController"
+        return parameterContext?.parameter?.let { isController(it) } ?: false
     }
+
+    /**
+     * Returns the position of the parameter of [parameterContext] among the
+     * [BackupRestoreController] parameters of its method or constructor.
+     *
+     * Device serials, API levels and online devices are assigned to controllers in this order, so
+     * that parameters of other types, such as a `@TempDir` path, do not shift the assignment.
+     */
+    @VisibleForTesting
+    internal fun deviceIndexOf(parameterContext: ParameterContext): Int =
+        parameterContext.parameter.declaringExecutable.parameters
+            .take(parameterContext.index)
+            .count { isController(it) }
 
     override fun resolveParameter(
         parameterContext: ParameterContext?,
@@ -111,6 +125,7 @@ internal constructor(
         val suiteProperties = suiteProperties()
         val applicationId = applicationIdFor(requiredClass, suiteProperties)
         val adbSession = sessionFor(extensionContext)
+        val deviceIndex = parameterContext?.let { deviceIndexOf(it) } ?: 0
 
         val deviceAnnotation = parameterContext?.parameter?.getAnnotation(Device::class.java)
         val requestedSerial = run {
@@ -122,9 +137,8 @@ internal constructor(
             val serialsProp = System.getProperty(PROP_DEVICE_SERIALS)
             if (!serialsProp.isNullOrEmpty()) {
                 val list = serialsProp.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                val index = parameterContext?.index
-                if (index != null && index >= 0 && index < list.size) {
-                    return@run list[index]
+                if (deviceIndex < list.size) {
+                    return@run list[deviceIndex]
                 }
             }
             val global = System.getProperty(PROP_DEVICE_SERIAL)
@@ -140,9 +154,8 @@ internal constructor(
                         .map { it.trim() }
                         .filter { it.isNotEmpty() }
                         .mapNotNull { it.toIntOrNull() }
-                val index = parameterContext?.index
-                if (index != null && index >= 0 && index < list.size) {
-                    return@run list[index]
+                if (deviceIndex < list.size) {
+                    return@run list[deviceIndex]
                 }
             }
             val globalApiProp = System.getProperty(PROP_DEVICE_API)
@@ -196,12 +209,11 @@ internal constructor(
             throw IllegalStateException(errorMsg)
         }
 
-        // Resolve the matching device (default to parameter index distribution if multiple devices
-        // match)
-        val paramIndex = parameterContext?.index ?: 0
+        // Resolve the matching device (default to distributing them over the controller parameters
+        // if multiple devices match)
         val selectedDevice =
-            if (requestedSerial.isEmpty() && paramIndex < matchingDevices.size) {
-                matchingDevices[paramIndex]
+            if (requestedSerial.isEmpty() && deviceIndex < matchingDevices.size) {
+                matchingDevices[deviceIndex]
             } else {
                 matchingDevices.first()
             }
@@ -404,5 +416,12 @@ internal constructor(
 
         /** Minimum Android API level required for backup/restore capability (Android 12). */
         private const val MIN_REQUIRED_API = 31
+
+        /**
+         * Returns whether [parameter] is a [BackupRestoreController], which this extension
+         * resolves.
+         */
+        private fun isController(parameter: Parameter): Boolean =
+            parameter.type == BackupRestoreController::class.java
     }
 }
