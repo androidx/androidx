@@ -16,15 +16,12 @@
 
 package androidx.camera.common.samples
 
-import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.media.Image
 import androidx.annotation.Sampled
 import androidx.camera.common.ImagePlane
 import androidx.camera.common.ImageWrappers
 import androidx.camera.common.MutableImageWrapper
-import androidx.camera.common.testing.FakeImage
-import java.nio.ByteBuffer
 
 @Sampled
 fun wrapImageSample(image: Image) {
@@ -43,25 +40,4 @@ fun wrapImageSample(image: Image) {
 
     // Always close the wrapper to release native resources:
     imageWrapper.close()
-}
-
-@Sampled
-fun fakeImageSample() {
-    // Create a FakeImage for unit testing without needing camera hardware or native Image buffers.
-    val fakeImage: MutableImageWrapper =
-        FakeImage(
-            width = 1920,
-            height = 1080,
-            format = ImageFormat.YUV_420_888,
-            timestamp = 1_000_000_000L,
-            cropRect = Rect(0, 0, 1920, 1080),
-        )
-
-    // Access planes and pixel buffers in test assertions:
-    val planes: List<ImagePlane> = fakeImage.imagePlanes
-    val yBuffer: ByteBuffer = planes[0].buffer
-    val yRowStride: Int = planes[0].rowStride
-
-    // Close the fake image when finished and verify lifecycle state:
-    fakeImage.close()
 }

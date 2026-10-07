@@ -55,6 +55,7 @@ import java.lang.Class
  *   the device state.
  * @throws IllegalArgumentException If `physicalCameraIds` contains `cameraId`, or if any key in
  *   `restrictedKeys` or `sessionKeys` is not present in `cameraCharacteristics`.
+ * @sample androidx.camera.common.testing.samples.fakeCameraCharacteristicsSample
  */
 public class FakeCameraCharacteristics
 @Suppress("ValueClassUsageFromConstructor")

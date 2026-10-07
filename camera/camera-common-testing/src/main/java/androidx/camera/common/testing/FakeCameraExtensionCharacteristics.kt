@@ -31,19 +31,19 @@ import androidx.camera.common.UnsafeWrapper
 import androidx.camera.common.getUnchecked
 
 /**
- * A fake implementation of [CameraExtensionCharacteristicsWrapper] for testing.
+ * Fake implementation of [CameraExtensionCharacteristicsWrapper] for unit testing.
  *
- * This class allows unit tests to mock and configure the characteristics and capabilities of camera
- * extension modes without relying on native Android platform classes or a physical device.
+ * `FakeCameraExtensionCharacteristics` simulates the characteristics and capabilities of camera
+ * extension modes in unit tests without requiring native Android platform classes or a physical
+ * device.
  *
- * To instantiate this class:
- * - In **Kotlin**, use the companion [invoke] operator for idiomatic builder-like
- *   creation: ```kotlin val characteristics = FakeCameraExtensionCharacteristics( cameraId =
- *   CameraId("0"), cameraExtension = CameraExtensionCharacteristics.EXTENSION_BOKEH ) ```
- * - In **Java**, use the static [create] factory method which takes a raw [String] camera
- *   ID: ```java FakeCameraExtensionCharacteristics characteristics =
- *   FakeCameraExtensionCharacteristics.create( "0", CameraExtensionCharacteristics.EXTENSION_BOKEH,
- *   // ... other parameters ); ```
+ * You can instantiate `FakeCameraExtensionCharacteristics` in two ways:
+ * - In **Kotlin**, call the companion [invoke] operator
+ *   (`FakeCameraExtensionCharacteristics(...)`).
+ * - In **Java**, call the static [create] factory method
+ *   (`FakeCameraExtensionCharacteristics.create(...)`).
+ *
+ * @sample androidx.camera.common.testing.samples.fakeCameraExtensionCharacteristicsSample
  */
 public class FakeCameraExtensionCharacteristics
 private constructor(
@@ -186,6 +186,7 @@ private constructor(
          * @param postviewSizes mock postview sizes map keyed by capture size and format.
          * @param latencies mock latencies map keyed by capture size and format.
          * @return a configured [FakeCameraExtensionCharacteristics] instance.
+         * @sample androidx.camera.common.testing.samples.fakeCameraExtensionCharacteristicsSample
          */
         @JvmStatic
         @JvmOverloads
@@ -249,6 +250,7 @@ private constructor(
          * @param postviewSizes mock postview sizes map keyed by capture size and format.
          * @param latencies mock latencies map keyed by capture size and format.
          * @return a configured [FakeCameraExtensionCharacteristics] instance.
+         * @sample androidx.camera.common.testing.samples.fakeCameraExtensionCharacteristicsSample
          */
         @JvmSynthetic
         @Suppress("MissingJvmstatic", "ValueClassUsageWithoutJvmName")

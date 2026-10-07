@@ -21,7 +21,6 @@ import androidx.annotation.Sampled
 import androidx.camera.common.CaptureRequestWrapper
 import androidx.camera.common.CaptureRequestWrappers
 import androidx.camera.common.Metadata
-import androidx.camera.common.testing.FakeCaptureRequest
 
 @Sampled
 fun wrapCaptureRequestSample(captureRequest: CaptureRequest) {
@@ -39,25 +38,4 @@ fun wrapCaptureRequestSample(captureRequest: CaptureRequest) {
             metadata = mapOf(customKey to "sample_tag_value"),
         )
     val customTagValue = requestWithMetadata[customKey]
-}
-
-@Sampled
-fun fakeCaptureRequestSample() {
-    val customKey = Metadata.Key<Int>("com.example.custom_request_priority")
-
-    // Create a FakeCaptureRequest for unit testing without requiring a Camera2 device.
-    val fakeRequest: CaptureRequestWrapper =
-        FakeCaptureRequest(
-            requestParameters =
-                mapOf(
-                    CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON,
-                    CaptureRequest.CONTROL_AF_MODE to
-                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
-                ),
-            requestMetadata = mapOf(customKey to 1),
-        )
-
-    // Query values from the fake request in test assertions:
-    val aeMode = fakeRequest[CaptureRequest.CONTROL_AE_MODE]
-    val priority = fakeRequest[customKey]
 }
