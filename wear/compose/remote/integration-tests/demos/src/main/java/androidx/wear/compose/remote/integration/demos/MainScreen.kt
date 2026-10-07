@@ -137,6 +137,14 @@ fun MainScreen(
                 }
                 item {
                     MenuButton(
+                        "RemoteIconToggleButton",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteIconToggleButtonDemosScreen.route)
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
                         "RemoteTextButton",
                         onClick = { navigateToRoute(Screen.RemoteTextButtonDemosScreen.route) },
                     )
