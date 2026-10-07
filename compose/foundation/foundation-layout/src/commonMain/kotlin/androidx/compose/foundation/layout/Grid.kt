@@ -663,13 +663,15 @@ public value class GridTrackSize internal constructor(internal val encodedValue:
          * lazy lists in a flexible track, use [MinMax] instead.
          *
          * @param weight The flexible weight. Remaining space is distributed proportionally to this
-         *   weight divided by the sum of all flex weights. Must be non-negative.
-         * @throws IllegalArgumentException if [weight] is negative.
+         *   weight divided by the sum of all flex weights. Must be non-negative and finite.
+         * @throws IllegalArgumentException if [weight] is negative or non-finite.
          * @see MinMax
          */
         @Stable
         public fun Flex(@FloatRange(from = 0.0) weight: Fr): GridTrackSize {
-            require(weight.value >= 0f) { "Flex weight must be non-negative" }
+            require(weight.value >= 0f && weight.value.isFinite()) {
+                "Flex weight must be non-negative and finite"
+            }
             return pack(TypeFlex, weight.value)
         }
 
@@ -689,14 +691,18 @@ public value class GridTrackSize internal constructor(internal val encodedValue:
          *
          * @sample androidx.compose.foundation.layout.samples.GridWithLazyList
          * @param min The explicit minimum fixed base size (e.g., `0.dp`).
-         * @param max The maximum flexible distribution weight (e.g., `1.fr`).
-         * @throws IllegalArgumentException if [min] is negative or [max] is negative.
+         * @param max The maximum flexible distribution weight (e.g., `1.fr`). Must be non-negative
+         *   and finite.
+         * @throws IllegalArgumentException if [min] is negative, or if [max] is negative or
+         *   non-finite.
          * @see Flex
          */
         @Stable
         public fun MinMax(min: Dp, @FloatRange(from = 0.0) max: Fr): GridTrackSize {
             require(min.value >= 0f) { "MinMax minimum size cannot be negative" }
-            require(max.value >= 0f) { "MinMax max weight cannot be negative" }
+            require(max.value >= 0f && max.value.isFinite()) {
+                "MinMax max weight must be non-negative and finite"
+            }
             return packMinMax(min.value, max.value)
         }
 
