@@ -541,6 +541,49 @@ class ScrollInfoProviderTest {
     }
 
     @Test
+    fun scalingLazyColumn_contentPaddingDecreasesWhileScrolled_anchorItemOffset_isZeroWhenScrolledToTop() {
+        lateinit var provider: ScrollInfoProvider
+        lateinit var state: ScalingLazyListState
+        lateinit var scope: CoroutineScope
+        var topPadding by mutableStateOf(24.dp)
+
+        rule.setContent {
+            state = rememberScalingLazyListState(initialCenterItemIndex = 0)
+            provider = remember(state) { ScrollInfoProvider(state) }
+            scope = rememberCoroutineScope()
+
+            // Observe anchorItemOffset across composition and scroll passes, mimicking components
+            // like ScreenScaffold or Modifier.scrollAway.
+            LaunchedEffect(provider) { snapshotFlow { provider.anchorItemOffset }.collect {} }
+
+            ScalingLazyColumn(
+                state = state,
+                autoCentering = null,
+                contentPadding = PaddingValues(top = topPadding),
+                modifier = Modifier.requiredSize(100.dp),
+            ) {
+                items(10) { Box(Modifier.requiredSize(30.dp)) }
+            }
+        }
+
+        rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.0001f).of(0f) }
+
+        val scrollDelta = with(rule.density) { 50.dp.roundToPx().toFloat() }
+        rule.runOnIdle { scope.launch { state.scrollBy(scrollDelta) } }
+        rule.waitForIdle()
+
+        // Content padding changes (e.g. 24.dp -> 21.dp) while item 0 is scrolled
+        rule.runOnIdle { topPadding = 21.dp }
+        rule.waitForIdle()
+
+        // Smooth scroll back to the top of the list
+        rule.runOnIdle { scope.launch { state.animateScrollBy(-scrollDelta) } }
+        rule.waitForIdle()
+
+        rule.runOnIdle { assertThat(provider.anchorItemOffset).isWithin(0.0001f).of(0f) }
+    }
+
+    @Test
     fun scalingLazyColumn_viewportOverflow_lastItemOffset_isZero() {
         lateinit var provider: ScrollInfoProvider
 
