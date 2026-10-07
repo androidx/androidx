@@ -47,6 +47,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CaptureConfig
@@ -80,6 +81,7 @@ import androidx.camera.video.MediaSpec
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoOutput
+import androidx.core.util.Predicate
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -143,6 +145,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1, child2),
+                emptyList(),
                 useCaseConfigFactory,
             )
         defaultConfig = streamSharing.getDefaultConfig(true, useCaseConfigFactory)!!
@@ -165,6 +168,85 @@ class StreamSharingTest {
     }
 
     @Test
+    fun childOnlyEffect_childGetsItsEffectResolutionValidator() {
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build()).build()
+        val videoValidator = Predicate<Size> { true }
+        val videoEffect =
+            object : FakeSurfaceEffect(VIDEO_CAPTURE, effectProcessor) {
+                override fun getResolutionValidator() = videoValidator
+            }
+
+        streamSharing = createStreamSharing(setOf(preview, videoCapture), listOf(videoEffect))
+
+        assertThat(
+                streamSharing.virtualCameraAdapter.hasSameChildrenEffectResolutionValidators(
+                    mapOf(videoCapture to videoValidator)
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun sharingEffect_childrenWithoutOwnEffectInheritItsResolutionValidator() {
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build()).build()
+        val sharingValidator = Predicate<Size> { true }
+        val sharingEffect =
+            object : FakeSurfaceEffect(PREVIEW or VIDEO_CAPTURE, effectProcessor) {
+                override fun getResolutionValidator() = sharingValidator
+            }
+
+        streamSharing = createStreamSharing(setOf(preview, videoCapture), listOf(sharingEffect))
+
+        assertThat(
+                streamSharing.virtualCameraAdapter.hasSameChildrenEffectResolutionValidators(
+                    mapOf(preview to sharingValidator, videoCapture to sharingValidator)
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun childEffectWithoutValidator_childDoesNotInheritSharingValidator() {
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build()).build()
+        val sharingValidator = Predicate<Size> { true }
+        val sharingEffect =
+            object : FakeSurfaceEffect(PREVIEW or VIDEO_CAPTURE, effectProcessor) {
+                override fun getResolutionValidator() = sharingValidator
+            }
+        val videoEffectWithoutValidator = FakeSurfaceEffect(VIDEO_CAPTURE, effectProcessor)
+
+        streamSharing =
+            createStreamSharing(
+                setOf(preview, videoCapture),
+                listOf(sharingEffect, videoEffectWithoutValidator),
+            )
+
+        assertThat(
+                streamSharing.virtualCameraAdapter.hasSameChildrenEffectResolutionValidators(
+                    mapOf(preview to sharingValidator)
+                )
+            )
+            .isTrue()
+    }
+
+    private fun createStreamSharing(
+        children: Set<UseCase>,
+        effects: List<CameraEffect>,
+    ): StreamSharing =
+        StreamSharing(
+            camera,
+            secondaryCamera,
+            CompositionSettings.DEFAULT,
+            CompositionSettings.DEFAULT,
+            children,
+            effects,
+            useCaseConfigFactory,
+        )
+
+    @Test
     fun effectHandleSharing_effectUsedAsSharingNode() {
         // Arrange: create an effect that handles sharing.
         effect =
@@ -183,6 +265,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, videoCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.setViewPortCropRect(cropRect)
@@ -219,6 +302,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.setViewPortCropRect(cropRect)
@@ -242,6 +326,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.setViewPortCropRect(cropRect)
@@ -272,6 +357,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.effect = effect
@@ -370,6 +456,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1, imageCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -428,6 +515,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(unspecifiedChild, hdrChild),
+                emptyList(),
                 useCaseConfigFactory,
             )
         assertThat(
@@ -465,6 +553,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(sdrChild, hdrChild),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.mergeConfigs(
@@ -497,6 +586,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(sdrSmpteChild, hdrChild),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.mergeConfigs(
@@ -529,6 +619,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(unspecifiedChild, hdrChild),
+                emptyList(),
                 useCaseConfigFactory,
             )
         assertThat(
@@ -615,6 +706,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -645,6 +737,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1, imageCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -679,6 +772,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1, imageCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -715,6 +809,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -738,6 +833,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -766,6 +862,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(previewBuilder.build()),
+                emptyList(),
                 CameraUseCaseAdapter(context),
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -994,6 +1091,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, videoCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         assertThat(
@@ -1023,6 +1121,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, videoCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         assertThat(
@@ -1049,6 +1148,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, imageCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -1073,6 +1173,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, imageCapture, videoCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -1150,6 +1251,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1, child2),
+                emptyList(),
                 useCaseConfigFactory,
             )
         assertThat(
@@ -1178,6 +1280,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(fakeUseCase),
+                emptyList(),
                 useCaseConfigFactory,
             )
 
@@ -1223,6 +1326,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(
@@ -1306,6 +1410,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, videoCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)

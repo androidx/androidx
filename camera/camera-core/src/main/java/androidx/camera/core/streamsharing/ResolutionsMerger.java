@@ -19,6 +19,7 @@ package androidx.camera.core.streamsharing;
 
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_16_9;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio;
@@ -46,8 +47,10 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.internal.SupportedOutputSizesSorter;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.core.util.Predicate;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,6 +81,7 @@ public class ResolutionsMerger {
     private final @NonNull SupportedOutputSizesSorter mSizeSorter;
     private final @NonNull CameraInfoInternal mCameraInfo;
     private final @NonNull Map<UseCaseConfig<?>, List<Size>> mChildSizesCache = new HashMap<>();
+    private @Nullable Predicate<Size> mParentEffectResolutionValidator;
 
     ResolutionsMerger(@NonNull CameraInternal cameraInternal,
             @NonNull Set<UseCaseConfig<?>> childrenConfigs) {
@@ -110,6 +114,9 @@ public class ResolutionsMerger {
      * the supported PRIV resolutions, 2) the sensor size and 3) the children's configs.
      */
     @NonNull List<Size> getMergedResolutions(@NonNull MutableConfig parentConfig) {
+        mParentEffectResolutionValidator =
+                parentConfig.retrieveOption(OPTION_EFFECT_RESOLUTION_VALIDATOR, null);
+
         List<Size> candidateSizes = getCameraSupportedResolutions();
 
         // Add high resolutions if they need to be included.
@@ -127,6 +134,45 @@ public class ResolutionsMerger {
         }
 
         return selectParentResolutions(candidateSizes);
+    }
+
+    /**
+     * Returns whether the parent resolutions should be reordered so that the ones supported by
+     * the parent effect's resolution validator come first.
+     *
+     * <p>A parent size is kept if it can serve any of a child's sizes, not necessarily the
+     * child's first choice. Moving a smaller supported parent size to the front can therefore
+     * force a child onto a later fallback size. For example, if the validator allows sizes up to
+     * 2000x2000 and a child's ResolutionFilter returns [2560x1440, 1920x1080], putting 1920x1440
+     * first would give the child 1920x1080 instead of its first choice, 2560x1440.
+     *
+     * <p>Child sizes have already been sorted with supported sizes first where allowed, so if a
+     * child's first sorted size is still unsupported, the child explicitly prefers it (e.g.
+     * through a ResolutionFilter order) or has no supported size. In that case the parent order
+     * is kept so that the child gets its first choice, and the effect is responsible for handling
+     * the unsupported resolution. Only children with custom ordered resolutions or a
+     * ResolutionFilter are checked, because for other children CameraX picks the order itself.
+     */
+    private boolean shouldPrioritizeParentEffectResolutions() {
+        if (mParentEffectResolutionValidator == null) {
+            return false;
+        }
+        for (UseCaseConfig<?> childConfig : mChildrenConfigs) {
+            ImageOutputConfig imageOutputConfig = (ImageOutputConfig) childConfig;
+            ResolutionSelector resolutionSelector =
+                    imageOutputConfig.getResolutionSelector(null);
+            // Explicit preference: keep the parent sizes that can serve its first choice.
+            if (imageOutputConfig.getCustomOrderedResolutions(null) != null
+                    || (resolutionSelector != null
+                            && resolutionSelector.getResolutionFilter() != null)) {
+                List<Size> childSizes = getSortedChildSizes(childConfig);
+                if (!childSizes.isEmpty()
+                        && !mParentEffectResolutionValidator.test(childSizes.get(0))) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -411,6 +457,10 @@ public class ResolutionsMerger {
             if (!sizesTooLarge.contains(candidate)) {
                 result.add(candidate);
             }
+        }
+        if (shouldPrioritizeParentEffectResolutions()) {
+            result = SupportedOutputSizesSorter.prioritizeSupportedResolutions(
+                    result, Objects.requireNonNull(mParentEffectResolutionValidator));
         }
         return result;
     }

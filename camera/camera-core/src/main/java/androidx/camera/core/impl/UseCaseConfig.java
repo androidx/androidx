@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import android.util.Range;
 import android.util.Size;
 
+import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ExtendableBuilder;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
@@ -29,6 +30,7 @@ import androidx.camera.core.imagecapture.TakePictureManager;
 import androidx.camera.core.imagecapture.TakePictureManagerImpl;
 import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.internal.TargetConfig;
+import androidx.core.util.Predicate;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -99,6 +101,13 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Image
      */
     Option<Boolean> OPTION_IS_STRICT_FRAME_RATE_REQUIRED =
             Config.Option.create("camerax.core.useCase.isStrictFrameRateRequired", Boolean.class);
+
+    /**
+     * Option: camerax.core.useCase.effectResolutionValidator
+     */
+    Option<Predicate<Size>> OPTION_EFFECT_RESOLUTION_VALIDATOR =
+            Config.Option.create("camerax.core.useCase.effectResolutionValidator",
+                    Predicate.class);
 
     /**
      * Option: camerax.core.useCase.resolutionToMaxFrameRate
@@ -316,6 +325,19 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Image
      */
     default int getSessionType() {
         return retrieveOption(OPTION_SESSION_TYPE);
+    }
+
+    /**
+     * Retrieves the resolution validator of the {@link CameraEffect} associated with this use case
+     * config.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or {@code valueIfMissing} if the value does not exist in this
+     * configuration.
+     */
+    default @Nullable Predicate<Size> getEffectResolutionValidator(
+            @Nullable Predicate<Size> valueIfMissing) {
+        return retrieveOption(OPTION_EFFECT_RESOLUTION_VALIDATOR, valueIfMissing);
     }
 
     /**

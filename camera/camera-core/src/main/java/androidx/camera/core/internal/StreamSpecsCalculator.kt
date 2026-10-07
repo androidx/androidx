@@ -35,6 +35,7 @@ import androidx.camera.core.impl.utils.TransformUtils
 import androidx.camera.core.impl.utils.UseCaseUtil.containsVideoCapture
 import androidx.camera.core.impl.utils.UseCaseUtil.getVideoStabilization
 import androidx.camera.core.streamsharing.StreamSharing
+import androidx.core.util.Predicate
 
 /**
  * Calculates the stream specs for a given combination of use cases and other settings/capabilities.
@@ -67,6 +68,41 @@ public interface StreamSpecsCalculator {
         isFeatureComboInvocation: Boolean = false,
         findSupportedFrameRateRanges: Boolean = false,
     ): StreamSpecQueryResult
+
+    // TODO: b/448524973 - Remove this overload and add effectResolutionValidators (defaulting to
+    //  emptyMap()) to the method above, so that no implementation can ignore the validators by
+    //  only overriding the method above (as FakeStreamSpecsCalculator and NO_OP currently do).
+    /**
+     * Calculates the stream specs for a given combination of use cases, resolved effect resolution
+     * validators, and other settings/capabilities.
+     *
+     * The default implementation ignores [effectResolutionValidators] and delegates to the method
+     * above. Implementations that support effect resolution prioritization must override this
+     * method.
+     */
+    public fun calculateSuggestedStreamSpecs(
+        @CameraMode.Mode cameraMode: Int,
+        cameraInfoInternal: CameraInfoInternal,
+        newUseCases: List<UseCase>,
+        attachedUseCases: List<UseCase> = emptyList(),
+        cameraConfig: CameraConfig = CameraConfigs.defaultConfig(),
+        sessionType: Int = SESSION_TYPE_REGULAR,
+        targetFrameRate: Range<Int> = FRAME_RATE_RANGE_UNSPECIFIED,
+        isFeatureComboInvocation: Boolean = false,
+        findSupportedFrameRateRanges: Boolean = false,
+        effectResolutionValidators: Map<UseCase, Predicate<Size>>,
+    ): StreamSpecQueryResult =
+        calculateSuggestedStreamSpecs(
+            cameraMode,
+            cameraInfoInternal,
+            newUseCases,
+            attachedUseCases,
+            cameraConfig,
+            sessionType,
+            targetFrameRate,
+            isFeatureComboInvocation,
+            findSupportedFrameRateRanges,
+        )
 
     public companion object {
         @JvmField
@@ -144,6 +180,31 @@ public class StreamSpecsCalculatorImpl(
         targetFrameRate: Range<Int>,
         isFeatureComboInvocation: Boolean,
         findSupportedFrameRateRanges: Boolean,
+    ): StreamSpecQueryResult =
+        calculateSuggestedStreamSpecs(
+            cameraMode,
+            cameraInfoInternal,
+            newUseCases,
+            attachedUseCases,
+            cameraConfig,
+            sessionType,
+            targetFrameRate,
+            isFeatureComboInvocation,
+            findSupportedFrameRateRanges,
+            emptyMap(),
+        )
+
+    override fun calculateSuggestedStreamSpecs(
+        @CameraMode.Mode cameraMode: Int,
+        cameraInfoInternal: CameraInfoInternal,
+        newUseCases: List<UseCase>,
+        attachedUseCases: List<UseCase>,
+        cameraConfig: CameraConfig,
+        sessionType: Int,
+        targetFrameRate: Range<Int>,
+        isFeatureComboInvocation: Boolean,
+        findSupportedFrameRateRanges: Boolean,
+        effectResolutionValidators: Map<UseCase, Predicate<Size>>,
     ): StreamSpecQueryResult {
         // Calculate stream specs for use cases already attached.
         val result =
@@ -166,6 +227,8 @@ public class StreamSpecsCalculatorImpl(
                     useCaseConfigFactory,
                     sessionType,
                     targetFrameRate,
+                    null,
+                    effectResolutionValidators,
                 ),
                 isFeatureComboInvocation,
                 findSupportedFrameRateRanges,

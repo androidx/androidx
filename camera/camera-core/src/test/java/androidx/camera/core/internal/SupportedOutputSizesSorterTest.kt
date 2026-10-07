@@ -20,9 +20,12 @@ import android.graphics.ImageFormat
 import android.util.Pair
 import android.util.Size
 import androidx.camera.core.AspectRatio
+import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.impl.utils.AspectRatioUtil
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionFilter
 import androidx.camera.core.resolutionselector.ResolutionSelector
@@ -33,7 +36,9 @@ import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_
 import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
 import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
+import androidx.core.util.Predicate
 import com.google.common.truth.Truth.assertThat
 import java.util.Collections
 import java.util.Collections.unmodifiableList
@@ -63,6 +68,10 @@ private val DEFAULT_SUPPORTED_SIZES =
     )
 private val HIGH_RESOLUTION_SUPPORTED_SIZES = listOf(Size(8000, 6000), Size(8000, 4500))
 private val CUSTOM_SUPPORTED_SIZES = listOf(Size(1920, 1080), Size(720, 480), Size(640, 480))
+private val VALIDATOR_UP_TO_2000 =
+    Predicate<Size> { size ->
+        size.width <= 2000 && size.height <= 2000
+    }
 private val PORTRAIT_SUPPORTED_SIZES =
     listOf(
         Size(1440, 1920),
@@ -113,6 +122,203 @@ class SupportedOutputSizesSorterTest {
         // Assert
         assertThat(sortedResult).containsExactlyElementsIn(CUSTOM_SUPPORTED_SIZES).inOrder()
     }
+
+    @Test
+    fun canPrioritizeSupportedResolutions_withCameraEffect() {
+        // Arrange
+        val imageFormat = ImageFormat.JPEG
+        val fakeEffect =
+            object :
+                CameraEffect(
+                    PREVIEW,
+                    CameraXExecutors.mainThreadExecutor(),
+                    FakeSurfaceProcessorInternal(CameraXExecutors.mainThreadExecutor()),
+                    {},
+                ) {
+                // Only sizes with width <= 2000 and height <= 2000 are supported
+                override fun getResolutionValidator(): Predicate<Size> = VALIDATOR_UP_TO_2000
+            }
+
+        val useCaseConfig =
+            FakeUseCaseConfig.Builder(CaptureType.PREVIEW, imageFormat)
+                .apply {
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        fakeEffect.resolutionValidator,
+                    )
+                }
+                .useCaseConfig
+
+        // Act
+        val sortedResult = supportedOutputSizesSorter.getSortedSupportedOutputSizes(useCaseConfig)
+
+        // Assert: legacy path without target aspect ratio prioritizes all sizes with
+        // width <= 2000 && height <= 2000 ahead of larger unsupported sizes.
+        val firstUnsupportedIndex = sortedResult.indexOfFirst {
+            it.width > 2000 || it.height > 2000
+        }
+        val lastSupportedIndex = sortedResult.indexOfLast { it.width <= 2000 && it.height <= 2000 }
+
+        assertThat(firstUnsupportedIndex).isGreaterThan(lastSupportedIndex)
+        assertThat(sortedResult.first().width).isAtMost(2000)
+    }
+
+    @Test
+    fun canPrioritizeSupportedResolutionsWithinEachAspectRatioGroup_withCameraEffect() {
+        // Arrange: ResolutionSelector defaults to 4:3 preferred aspect ratio with AUTO fallback.
+        // Validator only supports sizes <= 2000x2000 (so 4032x3024 in 4:3 and 3840x2160 in 16:9
+        // are unsupported).
+        val validator = VALIDATOR_UP_TO_2000
+        val useCaseConfig =
+            FakeUseCaseConfig.Builder(CaptureType.PREVIEW, ImageFormat.JPEG)
+                .apply {
+                    setResolutionSelector(ResolutionSelector.Builder().build())
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        validator,
+                    )
+                }
+                .useCaseConfig
+
+        // Act
+        val sortedResult = supportedOutputSizesSorter.getSortedSupportedOutputSizes(useCaseConfig)
+
+        // Assert:
+        // 1. All 4:3 sizes (both supported and unsupported) stay ahead of 16:9 sizes, preserving
+        //    the preferred aspect ratio group order.
+        // 2. Within the 4:3 group, supported sizes (1920x1440, 1280x960, 640x480, 320x240) precede
+        //    the unsupported 4:3 size (4032x3024).
+        // 3. Within the 16:9 group, supported sizes (1920x1080, ...) precede 3840x2160.
+        assertThat(sortedResult)
+            .containsExactly(
+                // 4:3 group: supported first, then unsupported
+                Size(1920, 1440),
+                Size(1280, 960),
+                Size(640, 480),
+                Size(320, 240),
+                Size(4032, 3024),
+                // 1:1 group (FOV closer to 4:3 than 16:9): supported
+                Size(960, 960),
+                // 16:9 group: supported first, then unsupported
+                Size(1920, 1080),
+                Size(1280, 720),
+                Size(960, 544),
+                Size(800, 450),
+                Size(320, 180),
+                Size(256, 144),
+                Size(3840, 2160),
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun canPrioritizeSupportedResolutionsWithinEachAspectRatioGroup_legacyApiWithCameraEffect() {
+        // Arrange: Legacy API with targetAspectRatio = RATIO_4_3 (resolutionSelector == null).
+        // Validator only supports sizes <= 2000x2000.
+        val validator = VALIDATOR_UP_TO_2000
+        val useCaseConfig =
+            FakeUseCaseConfig.Builder(CaptureType.PREVIEW, ImageFormat.JPEG)
+                .apply {
+                    setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        validator,
+                    )
+                }
+                .useCaseConfig
+
+        // Act
+        val sortedResult = supportedOutputSizesSorter.getSortedSupportedOutputSizes(useCaseConfig)
+
+        // Assert: 4:3 group stays ahead of 1:1 and 16:9 groups, and within each group supported
+        // sizes precede unsupported sizes (>= 640x480 min size bound in legacy API).
+        assertThat(sortedResult)
+            .containsExactly(
+                // 4:3 group: supported first, then unsupported
+                Size(1920, 1440),
+                Size(1280, 960),
+                Size(640, 480),
+                Size(4032, 3024),
+                // 1:1 group: supported
+                Size(960, 960),
+                // 16:9 group: supported first, then unsupported
+                Size(1920, 1080),
+                Size(1280, 720),
+                Size(960, 544),
+                Size(800, 450),
+                Size(3840, 2160),
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun resolutionFilter_notOverriddenByCameraEffectResolutionValidator() {
+        // Arrange: Effect validator only supports sizes <= 2000x2000, but the user's
+        // ResolutionFilter explicitly orders 4032x3024 (unsupported) ahead of 1920x1440.
+        val validator = VALIDATOR_UP_TO_2000
+        val explicitOrder = listOf(Size(4032, 3024), Size(1920, 1440), Size(1280, 720))
+        val resolutionSelector =
+            ResolutionSelector.Builder()
+                .setResolutionFilter { _, _ -> ArrayList(explicitOrder) }
+                .build()
+        val useCaseConfig =
+            FakeUseCaseConfig.Builder(CaptureType.PREVIEW, ImageFormat.JPEG)
+                .apply {
+                    setResolutionSelector(resolutionSelector)
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        validator,
+                    )
+                }
+                .useCaseConfig
+
+        // Act
+        val sortedResult = supportedOutputSizesSorter.getSortedSupportedOutputSizes(useCaseConfig)
+
+        // Assert: The explicit ordering returned by ResolutionFilter is preserved.
+        assertThat(sortedResult).containsExactlyElementsIn(explicitOrder).inOrder()
+    }
+
+    @Test
+    fun customOrderedResolutions_prioritizedByCameraEffectResolutionValidator() {
+        // Arrange: custom ordered resolutions (e.g. from VideoCapture's QualitySelector) prefer
+        // 3840x2160, which the effect doesn't support.
+        val useCaseConfig =
+            createCustomOrderedConfig(listOf(Size(3840, 2160), Size(1920, 1080), Size(1280, 720)))
+
+        // Act
+        val sortedResult = supportedOutputSizesSorter.getSortedSupportedOutputSizes(useCaseConfig)
+
+        // Assert: effect-supported sizes move ahead while keeping their relative order, and the
+        // unsupported size is kept as a fallback.
+        assertThat(sortedResult)
+            .containsExactly(Size(1920, 1080), Size(1280, 720), Size(3840, 2160))
+            .inOrder()
+    }
+
+    @Test
+    fun customOrderedResolutions_onlyUnsupported_keepsOriginalOrder() {
+        // Arrange: custom ordered resolutions contain only sizes the effect doesn't support.
+        val customOrderedResolutions = listOf(Size(4032, 3024), Size(3840, 2160))
+        val useCaseConfig = createCustomOrderedConfig(customOrderedResolutions)
+
+        // Act
+        val sortedResult = supportedOutputSizesSorter.getSortedSupportedOutputSizes(useCaseConfig)
+
+        // Assert
+        assertThat(sortedResult).containsExactlyElementsIn(customOrderedResolutions).inOrder()
+    }
+
+    private fun createCustomOrderedConfig(customOrderedResolutions: List<Size>) =
+        FakeUseCaseConfig.Builder(CaptureType.VIDEO_CAPTURE, ImageFormat.JPEG)
+            .apply {
+                setCustomOrderedResolutions(customOrderedResolutions)
+                mutableConfig.insertOption(
+                    UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                    VALIDATOR_UP_TO_2000,
+                )
+            }
+            .useCaseConfig
 
     @Test
     fun canSelectCustomSupportedResolutions() {

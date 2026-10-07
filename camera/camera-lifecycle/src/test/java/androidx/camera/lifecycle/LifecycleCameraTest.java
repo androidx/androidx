@@ -532,6 +532,70 @@ public class LifecycleCameraTest {
     }
 
     @Test
+    public void lifecycleDestroy_releasesEffects() throws CameraUseCaseAdapter.CameraException {
+        mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, mCameraUseCaseAdapter,
+                mRotationProvider);
+        mLifecycleOwner.start();
+        mLifecycleCamera.bind(new SessionConfig.Builder(Arrays.asList(mFakeUseCase))
+                .addEffect(mEffect)
+                .build());
+
+        mLifecycleOwner.stop();
+        mLifecycleOwner.destroy();
+
+        assertThat(mLifecycleCamera.getCameraUseCaseAdapter().getEffects()).isEmpty();
+    }
+
+    @Test
+    public void unbindAll_releasesEffects() throws CameraUseCaseAdapter.CameraException {
+        mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, mCameraUseCaseAdapter,
+                mRotationProvider);
+        mLifecycleOwner.start();
+        mLifecycleCamera.bind(new SessionConfig.Builder(Arrays.asList(mFakeUseCase))
+                .addEffect(mEffect)
+                .build());
+
+        mLifecycleCamera.unbindAll();
+
+        assertThat(mLifecycleCamera.getCameraUseCaseAdapter().getEffects()).isEmpty();
+    }
+
+    @Test
+    public void unbindSessionConfig_releasesEffects() throws CameraUseCaseAdapter.CameraException {
+        mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, mCameraUseCaseAdapter,
+                mRotationProvider);
+        mLifecycleOwner.start();
+        SessionConfig sessionConfig = new SessionConfig.Builder(Arrays.asList(mFakeUseCase))
+                .addEffect(mEffect)
+                .build();
+        mLifecycleCamera.bind(sessionConfig);
+
+        mLifecycleCamera.unbind(sessionConfig);
+
+        assertThat(mLifecycleCamera.getCameraUseCaseAdapter().getEffects()).isEmpty();
+    }
+
+    @Test
+    public void unbindLegacySessionConfig_releasesEffectsOnlyWhenNothingIsBound()
+            throws CameraUseCaseAdapter.CameraException {
+        mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, mCameraUseCaseAdapter,
+                mRotationProvider);
+        mLifecycleOwner.start();
+        mLifecycleCamera.bind(new LegacySessionConfig(
+                Arrays.asList(mFakeUseCase, mFakeUseCase2), null,
+                Collections.singletonList(mEffect)));
+
+        // Act & Assert: effects are kept while a use case is still bound.
+        mLifecycleCamera.unbind(createLegacySessonConfig(mFakeUseCase));
+        assertThat(mLifecycleCamera.getCameraUseCaseAdapter().getEffects())
+                .containsExactly(mEffect);
+
+        // Act & Assert: effects are released once nothing is bound.
+        mLifecycleCamera.unbind(createLegacySessonConfig(mFakeUseCase2));
+        assertThat(mLifecycleCamera.getCameraUseCaseAdapter().getEffects()).isEmpty();
+    }
+
+    @Test
     public void bindLegacySessonConfig_thenSessionConfig_throwExceptions()
             throws CameraUseCaseAdapter.CameraException {
         mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, mCameraUseCaseAdapter,

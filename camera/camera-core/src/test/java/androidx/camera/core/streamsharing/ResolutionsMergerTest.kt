@@ -20,6 +20,8 @@ import android.graphics.Rect
 import android.util.Pair
 import android.util.Rational
 import android.util.Size
+import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.UseCaseConfig
@@ -28,9 +30,12 @@ import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_16_9
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3
 import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.SupportedOutputSizesSorter
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
+import androidx.camera.core.resolutionselector.ResolutionStrategy
+import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_NONE
 import androidx.camera.core.streamsharing.ResolutionsMerger.filterOutParentSizeThatIsTooSmall
 import androidx.camera.core.streamsharing.ResolutionsMerger.filterResolutionsByAspectRatio
 import androidx.camera.core.streamsharing.ResolutionsMerger.getCropRectOfReferenceAspectRatio
@@ -38,7 +43,9 @@ import androidx.camera.core.streamsharing.ResolutionsMerger.getParentSizesThatAr
 import androidx.camera.core.streamsharing.ResolutionsMerger.hasUpscaling
 import androidx.camera.core.streamsharing.ResolutionsMerger.reverseRect
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
+import androidx.core.util.Predicate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -954,7 +961,384 @@ class ResolutionsMergerTest {
         assertThat(mergedResolutions).containsExactlyElementsIn(expectedResult).inOrder()
     }
 
+    @Test
+    fun getMergedResolutions_withChildCameraEffect_prioritizesSupportedChildResolutions() {
+        // Arrange: Sensor size 4:3 (3264x2448).
+        // Effect only supports resolutions with width <= 2000 and height <= 2000.
+        val fakeEffect =
+            object :
+                CameraEffect(
+                    PREVIEW,
+                    CameraXExecutors.mainThreadExecutor(),
+                    FakeSurfaceProcessorInternal(CameraXExecutors.mainThreadExecutor()),
+                    {},
+                ) {
+                override fun getResolutionValidator(): Predicate<Size> = VALIDATOR_UP_TO_2000
+            }
+
+        val config1 =
+            FakeUseCaseConfig.Builder()
+                .apply {
+                    setSupportedResolutions(
+                        listOf(
+                            Pair.create(
+                                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                                SIZES_4_3.toTypedArray(),
+                            )
+                        )
+                    )
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        fakeEffect.resolutionValidator,
+                    )
+                }
+                .useCaseConfig
+        val config2 =
+            FakeUseCaseConfig.Builder()
+                .apply {
+                    setSupportedResolutions(
+                        listOf(
+                            Pair.create(
+                                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                                SIZES_4_3.toTypedArray(),
+                            )
+                        )
+                    )
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        fakeEffect.resolutionValidator,
+                    )
+                }
+                .useCaseConfig
+        val childConfigs = setOf<UseCaseConfig<*>>(config1, config2)
+        val merger =
+            ResolutionsMerger(
+                SENSOR_SIZE,
+                CAMERA_INFO,
+                childConfigs,
+                SupportedOutputSizesSorter(CAMERA_INFO, SENSOR_SIZE),
+            )
+
+        // Act.
+        val mergedResolutions = merger.getMergedResolutions(MutableOptionsBundle.create())
+
+        // Assert: Because both children prioritize <= 2000x2000, parent resolutions > 1920x1440
+        // are filtered out as too large, making SIZE_1920_1440 the top parent resolution.
+        assertThat(mergedResolutions.first()).isEqualTo(SIZE_1920_1440)
+        assertThat(mergedResolutions).doesNotContain(SIZE_3264_2448)
+    }
+
+    @Test
+    fun getMergedResolutions_childEffectStrictUnsupported_fallsBackToUnsupportedParent() {
+        // Arrange: Sensor size 4:3 (3264x2448).
+        // Effect only supports resolutions with width <= 2000 and height <= 2000, but Child 2
+        // strictly requests 3264x2448 via FALLBACK_RULE_NONE.
+        val fakeEffect =
+            object :
+                CameraEffect(
+                    PREVIEW,
+                    CameraXExecutors.mainThreadExecutor(),
+                    FakeSurfaceProcessorInternal(CameraXExecutors.mainThreadExecutor()),
+                    {},
+                ) {
+                override fun getResolutionValidator(): Predicate<Size> = VALIDATOR_UP_TO_2000
+            }
+
+        val config1 =
+            FakeUseCaseConfig.Builder()
+                .apply {
+                    setSupportedResolutions(
+                        listOf(
+                            Pair.create(
+                                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                                SIZES_4_3.toTypedArray(),
+                            )
+                        )
+                    )
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        fakeEffect.resolutionValidator,
+                    )
+                }
+                .useCaseConfig
+        val strictSelector =
+            ResolutionSelector.Builder()
+                .setResolutionStrategy(ResolutionStrategy(SIZE_3264_2448, FALLBACK_RULE_NONE))
+                .build()
+        val config2 =
+            FakeUseCaseConfig.Builder()
+                .apply {
+                    setSupportedResolutions(
+                        listOf(
+                            Pair.create(
+                                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                                SIZES_4_3.toTypedArray(),
+                            )
+                        )
+                    )
+                    setResolutionSelector(strictSelector)
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        fakeEffect.resolutionValidator,
+                    )
+                }
+                .useCaseConfig
+        val merger =
+            ResolutionsMerger(
+                SENSOR_SIZE,
+                CAMERA_INFO,
+                setOf(config1, config2),
+                SupportedOutputSizesSorter(CAMERA_INFO, SENSOR_SIZE),
+            )
+
+        // Act.
+        val mergedResolutions = merger.getMergedResolutions(MutableOptionsBundle.create())
+
+        // Assert: Because Child 2 strictly requires 3264x2448 with FALLBACK_RULE_NONE, no smaller
+        // supported sizes precede 3264x2448 in Child 2's candidate list, so ResolutionsMerger
+        // retains SIZE_3264_2448 as the parent resolution.
+        assertThat(mergedResolutions).containsExactly(SIZE_3264_2448)
+    }
+
+    @Test
+    fun getMergedResolutions_childrenWithDifferentEffects_handledIndependently() {
+        // Arrange: Child 1 supports width <= 1920 (max 4:3 is 1920x1440);
+        // Child 2 supports height <= 1000 (max 4:3 is 1280x960).
+        val childEffect1 =
+            object :
+                CameraEffect(
+                    PREVIEW,
+                    CameraXExecutors.mainThreadExecutor(),
+                    FakeSurfaceProcessorInternal(CameraXExecutors.mainThreadExecutor()),
+                    {},
+                ) {
+                override fun getResolutionValidator(): Predicate<Size> = VALIDATOR_WIDTH_UP_TO_1920
+            }
+        val childEffect2 =
+            object :
+                CameraEffect(
+                    PREVIEW,
+                    CameraXExecutors.mainThreadExecutor(),
+                    FakeSurfaceProcessorInternal(CameraXExecutors.mainThreadExecutor()),
+                    {},
+                ) {
+                override fun getResolutionValidator(): Predicate<Size> = VALIDATOR_HEIGHT_UP_TO_1000
+            }
+
+        val childConfig1 =
+            FakeUseCaseConfig.Builder()
+                .apply {
+                    setSupportedResolutions(
+                        listOf(
+                            Pair.create(
+                                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                                SIZES_4_3.toTypedArray(),
+                            )
+                        )
+                    )
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        childEffect1.resolutionValidator,
+                    )
+                }
+                .useCaseConfig
+        val childConfig2 =
+            FakeUseCaseConfig.Builder()
+                .apply {
+                    setSupportedResolutions(
+                        listOf(
+                            Pair.create(
+                                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                                SIZES_4_3.toTypedArray(),
+                            )
+                        )
+                    )
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        childEffect2.resolutionValidator,
+                    )
+                }
+                .useCaseConfig
+
+        val merger =
+            ResolutionsMerger(
+                SENSOR_SIZE,
+                CAMERA_INFO,
+                setOf(childConfig1, childConfig2),
+                SupportedOutputSizesSorter(CAMERA_INFO, SENSOR_SIZE),
+            )
+
+        // Act.
+        val mergedResolutions = merger.getMergedResolutions(MutableOptionsBundle.create())
+
+        // Assert: Parent stream selects SIZE_1920_1440 to cover Child 1 without upscaling, while
+        // Child 2's preferred child size from that 1920x1440 parent stream is capped at 1280x960
+        // (satisfying Child 2's height <= 1000 validator).
+        assertThat(mergedResolutions.first()).isEqualTo(SIZE_1920_1440)
+        assertThat(merger.getPreferredChildSize(SIZE_1920_1440, childConfig1))
+            .isEqualTo(SIZE_1920_1440)
+        assertThat(merger.getPreferredChildSize(SIZE_1920_1440, childConfig2))
+            .isEqualTo(SIZE_1280_960)
+    }
+
+    @Test
+    fun getMergedResolutions_withParentCameraEffect_prioritizesNonCustomOrderedChildResolutions() {
+        // Arrange: Sensor size 4:3 (3264x2448).
+        // Parent StreamSharing has a multi-target CameraEffect that supports width <= 2560,
+        // height <= 2560, and area <= 3,686,400 (so 1920x1440 and 2560x1280 are supported, while
+        // 2560x1920 is unsupported).
+        // Child 1 (e.g., ImageCapture) has 4:3 resolutions plus 2560x1280 (2:1).
+        // Child 2 (e.g., VideoCapture) has customOrderedResolutions set to [1920x1080, 1280x720].
+        val parentEffectValidator =
+            Predicate<Size> { size ->
+                size.width <= 2560 && size.height <= 2560 && size.width * size.height <= 3_686_400
+            }
+        val childConfig1 =
+            FakeUseCaseConfig.Builder()
+                .apply {
+                    setSupportedResolutions(
+                        listOf(
+                            Pair.create(
+                                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                                (SIZES_4_3 + listOf(SIZE_2560_1280)).toTypedArray(),
+                            )
+                        )
+                    )
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        parentEffectValidator,
+                    )
+                }
+                .useCaseConfig
+        val childConfig2 =
+            FakeUseCaseConfig.Builder()
+                .apply {
+                    setCustomOrderedResolutions(listOf(SIZE_1920_1080, SIZE_1280_720))
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        parentEffectValidator,
+                    )
+                }
+                .useCaseConfig
+
+        val merger =
+            ResolutionsMerger(
+                SENSOR_SIZE,
+                CAMERA_INFO,
+                setOf(childConfig1, childConfig2),
+                SupportedOutputSizesSorter(CAMERA_INFO, SENSOR_SIZE),
+            )
+        val parentConfig =
+            MutableOptionsBundle.create().apply {
+                insertOption(
+                    UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                    parentEffectValidator,
+                )
+            }
+
+        // Act.
+        val mergedResolutions = merger.getMergedResolutions(parentConfig)
+
+        // Assert: Even though Child 1's fallback 2:1 size (2560x1280) causes 2560x1920 to be a
+        // candidate parent resolution, getMergedResolutions prioritizes effect-supported parent
+        // resolutions (1920x1440) ahead of 2560x1920.
+        assertThat(mergedResolutions.first()).isEqualTo(SIZE_1920_1440)
+        assertThat(mergedResolutions).doesNotContain(SIZE_3264_2448)
+        assertThat(merger.getPreferredChildSize(SIZE_1920_1440, childConfig1))
+            .isEqualTo(SIZE_1920_1440)
+        assertThat(merger.getPreferredChildSize(SIZE_1920_1440, childConfig2))
+            .isEqualTo(SIZE_1920_1080)
+    }
+
+    @Test
+    fun getMergedResolutions_withParentEffect_prioritizesSupportedCustomOrderedRes() {
+        // Arrange: Sensor size 4:3 (3264x2448).
+        // Parent StreamSharing has a multi-target CameraEffect that only supports resolutions with
+        // width <= 2000 and height <= 2000.
+        // Child 1 (e.g., Preview) has standard 4:3 resolutions.
+        // Child 2 (e.g., VideoCapture) has customOrderedResolutions preferring 2560x1440 over
+        // 1920x1080.
+        val (merger, customOrderedChildConfig) =
+            createMergerWithCustomOrderedChild(listOf(SIZE_2560_1440, SIZE_1920_1080))
+
+        // Act.
+        val mergedResolutions = merger.getMergedResolutions(createParentConfigWithValidator())
+
+        // Assert: Child 2's supported custom ordered resolution (1920x1080) is moved ahead of the
+        // unsupported 2560x1440, so the parent selects an effect-supported resolution.
+        assertThat(mergedResolutions.first()).isEqualTo(SIZE_1920_1440)
+        assertThat(merger.getPreferredChildSize(SIZE_1920_1440, customOrderedChildConfig))
+            .isEqualTo(SIZE_1920_1080)
+    }
+
+    @Test
+    fun getMergedResolutions_withParentEffectAndOnlyUnsupportedCustomOrderedRes_keepsIt() {
+        // Arrange: Child 2's customOrderedResolutions contain only 2560x1440, which the parent
+        // effect doesn't support.
+        val (merger, customOrderedChildConfig) =
+            createMergerWithCustomOrderedChild(listOf(SIZE_2560_1440))
+
+        // Act.
+        val mergedResolutions = merger.getMergedResolutions(createParentConfigWithValidator())
+
+        // Assert: the parent resolution 2560x1920 is kept first so Child 2 can obtain 2560x1440
+        // without upscaling.
+        assertThat(mergedResolutions.first()).isEqualTo(SIZE_2560_1920)
+        assertThat(merger.getPreferredChildSize(SIZE_2560_1920, customOrderedChildConfig))
+            .isEqualTo(SIZE_2560_1440)
+    }
+
+    private fun createMergerWithCustomOrderedChild(
+        customOrderedResolutions: List<Size>
+    ): kotlin.Pair<ResolutionsMerger, UseCaseConfig<*>> {
+        val childConfig1 =
+            FakeUseCaseConfig.Builder()
+                .apply {
+                    setSupportedResolutions(
+                        listOf(
+                            Pair.create(
+                                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                                SIZES_4_3.toTypedArray(),
+                            )
+                        )
+                    )
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        VALIDATOR_UP_TO_2000,
+                    )
+                }
+                .useCaseConfig
+        val customOrderedChildConfig =
+            FakeUseCaseConfig.Builder()
+                .apply {
+                    setCustomOrderedResolutions(customOrderedResolutions)
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                        VALIDATOR_UP_TO_2000,
+                    )
+                }
+                .useCaseConfig
+        val merger =
+            ResolutionsMerger(
+                SENSOR_SIZE,
+                CAMERA_INFO,
+                setOf(childConfig1, customOrderedChildConfig),
+                SupportedOutputSizesSorter(CAMERA_INFO, SENSOR_SIZE),
+            )
+        return merger to customOrderedChildConfig
+    }
+
+    private fun createParentConfigWithValidator() =
+        MutableOptionsBundle.create().apply {
+            insertOption(UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR, VALIDATOR_UP_TO_2000)
+        }
+
     companion object {
+        private val VALIDATOR_UP_TO_2000 =
+            Predicate<Size> { size -> size.width <= 2000 && size.height <= 2000 }
+        private val VALIDATOR_WIDTH_UP_TO_1920 = Predicate<Size> { size -> size.width <= 1920 }
+        private val VALIDATOR_HEIGHT_UP_TO_1000 = Predicate<Size> { size -> size.height <= 1000 }
+
         // 4:3 resolutions.
         private val SIZE_3264_2448 = Size(3264, 2448)
         private val SIZE_2560_1920 = Size(2560, 1920)

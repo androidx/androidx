@@ -64,6 +64,7 @@ import androidx.camera.core.impl.StreamUseCase;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.processing.DefaultSurfaceProcessor;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode;
@@ -71,6 +72,7 @@ import androidx.camera.core.processing.concurrent.DualOutConfig;
 import androidx.camera.core.processing.concurrent.DualSurfaceProcessor;
 import androidx.camera.core.processing.concurrent.DualSurfaceProcessorNode;
 import androidx.camera.core.processing.util.OutConfig;
+import androidx.core.util.Predicate;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -145,7 +147,8 @@ public class StreamSharing extends UseCase {
 
     /**
      * Constructs a {@link StreamSharing} with a parent {@link CameraInternal}, children
-     * {@link UseCase}s, and a {@link UseCaseConfigFactory} for getting default {@link UseCase}
+     * {@link UseCase}s, the active {@link CameraEffect}s used to resolve child effect resolution
+     * validators, and a {@link UseCaseConfigFactory} for getting default {@link UseCase}
      * configurations.
      */
     public StreamSharing(@NonNull CameraInternal camera,
@@ -153,6 +156,7 @@ public class StreamSharing extends UseCase {
             @NonNull CompositionSettings compositionSettings,
             @NonNull CompositionSettings secondaryCompositionSettings,
             @NonNull Set<UseCase> children,
+            @NonNull List<CameraEffect> effects,
             @NonNull UseCaseConfigFactory useCaseConfigFactory) {
         super(getDefaultConfig(children));
         mDefaultConfig = getDefaultConfig(children);
@@ -160,6 +164,7 @@ public class StreamSharing extends UseCase {
         mSecondaryCompositionSettings = secondaryCompositionSettings;
         mVirtualCameraAdapter = new VirtualCameraAdapter(
                 camera, secondaryCamera, children, useCaseConfigFactory,
+                resolveChildrenEffectResolutionValidators(children, effects),
                 new Control() {
                     @Override
                     public @NonNull ListenableFuture<Void> jpegSnapshot(
@@ -312,6 +317,49 @@ public class StreamSharing extends UseCase {
 
     public @NonNull Set<UseCase> getChildren() {
         return mVirtualCameraAdapter.getChildren();
+    }
+
+    /**
+     * Returns whether the children's configured effect resolution validators match those resolved
+     * from the given {@link CameraEffect} list.
+     */
+    public boolean hasSameChildrenEffectResolutionValidators(@NonNull List<CameraEffect> effects) {
+        return mVirtualCameraAdapter.hasSameChildrenEffectResolutionValidators(
+                resolveChildrenEffectResolutionValidators(getChildren(), effects));
+    }
+
+    /**
+     * Resolves the effect resolution validator for each child, using the same effect assignment
+     * as {@link CameraUseCaseAdapter#resolveEffects}.
+     *
+     * <p>Only this {@link StreamSharing} is passed as the camera {@link UseCase}. Other app camera
+     * {@link UseCase}s cannot use an effect that targets only the children: such an effect targets
+     * {@link CameraEffect#VIDEO_CAPTURE} or {@link CameraEffect#IMAGE_CAPTURE}, and another camera
+     * {@link UseCase} of the same type would either become a child itself or be rejected by
+     * {@code CameraUseCaseAdapter.isStreamSharingChildrenCombinationValid()}. The internal
+     * Extensions placeholder is not considered.
+     *
+     * <p>A child without its own effect inherits the validator of the effect applied to this
+     * {@link StreamSharing}, since the child's output is derived from the shared stream.
+     */
+    private @NonNull Map<UseCase, Predicate<Size>> resolveChildrenEffectResolutionValidators(
+            @NonNull Set<UseCase> children,
+            @NonNull List<CameraEffect> effects) {
+        Map<UseCase, Predicate<Size>> validators = new HashMap<>();
+        Map<UseCase, CameraEffect> resolvedEffects =
+                CameraUseCaseAdapter.resolveEffects(effects, singletonList(this), children);
+        CameraEffect sharingEffect = resolvedEffects.get(this);
+        Predicate<Size> parentValidator =
+                sharingEffect != null ? sharingEffect.getResolutionValidator() : null;
+        for (UseCase child : children) {
+            CameraEffect childEffect = resolvedEffects.get(child);
+            Predicate<Size> validator =
+                    childEffect != null ? childEffect.getResolutionValidator() : parentValidator;
+            if (validator != null) {
+                validators.put(child, validator);
+            }
+        }
+        return validators;
     }
 
     /**

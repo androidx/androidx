@@ -34,7 +34,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-livedata:2.1.0")
     api(libs.guavaListenableFuture)
     api("androidx.annotation:annotation-experimental:1.4.1")
-    api("androidx.core:core:1.1.0")
+    api("androidx.core:core:1.2.0")
     api("androidx.arch.core:core-common:2.1.0")
     api("androidx.lifecycle:lifecycle-livedata-core:2.3.1")
     implementation(libs.kotlinCoroutinesAndroid)
