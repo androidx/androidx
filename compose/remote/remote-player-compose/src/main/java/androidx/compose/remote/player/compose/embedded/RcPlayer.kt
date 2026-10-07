@@ -338,17 +338,26 @@ public fun RcPlayer(
                     size = it.size
                 }
                 .pointerInput(document, remoteContext, preprocessed, graphContext) {
-                    // Root-level touch forwarding: update ID_TOUCH_POS_X/Y and notify the
-                    // document-level TouchExpressions (those without an enclosing component, i.e.
-                    // CoreDocument.mTouchListeners). Component touch handlers and component-scoped
+                    // Root-level touch forwarding: update ID_TOUCH_POS_X/Y and drive the
+                    // TouchExpressions outside any LayoutComponent (preprocessed
+                    // rootTouchExpressions). Component touch handlers and component-scoped
                     // TouchExpressions are dispatched by their own Compose modifiers, so the
                     // CoreDocument touch methods (which also re-traverse the component tree) are
-                    // deliberately not used here. Document-level TouchListeners have no cancel
-                    // callback, so a cancelled gesture needs no dispatch.
+                    // deliberately not used here.
                     val rootTouchExpressions = preprocessed.rootTouchExpressions
+                    // Publish the touch position before resolving the expressions' variables, so
+                    // their precalculated inputs see this event's position.
                     fun loadRootTouchPosition(pos: Offset) {
                         remoteContext.loadFloat(RemoteContext.ID_TOUCH_POS_X, pos.x)
                         remoteContext.loadFloat(RemoteContext.ID_TOUCH_POS_Y, pos.y)
+                        rootTouchExpressions.fastForEach { te -> te.updateVariables(graphContext) }
+                    }
+                    fun releaseRootTouch(pos: Offset, velocityX: Float, velocityY: Float) {
+                        loadRootTouchPosition(pos)
+                        rootTouchExpressions.fastForEach { te ->
+                            te.touchUp(remoteContext, pos.x, pos.y, velocityX, velocityY)
+                        }
+                        rootTouchExpressions.fastForEach { te -> te.apply(remoteContext) }
                     }
                     val velocityTracker = VelocityTracker()
                     awaitPointerEventScope {
@@ -359,59 +368,55 @@ public fun RcPlayer(
                                     !it.previousPressed && it.pressed
                                 } ?: continue
                             val pointerId = down.id
-                            var consumedByChild = false
+                            var released = false
+                            var lastPos = down.position
                             velocityTracker.resetTracking()
                             velocityTracker.addPointerInputChange(down)
-                            rootTouchExpressions.fastForEach { te ->
-                                te.updateVariables(graphContext)
-                            }
                             loadRootTouchPosition(down.position)
                             rootTouchExpressions.fastForEach { te ->
+                                // Core binds these to the RootLayoutComponent; apply refreshes
+                                // their hit bounds from its size (TouchExpression.updateBounds)
+                                // before the touchDown hit test, as the component handler does.
+                                te.apply(remoteContext)
                                 te.touchDown(remoteContext, down.position.x, down.position.y)
                             }
                             rootTouchExpressions.fastForEach { te -> te.apply(remoteContext) }
-                            while (true) {
-                                val event = awaitPointerEvent(PointerEventPass.Final)
-                                val change =
-                                    event.changes.fastFirstOrNull { it.id == pointerId } ?: break
-                                if (change.isConsumed) {
-                                    consumedByChild = true
-                                }
-                                val pos = change.position
-                                if (!change.pressed) {
-                                    if (!consumedByChild) {
-                                        velocityTracker.addPointerInputChange(change)
-                                        val velocity = velocityTracker.calculateVelocity()
-                                        rootTouchExpressions.fastForEach { te ->
-                                            te.updateVariables(graphContext)
-                                        }
-                                        loadRootTouchPosition(pos)
-                                        rootTouchExpressions.fastForEach { te ->
-                                            te.touchUp(
-                                                remoteContext,
-                                                pos.x,
-                                                pos.y,
-                                                velocity.x,
-                                                velocity.y,
-                                            )
-                                        }
-                                        rootTouchExpressions.fastForEach { te ->
-                                            te.apply(remoteContext)
-                                        }
+                            try {
+                                while (true) {
+                                    val event = awaitPointerEvent(PointerEventPass.Final)
+                                    val change =
+                                        event.changes.fastFirstOrNull { it.id == pointerId }
+                                            ?: break
+                                    if (change.isConsumed) {
+                                        // A child took the gesture: stop forwarding and release
+                                        // at the last forwarded position, without a fling.
+                                        released = true
+                                        releaseRootTouch(lastPos, 0f, 0f)
+                                        break
                                     }
-                                    break
-                                }
-                                if (event.type == PointerEventType.Move) {
+                                    val pos = change.position
                                     velocityTracker.addPointerInputChange(change)
-                                    if (!consumedByChild) {
-                                        rootTouchExpressions.fastForEach { te ->
-                                            te.updateVariables(graphContext)
-                                        }
+                                    if (!change.pressed) {
+                                        val velocity = velocityTracker.calculateVelocity()
+                                        released = true
+                                        releaseRootTouch(pos, velocity.x, velocity.y)
+                                        break
+                                    }
+                                    if (event.type == PointerEventType.Move) {
+                                        lastPos = pos
                                         loadRootTouchPosition(pos)
                                         rootTouchExpressions.fastForEach { te ->
                                             te.touchDrag(remoteContext, pos.x, pos.y)
                                         }
                                     }
+                                }
+                            } finally {
+                                // The pointer disappeared or the handler was cancelled or
+                                // restarted mid-gesture. TouchExpression has no cancel, so
+                                // release at the last position with no velocity and let it settle
+                                // according to its stop mode (as the component handler does).
+                                if (!released) {
+                                    releaseRootTouch(lastPos, 0f, 0f)
                                 }
                             }
                         }
@@ -1166,9 +1171,10 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
                         // that are direct ComponentData children of a component, not those
                         // nested in CanvasOperations / DrawContent. The component supplies the
                         // hit-test bounds (TouchExpression.updateBounds) and scopes dispatch to
-                        // this component's pointerInput. Unbound TouchExpressions are dispatched
-                        // by the root pointer handler via rootTouchExpressions; the player does
-                        // not read CoreDocument.mTouchListeners.
+                        // this component's pointerInput. TouchExpressions outside any
+                        // LayoutComponent (bound by core to the RootLayoutComponent, if any) are
+                        // dispatched by the root pointer handler via rootTouchExpressions; the
+                        // player does not read CoreDocument.mTouchListeners.
                         op.setComponent(enclosingComponent)
                         val list =
                             componentTouchExpressionsMap.getOrPut(enclosingComponent.componentId) {
