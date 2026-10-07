@@ -166,6 +166,7 @@ package androidx.compose.ui {
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final class ComposeUiFlags {
     property public boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
     property public boolean isBypassUnfocusableComposeViewEnabled;
+    property public boolean isClippedTouchBoundsOcclusionFixEnabled;
     property public boolean isFocusRestorationEnabled;
     property public boolean isHardwareNavigationHandlingEnabled;
     property public boolean isInitialFocusOnFocusableAvailable;
@@ -181,6 +182,7 @@ package androidx.compose.ui {
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
     field public static boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
     field public static boolean isBypassUnfocusableComposeViewEnabled;
+    field public static boolean isClippedTouchBoundsOcclusionFixEnabled;
     field public static boolean isFocusRestorationEnabled;
     field public static boolean isHardwareNavigationHandlingEnabled;
     field public static boolean isInitialFocusOnFocusableAvailable;
