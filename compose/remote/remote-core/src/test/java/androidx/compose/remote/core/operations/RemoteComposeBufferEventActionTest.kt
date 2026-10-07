@@ -46,7 +46,7 @@ class RemoteComposeBufferEventActionTest {
         with(buffer.buffer) {
             index = 0
             readOperationType().let { opCode ->
-                assertThat(opCode).isEqualTo(Operations.EVENT_ACTION)
+                assertThat(opCode).isEqualTo(100)
             }
             readInt().let { version -> assertThat(version).isEqualTo(0) }
             readInt().let { eventType -> assertThat(eventType).isEqualTo(EVENT_TYPE_1) }
@@ -113,7 +113,7 @@ class RemoteComposeBufferEventActionTest {
         with(buffer.buffer) {
             index = 0
             readOperationType().let { opCode ->
-                assertThat(opCode).isEqualTo(Operations.EVENT_ACTION)
+                assertThat(opCode).isEqualTo(100)
             }
             readInt().let { version -> assertThat(version).isEqualTo(0) }
             readInt().let { eventType -> assertThat(eventType).isEqualTo(EVENT_TYPE_1) }
@@ -185,7 +185,7 @@ class RemoteComposeBufferEventActionTest {
         with(buffer.buffer) {
             index = 0
             readOperationType().let { opCode ->
-                assertThat(opCode).isEqualTo(Operations.EVENT_ACTION)
+                assertThat(opCode).isEqualTo(100)
             }
             readInt().let { version -> assertThat(version).isEqualTo(0) }
             readInt().let { eventType -> assertThat(eventType).isEqualTo(EVENT_TYPE_1) }
@@ -257,7 +257,7 @@ class RemoteComposeBufferEventActionTest {
         with(buffer.buffer) {
             index = 0
             readOperationType().let { opCode ->
-                assertThat(opCode).isEqualTo(Operations.EVENT_ACTION)
+                assertThat(opCode).isEqualTo(100)
             }
             readInt().let { version -> assertThat(version).isEqualTo(0) }
             readInt().let { eventType -> assertThat(eventType).isEqualTo(EVENT_TYPE_1) }

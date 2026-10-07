@@ -342,7 +342,7 @@ public class Operations {
     ////////////////////////////////////////
     // Communication
     ////////////////////////////////////////
-    public static final int EVENT_ACTION = 110;
+    public static final int EVENT_ACTION = 100;
 
     ////////////////////////////////////////
     // Layout commands
