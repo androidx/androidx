@@ -42,7 +42,7 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.remote.core.CoreDocument
@@ -127,7 +127,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -148,7 +147,6 @@ import androidx.compose.ui.preferredFrameRate
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
@@ -322,8 +320,7 @@ public fun RcPlayer(
         }
 
     val rootCoordsHolder = remember(document) { RootLayoutCoordinatesHolder() }
-    var size by remember { mutableStateOf(IntSize.Zero) }
-    BoxWithConstraints(
+    Box(
         modifier =
             modifier
                 .then(
@@ -340,7 +337,29 @@ public fun RcPlayer(
                     rootCoordsHolder.coordinates = it
                     val position = it.positionOnScreen()
                     document.setOrigin(position.x, position.y)
-                    size = it.size
+                    // Publish the player's placed size to core after layout, matching how child
+                    // components publish theirs (see RcPlayerComponent), rather than writing core
+                    // and snapshot state from composition or draw. Placement precedes draw, so
+                    // draws see the new size in the same frame; composition-phase readers of root
+                    // ComponentValues recompose on the next frame, as they do for child components.
+                    // Only write when the size changed, not on every re-placement (e.g. inside a
+                    // scrolling host), matching RcPlayerComponent.
+                    val size = it.size
+                    if (size != rootCoordsHolder.publishedSize) {
+                        rootCoordsHolder.publishedSize = size
+                        val root = document.rootLayoutComponent
+                        if (root != null) {
+                            root.setWidth(size.width.toFloat())
+                            root.setHeight(size.height.toFloat())
+                            // Re-evaluate the root's ComponentValues (its WIDTH / HEIGHT).
+                            root.updateVariables(remoteContext)
+                        } else {
+                            // Raw draw-list document: mirror CoreDocument.paint, so draws
+                            // positioned by the document size resolve.
+                            document.setWidth(size.width)
+                            document.setHeight(size.height)
+                        }
+                    }
                 }
                 .pointerInput(document, remoteContext, preprocessed, graphContext) {
                     // Root-level touch forwarding: update ID_TOUCH_POS_X/Y and drive the
@@ -485,13 +504,13 @@ public fun RcPlayer(
             LocalRcCustomPlugins provides customPlugins,
             LocalTypefaceResolver provides (typefaceResolver ?: remoteContext.typefaceResolver),
         ) {
-            val rootSize = IntSize(constraints.maxWidth, constraints.maxHeight)
-            if (document.rootLayoutComponent != null) {
-                RcPlayerRootLayoutComponent(rootSize)
+            val root = document.rootLayoutComponent
+            if (root != null) {
+                RcPlayerRootLayoutComponent(root)
             } else {
                 // Raw draw-list document (no layout component tree): render its operations
                 // directly.
-                RcPlayerRawDocument(rootSize)
+                RcPlayerRawDocument()
             }
         }
     }
@@ -586,16 +605,13 @@ public fun RcPlayer(
  * (NPE) for such documents.
  */
 @Composable
-internal fun RcPlayerRawDocument(size: IntSize) {
+internal fun RcPlayerRawDocument() {
     val document = LocalCoreDocument.current
     val remoteContext = LocalRemoteContext.current
     val graph = LocalGraphContext.current
     val textMeasurer = rememberTextMeasurer()
     Canvas(modifier = Modifier.fillMaxSize()) {
-        // Publish the on-screen size as the document dimensions before painting, mirroring
-        // CoreDocument.paint, so draws positioned by the document size resolve.
-        document.setWidth(size.width)
-        document.setHeight(size.height)
+        // The document size is published from the player's onPlaced, which runs before draw.
         executeOperations(
             document.getOperationsReflection(),
             remoteContext,
@@ -606,15 +622,9 @@ internal fun RcPlayerRawDocument(size: IntSize) {
 }
 
 @Composable
-internal fun RcPlayerRootLayoutComponent(size: IntSize) {
-    val document = LocalCoreDocument.current
-    val root: RootLayoutComponent = document.rootLayoutComponent!!
+internal fun RcPlayerRootLayoutComponent(root: RootLayoutComponent) {
     val remoteContext = LocalRemoteContext.current
     val graph = LocalGraphContext.current
-
-    root.setWidth(size.width.toFloat())
-    root.setHeight(size.height.toFloat())
-    root.updateVariables(remoteContext)
 
     val drawOps = remember(root) { root.list.fastFilter { it !is Component } }
     if (drawOps.isNotEmpty()) {
