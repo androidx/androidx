@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalAppFunctionsApi::class)
 
 package androidx.appfunctions.integration.test.agent
 
@@ -47,6 +48,7 @@ import androidx.appfunctions.AppFunctionUriGrant
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.PROPERTY_RETURN_VALUE
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.integration.test.agent.AppSearchMetadataHelper.isDynamicIndexerAvailable
 import androidx.appfunctions.integration.test.agent.TestUtil.assertNotPersistedGranted
 import androidx.appfunctions.integration.test.agent.TestUtil.assertPersistedGranted
