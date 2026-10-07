@@ -22,7 +22,6 @@ import android.graphics.Color as AndroidColor
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.ColorAttribute
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.Utils
@@ -361,7 +360,7 @@ class RemoteColorTest {
 
     @Test
     fun constantValue_rgb_notConstant() {
-        val r = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val r = RemoteTimeVariables.continuousSeconds
         val g = RemoteFloat(0.5f)
         val b = RemoteFloat(0.0f)
         val a = RemoteFloat(1.0f)
@@ -383,7 +382,7 @@ class RemoteColorTest {
 
     @Test
     fun constantValue_hsv_notConstant() {
-        val h = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val h = RemoteTimeVariables.continuousSeconds
         val s = RemoteFloat(1.0f)
         val v = RemoteFloat(1.0f)
         val color = RemoteColor.hsv(hue = h, saturation = s, value = v)
@@ -404,7 +403,7 @@ class RemoteColorTest {
 
     @Test
     fun constantValue_fromAHSV_notConstant() {
-        val h = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val h = RemoteTimeVariables.continuousSeconds
         val s = RemoteFloat(1.0f)
         val v = RemoteFloat(1.0f)
         val color = RemoteColor.fromAHSV(alpha = 255, hue = h, saturation = s, value = v)
@@ -470,7 +469,7 @@ class RemoteColorTest {
             )
         val b =
             RemoteColor.rgb(
-                red = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                red = RemoteTimeVariables.continuousSeconds,
                 green = RemoteFloat(0.5f),
                 blue = RemoteFloat(0.4f),
                 alpha = RemoteFloat(0.8f),
@@ -567,7 +566,7 @@ class RemoteColorTest {
 
     @Test
     fun toDebugString_contextVariable() {
-        val continuousSecFloat = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val colorExpr = RemoteColor.hsv(continuousSecFloat, 1f.rf, 1f.rf)
         assertThat(colorExpr.toDebugString()).isEqualTo("fromHSV(context:continuous_sec, 1.0, 1.0)")
     }

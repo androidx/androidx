@@ -508,7 +508,7 @@ class RemoteIntTest {
     @Test
     fun constantValue_notConstant() {
         assertThat(
-                (RemoteInt(10) - RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC).toRemoteInt())
+                (RemoteInt(10) - RemoteTimeVariables.continuousSeconds.toRemoteInt())
                     .constantValueOrNull
             )
             .isNull()
@@ -532,10 +532,9 @@ class RemoteIntTest {
 
     @Test
     fun hasConstantValue_false() {
-        assertThat(RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC).toRemoteInt().hasConstantValue)
-            .isFalse()
+        assertThat(RemoteTimeVariables.continuousSeconds.toRemoteInt().hasConstantValue).isFalse()
         assertThat(
-                RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+                RemoteTimeVariables.continuousSeconds
                     .toRemoteInt()
                     .toRemoteString(DecimalFormat("#0"))
                     .hasConstantValue
@@ -1248,9 +1247,67 @@ class RemoteIntTest {
 
     @Test
     fun toDebugString_contextVariable() {
-        val continuousSecFloat = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val intExpr = continuousSecFloat.toRemoteInt()
         assertThat(intExpr.toDebugString()).isEqualTo("context:continuous_sec.toRemoteInt()")
+
+        assertThat(RemoteTimeVariables.secondOfHour.toDebugString())
+            .isEqualTo("context:time_in_sec")
+        assertThat(RemoteTimeVariables.minuteOfDay.toDebugString()).isEqualTo("context:time_in_min")
+        assertThat(RemoteTimeVariables.hourOfDay.toDebugString()).isEqualTo("context:time_in_hr")
+        assertThat(RemoteTimeVariables.month.toDebugString()).isEqualTo("context:calendar_month")
+        assertThat(RemoteTimeVariables.dayOfMonth.toDebugString()).isEqualTo("context:day_of_month")
+        assertThat(RemoteTimeVariables.dayOfWeek.toDebugString()).isEqualTo("context:week_day")
+        assertThat(RemoteTimeVariables.dayOfYear.toDebugString()).isEqualTo("context:day_of_year")
+        assertThat(RemoteTimeVariables.year.toDebugString()).isEqualTo("context:year")
+        assertThat(RemoteTimeVariables.utcOffsetSeconds.toDebugString())
+            .isEqualTo("context:offset_to_utc")
+        assertThat(RemoteTimeVariables.epochSecond.toDebugString())
+            .isEqualTo("context:epoch_second")
+    }
+
+    @Test
+    fun companionContextVariables() {
+        val secondOfHourId =
+            (RemoteTimeVariables.secondOfHour + 1).getIdForCreationState(creationState)
+        val minuteOfDayId =
+            (RemoteTimeVariables.minuteOfDay + 1).getIdForCreationState(creationState)
+        val hourOfDayId = (RemoteTimeVariables.hourOfDay + 1).getIdForCreationState(creationState)
+        val monthId = (RemoteTimeVariables.month + 1).getIdForCreationState(creationState)
+        val dayOfMonthId = (RemoteTimeVariables.dayOfMonth + 1).getIdForCreationState(creationState)
+        val dayOfWeekId = (RemoteTimeVariables.dayOfWeek + 1).getIdForCreationState(creationState)
+        val dayOfYearId = (RemoteTimeVariables.dayOfYear + 1).getIdForCreationState(creationState)
+        val yearId = (RemoteTimeVariables.year + 1).getIdForCreationState(creationState)
+        val utcOffsetSecondsId =
+            (RemoteTimeVariables.utcOffsetSeconds + 1).getIdForCreationState(creationState)
+        val epochSecondId =
+            (RemoteTimeVariables.epochSecond + 1).getIdForCreationState(creationState)
+
+        makeAndUpdateCoreDocument {
+            // Mirror TimeVariables.updateTime: calendar fields are loaded as floats (and mirrored
+            // into the integer map by the player), only the epoch second is loaded as an integer.
+            context.loadFloat(RemoteContext.ID_TIME_IN_SEC, 10f)
+            context.loadFloat(RemoteContext.ID_TIME_IN_MIN, 20f)
+            context.loadFloat(RemoteContext.ID_TIME_IN_HR, 30f)
+            context.loadFloat(RemoteContext.ID_CALENDAR_MONTH, 4f)
+            context.loadFloat(RemoteContext.ID_DAY_OF_MONTH, 15f)
+            context.loadFloat(RemoteContext.ID_WEEK_DAY, 2f)
+            context.loadFloat(RemoteContext.ID_DAY_OF_YEAR, 105f)
+            context.loadFloat(RemoteContext.ID_YEAR, 2026f)
+            context.loadFloat(RemoteContext.ID_OFFSET_TO_UTC, 3600f)
+            context.loadInteger(RemoteContext.ID_EPOCH_SECOND, 1700000000)
+        }
+
+        assertThat(context.getInteger(secondOfHourId)).isEqualTo(11)
+        assertThat(context.getInteger(minuteOfDayId)).isEqualTo(21)
+        assertThat(context.getInteger(hourOfDayId)).isEqualTo(31)
+        assertThat(context.getInteger(monthId)).isEqualTo(5)
+        assertThat(context.getInteger(dayOfMonthId)).isEqualTo(16)
+        assertThat(context.getInteger(dayOfWeekId)).isEqualTo(3)
+        assertThat(context.getInteger(dayOfYearId)).isEqualTo(106)
+        assertThat(context.getInteger(yearId)).isEqualTo(2027)
+        assertThat(context.getInteger(utcOffsetSecondsId)).isEqualTo(3601)
+        assertThat(context.getInteger(epochSecondId)).isEqualTo(1700000001)
     }
 
     @Test

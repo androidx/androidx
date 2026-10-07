@@ -442,6 +442,16 @@ internal constructor(
         }
 
         /**
+         * Creates a [RemoteInt] referencing a host system variable, such as
+         * `RemoteContext.ID_YEAR`.
+         *
+         * @param id The system variable ID (an `ID_*` constant, not a long-encoded `INT_*` one).
+         * @return A [RemoteInt] referencing the system variable.
+         */
+        internal fun createForContextId(id: Int): RemoteInt =
+            createForId(id.toLong() + 0x100000000L)
+
+        /**
          * Checks if a given [Long] value is considered a literal (i.e., not an ID or an OP code).
          *
          * @param v The [Long] value to check.
