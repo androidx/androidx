@@ -353,6 +353,9 @@ val WearMaterial3Demos =
                         ComposableDemo("SurfaceTransformation on custom component") {
                             SurfaceTransformationOnCustomComponent()
                         },
+                        ComposableDemo("Animate Scroll To Item") {
+                            TransformingLazyColumnAnimateScrollToItemDemo()
+                        },
                     ),
                 ),
                 Material3DemoCategory("One Handed Gestures", OneHandedGestureDemos),

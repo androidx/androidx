@@ -18,17 +18,24 @@ package androidx.wear.compose.material3.demos
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
@@ -36,13 +43,16 @@ import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.itemsIndexed
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.AppCard
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
@@ -50,6 +60,7 @@ import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.CardDefaults
 import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.EdgeButton
+import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
@@ -59,6 +70,7 @@ import androidx.wear.compose.material3.TitleCard
 import androidx.wear.compose.material3.lazy.TransformationSpec
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import kotlinx.coroutines.launch
 
 @Composable
 fun TransformingLazyColumnNotificationsDemo(
@@ -542,6 +554,107 @@ fun TransformingLazyColumnExpandableCardSample() {
                         },
                         content = { Text("Tap on Card to expand") },
                     )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Demo comparing [TransformingLazyColumnState.animateScrollToItem] and
+ * [TransformingLazyColumnState.scrollToItem] on a [TransformingLazyColumn] with transformed items.
+ */
+@Composable
+fun TransformingLazyColumnAnimateScrollToItemDemo() {
+    val state = rememberTransformingLazyColumnState()
+    val transformationSpec = rememberTransformationSpec()
+    val coroutineScope = rememberCoroutineScope()
+    val notifications = NotificationItem.all.take(12)
+    val targetIndex = notifications.size // target item index (header is at index 0)
+
+    AppScaffold {
+        ScreenScaffold(state) { contentPadding ->
+            Box(modifier = Modifier.fillMaxSize()) {
+                TransformingLazyColumn(
+                    state = state,
+                    contentPadding = contentPadding,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    item {
+                        ListHeader(
+                            transformation = SurfaceTransformation(transformationSpec),
+                            modifier = Modifier.transformedHeight(this, transformationSpec),
+                        ) {
+                            Text("Animate vs Snap Scroll")
+                        }
+                    }
+
+                    items(notifications.size) { index ->
+                        val notification = notifications[index]
+                        val isTarget = index == notifications.size - 1
+                        AppCard(
+                            onClick = {},
+                            appName = { Text("Messages") },
+                            appImage = {
+                                Icon(
+                                    painter = painterResource(id = android.R.drawable.star_big_off),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(CardDefaults.AppImageSize),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            },
+                            time = { Text("${index + 1}m ago") },
+                            title = {
+                                Text(
+                                    if (isTarget) "Target (Last #$index)"
+                                    else "Message #$index: ${notification.title}",
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.labelLarge,
+                                )
+                            },
+                            transformation = SurfaceTransformation(transformationSpec),
+                            modifier = Modifier.transformedHeight(this, transformationSpec),
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(
+                                    notification.body,
+                                    maxLines = 3,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                ) {
+                                    CompactButton(onClick = {}) { Text("Reply") }
+                                    CompactButton(onClick = {}) { Text("Dismiss") }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Control buttons overlay comparing animated scroll vs instant snap scroll
+                Row(
+                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    CompactButton(onClick = { coroutineScope.launch { state.scrollToItem(0) } }) {
+                        Text("Top")
+                    }
+
+                    CompactButton(
+                        onClick = {
+                            coroutineScope.launch { state.animateScrollToItem(targetIndex) }
+                        }
+                    ) {
+                        Text("Animate")
+                    }
+
+                    CompactButton(
+                        onClick = { coroutineScope.launch { state.scrollToItem(targetIndex) } }
+                    ) {
+                        Text("Snap")
+                    }
                 }
             }
         }
