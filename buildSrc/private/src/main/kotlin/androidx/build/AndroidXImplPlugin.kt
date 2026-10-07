@@ -604,7 +604,10 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
 
             // CreateRJavaTask is set up in configureWithKotlinMultiplatformAndroidPlugin
             val rJavaSource = project.files(project.tasks.withType(CreateRJavaTask::class.java))
-            project.configureSourceJarForMultiplatform(rJavaSource)
+            project.configureSourceJarForMultiplatform(
+                rJavaSource,
+                buildFeatures.isIsolatedProjectsEnabled(),
+            )
 
             // Disable any source JAR task(s) added by KotlinMultiplatformPlugin.
             // https://youtrack.jetbrains.com/issue/KT-55881
