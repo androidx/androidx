@@ -29,18 +29,14 @@ import kotlinx.coroutines.launch
 /**
  * The main activity containing all Jetpack Compose Glimmer related demos.
  *
- * If there is a connected device, when this activity is created the first time, it will attempt to
- * automatically launch [ProjectedDemoActivity] on the connected device.
+ * If there is a connected device, when this activity is started, it will attempt to automatically
+ * launch [ProjectedDemoActivity] on the connected device.
  */
 class DemoActivity : BaseDemoActivity() {
-
-    private var hasLaunchedProjectedActivity = false
 
     @OptIn(ExperimentalProjectedApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val isFirstOnCreate = savedInstanceState == null
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
             lifecycleScope.launch {
@@ -48,10 +44,7 @@ class DemoActivity : BaseDemoActivity() {
                     ProjectedContext.isProjectedDeviceConnected(this@DemoActivity, coroutineContext)
                         .collect { isConnected ->
                             // Launch the projected activity if there is a connected device.
-                            if (isConnected && isFirstOnCreate && !hasLaunchedProjectedActivity) {
-                                launchProjectedActivity()
-                                hasLaunchedProjectedActivity = true
-                            }
+                            if (isConnected) launchProjectedActivity()
                         }
                 }
             }
