@@ -1168,7 +1168,7 @@ internal constructor(
             // Update all the merged records to have the new id.
             it.fastForEach { merged ->
                 val (state, stateRecord) = merged
-                stateRecord.snapshotId = nextId
+                stateRecord.snapshotId = snapshotId
                 sync {
                     stateRecord.next = state.firstStateRecord
                     state.prependStateRecord(stateRecord)
@@ -1752,7 +1752,6 @@ internal class NestedMutableSnapshot(
         // here making this code a bit simpler than MutableSnapshot.apply.
 
         val modified = modified
-        val id = snapshotId
         val optimisticMerges =
             if (modified != null) optimisticMerges(parent.snapshotId, this, parent.invalid)
             else null
@@ -1772,6 +1771,9 @@ internal class NestedMutableSnapshot(
                         this.modified = null
                     }
             }
+
+            // Read snapshotId after innerApplyLocked as it may have advanced on merge
+            val id = snapshotId
 
             // Ensure the parent is newer than the current snapshot
             if (parent.snapshotId < id) {
