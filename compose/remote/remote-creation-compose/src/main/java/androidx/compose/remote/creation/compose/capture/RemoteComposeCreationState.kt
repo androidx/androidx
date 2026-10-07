@@ -20,15 +20,14 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
-import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableObjectIntMap
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.nanIdContentEquals
+import androidx.compose.remote.creation.compose.state.nanIdContentHashCode
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -50,8 +49,19 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     public override lateinit var layoutDirection: LayoutDirection
     public final override val densityBehavior: RemoteDensityBehavior
 
-    public val expressionCache: MutableIntObjectMap<RemoteFloat> = MutableIntObjectMap()
-    public val intExpressionCache: MutableIntObjectMap<RemoteInt> = MutableIntObjectMap()
+    /**
+     * Ids of float expressions already written to [document], keyed by their lowered RPN array and
+     * optional animation. Used to write each distinct expression only once.
+     */
+    internal val floatExpressionIds: MutableObjectIntMap<LoweredFloatExpressionKey> =
+        MutableObjectIntMap()
+
+    /**
+     * Ids of integer expressions already written to [document], keyed by their lowered RPN array.
+     * Used to write each distinct expression only once.
+     */
+    internal val intExpressionIds: MutableObjectIntMap<LoweredIntExpressionKey> =
+        MutableObjectIntMap()
     public var ready: Boolean = true
     public override lateinit var document: RemoteComposeWriter
     internal val remoteVariableToId: MutableObjectIntMap<RemoteStateCacheKey> =
@@ -75,6 +85,34 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         key: RemoteStateCacheKey,
         crossinline compute: () -> LongArray,
     ): LongArray = longArrayCache.getOrPut(key) { compute() }
+
+    /**
+     * Returns the id of a float expression with the same lowered [array] and [animation] that was
+     * already written to [document], or calls [write] to write it and caches the resulting id.
+     */
+    internal inline fun getOrPutFloatExpressionId(
+        array: FloatArray,
+        animation: FloatArray?,
+        crossinline write: () -> Int,
+    ): Int = floatExpressionIds.getOrPut(LoweredFloatExpressionKey(array, animation)) { write() }
+
+    /**
+     * Returns the id of an integer expression with the same lowered [array] that was already
+     * written to [document], or calls [write] to write it and caches the resulting id.
+     */
+    internal inline fun getOrPutIntExpressionId(
+        array: LongArray,
+        crossinline write: () -> Int,
+    ): Int = intExpressionIds.getOrPut(LoweredIntExpressionKey(array)) { write() }
+
+    /** Clears all caches tied to the current [document]. */
+    internal fun clearDocumentCaches() {
+        floatExpressionIds.clear()
+        intExpressionIds.clear()
+        remoteVariableToId.clear()
+        floatArrayCache.clear()
+        longArrayCache.clear()
+    }
 
     internal inline fun getOrPutVariableId(
         key: RemoteStateCacheKey,
@@ -155,6 +193,42 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         this.densityBehavior = creationDisplayInfo.densityBehavior
         this.platformImageProvider = platformImageProvider
     }
+}
+
+/**
+ * Key for a lowered float expression: its RPN [array] plus optional [animation].
+ *
+ * The arrays contain NaN-encoded variable ids and operators, so equality uses [nanIdContentEquals];
+ * [FloatArray.contentEquals] would treat e.g. `[a, b, ADD]` and `[c, d, MUL]` as equal.
+ */
+internal class LoweredFloatExpressionKey(
+    private val array: FloatArray,
+    private val animation: FloatArray?,
+) {
+    private val hashCode = 31 * array.nanIdContentHashCode() + animation.nanIdContentHashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LoweredFloatExpressionKey) return false
+        return hashCode == other.hashCode &&
+            array.nanIdContentEquals(other.array) &&
+            animation.nanIdContentEquals(other.animation)
+    }
+
+    override fun hashCode(): Int = hashCode
+}
+
+/** Key for a lowered integer expression, identified by its RPN [array]. */
+internal class LoweredIntExpressionKey(private val array: LongArray) {
+    private val hashCode = array.contentHashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LoweredIntExpressionKey) return false
+        return hashCode == other.hashCode && array.contentEquals(other.array)
+    }
+
+    override fun hashCode(): Int = hashCode
 }
 
 private object NoOpPlatformImageProvider : PlatformImageProvider {
