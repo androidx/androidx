@@ -18,6 +18,7 @@ package androidx.build
 
 import androidx.build.AndroidXImplPlugin.Companion.FINALIZE_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.AndroidXImplPlugin.Companion.ZIP_TEST_CONFIGS_WITH_APKS_TASK
+import androidx.build.aswb.registerASWBTask
 import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask
 import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask.Companion.CREATE_AGGREGATE_BUILD_INFO_FILES_TASK
 import androidx.build.dependencyTracker.AffectedModuleDetector
@@ -190,6 +191,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         registerStudioTask()
         registerIntelliJTask()
         registerVSCodeTask()
+        registerASWBTask()
 
         project.tasks.register("listTaskOutputs", ListTaskOutputsTask::class.java) { task ->
             task.outputFile.set(project.getDistributionDirectory().file("task_outputs.txt"))

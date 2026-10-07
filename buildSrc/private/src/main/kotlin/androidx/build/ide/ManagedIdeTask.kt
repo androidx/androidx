@@ -64,7 +64,9 @@ abstract class ManagedIdeTask : DefaultTask() {
 
     @get:Input abstract val ideName: Property<String>
     @get:Input abstract val ideArchiveName: Property<String>
+
     @get:Input abstract val archiveUrl: Property<String>
+
     @get:Input abstract val licenseAgreementPath: Property<String>
     @get:Input abstract val additionalEnvironmentProperties: MapProperty<String, String>
     @get:Input abstract val requiresProjectList: Property<Boolean>
@@ -102,6 +104,7 @@ abstract class ManagedIdeTask : DefaultTask() {
         private const val EXT_DMG = "dmg"
         private const val EXT_TAR_GZ = "tar.gz"
         private const val EXT_ZIP = "zip"
+        private const val EXT_BURRITO = "burrito"
     }
 
     private fun getArchiveExtension(): String =
@@ -110,6 +113,7 @@ abstract class ManagedIdeTask : DefaultTask() {
                 name.endsWith(EXT_TAR_GZ) -> EXT_TAR_GZ
                 name.endsWith(EXT_DMG) -> EXT_DMG
                 name.endsWith(EXT_ZIP) -> EXT_ZIP
+                name.endsWith(EXT_BURRITO) -> EXT_BURRITO
                 else -> throw GradleException("Unsupported archive extension in filename: $name")
             }
         }
@@ -169,15 +173,36 @@ abstract class ManagedIdeTask : DefaultTask() {
         val successfulInstallFile = File(installDir, "INSTALL_SUCCESSFUL")
         if (!licenseFile.exists() && !successfulInstallFile.exists()) {
             // Attempt to remove any old installations in the parent folder
+            println("install dir parent file: " + installDir.parentFile.absolutePath)
             installDir.parentFile.deleteRecursively()
+
             // Create installation directory and any needed parent directories
             installDir.mkdirs()
-            val archiveFile = getIdeArchiveFile()
-            downloadIdeArchive(archiveUrl.get(), archiveFile)
+
+            val archiveDownloadUrl = archiveUrl.get()
+            if (archiveDownloadUrl.startsWith("gs://")) {
+                downloadIdeFromGcs(archiveDownloadUrl)
+            } else {
+                val archiveFile = getIdeArchiveFile()
+                downloadIdeArchive(archiveDownloadUrl, archiveFile)
+            }
             println("Extracting archive...")
             extractIdeArchive()
             // Finish install process
             successfulInstallFile.createNewFile()
+        }
+    }
+
+    private fun downloadIdeFromGcs(source: String) {
+        println("Downloading $source from GCS...")
+        execOperations.exec { execSpec ->
+            execSpec.executable("gcloud")
+            execSpec.args(
+                "storage",
+                "cp",
+                source,
+                getIdeArchiveFile(),
+            )
         }
     }
 
@@ -229,6 +254,25 @@ abstract class ManagedIdeTask : DefaultTask() {
                     execSpec.executable("unzip")
                     execSpec.args("-q", "-o", fromPath, "-d", toPath)
                 }
+            }
+            EXT_BURRITO -> {
+                val extractDir =
+                    Files.createTempDirectory(archiveFile.parentFile.toPath(), "extract").toFile()
+
+                // untar the burrito file
+                execOperations.exec { execSpec ->
+                    execSpec.executable("tar")
+                    execSpec.args("-x", "-z", "-f", fromPath.trim(), "-C", extractDir.absolutePath)
+                }
+
+                // copy the .app into the installation dir
+                val payloadDir = extractDir.resolve("payload/arm")
+                val app =
+                    payloadDir.listFiles()?.singleOrNull { it.extension == "app" }
+                        ?: throw GradleException("No .app bundle found in $payloadDir")
+                Files.move(app.toPath(), File(toPath, app.name).toPath())
+
+                fileSystemOperations.delete { it.delete(extractDir) }
             }
             else -> throw GradleException("Unsupported archive extension: ${getArchiveExtension()}")
         }
@@ -287,7 +331,13 @@ abstract class ManagedIdeTask : DefaultTask() {
         val stdout = process.inputStream.bufferedReader().use { it.readLines() }
         process.waitFor()
         val projectRootPath = projectRoot.absolutePath
-        val pattern = ideName.get().lowercase()
+        // The `ps` command returns a list of processes along with the absolute path of the
+        // executable being run. The ide is stored in a directory frameworks/support/ideName/...
+        // so we should search for the ideName surrounded by forward slashes representing the
+        // directory. Adding surrounding slashes also prevents the bug where one ide name is part
+        // of another (for example, Android Studio and Android Studio with Blaze) and one is
+        // running, the other one can't be started.
+        val pattern = "/${ideName.get().lowercase()}/"
         return stdout
             .firstOrNull { line -> line.contains(pattern) && line.endsWith(projectRootPath) }
             ?.trim()
