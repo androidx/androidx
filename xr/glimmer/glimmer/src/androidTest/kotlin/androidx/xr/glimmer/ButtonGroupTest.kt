@@ -79,9 +79,10 @@ import org.junit.runner.RunWith
 // available below 33)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class ButtonGroupTest {
-    @get:Rule(0) val rule = createComposeRule(ComposeUiTestConfig(inputMode = InputMode.Keyboard))
+    @get:Rule(order = 0)
+    val rule = createComposeRule(ComposeUiTestConfig(inputMode = InputMode.Keyboard))
 
-    @get:Rule(1) val glimmerRule = createGlimmerRule()
+    @get:Rule(order = 1) val glimmerRule = createGlimmerRule()
 
     @Test
     fun testSemanticsValues() {
