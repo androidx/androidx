@@ -103,7 +103,8 @@ public fun RemoteTimeText(
                 textColor = resolvedColor,
                 fontSize = resolvedFontSize.toPx(),
                 fontFamily = mergedStyle.fontFamily,
-                fontVariationSettings = mergedStyle.combinedFontVariationSettings,
+                fontVariationSettings = mergedStyle.fontVariationSettings,
+                fontFeatureSettings = mergedStyle.fontFeatureSettings,
             )
         }
     }
@@ -127,6 +128,7 @@ private fun RemoteDrawScope.drawTimeText(
     fontSize: RemoteFloat,
     fontFamily: RemoteFontFamily?,
     fontVariationSettings: FontVariation.Settings?,
+    fontFeatureSettings: String?,
 ) {
     val width = width
     val height = height
@@ -136,6 +138,7 @@ private fun RemoteDrawScope.drawTimeText(
         typeface = fontFamily?.toRemoteTypeface() ?: RemoteTypeface.Default
         color = textColor
         this.fontVariationSettings = fontVariationSettings
+        this.fontFeatureSettings = fontFeatureSettings
     }
 
     drawTextOnCircle(

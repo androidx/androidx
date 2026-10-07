@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
+@file:OptIn(ExperimentalRemoteCreationComposeApi::class)
 
 package androidx.compose.remote.creation.compose.capture
 
 import android.annotation.SuppressLint
 import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.toAndroidCap
 import androidx.compose.remote.creation.compose.layout.toAndroidJoin
@@ -32,6 +33,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
+import androidx.compose.remote.creation.compose.text.combineFontSettings
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asAndroidColorFilter
@@ -178,7 +180,8 @@ internal class PaintTracker {
             isChanged = true
         }
 
-        val targetFontVariationSettings = newPaint.fontVariationSettings
+        val targetFontVariationSettings =
+            combineFontSettings(newPaint.fontFeatureSettings, newPaint.fontVariationSettings)
         val settingsToUse =
             if (RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis) {
                 targetFontVariationSettings
