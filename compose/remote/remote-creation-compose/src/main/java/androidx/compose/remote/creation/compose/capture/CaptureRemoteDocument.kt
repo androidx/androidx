@@ -488,11 +488,7 @@ public fun captureRemoteDocument(
                                                 creationDisplayInfo.toCreationDisplayInfo(),
                                                 writerEvents,
                                             )
-                                        creationState.expressionCache.clear()
-                                        creationState.intExpressionCache.clear()
-                                        creationState.remoteVariableToId.clear()
-                                        creationState.floatArrayCache.clear()
-                                        creationState.longArrayCache.clear()
+                                        creationState.clearDocumentCaches()
                                         val remoteCanvas = RemoteCanvas(creationState)
 
                                         check(

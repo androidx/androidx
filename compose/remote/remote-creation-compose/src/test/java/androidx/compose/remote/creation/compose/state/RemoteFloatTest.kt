@@ -97,6 +97,43 @@ class RemoteFloatTest {
     }
 
     @Test
+    fun expressionsWithSameLoweredArray_areWrittenOnce() {
+        val x = createNamedRemoteFloat("x", 1f)
+        val y = createNamedRemoteFloat("y", 1f)
+        fun expression(operand: RemoteFloat, operator: Float) =
+            RemoteFloatExpression(null, RemoteStateInstanceKey()) { creationState ->
+                floatArrayOf(operand.getFloatIdForCreationState(creationState), 2f, operator)
+            }
+
+        val xPlus2 = expression(x, AnimatedFloatExpression.ADD).getIdForCreationState(creationState)
+        val xPlus2Dup =
+            expression(x, AnimatedFloatExpression.ADD).getIdForCreationState(creationState)
+        val xTimes2 =
+            expression(x, AnimatedFloatExpression.MUL).getIdForCreationState(creationState)
+        val yPlus2 = expression(y, AnimatedFloatExpression.ADD).getIdForCreationState(creationState)
+
+        assertThat(xPlus2Dup).isEqualTo(xPlus2)
+        // Operators and variable ids are both NaN-encoded, so these must not be deduplicated.
+        assertThat(xTimes2).isNotEqualTo(xPlus2)
+        assertThat(yPlus2).isNotEqualTo(xPlus2)
+    }
+
+    @Test
+    fun animatedExpressionsWithSameLoweredArray_areWrittenOnce() {
+        val x = createNamedRemoteFloat("x", 1f)
+        val anim = floatArrayOf(1f, CUBIC_STANDARD.toFloat())
+
+        val first = AnimatedRemoteFloat(x, anim.copyOf()).getIdForCreationState(creationState)
+        val second = AnimatedRemoteFloat(x, anim.copyOf()).getIdForCreationState(creationState)
+        val other =
+            AnimatedRemoteFloat(x, floatArrayOf(2f, CUBIC_STANDARD.toFloat()))
+                .getIdForCreationState(creationState)
+
+        assertThat(second).isEqualTo(first)
+        assertThat(other).isNotEqualTo(first)
+    }
+
+    @Test
     fun toRemoteInt() {
         val sum = (RemoteFloat(100f) + RemoteFloat(20f) + RemoteFloat(3f)).toRemoteInt()
         val sumId = sum.getIdForCreationState(creationState)
