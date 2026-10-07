@@ -495,7 +495,14 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun unpersistAnchor_doesNotThrowIllegalStateException() = initOpenXrRuntimeAndRunTest {
+    fun unpersistAnchor_invalidUuid_throwsException() = initOpenXrRuntimeAndRunTest {
+        assertThrows(AnchorInvalidUuidException::class.java) {
+            underTest.unpersistAnchor(UUID(0L, 0L))
+        }
+    }
+
+    @Test
+    fun unpersistAnchor_withValidUuid_succeeds() = initOpenXrRuntimeAndRunTest {
         underTest.unpersistAnchor(UUID.randomUUID())
     }
 

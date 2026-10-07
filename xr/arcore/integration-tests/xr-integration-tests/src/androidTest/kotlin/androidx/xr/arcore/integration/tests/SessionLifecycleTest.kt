@@ -54,7 +54,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@XrDeviceTest
 class SessionLifecycleTest {
 
     @get:Rule
@@ -75,6 +74,7 @@ class SessionLifecycleTest {
         )
 
     @Test
+    @XrDeviceTest
     fun createSession_withDefaultConfig_returnsSuccess() {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
             lateinit var activity: ComponentActivity
@@ -100,6 +100,7 @@ class SessionLifecycleTest {
     }
 
     @Test
+    @XrDeviceTest
     fun createSession_sameContext_returnsCachedInstance() {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
             lateinit var activity: ComponentActivity
@@ -126,6 +127,7 @@ class SessionLifecycleTest {
      * configurations on live hardware without crashing or leaving session in invalid state.
      */
     @Test
+    @XrDeviceTest
     fun configure_combinatorialAndDeterministicRandomConfigs_maintainsValidState() {
         val configs =
             generateCombinatorialConfigs() +
@@ -174,6 +176,7 @@ class SessionLifecycleTest {
      * pipeline synchronization and guard against race conditions.
      */
     @Test
+    @XrDeviceTest
     fun sessionLifecycle_rapidPauseAndResumeCycling_maintainsHealthySession() {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
             lateinit var activity: ComponentActivity
@@ -219,6 +222,7 @@ class SessionLifecycleTest {
     }
 
     @Test
+    @XrDeviceTest
     fun sessionLifecycle_activityRecreate_reinitializesSession() {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
             lateinit var initialActivity: ComponentActivity
@@ -259,6 +263,7 @@ class SessionLifecycleTest {
      * properly releases native resources without leaking handles or failing future initializations.
      */
     @Test
+    @XrDeviceTest
     fun sessionLifecycle_repeatedRecreationChurn_succeedsWithoutNativeLeaks() {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
             repeat(3) {
@@ -278,6 +283,7 @@ class SessionLifecycleTest {
     }
 
     @Test
+    @XrDeviceTest
     fun sessionLifecycle_destroyedLifecycleOwner_cannotCreateSession() {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
             lateinit var activity: ComponentActivity
@@ -306,6 +312,7 @@ class SessionLifecycleTest {
     }
 
     @Test
+    @XrDeviceTest
     fun sessionLifecycle_destroyedSession_cannotConfigure() {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
             lateinit var activity: ComponentActivity
@@ -344,6 +351,7 @@ class SessionLifecycleTest {
     }
 
     @Test
+    @XrDeviceTest
     fun session_stateFlow_emitsValidState() {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
             lateinit var activity: ComponentActivity
