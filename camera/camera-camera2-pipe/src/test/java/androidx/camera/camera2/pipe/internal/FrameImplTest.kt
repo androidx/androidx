@@ -405,8 +405,24 @@ class FrameImplTest {
 
         assertThat(stream1Image.isClosed).isFalse()
         assertThat(stream2Image.isClosed).isFalse()
+        assertThat(stream3Image1.isClosed).isFalse()
         assertThat(stream4Image1.isClosed).isFalse()
         assertThat(stream4Image2.isClosed).isFalse()
+
+        stream1OutputImage.close()
+        stream1OutputImages.forEach { it.close() }
+        stream2OutputImage.close()
+        stream2OutputImages.forEach { it.close() }
+        stream3OutputImage.close()
+        stream3OutputImages.forEach { it.close() }
+        stream4OutputImages.forEach { it.close() }
+        frame2.close()
+
+        assertThat(stream1Image.isClosed).isTrue()
+        assertThat(stream2Image.isClosed).isTrue()
+        assertThat(stream3Image1.isClosed).isTrue()
+        assertThat(stream4Image1.isClosed).isTrue()
+        assertThat(stream4Image2.isClosed).isTrue()
     }
 
     @Test
@@ -437,7 +453,7 @@ class FrameImplTest {
 
         // Close last output
         f2Output.close()
-        assertThat(stream2Image.isClosed).isTrue()
+        assertThat(stream1Image.isClosed).isTrue()
     }
 
     @Test
@@ -493,6 +509,7 @@ class FrameImplTest {
         assertThat(stream4Image1.isClosed).isFalse()
         assertThat(stream4Image2.isClosed).isFalse()
 
+        frame4.close()
         frame5.close()
         assertThat(stream1Image.isClosed).isTrue()
         assertThat(stream2Image.isClosed).isTrue()
@@ -539,6 +556,10 @@ class FrameImplTest {
 
         assertThat(stream2Frame.imageStreams).isEmpty()
         assertThat(allStreamFrame.imageStreams).containsExactly(stream1Id)
+
+        allStreamFrame.close()
+        stream2Frame.close()
+        stream1Frame.close()
     }
 
     @Test
@@ -749,11 +770,6 @@ class FrameImplTest {
 
         // Now the base image is finally closed
         assertThat(stream1Image.isClosed).isTrue()
-    }
-
-    @After
-    fun cleanup() {
-        fakeSurfaces.close()
     }
 
     private fun distributeAllOutputs() {
