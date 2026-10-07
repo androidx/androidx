@@ -33,9 +33,9 @@ import androidx.camera.camera2.pipe.compat.Api35Compat
 import androidx.camera.camera2.pipe.compat.Camera2ColorSpaceProfiles
 import androidx.camera.camera2.pipe.compat.Camera2MultiResolutionStreamConfigurationMap
 import androidx.camera.camera2.pipe.compat.Camera2StreamConfigurationMap
+import androidx.camera.common.CameraCharacteristicsWrapper
 import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
-import androidx.camera.common.UnsafeWrapper
 
 /**
  * [CameraMetadata] is a compatibility wrapper around [CameraCharacteristics].
@@ -47,24 +47,46 @@ import androidx.camera.common.UnsafeWrapper
  * makes behavior that depends on [CameraMetadata] easier to test and reason about.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface CameraMetadata : Metadata, UnsafeWrapper {
-    public operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
-
-    public fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
-        return get(key) ?: default
-    }
-
+public interface CameraMetadata : CameraCharacteristicsWrapper {
     public val camera: CameraId
+
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @get:JvmName("getCameraId")
+    @get:Suppress("ValueClassUsageWithoutJvmName")
+    override val cameraId: CameraId
+        get() = camera
+
     public val isRedacted: Boolean
 
-    public val keys: Set<CameraCharacteristics.Key<*>>
-    public val requestKeys: Set<CaptureRequest.Key<*>>
-    public val resultKeys: Set<CaptureResult.Key<*>>
-    public val sessionKeys: Set<CaptureRequest.Key<*>>
-    public val sessionCharacteristicsKeys: Set<CameraCharacteristics.Key<*>>
+    override val isRestricted: Boolean
+        get() = isRedacted
 
-    public val physicalCameraIds: Set<CameraId>
+    override val keys: Set<CameraCharacteristics.Key<*>>
+    public val requestKeys: Set<CaptureRequest.Key<*>>
+    override val captureRequestKeys: Set<CaptureRequest.Key<*>>
+        get() = requestKeys
+
+    public val resultKeys: Set<CaptureResult.Key<*>>
+    override val captureResultKeys: Set<CaptureResult.Key<*>>
+        get() = resultKeys
+
+    override val sessionKeys: Set<CameraCharacteristics.Key<*>>
+        get() = sessionCharacteristicsKeys
+
+    public val sessionCharacteristicsKeys: Set<CameraCharacteristics.Key<*>>
+    override val sessionCaptureRequestKeys: Set<CaptureRequest.Key<*>>
+
+    override val restrictedKeys: Set<CameraCharacteristics.Key<*>>
+        get() = emptySet()
+
+    override val dynamicKeys: Set<CameraCharacteristics.Key<*>>
+        get() = emptySet()
+
+    override val physicalCameraIds: Set<CameraId>
     public val physicalRequestKeys: Set<CaptureRequest.Key<*>>
+    override val physicalCaptureRequestKeys: Set<CaptureRequest.Key<*>>
+        get() = physicalRequestKeys
+
     public val supportedExtensions: Set<Int>
 
     public suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata
