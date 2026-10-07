@@ -36,7 +36,6 @@ import org.junit.runner.RunWith
 /** Automated integration tests for [XrDevice] hardware and capability inspection. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@XrDeviceTest
 class DeviceCapabilitiesTest {
 
     private lateinit var context: Context
