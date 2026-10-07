@@ -440,7 +440,7 @@ class BackupDeviceShellTest {
     fun installPackageRemovesTheStagedApkWhenPmInstallFails() {
         device.onShell { command ->
             if (command.startsWith("pm install")) {
-                shellOutput("Failure [INSTALL_FAILED_OLDER_SDK]\n")
+                shellOutput("Failure [INSTALL_FAILED_OLDER_SDK]\n", exitCode = 1)
             } else {
                 shellOutput()
             }
@@ -448,11 +448,31 @@ class BackupDeviceShellTest {
         val apk = tempFolder.newFile("app.apk").toPath()
 
         val e =
-            assertFailsWith<IllegalStateException> {
-                runBlocking { shell.installPackage(apk, emptyList()) }
-            }
-        assertEquals("Failed to install APK: Failure [INSTALL_FAILED_OLDER_SDK]", e.message)
+            assertFailsWith<IOException> { runBlocking { shell.installPackage(apk, emptyList()) } }
+        assertEquals(
+            "Failed to install $apk (exit code 1): Failure [INSTALL_FAILED_OLDER_SDK]",
+            e.message,
+        )
         assertEquals("rm -f -- '$STAGED_APK'", device.commands.last())
+    }
+
+    @Test
+    fun installPackageThrowsWhenPmInstallCannotParseTheApk() {
+        val stderr =
+            "\nException occurred while executing 'install':\n" +
+                "java.lang.IllegalArgumentException: Error: Failed to parse APK file\n"
+        device.onShell { command ->
+            if (command.startsWith("pm install")) {
+                shellOutput(stderr = stderr, exitCode = 255)
+            } else {
+                shellOutput()
+            }
+        }
+        val apk = tempFolder.newFile("not_an.apk").toPath()
+
+        val e =
+            assertFailsWith<IOException> { runBlocking { shell.installPackage(apk, emptyList()) } }
+        assertEquals("Failed to install $apk (exit code 255): ${stderr.trim()}", e.message)
     }
 
     @Test

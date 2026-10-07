@@ -206,10 +206,7 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
         // "Failed", or the exception that stopped it, on stderr with a non-zero exit code.
         // Continuing after a failed clear would restore onto the seeded data and let verification
         // pass without a restore having taken place.
-        val succeeded =
-            output.exitCode == 0 &&
-                output.stdout.lineSequence().any { it.trim().equals("Success", ignoreCase = true) }
-        if (!succeeded) {
+        if (!output.reportsSuccess()) {
             throw commandFailure(
                 "Failed to clear app data for $packageName (exit code ${output.exitCode})",
                 output.stderr,
@@ -221,7 +218,7 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
     /**
      * Installs [apkFile] with the package manager [options].
      *
-     * @throws IllegalStateException if the package manager does not report success
+     * @throws IOException if the package manager does not report success
      */
     suspend fun installPackage(apkFile: Path, options: List<String>) {
         withCleanup(cleanup = { removeFile(STAGED_APK_PATH) }) {
@@ -230,9 +227,16 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
 
             logger.info("Installing staged APK via pm install...")
             val flags = options.joinToString(" ") { quoteIfNeeded(it) }
-            val result = exec("pm install $flags ${quote(STAGED_APK_PATH)}")
-            if (!result.stdout.contains("Success", ignoreCase = true)) {
-                throw IllegalStateException("Failed to install APK: ${result.stdout.trim()}")
+            val output = exec("pm install $flags ${quote(STAGED_APK_PATH)}")
+            // `pm install` prints "Success" on stdout. It reports a rejected package as
+            // "Failure [<reason>]" on stdout, and an error such as an unreadable APK on stderr with
+            // a non-zero exit code.
+            if (!output.reportsSuccess()) {
+                throw commandFailure(
+                    "Failed to install $apkFile (exit code ${output.exitCode})",
+                    output.stderr,
+                    output.stdout,
+                )
             }
         }
     }
@@ -306,6 +310,14 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
          */
         private val INSTRUMENTATION_LINE =
             Regex("""instrumentation:([^/\s]+)/(\S+) \(target=([^)\s]+)\)""")
+
+        /**
+         * Returns whether a package manager command succeeded: it exited with 0 and printed a
+         * `Success` line.
+         */
+        private fun ShellCommandOutput.reportsSuccess(): Boolean =
+            exitCode == 0 &&
+                stdout.lineSequence().any { it.trim().equals("Success", ignoreCase = true) }
 
         /**
          * Quotes [arg] as a single POSIX shell word, so the shell passes it through unchanged:
