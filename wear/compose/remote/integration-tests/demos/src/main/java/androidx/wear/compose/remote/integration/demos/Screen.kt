@@ -27,7 +27,11 @@ sealed class Screen(val route: String) {
 
     object RemoteIconButtonDemosScreen : Screen("remoteIconButtonDemosScreen")
 
+    object RemoteIconToggleButtonDemosScreen : Screen("remoteIconToggleButtonDemosScreen")
+
     object RemoteTextButtonDemosScreen : Screen("remoteTextButtonDemosScreen")
+
+    object RemoteTextToggleButtonDemosScreen : Screen("remoteTextToggleButtonDemosScreen")
 
     object RemoteButtonGroupDemosScreen : Screen("remoteButtonGroupDemosScreen")
 
@@ -35,6 +39,9 @@ sealed class Screen(val route: String) {
 
     object RemoteCircularProgressIndicatorDemosScreen :
         Screen("remoteCircularProgressIndicatorDemosScreen")
+
+    object RemoteSegmentedCircularProgressIndicatorDemosScreen :
+        Screen("remoteSegmentedCircularProgressIndicatorDemosScreen")
 
     object RemoteCurvedProgressIndicatorDemosScreen :
         Screen("remoteCurvedProgressIndicatorDemosScreen")

@@ -1,0 +1,114 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.wear.compose.remote.material3.samples
+
+import android.content.Context
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.remote.player.view.RemoteComposePlayer
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.remote.material3.util.ComponentContainer
+import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+
+@MediumTest
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+@RunWith(JUnit4::class)
+class RemoteTextToggleButtonSampleTest {
+    @get:Rule
+    val remoteComposeTestRule =
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+        )
+
+    private val context: Context = ApplicationProvider.getApplicationContext()
+    private val creationDisplayInfo =
+        RemoteCreationDisplayInfo(
+            180,
+            180,
+            context.resources.displayMetrics.densityDpi,
+            context.resources.configuration.fontScale,
+        )
+
+    @Test
+    fun remoteTextToggleButtonSampleTest() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.ANDROIDX,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteTextToggleButtonSample() }
+        }
+    }
+
+    @Test
+    fun remoteTextToggleButtonVariantSampleTest() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.ANDROIDX,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteTextToggleButtonVariantSample() }
+        }
+    }
+
+    @Test
+    fun remoteTextToggleButtonVariantAnimatedSampleTest() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.ANDROIDX,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteTextToggleButtonVariantAnimatedSample() }
+        }
+    }
+
+    @Test
+    fun remoteTextToggleButtonVariantAnimatedSamplePressedTest() {
+        lateinit var player: RemoteComposePlayer
+        remoteComposeTestRule.setContent(
+            profile = RcPlatformProfiles.ANDROIDX,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            update = { player = it },
+        ) {
+            ComponentContainer { RemoteTextToggleButtonVariantAnimatedSample() }
+        }
+        val root =
+            remoteComposeTestRule.composeTestRule.onNodeWithTag(
+                RemoteScreenshotTestRule.ROOT_TEST_TAG
+            )
+
+        root.performTouchInput { down(center) }
+        // The press animation runs on the player's own clock. Touch down requests a repaint, and
+        // the document stops requesting repaints once the animation has finished.
+        remoteComposeTestRule.composeTestRule.waitUntil(PressAnimationTimeoutMillis) {
+            player.document.document.needsRepaint() < 0
+        }
+        remoteComposeTestRule.verifyScreenshot()
+        root.performTouchInput { up() }
+    }
+
+    private companion object {
+        const val PressAnimationTimeoutMillis = 5_000L
+    }
+}

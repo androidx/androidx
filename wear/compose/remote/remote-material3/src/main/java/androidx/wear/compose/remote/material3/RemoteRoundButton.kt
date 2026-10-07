@@ -33,7 +33,10 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.semantics.Role
 
-/** Single-slot base button for [RemoteTextButton] and [RemoteIconButton]. */
+/**
+ * Single-slot base button for [RemoteTextButton], [RemoteIconButton], [RemoteIconToggleButton] and
+ * [RemoteTextToggleButton].
+ */
 @Composable
 @RemoteComposable
 internal fun RemoteRoundButton(
@@ -44,6 +47,7 @@ internal fun RemoteRoundButton(
     border: RemoteDp?,
     borderColor: RemoteColor?,
     shape: RemoteShape,
+    role: Role = Role.Button,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     RemoteBox(
@@ -63,8 +67,8 @@ internal fun RemoteRoundButton(
                     drawContent()
                 }
                 .clip(shape = shape)
-                .clickable(onClick, enabled = enabled.constantValueOrNull ?: false)
-                .semantics(mergeDescendants = true) { role = Role.Button },
+                .clickable(onClick, enabled = enabled.constantValueOrNull ?: false, role = role)
+                .semantics(mergeDescendants = true) { this.role = role },
         content = content,
     )
 }

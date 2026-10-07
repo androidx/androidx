@@ -137,8 +137,24 @@ fun MainScreen(
                 }
                 item {
                     MenuButton(
+                        "RemoteIconToggleButton",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteIconToggleButtonDemosScreen.route)
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
                         "RemoteTextButton",
                         onClick = { navigateToRoute(Screen.RemoteTextButtonDemosScreen.route) },
+                    )
+                }
+                item {
+                    MenuButton(
+                        "RemoteTextToggleButton",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteTextToggleButtonDemosScreen.route)
+                        },
                     )
                 }
                 item {
@@ -212,6 +228,16 @@ fun MainScreen(
                         "RemoteCircularProgressIndicator",
                         onClick = {
                             navigateToRoute(Screen.RemoteCircularProgressIndicatorDemosScreen.route)
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
+                        "RemoteSegmentedCircularProgressIndicator",
+                        onClick = {
+                            navigateToRoute(
+                                Screen.RemoteSegmentedCircularProgressIndicatorDemosScreen.route
+                            )
                         },
                     )
                 }

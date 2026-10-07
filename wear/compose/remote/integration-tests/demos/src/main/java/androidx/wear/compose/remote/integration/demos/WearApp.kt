@@ -50,9 +50,11 @@ import androidx.wear.compose.remote.integration.demos.components.RemoteHorizonta
 import androidx.wear.compose.remote.integration.demos.components.RemoteHorizontalPageIndicator3Demo
 import androidx.wear.compose.remote.integration.demos.components.RemoteIconButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteIconDemos
+import androidx.wear.compose.remote.integration.demos.components.RemoteIconToggleButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteLinearProgressIndicatorDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteOneHandedGestureDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteRadioButtonDemos
+import androidx.wear.compose.remote.integration.demos.components.RemoteSegmentedCircularProgressIndicatorDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteSliderDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteSplitCheckboxButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteSplitRadioButtonDemos
@@ -61,6 +63,7 @@ import androidx.wear.compose.remote.integration.demos.components.RemoteStepperDe
 import androidx.wear.compose.remote.integration.demos.components.RemoteSwitchButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteTextButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteTextDemos
+import androidx.wear.compose.remote.integration.demos.components.RemoteTextToggleButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteTitleCardDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteVerticalPageIndicator10Demo
 import androidx.wear.compose.remote.integration.demos.components.RemoteVerticalPageIndicator3Demo
@@ -144,8 +147,14 @@ fun WearApp(
                 composable(route = Screen.RemoteIconButtonDemosScreen.route) {
                     RemoteIconButtonDemos()
                 }
+                composable(route = Screen.RemoteIconToggleButtonDemosScreen.route) {
+                    RemoteIconToggleButtonDemos()
+                }
                 composable(route = Screen.RemoteTextButtonDemosScreen.route) {
                     RemoteTextButtonDemos()
+                }
+                composable(route = Screen.RemoteTextToggleButtonDemosScreen.route) {
+                    RemoteTextToggleButtonDemos()
                 }
                 composable(route = Screen.RemoteButtonGroupDemosScreen.route) {
                     RemoteButtonGroupDemos()
@@ -176,6 +185,11 @@ fun WearApp(
                 }
                 composable(route = Screen.RemoteCircularProgressIndicatorDemosScreen.route) {
                     RemoteCircularProgressIndicatorDemos()
+                }
+                composable(
+                    route = Screen.RemoteSegmentedCircularProgressIndicatorDemosScreen.route
+                ) {
+                    RemoteSegmentedCircularProgressIndicatorDemos()
                 }
                 composable(route = Screen.RemoteCurvedProgressIndicatorDemosScreen.route) {
                     RemoteCurvedProgressIndicatorDemos()
