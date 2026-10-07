@@ -166,6 +166,22 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
             .toList()
 
     /**
+     * Returns the installed packages whose name contains [filter], as the sorted lines
+     * `package:<path of the base APK>=<package>` that `pm list packages -f` prints for them.
+     *
+     * The package manager installs each package at a new path, so the lines change whenever one of
+     * the packages is installed again.
+     */
+    suspend fun listPackagePaths(filter: String): List<String> =
+        exec("pm list packages -f ${quoteIfNeeded(filter)}")
+            .stdout
+            .lineSequence()
+            .map { it.trim() }
+            .filter { it.startsWith("package:") }
+            .sorted()
+            .toList()
+
+    /**
      * Takes [packageName] out of the stopped state (`FLAG_STOPPED`).
      *
      * Freshly installed or cleared packages are stopped, and `BackupManagerService` skips stopped

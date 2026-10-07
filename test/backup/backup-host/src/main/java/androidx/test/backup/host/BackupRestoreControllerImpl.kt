@@ -386,6 +386,15 @@ internal class BackupRestoreControllerImpl(
         return this
     }
 
+    /**
+     * Returns the installed APK paths of the app and of the other packages whose name contains its
+     * application ID, such as its test APK, or null if none of them is installed.
+     *
+     * The paths change whenever one of these packages is installed again.
+     */
+    suspend fun installedApkPaths(): List<String>? =
+        shell.listPackagePaths(applicationId).ifEmpty { null }
+
     override suspend fun launchApp(
         activityClass: String?,
         intentExtras: Map<String, String>,

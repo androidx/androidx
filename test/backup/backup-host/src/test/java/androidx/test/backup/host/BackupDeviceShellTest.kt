@@ -328,6 +328,24 @@ class BackupDeviceShellTest {
     }
 
     @Test
+    fun listPackagePathsReturnsTheSortedLinesOfThePackagesThatMatchTheFilter() = runBlocking {
+        val app = "package:/data/app/~~bW9Kg==/com.example.app-aXd2Q==/base.apk=com.example.app"
+        val testApk =
+            "package:/data/app/~~Zr3Fq==/com.example.app.test-Qm1Lp==/base.apk=com.example.app.test"
+        device.onShell { shellOutput("$app\n$testApk\n") }
+
+        assertEquals(listOf(testApk, app), shell.listPackagePaths("com.example.app"))
+        assertEquals(listOf("pm list packages -f com.example.app"), device.commands)
+    }
+
+    @Test
+    fun listPackagePathsReturnsNothingWhenNoPackageMatches() = runBlocking {
+        device.onShell { shellOutput() }
+
+        assertEquals(emptyList(), shell.listPackagePaths("com.example.app"))
+    }
+
+    @Test
     fun unstopPackageStartsTheLauncherActivityThenGoesHome() = runBlocking {
         device.onShell { command ->
             if (command.contains("resolve-activity")) {

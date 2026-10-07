@@ -244,39 +244,7 @@ internal constructor(
 
         // Automatically install tested APKs (main app) and test APKs if provided by AGP test suite
         // task
-        val testedApkPath = suiteProperty(suiteProperties, PROP_TESTED_APKS)
-        val testApkPath = suiteProperty(suiteProperties, PROP_TEST_APKS)
-
-        fun installApkFromPath(path: String) {
-            if (path.isEmpty()) return
-            val file = java.io.File(path)
-            if (file.exists()) {
-                if (file.isDirectory) {
-                    file.listFiles()?.forEach { child ->
-                        if (child.name.endsWith(".apk", ignoreCase = true)) {
-                            logger.info("Automatically installing child APK: ${child.absolutePath}")
-                            runBlocking { deviceImpl.installApk(child.toPath()) }
-                        }
-                    }
-                } else if (file.name.endsWith(".apk", ignoreCase = true)) {
-                    logger.info("Automatically installing APK: ${file.absolutePath}")
-                    runBlocking { deviceImpl.installApk(file.toPath()) }
-                }
-            }
-        }
-
-        if (!testedApkPath.isNullOrEmpty()) {
-            logger.info("Automatically installing tested APK from: $testedApkPath")
-            testedApkPath.split(java.io.File.pathSeparator).forEach { path ->
-                installApkFromPath(path)
-            }
-        }
-        if (!testApkPath.isNullOrEmpty()) {
-            logger.info("Automatically installing test APK from: $testApkPath")
-            testApkPath.split(java.io.File.pathSeparator).forEach { path ->
-                installApkFromPath(path)
-            }
-        }
+        runBlocking { installOnce(extensionContext, deviceImpl, suiteApks(suiteProperties)) }
 
         // Proactively unlock the emulator lockscreen/keyguard to ensure Credential Protected
         // storage is decrypted and accessible
@@ -307,6 +275,47 @@ internal constructor(
     }
 
     /**
+     * Installs [apks] on the device of [controller], unless this test run already installed them
+     * there and neither the app nor its test APK has been installed again or uninstalled since.
+     *
+     * The installed APK paths identify an installation, since they change on every install. A test
+     * that installs another version of the app or of its test APK, or uninstalls one of them, thus
+     * gets [apks] installed again for the next test.
+     */
+    internal suspend fun installOnce(
+        context: ExtensionContext,
+        controller: BackupRestoreControllerImpl,
+        apks: List<File>,
+    ) {
+        if (apks.isEmpty()) return
+        val store = context.root.getStore(NAMESPACE)
+        val key = InstalledApp(controller.serialNumber, controller.applicationId, apks)
+        val installed = store.get(key)
+        if (installed != null && installed == controller.installedApkPaths()) {
+            logger.info("APKs already installed on ${controller.serialNumber}.")
+            return
+        }
+        for (apk in apks) {
+            logger.info("Automatically installing APK: ${apk.absolutePath}")
+            controller.installApk(apk.toPath())
+        }
+        store.put(key, controller.installedApkPaths())
+    }
+
+    /**
+     * Returns the APK files in [paths]: APK files and directories of APK files, separated by
+     * [File.pathSeparator].
+     */
+    internal fun apkFilesIn(paths: String?): List<File> =
+        paths
+            .orEmpty()
+            .split(File.pathSeparator)
+            .filter { it.isNotEmpty() }
+            .map { File(it) }
+            .flatMap { if (it.isDirectory) it.listFiles().orEmpty().asList() else listOf(it) }
+            .filter { it.isFile && it.name.endsWith(".apk", ignoreCase = true) }
+
+    /**
      * Returns the inputs that an Android Gradle Plugin test suite passes to its tests in the
      * properties file at [path], or no properties outside of a test suite or if the file can't be
      * read.
@@ -334,6 +343,11 @@ internal constructor(
                 "No application ID for ${testClass.name}: annotate it with @BackupRestoreConfig, " +
                     "or run it in an Android Gradle Plugin backup test suite."
             )
+
+    /** Returns the APK files of the tested app, then of the test app, of [suiteProperties]. */
+    internal fun suiteApks(suiteProperties: Properties): List<File> =
+        apkFilesIn(suiteProperty(suiteProperties, PROP_TESTED_APKS)) +
+            apkFilesIn(suiteProperty(suiteProperties, PROP_TEST_APKS))
 
     /** Returns the test suite input [name] of [suiteProperties], or else the system property. */
     private fun suiteProperty(suiteProperties: Properties, name: String): String? =
@@ -370,6 +384,13 @@ internal constructor(
             }
         }
     }
+
+    /** Store key of the installed APK paths after [installOnce] installed [apks] on a device. */
+    private data class InstalledApp(
+        val serialNumber: String,
+        val applicationId: String,
+        val apks: List<File>,
+    )
 
     /** Configuration constants and system property keys for device resolution and setup. */
     private companion object {

@@ -28,6 +28,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.jupiter.api.extension.ExtensionContext
@@ -64,6 +65,10 @@ class BackupRestoreExtensionTest {
 
     private val rootStore = FakeStore()
     private val context = contextWithRootStore(rootStore)
+    private val device = FakeAdbDevice()
+
+    /** The base APK paths of the packages installed on [device], by package name. */
+    private val installedPackages = mutableMapOf<String, String>()
 
     @Test
     fun testSupportsParameter() {
@@ -222,6 +227,112 @@ class BackupRestoreExtensionTest {
     }
 
     @Test
+    fun installOnceInstallsTheApksOnTheFirstResolution() = runBlocking {
+        simulatePackageManager()
+
+        BackupRestoreExtension().installOnce(context, controller(), APKS)
+
+        assertEquals(2, pmInstalls())
+    }
+
+    /** Every test class has its own extension, and every resolution its own controller. */
+    @Test
+    fun installOnceDoesNotReinstallTheApksWhileTheAppIsUnchanged() = runBlocking {
+        simulatePackageManager()
+        val extension = BackupRestoreExtension()
+        extension.installOnce(context, controller(), APKS)
+
+        extension.installOnce(context, controller(), APKS)
+        BackupRestoreExtension().installOnce(context, controller(), APKS)
+
+        assertEquals(2, pmInstalls())
+    }
+
+    @Test
+    fun installOnceReinstallsTheApksAfterATestInstalledTheAppAgain() = runBlocking {
+        simulatePackageManager()
+        val extension = BackupRestoreExtension()
+        extension.installOnce(context, controller(), APKS)
+        controller().installApk(Path.of("app-v1.apk"))
+
+        extension.installOnce(context, controller(), APKS)
+
+        assertEquals(5, pmInstalls())
+    }
+
+    @Test
+    fun installOnceReinstallsTheApksAfterATestUninstalledTheApp() = runBlocking {
+        simulatePackageManager()
+        val extension = BackupRestoreExtension()
+        extension.installOnce(context, controller(), APKS)
+        installedPackages.remove(PACKAGE)
+
+        extension.installOnce(context, controller(), APKS)
+
+        assertEquals(4, pmInstalls())
+    }
+
+    @Test
+    fun installOnceReinstallsTheApksAfterATestInstalledTheTestApkAgain() = runBlocking {
+        simulatePackageManager()
+        val extension = BackupRestoreExtension()
+        extension.installOnce(context, controller(), APKS)
+        installedPackages[TEST_PACKAGE] = "/data/app/~~other==/$TEST_PACKAGE==/base.apk"
+
+        extension.installOnce(context, controller(), APKS)
+
+        assertEquals(4, pmInstalls())
+    }
+
+    @Test
+    fun installOnceInstallsOtherApksForTheSameApp() = runBlocking {
+        simulatePackageManager()
+        val extension = BackupRestoreExtension()
+        extension.installOnce(context, controller(), APKS)
+
+        extension.installOnce(context, controller(), listOf(File("app-release.apk")))
+
+        assertEquals(3, pmInstalls())
+    }
+
+    @Test
+    fun installOnceRunsNoCommandWithoutApks() = runBlocking {
+        BackupRestoreExtension().installOnce(context, controller(), emptyList())
+
+        assertEquals(emptyList(), device.commands)
+    }
+
+    @Test
+    fun apkFilesInListsTheApksAndTheApksInDirectories() {
+        val apk = tempFolder.newFile("app.apk")
+        val dir = tempFolder.newFolder("test")
+        val apkInDir = File(dir, "app-test.apk").apply { createNewFile() }
+        File(dir, "output-metadata.json").createNewFile()
+        val missing = File(tempFolder.root, "missing.apk")
+        val paths = listOf(apk, dir, missing).joinToString(File.pathSeparator)
+
+        assertEquals(listOf(apk, apkInDir), BackupRestoreExtension().apkFilesIn(paths))
+        assertEquals(emptyList(), BackupRestoreExtension().apkFilesIn(null))
+    }
+
+    @Test
+    fun suiteApksListsTheTestedApksThenTheTestApks() {
+        val testedApk = tempFolder.newFile("app-debug.apk")
+        val testApk = tempFolder.newFile("app-debug-backupTest.apk")
+        val extension = BackupRestoreExtension()
+        val suiteFile =
+            suitePropertiesFile(
+                "com.android.agp.test.TEST_APKS" to testApk.path,
+                "com.android.agp.test.TESTED_APKS" to testedApk.path,
+            )
+
+        assertEquals(
+            listOf(testedApk, testApk),
+            extension.suiteApks(extension.suiteProperties(suiteFile.path)),
+        )
+    }
+
+    @Test
     fun thereAreNoSuitePropertiesOutsideOfATestSuite() {
         val extension = BackupRestoreExtension()
 
@@ -246,6 +357,35 @@ class BackupRestoreExtensionTest {
         file.writer(Charsets.UTF_8).use { properties.store(it, "Input properties for test engine") }
         return file
     }
+
+    private fun controller() = BackupRestoreControllerImpl(device.session, FAKE_SERIAL, 34, PACKAGE)
+
+    /**
+     * Makes [device] install every APK, and list [installedPackages] for `pm list packages -f`.
+     * Like the package manager, it gives the packages new paths on every install. It does not tell
+     * the APKs apart, so every install moves both the app and its test APK.
+     */
+    private fun simulatePackageManager() {
+        device.onShell { command ->
+            when {
+                command.startsWith("pm install ") -> {
+                    for (pkg in listOf(PACKAGE, TEST_PACKAGE)) {
+                        installedPackages[pkg] = "/data/app/~~${pmInstalls()}==/$pkg==/base.apk"
+                    }
+                    shellOutput("Success\n")
+                }
+                command == "pm list packages -f $PACKAGE" ->
+                    shellOutput(
+                        installedPackages.entries.joinToString("") { (pkg, path) ->
+                            "package:$path=$pkg\n"
+                        }
+                    )
+                else -> null
+            }
+        }
+    }
+
+    private fun pmInstalls() = device.commands.count { it.startsWith("pm install ") }
 
     /**
      * An [ExtensionContext.Store] that closes its [CloseableResource]s on [closeAll], as JUnit does
@@ -283,8 +423,16 @@ class BackupRestoreExtensionTest {
     }
 
     private companion object {
+        const val PACKAGE = "com.example.app"
+
+        /** The package of the test APK, which AGP names after the app. */
+        const val TEST_PACKAGE = "$PACKAGE.test"
+
         /** Test suite input with the application ID of the tested app. */
         const val TESTED_APPLICATION_ID = "com.android.junit.engine.tested.application.id"
+
+        /** The APKs of a test suite: the app, then the test APK. */
+        val APKS = listOf(File("app-debug.apk"), File("app-debug-backupTest.apk"))
 
         /** Returns a root [ExtensionContext] whose store, in any namespace, is [store]. */
         fun contextWithRootStore(store: ExtensionContext.Store): ExtensionContext {
