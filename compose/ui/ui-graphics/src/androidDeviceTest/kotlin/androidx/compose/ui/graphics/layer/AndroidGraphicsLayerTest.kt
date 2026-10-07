@@ -133,12 +133,16 @@ class AndroidGraphicsLayerTest {
         }
         var provider: ColorProvider? = ColorProvider()
         var graphicsLayer: GraphicsLayer? = null
+        var recordedDensity = 0f
         graphicsLayerTest(
             block = { graphicsContext ->
                 graphicsContext.createGraphicsLayer().apply {
                     graphicsLayer = this
                     assertEquals(IntSize.Zero, this.size)
-                    record { drawRect(provider!!.color) }
+                    record {
+                        recordedDensity = density
+                        drawRect(provider!!.color)
+                    }
                 }
             },
             verify = {
@@ -149,6 +153,7 @@ class AndroidGraphicsLayerTest {
                     .toImageBitmap()
                     .toPixelMap()
                     .verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
+                assertEquals(1f, recordedDensity)
             },
             verifySoftwareRender = false, // Only supported in hardware accelerated use cases
         )
