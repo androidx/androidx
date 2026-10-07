@@ -118,7 +118,9 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
     }
 
     override fun unpersistAnchor(uuid: UUID) {
-        check(nativeUnpersistAnchor(uuid)) { "Failed to unpersist anchor." }
+        if (!nativeUnpersistAnchor(uuid)) {
+            throw AnchorInvalidUuidException()
+        }
     }
 
     internal val xrResources = XrResources(timeSource)

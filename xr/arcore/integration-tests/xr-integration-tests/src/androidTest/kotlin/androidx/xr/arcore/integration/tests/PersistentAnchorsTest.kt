@@ -59,7 +59,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@XrDeviceTest
 class PersistentAnchorsTest {
 
     @get:Rule
@@ -133,7 +132,18 @@ class PersistentAnchorsTest {
         checkNotNull(result) { "Timed out waiting for anchor to be unpersisted" }
     }
 
+    private fun assertPoseEquals(actual: Pose, expected: Pose, epsilon: Float = 1e-4f) {
+        assertThat(actual.translation.x).isWithin(epsilon).of(expected.translation.x)
+        assertThat(actual.translation.y).isWithin(epsilon).of(expected.translation.y)
+        assertThat(actual.translation.z).isWithin(epsilon).of(expected.translation.z)
+        assertThat(actual.rotation.x).isWithin(epsilon).of(expected.rotation.x)
+        assertThat(actual.rotation.y).isWithin(epsilon).of(expected.rotation.y)
+        assertThat(actual.rotation.z).isWithin(epsilon).of(expected.rotation.z)
+        assertThat(actual.rotation.w).isWithin(epsilon).of(expected.rotation.w)
+    }
+
     @Test
+    @XrDeviceTest
     fun createAnchor_withValidPose_returnsAnchorCreateSuccess() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
@@ -144,12 +154,13 @@ class PersistentAnchorsTest {
 
                 check(result is AnchorCreateSuccess)
                 val anchor = result.anchor
-                assertThat(anchor.state.value.pose).isEqualTo(testPose)
+                assertPoseEquals(anchor.state.value.pose, testPose)
             }
         }
     }
 
     @Test
+    @XrDeviceTest
     fun persistAnchor_whenAnchorPersistenceEnabled_returnsValidUuid() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
@@ -170,6 +181,7 @@ class PersistentAnchorsTest {
     }
 
     @Test
+    @XrDeviceTest
     fun getPersistedAnchorUuids_whenPersistenceDisabled_throwsIllegalStateException() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
@@ -183,6 +195,7 @@ class PersistentAnchorsTest {
     }
 
     @Test
+    @XrDeviceTest
     fun persistAnchor_whenPersistenceDisabled_throwsIllegalStateException() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
@@ -197,6 +210,7 @@ class PersistentAnchorsTest {
     }
 
     @Test
+    @XrDeviceTest
     fun loadAnchor_withPersistedUuid_returnsAnchorCreateSuccess() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
@@ -210,7 +224,7 @@ class PersistentAnchorsTest {
 
                     check(loadResult is AnchorCreateSuccess)
                     val loadedAnchor = loadResult.anchor
-                    assertThat(loadedAnchor.state.value.pose).isEqualTo(Pose.Identity)
+                    assertPoseEquals(loadedAnchor.state.value.pose, Pose.Identity)
                 } finally {
                     runCatching { unpersistAnchorAndWait(session, uuid) }
                 }
@@ -219,6 +233,7 @@ class PersistentAnchorsTest {
     }
 
     @Test
+    @XrDeviceTest
     fun loadAnchor_withInvalidUuid_throwsAnchorInvalidUuidException() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
@@ -232,6 +247,7 @@ class PersistentAnchorsTest {
     }
 
     @Test
+    @XrDeviceTest
     fun loadAnchor_whenPersistenceDisabled_throwsIllegalStateException() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
@@ -245,6 +261,7 @@ class PersistentAnchorsTest {
     }
 
     @Test
+    @XrDeviceTest
     fun unpersistAnchor_removesUuidFromPersistedList() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
@@ -266,16 +283,14 @@ class PersistentAnchorsTest {
         }
     }
 
-    // TODO(b/565784971): OpenXrPerceptionManager.unpersistAnchor currently throws
-    // IllegalStateException via check(). Update to expect AnchorInvalidUuidException
-    // once arcore-openxr is updated.
     @Test
-    fun unpersistAnchor_withInvalidUuid_throwsIllegalStateException() {
+    @XrDeviceTest
+    fun unpersistAnchor_withInvalidUuid_throwsAnchorInvalidUuidException() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
                 val session = createSessionWithPersistence(scenario)
 
-                assertFailsWith<IllegalStateException> {
+                assertFailsWith<AnchorInvalidUuidException> {
                     Anchor.unpersist(session, UUID.randomUUID())
                 }
             }
@@ -283,6 +298,7 @@ class PersistentAnchorsTest {
     }
 
     @Test
+    @XrDeviceTest
     fun unpersistAnchor_whenPersistenceDisabled_throwsIllegalStateException() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
@@ -296,6 +312,7 @@ class PersistentAnchorsTest {
     }
 
     @Test
+    @XrDeviceTest
     fun detachAnchor_completesSuccessfully() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
