@@ -147,5 +147,5 @@ public expect class SavedStateRegistry {
      * @param key identifier of the container
      * @return existing or newly created child [SavedStateContainer] instance
      */
-    @MainThread public fun createOrGetContainer(key: String): SavedStateContainer
+    @MainThread public fun getOrCreateContainer(key: String): SavedStateContainer
 }

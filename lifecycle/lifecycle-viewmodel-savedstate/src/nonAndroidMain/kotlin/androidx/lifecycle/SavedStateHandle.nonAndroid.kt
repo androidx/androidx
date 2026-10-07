@@ -86,12 +86,12 @@ public actual class SavedStateHandle {
     @MainThread public actual fun asContainer(): SavedStateContainer = impl.asContainer()
 
     @MainThread
-    public actual fun createOrGetContainer(key: String): SavedStateContainer =
-        impl.createOrGetContainer(key)
+    public actual fun getOrCreateContainer(key: String): SavedStateContainer =
+        impl.getOrCreateContainer(key)
 
     @MainThread
-    public actual fun createOrGetSavedStateHandle(key: String): SavedStateHandle =
-        SavedStateHandle(impl.createOrGetContainer(key))
+    public actual fun getOrCreateSavedStateHandle(key: String): SavedStateHandle =
+        SavedStateHandle(impl.getOrCreateContainer(key))
 
     public actual companion object {
 

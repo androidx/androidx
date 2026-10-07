@@ -238,7 +238,7 @@ public expect class SavedStateHandle {
      * @param key identifier of the container
      * @return existing or newly created child [SavedStateContainer] instance
      */
-    @MainThread public fun createOrGetContainer(key: String): SavedStateContainer
+    @MainThread public fun getOrCreateContainer(key: String): SavedStateContainer
 
     /**
      * Retrieves an existing nested [SavedStateHandle] associated with [key], or creates and
@@ -247,7 +247,7 @@ public expect class SavedStateHandle {
      * @param key identifier of the child handle
      * @return existing or newly created child [SavedStateHandle] instance
      */
-    @MainThread public fun createOrGetSavedStateHandle(key: String): SavedStateHandle
+    @MainThread public fun getOrCreateSavedStateHandle(key: String): SavedStateHandle
 
     public companion object {
 

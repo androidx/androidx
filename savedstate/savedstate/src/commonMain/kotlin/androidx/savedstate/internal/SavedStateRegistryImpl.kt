@@ -43,7 +43,7 @@ internal class SavedStateRegistryImpl(
 
     fun asContainer(): SavedStateContainer = container
 
-    fun createOrGetContainer(key: String): SavedStateContainer = container.createOrGetContainer(key)
+    fun getOrCreateContainer(key: String): SavedStateContainer = container.getOrCreateContainer(key)
 
     override fun saveState(): SavedState {
         return container.saveState()
