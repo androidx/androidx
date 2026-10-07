@@ -95,6 +95,8 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
      *
      * Targets [component] when it is not null, and otherwise lets the system resolve the intent
      * within [packageName].
+     *
+     * @throws IOException if the activity does not start
      */
     suspend fun startActivity(
         action: String,
@@ -116,7 +118,20 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
             }
         }
         logger.info("Launching app via am start: $command")
-        exec(command)
+        val output = exec(command)
+        // With -W, `am start` reports an activity that it did not start, such as one that does
+        // not exist, as an "Error" line on stdout, and still exits with 0. Outcomes that leave the
+        // activity running, such as bringing its task to the front, are "Warning" lines.
+        val started =
+            output.exitCode == 0 &&
+                output.stdout.lineSequence().none { it.trim().startsWith("Error") }
+        if (!started) {
+            throw commandFailure(
+                "Failed to start ${component ?: packageName} (exit code ${output.exitCode})",
+                output.stderr,
+                output.stdout,
+            )
+        }
     }
 
     /**

@@ -199,6 +199,82 @@ class BackupDeviceShellTest {
     }
 
     @Test
+    fun startActivityThrowsWhenTheActivityDoesNotExist() {
+        // `am start -W` exits with 0 here.
+        val stdout =
+            "Starting: Intent { act=android.intent.action.MAIN cmp=com.example.app/.Missing }\n" +
+                "Error type 3\n" +
+                "Error: Activity class {com.example.app/com.example.app.Missing} does not exist.\n"
+        device.onShell { shellOutput(stdout = stdout) }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { startMainActivity("com.example.app/.Missing") }
+            }
+
+        assertEquals(
+            "Failed to start com.example.app/.Missing (exit code 0): ${stdout.trim()}",
+            e.message,
+        )
+    }
+
+    @Test
+    fun startActivityThrowsWhenTheIntentDoesNotResolve() {
+        val stdout =
+            "Starting: Intent { act=android.intent.action.MAIN pkg=com.example.app }\n" +
+                "Error: Activity not started, unable to resolve Intent " +
+                "{ act=android.intent.action.MAIN flg=0x10000000 pkg=com.example.app }\n"
+        device.onShell { shellOutput(stdout = stdout) }
+
+        val e = assertFailsWith<IOException> { runBlocking { startMainActivity(component = null) } }
+
+        assertEquals("Failed to start com.example.app (exit code 0): ${stdout.trim()}", e.message)
+    }
+
+    @Test
+    fun startActivityThrowsWhenAmStartFails() {
+        val stdout = "Starting: Intent { cmp=com.example.app/.Private }\n"
+        val stderr =
+            "\nException occurred while executing 'start':\n" +
+                "java.lang.SecurityException: Permission Denial: starting Intent " +
+                "{ cmp=com.example.app/.Private } not exported from uid 10123\n"
+        device.onShell { shellOutput(stdout = stdout, stderr = stderr, exitCode = 255) }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { startMainActivity("com.example.app/.Private") }
+            }
+
+        assertEquals(
+            "Failed to start com.example.app/.Private (exit code 255): " +
+                "${stderr.trim()} ${stdout.trim()}",
+            e.message,
+        )
+    }
+
+    @Test
+    fun startActivityAcceptsAnActivityThatIsAlreadyRunning() = runBlocking {
+        device.onShell {
+            shellOutput(
+                stdout =
+                    "Starting: Intent { act=android.intent.action.MAIN cmp=com.example.app/.Main }\n" +
+                        "Warning: Activity not started, its current task has been brought to " +
+                        "the front\n" +
+                        "Status: ok\n" +
+                        "LaunchState: HOT\n" +
+                        "Activity: com.example.app/.Main\n" +
+                        "TotalTime: 923\n" +
+                        "WaitTime: 925\n" +
+                        "Complete\n"
+            )
+        }
+
+        startMainActivity("com.example.app/.Main")
+
+        assertEquals(1, device.commands.size)
+    }
+
+    @Test
     fun resolveLauncherActivitySkipsTheOtherResolveFields() = runBlocking {
         device.onShell {
             shellOutput(RESOLVE_OUTPUT_PREFIX + "com.example.app/.ui.Main\$Launcher\n")
@@ -583,6 +659,17 @@ class BackupDeviceShellTest {
         device.onShell { command ->
             if (command == "date +%s") shellOutput("$epochSeconds\n") else logcat
         }
+    }
+
+    /** Starts the main activity [component], or resolves one within [PACKAGE] if it is null. */
+    private suspend fun startMainActivity(component: String?) {
+        shell.startActivity(
+            action = BackupDeviceShell.ACTION_MAIN,
+            category = null,
+            component = component,
+            packageName = PACKAGE,
+            stringExtras = emptyMap(),
+        )
     }
 
     private companion object {

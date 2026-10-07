@@ -315,6 +315,33 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
+    fun launchAppThrowsWhenTheActivityDoesNotExist() {
+        device.onShell { command ->
+            if (command.startsWith("am start")) {
+                shellOutput(
+                    "Starting: Intent { act=android.intent.action.MAIN " +
+                        "cmp=$PACKAGE/.DoesNotExistActivity }\n" +
+                        "Error type 3\n" +
+                        "Error: Activity class {$PACKAGE/$PACKAGE.DoesNotExistActivity} " +
+                        "does not exist.\n"
+                )
+            } else {
+                null
+            }
+        }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { controller.launchApp(".DoesNotExistActivity") }
+            }
+
+        assertTrue(
+            e.message.orEmpty().startsWith("Failed to start $PACKAGE/.DoesNotExistActivity "),
+            e.message,
+        )
+    }
+
+    @Test
     fun deviceOperationsRunOnTheApplication() = runBlocking {
         device.onShell { command ->
             if (command.startsWith("pm clear")) shellOutput("Success\n") else shellOutput()
