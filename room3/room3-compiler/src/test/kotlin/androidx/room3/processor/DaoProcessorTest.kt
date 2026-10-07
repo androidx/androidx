@@ -873,6 +873,173 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         }
     }
 
+    @Test
+    fun argsMapParamAllowsUnusedQueryParameters() {
+        val converter =
+            Source.kotlin(
+                "FooReturnTypeConverter.kt",
+                """
+                import androidx.room3.*
+
+                class FooReturnTypeConverter {
+                    @DaoReturnTypeConverter(operations = [OperationType.READ])
+                    suspend fun <T> convert(
+                        args: Map<String, Any?>,
+                        executeAndConvert: suspend () -> T,
+                    ): Foo<T> {
+                       TODO()
+                    }
+                }
+
+                class Foo<T>
+                """
+                    .trimIndent(),
+            )
+        val dao =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @DaoReturnTypeConverters(FooReturnTypeConverter::class)
+                @Dao
+                abstract class MyDao(private val db: RoomDatabase) {
+                  @Query("SELECT * FROM MyEntity")
+                  abstract suspend fun getFoo(keyColumn: String): Foo<MyEntity>
+                }
+
+                @Entity
+                data class MyEntity(@PrimaryKey val pk: Int)
+                """
+                    .trimIndent(),
+            )
+        runKspTest(sources = listOf(converter, dao)) { invocation ->
+            val daoElm = invocation.processingEnv.requireTypeElement("MyDao")
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
+            DaoProcessor(
+                    baseContext = invocation.context,
+                    element = daoElm,
+                    dbType = dbType,
+                    dbVerifier = null,
+                )
+                .process()
+            invocation.assertCompilationResult { hasErrorCount(0) }
+        }
+    }
+
+    @Test
+    fun unusedQueryParameterWithoutArgsConverterReportsError() {
+        val converter =
+            Source.kotlin(
+                "FooReturnTypeConverter.kt",
+                """
+                import androidx.room3.*
+
+                class FooReturnTypeConverter {
+                    @DaoReturnTypeConverter(operations = [OperationType.READ])
+                    suspend fun <T> convert(
+                        executeAndConvert: suspend () -> T,
+                    ): Foo<T> {
+                       TODO()
+                    }
+                }
+
+                class Foo<T>
+                """
+                    .trimIndent(),
+            )
+        val dao =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @DaoReturnTypeConverters(FooReturnTypeConverter::class)
+                @Dao
+                abstract class MyDao(private val db: RoomDatabase) {
+                  @Query("SELECT * FROM MyEntity")
+                  abstract suspend fun getFoo(keyColumn: String): Foo<MyEntity>
+                }
+
+                @Entity
+                data class MyEntity(@PrimaryKey val pk: Int)
+                """
+                    .trimIndent(),
+            )
+        runKspTest(sources = listOf(converter, dao)) { invocation ->
+            val daoElm = invocation.processingEnv.requireTypeElement("MyDao")
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
+            DaoProcessor(
+                    baseContext = invocation.context,
+                    element = daoElm,
+                    dbType = dbType,
+                    dbVerifier = null,
+                )
+                .process()
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.unusedQueryFunctionParameter(listOf("keyColumn"))
+                )
+            }
+        }
+    }
+
+    @Test
+    fun argsMapParamAllowsUnboundCustomTypeParameters() {
+        val converter =
+            Source.kotlin(
+                "FooReturnTypeConverter.kt",
+                """
+                import androidx.room3.*
+
+                class FooReturnTypeConverter {
+                    @DaoReturnTypeConverter(operations = [OperationType.READ])
+                    suspend fun <T> convert(
+                        args: Map<String, Any?>,
+                        executeAndConvert: suspend () -> T,
+                    ): Foo<T> {
+                       TODO()
+                    }
+                }
+
+                class Foo<T>
+                """
+                    .trimIndent(),
+            )
+        val dao =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                class CustomParam(val id: String)
+
+                @DaoReturnTypeConverters(FooReturnTypeConverter::class)
+                @Dao
+                abstract class MyDao(private val db: RoomDatabase) {
+                  @Query("SELECT * FROM MyEntity")
+                  abstract suspend fun getFoo(custom: CustomParam): Foo<MyEntity>
+                }
+
+                @Entity
+                data class MyEntity(@PrimaryKey val pk: Int)
+                """
+                    .trimIndent(),
+            )
+        runKspTest(sources = listOf(converter, dao)) { invocation ->
+            val daoElm = invocation.processingEnv.requireTypeElement("MyDao")
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
+            DaoProcessor(
+                    baseContext = invocation.context,
+                    element = daoElm,
+                    dbType = dbType,
+                    dbVerifier = null,
+                )
+                .process()
+            invocation.assertCompilationResult { hasErrorCount(0) }
+        }
+    }
+
     private fun singleDao(
         vararg inputs: String,
         classpathFiles: List<File> = emptyList(),

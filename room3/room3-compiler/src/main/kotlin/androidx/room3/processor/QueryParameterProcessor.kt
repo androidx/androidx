@@ -37,8 +37,10 @@ class QueryParameterProcessor(
                 typeMirror = asMember,
                 isMultipleParameter = bindVarSection?.isMultiple ?: false,
             )
+        // If bindVarSection is null, the parameter is not used in the SQL query, so no need to
+        // require an adapter.
         context.checker.check(
-            parameterAdapter != null,
+            bindVarSection == null || parameterAdapter != null,
             element,
             ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT,
         )

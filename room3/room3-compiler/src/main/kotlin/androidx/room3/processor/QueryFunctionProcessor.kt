@@ -26,6 +26,7 @@ import androidx.room3.parser.ParsedQuery
 import androidx.room3.parser.QueryType
 import androidx.room3.parser.SqlParser
 import androidx.room3.solver.prepared.binder.InstantPreparedQueryResultBinder
+import androidx.room3.solver.query.result.DaoConverterQueryResultBinder
 import androidx.room3.solver.query.result.DataClassRowAdapter
 import androidx.room3.solver.query.result.InstantQueryResultBinder
 import androidx.room3.verifier.DatabaseVerificationErrors
@@ -167,21 +168,31 @@ private class InternalQueryProcessor(
                 ProcessorErrors.missingParameterForBindVariable(missing),
             )
         }
-
-        val unused =
-            queryFunction.parameters
-                .filterNot { param ->
-                    queryFunction.sectionToParamMapping.any { it.second == param }
-                }
-                .map(QueryParameter::sqlName)
-
-        if (unused.isNotEmpty()) {
-            context.logger.e(
-                executableElement,
-                ProcessorErrors.unusedQueryFunctionParameter(unused),
-            )
+        if (!queryFunction.hasConverterWithDaoFunctionArgs()) {
+            val unused =
+                queryFunction.parameters
+                    .filterNot { param ->
+                        queryFunction.sectionToParamMapping.any { it.second == param }
+                    }
+                    .map(QueryParameter::sqlName)
+            if (unused.isNotEmpty()) {
+                context.logger.e(
+                    executableElement,
+                    ProcessorErrors.unusedQueryFunctionParameter(unused),
+                )
+            }
         }
         return queryFunction
+    }
+
+    private fun QueryFunction.hasConverterWithDaoFunctionArgs(): Boolean {
+        if (this !is ReadQueryFunction) {
+            return false
+        }
+        if (queryResultBinder !is DaoConverterQueryResultBinder) {
+            return false
+        }
+        return queryResultBinder.converter.hasDaoFunctionArgsParam()
     }
 
     private fun validateQuery(query: ParsedQuery) {
