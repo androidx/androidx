@@ -232,7 +232,9 @@ public class RoutingDemoModelFactory {
     private SpannableString createStringWithIcon(@StringRes int stringRes,
             @DrawableRes int iconRes, int start, int end) {
         String text = mCarContext.getString(stringRes);
-        CarIconSpan span = CarIconSpan.create(createCarIcon(iconRes), CarIconSpan.ALIGN_CENTER);
+        CarIcon icon =
+                CarIcon.createOriginalIcon(IconCompat.createWithResource(mCarContext, iconRes));
+        CarIconSpan span = CarIconSpan.create(icon, CarIconSpan.ALIGN_CENTER);
         SpannableString spannableString = new SpannableString(text);
         spannableString.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannableString;
