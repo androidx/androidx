@@ -48,4 +48,16 @@ package androidx.wear.compose.material3
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
-@ExperimentalWearComposeMaterial3Api public object WearComposeMaterial3Flags
+@ExperimentalWearComposeMaterial3Api
+public object WearComposeMaterial3Flags {
+    /**
+     * Determines whether inset focus rings are enabled.
+     *
+     * When true, components can display an inset focus ring when focused, if configured by
+     * [LocalRippleThemeConfiguration].
+     *
+     * When false, inset focus rings are disabled and components fall back to opacity-based focus.
+     */
+    // TODO: b/568671837 - Remove this flag once UI highlighting is released.
+    @field:Suppress("MutableBareField") @JvmField public var isInsetFocusRingEnabled: Boolean = true
+}

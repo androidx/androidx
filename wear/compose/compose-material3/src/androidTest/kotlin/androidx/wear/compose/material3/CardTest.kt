@@ -1015,6 +1015,14 @@ class CardTest {
         }
         assertEquals(expectedColor, actualColor)
     }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun draws_focus_ring_when_focused() {
+        rule.verifyFocusRingDrawnAfterFocusInteraction { modifier, interactionSource ->
+            Card(onClick = {}, modifier = modifier, interactionSource = interactionSource) {}
+        }
+    }
 }
 
 private fun ComposeContentTestRule.verifyHeight(expected: Dp, content: @Composable () -> Unit) {
