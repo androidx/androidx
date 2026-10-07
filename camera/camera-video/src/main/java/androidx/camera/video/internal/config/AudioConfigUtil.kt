@@ -32,6 +32,7 @@ import androidx.camera.video.MediaSpec.OutputFormat
 import androidx.camera.video.internal.audio.AudioSettings
 import androidx.camera.video.internal.audio.AudioSource
 import androidx.camera.video.internal.encoder.AudioEncoderConfig
+import androidx.camera.video.internal.encoder.AudioEncoderInfo
 import androidx.camera.video.internal.encoder.EncoderConfig
 import kotlin.math.abs
 import kotlin.math.sign
@@ -121,6 +122,8 @@ public object AudioConfigUtil {
      * @param compatibleAudioProfile the compatible audio profile.
      * @param captureToEncodeRatio the capture to encode sample rate ratio.
      * @param audioMime the audio MIME type.
+     * @param audioEncoderInfo the optional info of the audio encoder that will be used. When
+     *   provided, settings supported by both the audio source and the encoder are preferred.
      * @return an AudioSettings.
      */
     @JvmStatic
@@ -130,6 +133,7 @@ public object AudioConfigUtil {
         compatibleAudioProfile: AudioProfileProxy? = null,
         captureToEncodeRatio: Rational? = null,
         audioMime: String? = null,
+        audioEncoderInfo: AudioEncoderInfo? = null,
     ): AudioSettings {
         val resolvedMime = audioMime ?: audioSpec.mimeType
         val defaultSampleRate =
@@ -148,6 +152,7 @@ public object AudioConfigUtil {
                         listOf(compatibleAudioProfile.channels, AUDIO_CHANNEL_COUNT_DEFAULT),
                     defaultSampleRate = defaultSampleRate,
                     captureToEncodeRatio = captureToEncodeRatio,
+                    audioEncoderInfo = audioEncoderInfo,
                 )
             } else {
                 resolveAudioSettings(
@@ -157,6 +162,7 @@ public object AudioConfigUtil {
                     channelCountFallbacks = listOf(AUDIO_CHANNEL_COUNT_DEFAULT),
                     defaultSampleRate = defaultSampleRate,
                     captureToEncodeRatio = captureToEncodeRatio,
+                    audioEncoderInfo = audioEncoderInfo,
                 )
             }
             .also {
@@ -166,7 +172,8 @@ public object AudioConfigUtil {
                         "[audioSpec: $audioSpec, " +
                         "compatibleAudioProfile: $compatibleAudioProfile, " +
                         "captureToEncodeRatio: $captureToEncodeRatio, " +
-                        "audioMime: $audioMime]",
+                        "audioMime: $audioMime, " +
+                        "audioEncoderInfo: ${audioEncoderInfo?.getName()}]",
                 )
             }
     }
@@ -189,6 +196,10 @@ public object AudioConfigUtil {
      *    rate is validated against the [AudioSource] and the already-resolved channel count to
      *    ensure a supported combination.
      *
+     * If [audioEncoderInfo] is provided, the above resolution is first performed while also
+     * requiring the resulting encode sample rate to be supported by the encoder. Only if no such
+     * combination exists does it fall back to validating against the [AudioSource] alone.
+     *
      * @param audioSpec The user-provided audio requirements.
      * @param baseChannelCount The initial channel count to use if unspecified in [audioSpec].
      * @param baseSampleRate The initial sample rate to use if unspecified in [audioSpec].
@@ -196,6 +207,7 @@ public object AudioConfigUtil {
      *   combination is unsupported by the hardware.
      * @param defaultSampleRate The fallback sample rate to use if no supported rate can be found.
      * @param captureToEncodeRatio The ratio used to calculate capture vs. encode sample rates.
+     * @param audioEncoderInfo The optional info of the audio encoder that will be used.
      * @return A fully resolved [AudioSettings] object.
      */
     private fun resolveAudioSettings(
@@ -205,6 +217,7 @@ public object AudioConfigUtil {
         channelCountFallbacks: List<Int>,
         defaultSampleRate: Int,
         captureToEncodeRatio: Rational?,
+        audioEncoderInfo: AudioEncoderInfo?,
     ): AudioSettings {
         // Resolve audio source
         val resolvedAudioSource = resolveAudioSource(audioSpec)
@@ -236,42 +249,52 @@ public object AudioConfigUtil {
             }
         }
 
-        var resolvedChannelCount = -1
-        var resolvedSampleRates: CaptureEncodeRates? = null
-        for (channelCount in channelCountsToTry) {
-            resolvedSampleRates =
-                resolveSampleRates(
+        // Prefer combinations whose encode sample rate is also supported by the encoder, since an
+        // unsupported one makes the encoder fail to configure. Fall back to the audio source-only
+        // check to preserve the previous behavior when the encoder can't satisfy any combination.
+        val encoderCompatibleResult = audioEncoderInfo?.let { encoderInfo ->
+            resolveChannelCountAndSampleRates(
+                    channelCounts = channelCountsToTry,
                     targetEncodeSampleRate = targetSampleRate,
-                    channelCount = channelCount,
+                    sourceFormat = resolvedSourceFormat,
+                    captureToEncodeRatio = captureToEncodeRatio,
+                    isEncodeSampleRateSupported = encoderInfo::isSampleRateSupported,
+                )
+                .also {
+                    if (it == null) {
+                        Logger.w(
+                            TAG,
+                            "No sample rate supported by both the audio source and the " +
+                                "audio encoder ${encoderInfo.getName()}. Falling back to " +
+                                "sample rates supported by the audio source only.",
+                        )
+                    }
+                }
+        }
+        val (resolvedChannelCount, resolvedSampleRates) =
+            encoderCompatibleResult
+                ?: resolveChannelCountAndSampleRates(
+                    channelCounts = channelCountsToTry,
+                    targetEncodeSampleRate = targetSampleRate,
                     sourceFormat = resolvedSourceFormat,
                     captureToEncodeRatio = captureToEncodeRatio,
                 )
-            if (resolvedSampleRates != null) {
-                resolvedChannelCount = channelCount
-                break
-            }
-        }
-
-        if (resolvedSampleRates == null) {
-            // No supported sample rate found. The default sample rate should work on most devices.
-            // May consider throw an exception or have other way to notify users that the specified
-            // sample rate can not be satisfied.
-            Logger.w(
-                TAG,
-                "No sample rate found or supported by audio source. Falling" +
-                    " back to default channel count $AUDIO_CHANNEL_COUNT_DEFAULT and" +
-                    " sample rate of $defaultSampleRate Hz",
-            )
-            resolvedChannelCount = AUDIO_CHANNEL_COUNT_DEFAULT
-            val captureRate = defaultSampleRate
-            val encodeRate =
-                if (captureToEncodeRatio == null) {
-                    captureRate
-                } else {
-                    toEncodeRate(captureRate, captureToEncodeRatio)
+                ?: run {
+                    // No supported sample rate found. The default sample rate should work on most
+                    // devices. May consider throw an exception or have other way to notify users
+                    // that the specified sample rate can not be satisfied.
+                    Logger.w(
+                        TAG,
+                        "No sample rate found or supported by audio source. Falling" +
+                            " back to default channel count $AUDIO_CHANNEL_COUNT_DEFAULT and" +
+                            " sample rate of $defaultSampleRate Hz",
+                    )
+                    AUDIO_CHANNEL_COUNT_DEFAULT to
+                        CaptureEncodeRates(
+                            defaultSampleRate,
+                            toEncodeRate(defaultSampleRate, captureToEncodeRatio),
+                        )
                 }
-            resolvedSampleRates = CaptureEncodeRates(captureRate, encodeRate)
-        }
 
         return AudioSettings.builder()
             .setAudioSource(resolvedAudioSource)
@@ -344,24 +367,42 @@ public object AudioConfigUtil {
         return resolvedAudioSourceFormat
     }
 
+    /**
+     * Selects [initialTargetSampleRate] if supported, otherwise the nearest supported sample rate
+     * from [AudioSettings.COMMON_SAMPLE_RATES].
+     *
+     * A sample rate is supported if it is supported by the [AudioSource] with the given
+     * [channelCount] and [sourceFormat], and [isSampleRateAcceptable] returns `true` for it.
+     *
+     * @return the selected sample rate, or `null` if no supported sample rate is found.
+     */
     public fun selectSampleRateOrNearestSupported(
         channelCount: Int,
         sourceFormat: Int,
         initialTargetSampleRate: Int,
+        isSampleRateAcceptable: (Int) -> Boolean = { true },
     ): Int? {
         var selectedSampleRate = initialTargetSampleRate
         // Sample rates sorted by proximity to initial target.
         var sortedCommonSampleRates: List<Int>? = null
         var i = 0
         do {
-            if (AudioSource.isSettingsSupported(selectedSampleRate, channelCount, sourceFormat)) {
+            val isSupportedBySource =
+                AudioSource.isSettingsSupported(selectedSampleRate, channelCount, sourceFormat)
+            if (isSupportedBySource && isSampleRateAcceptable(selectedSampleRate)) {
                 return selectedSampleRate
-            } else {
+            } else if (!isSupportedBySource) {
                 Logger.d(
                     TAG,
                     "Sample rate $selectedSampleRate Hz is not supported by " +
                         "audio source with channel count $channelCount and source " +
                         "format $sourceFormat",
+                )
+            } else {
+                Logger.d(
+                    TAG,
+                    "Sample rate $selectedSampleRate Hz is supported by audio source but " +
+                        "rejected by the encoder check",
                 )
             }
 
@@ -423,12 +464,38 @@ public object AudioConfigUtil {
         return resolvedBitrate
     }
 
+    /**
+     * Returns the first channel count in [channelCounts] that has a supported sample rate, paired
+     * with the resolved capture and encode sample rates, or `null` if none is found.
+     */
+    private fun resolveChannelCountAndSampleRates(
+        channelCounts: List<Int>,
+        targetEncodeSampleRate: Int,
+        sourceFormat: Int,
+        captureToEncodeRatio: Rational?,
+        isEncodeSampleRateSupported: (Int) -> Boolean = { true },
+    ): Pair<Int, CaptureEncodeRates>? = channelCounts.firstNotNullOfOrNull { channelCount ->
+        resolveSampleRates(
+                targetEncodeSampleRate = targetEncodeSampleRate,
+                channelCount = channelCount,
+                sourceFormat = sourceFormat,
+                captureToEncodeRatio = captureToEncodeRatio,
+                isEncodeSampleRateSupported = isEncodeSampleRateSupported,
+            )
+            ?.let { channelCount to it }
+    }
+
     internal fun resolveSampleRates(
         targetEncodeSampleRate: Int,
         channelCount: Int,
         sourceFormat: Int,
         captureToEncodeRatio: Rational?,
+        isEncodeSampleRateSupported: (Int) -> Boolean = { true },
     ): CaptureEncodeRates? {
+        // The encoder check applies to the encode rate derived from each candidate capture rate.
+        val isCaptureSampleRateAcceptable = { captureRate: Int ->
+            isEncodeSampleRateSupported(toEncodeRate(captureRate, captureToEncodeRatio))
+        }
         val resolvedCaptureSampleRate: Int
         val resolvedEncodeSampleRate: Int
         if (captureToEncodeRatio == null) {
@@ -437,6 +504,7 @@ public object AudioConfigUtil {
                     channelCount,
                     sourceFormat,
                     targetEncodeSampleRate,
+                    isCaptureSampleRateAcceptable,
                 ) ?: return null
             resolvedEncodeSampleRate = resolvedCaptureSampleRate
         } else {
@@ -450,6 +518,7 @@ public object AudioConfigUtil {
                     channelCount,
                     sourceFormat,
                     scaledInitialTargetEncodeSampleRate,
+                    isCaptureSampleRateAcceptable,
                 ) ?: return null
             resolvedEncodeSampleRate =
                 toEncodeRate(

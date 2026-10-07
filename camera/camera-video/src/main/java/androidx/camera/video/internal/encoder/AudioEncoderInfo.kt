@@ -22,4 +22,7 @@ import android.util.Range
 public interface AudioEncoderInfo : EncoderInfo {
     /** Returns the range of supported bitrates in bits/second. */
     public val bitrateRange: Range<Int>
+
+    /** Returns whether the given sample rate in Hz is supported by the encoder. */
+    public fun isSampleRateSupported(sampleRate: Int): Boolean
 }

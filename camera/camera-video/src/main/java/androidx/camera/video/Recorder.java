@@ -118,6 +118,7 @@ import androidx.camera.video.internal.config.MediaInfo;
 import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
 import androidx.camera.video.internal.encoder.AudioEncoderFactory;
+import androidx.camera.video.internal.encoder.AudioEncoderInfo;
 import androidx.camera.video.internal.encoder.BufferCopiedEncodedData;
 import androidx.camera.video.internal.encoder.DefaultAudioEncoderFactory;
 import androidx.camera.video.internal.encoder.DefaultVideoEncoderFactory;
@@ -959,6 +960,20 @@ public final class Recorder implements VideoOutput {
     public int getTargetAudioChannelCount() {
         int channelCount = getObservableData(mMediaSpec).getAudioSpec().getChannelCount();
         return channelCount == AudioSpec.CHANNEL_COUNT_UNSPECIFIED ? 0 : channelCount;
+    }
+
+    /**
+     * Returns the target audio sample rate of this Recorder.
+     *
+     * @return the value provided to {@link Builder#setTargetAudioSampleRate(int)} on the
+     * builder used to create this recorder. Returns 0 if
+     * {@link Builder#setTargetAudioSampleRate(int)} is not called.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntRange(from = 0)
+    public int getTargetAudioSampleRate() {
+        int sampleRate = getObservableData(mMediaSpec).getAudioSpec().getSampleRate();
+        return sampleRate == AudioSpec.SAMPLE_RATE_UNSPECIFIED ? 0 : sampleRate;
     }
 
     /**
@@ -1844,10 +1859,13 @@ public final class Recorder implements VideoOutput {
             expectedSampleRateRatio = null;
         }
 
-        // Select and create the audio source
+        // Select and create the audio source. Query the audio encoder capabilities up front so the
+        // resolved sample rate is supported by both the audio source and the audio encoder.
+        AudioEncoderInfo audioEncoderInfo =
+                mAudioEncoderFactory.getEncoderInfo(audioMimeInfo.getMimeType());
         AudioSettings audioSettings = resolveAudioSettings(mediaSpec.getAudioSpec(),
                 audioMimeInfo.getCompatibleAudioProfile(), expectedSampleRateRatio,
-                audioMimeInfo.getMimeType());
+                audioMimeInfo.getMimeType(), audioEncoderInfo);
         if (mAudioSource != null) {
             releaseCurrentAudioSource();
         }
@@ -4483,6 +4501,29 @@ public final class Recorder implements VideoOutput {
             }
 
             mMediaSpecBuilder.configureAudio(builder -> builder.setChannelCount(channelCount));
+            return this;
+        }
+
+        /**
+         * Sets the intended audio sample rate for recording.
+         *
+         * <p>Common values are 44100 Hz and 48000 Hz. If the requested sample rate is not
+         * supported by the device or the selected audio codec, CameraX will fall back to a
+         * supported sample rate, preferring the closest one. If this method is not called, an
+         * appropriate default sample rate will be selected.
+         *
+         * @param sampleRate the target audio sample rate in Hz.
+         * @return the builder instance.
+         * @throws IllegalArgumentException if {@code sampleRate} is less than 1.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public @NonNull Builder setTargetAudioSampleRate(@IntRange(from = 1) int sampleRate) {
+            if (sampleRate < 1) {
+                throw new IllegalArgumentException("Target sample rate must be greater than 0, "
+                        + "but was " + sampleRate);
+            }
+
+            mMediaSpecBuilder.configureAudio(builder -> builder.setSampleRate(sampleRate));
             return this;
         }
 

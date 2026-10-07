@@ -90,6 +90,14 @@ class DefaultAudioEncoderFactoryTest {
     }
 
     @Test
+    fun getEncoderInfo_reportsSampleRateSupportOfCodec() {
+        val encoderInfo =
+            requireNotNull(DefaultAudioEncoderFactory.DEFAULT.getEncoderInfo(MIMETYPE_AUDIO_AAC))
+
+        assertThat(encoderInfo.isSampleRateSupported(SAMPLE_RATE)).isTrue()
+    }
+
+    @Test
     fun createEncoder_createsEncoderWithSameCodec() {
         val encoder =
             DefaultAudioEncoderFactory.DEFAULT.createEncoder(

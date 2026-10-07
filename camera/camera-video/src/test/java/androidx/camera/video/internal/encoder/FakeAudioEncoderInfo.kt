@@ -18,12 +18,21 @@ package androidx.camera.video.internal.encoder
 
 import android.util.Range
 
-/** A fake [AudioEncoderInfo]. */
+/**
+ * A fake [AudioEncoderInfo].
+ *
+ * @param supportedSampleRates the sample rates supported by the encoder, or `null` to support all
+ *   sample rates.
+ */
 class FakeAudioEncoderInfo(
     override val bitrateRange: Range<Int> = Range(1, Int.MAX_VALUE),
     override val mime: String = "audio/fake",
     private val name: String = "fake.audio.encoder",
+    private val supportedSampleRates: Set<Int>? = null,
 ) : AudioEncoderInfo {
 
     override fun getName(): String = name
+
+    override fun isSampleRateSupported(sampleRate: Int): Boolean =
+        supportedSampleRates?.contains(sampleRate) ?: true
 }

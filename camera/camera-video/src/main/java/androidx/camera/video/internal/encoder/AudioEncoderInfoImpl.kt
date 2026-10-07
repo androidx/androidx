@@ -34,4 +34,7 @@ internal constructor(codecInfo: MediaCodecInfo, mime: String) :
 
     override val bitrateRange: Range<Int>
         get() = audioCapabilities.bitrateRange
+
+    override fun isSampleRateSupported(sampleRate: Int): Boolean =
+        audioCapabilities.isSampleRateSupported(sampleRate)
 }
