@@ -482,15 +482,6 @@ public final class Flags {
     }
 
     /**
-     * Whether {@link androidx.appsearch.exceptions.AppSearchException} with code
-     * {@link androidx.appsearch.app.AppSearchResult#RESULT_ABORTED} should be thrown if the search
-     * result page token is not found in native.
-     */
-    public static boolean enableThrowExceptionForNativeNotFoundPageToken() {
-        return true;
-    }
-
-    /**
      * Whether to batch put visibility documents.
      */
     public static boolean enableBatchPutVisibilityDocuments() {
