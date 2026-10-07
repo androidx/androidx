@@ -148,18 +148,12 @@ private class ScalingLazyListStateScrollInfoProvider(val state: ScalingLazyListS
                     val newStartOffset = it.startOffset(ScalingLazyListAnchorType.ItemStart)
                     if (initialStartOffset == null || newStartOffset > initialStartOffset!!) {
                         initialStartOffset = newStartOffset
-                    } else if (
-                        !state.isScrollInProgress &&
-                            !state.canScrollBackward &&
-                            lastStartOffset != null &&
-                            newStartOffset != lastStartOffset
-                    ) {
-                        // Reset the initialStartOffset if the position changes while idle
-                        // to account for layout mutations (like items shrinking) that would
-                        // otherwise cause a scroll desync.
+                    } else if (!state.canScrollBackward && !state.isScrollInProgress) {
+                        // Reset the initialStartOffset if at the top boundary and idle to account
+                        // for layout mutations (like items shrinking or content padding changes)
+                        // that would otherwise cause a scroll desync.
                         initialStartOffset = newStartOffset
                     }
-                    lastStartOffset = newStartOffset
                     -it.offset + initialStartOffset!!
                 } ?: Float.NaN
         }
@@ -197,7 +191,6 @@ private class ScalingLazyListStateScrollInfoProvider(val state: ScalingLazyListS
     }
 
     private var initialStartOffset: Float? = null
-    private var lastStartOffset: Float? = null
 }
 
 // Implementation of [ScrollInfoProvider] for [LazyColumn].
