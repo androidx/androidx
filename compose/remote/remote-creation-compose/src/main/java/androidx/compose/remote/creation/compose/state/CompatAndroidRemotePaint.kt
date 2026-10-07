@@ -147,6 +147,7 @@ public fun Paint.asRemotePaint(): RemotePaint {
     remotePaint.colorFilter = colorFilter?.let { ComposeRemoteColorFilter(it) }
     remotePaint.textSize = nativePaint.textSize.rf
     remotePaint.typeface = RemoteTypeface.fromAndroidTypeface(nativePaint.typeface)
+    remotePaint.fontFeatureSettings = nativePaint.fontFeatureSettings
     remotePaint.fontVariationSettings =
         parseFontVariationSettings(nativePaint.fontVariationSettings)
     return remotePaint
@@ -174,6 +175,7 @@ public fun android.graphics.Paint.asRemotePaint(): RemotePaint {
             }
     remotePaint.textSize = textSize.rf
     remotePaint.typeface = RemoteTypeface.fromAndroidTypeface(typeface)
+    remotePaint.fontFeatureSettings = fontFeatureSettings
     remotePaint.fontVariationSettings = parseFontVariationSettings(fontVariationSettings)
     return remotePaint
 }
