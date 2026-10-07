@@ -534,6 +534,13 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                         // (https://youtrack.jetbrains.com/issue/KT-85719)
                         "-Xwarning-level=CAN_BE_VAL_LATEINIT:disabled",
                     )
+                // Below language version 2.4, Kotlin metadata only records whether a function has
+                // annotations, so adding e.g. @Deprecated to an already-annotated function doesn't
+                // change the classpath snapshot that dependents use as their KotlinCompile cache
+                // key.
+                if (androidXExtension.kotlinApiVersion.get() < KotlinVersion.KOTLIN_2_4) {
+                    args += "-Xannotations-in-metadata"
+                }
                 val softwareType = androidXExtension.type.get()
                 if (softwareType.targetsKotlinConsumersOnly) {
                     // The Kotlin Compiler adds intrinsic assertions which are only relevant
