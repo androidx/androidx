@@ -1122,17 +1122,6 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
     var currentLayoutComponent: LayoutComponent? = null
     var inScrollModifier = false
 
-    val timeListenerCollector =
-        object : StoreBackedRemoteContext(document.clock) {
-            override fun listensTo(id: Int, variableSupport: VariableSupport) {
-                if (isContinuousTimeVariable(id)) {
-                    hasContinuousTime = true
-                } else if (isDiscreteTimeVariable(id)) {
-                    hasDiscreteTime = true
-                }
-            }
-        }
-
     fun visitOp(op: Operation) {
         val prevLayoutComponent = currentLayoutComponent
         val prevInScroll = inScrollModifier
@@ -1161,23 +1150,22 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
             }
 
             // Collect direct references to continuous or discrete time variables from expressions
-            // and
-            // variable-reading operations so we know which clock loop (if any) needs to run.
-            if (
-                op is FloatExpression ||
-                    op is IntegerExpression ||
-                    op is TextFromFloat ||
-                    op is TextLookupInt ||
-                    op is ComponentVisibilityOperation
-            ) {
-                op.registerListening(timeListenerCollector)
-            } else if (op is StateLayout) {
+            // and variable-reading operations so we know which clock loop (if any) needs to run.
+            if (op is StateLayout) {
                 // StateLayout does not implement VariableSupport, so inspect its indexId directly.
                 val id = op.indexIdReflection
                 if (isContinuousTimeVariable(id)) {
                     hasContinuousTime = true
                 } else if (isDiscreteTimeVariable(id)) {
                     hasDiscreteTime = true
+                }
+            } else {
+                forEachListenedVariableId(op) { id ->
+                    if (isContinuousTimeVariable(id)) {
+                        hasContinuousTime = true
+                    } else if (isDiscreteTimeVariable(id)) {
+                        hasDiscreteTime = true
+                    }
                 }
             }
 
@@ -1376,6 +1364,53 @@ internal fun isExpressionDiscreteTimeDependent(expr: FloatExpression): Boolean {
 
 internal fun isExpressionTimeDependent(expr: FloatExpression): Boolean =
     isExpressionContinuousTimeDependent(expr) || isExpressionDiscreteTimeDependent(expr)
+
+/**
+ * Invokes [action] for each variable ID that [op] would pass to [RemoteContext.listensTo] from its
+ * `registerListening` implementation.
+ *
+ * Only [FloatExpression], [IntegerExpression], [TextFromFloat], [TextLookupInt] and
+ * [ComponentVisibilityOperation] are decoded; other operations are ignored. This mirrors core's
+ * `registerListening` without allocating a throwaway [RemoteContext] (and its [CoreDocument] and
+ * state stores) during document preprocessing. Keep in sync with core; parity is verified by
+ * `RcPlayerExpressionTest`.
+ */
+internal inline fun forEachListenedVariableId(op: Operation, action: (Int) -> Unit) {
+    when (op) {
+        is FloatExpression -> {
+            val srcValues = op.mSrcValue
+            for (i in srcValues.indices) {
+                val v = srcValues[i]
+                if (
+                    v.isNaN() &&
+                        !AnimatedFloatExpression.isMathOperator(v) &&
+                        !NanMap.isDataVariable(v)
+                ) {
+                    action(Utils.idFromNan(v))
+                }
+            }
+        }
+        is IntegerExpression -> {
+            val mask = op.maskReflection
+            val srcValues = op.mSrcValue
+            for (i in srcValues.indices) {
+                if (IntegerExpression.isId(mask, i, srcValues[i])) {
+                    action(srcValues[i])
+                }
+            }
+        }
+        is TextFromFloat -> {
+            if (op.mValue.isNaN()) {
+                action(Utils.idFromNan(op.mValue))
+            }
+        }
+        is TextLookupInt -> {
+            action(op.mIndex)
+            action(op.mDataSetId)
+        }
+        is ComponentVisibilityOperation -> action(op.getVisibilityIdReflection())
+    }
+}
 
 internal fun mapEasing(type: Int): ComposeEasing {
     return when (type) {
