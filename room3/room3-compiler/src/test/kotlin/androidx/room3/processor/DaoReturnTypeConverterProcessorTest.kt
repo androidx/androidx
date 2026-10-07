@@ -47,9 +47,9 @@ class DaoReturnTypeConverterProcessorTest {
                 import androidx.room3.*
 
                 class FooReturnTypeConverter {
-                    suspend fun convert(
-                        executeAndConvert: suspend () -> Unit,
-                    ): Foo {
+                    suspend fun <T> convert(
+                        executeAndConvert: suspend () -> T,
+                    ): Foo<T> {
                         TODO()
                     }
                 }
@@ -90,11 +90,13 @@ class DaoReturnTypeConverterProcessorTest {
                 """
                 import androidx.room3.*
 
+                class Baz
+
                 class FooReturnTypeConverter {
                     @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
                     suspend fun <T> convert(
                         executeAndConvert: suspend () -> T,
-                    ): Foo {
+                    ): Baz {
                        TODO()
                     }
                 }
@@ -259,9 +261,9 @@ class DaoReturnTypeConverterProcessorTest {
 
                 class FooReturnTypeConverter {
                     @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
-                    suspend fun convert(
+                    suspend fun <T> convert(
                         database: RoomDatabase,
-                    ): Foo {
+                    ): Foo<T> {
                         TODO()
                     }
                 }
@@ -285,12 +287,12 @@ class DaoReturnTypeConverterProcessorTest {
 
                 class FooReturnTypeConverter {
                     @DaoReturnTypeConverter(operations = [OperationType.READ])
-                    suspend fun convert(
+                    suspend fun <T> convert(
                         database: RoomDatabase,
                         roomRawQuery: RoomRawQuery,
                         tableNames: Array<String>,
-                        executeAndConvert: suspend (RoomRawQuery, Array<String>) -> Unit,
-                    ): Foo {
+                        executeAndConvert: suspend (RoomRawQuery, Array<String>) -> T,
+                    ): Foo<T> {
                         TODO()
                     }
                 }
@@ -314,12 +316,12 @@ class DaoReturnTypeConverterProcessorTest {
 
                 class FooReturnTypeConverter {
                     @DaoReturnTypeConverter(operations = [OperationType.READ])
-                    suspend fun convert(
+                    suspend fun <T> convert(
                         database: RoomDatabase,
                         roomRawQuery: RoomRawQuery,
                         tableNames: Array<String>,
-                        executeAndConvert: suspend (Array<String>) -> Unit,
-                    ): Foo {
+                        executeAndConvert: suspend (Array<String>) -> T,
+                    ): Foo<T> {
                         TODO()
                     }
                 }
@@ -415,9 +417,9 @@ class DaoReturnTypeConverterProcessorTest {
 
                 class FooReturnTypeConverter {
                     @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
-                    suspend fun convert(
-                        executeAndConvert: () -> Unit,
-                    ): Foo {
+                    suspend fun <T> convert(
+                        executeAndConvert: () -> T,
+                    ): Foo<T> {
                         TODO()
                     }
                 }
