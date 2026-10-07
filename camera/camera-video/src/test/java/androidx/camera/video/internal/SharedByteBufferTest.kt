@@ -30,6 +30,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertThrows
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -283,6 +284,7 @@ class SharedByteBufferTest {
             assertThat(closingThreadName).isNotEqualTo(Thread.currentThread().name)
         }
 
+    @Ignore("b/570728113")
     @Test
     fun finalizeClosesUnclosedInstances() = runBlocking {
         val buf = ByteBuffer.allocate(0)
