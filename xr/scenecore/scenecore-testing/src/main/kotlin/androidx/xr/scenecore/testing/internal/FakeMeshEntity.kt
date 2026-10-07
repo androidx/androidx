@@ -18,6 +18,7 @@ package androidx.xr.scenecore.testing.internal
 
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.GeometryAffordanceState
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshEntity
@@ -40,6 +41,8 @@ internal open class FakeMeshEntity(
         get() = feature.materials
 
     override var affordanceState: GeometryAffordanceState = GeometryAffordanceState.NONE
+
+    override var recommendedAffordanceScale: Vector3 = getScale()
 
     override fun setMaterial(material: MaterialResource, subsetIndex: Int) {
         feature.setMaterial(material, subsetIndex)

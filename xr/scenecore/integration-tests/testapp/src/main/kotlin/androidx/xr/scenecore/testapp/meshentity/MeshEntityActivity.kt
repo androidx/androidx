@@ -68,6 +68,7 @@ import androidx.xr.scenecore.MeshEntity
 import androidx.xr.scenecore.MeshSubsetTopology
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.VertexAttribute
 import androidx.xr.scenecore.VertexAttributeType
 import androidx.xr.scenecore.VertexLayout
@@ -101,12 +102,14 @@ class MeshEntityActivity : AppCompatActivity() {
     private data class EntityComponents(
         val movable: MovableComponent,
         val interactable: InteractableComponent,
+        val resizable: ResizableComponent,
     )
 
     private val meshEntitiesAndComponents = mutableMapOf<MeshEntity, EntityComponents>()
     private val initialPoses = mutableMapOf<MeshEntity, Pose>()
     private var movableSwitch: MaterialSwitch? = null
     private var interactableSwitch: MaterialSwitch? = null
+    private var resizableSwitch: MaterialSwitch? = null
 
     companion object {
         /**
@@ -164,6 +167,17 @@ class MeshEntityActivity : AppCompatActivity() {
                         entity.addComponent(components.interactable)
                     } else {
                         entity.removeComponent(components.interactable)
+                    }
+                }
+            }
+
+            resizableSwitch = findViewById<MaterialSwitch>(R.id.resizableSwitch)
+            resizableSwitch?.setOnCheckedChangeListener { _, isChecked ->
+                meshEntitiesAndComponents.forEach { (entity, components) ->
+                    if (isChecked) {
+                        entity.addComponent(components.resizable)
+                    } else {
+                        entity.removeComponent(components.resizable)
                     }
                 }
             }
@@ -468,6 +482,12 @@ class MeshEntityActivity : AppCompatActivity() {
 
         entities.forEach { entity ->
             val movableComponent = MovableComponent.createSystemMovable(session, scaleInZ = false)
+            val resizableComponent =
+                ResizableComponent.create(session) {
+                    it.entity.setScale(
+                        Vector3(it.newSize.width, it.newSize.height, it.newSize.depth)
+                    )
+                }
             val interactableComponent =
                 InteractableComponent.create(session) {
                     if (it.action == InputEvent.Action.UP) {
@@ -475,12 +495,15 @@ class MeshEntityActivity : AppCompatActivity() {
                     }
                 }
             meshEntitiesAndComponents[entity] =
-                EntityComponents(movableComponent, interactableComponent)
+                EntityComponents(movableComponent, interactableComponent, resizableComponent)
             if (movableSwitch?.isChecked == true) {
                 entity.addComponent(movableComponent)
             }
             if (interactableSwitch?.isChecked == true) {
                 entity.addComponent(interactableComponent)
+            }
+            if (resizableSwitch?.isChecked == true) {
+                entity.addComponent(resizableComponent)
             }
         }
 

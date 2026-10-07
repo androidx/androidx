@@ -17,6 +17,7 @@
 package androidx.xr.scenecore.spatial.core
 
 import android.app.Activity
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshFeature
 import androidx.xr.scenecore.runtime.NodeHolder
@@ -120,6 +121,22 @@ class MeshEntityImplTest : AndroidXrEntityImplTest() {
         meshEntityImpl.setMaterial(material, subsetIndex)
 
         verify(mockMeshFeature).setMaterial(material, subsetIndex)
+    }
+
+    @Test
+    fun recommendedAffordanceScale_defaultsToEntityScale() {
+        assertThat(meshEntityImpl.recommendedAffordanceScale).isEqualTo(meshEntityImpl.getScale())
+    }
+
+    @Test
+    fun setRecommendedAffordanceScale_updatesValueWithoutChangingEntityScale() {
+        val entityScale = meshEntityImpl.getScale()
+        val recommendedScale = Vector3(2f, 3f, 4f)
+
+        meshEntityImpl.recommendedAffordanceScale = recommendedScale
+
+        assertThat(meshEntityImpl.recommendedAffordanceScale).isEqualTo(recommendedScale)
+        assertThat(meshEntityImpl.getScale()).isEqualTo(entityScale)
     }
 
     companion object {

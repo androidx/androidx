@@ -46,6 +46,7 @@ import androidx.xr.scenecore.runtime.PixelDimensions as RtPixelDimensions
 import androidx.xr.scenecore.runtime.PlaneSemantic as RtPlaneSemantic
 import androidx.xr.scenecore.runtime.PlaneType as RtPlaneType
 import androidx.xr.scenecore.runtime.PointSourceParams as RtPointSourceParams
+import androidx.xr.scenecore.runtime.ResizableComponent
 import androidx.xr.scenecore.runtime.ResizeEvent as RtResizeEvent
 import androidx.xr.scenecore.runtime.ScenePose.HitTestFilter as RtHitTestFilter
 import androidx.xr.scenecore.runtime.SceneRuntime
@@ -526,6 +527,15 @@ internal fun AlphaMode.toRtKhronosPbrMaterialSpec(): RtKhronosPbrMaterialSpec {
         doubleSidedMode = RtKhronosPbrMaterialSpec.SINGLE_SIDED,
     )
 }
+
+@ResizableComponent.GeometryGestureType
+internal fun ResizeGestureMode.toRtGeometryInteractionType(): Int =
+    when (this) {
+        ResizeGestureMode.NONE -> ResizableComponent.GeometryGestureType.NONE
+        ResizeGestureMode.ONE_HANDED -> ResizableComponent.GeometryGestureType.ONE_HANDED
+        ResizeGestureMode.TWO_HANDED -> ResizableComponent.GeometryGestureType.TWO_HANDED
+        else -> ResizableComponent.GeometryGestureType.ALL
+    }
 
 /**
  * Extension function that converts a [androidx.xr.scenecore.runtime.PerceivedResolutionResult] to
