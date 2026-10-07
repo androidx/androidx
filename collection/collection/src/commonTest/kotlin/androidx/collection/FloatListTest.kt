@@ -595,6 +595,19 @@ class FloatListTest {
     }
 
     @Test
+    fun removeAllItself() {
+        val l = mutableFloatListOf(1f, 2f, 3f)
+        assertTrue(l.removeAll(l))
+        assertTrue(l.isEmpty())
+    }
+
+    @Test
+    fun removeAllItselfEmpty() {
+        val l = mutableFloatListOf()
+        assertFalse(l.removeAll(l))
+    }
+
+    @Test
     fun removeAllFloatArray() {
         assertFalse(list.removeAll(floatArrayOf(0f, 10f, 15f)))
         val l = mutableFloatListOf(0f, 1f, 15f, 10f, 2f, 3f, 4f, 5f, 20f, 5f)
@@ -610,6 +623,13 @@ class FloatListTest {
         val l2 = mutableFloatListOf(0f, 1f, 15f, 10f, 2f, 3f, 4f, 5f, 20f, 5f)
         l2 -= mutableFloatListOf(20f, 0f, 15f, 10f, 5f)
         assertEquals(list, l2)
+    }
+
+    @Test
+    fun minusAssignItself() {
+        val l = mutableFloatListOf(1f, 2f, 3f)
+        l -= l
+        assertTrue(l.isEmpty())
     }
 
     @Test

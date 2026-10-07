@@ -861,6 +861,10 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      */
     public fun removeAll(elements: LongList): Boolean {
         val initialSize = _size
+        if (elements === this) {
+            clear()
+            return initialSize != 0
+        }
         for (i in 0..elements.lastIndex) {
             remove(elements[i])
         }
@@ -876,6 +880,10 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
 
     /** Removes all [elements] from the [MutableLongList]. */
     public operator fun minusAssign(elements: LongList) {
+        if (elements === this) {
+            clear()
+            return
+        }
         elements.forEach { element ->
             remove(element)
         }

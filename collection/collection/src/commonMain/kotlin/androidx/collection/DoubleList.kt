@@ -869,6 +869,10 @@ public class MutableDoubleList(initialCapacity: Int = 16) : DoubleList(initialCa
      */
     public fun removeAll(elements: DoubleList): Boolean {
         val initialSize = _size
+        if (elements === this) {
+            clear()
+            return initialSize != 0
+        }
         for (i in 0..elements.lastIndex) {
             remove(elements[i])
         }
@@ -884,6 +888,10 @@ public class MutableDoubleList(initialCapacity: Int = 16) : DoubleList(initialCa
 
     /** Removes all [elements] from the [MutableDoubleList]. */
     public operator fun minusAssign(elements: DoubleList) {
+        if (elements === this) {
+            clear()
+            return
+        }
         elements.forEach { element ->
             remove(element)
         }
