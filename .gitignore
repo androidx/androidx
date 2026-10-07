@@ -30,6 +30,7 @@ jacoco.exec
 /ui/studio
 
 /intellij
+/aswb
 /vscode
 **/.vscode/**
 
