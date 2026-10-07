@@ -18,6 +18,9 @@ package androidx.test.backup.host
 
 /**
  * Defines global configuration parameters for the Automated Backup and Restore test runner suite.
+ *
+ * Tests whose test suite properties name the tested app don't need this annotation: without it,
+ * they target that app.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)

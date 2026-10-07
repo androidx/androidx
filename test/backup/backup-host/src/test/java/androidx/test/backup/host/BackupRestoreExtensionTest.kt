@@ -17,15 +17,21 @@
 package androidx.test.backup.host
 
 import com.android.adblib.AdbSession
+import java.io.File
+import java.util.Properties
 import java.util.function.Function
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource
 import org.junit.jupiter.api.extension.ParameterContext
+import org.junit.rules.TemporaryFolder
 import org.mockito.Mockito.any
 import org.mockito.Mockito.doThrow
 import org.mockito.Mockito.mock
@@ -37,6 +43,12 @@ class BackupRestoreExtensionTest {
 
     @Suppress("UNUSED_PARAMETER")
     private fun dummyMethod(device: BackupRestoreController, other: String) {}
+
+    @BackupRestoreConfig(applicationId = "com.example.outer") class ConfiguredTestClass
+
+    class UnconfiguredTestClass
+
+    @get:Rule val tempFolder = TemporaryFolder()
 
     private val rootStore = FakeStore()
     private val context = contextWithRootStore(rootStore)
@@ -66,6 +78,61 @@ class BackupRestoreExtensionTest {
         // Test when parameter is something else
         `when`(mockParameterContext.parameter).thenReturn(otherParameter)
         assertFalse(extension.supportsParameter(mockParameterContext, mockExtensionContext))
+    }
+
+    @Test
+    fun aTestClassWithoutConfigurationTargetsTheTestedApp() {
+        val extension = BackupRestoreExtension()
+        val suiteFile = suitePropertiesFile(TESTED_APPLICATION_ID to "com.example.tested")
+
+        assertEquals(
+            "com.example.tested",
+            extension.applicationIdFor(
+                UnconfiguredTestClass::class.java,
+                extension.suiteProperties(suiteFile.path),
+            ),
+        )
+    }
+
+    @Test
+    fun theConfiguredApplicationIdTakesPrecedenceOverTheTestedApp() {
+        val extension = BackupRestoreExtension()
+        val suiteFile = suitePropertiesFile(TESTED_APPLICATION_ID to "com.example.tested")
+        val suiteProperties = extension.suiteProperties(suiteFile.path)
+
+        assertEquals(
+            "com.example.outer",
+            extension.applicationIdFor(ConfiguredTestClass::class.java, suiteProperties),
+        )
+    }
+
+    @Test
+    fun theTestedAppCanComeFromASystemProperty() {
+        val previous = System.setProperty(TESTED_APPLICATION_ID, "com.example.property")
+        try {
+            assertEquals(
+                "com.example.property",
+                BackupRestoreExtension()
+                    .applicationIdFor(UnconfiguredTestClass::class.java, Properties()),
+            )
+        } finally {
+            if (previous == null) {
+                System.clearProperty(TESTED_APPLICATION_ID)
+            } else {
+                System.setProperty(TESTED_APPLICATION_ID, previous)
+            }
+        }
+    }
+
+    @Test
+    fun aTestClassWithoutConfigurationOutsideOfATestSuiteFails() {
+        val error =
+            assertFailsWith<IllegalStateException> {
+                BackupRestoreExtension()
+                    .applicationIdFor(UnconfiguredTestClass::class.java, Properties())
+            }
+
+        assertContains(error.message.orEmpty(), UnconfiguredTestClass::class.java.name)
     }
 
     /** Each test class gets its own extension instance, but they all share one session. */
@@ -111,6 +178,32 @@ class BackupRestoreExtensionTest {
         verify(session, never()).close()
     }
 
+    @Test
+    fun thereAreNoSuitePropertiesOutsideOfATestSuite() {
+        val extension = BackupRestoreExtension()
+
+        assertTrue(extension.suiteProperties(null).isEmpty)
+        assertTrue(extension.suiteProperties("").isEmpty)
+        assertTrue(extension.suiteProperties(File(tempFolder.root, "missing").path).isEmpty)
+    }
+
+    @Test
+    fun unreadableSuitePropertiesAreIgnored() {
+        val suiteFile = tempFolder.newFile("input-parameters.properties")
+        suiteFile.writeText("$TESTED_APPLICATION_ID=com.example.tested\nmalformed=\\uXYZW\n")
+
+        assertTrue(BackupRestoreExtension().suiteProperties(suiteFile.path).isEmpty)
+    }
+
+    /** Writes [inputs] to a properties file, as an Android Gradle Plugin test suite does. */
+    private fun suitePropertiesFile(vararg inputs: Pair<String, String>): File {
+        val properties = Properties()
+        inputs.forEach { (name, value) -> properties.setProperty(name, value) }
+        val file = tempFolder.newFile("input-parameters.properties")
+        file.writer(Charsets.UTF_8).use { properties.store(it, "Input properties for test engine") }
+        return file
+    }
+
     /**
      * An [ExtensionContext.Store] that closes its [CloseableResource]s on [closeAll], as JUnit does
      * when the context that owns the store ends.
@@ -147,6 +240,9 @@ class BackupRestoreExtensionTest {
     }
 
     private companion object {
+        /** Test suite input with the application ID of the tested app. */
+        const val TESTED_APPLICATION_ID = "com.android.junit.engine.tested.application.id"
+
         /** Returns a root [ExtensionContext] whose store, in any namespace, is [store]. */
         fun contextWithRootStore(store: ExtensionContext.Store): ExtensionContext {
             val context = mock(ExtensionContext::class.java)

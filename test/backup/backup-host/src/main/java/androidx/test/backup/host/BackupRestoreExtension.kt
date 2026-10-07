@@ -23,6 +23,8 @@ import com.android.adblib.isOnline
 import com.android.adblib.serialNumber
 import com.android.adblib.shellAsText
 import com.android.adblib.tools.createStandaloneSession
+import java.io.File
+import java.util.Properties
 import java.util.logging.Logger
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -40,6 +42,9 @@ import org.junit.jupiter.api.extension.ParameterResolver
  * automatic APK installation for tested and test packages, proactively dismisses
  * lockscreens/keyguards, and sets up data isolation (e.g. running `pm clear`) prior to test
  * execution.
+ *
+ * Each controller targets the app named by the test class's [BackupRestoreConfig]. Without one, it
+ * targets the tested app that the test suite properties name.
  */
 public class BackupRestoreExtension
 internal constructor(
@@ -103,11 +108,8 @@ internal constructor(
         val requiredClass =
             extensionContext?.requiredTestClass
                 ?: throw IllegalStateException("Required test class is missing")
-        val config =
-            requiredClass.getAnnotation(BackupRestoreConfig::class.java)
-                ?: throw IllegalStateException(
-                    "BackupRestoreConfig annotation is required on class ${requiredClass.name}"
-                )
+        val suiteProperties = suiteProperties()
+        val applicationId = applicationIdFor(requiredClass, suiteProperties)
         val adbSession = sessionFor(extensionContext)
 
         val deviceAnnotation = parameterContext?.parameter?.getAnnotation(Device::class.java)
@@ -222,7 +224,7 @@ internal constructor(
                 adbSession = adbSession,
                 serialNumber = serial,
                 apiLevel = api,
-                applicationId = config.applicationId,
+                applicationId = applicationId,
                 telemetryPublisher = { key, value ->
                     extensionContext?.publishReportEntry(key, value)
                 },
@@ -230,30 +232,8 @@ internal constructor(
 
         // Automatically install tested APKs (main app) and test APKs if provided by AGP test suite
         // task
-        val propertiesFileEnv = System.getenv("com.android.junit.engine.input.parameters")
-        var testedApkPath: String? = null
-        var testApkPath: String? = null
-
-        if (!propertiesFileEnv.isNullOrEmpty()) {
-            val propertiesFile = java.io.File(propertiesFileEnv)
-            if (propertiesFile.exists()) {
-                try {
-                    val props = java.util.Properties()
-                    propertiesFile.reader(Charsets.UTF_8).use { props.load(it) }
-                    testedApkPath = props.getProperty("com.android.agp.test.TESTED_APKS")
-                    testApkPath = props.getProperty("com.android.agp.test.TEST_APKS")
-                } catch (e: Exception) {
-                    logger.warning("Failed to load parameters properties file: ${e.message}")
-                }
-            }
-        }
-
-        if (testedApkPath.isNullOrEmpty()) {
-            testedApkPath = System.getProperty("com.android.agp.test.TESTED_APKS")
-        }
-        if (testApkPath.isNullOrEmpty()) {
-            testApkPath = System.getProperty("com.android.agp.test.TEST_APKS")
-        }
+        val testedApkPath = suiteProperty(suiteProperties, PROP_TESTED_APKS)
+        val testApkPath = suiteProperty(suiteProperties, PROP_TEST_APKS)
 
         fun installApkFromPath(path: String) {
             if (path.isEmpty()) return
@@ -315,6 +295,40 @@ internal constructor(
     }
 
     /**
+     * Returns the inputs that an Android Gradle Plugin test suite passes to its tests in the
+     * properties file at [path], or no properties outside of a test suite or if the file can't be
+     * read.
+     */
+    internal fun suiteProperties(path: String? = System.getenv(SUITE_PROPERTIES_ENV)): Properties {
+        val file = path?.takeIf { it.isNotEmpty() }?.let { File(it) }
+        if (file == null || !file.exists()) return Properties()
+        return try {
+            Properties().apply { file.reader(Charsets.UTF_8).use { load(it) } }
+        } catch (e: Exception) {
+            logger.warning("Failed to load parameters properties file: ${e.message}")
+            Properties()
+        }
+    }
+
+    /**
+     * Returns the ID of the app that the tests of [testClass] target: the one that its
+     * [BackupRestoreConfig] names, or else the one of the app that the test suite of
+     * [suiteProperties] tests.
+     */
+    internal fun applicationIdFor(testClass: Class<*>, suiteProperties: Properties): String =
+        testClass.getAnnotation(BackupRestoreConfig::class.java)?.applicationId
+            ?: suiteProperty(suiteProperties, PROP_TESTED_APPLICATION_ID)
+            ?: throw IllegalStateException(
+                "No application ID for ${testClass.name}: annotate it with @BackupRestoreConfig, " +
+                    "or run it in an Android Gradle Plugin backup test suite."
+            )
+
+    /** Returns the test suite input [name] of [suiteProperties], or else the system property. */
+    private fun suiteProperty(suiteProperties: Properties, name: String): String? =
+        suiteProperties.getProperty(name)?.takeIf { it.isNotEmpty() }
+            ?: System.getProperty(name)?.takeIf { it.isNotEmpty() }
+
+    /**
      * Publishes the report entries describing a precondition failure, so that failures detected
      * before a [BackupRestoreController] exists are reported with the same vocabulary that
      * [BackupRestoreControllerImpl] uses for completed executions.
@@ -368,6 +382,22 @@ internal constructor(
 
         /** Global property specifying a fallback device API level. */
         private const val PROP_DEVICE_API = "androidx.test.backup.device.api"
+
+        /**
+         * Environment variable with the path of the properties file in which an Android Gradle
+         * Plugin test suite passes its inputs to the tests.
+         */
+        private const val SUITE_PROPERTIES_ENV = "com.android.junit.engine.input.parameters"
+
+        /** Test suite input with the application ID of the tested app. */
+        private const val PROP_TESTED_APPLICATION_ID =
+            "com.android.junit.engine.tested.application.id"
+
+        /** Test suite input with the APK files of the tested app. */
+        private const val PROP_TESTED_APKS = "com.android.agp.test.TESTED_APKS"
+
+        /** Test suite input with the APK files of the test app. */
+        private const val PROP_TEST_APKS = "com.android.agp.test.TEST_APKS"
 
         /** Timeout limit for discovering connected devices via ADB. */
         private const val ADB_TIMEOUT_MS = 30000L
