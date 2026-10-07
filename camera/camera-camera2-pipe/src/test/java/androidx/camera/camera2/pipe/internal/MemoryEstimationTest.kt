@@ -94,6 +94,7 @@ class MemoryEstimationTest {
     @After
     fun teardown() {
         frameGraph.close()
+        simulator.checkImagesClosed()
         simulator.close()
     }
 
@@ -112,6 +113,8 @@ class MemoryEstimationTest {
         // FrameBuffer, 100% of that allocated memory should be marked as evictable.
         assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
         assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize)
+
+        frameBuffer.close()
     }
 
     @Test
@@ -135,6 +138,7 @@ class MemoryEstimationTest {
         assertThat(estimator.evictableMemory.value).isEqualTo(0L)
 
         acquiredFrame?.close()
+        frameBuffer.close()
     }
 
     @Test
@@ -157,6 +161,8 @@ class MemoryEstimationTest {
         // holds the frame, it becomes eligible for eviction once again.
         assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
         assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize)
+
+        frameBuffer.close()
     }
 
     @Test
@@ -228,6 +234,7 @@ class MemoryEstimationTest {
         assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize * 1)
 
         frame2?.close()
+        frameBuffer.close()
     }
 
     @Test
@@ -329,6 +336,8 @@ class MemoryEstimationTest {
         // Estimator should be back to initial state (1 frame in buffer, 1 evictable)
         assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize)
         assertThat(estimator.evictableMemory.value).isEqualTo(largeImageSize)
+
+        frameBuffer.close()
     }
 
     @Test
@@ -428,7 +437,9 @@ class MemoryEstimationTest {
         // Acquire the frame and REMOVE it from the buffer.
         val acquiredFrame1 = frameBuffer.removeFirst()
         assertThat(acquiredFrame1).isNotNull()
-        assertThat(acquiredFrame1!!.getImage(streamId)).isNotNull()
+        val acquiredImage1 = acquiredFrame1!!.getImage(streamId)
+        assertThat(acquiredImage1).isNotNull()
+        acquiredImage1!!.close()
 
         // Exhaust the remaining capacity via explicit captures.
         val fillerCaptures =
@@ -441,7 +452,9 @@ class MemoryEstimationTest {
 
             val captured = capture.awaitFrame()
             assertThat(captured).isNotNull()
-            assertThat(captured!!.getImage(streamId)).isNotNull()
+            val capturedImage = captured!!.getImage(streamId)
+            assertThat(capturedImage).isNotNull()
+            capturedImage!!.close()
             fillerFrames.add(captured)
         }
 
