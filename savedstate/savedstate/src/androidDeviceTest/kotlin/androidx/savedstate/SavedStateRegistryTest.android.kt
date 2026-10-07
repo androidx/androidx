@@ -297,9 +297,9 @@ class SavedStateRegistryTest {
     @Test
     fun createOrGetContainer_createsOrGetsChildContainer() {
         val registry = SavedStateRegistry()
-        val childContainer = registry.createOrGetContainer("child")
+        val childContainer = registry.getOrCreateContainer("child")
         assertThat(childContainer).isNotNull()
-        assertThat(registry.createOrGetContainer("child")).isSameInstanceAs(childContainer)
+        assertThat(registry.getOrCreateContainer("child")).isSameInstanceAs(childContainer)
         assertThat("child" in registry.asContainer()).isTrue()
     }
 

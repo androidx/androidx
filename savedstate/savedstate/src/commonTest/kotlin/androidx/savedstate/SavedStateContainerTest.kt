@@ -144,19 +144,19 @@ internal class SavedStateContainerTest : RobolectricTest() {
     @Test
     fun createOrGetContainer_createsNewChildContainer() {
         val parent = SavedStateContainer()
-        val child = parent.createOrGetContainer("child")
+        val child = parent.getOrCreateContainer("child")
 
         assertThat(child).isNotNull()
 
         // Same call returns the exact same child container
-        val sameChild = parent.createOrGetContainer("child")
+        val sameChild = parent.getOrCreateContainer("child")
         assertThat(sameChild).isSameInstanceAs(child)
     }
 
     @Test
     fun nestedContainers_saveAndRestoreState() {
         val parent = SavedStateContainer()
-        val child = parent.createOrGetContainer("child")
+        val child = parent.getOrCreateContainer("child")
         val childValue = TestSavedStateValue("childState")
         child.putSavedStateValue("leafKey", childValue)
 
@@ -172,7 +172,7 @@ internal class SavedStateContainerTest : RobolectricTest() {
 
         // Restore into a fresh parent hierarchy
         val restoredParent = SavedStateContainer()
-        val restoredChild = restoredParent.createOrGetContainer("child")
+        val restoredChild = restoredParent.getOrCreateContainer("child")
         val restoredChildValue = TestSavedStateValue()
         restoredChild.putSavedStateValue("leafKey", restoredChildValue)
 

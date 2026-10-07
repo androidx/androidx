@@ -592,11 +592,11 @@ class SavedStateHandleTest {
     @UiThreadTest
     fun testCreateOrGetContainer() {
         val handle = SavedStateHandle()
-        val childContainer = handle.createOrGetContainer("nested")
-        val sameChildContainer = handle.createOrGetContainer("nested")
+        val childContainer = handle.getOrCreateContainer("nested")
+        val sameChildContainer = handle.getOrCreateContainer("nested")
         assertThat(childContainer).isSameInstanceAs(sameChildContainer)
 
-        val childChildContainer = childContainer.createOrGetContainer("subNested")
+        val childChildContainer = childContainer.getOrCreateContainer("subNested")
         assertThat(childChildContainer).isNotNull()
     }
 
@@ -604,11 +604,11 @@ class SavedStateHandleTest {
     @UiThreadTest
     fun testCreateOrGetSavedStateHandle() {
         val handle = SavedStateHandle()
-        val childHandle = handle.createOrGetSavedStateHandle("nested")
+        val childHandle = handle.getOrCreateSavedStateHandle("nested")
         childHandle["childKey"] = "childValue"
         assertThat(childHandle.get<String>("childKey")).isEqualTo("childValue")
 
-        val sameChildHandle = handle.createOrGetSavedStateHandle("nested")
+        val sameChildHandle = handle.getOrCreateSavedStateHandle("nested")
         assertThat(sameChildHandle.get<String>("childKey")).isEqualTo("childValue")
 
         sameChildHandle["childKey2"] = "childValue2"
@@ -620,14 +620,14 @@ class SavedStateHandleTest {
     fun testNestedSavedStateHandleSaveState() {
         val handle = SavedStateHandle()
         handle["parentKey"] = "parentValue"
-        val childHandle = handle.createOrGetSavedStateHandle("child")
+        val childHandle = handle.getOrCreateSavedStateHandle("child")
         childHandle["childKey"] = "childValue"
 
         val savedState = handle.asContainer().saveState()
         val restoredHandle = SavedStateHandle.createHandle(savedState, null)
         assertThat(restoredHandle.get<String>("parentKey")).isEqualTo("parentValue")
 
-        val restoredChildHandle = restoredHandle.createOrGetSavedStateHandle("child")
+        val restoredChildHandle = restoredHandle.getOrCreateSavedStateHandle("child")
         assertThat(restoredChildHandle.get<String>("childKey")).isEqualTo("childValue")
     }
 

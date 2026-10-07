@@ -38,8 +38,8 @@ internal actual constructor(private val impl: SavedStateRegistryImpl) {
     @MainThread public actual fun asContainer(): SavedStateContainer = impl.asContainer()
 
     @MainThread
-    public actual fun createOrGetContainer(key: String): SavedStateContainer =
-        impl.createOrGetContainer(key)
+    public actual fun getOrCreateContainer(key: String): SavedStateContainer =
+        impl.getOrCreateContainer(key)
 
     @MainThread
     public actual fun consumeRestoredStateForKey(key: String): SavedState? =
