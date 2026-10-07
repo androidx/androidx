@@ -98,6 +98,12 @@ internal constructor(internal val fakeInternal: InternalFakeResizableComponent) 
             fakeInternal.forceShowResizeOverlay = value
         }
 
+    override var geometryGestureType: Int
+        get() = fakeInternal.geometryGestureType
+        set(value) {
+            fakeInternal.geometryGestureType = value
+        }
+
     /**
      * For test purposes only.
      *

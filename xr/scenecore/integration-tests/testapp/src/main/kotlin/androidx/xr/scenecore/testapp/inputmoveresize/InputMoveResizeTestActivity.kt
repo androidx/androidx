@@ -217,11 +217,11 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                 GltfModelEntity.create(
                         session!!,
                         gltfModel,
-                        Pose(Vector3(0f, 1.5f, -2f)),
+                        Pose(Vector3(0f, -1.5f, -1f)),
                         parent = null,
                     )
                     .also {
-                        it.setScale(0.75f)
+                        it.setScale(0.5f)
                         it.parent = session!!.scene.activitySpace
                     }
             val movableComponent = MovableComponent.createSystemMovable(session!!, false)
@@ -262,6 +262,10 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                         updateText()
                     }
                 }
+            val resizableComponent =
+                ResizableComponent.create(session!!) {
+                    it.entity.setScale(it.newSize.depth)
+                }
 
             val gltfMovableSwitch = findViewById<MaterialSwitch>(R.id.gltfMovableSwitch)
             var isGltfMovable = gltfMovableSwitch.isChecked
@@ -271,6 +275,12 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
             }
             gltfModelEntity.addComponent(interactableComponent)
 
+            val gltfResizableSwitch = findViewById<MaterialSwitch>(R.id.gltfResizableSwitch)
+            var isGltfResizable = gltfResizableSwitch.isChecked
+            if (isGltfResizable) {
+                gltfModelEntity.addComponent(resizableComponent)
+            }
+
             gltfMovableSwitch.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked && !isGltfMovable) {
                     gltfModelEntity.addComponent(movableComponent)
@@ -278,6 +288,16 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                 } else if (!isChecked && isGltfMovable) {
                     gltfModelEntity.removeComponent(movableComponent)
                     isGltfMovable = false
+                }
+            }
+
+            gltfResizableSwitch.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked && !isGltfResizable) {
+                    gltfModelEntity.addComponent(resizableComponent)
+                    isGltfResizable = true
+                } else if (!isChecked && isGltfResizable) {
+                    gltfModelEntity.removeComponent(resizableComponent)
+                    isGltfResizable = false
                 }
             }
         }

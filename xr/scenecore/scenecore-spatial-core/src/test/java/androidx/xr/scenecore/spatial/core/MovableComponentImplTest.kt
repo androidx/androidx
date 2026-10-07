@@ -32,8 +32,10 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.GeometryAffordanceState
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
+import androidx.xr.scenecore.runtime.MeshFeature
 import androidx.xr.scenecore.runtime.MovableComponent
 import androidx.xr.scenecore.runtime.MoveEvent
 import androidx.xr.scenecore.runtime.MoveEventListener
@@ -204,7 +206,16 @@ class MovableComponentImplTest {
         Truth.assertThat(options.eventExecutor).isNotNull()
     }
 
-    private fun createGltfEntity(activity: Activity): GltfEntityImpl {
+    /**
+     * Creates a [GltfEntityImpl] whose geometry affordance reports [affordanceState]. Tests that
+     * drive input events through the movable component must pass
+     * [GeometryAffordanceState.TRANSLATION]; everything else defaults to
+     * [GeometryAffordanceState.NONE] so that the component's gating logic is exercised.
+     */
+    private fun createGltfEntity(
+        activity: Activity,
+        affordanceState: GeometryAffordanceState = GeometryAffordanceState.NONE,
+    ): GltfEntityImpl {
         val mockGltfFeature = mock<GltfFeature>()
 
         val defaultBoundingBox = BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
@@ -215,13 +226,35 @@ class MovableComponentImplTest {
         whenever(mockGltfFeature.getNodeHolder()).thenReturn(nodeHolder)
 
         return GltfEntityImpl(
-            activity,
-            mockGltfFeature,
-            activitySpaceImpl,
-            xrExtensions,
-            sceneNodeRegistry,
-            fakeExecutor,
-        )
+                activity,
+                mockGltfFeature,
+                activitySpaceImpl,
+                xrExtensions,
+                sceneNodeRegistry,
+                fakeExecutor,
+            )
+            .apply { this.affordanceState = affordanceState }
+    }
+
+    /** Creates a [MeshEntityImpl] whose geometry affordance reports [affordanceState]. */
+    private fun createMeshEntity(
+        activity: Activity,
+        affordanceState: GeometryAffordanceState = GeometryAffordanceState.NONE,
+    ): MeshEntityImpl {
+        val mockMeshFeature = mock<MeshFeature>()
+        val nodeHolder: NodeHolder<*> =
+            NodeHolder<Node>(xrExtensions.createNode(), Node::class.java)
+        whenever(mockMeshFeature.getNodeHolder()).thenReturn(nodeHolder)
+
+        return MeshEntityImpl(
+                activity,
+                mockMeshFeature,
+                activitySpaceImpl,
+                xrExtensions,
+                sceneNodeRegistry,
+                fakeExecutor,
+            )
+            .apply { this.affordanceState = affordanceState }
     }
 
     private fun createSurfaceEntity(activity: Activity): SurfaceEntityImpl {
@@ -316,7 +349,7 @@ class MovableComponentImplTest {
 
     @Test
     fun movableComponentAttachedToGltf_propagatesInputEvents() {
-        val gltfEntity: GltfEntity = createGltfEntity(activity)
+        val gltfEntity: GltfEntity = createGltfEntity(activity, GeometryAffordanceState.TRANSLATION)
         val moveEvent = AtomicReference<MoveEvent>(null)
         val moveEventCounter = AtomicInteger(0)
         val movableComponent: MovableComponent =
@@ -1077,7 +1110,7 @@ class MovableComponentImplTest {
         // Set the activity space pose to be 1 unit down and to the left of the origin.
         val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion(0f, 0f, 0f, 1f))
         setActivitySpacePose(activitySpacePose)
-        val gltfEntity = createGltfEntity(activity)
+        val gltfEntity = createGltfEntity(activity, GeometryAffordanceState.TRANSLATION)
         val movableComponent =
             MovableComponentImpl(
                 systemMovable = true,
@@ -1144,7 +1177,7 @@ class MovableComponentImplTest {
 
     @Test
     fun anchorableComponentNotMovingGltf_sendMoveEvent_hidesShadow() {
-        val gltfEntity = createGltfEntity(activity)
+        val gltfEntity = createGltfEntity(activity, GeometryAffordanceState.TRANSLATION)
         val movableComponent =
             MovableComponentImpl(
                 systemMovable = true,
@@ -1204,7 +1237,7 @@ class MovableComponentImplTest {
 
     @Test
     fun movableComponentGltf_endMovement_hidesShadow() {
-        val gltfEntity = createGltfEntity(activity)
+        val gltfEntity = createGltfEntity(activity, GeometryAffordanceState.TRANSLATION)
         // Set anchorPlacement to any plane.
         val movableComponent =
             MovableComponentImpl(
@@ -1257,7 +1290,7 @@ class MovableComponentImplTest {
     @Test
     fun getMoveEventFromInputEvent_startState_setsInitialRayAndInitialParent() {
         val parent = createTestEntity()
-        val entity = createGltfEntity(activity)
+        val entity = createGltfEntity(activity, GeometryAffordanceState.TRANSLATION)
 
         val movableComponent =
             MovableComponentImpl(
@@ -1323,7 +1356,7 @@ class MovableComponentImplTest {
     @Test
     fun getMoveEventFromInputEvent_startState_setsPreviousPoseToProposedPose() {
         val parent = createTestEntity()
-        val entity = createGltfEntity(activity)
+        val entity = createGltfEntity(activity, GeometryAffordanceState.TRANSLATION)
         entity.parent = parent
 
         parent.setPose(Pose(Vector3(10f, 0f, 0f), Quaternion.Identity))
@@ -1395,7 +1428,7 @@ class MovableComponentImplTest {
     @Test
     fun movableComponentGltf_getMoveEventFromInputEvent_transformsHitPositionAndRayToParentSpace() {
         val parent = createTestEntity()
-        val entity = createGltfEntity(activity)
+        val entity = createGltfEntity(activity, GeometryAffordanceState.TRANSLATION)
         entity.parent = parent
 
         // Shift parent to X = 10. The GltfEntity resides at local space (0, 0, 0).
@@ -1449,7 +1482,7 @@ class MovableComponentImplTest {
 
     @Test
     fun movableComponentGltf_emptyHitInfo_returnsNullSafely() {
-        val entity = createGltfEntity(activity)
+        val entity = createGltfEntity(activity, GeometryAffordanceState.TRANSLATION)
         val movableComponent =
             MovableComponentImpl(
                 systemMovable = true,
@@ -1479,6 +1512,182 @@ class MovableComponentImplTest {
         sendInputEvent(ShadowNode.extract(entity.node), invalidDownEvent)
 
         verify(moveEventListener, never()).onMoveEvent(any())
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Geometry (Gltf / Mesh) entities: move events gated on the geometry affordance state.
+    // ---------------------------------------------------------------------------------------------
+
+    private fun createGeometryMovableComponent(): MovableComponentImpl =
+        MovableComponentImpl(
+            systemMovable = true,
+            scaleInZ = false,
+            userAnchorable = false,
+            activitySpaceImpl = activitySpaceImpl,
+            entityShadowRenderer = mockPanelShadowRenderer,
+            runtimeExecutor = fakeExecutor,
+        )
+
+    /** Builds an input event targeting [node] with the hit info required to start a move. */
+    private fun createGeometryInputEvent(node: Node, action: Int): InputEvent {
+        val hitInfo = InputEvent.HitInfo(1, node, Mat4f(FloatArray(16)), Vec3(0f, 0f, 0f))
+        return ShadowInputEvent.create(
+            InputEvent.SOURCE_UNKNOWN,
+            InputEvent.POINTER_TYPE_DEFAULT,
+            /* timestamp= */ 0,
+            Vec3(0f, 0f, 0f),
+            Vec3(0f, 0f, -1f),
+            hitInfo,
+            null,
+            InputEvent.DISPATCH_FLAG_NONE,
+            action,
+        )
+    }
+
+    /**
+     * Sets the geometry affordance state of [entity] to [affordanceState] and then dispatches an
+     * input event with [action] to it, mirroring the order in which the rendering layer updates the
+     * affordance state before forwarding the input event.
+     */
+    private fun sendGeometryInputEvent(
+        entity: AndroidXrEntity,
+        affordanceState: GeometryAffordanceState,
+        action: Int,
+    ) {
+        when (entity) {
+            is GltfEntityImpl -> entity.affordanceState = affordanceState
+            is MeshEntityImpl -> entity.affordanceState = affordanceState
+            else -> error("Unsupported geometry entity: $entity")
+        }
+        sendInputEvent(
+            ShadowNode.extract(entity.node),
+            createGeometryInputEvent(entity.node, action),
+        )
+    }
+
+    private fun moveStatesOf(listener: MoveEventListener, count: Int): List<Int> {
+        val captor = argumentCaptor<MoveEvent>()
+        verify(listener, times(count)).onMoveEvent(captor.capture())
+        return captor.allValues.map { it.moveState }
+    }
+
+    @Test
+    fun movableComponentGltf_translationGesture_dispatchesMoveStartOngoingEnd() {
+        val entity = createGltfEntity(activity)
+        val movableComponent = createGeometryMovableComponent()
+        assertTrue(entity.addComponent(movableComponent))
+        val listener = mock<MoveEventListener>()
+        movableComponent.addMoveEventListener(MoreExecutors.directExecutor(), listener)
+
+        sendGeometryInputEvent(entity, GeometryAffordanceState.TRANSLATION, InputEvent.ACTION_DOWN)
+        sendGeometryInputEvent(entity, GeometryAffordanceState.TRANSLATION, InputEvent.ACTION_MOVE)
+        // The affordance leaves TRANSLATION before the terminal UP event is delivered.
+        sendGeometryInputEvent(entity, GeometryAffordanceState.IDLE, InputEvent.ACTION_UP)
+
+        Truth.assertThat(moveStatesOf(listener, 3))
+            .containsExactly(
+                MoveEvent.MOVE_STATE_START,
+                MoveEvent.MOVE_STATE_ONGOING,
+                MoveEvent.MOVE_STATE_END,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun movableComponentMesh_translationGesture_dispatchesMoveStartOngoingEnd() {
+        val entity = createMeshEntity(activity)
+        val movableComponent = createGeometryMovableComponent()
+        assertTrue(entity.addComponent(movableComponent))
+        val listener = mock<MoveEventListener>()
+        movableComponent.addMoveEventListener(MoreExecutors.directExecutor(), listener)
+
+        sendGeometryInputEvent(entity, GeometryAffordanceState.TRANSLATION, InputEvent.ACTION_DOWN)
+        sendGeometryInputEvent(entity, GeometryAffordanceState.TRANSLATION, InputEvent.ACTION_MOVE)
+        sendGeometryInputEvent(entity, GeometryAffordanceState.IDLE, InputEvent.ACTION_UP)
+
+        Truth.assertThat(moveStatesOf(listener, 3))
+            .containsExactly(
+                MoveEvent.MOVE_STATE_START,
+                MoveEvent.MOVE_STATE_ONGOING,
+                MoveEvent.MOVE_STATE_END,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun movableComponentGltf_scaleGesture_doesNotDispatchMoveEvents() {
+        val entity = createGltfEntity(activity)
+        val movableComponent = createGeometryMovableComponent()
+        assertTrue(entity.addComponent(movableComponent))
+        val listener = mock<MoveEventListener>()
+        movableComponent.addMoveEventListener(MoreExecutors.directExecutor(), listener)
+
+        sendGeometryInputEvent(
+            entity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            InputEvent.ACTION_DOWN,
+        )
+        sendGeometryInputEvent(
+            entity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            InputEvent.ACTION_MOVE,
+        )
+        sendGeometryInputEvent(entity, GeometryAffordanceState.IDLE, InputEvent.ACTION_UP)
+
+        verify(listener, never()).onMoveEvent(any())
+    }
+
+    @Test
+    fun movableComponentGltf_idleAffordance_doesNotDispatchMoveEvents() {
+        val entity = createGltfEntity(activity)
+        val movableComponent = createGeometryMovableComponent()
+        assertTrue(entity.addComponent(movableComponent))
+        val listener = mock<MoveEventListener>()
+        movableComponent.addMoveEventListener(MoreExecutors.directExecutor(), listener)
+
+        sendGeometryInputEvent(entity, GeometryAffordanceState.IDLE, InputEvent.ACTION_DOWN)
+        sendGeometryInputEvent(entity, GeometryAffordanceState.IDLE, InputEvent.ACTION_MOVE)
+        sendGeometryInputEvent(entity, GeometryAffordanceState.IDLE, InputEvent.ACTION_UP)
+
+        verify(listener, never()).onMoveEvent(any())
+    }
+
+    @Test
+    fun movableComponentGltf_translationGesture_multipleListenersEachReceiveMoveEnd() {
+        val entity = createGltfEntity(activity)
+        val movableComponent = createGeometryMovableComponent()
+        assertTrue(entity.addComponent(movableComponent))
+        val firstListener = mock<MoveEventListener>()
+        val secondListener = mock<MoveEventListener>()
+        movableComponent.addMoveEventListener(MoreExecutors.directExecutor(), firstListener)
+        movableComponent.addMoveEventListener(MoreExecutors.directExecutor(), secondListener)
+
+        sendGeometryInputEvent(entity, GeometryAffordanceState.TRANSLATION, InputEvent.ACTION_DOWN)
+        sendGeometryInputEvent(entity, GeometryAffordanceState.IDLE, InputEvent.ACTION_UP)
+
+        Truth.assertThat(moveStatesOf(firstListener, 2))
+            .containsExactly(MoveEvent.MOVE_STATE_START, MoveEvent.MOVE_STATE_END)
+            .inOrder()
+        Truth.assertThat(moveStatesOf(secondListener, 2))
+            .containsExactly(MoveEvent.MOVE_STATE_START, MoveEvent.MOVE_STATE_END)
+            .inOrder()
+    }
+
+    @Test
+    fun movableComponentGltf_detachDuringTranslation_doesNotDispatchMoveEndAfterReattach() {
+        val entity = createGltfEntity(activity)
+        val movableComponent = createGeometryMovableComponent()
+        assertTrue(entity.addComponent(movableComponent))
+        val listener = mock<MoveEventListener>()
+        movableComponent.addMoveEventListener(MoreExecutors.directExecutor(), listener)
+
+        sendGeometryInputEvent(entity, GeometryAffordanceState.TRANSLATION, InputEvent.ACTION_DOWN)
+        entity.removeComponent(movableComponent)
+        assertTrue(entity.addComponent(movableComponent))
+        // Detaching resets the remembered affordance state, so this UP is not a translation end.
+        sendGeometryInputEvent(entity, GeometryAffordanceState.IDLE, InputEvent.ACTION_UP)
+
+        Truth.assertThat(moveStatesOf(listener, 1)).containsExactly(MoveEvent.MOVE_STATE_START)
     }
 
     internal inner class TestMoveEventListener(var movableComponent: MovableComponent) :

@@ -76,6 +76,39 @@ public interface ResizableComponent : Component {
     @get:Suppress("GetterSetterNames") public var forceShowResizeOverlay: Boolean
 
     /**
+     * Valid integer constants for bounding 3D geometry resizing and scaling interaction modes.
+     *
+     * These settings dictate which user physical inputs are allowed to trigger scale adjustments on
+     * the target object.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public annotation class GeometryGestureType {
+        public companion object {
+            /** Disable all scaling gestures. */
+            public const val NONE: Int = 0
+
+            /** Allow scaling via single-handed pinch or drag gestures. */
+            public const val ONE_HANDED: Int = 1
+
+            /** Allow scaling only via two-handed pinch-and-stretch gestures. */
+            public const val TWO_HANDED: Int = 2
+
+            /** Enable all standard scaling gestures. */
+            public const val ALL: Int = 3
+        }
+    }
+
+    /**
+     * Sets the gesture interaction type for scaling geometries.
+     *
+     * NOTE: This property is only applicable when the component is attached to 3D spatial
+     * geometries, such as [GltfEntity] or [MeshEntity]. Setting this value has no effect on 2D
+     * panels ([PanelEntity] or [SurfaceEntity]), where resizing options are handled automatically
+     * by the platform's default window borders.
+     */
+    public var geometryGestureType: Int
+
+    /**
      * Adds the listener to the set of listeners that are invoked through the resize operation, such
      * as start, ongoing and end.
      *

@@ -186,6 +186,8 @@ internal class GltfFeatureImpl(
                     )
                     val state = impressApi.getReformAffordanceState(modelImpressNode)
                     entity.affordanceState = GeometryAffordanceState.fromInt(state)
+                    val transform = impressApi.getRecommendedAffordanceTransform(modelImpressNode)
+                    entity.recommendedAffordanceScale = transform.scale
                     (entity as AndroidXrEntity).handleInputEvent(inputEvent)
                 }
             }
