@@ -80,6 +80,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
@@ -140,7 +141,9 @@ public suspend fun captureSingleRemoteDocument(
     val recomposerDispatcher =
         currentCoroutineContext()
             .toSingleThreadedRecomposerContext(name = "captureSingleRemoteDocument")
-    val recomposer = Recomposer(currentCoroutineContext() + recomposerDispatcher)
+    val writeTracker = CaptureWriteTracker()
+    val recomposer =
+        Recomposer(currentCoroutineContext() + recomposerDispatcher + writeTracker.contextElement)
     val composition = Composition(applier, recomposer)
     val lifecycleOwner = HeadlessLifecycleOwner()
 
@@ -182,7 +185,8 @@ public suspend fun captureSingleRemoteDocument(
         // Unlike the streaming captureRemoteDocument, a single capture does not acquire
         // SnapshotWriteMonitor. Global writes made by effects are applied by the explicit
         // Snapshot.sendApplyNotifications() inside awaitRecomposerQuiescence, which is enough for a
-        // one-shot capture and avoids starting a process-wide observer for a short-lived call.
+        // one-shot capture and avoids starting a process-wide coalescing loop for a short-lived
+        // call. writeTracker only records this capture's own writes, see CaptureWriteTracker.
         coroutineScope {
             lateinit var frameClock: BroadcastFrameClock
             val frameCounter = FrameCounter()
@@ -195,6 +199,10 @@ public suspend fun captureSingleRemoteDocument(
                     ThreadLocalRandom.current().nextInt(),
                 ) {
                     launch(recomposerDispatcher + frameClock) {
+                        // Queued before the runner's first slice can request a frame, so it runs
+                        // after the Recomposer registers its apply observer but before any effect
+                        // resumes from withFrameNanos.
+                        launch { writeTracker.start() }
                         recomposer.runRecomposeAndApplyChanges()
                     }
 
@@ -207,6 +215,7 @@ public suspend fun captureSingleRemoteDocument(
                             recomposerDispatcher = recomposerDispatcher,
                             clock = clock,
                             maxIterations = maxIterations,
+                            writeTracker = writeTracker,
                         )
                     ) {
                         QuiescenceResult.Quiescent -> {}
@@ -238,6 +247,7 @@ public suspend fun captureSingleRemoteDocument(
                     }
                 }
             } finally {
+                writeTracker.stop()
                 frameClock.cancel()
                 recomposer.cancel()
                 currentCoroutineContext().cancelChildren()
@@ -371,7 +381,9 @@ public fun captureRemoteDocument(
         (currentCoroutineContext() + coroutineContext).toSingleThreadedRecomposerContext(
             name = "captureRemoteDocument"
         )
-    val recomposer = Recomposer(currentCoroutineContext() + recomposerDispatcher)
+    val writeTracker = CaptureWriteTracker()
+    val recomposer =
+        Recomposer(currentCoroutineContext() + recomposerDispatcher + writeTracker.contextElement)
     val composition = Composition(applier, recomposer)
     val lifecycleOwner = HeadlessLifecycleOwner()
 
@@ -427,6 +439,10 @@ public fun captureRemoteDocument(
             SnapshotWriteMonitor.acquire()
             try {
                 launch(recomposerDispatcher + frameClock) {
+                    // Queued before the runner's first slice can request a frame, so it runs after
+                    // the Recomposer registers its apply observer but before any effect resumes
+                    // from withFrameNanos.
+                    launch { writeTracker.start() }
                     recomposer.runRecomposeAndApplyChanges()
                 }
 
@@ -468,6 +484,7 @@ public fun captureRemoteDocument(
                             frameCounter = frameCounter,
                             recomposerDispatcher = recomposerDispatcher,
                             clock = clock,
+                            writeTracker = writeTracker,
                         )
 
                         val bytes =
@@ -523,6 +540,7 @@ public fun captureRemoteDocument(
                     invalidations.close()
                 }
             } finally {
+                writeTracker.stop()
                 frameClock.cancel()
                 recomposer.cancel()
                 currentCoroutineContext().cancelChildren()
@@ -667,9 +685,10 @@ private enum class QuiescenceResult {
  *
  * Limitation of (3): a `MutableSnapshot.apply()` on another thread also claims pending global
  * writes and notifies observers after releasing the global lock, but the runtime does not count
- * those notifications in [Snapshot.isApplyObserverNotificationPending]. That window is not covered
- * here. This session's own render snapshots avoid widening it by only applying when they wrote
- * state (see [withRenderSnapshot]).
+ * those notifications in [Snapshot.isApplyObserverNotificationPending]. This capture's own writes
+ * claimed that way are also waited for via [writeTracker] (see [CaptureWriteTracker]); writes from
+ * elsewhere in the process are not covered. This session's own render snapshots avoid widening the
+ * window by only applying when they wrote state (see [withRenderSnapshot]).
  *
  * Note that [Recomposer.currentState] is only ever sampled by value here, never used to detect a
  * transition, so conflation of the underlying [StateFlow] cannot cause a missed wake-up.
@@ -684,6 +703,7 @@ private enum class QuiescenceResult {
  *
  * @param frameCounter sends and counts every frame on [frameClock], see [FrameCounter].
  * @param maxIterations bound on the number of non-quiescent iterations before giving up.
+ * @param writeTracker tracks this capture's undelivered global writes, see [CaptureWriteTracker].
  */
 private suspend fun awaitRecomposerQuiescence(
     recomposer: Recomposer,
@@ -691,6 +711,7 @@ private suspend fun awaitRecomposerQuiescence(
     frameCounter: FrameCounter,
     recomposerDispatcher: CoroutineContext,
     clock: RemoteClock,
+    writeTracker: CaptureWriteTracker,
     maxIterations: Int = MAX_IDLE_ITERATIONS,
 ): QuiescenceResult =
     withContext(recomposerDispatcher) {
@@ -721,6 +742,7 @@ private suspend fun awaitRecomposerQuiescence(
                 if (!awaitApplyObserverNotifications(canYield = shouldYield)) {
                     return@withFrameBudget QuiescenceResult.ApplyNotificationsTimedOut
                 }
+                writeTracker.awaitDelivery(canYield = shouldYield)
                 val isQuiescent =
                     recomposer.currentState.value == Recomposer.State.Idle &&
                         !recomposer.hasPendingWork &&
@@ -749,11 +771,20 @@ private suspend fun awaitRecomposerQuiescence(
  *   `false` (immediate dispatchers), the thread is yielded with [Thread.yield] instead.
  * @return `true` if no notification is pending, `false` if the wait timed out.
  */
-private suspend fun awaitApplyObserverNotifications(canYield: Boolean): Boolean {
-    if (!Snapshot.isApplyObserverNotificationPending) return true
+private suspend fun awaitApplyObserverNotifications(canYield: Boolean): Boolean =
+    pollUntil(canYield) { !Snapshot.isApplyObserverNotificationPending }
+
+/**
+ * Polls [isDone] for at most [APPLY_NOTIFICATION_WAIT] (or [APPLY_NOTIFICATION_MAX_POLLS] polls),
+ * yielding between polls as described for [awaitApplyObserverNotifications].
+ *
+ * @return `true` if [isDone] returned `true`, `false` if the wait timed out.
+ */
+private suspend inline fun pollUntil(canYield: Boolean, isDone: () -> Boolean): Boolean {
+    if (isDone()) return true
     val deadline = TimeSource.Monotonic.markNow() + APPLY_NOTIFICATION_WAIT
     var polls = 0
-    while (Snapshot.isApplyObserverNotificationPending) {
+    while (!isDone()) {
         if (deadline.hasPassedNow() || ++polls > APPLY_NOTIFICATION_MAX_POLLS) return false
         if (canYield) {
             yield()
@@ -763,6 +794,107 @@ private suspend fun awaitApplyObserverNotifications(canYield: Boolean): Boolean 
         }
     }
     return true
+}
+
+/**
+ * Called on the capture's thread when [CaptureWriteTracker] finds writes made by the capture that
+ * have not been delivered to apply observers yet, before it waits for them. Lets tests hold back a
+ * delivery until the capture is known to be waiting for it.
+ */
+@VisibleForTesting @Volatile internal var onCaptureAwaitingWriteDelivery: (() -> Unit)? = null
+
+/**
+ * Tracks global snapshot writes made by one capture's own coroutines (effects and their frame
+ * callbacks) until an apply notification delivers them.
+ *
+ * A `MutableSnapshot.apply()` on another thread (e.g. a concurrent capture's recomposer, or a
+ * render snapshot) claims every pending global write and delivers it to apply observers only after
+ * releasing the global lock, outside [Snapshot.isApplyObserverNotificationPending]. If that claims
+ * a write made by this capture's effect, [Snapshot.sendApplyNotifications] here finds nothing to
+ * send and [Recomposer.hasPendingWork] stays `false` until the other thread delivers it, so the
+ * capture could sample itself as quiescent and render stale state (b/571028326).
+ *
+ * Writes are attributed to the capture through [contextElement], a thread-local marker installed
+ * while the capture's coroutines run (the Recomposer's effect context inherits it), so writes from
+ * elsewhere in the process are ignored. Its apply observer must run after the Recomposer's, so that
+ * once a write is delivered here the Recomposer has already seen it: [start] it after the
+ * Recomposer registers its apply observer, and before effects can resume from a frame.
+ *
+ * Thread-safe: observers run on whichever thread writes or delivers.
+ */
+private class CaptureWriteTracker {
+    private val activeTracker = ThreadLocal<CaptureWriteTracker?>()
+    private val lock = Any()
+    private val undelivered = newIdentitySet()
+    private var writeObserver: ObserverHandle? = null
+    private var applyObserver: ObserverHandle? = null
+    private var isStopped = false
+
+    /** Marks coroutines running in a context containing this element as this capture's. */
+    val contextElement: CoroutineContext.Element = activeTracker.asContextElement(this)
+
+    /**
+     * Waits until every write made by this capture has been delivered to apply observers, sending
+     * apply notifications between polls so writes made while the dispatcher is yielded are
+     * delivered too.
+     *
+     * The wait is bounded by [pollUntil] and never fails the capture: the runtime calls write
+     * observers after releasing the snapshot lock, so another thread can claim and deliver a write
+     * before it is recorded here. Such an entry is indistinguishable from one still in flight, so
+     * entries left at the deadline are dropped.
+     */
+    suspend fun awaitDelivery(canYield: Boolean) {
+        if (synchronized(lock) { undelivered.isEmpty() }) return
+        onCaptureAwaitingWriteDelivery?.invoke()
+        val isDelivered =
+            pollUntil(canYield) {
+                Snapshot.sendApplyNotifications()
+                synchronized(lock) { undelivered.isEmpty() }
+            }
+        if (!isDelivered) synchronized(lock) { undelivered.clear() }
+    }
+
+    /** Starts tracking, unless already started or [stop]ped. */
+    fun start() {
+        synchronized(lock) { if (isStopped || applyObserver != null) return }
+        // Registered outside lock: registration takes the snapshot lock, which a writer may hold
+        // while calling the write observer below.
+        val apply = Snapshot.registerApplyObserver { changed, _ ->
+            synchronized(lock) { if (undelivered.isNotEmpty()) undelivered.removeAll(changed) }
+        }
+        val write = Snapshot.registerGlobalWriteObserver { state ->
+            if (activeTracker.get() === this) synchronized(lock) { undelivered.add(state) }
+        }
+        val isStarted =
+            synchronized(lock) {
+                if (isStopped) {
+                    false
+                } else {
+                    applyObserver = apply
+                    writeObserver = write
+                    true
+                }
+            }
+        if (!isStarted) {
+            write.dispose()
+            apply.dispose()
+        }
+    }
+
+    /** Stops tracking and releases the observers. A later [start] does nothing. */
+    fun stop() {
+        val (write, apply) =
+            synchronized(lock) {
+                isStopped = true
+                undelivered.clear()
+                (writeObserver to applyObserver).also {
+                    writeObserver = null
+                    applyObserver = null
+                }
+            }
+        write?.dispose()
+        apply?.dispose()
+    }
 }
 
 /**
