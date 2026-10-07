@@ -56,7 +56,7 @@ public class SavedStateContainer {
      * @param key unique identifier for the child container
      * @return existing or newly created child [SavedStateContainer] instance
      */
-    public fun createOrGetContainer(key: String): SavedStateContainer =
+    public fun getOrCreateContainer(key: String): SavedStateContainer =
         synchronized(lock) {
             val containerValue = values.getOrPut(key) { SavedStateContainerValue() }
             (containerValue as SavedStateContainerValue).value

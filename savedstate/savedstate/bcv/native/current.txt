@@ -67,7 +67,7 @@ final class androidx.savedstate/SavedStateContainer { // androidx.savedstate/Sav
     final fun <#A1: kotlin/Any?, #B1: androidx.savedstate/SavedStateValue<#A1>> putSavedStateValue(kotlin/String, #B1) // androidx.savedstate/SavedStateContainer.putSavedStateValue|putSavedStateValue(kotlin.String;0:1){0§<kotlin.Any?>;1§<androidx.savedstate.SavedStateValue<0:0>>}[0]
     final fun <#A1: kotlin/Any?, #B1: androidx.savedstate/SavedStateValue<#A1>> removeSavedStateValue(kotlin/String): #B1? // androidx.savedstate/SavedStateContainer.removeSavedStateValue|removeSavedStateValue(kotlin.String){0§<kotlin.Any?>;1§<androidx.savedstate.SavedStateValue<0:0>>}[0]
     final fun contains(kotlin/String): kotlin/Boolean // androidx.savedstate/SavedStateContainer.contains|contains(kotlin.String){}[0]
-    final fun createOrGetContainer(kotlin/String): androidx.savedstate/SavedStateContainer // androidx.savedstate/SavedStateContainer.createOrGetContainer|createOrGetContainer(kotlin.String){}[0]
+    final fun getOrCreateContainer(kotlin/String): androidx.savedstate/SavedStateContainer // androidx.savedstate/SavedStateContainer.getOrCreateContainer|getOrCreateContainer(kotlin.String){}[0]
     final fun keys(): kotlin.collections/Set<kotlin/String> // androidx.savedstate/SavedStateContainer.keys|keys(){}[0]
     final fun restoreState(androidx.savedstate/SavedState?) // androidx.savedstate/SavedStateContainer.restoreState|restoreState(androidx.savedstate.SavedState?){}[0]
     final fun saveState(): androidx.savedstate/SavedState // androidx.savedstate/SavedStateContainer.saveState|saveState(){}[0]
@@ -82,7 +82,7 @@ final class androidx.savedstate/SavedStateRegistry { // androidx.savedstate/Save
 
     final fun asContainer(): androidx.savedstate/SavedStateContainer // androidx.savedstate/SavedStateRegistry.asContainer|asContainer(){}[0]
     final fun consumeRestoredStateForKey(kotlin/String): androidx.savedstate/SavedState? // androidx.savedstate/SavedStateRegistry.consumeRestoredStateForKey|consumeRestoredStateForKey(kotlin.String){}[0]
-    final fun createOrGetContainer(kotlin/String): androidx.savedstate/SavedStateContainer // androidx.savedstate/SavedStateRegistry.createOrGetContainer|createOrGetContainer(kotlin.String){}[0]
+    final fun getOrCreateContainer(kotlin/String): androidx.savedstate/SavedStateContainer // androidx.savedstate/SavedStateRegistry.getOrCreateContainer|getOrCreateContainer(kotlin.String){}[0]
     final fun getSavedStateProvider(kotlin/String): androidx.savedstate/SavedStateRegistry.SavedStateProvider? // androidx.savedstate/SavedStateRegistry.getSavedStateProvider|getSavedStateProvider(kotlin.String){}[0]
     final fun registerSavedStateProvider(kotlin/String, androidx.savedstate/SavedStateRegistry.SavedStateProvider) // androidx.savedstate/SavedStateRegistry.registerSavedStateProvider|registerSavedStateProvider(kotlin.String;androidx.savedstate.SavedStateRegistry.SavedStateProvider){}[0]
     final fun unregisterSavedStateProvider(kotlin/String) // androidx.savedstate/SavedStateRegistry.unregisterSavedStateProvider|unregisterSavedStateProvider(kotlin.String){}[0]
