@@ -314,7 +314,7 @@ internal class BackupRestoreControllerImpl(
                         "does not allow backups (android:allowBackup=\"false\")"
                 )
             }
-            is BackupResult.Error -> throw result.throwable
+            is BackupResult.Error -> throw asIOException(result.throwable)
         }
     }
 
@@ -348,8 +348,11 @@ internal class BackupRestoreControllerImpl(
         when (result) {
             is BackupResult.Success ->
                 logger.info("BackupService successfully executed production restore.")
-            is BackupResult.Error -> throw result.throwable
-            else -> logger.warning("Restore finished with result: $result")
+            is BackupResult.WithoutAppData ->
+                throw IOException(
+                    "Restore of $applicationId from ${backupFile.fileName} restored no app data"
+                )
+            is BackupResult.Error -> throw asIOException(result.throwable)
         }
     }
 
@@ -569,6 +572,19 @@ internal class BackupRestoreControllerImpl(
                 PlatformLogger.getInstance(BackupRestoreControllerImpl::class.java),
                 MIN_GMS_VERSION,
             )
+
+        /**
+         * Returns [failure] of the backup service as the [IOException] that
+         * [BackupRestoreController] documents, with the same message. Cancellations and errors are
+         * returned unchanged, so a timeout still cancels the call.
+         */
+        fun asIOException(failure: Throwable): Throwable =
+            when (failure) {
+                is IOException,
+                is CancellationException,
+                is Error -> failure
+                else -> IOException(failure.message, failure)
+            }
 
         fun backupFileName(mode: BackupTransportMode): String =
             "backup_${mode.toString().lowercase(Locale.ROOT)}_device.zip"

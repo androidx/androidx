@@ -17,8 +17,12 @@
 package androidx.test.backup.host
 
 import com.android.adblib.ShellCommandOutput
+import com.android.backup.BackupException
+import com.android.backup.BackupProgressListener
 import com.android.backup.BackupResult
 import com.android.backup.BackupService
+import com.android.backup.BackupType
+import com.android.backup.ErrorCode
 import java.io.IOException
 import java.nio.file.Path
 import java.time.Duration
@@ -28,11 +32,13 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -57,6 +63,9 @@ class BackupRestoreControllerImplTest {
 
     /** What every backup through the fake backup service ends with. */
     private var backupServiceResult: BackupResult = BackupResult.Success
+
+    /** What every restore through the fake backup service ends with. */
+    private var restoreServiceResult: BackupResult = BackupResult.Success
     private val controller =
         BackupRestoreControllerImpl(
             device.session,
@@ -410,6 +419,74 @@ class BackupRestoreControllerImplTest {
             e.message,
         )
         assertFalse(outputDir().resolve("backup_cloud_encrypted_device.zip").toFile().exists())
+    }
+
+    @Test
+    fun performBackupThrowsAFailureOfTheBackupServiceAsAnIOException() {
+        val failure = BackupException(ErrorCode.APP_NOT_INSTALLED, "$PACKAGE is not installed")
+        backupServiceResult = BackupResult.Error(ErrorCode.APP_NOT_INSTALLED, failure)
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking {
+                    controller.performBackup(BackupTransportMode.CLOUD_ENCRYPTED, outputDir())
+                }
+            }
+
+        assertEquals("$PACKAGE is not installed", e.message)
+        assertSame(failure, e.rootCause())
+    }
+
+    @Test
+    fun performRestoreThrowsAFailureOfTheBackupServiceAsAnIOException() {
+        val failure = BackupException(ErrorCode.INVALID_BACKUP_FILE, "File is not a valid backup")
+        restoreServiceResult = BackupResult.Error(ErrorCode.INVALID_BACKUP_FILE, failure)
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        val e = assertFailsWith<IOException> { runBlocking { controller.performRestore(archive) } }
+
+        assertEquals("File is not a valid backup", e.message)
+        assertSame(failure, e.rootCause())
+    }
+
+    @Test
+    fun performRestoreThrowsWhenTheBackupServiceRestoresNoAppData() {
+        restoreServiceResult = BackupResult.WithoutAppData
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        val e = assertFailsWith<IOException> { runBlocking { controller.performRestore(archive) } }
+
+        assertEquals(
+            "Restore of $PACKAGE from backup_cloud_encrypted_device.zip restored no app data",
+            e.message,
+        )
+    }
+
+    /** Studio's backup service returns its own cancellation, such as by a timeout, as an error. */
+    @Test
+    fun performBackupTimesOutWhenTheBackupServiceReturnsItsCancellation() {
+        val controller =
+            BackupRestoreControllerImpl(
+                device.session,
+                FAKE_SERIAL,
+                34,
+                PACKAGE,
+                backupServiceProvider = { CancellationReturningBackupService() },
+            )
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking {
+                    controller.performBackup(
+                        BackupTransportMode.CLOUD_ENCRYPTED,
+                        outputDir(),
+                        SHORT_TIMEOUT,
+                    )
+                }
+            }
+
+        assertEquals("Backup (CLOUD_ENCRYPTED) timed out after 200ms", e.message)
+        assertEquals("am force-stop $PACKAGE", device.commands.last())
     }
 
     @Test
@@ -888,22 +965,45 @@ class BackupRestoreControllerImplTest {
         device.commands.single { it.startsWith("am instrument") }
 
     /**
-     * Returns a backup service whose backups end with [backupServiceResult]. Unless that is an
-     * error, a backup first writes the archive, as Studio's backup service does.
+     * Returns a backup service whose backups end with [backupServiceResult] and whose restores end
+     * with [restoreServiceResult]. Unless the backup result is an error, a backup first writes the
+     * archive, as Studio's backup service does.
      */
     private fun fakeBackupService(): BackupService =
-        // `backup` is a suspend function, which Mockito cannot stub with `when`.
+        // `backup` and `restore` are suspend functions, which Mockito cannot stub with `when`.
         mock(BackupService::class.java) { invocation ->
-            if (invocation.method.name == "backup") {
-                val result = backupServiceResult
-                if (result !is BackupResult.Error) {
-                    (invocation.arguments[3] as Path).toFile().writeText("archive")
+            when (invocation.method.name) {
+                "backup" -> {
+                    val result = backupServiceResult
+                    if (result !is BackupResult.Error) {
+                        (invocation.arguments[3] as Path).toFile().writeText("archive")
+                    }
+                    result
                 }
-                result
-            } else {
-                RETURNS_DEFAULTS.answer(invocation)
+                "restore" -> restoreServiceResult
+                else -> RETURNS_DEFAULTS.answer(invocation)
             }
         }
+
+    /**
+     * A backup service whose backups run until they are cancelled and then return the cancellation
+     * as an error, as Studio's backup service does.
+     */
+    private class CancellationReturningBackupService :
+        BackupService by mock(BackupService::class.java) {
+        override suspend fun backup(
+            serialNumber: String,
+            applicationId: String,
+            type: BackupType,
+            backupFile: Path,
+            listener: BackupProgressListener?,
+        ): BackupResult =
+            try {
+                awaitCancellation()
+            } catch (e: CancellationException) {
+                BackupResult.Error(ErrorCode.UNEXPECTED_ERROR, e)
+            }
+    }
 
     private fun assertFailure(stage: BackupExecutionStage, errorCode: BackupErrorCode) {
         val summary = assertNotNull(controller.lastExecutionSummary)
@@ -913,6 +1013,9 @@ class BackupRestoreControllerImplTest {
     }
 
     private fun outputDir() = tempFolder.root.toPath()
+
+    /** Stack-trace recovery may wrap an exception that crosses a coroutine in a copy of it. */
+    private fun Throwable.rootCause(): Throwable = generateSequence(this) { it.cause }.last()
 
     private companion object {
         const val PACKAGE = "com.example.app"
