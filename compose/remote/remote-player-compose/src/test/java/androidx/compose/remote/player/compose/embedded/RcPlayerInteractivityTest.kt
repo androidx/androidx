@@ -17,6 +17,7 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.content.Context
+import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable as hostClickable
@@ -134,10 +135,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.cancel
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -152,7 +154,6 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
-import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
@@ -1552,7 +1553,7 @@ class RcPlayerInteractivityTest {
     }
 
     @Test
-    fun rootPointerEvents_forwardTouchDownDragUpToCoreDocument() {
+    fun rootPointerEvents_doNotInterfereWithComponentScroll() {
         runBlocking {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val content: @Composable @RemoteComposable () -> Unit = {
@@ -1582,67 +1583,15 @@ class RcPlayerInteractivityTest {
                 }
             }
             val capturedDocument = captureSingleRemoteDocument(context = context, content = content)
-            val touchEvents = mutableListOf<String>()
-            var lastUpDx = 0f
-            var lastUpDy = 0f
-            var lastCancelDx = 0f
-            var lastCancelDy = 0f
-            val trackingDocument =
-                object : CoreDocument(RemoteClock.SYSTEM) {
-                        override fun touchDown(
-                            context: RemoteContext,
-                            x: Float,
-                            y: Float,
-                        ): Boolean {
-                            touchEvents.add("down")
-                            return super.touchDown(context, x, y)
-                        }
-
-                        override fun touchDrag(
-                            context: RemoteContext,
-                            x: Float,
-                            y: Float,
-                        ): Boolean {
-                            touchEvents.add("drag")
-                            return super.touchDrag(context, x, y)
-                        }
-
-                        override fun touchUp(
-                            context: RemoteContext,
-                            x: Float,
-                            y: Float,
-                            dx: Float,
-                            dy: Float,
-                        ): Boolean {
-                            touchEvents.add("up")
-                            lastUpDx = dx
-                            lastUpDy = dy
-                            return super.touchUp(context, x, y, dx, dy)
-                        }
-
-                        override fun touchCancel(
-                            context: RemoteContext,
-                            x: Float,
-                            y: Float,
-                            dx: Float,
-                            dy: Float,
-                        ): Boolean {
-                            touchEvents.add("cancel")
-                            lastCancelDx = dx
-                            lastCancelDy = dy
-                            return super.touchCancel(context, x, y, dx, dy)
-                        }
+            val document =
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(capturedDocument.bytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
-                    .apply {
-                        ByteArrayInputStream(capturedDocument.bytes).use {
-                            initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                        }
-                    }
+                }
 
             rule.setContent {
-                Box(modifier = Modifier.size(100.dp)) {
-                    RcPlayer(document = trackingDocument)
-                }
+                Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) }
             }
             rule.waitForIdle()
 
@@ -1654,23 +1603,11 @@ class RcPlayerInteractivityTest {
                     .width
 
             assertThat(scrollOffset()).isWithin(0.1f).of(0f)
-            assertThat(
-                    rule.onNodeWithContentDescription("Item0").getUnclippedBoundsInRoot().top.value
-                )
-                .isWithin(0.1f)
-                .of(0f)
 
             rule.onNodeWithContentDescription("TouchRoot").performTouchInput { swipeUp() }
             rule.waitForIdle()
 
-            assertThat(touchEvents).contains("down")
-            // Vertical swipe is consumed by TouchRoot's verticalScroll in Main pass, so the root
-            // handler classifies the gesture as cancelled in PointerEventPass.Final.
-            assertThat(touchEvents).contains("cancel")
-            assertThat(touchEvents).doesNotContain("up")
             val expectedMaxScroll = 80f
-            assertThat(lastCancelDx).isWithin(0.1f).of(0f)
-            assertThat(lastCancelDy).isLessThan(0f)
             assertThat(scrollOffset()).isWithin(1f).of(expectedMaxScroll)
             assertThat(
                     rule.onNodeWithContentDescription("Item0").getUnclippedBoundsInRoot().top.value
@@ -1678,50 +1615,64 @@ class RcPlayerInteractivityTest {
                 .isWithin(1f)
                 .of(-expectedMaxScroll)
 
-            touchEvents.clear()
             rule.onNodeWithContentDescription("TouchRoot").performTouchInput { swipeDown() }
             rule.waitForIdle()
 
-            assertThat(touchEvents).contains("down")
-            assertThat(touchEvents).contains("cancel")
-            assertThat(touchEvents).doesNotContain("up")
-            assertThat(lastCancelDx).isWithin(0.1f).of(0f)
-            assertThat(lastCancelDy).isGreaterThan(0f)
             assertThat(scrollOffset()).isWithin(0.1f).of(0f)
             assertThat(
                     rule.onNodeWithContentDescription("Item0").getUnclippedBoundsInRoot().top.value
                 )
                 .isWithin(0.5f)
                 .of(0f)
-
-            // An unconsumed horizontal swipe is not consumed by verticalScroll, so the root
-            // handler forwards down, drag, and up with horizontal velocity.
-            touchEvents.clear()
-            rule.onNodeWithContentDescription("TouchRoot").performTouchInput { swipeRight() }
-            rule.waitForIdle()
-
-            assertThat(touchEvents).contains("down")
-            assertThat(touchEvents).contains("drag")
-            assertThat(touchEvents).contains("up")
-            assertThat(touchEvents).doesNotContain("cancel")
-            assertThat(lastUpDx).isGreaterThan(0f)
-            assertThat(lastUpDy).isWithin(0.1f).of(0f)
-
-            touchEvents.clear()
-            rule.onNodeWithContentDescription("TouchRoot").performTouchInput {
-                down(Offset(50f, 50f))
-                advanceEventTime(16L)
-                moveTo(Offset(70f, 50f))
-                advanceEventTime(16L)
-                moveTo(Offset(90f, 50f))
-                cancel()
-            }
-            rule.waitForIdle()
-
-            assertThat(touchEvents).contains("cancel")
-            assertThat(lastCancelDx).isGreaterThan(0f)
-            assertThat(lastCancelDy).isWithin(0.1f).of(0f)
         }
+    }
+
+    /**
+     * The player's root pointer handler publishes the touch position to ID_TOUCH_POS_X/Y on down
+     * and drag, for documents that read it outside any component.
+     */
+    @Test
+    fun rootPointerEvents_publishTouchPosition() {
+        val writer = RemoteComposeWriterAndroid(100, 100, "test", AndroidxRcPlatformServices())
+        writer.root {
+            writer.getRcPaint().setColor(0xFFFFFFFF.toInt()).setStyle(0).commit()
+            writer.drawRect(0f, 0f, 100f, 100f)
+            writer.getRcPaint().setColor(0xFFFF0000.toInt()).setStyle(0).commit()
+            writer.drawRect(0f, 0f, RemoteContext.FLOAT_TOUCH_POS_X, 100f)
+        }
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                ByteArrayInputStream(writer.buffer(), 0, writer.bufferSize()).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp).testTag("player")) {
+                RcPlayer(document = document)
+            }
+        }
+        rule.waitForIdle()
+
+        fun isRedAtFraction(fraction: Float): Boolean {
+            val bitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+            val pixel = bitmap.getPixel((fraction * bitmap.width).toInt(), bitmap.height / 2)
+            return AndroidColor.red(pixel) > 200 && AndroidColor.green(pixel) < 50
+        }
+
+        assertThat(isRedAtFraction(0.5f)).isFalse()
+
+        rule.onNodeWithTag("player").performTouchInput { down(Offset(width * 0.3f, height / 2f)) }
+        rule.waitForIdle()
+        assertThat(isRedAtFraction(0.2f)).isTrue()
+        assertThat(isRedAtFraction(0.5f)).isFalse()
+
+        rule.onNodeWithTag("player").performTouchInput { moveTo(Offset(width * 0.8f, height / 2f)) }
+        rule.waitForIdle()
+        assertThat(isRedAtFraction(0.5f)).isTrue()
+        assertThat(isRedAtFraction(0.9f)).isFalse()
+
+        rule.onNodeWithTag("player").performTouchInput { up() }
     }
 
     @Test
@@ -3013,75 +2964,32 @@ class RcPlayerInteractivityTest {
                     }
                 }
 
-            val rootTouchEvents = mutableListOf<String>()
-            val trackingDocument =
-                object : CoreDocument(RemoteClock.SYSTEM) {
-                        override fun touchDown(
-                            context: RemoteContext,
-                            x: Float,
-                            y: Float,
-                        ): Boolean {
-                            rootTouchEvents.add("down")
-                            return super.touchDown(context, x, y)
-                        }
-
-                        override fun touchDrag(
-                            context: RemoteContext,
-                            x: Float,
-                            y: Float,
-                        ): Boolean {
-                            rootTouchEvents.add("drag")
-                            return super.touchDrag(context, x, y)
-                        }
-
-                        override fun touchUp(
-                            context: RemoteContext,
-                            x: Float,
-                            y: Float,
-                            dx: Float,
-                            dy: Float,
-                        ): Boolean {
-                            rootTouchEvents.add("up")
-                            return super.touchUp(context, x, y, dx, dy)
-                        }
-
-                        override fun touchCancel(
-                            context: RemoteContext,
-                            x: Float,
-                            y: Float,
-                            dx: Float,
-                            dy: Float,
-                        ): Boolean {
-                            rootTouchEvents.add("cancel")
-                            return super.touchCancel(context, x, y, dx, dy)
-                        }
+            val document =
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(capturedDocument.bytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
-                    .apply {
-                        ByteArrayInputStream(capturedDocument.bytes).use {
-                            initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                        }
-                    }
+                }
 
             rule.setContent {
-                Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = trackingDocument) }
+                Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) }
             }
             rule.waitForIdle()
 
             val canvas = rule.onNodeWithContentDescription("MultiTouchCanvas")
 
-            // 1. Mouse hover move with nothing pressed should not dispatch touchDown or touchDrag.
+            // 1. Mouse hover move with nothing pressed should not drive the TouchExpression.
             canvas.performMouseInput {
                 enter(Offset(20f, 20f))
                 moveTo(Offset(80f, 20f))
                 exit(Offset(80f, 20f))
             }
             rule.waitForIdle()
-            assertThat(rootTouchEvents).isEmpty()
             rule.onNodeWithText("Unset").assertExists()
 
             // 2. Multi-touch: first finger down at 20% (x=40), second finger down at 90% (x=180)
             // and up, then first finger moves to 60% (x=120) and releases.
-            // Second finger must not trigger a second touchDown or hijack the tracked pointer.
+            // The second finger must not hijack the tracked pointer.
             canvas.performTouchInput {
                 down(pointerId = 0, position = Offset(width * 0.2f, height / 2f))
                 advanceEventTime(16L)
@@ -3096,7 +3004,6 @@ class RcPlayerInteractivityTest {
             }
             rule.waitForIdle()
 
-            assertThat(rootTouchEvents.count { it == "down" }).isEqualTo(1)
             rule.onNodeWithText("60").assertExists()
         }
     }
@@ -3303,7 +3210,7 @@ class RcPlayerInteractivityTest {
     }
 
     @Test
-    fun touchGesture_playerRemovedMidGesture_endsRootAndComponentGestures() {
+    fun touchGesture_playerRemovedMidGesture_endsComponentGesture() {
         runBlocking {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val capturedDocument =
@@ -3327,45 +3234,12 @@ class RcPlayerInteractivityTest {
                     RemoteBox(modifier = RemoteModifier.size(200.rdp, 80.rdp)) { Hoist(directVal) }
                 }
 
-            val rootEvents = mutableListOf<String>()
             val document =
-                object : CoreDocument(RemoteClock.SYSTEM) {
-                        override fun touchDown(
-                            context: RemoteContext,
-                            x: Float,
-                            y: Float,
-                        ): Boolean {
-                            rootEvents.add("down")
-                            return super.touchDown(context, x, y)
-                        }
-
-                        override fun touchUp(
-                            context: RemoteContext,
-                            x: Float,
-                            y: Float,
-                            dx: Float,
-                            dy: Float,
-                        ): Boolean {
-                            rootEvents.add("up")
-                            return super.touchUp(context, x, y, dx, dy)
-                        }
-
-                        override fun touchCancel(
-                            context: RemoteContext,
-                            x: Float,
-                            y: Float,
-                            dx: Float,
-                            dy: Float,
-                        ): Boolean {
-                            rootEvents.add("cancel")
-                            return super.touchCancel(context, x, y, dx, dy)
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(capturedDocument.bytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
-                    .apply {
-                        ByteArrayInputStream(capturedDocument.bytes).use {
-                            initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                        }
-                    }
+                }
             val state = RcPlayerState(document)
             val componentTouch =
                 state.preprocessed.componentTouchExpressionsMap.values.single().single()
@@ -3386,18 +3260,16 @@ class RcPlayerInteractivityTest {
 
             rule.onNodeWithTag("host").performTouchInput { down(Offset(100f, 40f)) }
             rule.waitForIdle()
-            assertThat(rootEvents).containsExactly("down")
             assertThat(touchDownField.getBoolean(componentTouch)).isTrue()
 
-            // Disposing the player mid-gesture must end both gestures.
+            // Disposing the player mid-gesture must end the component gesture.
             showPlayer.value = false
             rule.waitForIdle()
-            assertThat(rootEvents).containsExactly("down", "cancel").inOrder()
             assertThat(touchDownField.getBoolean(componentTouch)).isFalse()
 
             rule.onNodeWithTag("host").performTouchInput { up() }
             rule.waitForIdle()
-            assertThat(rootEvents).containsExactly("down", "cancel").inOrder()
+            assertThat(touchDownField.getBoolean(componentTouch)).isFalse()
         }
     }
 
