@@ -48,6 +48,7 @@ import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.PagerScaffoldDefaults
 import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.StatusBarSuppression
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.navigation3.rememberSwipeDismissableSceneStrategy
 import kotlinx.serialization.Serializable
@@ -57,111 +58,161 @@ fun SwipeDismissableSceneStrategyDemo(hasBackstack: Boolean, onCheckedChange: ()
     val backStack = rememberNavBackStack(Start)
     val transformingLazyColumnState = rememberTransformingLazyColumnState()
 
-    NavDisplay(
-        backStack = backStack,
-        sceneStrategies = listOf(rememberSwipeDismissableSceneStrategy()),
-        onBack = { backStack.removeLastOrNull() },
-        entryProvider =
-            entryProvider {
-                entry<Start> {
-                    TransformingLazyColumn(
-                        state = transformingLazyColumnState,
-                        modifier =
-                            Modifier.then(
-                                    if (!hasBackstack) Modifier.background(Color.DarkGray)
-                                    else Modifier
-                                )
-                                .padding(horizontal = 10.dp, vertical = 15.dp),
-                    ) {
-                        item {
-                            ListHeader {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(text = "Screen 1", color = MaterialTheme.colors.onSurface)
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = "Navigation3",
-                                        color = MaterialTheme.colors.onSurfaceVariant,
-                                        style = MaterialTheme.typography.caption1,
+    AppScaffold {
+        NavDisplay(
+            backStack = backStack,
+            sceneStrategies = listOf(rememberSwipeDismissableSceneStrategy()),
+            onBack = { backStack.removeLastOrNull() },
+            entryProvider =
+                entryProvider {
+                    entry<Start> {
+                        ScreenScaffold(transformingLazyColumnState) {
+                            TransformingLazyColumn(
+                                state = transformingLazyColumnState,
+                                modifier =
+                                    Modifier.then(
+                                            if (!hasBackstack) Modifier.background(Color.DarkGray)
+                                            else Modifier
+                                        )
+                                        .padding(horizontal = 10.dp, vertical = 15.dp),
+                            ) {
+                                item {
+                                    ListHeader {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text(
+                                                text = "Screen 1",
+                                                color = MaterialTheme.colors.onSurface,
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text(
+                                                text = "Navigation3",
+                                                color = MaterialTheme.colors.onSurfaceVariant,
+                                                style = MaterialTheme.typography.caption1,
+                                            )
+                                        }
+                                    }
+                                }
+                                item {
+                                    SwitchButton(
+                                        checked = !hasBackstack,
+                                        onCheckedChange = { onCheckedChange() },
+                                    ) {
+                                        Text("Empty backstack mode")
+                                    }
+                                }
+                                item {
+                                    CompactChip(
+                                        onClick = { backStack.navigate(Screen2, hasBackstack) },
+                                        label = { Text("Next screen") },
+                                    )
+                                }
+                                item {
+                                    CompactChip(
+                                        onClick = {
+                                            backStack.navigate(
+                                                PagerScaffoldScreen,
+                                                hasBackstack,
+                                            )
+                                        },
+                                        label = { Text("Screen with PagerScaffold") },
+                                    )
+                                }
+                                item {
+                                    CompactChip(
+                                        onClick = {
+                                            backStack.navigate(
+                                                S2RStandardScreen,
+                                                hasBackstack,
+                                            )
+                                        },
+                                        label = { Text("S2R - Standard") },
+                                    )
+                                }
+                                item {
+                                    CompactChip(
+                                        onClick = {
+                                            backStack.navigate(S2RDualDirectionScreen, hasBackstack)
+                                        },
+                                        label = { Text("S2R - Dual Direction") },
                                     )
                                 }
                             }
                         }
-                        item {
-                            SwitchButton(
-                                checked = !hasBackstack,
-                                onCheckedChange = { onCheckedChange() },
+                    }
+                    entry<Screen2> {
+                        ScreenScaffold(timeText = {}) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxSize(),
                             ) {
-                                Text("Empty backstack mode")
+                                Text(text = "Screen 2", color = MaterialTheme.colors.onSurface)
+                                Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
+                                CompactChip(
+                                    onClick = { backStack.navigate(Screen3, hasBackstack) },
+                                    label = { Text("Click for next screen") },
+                                )
+                                Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
+                                CompactChip(
+                                    onClick = { backStack.removeLastOrNull() },
+                                    label = { Text("Go Back") },
+                                )
                             }
                         }
-                        item {
-                            CompactChip(
-                                onClick = { backStack.navigate(Screen2, hasBackstack) },
-                                label = { Text("Next screen") },
-                            )
-                        }
-                        item {
-                            CompactChip(
-                                onClick = { backStack.navigate(PagerScaffoldScreen, hasBackstack) },
-                                label = { Text("Screen with PagerScaffold") },
-                            )
-                        }
-                        item {
-                            CompactChip(
-                                onClick = { backStack.navigate(S2RStandardScreen, hasBackstack) },
-                                label = { Text("S2R - Standard") },
-                            )
-                        }
-                        item {
-                            CompactChip(
-                                onClick = {
-                                    backStack.navigate(S2RDualDirectionScreen, hasBackstack)
-                                },
-                                label = { Text("S2R - Dual Direction") },
-                            )
+                    }
+                    entry<Screen3> {
+                        ScreenScaffold(
+                            timeText = {
+                                Box(
+                                    Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.TopCenter,
+                                ) {
+                                    Text("TT")
+                                }
+                            }
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxSize(),
+                            ) {
+                                Text(text = "Screen 3", color = MaterialTheme.colors.onSurface)
+                                Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
+                                CompactChip(
+                                    onClick = { backStack.navigate(Screen4, hasBackstack) },
+                                    label = { Text("Click for next screen") },
+                                )
+                                Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
+                                CompactChip(
+                                    onClick = { backStack.removeLastOrNull() },
+                                    label = { Text("Go Back") },
+                                )
+                            }
                         }
                     }
-                }
-                entry<Screen2> {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        Text(text = "Screen 2", color = MaterialTheme.colors.onSurface)
-                        Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
-                        CompactChip(
-                            onClick = { backStack.navigate(Screen3, hasBackstack) },
-                            label = { Text("Click for next screen") },
-                        )
-                        Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
-                        CompactChip(
-                            onClick = { backStack.removeLastOrNull() },
-                            label = { Text("Go Back") },
-                        )
+                    entry<Screen4> {
+                        ScreenScaffold {
+                            StatusBarSuppression()
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxSize(),
+                            ) {
+                                Text(text = "Screen 4", color = MaterialTheme.colors.onSurface)
+                                Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
+                                Text(
+                                    text = "Swipe right to go back",
+                                    color = MaterialTheme.colors.onSurface,
+                                )
+                                Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
+                                CompactChip(
+                                    onClick = { backStack.removeLastOrNull() },
+                                    label = { Text("Go Back") },
+                                )
+                            }
+                        }
                     }
-                }
-                entry<Screen3> {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        Text(text = "Screen 3", color = MaterialTheme.colors.onSurface)
-                        Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
-                        Text(
-                            text = "Swipe right to go back",
-                            color = MaterialTheme.colors.onSurface,
-                        )
-                        Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
-                        CompactChip(
-                            onClick = { backStack.removeLastOrNull() },
-                            label = { Text("Go Back") },
-                        )
-                    }
-                }
-                entry<PagerScaffoldScreen> {
-                    AppScaffold {
+                    entry<PagerScaffoldScreen> {
                         val pagerState = rememberPagerState(pageCount = { 10 })
 
                         HorizontalPagerScaffold(pagerState = pagerState) {
@@ -185,13 +236,13 @@ fun SwipeDismissableSceneStrategyDemo(hasBackstack: Boolean, onCheckedChange: ()
                             }
                         }
                     }
-                }
 
-                entry<S2RStandardScreen> { SwipeToRevealSingleButtonWithAnchoring() }
+                    entry<S2RStandardScreen> { SwipeToRevealSingleButtonWithAnchoring() }
 
-                entry<S2RDualDirectionScreen> { SwipeToRevealBothDirectionsNonAnchoring() }
-            },
-    )
+                    entry<S2RDualDirectionScreen> { SwipeToRevealBothDirectionsNonAnchoring() }
+                },
+        )
+    }
 }
 
 @Serializable object Start : NavKey
@@ -199,6 +250,8 @@ fun SwipeDismissableSceneStrategyDemo(hasBackstack: Boolean, onCheckedChange: ()
 @Serializable object Screen2 : NavKey
 
 @Serializable object Screen3 : NavKey
+
+@Serializable object Screen4 : NavKey
 
 @Serializable object PagerScaffoldScreen : NavKey
 

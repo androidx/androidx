@@ -18,6 +18,7 @@ package androidx.wear.compose.navigation3
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -43,6 +44,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.Scene
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
@@ -96,15 +98,23 @@ internal class PredictiveBackScene<T : Any>(
             onBackCompleted = {},
         )
 
-        val lifecycleState = LocalLifecycleOwner.current.lifecycle.currentStateAsState().value
-        val shouldFocus = remember(lifecycleState) { lifecycleState == Lifecycle.State.RESUMED }
-
-        val scrimColor = LocalSwipeToDismissBackgroundScrimColor.current
-        val isRoundDevice = isRoundDevice()
-
         val parentScreenActive = LocalScreenIsActive.current
+        // EnterExitState is used by AnimatedContent to signal the current state of the navigation
+        // transition. By checking if the transition's destination (targetState) is Visible, the
+        // LocalScreenIsActive provider flips to true for the incoming screen and false for the
+        // outgoing screen at the exact frame the navigation starts.
+        val isScreenActive =
+            LocalNavAnimatedContentScope.current.transition.targetState == EnterExitState.Visible
 
-        CompositionLocalProvider(LocalScreenIsActive provides (shouldFocus && parentScreenActive)) {
+        CompositionLocalProvider(
+            LocalScreenIsActive provides (isScreenActive && parentScreenActive)
+        ) {
+            val lifecycleState = LocalLifecycleOwner.current.lifecycle.currentStateAsState().value
+            val shouldFocus = remember(lifecycleState) { lifecycleState == Lifecycle.State.RESUMED }
+
+            val scrimColor = LocalSwipeToDismissBackgroundScrimColor.current
+            val isRoundDevice = isRoundDevice()
+
             Box(
                 modifier =
                     Modifier.clip(if (isRoundDevice) CircleShape else RectangleShape)
