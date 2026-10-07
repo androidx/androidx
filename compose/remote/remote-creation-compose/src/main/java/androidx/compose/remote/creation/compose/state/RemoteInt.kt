@@ -1060,14 +1060,6 @@ internal constructor(
         Utils.idFromLong(idProvider(creationState)).toInt()
 }
 
-private fun calcHashID(array: LongArray): Int {
-    var sum = 0L
-    for (i in array) {
-        sum = sum * 31L + i
-    }
-    return sum.hashCode()
-}
-
 /**
  * Returns [ifTrue] if [a] < [b], otherwise returns [ifFalse].
  *
@@ -1244,22 +1236,8 @@ internal constructor(
         if (array.size == 1 && array[0] > 0x100000000L) {
             return Utils.idFromLong(array[0]).toInt()
         }
-        val hash = calcHashID(array)
-        val ie = creationState.intExpressionCache[hash]
-        if (ie != null) {
-            if (
-                ie != this &&
-                    ie is RemoteIntExpression &&
-                    ie.arrayForCreationState(creationState) contentEquals array
-            ) {
-                return ie.getIdForCreationState(creationState)
-            }
-
-            creationState.intExpressionCache.put(hash, this)
-            return Utils.idFromLong(creationState.document.integerExpression(*array)).toInt()
-        } else {
-            creationState.intExpressionCache.put(hash, this)
-            return Utils.idFromLong(creationState.document.integerExpression(*array)).toInt()
+        return creationState.getOrPutIntExpressionId(array) {
+            Utils.idFromLong(creationState.document.integerExpression(*array)).toInt()
         }
     }
 }

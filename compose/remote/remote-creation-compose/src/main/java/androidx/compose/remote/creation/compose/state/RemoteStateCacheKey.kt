@@ -409,12 +409,18 @@ internal class FloatArrayRemoteState(internal val floatArray: FloatArray, key: F
     }
 }
 
+/**
+ * A cache key for literal [FloatArray] arguments.
+ *
+ * Elements may be NaN-encoded variable ids or operators, so equality uses [nanIdContentEquals]
+ * rather than [FloatArray.contentEquals], which treats all NaNs as equal.
+ */
 internal class FloatArrayCacheKey(internal val floatArray: FloatArray) : BaseRemoteStateCacheKey() {
     override fun equals(other: Any?): Boolean {
-        return other is FloatArrayCacheKey && floatArray.contentEquals(other.floatArray)
+        return other is FloatArrayCacheKey && floatArray.nanIdContentEquals(other.floatArray)
     }
 
-    override fun hashCodeImpl(): Int = floatArray.contentHashCode()
+    override fun hashCodeImpl(): Int = floatArray.nanIdContentHashCode()
 
     override fun toDebugString(): String = floatArray.contentToString()
 }
