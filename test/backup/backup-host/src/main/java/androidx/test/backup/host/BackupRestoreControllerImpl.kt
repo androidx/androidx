@@ -20,7 +20,6 @@ import com.android.adblib.AdbSession
 import com.android.backup.BackupResult
 import com.android.backup.BackupService as Service
 import com.android.backup.BackupType as ServiceType
-import com.android.tools.environment.Logger as PlatformLogger
 import com.google.common.util.concurrent.ListenableFuture
 import java.io.File
 import java.io.IOException
@@ -226,7 +225,7 @@ internal class BackupRestoreControllerImpl(
                 else ->
                     report.inlinePayload.orEmpty().also {
                         logger.info("Executed $actionClassName on device.")
-                        if (it.isNotEmpty()) logger.info("Payload returned: $it")
+                        if (it.isNotEmpty()) logger.fine("Payload returned: $it")
                     }
             }
         return report.resultFor(payloadJson, actionClassName)
@@ -569,7 +568,7 @@ internal class BackupRestoreControllerImpl(
         fun createBackupService(adbSession: AdbSession): Service =
             Service.getInstance(
                 adbSession,
-                PlatformLogger.getInstance(BackupRestoreControllerImpl::class.java),
+                BackupServiceLogger(BackupRestoreControllerImpl::class.java.name),
                 MIN_GMS_VERSION,
             )
 
