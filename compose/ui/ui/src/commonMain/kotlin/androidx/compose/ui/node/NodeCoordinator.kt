@@ -1016,7 +1016,10 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
     }
 
     /** Returns the bounds of this [NodeCoordinator], including the minimum touch target. */
-    fun touchBoundsInRoot(): Rect {
+    fun touchBoundsInRoot(): Rect =
+        touchBoundsInRoot(clipToParentIfLargerThanMinTouchTarget = false)
+
+    internal fun touchBoundsInRoot(clipToParentIfLargerThanMinTouchTarget: Boolean): Rect {
         if (!isAttached) {
             return Rect.Zero
         }
@@ -1041,6 +1044,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
                 bounds,
                 clipBounds = false,
                 clipToMinimumTouchTargetSize = true,
+                clipToParentIfLargerThanMinTouchTarget = clipToParentIfLargerThanMinTouchTarget,
             )
             if (bounds.isEmpty) {
                 return Rect.Zero
@@ -1352,6 +1356,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         bounds: MutableRect,
         clipBounds: Boolean,
         clipToMinimumTouchTargetSize: Boolean = false,
+        clipToParentIfLargerThanMinTouchTarget: Boolean = false,
     ) {
         val layer = layer
         if (layer != null) {
@@ -1367,7 +1372,31 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
                             height + minTouch.height,
                             maxOf(height.toFloat(), top + minTouch.height),
                         )
-                    bounds.intersect(left, top, right, bottom)
+                    val clipLeft =
+                        if (clipToParentIfLargerThanMinTouchTarget && width >= minTouch.width) {
+                            0f
+                        } else {
+                            left
+                        }
+                    val clipTop =
+                        if (clipToParentIfLargerThanMinTouchTarget && height >= minTouch.height) {
+                            0f
+                        } else {
+                            top
+                        }
+                    val clipRight =
+                        if (clipToParentIfLargerThanMinTouchTarget && width >= minTouch.width) {
+                            width.toFloat()
+                        } else {
+                            right
+                        }
+                    val clipBottom =
+                        if (clipToParentIfLargerThanMinTouchTarget && height >= minTouch.height) {
+                            height.toFloat()
+                        } else {
+                            bottom
+                        }
+                    bounds.intersect(clipLeft, clipTop, clipRight, clipBottom)
                 } else if (clipBounds) {
                     bounds.intersect(0f, 0f, size.width.toFloat(), size.height.toFloat())
                 }
@@ -1526,6 +1555,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
      * such that it is centered within the minimum touch target space, which may be outside of the
      * parent. Otherwise, it will return the child offset.
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     protected fun calculateMinimumTouchTargetOffset(
         childRect: MutableRect,
         minimumTouchTargetSize: Size,
@@ -1545,6 +1575,9 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         val left =
             if (underWidth > 0) {
                 childLeft - underWidth
+            } else if (ComposeUiFlags.isClippedTouchBoundsOcclusionFixEnabled) {
+                maxOf(childLeft, minOf(0f, childRect.right - mttWidth))
+                    .coerceAtLeast(-mttWidth / 2f)
             } else {
                 childLeft.coerceAtLeast(-mttWidth / 2f)
             }
@@ -1552,6 +1585,9 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         val top =
             if (underHeight > 0) {
                 childTop - underHeight
+            } else if (ComposeUiFlags.isClippedTouchBoundsOcclusionFixEnabled) {
+                maxOf(childTop, minOf(0f, childRect.bottom - mttHeight))
+                    .coerceAtLeast(-mttHeight / 2f)
             } else {
                 childTop.coerceAtLeast(-mttHeight / 2f)
             }
