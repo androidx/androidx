@@ -40,6 +40,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.unit.IntSize
 
 internal val LocalCoreDocument: ProvidableCompositionLocal<CoreDocument> = compositionLocalOf {
     throw IllegalStateException("No document")
@@ -119,7 +120,10 @@ internal val LocalHasTouchExpressions: ProvidableCompositionLocal<Boolean> = com
     false
 }
 
-internal class RootLayoutCoordinatesHolder(var coordinates: LayoutCoordinates? = null)
+internal class RootLayoutCoordinatesHolder(var coordinates: LayoutCoordinates? = null) {
+    /** The player size last published to the core document, or null before the first placement. */
+    var publishedSize: IntSize? = null
+}
 
 internal val LocalRootLayoutCoordinates: ProvidableCompositionLocal<RootLayoutCoordinatesHolder> =
     compositionLocalOf {
