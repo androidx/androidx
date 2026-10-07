@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.remote.creation.compose.state.asin
 import androidx.compose.remote.creation.compose.state.cubicEasing
 import androidx.compose.remote.creation.compose.state.lerp
@@ -102,7 +103,7 @@ public fun RemoteCircularProgressIndicator(
  */
 @RemoteComposable
 @Composable
-@Suppress("RestrictedApiAndroidX") // cubicEasing, remote.time
+@Suppress("RestrictedApiAndroidX") // cubicEasing
 public fun RemoteCircularProgressIndicator(
     modifier: RemoteModifier = RemoteModifier,
     colors: RemoteProgressIndicatorColors = RemoteProgressIndicatorDefaults.colors(),
@@ -113,7 +114,7 @@ public fun RemoteCircularProgressIndicator(
         modifier =
             modifier.size(RemoteProgressIndicatorDefaults.IndeterminateCircularIndicatorDiameter)
     ) {
-        val time = remote.time.ContinuousSec()
+        val time = RemoteTimeVariables.continuousSeconds
         val durationSeconds = 5f.rf
         val timeProgress = (time % durationSeconds) / durationSeconds
 

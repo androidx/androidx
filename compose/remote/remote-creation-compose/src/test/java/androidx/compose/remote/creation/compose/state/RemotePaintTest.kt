@@ -15,7 +15,6 @@
  */
 package androidx.compose.remote.creation.compose.state
 
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
@@ -95,7 +94,7 @@ class RemotePaintTest {
                 red = RemoteFloat(1f),
                 green = RemoteFloat(1f),
                 blue = RemoteFloat(1f),
-                alpha = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                alpha = RemoteTimeVariables.continuousSeconds,
             )
         remotePaint.color = remoteColor
         assertThat(remotePaint.color).isEqualTo(remoteColor)
@@ -127,7 +126,7 @@ class RemotePaintTest {
                 red = RemoteFloat(1f),
                 green = RemoteFloat(1f),
                 blue = RemoteFloat(1f),
-                alpha = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                alpha = RemoteTimeVariables.continuousSeconds,
             )
         val remoteColorFilter = RemoteBlendModeColorFilter(remoteColor, BlendMode.Multiply)
         remotePaint.colorFilter = remoteColorFilter
@@ -197,7 +196,7 @@ class RemotePaintTest {
                 red = RemoteFloat(1f),
                 green = RemoteFloat(1f),
                 blue = RemoteFloat(1f),
-                alpha = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                alpha = RemoteTimeVariables.continuousSeconds,
             )
         paint.remoteColor = remoteColor
         assertThat(paint.color).isEqualTo(android.graphics.Color.TRANSPARENT)

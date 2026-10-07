@@ -21,10 +21,10 @@ package androidx.wear.compose.remote.material3.previews
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.layout.RemoteTime
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
@@ -288,7 +288,7 @@ public fun RemoteCurvedProgressIndicatorAnimatedPreview() {
 
 @Composable
 fun RemoteCurvedProgressIndicatorOutroLoop() {
-    val time = RemoteTime().ContinuousSec()
+    val time = RemoteTimeVariables.continuousSeconds
     val cycleDuration = 6f.rf
     val t = (time % cycleDuration) / cycleDuration
     // Ramp progress from 95% to 100% over 5 seconds, then hold at 100% for 1 second.
@@ -316,7 +316,7 @@ fun RemoteCurvedProgressIndicatorOutroLoop() {
 
 @Composable
 fun RemoteCurvedProgressIndicatorIntroLoop() {
-    val time = RemoteTime().ContinuousSec()
+    val time = RemoteTimeVariables.continuousSeconds
     val cycleDuration = 12f.rf
     val t = (time % cycleDuration) / cycleDuration
     // Hold at 0% for 2 seconds to clearly show the intro animation scaling in the dot,
@@ -343,7 +343,7 @@ fun RemoteCurvedProgressIndicatorIntroLoop() {
 
 @Composable
 fun RemoteCurvedProgressIndicatorCountdownIntroLoop() {
-    val time = RemoteTime().ContinuousSec()
+    val time = RemoteTimeVariables.continuousSeconds
     val cycleDuration = 12f.rf
     val t = (time % cycleDuration) / cycleDuration
     // Hold at 100% for 2 seconds to clearly show the intro animation scaling in the dot,
@@ -371,7 +371,7 @@ fun RemoteCurvedProgressIndicatorCountdownIntroLoop() {
 
 @Composable
 fun RemoteCurvedProgressIndicatorCountdownOutroLoop() {
-    val time = RemoteTime().ContinuousSec()
+    val time = RemoteTimeVariables.continuousSeconds
     val cycleDuration = 6f.rf
     val t = (time % cycleDuration) / cycleDuration
     // Ramp progress from 5% to 0% over 5 seconds, then hold at 0% for 1 second.
@@ -439,7 +439,7 @@ private fun RemoteCurvedProgressIndicatorNoCollapsePreview(
 
 @Composable
 fun RemoteCurvedProgressIndicatorExpandFromZero() {
-    val time = RemoteTime().ContinuousSec()
+    val time = RemoteTimeVariables.continuousSeconds
     val cycleDuration = 6f.rf
     val t = (time % cycleDuration) / cycleDuration
     // Ramp progress from 0% -> 50% over 5 seconds, then hold at 50% for 1 second.
@@ -466,7 +466,7 @@ fun RemoteCurvedProgressIndicatorExpandFromZero() {
 
 @Composable
 fun RemoteCurvedProgressIndicatorCollapseToZero() {
-    val time = RemoteTime().ContinuousSec()
+    val time = RemoteTimeVariables.continuousSeconds
     val cycleDuration = 6f.rf
     val t = (time % cycleDuration) / cycleDuration
     // Ramp progress from 50% -> 100% over 5 seconds, then hold at 100% for 1 second.
@@ -493,7 +493,7 @@ fun RemoteCurvedProgressIndicatorCollapseToZero() {
 
 @Composable
 fun RemoteCurvedProgressIndicatorNoCollapse() {
-    val time = RemoteTime().ContinuousSec()
+    val time = RemoteTimeVariables.continuousSeconds
     val cycleDuration = 6f.rf
     val t = (time % cycleDuration) / cycleDuration
     // Ramp progress from 50% -> 100% over 5 seconds, then hold at 100% for 1 second.

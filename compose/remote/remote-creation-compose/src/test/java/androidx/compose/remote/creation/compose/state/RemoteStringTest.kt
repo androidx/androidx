@@ -19,7 +19,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.TextTransform
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
@@ -521,7 +520,7 @@ class RemoteStringTest {
     fun hasConstantValue_false() {
         val c = creationState
         assertThat(
-                RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+                RemoteTimeVariables.continuousSeconds
                     .toRemoteString(DecimalFormat("#0.00"))
                     .hasConstantValue
             )
@@ -529,7 +528,7 @@ class RemoteStringTest {
         assertThat(
                 selectIfGt(
                         RemoteFloat(10f),
-                        RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                        RemoteTimeVariables.continuousSeconds,
                         RemoteString("A"),
                         RemoteString("B"),
                     )
@@ -1151,7 +1150,7 @@ class RemoteStringTest {
 
     @Test
     fun toDebugString_contextVariable() {
-        val continuousSecFloat = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val strExpr = continuousSecFloat.toRemoteString()
         assertThat(strExpr.toDebugString()).isEqualTo("context:continuous_sec.toRemoteString()")
     }
