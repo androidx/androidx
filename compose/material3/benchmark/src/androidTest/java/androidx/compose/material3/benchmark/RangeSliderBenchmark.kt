@@ -50,7 +50,10 @@ class RangeSliderBenchmark {
 
     @Test
     fun moveThumb() {
-        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(caseFactory = sliderTestCaseFactory)
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            caseFactory = sliderTestCaseFactory,
+            requireRecomposition = false,
+        )
     }
 }
 
