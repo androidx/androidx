@@ -2092,7 +2092,9 @@ class SeekableTransitionStateTest {
                 seekableTransitionState.animateTo(AnimStates.Other)
             }
         }
-        rule.mainClock.scheduler.runCurrent() // animateOther can cancel the seekOther
+        rule.runOnUiThread {
+            rule.mainClock.scheduler.runCurrent() // animateOther can cancel the seekOther
+        }
         assertTrue(seekOther.isCancelled)
         assertTrue(animateOther.isActive)
         rule.mainClock.advanceTimeByFrame() // advance the animation
@@ -2243,7 +2245,9 @@ class SeekableTransitionStateTest {
         val animateOther = rule.runOnUiThread {
             coroutineScope.async { seekableTransitionState.animateTo(AnimStates.Other) }
         }
-        rule.mainClock.scheduler.runCurrent() // animateOther can cancel the animateTo
+        rule.runOnUiThread {
+            rule.mainClock.scheduler.runCurrent() // animateOther can cancel the animateTo
+        }
         assertTrue(animateTo.isCancelled)
         rule.mainClock.advanceTimeByFrame() // wait for composition
         rule.runOnIdle {
