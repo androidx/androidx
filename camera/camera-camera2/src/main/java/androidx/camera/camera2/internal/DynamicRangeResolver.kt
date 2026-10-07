@@ -270,9 +270,10 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
         ) {
             val hdrDefaultRanges: MutableSet<DynamicRange> = mutableSetOf()
 
-            // Attempt to use the recommended 10-bit dynamic range
+            // Attempt to use the recommended 10-bit dynamic range. The recommended profile is only
+            // meaningful when the device advertises the 10-bit capability (b/570642640).
             var recommendedRange: DynamicRange? = null
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (is10BitSupported && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 recommendedRange = Api33Impl.getRecommended10BitDynamicRange(cameraMetadata)
                 if (recommendedRange != null) {
                     hdrDefaultRanges.add(recommendedRange)

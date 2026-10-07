@@ -205,10 +205,11 @@ class DynamicRangeProfilesCompatTest {
                 template = HighEndDeviceTemplate,
                 cameraId = cameraId,
                 characteristicsOverrides =
-                    mapOf(
-                        CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
-                            HLG10_CONSTRAINED
-                    ),
+                    TEN_BIT_CAPABILITIES +
+                        mapOf(
+                            CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                                HLG10_CONSTRAINED
+                        ),
             )
 
         val dynamicRangeProfilesCompat =
@@ -216,6 +217,30 @@ class DynamicRangeProfilesCompatTest {
 
         Truth.assertThat(dynamicRangeProfilesCompat.toDynamicRangeProfiles())
             .isEqualTo(HLG10_CONSTRAINED)
+    }
+
+    // b/570642640: Some devices populate the dynamic range profiles without advertising the
+    // DYNAMIC_RANGE_TEN_BIT capability. The profiles must be ignored in that case.
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun ignoresDynamicRangeProfiles_whenTenBitCapabilityIsAbsent() {
+        val cameraMetadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = cameraId,
+                characteristicsOverrides =
+                    mapOf(
+                        CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                            HLG10_UNCONSTRAINED
+                    ),
+            )
+
+        val dynamicRangeProfilesCompat =
+            DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
+
+        Truth.assertThat(dynamicRangeProfilesCompat.supportedDynamicRanges)
+            .containsExactly(DynamicRange.SDR)
+        Truth.assertThat(dynamicRangeProfilesCompat.toDynamicRangeProfiles()).isNull()
     }
 
     @Test
@@ -238,7 +263,7 @@ class DynamicRangeProfilesCompatTest {
 
     @Test
     fun unsupportedDynamicRangeAlwaysThrowsException() {
-        val characteristics = mutableMapOf<CameraCharacteristics.Key<*>, Any?>()
+        val characteristics = TEN_BIT_CAPABILITIES.toMutableMap()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             characteristics[CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES] =
                 DOLBY_VISION_8B_UNCONSTRAINED
@@ -274,7 +299,7 @@ class DynamicRangeProfilesCompatTest {
 
     @Test
     fun sdrHasNoExtraLatency() {
-        val characteristics = mutableMapOf<CameraCharacteristics.Key<*>, Any?>()
+        val characteristics = TEN_BIT_CAPABILITIES.toMutableMap()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             characteristics[CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES] =
                 HLG10_CONSTRAINED
@@ -294,7 +319,7 @@ class DynamicRangeProfilesCompatTest {
 
     @Test
     fun sdrHasSdrConstraint_whenConcurrentDynamicRangesNotSupported() {
-        val characteristics = mutableMapOf<CameraCharacteristics.Key<*>, Any?>()
+        val characteristics = TEN_BIT_CAPABILITIES.toMutableMap()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             characteristics[CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES] =
                 HLG10_CONSTRAINED
@@ -332,7 +357,7 @@ class DynamicRangeProfilesCompatTest {
         val unknownProfile = 99999L
         `when`(mockDynamicRangeProfiles.supportedProfiles).thenReturn(setOf(HLG10, unknownProfile))
 
-        val characteristics = mutableMapOf<CameraCharacteristics.Key<*>, Any?>()
+        val characteristics = TEN_BIT_CAPABILITIES.toMutableMap()
         characteristics[CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES] =
             mockDynamicRangeProfiles
 
@@ -348,5 +373,16 @@ class DynamicRangeProfilesCompatTest {
         // The compat layer should filter out the 'unknownProfile' and only return the HLG_10_BIT.
         Truth.assertThat(dynamicRangeProfilesCompat.supportedDynamicRanges)
             .containsExactly(DynamicRange.HLG_10_BIT)
+    }
+
+    private companion object {
+        val TEN_BIT_CAPABILITIES: Map<CameraCharacteristics.Key<*>, Any?> =
+            mapOf(
+                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to
+                    intArrayOf(
+                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                    )
+            )
     }
 }

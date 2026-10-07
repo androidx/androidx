@@ -18,6 +18,10 @@ package androidx.camera.camera2.impl
 
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE
+import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT
+import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR
+import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW
 import android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE
 import android.hardware.camera2.CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE
@@ -66,6 +70,15 @@ class FeatureCombinationQueryImplTest {
             characteristicsOverrides =
                 buildMap {
                     if (Build.VERSION.SDK_INT >= 33) {
+                        put(
+                            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES,
+                            intArrayOf(
+                                REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                                REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                                REQUEST_AVAILABLE_CAPABILITIES_RAW,
+                                REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                            ),
+                        )
                         put(
                             CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES,
                             DynamicRangeProfiles(

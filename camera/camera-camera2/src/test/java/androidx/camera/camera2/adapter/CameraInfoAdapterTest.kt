@@ -351,11 +351,12 @@ class CameraInfoAdapterTest {
                         FakeCameraMetadata.fromTemplate(
                             template = HighEndDeviceTemplate,
                             characteristicsOverrides =
-                                mapOf(
-                                    CameraCharacteristics
-                                        .REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
-                                        HLG10_UNCONSTRAINED
-                                ),
+                                TEN_BIT_CAPABILITIES +
+                                    mapOf(
+                                        CameraCharacteristics
+                                            .REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                                            HLG10_UNCONSTRAINED
+                                    ),
                         )
                     )
             )
@@ -389,11 +390,12 @@ class CameraInfoAdapterTest {
                         FakeCameraMetadata.fromTemplate(
                             template = HighEndDeviceTemplate,
                             characteristicsOverrides =
-                                mapOf(
-                                    CameraCharacteristics
-                                        .REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
-                                        DOLBY_VISION_10B_UNCONSTRAINED
-                                ),
+                                TEN_BIT_CAPABILITIES +
+                                    mapOf(
+                                        CameraCharacteristics
+                                            .REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                                            DOLBY_VISION_10B_UNCONSTRAINED
+                                    ),
                         )
                     )
             )
@@ -417,11 +419,12 @@ class CameraInfoAdapterTest {
                         FakeCameraMetadata.fromTemplate(
                             template = HighEndDeviceTemplate,
                             characteristicsOverrides =
-                                mapOf(
-                                    CameraCharacteristics
-                                        .REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
-                                        HLG10_UNCONSTRAINED
-                                ),
+                                TEN_BIT_CAPABILITIES +
+                                    mapOf(
+                                        CameraCharacteristics
+                                            .REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                                            HLG10_UNCONSTRAINED
+                                    ),
                         )
                     )
             )
@@ -442,6 +445,32 @@ class CameraInfoAdapterTest {
                         FakeCameraMetadata.fromTemplate(
                             template = HighEndDeviceTemplate,
                             characteristicsOverrides =
+                                TEN_BIT_CAPABILITIES +
+                                    mapOf(
+                                        CameraCharacteristics
+                                            .REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                                            HLG10_UNCONSTRAINED
+                                    ),
+                        )
+                    )
+            )
+
+        assertThat(cameraInfo.querySupportedDynamicRanges(setOf(DynamicRange.SDR, HLG_10_BIT)))
+            .containsExactly(DynamicRange.SDR, HLG_10_BIT)
+    }
+
+    // b/570642640: Devices may list 10-bit dynamic range profiles without advertising the
+    // DYNAMIC_RANGE_TEN_BIT capability. Such devices can't configure 10-bit outputs.
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun cameraInfo_onlySdrSupported_whenProfilesListedWithoutTenBitCapability() {
+        val cameraInfo: CameraInfo =
+            createCameraInfoAdapter(
+                cameraProperties =
+                    FakeCameraProperties(
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            characteristicsOverrides =
                                 mapOf(
                                     CameraCharacteristics
                                         .REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
@@ -451,8 +480,14 @@ class CameraInfoAdapterTest {
                     )
             )
 
-        assertThat(cameraInfo.querySupportedDynamicRanges(setOf(DynamicRange.SDR, HLG_10_BIT)))
-            .containsExactly(DynamicRange.SDR, HLG_10_BIT)
+        assertThat(cameraInfo.querySupportedDynamicRanges(setOf(DynamicRange.UNSPECIFIED)))
+            .containsExactly(DynamicRange.SDR)
+        assertThat(
+                cameraInfo.querySupportedDynamicRanges(
+                    setOf(HLG_10_BIT, DynamicRange.HDR_UNSPECIFIED_10_BIT)
+                )
+            )
+            .isEmpty()
     }
 
     // Analog to Camera2CameraInfoImplTest#apiVersionNotMet_canReturnSupportedDynamicRanges()
@@ -863,5 +898,16 @@ class CameraInfoAdapterTest {
             )
 
         assertThat(cameraInfo.isLowLightBoostSupported).isFalse()
+    }
+
+    private companion object {
+        val TEN_BIT_CAPABILITIES: Map<CameraCharacteristics.Key<*>, Any?> =
+            mapOf(
+                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to
+                    intArrayOf(
+                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                    )
+            )
     }
 }
