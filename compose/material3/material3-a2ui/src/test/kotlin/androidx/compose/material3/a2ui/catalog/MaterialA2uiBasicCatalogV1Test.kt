@@ -19,13 +19,12 @@ package androidx.compose.material3.a2ui.catalog
 import androidx.a2ui.compose.runtime.A2uiComponentReference
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
-import androidx.a2ui.model.catalog.functions.A2uiLocaleProvider
-import androidx.a2ui.model.catalog.functions.A2uiMessageFormatter
-import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
+import androidx.a2ui.model.catalog.A2uiFunctionDefinition
+import androidx.a2ui.model.protocol.A2uiDataPath
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.google.common.truth.Truth.assertThat
-import java.util.Locale
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -36,12 +35,16 @@ class MaterialA2uiBasicCatalogV1Test {
     private val fakeImageRenderer = A2uiImageRenderer { _, _, _, _, _ -> }
     private val fakeVideoRenderer = A2uiVideoRenderer { _, _, _ -> }
     private val fakeAudioPlayerRenderer = A2uiAudioPlayerRenderer { _, _, _, _ -> }
-    private val fakeUrlOpener = A2uiUrlOpener { _ -> }
-    private val fakeMessageFormatter = A2uiMessageFormatter { _, _, _ -> "" }
-    private val fakeLocaleProvider = A2uiLocaleProvider { Locale.US }
+    private val openedUrls = mutableListOf<String>()
+    private val fakeFunctions =
+        object : A2uiBasicCatalogV1.Functions {
+            override fun openUrl(url: String, executionContext: A2uiExecutionContext) {
+                openedUrls += url
+            }
+        }
 
     @Test
-    fun factory_withDefaults_createsCatalogWithDefaultComponentsAndBasicFunctions() {
+    fun factory_withDefaults_createsCatalogWithDefaultComponentsAndFunctions() {
         val image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer)
         val video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer)
         val audioPlayer = MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer)
@@ -50,9 +53,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 image = image,
                 video = video,
                 audioPlayer = audioPlayer,
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
             )
 
         assertThat(catalog.id).isEqualTo(A2uiBasicCatalogV1.CatalogId)
@@ -93,9 +94,28 @@ class MaterialA2uiBasicCatalogV1Test {
         assertThat(catalog.components["DateTimeInput"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.dateTimeInput)
 
-        // Verifies standard basic functions are populated
-        assertThat(catalog.functions["formatString"]).isNotNull()
-        assertThat(catalog.functions["openUrl"]).isNotNull()
+        // Verifies the functions are populated and call the given implementation
+        assertThat(catalog.functions.map { it.definition.name })
+            .containsExactly(
+                "required",
+                "regex",
+                "length",
+                "numeric",
+                "email",
+                "formatString",
+                "formatNumber",
+                "formatCurrency",
+                "formatDate",
+                "pluralize",
+                "openUrl",
+                "and",
+                "or",
+                "not",
+            )
+            .inOrder()
+        checkNotNull(catalog.functions["openUrl"])
+            .execute(mapOf("url" to "https://example.com"), NoOpExecutionContext)
+        assertThat(openedUrls).containsExactly("https://example.com")
     }
 
     @Test
@@ -117,9 +137,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 text = customText,
             )
 
@@ -146,9 +164,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 icon = customIcon,
             )
 
@@ -178,9 +194,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
             )
 
         assertThat(catalog.components["Image"]).isSameInstanceAs(customImage)
@@ -206,9 +220,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = customVideo,
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
             )
 
         assertThat(catalog.components["Video"]).isSameInstanceAs(customVideo)
@@ -234,9 +246,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer = customAudioPlayer,
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
             )
 
         assertThat(catalog.components["AudioPlayer"]).isSameInstanceAs(customAudioPlayer)
@@ -264,9 +274,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 card = customCard,
             )
 
@@ -295,9 +303,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 row = customRow,
             )
 
@@ -326,9 +332,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 column = customColumn,
             )
 
@@ -357,9 +361,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 list = customList,
             )
 
@@ -386,9 +388,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 tabs = customTabs,
             )
 
@@ -416,9 +416,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 modal = customModal,
             )
 
@@ -445,9 +443,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 divider = customDivider,
             )
 
@@ -477,9 +473,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 button = customButton,
             )
 
@@ -512,9 +506,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 textField = customTextField,
             )
 
@@ -545,9 +537,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 checkBox = customCheckBox,
             )
 
@@ -582,9 +572,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 choicePicker = customChoicePicker,
             )
 
@@ -617,9 +605,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 slider = customSlider,
             )
 
@@ -653,9 +639,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 video = MaterialA2uiBasicCatalogV1Defaults.video(fakeVideoRenderer),
                 audioPlayer =
                     MaterialA2uiBasicCatalogV1Defaults.audioPlayer(fakeAudioPlayerRenderer),
-                urlOpener = fakeUrlOpener,
-                messageFormatter = fakeMessageFormatter,
-                localeProvider = fakeLocaleProvider,
+                functions = fakeFunctions,
                 dateTimeInput = customDateTimeInput,
             )
 
@@ -703,4 +687,21 @@ class MaterialA2uiBasicCatalogV1Test {
         assertThat(MaterialA2uiBasicCatalogV1Defaults.dateTimeInput)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1DateTimeInput)
     }
+}
+
+/** An [A2uiExecutionContext] for functions that don't access the data model or other functions. */
+private object NoOpExecutionContext : A2uiExecutionContext {
+    override val dataPath: A2uiDataPath = A2uiDataPath("/")
+
+    override fun evaluatePayload(payload: Any?): Any? = throw UnsupportedOperationException()
+
+    override fun executeFunction(name: String, args: Map<String, Any>): Any? =
+        throw UnsupportedOperationException()
+
+    override fun resolveValue(path: A2uiDataPath): Any? = throw UnsupportedOperationException()
+
+    override fun <T : Any> getOrCreateFunctionScopedCache(
+        functionDefinition: A2uiFunctionDefinition,
+        factory: () -> T,
+    ): T = factory()
 }

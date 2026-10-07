@@ -19,10 +19,6 @@ package androidx.compose.material3.a2ui.catalog
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.a2ui.compose.ui.catalog.toA2uiCatalog
-import androidx.a2ui.model.catalog.basiccatalog.createBasicCatalogFunctions
-import androidx.a2ui.model.catalog.functions.A2uiLocaleProvider
-import androidx.a2ui.model.catalog.functions.A2uiMessageFormatter
-import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
 
 /**
  * Creates an [A2uiCatalog] for the A2UI Basic Catalog V1 using Material Design 3.
@@ -30,6 +26,14 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  * Provides default Material 3 implementations for all components in the A2UI Basic Catalog V1
  * specification, while allowing individual component implementations to be overridden.
  *
+ * To customize how URLs are opened:
+ *
+ * @sample androidx.compose.material3.a2ui.samples.A2uiSurfaceCustomOpenUrlFunctionSample
+ *
+ * To wrap the default implementation of a function while keeping the default implementations of all
+ * other functions, including `openUrl`:
+ *
+ * @sample androidx.compose.material3.a2ui.samples.A2uiSurfaceCustomEmailFunctionSample
  * @param image [A2uiBasicCatalogV1.Image] component implementation. Use
  *   [MaterialA2uiBasicCatalogV1Defaults.image] to create a default Material 3 implementation with
  *   an [A2uiImageRenderer]
@@ -39,11 +43,10 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  * @param audioPlayer [A2uiBasicCatalogV1.AudioPlayer] component implementation. Use
  *   [MaterialA2uiBasicCatalogV1Defaults.audioPlayer] to create a default Material 3 implementation
  *   with an [A2uiAudioPlayerRenderer]
- * @param urlOpener [A2uiUrlOpener] used by catalog functions to open URLs
- * @param messageFormatter [A2uiMessageFormatter] used by catalog functions to format localized
- *   messages with arguments
- * @param localeProvider [A2uiLocaleProvider] used by catalog functions to determine the active
- *   locale
+ * @param functions [A2uiBasicCatalogV1.Functions] implementation. Use the
+ *   [A2uiBasicCatalogV1.Functions(context)][A2uiBasicCatalogV1.Companion.Functions] factory
+ *   function to create the default implementations of all functions, and override methods of
+ *   [A2uiBasicCatalogV1.Functions] to customize individual functions
  * @param text [A2uiBasicCatalogV1.Text] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.text]
  * @param icon [A2uiBasicCatalogV1.Icon] component implementation, defaults to
@@ -74,15 +77,13 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  *   [MaterialA2uiBasicCatalogV1Defaults.slider]
  * @param dateTimeInput [A2uiBasicCatalogV1.DateTimeInput] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.dateTimeInput]
- * @return an [A2uiCatalog] configured with Material 3 basic components and functions
+ * @return an [A2uiCatalog] configured with Material 3 basic components and [functions]
  */
 public fun materialA2uiBasicCatalogV1(
     image: A2uiBasicCatalogV1.Image,
     video: A2uiBasicCatalogV1.Video,
     audioPlayer: A2uiBasicCatalogV1.AudioPlayer,
-    urlOpener: A2uiUrlOpener,
-    messageFormatter: A2uiMessageFormatter,
-    localeProvider: A2uiLocaleProvider,
+    functions: A2uiBasicCatalogV1.Functions,
     text: A2uiBasicCatalogV1.Text = MaterialA2uiBasicCatalogV1Defaults.text,
     icon: A2uiBasicCatalogV1.Icon = MaterialA2uiBasicCatalogV1Defaults.icon,
     row: A2uiBasicCatalogV1.Row = MaterialA2uiBasicCatalogV1Defaults.row,
@@ -119,7 +120,7 @@ public fun materialA2uiBasicCatalogV1(
             choicePicker = choicePicker,
             slider = slider,
             dateTimeInput = dateTimeInput,
-            functions = createBasicCatalogFunctions(urlOpener, messageFormatter, localeProvider),
+            functions = functions,
         )
         .toA2uiCatalog()
 

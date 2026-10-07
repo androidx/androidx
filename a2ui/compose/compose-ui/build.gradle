@@ -45,6 +45,7 @@ dependencies {
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
+    testImplementation(libs.testParameterInjector)
 
     androidTestImplementation(project(":a2ui:compose:compose-ui-testing"))
     androidTestImplementation("androidx.compose.foundation:foundation:1.13.0-alpha03")
