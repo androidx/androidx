@@ -36,7 +36,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.media.ImageReaderWrapper
-import androidx.camera.camera2.pipe.media.ImageWrapper
+import androidx.camera.common.ImageWrapper
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat

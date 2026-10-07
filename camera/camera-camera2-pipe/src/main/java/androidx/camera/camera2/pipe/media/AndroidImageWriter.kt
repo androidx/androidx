@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.InputStreamId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.compat.Api29Compat
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.common.ImageWrapper
 import androidx.camera.common.unwrapAs
 import java.lang.Class
 import kotlinx.atomicfu.atomic

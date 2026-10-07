@@ -65,7 +65,6 @@ class FakeImageReaderTest {
         assertThat(fakeImage.format).isEqualTo(StreamFormat.PRIVATE.value)
         assertThat(fakeImage.timestamp).isEqualTo(100)
         assertThat(fakeImage.imagePlanes).hasSize(3)
-        @Suppress("DEPRECATION") assertThat(fakeImage.planes).hasSize(3)
         assertThat(fakeImage.isClosed).isFalse()
     }
 
@@ -85,7 +84,6 @@ class FakeImageReaderTest {
 
         assertThat(fakeImage.format).isEqualTo(StreamFormat.YUV_420_888.value)
         assertThat(fakeImage.imagePlanes).hasSize(3)
-        @Suppress("DEPRECATION") assertThat(fakeImage.planes).hasSize(3)
     }
 
     @Test

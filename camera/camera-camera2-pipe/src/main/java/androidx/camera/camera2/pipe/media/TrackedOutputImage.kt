@@ -21,6 +21,7 @@ import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.media.OutputImage.Companion.toLogString
+import androidx.camera.common.ImageWrapper
 import kotlinx.atomicfu.atomic
 
 /**
