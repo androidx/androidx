@@ -98,9 +98,13 @@ import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation
+import androidx.compose.remote.core.operations.matrix.MatrixConstant
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.Easing as RemoteEasing
+import androidx.compose.remote.core.types.BooleanConstant
+import androidx.compose.remote.core.types.IntegerConstant
+import androidx.compose.remote.core.types.LongConstant
 import androidx.compose.remote.creation.compose.action.LambdaAction
 import androidx.compose.remote.creation.compose.action.PendingIntentAction
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
@@ -1154,7 +1158,10 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
                     op is FloatConstant ||
                     op is ColorTheme ||
                     op is NamedVariable ||
-                    op.javaClass.simpleName.endsWith("Constant")
+                    op is IntegerConstant ||
+                    op is LongConstant ||
+                    op is BooleanConstant ||
+                    op is MatrixConstant
             ) {
                 constantOps.add(op)
             }
