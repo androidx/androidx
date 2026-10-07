@@ -2683,6 +2683,68 @@ class RcPlayerInteractivityTest {
         rule.onNodeWithText("75").assertExists()
     }
 
+    @Test
+    fun touchExpression_onPaddedComponent_usesComponentOuterCoordinates() {
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(300.dp)) { content() }
+            }
+        ) {
+            val creationState = LocalRemoteComposeCreationState.current
+            val touchFraction = rememberRemoteFloatExpression {
+                val doc = creationState.document
+                val rootX = doc.addComponentRootXValue()
+                val width = doc.addComponentWidthValue()
+                val touchId =
+                    doc.addTouch(
+                        -1f,
+                        0f,
+                        1f,
+                        TouchExpression.STOP_ABSOLUTE_POS,
+                        0f,
+                        0,
+                        null,
+                        null,
+                        RemoteContext.FLOAT_TOUCH_POS_X,
+                        rootX,
+                        AnimatedFloatExpression.SUB,
+                        width,
+                        AnimatedFloatExpression.DIV,
+                    )
+                RemoteFloat(touchId)
+            }
+            RemoteColumn(modifier = RemoteModifier.size(300.rdp)) {
+                RemoteRow(modifier = RemoteModifier.size(300.rdp, 100.rdp)) {
+                    RemoteBox(modifier = RemoteModifier.size(50.rdp, 100.rdp))
+                    // The padding moves the TouchExpression's pointerInput inside the box, but
+                    // ComponentRootX / ComponentWidth (and core's touch positions) describe the
+                    // box's outer bounds.
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(200.rdp, 100.rdp)
+                                .semantics { contentDescription = "PaddedTouchBox".rs }
+                                .padding(start = 40.rdp)
+                    ) {
+                        Hoist(touchFraction)
+                    }
+                }
+                val text =
+                    touchFraction
+                        .isLessThan(0f.rf)
+                        .select("Unset".rs, (touchFraction * 100f).toRemoteInt().toRemoteString())
+                RemoteText(text)
+            }
+        }
+
+        rule.onNodeWithText("Unset").assertExists()
+
+        // Center of the outer box: (100 - 0) / 200 of its width. Without mapping into the outer
+        // box this read the padding-relative position, (100 - 40) / 200.
+        rule.onNodeWithContentDescription("PaddedTouchBox").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("50").assertExists()
+    }
+
     /** A profile whose documents opt into the legacy (root coordinates) touch version 0. */
     private fun legacyTouchProfile(): Profile =
         Profile(
