@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
@@ -36,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @RemoteComposable
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to ContinuousSec, RemoteOffset, animateFloat, component, height, translate, width
+) // Referring to RemoteOffset, animateFloat, component, height, translate, width
 fun AnimatedChangesDemo() {
     RemoteColumn(
         modifier = RemoteModifier.fillMaxSize(),
@@ -50,7 +51,7 @@ fun AnimatedChangesDemo() {
             val centerY = height / 2.rf
             val rad = width.min(height) / 4.rf
 
-            val beat = remote.time.ContinuousSec() * 2.rf
+            val beat = RemoteTimeVariables.continuousSeconds * 2.rf
             val anim = remote.animateFloat(beat, duration = 0.5f)
 
             translate(0.rf, anim * 100.rf) {

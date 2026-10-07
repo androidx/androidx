@@ -19,12 +19,12 @@ package androidx.compose.remote.creation.compose.vector
 import android.content.Context
 import androidx.annotation.DrawableRes
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.painter.RemotePainter
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.cos
 import androidx.compose.remote.creation.compose.state.cubicEasing
@@ -46,20 +46,20 @@ import kotlin.math.PI
 
 /**
  * Calculates the default progress for an [animatedVector], which animates continuously based on
- * [RemoteContext.FLOAT_ANIMATION_TIME].
+ * [RemoteTimeVariables.animationTime].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun defaultProgress(animatedVector: RemoteAnimatedVector): RemoteFloat {
     val durationMs = animatedVector.totalDuration
     if (durationMs <= 0) return 0f.rf
     val durationSec = durationMs / 1000f
-    val animationTime = RemoteFloat(RemoteContext.FLOAT_ANIMATION_TIME)
+    val animationTime = RemoteTimeVariables.animationTime
     return (animationTime / durationSec.rf) % 1f.rf
 }
 
 /**
  * A [RemotePainter] that renders a [RemoteAnimatedVector] evaluated at a specific [progress]. By
- * default, [progress] animates continually based on [RemoteContext.FLOAT_ANIMATION_TIME].
+ * default, [progress] animates continually based on [RemoteTimeVariables.animationTime].
  *
  * @param animatedVector The animated vector to render.
  * @param progress The animation progress. Defaults to a continuous animation based on animation
@@ -92,7 +92,7 @@ public class RemoteAnimatedVectorPainter(
 
 /**
  * Creates a [RemotePainter] to render a [RemoteAnimatedVector] at the given [progress]. Defaults to
- * animating continually based on [RemoteContext.FLOAT_ANIMATION_TIME].
+ * animating continually based on [RemoteTimeVariables.animationTime].
  *
  * @param animatedVector The animated vector drawable to render.
  * @param progress The [RemoteFloat] progress to evaluate the animation at.
@@ -107,7 +107,7 @@ public fun painterRemoteAnimatedVector(
 
 /**
  * Creates a [RemotePainter] to render an XML Animated Vector Drawable resource at [progress].
- * Defaults to animating continually based on [RemoteContext.FLOAT_ANIMATION_TIME].
+ * Defaults to animating continually based on [RemoteTimeVariables.animationTime].
  *
  * @param context The Android context used to load the resource.
  * @param id The XML drawable resource ID.
@@ -125,7 +125,7 @@ public fun painterRemoteAnimatedVector(
 
 /**
  * Remembers a [RemotePainter] for a [RemoteAnimatedVector] evaluated at the given [progress].
- * Defaults to animating continually based on [RemoteContext.FLOAT_ANIMATION_TIME].
+ * Defaults to animating continually based on [RemoteTimeVariables.animationTime].
  *
  * @param animatedVector The animated vector drawable to render.
  * @param progress The [RemoteFloat] animation progress.
@@ -143,7 +143,7 @@ public fun rememberRemoteAnimatedVectorPainter(
 
 /**
  * Remembers a [RemotePainter] for an XML Animated Vector Drawable resource at the given [progress].
- * Defaults to animating continually based on [RemoteContext.FLOAT_ANIMATION_TIME].
+ * Defaults to animating continually based on [RemoteTimeVariables.animationTime].
  *
  * @param id The XML drawable resource ID.
  * @param progress The [RemoteFloat] animation progress.

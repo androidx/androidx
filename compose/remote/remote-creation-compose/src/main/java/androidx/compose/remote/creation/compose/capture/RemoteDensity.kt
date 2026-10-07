@@ -17,8 +17,7 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.creation.Rc
+import androidx.compose.remote.creation.compose.state.RemoteConfiguration
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.asRdp
 import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
@@ -64,8 +63,8 @@ public class RemoteDensity(public val density: RemoteFloat, public val fontScale
          */
         public val Host: RemoteDensity
             get() {
-                val density = RemoteFloat(RemoteContext.FLOAT_DENSITY)
-                val fontScale = RemoteFloat(Rc.System.FONT_SIZE) / DEFAULT_FONT_SIZE / density
+                val density = RemoteConfiguration.density
+                val fontScale = RemoteConfiguration.fontSizePx / DEFAULT_FONT_SIZE / density
                 return RemoteDensity(density, fontScale)
             }
     }

@@ -16,7 +16,9 @@
 
 package androidx.compose.remote.creation.compose.state
 
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
@@ -139,6 +141,41 @@ class RemoteDpTest {
         assertThat(context.getFloat(resultDpId)).isEqualTo(pxValue / density)
     }
 
+    @Test
+    fun remoteConfiguration_dpVariants_divideByHostDensity() {
+        val (widthDpId, heightDpId, fontSizeDpId) =
+            remoteComposeTestRule.initialise {
+                Triple(
+                    RemoteConfiguration.windowWidth.value.getIdForCreationState(it),
+                    RemoteConfiguration.windowHeight.value.getIdForCreationState(it),
+                    RemoteConfiguration.fontSize.value.getIdForCreationState(it),
+                )
+            }
+
+        // paint() resets density from the test canvas and the header resets the window size from
+        // the 1x1 document, so evaluate manually and override the window size.
+        CoreDocument().apply {
+            val buffer = remoteComposeTestRule.creationState.document.buffer
+            buffer.buffer.index = 0
+            initFromBuffer(buffer)
+            initializeContext(context)
+            context.loadFloat(RemoteContext.ID_DENSITY, 3f)
+            context.overrideFloat(RemoteContext.ID_WINDOW_WIDTH, 600f)
+            context.overrideFloat(RemoteContext.ID_WINDOW_HEIGHT, 900f)
+            context.loadFloat(RemoteContext.ID_FONT_SIZE, 42f)
+            for (op in operations) {
+                if (op is VariableSupport) {
+                    op.updateVariables(context)
+                }
+                op.apply(context)
+            }
+        }
+
+        assertThat(context.getFloat(widthDpId)).isEqualTo(200f)
+        assertThat(context.getFloat(heightDpId)).isEqualTo(300f)
+        assertThat(context.getFloat(fontSizeDpId)).isEqualTo(14f)
+    }
+
     @Ignore("Fails because toRemoteDp creates non-constant expression")
     @Test
     fun toRemoteDp_resolvesAsConstant_whenValueAndDensityAreConstants() {
@@ -217,7 +254,7 @@ class RemoteDpTest {
 
     @Test
     fun toDebugString_contextVariable() {
-        val continuousSecFloat = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val dpExpr = continuousSecFloat.toRemoteDp()
         assertThat(dpExpr.toDebugString()).isEqualTo("context:continuous_sec.toDp()")
     }

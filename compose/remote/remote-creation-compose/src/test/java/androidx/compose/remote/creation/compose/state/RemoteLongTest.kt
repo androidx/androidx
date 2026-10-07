@@ -18,7 +18,6 @@ package androidx.compose.remote.creation.compose.state
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
@@ -313,7 +312,7 @@ class RemoteLongTest {
 
     @Test
     fun toDebugString_contextVariable() {
-        val continuousSecFloat = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val longExpr = RemoteLong.fromLowHigh(continuousSecFloat.toRemoteInt(), 0.ri)
         assertThat(longExpr.toDebugString())
             .isEqualTo("fromLowHigh(context:continuous_sec.toRemoteInt(), 0)")
