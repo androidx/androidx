@@ -68,11 +68,11 @@ import org.junit.Rule
 
 abstract class BaseGlimmerLazyListTestWithOrientation(protected val orientation: Orientation) {
 
-    @get:Rule(0)
+    @get:Rule(order = 0)
     val rule: ComposeContentTestRule =
         createComposeRule(ComposeUiTestConfig(inputMode = InputMode.Keyboard))
 
-    @get:Rule(1) val glimmerRule = createGlimmerRule()
+    @get:Rule(order = 1) val glimmerRule = createGlimmerRule()
 
     val vertical: Boolean
         get() = orientation == Orientation.Vertical

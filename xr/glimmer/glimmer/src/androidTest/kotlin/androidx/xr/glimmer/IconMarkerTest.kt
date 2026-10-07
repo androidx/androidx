@@ -58,8 +58,8 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class IconMarkerTest {
 
-    @get:Rule(0) val rule = createComposeRule()
-    @get:Rule(1) val glimmerRule = createGlimmerRule()
+    @get:Rule(order = 0) val rule = createComposeRule()
+    @get:Rule(order = 1) val glimmerRule = createGlimmerRule()
 
     @Test
     fun check_onClickAction() {

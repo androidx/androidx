@@ -51,10 +51,10 @@ import org.junit.runners.Parameterized
 class GlimmerPagerStateTest(private val config: GlimmerPagerParamConfig) :
     BaseParameterizedGlimmerPagerTest() {
 
-    @get:Rule(0)
+    @get:Rule(order = 0)
     val rule = createComposeRule(config = ComposeUiTestConfig(inputMode = InputMode.Keyboard))
 
-    @get:Rule(1) val glimmerRule = createGlimmerRule()
+    @get:Rule(order = 1) val glimmerRule = createGlimmerRule()
 
     @After
     fun tearDown() {
