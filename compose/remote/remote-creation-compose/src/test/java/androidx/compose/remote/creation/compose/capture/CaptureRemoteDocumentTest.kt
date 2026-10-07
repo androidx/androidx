@@ -47,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
@@ -1138,6 +1139,64 @@ class CaptureRemoteDocumentTest {
         }
     }
 
+    /**
+     * An effect's global write claimed by a `MutableSnapshot.apply()` on another thread is
+     * delivered to apply observers after the claim, outside
+     * [Snapshot.isApplyObserverNotificationPending]. The capture must still wait for it rather than
+     * sample itself as quiescent and render the stale value (b/571028326).
+     */
+    @Test
+    fun captureSingleRemoteDocument_effectWriteClaimedByConcurrentApply_isCaptured() = runBlocking {
+        val text = mutableStateOf("Init")
+        val claimed = CountDownLatch(1)
+        val captureAwaitingDelivery = CountDownLatch(1)
+        // Registered before the capture's Recomposer, so it runs first and holds back delivery of
+        // the claimed write to the Recomposer's observer until the capture waits for it. Without
+        // that wait the capture samples itself as quiescent and the bounded await below lapses.
+        val delayingObserver = Snapshot.registerApplyObserver { changed, _ ->
+            if (text in changed && Thread.currentThread().name == CLAIMING_THREAD) {
+                claimed.countDown()
+                captureAwaitingDelivery.await(5, TimeUnit.SECONDS)
+            }
+        }
+        onCaptureAwaitingWriteDelivery = {
+            if (claimed.count == 0L) captureAwaitingDelivery.countDown()
+        }
+        try {
+            val doc =
+                withContext(Dispatchers.Default) {
+                    captureSingleRemoteDocument(context) {
+                        LaunchedEffect(Unit) {
+                            withFrameNanos {}
+                            // Taking a snapshot also claims pending global writes, but that path
+                            // is counted by isApplyObserverNotificationPending. Take it first so
+                            // the write is claimed by apply(), which is not.
+                            val snapshot = Snapshot.takeMutableSnapshot()
+                            text.value = "Done"
+                            val claimer =
+                                Thread(
+                                    {
+                                        try {
+                                            snapshot.apply().check()
+                                        } finally {
+                                            snapshot.dispose()
+                                        }
+                                    },
+                                    CLAIMING_THREAD,
+                                )
+                            claimer.start()
+                            assertTrue(claimed.await(5, TimeUnit.SECONDS))
+                        }
+                        RemoteText(text.value.rs)
+                    }
+                }
+            assertDocumentContainsText(doc.toCoreDocument(), "Done")
+        } finally {
+            onCaptureAwaitingWriteDelivery = null
+            delayingObserver.dispose()
+        }
+    }
+
     private fun CapturedDocument.toCoreDocument(): CoreDocument = bytes.toCoreDocument()
 
     private fun CoreDocument.textValues(): Collection<String> = mTextData.values
@@ -1149,6 +1208,8 @@ class CaptureRemoteDocumentTest {
         )
     }
 }
+
+private const val CLAIMING_THREAD = "CaptureRemoteDocumentTest-claimer"
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
