@@ -89,6 +89,7 @@ private fun FilterField(
     modifier: Modifier = Modifier,
 ) {
     val focusRequester = remember { FocusRequester() }
+    @Suppress("DEPRECATION")
     TextField(
         modifier = modifier.focusRequester(focusRequester),
         value = filterText,
