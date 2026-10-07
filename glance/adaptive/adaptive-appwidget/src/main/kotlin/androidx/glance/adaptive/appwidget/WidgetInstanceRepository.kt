@@ -138,12 +138,18 @@ internal class WidgetInstanceRepository(
      */
     private fun matchesWidgetId(appWidgetId: Int, widgetIds: Set<String>?): Boolean {
         if (widgetIds == null) return true
+        val cachedWidgetId = WidgetOptionsCache.getCachedWidgetId(appWidgetId)
+        if (cachedWidgetId != null) {
+            return cachedWidgetId in widgetIds
+        }
+
         val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
         val storedWidgetId =
             options?.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)?.takeIf {
                 it.isNotBlank()
             } ?: return false
 
+        WidgetOptionsCache.cacheWidgetOptionsIfMissing(appWidgetId, options)
         return storedWidgetId in widgetIds
     }
 }
