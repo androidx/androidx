@@ -22,6 +22,7 @@ import androidx.activity.BackEventCompat
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -64,12 +65,14 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategyScope
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigationevent.DirectNavigationEventInput
 import androidx.navigationevent.NavigationEvent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.Text
@@ -104,7 +107,11 @@ class SwipeDismissableSceneStrategyTest {
             val sceneStrategy = rememberSwipeDismissableSceneStrategy<String>()
             scene = with(sceneStrategy) { scope.calculateScene(entries = listOf(entry)) }
 
-            scene!!.content()
+            AnimatedContent(targetState = scene) { targetScene ->
+                CompositionLocalProvider(LocalNavAnimatedContentScope provides this) {
+                    targetScene!!.content()
+                }
+            }
         }
 
         assertThat(scene).isNotNull()
@@ -602,6 +609,102 @@ class SwipeDismissableSceneStrategyTest {
         // ensure text on the left side of the screen is visible (ensure screen slides out from
         // left to right)
         rule.onNodeWithText(SECOND_SCREEN).assertIsDisplayed()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 36)
+    fun updates_localScreenIsActive_when_navigation_starts() {
+        val backStack = mutableStateListOf<Any>(FIRST_KEY)
+        var firstScreenActive: Boolean? = null
+        var secondScreenActive: Boolean? = null
+
+        rule.setContentWithBackPressedDispatcher {
+            TestNavDisplay(
+                backStack = backStack,
+                entryProvider =
+                    entryProvider {
+                        entry(FIRST_KEY) {
+                            firstScreenActive = LocalScreenIsActive.current
+                            Text(FIRST_SCREEN)
+                        }
+                        entry(SECOND_KEY) {
+                            secondScreenActive = LocalScreenIsActive.current
+                            Text(SECOND_SCREEN)
+                        }
+                    },
+            )
+        }
+
+        rule.waitForIdle()
+        assertThat(firstScreenActive).isTrue()
+        assertThat(secondScreenActive).isNull()
+
+        rule.mainClock.autoAdvance = false
+
+        // Start navigation to the second entry
+        rule.runOnIdle { backStack.add(SECOND_KEY) }
+        rule.mainClock.advanceTimeByFrame()
+
+        // As soon as navigation starts (while transition is in progress),
+        // the first screen should no longer be active and the target screen should be active.
+        assertThat(firstScreenActive).isFalse()
+        assertThat(secondScreenActive).isTrue()
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        assertThat(firstScreenActive).isFalse()
+        assertThat(secondScreenActive).isTrue()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 36)
+    fun updates_localScreenIsActive_when_back_navigation_starts() {
+        val backStack = mutableStateListOf<Any>(FIRST_KEY)
+        var firstScreenActive: Boolean? = null
+        var secondScreenActive: Boolean? = null
+
+        rule.setContentWithBackPressedDispatcher {
+            TestNavDisplay(
+                backStack = backStack,
+                entryProvider =
+                    entryProvider {
+                        entry(FIRST_KEY) {
+                            firstScreenActive = LocalScreenIsActive.current
+                            Text(FIRST_SCREEN)
+                        }
+                        entry(SECOND_KEY) {
+                            secondScreenActive = LocalScreenIsActive.current
+                            Text(SECOND_SCREEN)
+                        }
+                    },
+            )
+        }
+
+        // Navigate to the second entry and wait for the transition to complete
+        rule.runOnIdle { backStack.add(SECOND_KEY) }
+        rule.waitForIdle()
+
+        assertThat(firstScreenActive).isFalse()
+        assertThat(secondScreenActive).isTrue()
+
+        rule.mainClock.autoAdvance = false
+
+        // Start back navigation to the first entry
+        rule.runOnIdle { backStack.removeLastOrNull() }
+        rule.mainClock.advanceTimeByFrame()
+
+        // As soon as back navigation starts (while transition is in progress),
+        // the second screen should no longer be active and the first (target) screen should be
+        // active.
+        assertThat(secondScreenActive).isFalse()
+        assertThat(firstScreenActive).isTrue()
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        assertThat(secondScreenActive).isFalse()
+        assertThat(firstScreenActive).isTrue()
     }
 
     @Composable
