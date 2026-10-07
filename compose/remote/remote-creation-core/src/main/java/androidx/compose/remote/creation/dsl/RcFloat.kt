@@ -32,6 +32,10 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.remoteContentEquals
+import androidx.compose.remote.creation.remoteContentHashCode
+import androidx.compose.remote.creation.remoteFloatEquals
+import androidx.compose.remote.creation.remoteFloatHashCode
 
 /**
  * Type-safe reference for remote float variables or expressions. This often encapsulates a
@@ -296,14 +300,16 @@ open public class RcFloat {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RcFloat) return false
-        if (!array.contentEquals(other.array)) return false
-        if (id != other.id) return false
+        // array and id hold NaN-encoded variable ids and operators, which contentEquals and
+        // Float equality don't distinguish.
+        if (!array.remoteContentEquals(other.array)) return false
+        if (!remoteFloatEquals(id, other.id)) return false
         return true
     }
 
     override fun hashCode(): Int {
-        var result = array.contentHashCode()
-        result = 31 * result + id.hashCode()
+        var result = array.remoteContentHashCode()
+        result = 31 * result + remoteFloatHashCode(id)
         return result
     }
 }
