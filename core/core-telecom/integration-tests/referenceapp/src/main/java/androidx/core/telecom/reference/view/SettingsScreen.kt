@@ -139,6 +139,7 @@ fun SettingsScreen() {
                 text = "Configure the prefix added before dialing numbers.",
                 modifier = Modifier.padding(bottom = 8.dp),
             )
+            @Suppress("DEPRECATION")
             OutlinedTextField(
                 value = prefix,
                 onValueChange = { newValue ->
