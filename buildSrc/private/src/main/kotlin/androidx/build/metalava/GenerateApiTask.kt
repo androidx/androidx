@@ -121,6 +121,20 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
         multiplatform: Boolean,
         generateTrace: Boolean,
     ) {
+        val filteredSourcePaths = filteredSourcePaths()
+        // If there are no sources, there are no APIs. Write empty signature files instead of
+        // invoking metalava. This rule doesn't apply for KMP projects with no jvm/android target
+        // because the source paths only include sources for the jvm/android compilation.
+        if (filteredSourcePaths.isEmpty() && hasJvmOrAndroidTarget.get()) {
+            writeEmptySignatureFile(apiLocation.get().publicApiFile)
+            writeEmptySignatureFile(apiLocation.get().restrictedApiFile)
+            // If a API version history file was requested, write an empty one.
+            if (apiLevelsArgs.isNotEmpty()) {
+                apiLocation.get().apiLevelsFile.writeText("[]")
+            }
+            return
+        }
+
         val generateApiConfigs: MutableList<Pair<GenerateApiMode, ApiLintMode>> =
             mutableListOf(GenerateApiMode.PublicApi to apiLintMode)
 
@@ -150,7 +164,7 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             }
 
             addAll(
-                getMultiSurfaceArgs(projectXml, sourcePaths.files, includeCompiledSources = true)
+                getMultiSurfaceArgs(projectXml, filteredSourcePaths, includeCompiledSources = true)
             )
 
             generateApiConfigs.forEach { (generateApiMode, apiLintMode) ->
@@ -166,5 +180,10 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             }
         }
         runWithArgs(args)
+    }
+
+    /** Writes the text of a signature file with no APIs. */
+    private fun writeEmptySignatureFile(file: File) {
+        file.writeText("// Signature format: 4.0\n")
     }
 }

@@ -64,6 +64,11 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
     @get:[InputFiles PathSensitive(PathSensitivity.NONE)]
     abstract val sourcePaths: ConfigurableFileCollection
 
+    /** Filters [sourcePaths] to just the paths that exist. */
+    protected fun filteredSourcePaths(): List<File> {
+        return sourcePaths.files.filter { it.exists() }
+    }
+
     /** Class files compiled from sourcePaths */
     @get:Classpath abstract val compiledSources: ConfigurableFileCollection
 
@@ -332,6 +337,11 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
     /**
      * Returns a list of args which describe how sources should be parsed, not specific to the API
      * surface.
+     *
+     * @param projectXml File describing the structure of the project (format defined by lint).
+     * @param sourcePaths Sources to pass to metalava. This list should not be empty and all files
+     *   are assumed to exist.
+     * @param includeCompiledSources Whether to include the [compiledSources] jar in the args.
      */
     protected fun getMultiSurfaceArgs(
         projectXml: File,
@@ -356,11 +366,11 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
 
             if (hasJvmOrAndroidTarget.get()) {
                 add("--source-path")
-                add(sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator))
+                assert(sourcePaths.isNotEmpty()) { "Should not run metalava with no sources" }
+                add(sourcePaths.joinToString(File.pathSeparator))
 
                 // Include the jar file to generate bytecode-only APIs if this project has any
-                // Kotlin
-                // source.
+                // Kotlin source.
                 if (includeCompiledSources) {
                     val compiledSources = compiledSources.singleOrNull()
                     if (compiledSources != null && sourcePaths.any { containsKotlinFiles(it) }) {
