@@ -42,6 +42,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onChildAt
@@ -666,6 +667,35 @@ class RadioButtonTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedColor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun radio_button_draws_focus_ring_when_focused() {
+        rule.verifyFocusRingDrawnAfterFocusInteraction { modifier, interactionSource ->
+            RadioButton(
+                selected = false,
+                onSelect = {},
+                modifier = modifier,
+                interactionSource = interactionSource,
+                label = {},
+            )
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun split_radio_button_draws_focus_ring_when_focused() {
+        rule.verifyFocusRingDrawnAfterRequestFocus(hasClickAction()) { modifier ->
+            SplitRadioButton(
+                selected = false,
+                onSelectionClick = {},
+                selectionContentDescription = null,
+                onContainerClick = {},
+                modifier = modifier,
+                label = { Text("Label") },
+            )
+        }
     }
 }
 

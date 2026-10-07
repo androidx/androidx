@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3
 
+import android.os.Build
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -36,6 +37,7 @@ import androidx.compose.ui.test.assertRangeInfoEquals
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onChild
@@ -48,6 +50,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
+import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.materialcore.RangeIcons
 import com.google.common.truth.Truth
 import kotlin.math.roundToInt
@@ -538,6 +541,23 @@ class StepperTest {
         }
 
         assertEquals(expectedIconColor, actualIconColor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun draws_focus_ring_when_button_focused() {
+        rule.verifyFocusRingDrawnAfterRequestFocus(hasClickAction()) { modifier ->
+            ScreenConfiguration(SCREEN_SIZE_LARGE) {
+                Stepper(
+                    value = 2f,
+                    onValueChange = {},
+                    steps = 5,
+                    decreaseIcon = {},
+                    increaseIcon = {},
+                    modifier = modifier,
+                ) {}
+            }
+        }
     }
 
     private fun calculateVerticalMargin(height: Dp) = height * 5.2f / 100
