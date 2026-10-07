@@ -19,6 +19,7 @@ package androidx.xr.scenecore.runtime
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
+import androidx.xr.runtime.math.Vector3
 
 /** Interface for a Mesh entity. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -33,6 +34,9 @@ public interface MeshEntity : Entity {
 
     /** The current affordance state based on user interaction. */
     public var affordanceState: GeometryAffordanceState
+
+    /** The recommended affordance scale based on user interaction. */
+    public var recommendedAffordanceScale: Vector3
 
     /**
      * Sets a material for a mesh subset.

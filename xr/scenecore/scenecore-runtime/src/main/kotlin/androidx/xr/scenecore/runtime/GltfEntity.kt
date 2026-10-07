@@ -18,6 +18,7 @@ package androidx.xr.scenecore.runtime
 
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.Vector3
 import java.util.function.Consumer
 
 /** Interface for a XR Runtime [GltfEntity]. */
@@ -29,6 +30,9 @@ public interface GltfEntity : Entity {
 
     /** The current affordance state based on user interaction. */
     public var affordanceState: GeometryAffordanceState
+
+    /** The recommended affordance scale based on user interaction. */
+    public var recommendedAffordanceScale: Vector3
 
     /**
      * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the

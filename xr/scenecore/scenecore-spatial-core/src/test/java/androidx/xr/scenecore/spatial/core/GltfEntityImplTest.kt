@@ -183,6 +183,23 @@ class GltfEntityImplTest : AndroidXrEntityImplTest() {
         Truth.assertThat(result).isEmpty()
     }
 
+    @Test
+    fun recommendedAffordanceScale_defaultsToEntityScale() {
+        Truth.assertThat(gltfEntityImpl.recommendedAffordanceScale)
+            .isEqualTo(gltfEntityImpl.getScale())
+    }
+
+    @Test
+    fun setRecommendedAffordanceScale_updatesValueWithoutChangingEntityScale() {
+        val entityScale = gltfEntityImpl.getScale()
+        val recommendedScale = Vector3(2f, 3f, 4f)
+
+        gltfEntityImpl.recommendedAffordanceScale = recommendedScale
+
+        Truth.assertThat(gltfEntityImpl.recommendedAffordanceScale).isEqualTo(recommendedScale)
+        Truth.assertThat(gltfEntityImpl.getScale()).isEqualTo(entityScale)
+    }
+
     companion object {
         private const val OPEN_XR_REFERENCE_SPACE_TYPE = 1
     }

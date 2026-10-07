@@ -22,7 +22,12 @@ import android.os.Handler
 import android.os.Looper
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.GeometryAffordanceState
+import androidx.xr.scenecore.runtime.GltfEntity
+import androidx.xr.scenecore.runtime.InputEventListener
+import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.PanelEntity
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import androidx.xr.scenecore.runtime.ResizableComponent
 import androidx.xr.scenecore.runtime.ResizeEvent
 import androidx.xr.scenecore.runtime.ResizeEventListener
@@ -53,6 +58,64 @@ internal class ResizableComponentImpl(
     // Visible for testing.
     var reformEventConsumer: Consumer<ReformEvent>? = null
     private var entity: Entity? = null
+
+    /**
+     * The geometry affordance state observed on the previous input event. Only accessed from
+     * [inputEventListener], which is dispatched on [executor], and reset in [onDetach].
+     */
+    private var previousAffordanceState = GeometryAffordanceState.NONE
+
+    /**
+     * Translates the geometry affordance state of the attached [GltfEntity] or [MeshEntity] into
+     * [ResizeEvent]s.
+     *
+     * The resize state is derived exactly once per input event, before fanning out to the listener
+     * executors, so that every registered listener observes the same START/ONGOING/END transition
+     * and the transition is tracked even while no listener is registered.
+     */
+    private val inputEventListener = InputEventListener {
+        val (currentState, scale) =
+            when (val currentEntity = entity) {
+                is GltfEntity ->
+                    currentEntity.affordanceState to currentEntity.recommendedAffordanceScale
+                is MeshEntity ->
+                    currentEntity.affordanceState to currentEntity.recommendedAffordanceScale
+                // The component was detached while this event was queued, or the entity does not
+                // support geometry affordances; there is nothing to report.
+                else -> return@InputEventListener
+            }
+        val isResizing = isAllowedResizeState(currentState)
+        val wasResizing = isAllowedResizeState(previousAffordanceState)
+        previousAffordanceState = currentState
+
+        val resizeState =
+            when {
+                isResizing && wasResizing -> ResizeEvent.ResizeState.RESIZE_STATE_ONGOING
+                isResizing -> ResizeEvent.ResizeState.RESIZE_STATE_START
+                wasResizing -> ResizeEvent.ResizeState.RESIZE_STATE_END
+                else -> return@InputEventListener
+            }
+        val resizeEvent = ResizeEvent(resizeState, Dimensions(scale.x, scale.y, scale.z))
+        resizeEventListenerMap.forEach { (listener: ResizeEventListener, listenerExecutor: Executor)
+            ->
+            listenerExecutor.execute { listener.onResizeEvent(resizeEvent) }
+        }
+    }
+
+    /**
+     * Returns whether [state] is a scaling gesture that is permitted by the current
+     * [geometryGestureType].
+     */
+    private fun isAllowedResizeState(state: GeometryAffordanceState): Boolean =
+        when (state) {
+            GeometryAffordanceState.ONE_HANDED_SCALE ->
+                interactionMode == ResizableComponent.GeometryGestureType.ONE_HANDED ||
+                    interactionMode == ResizableComponent.GeometryGestureType.ALL
+            GeometryAffordanceState.TWO_HANDED_SCALE ->
+                interactionMode == ResizableComponent.GeometryGestureType.TWO_HANDED ||
+                    interactionMode == ResizableComponent.GeometryGestureType.ALL
+            else -> false
+        }
 
     private var currentMinSize = dimsClampPositive(minSize, DIMS_ZERO)
     override var minimumSize: Dimensions
@@ -113,6 +176,34 @@ internal class ResizableComponentImpl(
                     reformOptions.minimumSize = dimsToVec3(currentMinSize)
                 }
                 (entity as AndroidXrEntity).updateReformOptions()
+            }
+        }
+
+    var interactionMode: Int = ResizableComponent.GeometryGestureType.ALL
+    override var geometryGestureType: Int
+        get() = interactionMode
+        set(value) {
+            interactionMode = value
+            val enabled =
+                (interactionMode == ResizableComponent.GeometryGestureType.ONE_HANDED ||
+                    interactionMode == ResizableComponent.GeometryGestureType.TWO_HANDED ||
+                    interactionMode == ResizableComponent.GeometryGestureType.ALL)
+            // TODO(b/570518850): Add/remove inputEventListener on the attached entity when toggling
+            // between NONE and an active gesture type.
+            when (entity) {
+                is GltfEntity ->
+                    (entity as GltfEntity).setReformAffordanceEnabled(
+                        enabled,
+                        ReformAffordanceFlag.RESIZABLE,
+                    )
+
+                is MeshEntity ->
+                    (entity as MeshEntity).setReformAffordanceEnabled(
+                        enabled,
+                        ReformAffordanceFlag.RESIZABLE,
+                    )
+
+                else -> {}
             }
         }
 
@@ -227,6 +318,18 @@ internal class ResizableComponentImpl(
             return false
         }
 
+        // Gltf and Mesh entities are resized through the geometry affordance drawn by the rendering
+        // layer rather than through the system reform overlay, so their reform options are left
+        // untouched.
+        if (entity is GltfEntity || entity is MeshEntity) {
+            this.entity = entity
+            if (interactionMode != ResizableComponent.GeometryGestureType.NONE) {
+                setGeometryReformAffordanceEnabled(entity, enabled = true)
+                entity.addInputEventListener(executor, inputEventListener)
+            }
+            return true
+        }
+
         var entitySize: Dimensions? = null
         if (entity is PanelEntity) {
             entitySize = entity.size
@@ -262,6 +365,14 @@ internal class ResizableComponentImpl(
     }
 
     override fun onDetach(entity: Entity) {
+        if (entity is GltfEntity || entity is MeshEntity) {
+            setGeometryReformAffordanceEnabled(entity, enabled = false)
+            entity.removeInputEventListener(inputEventListener)
+            previousAffordanceState = GeometryAffordanceState.NONE
+            this.entity = null
+            return
+        }
+
         // Restore the entity's alpha synchronously here rather than calling restoreEntityContent().
         // Since restoreEntityContent() posts to the main thread, the asynchronous task might
         // execute after 'this.entity' has already been set to null below, resulting in a failure to
@@ -283,6 +394,16 @@ internal class ResizableComponentImpl(
         reformEventConsumer?.let { entity.removeReformEventConsumer(it) }
         this.entity = null
         mainHandler.removeCallbacksAndMessages(null)
+    }
+
+    /** Toggles the resizable geometry affordance of a [GltfEntity] or [MeshEntity]. */
+    private fun setGeometryReformAffordanceEnabled(entity: Entity, enabled: Boolean) {
+        when (entity) {
+            is GltfEntity ->
+                entity.setReformAffordanceEnabled(enabled, ReformAffordanceFlag.RESIZABLE)
+            is MeshEntity ->
+                entity.setReformAffordanceEnabled(enabled, ReformAffordanceFlag.RESIZABLE)
+        }
     }
 
     private fun hideEntityContent() {

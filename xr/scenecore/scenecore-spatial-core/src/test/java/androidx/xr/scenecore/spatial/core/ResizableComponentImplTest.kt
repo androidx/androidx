@@ -23,22 +23,32 @@ import android.hardware.display.DisplayManager
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
+import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.GeometryAffordanceState
+import androidx.xr.scenecore.runtime.GltfFeature
+import androidx.xr.scenecore.runtime.MeshFeature
 import androidx.xr.scenecore.runtime.MoveEventListener
 import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.PanelEntity
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
+import androidx.xr.scenecore.runtime.ResizableComponent
 import androidx.xr.scenecore.runtime.ResizeEvent
 import androidx.xr.scenecore.runtime.ResizeEventListener
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import androidx.xr.scenecore.testing.FakeSurfaceFeature
+import com.android.extensions.xr.node.InputEvent
 import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
 import com.android.extensions.xr.node.ReformEvent
 import com.android.extensions.xr.node.ReformOptions
+import com.android.extensions.xr.node.ShadowInputEvent
+import com.android.extensions.xr.node.ShadowNode
 import com.android.extensions.xr.node.ShadowReformEvent
 import com.android.extensions.xr.node.Vec3
 import com.google.common.truth.Truth.assertThat
@@ -54,6 +64,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -70,6 +81,8 @@ class ResizableComponentImplTest {
     private val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val sceneNodeRegistry = SceneNodeRegistry()
     private val panelShadowRenderer: EntityShadowRenderer = mock<EntityShadowRenderer>()
+    private val mockGltfFeature: GltfFeature = mock<GltfFeature>()
+    private val mockMeshFeature: MeshFeature = mock<MeshFeature>()
     private val nodeRepository: NodeRepository = NodeRepository.getInstance()
     private lateinit var activitySpaceImpl: ActivitySpaceImpl
     private lateinit var fakeSceneRuntime: SpatialSceneRuntime
@@ -1621,6 +1634,494 @@ class ResizableComponentImplTest {
 
         // 5. Cleanup
         shadowExtensions.deferSetMainWindowSizeCallbacks(false)
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Geometry (GltfEntity / MeshEntity) resize affordance tests.
+    // ---------------------------------------------------------------------------------------------
+
+    private fun createGltfEntity(): GltfEntityImpl {
+        whenever(mockGltfFeature.getGltfModelBoundingBox())
+            .thenReturn(BoundingBox.fromMinMax(Vector3.Zero, Vector3.One))
+        whenever(mockGltfFeature.getNodeHolder())
+            .thenReturn(NodeHolder<Node>(xrExtensions.createNode(), Node::class.java))
+        return GltfEntityImpl(
+            activity,
+            mockGltfFeature,
+            activitySpaceImpl,
+            xrExtensions,
+            sceneNodeRegistry,
+            fakeExecutor,
+        )
+    }
+
+    private fun createMeshEntity(): MeshEntityImpl {
+        whenever(mockMeshFeature.getNodeHolder())
+            .thenReturn(NodeHolder<Node>(xrExtensions.createNode(), Node::class.java))
+        return MeshEntityImpl(
+            activity,
+            mockMeshFeature,
+            activitySpaceImpl,
+            xrExtensions,
+            sceneNodeRegistry,
+            fakeExecutor,
+        )
+    }
+
+    private fun createResizableComponent(
+        executor: FakeScheduledExecutorService = fakeExecutor
+    ): ResizableComponentImpl =
+        ResizableComponentImpl(executor, xrExtensions, MIN_DIMENSIONS, MAX_DIMENSIONS)
+
+    private fun createInputEvent(action: Int): InputEvent =
+        ShadowInputEvent.create(
+            InputEvent.SOURCE_UNKNOWN,
+            InputEvent.POINTER_TYPE_DEFAULT,
+            /* timestamp= */ 0,
+            Vec3(0f, 0f, 0f),
+            Vec3(0f, 0f, 1f),
+            InputEvent.DISPATCH_FLAG_NONE,
+            action,
+        )
+
+    /**
+     * Mirrors what the rendering layer does for every input event on a geometry with an enabled
+     * reform affordance: it publishes the affordance [state] and recommended [scale] on the entity
+     * and then dispatches the input event to the entity's node.
+     */
+    private fun sendAffordanceInputEvent(
+        entity: AndroidXrEntity,
+        state: GeometryAffordanceState,
+        scale: Vector3 = Vector3.One,
+        action: Int = InputEvent.ACTION_MOVE,
+    ) {
+        when (entity) {
+            is GltfEntityImpl -> {
+                entity.affordanceState = state
+                entity.recommendedAffordanceScale = scale
+            }
+            is MeshEntityImpl -> {
+                entity.affordanceState = state
+                entity.recommendedAffordanceScale = scale
+            }
+            else -> throw IllegalArgumentException("Unsupported entity: $entity")
+        }
+        val shadowNode = ShadowNode.extract(entity.node)
+        shadowNode.inputExecutor.execute {
+            shadowNode.inputListener.accept(createInputEvent(action))
+        }
+        fakeExecutor.runAll()
+    }
+
+    /** Verifies [listener] received exactly [count] events and returns their resize states. */
+    private fun resizeStatesOf(listener: ResizeEventListener, count: Int): List<Int> {
+        val captor = argumentCaptor<ResizeEvent>()
+        verify(listener, times(count)).onResizeEvent(captor.capture())
+        return captor.allValues.map { it.resizeState }
+    }
+
+    @Test
+    fun addResizableComponentToGltfEntity_enablesResizableAffordanceAndListensForInput() {
+        val gltfEntity = createGltfEntity()
+        val resizableComponent = createResizableComponent()
+
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+
+        verify(mockGltfFeature)
+            .setReformAffordanceEnabled(gltfEntity, true, ReformAffordanceFlag.RESIZABLE)
+        assertThat(ShadowNode.extract(gltfEntity.node).inputListener).isNotNull()
+    }
+
+    @Test
+    fun addResizableComponentToMeshEntity_enablesResizableAffordanceAndListensForInput() {
+        val meshEntity = createMeshEntity()
+        val resizableComponent = createResizableComponent()
+
+        assertThat(meshEntity.addComponent(resizableComponent)).isTrue()
+
+        verify(mockMeshFeature)
+            .setReformAffordanceEnabled(meshEntity, true, ReformAffordanceFlag.RESIZABLE)
+        assertThat(ShadowNode.extract(meshEntity.node).inputListener).isNotNull()
+    }
+
+    @Test
+    fun addAndRemoveResizableComponentOnGltfEntity_doesNotEnableReformOptionsOnNode() {
+        val gltfEntity = createGltfEntity()
+        val resizableComponent = createResizableComponent()
+
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+        // Geometry is resized through the rendering layer's affordance, not the system reform
+        // overlay, so no reform options may be applied to the node.
+        assertThat(nodeRepository.getReformOptions(gltfEntity.node)).isNull()
+
+        gltfEntity.removeComponent(resizableComponent)
+        assertThat(nodeRepository.getReformOptions(gltfEntity.node)).isNull()
+    }
+
+    @Test
+    fun addAndRemoveResizableComponentOnMeshEntity_doesNotEnableReformOptionsOnNode() {
+        val meshEntity = createMeshEntity()
+        val resizableComponent = createResizableComponent()
+
+        assertThat(meshEntity.addComponent(resizableComponent)).isTrue()
+        assertThat(nodeRepository.getReformOptions(meshEntity.node)).isNull()
+
+        meshEntity.removeComponent(resizableComponent)
+        assertThat(nodeRepository.getReformOptions(meshEntity.node)).isNull()
+    }
+
+    @Test
+    fun addResizableComponentWithGestureTypeNone_doesNotEnableAffordanceOrListenForInput() {
+        val gltfEntity = createGltfEntity()
+        val resizableComponent = createResizableComponent()
+        resizableComponent.geometryGestureType = ResizableComponent.GeometryGestureType.NONE
+
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+
+        verify(mockGltfFeature, never())
+            .setReformAffordanceEnabled(gltfEntity, true, ReformAffordanceFlag.RESIZABLE)
+        assertThat(ShadowNode.extract(gltfEntity.node).inputListener).isNull()
+    }
+
+    @Test
+    fun removeResizableComponentFromGltfEntity_disablesResizableAffordanceAndStopsListening() {
+        val gltfEntity = createGltfEntity()
+        val resizableComponent = createResizableComponent()
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+
+        gltfEntity.removeComponent(resizableComponent)
+
+        verify(mockGltfFeature)
+            .setReformAffordanceEnabled(gltfEntity, false, ReformAffordanceFlag.RESIZABLE)
+        assertThat(ShadowNode.extract(gltfEntity.node).inputListener).isNull()
+    }
+
+    @Test
+    fun removeResizableComponentFromMeshEntity_disablesResizableAffordanceAndStopsListening() {
+        val meshEntity = createMeshEntity()
+        val resizableComponent = createResizableComponent()
+        assertThat(meshEntity.addComponent(resizableComponent)).isTrue()
+
+        meshEntity.removeComponent(resizableComponent)
+
+        verify(mockMeshFeature)
+            .setReformAffordanceEnabled(meshEntity, false, ReformAffordanceFlag.RESIZABLE)
+        assertThat(ShadowNode.extract(meshEntity.node).inputListener).isNull()
+    }
+
+    @Test
+    fun setGeometryGestureTypeOnAttachedGltfEntity_togglesResizableAffordance() {
+        val gltfEntity = createGltfEntity()
+        val resizableComponent = createResizableComponent()
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+
+        resizableComponent.geometryGestureType = ResizableComponent.GeometryGestureType.NONE
+
+        verify(mockGltfFeature)
+            .setReformAffordanceEnabled(gltfEntity, false, ReformAffordanceFlag.RESIZABLE)
+
+        resizableComponent.geometryGestureType = ResizableComponent.GeometryGestureType.TWO_HANDED
+
+        // Once on attach and once more when the gesture type was re-enabled.
+        verify(mockGltfFeature, times(2))
+            .setReformAffordanceEnabled(gltfEntity, true, ReformAffordanceFlag.RESIZABLE)
+        assertThat(resizableComponent.geometryGestureType)
+            .isEqualTo(ResizableComponent.GeometryGestureType.TWO_HANDED)
+    }
+
+    private fun assertScaleGestureDispatchesStartOngoingEnd(
+        entity: AndroidXrEntity,
+        scaleState: GeometryAffordanceState,
+    ) {
+        val resizableComponent = createResizableComponent()
+        assertThat(entity.addComponent(resizableComponent)).isTrue()
+        val listener = mock<ResizeEventListener>()
+        resizableComponent.addResizeEventListener(MoreExecutors.directExecutor(), listener)
+
+        sendAffordanceInputEvent(entity, scaleState, Vector3(2f, 2f, 2f), InputEvent.ACTION_DOWN)
+        sendAffordanceInputEvent(entity, scaleState, Vector3(3f, 3f, 3f), InputEvent.ACTION_MOVE)
+        // On release the rendering layer has already reset the affordance state.
+        sendAffordanceInputEvent(
+            entity,
+            GeometryAffordanceState.IDLE,
+            Vector3(4f, 4f, 4f),
+            InputEvent.ACTION_UP,
+        )
+
+        val captor = argumentCaptor<ResizeEvent>()
+        verify(listener, times(3)).onResizeEvent(captor.capture())
+        assertThat(captor.allValues.map { it.resizeState })
+            .containsExactly(
+                ResizeEvent.ResizeState.RESIZE_STATE_START,
+                ResizeEvent.ResizeState.RESIZE_STATE_ONGOING,
+                ResizeEvent.ResizeState.RESIZE_STATE_END,
+            )
+            .inOrder()
+        assertThat(captor.allValues.map { it.newSize })
+            .containsExactly(
+                Dimensions(2f, 2f, 2f),
+                Dimensions(3f, 3f, 3f),
+                Dimensions(4f, 4f, 4f),
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun gltfEntityOneHandedScaleGesture_dispatchesResizeStartOngoingEnd() {
+        assertScaleGestureDispatchesStartOngoingEnd(
+            createGltfEntity(),
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+        )
+    }
+
+    @Test
+    fun gltfEntityTwoHandedScaleGesture_dispatchesResizeStartOngoingEnd() {
+        assertScaleGestureDispatchesStartOngoingEnd(
+            createGltfEntity(),
+            GeometryAffordanceState.TWO_HANDED_SCALE,
+        )
+    }
+
+    @Test
+    fun meshEntityOneHandedScaleGesture_dispatchesResizeStartOngoingEnd() {
+        assertScaleGestureDispatchesStartOngoingEnd(
+            createMeshEntity(),
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+        )
+    }
+
+    @Test
+    fun meshEntityTwoHandedScaleGesture_dispatchesResizeStartOngoingEnd() {
+        assertScaleGestureDispatchesStartOngoingEnd(
+            createMeshEntity(),
+            GeometryAffordanceState.TWO_HANDED_SCALE,
+        )
+    }
+
+    @Test
+    fun gltfEntityScaleGesture_multipleListeners_eachReceivesStartOngoingEnd() {
+        val gltfEntity = createGltfEntity()
+        val resizableComponent = createResizableComponent()
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+        val firstListener = mock<ResizeEventListener>()
+        val secondListener = mock<ResizeEventListener>()
+        val secondExecutor = FakeScheduledExecutorService()
+        resizableComponent.addResizeEventListener(MoreExecutors.directExecutor(), firstListener)
+        resizableComponent.addResizeEventListener(secondExecutor, secondListener)
+
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            action = InputEvent.ACTION_DOWN,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            action = InputEvent.ACTION_MOVE,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.IDLE,
+            action = InputEvent.ACTION_UP,
+        )
+        assertThat(secondExecutor.hasNext()).isTrue()
+        secondExecutor.runAll()
+
+        val expectedStates =
+            listOf(
+                ResizeEvent.ResizeState.RESIZE_STATE_START,
+                ResizeEvent.ResizeState.RESIZE_STATE_ONGOING,
+                ResizeEvent.ResizeState.RESIZE_STATE_END,
+            )
+        assertThat(resizeStatesOf(firstListener, 3))
+            .containsExactlyElementsIn(expectedStates)
+            .inOrder()
+        assertThat(resizeStatesOf(secondListener, 3))
+            .containsExactlyElementsIn(expectedStates)
+            .inOrder()
+    }
+
+    @Test
+    fun gltfEntityScaleGesture_listenerAddedMidGesture_receivesOngoingThenEnd() {
+        val gltfEntity = createGltfEntity()
+        val resizableComponent = createResizableComponent()
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+
+        // The gesture starts while no listener is registered.
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            action = InputEvent.ACTION_DOWN,
+        )
+        val listener = mock<ResizeEventListener>()
+        resizableComponent.addResizeEventListener(MoreExecutors.directExecutor(), listener)
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            action = InputEvent.ACTION_MOVE,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.IDLE,
+            action = InputEvent.ACTION_UP,
+        )
+
+        assertThat(resizeStatesOf(listener, 2))
+            .containsExactly(
+                ResizeEvent.ResizeState.RESIZE_STATE_ONGOING,
+                ResizeEvent.ResizeState.RESIZE_STATE_END,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun gltfEntityWithOneHandedGestureType_ignoresTwoHandedScale() {
+        val gltfEntity = createGltfEntity()
+        val resizableComponent = createResizableComponent()
+        resizableComponent.geometryGestureType = ResizableComponent.GeometryGestureType.ONE_HANDED
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+        val listener = mock<ResizeEventListener>()
+        resizableComponent.addResizeEventListener(MoreExecutors.directExecutor(), listener)
+
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.TWO_HANDED_SCALE,
+            action = InputEvent.ACTION_DOWN,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.TWO_HANDED_SCALE,
+            action = InputEvent.ACTION_MOVE,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.IDLE,
+            action = InputEvent.ACTION_UP,
+        )
+        verify(listener, never()).onResizeEvent(any())
+
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            action = InputEvent.ACTION_DOWN,
+        )
+        assertThat(resizeStatesOf(listener, 1))
+            .containsExactly(ResizeEvent.ResizeState.RESIZE_STATE_START)
+    }
+
+    @Test
+    fun gltfEntityWithTwoHandedGestureType_ignoresOneHandedScale() {
+        val gltfEntity = createGltfEntity()
+        val resizableComponent = createResizableComponent()
+        resizableComponent.geometryGestureType = ResizableComponent.GeometryGestureType.TWO_HANDED
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+        val listener = mock<ResizeEventListener>()
+        resizableComponent.addResizeEventListener(MoreExecutors.directExecutor(), listener)
+
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            action = InputEvent.ACTION_DOWN,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            action = InputEvent.ACTION_MOVE,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.IDLE,
+            action = InputEvent.ACTION_UP,
+        )
+        verify(listener, never()).onResizeEvent(any())
+
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.TWO_HANDED_SCALE,
+            action = InputEvent.ACTION_DOWN,
+        )
+        assertThat(resizeStatesOf(listener, 1))
+            .containsExactly(ResizeEvent.ResizeState.RESIZE_STATE_START)
+    }
+
+    @Test
+    fun gltfEntityTranslationGesture_doesNotDispatchResizeEvents() {
+        val gltfEntity = createGltfEntity()
+        val resizableComponent = createResizableComponent()
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+        val listener = mock<ResizeEventListener>()
+        resizableComponent.addResizeEventListener(MoreExecutors.directExecutor(), listener)
+
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.TRANSLATION,
+            action = InputEvent.ACTION_DOWN,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.TRANSLATION,
+            action = InputEvent.ACTION_MOVE,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.IDLE,
+            action = InputEvent.ACTION_UP,
+        )
+
+        verify(listener, never()).onResizeEvent(any())
+    }
+
+    @Test
+    fun gltfEntityInputEventPendingOnDetach_isDroppedWithoutCrashing() {
+        val gltfEntity = createGltfEntity()
+        val componentExecutor = FakeScheduledExecutorService()
+        val resizableComponent = createResizableComponent(componentExecutor)
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+        val listener = mock<ResizeEventListener>()
+        resizableComponent.addResizeEventListener(MoreExecutors.directExecutor(), listener)
+
+        // The node delivers the event on the entity executor, which queues the component's input
+        // listener on the component executor...
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            action = InputEvent.ACTION_DOWN,
+        )
+        assertThat(componentExecutor.hasNext()).isTrue()
+        // ...and the component is detached before that queued task runs.
+        gltfEntity.removeComponent(resizableComponent)
+        componentExecutor.runAll()
+
+        verify(listener, never()).onResizeEvent(any())
+    }
+
+    @Test
+    fun gltfEntityDetachedMidGesture_reattachStartsNewGesture() {
+        val gltfEntity = createGltfEntity()
+        val resizableComponent = createResizableComponent()
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+        val listener = mock<ResizeEventListener>()
+        resizableComponent.addResizeEventListener(MoreExecutors.directExecutor(), listener)
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            action = InputEvent.ACTION_DOWN,
+        )
+
+        gltfEntity.removeComponent(resizableComponent)
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            action = InputEvent.ACTION_DOWN,
+        )
+
+        assertThat(resizeStatesOf(listener, 2))
+            .containsExactly(
+                ResizeEvent.ResizeState.RESIZE_STATE_START,
+                ResizeEvent.ResizeState.RESIZE_STATE_START,
+            )
+            .inOrder()
     }
 
     companion object {

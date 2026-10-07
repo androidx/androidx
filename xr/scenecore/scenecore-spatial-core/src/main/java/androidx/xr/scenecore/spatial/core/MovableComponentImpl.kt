@@ -24,6 +24,7 @@ import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.GeometryAffordanceState
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.InputEvent
 import androidx.xr.scenecore.runtime.InputEventListener
@@ -93,13 +94,43 @@ internal class MovableComponentImpl(
 
     private var hitPointToOriginDistance = 0f
     private var grabPointToCenterOffset = Vector3.Zero
+
+    /**
+     * The geometry affordance state observed on the previous input event. Only accessed from
+     * [inputEventListener], which is dispatched on [runtimeExecutor], and reset in [onDetach].
+     */
+    private var previousAffordanceState = GeometryAffordanceState.NONE
+
+    /**
+     * Forwards input events on a [GltfEntity] or [MeshEntity] as [MoveEvent]s while the entity's
+     * geometry affordance reports a translation gesture, so that scale gestures handled by the
+     * resizable component are not reported as moves.
+     *
+     * The affordance state is read once per input event so that every listener observes the same
+     * value. On release the state has already left [GeometryAffordanceState.TRANSLATION], so the
+     * terminal UP event is let through whenever the previous event was a translation; otherwise
+     * [MoveEvent.MOVE_STATE_END] would never be delivered.
+     */
     private val inputEventListener = InputEventListener { inputEvent: InputEvent ->
-        moveEventListenersMap.forEach { (listener: MoveEventListener, executor: Executor) ->
-            executor.execute {
-                val moveEvent = getMoveEventFromInputEvent(inputEvent)
-                // ignoring other events that are not UP, DOWN and END
-                moveEvent?.let { listener.onMoveEvent(it) }
+        val currentState =
+            when (val currentEntity = entity) {
+                is GltfEntity -> currentEntity.affordanceState
+                is MeshEntity -> currentEntity.affordanceState
+                else -> return@InputEventListener
             }
+        val isTranslating = currentState == GeometryAffordanceState.TRANSLATION
+        val isTranslationEnding =
+            previousAffordanceState == GeometryAffordanceState.TRANSLATION &&
+                inputEvent.action == InputEvent.Action.UP
+        previousAffordanceState = currentState
+        if (!isTranslating && !isTranslationEnding) return@InputEventListener
+
+        // Derive the move event once so that every listener observes the same gesture state;
+        // getMoveEventFromInputEvent updates isMoving and the last pose/scale as a side effect.
+        // Actions other than DOWN, MOVE and UP yield no move event.
+        val moveEvent = getMoveEventFromInputEvent(inputEvent) ?: return@InputEventListener
+        moveEventListenersMap.forEach { (listener: MoveEventListener, executor: Executor) ->
+            executor.execute { listener.onMoveEvent(moveEvent) }
         }
     }
 
@@ -339,6 +370,7 @@ internal class MovableComponentImpl(
             is SurfaceEntity -> cleanReformOptions()
             else -> {}
         }
+        previousAffordanceState = GeometryAffordanceState.NONE
         this.entity = null
         if (userAnchorable) entityShadowRenderer?.disableShadow()
     }

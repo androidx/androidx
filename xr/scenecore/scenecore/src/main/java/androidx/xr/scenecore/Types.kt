@@ -105,3 +105,23 @@ public class PlaneSemanticType private constructor(private val value: Int) {
             else -> "UNKNOWN ($value)"
         }
 }
+
+/** Predefined configuration flags that control user scaling interactions on 3D geometries. */
+// TODO(b/570519113): Expose ResizeGestureMode on the public ResizableComponent and update its docs.
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ResizeGestureMode private constructor(private val value: Int) {
+
+    public companion object {
+        /** Disable all resizing gestures on the geometry. */
+        @JvmField public val NONE: ResizeGestureMode = ResizeGestureMode(1)
+
+        /** Allow scaling only via one-handed gestures (footprint corner affordance). */
+        @JvmField public val ONE_HANDED: ResizeGestureMode = ResizeGestureMode(2)
+
+        /** Allow scaling only via two-handed gestures (pinch-and-stretch). */
+        @JvmField public val TWO_HANDED: ResizeGestureMode = ResizeGestureMode(3)
+
+        /** Allow all supported scaling gestures (default platform behavior). */
+        @JvmField public val ALL: ResizeGestureMode = ResizeGestureMode(4)
+    }
+}
