@@ -150,7 +150,7 @@ class DaoReturnTypeConverterProcessorTest {
                     .trimIndent(),
             )
         runTest(
-            sources = listOf(problematicConverter, db, DAO),
+            sources = listOf(problematicConverter, db, DAO, FOO_BAR_TYPES),
             expectedErrorCount = 1,
             expectedError =
                 daoReturnTypeConverterFunctionsWithATypeParamShouldHaveReturnTypeContainingTheSameTypeArg(
@@ -188,7 +188,7 @@ class DaoReturnTypeConverterProcessorTest {
                 import arrow.core.*
 
                 @Dao
-                @DaoReturnTypeConverters(EitherReturnTypeConverter::class)
+                @DaoReturnTypeConverters(FooReturnTypeConverter::class)
                 abstract class MyDao(private val db: RoomDatabase) {
                   @Query("SELECT * FROM MyEntity")
                   abstract suspend fun <T> leftConvert(): Either<T, Error>
