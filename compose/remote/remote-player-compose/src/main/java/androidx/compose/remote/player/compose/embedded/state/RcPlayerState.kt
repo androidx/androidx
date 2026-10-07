@@ -29,10 +29,9 @@ import androidx.compose.remote.player.compose.embedded.LocalComponentValueStateM
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
-import androidx.compose.remote.player.compose.embedded.getFloatExpressionsReflection
-import androidx.compose.remote.player.compose.embedded.getRemoteContextReflection
-import androidx.compose.remote.player.compose.embedded.getVariableIdReflection
+import androidx.compose.remote.player.compose.embedded.findVariableId
 import androidx.compose.remote.player.compose.embedded.isTimeVariable
+import androidx.compose.remote.player.compose.embedded.remoteContextOrNull
 import androidx.compose.remote.player.compose.embedded.resolveBitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -147,13 +146,13 @@ internal fun rememberRemoteFloatAsState(id: Int): State<Float> {
 
     // Animation-bearing expressions resolve as a Compose-native animated State (Animatable). Plain
     // (non-animated) FloatExpressions fall through to the graph below — one evaluation path.
-    val expression = document.getFloatExpressionsReflection()[id]
+    val expression = document.getFloatExpressions()[id]
     if (expression != null) {
         if (expression.hasAnimation) return rememberAnimatedRemoteFloat(id)
         // GraphContext evaluates core FloatExpressions as pure target values when no animated
         // states are attached, so routing an outer expression through rememberRemoteExpression
         // preserves animated children.
-        if (expressionDependsOnAnimation(document.getFloatExpressionsReflection(), id)) {
+        if (expressionDependsOnAnimation(document.getFloatExpressions(), id)) {
             return rememberRemoteExpression(id)
         }
     }
@@ -316,31 +315,31 @@ internal fun rememberMutableRemoteColorAsState(id: Int): MutableState<Color> {
 @Composable
 internal fun rememberNamedRemoteStringAsState(name: String): MutableState<String> {
     val document = LocalCoreDocument.current
-    val context = document.remoteComposeState.getRemoteContextReflection()!!
-    val id = context.getVariableIdReflection(name)
+    val context = document.remoteComposeState.remoteContextOrNull()!!
+    val id = context.findVariableId(name)
     return rememberMutableRemoteStringAsState(id)
 }
 
 @Composable
 internal fun rememberNamedRemoteIntAsState(name: String): MutableState<Int> {
     val document = LocalCoreDocument.current
-    val context = document.remoteComposeState.getRemoteContextReflection()!!
-    val id = context.getVariableIdReflection(name)
+    val context = document.remoteComposeState.remoteContextOrNull()!!
+    val id = context.findVariableId(name)
     return rememberMutableRemoteIntAsState(id)
 }
 
 @Composable
 internal fun rememberNamedRemoteFloatAsState(name: String): MutableState<Float> {
     val document = LocalCoreDocument.current
-    val context = document.remoteComposeState.getRemoteContextReflection()!!
-    val id = context.getVariableIdReflection(name)
+    val context = document.remoteComposeState.remoteContextOrNull()!!
+    val id = context.findVariableId(name)
     return rememberMutableRemoteFloatAsState(id)
 }
 
 @Composable
 internal fun rememberNamedRemoteColorAsState(name: String): MutableState<Color> {
     val document = LocalCoreDocument.current
-    val context = document.remoteComposeState.getRemoteContextReflection()!!
-    val id = context.getVariableIdReflection(name)
+    val context = document.remoteComposeState.remoteContextOrNull()!!
+    val id = context.findVariableId(name)
     return rememberMutableRemoteColorAsState(id)
 }

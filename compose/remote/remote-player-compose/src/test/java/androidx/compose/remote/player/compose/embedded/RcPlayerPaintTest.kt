@@ -149,7 +149,7 @@ class RcPlayerPaintTest {
         context.loadFloat(rId, 25f)
 
         val op = DrawCircle(Utils.asNan(cxId), Utils.asNan(cyId), Utils.asNan(rId))
-        val data = op.readDataReflection()
+        val data = op.readData()
 
         val resolvedV1 = resolveFloat(data.value1, data.v1, context)
         val resolvedV2 = resolveFloat(data.value2, data.v2, context)
@@ -179,7 +179,7 @@ class RcPlayerPaintTest {
                 Utils.asNan(rightId),
                 Utils.asNan(bottomId),
             )
-        val data = op.readDataReflection()
+        val data = op.readData()
 
         val resolvedX1 = resolveFloat(data.x1Value, data.x1, context)
         val resolvedY1 = resolveFloat(data.y1Value, data.y1, context)
@@ -203,7 +203,7 @@ class RcPlayerPaintTest {
         val dereferencedId =
             (pointerVarId and PaintOperation.VALUE_MASK) or PaintOperation.PTR_DEREFERENCE
         val op = DrawPath(dereferencedId)
-        val data = op.readDataReflection()
+        val data = op.readData()
 
         val actualId = derefId(data.id, context)
         assertThat(actualId).isEqualTo(targetPathId)

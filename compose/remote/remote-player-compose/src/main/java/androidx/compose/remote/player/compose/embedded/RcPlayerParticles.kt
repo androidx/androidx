@@ -52,7 +52,7 @@ internal fun DrawScope.drawParticles(
     paintState: ComposeLocalPaint,
     graph: GraphContext,
 ) {
-    val source = loop.particlesSourceReflection ?: return
+    val source = loop.particlesSource ?: return
     withCorePaintContext(remoteContext, paintState, graph) { paintContext ->
         // Seed once per document via the core seeding path (ParticlesCreate.paint initializes
         // every particle from its initial-value equations).

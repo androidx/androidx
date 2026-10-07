@@ -4073,7 +4073,7 @@ class RcPlayerPrimitivesTest {
                 return null
             }
 
-            val namedVar = findNamedVariable(document.getOperationsReflection(), "USER:myColor")
+            val namedVar = findNamedVariable(document.getOperationsList(), "USER:myColor")
             assertNotNull(namedVar)
             val varId = namedVar!!.mVarId
 
@@ -4788,7 +4788,7 @@ class RcPlayerPrimitivesTest {
                 return null
             }
 
-            val namedVar = findNamedVariable(document.getOperationsReflection(), "USER:chartData")
+            val namedVar = findNamedVariable(document.getOperationsList(), "USER:chartData")
             assertNotNull(namedVar)
             assertEquals(NamedVariable.FLOAT_ARRAY_TYPE, namedVar!!.mVarType)
             val arrayId = namedVar.mVarId

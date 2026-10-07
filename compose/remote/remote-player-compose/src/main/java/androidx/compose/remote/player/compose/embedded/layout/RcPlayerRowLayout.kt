@@ -33,11 +33,10 @@ import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
-import androidx.compose.remote.player.compose.embedded.horizontalPositioningReflection
-import androidx.compose.remote.player.compose.embedded.lineReflection
+import androidx.compose.remote.player.compose.embedded.horizontalPositioning
 import androidx.compose.remote.player.compose.embedded.rowSpacedBy
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
-import androidx.compose.remote.player.compose.embedded.verticalPositioningReflection
+import androidx.compose.remote.player.compose.embedded.verticalPositioning
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -59,12 +58,12 @@ internal fun RcPlayerRow(layout: RowLayout, modifier: Modifier) {
             modifier = modifier,
             horizontalArrangement =
                 rowHorizontalArrangement(
-                    layout.horizontalPositioningReflection,
+                    layout.horizontalPositioning,
                     spacedBy,
                     behavior,
                     density,
                 ),
-            verticalAlignment = rowVerticalAlignment(layout.verticalPositioningReflection),
+            verticalAlignment = rowVerticalAlignment(layout.verticalPositioning),
         ) {
             RcPlayerChildren(layout) { child ->
                 val mods = (child as? LayoutComponent)?.componentModifiers?.getList()
@@ -83,7 +82,7 @@ internal fun RcPlayerRow(layout: RowLayout, modifier: Modifier) {
                     mods?.fastFirstOrNull { it is AlignByModifierOperation }
                         as? AlignByModifierOperation
                 if (alignByOp != null) {
-                    val line = alignByOp.lineReflection
+                    val line = alignByOp.line
                     if (Utils.isVariable(line)) {
                         val id = Utils.idFromNan(line)
                         if (
@@ -112,19 +111,19 @@ internal fun RcPlayerFlowRow(layout: FlowLayout, modifier: Modifier) {
         modifier = modifier,
         horizontalArrangement =
             rowHorizontalArrangement(
-                layout.horizontalPositioningReflection,
+                layout.horizontalPositioning,
                 spacedBy,
                 behavior,
                 density,
             ),
         verticalArrangement =
             columnVerticalArrangement(
-                layout.verticalPositioningReflection,
+                layout.verticalPositioning,
                 0f,
                 behavior,
                 density,
             ),
-        itemVerticalAlignment = rowVerticalAlignment(layout.verticalPositioningReflection),
+        itemVerticalAlignment = rowVerticalAlignment(layout.verticalPositioning),
         maxItemsInEachRow = layout.mMaxItemsInEachRow,
         maxLines = layout.mMaxLines,
     ) {
@@ -145,7 +144,7 @@ internal fun RcPlayerFlowRow(layout: FlowLayout, modifier: Modifier) {
                 mods?.fastFirstOrNull { it is AlignByModifierOperation }
                     as? AlignByModifierOperation
             if (alignByOp != null) {
-                val line = alignByOp.lineReflection
+                val line = alignByOp.line
                 if (Utils.isVariable(line)) {
                     val id = Utils.idFromNan(line)
                     if (

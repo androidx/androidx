@@ -30,10 +30,9 @@ import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
 import androidx.compose.remote.player.compose.embedded.LocalComponentValueStateMap
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
-import androidx.compose.remote.player.compose.embedded.getFloatExpressionsReflection
-import androidx.compose.remote.player.compose.embedded.getValuesReflection
 import androidx.compose.remote.player.compose.embedded.isTimeVariable
 import androidx.compose.remote.player.compose.embedded.mapEasing
+import androidx.compose.remote.player.compose.embedded.readValues
 import androidx.compose.remote.player.compose.embedded.state.expressionDependsOnAnimation
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -45,7 +44,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 
 @Composable
 internal fun Modifier.graphicsLayer(op: GraphicsLayerModifierOperation): Modifier {
-    val values = op.getValuesReflection()
+    val values = op.readValues()
     val scaleX =
         rememberGraphicsLayerFloatAsState(values[GraphicsLayerModifierOperation.SCALE_X].source)
     val scaleY =
@@ -130,7 +129,7 @@ private fun rememberGraphicsLayerFloatAsState(source: Float): State<Float> {
     val componentValueStates = LocalComponentValueStateMap.current
     val shouldAnimate =
         remember(document, id, componentValueStates) {
-            val expressions = document.getFloatExpressionsReflection()
+            val expressions = document.getFloatExpressions()
             !isTimeVariable(id) &&
                 !componentValueStates.containsKey(id) &&
                 !expressionDependsOnAnimation(expressions, id) &&
