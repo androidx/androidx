@@ -1847,6 +1847,68 @@ class SnapshotTests {
         }
     }
 
+    @Test
+    fun nestedMutableSnapshotMergeWithEqualValuesDoesNotLeakOpenSnapshot() {
+        val state = mutableStateOf(0)
+        val parent = takeMutableSnapshot()
+        try {
+            val child = parent.takeNestedMutableSnapshot()
+            try {
+                parent.enter { state.value = 1 }
+                child.enter { state.value = 1 }
+                child.apply().check()
+            } finally {
+                child.dispose()
+            }
+            parent.enter { assertEquals(1, state.value) }
+            parent.apply().check()
+        } finally {
+            parent.dispose()
+        }
+        assertEquals(1, state.value)
+
+        // Verify that openNonGlobalSnapshots was cleanly closed so reuseLimit advances
+        // and subsequent transactions reuse unreachable StateRecords instead of leaking them.
+        repeat(5) { i ->
+            atomic { state.value = i + 2 }
+        }
+        assertTrue(
+            usedRecords(state as StateObject) <= 2,
+            "Expected StateRecords to be garbage collected after nested merge apply",
+        )
+    }
+
+    @Test
+    fun nestedMutableSnapshotCustomPolicyMergeAppliesMergedValueToParent() {
+        val sumPolicy =
+            object : SnapshotMutationPolicy<Int> {
+                override fun equivalent(a: Int, b: Int): Boolean = a == b
+
+                override fun merge(previous: Int, current: Int, applied: Int): Int =
+                    current + applied - previous
+            }
+        val state = mutableStateOf(1, sumPolicy)
+        val parent = takeMutableSnapshot()
+        try {
+            val child = parent.takeNestedMutableSnapshot()
+            try {
+                // Advance child so child.snapshotId > parent.snapshotId before writing
+                child.takeNestedSnapshot().dispose()
+                parent.enter { state.value += 10 }
+                child.enter { state.value += 100 }
+                child.apply().check()
+            } finally {
+                child.dispose()
+            }
+            // Parent must observe the merged value (1 + 10 + 100 = 111), not child's unmerged 101
+            parent.enter { assertEquals(111, state.value) }
+            parent.apply().check()
+        } finally {
+            parent.dispose()
+        }
+        assertEquals(111, state.value)
+    }
+
     private fun usedRecords(state: StateObject): Int {
         var used = 0
         var current: StateRecord? = state.firstStateRecord
