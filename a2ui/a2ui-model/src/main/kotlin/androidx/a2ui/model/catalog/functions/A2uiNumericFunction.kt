@@ -24,6 +24,7 @@ import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicNumberSchema
+import androidx.annotation.RestrictTo
 
 /**
  * Validates numeric range limits.
@@ -32,28 +33,8 @@ import androidx.a2ui.model.schema.commontypes.A2uiDynamicNumberSchema
  */
 public class A2uiNumericFunction private constructor() : A2uiFunction {
 
-    override val definition: A2uiFunctionDefinition =
-        object : A2uiFunctionDefinition {
-            override val name: String = "numeric"
-
-            override val description: String = """Checks numeric range constraints."""
-
-            override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.BOOLEAN
-
-            override val argumentSchema: A2uiSchema =
-                A2uiObjectSchema(
-                    properties =
-                        mapOf(
-                            ARG_VALUE_KEY to A2uiDynamicNumberSchema.DEFAULT_INSTANCE,
-                            ARG_MIN_KEY to
-                                A2uiNumberSchema(description = """The minimum allowed value."""),
-                            ARG_MAX_KEY to
-                                A2uiNumberSchema(description = """The maximum allowed value."""),
-                        ),
-                    required = setOf(ARG_VALUE_KEY),
-                    isAdditionalPropertiesAllowed = false,
-                )
-        }
+    override val definition: A2uiFunctionDefinition
+        get() = DEFINITION
 
     /**
      * Validates that the numeric value in [args] meets range requirements.
@@ -63,25 +44,64 @@ public class A2uiNumericFunction private constructor() : A2uiFunction {
      *   payloads and resolving data bindings
      * @return true if the number is within bounds, false otherwise
      */
-    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val value = A2uiFunctionArgParser.getDoubleArg(args, ARG_VALUE_KEY)
-        val min =
-            if (args.containsKey(ARG_MIN_KEY)) {
-                A2uiFunctionArgParser.getDoubleArg(args, ARG_MIN_KEY)
-            } else {
-                Double.NEGATIVE_INFINITY
-            }
-        val max =
-            if (args.containsKey(ARG_MAX_KEY)) {
-                A2uiFunctionArgParser.getDoubleArg(args, ARG_MAX_KEY)
-            } else {
-                Double.POSITIVE_INFINITY
-            }
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? =
+        typedExecute(
+            value = A2uiFunctionArgParser.getDoubleArg(args, ARG_VALUE_KEY),
+            min =
+                if (args.containsKey(ARG_MIN_KEY)) {
+                    A2uiFunctionArgParser.getDoubleArg(args, ARG_MIN_KEY)
+                } else {
+                    Double.NEGATIVE_INFINITY
+                },
+            max =
+                if (args.containsKey(ARG_MAX_KEY)) {
+                    A2uiFunctionArgParser.getDoubleArg(args, ARG_MAX_KEY)
+                } else {
+                    Double.POSITIVE_INFINITY
+                },
+        )
 
-        return value in min..max
-    }
+    /**
+     * Checks that [value] is within [min] and [max], inclusive.
+     *
+     * @param value the number to check
+     * @param min the minimum value, or [Double.NEGATIVE_INFINITY] for no minimum
+     * @param max the maximum value, or [Double.POSITIVE_INFINITY] for no maximum
+     * @return true if [value] is within the bounds, false otherwise
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun typedExecute(value: Double, min: Double, max: Double): Boolean = value in min..max
 
     public companion object {
+        /** The definition of the `numeric` function in the A2UI basic catalog. */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public val DEFINITION: A2uiFunctionDefinition =
+            object : A2uiFunctionDefinition {
+                override val name: String = "numeric"
+
+                override val description: String = """Checks numeric range constraints."""
+
+                override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.BOOLEAN
+
+                override val argumentSchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties =
+                            mapOf(
+                                ARG_VALUE_KEY to A2uiDynamicNumberSchema.DEFAULT_INSTANCE,
+                                ARG_MIN_KEY to
+                                    A2uiNumberSchema(
+                                        description = """The minimum allowed value."""
+                                    ),
+                                ARG_MAX_KEY to
+                                    A2uiNumberSchema(
+                                        description = """The maximum allowed value."""
+                                    ),
+                            ),
+                        required = setOf(ARG_VALUE_KEY),
+                        isAdditionalPropertiesAllowed = false,
+                    )
+            }
+
         @JvmField public val INSTANCE: A2uiNumericFunction = A2uiNumericFunction()
 
         private const val ARG_VALUE_KEY: String = "value"

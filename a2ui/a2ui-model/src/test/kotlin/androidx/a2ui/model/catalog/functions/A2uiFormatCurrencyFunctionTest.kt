@@ -199,6 +199,45 @@ class A2uiFormatCurrencyFunctionTest {
         }
     }
 
+    @Test
+    fun definition_returnsCompanionDefinition() {
+        assertThat(A2uiFormatCurrencyFunction { Locale.US }.definition)
+            .isSameInstanceAs(A2uiFormatCurrencyFunction.DEFINITION)
+        assertThat(A2uiFormatCurrencyFunction.DEFINITION.name).isEqualTo("formatCurrency")
+    }
+
+    @Test
+    fun typedExecute_evaluatesCorrectly() {
+        val function = A2uiFormatCurrencyFunction(localeProvider = { Locale.US })
+
+        assertThat(
+                function.typedExecute(
+                    value = 1234.5,
+                    currency = "usd",
+                    decimals = null,
+                    grouping = true,
+                )
+            )
+            .isEqualTo("\$1,234.50")
+        assertThat(
+                function.typedExecute(
+                    value = 1234.25,
+                    currency = CURRENCY_USD,
+                    decimals = 1,
+                    grouping = false,
+                )
+            )
+            .isEqualTo("\$1234.2")
+        assertThrows(A2uiException.A2uiRuntimeException::class.java) {
+            function.typedExecute(
+                value = 1.0,
+                currency = CURRENCY_INVALID,
+                decimals = null,
+                grouping = true,
+            )
+        }
+    }
+
     private companion object {
         private const val ARG_VALUE = "value"
         private const val ARG_CURRENCY = "currency"

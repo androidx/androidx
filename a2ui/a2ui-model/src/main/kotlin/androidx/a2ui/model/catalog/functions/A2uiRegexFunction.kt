@@ -25,6 +25,7 @@ import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
+import androidx.annotation.RestrictTo
 
 /**
  * Validates a string against a regular expression pattern.
@@ -33,29 +34,8 @@ import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
  */
 public class A2uiRegexFunction private constructor() : A2uiFunction {
 
-    override val definition: A2uiFunctionDefinition =
-        object : A2uiFunctionDefinition {
-            override val name: String = "regex"
-
-            override val description: String =
-                """Checks that the value matches a regular expression string."""
-
-            override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.BOOLEAN
-
-            override val argumentSchema: A2uiSchema =
-                A2uiObjectSchema(
-                    properties =
-                        mapOf(
-                            ARG_VALUE_KEY to A2uiDynamicStringSchema.DEFAULT_INSTANCE,
-                            ARG_PATTERN_KEY to
-                                A2uiStringSchema(
-                                    description = """The regex pattern to match against."""
-                                ),
-                        ),
-                    required = setOf(ARG_VALUE_KEY, ARG_PATTERN_KEY),
-                    isAdditionalPropertiesAllowed = false,
-                )
-        }
+    override val definition: A2uiFunctionDefinition
+        get() = DEFINITION
 
     /**
      * Validates that the input matches the pattern in [args].
@@ -65,10 +45,21 @@ public class A2uiRegexFunction private constructor() : A2uiFunction {
      *   payloads and resolving data bindings
      * @return true if the string matches the pattern, false otherwise
      */
-    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val value = A2uiFunctionArgParser.getStringArg(args, ARG_VALUE_KEY)
-        val pattern = A2uiFunctionArgParser.getStringArg(args, ARG_PATTERN_KEY)
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? =
+        typedExecute(
+            value = A2uiFunctionArgParser.getStringArg(args, ARG_VALUE_KEY),
+            pattern = A2uiFunctionArgParser.getStringArg(args, ARG_PATTERN_KEY),
+        )
 
+    /**
+     * Validates that [value] matches the regular expression [pattern].
+     *
+     * @param value the string to validate
+     * @param pattern the regular expression to match [value] against
+     * @return true if [value] matches [pattern], false otherwise
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun typedExecute(value: String, pattern: String): Boolean {
         return try {
             Regex(pattern).matches(value)
         } catch (e: Exception) {
@@ -80,6 +71,32 @@ public class A2uiRegexFunction private constructor() : A2uiFunction {
     }
 
     public companion object {
+        /** The definition of the `regex` function in the A2UI basic catalog. */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public val DEFINITION: A2uiFunctionDefinition =
+            object : A2uiFunctionDefinition {
+                override val name: String = "regex"
+
+                override val description: String =
+                    """Checks that the value matches a regular expression string."""
+
+                override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.BOOLEAN
+
+                override val argumentSchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties =
+                            mapOf(
+                                ARG_VALUE_KEY to A2uiDynamicStringSchema.DEFAULT_INSTANCE,
+                                ARG_PATTERN_KEY to
+                                    A2uiStringSchema(
+                                        description = """The regex pattern to match against."""
+                                    ),
+                            ),
+                        required = setOf(ARG_VALUE_KEY, ARG_PATTERN_KEY),
+                        isAdditionalPropertiesAllowed = false,
+                    )
+            }
+
         @JvmField public val INSTANCE: A2uiRegexFunction = A2uiRegexFunction()
 
         private const val ARG_VALUE_KEY: String = "value"

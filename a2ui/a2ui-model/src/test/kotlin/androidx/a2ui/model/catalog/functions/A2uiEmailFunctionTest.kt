@@ -83,6 +83,21 @@ class A2uiEmailFunctionTest {
         }
     }
 
+    @Test
+    fun definition_returnsCompanionDefinition() {
+        assertThat(A2uiEmailFunction.INSTANCE.definition)
+            .isSameInstanceAs(A2uiEmailFunction.DEFINITION)
+        assertThat(A2uiEmailFunction.DEFINITION.name).isEqualTo("email")
+    }
+
+    @Test
+    fun typedExecute_validatesAddress() {
+        val function = A2uiEmailFunction.INSTANCE
+
+        assertThat(function.typedExecute(value = "user@example.com")).isTrue()
+        assertThat(function.typedExecute(value = "not an email")).isFalse()
+    }
+
     private companion object {
         private const val ARG_VALUE = "value"
     }

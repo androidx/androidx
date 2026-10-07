@@ -70,6 +70,35 @@ class A2uiPluralizeFunctionTest {
         }
     }
 
+    @Test
+    fun definition_returnsCompanionDefinition() {
+        assertThat(A2uiPluralizeFunction(TestMessageFormatter()).definition)
+            .isSameInstanceAs(A2uiPluralizeFunction.DEFINITION)
+        assertThat(A2uiPluralizeFunction.DEFINITION.name).isEqualTo("pluralize")
+    }
+
+    @Test
+    fun typedExecute_skipsMissingCategories() {
+        val formatter = TestMessageFormatter()
+        val function = A2uiPluralizeFunction(formatter, localeProvider = { Locale.ENGLISH })
+
+        val result =
+            function.typedExecute(
+                value = 1.0,
+                zero = null,
+                one = VAL_ONE,
+                two = null,
+                few = null,
+                many = null,
+                other = VAL_OTHER,
+            )
+
+        assertThat(result).isEqualTo("formatted_string")
+        assertThat(formatter.capturedPattern).isEqualTo("{count, plural, one {one} other {other} }")
+        assertThat(formatter.capturedLocale).isEqualTo(Locale.ENGLISH)
+        assertThat(formatter.capturedArguments).isEqualTo(mapOf("count" to 1.0))
+    }
+
     private class TestMessageFormatter : A2uiMessageFormatter {
         var capturedPattern: String? = null
         var capturedLocale: Locale? = null

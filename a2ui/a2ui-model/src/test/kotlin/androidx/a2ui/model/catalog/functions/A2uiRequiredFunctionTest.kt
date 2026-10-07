@@ -198,6 +198,30 @@ class A2uiRequiredFunctionTest {
         assertThat(A2uiRequiredFunction.INSTANCE.execute(mapOf(ARG_VALUE to "   "))).isEqualTo(true)
     }
 
+    @Test
+    fun definition_returnsCompanionDefinition() {
+        assertThat(A2uiRequiredFunction.INSTANCE.definition)
+            .isSameInstanceAs(A2uiRequiredFunction.DEFINITION)
+        assertThat(A2uiRequiredFunction.DEFINITION.name).isEqualTo("required")
+    }
+
+    @Test
+    fun typedExecute_nullOrEmpty_returnsFalse() {
+        val function = A2uiRequiredFunction.INSTANCE
+
+        assertThat(function.typedExecute(value = null)).isFalse()
+        assertThat(function.typedExecute(value = "")).isFalse()
+        assertThat(function.typedExecute(value = emptyList<Any>())).isFalse()
+    }
+
+    @Test
+    fun typedExecute_nonEmpty_returnsTrue() {
+        val function = A2uiRequiredFunction.INSTANCE
+
+        assertThat(function.typedExecute(value = "hello")).isTrue()
+        assertThat(function.typedExecute(value = 0)).isTrue()
+    }
+
     private companion object {
         private const val ARG_VALUE = "value"
     }

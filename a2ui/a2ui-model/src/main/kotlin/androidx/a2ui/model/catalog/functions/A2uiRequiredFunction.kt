@@ -23,6 +23,7 @@ import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.annotation.RestrictTo
 
 /**
  * Validates that a value is present and not empty.
@@ -31,27 +32,8 @@ import androidx.a2ui.model.schema.A2uiSchema
  */
 public class A2uiRequiredFunction private constructor() : A2uiFunction {
 
-    override val definition: A2uiFunctionDefinition =
-        object : A2uiFunctionDefinition {
-            override val name: String = "required"
-
-            override val description: String =
-                """Checks that the value is not null, undefined, or empty."""
-
-            override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.BOOLEAN
-
-            override val acceptsUnresolvedArguments: Boolean = true
-
-            override val argumentSchema: A2uiSchema =
-                A2uiObjectSchema(
-                    properties =
-                        mapOf(
-                            ARG_VALUE_KEY to A2uiAnySchema(description = """The value to check.""")
-                        ),
-                    required = setOf(ARG_VALUE_KEY),
-                    isAdditionalPropertiesAllowed = false,
-                )
-        }
+    override val definition: A2uiFunctionDefinition
+        get() = DEFINITION
 
     /**
      * Checks if the value in [args] is present and not empty.
@@ -61,11 +43,20 @@ public class A2uiRequiredFunction private constructor() : A2uiFunction {
      *   payloads and resolving data bindings
      * @return true if the value is not missing, not null, and not empty
      */
-    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        if (!args.containsKey(ARG_VALUE_KEY)) {
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? =
+        typedExecute(value = args[ARG_VALUE_KEY])
+
+    /**
+     * Checks that [value] is present and not empty.
+     *
+     * @param value the value to check, or null if it is missing
+     * @return false if [value] is null or an empty string, collection, map or array, true otherwise
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun typedExecute(value: Any?): Boolean {
+        if (value == null) {
             return false
         }
-        val value = A2uiFunctionArgParser.getArg(args, ARG_VALUE_KEY)
         return when (value) {
             is CharSequence -> value.isNotEmpty()
             is Collection<*> -> value.isNotEmpty()
@@ -84,6 +75,31 @@ public class A2uiRequiredFunction private constructor() : A2uiFunction {
     }
 
     public companion object {
+        /** The definition of the `required` function in the A2UI basic catalog. */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public val DEFINITION: A2uiFunctionDefinition =
+            object : A2uiFunctionDefinition {
+                override val name: String = "required"
+
+                override val description: String =
+                    """Checks that the value is not null, undefined, or empty."""
+
+                override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.BOOLEAN
+
+                override val acceptsUnresolvedArguments: Boolean = true
+
+                override val argumentSchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties =
+                            mapOf(
+                                ARG_VALUE_KEY to
+                                    A2uiAnySchema(description = """The value to check.""")
+                            ),
+                        required = setOf(ARG_VALUE_KEY),
+                        isAdditionalPropertiesAllowed = false,
+                    )
+            }
+
         @JvmField public val INSTANCE: A2uiRequiredFunction = A2uiRequiredFunction()
 
         private const val ARG_VALUE_KEY: String = "value"

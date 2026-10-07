@@ -25,6 +25,7 @@ import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicValueSchema
+import androidx.annotation.RestrictTo
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -40,50 +41,8 @@ public class A2uiFormatDateFunction
 public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocaleProvider.Default) :
     A2uiFunction {
 
-    override val definition: A2uiFunctionDefinition =
-        object : A2uiFunctionDefinition {
-            override val name: String = "formatDate"
-
-            override val description: String =
-                """Formats a timestamp into a string using a pattern."""
-
-            override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
-
-            override val argumentSchema: A2uiSchema =
-                A2uiObjectSchema(
-                    properties =
-                        mapOf(
-                            ARG_VALUE_KEY to
-                                A2uiDynamicValueSchema(description = """The date to format."""),
-                            ARG_FORMAT_KEY to
-                                A2uiDynamicStringSchema(
-                                    description =
-                                        """
-                                        A Unicode TR35 date pattern string.
-
-                                        Token Reference:
-                                        - Year: 'yy' (26), 'yyyy' (2026)
-                                        - Month: 'M' (1), 'MM' (01), 'MMM' (Jan), 'MMMM' (January)
-                                        - Day: 'd' (1), 'dd' (01), 'E' (Tue), 'EEEE' (Tuesday)
-                                        - Hour (12h): 'h' (1-12), 'hh' (01-12) - requires 'a' for AM/PM
-                                        - Hour (24h): 'H' (0-23), 'HH' (00-23) - Military Time
-                                        - Minute: 'mm' (00-59)
-                                        - Second: 'ss' (00-59)
-                                        - Period: 'a' (AM/PM)
-
-                                        Examples:
-                                        - 'MMM dd, yyyy' -> 'Jan 16, 2026'
-                                        - 'HH:mm' -> '14:30' (Military)
-                                        - 'h:mm a' -> '2:30 PM'
-                                        - 'EEEE, d MMMM' -> 'Friday, 16 January'
-                                        """
-                                            .trimIndent()
-                                ),
-                        ),
-                    required = setOf(ARG_FORMAT_KEY, ARG_VALUE_KEY),
-                    isAdditionalPropertiesAllowed = false,
-                )
-        }
+    override val definition: A2uiFunctionDefinition
+        get() = DEFINITION
 
     /**
      * Formats the given timestamp or ISO date string using the pattern in [args].
@@ -94,10 +53,21 @@ public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocalePr
      *   payloads and resolving data bindings
      * @return the formatted date string, or null if required values are missing
      */
-    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val epochMillis = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VALUE_KEY)
-        val format = A2uiFunctionArgParser.getStringArg(args, ARG_FORMAT_KEY)
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? =
+        typedExecute(
+            epochMillis = A2uiFunctionArgParser.getEpochMillisArg(args, ARG_VALUE_KEY),
+            format = A2uiFunctionArgParser.getStringArg(args, ARG_FORMAT_KEY),
+        )
 
+    /**
+     * Formats the instant [epochMillis] in UTC using the [format] pattern.
+     *
+     * @param epochMillis the instant to format, in milliseconds since the Unix epoch
+     * @param format a Unicode TR35 date pattern, or `"ISO"` for ISO 8601
+     * @return the formatted date
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun typedExecute(epochMillis: Long, format: String): String {
         val date = Date(epochMillis)
         val utcZone = TimeZone.getTimeZone("UTC")
 
@@ -125,6 +95,53 @@ public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocalePr
     }
 
     public companion object {
+        /** The definition of the `formatDate` function in the A2UI basic catalog. */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public val DEFINITION: A2uiFunctionDefinition =
+            object : A2uiFunctionDefinition {
+                override val name: String = "formatDate"
+
+                override val description: String =
+                    """Formats a timestamp into a string using a pattern."""
+
+                override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
+
+                override val argumentSchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties =
+                            mapOf(
+                                ARG_VALUE_KEY to
+                                    A2uiDynamicValueSchema(description = """The date to format."""),
+                                ARG_FORMAT_KEY to
+                                    A2uiDynamicStringSchema(
+                                        description =
+                                            """
+                                            A Unicode TR35 date pattern string.
+
+                                            Token Reference:
+                                            - Year: 'yy' (26), 'yyyy' (2026)
+                                            - Month: 'M' (1), 'MM' (01), 'MMM' (Jan), 'MMMM' (January)
+                                            - Day: 'd' (1), 'dd' (01), 'E' (Tue), 'EEEE' (Tuesday)
+                                            - Hour (12h): 'h' (1-12), 'hh' (01-12) - requires 'a' for AM/PM
+                                            - Hour (24h): 'H' (0-23), 'HH' (00-23) - Military Time
+                                            - Minute: 'mm' (00-59)
+                                            - Second: 'ss' (00-59)
+                                            - Period: 'a' (AM/PM)
+
+                                            Examples:
+                                            - 'MMM dd, yyyy' -> 'Jan 16, 2026'
+                                            - 'HH:mm' -> '14:30' (Military)
+                                            - 'h:mm a' -> '2:30 PM'
+                                            - 'EEEE, d MMMM' -> 'Friday, 16 January'
+                                            """
+                                                .trimIndent()
+                                    ),
+                            ),
+                        required = setOf(ARG_FORMAT_KEY, ARG_VALUE_KEY),
+                        isAdditionalPropertiesAllowed = false,
+                    )
+            }
+
         @JvmField public val INSTANCE: A2uiFormatDateFunction = A2uiFormatDateFunction()
 
         private const val ARG_VALUE_KEY: String = "value"
