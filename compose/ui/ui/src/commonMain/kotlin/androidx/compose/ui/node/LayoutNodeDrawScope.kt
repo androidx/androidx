@@ -81,7 +81,7 @@ internal class LayoutNodeDrawScope(val canvasDrawScope: CanvasDrawScope = Canvas
         // being drawn when we draw the recorded layer later, since the block passed to record
         // sometimes needs to be invoked outside of this current draw pass
         val currentDrawNode = drawNode
-        record(this@LayoutNodeDrawScope, this@LayoutNodeDrawScope.layoutDirection, size) {
+        record(drawContext.density, drawContext.layoutDirection, size) {
             val previousDrawNode = this@LayoutNodeDrawScope.drawNode
             this@LayoutNodeDrawScope.drawNode = currentDrawNode
             try {

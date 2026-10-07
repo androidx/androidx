@@ -913,7 +913,7 @@ public interface DrawScope : Density {
         size: IntSize = this@DrawScope.size.toIntSize(),
         block: DrawScope.() -> Unit,
     ): Unit =
-        record(this@DrawScope, this@DrawScope.layoutDirection, size) {
+        record(drawContext.density, drawContext.layoutDirection, size) {
             this@DrawScope.draw(
                 // we can use this@record.drawContext directly as the values in this@DrawScope
                 // and this@record are the same

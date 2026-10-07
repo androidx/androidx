@@ -467,26 +467,33 @@ class DrawModifierTest {
     fun testRecordDrawContent() {
         val testTag = "TestTag"
         val targetColor = Color.Blue
+        var recordedDensity = 0f
         rule.setContent {
-            Column(modifier = Modifier.testTag(testTag)) {
-                val layer = rememberGraphicsLayer()
-                Canvas(
-                    Modifier.size(40.dp).background(Color.Green).drawWithContent {
-                        layer.record { this@drawWithContent.drawContent() }
+            CompositionLocalProvider(LocalDensity provides Density(2f)) {
+                Column(modifier = Modifier.testTag(testTag)) {
+                    val layer = rememberGraphicsLayer()
+                    Canvas(
+                        Modifier.size(40.dp).background(Color.Green).drawWithContent {
+                            layer.record {
+                                recordedDensity = density
+                                this@drawWithContent.drawContent()
+                            }
+                            drawLayer(layer)
+                        }
+                    ) {
+                        drawRect(targetColor)
+                    }
+
+                    Canvas(Modifier.size(40.dp)) {
+                        drawRect(Color.Red)
                         drawLayer(layer)
                     }
-                ) {
-                    drawRect(targetColor)
-                }
-
-                Canvas(Modifier.size(40.dp)) {
-                    drawRect(Color.Red)
-                    drawLayer(layer)
                 }
             }
         }
         rule.waitForIdle()
 
+        assertThat(recordedDensity).isEqualTo(2)
         rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply {
             assertPixelColor(targetColor, 0, 0)
             assertPixelColor(targetColor, 0, this.width - 1)
