@@ -25,6 +25,7 @@ import java.io.IOException
 import java.nio.file.Path
 import java.time.Duration
 import java.util.Locale
+import java.util.UUID
 import java.util.logging.Logger
 import kotlin.time.Duration as KotlinDuration
 import kotlin.time.Duration.Companion.seconds
@@ -221,13 +222,16 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
      * @throws IOException if the package manager does not report success
      */
     suspend fun installPackage(apkFile: Path, options: List<String>) {
-        withCleanup(cleanup = { removeFile(STAGED_APK_PATH) }) {
+        // A path of its own, so that concurrent installs on the device cannot overwrite or delete
+        // each other's staged APK.
+        val stagedApk = "$STAGING_DIR/backup_test_${UUID.randomUUID()}.apk"
+        withCleanup(cleanup = { removeFile(stagedApk) }) {
             logger.info("Pushing APK: ${apkFile.toAbsolutePath()} to device staging area...")
-            pushFile(apkFile, STAGED_APK_PATH)
+            pushFile(apkFile, stagedApk)
 
             logger.info("Installing staged APK via pm install...")
             val flags = options.joinToString(" ") { quoteIfNeeded(it) }
-            val output = exec("pm install $flags ${quote(STAGED_APK_PATH)}")
+            val output = exec("pm install $flags ${quote(stagedApk)}")
             // `pm install` prints "Success" on stdout. It reports a rejected package as
             // "Failure [<reason>]" on stdout, and an error such as an unreadable APK on stderr with
             // a non-zero exit code.
@@ -297,7 +301,8 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
         const val ACTION_MAIN = "android.intent.action.MAIN"
         const val CATEGORY_LAUNCHER = "android.intent.category.LAUNCHER"
 
-        private const val STAGED_APK_PATH = "/data/local/tmp/backup_test_temp.apk"
+        /** Where APKs are pushed before they are installed, which the package manager can read. */
+        private const val STAGING_DIR = "/data/local/tmp"
         private const val ACTIVITY_SETTLE_DELAY_MS = 500L
 
         /** `rwxrwxrwx`, so the package manager can read the staged file. */

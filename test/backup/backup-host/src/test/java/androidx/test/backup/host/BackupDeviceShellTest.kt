@@ -429,11 +429,25 @@ class BackupDeviceShellTest {
 
         shell.installPackage(tempFolder.newFile("app.apk").toPath(), listOf("-r", "-t"))
 
-        assertEquals(listOf(STAGED_APK), device.pushedPaths)
+        val stagedApk = device.pushedPaths.single()
+        assertTrue(STAGED_APK.matches(stagedApk), stagedApk)
         assertEquals(
-            listOf("pm install -r -t '$STAGED_APK'", "rm -f -- '$STAGED_APK'"),
+            listOf("pm install -r -t '$stagedApk'", "rm -f -- '$stagedApk'"),
             device.commands,
         )
+    }
+
+    @Test
+    fun installPackageStagesEachApkAtItsOwnPath() = runBlocking {
+        device.onShell { command ->
+            if (command.startsWith("pm install")) shellOutput("Success\n") else shellOutput()
+        }
+        val apk = tempFolder.newFile("app.apk").toPath()
+
+        shell.installPackage(apk, emptyList())
+        shell.installPackage(apk, emptyList())
+
+        assertEquals(2, device.pushedPaths.distinct().size, "${device.pushedPaths}")
     }
 
     @Test
@@ -453,7 +467,7 @@ class BackupDeviceShellTest {
             "Failed to install $apk (exit code 1): Failure [INSTALL_FAILED_OLDER_SDK]",
             e.message,
         )
-        assertEquals("rm -f -- '$STAGED_APK'", device.commands.last())
+        assertEquals("rm -f -- '${device.pushedPaths.single()}'", device.commands.last())
     }
 
     @Test
@@ -694,7 +708,7 @@ class BackupDeviceShellTest {
 
     private companion object {
         const val PACKAGE = "com.example.app"
-        const val STAGED_APK = "/data/local/tmp/backup_test_temp.apk"
+        val STAGED_APK = Regex("""/data/local/tmp/backup_test_[0-9a-f-]{36}\.apk""")
         const val RESOLVE_OUTPUT_PREFIX =
             "priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true\n"
         const val DEVICE_EPOCH_SECONDS = 1_700_000_000L
