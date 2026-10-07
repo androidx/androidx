@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
 
 /**
@@ -25,7 +24,6 @@ import androidx.compose.remote.core.RemoteContext
  * Continuous animation and sub-second clock values are represented as [RemoteFloat], while discrete
  * wall-clock and calendar fields are represented as [RemoteInt].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteTimeVariables {
     /** The elapsed animation time in seconds since document load as a [RemoteFloat]. */
     public val animationTime: RemoteFloat
