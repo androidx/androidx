@@ -49,6 +49,7 @@ import androidx.compose.remote.core.operations.DrawTweenPath
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.FloatFunctionCall
 import androidx.compose.remote.core.operations.FloatFunctionDefine
+import androidx.compose.remote.core.operations.IntegerExpression
 import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.ParticlesLoop
 import androidx.compose.remote.core.operations.PathCombine
@@ -1251,6 +1252,14 @@ internal val StateLayout.indexIdReflection: Int
 
 private val stateLayoutIndexIdField =
     StateLayout::class.java.getDeclaredField("mIndexId").apply { isAccessible = true }
+
+// --- IntegerExpression Helper ---
+/** The bit mask marking which [IntegerExpression.mSrcValue] entries are variable IDs. */
+internal val IntegerExpression.maskReflection: Int
+    get() = integerExpressionMaskField.getInt(this)
+
+private val integerExpressionMaskField =
+    IntegerExpression::class.java.getDeclaredField("mMask").apply { isAccessible = true }
 
 // --- FitBoxLayout Helpers ---
 internal val FitBoxLayout.horizontalPositioningReflection: Int
