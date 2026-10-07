@@ -133,6 +133,27 @@ internal constructor(
             )
         }
 
+    /**
+     * The touchable bounds of this node in root coordinates, clipped to any ancestor clipping
+     * container whose size is at least the minimum touch target size. Used when subtracting this
+     * node's area from unaccounted space so a child clipped inside a scrollable container cannot
+     * occlude siblings outside that container.
+     */
+    internal val clippedTouchBoundsInRoot: Rect
+        get() {
+            val semanticsModifierNode = findSemanticsModifierNodeToGetBounds()
+            if (semanticsModifierNode == null) {
+                return layoutNode.innerCoordinator.touchBoundsInRoot(
+                    clipToParentIfLargerThanMinTouchTarget = true
+                )
+            }
+            return semanticsModifierNode.node.effectiveBoundsInRoot(
+                unmergedConfig.useMinimumTouchTarget,
+                clipBounds = true,
+                clipToParentIfLargerThanMinTouchTarget = true,
+            )
+        }
+
     internal val unclippedBoundsInRoot: Rect
         get() {
             val semanticsModifierNode = findSemanticsModifierNodeToGetBounds()
