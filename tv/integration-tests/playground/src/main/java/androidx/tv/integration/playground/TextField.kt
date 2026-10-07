@@ -74,7 +74,7 @@ fun TextFieldContent() {
 @Composable
 fun SampleTextField(label: String, keyboardType: KeyboardType = KeyboardType.Text) {
     var text by remember { mutableStateOf("") }
-
+    @Suppress("DEPRECATION")
     OutlinedTextField(
         value = text,
         onValueChange = { text = it },

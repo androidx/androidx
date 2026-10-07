@@ -313,6 +313,7 @@ fun RawRcSelectionDialog(onDismiss: () -> Unit, onSelect: (RawRcDoc) -> Unit) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                @Suppress("DEPRECATION")
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },

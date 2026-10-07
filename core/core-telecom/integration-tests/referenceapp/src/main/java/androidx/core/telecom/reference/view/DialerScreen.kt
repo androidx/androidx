@@ -104,6 +104,7 @@ fun DialerScreen(
         }
 
         // Input field for Display Name
+        @Suppress("DEPRECATION")
         OutlinedTextField(
             value = uiState.displayName,
             onValueChange = { dialerViewModel.updateDisplayName(it) },
@@ -113,6 +114,7 @@ fun DialerScreen(
         )
 
         // Input field for Phone Number
+        @Suppress("DEPRECATION")
         OutlinedTextField(
             value = uiState.phoneNumber,
             onValueChange = { dialerViewModel.updatePhoneNumber(it) },
