@@ -36,7 +36,7 @@ class SourceJarTaskHelperTest {
         jvmMain.dependsOn(commonMain)
         jvmMain.dependsOn(extraMain)
 
-        val result = createSourceSetMetadata(extension)
+        val result = createSourceSetMetadata(extension, false)
         Truth.assertThat(result)
             .isEqualTo(
                 mapOf(
@@ -76,7 +76,7 @@ class SourceJarTaskHelperTest {
         val jsMain = extension.sourceSets.getByName("jsMain")
         jsMain.dependsOn(commonMain)
 
-        val result = createSourceSetMetadata(extension)
+        val result = createSourceSetMetadata(extension, false)
         Truth.assertThat(result)
             .isEqualTo(
                 mapOf(
@@ -120,7 +120,7 @@ class SourceJarTaskHelperTest {
         jvmMain.dependsOn(webJvmMain)
         jsMain.dependsOn(webJvmMain)
 
-        val result = createSourceSetMetadata(extension)
+        val result = createSourceSetMetadata(extension, false)
         Truth.assertThat(result)
             .isEqualTo(
                 mapOf(
