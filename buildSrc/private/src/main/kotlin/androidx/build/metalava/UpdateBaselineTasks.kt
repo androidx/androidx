@@ -42,15 +42,21 @@ constructor(workerExecutor: WorkerExecutor) : SourceMetalavaTask(workerExecutor)
 
     @TaskAction
     fun updateBaseline() {
+        val baselineFile = baselines.get().apiLintFile
+        val filteredSourcePaths = filteredSourcePaths()
+        // If there are no sources, there are no APIs, so there are no API lint issues.
+        if (filteredSourcePaths.isEmpty()) {
+            baselineFile.delete()
+            return
+        }
         // Only require android jar if there is a main jvm/android target.
         if (hasJvmOrAndroidTarget.get()) {
             check(bootClasspath.files.isNotEmpty()) { "Android boot classpath not set." }
         }
-        val baselineFile = baselines.get().apiLintFile
         val multiSurfaceArgs =
             getMultiSurfaceArgs(
                 createProjectXmlFile(sourceSets.get()),
-                sourcePaths.files.filter { it.exists() },
+                filteredSourcePaths,
                 // API lint is not run on bytecode-only APIs, so don't bother processing the jar
                 // when generating a baseline.
                 includeCompiledSources = false,
