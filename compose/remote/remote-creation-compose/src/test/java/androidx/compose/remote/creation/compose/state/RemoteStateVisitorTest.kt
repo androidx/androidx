@@ -207,11 +207,11 @@ class RemoteStateVisitorTest {
 
         val replacedWarning = color.replaceNamedVariables(mapOf(isWarning to true.rb))
         assertThat(replacedWarning.hasConstantValue).isTrue()
-        assertThat(replacedWarning.constantValue).isEqualTo(Color.Red)
+        assertThat(replacedWarning.asConstantColor()).isEqualTo(Color.Red)
 
         val replacedNormal = color.replaceNamedVariables(mapOf(isWarning to false.rb))
         assertThat(replacedNormal.hasConstantValue).isTrue()
-        assertThat(replacedNormal.constantValue).isEqualTo(Color.Green)
+        assertThat(replacedNormal.asConstantColor()).isEqualTo(Color.Green)
     }
 
     @Test
@@ -436,7 +436,7 @@ class RemoteStateVisitorTest {
         // 3. Replace progress and evaluate
         val evaluated = resultFrom.replaceNamedVariables(mapOf(tweenProgress to 0f.rf))
         assertThat(evaluated.hasConstantValue).isTrue()
-        assertThat(evaluated.constantValue).isEqualTo(Color.Blue)
+        assertThat(evaluated.asConstantColor()).isEqualTo(Color.Blue)
     }
 
     @Test
@@ -546,7 +546,7 @@ class RemoteStateVisitorTest {
 
     @Test
     fun testColorComponent_reconstruction() {
-        val namedColor = RemoteColor.createNamedRemoteColor("color", Color.Red)
+        val namedColor = createNamedRemoteColor("color", Color.Red)
         val alpha = namedColor.alpha
 
         val replaced = alpha.replaceNamedVariables(mapOf(namedColor to Color.Blue.rc))

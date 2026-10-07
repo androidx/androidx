@@ -33,7 +33,6 @@ import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontVariation
 
 /**
@@ -68,7 +67,7 @@ public open class CompatAndroidRemotePaint : AndroidPaint {
             if (value != null) {
                 val constantValue = value.constantValueOrNull
                 if (constantValue != null) {
-                    super.setColor(constantValue.toArgb())
+                    super.setColor(constantValue)
                 } else {
                     super.setColor(android.graphics.Color.TRANSPARENT)
                 }
@@ -95,7 +94,7 @@ public open class CompatAndroidRemotePaint : AndroidPaint {
                     if (constantValue != null) {
                         super.setColorFilter(
                             AndroidBlendModeColorFilter(
-                                constantValue.toArgb(),
+                                constantValue,
                                 value.blendMode.toAndroidBlendMode(),
                             )
                         )

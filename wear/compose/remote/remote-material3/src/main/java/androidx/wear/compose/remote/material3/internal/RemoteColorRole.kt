@@ -20,7 +20,7 @@ import androidx.annotation.ColorRes
 import androidx.compose.remote.creation.compose.capture.currentProfileSupportsThemedColors
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
+import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.createThemedRemoteColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color

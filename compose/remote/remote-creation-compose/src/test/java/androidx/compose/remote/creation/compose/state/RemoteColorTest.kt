@@ -32,7 +32,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
-import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -355,7 +354,7 @@ class RemoteColorTest {
         val color = RemoteColor.rgb(red = r, green = g, blue = b, alpha = a)
 
         assertThat(color.hasConstantValue).isTrue()
-        assertThat(color.constantValue).isEqualTo(Color(1.0f, 0.5f, 0.0f, 1.0f))
+        assertThat(color.asConstantColor()).isEqualTo(Color(1.0f, 0.5f, 0.0f, 1.0f))
     }
 
     @Test
@@ -377,7 +376,7 @@ class RemoteColorTest {
         val color = RemoteColor.hsv(hue = h, saturation = s, value = v)
 
         assertThat(color.hasConstantValue).isTrue()
-        assertThat(color.constantValue).isEqualTo(Color.Red)
+        assertThat(color.asConstantColor()).isEqualTo(Color.Red)
     }
 
     @Test
@@ -398,7 +397,7 @@ class RemoteColorTest {
         val color = RemoteColor.fromAHSV(alpha = 255, hue = h, saturation = s, value = v)
 
         assertThat(color.hasConstantValue).isTrue()
-        assertThat(color.constantValue).isEqualTo(Color.Red)
+        assertThat(color.asConstantColor()).isEqualTo(Color.Red)
     }
 
     @Test
@@ -447,7 +446,7 @@ class RemoteColorTest {
             )
         val result = a * b
 
-        assertThat(result.constantValue.toArgb()).isEqualTo(AndroidColor.argb(204, 153, 102, 51))
+        assertThat(result.constantValue).isEqualTo(AndroidColor.argb(204, 153, 102, 51))
     }
 
     @Test
@@ -495,14 +494,24 @@ class RemoteColorTest {
 
     @Test
     fun extensionFunctionMatches() {
-        assertThat(Color.Black.rc.constantValue.toArgb()).isEqualTo(AndroidColor.BLACK)
-        assertThat(Color.Transparent.rc.constantValue.toArgb()).isEqualTo(AndroidColor.TRANSPARENT)
+        assertThat(Color.Black.rc.constantValue).isEqualTo(AndroidColor.BLACK)
+        assertThat(Color.Transparent.rc.constantValue).isEqualTo(AndroidColor.TRANSPARENT)
     }
 
     @Test
     fun cacheKeys() {
         val constant = RemoteColor(Color.Red)
-        assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(Color.Red.toArgb()))
+        assertThat(constant.cacheKey).isEqualTo(RemoteColorConstantCacheKey(Color.Red.toArgb()))
+    }
+
+    @Test
+    fun colorConstantCacheKeyDoesNotCollideWithInt() {
+        val red = Color.Red.toArgb()
+        val color = RemoteColor(red)
+        val intVal = RemoteInt(red)
+        assertThat(color.cacheKey).isNotEqualTo(intVal.cacheKey)
+        assertThat(color.cacheKey).isInstanceOf(RemoteColorConstantCacheKey::class.java)
+        assertThat(intVal.cacheKey).isInstanceOf(RemoteConstantCacheKey::class.java)
     }
 
     @Test
@@ -533,7 +542,9 @@ class RemoteColorTest {
         val colorName = "TEST"
         val coreDoc =
             remoteCaptureRule.captureDocument(context = androidContext) {
-                val namedColor = remember { createNamedRemoteColor(colorName, Color.Red) }
+                val namedColor = remember {
+                    createNamedRemoteColor(colorName, Color.Red)
+                }
 
                 val copy = namedColor.copy(alpha = 0f.rf)
 
@@ -635,7 +646,7 @@ class RemoteColorTest {
         val tweenFactor = 0.5f.rf
 
         val tweened = tween(colorInt, colorInt, tweenFactor)
-        assertThat(tweened.constantValueOrNull).isEqualTo(Color.Red)
+        assertThat(tweened.asConstantColorOrNull()).isEqualTo(Color.Red)
     }
 
     private fun makeAndPaintCoreDocument() =

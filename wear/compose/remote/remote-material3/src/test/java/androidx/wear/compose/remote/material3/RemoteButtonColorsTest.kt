@@ -16,6 +16,7 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.asConstantColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -93,8 +94,8 @@ class RemoteButtonColorsTest {
             colors = RemoteButtonDefaults.buttonWithContainerPainterColors()
         }
 
-        assertEquals(Color.Transparent, colors.containerColor.constantValue)
-        assertEquals(Color.Transparent, colors.disabledContainerColor.constantValue)
+        assertEquals(Color.Transparent, colors.containerColor.asConstantColor())
+        assertEquals(Color.Transparent, colors.disabledContainerColor.asConstantColor())
     }
 
     @Test
@@ -109,13 +110,10 @@ class RemoteButtonColorsTest {
                 )
         }
 
-        assertEquals(Color.Transparent, customized.containerColor.constantValue)
-        assertEquals(Color.Transparent, customized.disabledContainerColor.constantValue)
-        assertEquals(RemoteColor(Color.Yellow).constantValue, customized.contentColor.constantValue)
-        assertEquals(
-            RemoteColor(Color.Cyan).constantValue,
-            customized.secondaryContentColor.constantValue,
-        )
+        assertEquals(Color.Transparent, customized.containerColor.asConstantColor())
+        assertEquals(Color.Transparent, customized.disabledContainerColor.asConstantColor())
+        assertEquals(Color.Yellow, customized.contentColor.asConstantColor())
+        assertEquals(Color.Cyan, customized.secondaryContentColor.asConstantColor())
     }
 
     @Test
@@ -125,8 +123,8 @@ class RemoteButtonColorsTest {
             colors = RemoteButtonDefaults.childButtonColors()
         }
 
-        assertEquals(Color.Transparent, colors.containerColor.constantValue)
-        assertEquals(Color.Transparent, colors.disabledContainerColor.constantValue)
+        assertEquals(Color.Transparent, colors.containerColor.asConstantColor())
+        assertEquals(Color.Transparent, colors.disabledContainerColor.asConstantColor())
     }
 
     @Test
@@ -141,14 +139,11 @@ class RemoteButtonColorsTest {
                 )
         }
 
-        assertEquals(Color.Transparent, customized.containerColor.constantValue)
-        assertEquals(Color.Transparent, customized.disabledContainerColor.constantValue)
-        assertEquals(RemoteColor(Color.Yellow).constantValue, customized.contentColor.constantValue)
-        assertEquals(
-            RemoteColor(Color.Cyan).constantValue,
-            customized.secondaryContentColor.constantValue,
-        )
-        assertEquals(RemoteColor(Color.Magenta).constantValue, customized.iconColor.constantValue)
+        assertEquals(Color.Transparent, customized.containerColor.asConstantColor())
+        assertEquals(Color.Transparent, customized.disabledContainerColor.asConstantColor())
+        assertEquals(Color.Yellow, customized.contentColor.asConstantColor())
+        assertEquals(Color.Cyan, customized.secondaryContentColor.asConstantColor())
+        assertEquals(Color.Magenta, customized.iconColor.asConstantColor())
     }
 
     @Test
@@ -158,8 +153,8 @@ class RemoteButtonColorsTest {
             colors = RemoteButtonDefaults.buttonColors(containerColor = Color.Transparent.rc)
         }
 
-        assertEquals(Color.Transparent, colors.containerColor.constantValue)
-        assertEquals(Color.Transparent, colors.disabledContainerColor.constantValue)
+        assertEquals(Color.Transparent, colors.containerColor.asConstantColor())
+        assertEquals(Color.Transparent, colors.disabledContainerColor.asConstantColor())
     }
 
     @Test

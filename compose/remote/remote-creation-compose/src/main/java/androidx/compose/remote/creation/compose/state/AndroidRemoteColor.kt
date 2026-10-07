@@ -17,11 +17,10 @@
 package androidx.compose.remote.creation.compose.state
 
 import android.R
+import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.Rc.AndroidColors
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 
 /**
  * Creates a themed [RemoteColor] that resolves to different Android system colors in light and dark
@@ -29,17 +28,17 @@ import androidx.compose.ui.graphics.toArgb
  *
  * @param lightMode The [android.R.color] resource ID for light mode.
  * @param darkMode The [android.R.color] resource ID for dark mode.
- * @param lightFallback The fallback [Color] value to use in light mode if the theme color cannot be
- *   resolved.
- * @param darkFallback The fallback [Color] value to use in dark mode if the theme color cannot be
- *   resolved.
+ * @param lightFallback The fallback ARGB color integer to use in light mode if the theme color
+ *   cannot be resolved.
+ * @param darkFallback The fallback ARGB color integer to use in dark mode if the theme color cannot
+ *   be resolved.
  * @return A [RemoteColor] representing the themed color.
  */
 public fun RemoteColor.Companion.createThemedRemoteColor(
     @ColorRes lightMode: Int,
     @ColorRes darkMode: Int,
-    lightFallback: Color,
-    darkFallback: Color,
+    @ColorInt lightFallback: Int,
+    @ColorInt darkFallback: Int,
 ): RemoteColor {
     val lightModeIndex = AndroidSystemColorMap.lookupIndex(lightMode)
     val darkModeIndex = AndroidSystemColorMap.lookupIndex(darkMode)
@@ -60,14 +59,27 @@ public fun RemoteColor.Companion.createThemedRemoteColor(
                         AndroidColors.GROUP,
                         lightModeIndex,
                         darkModeIndex,
-                        lightFallback.toArgb(),
-                        darkFallback.toArgb(),
+                        lightFallback,
+                        darkFallback,
                     )
                     .toInt()
             }
         },
     )
 }
+
+/**
+ * Creates a themed [RemoteColor] that resolves to different Android system colors in light and dark
+ * mode.
+ *
+ * @param lightMode The [android.R.color] resource ID for light mode.
+ * @param darkMode The [android.R.color] resource ID for dark mode.
+ * @param lightFallback The fallback ARGB color integer to use in light mode if the theme color
+ *   cannot be resolved.
+ * @param darkFallback The fallback ARGB color integer to use in dark mode if the theme color cannot
+ *   be resolved.
+ * @return A [RemoteColor] representing the themed color.
+ */
 
 /**
  * Maps standard [android.R.color] resource IDs to and from their 0..195 index in the `"android"`
@@ -283,4 +295,52 @@ public object AndroidSystemColorMap {
     @ColorRes public fun getResourceId(index: Int): Int = colorResourceIds[index]
 
     public fun lookupIndex(@ColorRes resId: Int): Short = colorResourceIds.indexOf(resId).toShort()
+}
+
+/**
+ * A cache key for themed colors, identified by their [group], [lightModeIndex], [darkModeIndex],
+ * [lightFallback], and [darkFallback].
+ */
+internal class RemoteStateThemeColorKey(
+    internal val group: String,
+    internal val lightModeIndex: Short,
+    internal val darkModeIndex: Short,
+    @ColorInt internal val lightFallback: Int,
+    @ColorInt internal val darkFallback: Int,
+) : BaseRemoteStateCacheKey() {
+    private var state: BaseRemoteState<*>? = null
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public override fun getState(): BaseRemoteState<*>? = state
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public override fun setState(state: BaseRemoteState<*>?) {
+        this.state = state
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteStateThemeColorKey) return false
+        if (group != other.group) return false
+        if (lightModeIndex != other.lightModeIndex) return false
+        if (darkModeIndex != other.darkModeIndex) return false
+        if (lightFallback != other.lightFallback) return false
+        if (darkFallback != other.darkFallback) return false
+        return true
+    }
+
+    override fun hashCodeImpl(): Int {
+        var result = group.hashCode()
+        result = 31 * result + lightModeIndex.hashCode()
+        result = 31 * result + darkModeIndex.hashCode()
+        result = 31 * result + lightFallback.hashCode()
+        result = 31 * result + darkFallback.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "RemoteStateThemeColorKey(group=$group, lightModeIndex=$lightModeIndex, darkModeIndex=$darkModeIndex, lightFallback=$lightFallback, darkFallback=$darkFallback)"
+
+    override fun toDebugString(): String =
+        "themeColor($group, light=$lightModeIndex, dark=$darkModeIndex)"
 }

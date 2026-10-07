@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.asConstantColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -208,8 +209,9 @@ class RemotePageIndicatorUnitTest {
             }
         }
 
-        assertThat(selectedColor.constantValue).isEqualTo(expectedOnBackground)
-        assertThat(unselectedColor.constantValue).isEqualTo(expectedOnBackground.copy(alpha = 0.3f))
+        assertThat(selectedColor.asConstantColor()).isEqualTo(expectedOnBackground)
+        assertThat(unselectedColor.asConstantColor())
+            .isEqualTo(expectedOnBackground.copy(alpha = 0.3f))
     }
 
     @Test

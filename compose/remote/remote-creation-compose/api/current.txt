@@ -979,8 +979,7 @@ package androidx.compose.remote.creation.compose.shapes {
 package androidx.compose.remote.creation.compose.state {
 
   public final class AndroidRemoteColorKt {
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int lightMode, @ColorRes int darkMode, androidx.compose.ui.graphics.Color lightFallback, androidx.compose.ui.graphics.Color darkFallback);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor-jZ3TX3s(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int, @ColorRes int, long, long);
+    method public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int lightMode, @ColorRes int darkMode, @ColorInt int lightFallback, @ColorInt int darkFallback);
   }
 
   public abstract class BaseRemoteState<T> implements androidx.compose.remote.creation.compose.state.RemoteState<T> {
@@ -1112,14 +1111,15 @@ package androidx.compose.remote.creation.compose.state {
     property public static androidx.compose.remote.creation.compose.state.RemoteBoolean boolean.rb;
   }
 
-  @androidx.compose.runtime.Stable public class RemoteColor extends androidx.compose.remote.creation.compose.state.BaseRemoteState<androidx.compose.ui.graphics.Color> {
+  @androidx.compose.runtime.Stable public class RemoteColor extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.Integer> {
     method public final androidx.compose.remote.creation.compose.state.RemoteColor copy(optional androidx.compose.remote.creation.compose.state.RemoteFloat? alpha, optional androidx.compose.remote.creation.compose.state.RemoteFloat? red, optional androidx.compose.remote.creation.compose.state.RemoteFloat? green, optional androidx.compose.remote.creation.compose.state.RemoteFloat? blue);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! copy$default(androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
-    method @BytecodeOnly public static final androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor-bw27NRU(String, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain);
+    method public static final androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, @ColorInt int defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getAlpha();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getBlue();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getBrightness();
-    method @BytecodeOnly public androidx.compose.ui.graphics.Color? getConstantValueOrNull-QN2ZGVo();
+    method @InaccessibleFromKotlin @ColorInt public Integer getConstantValue();
+    method @InaccessibleFromKotlin @ColorInt public Integer? getConstantValueOrNull();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getGreen();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getHue();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getRed();
@@ -1127,7 +1127,8 @@ package androidx.compose.remote.creation.compose.state {
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat alpha;
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat blue;
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat brightness;
-    property public androidx.compose.ui.graphics.Color? constantValueOrNull;
+    property @ColorInt public Integer constantValue;
+    property @ColorInt public Integer? constantValueOrNull;
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat green;
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat hue;
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat red;
@@ -1136,23 +1137,47 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public static final class RemoteColor.Companion {
-    method @KotlinOnly public androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, androidx.compose.ui.graphics.Color defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @BytecodeOnly public androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor-bw27NRU(String, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! createNamedRemoteColor-bw27NRU$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, String!, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, @ColorInt int defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! createNamedRemoteColor$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, String!, int, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
     method public androidx.compose.remote.creation.compose.state.RemoteColor hsv(androidx.compose.remote.creation.compose.state.RemoteFloat hue, androidx.compose.remote.creation.compose.state.RemoteFloat saturation, androidx.compose.remote.creation.compose.state.RemoteFloat value, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! hsv$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
-    method @KotlinOnly public operator androidx.compose.remote.creation.compose.state.RemoteColor invoke(androidx.compose.ui.graphics.Color value);
-    method @BytecodeOnly public androidx.compose.remote.creation.compose.state.RemoteColor invoke-8_81llA(long);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteColor invoke(androidx.compose.remote.creation.compose.state.RemoteFloat red, androidx.compose.remote.creation.compose.state.RemoteFloat green, androidx.compose.remote.creation.compose.state.RemoteFloat blue, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteColor invoke(float red, float green, float blue, optional float alpha);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteColor invoke(@ColorInt int color);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! invoke$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! invoke$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, float, float, float, float, int, Object!);
     method public androidx.compose.remote.creation.compose.state.RemoteColor rgb(androidx.compose.remote.creation.compose.state.RemoteFloat red, androidx.compose.remote.creation.compose.state.RemoteFloat green, androidx.compose.remote.creation.compose.state.RemoteFloat blue, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! rgb$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
   }
 
-  public final class RemoteColorKt {
+  public final class RemoteColorComposeKt {
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteColor RemoteColor(androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor RemoteColor-8_81llA(long);
+    method @KotlinOnly public static androidx.compose.ui.graphics.Color asConstantColor(androidx.compose.remote.creation.compose.state.RemoteColor);
+    method @BytecodeOnly public static long asConstantColor(androidx.compose.remote.creation.compose.state.RemoteColor);
+    method @InaccessibleFromJava public static androidx.compose.ui.graphics.Color? asConstantColorOrNull(androidx.compose.remote.creation.compose.state.RemoteColor);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteColor asRemoteColor(androidx.compose.ui.graphics.Color);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor asRemoteColor-8_81llA(long);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, String name, androidx.compose.ui.graphics.Color defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, androidx.compose.ui.graphics.Color defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor-9LQNqLg(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, String, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! createNamedRemoteColor-9LQNqLg$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, String!, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor-bw27NRU(String, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! createNamedRemoteColor-bw27NRU$default(String!, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int lightMode, @ColorRes int darkMode, androidx.compose.ui.graphics.Color lightFallback, androidx.compose.ui.graphics.Color darkFallback);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor-jZ3TX3s(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int, @ColorRes int, long, long);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor getRc-8_81llA(long);
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteColor rememberNamedRemoteColor(String name, androidx.compose.ui.graphics.Color initialValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteColor rememberNamedRemoteColor(String name, @ColorInt int initialValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteColor rememberNamedRemoteColor(String, @ColorInt int, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteColor rememberNamedRemoteColor-3IgeMak(String, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, androidx.compose.runtime.Composer?, int, int);
-    method public static androidx.compose.remote.creation.compose.state.RemoteColor tween(androidx.compose.remote.creation.compose.state.RemoteColor from, androidx.compose.remote.creation.compose.state.RemoteColor to, androidx.compose.remote.creation.compose.state.RemoteFloat tween);
     property public static androidx.compose.remote.creation.compose.state.RemoteColor androidx.compose.ui.graphics.Color.rc;
+  }
+
+  public final class RemoteColorKt {
+    method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteColor getRc(@ColorInt int);
+    method public static androidx.compose.remote.creation.compose.state.RemoteColor tween(androidx.compose.remote.creation.compose.state.RemoteColor from, androidx.compose.remote.creation.compose.state.RemoteColor to, androidx.compose.remote.creation.compose.state.RemoteFloat tween);
+    property public static androidx.compose.remote.creation.compose.state.RemoteColor int.rc;
   }
 
   public final class RemoteConfiguration {

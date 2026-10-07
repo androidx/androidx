@@ -32,7 +32,6 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.BorderModifier as CreationBorderModifier
 import androidx.compose.remote.creation.modifiers.DynamicBorderModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.ui.graphics.toArgb
 
 internal class BorderModifier(
     public val width: RemoteDp,
@@ -66,7 +65,7 @@ internal class BorderModifier(
 
         val constantColor = color.constantValueOrNull
         return if (constantColor != null) {
-            CreationBorderModifier(resolvedWidth, roundedCorner, constantColor.toArgb(), shapeType)
+            CreationBorderModifier(resolvedWidth, roundedCorner, constantColor, shapeType)
         } else {
             DynamicBorderModifier(resolvedWidth, roundedCorner, color.id.toShort(), shapeType)
         }
