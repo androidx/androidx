@@ -17,10 +17,21 @@
 package androidx.credentials.providerevents.service
 
 import android.content.Intent
+import android.content.pm.SigningInfo
 import android.os.Binder
+import android.os.Bundle
+import android.os.CancellationSignal
 import android.os.IBinder
+import androidx.core.os.OutcomeReceiverCompat
+import androidx.credentials.PublicKeyCredential
+import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.CreateCredentialUnknownException
+import androidx.credentials.provider.BeginCreateCredentialResponse
+import androidx.credentials.provider.BeginCreateCustomCredentialRequest
+import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.providerevents.CredentialEventsProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThat
@@ -59,6 +70,38 @@ class CredentialProviderEventsServiceTest {
             }
         val binder = service.onBind(intent)
         assertThat(binder).isNotNull()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun onBatchCreateCredentialCandidatesRequest_default_failsWithUnknownException() {
+        val service = object : CredentialProviderEventsService() {}
+        var error: CreateCredentialException? = null
+        val request =
+            BeginBatchCreateCredentialRequest(
+                listOf(
+                    BeginCreateCustomCredentialRequest(
+                        PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+                        Bundle(),
+                        CallingAppInfo("com.example.rp1", SigningInfo()),
+                    )
+                )
+            )
+
+        service.onBatchCreateCredentialCandidatesRequest(
+            request,
+            CancellationSignal(),
+            object :
+                OutcomeReceiverCompat<BeginCreateCredentialResponse, CreateCredentialException> {
+                override fun onResult(result: BeginCreateCredentialResponse) {}
+
+                override fun onError(e: CreateCredentialException) {
+                    error = e
+                }
+            },
+        )
+
+        assertThat(error).isInstanceOf(CreateCredentialUnknownException::class.java)
     }
 
     // Dummy implementation of CredentialEventsProvider for testing

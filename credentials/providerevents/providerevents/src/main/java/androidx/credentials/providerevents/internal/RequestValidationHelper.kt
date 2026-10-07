@@ -37,5 +37,18 @@ internal class RequestValidationHelper {
                 false
             }
         }
+
+        /**
+         * Throws [IllegalArgumentException] if [packageNames] contains a package name more than
+         * once. Batch results are routed back to relying parties by package name.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
+        fun requireUniquePackageNames(packageNames: List<String>) {
+            val seen = HashSet<String>(packageNames.size)
+            for (packageName in packageNames) {
+                require(seen.add(packageName)) { "Duplicate package name in batch: $packageName" }
+            }
+        }
     }
 }
