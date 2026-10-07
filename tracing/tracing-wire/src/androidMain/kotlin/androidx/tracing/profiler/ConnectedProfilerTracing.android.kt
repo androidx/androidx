@@ -25,7 +25,8 @@ import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
 /** Manages enabling and disabling of in-process tracing for profiling and benchmarking tools. */
 internal object ConnectedProfilerTracing {
     /** This is the global flag that controls if in-process tracing is enabled. */
-    private var isTracingEnabled: Boolean = false
+    // We are updating isTracingEnabled from multiple threads. So this needs to be marked volatile.
+    @Volatile private var isTracingEnabled: Boolean = false
 
     internal fun initialize(context: Context) {
         isTracingEnabled = isReceiverEnabled(context)

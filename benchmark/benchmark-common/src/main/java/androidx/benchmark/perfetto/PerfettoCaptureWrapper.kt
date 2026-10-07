@@ -24,6 +24,7 @@ import androidx.benchmark.InProcessTracingMode
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
+import androidx.benchmark.Shell
 import androidx.benchmark.ShellFile
 import androidx.benchmark.UserFile
 import androidx.benchmark.UserInfo
@@ -144,8 +145,25 @@ public class PerfettoCaptureWrapper {
     /** Starts in-process tracing in the [TracingLibraryConfig.targetPackage] */
     public fun startInProcessTracing(config: TracingLibraryConfig): Response {
         return inMemoryTrace("start in-process tracing") {
+            val isAlive = Shell.isPackageAlive(packageName = config.targetPackage)
             val connectedProfiler = ConnectedProfilerTracing(targetPackage = config.targetPackage)
-            connectedProfiler.enable()
+            val result = connectedProfiler.enable()
+            // If the process was not already alive when we attempted to start in-process tracing
+            // Make sure we kill the target process to maintain the target process state.
+            if (!isAlive) {
+                // Flush the traces in the target package to make sure we don't end up with
+                // corrupt in-process traces. We also don't really need to check the result of
+                // the flush() operation here, given we end up validating the result of the
+                // call to enable().
+                connectedProfiler.flush()
+                Shell.killTerm(
+                    processes =
+                        Shell.getRunningPidsAndProcessesForPackage(
+                            packageName = config.targetPackage
+                        )
+                )
+            }
+            result
         }
     }
 

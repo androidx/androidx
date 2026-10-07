@@ -38,6 +38,7 @@ dependencies {
     implementation(project(":profileinstaller:profileinstaller"))
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation(project(":tracing:tracing-ktx"))
+    implementation(project(":tracing:tracing-wire"))
     implementation(project(":tracing:tracing-perfetto"))
     implementation(libs.material)
 

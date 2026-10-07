@@ -19,6 +19,7 @@ package androidx.benchmark.integration.macrobenchmark.target
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.tracing.Tracer
 
 class TrivialStartupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,5 +28,10 @@ class TrivialStartupActivity : AppCompatActivity() {
 
         val notice = findViewById<TextView>(R.id.txtNotice)
         notice.setText(R.string.app_notice)
+        // Emit an instant event.
+        Tracer.global.instant(
+            category = "androidx.benchmark",
+            name = "TrivialStartupActivity_onCreate()",
+        )
     }
 }
