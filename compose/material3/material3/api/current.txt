@@ -2941,7 +2941,7 @@ package androidx.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void RadioButton(boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>?, androidx.compose.ui.Modifier?, boolean, androidx.compose.material3.RadioButtonColors?, androidx.compose.foundation.interaction.MutableInteractionSource?, androidx.compose.runtime.Composer?, int, int);
   }
 
-  public final class RangeSliderState {
+  @androidx.compose.runtime.Stable public final class RangeSliderState {
     ctor @androidx.compose.runtime.annotation.RememberInComposition public RangeSliderState();
     ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public RangeSliderState(float, float, int, kotlin.ranges.ClosedFloatingPointRange!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @androidx.compose.runtime.annotation.RememberInComposition public RangeSliderState(optional float startValue, optional float endValue, optional @IntRange(from=0L) int steps, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> trackRange);
@@ -3700,7 +3700,7 @@ package androidx.compose.material3 {
     property @Deprecated public float[] tickFractions;
   }
 
-  public final class SliderState implements androidx.compose.foundation.gestures.DraggableState {
+  @androidx.compose.runtime.Stable public final class SliderState implements androidx.compose.foundation.gestures.DraggableState {
     ctor @androidx.compose.runtime.annotation.RememberInComposition public SliderState();
     ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public SliderState(float, int, kotlin.ranges.ClosedFloatingPointRange!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @androidx.compose.runtime.annotation.RememberInComposition public SliderState(optional float value, optional @IntRange(from=0L) int steps, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> trackRange);
