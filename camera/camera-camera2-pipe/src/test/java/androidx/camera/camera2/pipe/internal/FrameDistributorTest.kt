@@ -248,6 +248,7 @@ class FrameDistributorTest {
         val frame = frameCapture.getFrame()
         assertThat(frame).isNotNull()
         frame?.close()
+        frameCapture.close()
     }
 
     @Test
@@ -256,6 +257,7 @@ class FrameDistributorTest {
         frameDistributor.onAborted(fakeRequestMetadata.request)
         assertThat(frameCapture.status).isEqualTo(OutputStatus.ERROR_OUTPUT_ABORTED)
         assertThat(frameCapture.getFrame()).isNull()
+        frameCapture.close()
     }
 
     @Test
@@ -328,6 +330,9 @@ class FrameDistributorTest {
         assertThat(frame.isImageAvailable(stream4OutputIds[0])).isTrue()
         assertThat(frame.isImageAvailable(stream4OutputIds[1])).isFalse()
         assertThat(frame.isImageAvailable(stream4OutputIds[2])).isTrue()
+
+        frame.close()
+        frameCapture.close()
     }
 
     @Test
@@ -395,6 +400,9 @@ class FrameDistributorTest {
         assertThat(fakeImage3.isClosed).isTrue()
         assertThat(fakeImage4.isClosed).isTrue()
         assertThat(fakeImage5.isClosed).isTrue()
+
+        frame.close()
+        frameCapture.close()
     }
 
     @Test
@@ -496,6 +504,8 @@ class FrameDistributorTest {
         assertThat(frame.isImageAvailable(outputId)).isTrue()
 
         frame.close()
+        localFrameDistributor.close()
+        localImageSimulator.checkImagesClosed()
         localImageSimulator.close()
     }
 
@@ -540,6 +550,8 @@ class FrameDistributorTest {
         assertThat(frame.isImageAvailable(outputId)).isTrue()
 
         frame.close()
+        localFrameDistributor.close()
+        localImageSimulator.checkImagesClosed()
         localImageSimulator.close()
     }
 
@@ -1054,6 +1066,10 @@ class FrameDistributorTest {
 
     @After
     fun cleanup() {
+        fakeFrameBuffer.close()
+        frameDistributor.close()
+        frameCaptureQueue.close()
+        imageSimulator.checkImagesClosed()
         imageSimulator.close()
         if (::readoutFrameDistributor.isInitialized) {
             readoutFakeFrameBuffer.close()

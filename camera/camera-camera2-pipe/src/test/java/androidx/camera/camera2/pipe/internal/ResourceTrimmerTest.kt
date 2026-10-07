@@ -76,7 +76,10 @@ class ResourceTrimmerTest {
     @After
     fun teardown() {
         if (this::frameGraph.isInitialized) frameGraph.close()
-        if (this::simulator.isInitialized) simulator.close()
+        if (this::simulator.isInitialized) {
+            simulator.checkImagesClosed()
+            simulator.close()
+        }
     }
 
     @Test
@@ -104,6 +107,7 @@ class ResourceTrimmerTest {
         assertThat(frameBuffer.size.value).isEqualTo(2)
 
         capture.close()
+        frameBuffer.close()
     }
 
     @Test
@@ -135,6 +139,8 @@ class ResourceTrimmerTest {
         // Buffer stays at 2 (f2 and f3) because the oldest frame (f1) was evicted.
         assertThat(frameBuffer.size.value).isEqualTo(2)
         assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 2)
+
+        frameBuffer.close()
     }
 
     @Test
@@ -212,6 +218,7 @@ class ResourceTrimmerTest {
         acquiredFrame1?.close()
         acquiredFrame2?.close()
         capture.close()
+        frameBuffer.close()
     }
 
     @Test
@@ -499,6 +506,7 @@ class ResourceTrimmerTest {
         assertThat(frameBuffer.size.value).isEqualTo(2)
 
         capture.close()
+        frameBuffer.close()
     }
 
     @Test
@@ -534,6 +542,7 @@ class ResourceTrimmerTest {
         val frames = frameBuffer.removeAll()
         assertThat(frames.last().imageStatus(streamId)).isEqualTo(OutputStatus.ERROR_OUTPUT_DROPPED)
         frames.forEach { it.close() }
+        frameBuffer.close()
     }
 
     @Test
@@ -571,6 +580,7 @@ class ResourceTrimmerTest {
         // Clean up
         droppedFrame.close()
         acquiredFrames.forEach { it.close() }
+        frameBuffer.close()
     }
 
     @Test
@@ -711,6 +721,7 @@ class ResourceTrimmerTest {
 
         capture1.close()
         capture2.close()
+        frameBuffer.close()
     }
 
     @Test
@@ -783,7 +794,7 @@ class ResourceTrimmerTest {
     @Test
     fun streamCapacityTrimmingIsolatesIndependentStreams() = testScope.runTest {
         // Provide massive memory capacity so the global memory trimmer doesn't interfere.
-        setupSimulators(largeImageSize * 100)
+        estimator = MemoryEstimator.create(largeImageSize * 100)
 
         val streamConfigViewfinder =
             CameraStream.Config.create(
@@ -847,7 +858,7 @@ class ResourceTrimmerTest {
     @Test
     fun streamCapacityTrimmingWorksWhenMaxImagesIsOne() = testScope.runTest {
         // Provide massive memory capacity so the global memory trimmer doesn't interfere.
-        setupSimulators(largeImageSize * 100)
+        estimator = MemoryEstimator.create(largeImageSize * 100)
 
         // Set up a stream with the absolute minimum capacity
         val streamConfigTiny =
@@ -894,6 +905,7 @@ class ResourceTrimmerTest {
 
         capture.close()
         finalFrames.forEach { it.close() }
+        frameBuffer.close()
         fg.close()
     }
 
@@ -945,7 +957,9 @@ class ResourceTrimmerTest {
 
             val captured = capture.awaitFrame()
             assertThat(captured).isNotNull()
-            assertThat(captured!!.getImage(streamId)).isNotNull() // Successfully allocated!
+            val capturedImage = captured!!.getImage(streamId)
+            assertThat(capturedImage).isNotNull() // Successfully allocated!
+            capturedImage!!.close()
             burstFrames.add(captured)
         }
 
