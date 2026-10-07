@@ -25,6 +25,7 @@ import com.android.adblib.serialNumber
 import com.android.adblib.shellAsText
 import com.android.adblib.tools.createStandaloneSession
 import java.io.File
+import java.lang.reflect.Modifier
 import java.lang.reflect.Parameter
 import java.util.Properties
 import java.util.logging.Logger
@@ -113,6 +114,20 @@ internal constructor(
         parameterContext.parameter.declaringExecutable.parameters
             .take(parameterContext.index)
             .count { isController(it) }
+
+    /**
+     * Returns the [annotationClass] annotation of [testClass], or else of the innermost class that
+     * encloses it and has one. Only inner classes, such as `@Nested` test classes, take the
+     * annotations of the classes that enclose them.
+     */
+    internal fun <A : Annotation> findClassAnnotation(
+        testClass: Class<*>,
+        annotationClass: Class<A>,
+    ): A? =
+        generateSequence(testClass) { cls ->
+                cls.enclosingClass.takeIf { cls.isMemberClass && !Modifier.isStatic(cls.modifiers) }
+            }
+            .firstNotNullOfOrNull { it.getAnnotation(annotationClass) }
 
     override fun resolveParameter(
         parameterContext: ParameterContext?,
@@ -259,11 +274,10 @@ internal constructor(
         }
 
         // Run automatic pm clear before the test starts if policy is AUTOMATIC
-        val testMethod = extensionContext?.requiredTestMethod
-        val testClass = extensionContext?.requiredTestClass
+        val testMethod = extensionContext.requiredTestMethod
         val sandboxIsolation =
-            testMethod?.getAnnotation(Isolation::class.java)
-                ?: testClass?.getAnnotation(Isolation::class.java)
+            testMethod.getAnnotation(Isolation::class.java)
+                ?: findClassAnnotation(requiredClass, Isolation::class.java)
         val policy = sandboxIsolation?.value ?: IsolationPolicy.AUTOMATIC
 
         if (policy == IsolationPolicy.AUTOMATIC) {
@@ -337,7 +351,7 @@ internal constructor(
      * [suiteProperties] tests.
      */
     internal fun applicationIdFor(testClass: Class<*>, suiteProperties: Properties): String =
-        testClass.getAnnotation(BackupRestoreConfig::class.java)?.applicationId
+        findClassAnnotation(testClass, BackupRestoreConfig::class.java)?.applicationId
             ?: suiteProperty(suiteProperties, PROP_TESTED_APPLICATION_ID)
             ?: throw IllegalStateException(
                 "No application ID for ${testClass.name}: annotate it with @BackupRestoreConfig, " +

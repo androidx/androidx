@@ -26,6 +26,7 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
@@ -57,7 +58,16 @@ class BackupRestoreExtensionTest {
     @Suppress("UNUSED_PARAMETER")
     private fun deviceAfterDirMethod(dir: Path, device: BackupRestoreController) {}
 
-    @BackupRestoreConfig(applicationId = "com.example.outer") class ConfiguredTestClass
+    @BackupRestoreConfig(applicationId = "com.example.outer")
+    @Isolation(IsolationPolicy.MANUAL)
+    class ConfiguredTestClass {
+        inner class NestedTestClass
+
+        @BackupRestoreConfig(applicationId = "com.example.nested")
+        inner class ConfiguredNestedTestClass
+
+        class StaticNestedClass
+    }
 
     class UnconfiguredTestClass
 
@@ -129,6 +139,40 @@ class BackupRestoreExtensionTest {
     }
 
     @Test
+    fun aNestedTestClassTakesTheAnnotationsOfItsEnclosingClass() {
+        val extension = BackupRestoreExtension()
+        val nested = ConfiguredTestClass.NestedTestClass::class.java
+
+        assertEquals(
+            "com.example.outer",
+            extension.findClassAnnotation(nested, BackupRestoreConfig::class.java)?.applicationId,
+        )
+        assertEquals(
+            IsolationPolicy.MANUAL,
+            extension.findClassAnnotation(nested, Isolation::class.java)?.value,
+        )
+    }
+
+    @Test
+    fun aNestedTestClassCanDeclareItsOwnAnnotation() {
+        val nested = ConfiguredTestClass.ConfiguredNestedTestClass::class.java
+
+        assertEquals(
+            "com.example.nested",
+            BackupRestoreExtension()
+                .findClassAnnotation(nested, BackupRestoreConfig::class.java)
+                ?.applicationId,
+        )
+    }
+
+    @Test
+    fun aStaticNestedClassDoesNotTakeTheAnnotationsOfItsEnclosingClass() {
+        val nested = ConfiguredTestClass.StaticNestedClass::class.java
+
+        assertNull(BackupRestoreExtension().findClassAnnotation(nested, Isolation::class.java))
+    }
+
+    @Test
     fun aTestClassWithoutConfigurationTargetsTheTestedApp() {
         val extension = BackupRestoreExtension()
         val suiteFile = suitePropertiesFile(TESTED_APPLICATION_ID to "com.example.tested")
@@ -151,6 +195,13 @@ class BackupRestoreExtensionTest {
         assertEquals(
             "com.example.outer",
             extension.applicationIdFor(ConfiguredTestClass::class.java, suiteProperties),
+        )
+        assertEquals(
+            "com.example.outer",
+            extension.applicationIdFor(
+                ConfiguredTestClass.NestedTestClass::class.java,
+                suiteProperties,
+            ),
         )
     }
 
