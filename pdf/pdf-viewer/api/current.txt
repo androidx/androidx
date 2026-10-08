@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.pdf.annotation {
 
   @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class AnnotationsView extends android.view.ViewGroup {

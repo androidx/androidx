@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=restricted-non-atomic-group
 package androidx.compose.material3.adaptive.navigationsuite {
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3-adaptive-navigation-suite API is experimental and is likely tochange or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveNavigationSuiteApi {

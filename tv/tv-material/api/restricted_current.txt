@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=restricted-atomic-group
 package androidx.tv.material3 {
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class AssistChipDefaults {

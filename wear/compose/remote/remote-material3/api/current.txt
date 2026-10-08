@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.wear.compose.remote.material3 {
 
   public final class DefaultRemotePageIndicatorState implements androidx.wear.compose.remote.material3.RemotePageIndicatorState {

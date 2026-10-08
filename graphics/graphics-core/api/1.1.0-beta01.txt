@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.graphics {
 
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class CanvasBufferedRenderer implements java.lang.AutoCloseable {

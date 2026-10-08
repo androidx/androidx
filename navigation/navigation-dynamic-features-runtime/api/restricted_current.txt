@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=restricted-non-atomic-group
 package androidx.navigation.dynamicfeatures {
 
   @androidx.navigation.Navigator.Name("activity") public final class DynamicActivityNavigator extends androidx.navigation.ActivityNavigator {

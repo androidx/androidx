@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=restricted-non-atomic-group
 package androidx.appfunctions.testing {
 
   @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public final class AppFunctionTestRule implements org.junit.rules.TestRule {
