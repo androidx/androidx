@@ -24,6 +24,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.internal.GenericDocumentUtils.fromPlatformToJetpackGenericDocument
 import androidx.appfunctions.internal.GenericDocumentUtils.safeCastToDocumentClass
@@ -130,7 +131,7 @@ constructor(
 
             parseAppFunctionAppMetadata(xmlParser, targetAppResources)
         } catch (ex: Exception) {
-            if (Log.isLoggable(APP_FUNCTIONS_TAG, Log.DEBUG)) {
+            if (isLoggingEnabled && Log.isLoggable(APP_FUNCTIONS_TAG, Log.DEBUG)) {
                 Log.d(
                     APP_FUNCTIONS_TAG,
                     "Encountered an error while resolving app metadata for package: $packageName.",

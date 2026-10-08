@@ -20,6 +20,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 
 /**
@@ -67,7 +68,9 @@ internal fun <T : Any> getClass(qualifiedName: String): Class<T> {
         @Suppress("UNCHECKED_CAST")
         Class.forName(qualifiedName) as Class<T>
     } catch (e: Exception) {
-        Log.d(APP_FUNCTIONS_TAG, "Unable to find class $qualifiedName", e)
+        if (isLoggingEnabled) {
+            Log.d(APP_FUNCTIONS_TAG, "Unable to find class $qualifiedName", e)
+        }
         throw IllegalArgumentException("Unable to find class $qualifiedName")
     }
 }

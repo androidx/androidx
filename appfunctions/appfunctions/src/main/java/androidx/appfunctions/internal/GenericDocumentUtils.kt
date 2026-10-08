@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appsearch.app.GenericDocument
 
@@ -73,10 +74,12 @@ public object GenericDocumentUtils {
                             }
                         jetpackBuilder.setPropertyDocument(propertyName, *jetpackSubDocuments)
                     } else {
-                        Log.w(
-                            APP_FUNCTIONS_TAG,
-                            "Property \"$propertyName\" has unsupported array element type ${property.javaClass.name}",
-                        )
+                        if (isLoggingEnabled) {
+                            Log.w(
+                                APP_FUNCTIONS_TAG,
+                                "Property \"$propertyName\" has unsupported array element type ${property.javaClass.name}",
+                            )
+                        }
                     }
                 }
 
@@ -97,10 +100,12 @@ public object GenericDocumentUtils {
                 }
 
                 else -> {
-                    Log.w(
-                        APP_FUNCTIONS_TAG,
-                        "Property \"$propertyName\" has unsupported value type ${property?.javaClass?.name}",
-                    )
+                    if (isLoggingEnabled) {
+                        Log.w(
+                            APP_FUNCTIONS_TAG,
+                            "Property \"$propertyName\" has unsupported value type ${property?.javaClass?.name}",
+                        )
+                    }
                 }
             }
         }
@@ -121,12 +126,14 @@ public object GenericDocumentUtils {
         try {
             genericDocument.toDocumentClass(T::class.java)
         } catch (ex: Exception) {
-            Log.w(
-                APP_FUNCTIONS_TAG,
-                "Failed to convert search result ${genericDocument.id} " +
-                    "to ${T::class.simpleName}",
-                ex,
-            )
+            if (isLoggingEnabled) {
+                Log.w(
+                    APP_FUNCTIONS_TAG,
+                    "Failed to convert search result ${genericDocument.id} " +
+                        "to ${T::class.simpleName}",
+                    ex,
+                )
+            }
             null
         }
 }

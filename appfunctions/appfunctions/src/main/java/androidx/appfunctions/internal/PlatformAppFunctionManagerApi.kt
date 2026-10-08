@@ -38,6 +38,7 @@ import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.RegisterAppFunctionRequest
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.AppFunctionManagerApi.Companion.applyMissingRuntimeMetadataExceptionFix
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.metadata.AppFunctionMetadata
@@ -169,21 +170,25 @@ internal class PlatformAppFunctionManagerApi(
                         metadata == null ||
                             CallerAccessVerifier.canCallerDiscoverFunction(context, metadata)
                     if (!isVisible) {
-                        Log.d(
-                            APP_FUNCTIONS_TAG,
-                            "Filtered out $functionName from activity state " +
-                                "${activityState.activityId}: caller cannot discover function " +
-                                "with accessLevel=${metadata?.accessLevel}",
-                        )
+                        if (isLoggingEnabled) {
+                            Log.d(
+                                APP_FUNCTIONS_TAG,
+                                "Filtered out $functionName from activity state " +
+                                    "${activityState.activityId}: caller cannot discover function " +
+                                    "with accessLevel=${metadata?.accessLevel}",
+                            )
+                        }
                     }
                     isVisible
                 }
             if (visibleFunctions.isEmpty()) {
-                Log.d(
-                    APP_FUNCTIONS_TAG,
-                    "Dropped activity state ${activityState.activityId}: no functions visible " +
-                        "to caller",
-                )
+                if (isLoggingEnabled) {
+                    Log.d(
+                        APP_FUNCTIONS_TAG,
+                        "Dropped activity state ${activityState.activityId}: no functions visible " +
+                            "to caller",
+                    )
+                }
                 null
             } else {
                 AppFunctionActivityState(activityState.activityId, ArraySet(visibleFunctions))

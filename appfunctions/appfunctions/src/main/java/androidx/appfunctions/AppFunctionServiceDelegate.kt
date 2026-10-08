@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.internal.AggregatedAppFunctionInvoker
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.internal.unsafeBuildReturnValue
 import androidx.appfunctions.internal.unsafeGetParameterValue
@@ -53,25 +54,31 @@ public class AppFunctionServiceDelegate(
                 parameters,
             )
         } catch (e: CancellationException) {
-            Log.d(
-                APP_FUNCTIONS_TAG,
-                "Invocation of ${executeAppFunctionRequest.functionIdentifier} was cancelled",
-                e,
-            )
+            if (isLoggingEnabled) {
+                Log.d(
+                    APP_FUNCTIONS_TAG,
+                    "Invocation of ${executeAppFunctionRequest.functionIdentifier} was cancelled",
+                    e,
+                )
+            }
             throw AppFunctionCancelledException(e.message)
         } catch (e: AppFunctionException) {
-            Log.d(
-                APP_FUNCTIONS_TAG,
-                "Failed to invoke ${executeAppFunctionRequest.functionIdentifier}",
-                e,
-            )
+            if (isLoggingEnabled) {
+                Log.d(
+                    APP_FUNCTIONS_TAG,
+                    "Failed to invoke ${executeAppFunctionRequest.functionIdentifier}",
+                    e,
+                )
+            }
             throw e
         } catch (e: Exception) {
-            Log.d(
-                APP_FUNCTIONS_TAG,
-                "Failed to invoke ${executeAppFunctionRequest.functionIdentifier}",
-                e,
-            )
+            if (isLoggingEnabled) {
+                Log.d(
+                    APP_FUNCTIONS_TAG,
+                    "Failed to invoke ${executeAppFunctionRequest.functionIdentifier}",
+                    e,
+                )
+            }
             throw AppFunctionAppUnknownException(e.message)
         }
 
