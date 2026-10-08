@@ -22,6 +22,10 @@ open annotation class androidx.compose.ui.node/InternalCoreApi : kotlin/Annotati
     constructor <init>() // androidx.compose.ui.node/InternalCoreApi.<init>|<init>(){}[0]
 }
 
+open annotation class androidx.compose.ui.platform/ExperimentalComposeUiHostApi : kotlin/Annotation { // androidx.compose.ui.platform/ExperimentalComposeUiHostApi|null[0]
+    constructor <init>() // androidx.compose.ui.platform/ExperimentalComposeUiHostApi.<init>|<init>(){}[0]
+}
+
 open annotation class androidx.compose.ui/UiComposable : kotlin/Annotation { // androidx.compose.ui/UiComposable|null[0]
     constructor <init>() // androidx.compose.ui/UiComposable.<init>|<init>(){}[0]
 }
@@ -891,6 +895,11 @@ abstract interface androidx.compose.ui.node/LayoutModifierNode : androidx.compos
 
 abstract interface androidx.compose.ui.node/MeasuredSizeAwareModifierNode : androidx.compose.ui.node/DelegatableNode { // androidx.compose.ui.node/MeasuredSizeAwareModifierNode|null[0]
     abstract fun onRemeasured(androidx.compose.ui.unit/IntSize) // androidx.compose.ui.node/MeasuredSizeAwareModifierNode.onRemeasured|onRemeasured(androidx.compose.ui.unit.IntSize){}[0]
+}
+
+abstract interface androidx.compose.ui.node/ObservationTarget { // androidx.compose.ui.node/ObservationTarget|null[0]
+    abstract val isObservationValid // androidx.compose.ui.node/ObservationTarget.isObservationValid|{}isObservationValid[0]
+        abstract fun <get-isObservationValid>(): kotlin/Boolean // androidx.compose.ui.node/ObservationTarget.isObservationValid.<get-isObservationValid>|<get-isObservationValid>(){}[0]
 }
 
 abstract interface androidx.compose.ui.node/ObserverModifierNode : androidx.compose.ui.node/DelegatableNode { // androidx.compose.ui.node/ObserverModifierNode|null[0]
