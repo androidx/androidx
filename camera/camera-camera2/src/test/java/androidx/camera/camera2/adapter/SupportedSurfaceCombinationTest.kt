@@ -2194,6 +2194,7 @@ class SupportedSurfaceCombinationTest {
                 useCaseExpectedSizeMap,
                 cameraMode = CameraMode.CONCURRENT_CAMERA,
                 dynamicRangeProfiles = HLG10_CONSTRAINED,
+                capabilities = intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT),
             )
         }
     }
@@ -2215,6 +2216,7 @@ class SupportedSurfaceCombinationTest {
                 useCaseExpectedSizeMap,
                 cameraMode = ULTRA_HIGH_RESOLUTION_CAMERA,
                 dynamicRangeProfiles = HLG10_CONSTRAINED,
+                capabilities = intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT),
             )
         }
     }
@@ -2252,6 +2254,43 @@ class SupportedSurfaceCombinationTest {
         )
     }
 
+    // b/570642640: Profiles and the recommended 10-bit profile are listed without the
+    // DYNAMIC_RANGE_TEN_BIT capability, so no 10-bit dynamic range can be resolved.
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun getSupportedStreamSpecThrows_whenHdrProfilesListedWithoutTenBitCapability() {
+        val useCase =
+            createUseCase(CaptureType.PREVIEW, dynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT)
+        val useCaseExpectedSizeMap =
+            mapOf(
+                useCase to Size(0, 0) // Should throw before verifying size
+            )
+
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            getSuggestedSpecsAndVerify(
+                useCaseExpectedSizeMap,
+                dynamicRangeProfiles = HDR10_UNCONSTRAINED,
+                default10BitProfile = DynamicRangeProfiles.HDR10,
+            )
+        }
+    }
+
+    // b/570642640
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun dynamicRangeResolver_resolvesUnspecifiedToSdr_whenTenBitCapabilityAbsent() {
+        val useCase = createUseCase(CaptureType.PREVIEW, dynamicRange = DynamicRange.UNSPECIFIED)
+        val useCaseExpectedSizeMap = mapOf(useCase to maximumSize)
+        val useCaseExpectedDynamicRangeMap = mapOf(useCase to SDR)
+
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedSizeMap,
+            dynamicRangeProfiles = HLG10_UNCONSTRAINED,
+            default10BitProfile = DynamicRangeProfiles.HLG10,
+            useCasesExpectedDynamicRangeMap = useCaseExpectedDynamicRangeMap,
+        )
+    }
+
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun dynamicRangeResolver_returnsDolbyVision8_dueToSupportedDynamicRanges() {
@@ -2270,6 +2309,7 @@ class SupportedSurfaceCombinationTest {
         getSuggestedSpecsAndVerify(
             useCaseExpectedSizeMap,
             dynamicRangeProfiles = DOLBY_VISION_8B_UNCONSTRAINED,
+            capabilities = intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT),
             useCasesExpectedDynamicRangeMap = useCaseExpectedDynamicRangeMap,
         )
     }
@@ -2292,6 +2332,7 @@ class SupportedSurfaceCombinationTest {
         getSuggestedSpecsAndVerify(
             useCaseExpectedSizeMap,
             dynamicRangeProfiles = DOLBY_VISION_8B_UNCONSTRAINED,
+            capabilities = intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT),
             useCasesExpectedDynamicRangeMap = useCaseExpectedDynamicRangeMap,
         )
     }
@@ -2337,6 +2378,7 @@ class SupportedSurfaceCombinationTest {
         getSuggestedSpecsAndVerify(
             useCaseExpectedSizeMap,
             dynamicRangeProfiles = DOLBY_VISION_8B_UNCONSTRAINED,
+            capabilities = intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT),
             useCasesExpectedDynamicRangeMap = useCaseExpectedDynamicRangeMap,
         )
     }
@@ -2546,6 +2588,7 @@ class SupportedSurfaceCombinationTest {
             useCaseExpectedSizeMap,
             useCasesExpectedDynamicRangeMap = useCaseExpectedDynamicRangeMap,
             dynamicRangeProfiles = DOLBY_VISION_8B_SDR_UNCONSTRAINED,
+            capabilities = intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT),
         )
     }
 
@@ -2575,6 +2618,7 @@ class SupportedSurfaceCombinationTest {
             useCaseExpectedSizeMap,
             useCasesExpectedDynamicRangeMap = useCaseExpectedDynamicRangeMap,
             dynamicRangeProfiles = DOLBY_VISION_8B_SDR_UNCONSTRAINED,
+            capabilities = intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT),
         )
     }
 
