@@ -23,6 +23,7 @@ import androidx.compose.ui.autofill.FillableData
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
@@ -516,12 +517,15 @@ public class SemanticsPropertyKey<T>(
      * If this value is non-null, this semantics property will be exposed as an accessibility extra
      * via AccessibilityNodeInfo.getExtras with this value used as the key for the extra.
      */
-    internal var accessibilityExtraKey: String? = null
+    @ExperimentalComposeUiHostApi
+    public var accessibilityExtraKey: String? = null
+        internal set
 
     internal constructor(name: String, isImportantForAccessibility: Boolean) : this(name) {
         this.isImportantForAccessibility = isImportantForAccessibility
     }
 
+    @OptIn(ExperimentalComposeUiHostApi::class)
     internal constructor(
         name: String,
         isImportantForAccessibility: Boolean,
