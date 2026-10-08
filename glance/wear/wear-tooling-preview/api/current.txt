@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.glance.wear.tooling.preview {
 
   public abstract class BaseWidgetPreviewParams implements androidx.compose.ui.tooling.preview.PreviewParameterProvider<androidx.glance.wear.core.WearWidgetParams> {

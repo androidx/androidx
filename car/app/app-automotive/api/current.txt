@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.car.app.activity {
 
   public abstract class BaseCarAppActivity extends androidx.fragment.app.FragmentActivity implements androidx.lifecycle.LifecycleOwner {

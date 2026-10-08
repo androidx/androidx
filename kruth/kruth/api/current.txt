@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.kruth {
 
   public final class BigDecimalSubject extends androidx.kruth.ComparableSubject<java.math.BigDecimal> {

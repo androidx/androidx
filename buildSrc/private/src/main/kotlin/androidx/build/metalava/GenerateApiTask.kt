@@ -126,8 +126,12 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
         // invoking metalava. This rule doesn't apply for KMP projects with no jvm/android target
         // because the source paths only include sources for the jvm/android compilation.
         if (filteredSourcePaths.isEmpty() && hasJvmOrAndroidTarget.get()) {
-            writeEmptySignatureFile(apiLocation.get().publicApiFile)
-            writeEmptySignatureFile(apiLocation.get().restrictedApiFile)
+            writeEmptySignatureFile(apiLocation.get().publicApiFile, PUBLIC_SURFACE_NAME)
+            writeEmptySignatureFile(
+                apiLocation.get().restrictedApiFile,
+                if (generateRestrictToLibraryGroupAPIs.get()) RESTRICTED_ATOMIC_SURFACE_NAME
+                else RESTRICTED_NON_ATOMIC_SURFACE_NAME,
+            )
             // If a API version history file was requested, write an empty one.
             if (apiLevelsArgs.isNotEmpty()) {
                 apiLocation.get().apiLevelsFile.writeText("[]")
@@ -183,7 +187,7 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
     }
 
     /** Writes the text of a signature file with no APIs. */
-    private fun writeEmptySignatureFile(file: File) {
-        file.writeText("// Signature format: 4.0\n")
+    private fun writeEmptySignatureFile(file: File, surface: String) {
+        file.writeText("// Signature format: 5.0\n// - surface=$surface\n")
     }
 }

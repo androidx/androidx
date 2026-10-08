@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.wear.compose.ui.tooling.preview {
 
   @androidx.compose.ui.tooling.preview.Preview(device=androidx.wear.tooling.preview.devices.WearDevices.LARGE_ROUND, backgroundColor=4278190080L, showBackground=true, group="Devices - Large Round", showSystemUi=true) @androidx.compose.ui.tooling.preview.Preview(device=androidx.wear.tooling.preview.devices.WearDevices.SMALL_ROUND, backgroundColor=4278190080L, showBackground=true, group="Devices - Small Round", showSystemUi=true) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) public @interface WearPreviewDevices {

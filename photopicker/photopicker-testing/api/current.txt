@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.photopicker.testing {
 
   @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) public final class TestEmbeddedPhotoPickerProvider implements android.widget.photopicker.EmbeddedPhotoPickerProvider {

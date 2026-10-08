@@ -239,7 +239,21 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
         apiLevelsArgs: List<String>,
         multiplatform: Boolean,
     ): List<String> {
-        val args = mutableListOf("single-surface", "--format=4.0", "--warnings-as-errors")
+        val apiSurfaceName =
+            when (generateApiMode) {
+                is GenerateApiMode.PublicApi -> PUBLIC_SURFACE_NAME
+                is GenerateApiMode.RestrictToLibraryGroupPrefixApis ->
+                    RESTRICTED_NON_ATOMIC_SURFACE_NAME
+                is GenerateApiMode.AllRestrictedApis -> RESTRICTED_ATOMIC_SURFACE_NAME
+            }
+        val args =
+            mutableListOf(
+                "single-surface",
+                "--api-surface",
+                apiSurfaceName,
+                "--format=5.0:surface=$apiSurfaceName",
+                "--warnings-as-errors",
+            )
 
         // Generate public API txt if there is a jvm/android target. If there isn't, the
         // `generateApi`
@@ -271,14 +285,6 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
                     )
             }
         }
-
-        val apiSurfaceName =
-            when (generateApiMode) {
-                is GenerateApiMode.PublicApi -> "public"
-                is GenerateApiMode.RestrictToLibraryGroupPrefixApis -> "restricted-non-atomic-group"
-                is GenerateApiMode.AllRestrictedApis -> "restricted-atomic-group"
-            }
-        args += listOf("--api-surface", apiSurfaceName)
 
         if (generateApiMode is GenerateApiMode.PublicApi && multiplatform) {
             args += "--multiplatform-enabled"
@@ -414,5 +420,9 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
                 "--exclude-annotation",
                 "androidx.compose.runtime.internal.FunctionKeyMeta",
             )
+
+        const val PUBLIC_SURFACE_NAME = "public"
+        const val RESTRICTED_NON_ATOMIC_SURFACE_NAME = "restricted-non-atomic-group"
+        const val RESTRICTED_ATOMIC_SURFACE_NAME = "restricted-atomic-group"
     }
 }

@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=restricted-non-atomic-group
 package @SuppressCompatibility androidx.compose.material3.adaptive.navigation {
 
   @SuppressCompatibility public final class AndroidThreePaneScaffold_androidKt {

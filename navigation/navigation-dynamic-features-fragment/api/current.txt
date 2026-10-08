@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.navigation.dynamicfeatures.fragment {
 
   @androidx.navigation.Navigator.Name("fragment") public final class DynamicFragmentNavigator extends androidx.navigation.fragment.FragmentNavigator {

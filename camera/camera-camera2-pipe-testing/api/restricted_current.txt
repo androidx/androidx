@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=restricted-atomic-group
 package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) androidx.camera.camera2.pipe.testing {
 
   public final class CameraControllerSimulator implements androidx.camera.camera2.pipe.CameraController {

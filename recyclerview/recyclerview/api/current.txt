@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.recyclerview.widget {
 
   public final class AdapterListUpdateCallback implements androidx.recyclerview.widget.ListUpdateCallback {

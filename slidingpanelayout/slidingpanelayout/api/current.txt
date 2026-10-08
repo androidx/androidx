@@ -1,4 +1,5 @@
-// Signature format: 4.0
+// Signature format: 5.0
+// - surface=public
 package androidx.slidingpanelayout.widget {
 
   public class SlidingPaneLayout extends android.view.ViewGroup implements androidx.customview.widget.Openable {
