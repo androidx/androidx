@@ -26,6 +26,8 @@ import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.RetainedEffect
+import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -54,6 +56,37 @@ import androidx.web.WebContent
 import androidx.web.WebContentView
 import androidx.web.WebFeature
 import androidx.web.WebSurfaceChromium
+
+/**
+ * Creates and retains a [WebContent] instance across configuration changes and transient
+ * compositions, automatically [closing][WebContent.close] it when retired.
+ *
+ * Before calling this composable, verify that [WebFeature.isFeatureSupported] returns `true` for
+ * [WebFeature.WEB_CONTENT].
+ *
+ * @param block configuration block applied to [WebContent.Builder] when creating the [WebContent]
+ * @return a retained [WebContent] instance
+ * @see WebContent
+ * @see WebSurface
+ * @see WebFeature.WEB_CONTENT
+ */
+@Suppress("MissingJvmstatic")
+@Composable
+@RequiresFeature(
+    name = WebFeature.WEB_CONTENT,
+    enforcement = "androidx.web.WebFeature#isFeatureSupported",
+)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@NonNull
+public fun retainWebContent(@NonNull block: WebContent.Builder.() -> Unit = {}): WebContent {
+    val webContent = retain { WebContent(block) }
+    RetainedEffect(webContent) {
+        onRetire {
+            webContent.close()
+        }
+    }
+    return webContent
+}
 
 /**
  * Presents the web page hosted by [WebContent].
