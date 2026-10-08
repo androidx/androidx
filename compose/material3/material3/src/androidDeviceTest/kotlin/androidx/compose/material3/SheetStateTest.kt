@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -59,6 +61,8 @@ import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Rule
@@ -638,6 +642,57 @@ class SheetStateTest {
         rule.waitForIdle()
         assertThat(scrollState.value).isEqualTo(0)
         assertThat(state.currentValue).isEqualTo(SheetValue.Hidden)
+    }
+
+    @Test
+    fun state_animateTo_targetRemovedDuringAnimation_settlesAtNewTarget() = runTest {
+        val state =
+            createSheetState(
+                skipPartiallyExpanded = false,
+                skipHiddenState = false,
+                initialValue = SheetValue.Hidden,
+            )
+        state.showMotionSpec = tween(300)
+        state.anchoredDraggableState.updateAnchors(
+            DraggableAnchors {
+                SheetValue.Hidden at 1000f
+                SheetValue.PartiallyExpanded at 500f
+                SheetValue.Expanded at 0f
+            },
+            SheetValue.Hidden,
+        )
+
+        var currentTimeNanos = 0L
+        val clock =
+            object : MonotonicFrameClock {
+                var frameCount = 0
+
+                override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R {
+                    frameCount++
+                    currentTimeNanos += 16_000_000L
+                    if (frameCount == 3) {
+                        val newAnchors = DraggableAnchors {
+                            SheetValue.Hidden at 1000f
+                            SheetValue.Expanded at 0f
+                        }
+                        Snapshot.withMutableSnapshot {
+                            state.anchoredDraggableState.updateAnchors(
+                                newAnchors,
+                                SheetValue.Expanded,
+                            )
+                        }
+                        yield()
+                    }
+                    return onFrame(currentTimeNanos)
+                }
+            }
+
+        withContext(clock) { state.show() }
+
+        assertThat(state.offset.isNaN()).isFalse()
+        assertThat(state.requireOffset()).isEqualTo(0f)
+        assertThat(state.currentValue).isEqualTo(SheetValue.Expanded)
+        assertThat(state.targetValue).isEqualTo(SheetValue.Expanded)
     }
 
     private fun ComposeTestRule.rootHeightPx(): Float {

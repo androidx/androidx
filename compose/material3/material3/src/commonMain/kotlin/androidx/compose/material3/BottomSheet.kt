@@ -312,7 +312,6 @@ internal fun BottomSheetImpl(
                             Hidden -> Hidden
                             PartiallyExpanded -> {
                                 when {
-                                    shouldPromoteToExpanded(state, newAnchors) -> Expanded
                                     newAnchors.hasPositionFor(PartiallyExpanded) ->
                                         PartiallyExpanded
                                     newAnchors.hasPositionFor(Expanded) -> Expanded
@@ -409,7 +408,7 @@ internal fun BottomSheetImpl(
  * Determine if PartiallyExpanded should be an available anchor.
  *
  * When true (default), BottomSheet will always include [SheetValue.PartiallyExpanded] if provided
- * in [SheetState.enabledValues], converging it with [SheetValue.Expanded] for small sheets.
+ * in [SheetState.enabledValues] and the sheet has non-zero height.
  *
  * When false, the legacy auto-exclusion logic is enabled.
  */
@@ -420,6 +419,7 @@ internal fun isPartiallyExpandedAnchorAvailable(
     sheetHeight: Float,
 ): Boolean =
     !state.skipPartiallyExpanded &&
+        sheetHeight != 0f &&
         (state.isBottomSheetPartiallyExpandedDeterministicEnabled || sheetHeight > fullHeight / 2f)
 
 /** Calculate the offset of the sheet in the PartiallyExpanded state. */
@@ -431,32 +431,13 @@ internal fun calculatePartiallyExpandedOffset(
 ): Float {
     val visibleHeight =
         if (state.isBottomSheetPartiallyExpandedDeterministicEnabled) {
-            // New default: If the sheet is smaller than half the screen, we cap the
-            // partial anchor at the sheet's own height. This prevents the sheet
-            // from "lifting" off the bottom.
-            min(fullHeight / 2f, sheetHeight)
+            // New default: Half the content size, at most half the screen size.
+            min(fullHeight / 2f, sheetHeight / 2f)
         } else {
             // Legacy behavior: PartiallyExpanded is always at 50% screen.
             fullHeight / 2f
         }
     return fullHeight - visibleHeight
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-internal fun shouldPromoteToExpanded(
-    state: SheetState,
-    newAnchors: DraggableAnchors<SheetValue>,
-): Boolean {
-    // Promotion logic is only relevant when deterministic behavior is enabled.
-    if (!state.isBottomSheetPartiallyExpandedDeterministicEnabled) return false
-
-    val wasConverged =
-        state.anchoredDraggableState.anchors.let {
-            it.hasPositionFor(PartiallyExpanded) &&
-                it.hasPositionFor(Expanded) &&
-                it.positionOf(PartiallyExpanded) == it.positionOf(Expanded)
-        }
-    return wasConverged && newAnchors.hasPositionFor(Expanded)
 }
 
 internal fun GraphicsLayerScope.calculateSheetPredictiveBackScaleX(progress: Float): Float {
