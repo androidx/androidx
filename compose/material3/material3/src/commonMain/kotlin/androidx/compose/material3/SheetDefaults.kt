@@ -19,13 +19,13 @@ package androidx.compose.material3
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
-import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -316,7 +316,27 @@ internal constructor(
     internal suspend fun animateTo(
         targetValue: SheetValue,
         animationSpec: FiniteAnimationSpec<Float>,
-    ) = anchoredDraggableState.animateTo(targetValue, animationSpec)
+    ) {
+        var resolvedTarget = targetValue
+        anchoredDraggableState.anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
+            resolvedTarget = latestTarget
+            val targetOffset = anchors.positionOf(latestTarget)
+            val prev = if (offset.isNaN()) 0f else offset
+            if (!targetOffset.isNaN() && prev != targetOffset) {
+                animate(prev, targetOffset, anchoredDraggableState.lastVelocity, animationSpec) {
+                    value,
+                    velocity ->
+                    dragTo(value, velocity)
+                }
+            }
+        }
+        if (
+            resolvedTarget != targetValue &&
+                anchoredDraggableState.anchors.hasPositionFor(resolvedTarget)
+        ) {
+            anchoredDraggableState.snapTo(resolvedTarget)
+        }
+    }
 
     /**
      * Snap to a [targetValue] without any animation.

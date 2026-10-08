@@ -146,6 +146,48 @@ class DraggableAnchorsModifierTest {
         assertThat(state.offset).isEqualTo(200f)
     }
 
+    @Test
+    fun draggableAnchors_lookaheadScope_subsequentMeasureRemovesTarget_reconcilesWithoutCrash() {
+        val state = AnchoredDraggableState(initialValue = TestValue.C)
+        var supportsStateC by mutableStateOf(true)
+
+        rule.setContent {
+            androidx.compose.ui.layout.LookaheadScope {
+                Box(Modifier.fillMaxSize()) {
+                    Box(
+                        Modifier.size(if (supportsStateC) 200.dp else 100.dp).draggableAnchors(
+                            state,
+                            Orientation.Vertical,
+                        ) { _, _ ->
+                            val newAnchors = DraggableAnchors {
+                                TestValue.A at 0f
+                                TestValue.B at 100f
+                                if (supportsStateC) TestValue.C at 200f
+                            }
+                            val newTarget =
+                                when (state.targetValue) {
+                                    TestValue.C -> if (supportsStateC) TestValue.C else TestValue.B
+                                    else -> state.targetValue
+                                }
+                            newAnchors to newTarget
+                        }
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(state.currentValue).isEqualTo(TestValue.C)
+        assertThat(state.offset).isEqualTo(200f)
+
+        // Subsequent lookahead measure pass removes TestValue.C
+        supportsStateC = false
+        rule.waitForIdle()
+        assertThat(state.currentValue).isEqualTo(TestValue.B)
+        assertThat(state.targetValue).isEqualTo(TestValue.B)
+        assertThat(state.offset).isEqualTo(100f)
+    }
+
     enum class TestValue {
         A,
         B,
