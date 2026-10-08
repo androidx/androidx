@@ -21,6 +21,7 @@ import android.hardware.camera2.params.DynamicRangeProfiles
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsDynamicRangeTenBit
 import androidx.camera.camera2.pipe.core.checkApi
 import androidx.camera.core.DynamicRange
 
@@ -106,12 +107,18 @@ internal constructor(private val impl: DynamicRangeProfilesCompatImpl) {
          * Returns a [DynamicRangeProfilesCompat] using the capabilities derived from the provided
          * characteristics.
          *
+         * [CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES] is only used when the
+         * camera device advertises
+         * [CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT]. Some
+         * devices populate the profiles without the capability, in which case 10-bit outputs can't
+         * be configured, so only SDR is reported (b/570642640).
+         *
          * @param cameraMetadata the metaData used to derive dynamic range information.
          * @return a [DynamicRangeProfilesCompat] object.
          */
         public fun fromCameraMetaData(cameraMetadata: CameraMetadata): DynamicRangeProfilesCompat {
             var rangesCompat: DynamicRangeProfilesCompat? = null
-            if (Build.VERSION.SDK_INT >= 33) {
+            if (Build.VERSION.SDK_INT >= 33 && cameraMetadata.supportsDynamicRangeTenBit) {
                 rangesCompat =
                     toDynamicRangesCompat(
                         cameraMetadata[
