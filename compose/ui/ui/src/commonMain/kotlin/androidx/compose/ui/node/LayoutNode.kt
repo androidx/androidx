@@ -851,12 +851,6 @@ internal class LayoutNode(
     /** Remembers how the node was measured using intrinsics by an ancestor. */
     internal var intrinsicsUsageByParent: UsageByParent = UsageByParent.NotUsed
 
-    /**
-     * We must cache a previous value of [intrinsicsUsageByParent] because measurement is sometimes
-     * skipped. When it is skipped, the subtree must be restored to this value.
-     */
-    private var previousIntrinsicsUsageByParent: UsageByParent = UsageByParent.NotUsed
-
     @Deprecated("Temporary API to support ConstraintLayout prototyping.")
     internal var canMultiMeasure: Boolean = false
 
@@ -1279,11 +1273,6 @@ internal class LayoutNode(
     /** Return true if the measured size has been changed */
     internal fun remeasure(constraints: Constraints? = layoutDelegate.lastConstraints): Boolean {
         return if (constraints != null) {
-            if (intrinsicsUsageByParent == UsageByParent.NotUsed) {
-                // This LayoutNode may have asked children for intrinsics. If so, we should
-                // clear the intrinsics usage for everything that was requested previously.
-                clearSubtreeIntrinsicsUsage()
-            }
             measurePassDelegate.remeasure(constraints)
         } else {
             false
@@ -1398,10 +1387,11 @@ internal class LayoutNode(
      *
      * We can't do clearing as part of measure() because the child's measure() call is normally done
      * after the intrinsics is requested and we don't want to clear the usage at that point.
+     *
+     * This is only called when the node is actually remeasured. When measurement is skipped, the
+     * existing usage is still valid and must be left untouched.
      */
     internal fun clearSubtreeIntrinsicsUsage() {
-        // save the usage in case we short-circuit the measure call
-        previousIntrinsicsUsageByParent = intrinsicsUsageByParent
         intrinsicsUsageByParent = UsageByParent.NotUsed
         forEachChild {
             if (it.intrinsicsUsageByParent != UsageByParent.NotUsed) {
@@ -1421,25 +1411,10 @@ internal class LayoutNode(
      * after the intrinsics is requested and we don't want to clear the usage at that point.
      */
     private fun clearSubtreePlacementIntrinsicsUsage() {
-        // save the usage in case we short-circuit the measure call
-        previousIntrinsicsUsageByParent = intrinsicsUsageByParent
         intrinsicsUsageByParent = UsageByParent.NotUsed
         forEachChild {
             if (it.intrinsicsUsageByParent == UsageByParent.InLayoutBlock) {
                 it.clearSubtreePlacementIntrinsicsUsage()
-            }
-        }
-    }
-
-    /**
-     * For a subtree that skips measurement, this resets the [intrinsicsUsageByParent] to what it
-     * was prior to [clearSubtreeIntrinsicsUsage].
-     */
-    internal fun resetSubtreeIntrinsicsUsage() {
-        forEachChild {
-            it.intrinsicsUsageByParent = it.previousIntrinsicsUsageByParent
-            if (it.intrinsicsUsageByParent != UsageByParent.NotUsed) {
-                it.resetSubtreeIntrinsicsUsage()
             }
         }
     }
