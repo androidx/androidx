@@ -39,7 +39,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
@@ -832,7 +831,6 @@ internal abstract class DragGestureNode(
         }
     }
 
-    @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
     private fun processInitialDownState(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
@@ -840,19 +838,14 @@ internal abstract class DragGestureNode(
     ) {
         /** Wait for a down event in any pass. */
         if (pointerEvent.changes.isEmpty()) return
+        // We use isAnyChangedToDown instead of isChangedToDown to handle cases where a
+        // persistent pointer (like a trackpad hover pointer) co-exists with a new touch
+        // pointer in the same event. If we used isChangedToDown (which requires all
+        // pointers to change to down), the touch gesture would be ignored because the
+        // hover pointer didn't change to down.
+        if (!pointerEvent.isAnyChangedToDown(requireUnconsumed = false)) return
         val firstDown =
-            if (ComposeUiFlags.isTrackpadPanHoverFixEnabled) {
-                // We use isAnyChangedToDown instead of isChangedToDown to handle cases where a
-                // persistent pointer (like a trackpad hover pointer) co-exists with a new touch
-                // pointer in the same event. If we used isChangedToDown (which requires all
-                // pointers to change to down), the touch gesture would be ignored because the
-                // hover pointer didn't change to down.
-                if (!pointerEvent.isAnyChangedToDown(requireUnconsumed = false)) return
-                pointerEvent.changes.fastFirstOrNull { it.changedToDownIgnoreConsumed() } ?: return
-            } else {
-                if (!pointerEvent.isChangedToDown(requireUnconsumed = false)) return
-                pointerEvent.changes.first()
-            }
+            pointerEvent.changes.fastFirstOrNull { it.changedToDownIgnoreConsumed() } ?: return
         val awaitTouchSlop =
             when (state.awaitTouchSlop) {
                 DragDetectionState.AwaitDown.AwaitTouchSlop.NotInitialized -> {

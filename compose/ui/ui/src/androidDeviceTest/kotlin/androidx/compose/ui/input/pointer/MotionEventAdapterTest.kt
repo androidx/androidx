@@ -35,14 +35,11 @@ import android.view.MotionEvent.AXIS_VSCROLL
 import android.view.MotionEvent.TOOL_TYPE_FINGER
 import android.view.MotionEvent.TOOL_TYPE_MOUSE
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1418,9 +1415,7 @@ class MotionEventAdapterTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPanOngoing_resetOnHoverExit() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
         // Start with normal hover
         val hoverEnter =
             MotionEvent(
@@ -1499,9 +1494,7 @@ class MotionEventAdapterTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPan_coordinatesStationaryAtSwipeStart() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
         // 1. Hover move to (50f, 60f)
         val hoverMove =
             MotionEvent(
@@ -1621,9 +1614,7 @@ class MotionEventAdapterTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPanOngoing_resetOnHoverEnter() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
         // Start with normal hover
         val hoverEnter =
             MotionEvent(
@@ -1701,9 +1692,7 @@ class MotionEventAdapterTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPanOngoing_noResetOnHoverMoveDuringSwipe() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
         // Start with normal hover
         val hoverEnter =
             MotionEvent(
@@ -1749,9 +1738,7 @@ class MotionEventAdapterTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPanOngoing_resetOnPostGestureHoverMoveWithNoFingerDown() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
         // Start mid-gesture with ACTION_MOVE (swipe)
         val moveSwipe =
             MotionEvent(
@@ -1784,9 +1771,7 @@ class MotionEventAdapterTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPanOngoing_resetOnPinch() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
         val moveSwipe =
             MotionEvent(
                 eventTime = 1,
