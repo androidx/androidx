@@ -18,20 +18,35 @@ package androidx.xr.scenecore.openxr
 
 import android.app.Activity
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.scenecore.openxr.testing.FakeSceneCoreOpenXrNative
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpatialCapabilities
 import androidx.xr.scenecore.runtime.SpatialVisibility
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
+import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -44,6 +59,10 @@ class OpenXrSceneRuntimeTest {
     private lateinit var nodeRegistry: OpenXrSceneNodeRegistry
     private lateinit var executor: ScheduledExecutorService
     private lateinit var runtime: OpenXrSceneRuntime
+
+    private val directExecutor = Executor { it.run() }
+    private val mockExecutor: ScheduledExecutorService = mock()
+    private val mockSamplerFuture: ScheduledFuture<*> = mock()
 
     @Before
     fun setUp() {
@@ -60,6 +79,11 @@ class OpenXrSceneRuntimeTest {
                 sceneNodeRegistry = nodeRegistry,
                 scheduledExecutorService = executor,
             )
+    }
+
+    @After
+    fun tearDown() {
+        executor.shutdownNow()
     }
 
     @Test
@@ -231,11 +255,219 @@ class OpenXrSceneRuntimeTest {
     }
 
     @Test
-    fun getScenePoseFromPerceptionPose_returnsPlatformReferenceScenePose() {
-        val testPose = Pose(Vector3(1f, 2f, 3f))
-        val scenePose = runtime.getScenePoseFromPerceptionPose(testPose)
+    fun getScenePoseFromPerceptionPose_transformsPoseIntoActivitySpace() {
+        runtime.initialize()
+        val rootPose = Pose(Vector3(1f, 2f, 3f), Quaternion.fromEulerAngles(Vector3(10f, 20f, 30f)))
+        fakeNative.fakeRootSpacePoseInPlatformReferenceSpace = rootPose
+        runtime.sampleRootSpacePose()
+        val perceptionPose =
+            Pose(Vector3(4f, 5f, 6f), Quaternion.fromEulerAngles(Vector3(0f, 90f, 0f)))
 
-        assertThat(scenePose.activitySpacePose).isNotNull()
+        val scenePose = runtime.getScenePoseFromPerceptionPose(perceptionPose)
+
+        assertPose(scenePose.activitySpacePose, rootPose.inverse.compose(perceptionPose))
+    }
+
+    @Test
+    fun getScenePoseFromPerceptionPose_whenRootSpacePoseUnavailable_returnsPerceptionPose() {
+        runtime.initialize()
+        val perceptionPose = Pose(Vector3(4f, 5f, 6f))
+
+        val scenePose = runtime.getScenePoseFromPerceptionPose(perceptionPose)
+
+        assertPose(scenePose.activitySpacePose, perceptionPose)
+    }
+
+    @Test
+    fun initialize_withoutResume_doesNotScheduleSampling() {
+        val runtime = createRuntimeWithMockExecutor()
+
+        runtime.initialize()
+
+        verify(mockExecutor, never()).scheduleWithFixedDelay(any(), any(), any(), any())
+    }
+
+    @Test
+    fun resume_afterInitialize_schedulesSampling() {
+        val runtime = createRuntimeWithMockExecutor()
+        runtime.initialize()
+
+        runtime.resume()
+
+        verify(mockExecutor)
+            .scheduleWithFixedDelay(
+                any(),
+                eq(0L),
+                eq(ROOT_SPACE_POSE_SAMPLE_PERIOD_NANOS),
+                eq(TimeUnit.NANOSECONDS),
+            )
+    }
+
+    @Test
+    fun resume_beforeInitialize_schedulesWhenRootSpaceIsBound() {
+        val runtime = createRuntimeWithMockExecutor()
+
+        runtime.resume()
+        verify(mockExecutor, never()).scheduleWithFixedDelay(any(), any(), any(), any())
+
+        runtime.initialize()
+        verify(mockExecutor).scheduleWithFixedDelay(any(), any(), any(), any())
+    }
+
+    @Test
+    fun resume_twice_schedulesOnce() {
+        val runtime = createRuntimeWithMockExecutor()
+        runtime.initialize()
+
+        runtime.resume()
+        runtime.resume()
+
+        verify(mockExecutor).scheduleWithFixedDelay(any(), any(), any(), any())
+    }
+
+    @Test
+    fun pause_cancelsSampling() {
+        val runtime = createRuntimeWithMockExecutor()
+        runtime.initialize()
+        runtime.resume()
+
+        runtime.pause()
+
+        verify(mockSamplerFuture).cancel(false)
+    }
+
+    @Test
+    fun resume_afterPause_reschedules() {
+        val runtime = createRuntimeWithMockExecutor()
+        runtime.initialize()
+        runtime.resume()
+        runtime.pause()
+
+        runtime.resume()
+
+        verify(mockExecutor, times(2)).scheduleWithFixedDelay(any(), any(), any(), any())
+    }
+
+    @Test
+    fun resume_afterDestroy_doesNotSchedule() {
+        val runtime = createRuntimeWithMockExecutor()
+        runtime.initialize()
+        runtime.destroy()
+
+        runtime.resume()
+
+        verify(mockExecutor, never()).scheduleWithFixedDelay(any(), any(), any(), any())
+    }
+
+    @Test
+    fun rootSpacePoseSampling_notifiesOriginListenerWithoutAnyReads() {
+        val runtime = createRuntimeWithMockExecutor()
+        runtime.initialize()
+        runtime.resume()
+        val sampler = captureRootSpacePoseSampler()
+        var originChangeCount = 0
+        runtime.activitySpace.setOnOriginChangedListener({ originChangeCount++ }, directExecutor)
+        val poseA = Pose(Vector3(1f, 2f, 3f))
+        val poseB = Pose(Vector3(4f, 5f, 6f), Quaternion.fromEulerAngles(Vector3(0f, 90f, 0f)))
+
+        fakeNative.fakeRootSpacePoseInPlatformReferenceSpace = poseA
+        sampler.run()
+        assertThat(originChangeCount).isEqualTo(1)
+
+        sampler.run()
+        assertThat(originChangeCount).isEqualTo(1)
+
+        fakeNative.fakeRootSpacePoseInPlatformReferenceSpace = poseB
+        sampler.run()
+        assertThat(originChangeCount).isEqualTo(2)
+        assertThat(runtime.activitySpace.poseInPlatformReferenceSpace).isEqualTo(poseB)
+    }
+
+    @Test
+    fun scheduledSample_whenSampleThrows_reportsUncaughtExceptionAndRethrows() {
+        val runtime = createRuntimeWithMockExecutor()
+        runtime.initialize()
+        runtime.resume()
+        val sampler = captureRootSpacePoseSampler()
+        val error = UnsatisfiedLinkError("test")
+        fakeNative.rootSpacePoseQueryError = error
+
+        val reported = recordUncaughtExceptions {
+            assertThrows(UnsatisfiedLinkError::class.java) { sampler.run() }
+        }
+
+        assertThat(reported).hasSize(1)
+        assertThat(reported[0]).isInstanceOf(IllegalStateException::class.java)
+        assertThat(reported[0]).hasCauseThat().isSameInstanceAs(error)
+    }
+
+    @Test
+    fun scheduledSample_whenRejectedDuringTeardown_rethrowsWithoutReporting() {
+        val runtime = createRuntimeWithMockExecutor()
+        runtime.initialize()
+        runtime.resume()
+        val sampler = captureRootSpacePoseSampler()
+        fakeNative.rootSpacePoseQueryError = RejectedExecutionException()
+
+        val reported = recordUncaughtExceptions {
+            assertThrows(RejectedExecutionException::class.java) { sampler.run() }
+        }
+
+        assertThat(reported).isEmpty()
+    }
+
+    @Test
+    fun sampleRootSpacePose_whenNativePoseUnavailable_keepsLastPoseAndDoesNotNotify() {
+        val runtime = createRuntimeWithMockExecutor()
+        runtime.initialize()
+        val lastPose = Pose(Vector3(1f, 2f, 3f))
+        fakeNative.fakeRootSpacePoseInPlatformReferenceSpace = lastPose
+        runtime.sampleRootSpacePose()
+        var originChangeCount = 0
+        runtime.activitySpace.setOnOriginChangedListener({ originChangeCount++ }, directExecutor)
+        fakeNative.fakeRootSpacePoseInPlatformReferenceSpace = null
+
+        runtime.sampleRootSpacePose()
+
+        assertThat(runtime.activitySpace.poseInPlatformReferenceSpace).isEqualTo(lastPose)
+        assertThat(originChangeCount).isEqualTo(0)
+    }
+
+    @Test
+    fun sampleRootSpacePose_afterDestroy_doesNotThrowOrNotify() {
+        val runtime = createRuntimeWithMockExecutor()
+        runtime.initialize()
+        var originChangeCount = 0
+        runtime.activitySpace.setOnOriginChangedListener({ originChangeCount++ }, directExecutor)
+        fakeNative.fakeRootSpacePoseInPlatformReferenceSpace = Pose(Vector3(1f, 2f, 3f))
+        runtime.destroy()
+
+        runtime.sampleRootSpacePose()
+
+        assertThat(originChangeCount).isEqualTo(0)
+        assertThat(runtime.activitySpace.poseInPlatformReferenceSpace).isEqualTo(Pose.Identity)
+    }
+
+    @Test
+    fun destroy_cancelsRootSpacePoseSampling() {
+        val runtime = createRuntimeWithMockExecutor()
+        runtime.initialize()
+        runtime.resume()
+
+        runtime.destroy()
+
+        verify(mockSamplerFuture).cancel(false)
+    }
+
+    @Test
+    fun initialize_withoutRootEntity_doesNotScheduleSampling() {
+        fakeNative.fakeRootEntityHandle = INVALID_HANDLE
+        val runtime = createRuntimeWithMockExecutor()
+
+        runtime.initialize()
+        runtime.resume()
+
+        verify(mockExecutor, never()).scheduleWithFixedDelay(any(), any(), any(), any())
     }
 
     @Test
@@ -250,5 +482,43 @@ class OpenXrSceneRuntimeTest {
         val listener = Consumer<SpatialVisibility> {}
         runtime.setSpatialVisibilityChangedListener(executor, listener)
         runtime.clearSpatialVisibilityChangedListener()
+    }
+
+    /** Creates a runtime whose executor never runs tasks, so tests drive sampling directly. */
+    private fun createRuntimeWithMockExecutor(): OpenXrSceneRuntime {
+        doReturn(mockSamplerFuture)
+            .whenever(mockExecutor)
+            .scheduleWithFixedDelay(any(), any(), any(), any())
+        return OpenXrSceneRuntime(
+            activity = activity,
+            unscaledGravityAlignedActivitySpace = true,
+            nativeWrapper = fakeNative,
+            sceneNodeRegistry = OpenXrSceneNodeRegistry(),
+            scheduledExecutorService = mockExecutor,
+        )
+    }
+
+    /** Returns the root space pose sampling task. Verifies that exactly one was scheduled. */
+    private fun captureRootSpacePoseSampler(): Runnable {
+        val sampler = argumentCaptor<Runnable>()
+        verify(mockExecutor).scheduleWithFixedDelay(sampler.capture(), any(), any(), any())
+        return sampler.firstValue
+    }
+
+    /**
+     * Runs [block] with a handler on this thread that records uncaught exception reports instead of
+     * passing them on, and returns the recorded exceptions.
+     */
+    private fun recordUncaughtExceptions(block: () -> Unit): List<Throwable> {
+        val reported = mutableListOf<Throwable>()
+        val thread = Thread.currentThread()
+        val originalHandler = thread.uncaughtExceptionHandler
+        thread.uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { _, e -> reported += e }
+        try {
+            block()
+        } finally {
+            thread.uncaughtExceptionHandler = originalHandler
+        }
+        return reported
     }
 }

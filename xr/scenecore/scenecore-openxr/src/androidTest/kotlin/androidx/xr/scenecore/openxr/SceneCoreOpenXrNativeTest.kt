@@ -123,6 +123,14 @@ class SceneCoreOpenXrNativeTest {
     }
 
     @Test
+    fun getRootSpacePoseInPlatformReferenceSpace_afterDestroy_returnsNull() {
+        val nativeWrapper = SceneCoreOpenXrNative()
+        nativeWrapper.destroy()
+
+        assertThat(nativeWrapper.getRootSpacePoseInPlatformReferenceSpace()).isNull()
+    }
+
+    @Test
     fun openTransaction_createsTransaction() {
         val nativeWrapper = SceneCoreOpenXrNative()
         val tx = nativeWrapper.openTransaction()
@@ -137,6 +145,7 @@ class SceneCoreOpenXrNativeTest {
         assertThat(nativeWrapper.createSceneEntity()).isEqualTo(INVALID_HANDLE)
         assertThat(nativeWrapper.destroySceneEntity(1L)).isFalse()
         assertThat(nativeWrapper.getRootEntityHandle()).isEqualTo(INVALID_HANDLE)
+        assertThat(nativeWrapper.getRootSpacePoseInPlatformReferenceSpace()).isNull()
         assertThat(nativeWrapper.createSceneTransaction()).isEqualTo(INVALID_HANDLE)
         assertThat(nativeWrapper.setTransactionTransform(1L, 2L, Pose(), Vector3(1f, 1f, 1f)))
             .isFalse()

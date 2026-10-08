@@ -52,6 +52,7 @@ dependencies {
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
+    testImplementation(project(":xr:runtime:runtime-testing"))
     testImplementation(project(":xr:scenecore:scenecore-testing"))
 
     androidTestImplementation(libs.kotlinCoroutinesTest)

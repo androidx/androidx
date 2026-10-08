@@ -19,12 +19,38 @@ package androidx.xr.scenecore.openxr
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.internal.LibraryNotLinkedException
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 internal const val INVALID_HANDLE: Long = 0L
 
 private const val LIBRARY_NAME = "androidx.xr.scenecore.openxr"
+
+// Contract for nativeGetRootSpacePoseInPlatformReferenceSpace. These MUST match
+// kRootSpacePoseFloatCount and kRootSpacePoseOk in the JXR natives source.
+// The other result codes (kRootSpacePoseError = 1,
+// kRootSpacePoseNotYetTracked = 2) leave outPose untouched, and
+// getRootSpacePoseInPlatformReferenceSpace() deliberately maps them all to null.
+private const val NATIVE_POSE_FLOAT_COUNT = 7
+private const val ROOT_SPACE_POSE_OK = 0
+
+/**
+ * Decodes a native pose array laid out as `[x, y, z, qx, qy, qz, qw]` (position first, unlike
+ * `XrPosef`).
+ */
+internal fun poseFromNativeFloats(values: FloatArray): Pose {
+    require(values.size >= NATIVE_POSE_FLOAT_COUNT) {
+        "Expected at least $NATIVE_POSE_FLOAT_COUNT floats, got ${values.size}."
+    }
+    return Pose(
+        Vector3(values[0], values[1], values[2]),
+        Quaternion(values[3], values[4], values[5], values[6]),
+    )
+}
 
 /** Kotlin wrapper class for the OpenXR SceneCore native lifecycle entry points. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -35,6 +61,10 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
 
     private val isLibraryLoaded = AtomicBoolean(false)
     private val isDestroyed = AtomicBoolean(false)
+
+    // Lets destroy() wait for an in-flight getRootSpacePoseInPlatformReferenceSpace() call, which
+    // runs on a background sampler thread, before the native instance is freed.
+    private val nativeLifecycleLock = ReentrantReadWriteLock()
 
     init {
         if (loadLibrary) {
@@ -66,6 +96,11 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
     private external fun nativeGetSpatialContainerHandle(handle: Long): Long
 
     private external fun nativeGetRootSpaceHandle(handle: Long): Long
+
+    private external fun nativeGetRootSpacePoseInPlatformReferenceSpace(
+        handle: Long,
+        outPose: FloatArray,
+    ): Int
 
     private external fun nativeGetRootEntityHandle(handle: Long): Long
 
@@ -142,6 +177,28 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
             "SceneCoreOpenXrNative has been destroyed."
         }
         return nativeGetRootSpaceHandle(nativeScenecore)
+    }
+
+    /**
+     * Returns the root space ([OpenXrActivitySpace] origin) pose in the platform reference space.
+     *
+     * Returns null before [createSpatialContainer], before the root space is first located, after
+     * [shutdown] or [destroy], and on a native error. If the latest locate isn't valid, returns the
+     * last valid pose.
+     */
+    open fun getRootSpacePoseInPlatformReferenceSpace(): Pose? {
+        return nativeLifecycleLock.read {
+            val handle = nativeScenecore
+            if (handle == INVALID_HANDLE || isDestroyed.get()) return null
+            val outPose = FloatArray(NATIVE_POSE_FLOAT_COUNT)
+            if (
+                nativeGetRootSpacePoseInPlatformReferenceSpace(handle, outPose) !=
+                    ROOT_SPACE_POSE_OK
+            ) {
+                return null
+            }
+            poseFromNativeFloats(outPose)
+        }
     }
 
     /** Returns the native root XrSceneEntityKHRX1 handle. */
@@ -258,10 +315,12 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
 
     /** Destroys the internal native runtime handle and sets it to INVALID_HANDLE. */
     open fun destroy() {
-        if (!isDestroyed.getAndSet(true) && nativeScenecore != INVALID_HANDLE) {
-            nativeShutdown(nativeScenecore)
-            nativeDestroy(nativeScenecore)
-            nativeScenecore = INVALID_HANDLE
+        nativeLifecycleLock.write {
+            if (!isDestroyed.getAndSet(true) && nativeScenecore != INVALID_HANDLE) {
+                nativeShutdown(nativeScenecore)
+                nativeDestroy(nativeScenecore)
+                nativeScenecore = INVALID_HANDLE
+            }
         }
     }
 
