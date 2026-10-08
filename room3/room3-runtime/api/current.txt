@@ -75,6 +75,7 @@ package androidx.room3 {
     method public androidx.room3.RoomDatabase.Builder<T> setJournalMode(androidx.room3.RoomDatabase.JournalMode journalMode);
     method @SuppressCompatibility @androidx.room3.ExperimentalRoomApi public androidx.room3.RoomDatabase.Builder<T> setMultiInstanceInvalidationServiceIntent(android.content.Intent invalidationServiceIntent);
     method public androidx.room3.RoomDatabase.Builder<T> setMultipleConnectionPool(@IntRange(from=1L) int maxNumOfReaders, @IntRange(from=1L) int maxNumOfWriters);
+    method @SuppressCompatibility @androidx.room3.ExperimentalRoomApi public androidx.room3.RoomDatabase.Builder<T> setPreparedStatementCacheSize(@IntRange(from=0L) int maxCacheSize);
     method public androidx.room3.RoomDatabase.Builder<T> setQueryCoroutineContext(kotlin.coroutines.CoroutineContext context);
     method public androidx.room3.RoomDatabase.Builder<T> setSingleConnectionPool();
   }
