@@ -120,6 +120,9 @@ class SceneCoreOpenXrNativeTest {
         assertThrows(IllegalStateException::class.java) { nativeWrapper.submitSceneTransaction(1L) }
         assertThrows(IllegalStateException::class.java) { nativeWrapper.cancelSceneTransaction(1L) }
         assertThrows(IllegalStateException::class.java) { nativeWrapper.openTransaction() }
+        assertThrows(IllegalStateException::class.java) {
+            nativeWrapper.requestSpatialContainerVisible(true)
+        }
     }
 
     @Test
@@ -152,6 +155,7 @@ class SceneCoreOpenXrNativeTest {
         assertThat(nativeWrapper.setTransactionParent(1L, 2L, 3L)).isFalse()
         assertThat(nativeWrapper.submitSceneTransaction(1L)).isFalse()
         assertThat(nativeWrapper.cancelSceneTransaction(1L)).isFalse()
+        assertThat(nativeWrapper.requestSpatialContainerVisible(true)).isFalse()
         nativeWrapper.destroy()
     }
 }

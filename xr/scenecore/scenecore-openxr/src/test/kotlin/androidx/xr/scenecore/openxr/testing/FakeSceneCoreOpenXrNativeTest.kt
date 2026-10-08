@@ -86,6 +86,25 @@ class FakeSceneCoreOpenXrNativeTest {
     }
 
     @Test
+    fun requestSpatialContainerVisible_recordsRequest() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        fake.createSpatialContainer()
+
+        assertThat(fake.requestSpatialContainerVisible(true)).isTrue()
+        assertThat(fake.requestedSpatialContainerVisible).isTrue()
+    }
+
+    @Test
+    fun requestSpatialContainerVisible_beforeCreateSpatialContainer_returnsFalse() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+
+        assertThat(fake.requestSpatialContainerVisible(true)).isFalse()
+        assertThat(fake.requestedSpatialContainerVisible).isNull()
+    }
+
+    @Test
     fun createSpatialContainer_withSimulateCreateSpatialContainerFailure_returnsFalse() {
         val fake = FakeSceneCoreOpenXrNative()
         fake.init(100L, 200L, 300L)
