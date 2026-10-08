@@ -34,7 +34,6 @@ fun Project.configureASWBTask(task: ManagedIdeTask) {
 
     val aswbVersion = getVersionByName("aswbBuildId")
 
-    //    task.gcsProject.convention("androidx-ge")
     val gcsSubDir = if (task.osName == "linux") "glinux" else "mac"
     val packageExtension = if (task.osName == "linux") "deb" else "burrito"
     task.archiveUrl.convention(
@@ -46,7 +45,8 @@ fun Project.configureASWBTask(task: ManagedIdeTask) {
     )
 
     task.ideBinaryRelativePath.convention(
-        if (task.osName == "linux") "bin/studio" else "Contents/MacOS/studio"
+        if (task.osName == "linux") "android-studio-with-blaze/ide-update/bin/studio"
+        else "Contents/MacOS/studio"
     )
 
     task.ideArchiveName.convention(
