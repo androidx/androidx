@@ -225,6 +225,7 @@ interface PdfDocumentRemote {
     * @param operations The list of [DraftEditOperation] objects to apply.
     * @return A [DraftEditResult] indicating the outcome of the batch operation.
     */
+    @JavaPassthrough(annotation="@androidx.annotation.NonNull")
     DraftEditResult applyDraftEdits(in List<DraftEditOperation> operations);
 
     /**
