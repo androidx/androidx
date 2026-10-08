@@ -54,16 +54,51 @@ import org.mockito.Mockito.`when`
  */
 internal const val FAKE_SERIAL = "fake-serial"
 
+/** Name of the device's local backup transport, as `bmgr list transports` prints it. */
+internal const val LOCAL_TRANSPORT = "com.android.localtransport/.LocalTransport"
+
 /** Returns a [ShellCommandOutput] for a stubbed shell command. */
 internal fun shellOutput(stdout: String = "", stderr: String = "", exitCode: Int = 0) =
     ShellCommandOutput(stdout, stderr, exitCode)
 
 /**
+ * Returns what `bmgr` prints when [command] succeeds, as captured on an API 34 device, or null if
+ * [command] is not a `bmgr` command whose output is checked.
+ *
+ * Throws an [AssertionError] if [command] lacks an argument that its output names, so that code
+ * under test that handles exceptions cannot swallow it.
+ */
+internal fun bmgrSuccessOutput(command: String): ShellCommandOutput? {
+    if (!command.startsWith("bmgr ")) return null
+    val args = command.removePrefix("bmgr ").split(' ').map { it.removeSurrounding("'") }
+    fun arg(index: Int) =
+        args.getOrNull(index) ?: throw AssertionError("Malformed bmgr command: $command")
+    val stdout =
+        when (args[0]) {
+            "enable" -> "Backup Manager now enabled\n"
+            "transport" -> "Selected transport ${arg(1)} (formerly ${arg(1)})\n"
+            "backupnow" ->
+                "Running incremental backup for 1 requested packages.\n" +
+                    "Package ${arg(1)} with result: Success\n" +
+                    "Backup finished with result: Success\n"
+            "restore" ->
+                "Scheduling restore: Local disk image\n" +
+                    "restoreStarting: 1 packages\n" +
+                    "onUpdate: 0 = ${arg(2)}\n" +
+                    "restoreFinished: 0\n" +
+                    "done\n"
+            else -> return null
+        }
+    return shellOutput(stdout)
+}
+
+/**
  * A mocked [AdbSession] connected to one device, which records the shell commands and file
  * transfers issued through it.
  *
- * Every shell command succeeds with empty output unless [onShell] says otherwise. Pulled files
- * receive the content returned by [onPull].
+ * Every shell command succeeds unless [onShell] says otherwise: `bmgr` prints what it prints on
+ * success, see [bmgrSuccessOutput], and other commands print nothing. Pulled files receive the
+ * content returned by [onPull].
  */
 internal class FakeAdbDevice {
 
@@ -85,13 +120,16 @@ internal class FakeAdbDevice {
     private val _pulledPaths = mutableListOf<String>()
     private val _pushedPaths = mutableListOf<String>()
 
-    private var shellHandler: (String) -> ShellCommandOutput = { shellOutput() }
+    private var shellHandler: (String) -> ShellCommandOutput? = { null }
     private var pullHandler: (String) -> String = { "" }
     private var hangPredicate: (String) -> Boolean = { false }
     private var lastCreatedHostFile: Path? = null
 
-    /** Answers every later shell command with [handler]; an exception it throws is propagated. */
-    fun onShell(handler: (command: String) -> ShellCommandOutput) {
+    /**
+     * Answers every later shell command with [handler]; an exception it throws is propagated. A
+     * command for which it returns null succeeds as described in [FakeAdbDevice].
+     */
+    fun onShell(handler: (command: String) -> ShellCommandOutput?) {
         shellHandler = handler
     }
 
@@ -215,7 +253,7 @@ internal class FakeAdbDevice {
                     if (hangPredicate(command)) {
                         flow<ShellCommandOutput> { awaitCancellation() }
                     } else {
-                        flowOf(shellHandler(command))
+                        flowOf(shellHandler(command) ?: bmgrSuccessOutput(command) ?: shellOutput())
                     }
                 }
             }
