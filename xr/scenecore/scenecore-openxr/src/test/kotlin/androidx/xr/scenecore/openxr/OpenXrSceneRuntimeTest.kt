@@ -17,11 +17,15 @@
 package androidx.xr.scenecore.openxr
 
 import android.app.Activity
+import android.content.Context
+import android.view.View
+import androidx.test.core.app.ApplicationProvider
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.scenecore.openxr.testing.FakeSceneCoreOpenXrNative
+import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpatialCapabilities
 import androidx.xr.scenecore.runtime.SpatialVisibility
@@ -188,6 +192,7 @@ class OpenXrSceneRuntimeTest {
         assertThat((runtime.mainPanelEntity as? OpenXrEntity)?.entityHandle)
             .isNotEqualTo(INVALID_HANDLE)
         assertThat(runtime.mainPanelEntity.parent).isEqualTo(runtime.activitySpace)
+        assertThat(fakeNative.requestedSpatialContainerVisible).isTrue()
     }
 
     @Test
@@ -482,6 +487,28 @@ class OpenXrSceneRuntimeTest {
         val listener = Consumer<SpatialVisibility> {}
         runtime.setSpatialVisibilityChangedListener(executor, listener)
         runtime.clearSpatialVisibilityChangedListener()
+    }
+
+    @Test
+    fun createPanelEntity_createsPanelEntityWithParentAndSize() {
+        fakeNative.init(100L, 200L, 300L)
+        fakeNative.createSpatialContainer()
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = View(context)
+        val panel =
+            runtime.createPanelEntity(
+                context,
+                Pose(Vector3(0f, 0f, -1f)),
+                view,
+                PixelDimensions(640, 480),
+                "test-panel",
+                runtime.activitySpace,
+            )
+
+        assertThat(panel.parent).isEqualTo(runtime.activitySpace)
+        assertThat(panel.sizeInPixels.width).isEqualTo(640)
+        assertThat(panel.sizeInPixels.height).isEqualTo(480)
+        assertThat(fakeNative.createdEntities).contains((panel as OpenXrEntity).entityHandle)
     }
 
     /** Creates a runtime whose executor never runs tasks, so tests drive sampling directly. */
