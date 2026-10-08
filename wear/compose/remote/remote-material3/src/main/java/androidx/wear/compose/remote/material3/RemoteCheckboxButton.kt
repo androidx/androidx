@@ -79,7 +79,7 @@ public fun RemoteCheckboxButton(
     val progress =
         animateRemoteFloatAsState(
             targetValue = checked.select(1f.rf, 0f.rf),
-            animationSpec = SelectionAnimationSpec,
+            animationSpec = RemoteMotionTokens.fastEffectsSpec(),
         )
 
     RemoteSelectionButtonImpl(

@@ -45,7 +45,6 @@ import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
-import androidx.compose.remote.creation.compose.state.RemoteEasing
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
@@ -557,7 +556,10 @@ public class RemoteSliderColors(
  * `tween(MotionTokens.DurationShort3, easing = MotionTokens.EasingStandardDecelerate)`.
  */
 private val ProgressBarAnimationSpec: RemoteAnimationSpec =
-    remoteTween(durationMillis = 150, easing = RemoteEasing.Cubic(0f, 0f, 0f, 1f))
+    remoteTween(
+        durationMillis = RemoteMotionTokens.DurationShort3,
+        easing = RemoteMotionTokens.EasingStandardDecelerate,
+    )
 
 private fun RemoteDrawScope.drawProgressBar(
     selectedBarColor: RemoteColor,

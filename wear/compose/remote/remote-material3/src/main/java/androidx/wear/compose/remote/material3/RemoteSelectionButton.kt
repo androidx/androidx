@@ -40,7 +40,6 @@ import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.wrapContentSize
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
-import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
@@ -51,7 +50,6 @@ import androidx.compose.remote.creation.compose.state.cos
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.remoteSpring
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.sin
 import androidx.compose.remote.creation.compose.state.toRad
@@ -66,28 +64,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.material3.TextConfiguration
-
-/**
- * The spring stiffness of selection control animations. Matches Wear Material 3 MotionScheme
- * fastEffectsSpec (EffectsFastStiffness = 1400f).
- */
-internal const val SELECTION_ANIMATION_STIFFNESS: Float = 1400f
-
-/**
- * The damping ratio of selection control animations. Matches Wear Material 3 MotionScheme
- * fastEffectsSpec (EffectsDampingRatio = Spring.DampingRatioNoBouncy = 1.0f).
- */
-internal const val SELECTION_ANIMATION_DAMPING_RATIO: Float = 1.0f
-
-/**
- * The default [RemoteAnimationSpec] used for selection controls in Wear Remote Material 3. Matches
- * Wear Material 3 fastEffectsSpec (EffectsFastStiffness = 1400f, DampingRatioNoBouncy = 1.0f).
- */
-internal val SelectionAnimationSpec: RemoteAnimationSpec =
-    remoteSpring(
-        stiffness = SELECTION_ANIMATION_STIFFNESS,
-        dampingRatio = SELECTION_ANIMATION_DAMPING_RATIO,
-    )
 
 @Composable
 @RemoteComposable
