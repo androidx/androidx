@@ -21,7 +21,7 @@ import androidx.kruth.Fact.Companion.simpleFact
 import java.math.BigDecimal
 
 /** Propositions for [BigDecimal] typed subjects. */
-class BigDecimalSubject
+public class BigDecimalSubject
 internal constructor(actual: BigDecimal?, metadata: FailureMetadata = FailureMetadata()) :
     ComparableSubject<BigDecimal>(actual, metadata = metadata) {
 
@@ -32,7 +32,7 @@ internal constructor(actual: BigDecimal?, metadata: FailureMetadata = FailureMet
      * **Note:** The scale of the BigDecimal is ignored. If you want to compare the values and the
      * scales, use [isEqualTo].
      */
-    fun isEqualToIgnoringScale(expected: BigDecimal) {
+    public fun isEqualToIgnoringScale(expected: BigDecimal) {
         compareValues(expected)
     }
 
@@ -43,7 +43,7 @@ internal constructor(actual: BigDecimal?, metadata: FailureMetadata = FailureMet
      * **Note:** The scale of the BigDecimal is ignored. If you want to compare the values and the
      * scales, use [isEqualTo].
      */
-    fun isEqualToIgnoringScale(expected: String) {
+    public fun isEqualToIgnoringScale(expected: String) {
         isEqualToIgnoringScale(BigDecimal(expected))
     }
 
@@ -54,7 +54,7 @@ internal constructor(actual: BigDecimal?, metadata: FailureMetadata = FailureMet
      * **Note:** The scale of the BigDecimal is ignored. If you want to compare the values and the
      * scales, use [isEqualTo].
      */
-    fun isEqualToIgnoringScale(expected: Long) {
+    public fun isEqualToIgnoringScale(expected: Long) {
         isEqualToIgnoringScale(BigDecimal(expected))
     }
 

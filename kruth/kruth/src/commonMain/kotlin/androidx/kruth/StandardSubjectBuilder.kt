@@ -25,13 +25,15 @@ import kotlin.jvm.JvmStatic
  *   [withMessage].
  */
 @Suppress("StaticFinalBuilder") // Cannot be final for binary compatibility.
-expect open class StandardSubjectBuilder internal constructor(metadata: FailureMetadata) {
+public expect open class StandardSubjectBuilder internal constructor(metadata: FailureMetadata) {
     internal val metadata: FailureMetadata
 
-    companion object {
+    public companion object {
         /** Returns a new instance that invokes the given [FailureStrategy] when a check fails. */
         @JvmStatic
-        fun forCustomFailureStrategy(failureStrategy: FailureStrategy): StandardSubjectBuilder
+        public fun forCustomFailureStrategy(
+            failureStrategy: FailureStrategy
+        ): StandardSubjectBuilder
     }
 
     /**
@@ -39,66 +41,68 @@ expect open class StandardSubjectBuilder internal constructor(metadata: FailureM
      * this method is called multiple times, the messages will appear in the order that they were
      * specified.
      */
-    fun withMessage(messageToPrepend: String?): StandardSubjectBuilder
+    public fun withMessage(messageToPrepend: String?): StandardSubjectBuilder
 
-    fun <T> that(actual: T?): Subject<T>
+    public fun <T> that(actual: T?): Subject<T>
 
     // actual cannot be made nullable due to autoboxing and this overload is necessary to allow
     // StandardSubjectBuilder.that(char) from Java to resolve properly as an Object
     // (otherwise it is source-incompatibly interpreted as Int).
     // See: NumericComparisonTest#testNumericPrimitiveTypes_isNotEqual_shouldFail_charToInt
-    fun that(actual: Char): Subject<Char>
+    public fun that(actual: Char): Subject<Char>
 
-    fun <T : Comparable<T>> that(actual: T?): ComparableSubject<T>
+    public fun <T : Comparable<T>> that(actual: T?): ComparableSubject<T>
 
-    fun <T : Throwable> that(actual: T?): ThrowableSubject<T>
+    public fun <T : Throwable> that(actual: T?): ThrowableSubject<T>
 
-    fun that(actual: Boolean?): BooleanSubject
+    public fun that(actual: Boolean?): BooleanSubject
 
-    fun that(actual: Long): LongSubject
-
-    // Workaround for https://youtrack.jetbrains.com/issue/KT-645
-    fun <T : Long?> that(actual: T): LongSubject
-
-    fun that(actual: Double?): DoubleSubject
-
-    fun that(actual: Float?): FloatSubject
-
-    fun that(actual: Int): IntegerSubject
+    public fun that(actual: Long): LongSubject
 
     // Workaround for https://youtrack.jetbrains.com/issue/KT-645
-    fun <T : Int?> that(actual: T): IntegerSubject
+    public fun <T : Long?> that(actual: T): LongSubject
 
-    fun that(actual: String?): StringSubject
+    public fun that(actual: Double?): DoubleSubject
 
-    fun <T> that(actual: Iterable<T>?): IterableSubject<T>
+    public fun that(actual: Float?): FloatSubject
 
-    fun <T> that(actual: Array<out T>?): ObjectArraySubject<T>
+    public fun that(actual: Int): IntegerSubject
 
-    fun that(actual: BooleanArray?): PrimitiveBooleanArraySubject
+    // Workaround for https://youtrack.jetbrains.com/issue/KT-645
+    public fun <T : Int?> that(actual: T): IntegerSubject
 
-    fun that(actual: ShortArray?): PrimitiveShortArraySubject
+    public fun that(actual: String?): StringSubject
 
-    fun that(actual: IntArray?): PrimitiveIntArraySubject
+    public fun <T> that(actual: Iterable<T>?): IterableSubject<T>
 
-    fun that(actual: LongArray?): PrimitiveLongArraySubject
+    public fun <T> that(actual: Array<out T>?): ObjectArraySubject<T>
 
-    fun that(actual: ByteArray?): PrimitiveByteArraySubject
+    public fun that(actual: BooleanArray?): PrimitiveBooleanArraySubject
 
-    fun that(actual: CharArray?): PrimitiveCharArraySubject
+    public fun that(actual: ShortArray?): PrimitiveShortArraySubject
 
-    fun that(actual: FloatArray?): PrimitiveFloatArraySubject
+    public fun that(actual: IntArray?): PrimitiveIntArraySubject
 
-    fun that(actual: DoubleArray?): PrimitiveDoubleArraySubject
+    public fun that(actual: LongArray?): PrimitiveLongArraySubject
 
-    fun <K, V> that(actual: Map<K, V>?): MapSubject<K, V>
+    public fun that(actual: ByteArray?): PrimitiveByteArraySubject
+
+    public fun that(actual: CharArray?): PrimitiveCharArraySubject
+
+    public fun that(actual: FloatArray?): PrimitiveFloatArraySubject
+
+    public fun that(actual: DoubleArray?): PrimitiveDoubleArraySubject
+
+    public fun <K, V> that(actual: Map<K, V>?): MapSubject<K, V>
 
     /**
      * Given a factory for some [Subject] class, returns [SimpleSubjectBuilder] whose
      * [that][SimpleSubjectBuilder.that] method creates instances of that class. Created subjects
      * use the previously set failure strategy and any previously set failure message.
      */
-    fun <T, S : Subject<T>> about(subjectFactory: Subject.Factory<S, T>): SimpleSubjectBuilder<S, T>
+    public fun <T, S : Subject<T>> about(
+        subjectFactory: Subject.Factory<S, T>
+    ): SimpleSubjectBuilder<S, T>
 
     /**
      * Reports a failure.
@@ -106,7 +110,7 @@ expect open class StandardSubjectBuilder internal constructor(metadata: FailureM
      * To set a message, first call [withMessage] (or, more commonly, use the shortcut
      * [assertWithMessage].
      */
-    fun fail()
+    public fun fail()
 
     internal open fun checkStatePreconditions()
 }

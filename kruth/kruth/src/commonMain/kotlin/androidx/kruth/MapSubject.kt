@@ -25,13 +25,14 @@ import androidx.kruth.Fact.Companion.simpleFact
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
  *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class MapSubject<K, V> protected constructor(metadata: FailureMetadata, actual: Map<K, V>?) :
+public open class MapSubject<K, V>
+protected constructor(metadata: FailureMetadata, actual: Map<K, V>?) :
     Subject<Map<K, V>>(actual, metadata = metadata, typeDescriptionOverride = null) {
 
     internal constructor(actual: Map<K, V>?, metadata: FailureMetadata) : this(metadata, actual)
 
     /** Fails if the map is not empty. */
-    fun isEmpty() {
+    public fun isEmpty() {
         requireNonNull(actual)
         if (actual.isNotEmpty()) {
             failWithActual(simpleFact("expected to be empty"))
@@ -39,7 +40,7 @@ open class MapSubject<K, V> protected constructor(metadata: FailureMetadata, act
     }
 
     /** Fails if the map is empty. */
-    fun isNotEmpty() {
+    public fun isNotEmpty() {
         requireNonNull(actual)
         if (actual.isEmpty()) {
             failWithoutActual(simpleFact("expected not to be empty"))
@@ -47,23 +48,23 @@ open class MapSubject<K, V> protected constructor(metadata: FailureMetadata, act
     }
 
     /** Fails if expected size of map is not equal to actual. */
-    fun hasSize(expectedSize: Int) {
+    public fun hasSize(expectedSize: Int) {
         require(expectedSize >= 0) { "expectedSize ($expectedSize) must be >= 0" }
         check("size").that(requireNonNull(actual).size).isEqualTo(expectedSize)
     }
 
     /** Fails if the map does not contain the given key. */
-    fun containsKey(key: Any?) {
+    public fun containsKey(key: Any?) {
         check("keys").that(requireNonNull(actual).keys).contains(key)
     }
 
     /** Fails if the map contains the given key. */
-    fun doesNotContainKey(key: Any?) {
+    public fun doesNotContainKey(key: Any?) {
         check("keys").that(requireNonNull(actual).keys).doesNotContain(key)
     }
 
     /** Fails if the map does not contain the given entry. */
-    fun containsEntry(key: K, value: V) {
+    public fun containsEntry(key: K, value: V) {
         val entry = key to value
 
         requireNonNull(actual)
@@ -124,12 +125,12 @@ open class MapSubject<K, V> protected constructor(metadata: FailureMetadata, act
     }
 
     /** Fails if the map does not contain the given entry. */
-    fun containsEntry(entry: Pair<K, V>) {
+    public fun containsEntry(entry: Pair<K, V>) {
         containsEntry(key = entry.first, value = entry.second)
     }
 
     /** Fails if the map contains the given entry. */
-    fun doesNotContainEntry(key: K, value: V) {
+    public fun doesNotContainEntry(key: K, value: V) {
         val entry = key to value
 
         requireNonNull(actual)
@@ -140,7 +141,7 @@ open class MapSubject<K, V> protected constructor(metadata: FailureMetadata, act
     }
 
     /** Fails if the map contains the given entry. */
-    fun doesNotContainEntry(entry: Pair<K, V>) {
+    public fun doesNotContainEntry(entry: Pair<K, V>) {
         doesNotContainEntry(key = entry.first, value = entry.second)
     }
 
@@ -148,7 +149,7 @@ open class MapSubject<K, V> protected constructor(metadata: FailureMetadata, act
      * Fails if the map does not contain exactly the given set of key/value pairs. The arguments
      * must not contain duplicate keys.
      */
-    fun containsExactly(vararg entries: Pair<K, V>): Ordered =
+    public fun containsExactly(vararg entries: Pair<K, V>): Ordered =
         containsExactlyEntriesIn(
             accumulateMap(functionName = "containsExactly", entries = entries.toList())
         )
@@ -157,13 +158,13 @@ open class MapSubject<K, V> protected constructor(metadata: FailureMetadata, act
      * Fails if the map does not contain at least the given set of key/value pairs. The arguments
      * must not contain duplicate keys.
      */
-    fun containsAtLeast(vararg entries: Pair<K, V>): Ordered =
+    public fun containsAtLeast(vararg entries: Pair<K, V>): Ordered =
         containsAtLeastEntriesIn(
             accumulateMap(functionName = "containsAtLeast", entries = entries.toList())
         )
 
     /** Fails if the map does not contain exactly the given set of entries in the given map. */
-    fun containsExactlyEntriesIn(expectedMap: Map<K, V>): Ordered {
+    public fun containsExactlyEntriesIn(expectedMap: Map<K, V>): Ordered {
         if (expectedMap.isEmpty()) {
             requireNonNull(actual)
             if (actual.isNotEmpty()) {
@@ -179,7 +180,7 @@ open class MapSubject<K, V> protected constructor(metadata: FailureMetadata, act
     }
 
     /** Fails if the map does not contain at least the given set of entries in the given map. */
-    fun containsAtLeastEntriesIn(expectedMap: Map<K, V>): Ordered {
+    public fun containsAtLeastEntriesIn(expectedMap: Map<K, V>): Ordered {
         if (expectedMap.isEmpty()) {
             return NoopOrdered
         }

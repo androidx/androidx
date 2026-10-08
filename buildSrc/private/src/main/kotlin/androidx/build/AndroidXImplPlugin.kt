@@ -626,7 +626,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         project.afterEvaluate {
             val kotlinExtension = project.kotlinExtensionOrNull
             kotlinExtension?.explicitApi =
-                if (androidXExtension.shouldEnforceKotlinStrictApiMode().get()) {
+                if (androidXExtension.type.get().checkApi is RunApiTasks.Yes) {
                     ExplicitApiMode.Strict
                 } else {
                     ExplicitApiMode.Disabled

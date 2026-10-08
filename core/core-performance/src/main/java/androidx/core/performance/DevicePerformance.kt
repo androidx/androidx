@@ -25,7 +25,7 @@ package androidx.core.performance
  *
  * @sample androidx.core.performance.samples.usage
  */
-interface DevicePerformance {
+public interface DevicePerformance {
 
     /**
      * The media performance class of the device or 0 if none.
@@ -40,5 +40,5 @@ interface DevicePerformance {
      * Defaults to
      * [VERSION.MEDIA_PERFORMANCE_CLASS][android.os.Build.VERSION.MEDIA_PERFORMANCE_CLASS]
      */
-    val mediaPerformanceClass: Int
+    public val mediaPerformanceClass: Int
 }

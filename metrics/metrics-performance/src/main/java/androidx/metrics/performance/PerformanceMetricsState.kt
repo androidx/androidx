@@ -34,7 +34,7 @@ import androidx.annotation.UiThread
  * core application logic, such as in a library, to store application state that can be useful for
  * the application to know about.
  */
-class PerformanceMetricsState private constructor() {
+public class PerformanceMetricsState private constructor() {
 
     /**
      * Data to track UI and user state in this JankStats object.
@@ -191,7 +191,7 @@ class PerformanceMetricsState private constructor() {
      * @param value The value of this state.
      * @see removeState
      */
-    fun putState(key: String, value: String) {
+    public fun putState(key: String, value: String) {
         synchronized(singleFrameStates) {
             val nowTime = System.nanoTime()
             markStateForRemoval(key, states, nowTime)
@@ -211,7 +211,7 @@ class PerformanceMetricsState private constructor() {
      * @param value The value of this state.
      * @see putState
      */
-    fun putSingleFrameState(key: String, value: String) {
+    public fun putSingleFrameState(key: String, value: String) {
         synchronized(singleFrameStates) {
             val nowTime = System.nanoTime()
             markStateForRemoval(key, singleFrameStates, nowTime)
@@ -284,7 +284,7 @@ class PerformanceMetricsState private constructor() {
      *   the state previously.
      * @see putState
      */
-    fun removeState(key: String) {
+    public fun removeState(key: String) {
         markStateForRemoval(key)
     }
 
@@ -323,7 +323,7 @@ class PerformanceMetricsState private constructor() {
         }
     }
 
-    companion object {
+    public companion object {
 
         /**
          * This function gets the single PerformanceMetricsState.Holder object for the view
@@ -341,7 +341,7 @@ class PerformanceMetricsState private constructor() {
          */
         @JvmStatic
         @UiThread
-        fun getHolderForHierarchy(view: View): Holder {
+        public fun getHolderForHierarchy(view: View): Holder {
             val rootView = view.getRootView()
             var metricsStateHolder = rootView.getTag(R.id.metricsStateHolder)
             if (metricsStateHolder == null) {
@@ -378,13 +378,13 @@ class PerformanceMetricsState private constructor() {
      * should request the holder for a hierarchy via [getHolderForHierarchy], and check the value of
      * the [state] property to see whether state is being tracked by JankStats for the hierarchy.
      */
-    class Holder internal constructor() {
+    public class Holder internal constructor() {
 
         /**
          * The current PerformanceMetricsState for the view hierarchy where this Holder object was
          * retrieved. A null value indicates that state is not currently being tracked (or stored).
          */
-        var state: PerformanceMetricsState? = null
+        public var state: PerformanceMetricsState? = null
             internal set
     }
 }

@@ -22,12 +22,12 @@ import com.google.common.collect.Table
 import com.google.common.collect.Table.Cell
 import com.google.common.collect.Tables.immutableCell
 
-class TableSubject<R, C, V>
+public class TableSubject<R, C, V>
 internal constructor(actual: Table<R, C, V>, metadata: FailureMetadata = FailureMetadata()) :
     Subject<Table<R, C, V>>(actual, metadata, typeDescriptionOverride = null) {
 
     /** Fails if the table is not empty. */
-    fun isEmpty() {
+    public fun isEmpty() {
         requireNonNull(actual)
 
         if (!actual.isEmpty) {
@@ -36,7 +36,7 @@ internal constructor(actual: Table<R, C, V>, metadata: FailureMetadata = Failure
     }
 
     /** Fails if the table is empty. */
-    fun isNotEmpty() {
+    public fun isNotEmpty() {
         requireNonNull(actual)
 
         if (actual.isEmpty) {
@@ -45,7 +45,7 @@ internal constructor(actual: Table<R, C, V>, metadata: FailureMetadata = Failure
     }
 
     /** Fails if the table does not have the given size. */
-    fun hasSize(expectedSize: Int) {
+    public fun hasSize(expectedSize: Int) {
         require(expectedSize >= 0) { "expectedSize($expectedSize) must be >= 0" }
         requireNonNull(actual)
 
@@ -53,7 +53,7 @@ internal constructor(actual: Table<R, C, V>, metadata: FailureMetadata = Failure
     }
 
     /** Fails if the table does not contain a mapping for the given row key and column key. */
-    fun contains(rowKey: R, columnKey: C) {
+    public fun contains(rowKey: R, columnKey: C) {
         requireNonNull(actual)
 
         if (!actual.contains(rowKey, columnKey)) {
@@ -66,7 +66,7 @@ internal constructor(actual: Table<R, C, V>, metadata: FailureMetadata = Failure
     }
 
     /** Fails if the table contains a mapping for the given row key and column key. */
-    fun doesNotContain(rowKey: R, columnKey: C) {
+    public fun doesNotContain(rowKey: R, columnKey: C) {
         requireNonNull(actual)
 
         if (actual.contains(rowKey, columnKey)) {
@@ -81,12 +81,12 @@ internal constructor(actual: Table<R, C, V>, metadata: FailureMetadata = Failure
     }
 
     /** Fails if the table does not contain the given cell. */
-    fun containsCell(rowKey: R, colKey: C, value: V) {
+    public fun containsCell(rowKey: R, colKey: C, value: V) {
         containsCell(immutableCell(rowKey, colKey, value))
     }
 
     /** Fails if the table does not contain the given cell. */
-    fun containsCell(cell: Cell<R, C, V>?) {
+    public fun containsCell(cell: Cell<R, C, V>?) {
         requireNonNull(cell)
         requireNonNull(actual)
 
@@ -94,12 +94,12 @@ internal constructor(actual: Table<R, C, V>, metadata: FailureMetadata = Failure
     }
 
     /** Fails if the table contains the given cell. */
-    fun doesNotContainCell(rowKey: R, colKey: C, value: V) {
+    public fun doesNotContainCell(rowKey: R, colKey: C, value: V) {
         doesNotContainCell(immutableCell(rowKey, colKey, value))
     }
 
     /** Fails if the table contains the given cell. */
-    fun doesNotContainCell(cell: Cell<R, C, V>?) {
+    public fun doesNotContainCell(cell: Cell<R, C, V>?) {
         requireNonNull(cell)
         requireNonNull(actual)
 
@@ -107,21 +107,21 @@ internal constructor(actual: Table<R, C, V>, metadata: FailureMetadata = Failure
     }
 
     /** Fails if the table does not contain the given row key. */
-    fun containsRow(rowKey: R) {
+    public fun containsRow(rowKey: R) {
         requireNonNull(actual)
 
         check("rowKeySet()").that(actual.rowKeySet()).contains(rowKey)
     }
 
     /** Fails if the table does not contain the given column key. */
-    fun containsColumn(columnKey: C) {
+    public fun containsColumn(columnKey: C) {
         requireNonNull(actual)
 
         check("columnKeySet()").that(actual.columnKeySet()).contains(columnKey)
     }
 
     /** Fails if the table does not contain the given value. */
-    fun containsValue(value: V) {
+    public fun containsValue(value: V) {
         requireNonNull(actual)
 
         check("values()").that(actual.values()).contains(value)

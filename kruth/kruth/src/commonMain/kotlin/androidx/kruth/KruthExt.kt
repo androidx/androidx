@@ -29,12 +29,12 @@ import kotlin.test.assertFailsWith
 // we created a helper for this in internal-testutils-truth.
 //
 // See: https://github.com/google/truth/issues/621
-inline fun <reified T : Throwable> assertThrows(block: () -> Unit): ThrowableSubject<T> {
+public inline fun <reified T : Throwable> assertThrows(block: () -> Unit): ThrowableSubject<T> {
     val e = assertFailsWith<T>(block = block)
     return assertThat(e)
 }
 
-inline fun <T : Throwable> assertThrows(
+public inline fun <T : Throwable> assertThrows(
     exceptionClass: KClass<T>,
     block: () -> Unit,
 ): ThrowableSubject<T> {

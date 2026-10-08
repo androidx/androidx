@@ -28,10 +28,10 @@ import org.intellij.lang.annotations.Language
 /** Defines interpolation parameters between two [ConstraintSet]s. */
 @ExperimentalMotionApi
 @Immutable
-interface Transition {
-    fun getStartConstraintSetId(): String
+public interface Transition {
+    public fun getStartConstraintSetId(): String
 
-    fun getEndConstraintSetId(): String
+    public fun getEndConstraintSetId(): String
 }
 
 /**
@@ -43,7 +43,7 @@ interface Transition {
  */
 @SuppressLint("ComposableNaming")
 @ExperimentalMotionApi
-fun Transition(@Language("json5") content: String): Transition {
+public fun Transition(@Language("json5") content: String): Transition {
     val parsed =
         try {
             CLParser.parse(content)

@@ -38,7 +38,7 @@ import kotlin.contracts.contract
  * their [CustomSubjectBuilder.metadata] method to get an instance to pass to the constructor.)
  */
 @OptIn(ExperimentalContracts::class)
-class FailureMetadata
+public class FailureMetadata
 internal constructor(
     private val failureStrategy: FailureStrategy = FailureStrategy { failure -> throw failure },
     // TODO(dustinlam): In Google Truth, messages are lazily evaluated.

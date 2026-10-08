@@ -29,18 +29,20 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /** [SemanticsPropertyKey] to test [DesignInfoProvider] */
-val DesignInfoDataKey = SemanticsPropertyKey<DesignInfoProvider>("DesignInfoProvider")
+public val DesignInfoDataKey: SemanticsPropertyKey<DesignInfoProvider> =
+    SemanticsPropertyKey("DesignInfoProvider")
 
 /** [SemanticsPropertyReceiver] to test [DesignInfoProvider] */
-@PublishedApi internal var SemanticsPropertyReceiver.designInfoProvider by DesignInfoDataKey
+@PublishedApi
+internal var SemanticsPropertyReceiver.designInfoProvider: DesignInfoProvider by DesignInfoDataKey
 
 /**
  * Interface used for Studio tooling.
  *
  * Returns a json string with the constraints and bounding box for each ID in the system.
  */
-interface DesignInfoProvider {
-    fun getDesignInfo(startX: Int, startY: Int, args: String): String
+public interface DesignInfoProvider {
+    public fun getDesignInfo(startX: Int, startY: Int, args: String): String
 }
 
 private const val CONSTRAINTS_JSON_VERSION = 1

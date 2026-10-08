@@ -33,17 +33,17 @@ private fun checkTolerance(tolerance: Double) {
 }
 
 /** Propositions for double subjects. */
-class DoubleSubject
+public class DoubleSubject
 internal constructor(actual: Double?, metadata: FailureMetadata = FailureMetadata()) :
     ComparableSubject<Double>(actual, metadata = metadata) {
 
-    abstract class TolerantDoubleComparison internal constructor() {
+    public abstract class TolerantDoubleComparison internal constructor() {
         /**
          * Fails if the subject was expected to be within the tolerance of the given value but was
          * not _or_ if it was expected _not_ to be within the tolerance but was. The subject and
          * tolerance are specified earlier in the fluent call chain.
          */
-        abstract fun of(expected: Double)
+        public abstract fun of(expected: Double)
 
         /** @throws UnsupportedOperationException always */
         @Deprecated(
@@ -66,7 +66,7 @@ internal constructor(actual: Double?, metadata: FailureMetadata = FailureMetadat
         }
     }
 
-    fun isWithin(tolerance: Double): TolerantDoubleComparison {
+    public fun isWithin(tolerance: Double): TolerantDoubleComparison {
         return object : TolerantDoubleComparison() {
             override fun of(expected: Double) {
                 requireNonNull(actual) {
@@ -85,7 +85,7 @@ internal constructor(actual: Double?, metadata: FailureMetadata = FailureMetadat
         }
     }
 
-    fun isNotWithin(tolerance: Double): TolerantDoubleComparison {
+    public fun isNotWithin(tolerance: Double): TolerantDoubleComparison {
         return object : TolerantDoubleComparison() {
             override fun of(expected: Double) {
                 requireNonNull(actual) {
@@ -105,7 +105,7 @@ internal constructor(actual: Double?, metadata: FailureMetadata = FailureMetadat
     }
 
     /** Asserts that the subject is zero (i.e. it is either `0.0` or `-0.0`). */
-    fun isZero() {
+    public fun isZero() {
         if (actual != 0.0) {
             failWithoutActual(simpleFact("Expected zero"))
         }
@@ -115,7 +115,7 @@ internal constructor(actual: Double?, metadata: FailureMetadata = FailureMetadat
      * Asserts that the subject is a non-null value other than zero (i.e. it is not `0.0`, `-0.0` or
      * `null`).
      */
-    fun isNonZero() {
+    public fun isNonZero() {
         if (actual == null) {
             failWithoutActual(simpleFact("Expected a double other than zero"))
         } else if (actual == 0.0) {
@@ -124,17 +124,17 @@ internal constructor(actual: Double?, metadata: FailureMetadata = FailureMetadat
     }
 
     /** Asserts that the subject is [Double.POSITIVE_INFINITY]. */
-    fun isPositiveInfinity() {
+    public fun isPositiveInfinity() {
         isEqualTo(Double.POSITIVE_INFINITY)
     }
 
     /** Asserts that the subject is [Double.NEGATIVE_INFINITY]. */
-    fun isNegativeInfinity() {
+    public fun isNegativeInfinity() {
         isEqualTo(Double.NEGATIVE_INFINITY)
     }
 
     /** Asserts that the subject is [Double.NaN]. */
-    fun isNaN() {
+    public fun isNaN() {
         isEqualTo(Double.NaN)
     }
 
@@ -142,7 +142,7 @@ internal constructor(actual: Double?, metadata: FailureMetadata = FailureMetadat
      * Asserts that the subject is finite, i.e. not [Double.POSITIVE_INFINITY],
      * [Double.NEGATIVE_INFINITY], or [Double.NaN].
      */
-    fun isFinite() {
+    public fun isFinite() {
         if (actual?.isFinite() != true) {
             failWithoutActual(simpleFact("Expected to be finite"))
         }
@@ -152,7 +152,7 @@ internal constructor(actual: Double?, metadata: FailureMetadata = FailureMetadat
      * Asserts that the subject is a non-null value other than [Double.NaN] (but it may be
      * [Double.POSITIVE_INFINITY] or [Double.NEGATIVE_INFINITY]).
      */
-    fun isNotNaN() {
+    public fun isNotNaN() {
         if (actual == null) {
             failWithoutActual(simpleFact("Expected a double other than NaN"))
         } else {
@@ -165,7 +165,7 @@ internal constructor(actual: Double?, metadata: FailureMetadata = FailureMetadat
      *
      * To check that the subject is greater than *or equal to* [other], use [isAtLeast].
      */
-    fun isGreaterThan(other: Int) {
+    public fun isGreaterThan(other: Int) {
         isGreaterThan(other.toDouble())
     }
 
@@ -174,7 +174,7 @@ internal constructor(actual: Double?, metadata: FailureMetadata = FailureMetadat
      *
      * To check that the subject is less than *or equal to* [other], use [isAtMost] .
      */
-    fun isLessThan(other: Int) {
+    public fun isLessThan(other: Int) {
         isLessThan(other.toDouble())
     }
 
@@ -183,7 +183,7 @@ internal constructor(actual: Double?, metadata: FailureMetadata = FailureMetadat
      *
      * To check that the subject is *strictly* less than [other], use [isLessThan].
      */
-    fun isAtMost(other: Int) {
+    public fun isAtMost(other: Int) {
         isAtMost(other.toDouble())
     }
 
@@ -192,7 +192,7 @@ internal constructor(actual: Double?, metadata: FailureMetadata = FailureMetadat
      *
      * To check that the subject is *strictly* greater than [other], use [isGreaterThan].
      */
-    fun isAtLeast(other: Int) {
+    public fun isAtLeast(other: Int) {
         isAtLeast(other.toDouble())
     }
 }

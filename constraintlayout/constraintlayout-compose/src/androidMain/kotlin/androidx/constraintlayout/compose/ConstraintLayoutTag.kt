@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.Density
  * @param tag A string to represent a group of Composables that may be affected by a
  *   ConstraintLayout function. Eg: The `Variables` block in a JSON5 based [ConstraintSet]
  */
-fun Modifier.layoutId(layoutId: String, tag: String? = null): Modifier {
+public fun Modifier.layoutId(layoutId: String, tag: String? = null): Modifier {
     if (tag == null) {
         // Fallback to androidx.compose.ui.layout.layoutId
         return this.layoutId(layoutId)
@@ -73,13 +73,13 @@ private class ConstraintLayoutTag(
     override fun toString(): String = "ConstraintLayoutTag(id=$constraintLayoutTag)"
 }
 
-interface ConstraintLayoutTagParentData {
-    val constraintLayoutId: String
-    val constraintLayoutTag: String
+public interface ConstraintLayoutTagParentData {
+    public val constraintLayoutId: String
+    public val constraintLayoutTag: String
 }
 
-val Measurable.constraintLayoutTag: Any?
+public val Measurable.constraintLayoutTag: Any?
     get() = (parentData as? ConstraintLayoutTagParentData)?.constraintLayoutTag
 
-val Measurable.constraintLayoutId: Any?
+public val Measurable.constraintLayoutId: Any?
     get() = (parentData as? ConstraintLayoutTagParentData)?.constraintLayoutId
