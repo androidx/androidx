@@ -54,7 +54,8 @@ import kotlinx.coroutines.launch
 
 /**
  * A base dialog component used by [AlertDialog] and [ConfirmationDialog] variations. This dialog
- * provides a full-screen experience with custom entry/exit animations.
+ * provides a full-screen experience with custom entry/exit animations. The parent window will also
+ * be scaled, if the dialog is launched from within an AppScaffold scope.
  *
  * Dialogs provide important prompts in a user flow. They can require an action, communicate
  * information, or help users accomplish a task.
@@ -92,7 +93,7 @@ public fun Dialog(
     val shouldShow = showState || transitionState.currentState == DialogVisibility.Display
     val transition = rememberTransition(transitionState)
 
-    val scaffoldState = LocalScaffoldState.current
+    val scaffoldState = LocalScaffoldState.current as? AppScaffoldState
     val backgroundAnimatable = remember { Animatable(1f) }
 
     val backgroundAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>().faster(50f)

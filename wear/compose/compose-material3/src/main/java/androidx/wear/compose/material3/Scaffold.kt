@@ -59,6 +59,25 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
+ * Base state class for scaffold components ([AppScaffold], [ScreenScaffold],
+ * [HorizontalPagerScaffold], and [VerticalPagerScaffold]) that coordinates [ScrollIndicator]
+ * visibility and screen idling state.
+ */
+internal sealed class ScaffoldState {
+    /** Whether the scroll indicator should be kept visible even when it's idle. */
+    val keepIndicatorVisible: MutableState<Boolean> = mutableStateOf(false)
+
+    /**
+     * The current [ScreenStage] (e.g. [ScreenStage.New], [ScreenStage.Scrolling],
+     * [ScreenStage.Idle]).
+     */
+    abstract val screenStage: State<ScreenStage>
+
+    /** Updates [screenStage] based on active scroll progress and idling timeout. */
+    @Composable abstract fun UpdateIdlingDetectorIfNeeded()
+}
+
+/**
  * State object for [AppScaffold] that coordinates application-level scaffold state between
  * [AppScaffold], individual [ScreenScaffold] instances, and [HorizontalPagerScaffold] or
  * [VerticalPagerScaffold] instances.
@@ -68,11 +87,11 @@ import kotlinx.coroutines.launch
  *   level.
  * @param appWindowView The [View] associated with the root [AppScaffold] window.
  */
-internal class ScaffoldState(
+internal class AppScaffoldState(
     appTimeText: State<@Composable () -> Unit> = mutableStateOf({}),
     doesAppScaffoldWantStatusBar: State<Boolean> = mutableStateOf(true),
     appWindowView: State<View>,
-) {
+) : ScaffoldState() {
     val screenContent =
         ScreenContent(
             doesAppScaffoldWantStatusBar = doesAppScaffoldWantStatusBar,
@@ -86,8 +105,30 @@ internal class ScaffoldState(
      */
     var parentScale = mutableFloatStateOf(1f)
 
-    /** Whether the scroll indicator should be kept visible even when it's idle. */
-    val keepIndicatorVisible: MutableState<Boolean> = mutableStateOf(false)
+    override val screenStage: State<ScreenStage>
+        get() = screenContent.screenStage
+
+    @Composable
+    override fun UpdateIdlingDetectorIfNeeded() {
+        screenContent.UpdateIdlingDetectorIfNeeded()
+    }
+}
+
+/**
+ * Lightweight [ScaffoldState] implementation used when there is no enclosing [AppScaffold]. Tracks
+ * scroll idling state and [keepIndicatorVisible] for a single screen without maintaining a screen
+ * stack or status bar orchestrators.
+ *
+ * @param scrollInfoProvider The [ScrollInfoProvider] state for this screen.
+ */
+internal class ScreenScaffoldState(private val scrollInfoProvider: State<ScrollInfoProvider?>) :
+    ScaffoldState() {
+    override val screenStage: MutableState<ScreenStage> = mutableStateOf(ScreenStage.New)
+
+    @Composable
+    override fun UpdateIdlingDetectorIfNeeded() {
+        UpdateIdlingDetectorIfNeeded(scrollInfoProvider.value, screenStage)
+    }
 }
 
 /**
@@ -293,18 +334,7 @@ internal class ScreenContent(
 
     @Composable
     internal fun UpdateIdlingDetectorIfNeeded() {
-        val scrollInfoProvider = currentScrollInfoProvider.value
-        SideEffect(scrollInfoProvider) { screenStage.value = ScreenStage.New }
-        if (scrollInfoProvider?.isScrollInProgress == true) {
-            screenStage.value = ScreenStage.Scrolling
-        } else {
-            LaunchedEffect(scrollInfoProvider) {
-                // Entering the idle state will show the Time text (if it's hidden) AND hide the
-                // scroll indicator.
-                delay(IDLE_DELAY)
-                screenStage.value = ScreenStage.Idle
-            }
-        }
+        UpdateIdlingDetectorIfNeeded(currentScrollInfoProvider.value, screenStage)
     }
 
     /**
@@ -368,6 +398,24 @@ internal class ScreenContent(
 }
 
 @Composable
+private fun UpdateIdlingDetectorIfNeeded(
+    scrollInfoProvider: ScrollInfoProvider?,
+    screenStage: MutableState<ScreenStage>,
+) {
+    SideEffect(scrollInfoProvider) { screenStage.value = ScreenStage.New }
+    if (scrollInfoProvider?.isScrollInProgress == true) {
+        screenStage.value = ScreenStage.Scrolling
+    } else {
+        LaunchedEffect(scrollInfoProvider) {
+            // Entering the idle state will show the Time text (if it's hidden) AND hide the
+            // scroll indicator.
+            delay(IDLE_DELAY)
+            screenStage.value = ScreenStage.Idle
+        }
+    }
+}
+
+@Composable
 internal fun AnimatedIndicator(
     isVisible: () -> Boolean,
     modifier: Modifier = Modifier,
@@ -409,8 +457,8 @@ internal val LocalScaffoldState = compositionLocalOf<ScaffoldState?> { null }
 
 /**
  * Registers an active screen content layer (timeText and scrollInfoProvider) with
- * [ScaffoldState.screenContent]. Typically used by [ScreenScaffold], [HorizontalPagerScaffold], and
- * [VerticalPagerScaffold] to sync their internal state with the global [AppScaffold].
+ * [AppScaffoldState.screenContent]. Typically used by [ScreenScaffold], [HorizontalPagerScaffold],
+ * and [VerticalPagerScaffold] to sync their internal state with the enclosing [AppScaffoldState].
  *
  * Coordinates screen lifecycle with the scaffold, attaching [timeText] and [scrollInfoProvider]
  * state handles while active and removing the screen content registration when leaving composition
@@ -424,7 +472,7 @@ internal fun ScreenContentRegistration(
     // If there is no AppScaffold in the hierarchy (such as when ScreenScaffold or
     // PagerScaffold is rendered standalone in tests or isolated previews), there is no
     // application-level time text or scroll-away coordination, making registration a safe no-op.
-    val scaffoldState = LocalScaffoldState.current ?: return
+    val scaffoldState = LocalScaffoldState.current as? AppScaffoldState ?: return
     val screenIsActive = LocalScreenIsActive.current
 
     val key = remember { Any() }
@@ -442,18 +490,16 @@ internal fun ScreenContentRegistration(
 }
 
 /**
- * Registers an active status bar layer with [ScaffoldState.screenContent]. Typically used by
+ * Registers an active status bar layer with [AppScaffoldState.screenContent]. Typically used by
  * [ScreenScaffold], [HorizontalPagerScaffold], [VerticalPagerScaffold], and [StatusBarSuppression]
- * to sync their status bar state with the global [AppScaffold].
+ * to sync their status bar state with the enclosing [AppScaffoldState].
  *
  * Coordinates status bar lifecycle with the scaffold, attaching [showStatusBar] state handle while
  * active and removing the status bar registration when leaving composition or becoming inactive.
  */
 @Composable
 internal fun StatusBarRegistration(showStatusBar: State<Boolean>) {
-    // If there is no AppScaffold in the hierarchy, system status bar orchestration is not active
-    // on this window, so registering status bar state with an application scaffold is a safe no-op.
-    val scaffoldState = LocalScaffoldState.current ?: return
+    val scaffoldState = LocalScaffoldState.current as? AppScaffoldState ?: return
     val screenIsActive = LocalScreenIsActive.current
 
     val key = remember { Any() }

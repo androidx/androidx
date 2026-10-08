@@ -130,10 +130,10 @@ class DialogTest {
 
     @Test
     fun shrink_background_when_dialog_is_shown() {
-        var scaffoldState: ScaffoldState? = null
+        var scaffoldState: AppScaffoldState? = null
         rule.setContentWithTheme {
             AppScaffold {
-                scaffoldState = LocalScaffoldState.current
+                scaffoldState = LocalScaffoldState.current as? AppScaffoldState
                 var visible by remember { mutableStateOf(false) }
                 Button(
                     modifier = Modifier.testTag(SHOW_BUTTON_TAG),
@@ -154,10 +154,10 @@ class DialogTest {
 
     @Test
     fun expand_background_when_dialog_is_hidden() {
-        var scaffoldState: ScaffoldState? = null
+        var scaffoldState: AppScaffoldState? = null
         rule.setContentWithTheme {
             AppScaffold {
-                scaffoldState = LocalScaffoldState.current
+                scaffoldState = LocalScaffoldState.current as? AppScaffoldState
                 var visible by remember { mutableStateOf(true) }
                 Button(
                     modifier = Modifier.testTag(SHOW_BUTTON_TAG),
@@ -178,10 +178,10 @@ class DialogTest {
 
     @Test
     fun expand_background_when_dialog_is_removed() {
-        var scaffoldState: ScaffoldState? = null
+        var scaffoldState: AppScaffoldState? = null
         rule.setContentWithTheme {
             AppScaffold {
-                scaffoldState = LocalScaffoldState.current
+                scaffoldState = LocalScaffoldState.current as? AppScaffoldState
                 var visible by remember { mutableStateOf(true) }
                 Button(
                     modifier = Modifier.testTag(SHOW_BUTTON_TAG),
