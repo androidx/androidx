@@ -170,6 +170,7 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
         if (TextStyle.PARAMETERS.isDefault(TextStyle.P_TEXT_ALIGN, mTextAlign)
                 && style.mTextAlign != null) {
             mTextAlign = style.mTextAlign;
+            mTextAlignValue = (short) (mTextAlign & 0xFFFF);
         }
         if (TextStyle.PARAMETERS.isDefault(TextStyle.P_OVERFLOW, mOverflow)
                 && style.mOverflow != null) {
@@ -382,6 +383,7 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
         mFontWeightValue = fontWeight;
         mFontFamilyId = fontFamilyId;
         mTextAlign = textAlign;
+        mTextAlignValue = (short) (mTextAlign & 0xFFFF);
         mOverflow = overflow;
         mMaxLines = maxLines;
         mLetterSpacing = letterSpacing;
@@ -827,12 +829,14 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
             boolean done = false;
             int maxLines = mMaxLines;
             while (!done) {
+                // Pass mTextAlignValue (masked with 0xFFFF) to exclude upper-bit flags packed into
+                // mTextAlign.
                 mComputedTextLayout =
                         context.layoutComplexText(
                                 mTextId,
                                 0,
                                 mCachedString.length(),
-                                mTextAlign,
+                                mTextAlignValue,
                                 mOverflow,
                                 maxLines,
                                 maxWidth,
