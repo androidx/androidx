@@ -21,6 +21,7 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.openxr.INVALID_HANDLE
 import androidx.xr.scenecore.openxr.SceneCoreOpenXrNative
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 /** Test fake implementation of [SceneCoreOpenXrNative] that records all calls in-memory. */
 internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = false) {
@@ -30,6 +31,11 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     var fakeRootEntityHandle: Long = 1000L
     var fakeSpatialContainerHandle: Long = 2000L
     var fakeRootSpaceHandle: Long = 3000L
+    // Volatile because runtime tests can read it from the executor thread.
+    @Volatile var fakeRootSpacePoseInPlatformReferenceSpace: Pose? = null
+    val rootSpacePoseQueryCount = AtomicInteger(0)
+    // When set, getRootSpacePoseInPlatformReferenceSpace() throws it, to simulate a failing sample.
+    @Volatile var rootSpacePoseQueryError: Throwable? = null
 
     var simulateTransactionUnavailable: Boolean = false
     var simulateInitFailure: Boolean = false
@@ -94,6 +100,20 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
         check(isInitialized.get()) { "SceneCoreOpenXrNative has not been initialized." }
         return if (isSpatialContainerCreated.get()) fakeRootSpaceHandle else INVALID_HANDLE
+    }
+
+    override fun getRootSpacePoseInPlatformReferenceSpace(): Pose? {
+        rootSpacePoseQueryCount.incrementAndGet()
+        rootSpacePoseQueryError?.let { throw it }
+        if (
+            isDestroyed.get() ||
+                isShutdown.get() ||
+                !isInitialized.get() ||
+                !isSpatialContainerCreated.get()
+        ) {
+            return null
+        }
+        return fakeRootSpacePoseInPlatformReferenceSpace
     }
 
     override fun createSceneEntity(): Long {
