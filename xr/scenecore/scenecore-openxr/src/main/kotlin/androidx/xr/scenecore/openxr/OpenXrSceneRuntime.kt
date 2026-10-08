@@ -24,6 +24,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LifecycleOwner
 import androidx.xr.arcore.Trackable
@@ -73,8 +74,16 @@ import androidx.xr.scenecore.runtime.impl.PlatformReferenceScenePose
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
+
+// Roughly one frame at 90 Hz, a common XR refresh rate, so the ActivitySpace origin is at most
+// about a frame stale. This timer isn't synced to frames, and refresh rates vary by device.
+// TODO: b/568008351 - Remove this constant once a native per-frame driver replaces the timer.
+internal const val ROOT_SPACE_POSE_SAMPLE_PERIOD_NANOS = 11_111_111L
 
 /** Implementation of [SceneRuntime] for devices that support OpenXR. */
 internal class OpenXrSceneRuntime
@@ -130,6 +139,14 @@ internal constructor(
     internal var isInitialized: Boolean = false
         private set
 
+    // Guards the root space pose sampler. Lifecycle calls normally arrive on the main thread, but
+    // initialize() has no documented thread, so starting and stopping the sampler must not race.
+    private val rootSpacePoseSamplerLock = Any()
+    @GuardedBy("rootSpacePoseSamplerLock") private var isResumed = false
+    @GuardedBy("rootSpacePoseSamplerLock") private var isRootSpaceBound = false
+    @GuardedBy("rootSpacePoseSamplerLock")
+    private var rootSpacePoseSampler: ScheduledFuture<*>? = null
+
     override fun initialize() {
         check(!isDestroyed) { "Cannot initialize OpenXrSceneRuntime after it has been destroyed." }
         if (isInitialized) return
@@ -155,12 +172,34 @@ internal constructor(
                     nativeWrapper.createSceneEntity()
                 )
                 mainPanelEntity.parent = activitySpace
+                synchronized(rootSpacePoseSamplerLock) {
+                    isRootSpaceBound = true
+                    updateRootSpacePoseSamplingLocked()
+                }
             }
+        }
+    }
+
+    override fun resume() {
+        synchronized(rootSpacePoseSamplerLock) {
+            isResumed = true
+            updateRootSpacePoseSamplingLocked()
+        }
+    }
+
+    override fun pause() {
+        synchronized(rootSpacePoseSamplerLock) {
+            isResumed = false
+            updateRootSpacePoseSamplingLocked()
         }
     }
 
     override fun destroy() {
         if (isDestroyed) return
+        synchronized(rootSpacePoseSamplerLock) {
+            isRootSpaceBound = false
+            updateRootSpacePoseSamplingLocked()
+        }
         activity = null
         isDestroyed = true
         (activitySpace as? OpenXrEntity)?.dispose()
@@ -171,6 +210,64 @@ internal constructor(
         spatialVisibilityHandler = null
         scheduledExecutorService.shutdown()
         nativeWrapper.destroy()
+    }
+
+    /**
+     * Runs the root space pose sampler while the runtime is resumed and the root space is bound,
+     * and cancels it otherwise. At most one sampler runs at a time.
+     */
+    @GuardedBy("rootSpacePoseSamplerLock")
+    private fun updateRootSpacePoseSamplingLocked() {
+        val shouldSample = isResumed && isRootSpaceBound && !isDestroyed
+        val sampler = rootSpacePoseSampler
+        if (shouldSample && sampler == null) {
+            // TODO: b/568008351 - Replace this timer with a native per-frame driver that
+            // samples at the frame's XrTime
+            rootSpacePoseSampler =
+                scheduledExecutorService.scheduleWithFixedDelay(
+                    { runScheduledRootSpacePoseSample() },
+                    /* initialDelay= */ 0L, // Take the first sample right away.
+                    /* delay= */ ROOT_SPACE_POSE_SAMPLE_PERIOD_NANOS,
+                    TimeUnit.NANOSECONDS,
+                )
+        } else if (!shouldSample && sampler != null) {
+            sampler.cancel(false)
+            rootSpacePoseSampler = null
+        }
+    }
+
+    /**
+     * Runs one scheduled [sampleRootSpacePose]. If a run throws, [ScheduledExecutorService] cancels
+     * all later runs and keeps the error in a future that nobody reads.
+     */
+    private fun runScheduledRootSpacePoseSample() {
+        try {
+            sampleRootSpacePose()
+        } catch (e: RejectedExecutionException) {
+            // A sample was already running when destroy() shut down the executor. Expected.
+            throw e
+        } catch (t: Throwable) {
+            val thread = Thread.currentThread()
+            thread.uncaughtExceptionHandler?.uncaughtException(
+                thread,
+                IllegalStateException(
+                    "Root space pose sampling failed; the ActivitySpace pose stopped updating.",
+                    t,
+                ),
+            )
+            // Stops the sampler if the handler returns, e.g. in tests.
+            throw t
+        }
+    }
+
+    /**
+     * Pushes the latest native root space pose into the ActivitySpace, which notifies its origin
+     * listener if the pose changed. Keeps the last pose if the native pose is unavailable.
+     */
+    @VisibleForTesting
+    internal fun sampleRootSpacePose() {
+        val pose = nativeWrapper.getRootSpacePoseInPlatformReferenceSpace() ?: return
+        (activitySpace as? OpenXrActivitySpace)?.setPlatformReferenceSpacePose(pose)
     }
 
     // TODO: b/558684002 - Implement actual OpenXR spatial capabilities query.
