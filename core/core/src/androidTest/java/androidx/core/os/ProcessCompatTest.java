@@ -35,4 +35,22 @@ public class ProcessCompatTest {
         assertFalse("Test process is not an application",
                 ProcessCompat.isApplicationUid(1000));
     }
+
+    @Test
+    public void testIsIsolatedUid() {
+        assertFalse("Test process is not an isolated uid",
+                ProcessCompat.isIsolatedUid(Process.myUid()));
+        assertTrue("Isolated uid in range",
+                ProcessCompat.isIsolatedUid(99000));
+        assertFalse("System uid is not an isolated uid",
+                ProcessCompat.isIsolatedUid(1000));
+    }
+
+    @Test
+    public void testIsSdkSandboxUid() {
+        assertFalse("Test process is not an sdk sandbox uid",
+                ProcessCompat.isSdkSandboxUid(Process.myUid()));
+        assertFalse("System uid is not an sdk sandbox uid",
+                ProcessCompat.isSdkSandboxUid(1000));
+    }
 }
