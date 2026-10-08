@@ -22,7 +22,6 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
-import androidx.car.app.model.constraints.CarColorConstraints;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -122,13 +121,8 @@ public final class CarProgressBarStyle {
          *
          * <p>If a color is not set, or if the provided color does not pass a contrast check, the
          * host will use a default color.
-         *
-         * @throws IllegalArgumentException if {@code color} contains an unsupported color type
          */
         public @NonNull Builder setColor(@Nullable CarColor color) {
-            if (color != null) {
-                CarColorConstraints.UNCONSTRAINED.validateOrThrow(color);
-            }
             mColor = color;
             return this;
         }
@@ -138,13 +132,8 @@ public final class CarProgressBarStyle {
          *
          * <p>If a color is not set, or if the provided color does not pass a contrast check, the
          * host will use a default color.
-         *
-         * @throws IllegalArgumentException if {@code color} contains an unsupported color type
          */
         public @NonNull Builder setTrackColor(@Nullable CarColor color) {
-            if (color != null) {
-                CarColorConstraints.UNCONSTRAINED.validateOrThrow(color);
-            }
             mTrackColor = color;
             return this;
         }
