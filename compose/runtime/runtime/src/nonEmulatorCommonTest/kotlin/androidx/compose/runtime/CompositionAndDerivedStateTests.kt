@@ -742,6 +742,30 @@ class CompositionAndDerivedStateTests {
         revalidate()
         assertEquals(2, compositionCount)
     }
+
+    @Test // b/565042559
+    fun derivedStateSkippedScopeInvalidationsAreCleared() = compositionTest {
+        var a by mutableIntStateOf(1)
+        var b by mutableIntStateOf(1)
+        val derived by derivedStateOf { a + b }
+
+        compose { Wrap { Text("Derived: $derived") } }
+
+        validate { Text("Derived: 2") }
+
+        val composer = (composition as CompositionImpl).composer
+        assertEquals(0, composer.stacksSize())
+
+        // derivedStateOf dependency changes, but derived result is unchanged.
+        // The scope invalidation is skipped in recomposeToGroupEnd and must be removed.
+        Snapshot.withMutableSnapshot {
+            a += 1
+            b -= 1
+        }
+        expectNoChanges()
+        revalidate()
+        assertEquals(0, composer.stacksSize())
+    }
 }
 
 private class NestedItem(val number: Int) {
