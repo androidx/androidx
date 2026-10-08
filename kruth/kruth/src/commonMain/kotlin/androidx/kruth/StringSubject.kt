@@ -25,55 +25,55 @@ import androidx.kruth.Fact.Companion.simpleFact
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
  *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-expect open class StringSubject protected constructor(metadata: FailureMetadata, actual: String?) :
-    ComparableSubject<String> {
+public expect open class StringSubject
+protected constructor(metadata: FailureMetadata, actual: String?) : ComparableSubject<String> {
 
     internal constructor(actual: String?, metadata: FailureMetadata)
 
     /** Fails if the string does not contain the given sequence. */
-    open fun contains(charSequence: CharSequence?)
+    public open fun contains(charSequence: CharSequence?)
 
     /** Fails if the string does not have the given length. */
-    open fun hasLength(expectedLength: Int)
+    public open fun hasLength(expectedLength: Int)
 
     /** Fails if the string is not equal to the zero-length "empty string." */
-    open fun isEmpty()
+    public open fun isEmpty()
 
     /** Fails if the string is equal to the zero-length "empty string." */
-    open fun isNotEmpty()
+    public open fun isNotEmpty()
 
     /** Fails if the string contains the given sequence. */
-    open fun doesNotContain(charSequence: CharSequence?)
+    public open fun doesNotContain(charSequence: CharSequence?)
 
     /** Fails if the string does not start with the given string. */
-    open fun startsWith(string: String?)
+    public open fun startsWith(string: String?)
 
     /** Fails if the string does not end with the given string. */
-    open fun endsWith(string: String?)
+    public open fun endsWith(string: String?)
 
     /** Fails if the string does not match the given [regex]. */
-    open fun matches(regex: String?)
+    public open fun matches(regex: String?)
 
     /** Fails if the string does not match the given [regex]. */
-    fun matches(regex: Regex?)
+    public fun matches(regex: Regex?)
 
     /** Fails if the string matches the given regex. */
-    open fun doesNotMatch(regex: String?)
+    public open fun doesNotMatch(regex: String?)
 
     /** Fails if the string matches the given regex. */
-    fun doesNotMatch(regex: Regex?)
+    public fun doesNotMatch(regex: Regex?)
 
     /** Fails if the string does not contain a match on the given regex. */
-    open fun containsMatch(regex: String?)
+    public open fun containsMatch(regex: String?)
 
     /** Fails if the string does not contain a match on the given regex. */
-    fun containsMatch(regex: Regex?)
+    public fun containsMatch(regex: Regex?)
 
     /** Fails if the string contains a match on the given regex. */
-    open fun doesNotContainMatch(regex: String?)
+    public open fun doesNotContainMatch(regex: String?)
 
     /** Fails if the string contains a match on the given regex. */
-    fun doesNotContainMatch(regex: Regex?)
+    public fun doesNotContainMatch(regex: Regex?)
 
     /**
      * Returns a [StringSubject]-like instance that will ignore the case of the characters.
@@ -82,9 +82,9 @@ expect open class StringSubject protected constructor(metadata: FailureMetadata,
      * calling [Char.lowercaseChar] or after calling [Char.uppercaseChar]. Note that this is
      * independent of any locale.
      */
-    open fun ignoringCase(): CaseInsensitiveStringComparison
+    public open fun ignoringCase(): CaseInsensitiveStringComparison
 
-    inner class CaseInsensitiveStringComparison internal constructor() {
+    public inner class CaseInsensitiveStringComparison internal constructor() {
         /**
          * Fails if the subject is not equal to the given sequence (while ignoring case). For the
          * purposes of this comparison, two strings are equal if any of the following is true:
@@ -93,19 +93,19 @@ expect open class StringSubject protected constructor(metadata: FailureMetadata,
          *
          * Example: "abc" is equal to "ABC", but not to "abcd".
          */
-        fun isEqualTo(expected: String?)
+        public fun isEqualTo(expected: String?)
 
         /**
          * Fails if the subject is equal to the given string (while ignoring case). The meaning of
          * equality is the same as for the [isEqualTo] method.
          */
-        fun isNotEqualTo(unexpected: String?)
+        public fun isNotEqualTo(unexpected: String?)
 
         /** Fails if the string does not contain the given sequence (while ignoring case). */
-        fun contains(expected: CharSequence?)
+        public fun contains(expected: CharSequence?)
 
         /** Fails if the string contains the given sequence (while ignoring case). */
-        fun doesNotContain(expected: CharSequence?)
+        public fun doesNotContain(expected: CharSequence?)
     }
 }
 

@@ -30,10 +30,10 @@ import org.intellij.lang.annotations.Language
 /** Information for MotionLayout to animate between multiple [ConstraintSet]s. */
 @ExperimentalMotionApi
 @Immutable
-interface MotionScene : CoreMotionScene {
-    fun getConstraintSetInstance(name: String): ConstraintSet?
+public interface MotionScene : CoreMotionScene {
+    public fun getConstraintSetInstance(name: String): ConstraintSet?
 
-    fun getTransitionInstance(name: String): Transition?
+    public fun getTransitionInstance(name: String): Transition?
 }
 
 /**
@@ -46,7 +46,7 @@ interface MotionScene : CoreMotionScene {
 @ExperimentalMotionApi
 @SuppressLint("ComposableNaming")
 @Composable
-fun MotionScene(@Language("json5") content: String): MotionScene {
+public fun MotionScene(@Language("json5") content: String): MotionScene {
     // TODO: Explore if we can make this a non-Composable, we have to make sure that it doesn't
     //  break Link functionality
     return remember(content) { JSONMotionScene(content) }

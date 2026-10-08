@@ -34,7 +34,7 @@ import androidx.kruth.Fact.Companion.simpleFact
  *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
 // Can't be final since MultisetSubject and SortedSetSubject extend it
-open class IterableSubject<T>
+public open class IterableSubject<T>
 protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
     Subject<Iterable<T>>(actual, metadata = metadata, typeDescriptionOverride = null) {
 
@@ -59,7 +59,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
     }
 
     /** Fails if the subject is not empty. */
-    fun isEmpty() {
+    public fun isEmpty() {
         requireNonNull(actual)
 
         if (!actual.isEmpty()) {
@@ -68,7 +68,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
     }
 
     /** Fails if the subject is empty. */
-    fun isNotEmpty() {
+    public fun isNotEmpty() {
         requireNonNull(actual)
 
         if (actual.isEmpty()) {
@@ -77,7 +77,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
     }
 
     /** Fails if the subject does not have the given size. */
-    fun hasSize(expectedSize: Int) {
+    public fun hasSize(expectedSize: Int) {
         require(expectedSize >= 0) { "expectedSize($expectedSize) must be >= 0" }
         requireNonNull(actual)
 
@@ -85,7 +85,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
     }
 
     /** Checks (with a side-effect failure) that the subject contains the supplied item. */
-    fun contains(element: Any?) {
+    public fun contains(element: Any?) {
         requireNonNull(actual)
 
         if (element !in actual) {
@@ -104,7 +104,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
     }
 
     /** Checks (with a side-effect failure) that the subject does not contain the supplied item. */
-    fun doesNotContain(element: Any?) {
+    public fun doesNotContain(element: Any?) {
         requireNonNull(actual)
 
         if (element in actual) {
@@ -113,7 +113,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
     }
 
     /** Checks that the subject does not contain duplicate elements. */
-    fun containsNoDuplicates() {
+    public fun containsNoDuplicates() {
         requireNonNull(actual)
 
         val duplicates = actual.groupBy { it }.values.filter { it.size > 1 }
@@ -127,7 +127,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
     }
 
     /** Checks that the subject contains at least one of the provided objects or fails. */
-    fun containsAnyOf(first: Any?, second: Any?, vararg rest: Any?) {
+    public fun containsAnyOf(first: Any?, second: Any?, vararg rest: Any?) {
         containsAnyIn(listOf(first, second, *rest))
     }
 
@@ -135,7 +135,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      * Checks that the subject contains at least one of the objects contained in the provided
      * collection or fails.
      */
-    fun containsAnyIn(expected: Iterable<*>?) {
+    public fun containsAnyIn(expected: Iterable<*>?) {
         requireNonNull(expected)
         val actual = requireNonNull(actual).toList()
 
@@ -159,7 +159,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      * Checks that the subject contains at least one of the objects contained in the provided array
      * or fails.
      */
-    fun containsAnyIn(expected: Array<out Any?>?) {
+    public fun containsAnyIn(expected: Array<out Any?>?) {
         containsAnyIn(requireNonNull(expected).asList())
     }
 
@@ -172,7 +172,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      * object returned by this method. The expected elements must appear in the given order within
      * the actual elements, but they are not required to be consecutive.
      */
-    fun containsAtLeast(
+    public fun containsAtLeast(
         firstExpected: Any?,
         secondExpected: Any?,
         vararg restOfExpected: Any?,
@@ -187,7 +187,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      * object returned by this method. The expected elements must appear in the given order within
      * the actual elements, but they are not required to be consecutive.
      */
-    fun containsAtLeastElementsIn(expected: Iterable<*>?): Ordered {
+    public fun containsAtLeastElementsIn(expected: Iterable<*>?): Ordered {
         requireNonNull(expected)
         val actualList = requireNonNull(actual).toMutableList()
 
@@ -254,7 +254,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      * object returned by this method. The expected elements must appear in the given order within
      * the actual elements, but they are not required to be consecutive.
      */
-    fun containsAtLeastElementsIn(expected: Array<out Any?>?): Ordered =
+    public fun containsAtLeastElementsIn(expected: Array<out Any?>?): Ordered =
         containsAtLeastElementsIn(expected?.asList())
 
     /**
@@ -271,7 +271,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      * [containsExactlyElementsIn]. It makes clear that the given array is a list of elements, not
      * an element itself. This helps human readers and avoids a compiler warning.
      */
-    fun containsExactly(vararg expected: Any?): Ordered =
+    public fun containsExactly(vararg expected: Any?): Ordered =
         containsExactlyElementsIn(expected.asList())
 
     /**
@@ -284,7 +284,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      * To also test that the contents appear in the given order, make a call to [Ordered.inOrder] on
      * the object returned by this method.
      */
-    fun containsExactlyElementsIn(required: Iterable<*>?): Ordered {
+    public fun containsExactlyElementsIn(required: Iterable<*>?): Ordered {
         val actualIter = requireNonNull(actual).iterator()
         val requiredIter = requireNonNull(required).iterator()
 
@@ -416,14 +416,18 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      * To also test that the contents appear in the given order, make a call to `inOrder()` on the
      * object returned by this method.
      */
-    fun containsExactlyElementsIn(expected: Array<out Any?>?): Ordered =
+    public fun containsExactlyElementsIn(expected: Array<out Any?>?): Ordered =
         containsExactlyElementsIn(expected?.asList())
 
     /**
      * Checks that a actual iterable contains none of the excluded objects or fails. (Duplicates are
      * irrelevant to this test, which fails if any of the actual elements equal any of the excluded)
      */
-    fun containsNoneOf(firstExcluded: Any?, secondExcluded: Any?, vararg restOfExcluded: Any?) {
+    public fun containsNoneOf(
+        firstExcluded: Any?,
+        secondExcluded: Any?,
+        vararg restOfExcluded: Any?,
+    ) {
         containsNoneIn(listOf(firstExcluded, secondExcluded, *restOfExcluded))
     }
 
@@ -432,7 +436,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      * iterable or fails. (Duplicates are irrelevant to this test, which fails if any of the actual
      * elements equal any of the excluded)
      */
-    fun containsNoneIn(excluded: Iterable<*>?) {
+    public fun containsNoneIn(excluded: Iterable<*>?) {
         requireNonNull(excluded)
         val actual = requireNonNull(actual).toSet()
         val present = excluded.intersect(actual)
@@ -449,7 +453,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      * array or fails. (Duplicates are irrelevant to this test, which fails if any of the actual
      * elements equal any of the excluded)
      */
-    fun containsNoneIn(excluded: Array<Any?>?) {
+    public fun containsNoneIn(excluded: Array<Any?>?) {
         containsNoneIn(excluded?.asList())
     }
 
@@ -461,7 +465,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      * @throws ClassCastException if any pair of elements is not mutually Comparable
      * @throws NullPointerException if any element is null
      */
-    open fun isInStrictOrder() {
+    public open fun isInStrictOrder() {
         isInStrictOrder(compareBy<Comparable<Any>> { it })
     }
 
@@ -474,7 +478,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      *
      * @throws ClassCastException if any pair of elements is not mutually Comparable
      */
-    fun isInStrictOrder(comparator: Comparator<*>?) {
+    public fun isInStrictOrder(comparator: Comparator<*>?) {
         @Suppress("UNCHECKED_CAST") val cmp = requireNonNull(comparator) as Comparator<in Any?>
 
         verifyInOrder(
@@ -491,7 +495,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      * @throws ClassCastException if any pair of elements is not mutually Comparable
      * @throws NullPointerException if any element is null
      */
-    open fun isInOrder() {
+    public open fun isInOrder() {
         isInOrder(compareBy<Comparable<Any>> { it })
     }
 
@@ -501,7 +505,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
      *
      * @throws ClassCastException if any pair of elements is not mutually Comparable
      */
-    fun isInOrder(comparator: Comparator<*>?) {
+    public fun isInOrder(comparator: Comparator<*>?) {
         @Suppress("UNCHECKED_CAST") val cmp = requireNonNull(comparator) as Comparator<in Any?>
 
         verifyInOrder(

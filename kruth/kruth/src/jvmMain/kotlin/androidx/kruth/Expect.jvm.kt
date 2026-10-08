@@ -67,15 +67,15 @@ import org.junit.runners.model.Statement
  * For more on this class, see [the documentation page](https://truth.dev/expect).
  */
 // TODO(dustinlam): This class needs to be made thread-safe as Truth's version is synchronized.
-class Expect private constructor(private val gatherer: ExpectationGatherer) :
+public class Expect private constructor(private val gatherer: ExpectationGatherer) :
     StandardSubjectBuilder(FailureMetadata(failureStrategy = gatherer)), TestRule {
 
-    companion object {
+    public companion object {
         /** Creates a new instance. */
-        @JvmStatic fun create(): Expect = Expect(ExpectationGatherer())
+        @JvmStatic public fun create(): Expect = Expect(ExpectationGatherer())
     }
 
-    fun hasFailures(): Boolean {
+    public fun hasFailures(): Boolean {
         return gatherer.hasFailures()
     }
 

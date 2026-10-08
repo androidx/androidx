@@ -35,7 +35,7 @@ package androidx.kruth
  * instance to users, expose a [StandardSubjectBuilder] instance using
  * [StandardSubjectBuilder.forCustomFailureStrategy].
  */
-fun interface FailureStrategy {
+public fun interface FailureStrategy {
     /**
      * Handles a failure. The parameter is an [AssertionError] or subclass thereof, and it contains
      * information about the failure, which may include:
@@ -45,5 +45,5 @@ fun interface FailureStrategy {
      * We encourage implementations to record as much of this information as practical in the
      * exceptions they may throw or the other records they may make.
      */
-    fun fail(failure: AssertionError)
+    public fun fail(failure: AssertionError)
 }

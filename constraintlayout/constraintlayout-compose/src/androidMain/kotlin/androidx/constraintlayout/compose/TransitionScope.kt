@@ -40,7 +40,7 @@ import kotlin.reflect.KProperty
  * @param content Lambda to define the Transition parameters on the given [TransitionScope].
  */
 @ExperimentalMotionApi
-fun Transition(
+public fun Transition(
     from: String = "start",
     to: String = "end",
     content: TransitionScope.() -> Unit,
@@ -62,7 +62,8 @@ fun Transition(
  */
 @ExperimentalMotionApi
 @LayoutScopeMarker
-class TransitionScope internal constructor(private val from: String, private val to: String) {
+public class TransitionScope
+internal constructor(private val from: String, private val to: String) {
     private val containerObject = CLObject(charArrayOf())
 
     private val keyFramesObject = CLObject(charArrayOf())
@@ -99,7 +100,7 @@ class TransitionScope internal constructor(private val from: String, private val
      *
      * [Arc.None] by default.
      */
-    var motionArc: Arc = Arc.None
+    public var motionArc: Arc = Arc.None
 
     /**
      * When not null, enables animating through the transition with touch input.
@@ -137,7 +138,7 @@ class TransitionScope internal constructor(private val from: String, private val
      *
      * @see OnSwipe
      */
-    var onSwipe: OnSwipe? = null
+    public var onSwipe: OnSwipe? = null
 
     /**
      * Defines the maximum delay (in progress value) between a group of staggered widgets.
@@ -176,14 +177,14 @@ class TransitionScope internal constructor(private val from: String, private val
      * This is because the weights are distributed linearly among the widgets.
      */
     @FloatRange(-1.0, 1.0, fromInclusive = false, toInclusive = false)
-    var maxStaggerDelay: Float = 0.0f
+    public var maxStaggerDelay: Float = 0.0f
 
     /**
      * Define KeyAttribute KeyFrames for the given [targets].
      *
      * Set multiple KeyFrames with [KeyAttributesScope.frame].
      */
-    fun keyAttributes(
+    public fun keyAttributes(
         vararg targets: ConstrainedLayoutReference,
         keyAttributesContent: KeyAttributesScope.() -> Unit,
     ) {
@@ -198,7 +199,7 @@ class TransitionScope internal constructor(private val from: String, private val
      *
      * Set multiple KeyFrames with [KeyPositionsScope.frame].
      */
-    fun keyPositions(
+    public fun keyPositions(
         vararg targets: ConstrainedLayoutReference,
         keyPositionsContent: KeyPositionsScope.() -> Unit,
     ) {
@@ -213,7 +214,7 @@ class TransitionScope internal constructor(private val from: String, private val
      *
      * Set multiple KeyFrames with [KeyCyclesScope.frame].
      */
-    fun keyCycles(
+    public fun keyCycles(
         vararg targets: ConstrainedLayoutReference,
         keyCyclesContent: KeyCyclesScope.() -> Unit,
     ) {
@@ -227,7 +228,7 @@ class TransitionScope internal constructor(private val from: String, private val
      * Creates one [ConstrainedLayoutReference] corresponding to the [ConstraintLayout] element with
      * [id].
      */
-    fun createRefFor(id: Any): ConstrainedLayoutReference = ConstrainedLayoutReference(id)
+    public fun createRefFor(id: Any): ConstrainedLayoutReference = ConstrainedLayoutReference(id)
 
     internal fun getObject(): CLObject {
         containerObject.putString("pathMotionArc", motionArc.name)
@@ -271,14 +272,14 @@ class TransitionScope internal constructor(private val from: String, private val
  * [keyFramePropsObject].
  */
 @ExperimentalMotionApi
-sealed class BaseKeyFramesScope(vararg targets: ConstrainedLayoutReference) {
+public sealed class BaseKeyFramesScope(vararg targets: ConstrainedLayoutReference) {
     internal val keyFramePropsObject = CLObject(charArrayOf()).apply { clear() }
 
     private val targetsContainer = CLArray(charArrayOf())
     internal val framesContainer = CLArray(charArrayOf())
 
     /** The [Easing] curve to apply for the KeyFrames defined in this scope. */
-    var easing: Easing by addNameOnPropertyChange(Easing.Standard, "transitionEasing")
+    public var easing: Easing by addNameOnPropertyChange(Easing.Standard, "transitionEasing")
 
     init {
         keyFramePropsObject.put("target", targetsContainer)
@@ -325,7 +326,7 @@ sealed class BaseKeyFramesScope(vararg targets: ConstrainedLayoutReference) {
  */
 @ExperimentalMotionApi
 @LayoutScopeMarker
-class KeyAttributesScope internal constructor(vararg targets: ConstrainedLayoutReference) :
+public class KeyAttributesScope internal constructor(vararg targets: ConstrainedLayoutReference) :
     BaseKeyFramesScope(*targets) {
 
     /**
@@ -335,7 +336,7 @@ class KeyAttributesScope internal constructor(vararg targets: ConstrainedLayoutR
      * All properties set on [KeyAttributeScope] for this [frame] should also be set on other
      * [frame] declarations made within this scope.
      */
-    fun frame(@IntRange(0, 100) frame: Int, keyFrameContent: KeyAttributeScope.() -> Unit) {
+    public fun frame(@IntRange(0, 100) frame: Int, keyFrameContent: KeyAttributeScope.() -> Unit) {
         val scope = KeyAttributeScope()
         keyFrameContent(scope)
         framesContainer.add(CLNumber(frame.toFloat()))
@@ -350,14 +351,14 @@ class KeyAttributesScope internal constructor(vararg targets: ConstrainedLayoutR
  */
 @ExperimentalMotionApi
 @LayoutScopeMarker
-class KeyPositionsScope internal constructor(vararg targets: ConstrainedLayoutReference) :
+public class KeyPositionsScope internal constructor(vararg targets: ConstrainedLayoutReference) :
     BaseKeyFramesScope(*targets) {
     /**
      * Sets the coordinate space in which KeyPositions are defined.
      *
      * [RelativePosition.Delta] by default.
      */
-    var type by addNameOnPropertyChange(RelativePosition.Delta)
+    public var type: RelativePosition by addNameOnPropertyChange(RelativePosition.Delta)
 
     /**
      * Define KeyPosition values at a given KeyFrame, where the [frame] is a specific progress value
@@ -366,7 +367,7 @@ class KeyPositionsScope internal constructor(vararg targets: ConstrainedLayoutRe
      * All properties set on [KeyPositionScope] for this [frame] should also be set on other [frame]
      * declarations made within this scope.
      */
-    fun frame(@IntRange(0, 100) frame: Int, keyFrameContent: KeyPositionScope.() -> Unit) {
+    public fun frame(@IntRange(0, 100) frame: Int, keyFrameContent: KeyPositionScope.() -> Unit) {
         val scope = KeyPositionScope()
         keyFrameContent(scope)
         framesContainer.add(CLNumber(frame.toFloat()))
@@ -381,7 +382,7 @@ class KeyPositionsScope internal constructor(vararg targets: ConstrainedLayoutRe
  */
 @ExperimentalMotionApi
 @LayoutScopeMarker
-class KeyCyclesScope internal constructor(vararg targets: ConstrainedLayoutReference) :
+public class KeyCyclesScope internal constructor(vararg targets: ConstrainedLayoutReference) :
     BaseKeyFramesScope(*targets) {
 
     /**
@@ -391,7 +392,7 @@ class KeyCyclesScope internal constructor(vararg targets: ConstrainedLayoutRefer
      * All properties set on [KeyCycleScope] for this [frame] should also be set on other [frame]
      * declarations made within this scope.
      */
-    fun frame(@IntRange(0, 100) frame: Int, keyFrameContent: KeyCycleScope.() -> Unit) {
+    public fun frame(@IntRange(0, 100) frame: Int, keyFrameContent: KeyCycleScope.() -> Unit) {
         val scope = KeyCycleScope()
         keyFrameContent(scope)
         framesContainer.add(CLNumber(frame.toFloat()))
@@ -406,7 +407,7 @@ class KeyCyclesScope internal constructor(vararg targets: ConstrainedLayoutRefer
  * [customPropertiesValue].
  */
 @ExperimentalMotionApi
-sealed class BaseKeyFrameScope {
+public sealed class BaseKeyFrameScope {
     /**
      * PropertyName-Value map for the properties of each type of key frame.
      *
@@ -426,7 +427,10 @@ sealed class BaseKeyFrameScope {
      *
      * Where the Key is the property's name unless [nameOverride] is not null.
      */
-    protected fun <T> addOnPropertyChange(initialValue: T, nameOverride: String? = null) =
+    protected fun <T> addOnPropertyChange(
+        initialValue: T,
+        nameOverride: String? = null,
+    ): ObservableProperty<T> =
         object : ObservableProperty<T>(initialValue) {
             override fun afterChange(property: KProperty<*>, oldValue: T, newValue: T) {
                 if (newValue != null) {
@@ -451,7 +455,7 @@ sealed class BaseKeyFrameScope {
     protected fun <E : NamedPropertyOrValue?> addNameOnPropertyChange(
         initialValue: E,
         nameOverride: String? = null,
-    ) =
+    ): ObservableProperty<E> =
         object : ObservableProperty<E>(initialValue) {
             override fun afterChange(property: KProperty<*>, oldValue: E, newValue: E) {
                 val name = nameOverride ?: property.name
@@ -525,16 +529,16 @@ sealed class BaseKeyFrameScope {
  */
 @ExperimentalMotionApi
 @LayoutScopeMarker
-class KeyAttributeScope internal constructor() : BaseKeyFrameScope() {
-    var alpha by addOnPropertyChange(1f, "alpha")
-    var scaleX by addOnPropertyChange(1f, "scaleX")
-    var scaleY by addOnPropertyChange(1f, "scaleY")
-    var rotationX by addOnPropertyChange(0f, "rotationX")
-    var rotationY by addOnPropertyChange(0f, "rotationY")
-    var rotationZ by addOnPropertyChange(0f, "rotationZ")
-    var translationX: Dp by addOnPropertyChange(0.dp, "translationX")
-    var translationY: Dp by addOnPropertyChange(0.dp, "translationY")
-    var translationZ: Dp by addOnPropertyChange(0.dp, "translationZ")
+public class KeyAttributeScope internal constructor() : BaseKeyFrameScope() {
+    public var alpha: Float by addOnPropertyChange(1f, "alpha")
+    public var scaleX: Float by addOnPropertyChange(1f, "scaleX")
+    public var scaleY: Float by addOnPropertyChange(1f, "scaleY")
+    public var rotationX: Float by addOnPropertyChange(0f, "rotationX")
+    public var rotationY: Float by addOnPropertyChange(0f, "rotationY")
+    public var rotationZ: Float by addOnPropertyChange(0f, "rotationZ")
+    public var translationX: Dp by addOnPropertyChange(0.dp, "translationX")
+    public var translationY: Dp by addOnPropertyChange(0.dp, "translationY")
+    public var translationZ: Dp by addOnPropertyChange(0.dp, "translationZ")
 }
 
 /**
@@ -545,7 +549,7 @@ class KeyAttributeScope internal constructor() : BaseKeyFrameScope() {
  */
 @ExperimentalMotionApi
 @LayoutScopeMarker
-class KeyPositionScope internal constructor() : BaseKeyFrameScope() {
+public class KeyPositionScope internal constructor() : BaseKeyFrameScope() {
     /**
      * The position as a percentage of the X axis of the current coordinate space.
      *
@@ -554,7 +558,7 @@ class KeyPositionScope internal constructor() : BaseKeyFrameScope() {
      *
      * The coordinate space is defined by [KeyPositionsScope.type].
      */
-    var percentX by addOnPropertyChange(1f)
+    public var percentX: Float by addOnPropertyChange(1f)
 
     /**
      * The position as a percentage of the Y axis of the current coordinate space.
@@ -564,16 +568,16 @@ class KeyPositionScope internal constructor() : BaseKeyFrameScope() {
      *
      * The coordinate space is defined by [KeyPositionsScope.type].
      */
-    var percentY by addOnPropertyChange(1f)
+    public var percentY: Float by addOnPropertyChange(1f)
 
     /** The width as a percentage of the width at the end [ConstraintSet]. */
-    var percentWidth by addOnPropertyChange(1f)
+    public var percentWidth: Float by addOnPropertyChange(1f)
 
     /** The height as a percentage of the height at the end [ConstraintSet]. */
-    var percentHeight by addOnPropertyChange(0f)
+    public var percentHeight: Float by addOnPropertyChange(0f)
 
     /** Type of fit applied to the curve. [CurveFit.Spline] by default. */
-    var curveFit: CurveFit? by addNameOnPropertyChange(null)
+    public var curveFit: CurveFit? by addNameOnPropertyChange(null)
 }
 
 /**
@@ -584,26 +588,26 @@ class KeyPositionScope internal constructor() : BaseKeyFrameScope() {
  */
 @ExperimentalMotionApi
 @LayoutScopeMarker
-class KeyCycleScope internal constructor() : BaseKeyFrameScope() {
-    var alpha by addOnPropertyChange(1f)
-    var scaleX by addOnPropertyChange(1f)
-    var scaleY by addOnPropertyChange(1f)
-    var rotationX by addOnPropertyChange(0f)
-    var rotationY by addOnPropertyChange(0f)
-    var rotationZ by addOnPropertyChange(0f)
-    var translationX: Dp by addOnPropertyChange(0.dp)
-    var translationY: Dp by addOnPropertyChange(0.dp)
-    var translationZ: Dp by addOnPropertyChange(0.dp)
-    var period by addOnPropertyChange(0f)
-    var offset by addOnPropertyChange(0f)
-    var phase by addOnPropertyChange(0f)
+public class KeyCycleScope internal constructor() : BaseKeyFrameScope() {
+    public var alpha: Float by addOnPropertyChange(1f)
+    public var scaleX: Float by addOnPropertyChange(1f)
+    public var scaleY: Float by addOnPropertyChange(1f)
+    public var rotationX: Float by addOnPropertyChange(0f)
+    public var rotationY: Float by addOnPropertyChange(0f)
+    public var rotationZ: Float by addOnPropertyChange(0f)
+    public var translationX: Dp by addOnPropertyChange(0.dp)
+    public var translationY: Dp by addOnPropertyChange(0.dp)
+    public var translationZ: Dp by addOnPropertyChange(0.dp)
+    public var period: Float by addOnPropertyChange(0f)
+    public var offset: Float by addOnPropertyChange(0f)
+    public var phase: Float by addOnPropertyChange(0f)
 
     // TODO: Add Wave Shape & Custom Wave
 }
 
 @ExperimentalMotionApi
-interface NamedPropertyOrValue {
-    val name: String
+public interface NamedPropertyOrValue {
+    public val name: String
 }
 
 /**
@@ -635,16 +639,16 @@ interface NamedPropertyOrValue {
  *   default.
  */
 @ExperimentalMotionApi
-class OnSwipe(
-    val anchor: ConstrainedLayoutReference,
-    val side: SwipeSide,
-    val direction: SwipeDirection,
-    val dragScale: Float = 1f,
-    val dragThreshold: Float = 10f,
-    val dragAround: ConstrainedLayoutReference? = null,
-    val limitBoundsTo: ConstrainedLayoutReference? = null,
-    val onTouchUp: SwipeTouchUp = SwipeTouchUp.AutoComplete,
-    val mode: SwipeMode = SwipeMode.velocity(),
+public class OnSwipe(
+    public val anchor: ConstrainedLayoutReference,
+    public val side: SwipeSide,
+    public val direction: SwipeDirection,
+    public val dragScale: Float = 1f,
+    public val dragThreshold: Float = 10f,
+    public val dragAround: ConstrainedLayoutReference? = null,
+    public val limitBoundsTo: ConstrainedLayoutReference? = null,
+    public val onTouchUp: SwipeTouchUp = SwipeTouchUp.AutoComplete,
+    public val mode: SwipeMode = SwipeMode.velocity(),
 )
 
 /**
@@ -653,35 +657,35 @@ class OnSwipe(
  * You may define your own Cubic-bezier easing curve with [cubic].
  */
 @ExperimentalMotionApi
-class Easing internal constructor(override val name: String) : NamedPropertyOrValue {
-    companion object {
+public class Easing internal constructor(override val name: String) : NamedPropertyOrValue {
+    public companion object {
         /**
          * Standard [Easing] curve, also known as: Ease in, ease out.
          *
          * Defined as `cubic(0.4f, 0.0f, 0.2f, 1f)`.
          */
-        val Standard = Easing("standard")
+        public val Standard: Easing = Easing("standard")
 
         /**
          * Acceleration [Easing] curve, also known as: Ease in.
          *
          * Defined as `cubic(0.4f, 0.05f, 0.8f, 0.7f)`.
          */
-        val Accelerate = Easing("accelerate")
+        public val Accelerate: Easing = Easing("accelerate")
 
         /**
          * Deceleration [Easing] curve, also known as: Ease out.
          *
          * Defined as `cubic(0.0f, 0.0f, 0.2f, 0.95f)`.
          */
-        val Decelerate = Easing("decelerate")
+        public val Decelerate: Easing = Easing("decelerate")
 
         /**
          * Linear [Easing] curve.
          *
          * Defined as `cubic(1f, 1f, 0f, 0f)`.
          */
-        val Linear = Easing("linear")
+        public val Linear: Easing = Easing("linear")
 
         /**
          * Anticipate is an [Easing] curve with a small negative overshoot near the start of the
@@ -689,7 +693,7 @@ class Easing internal constructor(override val name: String) : NamedPropertyOrVa
          *
          * Defined as `cubic(0.36f, 0f, 0.66f, -0.56f)`.
          */
-        val Anticipate = Easing("anticipate")
+        public val Anticipate: Easing = Easing("anticipate")
 
         /**
          * Overshoot is an [Easing] curve with a small positive overshoot near the end of the
@@ -697,7 +701,7 @@ class Easing internal constructor(override val name: String) : NamedPropertyOrVa
          *
          * Defined as `cubic(0.34f, 1.56f, 0.64f, 1f)`.
          */
-        val Overshoot = Easing("overshoot")
+        public val Overshoot: Easing = Easing("overshoot")
 
         /**
          * Defines a Cubic-Bezier curve where the points P1 and P2 are at the given coordinate
@@ -711,20 +715,21 @@ class Easing internal constructor(override val name: String) : NamedPropertyOrVa
          * @param x2 X-axis value for P2. Value is typically defined within 0f-1f.
          * @param y2 Y-axis value for P2. Value is typically defined within 0f-1f.
          */
-        fun cubic(x1: Float, y1: Float, x2: Float, y2: Float) = Easing("cubic($x1, $y1, $x2, $y2)")
+        public fun cubic(x1: Float, y1: Float, x2: Float, y2: Float): Easing =
+            Easing("cubic($x1, $y1, $x2, $y2)")
     }
 }
 
 /** Determines a specific arc direction of the widget's path on a [Transition]. */
 @ExperimentalMotionApi
-class Arc internal constructor(val name: String) {
-    companion object {
-        val None = Arc("none")
-        val StartVertical = Arc("startVertical")
-        val StartHorizontal = Arc("startHorizontal")
-        val Flip = Arc("flip")
-        val Below = Arc("below")
-        val Above = Arc("above")
+public class Arc internal constructor(public val name: String) {
+    public companion object {
+        public val None: Arc = Arc("none")
+        public val StartVertical: Arc = Arc("startVertical")
+        public val StartHorizontal: Arc = Arc("startHorizontal")
+        public val Flip: Arc = Arc("flip")
+        public val Below: Arc = Arc("below")
+        public val Above: Arc = Arc("above")
     }
 }
 
@@ -735,9 +740,9 @@ class Arc internal constructor(val name: String) {
  * @see spring
  */
 @ExperimentalMotionApi
-class SwipeMode
+public class SwipeMode
 internal constructor(
-    val name: String,
+    public val name: String,
     internal val springMass: Float = 1f,
     internal val springStiffness: Float = 400f,
     internal val springDamping: Float = 10f,
@@ -746,7 +751,7 @@ internal constructor(
     internal val maxVelocity: Float = 4f,
     internal val maxAcceleration: Float = 1.2f,
 ) {
-    companion object {
+    public companion object {
         /**
          * The default Velocity based mode.
          *
@@ -754,7 +759,7 @@ internal constructor(
          *
          * @see velocity
          */
-        val Velocity = velocity()
+        public val Velocity: SwipeMode = velocity()
 
         /**
          * The default Spring based mode.
@@ -764,7 +769,7 @@ internal constructor(
          *
          * @see spring
          */
-        val Spring = spring()
+        public val Spring: SwipeMode = spring()
 
         /**
          * Velocity based behavior during touch up for [OnSwipe].
@@ -772,7 +777,7 @@ internal constructor(
          * @param maxVelocity Maximum velocity in pixels/milliSecond
          * @param maxAcceleration Maximum acceleration in pixels/milliSecond^2
          */
-        fun velocity(maxVelocity: Float = 4f, maxAcceleration: Float = 1.2f): SwipeMode =
+        public fun velocity(maxVelocity: Float = 4f, maxAcceleration: Float = 1.2f): SwipeMode =
             SwipeMode(
                 name = "velocity",
                 maxVelocity = maxVelocity,
@@ -797,7 +802,7 @@ internal constructor(
          * @param boundary Behavior of the spring bouncing motion as it crosses its target position.
          *   [SpringBoundary.Overshoot] by default.
          */
-        fun spring(
+        public fun spring(
             mass: Float = 1f,
             stiffness: Float = 400f,
             damping: Float = 10f,
@@ -825,13 +830,13 @@ internal constructor(
  * [OnSwipe.mode].
  */
 @ExperimentalMotionApi
-class SwipeTouchUp internal constructor(val name: String) {
-    companion object {
+public class SwipeTouchUp internal constructor(public val name: String) {
+    public companion object {
         /**
          * The widget will be automatically animated towards the [ConstraintSet] closest to where
          * the swipe motion is predicted to end.
          */
-        val AutoComplete: SwipeTouchUp = SwipeTouchUp("autocomplete")
+        public val AutoComplete: SwipeTouchUp = SwipeTouchUp("autocomplete")
 
         /**
          * Automatically animates towards the **start** [ConstraintSet] unless it's already exactly
@@ -839,7 +844,7 @@ class SwipeTouchUp internal constructor(val name: String) {
          *
          * @see NeverCompleteEnd
          */
-        val ToStart: SwipeTouchUp = SwipeTouchUp("toStart")
+        public val ToStart: SwipeTouchUp = SwipeTouchUp("toStart")
 
         /**
          * Automatically animates towards the **end** [ConstraintSet] unless it's already exactly at
@@ -847,10 +852,10 @@ class SwipeTouchUp internal constructor(val name: String) {
          *
          * @see NeverCompleteStart
          */
-        val ToEnd: SwipeTouchUp = SwipeTouchUp("toEnd")
+        public val ToEnd: SwipeTouchUp = SwipeTouchUp("toEnd")
 
         /** Stops right in place, will **not** automatically animate to any [ConstraintSet]. */
-        val Stop: SwipeTouchUp = SwipeTouchUp("stop")
+        public val Stop: SwipeTouchUp = SwipeTouchUp("stop")
 
         /**
          * Automatically animates towards the point where the swipe motion is predicted to end.
@@ -858,34 +863,34 @@ class SwipeTouchUp internal constructor(val name: String) {
          * This is guaranteed to stop within the start or end [ConstraintSet]s in the case where
          * it's carrying a lot of speed.
          */
-        val Decelerate: SwipeTouchUp = SwipeTouchUp("decelerate")
+        public val Decelerate: SwipeTouchUp = SwipeTouchUp("decelerate")
 
         /**
          * Similar to [ToEnd], but it will animate to the **end** [ConstraintSet] even if the widget
          * is exactly at the start [ConstraintSet].
          */
-        val NeverCompleteStart: SwipeTouchUp = SwipeTouchUp("neverCompleteStart")
+        public val NeverCompleteStart: SwipeTouchUp = SwipeTouchUp("neverCompleteStart")
 
         /**
          * Similar to [ToStart], but it will animate to the **start** [ConstraintSet] even if the
          * widget is exactly at the end [ConstraintSet].
          */
-        val NeverCompleteEnd: SwipeTouchUp = SwipeTouchUp("neverCompleteEnd")
+        public val NeverCompleteEnd: SwipeTouchUp = SwipeTouchUp("neverCompleteEnd")
     }
 }
 
 /** Direction of the touch input that will initiate the swipe handling. */
 @ExperimentalMotionApi
-class SwipeDirection internal constructor(val name: String) {
-    companion object {
-        val Up: SwipeDirection = SwipeDirection("up")
-        val Down: SwipeDirection = SwipeDirection("down")
-        val Left: SwipeDirection = SwipeDirection("left")
-        val Right: SwipeDirection = SwipeDirection("right")
-        val Start: SwipeDirection = SwipeDirection("start")
-        val End: SwipeDirection = SwipeDirection("end")
-        val Clockwise: SwipeDirection = SwipeDirection("clockwise")
-        val Counterclockwise: SwipeDirection = SwipeDirection("anticlockwise")
+public class SwipeDirection internal constructor(public val name: String) {
+    public companion object {
+        public val Up: SwipeDirection = SwipeDirection("up")
+        public val Down: SwipeDirection = SwipeDirection("down")
+        public val Left: SwipeDirection = SwipeDirection("left")
+        public val Right: SwipeDirection = SwipeDirection("right")
+        public val Start: SwipeDirection = SwipeDirection("start")
+        public val End: SwipeDirection = SwipeDirection("end")
+        public val Clockwise: SwipeDirection = SwipeDirection("clockwise")
+        public val Counterclockwise: SwipeDirection = SwipeDirection("anticlockwise")
     }
 }
 
@@ -894,15 +899,15 @@ class SwipeDirection internal constructor(val name: String) {
  * size during the [Transition].
  */
 @ExperimentalMotionApi
-class SwipeSide internal constructor(val name: String) {
-    companion object {
-        val Top: SwipeSide = SwipeSide("top")
-        val Left: SwipeSide = SwipeSide("left")
-        val Right: SwipeSide = SwipeSide("right")
-        val Bottom: SwipeSide = SwipeSide("bottom")
-        val Middle: SwipeSide = SwipeSide("middle")
-        val Start: SwipeSide = SwipeSide("start")
-        val End: SwipeSide = SwipeSide("end")
+public class SwipeSide internal constructor(public val name: String) {
+    public companion object {
+        public val Top: SwipeSide = SwipeSide("top")
+        public val Left: SwipeSide = SwipeSide("left")
+        public val Right: SwipeSide = SwipeSide("right")
+        public val Bottom: SwipeSide = SwipeSide("bottom")
+        public val Middle: SwipeSide = SwipeSide("middle")
+        public val Start: SwipeSide = SwipeSide("start")
+        public val End: SwipeSide = SwipeSide("end")
     }
 }
 
@@ -911,59 +916,60 @@ class SwipeSide internal constructor(val name: String) {
  * end of the [Transition].
  */
 @ExperimentalMotionApi
-class SpringBoundary internal constructor(val name: String) {
-    companion object {
+public class SpringBoundary internal constructor(public val name: String) {
+    public companion object {
         /** The default Spring behavior, it will overshoot around the target position. */
-        val Overshoot = SpringBoundary("overshoot")
+        public val Overshoot: SpringBoundary = SpringBoundary("overshoot")
 
         /**
          * Bouncing motion when the target position is at the start of the [Transition]. Otherwise,
          * it will overshoot.
          */
-        val BounceStart = SpringBoundary("bounceStart")
+        public val BounceStart: SpringBoundary = SpringBoundary("bounceStart")
 
         /**
          * Bouncing motion when the target position is at the end of the [Transition]. Otherwise, it
          * will overshoot.
          */
-        val BounceEnd = SpringBoundary("bounceEnd")
+        public val BounceEnd: SpringBoundary = SpringBoundary("bounceEnd")
 
         /**
          * Bouncing motion whenever it crosses the target position. This basically guarantees that
          * the spring motion will never overshoot.
          */
-        val BounceBoth = SpringBoundary("bounceBoth")
+        public val BounceBoth: SpringBoundary = SpringBoundary("bounceBoth")
     }
 }
 
 /** Type of fit applied between curves. */
 @ExperimentalMotionApi
-class CurveFit internal constructor(override val name: String) : NamedPropertyOrValue {
-    companion object {
-        val Spline: CurveFit = CurveFit("spline")
-        val Linear: CurveFit = CurveFit("linear")
+public class CurveFit internal constructor(override val name: String) : NamedPropertyOrValue {
+    public companion object {
+        public val Spline: CurveFit = CurveFit("spline")
+        public val Linear: CurveFit = CurveFit("linear")
     }
 }
 
 /** Relative coordinate space in which KeyPositions are applied. */
 @ExperimentalMotionApi
-class RelativePosition internal constructor(override val name: String) : NamedPropertyOrValue {
-    companion object {
+public class RelativePosition internal constructor(override val name: String) :
+    NamedPropertyOrValue {
+    public companion object {
         /**
          * The default coordinate space, defined between the ending and starting point of the
          * motion. Aligned to the layout's X and Y axis.
          */
-        val Delta: RelativePosition = RelativePosition("deltaRelative")
+        public val Delta: RelativePosition = RelativePosition("deltaRelative")
 
         /**
          * The coordinate space defined between the ending and starting point of the motion. Aligned
          * perpendicularly to the shortest line between the start/end.
          */
-        val Path: RelativePosition = RelativePosition("pathRelative")
+        public val Path: RelativePosition = RelativePosition("pathRelative")
 
         /**
          * The coordinate space defined within the parent layout bounds (the MotionLayout parent).
          */
-        val Parent: RelativePosition = RelativePosition("parentRelative")
+        public val Parent: RelativePosition = RelativePosition("parentRelative")
     }
 }

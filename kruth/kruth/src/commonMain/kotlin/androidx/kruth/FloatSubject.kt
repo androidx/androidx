@@ -25,7 +25,7 @@ import androidx.kruth.Fact.Companion.simpleFact
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
  *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-class FloatSubject
+public class FloatSubject
 internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata()) :
     ComparableSubject<Float>(metadata, actual) {
 
@@ -51,7 +51,7 @@ internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata
      *   allowed by the check, which must be a non-negative finite value, i.e. not [Float.NaN],
      *   [Float.POSITIVE_INFINITY], or negative, including `-0.0f`.
      */
-    fun isWithin(tolerance: Float): TolerantFloatComparison =
+    public fun isWithin(tolerance: Float): TolerantFloatComparison =
         object : TolerantFloatComparison() {
             override fun of(expected: Float) {
                 requireNonNull(actual) {
@@ -89,7 +89,7 @@ internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata
      *   allowed by the check, which must be a non-negative finite value, i.e. not [Float.NaN],
      *   [Float.POSITIVE_INFINITY], or negative, including `-0.0f`.
      */
-    fun isNotWithin(tolerance: Float): TolerantFloatComparison =
+    public fun isNotWithin(tolerance: Float): TolerantFloatComparison =
         object : TolerantFloatComparison() {
             override fun of(expected: Float) {
                 requireNonNull(actual) {
@@ -146,7 +146,7 @@ internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata
     }
 
     /** Asserts that the subject is zero (i.e. it is either `0.0f` or `-0.0f`). */
-    fun isZero() {
+    public fun isZero() {
         if (actual != 0.0f) {
             failWithActual(simpleFact("expected zero"))
         }
@@ -156,7 +156,7 @@ internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata
      * Asserts that the subject is a non-null value other than zero (i.e. it is not `0.0f`, `-0.0f`
      * or `null`).
      */
-    fun isNonZero() {
+    public fun isNonZero() {
         when (actual) {
             null -> failWithActual(simpleFact("expected a float other than zero"))
             0.0f -> failWithActual(simpleFact("expected not to be zero"))
@@ -164,17 +164,17 @@ internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata
     }
 
     /** Asserts that the subject is [Float.POSITIVE_INFINITY]. */
-    fun isPositiveInfinity() {
+    public fun isPositiveInfinity() {
         isEqualTo(Float.POSITIVE_INFINITY)
     }
 
     /** Asserts that the subject is [Float.NEGATIVE_INFINITY]. */
-    fun isNegativeInfinity() {
+    public fun isNegativeInfinity() {
         isEqualTo(Float.NEGATIVE_INFINITY)
     }
 
     /** Asserts that the subject is [Float.NaN]. */
-    fun isNaN() {
+    public fun isNaN() {
         isEqualTo(Float.NaN)
     }
 
@@ -182,7 +182,7 @@ internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata
      * Asserts that the subject is finite, i.e. not [Float.POSITIVE_INFINITY],
      * [Float.NEGATIVE_INFINITY], or [Float.NaN].
      */
-    fun isFinite() {
+    public fun isFinite() {
         if ((actual == null) || actual.isNaN() || actual.isInfinite()) {
             failWithActual(simpleFact("expected to be finite"))
         }
@@ -192,7 +192,7 @@ internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata
      * Asserts that the subject is a non-null value other than [Float.NaN] (but it may be
      * [Float.POSITIVE_INFINITY] or [Float.NEGATIVE_INFINITY]).
      */
-    fun isNotNaN() {
+    public fun isNotNaN() {
         if (actual == null) {
             failWithActual(simpleFact("expected a float other than NaN"))
         } else {
@@ -205,7 +205,7 @@ internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata
      *
      * To check that the subject is greater than *or equal to* [other], use [isAtLeast].
      */
-    fun isGreaterThan(other: Int) {
+    public fun isGreaterThan(other: Int) {
         asDouble.isGreaterThan(other)
     }
 
@@ -214,7 +214,7 @@ internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata
      *
      * To check that the subject is less than *or equal to* [other], use [isAtMost].
      */
-    fun isLessThan(other: Int) {
+    public fun isLessThan(other: Int) {
         asDouble.isLessThan(other)
     }
 
@@ -223,7 +223,7 @@ internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata
      *
      * To check that the subject is *strictly* less than `other`, use [isLessThan].
      */
-    fun isAtMost(other: Int) {
+    public fun isAtMost(other: Int) {
         asDouble.isAtMost(other)
     }
 
@@ -232,17 +232,17 @@ internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata
      *
      * To check that the subject is *strictly* greater than [other], use [isGreaterThan].
      */
-    fun isAtLeast(other: Int) {
+    public fun isAtLeast(other: Int) {
         asDouble.isAtLeast(other)
     }
 
-    abstract class TolerantFloatComparison internal constructor() {
+    public abstract class TolerantFloatComparison internal constructor() {
         /**
          * Fails if the subject was expected to be within the tolerance of the given value but was
          * not _or_ if it was expected _not_ to be within the tolerance but was. The subject and
          * tolerance are specified earlier in the fluent call chain.
          */
-        abstract fun of(expected: Float)
+        public abstract fun of(expected: Float)
 
         /** @throws UnsupportedOperationException always */
         @Deprecated(

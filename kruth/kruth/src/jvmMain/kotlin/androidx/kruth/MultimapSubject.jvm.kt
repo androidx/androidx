@@ -28,45 +28,45 @@ import com.google.common.collect.Multimap
 import com.google.common.collect.SetMultimap
 
 /** Propositions for [Multimap] subjects. */
-open class MultimapSubject<K, V>
+public open class MultimapSubject<K, V>
 internal constructor(actual: Multimap<K, V>?, metadata: FailureMetadata = FailureMetadata()) :
     Subject<Multimap<K, V>>(actual, metadata, typeDescriptionOverride = "multimap") {
 
     /** Fails if the multimap is not empty. */
-    fun isEmpty() {
+    public fun isEmpty() {
         if (!requireNonNull(actual).isEmpty) {
             failWithActual(simpleFact("Expected to be empty"))
         }
     }
 
     /** Fails if the multimap is empty. */
-    fun isNotEmpty() {
+    public fun isNotEmpty() {
         if (requireNonNull(actual).isEmpty) {
             failWithoutActual(simpleFact("Expected not to be empty"))
         }
     }
 
     /** Fails if the multimap does not have the given size. */
-    fun hasSize(expectedSize: Int) {
+    public fun hasSize(expectedSize: Int) {
         require(expectedSize >= 0) { "expectedSize($expectedSize) must be >= 0" }
         // TODO: Use check("size()") once the API is there
         check().that(requireNonNull(actual).size()).isEqualTo(expectedSize)
     }
 
     /** Fails if the multimap does not contain the given key. */
-    fun containsKey(key: K) {
+    public fun containsKey(key: K) {
         // TODO: Use check("keySet()") once the API is there
         check().that(requireNonNull(actual).keySet()).contains(key)
     }
 
     /** Fails if the multimap contains the given key. */
-    fun doesNotContainKey(key: K) {
+    public fun doesNotContainKey(key: K) {
         // TODO: Use check("keySet()") once the API is there
         check().that(requireNonNull(actual).keySet()).doesNotContain(key)
     }
 
     /** Fails if the multimap does not contain the given entry. */
-    fun containsEntry(key: K, value: Any?) {
+    public fun containsEntry(key: K, value: Any?) {
         requireNonNull(actual)
 
         if (!actual.containsEntry(key, value)) {
@@ -112,7 +112,7 @@ internal constructor(actual: Multimap<K, V>?, metadata: FailureMetadata = Failur
     }
 
     /** Fails if the multimap contains the given entry. */
-    fun doesNotContainEntry(key: K, value: Any?) {
+    public fun doesNotContainEntry(key: K, value: Any?) {
         // TODO: Use checkNoNeedToDisplayBothValues("entries()") when the API is there?
         check().that(requireNonNull(actual).entries()).doesNotContain(immutableEntry(key, value))
     }
@@ -124,7 +124,7 @@ internal constructor(actual: Multimap<K, V>?, metadata: FailureMetadata = Failur
      * This method performs no checks on its own and cannot cause test failures. Subsequent
      * assertions must be chained onto this method call to test properties of the [Multimap].
      */
-    open fun valuesForKey(key: K): IterableSubject<V> {
+    public open fun valuesForKey(key: K): IterableSubject<V> {
         // TODO: Use check("valuesForKey($key)") once the API is the there
         return check().that(requireNonNull(actual).get(key))
     }
@@ -167,7 +167,7 @@ internal constructor(actual: Multimap<K, V>?, metadata: FailureMetadata = Failur
      * two multimaps iterate fully in the same order. That is, their key sets iterate in the same
      * order, and the value collections for each key iterate in the same order.
      */
-    fun containsExactlyEntriesIn(expectedMultimap: Multimap<K, *>?): Ordered {
+    public fun containsExactlyEntriesIn(expectedMultimap: Multimap<K, *>?): Ordered {
         requireNonNull(actual)
         requireNonNull(expectedMultimap)
 
@@ -231,7 +231,7 @@ internal constructor(actual: Multimap<K, V>?, metadata: FailureMetadata = Failur
      * order in the key set, and the values for each key are present in the given order order in the
      * value collections.
      */
-    fun containsAtLeastEntriesIn(expectedMultimap: Multimap<K, *>?): Ordered {
+    public fun containsAtLeastEntriesIn(expectedMultimap: Multimap<K, *>?): Ordered {
         requireNonNull(actual)
         requireNonNull(expectedMultimap)
 
@@ -249,16 +249,16 @@ internal constructor(actual: Multimap<K, V>?, metadata: FailureMetadata = Failur
     }
 
     /** Fails if the multimap is not empty. */
-    fun containsExactly(): Ordered =
+    public fun containsExactly(): Ordered =
         check().about(iterableEntries()).that(checkNotNull(actual).entries()).containsExactly()
 
     /** Fails if the multimap does not contain exactly the given set of key/value pairs. */
-    fun containsExactly(vararg entries: Pair<K, *>): Ordered {
+    public fun containsExactly(vararg entries: Pair<K, *>): Ordered {
         return containsExactlyEntriesIn(accumulateMultimap(entries))
     }
 
     /** Fails if the multimap does not contain at least the given key/value pairs. */
-    fun containsAtLeast(vararg entries: Pair<K, *>): Ordered {
+    public fun containsAtLeast(vararg entries: Pair<K, *>): Ordered {
         return containsAtLeastEntriesIn(accumulateMultimap(entries))
     }
 

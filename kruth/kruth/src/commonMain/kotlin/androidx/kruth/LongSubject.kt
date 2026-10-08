@@ -19,7 +19,7 @@ package androidx.kruth
 import androidx.kruth.Fact.Companion.fact
 
 /** Propositions for [Long] subjects. */
-open class LongSubject
+public open class LongSubject
 internal constructor(actual: Long?, metadata: FailureMetadata = FailureMetadata()) :
     ComparableSubject<Long>(actual, metadata) {
 
@@ -30,7 +30,7 @@ internal constructor(actual: Long?, metadata: FailureMetadata = FailureMetadata(
      * @param tolerance an inclusive upper bound on the difference between the subject and object
      *   allowed by the check, which must be a non-negative value.
      */
-    open fun isWithin(tolerance: Long): TolerantLongComparison {
+    public open fun isWithin(tolerance: Long): TolerantLongComparison {
         return object : TolerantLongComparison() {
             override fun of(expected: Long) {
                 requireNonNull(actual) {
@@ -56,7 +56,7 @@ internal constructor(actual: Long?, metadata: FailureMetadata = FailureMetadata(
      * @param tolerance an exclusive lower bound on the difference between the subject and object
      *   allowed by the check, which must be a non-negative value.
      */
-    open fun isNotWithin(tolerance: Long): TolerantLongComparison {
+    public open fun isNotWithin(tolerance: Long): TolerantLongComparison {
         return object : TolerantLongComparison() {
             override fun of(expected: Long) {
                 requireNonNull(actual) {
@@ -91,13 +91,13 @@ internal constructor(actual: Long?, metadata: FailureMetadata = FailureMetadata(
      * A partially specified check about an approximate relationship to a `long` subject using a
      * tolerance.
      */
-    abstract class TolerantLongComparison internal constructor() {
+    public abstract class TolerantLongComparison internal constructor() {
         /**
          * Fails if the subject was expected to be within the tolerance of the given value but was
          * not *or* if it was expected *not* to be within the tolerance but was. The subject and
          * tolerance are specified earlier in the fluent call chain.
          */
-        abstract fun of(expected: Long)
+        public abstract fun of(expected: Long)
 
         /** @throws UnsupportedOperationException always */
         @Deprecated(

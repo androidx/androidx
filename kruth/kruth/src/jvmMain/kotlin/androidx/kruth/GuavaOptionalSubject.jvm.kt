@@ -21,12 +21,12 @@ import androidx.kruth.Fact.Companion.simpleFact
 import com.google.common.base.Optional
 
 /** Propositions for Guava [Optional] subjects. */
-class GuavaOptionalSubject<T : Any>
+public class GuavaOptionalSubject<T : Any>
 internal constructor(actual: Optional<out T>?, metadata: FailureMetadata = FailureMetadata()) :
     Subject<Optional<out T>>(actual, metadata = metadata, typeDescriptionOverride = "optional") {
 
     /** Fails if the [Optional]`<T>` is absent or the subject is null. */
-    fun isPresent() {
+    public fun isPresent() {
         if (actual == null) {
             failWithActual(simpleFact("expected present optional"))
         } else if (!actual.isPresent) {
@@ -35,7 +35,7 @@ internal constructor(actual: Optional<out T>?, metadata: FailureMetadata = Failu
     }
 
     /** Fails if the [Optional]`<T>` is present or the subject is null. */
-    fun isAbsent() {
+    public fun isAbsent() {
         if (actual == null) {
             failWithActual(simpleFact("expected absent optional"))
         } else if (actual.isPresent) {
@@ -55,7 +55,7 @@ internal constructor(actual: Optional<out T>?, metadata: FailureMetadata = Failu
      * assertThat(myOptional.get()).contains("foo")
      * ```
      */
-    fun hasValue(expected: Any?) {
+    public fun hasValue(expected: Any?) {
         requireNonNull(expected) { "Optional cannot have a null value" }
 
         if (actual == null) {

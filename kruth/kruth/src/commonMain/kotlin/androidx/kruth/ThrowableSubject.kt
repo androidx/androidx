@@ -22,7 +22,7 @@ package androidx.kruth
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
  *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class ThrowableSubject<out T : Throwable>
+public open class ThrowableSubject<out T : Throwable>
 internal constructor(actual: T?, metadata: FailureMetadata, typeDescriptionOverride: String?) :
     Subject<T>(actual, metadata, typeDescriptionOverride) {
 
@@ -38,7 +38,7 @@ internal constructor(actual: T?, metadata: FailureMetadata, typeDescriptionOverr
      */
 
     /** Returns a [StringSubject] to make assertions about the throwable's message. */
-    fun hasMessageThat(): StringSubject {
+    public fun hasMessageThat(): StringSubject {
         var check: StandardSubjectBuilder = check("message")
         if (actual is AssertionErrorWithFacts && actual.facts.isNotEmpty()) {
             check =
@@ -56,7 +56,7 @@ internal constructor(actual: T?, metadata: FailureMetadata, typeDescriptionOverr
      * to assert on a particular indirect cause.
      */
     // Any Throwable is fine, and we use plain Throwable to emphasize that it's not used "for real."
-    fun hasCauseThat(): ThrowableSubject<Throwable> {
+    public fun hasCauseThat(): ThrowableSubject<Throwable> {
         // provides a more helpful error message if hasCauseThat() methods are chained too deep
         // e.g. assertThat(new Exception()).hCT().hCT()....
         // TODO(diamondm) in keeping with other subjects' behavior this should still NPE if the

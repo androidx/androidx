@@ -26,11 +26,11 @@ package androidx.kruth
  * assertThat(supportedCharsets).containsExactly("UTF-8", "US-ASCII").inOrder(); // does check order
  * ```
  */
-interface Ordered {
+public interface Ordered {
 
     /**
      * An additional assertion, implemented by some containment subjects which allows for a further
      * constraint of orderedness.
      */
-    fun inOrder()
+    public fun inOrder()
 }

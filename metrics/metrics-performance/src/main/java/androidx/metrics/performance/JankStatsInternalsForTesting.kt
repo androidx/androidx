@@ -28,14 +28,14 @@ import androidx.annotation.VisibleForTesting
  */
 @VisibleForTesting
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class JankStatsInternalsForTesting(val jankStats: JankStats) {
+public class JankStatsInternalsForTesting(public val jankStats: JankStats) {
     private val impl = jankStats.implementation
 
-    fun removeStateNow(performanceMetricsState: PerformanceMetricsState, stateName: String) {
+    public fun removeStateNow(performanceMetricsState: PerformanceMetricsState, stateName: String) {
         performanceMetricsState.removeStateNow(stateName)
     }
 
-    fun getFrameData(): FrameData? {
+    public fun getFrameData(): FrameData? {
         when (impl) {
             is JankStatsApi16Impl -> {
                 return impl.getFrameData(0, 0, 0)
@@ -45,7 +45,7 @@ class JankStatsInternalsForTesting(val jankStats: JankStats) {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    fun getFrameData(frameMetrics: FrameMetrics): FrameData? {
+    public fun getFrameData(frameMetrics: FrameMetrics): FrameData? {
         when (impl) {
             is JankStatsApi24Impl -> {
                 return impl.getFrameData(0, 0, frameMetrics)
@@ -54,7 +54,7 @@ class JankStatsInternalsForTesting(val jankStats: JankStats) {
         return null
     }
 
-    fun logFrameData(frameData: FrameData) {
+    public fun logFrameData(frameData: FrameData) {
         jankStats.logFrameData(frameData)
     }
 }

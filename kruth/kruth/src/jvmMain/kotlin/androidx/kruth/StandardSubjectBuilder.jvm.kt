@@ -29,17 +29,18 @@ import java.math.BigDecimal
  *   [withMessage].
  */
 @Suppress("StaticFinalBuilder") // Cannot be final for binary compatibility.
-actual open class StandardSubjectBuilder internal actual constructor(metadata: FailureMetadata) {
+public actual open class StandardSubjectBuilder
+internal actual constructor(metadata: FailureMetadata) {
     internal actual val metadata: FailureMetadata = metadata
         get() {
             checkStatePreconditions()
             return field
         }
 
-    actual companion object {
+    public actual companion object {
         /** Returns a new instance that invokes the given [FailureStrategy] when a check fails. */
         @JvmStatic
-        actual fun forCustomFailureStrategy(
+        public actual fun forCustomFailureStrategy(
             failureStrategy: FailureStrategy
         ): StandardSubjectBuilder = commonForCustomFailureStrategy(failureStrategy)
     }
@@ -49,61 +50,62 @@ actual open class StandardSubjectBuilder internal actual constructor(metadata: F
      * this method is called multiple times, the messages will appear in the order that they were
      * specified.
      */
-    actual fun withMessage(messageToPrepend: String?): StandardSubjectBuilder =
+    public actual fun withMessage(messageToPrepend: String?): StandardSubjectBuilder =
         commonWithMessage(messageToPrepend)
 
-    actual fun <T> that(actual: T?): Subject<T> = commonThat(actual)
+    public actual fun <T> that(actual: T?): Subject<T> = commonThat(actual)
 
-    actual fun that(actual: Char): Subject<Char> = commonThat(actual)
+    public actual fun that(actual: Char): Subject<Char> = commonThat(actual)
 
-    actual fun <T : Comparable<T>> that(actual: T?): ComparableSubject<T> = commonThat(actual)
+    public actual fun <T : Comparable<T>> that(actual: T?): ComparableSubject<T> =
+        commonThat(actual)
 
-    actual fun <T : Throwable> that(actual: T?): ThrowableSubject<T> = commonThat(actual)
+    public actual fun <T : Throwable> that(actual: T?): ThrowableSubject<T> = commonThat(actual)
 
-    actual fun that(actual: Boolean?): BooleanSubject = commonThat(actual)
+    public actual fun that(actual: Boolean?): BooleanSubject = commonThat(actual)
 
-    actual fun that(actual: Long): LongSubject = commonThat(actual)
+    public actual fun that(actual: Long): LongSubject = commonThat(actual)
 
-    actual fun <T : Long?> that(actual: T): LongSubject = commonThat(actual)
+    public actual fun <T : Long?> that(actual: T): LongSubject = commonThat(actual)
 
-    actual fun that(actual: Double?): DoubleSubject = commonThat(actual)
+    public actual fun that(actual: Double?): DoubleSubject = commonThat(actual)
 
-    actual fun that(actual: Float?): FloatSubject = commonThat(actual)
+    public actual fun that(actual: Float?): FloatSubject = commonThat(actual)
 
-    actual fun that(actual: Int): IntegerSubject = commonThat(actual)
+    public actual fun that(actual: Int): IntegerSubject = commonThat(actual)
 
-    actual fun <T : Int?> that(actual: T): IntegerSubject = commonThat(actual)
+    public actual fun <T : Int?> that(actual: T): IntegerSubject = commonThat(actual)
 
-    actual fun that(actual: String?): StringSubject = commonThat(actual)
+    public actual fun that(actual: String?): StringSubject = commonThat(actual)
 
-    actual fun <T> that(actual: Iterable<T>?): IterableSubject<T> = commonThat(actual)
+    public actual fun <T> that(actual: Iterable<T>?): IterableSubject<T> = commonThat(actual)
 
-    actual fun <T> that(actual: Array<out T>?): ObjectArraySubject<T> = commonThat(actual)
+    public actual fun <T> that(actual: Array<out T>?): ObjectArraySubject<T> = commonThat(actual)
 
-    actual fun that(actual: BooleanArray?): PrimitiveBooleanArraySubject = commonThat(actual)
+    public actual fun that(actual: BooleanArray?): PrimitiveBooleanArraySubject = commonThat(actual)
 
-    actual fun that(actual: ShortArray?): PrimitiveShortArraySubject = commonThat(actual)
+    public actual fun that(actual: ShortArray?): PrimitiveShortArraySubject = commonThat(actual)
 
-    actual fun that(actual: IntArray?): PrimitiveIntArraySubject = commonThat(actual)
+    public actual fun that(actual: IntArray?): PrimitiveIntArraySubject = commonThat(actual)
 
-    actual fun that(actual: LongArray?): PrimitiveLongArraySubject = commonThat(actual)
+    public actual fun that(actual: LongArray?): PrimitiveLongArraySubject = commonThat(actual)
 
-    actual fun that(actual: ByteArray?): PrimitiveByteArraySubject = commonThat(actual)
+    public actual fun that(actual: ByteArray?): PrimitiveByteArraySubject = commonThat(actual)
 
-    actual fun that(actual: CharArray?): PrimitiveCharArraySubject = commonThat(actual)
+    public actual fun that(actual: CharArray?): PrimitiveCharArraySubject = commonThat(actual)
 
-    actual fun that(actual: FloatArray?): PrimitiveFloatArraySubject = commonThat(actual)
+    public actual fun that(actual: FloatArray?): PrimitiveFloatArraySubject = commonThat(actual)
 
-    actual fun that(actual: DoubleArray?): PrimitiveDoubleArraySubject = commonThat(actual)
+    public actual fun that(actual: DoubleArray?): PrimitiveDoubleArraySubject = commonThat(actual)
 
-    actual fun <K, V> that(actual: Map<K, V>?): MapSubject<K, V> = commonThat(actual)
+    public actual fun <K, V> that(actual: Map<K, V>?): MapSubject<K, V> = commonThat(actual)
 
     /**
      * Given a factory for some [Subject] class, returns [SimpleSubjectBuilder] whose
      * [that][SimpleSubjectBuilder.that] method creates instances of that class. Created subjects
      * use the previously set failure strategy and any previously set failure message.
      */
-    actual fun <T, S : Subject<T>> about(
+    public actual fun <T, S : Subject<T>> about(
         subjectFactory: Subject.Factory<S, T>
     ): SimpleSubjectBuilder<S, T> = commonAbout(subjectFactory)
 
@@ -113,30 +115,31 @@ actual open class StandardSubjectBuilder internal actual constructor(metadata: F
      * To set a message, first call [withMessage] (or, more commonly, use the shortcut
      * [assertWithMessage].
      */
-    actual fun fail() = commonFail()
+    public actual fun fail(): Unit = commonFail()
 
     internal actual open fun checkStatePreconditions() {}
 
     @Suppress("BuilderSetStyle") // Necessary for compatibility
-    fun that(actual: Class<*>?): ClassSubject = ClassSubject(actual = actual, metadata = metadata)
+    public fun that(actual: Class<*>?): ClassSubject =
+        ClassSubject(actual = actual, metadata = metadata)
 
     @Suppress("BuilderSetStyle") // Necessary for compatibility
-    fun <T : Any> that(actual: Optional<T>): GuavaOptionalSubject<T> =
+    public fun <T : Any> that(actual: Optional<T>): GuavaOptionalSubject<T> =
         GuavaOptionalSubject(actual = actual, metadata = metadata)
 
     @Suppress("BuilderSetStyle") // Necessary for compatibility
-    fun that(actual: BigDecimal?): BigDecimalSubject =
+    public fun that(actual: BigDecimal?): BigDecimalSubject =
         BigDecimalSubject(actual = actual, metadata = metadata)
 
     @Suppress("BuilderSetStyle") // Necessary for compatibility
-    fun <T> that(actual: Multiset<T>): MultisetSubject<T> =
+    public fun <T> that(actual: Multiset<T>): MultisetSubject<T> =
         MultisetSubject(actual = actual, metadata = metadata)
 
     @Suppress("BuilderSetStyle") // Necessary for compatibility
-    fun <K, V> that(actual: Multimap<K, V>): MultimapSubject<K, V> =
+    public fun <K, V> that(actual: Multimap<K, V>): MultimapSubject<K, V> =
         MultimapSubject(actual = actual, metadata = metadata)
 
     @Suppress("BuilderSetStyle") // Necessary for compatibility
-    fun <R, C, V> that(actual: Table<R, C, V>): TableSubject<R, C, V> =
+    public fun <R, C, V> that(actual: Table<R, C, V>): TableSubject<R, C, V> =
         TableSubject(actual = actual, metadata = metadata)
 }

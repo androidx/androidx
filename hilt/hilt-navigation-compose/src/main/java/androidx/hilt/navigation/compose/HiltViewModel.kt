@@ -47,7 +47,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
             imports = ["androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel"],
         ),
 )
-inline fun <reified VM : ViewModel> hiltViewModel(
+public inline fun <reified VM : ViewModel> hiltViewModel(
     viewModelStoreOwner: ViewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) {
             "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
@@ -76,7 +76,7 @@ inline fun <reified VM : ViewModel> hiltViewModel(
             imports = ["androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel"],
         ),
 )
-inline fun <reified VM : ViewModel, reified VMF> hiltViewModel(
+public inline fun <reified VM : ViewModel, reified VMF> hiltViewModel(
     viewModelStoreOwner: ViewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) {
             "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
