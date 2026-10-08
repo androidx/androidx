@@ -18,7 +18,6 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.MarqueeModifier as CreationMarqueeModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -37,8 +36,8 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
  * @param initialDelayMillis The duration to wait before starting the first iteration of the
  *   animation, in millis. By default, there will be no initial delay if animationMode is
  *   WhileFocused, otherwise the initial delay will be repeatDelayMillis.
- * @param spacing A [MarqueeSpacing] that specifies how much space to leave at the end of the
- *   content before showing the beginning again.
+ * @param spacing Specifies how much space to leave at the end of the content before showing the
+ *   beginning again.
  * @param velocity The speed of the animation in dps / second.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

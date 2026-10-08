@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+@file:JvmName("WidthModifierKt")
+@file:JvmMultifileClass
+
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -76,12 +78,3 @@ public fun RemoteModifier.fillParentMaxWidth(fraction: RemoteFloat = 1f.rf): Rem
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.width(width: Int): RemoteModifier =
     then(WidthModifier(Type.EXACT, width.rf))
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteModifier.width(width: IntrinsicSize): RemoteModifier {
-    return if (width == IntrinsicSize.Min) {
-        then(WidthModifier(Type.INTRINSIC_MIN, 0f.rf))
-    } else {
-        then(WidthModifier(Type.INTRINSIC_MAX, 0f.rf))
-    }
-}
