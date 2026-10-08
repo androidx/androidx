@@ -318,6 +318,32 @@ class GlanceRemoteViewsComposerTest {
 
     // endregion
 
+    // region pinPreviewRenderTarget
+
+    @Test
+    fun pinPreviewRenderTarget_targetsHomeScreenAtSmallestSize() {
+        val provider =
+            providerInfo(
+                "Provider",
+                // A pinned widget is placed on the home screen even if it may also go elsewhere.
+                widgetCategory =
+                    AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN or
+                        AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+                declaredWidthDp = 348,
+                declaredHeightDp = 88,
+                resizeMode = AppWidgetProviderInfo.RESIZE_HORIZONTAL,
+                minResizeWidthDp = 176,
+            )
+
+        val target = composer.pinPreviewRenderTarget(provider)
+
+        // Sized like a picker preview, at the smallest size the widget can be placed at.
+        assertThat(target)
+            .isEqualTo(RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(176, 88)))
+    }
+
+    // endregion
+
     // region compose
 
     @Test

@@ -20,4 +20,12 @@
             <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
         </intent>
     </queries>
+
+    <application>
+        <!-- Stores the options requested when pinning a widget, once the launcher has pinned it. -->
+        <receiver
+            android:name=".RequestPinCallbackReceiver"
+            android:exported="false"
+            android:enabled="true" />
+    </application>
 </manifest>
