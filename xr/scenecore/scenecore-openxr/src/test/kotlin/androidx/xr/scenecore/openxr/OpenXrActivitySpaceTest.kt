@@ -18,7 +18,9 @@ package androidx.xr.scenecore.openxr
 
 import android.app.Activity
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.scenecore.openxr.testing.FakeSceneCoreOpenXrNative
 import androidx.xr.scenecore.runtime.ActivitySpace
 import androidx.xr.scenecore.runtime.Dimensions
@@ -89,8 +91,82 @@ class OpenXrActivitySpaceTest {
     }
 
     @Test
-    fun getPose_realWorldSpace_returnsPerceptionPose() {
+    fun getPose_realWorldSpace_returnsPlatformReferenceSpacePose() {
+        val pose = Pose(Vector3(1f, 2f, 3f), Quaternion.fromEulerAngles(Vector3(10f, 20f, 30f)))
+
+        activitySpace.setPlatformReferenceSpacePose(pose)
+
+        assertPose(activitySpace.getPose(Space.REAL_WORLD), pose)
+    }
+
+    @Test
+    fun getPose_realWorldSpace_whenRootSpacePoseUnavailable_returnsIdentity() {
         assertThat(activitySpace.getPose(Space.REAL_WORLD)).isEqualTo(Pose.Identity)
+    }
+
+    @Test
+    fun poseReads_doNotQueryNativeOrNotify() {
+        var originChangeCount = 0
+        val directExecutor = java.util.concurrent.Executor { it.run() }
+        activitySpace.setOnOriginChangedListener({ originChangeCount++ }, directExecutor)
+        fakeNative.fakeRootSpacePoseInPlatformReferenceSpace = Pose(Vector3(1f, 2f, 3f))
+
+        repeat(3) {
+            assertThat(activitySpace.poseInPlatformReferenceSpace).isEqualTo(Pose.Identity)
+            assertThat(activitySpace.getPose(Space.REAL_WORLD)).isEqualTo(Pose.Identity)
+        }
+
+        assertThat(originChangeCount).isEqualTo(0)
+        assertThat(fakeNative.rootSpacePoseQueryCount.get()).isEqualTo(0)
+    }
+
+    @Test
+    fun setPlatformReferenceSpacePose_eachChange_notifies() {
+        var originChangeCount = 0
+        val directExecutor = java.util.concurrent.Executor { it.run() }
+        activitySpace.setOnOriginChangedListener({ originChangeCount++ }, directExecutor)
+        val poseA = Pose(Vector3(1f, 2f, 3f))
+        val poseB = Pose(Vector3(4f, 5f, 6f))
+
+        activitySpace.setPlatformReferenceSpacePose(poseA)
+        activitySpace.setPlatformReferenceSpacePose(poseA)
+        activitySpace.setPlatformReferenceSpacePose(poseB)
+
+        assertThat(originChangeCount).isEqualTo(2)
+    }
+
+    @Test
+    fun originListener_readingPosesInCallback_doesNotRetrigger() {
+        var originChangeCount = 0
+        val directExecutor = java.util.concurrent.Executor { it.run() }
+        activitySpace.setOnOriginChangedListener(
+            {
+                originChangeCount++
+                activitySpace.getPose(Space.REAL_WORLD)
+            },
+            directExecutor,
+        )
+        // A newer native pose, which a getter that read through to native would pick up and
+        // notify again with.
+        fakeNative.fakeRootSpacePoseInPlatformReferenceSpace = Pose(Vector3(4f, 5f, 6f))
+
+        activitySpace.setPlatformReferenceSpacePose(Pose(Vector3(1f, 2f, 3f)))
+
+        assertThat(originChangeCount).isEqualTo(1)
+    }
+
+    @Test
+    fun poseFromNativeFloats_readsPositionThenRotation() {
+        val pose = poseFromNativeFloats(floatArrayOf(1f, 2f, 3f, 0.1f, 0.2f, 0.3f, 0.9f))
+
+        assertThat(pose).isEqualTo(Pose(Vector3(1f, 2f, 3f), Quaternion(0.1f, 0.2f, 0.3f, 0.9f)))
+    }
+
+    @Test
+    fun poseFromNativeFloats_tooFewFloats_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            poseFromNativeFloats(floatArrayOf(1f, 2f, 3f, 0f, 0f, 0f))
+        }
     }
 
     @Test
