@@ -25,8 +25,8 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import java.util.EnumSet
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.uast.UClass
@@ -47,8 +47,7 @@ class StateHolderDesignDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes(): List<Class<out UElement>> = listOf(UClass::class.java)
 
     override fun createUastHandler(context: JavaContext): UElementHandler {
-        val packageName = context.uastFile?.packageName ?: return UElementHandler.NONE
-        if (!packageName.startsWith("androidx.compose.material3")) return UElementHandler.NONE
+        if (!context.isMaterial3Source()) return UElementHandler.NONE
 
         return object : UElementHandler() {
             override fun visitClass(node: UClass) {
@@ -60,8 +59,9 @@ class StateHolderDesignDetector : Detector(), SourceCodeScanner {
                 )
                     return
 
-                // Target public classes
+                // Target public non-enum classes
                 val ktClass = node.sourcePsi as? KtClassOrObject ?: return
+                if (node.isEnum || (ktClass is KtClass && ktClass.isEnum())) return
                 val isPublic =
                     !ktClass.hasModifier(KtTokens.PRIVATE_KEYWORD) &&
                         !ktClass.hasModifier(KtTokens.INTERNAL_KEYWORD) &&
@@ -188,10 +188,7 @@ class StateHolderDesignDetector : Detector(), SourceCodeScanner {
                 priority = 5,
                 severity = Severity.ERROR,
                 implementation =
-                    Implementation(
-                        StateHolderDesignDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
-                    ),
+                    Implementation(StateHolderDesignDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
 
         val CONSTRUCTOR_ISSUE =
@@ -208,10 +205,7 @@ class StateHolderDesignDetector : Detector(), SourceCodeScanner {
                 priority = 5,
                 severity = Severity.ERROR,
                 implementation =
-                    Implementation(
-                        StateHolderDesignDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
-                    ),
+                    Implementation(StateHolderDesignDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

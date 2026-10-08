@@ -382,4 +382,113 @@ class StateHolderDesignDetectorTest : LintDetectorTest() {
                     .trimIndent()
             )
     }
+
+    @Test
+    fun invalid_wearComposeMaterial3_missingStability() {
+        lint()
+            .files(
+                RuntimeStubs,
+                kotlin(
+                        "src/androidx/wear/compose/material3/StepperColors.kt",
+                        """
+                    package androidx.wear.compose.material3
+
+                    class StepperColors(val contentColor: Int)
+                    """,
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/androidx/wear/compose/material3/StepperColors.kt:3: Error: State holder class 'StepperColors' should be annotated with @Stable or @Immutable [StateHolderMissingStabilityAnnotation]
+                class StepperColors(val contentColor: Int)
+                      ~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun ignored_testAndSampleSourcesAndPrefixCollisions() {
+        lint()
+            .files(
+                RuntimeStubs,
+                kotlin(
+                        "test/androidx/wear/compose/material3/CardScreenshotTest.kt",
+                        """
+                    package androidx.wear.compose.material3
+
+                    enum class SubtitleState(val enabled: Boolean) { Yes(true), No(false) }
+                    """,
+                    )
+                    .indented(),
+                kotlin(
+                        "src/androidx/wear/compose/material3/samples/StepperSample.kt",
+                        """
+                    package androidx.wear.compose.material3.samples
+
+                    class SampleState(val value: Int)
+                    """,
+                    )
+                    .indented(),
+                kotlin(
+                        "src/androidx/compose/material30/CustomColors.kt",
+                        """
+                    package androidx.compose.material30
+
+                    class CustomColors(val color: Int)
+                    """,
+                    )
+                    .indented(),
+                kotlin(
+                        "src/androidx/wear/compose/material30/CustomColors.kt",
+                        """
+                    package androidx.wear.compose.material30
+
+                    class CustomColors(val color: Int)
+                    """,
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun ignored_enumClass() {
+        lint()
+            .files(
+                RuntimeStubs,
+                kotlin(
+                        "src/androidx/compose/material3/ToggleState.kt",
+                        """
+                    package androidx.compose.material3
+
+                    enum class ToggleState {
+                        On,
+                        Off,
+                        Indeterminate
+                    }
+                    """,
+                    )
+                    .indented(),
+                kotlin(
+                        "src/androidx/wear/compose/material3/WearToggleState.kt",
+                        """
+                    package androidx.wear.compose.material3
+
+                    enum class WearToggleState {
+                        On,
+                        Off,
+                        Indeterminate
+                    }
+                    """,
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
 }
