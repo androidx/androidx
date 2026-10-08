@@ -23,6 +23,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
@@ -116,7 +117,11 @@ class PanelEntityManager(
                     }
                 }
             val resizableComponent =
-                ResizableComponent.create(session, resizeEventListener = simpleResizeListener)
+                ResizableComponent.create(
+                    session,
+                    minimumSize = FloatSize3d(0.1f, 0.1f, 0.1f),
+                    resizeEventListener = simpleResizeListener,
+                )
             newPanel.addComponent(movableComponent)
             newPanel.addComponent(resizableComponent)
             panelEntities.add(newPanel)
