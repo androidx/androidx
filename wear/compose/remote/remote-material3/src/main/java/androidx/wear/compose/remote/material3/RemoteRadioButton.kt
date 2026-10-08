@@ -80,7 +80,7 @@ public fun RemoteRadioButton(
     val progress =
         animateRemoteFloatAsState(
             targetValue = selected.select(1f.rf, 0f.rf),
-            animationSpec = RemoteMotionTokens.fastEffectsSpec(),
+            animationSpec = RemoteMaterialTheme.motionScheme.fastEffectsSpec(),
         )
 
     RemoteSelectionButtonImpl(
