@@ -39,14 +39,11 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 import kotlin.math.PI
 
-private const val INTRO_DURATION_SEC = 0.85f
 private const val OUTRO_DURATION_SEC = 0.85f
 private const val MILLIS_IN_SECOND = 1000f
 private const val SPRING_STIFFNESS = 50f
 private const val SPRING_DAMPING_RATIO = 1f
 private const val MIN_OUTRO_START_FRACTION = 0.5f
-private const val MAX_OUTRO_START_FRACTION = 0.999f
-private const val INTRO_SWEEP_OVERLAP_MULTIPLIER = 0.5f
 private val MIN_SWEEP_ANGLE = 0.05f.rf
 private val EPSILON = 0.001f.rf
 private val RADIANS_TO_DEGREES = (180f / PI.toFloat()).rf
@@ -172,7 +169,7 @@ public fun RemoteCurvedProgressIndicator(
         padding = padding,
         gapAngleDegrees = gapAngleDegrees,
         dotFadeOutFraction = dotFadeOutFraction,
-        dotCollapsible = false.rb,
+        dotCollapsible = true.rb,
         reverseDirection = reverseDirection,
         countDown = countDown,
     )
@@ -199,11 +196,7 @@ private fun RemoteCurvedProgressIndicatorImpl(
 ) {
     RemoteCanvas(modifier = modifier.fillMaxSize()) {
         val hasTimer = totalTimerDurationMillis > 0L
-        val totalDurationSec =
-            if (hasTimer) totalTimerDurationMillis.toFloat() / MILLIS_IN_SECOND else 1f
         val dotCollapseFreezeFraction = dotCollapsible.select(ifTrue = 0f.rf, ifFalse = 1f.rf)
-
-        val animatedProgress = progress
 
         val strokePx = strokeWidth.toPx()
         val paddingPx = padding.toPx()
@@ -220,38 +213,34 @@ private fun RemoteCurvedProgressIndicatorImpl(
         val minProgress = max(EPSILON, totalTravel / max(EPSILON, sweepAngle))
         val maxProgress = 1.0f.rf - totalTravel / max(EPSILON, sweepAngle)
         val drawActiveStartBase = startAngle + halfThicknessDegrees
-        val totalOutroTravel = totalTravel
 
-        val arcParams =
+        // Timers use the same geometry, driven by a progress that eases in and out at both ends.
+        val animatedProgress =
             if (hasTimer) {
-                calculateTimerArcParams(
-                    animatedProgress = animatedProgress,
-                    totalDurationSec = totalDurationSec,
+                calculateTimerAnimatedProgress(
+                    progress = progress,
+                    totalDurationSec = totalTimerDurationMillis.toFloat() / MILLIS_IN_SECOND,
                     countDown = countDown,
-                    dotCollapseFreezeFraction = dotCollapseFreezeFraction,
-                    sweepAngle = sweepAngle,
-                    gapAngleDegrees = gapAngleDegrees,
-                    thicknessDegrees = thicknessDegrees,
-                    halfThicknessDegrees = halfThicknessDegrees,
-                    maxProgress = maxProgress,
-                    drawActiveStartBase = drawActiveStartBase,
-                    totalOutroTravel = totalOutroTravel,
+                    endFraction = minProgress,
                 )
             } else {
-                calculateCollapsibleArcParams(
-                    animatedProgress = animatedProgress,
-                    sweepAngle = sweepAngle,
-                    gapAngleDegrees = gapAngleDegrees,
-                    dotCollapsible = dotCollapsible,
-                    dotCollapseFreezeFraction = dotCollapseFreezeFraction,
-                    thicknessDegrees = thicknessDegrees,
-                    halfThicknessDegrees = halfThicknessDegrees,
-                    minProgress = minProgress,
-                    maxProgress = maxProgress,
-                    drawActiveStartBase = drawActiveStartBase,
-                    totalTravel = totalTravel,
-                )
+                progress
             }
+
+        val arcParams =
+            calculateCollapsibleArcParams(
+                animatedProgress = animatedProgress,
+                sweepAngle = sweepAngle,
+                gapAngleDegrees = gapAngleDegrees,
+                dotCollapsible = dotCollapsible,
+                dotCollapseFreezeFraction = dotCollapseFreezeFraction,
+                thicknessDegrees = thicknessDegrees,
+                halfThicknessDegrees = halfThicknessDegrees,
+                minProgress = minProgress,
+                maxProgress = maxProgress,
+                drawActiveStartBase = drawActiveStartBase,
+                totalTravel = totalTravel,
+            )
 
         drawCurvedProgressArcs(
             params = arcParams,
@@ -280,8 +269,8 @@ private class CurvedArcParams(
 )
 
 /**
- * Calculates arc layout and scaling parameters for static / collapsible progress (when
- * totalTimerDurationMillis == 0).
+ * Calculates arc layout and scaling parameters for static / collapsible progress. Timers use it
+ * too, driven by the progress from [calculateTimerAnimatedProgress].
  */
 private fun calculateCollapsibleArcParams(
     animatedProgress: RemoteFloat,
@@ -417,46 +406,33 @@ private fun calculateCollapsibleArcParams(
 }
 
 /**
- * Calculates arc layout and scaling parameters for continuous timer animations (when
+ * Calculates the progress that drives [calculateCollapsibleArcParams] for timers (when
  * totalTimerDurationMillis > 0).
+ *
+ * The collapsible geometry plays the intro while its progress goes from 0 to [endFraction], and the
+ * outro while it goes from 1 - [endFraction] to 1. For timers, each end is driven by a spring
+ * instead, so that it takes the same time whatever the timer length, while the bar follows the
+ * timer from start to end:
+ * - the intro spring starts with the timer;
+ * - the outro spring starts when [OUTRO_DURATION_SEC] are left, so that it ends when the timer
+ *   ends.
+ *
+ * Between the two springs, the indicator at X % of the timer is the mirror image of the indicator
+ * at (100 - X) %.
  */
 @Suppress("RestrictedApiAndroidX")
-private fun RemoteDrawScope.calculateTimerArcParams(
-    animatedProgress: RemoteFloat,
+private fun RemoteDrawScope.calculateTimerAnimatedProgress(
+    progress: RemoteFloat,
     totalDurationSec: Float,
     countDown: RemoteBoolean,
-    dotCollapseFreezeFraction: RemoteFloat,
-    sweepAngle: RemoteFloat,
-    gapAngleDegrees: RemoteFloat,
-    thicknessDegrees: RemoteFloat,
-    halfThicknessDegrees: RemoteFloat,
-    maxProgress: RemoteFloat,
-    drawActiveStartBase: RemoteFloat,
-    totalOutroTravel: RemoteFloat,
-): CurvedArcParams {
-    val elapsedTimerProgress =
-        countDown.select(ifTrue = 1.0f.rf - animatedProgress, ifFalse = animatedProgress)
+    endFraction: RemoteFloat,
+): RemoteFloat {
+    val elapsedTimerProgress = countDown.select(ifTrue = 1.0f.rf - progress, ifFalse = progress)
 
-    val isZero = elapsedTimerProgress.isLessThanOrEqualTo(0f.rf)
-    elapsedTimerProgress.isGreaterThanOrEqualTo(1f.rf)
-
-    // Evaluate fractions locally using standard Kotlin to bypass constructing redundant remote AST
-    // nodes
-    val fullOutroFraction = OUTRO_DURATION_SEC / totalDurationSec
-    val outroCollapseStartThreshold =
-        (1.0f - fullOutroFraction).coerceIn(MIN_OUTRO_START_FRACTION, MAX_OUTRO_START_FRACTION).rf
-
-    val effectiveOutroDurationSec = OUTRO_DURATION_SEC.rf * dotCollapseFreezeFraction
-    val outroFraction = effectiveOutroDurationSec / totalDurationSec.rf
-    val outroTriggerThreshold =
-        clamp(1.0f.rf - outroFraction, MIN_OUTRO_START_FRACTION.rf, MAX_OUTRO_START_FRACTION.rf)
-
-    val isOverCollapseStart =
-        elapsedTimerProgress.isGreaterThanOrEqualTo(outroCollapseStartThreshold)
-    val isOverOutroThreshold = elapsedTimerProgress.isGreaterThan(outroTriggerThreshold)
-
-    val remainingScaleRange = max(EPSILON, outroTriggerThreshold - outroCollapseStartThreshold)
-    clamp((outroTriggerThreshold - elapsedTimerProgress) / remainingScaleRange, 0f.rf, 1f.rf)
+    // The timer length is a constant, so this is evaluated in Kotlin. No upper cap, so that the
+    // outro still ends when the timer ends on long timers.
+    val outroStartThreshold =
+        (1.0f - OUTRO_DURATION_SEC / totalDurationSec).coerceIn(MIN_OUTRO_START_FRACTION, 1.0f)
 
     val animateScale = { target: RemoteFloat ->
         remote.animateSpring(
@@ -465,108 +441,28 @@ private fun RemoteDrawScope.calculateTimerArcParams(
             dampingRatio = SPRING_DAMPING_RATIO,
         )
     }
-
-    val activeIntroScale = animateScale(isZero.select(ifTrue = 0f.rf, ifFalse = 1f.rf))
-    val remainingOutroScale =
-        animateScale(isOverOutroThreshold.select(ifTrue = 0f.rf, ifFalse = 1f.rf))
-
-    val introAnimationScale = activeIntroScale
-
-    val trackSlideProgress = clamp(introAnimationScale / 0.5f.rf, 0f.rf, 1f.rf)
-    val dotProgress = clamp((introAnimationScale - 0.5f.rf) / 0.5f.rf, 0f.rf, 1f.rf)
-
-    val dynamicScale = dotProgress
-    val outroBaseScale = isZero.select(ifTrue = 1f.rf, ifFalse = remainingOutroScale)
-
-    val outroProgress = 1.0f.rf - outroBaseScale
-    val collapseFraction = thicknessDegrees / max(EPSILON, totalOutroTravel)
-
-    val outroSlideProgress =
-        clamp(
-            (outroProgress - collapseFraction) / max(1f.rf - collapseFraction, 0.001f.rf),
-            0f.rf,
-            1f.rf,
+    val introScale =
+        animateScale(
+            elapsedTimerProgress.isLessThanOrEqualTo(0f.rf).select(ifTrue = 0f.rf, ifFalse = 1f.rf)
+        )
+    val outroScale =
+        animateScale(
+            elapsedTimerProgress
+                .isGreaterThan(outroStartThreshold.rf)
+                .select(ifTrue = 1f.rf, ifFalse = 0f.rf)
         )
 
-    val collapsedScale =
-        clamp(1.0f.rf - outroProgress / max(EPSILON, collapseFraction), 0f.rf, 1f.rf)
+    // The bar follows the timer from start to end, and the springs play on top of it.
+    val barProgress = clamp(elapsedTimerProgress, 0f.rf, 1f.rf)
 
-    val activeScale = countDown.select(ifTrue = collapsedScale, ifFalse = dynamicScale)
-    val remainingScale = countDown.select(ifTrue = dynamicScale, ifFalse = collapsedScale)
+    // Guards very short arcs, where the two ends would take more than the whole arc.
+    val clampedEndFraction = min(endFraction, 0.5f.rf)
+    val easedProgress =
+        clampedEndFraction * introScale +
+            (1f.rf - 2f.rf * clampedEndFraction) * barProgress +
+            clampedEndFraction * outroScale
 
-    val fullIntroFraction = INTRO_DURATION_SEC / totalDurationSec
-    val clampedOverlap = fullIntroFraction * INTRO_SWEEP_OVERLAP_MULTIPLIER
-    val startSweepProgress = clamp(clampedOverlap.rf, 0f.rf, maxProgress)
-
-    val maxActiveSweep = max(0f.rf, sweepAngle - gapAngleDegrees - 2f.rf * thicknessDegrees)
-    val sweepRange = max(EPSILON, outroTriggerThreshold - startSweepProgress)
-    val sweepProgress =
-        clamp((elapsedTimerProgress - startSweepProgress) / sweepRange, 0f.rf, 1f.rf)
-
-    val effectiveSweepProgress =
-        countDown.select(ifTrue = 1.0f.rf - sweepProgress, ifFalse = sweepProgress)
-    val activeSweepBase = effectiveSweepProgress * maxActiveSweep
-
-    val countDownIntroExtra =
-        isOverCollapseStart.select(
-            ifTrue = 0f.rf,
-            ifFalse =
-                gapAngleDegrees * (1f.rf - trackSlideProgress) +
-                    thicknessDegrees * (1f.rf - dotProgress),
-        )
-
-    val activeSweepVal =
-        countDown.select(
-            ifTrue = activeSweepBase + countDownIntroExtra,
-            ifFalse = activeSweepBase + totalOutroTravel * outroProgress,
-        )
-
-    val activeSweep = clamp(activeSweepVal, MIN_SWEEP_ANGLE, sweepAngle)
-    val clampedActiveSweepBase = clamp(activeSweepBase, MIN_SWEEP_ANGLE, sweepAngle)
-
-    val outroAnchorShift = halfThicknessDegrees * (1f.rf - remainingScale)
-
-    val slideFactor =
-        countDown.select(ifTrue = 1f.rf - outroSlideProgress, ifFalse = trackSlideProgress)
-    val scaleFactor =
-        countDown.select(
-            ifTrue = isOverOutroThreshold.select(ifTrue = activeScale, ifFalse = 1f.rf),
-            ifFalse = activeScale,
-        )
-
-    val activeSweepOffset =
-        clampedActiveSweepBase +
-            gapAngleDegrees * slideFactor +
-            thicknessDegrees * scaleFactor +
-            outroAnchorShift
-
-    val remainingStartBase = drawActiveStartBase + activeSweepOffset
-
-    val expectedRemainingEnd =
-        drawActiveStartBase + sweepAngle - thicknessDegrees + outroAnchorShift
-
-    val expectedRemainingSweep = max(MIN_SWEEP_ANGLE, expectedRemainingEnd - remainingStartBase)
-    val isRemainingHidden = remainingScale.isLessThanOrEqualTo(0f.rf)
-    val remainingSweep =
-        isRemainingHidden.select(
-            ifTrue = 0f.rf,
-            ifFalse = clamp(expectedRemainingSweep, 0f.rf, sweepAngle),
-        )
-
-    val activeStartShift = -halfThicknessDegrees * (1f.rf - activeScale)
-    val shiftedActiveStartBase = drawActiveStartBase + activeStartShift
-    val isActiveHidden = activeScale.isLessThanOrEqualTo(0f.rf)
-
-    return CurvedArcParams(
-        activeScale = activeScale,
-        remainingScale = remainingScale,
-        activeStart = shiftedActiveStartBase,
-        activeSweep = activeSweep,
-        remainingStart = remainingStartBase,
-        remainingSweep = remainingSweep,
-        isActiveHidden = isActiveHidden,
-        isRemainingHidden = isRemainingHidden,
-    )
+    return countDown.select(ifTrue = 1.0f.rf - easedProgress, ifFalse = easedProgress)
 }
 
 /** Renders the track and active indicator arcs onto the [RemoteCanvas]. */
