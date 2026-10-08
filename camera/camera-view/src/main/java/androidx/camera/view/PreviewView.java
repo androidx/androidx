@@ -219,18 +219,24 @@ public final class PreviewView extends FrameLayout {
                         // TODO(b/159127402): maybe switch to COMPATIBLE mode if target
                         //  rotation is not display rotation.
                         Integer lensFacing = camera.getCameraInfoInternal().getLensFacing();
-                        boolean isFrontCamera;
+                        // Follow the rotation convention of CameraX core (see
+                        // CameraInfoInternal#getSensorRotationDegrees), which uses the front
+                        // camera convention for any lens facing other than LENS_FACING_BACK,
+                        // e.g. external cameras. This keeps the preview consistent with
+                        // ImageCapture and VideoCapture. Mirroring is handled separately via
+                        // TransformationInfo#isMirroring().
+                        boolean useFrontCameraRotation;
                         if (lensFacing == null) {
                             // TODO(b/122975195): If the lens facing is null, it's probably an
                             //  external camera. We treat it as like a front camera with
                             //  unverified behaviors. Will have to define this later.
                             Logger.w(TAG, "The lens facing is null, probably an external.");
-                            isFrontCamera = true;
+                            useFrontCameraRotation = true;
                         } else {
-                            isFrontCamera = lensFacing == CameraSelector.LENS_FACING_FRONT;
+                            useFrontCameraRotation = lensFacing != CameraSelector.LENS_FACING_BACK;
                         }
                         mPreviewTransform.setTransformationInfo(transformationInfo,
-                                surfaceRequest.getResolution(), isFrontCamera);
+                                surfaceRequest.getResolution(), useFrontCameraRotation);
 
                         // If targetRotation not specified or it's using SurfaceView, use current
                         // display rotation.

@@ -366,7 +366,9 @@ public final class Preview extends UseCase {
             sessionConfigBuilder.addSurface(mSessionDeferrableSurface,
                     streamSpec.getDynamicRange(),
                     getPhysicalCameraId(),
-                    getMirrorModeInternal());
+                    // The node undoes the SurfaceTexture transform assuming the framework default
+                    // mirroring (see SurfaceOutputImpl), and applies the app mirror mode itself.
+                    mNode != null ? MIRROR_MODE_UNSPECIFIED : getMirrorModeInternal());
         }
 
         if (mCloseableErrorListener != null) {
