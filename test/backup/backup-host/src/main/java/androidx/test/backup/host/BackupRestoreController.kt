@@ -131,7 +131,7 @@ public interface BackupRestoreController : AutoCloseable {
      * @param timeout maximum duration to wait for the backup to complete. When it expires, the app
      *   is force-stopped and the backup fails with an [IOException]. Must be positive.
      * @return path to the generated backup archive
-     * @throws IOException if the backup operation fails
+     * @throws IOException if the backup operation fails, or the app does not allow backups
      * @throws IllegalArgumentException if [timeout] is not positive
      */
     @Throws(IOException::class)
