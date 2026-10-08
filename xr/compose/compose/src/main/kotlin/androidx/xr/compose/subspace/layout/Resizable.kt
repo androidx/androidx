@@ -19,6 +19,7 @@ package androidx.xr.compose.subspace.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
@@ -95,7 +96,9 @@ internal data class CustomResizePolicy(val onResize: (SpatialResizeEvent) -> Uni
  *   resized, but any size modifications that already occurred under the current [resizePolicy] will
  *   remain.
  * @param minimumSize The minimum allowable size for the object, represented by a [DpVolumeSize].
- *   The object cannot be scaled down beyond these dimensions. Defaults to [DpVolumeSize.Zero].
+ *   The object cannot be scaled down beyond these dimensions. Defaults to a width and height of
+ *   150.dp. It may be difficult for a user to grab the resize affordance to re-enlarge an object
+ *   with a width or height that is smaller than 150.dp.
  * @param maximumSize The maximum allowable size for the object, represented by a [DpVolumeSize].
  *   The object cannot be scaled up beyond these dimensions. Defaults to a [DpVolumeSize] with all
  *   dimensions set to [Dp.Unspecified]. This default will dynamically determine a safe maximum size
@@ -110,7 +113,7 @@ internal data class CustomResizePolicy(val onResize: (SpatialResizeEvent) -> Uni
  */
 public fun SubspaceModifier.resizable(
     enabled: Boolean = true,
-    minimumSize: DpVolumeSize = DpVolumeSize.Zero,
+    minimumSize: DpVolumeSize = DpVolumeSize(150.dp, 150.dp, 0.dp),
     maximumSize: DpVolumeSize = DpVolumeSize(Dp.Unspecified, Dp.Unspecified, Dp.Unspecified),
     maintainAspectRatio: Boolean = false,
     resizePolicy: ResizePolicy = ResizePolicy.Default,
