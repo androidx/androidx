@@ -2064,6 +2064,102 @@ class MovableContentTests {
                 slotTable.addressSpace.slots.filterIsInstance<Payload>().distinct().size,
             )
         }
+
+    @Test
+    fun movableContentDeletingInnerInvalidatedScopeClearsInvalidations() = compositionTest {
+        var move by mutableStateOf(false)
+        var showInner by mutableStateOf(true)
+        var innerState by mutableStateOf(0)
+
+        val content = movableContentOf {
+            if (showInner) {
+                Wrap { Text("Inner: $innerState") }
+            }
+        }
+
+        compose {
+            if (!move) {
+                Column { content() }
+            } else {
+                Row { content() }
+            }
+        }
+
+        validate {
+            Column {
+                Text("Inner: 0")
+            }
+        }
+
+        move = true
+        showInner = false
+        innerState = 1
+        expectChanges()
+
+        validate {
+            Row {}
+        }
+
+        assertEquals(0, (composition as CompositionImpl).composer.stacksSize())
+    }
+
+    @Test
+    fun movableContentInvalidatingMainContentDuringMove() = compositionTest {
+        var move by mutableStateOf(false)
+        var trigger by mutableStateOf(0)
+        val holder = MainStateHolder()
+
+        val content = movableContentOf {
+            if (move) {
+                holder.mainText = "UpdatedDuringMove"
+                holder.mainScope?.invalidate()
+            }
+            Text("Movable")
+        }
+
+        compose {
+            Text("Trigger: $trigger")
+            if (!move) {
+                Column { content() }
+            }
+            MainContent(holder)
+            if (move) {
+                Row { content() }
+            }
+        }
+
+        validate {
+            Text("Trigger: 0")
+            Column { Text("Movable") }
+            Text("Main: Initial")
+        }
+
+        move = true
+        expectChanges()
+
+        trigger = 1
+        expectChanges()
+
+        validate {
+            Text("Trigger: 1")
+            Text("Main: UpdatedDuringMove")
+            Row { Text("Movable") }
+        }
+
+        assertEquals(0, (composition as CompositionImpl).composer.stacksSize())
+    }
+}
+
+@Stable
+private class MainStateHolder {
+    var mainText: String = "Initial"
+    var mainScope: RecomposeScope? = null
+}
+
+@Composable
+private fun MainContent(holder: MainStateHolder) {
+    holder.mainScope = currentRecomposeScope
+    Text("Main: ${holder.mainText}")
 }
 
 @Composable
