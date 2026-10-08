@@ -173,8 +173,6 @@ public fun RemoteEdgeButton(
                     textStyle = RemoteMaterialTheme.typography.labelMedium,
                     textConfiguration =
                         TextConfiguration(
-                            // TODO: Center alignment for multi-line text is fixed in a follow-up
-                            // CL in remote-player-core.
                             textAlign = TextAlign.Center,
                             overflow = TextOverflow.Ellipsis,
                             maxLines = buttonSize.maxLines(),
