@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
+import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.player.compose.embedded.modifier.ClickActionHandlers
@@ -39,6 +40,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastForEach
 
 /** Base interface for custom component property schemas. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -133,6 +135,10 @@ public interface RcCustomPropertyReader {
  *
  * Properties are resolved on-demand reactively via [floatState], [intState], [textState], and
  * [colorState].
+ *
+ * A `Custom` component may also host remote child components (see [childCount], [Child], [Children]
+ * and [customChild]), letting a plugin place document content inside a native component, e.g. as
+ * the label of a native button.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RcCustomComponent
@@ -141,6 +147,7 @@ internal constructor(
     public val componentId: Int,
     private val rawProperties: List<Custom.CustomProperty>,
     private val remoteContext: RemoteContext,
+    private val children: List<Component> = emptyList(),
     /**
      * Runs the component's single-click actions, or `null` if it has none. Only populated for
      * plugins that opt in via [CustomComposablePlugin.handlesClick].
@@ -157,6 +164,47 @@ internal constructor(
      */
     public val onLongClick: (() -> Unit)? = null,
 ) : RcCustomPropertyReader {
+
+    /** The number of remote child components hosted by this component. */
+    public val childCount: Int
+        get() = children.size
+
+    /**
+     * Renders the remote child at [index] in the current layout scope, or nothing if out of range.
+     */
+    @Composable
+    public fun Child(index: Int, modifier: Modifier = Modifier) {
+        val child = children.getOrNull(index) ?: return
+        RcPlayerComponent(child, modifier)
+    }
+
+    /** Renders all remote children, in order, in the current layout scope. */
+    @Composable
+    public fun Children() {
+        children.fastForEach { RcPlayerComponent(it) }
+    }
+
+    /**
+     * Returns the remote child at [index] as an [RcCustomComponent] if it is itself a `Custom`
+     * component (e.g. a named slot), otherwise `null` (including when [index] is out of range). Its
+     * children can then be rendered directly via [Children] without dispatching it through the
+     * plugin registry.
+     */
+    public fun customChild(index: Int): RcCustomComponent? {
+        val child = children.getOrNull(index) as? Custom ?: return null
+        val data = child.readData()
+        val childConfig =
+            data.config ?: if (data.configId != -1) remoteContext.getText(data.configId) else null
+        @Suppress("UNCHECKED_CAST")
+        val properties = data.properties as? List<Custom.CustomProperty> ?: emptyList()
+        return RcCustomComponent(
+            config = childConfig ?: "",
+            componentId = child.componentId,
+            rawProperties = properties,
+            remoteContext = remoteContext,
+            children = child.childrenComponents,
+        )
+    }
 
     /** Returns the raw [Custom.CustomProperty] for [property], if present. */
     public fun findProperty(property: CustomPropertyKey): Custom.CustomProperty? {
@@ -428,6 +476,7 @@ internal fun RcPlayerCustom(
                 componentId = layout.componentId,
                 rawProperties = properties,
                 remoteContext = remoteContext,
+                children = layout.childrenComponents,
                 onClick = clickHandlers?.onClick,
                 onDoubleClick = clickHandlers?.onDoubleClick,
                 onLongClick = clickHandlers?.onLongClick,

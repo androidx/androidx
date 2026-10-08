@@ -52,6 +52,7 @@ import androidx.compose.remote.creation.compose.state.animateRemoteDpAsState
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.remoteSpring
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -1230,6 +1231,72 @@ class RcPlayerAnimationTest {
                     .getUnclippedBoundsInRoot()
                     .let { it.right.value - it.left.value }
             assertThat(sharedWidth).isWithin(2f).of(40f)
+        }
+    }
+
+    @Test
+    fun animateRemoteFloatAsState_remoteSpring_settlesInitiallyAndAnimatesOnTargetChange() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val bytes =
+                captureSingleRemoteDocument(
+                        context = context,
+                        content = {
+                            val checked = remember { MutableRemoteBoolean(true) }
+                            val progress =
+                                animateRemoteFloatAsState(
+                                    targetValue = checked.select(1f.rf, 0f.rf),
+                                    animationSpec =
+                                        remoteSpring(stiffness = 1400f, dampingRatio = 1.0f),
+                                )
+                            RemoteColumn(modifier = RemoteModifier.size(200.rdp)) {
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.semantics {
+                                                contentDescription = "springToggle".rs
+                                            }
+                                            .size(40.rdp)
+                                            .clickable(action = valueChange(checked, !checked))
+                                )
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.semantics {
+                                                contentDescription = "springBox".rs
+                                            }
+                                            .width(40f.rf + progress * 60f.rf)
+                                            .height(40.rdp)
+                                )
+                            }
+                        },
+                    )
+                    .bytes
+
+            val document = loadDocument(bytes)
+            rule.mainClock.autoAdvance = false
+            rule.setContent {
+                Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) }
+            }
+
+            val boxNode = rule.onNodeWithContentDescription("springBox")
+            fun width(): Float =
+                boxNode.getUnclippedBoundsInRoot().let { it.right.value - it.left.value }
+
+            // Initially checked = true -> progress = 1f -> width settles immediately at 100dp
+            rule.mainClock.advanceTimeBy(0)
+            assertThat(width()).isWithin(2f).of(100f)
+
+            // Click toggle -> checked = false -> progress animates via spring toward 0f (40dp)
+            rule.onNodeWithContentDescription("springToggle").performClick()
+            rule.mainClock.advanceTimeByFrame()
+            rule.mainClock.advanceTimeBy(300)
+            assertThat(width()).isWithin(2f).of(40f)
+
+            // Click toggle again -> checked = true -> progress animates via spring back to 1f
+            // (100dp)
+            rule.onNodeWithContentDescription("springToggle").performClick()
+            rule.mainClock.advanceTimeByFrame()
+            rule.mainClock.advanceTimeBy(300)
+            assertThat(width()).isWithin(2f).of(100f)
         }
     }
 }

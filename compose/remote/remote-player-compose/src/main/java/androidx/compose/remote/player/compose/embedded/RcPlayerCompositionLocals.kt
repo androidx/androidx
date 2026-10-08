@@ -29,7 +29,6 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableProvider
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.ComponentValue
-import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
@@ -58,8 +57,7 @@ internal val LocalGraphContext: ProvidableCompositionLocal<GraphContext?> = comp
 
 /**
  * Index of computed-value operations by the id they produce — `VariableSupport`+`VariableProvider`
- * ops that compute from other variables. Animation/spring-bearing `FloatExpression`s are excluded
- * (those are displayed via `rememberAnimatedRemoteFloat`); everything else, including plain
+ * ops that compute from other variables. Everything, including
  * `FloatExpression`/`IntegerExpression`, is included so the graph can resolve them when a derived
  * op reads them as an input (chains).
  */
@@ -75,9 +73,8 @@ internal fun buildComputedOpIndex(operations: Collection<Operation>): IntObjectM
                     map.remove(id)
                 }
             } else if (op is VariableSupport && op is VariableProvider) {
-                val animated = op is FloatExpression && op.mFloatAnimation != null
                 val id = op.id
-                if (!animated && id > 0 && !touchIds.contains(id) && !map.containsKey(id)) {
+                if (id > 0 && !touchIds.contains(id) && !map.containsKey(id)) {
                     map[id] = op
                 }
             }

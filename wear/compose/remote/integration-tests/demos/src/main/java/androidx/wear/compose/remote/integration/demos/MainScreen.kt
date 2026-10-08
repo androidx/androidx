@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.remote.integration.demos
 
+import android.content.Intent
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,6 +34,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.dynamicColorScheme
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import androidx.wear.compose.remote.integration.demos.bookends.BookendsActivity
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Composable
@@ -110,6 +112,14 @@ fun MainScreen(
                             textAlign = TextAlign.Center,
                         )
                     }
+                }
+                item {
+                    MenuButton(
+                        "Bookends (Wear Material3 custom components)",
+                        onClick = {
+                            context.startActivity(Intent(context, BookendsActivity::class.java))
+                        },
+                    )
                 }
                 item {
                     MenuButton(

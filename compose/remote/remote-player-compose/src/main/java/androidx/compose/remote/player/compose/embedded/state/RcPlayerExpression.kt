@@ -20,6 +20,7 @@ package androidx.compose.remote.player.compose.embedded.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
@@ -600,24 +601,39 @@ public fun rememberRemoteExpression(id: Int): State<Float> {
     return remember(tree) { derivedStateOf { tree.eval() } }
 }
 
-private data class FloatAnimationSpec(
-    val durationMillis: Int,
-    val easingType: Int,
-    val initialValue: Float,
-)
+private sealed interface FloatAnimationSpec {
+    val initialValue: Float
+
+    data class Tween(
+        val durationMillis: Int,
+        val easingType: Int,
+        override val initialValue: Float,
+    ) : FloatAnimationSpec
+
+    data class Spring(
+        val stiffness: Float,
+        val dampingRatio: Float,
+        val stopThreshold: Float,
+    ) : FloatAnimationSpec {
+        override val initialValue: Float
+            get() = Float.NaN
+    }
+}
 
 /**
  * Resolves an animation-bearing [androidx.compose.remote.core.operations.FloatExpression] (one with
- * a non-null `mFloatAnimation`) as a Compose-native animated [State].
+ * a non-null `mFloatAnimation` or `mSpring` encoded in `mSrcAnimation`) as a Compose-native
+ * animated [State].
  *
  * The expression's *source* value — its RPN over its variables, evaluated by
  * [rememberRemoteExpression] and ignoring the animation — is taken as the animation target. A
  * Compose [Animatable], seeded at the authored initial value, animates toward that target with the
- * spec's duration and easing whenever the target changes. Animation is therefore driven entirely by
- * Compose's frame clock (here, via [Animatable.animateTo]); the player's frame loop and the core's
- * per-frame animation math are not involved. This is the "it's just a `State<Float>`" layer: it
- * sidesteps the core treating an appearance animation's initial value as its target on first
- * evaluation, and gives a real, interruptible, value-change animation when the source is reactive.
+ * spec's duration/easing or spring physics whenever the target changes. Animation is therefore
+ * driven entirely by Compose's frame clock (here, via [Animatable.animateTo]); the player's frame
+ * loop and the core's per-frame animation math are not involved. This is the "it's just a
+ * `State<Float>`" layer: it sidesteps the core treating an appearance animation's initial value as
+ * its target on first evaluation, and gives a real, interruptible, value-change animation when the
+ * source is reactive.
  *
  * The spec is parsed fresh from the immutable `mSrcAnimation` array rather than read off the live
  * `mFloatAnimation`, whose initial value the core overwrites with the target during its first
@@ -635,12 +651,34 @@ internal fun rememberAnimatedRemoteFloat(id: Int): State<Float> {
 
     val spec =
         remember(expr) {
-            val authored = FloatAnimation(*(expr.mSrcAnimation ?: floatArrayOf(1f)))
-            FloatAnimationSpec(
-                durationMillis = (authored.duration * 1000f).toInt().coerceAtLeast(0),
-                easingType = authored.type,
-                initialValue = authored.initialValue,
-            )
+            val srcAnim = expr.mSrcAnimation
+            if (srcAnim != null && srcAnim.size > 4 && srcAnim[0] == 0f) {
+                val stiffness = srcAnim[1]
+                val dampingCoefficient = srcAnim[2]
+                val dampingRatio =
+                    if (stiffness > 0f) {
+                        dampingCoefficient / (2f * sqrt(stiffness))
+                    } else {
+                        1f
+                    }
+                FloatAnimationSpec.Spring(
+                    stiffness = stiffness,
+                    dampingRatio = dampingRatio,
+                    stopThreshold = srcAnim[3],
+                )
+            } else {
+                val authored =
+                    if (srcAnim != null) {
+                        FloatAnimation(*srcAnim)
+                    } else {
+                        expr.mFloatAnimation ?: FloatAnimation(1f)
+                    }
+                FloatAnimationSpec.Tween(
+                    durationMillis = (authored.duration * 1000f).toInt().coerceAtLeast(0),
+                    easingType = authored.type,
+                    initialValue = authored.initialValue,
+                )
+            }
         }
 
     val animatable =
@@ -650,13 +688,32 @@ internal fun rememberAnimatedRemoteFloat(id: Int): State<Float> {
 
     val target = targetState.value
     LaunchedEffect(animatable, target, spec) {
-        if (spec.durationMillis <= 0) {
-            animatable.snapTo(target)
-        } else {
-            animatable.animateTo(
-                target,
-                tween(durationMillis = spec.durationMillis, easing = mapEasing(spec.easingType)),
-            )
+        when (spec) {
+            is FloatAnimationSpec.Tween -> {
+                if (spec.durationMillis <= 0) {
+                    animatable.snapTo(target)
+                } else if (animatable.value != target || animatable.isRunning) {
+                    animatable.animateTo(
+                        target,
+                        tween(
+                            durationMillis = spec.durationMillis,
+                            easing = mapEasing(spec.easingType),
+                        ),
+                    )
+                }
+            }
+            is FloatAnimationSpec.Spring -> {
+                if (animatable.value != target || animatable.isRunning) {
+                    animatable.animateTo(
+                        target,
+                        spring(
+                            dampingRatio = spec.dampingRatio,
+                            stiffness = spec.stiffness,
+                            visibilityThreshold = spec.stopThreshold,
+                        ),
+                    )
+                }
+            }
         }
     }
     return animatable.asState()
