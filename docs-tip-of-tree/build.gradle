@@ -102,6 +102,8 @@ dependencies {
     docs(project(":core:locationbutton:locationbutton-testing"))
     docs(project(":core:core-pip"))
     kmpDocs(project(":datastore:datastore-tink"))
+    docs(project(":people:people"))
+    docs(project(":people:people-client"))
     docs(project(":wear:compose:remote:remote-material3"))
     kmpDocs(project(":compose:runtime:runtime"))
     kmpDocs(project(":compose:runtime:runtime-annotation"))
