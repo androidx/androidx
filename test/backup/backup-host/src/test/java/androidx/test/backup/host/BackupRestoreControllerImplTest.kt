@@ -17,7 +17,10 @@
 package androidx.test.backup.host
 
 import com.android.adblib.ShellCommandOutput
+import com.android.backup.BackupResult
+import com.android.backup.BackupService
 import java.io.IOException
+import java.nio.file.Path
 import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -38,6 +41,8 @@ import kotlinx.serialization.json.put
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.mockito.Mockito.RETURNS_DEFAULTS
+import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 
@@ -47,6 +52,9 @@ class BackupRestoreControllerImplTest {
 
     private val device = FakeAdbDevice()
     private val publishedMetrics = mutableMapOf<String, String>()
+
+    /** What every backup through the fake backup service ends with. */
+    private var backupServiceResult: BackupResult = BackupResult.Success
     private val controller =
         BackupRestoreControllerImpl(
             device.session,
@@ -54,6 +62,7 @@ class BackupRestoreControllerImplTest {
             34,
             PACKAGE,
             telemetryPublisher = { key, value -> publishedMetrics[key] = value },
+            backupServiceProvider = { fakeBackupService() },
         )
 
     @Test
@@ -328,6 +337,34 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
+    fun performBackupReturnsTheArchiveOfACloudBackup() = runBlocking {
+        val archive = controller.performBackup(BackupTransportMode.CLOUD_ENCRYPTED, outputDir())
+
+        assertEquals(outputDir().resolve("backup_cloud_encrypted_device.zip"), archive)
+        assertTrue(archive.toFile().isFile)
+    }
+
+    /** A backup without app data cannot be restored into the data the test expects. */
+    @Test
+    fun performBackupThrowsAndDeletesTheArchiveWhenItHoldsNoAppData() {
+        backupServiceResult = BackupResult.WithoutAppData
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking {
+                    controller.performBackup(BackupTransportMode.CLOUD_ENCRYPTED, outputDir())
+                }
+            }
+
+        assertEquals(
+            "Backup (CLOUD_ENCRYPTED) of $PACKAGE contains no app data, because the app does not " +
+                "allow backups (android:allowBackup=\"false\")",
+            e.message,
+        )
+        assertFalse(outputDir().resolve("backup_cloud_encrypted_device.zip").toFile().exists())
+    }
+
+    @Test
     fun runOnDeviceReturnsAFailureAndStopsTheAppWhenTheActionTimesOut() = runBlocking {
         device.hangOn { it.startsWith("am instrument") }
 
@@ -573,6 +610,84 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
+    fun flowClassifiesAPackageThatIsNotBackedUpAsABackupFailure() {
+        onHealthyDevice { command ->
+            if (command == "bmgr backupnow $PACKAGE") {
+                shellOutput(
+                    "Running incremental backup for 1 requested packages.\n" +
+                        "Package $PACKAGE with result: Backup is not allowed\n" +
+                        "Backup finished with result: Success\n"
+                )
+            } else {
+                null
+            }
+        }
+
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.BACKUP, BackupErrorCode.BACKUP_FAILED)
+    }
+
+    @Test
+    fun flowClassifiesAnUnknownLocalTransportAsABmgrFailure() {
+        onHealthyDevice { command ->
+            if (command == "bmgr transport '$LOCAL_TRANSPORT'") {
+                shellOutput("Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n")
+            } else {
+                null
+            }
+        }
+
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.BACKUP, BackupErrorCode.BMGR_INIT_FAILED)
+    }
+
+    @Test
+    fun flowClassifiesAMissingLocalBackupAsARestoreFailure() {
+        onHealthyDevice { command ->
+            if (command == "bmgr restore 1 $PACKAGE") {
+                shellOutput("No available restore sets; no restore performed\ndone\n")
+            } else {
+                null
+            }
+        }
+
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.RESTORE, BackupErrorCode.RESTORE_FAILED)
+        assertTrue(
+            device.commands.none { it.contains(BackupRestoreController.ACTION_ASSERT_STORAGE) },
+            "${device.commands}",
+        )
+    }
+
+    @Test
+    fun flowClassifiesABackupWithoutAppDataAsABackupFailure() {
+        onHealthyDevice()
+        backupServiceResult = BackupResult.WithoutAppData
+
+        assertFailsWith<IOException> {
+            runBlocking {
+                controller.runBackupRestoreFlow(
+                    PREFERENCE,
+                    outputDir(),
+                    BackupTransportMode.CLOUD_ENCRYPTED,
+                )
+            }
+        }
+
+        assertFailure(BackupExecutionStage.BACKUP, BackupErrorCode.BACKUP_FAILED)
+        assertTrue(device.commands.none { it.startsWith("pm clear") }, "${device.commands}")
+    }
+
+    @Test
     fun flowClassifiesARestorePollingTimeout() {
         onHealthyDevice { command ->
             if (command == "dumpsys backup") {
@@ -651,8 +766,7 @@ class BackupRestoreControllerImplTest {
                 ?: when {
                     command.startsWith("am instrument") -> shellOutput(runnerStdout("{}"))
                     command.startsWith("pm clear") -> shellOutput("Success\n")
-                    command == "bmgr list transports" ->
-                        shellOutput("  * com.android.localtransport/.LocalTransport\n")
+                    command == "bmgr list transports" -> shellOutput("  * $LOCAL_TRANSPORT\n")
                     // The restore pass is reported as registered once and then as ended.
                     command == "dumpsys backup" ->
                         if (++restoreProgressChecks == 1) {
@@ -660,10 +774,28 @@ class BackupRestoreControllerImplTest {
                         } else {
                             shellOutput("Restore in progress: false\n")
                         }
-                    else -> shellOutput()
+                    else -> null
                 }
         }
     }
+
+    /**
+     * Returns a backup service whose backups end with [backupServiceResult]. Unless that is an
+     * error, a backup first writes the archive, as Studio's backup service does.
+     */
+    private fun fakeBackupService(): BackupService =
+        // `backup` is a suspend function, which Mockito cannot stub with `when`.
+        mock(BackupService::class.java) { invocation ->
+            if (invocation.method.name == "backup") {
+                val result = backupServiceResult
+                if (result !is BackupResult.Error) {
+                    (invocation.arguments[3] as Path).toFile().writeText("archive")
+                }
+                result
+            } else {
+                RETURNS_DEFAULTS.answer(invocation)
+            }
+        }
 
     private fun assertFailure(stage: BackupExecutionStage, errorCode: BackupErrorCode) {
         val summary = assertNotNull(controller.lastExecutionSummary)
