@@ -65,7 +65,7 @@ import org.junit.runners.model.Statement
  * @constructor Creates a new instance for use as a `Rule`. See the class documentation for details,
  *   and consider using [the lambda version][expectFailure] instead.
  */
-class ExpectFailure : TestRule {
+public class ExpectFailure : TestRule {
     private var inRuleContext = false
     private var failureExpected = false
     private var failure: AssertionError? = null
@@ -77,7 +77,7 @@ class ExpectFailure : TestRule {
      * An instance of [ExpectFailure] supports only one [whenTesting] call per test method. The
      * static [expectFailure] method, by contrast, does not have this limitation.
      */
-    fun whenTesting(): StandardSubjectBuilder {
+    public fun whenTesting(): StandardSubjectBuilder {
         require(inRuleContext) { "ExpectFailure must be used as a JUnit @Rule" }
         if (failure != null) {
             throw AssertionErrorWithFacts("ExpectFailure already captured a failure", failure)
@@ -117,7 +117,7 @@ class ExpectFailure : TestRule {
     }
 
     /** Returns the captured failure, if one occurred. */
-    fun getFailure(): AssertionError {
+    public fun getFailure(): AssertionError {
         return failure ?: throw AssertionError("ExpectFailure did not capture a failure.")
     }
 
@@ -138,7 +138,7 @@ class ExpectFailure : TestRule {
         failure = captured
     }
 
-    companion object {
+    public companion object {
         /**
          * Static alternative that directly returns the triggered failure. This is intended to be
          * used in Java 8+ tests similar to `expectThrows`:
@@ -149,7 +149,9 @@ class ExpectFailure : TestRule {
          * ```
          */
         @JvmStatic
-        fun expectFailure(assertionCallback: StandardSubjectBuilderCallback): AssertionError {
+        public fun expectFailure(
+            assertionCallback: StandardSubjectBuilderCallback
+        ): AssertionError {
             val expectFailure = ExpectFailure()
             expectFailure.enterRuleContext() // safe since this instance doesn't leave this method
             assertionCallback.invokeAssertion(expectFailure.whenTesting())
@@ -167,7 +169,7 @@ class ExpectFailure : TestRule {
          */
         @JvmStatic
         @CanIgnoreReturnValue
-        fun <S : Subject<A>, A> expectFailureAbout(
+        public fun <S : Subject<A>, A> expectFailureAbout(
             factory: Subject.Factory<S, A>,
             assertionCallback: SimpleSubjectBuilderCallback<S, A>,
         ): AssertionError {
@@ -181,7 +183,7 @@ class ExpectFailure : TestRule {
          * Truth.
          */
         @JvmStatic
-        fun <T : AssertionError> assertThat(actual: T?): TruthFailureSubject<T> {
+        public fun <T : AssertionError> assertThat(actual: T?): TruthFailureSubject<T> {
             return assertAbout(truthFailures<T>()).that(actual)
         }
     }
@@ -210,8 +212,8 @@ class ExpectFailure : TestRule {
      * you prefer the [expectFailure] pattern you can use this interface to pass in an anonymous
      * class.
      */
-    fun interface StandardSubjectBuilderCallback {
-        fun invokeAssertion(whenTesting: StandardSubjectBuilder)
+    public fun interface StandardSubjectBuilderCallback {
+        public fun invokeAssertion(whenTesting: StandardSubjectBuilder)
     }
 
     /**
@@ -222,7 +224,7 @@ class ExpectFailure : TestRule {
      * however if you prefer the `expectFailureAbout` pattern you can use this interface to pass in
      * an anonymous class.
      */
-    fun interface SimpleSubjectBuilderCallback<S : Subject<A>, A> {
-        fun invokeAssertion(whenTesting: SimpleSubjectBuilder<S, A>)
+    public fun interface SimpleSubjectBuilderCallback<S : Subject<A>, A> {
+        public fun invokeAssertion(whenTesting: SimpleSubjectBuilder<S, A>)
     }
 }

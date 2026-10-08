@@ -16,7 +16,7 @@
 
 package androidx.kruth
 
-class PrimitiveByteArraySubject
+public class PrimitiveByteArraySubject
 internal constructor(actual: ByteArray?, metadata: FailureMetadata = FailureMetadata()) :
     Subject<ByteArray?>(actual, metadata = metadata, typeDescriptionOverride = "array") {
 
@@ -24,12 +24,12 @@ internal constructor(actual: ByteArray?, metadata: FailureMetadata = FailureMeta
         HelperArraySubject(actual = actual, size = ByteArray::size, metadata = metadata)
 
     /** Fails if the array is not empty (i.e. `array.size > 0`). */
-    fun isEmpty() {
+    public fun isEmpty() {
         helper.isEmpty()
     }
 
     /** Fails if the array is empty (i.e. `array.size == 0`). */
-    fun isNotEmpty() {
+    public fun isNotEmpty() {
         helper.isNotEmpty()
     }
 
@@ -38,12 +38,12 @@ internal constructor(actual: ByteArray?, metadata: FailureMetadata = FailureMeta
      *
      * @throws IllegalArgumentException if [length] < 0
      */
-    fun hasLength(length: Int) {
+    public fun hasLength(length: Int) {
         helper.hasLength(length)
     }
 
     /** Converts this [PrimitiveByteArraySubject] to [IterableSubject]. */
-    fun asList(): IterableSubject<Byte> {
+    public fun asList(): IterableSubject<Byte> {
         requireNonNull(actual)
         return IterableSubject(actual = actual.asList(), metadata = metadata)
     }

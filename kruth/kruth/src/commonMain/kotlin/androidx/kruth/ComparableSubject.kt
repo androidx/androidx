@@ -23,7 +23,7 @@ package androidx.kruth
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
  *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-expect open class ComparableSubject<T : Comparable<T>>
+public expect open class ComparableSubject<T : Comparable<T>>
 protected constructor(metadata: FailureMetadata, actual: T?) : Subject<T> {
 
     internal constructor(actual: T?, metadata: FailureMetadata)
@@ -34,35 +34,35 @@ protected constructor(metadata: FailureMetadata, actual: T?) : Subject<T> {
      *
      * **Note:** Do not use this method for checking object equality. Instead, use [isEqualTo].
      */
-    open fun isEquivalentAccordingToCompareTo(other: T?)
+    public open fun isEquivalentAccordingToCompareTo(other: T?)
 
     /**
      * Checks that the subject is greater than [other].
      *
      * To check that the subject is greater than *or equal to* [other], use [isAtLeast].
      */
-    fun isGreaterThan(other: T?)
+    public fun isGreaterThan(other: T?)
 
     /**
      * Checks that the subject is less than [other].
      *
      * @throws NullPointerException if [actual] or [other] is `null`.
      */
-    fun isLessThan(other: T?)
+    public fun isLessThan(other: T?)
 
     /**
      * Checks that the subject is less than or equal to [other].
      *
      * @throws NullPointerException if [actual] or [other] is `null`.
      */
-    fun isAtMost(other: T?)
+    public fun isAtMost(other: T?)
 
     /**
      * Checks that the subject is greater than or equal to [other].
      *
      * @throws NullPointerException if [actual] or [other] is `null`.
      */
-    fun isAtLeast(other: T?)
+    public fun isAtLeast(other: T?)
 }
 
 internal fun <T : Comparable<T>> ComparableSubject<T>.commonIsEquivalentAccordingToCompareTo(

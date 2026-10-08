@@ -59,7 +59,8 @@ import androidx.annotation.UiThread
  * above.
  */
 @Suppress("SingletonConstructor")
-class JankStats private constructor(window: Window, private val frameListener: OnFrameListener) {
+public class JankStats
+private constructor(window: Window, private val frameListener: OnFrameListener) {
     private val holder: PerformanceMetricsState.Holder
 
     /**
@@ -105,7 +106,7 @@ class JankStats private constructor(window: Window, private val frameListener: O
      * per-frame basis that can later be reported to the JankStats listener. Tracking is enabled by
      * default at creation time.
      */
-    var isTrackingEnabled: Boolean = true
+    public var isTrackingEnabled: Boolean = true
         /**
          * Enabling tracking causes JankStats to listen to system frame-timing information and
          * record data on a per-frame basis that can later be reported to the JankStats listener.
@@ -130,7 +131,7 @@ class JankStats private constructor(window: Window, private val frameListener: O
      *
      * By default, the multiplier is 2.
      */
-    var jankHeuristicMultiplier: Float = 2.0f
+    public var jankHeuristicMultiplier: Float = 2.0f
         set(value) {
             // reset calculated value to force recalculation based on new heuristic
             JankStatsBaseImpl.frameDuration = -1
@@ -142,7 +143,7 @@ class JankStats private constructor(window: Window, private val frameListener: O
         frameListener.onFrame(volatileFrameData)
     }
 
-    companion object {
+    public companion object {
         /**
          * Creates a new JankStats object and starts tracking jank metrics for the given window.
          *
@@ -153,7 +154,7 @@ class JankStats private constructor(window: Window, private val frameListener: O
         @JvmStatic
         @UiThread
         @Suppress("ExecutorRegistration")
-        fun createAndTrack(window: Window, frameListener: OnFrameListener): JankStats {
+        public fun createAndTrack(window: Window, frameListener: OnFrameListener): JankStats {
             return JankStats(window, frameListener)
         }
     }
@@ -167,7 +168,7 @@ class JankStats private constructor(window: Window, private val frameListener: O
      * consider the [FrameData] object **obsolete when control returns from the listener**. Clients
      * wishing to retain data from this call should **copy the data elsewhere before returning**.
      */
-    fun interface OnFrameListener {
+    public fun interface OnFrameListener {
 
         /**
          * The implementation of this method will be called on every frame when an OnFrameListener
@@ -178,6 +179,6 @@ class JankStats private constructor(window: Window, private val frameListener: O
          *
          * @param volatileFrameData The data for the most recent frame.
          */
-        fun onFrame(volatileFrameData: FrameData)
+        public fun onFrame(volatileFrameData: FrameData)
     }
 }

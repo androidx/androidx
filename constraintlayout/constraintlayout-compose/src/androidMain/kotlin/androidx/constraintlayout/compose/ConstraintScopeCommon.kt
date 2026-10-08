@@ -30,9 +30,9 @@ import androidx.constraintlayout.core.parser.CLString
  * Represents a vertical side of a layout (i.e start and end) that can be anchored using [linkTo] in
  * their `Modifier.constrainAs` blocks.
  */
-interface VerticalAnchorable {
+public interface VerticalAnchorable {
     /** Adds a link towards a [ConstraintLayoutBaseScope.VerticalAnchor]. */
-    fun linkTo(
+    public fun linkTo(
         anchor: ConstraintLayoutBaseScope.VerticalAnchor,
         margin: Dp = 0.dp,
         goneMargin: Dp = 0.dp,
@@ -44,16 +44,16 @@ interface VerticalAnchorable {
  * Represents a horizontal side of a layout (i.e top and bottom) that can be anchored using [linkTo]
  * in their `Modifier.constrainAs` blocks.
  */
-interface HorizontalAnchorable {
+public interface HorizontalAnchorable {
     /** Adds a link towards a [ConstraintLayoutBaseScope.HorizontalAnchor]. */
-    fun linkTo(
+    public fun linkTo(
         anchor: ConstraintLayoutBaseScope.HorizontalAnchor,
         margin: Dp = 0.dp,
         goneMargin: Dp = 0.dp,
     )
 
     /** Adds a link towards a [ConstraintLayoutBaseScope.BaselineAnchor]. */
-    fun linkTo(
+    public fun linkTo(
         anchor: ConstraintLayoutBaseScope.BaselineAnchor,
         margin: Dp = 0.dp,
         goneMargin: Dp = 0.dp,
@@ -65,16 +65,16 @@ interface HorizontalAnchorable {
  * Represents the [FirstBaseline] of a layout that can be anchored using [linkTo] in their
  * `Modifier.constrainAs` blocks.
  */
-interface BaselineAnchorable {
+public interface BaselineAnchorable {
     /** Adds a link towards a [ConstraintLayoutBaseScope.BaselineAnchor]. */
-    fun linkTo(
+    public fun linkTo(
         anchor: ConstraintLayoutBaseScope.BaselineAnchor,
         margin: Dp = 0.dp,
         goneMargin: Dp = 0.dp,
     )
 
     /** Adds a link towards a [ConstraintLayoutBaseScope.HorizontalAnchor]. */
-    fun linkTo(
+    public fun linkTo(
         anchor: ConstraintLayoutBaseScope.HorizontalAnchor,
         margin: Dp = 0.dp,
         goneMargin: Dp = 0.dp,

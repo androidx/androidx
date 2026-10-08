@@ -23,7 +23,7 @@ package androidx.kruth
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
  *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-actual open class ComparableSubject<T : Comparable<T>>
+public actual open class ComparableSubject<T : Comparable<T>>
 protected actual constructor(metadata: FailureMetadata, actual: T?) :
     Subject<T>(actual, metadata, typeDescriptionOverride = null) {
 
@@ -35,7 +35,7 @@ protected actual constructor(metadata: FailureMetadata, actual: T?) :
      *
      * **Note:** Do not use this method for checking object equality. Instead, use [isEqualTo].
      */
-    actual open fun isEquivalentAccordingToCompareTo(other: T?) =
+    public actual open fun isEquivalentAccordingToCompareTo(other: T?): Unit =
         commonIsEquivalentAccordingToCompareTo(other)
 
     /**
@@ -43,26 +43,26 @@ protected actual constructor(metadata: FailureMetadata, actual: T?) :
      *
      * To check that the subject is greater than *or equal to* [other], use [isAtLeast].
      */
-    actual fun isGreaterThan(other: T?) = commonIsGreaterThan(other)
+    public actual fun isGreaterThan(other: T?): Unit = commonIsGreaterThan(other)
 
     /**
      * Checks that the subject is less than [other].
      *
      * @throws NullPointerException if [actual] or [other] is `null`.
      */
-    actual fun isLessThan(other: T?) = commonIsLessThan(other)
+    public actual fun isLessThan(other: T?): Unit = commonIsLessThan(other)
 
     /**
      * Checks that the subject is less than or equal to [other].
      *
      * @throws NullPointerException if [actual] or [other] is `null`.
      */
-    actual fun isAtMost(other: T?) = commonIsAtMost(other)
+    public actual fun isAtMost(other: T?): Unit = commonIsAtMost(other)
 
     /**
      * Checks that the subject is greater than or equal to [other].
      *
      * @throws NullPointerException if [actual] or [other] is `null`.
      */
-    actual fun isAtLeast(other: T?) = commonIsAtLeast(other)
+    public actual fun isAtLeast(other: T?): Unit = commonIsAtLeast(other)
 }

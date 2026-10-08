@@ -42,7 +42,7 @@ package androidx.metrics.performance
  * @see JankStats.jankHeuristicMultiplier
  * @see PerformanceMetricsState.putState
  */
-class FrameDataApi31(
+public class FrameDataApi31(
     frameStartNanos: Long,
     frameDurationUiNanos: Long,
     frameDurationCpuNanos: Long,
@@ -52,10 +52,10 @@ class FrameDataApi31(
     states: List<StateInfo>,
 ) : FrameDataApi24(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos, isJank, states) {
 
-    var frameDurationTotalNanos = frameDurationTotalNanos
+    public var frameDurationTotalNanos: Long = frameDurationTotalNanos
         private set
 
-    var frameOverrunNanos = frameOverrunNanos
+    public var frameOverrunNanos: Long = frameOverrunNanos
         private set
 
     override fun copy(): FrameData {

@@ -22,7 +22,7 @@ import android.os.Build
  * Reports the media performance class of the device. Contains statically specified values and can
  * be used as a fallback alternative to suppliers with dynamic values.
  */
-class DefaultDevicePerformance() : DevicePerformance {
+public class DefaultDevicePerformance() : DevicePerformance {
     private val PERFCLASS_11: Int = Build.VERSION_CODES.R
     private val PERFCLASS_12: Int = Build.VERSION_CODES.S
     private val PERFCLASS_13: Int = Build.VERSION_CODES.TIRAMISU
@@ -48,7 +48,7 @@ class DefaultDevicePerformance() : DevicePerformance {
             "samsung/r0sxxx/r0s:12" to PERFCLASS_11,
         )
 
-    override val mediaPerformanceClass = getCalculatedMediaPerformanceClass()
+    override val mediaPerformanceClass: Int = getCalculatedMediaPerformanceClass()
 
     private fun getMediaPerformanceClassFromFingerprint(): Int {
 

@@ -334,13 +334,6 @@ abstract class AndroidXExtension(
     /** Whether this project should fail on javac compilation warnings */
     fun failOnDeprecationWarnings(enabled: Boolean) = failOnDeprecationWarnings.set(enabled)
 
-    /**
-     * Whether Kotlin Strict API mode is enabled, see
-     * [kotlin 1.4 release notes](https://kotlinlang.org/docs/whatsnew14.html#explicit-api-mode-for-library-authors)
-     */
-    val legacyDisableKotlinStrictApiMode =
-        project.objects.property(Boolean::class.java).convention(false)
-
     var bypassCoordinateValidation = false
 
     val additionalDeviceTestApkKeys = mutableListOf<String>()
@@ -363,11 +356,6 @@ abstract class AndroidXExtension(
         }
         return@lazy tags
     }
-
-    fun shouldEnforceKotlinStrictApiMode(): Provider<Boolean> =
-        type.zip(legacyDisableKotlinStrictApiMode) { type, legacyDisableKotlinStrictApiMode ->
-            !legacyDisableKotlinStrictApiMode && type.checkApi is RunApiTasks.Yes
-        }
 
     fun extraLicense(closure: Closure<Any>): License {
         val license = project.configure(License(), closure) as License

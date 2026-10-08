@@ -242,17 +242,17 @@ import androidx.constraintlayout.core.state.Transition
  * - [ConstraintSetScope.createAbsoluteRightBarrier]
  */
 @Immutable
-interface ConstraintSet {
+public interface ConstraintSet {
     /** Applies the [ConstraintSet] to a state. */
-    fun applyTo(state: State, measurables: List<Measurable>)
+    public fun applyTo(state: State, measurables: List<Measurable>)
 
-    fun override(name: String, value: Float) = this
+    public fun override(name: String, value: Float): ConstraintSet = this
 
-    fun applyTo(transition: Transition, type: Int) {
+    public fun applyTo(transition: Transition, type: Int) {
         // nothing here, used in MotionLayout
     }
 
-    fun isDirty(measurables: List<Measurable>): Boolean = true
+    public fun isDirty(measurables: List<Measurable>): Boolean = true
 }
 
 @JvmDefaultWithCompatibility

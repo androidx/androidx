@@ -19,7 +19,7 @@ package androidx.kruth
 import kotlin.jvm.JvmStatic
 
 // TODO(dustinlam): This needs to implement Serializable on JVM.
-class Fact private constructor(internal val key: String, internal val value: String?) {
+public class Fact private constructor(internal val key: String, internal val value: String?) {
     override fun toString(): String {
         return if (value == null) key else "$key: $value"
     }
@@ -45,13 +45,13 @@ class Fact private constructor(internal val key: String, internal val value: Str
         return "    ${value.replace("\n", "\n    ")}"
     }
 
-    companion object {
+    public companion object {
         /**
          * Creates a fact with the given key and value, which will be printed in a format like "key:
          * value." The value is converted to a string by calling [toString] on it.
          */
         @JvmStatic
-        fun fact(key: String, value: Any?): Fact {
+        public fun fact(key: String, value: Any?): Fact {
             return Fact(key, value.toString())
         }
 
@@ -67,7 +67,7 @@ class Fact private constructor(internal val key: String, internal val value: Str
          *   facts like "expected to contain: ..." _"but did not"_ "though it did contain: ..."
          */
         @JvmStatic
-        fun simpleFact(key: String): Fact {
+        public fun simpleFact(key: String): Fact {
             return Fact(key, null)
         }
 

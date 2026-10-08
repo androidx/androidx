@@ -61,5 +61,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Library for tracking and reporting various runtime metrics for applications"
-    legacyDisableKotlinStrictApiMode = true
 }
