@@ -28,6 +28,7 @@ import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.ExperimentalAppFunctionsApi
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
@@ -79,12 +80,14 @@ internal class PlatformAppFunctionReader(
                                     schemaAppFunctionInventory,
                                 )
                             } catch (e: Exception) {
-                                Log.w(
-                                    APP_FUNCTIONS_TAG,
-                                    "Failed to convert ${it.name} to " +
-                                        "${AppFunctionMetadata::class.simpleName}",
-                                    e,
-                                )
+                                if (isLoggingEnabled) {
+                                    Log.w(
+                                        APP_FUNCTIONS_TAG,
+                                        "Failed to convert ${it.name} to " +
+                                            "${AppFunctionMetadata::class.simpleName}",
+                                        e,
+                                    )
+                                }
                                 null
                             }
                         }
@@ -148,11 +151,13 @@ internal class PlatformAppFunctionReader(
                 metadata == null ||
                     CallerAccessVerifier.canCallerDiscoverFunction(context, metadata)
             if (!isVisible) {
-                Log.d(
-                    APP_FUNCTIONS_TAG,
-                    "Filtered out state for ${it.functionName}: caller cannot discover function " +
-                        "with accessLevel=${metadata?.accessLevel}",
-                )
+                if (isLoggingEnabled) {
+                    Log.d(
+                        APP_FUNCTIONS_TAG,
+                        "Filtered out state for ${it.functionName}: caller cannot discover function " +
+                            "with accessLevel=${metadata?.accessLevel}",
+                    )
+                }
             }
             isVisible
         }
