@@ -145,6 +145,7 @@ public class WebViewFeature {
             DOWNLOAD_FAVICONS_ENABLED,
             HTTP_CACHE_MANAGER,
             CROSS_ORIGIN_ISOLATED_ALLOWLIST,
+            ADD_QUIC_HINTS_WILDCARDS
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -944,6 +945,12 @@ public class WebViewFeature {
      */
     @Profile.ExperimentalAddQuicHints
     public static final String ADD_QUIC_HINTS_V1 = "ADD_QUIC_HINTS";
+
+    /**
+     * Feature for {@link Profile#addQuicHints(Set)} with wildcards.
+     */
+    @Profile.ExperimentalAddQuicHints
+    public static final String ADD_QUIC_HINTS_WILDCARDS = "ADD_QUIC_HINTS_WILDCARDS";
 
     /**
      * This feature covers

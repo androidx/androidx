@@ -691,8 +691,13 @@ public interface Profile {
      * This method can be called multiple times and the result is additive - QUIC hints are applied
      * to all of the origins provided to all calls. Providing the same origin multiple times has no
      * further effect.
+     * <p>
+     * URLs provided can be wildcards (such as {@code https://*.example.com} or {@code https://*})
+     * when {@link WebViewFeature#ADD_QUIC_HINTS_WILDCARDS} is supported, following the same rules
+     * as {@link WebViewCompat#addWebMessageListener}.
      *
-     * @param urls A set of urls representing origins that support the QUIC protocol.
+     * @param urls A set of urls representing origins that support the QUIC protocol, url can be a
+     *     wildcard when {@link WebViewFeature#ADD_QUIC_HINTS_WILDCARDS} is supported.
      * @throws UnsupportedOperationException if the
      *     {@link WebViewFeature#ADD_QUIC_HINTS_V1} feature is not supported.
      *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.

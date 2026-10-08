@@ -119,4 +119,5 @@ internal val PUBLIC_FEATURE_UNHIDE_CLS =
         WF.CROSS_ORIGIN_ISOLATED_ALLOWLIST to "https://crrev.com/c/8233544",
         WF.WEBVIEW_NAVIGATE_DRAIN_PREFETCH to "https://crrev.com/c/8256949",
         WF.USER_AGENT_METADATA_FORM_FACTORS to "https://crrev.com/c/8503916",
+        WF.ADD_QUIC_HINTS_WILDCARDS to "https://crrev.com/c/8538366",
     )

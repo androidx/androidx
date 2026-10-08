@@ -711,6 +711,7 @@ package androidx.webkit {
     method public static boolean isFeatureSupported(String);
     method public static boolean isStartupFeatureSupported(android.content.Context, String);
     field @SuppressCompatibility @androidx.webkit.Profile.ExperimentalAddQuicHints public static final String ADD_QUIC_HINTS_V1 = "ADD_QUIC_HINTS";
+    field @SuppressCompatibility @androidx.webkit.Profile.ExperimentalAddQuicHints public static final String ADD_QUIC_HINTS_WILDCARDS = "ADD_QUIC_HINTS_WILDCARDS";
     field public static final String ALGORITHMIC_DARKENING = "ALGORITHMIC_DARKENING";
     field @Deprecated public static final String ATTRIBUTION_REGISTRATION_BEHAVIOR = "ATTRIBUTION_REGISTRATION_BEHAVIOR";
     field public static final String BACK_FORWARD_CACHE = "BACK_FORWARD_CACHE";
