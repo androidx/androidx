@@ -1028,6 +1028,14 @@ public class WebViewFeatureInternal {
 
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers wildcard URL support for {@link Profile#addQuicHints(Set)}
+     */
+    public static final ApiFeature.NoFramework ADD_QUIC_HINTS_WILDCARDS =
+            new ApiFeature.NoFramework(WebViewFeature.ADD_QUIC_HINTS_WILDCARDS,
+                    Features.ADD_QUIC_HINTS_WILDCARDS);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
      * This feature covers
      * {@link WebSettingsCompat#setHyperlinkContextMenuItems(WebSettings, int)},
      */
