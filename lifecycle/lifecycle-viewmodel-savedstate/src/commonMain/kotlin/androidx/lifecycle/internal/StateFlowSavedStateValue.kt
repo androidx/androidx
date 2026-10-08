@@ -21,15 +21,22 @@ import androidx.savedstate.SavedStateValue
 import androidx.savedstate.savedState
 import kotlinx.coroutines.flow.MutableStateFlow
 
-internal class StateFlowSavedStateValue<T>(initialValue: T) : SavedStateValue<MutableStateFlow<T>> {
-    override val value: MutableStateFlow<T> = MutableStateFlow(initialValue)
+internal class StateFlowSavedStateValue<T>(
+    initialValue: T,
+    val flow: MutableStateFlow<T> = MutableStateFlow(initialValue),
+) : SavedStateValue<T> {
+    override var value: T
+        get() = flow.value
+        set(value) {
+            flow.value = value
+        }
 
     override fun saveState(): SavedState {
-        return savedState(mapOf(SAVED_STATE_VALUE_KEY to value.value))
+        return savedState(mapOf(SAVED_STATE_VALUE_KEY to value))
     }
 
     override fun restoreState(savedState: SavedState?) {
         @Suppress("UNCHECKED_CAST")
-        value.value = unwrapSavedStateValue(savedState) as T
+        value = unwrapSavedStateValue(savedState) as T
     }
 }
