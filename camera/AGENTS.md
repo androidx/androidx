@@ -1163,9 +1163,8 @@ engineer robust, maintainable solutions while preserving hardware testability:
    - To optimize CI lab resources and accelerate local developer velocity, apply
      the test pyramid:
      a. **Host-Side Migration (Robolectric / JVM)**: Migrate pure calculation,
-        data specification (`MediaSpec`, `OutputOptions`), buffer manipulations
-        (`SharedByteBuffer`), and profile resolver permutation suites from
-        `androidTest/` to `test/`.
+        data specification (`MediaSpec`, `OutputOptions`), buffer manipulations,
+        and profile resolver permutation suites from `androidTest/` to `test/`.
      b. **The Single Smoke Test Guardrail**: When migrating resolver or config
         test suites from `androidTest` to `test` (Robolectric), NEVER completely
         eliminate device-level testing if the component interfaces with real OEM
