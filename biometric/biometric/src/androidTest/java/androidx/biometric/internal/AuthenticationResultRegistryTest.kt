@@ -118,4 +118,33 @@ class AuthenticationResultRegistryTest {
             }
         }
     }
+
+    @Test
+    fun launcherLaunch_withDeviceCredentialAndSingleCustomFallback() {
+        activityRule.scenario.moveToState(Lifecycle.State.STARTED)
+
+        val customFallback = AuthenticationRequest.Biometric.Fallback.CustomOption("Skip")
+        val fallbackList =
+            arrayOf(AuthenticationRequest.Biometric.Fallback.DeviceCredential, customFallback)
+
+        activityRule.scenario.onActivity { activity ->
+            val request =
+                AuthenticationRequest.biometricRequest(
+                    title = "Title",
+                    authFallbacks = fallbackList,
+                ) {}
+
+            launcher.launch(request)
+
+            val viewModel = ViewModelProvider(activity)[AuthenticationViewModel::class.java]
+
+            if (fallbackList.toList().multipleFallbackOptionsValid()) {
+                assertThat(viewModel.multipleFallbackOptionList).containsExactly(customFallback)
+                assertThat(viewModel.singleFallbackOption).isNull()
+            } else {
+                assertThat(viewModel.multipleFallbackOptionList).isNull()
+                assertThat(viewModel.singleFallbackOption).isNull()
+            }
+        }
+    }
 }
