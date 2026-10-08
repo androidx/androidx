@@ -110,6 +110,28 @@ class DisposableSaveableStateRegistryTest {
 
     @UiThreadTest
     @Test
+    fun disposingSecondRegistryWithSameIdDoesNotUnregisterFirst() {
+        val owner1 = TestOwner()
+        val value1 = 1
+        val value2 = 2
+
+        val registry1 = DisposableSaveableStateRegistry(ContainerKey, owner1)
+        registry1.registerProvider(SaveKey) { value1 }
+
+        val registry2 = DisposableSaveableStateRegistry(ContainerKey, owner1)
+        registry2.registerProvider(SaveKey) { value2 }
+
+        // Disposing the second registry with a duplicate id should not remove the first
+        // registry's container from the parent SavedStateRegistry.
+        registry2.dispose()
+
+        val owner2 = TestOwner(owner1.save())
+        val restoredRegistry = DisposableSaveableStateRegistry(ContainerKey, owner2)
+        assertEquals(value1, restoredRegistry.consumeRestored(SaveKey))
+    }
+
+    @UiThreadTest
+    @Test
     fun typesSupportedByBaseBundleCanBeSaved() {
         val registry = DisposableSaveableStateRegistry(ContainerKey, TestOwner())
 
