@@ -24,6 +24,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.ExperimentalAppFunctionsApi
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.internal.GenericDocumentUtils
 import androidx.appfunctions.internal.GenericDocumentUtils.safeCastToDocumentClass
@@ -472,12 +473,14 @@ constructor(
                     )
                 } else {
                     if (schemaName != null || schemaCategory != null || schemaVersion != 0L) {
-                        Log.e(
-                            APP_FUNCTIONS_TAG,
-                            "Unexpected state: schemaName=$schemaName, " +
-                                "schemaCategory=$schemaCategory, " +
-                                "schemaVersion=$schemaVersion",
-                        )
+                        if (isLoggingEnabled) {
+                            Log.e(
+                                APP_FUNCTIONS_TAG,
+                                "Unexpected state: schemaName=$schemaName, " +
+                                    "schemaCategory=$schemaCategory, " +
+                                    "schemaVersion=$schemaVersion",
+                            )
+                        }
                     }
                     null
                 }

@@ -20,6 +20,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionsChangeEvent
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.AppSearchAppFunctionReader.Companion.APP_FUNCTIONS_NAMESPACE
 import androidx.appfunctions.internal.AppSearchAppFunctionReader.Companion.APP_FUNCTIONS_RUNTIME_DATABASE_NAME
 import androidx.appfunctions.internal.AppSearchAppFunctionReader.Companion.APP_FUNCTIONS_RUNTIME_NAMESPACE
@@ -69,7 +70,13 @@ internal class AppFunctionObserverCallback : ObserverCallback, Closeable {
                     try {
                         AppFunctionName.fromQualifiedId(docId)
                     } catch (e: IllegalArgumentException) {
-                        Log.w(APP_FUNCTIONS_TAG, "Failed to parse changed function ID $docId", e)
+                        if (isLoggingEnabled) {
+                            Log.w(
+                                APP_FUNCTIONS_TAG,
+                                "Failed to parse changed function ID $docId",
+                                e,
+                            )
+                        }
                         null
                     }
                 }

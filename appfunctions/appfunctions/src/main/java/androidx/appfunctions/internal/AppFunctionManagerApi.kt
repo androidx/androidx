@@ -27,6 +27,7 @@ import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.RegisterAppFunctionRequest
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.metadata.AppFunctionMetadata
 
 /** Provides the backend to the [android.app.appfunctions.AppFunctionManager] API. */
@@ -94,7 +95,12 @@ public interface AppFunctionManagerApi {
                     error !is IllegalArgumentException &&
                     error.message?.contains(RUNTIME_METADATA_MISSING_ERROR_MESSAGE) == true
             ) {
-                Log.d(Constants.APP_FUNCTIONS_TAG, "Apply missing runtime metadata exception fix")
+                if (isLoggingEnabled) {
+                    Log.d(
+                        Constants.APP_FUNCTIONS_TAG,
+                        "Apply missing runtime metadata exception fix",
+                    )
+                }
                 return IllegalArgumentException(
                     "Runtime metadata for $functionId is not yet created."
                 )

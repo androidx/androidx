@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.WorkerThread
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.AppFunctionSerializableFactory
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.internal.getClass
@@ -820,11 +821,13 @@ internal constructor(
             val factory = getSerializableFactory(serializableClass)
             factory.fromAppFunctionData(this)
         } catch (e: Exception) {
-            Log.d(
-                APP_FUNCTIONS_TAG,
-                "Something went wrong while deserialize $this to $serializableClass",
-                e,
-            )
+            if (isLoggingEnabled) {
+                Log.d(
+                    APP_FUNCTIONS_TAG,
+                    "Something went wrong while deserialize $this to $serializableClass",
+                    e,
+                )
+            }
             throw IllegalArgumentException(
                 "Unable to deserialize $serializableClass. Is the class annotated with @AppFunctionSerializable?"
             )
@@ -927,11 +930,13 @@ internal constructor(
                 try {
                     deserialize(AppFunctionUriGrant::class.java)
                 } catch (e: Exception) {
-                    Log.d(
-                        APP_FUNCTIONS_TAG,
-                        "Unexpected error while visiting AppFunctionUriGrant",
-                        e,
-                    )
+                    if (isLoggingEnabled) {
+                        Log.d(
+                            APP_FUNCTIONS_TAG,
+                            "Unexpected error while visiting AppFunctionUriGrant",
+                            e,
+                        )
+                    }
                     null
                 }
 
@@ -1091,10 +1096,12 @@ internal constructor(
             if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 13) {
                 genericDocumentBuilder.setId(id)
             } else {
-                Log.wtf(
-                    APP_FUNCTIONS_TAG,
-                    "setId method in GenericDocument isn't supported on the current device.",
-                )
+                if (isLoggingEnabled) {
+                    Log.wtf(
+                        APP_FUNCTIONS_TAG,
+                        "setId method in GenericDocument isn't supported on the current device.",
+                    )
+                }
             }
         }
 
@@ -1546,11 +1553,13 @@ internal constructor(
                 factoryClass.getDeclaredConstructor().newInstance()
                     as AppFunctionSerializableFactory<T>
             } catch (e: Exception) {
-                Log.d(
-                    APP_FUNCTIONS_TAG,
-                    "Unable to create AppFunctionSerializableFactory for $serializableClass",
-                    e,
-                )
+                if (isLoggingEnabled) {
+                    Log.d(
+                        APP_FUNCTIONS_TAG,
+                        "Unable to create AppFunctionSerializableFactory for $serializableClass",
+                        e,
+                    )
+                }
                 throw IllegalArgumentException(
                     "Unable to create AppFunctionSerializableFactory for $serializableClass"
                 )
@@ -1688,11 +1697,13 @@ internal constructor(
                 val factory = getSerializableFactory(serializableClass)
                 factory.toAppFunctionData(spec, serializable)
             } catch (e: Exception) {
-                Log.d(
-                    APP_FUNCTIONS_TAG,
-                    "Something went wrong while serialize $serializable of class $serializableClass",
-                    e,
-                )
+                if (isLoggingEnabled) {
+                    Log.d(
+                        APP_FUNCTIONS_TAG,
+                        "Something went wrong while serialize $serializable of class $serializableClass",
+                        e,
+                    )
+                }
                 throw IllegalArgumentException(
                     "Unable to serialize $serializableClass. Is the class annotated with @AppFunctionSerializable?"
                 )
