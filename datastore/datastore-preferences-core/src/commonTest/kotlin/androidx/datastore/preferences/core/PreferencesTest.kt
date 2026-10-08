@@ -18,6 +18,7 @@ package androidx.datastore.preferences.core
 
 import androidx.kruth.assertThat
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class PreferencesTest {
 
@@ -257,6 +258,51 @@ class PreferencesTest {
         preferences[stringKey] = null
 
         assertThat(preferences.toPreferences()).isEqualTo(emptyPreferences())
+    }
+
+    @Test
+    fun settingNullableValueUpdatesPreference() {
+        val intKey = intPreferencesKey("int_key")
+        val preferences = mutablePreferencesOf()
+        val value: Int? = 123
+
+        preferences[intKey] = value
+
+        assertThat(preferences[intKey]).isEqualTo(123)
+    }
+
+    @Test
+    fun settingNullValueForMissingPreferenceDoesNotAddKey() {
+        val intKey = intPreferencesKey("int_key")
+        val preferences = mutablePreferencesOf()
+        val value: Int? = null
+
+        preferences[intKey] = value
+
+        assertThat(preferences.contains(intKey)).isFalse()
+        assertThat(preferences.asMap()).isEmpty()
+    }
+
+    @Test
+    fun settingNullValuePreservesOtherPreferences() {
+        val intKey = intPreferencesKey("int_key")
+        val stringKey = stringPreferencesKey("string_key")
+        val preferences = mutablePreferencesOf(intKey to 123, stringKey to "value")
+
+        preferences[intKey] = null
+
+        assertThat(preferences.toPreferences()).isEqualTo(preferencesOf(stringKey to "value"))
+    }
+
+    @Test
+    fun settingNullValueOnFrozenPreferencesThrows() {
+        val intKey = intPreferencesKey("int_key")
+        val preferences = mutablePreferencesOf(intKey to 123)
+        preferences.freeze()
+
+        assertFailsWith<IllegalStateException> { preferences[intKey] = null }
+
+        assertThat(preferences[intKey]).isEqualTo(123)
     }
 
     @Test
