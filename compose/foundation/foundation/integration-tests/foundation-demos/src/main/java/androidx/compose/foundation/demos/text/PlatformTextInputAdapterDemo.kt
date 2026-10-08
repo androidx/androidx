@@ -298,8 +298,8 @@ private class WackyInputConnection(private val state: WackyTextState, view: View
                     state.buffer.replace(composition!!.start, composition!!.end, text)
                     TextRange(composition!!.end)
                 } else {
-                    state.buffer.replace(state.selection.start, state.selection.end, text)
-                    TextRange(state.selection.start + text.length)
+                    state.buffer.replace(state.selection.min, state.selection.max, text)
+                    TextRange(state.selection.min + text.length)
                 }
         }
         return true
@@ -328,12 +328,11 @@ private class WackyInputConnection(private val state: WackyTextState, view: View
                 }
                 state.selection = TextRange(composition!!.end)
             } else {
-                state.buffer.replace(state.selection.start, state.selection.end, text)
+                state.buffer.replace(state.selection.min, state.selection.max, text)
                 if (text.isNotEmpty()) {
-                    composition =
-                        TextRange(state.selection.start, state.selection.start + text.length)
+                    composition = TextRange(state.selection.min, state.selection.min + text.length)
                 }
-                state.selection = TextRange(state.selection.start + text.length)
+                state.selection = TextRange(state.selection.min + text.length)
             }
         }
         return true
@@ -346,12 +345,12 @@ private class WackyInputConnection(private val state: WackyTextState, view: View
         )
         withBatch {
             state.buffer.delete(
-                state.selection.end.coerceIn(0, state.buffer.length),
-                (state.selection.end + afterLength).coerceIn(0, state.buffer.length),
+                state.selection.max.coerceIn(0, state.buffer.length),
+                (state.selection.max + afterLength).coerceIn(0, state.buffer.length),
             )
             state.buffer.delete(
-                (state.selection.start - beforeLength).coerceIn(0, state.buffer.length),
-                state.selection.start.coerceIn(0, state.buffer.length),
+                (state.selection.min - beforeLength).coerceIn(0, state.buffer.length),
+                state.selection.min.coerceIn(0, state.buffer.length),
             )
         }
         return false

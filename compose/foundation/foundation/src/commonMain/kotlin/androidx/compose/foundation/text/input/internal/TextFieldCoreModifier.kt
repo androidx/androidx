@@ -397,7 +397,7 @@ internal class TextFieldCoreModifierNode(
             currSelection.end != previousSelection?.end -> currSelection.end
             currSelection.start != previousSelection?.start -> currSelection.start
             currTextLayoutSize != previousTextLayoutSize ||
-                currContainerSize != previousContainerSize -> currSelection.start
+                currContainerSize != previousContainerSize -> currSelection.min
             else -> -1
         }
     }
