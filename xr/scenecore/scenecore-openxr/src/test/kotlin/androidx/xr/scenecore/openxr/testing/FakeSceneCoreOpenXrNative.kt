@@ -58,6 +58,7 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     val openTransactions: MutableMap<Long, PendingTransaction> = mutableMapOf()
     val committedTransactions: MutableList<Long> = mutableListOf()
     val cancelledTransactions: MutableList<Long> = mutableListOf()
+    var requestedSpatialContainerVisible: Boolean? = null
 
     val isInitialized = AtomicBoolean(false)
     val isSpatialContainerCreated = AtomicBoolean(false)
@@ -195,6 +196,16 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
         openTransactions.remove(transactionHandle)
         cancelledTransactions.add(transactionHandle)
+        return true
+    }
+
+    override fun requestSpatialContainerVisible(visible: Boolean): Boolean {
+        check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
+        check(isInitialized.get()) { "SceneCoreOpenXrNative has not been initialized." }
+        if (!isSpatialContainerCreated.get()) {
+            return false
+        }
+        requestedSpatialContainerVisible = visible
         return true
     }
 
