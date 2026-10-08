@@ -12,7 +12,7 @@ package androidx.datastore.preferences.core {
     method public operator void plusAssign(androidx.datastore.preferences.core.Preferences.Pair<? extends java.lang.Object?> pair);
     method public void putAll(androidx.datastore.preferences.core.Preferences.Pair<? extends java.lang.Object?>... pairs);
     method public <T> T remove(androidx.datastore.preferences.core.Preferences.Key<T> key);
-    method public operator <T> void set(androidx.datastore.preferences.core.Preferences.Key<T> key, T value);
+    method public operator <T> void set(androidx.datastore.preferences.core.Preferences.Key<T> key, T? value);
   }
 
   public final class PreferenceDataStoreFactory {

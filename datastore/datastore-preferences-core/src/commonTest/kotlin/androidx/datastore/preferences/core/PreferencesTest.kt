@@ -250,6 +250,16 @@ class PreferencesTest {
     }
 
     @Test
+    fun settingNullValueRemovesPreference() {
+        val stringKey = stringPreferencesKey("string_key")
+        val preferences = preferencesOf(stringKey to "value").toMutablePreferences()
+
+        preferences[stringKey] = null
+
+        assertThat(preferences.toPreferences()).isEqualTo(emptyPreferences())
+    }
+
+    @Test
     fun mutablePreferencesPublicConstructor() {
         val preferences = mutablePreferencesOf().toPreferences()
 

@@ -200,9 +200,9 @@ internal constructor(
      * prefs\[COUNTER_KEY\] :? 0 + 1 }
      *
      * @param key the preference to set
-     * @param value the value to set the preference to
+     * @param value the value to set the preference to, or `null` to remove the preference
      */
-    public operator fun <T> set(key: Key<T>, value: T) {
+    public operator fun <T> set(key: Key<T>, value: T?) {
         setUnchecked(key, value)
     }
 
