@@ -71,8 +71,39 @@ class IconToggleButtonScreenshotTest(private val parameters: ToggleButtonStates)
             }
         }
         rule.mainClock.advanceTimeBy(10_000)
+        rule.assertRootAgainstGolden(goldenName("icon_toggle_button"), screenshotRule)
+    }
+
+    @Test
+    fun iconToggleButton_customColors() {
+        val customCheckedColor = Color(0xFF34E0A1)
+        val customFocusedColor = Color(0xFFE3FF6F)
+        rule.setGlimmerThemeContent {
+            DepthWrapper {
+                IconToggleButton(
+                    checked = parameters.checked,
+                    enabled = parameters.enabled,
+                    onCheckedChange = {},
+                    colors =
+                        IconToggleButtonDefaults.colors(
+                            focusedBackgroundColor =
+                                IconToggleButtonDefaults.focusedBackgroundColor(customFocusedColor),
+                            checkedBackgroundColor =
+                                IconToggleButtonDefaults.checkedBackgroundColor(customCheckedColor),
+                            focusedCheckedBackgroundColor =
+                                IconToggleButtonDefaults.focusedCheckedBackgroundColor(
+                                    customCheckedColor
+                                ),
+                        ),
+                    interactionSource = parameters.interactionSource(),
+                ) {
+                    Icon(FavoriteIcon, null)
+                }
+            }
+        }
+        rule.mainClock.advanceTimeBy(10_000)
         rule.assertRootAgainstGolden(
-            "icon_toggle_button_${parameters.goldenNameSuffix()}",
+            goldenName("icon_toggle_button_custom_colors"),
             screenshotRule,
         )
     }
@@ -85,6 +116,10 @@ class IconToggleButtonScreenshotTest(private val parameters: ToggleButtonStates)
             contentAlignment = Alignment.Center,
             content = { content() },
         )
+    }
+
+    private fun goldenName(prefix: String): String {
+        return "${prefix}_${parameters.goldenNameSuffix()}"
     }
 
     class ToggleButtonStates(
