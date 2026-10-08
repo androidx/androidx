@@ -145,6 +145,27 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
 
     private external fun nativeRequestVisible(handle: Long, visible: Boolean): Boolean
 
+    private external fun nativeRequestAndroidViewPanelDisplayId(
+        handle: Long,
+        entityHandle: Long,
+        width: Int,
+        height: Int,
+        dpi: Int,
+    ): Long
+
+    private external fun nativePollAndroidViewPanelDisplayId(
+        handle: Long,
+        entityHandle: Long,
+        futureHandle: Long,
+        outDisplayId: IntArray,
+    ): Any?
+
+    private external fun nativeSetAndroidViewPanelSurfacePackage(
+        handle: Long,
+        entityHandle: Long,
+        surfacePackage: Any,
+    ): Boolean
+
     private external fun nativeShutdown(handle: Long)
 
     private external fun nativeDestroy(handle: Long)
@@ -303,6 +324,61 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
         return nativeRequestVisible(nativeScenecore, visible)
     }
 
+    /** Requests a virtual display ID for an Android ViewPanel entity. */
+    open fun requestAndroidViewPanelDisplayId(
+        entityHandle: Long,
+        width: Int,
+        height: Int,
+        dpi: Int,
+    ): Long {
+        check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
+            "SceneCoreOpenXrNative has been destroyed."
+        }
+        return nativeRequestAndroidViewPanelDisplayId(
+            nativeScenecore,
+            entityHandle,
+            width,
+            height,
+            dpi,
+        )
+    }
+
+    /**
+     * Polls the display ID future. Returns the display ID and input token once ready; null while
+     * pending, after [destroy] (the poll runs on a background executor and may race with it) and on
+     * a native error.
+     */
+    open fun pollAndroidViewPanelDisplayId(
+        entityHandle: Long,
+        futureHandle: Long,
+    ): AndroidViewPanelDisplayResult? {
+        return nativeLifecycleLock.read {
+            val handle = nativeScenecore
+            if (handle == INVALID_HANDLE || isDestroyed.get()) return null
+            val outDisplayId = IntArray(1)
+            val token =
+                nativePollAndroidViewPanelDisplayId(
+                    handle,
+                    entityHandle,
+                    futureHandle,
+                    outDisplayId,
+                ) ?: return null
+            AndroidViewPanelDisplayResult(outDisplayId[0], token)
+        }
+    }
+
+    /** Sets the SurfaceControlViewHost SurfacePackage on the ViewPanel entity. */
+    open fun setAndroidViewPanelSurfacePackage(entityHandle: Long, surfacePackage: Any): Boolean {
+        check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
+            "SceneCoreOpenXrNative has been destroyed."
+        }
+        return nativeSetAndroidViewPanelSurfacePackage(
+            nativeScenecore,
+            entityHandle,
+            surfacePackage,
+        )
+    }
+
     /**
      * Creates a new [OpenXrTransaction] instance.
      *
@@ -338,3 +414,9 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
         destroy()
     }
 }
+
+/**
+ * A resolved Android ViewPanel display ID request, see
+ * [SceneCoreOpenXrNative.pollAndroidViewPanelDisplayId].
+ */
+internal data class AndroidViewPanelDisplayResult(val displayId: Int, val inputToken: Any)

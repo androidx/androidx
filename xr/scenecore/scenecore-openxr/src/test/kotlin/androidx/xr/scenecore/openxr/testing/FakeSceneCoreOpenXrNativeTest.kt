@@ -241,6 +241,33 @@ class FakeSceneCoreOpenXrNativeTest {
     }
 
     @Test
+    fun requestAndroidViewPanelDisplayId_andPoll_succeeds() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val entity = fake.createSceneEntity()
+
+        val future = fake.requestAndroidViewPanelDisplayId(entity, 600, 300, 320)
+        assertThat(future).isNotEqualTo(INVALID_HANDLE)
+
+        val result = fake.pollAndroidViewPanelDisplayId(entity, future)
+        assertThat(result).isNotNull()
+        assertThat(result!!.displayId).isEqualTo(fake.fakeDisplayId)
+        assertThat(result.inputToken).isEqualTo(fake.fakeInputToken)
+    }
+
+    @Test
+    fun setAndroidViewPanelSurfacePackage_succeeds() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val entity = fake.createSceneEntity()
+        val pkg = Any()
+
+        val success = fake.setAndroidViewPanelSurfacePackage(entity, pkg)
+        assertThat(success).isTrue()
+        assertThat(fake.attachedSurfacePackages[entity]).isEqualTo(pkg)
+    }
+
+    @Test
     fun shutdownAndDestroy_setsStateCorrectlyAndCancelsOpenTransactions() {
         val fake = FakeSceneCoreOpenXrNative()
         fake.init(100L, 200L, 300L)
