@@ -120,6 +120,19 @@ internal class GlanceRemoteViewsComposer(
     }
 
     /**
+     * Resolves the [RenderTarget] of the preview shown while the launcher asks the user to pin
+     * [providerInfo].
+     *
+     * A pinned widget is always placed on the home screen. Like a picker preview, it has no placed
+     * instance yet, so its declared size stands in for a host-reported one.
+     */
+    fun pinPreviewRenderTarget(providerInfo: AppWidgetProviderInfo): RenderTarget =
+        RenderTarget(
+            surface = AppWidgetGlanceSurface.MOBILE_HOME_SCREEN,
+            dimensions = declaredDimensions(providerInfo),
+        )
+
+    /**
      * Renders [data] for [target], keeping [androidx.glance.LocalSize] and
      * [LocalContainerDimensions] consistent so templates and the Glance layout pass agree on the
      * space available.

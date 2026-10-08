@@ -16,13 +16,18 @@
 
 package androidx.glance.adaptive.appwidget
 
+import android.app.Application
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
+import android.util.Log
 import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
@@ -38,11 +43,13 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
@@ -52,6 +59,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
 
 /**
  * Tests the orchestration performed by [BaseWidgetDelegate]: resolving target widgets through the
@@ -74,6 +82,11 @@ class BaseWidgetDelegateTest {
 
     private class OtherReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "other_widget"
+    }
+
+    /** A second receiver for the widget definition of [TestReceiver], which apps should avoid. */
+    private class DuplicateTestReceiver : GlanceAdaptiveWidgetReceiver() {
+        override val widgetName: String = "test_widget"
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -299,6 +312,226 @@ class BaseWidgetDelegateTest {
                 eq(AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD),
                 any(),
             )
+    }
+
+    // endregion
+
+    // region requestPin
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.N_MR1])
+    fun requestPin_preSdk26_returnsFalse() = runTest {
+        enablePinning()
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        assertThat(requestPin()).isFalse()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun requestPin_whenLauncherDoesNotSupportPinning_returnsFalse() = runTest {
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        assertThat(requestPin()).isFalse()
+        verify(appWidgetManager, never()).requestPinAppWidget(any(), anyOrNull(), anyOrNull())
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun requestPin_withoutMatchingReceiver_returnsFalse() = runTest {
+        enablePinning()
+
+        assertThat(requestPin(widgetName = "unregistered_widget")).isFalse()
+        verify(appWidgetManager, never()).requestPinAppWidget(any(), anyOrNull(), anyOrNull())
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun requestPin_withOnlyKeyguardReceiver_returnsFalse() = runTest {
+        enablePinning()
+        registerReceiverInManifest(
+            TestReceiver::class.java.name,
+            widgetCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+        )
+
+        assertThat(requestPin()).isFalse()
+        verify(appWidgetManager, never()).requestPinAppWidget(any(), anyOrNull(), anyOrNull())
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun requestPin_withSeveralMatchingReceivers_pinsHomeScreenOneAndLogsWarning() = runTest {
+        enablePinning()
+        registerReceiverInManifest(
+            TestReceiver::class.java.name,
+            widgetCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+        )
+        registerReceiverInManifest(DuplicateTestReceiver::class.java.name)
+
+        assertThat(requestPin()).isTrue()
+
+        verify(appWidgetManager)
+            .requestPinAppWidget(
+                eq(componentOf(DuplicateTestReceiver::class.java.name)),
+                any(),
+                anyOrNull(),
+            )
+        val warnings = ShadowLog.getLogsForTag("BaseWidgetDelegate").filter { it.type == Log.WARN }
+        assertThat(warnings).hasSize(1)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun requestPin_withMatchingReceiver_requestsPinWithoutPreview() = runTest {
+        enablePinning()
+        registerReceiverInManifest(TestReceiver::class.java.name)
+
+        assertThat(requestPin()).isTrue()
+
+        verify(mockRenderer, never()).invoke(any(), any())
+        val extrasCaptor = argumentCaptor<Bundle>()
+        verify(appWidgetManager)
+            .requestPinAppWidget(
+                eq(componentOf(TestReceiver::class.java.name)),
+                extrasCaptor.capture(),
+                isNull(),
+            )
+        assertThat(extrasCaptor.firstValue.isEmpty).isTrue()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun requestPin_withInitialData_attachesHomeScreenPreview() = runTest {
+        enablePinning()
+        registerReceiverInManifest(TestReceiver::class.java.name)
+        val initialData = TestTemplate()
+
+        assertThat(requestPin(initialData = initialData)).isTrue()
+
+        verify(mockRenderer).invoke(eq(initialData), eq(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN))
+        val extrasCaptor = argumentCaptor<Bundle>()
+        verify(appWidgetManager).requestPinAppWidget(any(), extrasCaptor.capture(), anyOrNull())
+        assertThat(extrasCaptor.firstValue.keySet())
+            .containsExactly(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun requestPin_withSuccessCallback_passesItThrough() = runTest {
+        enablePinning()
+        registerReceiverInManifest(TestReceiver::class.java.name)
+        val successCallback =
+            PendingIntent.getBroadcast(
+                context,
+                /* requestCode= */ 0,
+                Intent("test.action.PINNED").setPackage(context.packageName),
+                PendingIntent.FLAG_IMMUTABLE,
+            )
+
+        assertThat(requestPin(successCallback = successCallback)).isTrue()
+
+        verify(appWidgetManager).requestPinAppWidget(any(), anyOrNull(), eq(successCallback))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun requestPin_withBlankWidgetIdAndNoOptions_passesSuccessCallbackThrough() = runTest {
+        enablePinning()
+        registerReceiverInManifest(TestReceiver::class.java.name)
+        val successCallback = mutableSuccessCallback()
+
+        assertThat(requestPin(widgetId = " ", successCallback = successCallback)).isTrue()
+
+        verify(appWidgetManager).requestPinAppWidget(any(), anyOrNull(), eq(successCallback))
+    }
+
+    @Test
+    fun requestPin_withWidgetIdAndOptions_storesThemOnPinnedWidgetAndSendsSuccessCallback() =
+        runTest {
+            enablePinning()
+            registerReceiverInManifest(TestReceiver::class.java.name)
+            val options = Bundle().apply { putString("config_key", "config_value") }
+
+            val result =
+                requestPin(
+                    widgetId = "instance_1",
+                    options = options,
+                    successCallback = mutableSuccessCallback(),
+                )
+            // Delivers the success callback, which the platform sends once the widget is pinned.
+            shadowOf(Looper.getMainLooper()).idle()
+
+            assertThat(result).isTrue()
+            val appWidgetId = pinnedAppWidgetId()
+            val storedOptions =
+                AppWidgetManager.getInstance(context).getAppWidgetOptions(appWidgetId)
+            assertThat(storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
+                .isEqualTo("instance_1")
+            assertThat(storedOptions.getString("config_key")).isEqualTo("config_value")
+            val sentCallback =
+                shadowOf(context as Application).broadcastIntents.single {
+                    it.action == ACTION_PINNED
+                }
+            assertThat(
+                    sentCallback.getIntExtra(
+                        AppWidgetManager.EXTRA_APPWIDGET_ID,
+                        AppWidgetManager.INVALID_APPWIDGET_ID,
+                    )
+                )
+                .isEqualTo(appWidgetId)
+        }
+
+    @Test
+    fun requestPin_withOnlyOptions_storesThemWithGeneratedWidgetId() = runTest {
+        enablePinning()
+        registerReceiverInManifest(TestReceiver::class.java.name)
+        val options = Bundle().apply { putString("config_key", "config_value") }
+
+        assertThat(requestPin(options = options)).isTrue()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        val storedOptions =
+            AppWidgetManager.getInstance(context).getAppWidgetOptions(pinnedAppWidgetId())
+        // So that the receiver sees an identifier change, and updates the widget with the options.
+        assertThat(storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
+            .isNotEmpty()
+        assertThat(storedOptions.getString("config_key")).isEqualTo("config_value")
+    }
+
+    @Test
+    fun requestPin_withWidgetIdOnlyInOptions_storesIt() = runTest {
+        enablePinning()
+        registerReceiverInManifest(TestReceiver::class.java.name)
+        val options =
+            Bundle().apply {
+                putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, "from_options")
+            }
+
+        assertThat(requestPin(options = options)).isTrue()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        val storedOptions =
+            AppWidgetManager.getInstance(context).getAppWidgetOptions(pinnedAppWidgetId())
+        assertThat(storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
+            .isEqualTo("from_options")
+    }
+
+    @Test
+    fun requestPin_withWidgetIdInArgumentAndOptions_storesArgument() = runTest {
+        enablePinning()
+        registerReceiverInManifest(TestReceiver::class.java.name)
+        val options =
+            Bundle().apply {
+                putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, "from_options")
+            }
+
+        assertThat(requestPin(widgetId = "from_argument", options = options)).isTrue()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        val storedOptions =
+            AppWidgetManager.getInstance(context).getAppWidgetOptions(pinnedAppWidgetId())
+        assertThat(storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
+            .isEqualTo("from_argument")
     }
 
     // endregion
@@ -638,5 +871,45 @@ class BaseWidgetDelegateTest {
         val shadowManager = shadowOf(AppWidgetManager.getInstance(context))
         shadowManager.addInstalledProvider(info)
         shadowManager.addInstalledProvidersForProfile(null, info)
+    }
+
+    /** Makes the launcher accept every pin request, as soon as it is made. */
+    private fun enablePinning() {
+        shadowOf(AppWidgetManager.getInstance(context)).setRequestPinAppWidgetSupported(true)
+    }
+
+    private suspend fun requestPin(
+        widgetName: String = "test_widget",
+        widgetId: String? = null,
+        initialData: AdaptiveGlanceTemplate? = null,
+        options: Bundle = Bundle.EMPTY,
+        successCallback: PendingIntent? = null,
+    ): Boolean =
+        delegate()
+            .requestPin(
+                widgetName = widgetName,
+                widgetId = widgetId,
+                initialData = initialData,
+                options = options,
+                successCallback = successCallback,
+            )
+
+    /** The appWidgetId of the single widget pinned through [enablePinning]. */
+    private fun pinnedAppWidgetId(): Int =
+        AppWidgetManager.getInstance(context)
+            .getAppWidgetIds(componentOf(TestReceiver::class.java.name))
+            .single()
+
+    /** A mutable success callback, so that it receives the extras added when it is sent. */
+    private fun mutableSuccessCallback(): PendingIntent =
+        PendingIntent.getBroadcast(
+            context,
+            /* requestCode= */ 0,
+            Intent(ACTION_PINNED).setPackage(context.packageName),
+            PendingIntent.FLAG_MUTABLE,
+        )
+
+    private companion object {
+        const val ACTION_PINNED = "androidx.glance.adaptive.appwidget.test.ACTION_PINNED"
     }
 }
