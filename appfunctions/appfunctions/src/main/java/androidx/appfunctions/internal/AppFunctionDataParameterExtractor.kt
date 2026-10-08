@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionAppUnknownException
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionInvalidArgumentException
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionBooleanTypeMetadata
@@ -168,7 +169,9 @@ public fun AppFunctionData.unsafeGetParameterValue(spec: AppFunctionParameterSpe
             }
         if (value == null) {
             require(!spec.isRequired || spec.isNullable) {
-                Log.d(APP_FUNCTIONS_TAG, "Parameter ${spec.name} is required")
+                if (isLoggingEnabled) {
+                    Log.d(APP_FUNCTIONS_TAG, "Parameter ${spec.name} is required")
+                }
                 "Parameter ${spec.name} is required"
             }
         }
@@ -348,17 +351,21 @@ internal fun AppFunctionData.unsafeGetParameterValue(
             }
         if (value == null) {
             require(!parameterMetadata.isRequired || parameterMetadata.dataType.isNullable) {
-                Log.d(APP_FUNCTIONS_TAG, "Parameter ${parameterMetadata.name} is required")
+                if (isLoggingEnabled) {
+                    Log.d(APP_FUNCTIONS_TAG, "Parameter ${parameterMetadata.name} is required")
+                }
                 "Parameter ${parameterMetadata.name} is required"
             }
         }
         value
     } catch (e: IllegalArgumentException) {
-        Log.d(
-            APP_FUNCTIONS_TAG,
-            "Parameter ${parameterMetadata.name} should be the type of ${parameterMetadata.dataType}",
-            e,
-        )
+        if (isLoggingEnabled) {
+            Log.d(
+                APP_FUNCTIONS_TAG,
+                "Parameter ${parameterMetadata.name} should be the type of ${parameterMetadata.dataType}",
+                e,
+            )
+        }
         throw AppFunctionInvalidArgumentException(
             "Parameter ${parameterMetadata.name} should be the type of ${parameterMetadata.dataType}"
         )

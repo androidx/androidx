@@ -20,6 +20,7 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionConfiguration
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 
 /**
@@ -46,7 +47,9 @@ public class ConfigurableAppFunctionFactory<T : Any>(
                 ?.enclosingClassFactories
                 ?.get(enclosingClass)
         if (customFactory == null) {
-            Log.d(APP_FUNCTIONS_TAG, "Unable to find custom factory for [$enclosingClass]")
+            if (isLoggingEnabled) {
+                Log.d(APP_FUNCTIONS_TAG, "Unable to find custom factory for [$enclosingClass]")
+            }
             return createFromDefault(enclosingClass)
         }
 

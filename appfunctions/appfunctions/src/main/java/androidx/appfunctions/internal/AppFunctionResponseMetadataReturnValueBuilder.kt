@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionAppUnknownException
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
@@ -175,7 +176,9 @@ public fun AppFunctionResponseSpec.unsafeBuildReturnValue(result: Any?): AppFunc
     } catch (e: AppFunctionAppUnknownException) {
         throw e
     } catch (e: Exception) {
-        Log.d(APP_FUNCTIONS_TAG, "Something went wrong when building the return value", e)
+        if (isLoggingEnabled) {
+            Log.d(APP_FUNCTIONS_TAG, "Something went wrong when building the return value", e)
+        }
         throw AppFunctionAppUnknownException("Something went wrong when executing an app function")
     }
 
@@ -271,7 +274,9 @@ internal fun AppFunctionResponseMetadata.unsafeBuildReturnValue(
             valueType.unsafeBuildReturnValue(result, this, componentsMetadata)
         }
     } catch (e: Exception) {
-        Log.d(APP_FUNCTIONS_TAG, "Something went wrong when building the return value", e)
+        if (isLoggingEnabled) {
+            Log.d(APP_FUNCTIONS_TAG, "Something went wrong when building the return value", e)
+        }
         throw AppFunctionAppUnknownException("Something went wrong when executing an app function")
     }
 

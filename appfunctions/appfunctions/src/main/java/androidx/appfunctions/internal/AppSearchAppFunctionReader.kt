@@ -24,6 +24,7 @@ import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.AppFunctionsChangeEvent
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.internal.GenericDocumentUtils.safeCastToDocumentClass
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
@@ -186,12 +187,14 @@ internal class AppSearchAppFunctionReader(
                 try {
                     convertSearchResultToAppFunctionState(searchResult, appFunctionNames)
                 } catch (e: Exception) {
-                    Log.w(
-                        APP_FUNCTIONS_TAG,
-                        "Failed to convert search result ${searchResult.genericDocument.id} " +
-                            "to ${AppFunctionState::class.simpleName}",
-                        e,
-                    )
+                    if (isLoggingEnabled) {
+                        Log.w(
+                            APP_FUNCTIONS_TAG,
+                            "Failed to convert search result ${searchResult.genericDocument.id} " +
+                                "to ${AppFunctionState::class.simpleName}",
+                            e,
+                        )
+                    }
                     null
                 }
             }
@@ -248,12 +251,14 @@ internal class AppSearchAppFunctionReader(
                 try {
                     convertSearchResultToAppFunctionMetadata(searchResult, topLevelComponents)
                 } catch (e: Exception) {
-                    Log.w(
-                        APP_FUNCTIONS_TAG,
-                        "Failed to convert search result ${searchResult.genericDocument.id} " +
-                            "to ${AppFunctionMetadata::class.simpleName}",
-                        e,
-                    )
+                    if (isLoggingEnabled) {
+                        Log.w(
+                            APP_FUNCTIONS_TAG,
+                            "Failed to convert search result ${searchResult.genericDocument.id} " +
+                                "to ${AppFunctionMetadata::class.simpleName}",
+                            e,
+                        )
+                    }
                     null
                 }
             }
@@ -301,13 +306,15 @@ internal class AppSearchAppFunctionReader(
                                 )
                                 ?.toAppFunctionComponentsMetadata()
                         } catch (e: Exception) {
-                            Log.w(
-                                APP_FUNCTIONS_TAG,
-                                "Failed to convert search result " +
-                                    "${searchResult.genericDocument.id} to " +
-                                    "${AppFunctionComponentsMetadata::class.simpleName}",
-                                e,
-                            )
+                            if (isLoggingEnabled) {
+                                Log.w(
+                                    APP_FUNCTIONS_TAG,
+                                    "Failed to convert search result " +
+                                        "${searchResult.genericDocument.id} to " +
+                                        "${AppFunctionComponentsMetadata::class.simpleName}",
+                                    e,
+                                )
+                            }
                             packageName?.let { invalidPackages.add(it) }
                             null
                         }
@@ -447,10 +454,12 @@ internal class AppSearchAppFunctionReader(
 
         if (schemaName == null || schemaCategory == null || schemaVersion == 0L) {
             if (schemaName != null || schemaCategory != null || schemaVersion != 0L) {
-                Log.e(
-                    APP_FUNCTIONS_TAG,
-                    "Unexpected state: schemaName=$schemaName, schemaCategory=$schemaCategory, schemaVersion=$schemaVersion",
-                )
+                if (isLoggingEnabled) {
+                    Log.e(
+                        APP_FUNCTIONS_TAG,
+                        "Unexpected state: schemaName=$schemaName, schemaCategory=$schemaCategory, schemaVersion=$schemaVersion",
+                    )
+                }
             }
             return null
         }
@@ -489,10 +498,12 @@ internal class AppSearchAppFunctionReader(
 
         val runtimeMetadataDocumentOrNull = searchResult.joinedResults.singleOrNull()
         if (runtimeMetadataDocumentOrNull == null) {
-            Log.e(
-                APP_FUNCTIONS_TAG,
-                "Runtime metadata not found for ${appFunctionName.functionIdentifier}",
-            )
+            if (isLoggingEnabled) {
+                Log.e(
+                    APP_FUNCTIONS_TAG,
+                    "Runtime metadata not found for ${appFunctionName.functionIdentifier}",
+                )
+            }
             return null
         }
         return safeCastToDocumentClass<AppFunctionRuntimeMetadata>(

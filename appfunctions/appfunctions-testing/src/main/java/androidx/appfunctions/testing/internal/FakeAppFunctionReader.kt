@@ -25,6 +25,7 @@ import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.internal.AggregatedAppFunctionInventory
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.AppFunctionReader
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.internal.findImpl
@@ -58,7 +59,9 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
             try {
                 AggregatedAppFunctionInventory::class.java.findImpl(prefix = "$", suffix = "_Impl")
             } catch (e: Exception) {
-                Log.d("AppFunctionsTesting", "No aggregated inventory found.", e)
+                if (isLoggingEnabled) {
+                    Log.d("AppFunctionsTesting", "No aggregated inventory found.", e)
+                }
                 null
             }
 
@@ -164,7 +167,9 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
                     isEnabled = metadata.computeEffectivelyEnabled(),
                 )
             } catch (e: Exception) {
-                Log.w(APP_FUNCTIONS_TAG, "Failed to retrieve state for $appFunctionName.", e)
+                if (isLoggingEnabled) {
+                    Log.w(APP_FUNCTIONS_TAG, "Failed to retrieve state for $appFunctionName.", e)
+                }
                 null
             }
         }

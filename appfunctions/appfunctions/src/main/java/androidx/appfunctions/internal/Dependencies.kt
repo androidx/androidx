@@ -20,6 +20,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 
 /** Provides manual dependency injection for AppFunction runtime infrastructure. */
@@ -30,7 +31,9 @@ public object Dependencies {
         try {
             SchemaAppFunctionInventory::class.java.findImpl(prefix = "$", suffix = "_Impl")
         } catch (e: Exception) {
-            Log.d(APP_FUNCTIONS_TAG, "Cannot find SchemaAppFunctionInventory implementation")
+            if (isLoggingEnabled) {
+                Log.d(APP_FUNCTIONS_TAG, "Cannot find SchemaAppFunctionInventory implementation")
+            }
             null
         }
     }
@@ -39,7 +42,13 @@ public object Dependencies {
         try {
             AggregatedAppFunctionInventory::class.java.findImpl(prefix = "$", suffix = "_Impl")
         } catch (e: Exception) {
-            Log.d(APP_FUNCTIONS_TAG, "Cannot find AggregatedAppFunctionInventory implementation", e)
+            if (isLoggingEnabled) {
+                Log.d(
+                    APP_FUNCTIONS_TAG,
+                    "Cannot find AggregatedAppFunctionInventory implementation",
+                    e,
+                )
+            }
             null
         }
     }
