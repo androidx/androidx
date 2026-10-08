@@ -17,7 +17,7 @@
 package androidx.kruth
 
 /** A Subject for [Boolean] arrays. */
-class PrimitiveBooleanArraySubject
+public class PrimitiveBooleanArraySubject
 internal constructor(actual: BooleanArray?, metadata: FailureMetadata = FailureMetadata()) :
     Subject<BooleanArray?>(actual, metadata = metadata, typeDescriptionOverride = "array") {
 
@@ -25,12 +25,12 @@ internal constructor(actual: BooleanArray?, metadata: FailureMetadata = FailureM
         HelperArraySubject(actual = actual, size = BooleanArray::size, metadata = metadata)
 
     /** Fails if the array is not empty (i.e. `array.size > 0`). */
-    fun isEmpty() {
+    public fun isEmpty() {
         helper.isEmpty()
     }
 
     /** Fails if the array is empty (i.e. `array.size == 0`). */
-    fun isNotEmpty() {
+    public fun isNotEmpty() {
         helper.isNotEmpty()
     }
 
@@ -39,12 +39,12 @@ internal constructor(actual: BooleanArray?, metadata: FailureMetadata = FailureM
      *
      * @throws IllegalArgumentException if [length] < 0
      */
-    fun hasLength(length: Int) {
+    public fun hasLength(length: Int) {
         helper.hasLength(length)
     }
 
     /** Converts this [PrimitiveBooleanArraySubject] to [IterableSubject]. */
-    fun asList(): IterableSubject<Boolean> {
+    public fun asList(): IterableSubject<Boolean> {
         requireNonNull(actual)
         return IterableSubject(actual = actual.asList(), metadata = metadata)
     }

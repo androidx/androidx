@@ -49,23 +49,23 @@ private fun AssertionErrorWithFacts.factsWithName(key: String): List<Fact> {
  * This class accepts any [AssertionError] value, but it will throw an exception if a caller tries
  * to access the facts of an error that wasn't produced by Truth.
  */
-class TruthFailureSubject<T : AssertionError>
+public class TruthFailureSubject<T : AssertionError>
 internal constructor(actual: T?, metadata: FailureMetadata, typeDescription: String?) :
     ThrowableSubject<T>(actual, metadata, typeDescription) {
 
-    companion object {
+    public companion object {
         /**
          * Factory for creating [TruthFailureSubject] instances. Most users will just use
          * [ExpectFailure.assertThat][androidx.kruth.ExpectFailure.Companion.assertThat].
          */
         @JvmStatic
-        fun <T : AssertionError> truthFailures(): Factory<TruthFailureSubject<T>, T> {
+        public fun <T : AssertionError> truthFailures(): Factory<TruthFailureSubject<T>, T> {
             return TruthFailureSubjectFactory()
         }
     }
 
     /** Returns a subject for the list of fact keys. */
-    fun factKeys(): IterableSubject<String> {
+    public fun factKeys(): IterableSubject<String> {
         if (actual !is AssertionErrorWithFacts) {
             failWithActual(simpleFact("expected a failure thrown by Truth's failure API"))
             return ignoreCheck().that(emptyList())
@@ -90,7 +90,7 @@ internal constructor(actual: T?, metadata: FailureMetadata, typeDescription: Str
      * fail the test. To assert about such a failure, use [the other overload][factValue] of
      * `factValue`.
      */
-    fun factValue(key: String): StringSubject {
+    public fun factValue(key: String): StringSubject {
         return doFactValue(key, null)
     }
 
@@ -99,7 +99,7 @@ internal constructor(actual: T?, metadata: FailureMetadata, typeDescription: Str
      * Most Truth failures do not contain multiple facts with the same key, so most tests should use
      * [the other overload][factValue] of `factValue`.
      */
-    fun factValue(key: String, index: Int): StringSubject {
+    public fun factValue(key: String, index: Int): StringSubject {
         require(index >= 0) { "index must be nonnegative: $index" }
         return doFactValue(key, index)
     }

@@ -350,7 +350,7 @@ import org.intellij.lang.annotations.Language
  * @param content Content of this layout node.
  */
 @Composable
-inline fun ConstraintLayout(
+public inline fun ConstraintLayout(
     modifier: Modifier = Modifier,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     animateChangesSpec: AnimationSpec<Float>? = null,
@@ -486,7 +486,7 @@ inline fun ConstraintLayout(
         ),
 )
 @Composable
-inline fun ConstraintLayout(
+public inline fun ConstraintLayout(
     modifier: Modifier = Modifier,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     animateChanges: Boolean = false,
@@ -759,7 +759,7 @@ internal class ConstraintSetForInlineDsl(val scope: ConstraintLayoutScope) :
  */
 @OptIn(ExperimentalMotionApi::class) // To support animateChangesSpec
 @Composable
-inline fun ConstraintLayout(
+public inline fun ConstraintLayout(
     constraintSet: ConstraintSet,
     modifier: Modifier = Modifier,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
@@ -875,7 +875,7 @@ inline fun ConstraintLayout(
         ),
 )
 @Composable
-inline fun ConstraintLayout(
+public inline fun ConstraintLayout(
     constraintSet: ConstraintSet,
     modifier: Modifier = Modifier,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
@@ -896,13 +896,14 @@ inline fun ConstraintLayout(
 
 /** Scope used by the inline DSL of [ConstraintLayout]. */
 @LayoutScopeMarker
-class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLayoutBaseScope(null) {
+public class ConstraintLayoutScope @PublishedApi internal constructor() :
+    ConstraintLayoutBaseScope(null) {
     /**
      * Creates one [ConstrainedLayoutReference], which needs to be assigned to a layout within the
      * [ConstraintLayout] as part of [Modifier.constrainAs]. To create more references at the same
      * time, see [createRefs].
      */
-    fun createRef(): ConstrainedLayoutReference =
+    public fun createRef(): ConstrainedLayoutReference =
         childrenRefs.getOrNull(childId++)
             ?: ConstrainedLayoutReference(childId).also { childrenRefs.add(it) }
 
@@ -912,7 +913,7 @@ class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLay
      * reference, see [createRef].
      */
     @Stable
-    fun createRefs(): ConstraintLayoutScope.ConstrainedLayoutReferences =
+    public fun createRefs(): ConstraintLayoutScope.ConstrainedLayoutReferences =
         referencesObject ?: ConstrainedLayoutReferences().also { referencesObject = it }
 
     /**
@@ -920,7 +921,7 @@ class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLay
      * ConstraintLayout evaluates constraints at the measure step, but MotionLayout needs to know
      * the constraints to enter the measure step.
      */
-    @PublishedApi internal var isAnimateChanges = false
+    @PublishedApi internal var isAnimateChanges: Boolean = false
 
     private var referencesObject: ConstrainedLayoutReferences? = null
 
@@ -934,38 +935,38 @@ class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLay
     }
 
     /** Convenience API for creating multiple [ConstrainedLayoutReference] via [createRefs]. */
-    inner class ConstrainedLayoutReferences internal constructor() {
-        operator fun component1(): ConstrainedLayoutReference = createRef()
+    public inner class ConstrainedLayoutReferences internal constructor() {
+        public operator fun component1(): ConstrainedLayoutReference = createRef()
 
-        operator fun component2(): ConstrainedLayoutReference = createRef()
+        public operator fun component2(): ConstrainedLayoutReference = createRef()
 
-        operator fun component3(): ConstrainedLayoutReference = createRef()
+        public operator fun component3(): ConstrainedLayoutReference = createRef()
 
-        operator fun component4(): ConstrainedLayoutReference = createRef()
+        public operator fun component4(): ConstrainedLayoutReference = createRef()
 
-        operator fun component5(): ConstrainedLayoutReference = createRef()
+        public operator fun component5(): ConstrainedLayoutReference = createRef()
 
-        operator fun component6(): ConstrainedLayoutReference = createRef()
+        public operator fun component6(): ConstrainedLayoutReference = createRef()
 
-        operator fun component7(): ConstrainedLayoutReference = createRef()
+        public operator fun component7(): ConstrainedLayoutReference = createRef()
 
-        operator fun component8(): ConstrainedLayoutReference = createRef()
+        public operator fun component8(): ConstrainedLayoutReference = createRef()
 
-        operator fun component9(): ConstrainedLayoutReference = createRef()
+        public operator fun component9(): ConstrainedLayoutReference = createRef()
 
-        operator fun component10(): ConstrainedLayoutReference = createRef()
+        public operator fun component10(): ConstrainedLayoutReference = createRef()
 
-        operator fun component11(): ConstrainedLayoutReference = createRef()
+        public operator fun component11(): ConstrainedLayoutReference = createRef()
 
-        operator fun component12(): ConstrainedLayoutReference = createRef()
+        public operator fun component12(): ConstrainedLayoutReference = createRef()
 
-        operator fun component13(): ConstrainedLayoutReference = createRef()
+        public operator fun component13(): ConstrainedLayoutReference = createRef()
 
-        operator fun component14(): ConstrainedLayoutReference = createRef()
+        public operator fun component14(): ConstrainedLayoutReference = createRef()
 
-        operator fun component15(): ConstrainedLayoutReference = createRef()
+        public operator fun component15(): ConstrainedLayoutReference = createRef()
 
-        operator fun component16(): ConstrainedLayoutReference = createRef()
+        public operator fun component16(): ConstrainedLayoutReference = createRef()
     }
 
     /**
@@ -973,7 +974,7 @@ class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLay
      * element.
      */
     @Stable
-    fun Modifier.constrainAs(
+    public fun Modifier.constrainAs(
         ref: ConstrainedLayoutReference,
         constrainBlock: ConstrainScope.() -> Unit,
     ): Modifier {
@@ -1011,7 +1012,7 @@ class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLay
 
 /** Scope used by the [ConstraintSet] DSL. */
 @LayoutScopeMarker
-class ConstraintSetScope internal constructor(extendFrom: CLObject?) :
+public class ConstraintSetScope internal constructor(extendFrom: CLObject?) :
     ConstraintLayoutBaseScope(extendFrom) {
     private var generatedCount = 0
 
@@ -1027,7 +1028,7 @@ class ConstraintSetScope internal constructor(extendFrom: CLObject?) :
      * Creates one [ConstrainedLayoutReference] corresponding to the [ConstraintLayout] element with
      * [id].
      */
-    fun createRefFor(id: Any): ConstrainedLayoutReference = ConstrainedLayoutReference(id)
+    public fun createRefFor(id: Any): ConstrainedLayoutReference = ConstrainedLayoutReference(id)
 
     /**
      * Convenient way to create multiple [ConstrainedLayoutReference] with one statement, the [ids]
@@ -1042,56 +1043,57 @@ class ConstraintSetScope internal constructor(extendFrom: CLObject?) :
      *
      * To create a singular [ConstrainedLayoutReference] see [createRefFor].
      */
-    fun createRefsFor(vararg ids: Any): ConstrainedLayoutReferences =
+    public fun createRefsFor(vararg ids: Any): ConstrainedLayoutReferences =
         ConstrainedLayoutReferences(arrayOf(*ids))
 
-    inner class ConstrainedLayoutReferences internal constructor(private val ids: Array<Any>) {
-        operator fun component1(): ConstrainedLayoutReference =
+    public inner class ConstrainedLayoutReferences
+    internal constructor(private val ids: Array<Any>) {
+        public operator fun component1(): ConstrainedLayoutReference =
             ConstrainedLayoutReference(ids.getOrElse(0) { nextId() })
 
-        operator fun component2(): ConstrainedLayoutReference =
+        public operator fun component2(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(1) { nextId() })
 
-        operator fun component3(): ConstrainedLayoutReference =
+        public operator fun component3(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(2) { nextId() })
 
-        operator fun component4(): ConstrainedLayoutReference =
+        public operator fun component4(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(3) { nextId() })
 
-        operator fun component5(): ConstrainedLayoutReference =
+        public operator fun component5(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(4) { nextId() })
 
-        operator fun component6(): ConstrainedLayoutReference =
+        public operator fun component6(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(5) { nextId() })
 
-        operator fun component7(): ConstrainedLayoutReference =
+        public operator fun component7(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(6) { nextId() })
 
-        operator fun component8(): ConstrainedLayoutReference =
+        public operator fun component8(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(7) { nextId() })
 
-        operator fun component9(): ConstrainedLayoutReference =
+        public operator fun component9(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(8) { nextId() })
 
-        operator fun component10(): ConstrainedLayoutReference =
+        public operator fun component10(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(9) { nextId() })
 
-        operator fun component11(): ConstrainedLayoutReference =
+        public operator fun component11(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(10) { nextId() })
 
-        operator fun component12(): ConstrainedLayoutReference =
+        public operator fun component12(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(11) { nextId() })
 
-        operator fun component13(): ConstrainedLayoutReference =
+        public operator fun component13(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(12) { nextId() })
 
-        operator fun component14(): ConstrainedLayoutReference =
+        public operator fun component14(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(13) { nextId() })
 
-        operator fun component15(): ConstrainedLayoutReference =
+        public operator fun component15(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(14) { nextId() })
 
-        operator fun component16(): ConstrainedLayoutReference =
+        public operator fun component16(): ConstrainedLayoutReference =
             createRefFor(ids.getOrElse(15) { nextId() })
     }
 }
@@ -1125,17 +1127,17 @@ internal fun createId() = object : Any() {}
 // TODO(popam, b/157781841): It is unfortunate that this interface is top level in
 // `foundation-layout`. This will be ok if we move constraint layout to its own module or at
 // least subpackage.
-interface Dimension {
+public interface Dimension {
     /** A [Dimension] that can be assigned both min and max bounds. */
-    interface Coercible : Dimension
+    public interface Coercible : Dimension
 
     /** A [Dimension] that can be assigned a min bound. */
-    interface MinCoercible : Dimension
+    public interface MinCoercible : Dimension
 
     /** A [Dimension] that can be assigned a max bound. */
-    interface MaxCoercible : Dimension
+    public interface MaxCoercible : Dimension
 
-    companion object {
+    public companion object {
         /**
          * Links should be specified from both sides corresponding to this dimension, in order for
          * this to work.
@@ -1148,14 +1150,14 @@ interface Dimension {
          * To make the value fixed (respected regardless the [ConstraintSet]), [value] should be
          * used instead.
          */
-        fun preferredValue(dp: Dp): Dimension.MinCoercible =
+        public fun preferredValue(dp: Dp): Dimension.MinCoercible =
             DimensionDescription("spread").apply { max.update(dp) }
 
         /**
          * Creates a [Dimension] representing a fixed dp size. The size will not change according to
          * the constraints in the [ConstraintSet].
          */
-        fun value(dp: Dp): Dimension = DimensionDescription(dp)
+        public fun value(dp: Dp): Dimension = DimensionDescription(dp)
 
         /**
          * Sets the dimensions to be defined as a ratio of the width and height. The assigned
@@ -1168,7 +1170,7 @@ interface Dimension {
          *
          * Note that only one dimension should be defined as a ratio.
          */
-        fun ratio(ratio: String): Dimension = DimensionDescription(ratio)
+        public fun ratio(ratio: String): Dimension = DimensionDescription(ratio)
 
         /**
          * Links should be specified from both sides corresponding to this dimension, in order for
@@ -1179,21 +1181,21 @@ interface Dimension {
          * value fixed (respected regardless the [ConstraintSet]), [wrapContent] should be used
          * instead.
          */
-        val preferredWrapContent: Dimension.Coercible
+        public val preferredWrapContent: Dimension.Coercible
             get() = DimensionDescription("preferWrap")
 
         /**
          * A fixed [Dimension] with wrap content behavior. The size will not change according to the
          * constraints in the [ConstraintSet].
          */
-        val wrapContent: Dimension
+        public val wrapContent: Dimension
             get() = DimensionDescription("wrap")
 
         /**
          * A fixed [Dimension] that matches the dimensions of the root ConstraintLayout. The size
          * will not change accoring to the constraints in the [ConstraintSet].
          */
-        val matchParent: Dimension
+        public val matchParent: Dimension
             get() = DimensionDescription("parent")
 
         /**
@@ -1202,7 +1204,7 @@ interface Dimension {
          *
          * A [Dimension] that spreads to match constraints.
          */
-        val fillToConstraints: Dimension.Coercible
+        public val fillToConstraints: Dimension.Coercible
             get() = DimensionDescription("spread")
 
         /**
@@ -1210,24 +1212,24 @@ interface Dimension {
          *
          * Where 1f is 100% and 0f is 0%.
          */
-        fun percent(percent: Float): Dimension = DimensionDescription("${percent * 100f}%")
+        public fun percent(percent: Float): Dimension = DimensionDescription("${percent * 100f}%")
     }
 }
 
 /** Sets the lower bound of the current [Dimension] to be the wrap content size of the child. */
-val Dimension.Coercible.atLeastWrapContent: Dimension.MaxCoercible
+public val Dimension.Coercible.atLeastWrapContent: Dimension.MaxCoercible
     get() = (this as DimensionDescription).also { it.min.update("wrap") }
 
 /** Sets the lower bound of the current [Dimension] to a fixed [dp] value. */
-fun Dimension.Coercible.atLeast(dp: Dp): Dimension.MaxCoercible =
+public fun Dimension.Coercible.atLeast(dp: Dp): Dimension.MaxCoercible =
     (this as DimensionDescription).also { it.min.update(dp) }
 
 /** Sets the upper bound of the current [Dimension] to a fixed [dp] value. */
-fun Dimension.Coercible.atMost(dp: Dp): Dimension.MinCoercible =
+public fun Dimension.Coercible.atMost(dp: Dp): Dimension.MinCoercible =
     (this as DimensionDescription).also { it.max.update(dp) }
 
 /** Sets the upper bound of the current [Dimension] to be the wrap content size of the child. */
-val Dimension.Coercible.atMostWrapContent: Dimension.MinCoercible
+public val Dimension.Coercible.atMostWrapContent: Dimension.MinCoercible
     get() = (this as DimensionDescription).also { it.max.update("wrap") }
 
 /** Sets the lower bound of the current [Dimension] to a fixed [dp] value. */
@@ -1235,23 +1237,23 @@ val Dimension.Coercible.atMostWrapContent: Dimension.MinCoercible
     message = "Unintended method name, use atLeast(dp) instead",
     replaceWith = ReplaceWith("this.atLeast(dp)", "androidx.constraintlayout.compose.atLeast"),
 )
-fun Dimension.MinCoercible.atLeastWrapContent(dp: Dp): Dimension =
+public fun Dimension.MinCoercible.atLeastWrapContent(dp: Dp): Dimension =
     (this as DimensionDescription).also { it.min.update(dp) }
 
 /** Sets the lower bound of the current [Dimension] to a fixed [dp] value. */
-fun Dimension.MinCoercible.atLeast(dp: Dp): Dimension =
+public fun Dimension.MinCoercible.atLeast(dp: Dp): Dimension =
     (this as DimensionDescription).also { it.min.update(dp) }
 
 /** Sets the lower bound of the current [Dimension] to be the wrap content size of the child. */
-val Dimension.MinCoercible.atLeastWrapContent: Dimension
+public val Dimension.MinCoercible.atLeastWrapContent: Dimension
     get() = (this as DimensionDescription).also { it.min.update("wrap") }
 
 /** Sets the upper bound of the current [Dimension] to a fixed [dp] value. */
-fun Dimension.MaxCoercible.atMost(dp: Dp): Dimension =
+public fun Dimension.MaxCoercible.atMost(dp: Dp): Dimension =
     (this as DimensionDescription).also { it.max.update(dp) }
 
 /** Sets the upper bound of the current [Dimension] to be the [WRAP_DIMENSION] size of the child. */
-val Dimension.MaxCoercible.atMostWrapContent: Dimension
+public val Dimension.MaxCoercible.atMostWrapContent: Dimension
     get() = (this as DimensionDescription).also { it.max.update("wrap") }
 
 /**
@@ -1343,7 +1345,7 @@ internal class DimensionSymbol(
  */
 @SuppressLint("ComposableNaming")
 @Composable
-fun ConstraintSet(
+public fun ConstraintSet(
     @Language("json5") content: String,
     @Language("json5") overrideVariables: String? = null,
 ): ConstraintSet {
@@ -1534,14 +1536,14 @@ internal data class DesignElement(
  * [GitHub Wiki](https://github.com/androidx/constraintlayout/wiki/ConstraintSet-JSON5-syntax) to
  * learn the syntax.
  */
-fun ConstraintSet(@Language(value = "json5") jsonContent: String): ConstraintSet =
+public fun ConstraintSet(@Language(value = "json5") jsonContent: String): ConstraintSet =
     JSONConstraintSet(content = jsonContent)
 
 /**
  * Creates a [ConstraintSet] from a [jsonContent] string that extends the changes applied by
  * [extendConstraintSet].
  */
-fun ConstraintSet(
+public fun ConstraintSet(
     extendConstraintSet: ConstraintSet,
     @Language(value = "json5") jsonContent: String,
 ): ConstraintSet = JSONConstraintSet(content = jsonContent, extendFrom = extendConstraintSet)
@@ -1551,7 +1553,7 @@ fun ConstraintSet(
  *
  * See [ConstraintSet] to learn how to define constraints.
  */
-fun ConstraintSet(description: ConstraintSetScope.() -> Unit): ConstraintSet =
+public fun ConstraintSet(description: ConstraintSetScope.() -> Unit): ConstraintSet =
     DslConstraintSet(description)
 
 /**
@@ -1559,15 +1561,16 @@ fun ConstraintSet(description: ConstraintSetScope.() -> Unit): ConstraintSet =
  *
  * See [ConstraintSet] to learn how to define constraints.
  */
-fun ConstraintSet(
+public fun ConstraintSet(
     extendConstraintSet: ConstraintSet,
     description: ConstraintSetScope.() -> Unit,
 ): ConstraintSet = DslConstraintSet(description, extendConstraintSet)
 
 /** The state of the [ConstraintLayout] solver. */
-class State(val density: Density) : SolverState() {
-    var rootIncomingConstraints: Constraints = Constraints()
-    @Deprecated("Use #isLtr instead") var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+public class State(public val density: Density) : SolverState() {
+    public var rootIncomingConstraints: Constraints = Constraints()
+    @Deprecated("Use #isLtr instead")
+    public var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     init {
         setDpToPixel { dp -> density.density * dp }
@@ -1586,26 +1589,26 @@ class State(val density: Density) : SolverState() {
     }
 }
 
-interface LayoutInformationReceiver {
-    fun setLayoutInformation(information: String)
+public interface LayoutInformationReceiver {
+    public fun setLayoutInformation(information: String)
 
-    fun getLayoutInformationMode(): LayoutInfoFlags
+    public fun getLayoutInformationMode(): LayoutInfoFlags
 
-    fun getForcedWidth(): Int
+    public fun getForcedWidth(): Int
 
-    fun getForcedHeight(): Int
+    public fun getForcedHeight(): Int
 
-    fun setUpdateFlag(needsUpdate: MutableState<Long>)
+    public fun setUpdateFlag(needsUpdate: MutableState<Long>)
 
-    fun getForcedDrawDebug(): MotionLayoutDebugFlags
+    public fun getForcedDrawDebug(): MotionLayoutDebugFlags
 
     /** reset the force progress flag */
-    fun resetForcedProgress()
+    public fun resetForcedProgress()
 
     /** Get the progress of the force progress */
-    fun getForcedProgress(): Float
+    public fun getForcedProgress(): Float
 
-    fun onNewProgress(progress: Float)
+    public fun onNewProgress(progress: Float)
 }
 
 @Deprecated(
@@ -2246,10 +2249,14 @@ internal fun Placeable.PlacementScope.placeWithFrameTransform(
     }
 }
 
-object DesignElements {
-    var map = HashMap<String, @Composable (String, HashMap<String, String>) -> Unit>()
+public object DesignElements {
+    public var map: HashMap<String, @Composable (String, HashMap<String, String>) -> Unit> =
+        HashMap<String, @Composable (String, HashMap<String, String>) -> Unit>()
 
-    fun define(name: String, function: @Composable (String, HashMap<String, String>) -> Unit) {
+    public fun define(
+        name: String,
+        function: @Composable (String, HashMap<String, String>) -> Unit,
+    ) {
         map[name] = function
     }
 }
@@ -2293,7 +2300,7 @@ internal fun ConstraintWidget.toDebugString() =
         "MCW $mMatchConstraintDefaultWidth MCH $mMatchConstraintDefaultHeight " +
         "percentW $mMatchConstraintPercentWidth percentH $mMatchConstraintPercentHeight"
 
-enum class LayoutInfoFlags {
+public enum class LayoutInfoFlags {
     NONE,
     BOUNDS,
 }

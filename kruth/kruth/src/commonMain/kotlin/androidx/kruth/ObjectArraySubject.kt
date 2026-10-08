@@ -17,7 +17,7 @@
 package androidx.kruth
 
 /** A Subject for object arrays. */
-class ObjectArraySubject<T>
+public class ObjectArraySubject<T>
 internal constructor(actual: Array<out T>?, metadata: FailureMetadata = FailureMetadata()) :
     Subject<Array<out T>>(actual, metadata = metadata, typeDescriptionOverride = "array") {
 
@@ -25,12 +25,12 @@ internal constructor(actual: Array<out T>?, metadata: FailureMetadata = FailureM
         HelperArraySubject(actual = actual, size = Array<*>::size, metadata = metadata)
 
     /** Fails if the array is not empty (i.e. `array.size > 0`). */
-    fun isEmpty() {
+    public fun isEmpty() {
         helper.isEmpty()
     }
 
     /** Fails if the array is empty (i.e. `array.size == 0`). */
-    fun isNotEmpty() {
+    public fun isNotEmpty() {
         helper.isNotEmpty()
     }
 
@@ -39,12 +39,12 @@ internal constructor(actual: Array<out T>?, metadata: FailureMetadata = FailureM
      *
      * @throws IllegalArgumentException if [length] < 0
      */
-    fun hasLength(length: Int) {
+    public fun hasLength(length: Int) {
         helper.hasLength(length)
     }
 
     /** Converts this [ObjectArraySubject] to [IterableSubject]. */
-    fun asList(): IterableSubject<*> {
+    public fun asList(): IterableSubject<*> {
         requireNonNull(actual)
         return IterableSubject(actual = actual.toList(), metadata = metadata)
     }

@@ -17,7 +17,7 @@
 package androidx.kruth
 
 /** Propositions for [Class] subjects. */
-class ClassSubject
+public class ClassSubject
 internal constructor(actual: Class<*>?, metadata: FailureMetadata = FailureMetadata()) :
     Subject<Class<*>>(actual, metadata = metadata, typeDescriptionOverride = null) {
 
@@ -25,7 +25,7 @@ internal constructor(actual: Class<*>?, metadata: FailureMetadata = FailureMetad
      * Fails if this class or interface is not the same as or a subclass or subinterface of, the
      * given class or interface.
      */
-    fun isAssignableTo(clazz: Class<*>) {
+    public fun isAssignableTo(clazz: Class<*>) {
         if (!clazz.isAssignableFrom(requireNonNull(actual))) {
             failWithActual("Expected to be assignable to", clazz.getName())
         }

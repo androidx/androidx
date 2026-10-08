@@ -38,47 +38,47 @@ import kotlin.reflect.KProperty
  */
 @LayoutScopeMarker
 @Stable
-class ConstrainScope
+public class ConstrainScope
 internal constructor(internal val id: Any, internal val containerObject: CLObject) {
     /**
      * Reference to the [ConstraintLayout] itself, which can be used to specify constraints between
      * itself and its children.
      */
-    val parent = ConstrainedLayoutReference("parent")
+    public val parent: ConstrainedLayoutReference = ConstrainedLayoutReference("parent")
 
     /** The start anchor of the layout - can be constrained using [VerticalAnchorable.linkTo]. */
-    val start: VerticalAnchorable = ConstraintVerticalAnchorable(-2, containerObject)
+    public val start: VerticalAnchorable = ConstraintVerticalAnchorable(-2, containerObject)
 
     /** The left anchor of the layout - can be constrained using [VerticalAnchorable.linkTo]. */
-    val absoluteLeft: VerticalAnchorable = ConstraintVerticalAnchorable(0, containerObject)
+    public val absoluteLeft: VerticalAnchorable = ConstraintVerticalAnchorable(0, containerObject)
 
     /** The top anchor of the layout - can be constrained using [HorizontalAnchorable.linkTo]. */
-    val top: HorizontalAnchorable = ConstraintHorizontalAnchorable(0, containerObject)
+    public val top: HorizontalAnchorable = ConstraintHorizontalAnchorable(0, containerObject)
 
     /** The end anchor of the layout - can be constrained using [VerticalAnchorable.linkTo]. */
-    val end: VerticalAnchorable = ConstraintVerticalAnchorable(-1, containerObject)
+    public val end: VerticalAnchorable = ConstraintVerticalAnchorable(-1, containerObject)
 
     /** The right anchor of the layout - can be constrained using [VerticalAnchorable.linkTo]. */
-    val absoluteRight: VerticalAnchorable = ConstraintVerticalAnchorable(1, containerObject)
+    public val absoluteRight: VerticalAnchorable = ConstraintVerticalAnchorable(1, containerObject)
 
     /** The bottom anchor of the layout - can be constrained using [HorizontalAnchorable.linkTo]. */
-    val bottom: HorizontalAnchorable = ConstraintHorizontalAnchorable(1, containerObject)
+    public val bottom: HorizontalAnchorable = ConstraintHorizontalAnchorable(1, containerObject)
 
     /** The [FirstBaseline] of the layout - can be constrained using [BaselineAnchorable.linkTo]. */
-    val baseline: BaselineAnchorable = ConstraintBaselineAnchorable(containerObject)
+    public val baseline: BaselineAnchorable = ConstraintBaselineAnchorable(containerObject)
 
     /** The width of the [ConstraintLayout] child. */
-    var width: Dimension by DimensionProperty(Dimension.wrapContent)
+    public var width: Dimension by DimensionProperty(Dimension.wrapContent)
 
     /** The height of the [ConstraintLayout] child. */
-    var height: Dimension by DimensionProperty(Dimension.wrapContent)
+    public var height: Dimension by DimensionProperty(Dimension.wrapContent)
 
     /**
      * The overall visibility of the [ConstraintLayout] child.
      *
      * [Visibility.Visible] by default.
      */
-    var visibility: Visibility by
+    public var visibility: Visibility by
         object : ObservableProperty<Visibility>(Visibility.Visible) {
             override fun afterChange(
                 property: KProperty<*>,
@@ -91,7 +91,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
 
     /** The transparency value when rendering the content. */
     @FloatRange(from = 0.0, to = 1.0)
-    var alpha: Float = 1.0f
+    public var alpha: Float = 1.0f
         set(value) {
             // FloatRange annotation doesn't work with delegate objects
             field = value
@@ -101,54 +101,54 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
         }
 
     /** The percent scaling value on the horizontal axis. Where 1 is 100%. */
-    var scaleX: Float by FloatProperty(1.0f)
+    public var scaleX: Float by FloatProperty(1.0f)
 
     /** The percent scaling value on the vertical axis. Where 1 is 100%. */
-    var scaleY: Float by FloatProperty(1.0f)
+    public var scaleY: Float by FloatProperty(1.0f)
 
     /** The degrees to rotate the content over the horizontal axis. */
-    var rotationX: Float by FloatProperty(0.0f)
+    public var rotationX: Float by FloatProperty(0.0f)
 
     /** The degrees to rotate the content over the vertical axis. */
-    var rotationY: Float by FloatProperty(0.0f)
+    public var rotationY: Float by FloatProperty(0.0f)
 
     /** The degrees to rotate the content on the screen plane. */
-    var rotationZ: Float by FloatProperty(0.0f)
+    public var rotationZ: Float by FloatProperty(0.0f)
 
     /** The distance to offset the content over the X axis. */
-    var translationX: Dp by DpProperty(0.dp)
+    public var translationX: Dp by DpProperty(0.dp)
 
     /** The distance to offset the content over the Y axis. */
-    var translationY: Dp by DpProperty(0.dp)
+    public var translationY: Dp by DpProperty(0.dp)
 
     /** The distance to offset the content over the Z axis. */
-    var translationZ: Dp by DpProperty(0.dp)
+    public var translationZ: Dp by DpProperty(0.dp)
 
     /**
      * The X axis offset percent where the content is rotated and scaled.
      *
      * @see [TransformOrigin]
      */
-    var pivotX: Float by FloatProperty(0.5f)
+    public var pivotX: Float by FloatProperty(0.5f)
 
     /**
      * The Y axis offset percent where the content is rotated and scaled.
      *
      * @see [TransformOrigin]
      */
-    var pivotY: Float by FloatProperty(0.5f)
+    public var pivotY: Float by FloatProperty(0.5f)
 
     /**
      * Whenever the width is not fixed, this weight may be used by an horizontal Chain to decide how
      * much space assign to this widget.
      */
-    var horizontalChainWeight: Float by FloatProperty(Float.NaN, "hWeight")
+    public var horizontalChainWeight: Float by FloatProperty(Float.NaN, "hWeight")
 
     /**
      * Whenever the height is not fixed, this weight may be used by a vertical Chain to decide how
      * much space assign to this widget.
      */
-    var verticalChainWeight: Float by FloatProperty(Float.NaN, "vWeight")
+    public var verticalChainWeight: Float by FloatProperty(Float.NaN, "vWeight")
 
     /**
      * Applied when the widget has constraints on the [start] and [end] anchors. It defines the
@@ -162,7 +162,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      * Note that the bias may also be applied with calls such as [linkTo].
      */
     @FloatRange(from = 0.0, to = 1.0)
-    var horizontalBias: Float = 0.5f
+    public var horizontalBias: Float = 0.5f
         set(value) {
             // FloatRange annotation doesn't work with delegate objects
             field = value
@@ -177,7 +177,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      * top-most position and `1f` is the bottom-most position.
      */
     @FloatRange(from = 0.0, to = 1.0)
-    var verticalBias: Float = 0.5f
+    public var verticalBias: Float = 0.5f
         set(value) {
             // FloatRange annotation doesn't work with delegate objects
             field = value
@@ -187,7 +187,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
         }
 
     /** Adds both start and end links towards other [ConstraintLayoutBaseScope.VerticalAnchor]s. */
-    fun linkTo(
+    public fun linkTo(
         start: ConstraintLayoutBaseScope.VerticalAnchor,
         end: ConstraintLayoutBaseScope.VerticalAnchor,
         startMargin: Dp = 0.dp,
@@ -208,7 +208,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
     /**
      * Adds both top and bottom links towards other [ConstraintLayoutBaseScope.HorizontalAnchor]s.
      */
-    fun linkTo(
+    public fun linkTo(
         top: ConstraintLayoutBaseScope.HorizontalAnchor,
         bottom: ConstraintLayoutBaseScope.HorizontalAnchor,
         topMargin: Dp = 0.dp,
@@ -230,7 +230,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      * Adds all start, top, end, bottom links towards other
      * [ConstraintLayoutBaseScope.HorizontalAnchor]s.
      */
-    fun linkTo(
+    public fun linkTo(
         start: ConstraintLayoutBaseScope.VerticalAnchor,
         top: ConstraintLayoutBaseScope.HorizontalAnchor,
         end: ConstraintLayoutBaseScope.VerticalAnchor,
@@ -270,7 +270,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      * Adds all start, top, end, bottom links towards the corresponding anchors of [other]. This
      * will center the current layout inside or around (depending on size) [other].
      */
-    fun centerTo(other: ConstrainedLayoutReference) {
+    public fun centerTo(other: ConstrainedLayoutReference) {
         linkTo(other.start, other.top, other.end, other.bottom)
     }
 
@@ -278,7 +278,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      * Adds start and end links towards the corresponding anchors of [other]. This will center
      * horizontally the current layout inside or around (depending on size) [other].
      */
-    fun centerHorizontallyTo(
+    public fun centerHorizontallyTo(
         other: ConstrainedLayoutReference,
         @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f,
     ) {
@@ -289,7 +289,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      * Adds top and bottom links towards the corresponding anchors of [other]. This will center
      * vertically the current layout inside or around (depending on size) [other].
      */
-    fun centerVerticallyTo(
+    public fun centerVerticallyTo(
         other: ConstrainedLayoutReference,
         @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f,
     ) {
@@ -300,7 +300,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      * Adds start and end links towards a vertical [anchor]. This will center the current layout
      * around the vertical [anchor].
      */
-    fun centerAround(anchor: ConstraintLayoutBaseScope.VerticalAnchor) {
+    public fun centerAround(anchor: ConstraintLayoutBaseScope.VerticalAnchor) {
         linkTo(anchor, anchor)
     }
 
@@ -308,7 +308,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      * Adds top and bottom links towards a horizontal [anchor]. This will center the current layout
      * around the horizontal [anchor].
      */
-    fun centerAround(anchor: ConstraintLayoutBaseScope.HorizontalAnchor) {
+    public fun centerAround(anchor: ConstraintLayoutBaseScope.HorizontalAnchor) {
         linkTo(anchor, anchor)
     }
 
@@ -316,7 +316,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      * Set a circular constraint relative to the center of [other]. This will position the current
      * widget at a relative angle and distance from [other].
      */
-    fun circular(other: ConstrainedLayoutReference, angle: Float, distance: Dp) {
+    public fun circular(other: ConstrainedLayoutReference, angle: Float, distance: Dp) {
         val circularParams =
             CLArray(charArrayOf()).apply {
                 add(CLString.from(other.id.toString()))
@@ -331,7 +331,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      *
      * Useful when extending another [ConstraintSet] with unwanted constraints on this axis.
      */
-    fun clearHorizontal() {
+    public fun clearHorizontal() {
         containerObject.remove("left")
         containerObject.remove("right")
         containerObject.remove("start")
@@ -343,7 +343,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      *
      * Useful when extending another [ConstraintSet] with unwanted constraints on this axis.
      */
-    fun clearVertical() {
+    public fun clearVertical() {
         containerObject.remove("top")
         containerObject.remove("bottom")
         containerObject.remove("baseline")
@@ -354,7 +354,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      *
      * Useful when extending another [ConstraintSet] with unwanted constraints applied.
      */
-    fun clearConstraints() {
+    public fun clearConstraints() {
         clearHorizontal()
         clearVertical()
         containerObject.remove("circular")
@@ -365,7 +365,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      *
      * Useful when extending another [ConstraintSet] with unwanted dimensions.
      */
-    fun resetDimensions() {
+    public fun resetDimensions() {
         width = Dimension.wrapContent
         height = Dimension.wrapContent
     }
@@ -377,7 +377,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      *
      * Useful when extending another [ConstraintSet] with unwanted transforms applied.
      */
-    fun resetTransforms() {
+    public fun resetTransforms() {
         containerObject.remove("alpha")
         containerObject.remove("scaleX")
         containerObject.remove("scaleY")
@@ -396,7 +396,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      *
      * @see Dimension.value
      */
-    fun Dp.asDimension(): Dimension = Dimension.value(this)
+    public fun Dp.asDimension(): Dimension = Dimension.value(this)
 
     private inner class DimensionProperty(initialValue: Dimension) :
         ObservableProperty<Dimension>(initialValue) {

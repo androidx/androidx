@@ -31,23 +31,23 @@ package androidx.metrics.performance
  * @see JankStats.jankHeuristicMultiplier
  * @see PerformanceMetricsState.putState
  */
-open class FrameData(
+public open class FrameData(
     frameStartNanos: Long,
     frameDurationUiNanos: Long,
     isJank: Boolean,
-    val states: List<StateInfo>,
+    public val states: List<StateInfo>,
 ) {
     /**
      * These backing fields are used to enable mutation of an existing FrameData object, to avoid
      * allocating a new object on every frame for sending out to listeners.
      */
-    var frameStartNanos = frameStartNanos
+    public var frameStartNanos: Long = frameStartNanos
         private set
 
-    var frameDurationUiNanos = frameDurationUiNanos
+    public var frameDurationUiNanos: Long = frameDurationUiNanos
         private set
 
-    var isJank = isJank
+    public var isJank: Boolean = isJank
         private set
 
     /**
@@ -55,7 +55,7 @@ open class FrameData(
      * `states` into a new List). This is used internally to create a copy to pass along to
      * listeners to avoid having a reference to the internally-mutable FrameData object.
      */
-    open fun copy(): FrameData {
+    public open fun copy(): FrameData {
         return FrameData(frameStartNanos, frameDurationUiNanos, isJank, ArrayList(states))
     }
 
@@ -110,7 +110,7 @@ open class FrameData(
  * @property key An arbitrary name used for this state, used as a key for storing the state value.
  * @property value The value of this state.
  */
-class StateInfo(val key: String, val value: String) {
+public class StateInfo(public val key: String, public val value: String) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

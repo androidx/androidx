@@ -35,9 +35,9 @@ import kotlin.reflect.typeOf
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
  *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class Subject<out T>
+public open class Subject<out T>
 internal constructor(
-    val actual: T?,
+    public val actual: T?,
     metadata: FailureMetadata,
     private val typeDescriptionOverride: String?,
 ) {
@@ -47,18 +47,18 @@ internal constructor(
      */
     protected constructor(metadata: FailureMetadata, actual: T?) : this(actual, metadata, null)
 
-    val metadata: FailureMetadata by lazy { metadata.updateForSubject(this) }
+    public val metadata: FailureMetadata by lazy { metadata.updateForSubject(this) }
 
     protected fun check(): StandardSubjectBuilder =
         StandardSubjectBuilder(metadata = metadata.updateForCheckCall())
 
     /** Fails if the subject is not null. */
-    open fun isNull() {
+    public open fun isNull() {
         actual.standardIsEqualTo(null)
     }
 
     /** Fails if the subject is null. */
-    open fun isNotNull() {
+    public open fun isNotNull() {
         actual.standardIsNotEqualTo(null)
     }
 
@@ -82,7 +82,7 @@ internal constructor(
      * that will return the same result as long as [equals] is implemented according to the contract
      * for its type.
      */
-    open fun isEqualTo(expected: Any?) {
+    public open fun isEqualTo(expected: Any?) {
         actual.standardIsEqualTo(expected)
     }
 
@@ -90,12 +90,12 @@ internal constructor(
      * Fails if the subject is equal to the given object. The meaning of equality is the same as for
      * the [isEqualTo] method.
      */
-    open fun isNotEqualTo(unexpected: Any?) {
+    public open fun isNotEqualTo(unexpected: Any?) {
         actual.standardIsNotEqualTo(unexpected)
     }
 
     /** Fails if the subject is not the same instance as the given object. */
-    open fun isSameInstanceAs(expected: Any?) {
+    public open fun isSameInstanceAs(expected: Any?) {
         if (actual !== expected) {
             metadata.fail(
                 listOf(
@@ -109,7 +109,7 @@ internal constructor(
     }
 
     /** Fails if the subject is the same instance as the given object. */
-    open fun isNotSameInstanceAs(unexpected: Any?) {
+    public open fun isNotSameInstanceAs(unexpected: Any?) {
         if (actual === unexpected) {
             failWithoutActual(fact("expected not to be specific instance", actual))
         }
@@ -117,7 +117,7 @@ internal constructor(
 
     /** Fails if the subject is not an instance of the given class. */
     // TODO(dustinlam): Add a JVM-only non inline version for compatibility and java users.
-    inline fun <reified V> isInstanceOf() {
+    public inline fun <reified V> isInstanceOf() {
         if (actual !is V) {
             doFail(fact("expected instance of", typeOf<V>()), fact("but was", actual.toString()))
         }
@@ -125,7 +125,7 @@ internal constructor(
 
     /** Fails if the subject is an instance of the given class. */
     // TODO(dustinlam): Add a JVM-only non inline version for compatibility and java users.
-    inline fun <reified V> isNotInstanceOf() {
+    public inline fun <reified V> isNotInstanceOf() {
         if (actual is V) {
             doFail(
                 fact("expected not to be an instance of", typeOf<V>()),
@@ -239,26 +239,26 @@ internal constructor(
     }
 
     /** Fails unless the subject is equal to any element in the given [iterable]. */
-    open fun isIn(iterable: Iterable<*>?) {
+    public open fun isIn(iterable: Iterable<*>?) {
         if (actual !in requireNonNull(iterable)) {
             metadata.fail(listOf(simpleFact("Element $actual was not in $iterable")))
         }
     }
 
     /** Fails unless the subject is equal to any of the given elements. */
-    open fun isAnyOf(first: Any?, second: Any?, vararg rest: Any?) {
+    public open fun isAnyOf(first: Any?, second: Any?, vararg rest: Any?) {
         isIn(listOf(first, second, *rest))
     }
 
     /** Fails if the subject is equal to any element in the given [iterable]. */
-    open fun isNotIn(iterable: Iterable<*>?) {
+    public open fun isNotIn(iterable: Iterable<*>?) {
         if (actual in requireNonNull(iterable)) {
             failWithActual(fact("expected not to be any of", iterable))
         }
     }
 
     /** Fails if the subject is equal to any of the given elements. */
-    open fun isNoneOf(first: Any?, second: Any?, vararg rest: Any?) {
+    public open fun isNoneOf(first: Any?, second: Any?, vararg rest: Any?) {
         isNotIn(listOf(first, second, *rest))
     }
 
@@ -462,8 +462,8 @@ internal constructor(
      * When you write a custom subject, see [our doc on extensions](https://truth.dev/extension). It
      * explains where [Factory] fits into the process.
      */
-    fun interface Factory<out SubjectT : Subject<ActualT>, ActualT> {
-        fun createSubject(metadata: FailureMetadata, actual: ActualT?): SubjectT
+    public fun interface Factory<out SubjectT : Subject<ActualT>, ActualT> {
+        public fun createSubject(metadata: FailureMetadata, actual: ActualT?): SubjectT
     }
 }
 
