@@ -52,5 +52,6 @@ internal actual fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit,
     contentColor: Color,
     properties: ModalBottomSheetProperties,
+    animateToHidden: suspend () -> Unit,
     content: @Composable () -> Unit,
 ): Unit = implementedInJetBrainsFork()
