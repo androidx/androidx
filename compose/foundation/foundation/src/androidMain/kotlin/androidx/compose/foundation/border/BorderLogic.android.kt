@@ -16,12 +16,12 @@
 
 package androidx.compose.foundation.border
 
-import android.os.Build
-
+// TODO: b/570069301 currently disabled due to minor anti-aliasing differences on API 28+.
+//  Investigate making this enabled on 28+ again.
 /**
  * On API 28+, we use a GraphicsLayer as it is more performant than allocating an offscreen bitmap.
  * On API < 28, GraphicsLayer uses the legacy OpenGL ES pipeline which rasterizes generic paths and
  * BlendMode.Clear differently from Skia, so we fall back to an offscreen ImageBitmap for consistent
  * rendering.
  */
-internal actual fun shouldUseGraphicsLayerForGenericBorder(): Boolean = Build.VERSION.SDK_INT >= 28
+internal actual fun shouldUseGraphicsLayerForGenericBorder(): Boolean = false
