@@ -19,9 +19,12 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
@@ -44,6 +47,7 @@ import androidx.compose.remote.creation.compose.modifier.onTouchDown
 import androidx.compose.remote.creation.compose.modifier.onTouchUp
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteString
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -58,6 +62,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
@@ -665,6 +670,89 @@ class RcPlayerCustomComponentTest {
         rule.waitForIdle()
 
         assertThat(fired).isEqualTo("tap")
+    }
+
+    @Test
+    fun imageBitmapPropertyResolvesWithImageLoader() {
+        val bitmap = Bitmap.createBitmap(4, 4, Bitmap.Config.ARGB_8888).asImageBitmap()
+        var drawable: Drawable? = null
+        val plugin =
+            object : CustomComposablePlugin<Unit> {
+                override val name: String = "test:icon"
+
+                @Composable override fun extract(component: RcCustomComponent): Unit = Unit
+
+                @Composable
+                override fun Content(data: Unit, component: RcCustomComponent, modifier: Modifier) {
+                    val bitmapId by component.intState(IntProperty(1, default = -1))
+                    drawable = LocalRcImageLoader.current.loadImage(bitmapId).value
+                }
+            }
+
+        setCustomContent(customPlugins = CustomPluginRegistry(plugin)) {
+            RemoteCustomComponent(
+                name = "test:icon",
+                properties = { property(1, RemoteImageBitmap(bitmap)) },
+            )
+        }
+
+        assertThat(drawable).isNotNull()
+    }
+
+    @Test
+    fun customComponentRendersChildren() {
+        var childCount = -1
+        var slotConfig: String? = null
+        var slotId: Int? = null
+        var plainIsCustom = true
+        var outOfRangeIsCustom = true
+        val plugin =
+            object : CustomComposablePlugin<Unit> {
+                override val name: String = "test:card"
+
+                @Composable override fun extract(component: RcCustomComponent): Unit = Unit
+
+                @Composable
+                override fun Content(data: Unit, component: RcCustomComponent, modifier: Modifier) {
+                    childCount = component.childCount
+                    val slot = component.customChild(0)
+                    slotConfig = slot?.config
+                    slotId = slot?.ints?.get(1)
+                    plainIsCustom = component.customChild(1) != null
+                    outOfRangeIsCustom = component.customChild(5) != null
+                    Column {
+                        BasicText("card")
+                        // The slot's children are rendered directly, bypassing the registry.
+                        slot?.Children()
+                        component.Child(1)
+                        // Out-of-range indices render nothing rather than throwing.
+                        component.Child(5)
+                    }
+                }
+            }
+
+        setCustomContent(customPlugins = CustomPluginRegistry(plugin)) {
+            RemoteCustomComponent(
+                name = "test:card",
+                content = {
+                    RemoteCustomComponent(
+                        name = "test:slot",
+                        content = { RemoteText("slotted".rs) },
+                        properties = { property(1, 7) },
+                    )
+                    RemoteText("plain".rs)
+                },
+            )
+        }
+
+        assertThat(childCount).isEqualTo(2)
+        assertThat(slotConfig).isEqualTo("test:slot")
+        assertThat(slotId).isEqualTo(7)
+        assertThat(plainIsCustom).isFalse()
+        assertThat(outOfRangeIsCustom).isFalse()
+        rule.onNodeWithText("card").assertExists()
+        rule.onNodeWithText("slotted").assertExists()
+        rule.onNodeWithText("plain").assertExists()
     }
 
     private fun findCustom(operations: Collection<Operation>): Custom? {

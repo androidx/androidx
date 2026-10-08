@@ -26,12 +26,27 @@ android {
         minSdk { version = release(29) }
     }
     useLibrary("wear-sdk")
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+    sourceSets {
+        test {
+            kotlin.srcDirs += [file("src/sharedTest/java")]
+        }
+        androidTest {
+            kotlin.srcDirs += [file("src/sharedTest/java")]
+        }
+    }
 }
 
 androidx {
     name = "Wear Remote Compose demos"
     inceptionYear = "2025"
     description = "Demo app for the Wear Remote Compose components"
+    addGoldenImageAssets()
+    enableRobolectric()
 }
 
 dependencies {
@@ -58,4 +73,28 @@ dependencies {
     implementation("androidx.wear.compose:compose-navigation:1.5.6")
     implementation("androidx.wear.compose:compose-ui-tooling:1.5.5")
     implementation("androidx.wear:wear-tooling-preview:1.0.0")
+
+    testImplementation(project(":compose:remote:remote-testing"))
+    testImplementation("androidx.compose.ui:ui-test:1.12.0")
+    testImplementation("androidx.compose.ui:ui-test-junit4:1.12.0")
+    testImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.robolectric)
+
+    androidTestImplementation(project(":compose:remote:remote-testing"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation("androidx.compose.ui:ui-test:1.12.0")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.12.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
 }

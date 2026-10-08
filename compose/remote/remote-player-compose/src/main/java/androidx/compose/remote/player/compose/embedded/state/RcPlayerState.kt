@@ -125,6 +125,9 @@ internal fun rememberRemoteIntAsState(id: Int): State<Int> {
     return remember(document, id) { derivedStateOf { context.getInteger(id) } }
 }
 
+internal val FloatExpression.hasAnimation: Boolean
+    get() = mFloatAnimation != null || mSrcAnimation != null
+
 @Composable
 internal fun rememberRemoteFloatAsState(id: Int): State<Float> {
     val document = LocalCoreDocument.current
@@ -136,20 +139,26 @@ internal fun rememberRemoteFloatAsState(id: Int): State<Float> {
         return compState
     }
 
+    val graph = LocalGraphContext.current
+    val graphAnimated = graph?.animatedFloatStates?.get(id)
+    if (graphAnimated != null) {
+        return graphAnimated
+    }
+
     // Animation-bearing expressions resolve as a Compose-native animated State (Animatable). Plain
     // (non-animated) FloatExpressions fall through to the graph below — one evaluation path.
     val expression = document.getFloatExpressionsReflection()[id]
     if (expression != null) {
-        if (expression.mFloatAnimation != null) return rememberAnimatedRemoteFloat(id)
-        // GraphContext evaluates core FloatExpressions as pure target values, so routing an outer
-        // expression through it would flatten an animated child.
+        if (expression.hasAnimation) return rememberAnimatedRemoteFloat(id)
+        // GraphContext evaluates core FloatExpressions as pure target values when no animated
+        // states are attached, so routing an outer expression through rememberRemoteExpression
+        // preserves animated children.
         if (expressionDependsOnAnimation(document.getFloatExpressionsReflection(), id)) {
             return rememberRemoteExpression(id)
         }
     }
 
     // Computed float (FloatExpression or e.g. ImageAttribute): resolve via the pure-Compose graph.
-    val graph = LocalGraphContext.current
     if (graph != null && graph.isComputed(id)) {
         return remember(graph, id) { derivedStateOf { graph.getFloat(id) } }
     }
@@ -169,7 +178,7 @@ internal fun expressionDependsOnAnimation(
 ): Boolean {
     if (!visited.add(id)) return false
     val expr = expressions[id] ?: return false
-    if (expr.mFloatAnimation != null) return true
+    if (expr.hasAnimation) return true
     val src = expr.mSrcValue ?: return false
     for (v in src) {
         if (v.isNaN() && !AnimatedFloatExpression.isMathOperator(v) && !NanMap.isDataVariable(v)) {
