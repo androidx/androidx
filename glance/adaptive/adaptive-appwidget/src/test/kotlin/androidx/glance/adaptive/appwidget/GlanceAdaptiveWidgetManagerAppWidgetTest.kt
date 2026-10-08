@@ -16,7 +16,10 @@
 
 package androidx.glance.adaptive.appwidget
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
@@ -39,7 +42,9 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
         override val templateId: String = "TestTemplate"
     }
 
-    /** Delegate for a surface without AppWidgets, and therefore without dynamic previews. */
+    /**
+     * Delegate for a surface without AppWidgets, and therefore without dynamic previews or pinning.
+     */
     private class OtherSurfaceDelegate : GlanceAdaptiveWidgetDelegate {
         var callCount = 0
 
@@ -57,9 +62,19 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
         }
     }
 
-    /** AppWidget delegate that records the previews it is asked to set. */
+    /** Arguments of one [GlanceAdaptiveAppWidgetDelegate.requestPin] call. */
+    private data class RequestPinCall(
+        val widgetName: String,
+        val widgetId: String?,
+        val initialData: AdaptiveGlanceTemplate?,
+        val options: Bundle,
+        val successCallback: PendingIntent?,
+    )
+
+    /** AppWidget delegate that records the previews and pin requests it is asked for. */
     private class FakeAppWidgetDelegate : GlanceAdaptiveAppWidgetDelegate {
         val setPreviewCalls = mutableListOf<Pair<String, AdaptiveGlanceTemplate>>()
+        val requestPinCalls = mutableListOf<RequestPinCall>()
 
         override suspend fun pushUpdate(
             widgetName: String,
@@ -72,6 +87,18 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
 
         override suspend fun setPreview(widgetName: String, previewData: AdaptiveGlanceTemplate) {
             setPreviewCalls += widgetName to previewData
+        }
+
+        override suspend fun requestPin(
+            widgetName: String,
+            widgetId: String?,
+            initialData: AdaptiveGlanceTemplate?,
+            options: Bundle,
+            successCallback: PendingIntent?,
+        ): Boolean {
+            requestPinCalls +=
+                RequestPinCall(widgetName, widgetId, initialData, options, successCallback)
+            return true
         }
     }
 
@@ -117,12 +144,75 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
     }
 
     @Test
-    fun glanceAdaptiveWidgetManager_doesNotDeclareSetPreviewMember() {
-        // A member would always win over the setPreview extension, silently shadowing it and
-        // making it callable without depending on adaptive-appwidget.
+    fun requestPin_withAppWidgetDelegate_forwardsToDelegate() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val delegate = FakeAppWidgetDelegate()
+        val manager = GlanceAdaptiveWidgetManager(delegate)
+        val initialData = TestTemplate()
+        val options = Bundle().apply { putString("config_key", "config_value") }
+        val successCallback =
+            PendingIntent.getBroadcast(
+                context,
+                /* requestCode= */ 0,
+                Intent("test.action.PINNED").setPackage(context.packageName),
+                PendingIntent.FLAG_IMMUTABLE,
+            )
+
+        val result =
+            manager.requestPin(
+                widgetName = "test_widget",
+                widgetId = "instance_1",
+                initialData = initialData,
+                options = options,
+                successCallback = successCallback,
+            )
+
+        assertThat(result).isTrue()
+        assertThat(delegate.requestPinCalls)
+            .containsExactly(
+                RequestPinCall("test_widget", "instance_1", initialData, options, successCallback)
+            )
+        assertThat(fallbackWarnings()).isEmpty()
+    }
+
+    @Test
+    fun requestPin_withOnlyWidgetName_forwardsDefaultsToDelegate() = runTest {
+        val delegate = FakeAppWidgetDelegate()
+        val manager = GlanceAdaptiveWidgetManager(delegate)
+
+        manager.requestPin(widgetName = "test_widget")
+
+        assertThat(delegate.requestPinCalls)
+            .containsExactly(
+                RequestPinCall(
+                    widgetName = "test_widget",
+                    widgetId = null,
+                    initialData = null,
+                    options = Bundle.EMPTY,
+                    successCallback = null,
+                )
+            )
+    }
+
+    @Test
+    fun requestPin_withNonAppWidgetDelegate_returnsFalseAndLogsWarning() = runTest {
+        val delegate = OtherSurfaceDelegate()
+        val manager = GlanceAdaptiveWidgetManager(delegate)
+
+        val result = manager.requestPin(widgetName = "test_widget")
+
+        assertThat(result).isFalse()
+        assertThat(delegate.callCount).isEqualTo(0)
+        assertThat(fallbackWarnings()).hasSize(1)
+    }
+
+    @Test
+    fun glanceAdaptiveWidgetManager_doesNotDeclareAppWidgetOnlyMembers() {
+        // A member would always win over the extension of the same name, silently shadowing it
+        // and making the operation callable without depending on adaptive-appwidget.
         val memberNames = GlanceAdaptiveWidgetManager::class.java.methods.map { it.name }
 
-        assertThat(memberNames).doesNotContain("setPreview")
+        assertThat(memberNames).containsNoneOf("setPreview", "requestPin")
     }
 
     private fun fallbackWarnings() = ShadowLog.getLogsForTag(LOG_TAG).filter { it.type == Log.WARN }

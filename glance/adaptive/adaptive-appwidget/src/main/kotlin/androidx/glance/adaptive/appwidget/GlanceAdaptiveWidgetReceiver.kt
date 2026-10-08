@@ -111,10 +111,6 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         // Default no-op. Overridden by developers to provide initial or refreshed data.
     }
 
-    // Generates a unique default string identifier for a widget instance when one is not
-    // explicitly provided or already configured.
-    private fun generateWidgetId(): String = UUID.randomUUID().toString()
-
     @CallSuper
     override fun onUpdate(
         context: Context,
@@ -273,6 +269,10 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
             synchronized(lock) { lastOptionsCache.clear() }
         }
 
+        // Generates a unique default string identifier for a widget instance when one is not
+        // explicitly provided or already configured.
+        internal fun generateWidgetId(): String = UUID.randomUUID().toString()
+
         internal fun cacheWidgetOptionsIfMissing(appWidgetId: Int, options: Bundle): String {
             // lastOptionsCache is a primitive-keyed MutableIntObjectMap (avoiding Int boxing)
             // guarded by `lock`. Check presence under a brief lock, then parse the Bundle
@@ -285,7 +285,7 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
             }
             val parsed = WidgetOptionsState.from(options)
             val resolvedWidgetId =
-                parsed.widgetId?.takeUnless { it.isBlank() } ?: UUID.randomUUID().toString()
+                parsed.widgetId?.takeUnless { it.isBlank() } ?: generateWidgetId()
             val state =
                 if (parsed.widgetId == resolvedWidgetId) {
                     parsed
