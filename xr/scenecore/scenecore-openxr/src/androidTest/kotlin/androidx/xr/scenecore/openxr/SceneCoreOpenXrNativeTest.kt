@@ -123,6 +123,13 @@ class SceneCoreOpenXrNativeTest {
         assertThrows(IllegalStateException::class.java) {
             nativeWrapper.requestSpatialContainerVisible(true)
         }
+        assertThrows(IllegalStateException::class.java) {
+            nativeWrapper.requestAndroidViewPanelDisplayId(1L, 100, 100, 160)
+        }
+        assertThat(nativeWrapper.pollAndroidViewPanelDisplayId(1L, 1L)).isNull()
+        assertThrows(IllegalStateException::class.java) {
+            nativeWrapper.setAndroidViewPanelSurfacePackage(1L, Any())
+        }
     }
 
     @Test
@@ -156,6 +163,10 @@ class SceneCoreOpenXrNativeTest {
         assertThat(nativeWrapper.submitSceneTransaction(1L)).isFalse()
         assertThat(nativeWrapper.cancelSceneTransaction(1L)).isFalse()
         assertThat(nativeWrapper.requestSpatialContainerVisible(true)).isFalse()
+        assertThat(nativeWrapper.requestAndroidViewPanelDisplayId(1L, 100, 100, 160))
+            .isEqualTo(INVALID_HANDLE)
+        assertThat(nativeWrapper.pollAndroidViewPanelDisplayId(1L, 1L)).isNull()
+        assertThat(nativeWrapper.setAndroidViewPanelSurfacePackage(1L, Any())).isFalse()
         nativeWrapper.destroy()
     }
 }
