@@ -254,7 +254,7 @@
     <string name="search_hint" msgid="978495498991026792">"כאן אפשר לבצע חיפוש"</string>
     <string name="additional_text" msgid="5755100726890686184">"יש לעיין "<annotation link="terms_of_service">"בתנאים ובהגבלות"</annotation>" שלנו"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"‏כניסה באמצעות חשבון Google"</string>
-    <string name="use_pin" msgid="7850893299484337431">"שימוש בקוד סודי"</string>
+    <string name="use_pin" msgid="7850893299484337431">"שימוש בקוד הסודי"</string>
     <string name="qr_code" msgid="5487041647280777397">"‏קוד QR"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"המארח שלך לא תומך בתבנית כניסה לחשבון"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"מארח לא תואם"</string>
