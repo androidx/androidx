@@ -93,8 +93,8 @@ import java.util.zip.CRC32;
 /**
  * This is a class for reading and writing Exif tags in various image file formats.
  *
- * <p>Supported for reading: JPEG, PNG, WebP, HEIC, DNG, CR2, NEF, NRW, ARW, RW2, ORF, PEF, SRW,
- * RAF, AVIF (on API 31+).
+ * <p>Supported for reading: JPEG, PNG, WebP, HEIC (on API 28+), DNG, CR2, NEF, NRW, ARW, RW2, ORF,
+ * PEF, SRW, RAF, AVIF (on API 31+).
  *
  * <p>Supported for writing: JPEG, PNG, WebP.
  *
@@ -4228,12 +4228,14 @@ public class ExifInterface {
             case "image/x-pentax-pef":
             case "image/x-samsung-srw":
             case "image/x-fuji-raf":
-            case "image/heic":
-            case "image/heif":
-            case "image/avif":
             case "image/png":
             case "image/webp":
                 return true;
+            case "image/heic":
+            case "image/heif":
+                return Build.VERSION.SDK_INT >= 28;
+            case "image/avif":
+                return Build.VERSION.SDK_INT >= 31;
             default:
                 return false;
         }
