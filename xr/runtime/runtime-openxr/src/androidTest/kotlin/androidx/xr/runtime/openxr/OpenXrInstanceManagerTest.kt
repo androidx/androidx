@@ -17,15 +17,22 @@
 package androidx.xr.runtime.openxr
 
 import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
+import org.junit.Assume.assumeNoException
+import org.junit.Rule
 import org.junit.Test
 
 // TODO - b/382119583: Remove the @SdkSuppress annotation once "androidx.xr.runtime.openxr.test"
 // supports a lower SDK version.
 @SdkSuppress(minSdkVersion = 29)
 class OpenXrInstanceManagerTest {
+
+    @get:Rule val activityRule = ActivityScenarioRule(ComponentActivity::class.java)
 
     companion object {
         init {
@@ -44,5 +51,36 @@ class OpenXrInstanceManagerTest {
         // third_party/jetpack_xr_natives/common/openxr_stub.cc
         assertThat(provider.xrInstanceHandle).isEqualTo(1111L)
         assertThat(provider.xrInstanceProcAddr).isNotEqualTo(0L)
+    }
+
+    @Test
+    fun initialize_withActivityBinding_setsXrInstanceHandleAndInstanceProcAddrToNonZero() {
+        val provider = OpenXrInstanceManager()
+        var unsupported: UnsatisfiedLinkError? = null
+
+        activityRule.scenario.onActivity { activity ->
+            try {
+                provider.initialize(activity, emptyList(), bindActivity = true)
+            } catch (e: UnsatisfiedLinkError) {
+                unsupported = e
+            }
+        }
+        // Skipped while the prebuilt native library predates the Activity binding.
+        assumeNoException(unsupported)
+
+        // The values below comes from kInstance a in
+        // third_party/jetpack_xr_natives/common/openxr_stub.cc
+        assertThat(provider.xrInstanceHandle).isEqualTo(1111L)
+        assertThat(provider.xrInstanceProcAddr).isNotEqualTo(0L)
+    }
+
+    @Test
+    fun initialize_withActivityBindingAndNonActivityContext_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val provider = OpenXrInstanceManager()
+
+        assertThrows(IllegalArgumentException::class.java) {
+            provider.initialize(context, emptyList(), bindActivity = true)
+        }
     }
 }
