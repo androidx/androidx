@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.flags.Flags;
 
 import com.google.android.icing.proto.PersistType;
 
@@ -33,6 +34,7 @@ public class AppSearchConfigImpl implements AppSearchConfig {
     private final boolean mStoreParentInfoAsSyntheticProperty;
     private final boolean mShouldRetrieveParentInfo;
     private final boolean mPersistToDiskRecoveryProof;
+    private final boolean mEnableUpgradableLockAndTwoStageOptimize;
 
     public AppSearchConfigImpl(@NonNull LimitConfig limitConfig,
             @NonNull IcingOptionsConfig icingOptionsConfig) {
@@ -48,11 +50,26 @@ public class AppSearchConfigImpl implements AppSearchConfig {
             boolean storeParentInfoAsSyntheticProperty,
             boolean shouldRetrieveParentInfo,
             boolean persistToDiskRecoveryProof) {
+        this(limitConfig,
+                icingOptionsConfig,
+                storeParentInfoAsSyntheticProperty,
+                shouldRetrieveParentInfo,
+                persistToDiskRecoveryProof,
+                Flags.enableUpgradableLockAndTwoStageOptimize());
+    }
+
+    public AppSearchConfigImpl(@NonNull LimitConfig limitConfig,
+            @NonNull IcingOptionsConfig icingOptionsConfig,
+            boolean storeParentInfoAsSyntheticProperty,
+            boolean shouldRetrieveParentInfo,
+            boolean persistToDiskRecoveryProof,
+            boolean enableUpgradableLockAndTwoStageOptimize) {
         mLimitConfig = limitConfig;
         mIcingOptionsConfig = icingOptionsConfig;
         mStoreParentInfoAsSyntheticProperty = storeParentInfoAsSyntheticProperty;
         mShouldRetrieveParentInfo = shouldRetrieveParentInfo;
         mPersistToDiskRecoveryProof = persistToDiskRecoveryProof;
+        mEnableUpgradableLockAndTwoStageOptimize = enableUpgradableLockAndTwoStageOptimize;
     }
 
     @Override
@@ -174,6 +191,11 @@ public class AppSearchConfigImpl implements AppSearchConfig {
     public PersistType. @NonNull Code getLightweightPersistType() {
         return mPersistToDiskRecoveryProof ?
                 PersistType.Code.RECOVERY_PROOF : PersistType.Code.LITE;
+    }
+
+    @Override
+    public boolean enableUpgradableLockAndTwoStageOptimize() {
+        return mEnableUpgradableLockAndTwoStageOptimize;
     }
 
     @Override

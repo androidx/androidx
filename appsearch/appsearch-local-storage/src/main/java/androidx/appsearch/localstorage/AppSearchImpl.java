@@ -126,6 +126,7 @@ import com.google.android.icing.proto.MaintainAnnIndexOptions;
 import com.google.android.icing.proto.MaintainAnnIndexResultProto;
 import com.google.android.icing.proto.NamespaceBlobStorageInfoProto;
 import com.google.android.icing.proto.NamespaceStorageInfoProto;
+import com.google.android.icing.proto.OptimizePrepareResultProto;
 import com.google.android.icing.proto.OptimizeResultProto;
 import com.google.android.icing.proto.PersistToDiskResultProto;
 import com.google.android.icing.proto.PersistType;
@@ -5628,6 +5629,9 @@ public final class AppSearchImpl implements Closeable {
             throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         long javaLockAcquisitionEndTimeMillis = 0;
+        // TODO(b/448657720): Switch to the upgradable lock once the 2-stage optimize is ready.
+        //  Holding the write lock here means the 2-stage optimize called below also runs Stage 1
+        //  under the write lock, so reads are still blocked during Stage 1 for now.
         mReadWriteLock.writeLock().lock();
         try {
             javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
@@ -5657,6 +5661,10 @@ public final class AppSearchImpl implements Closeable {
     /** Triggers {@link IcingSearchEngine#optimize()} directly. */
     public void optimize(OptimizeStats.@Nullable Builder optimizeStatsBuilder,
             CallStats.@Nullable Builder callStatsBuilder) throws AppSearchException {
+        if (mConfig.enableUpgradableLockAndTwoStageOptimize()) {
+            twoStageOptimize(optimizeStatsBuilder, callStatsBuilder);
+            return;
+        }
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         long javaLockAcquisitionEndTimeMillis = 0;
         mReadWriteLock.writeLock().lock();
@@ -5691,30 +5699,7 @@ public final class AppSearchImpl implements Closeable {
             }
             checkSuccess(optimizeResultProto.getStatus());
 
-            // If AppSearch manages blob files, remove the optimized blob files.
-            if (Flags.enableAppSearchManageBlobFiles()) {
-                List<String> blobFileNamesToRemove =
-                        optimizeResultProto.getBlobFileNamesToRemoveList();
-                for (int i = 0; i < blobFileNamesToRemove.size(); i++) {
-                    String blobFileNameToRemove = blobFileNamesToRemove.get(i);
-                    try {
-                        File blobFileToRemove = getSafeBlobFileLocked(blobFileNameToRemove);
-                        if (!blobFileToRemove.delete()) {
-                            Log.e(
-                                    TAG,
-                                    "Cannot delete the optimized blob file: "
-                                            + blobFileToRemove.getName());
-                        }
-                    } catch (AppSearchException | IOException e) {
-                        Log.e(
-                                TAG,
-                                "Path traversal/resolution error for optimized blob file to"
-                                        + " remove: "
-                                        + blobFileNameToRemove,
-                                e);
-                    }
-                }
-            }
+            removeOptimizedBlobFilesLocked(optimizeResultProto.getBlobFileNamesToRemoveList());
         } finally {
             logWriteOperationLatencyLocked(totalLatencyStartMillis,
                     javaLockAcquisitionEndTimeMillis,
@@ -5722,6 +5707,180 @@ public final class AppSearchImpl implements Closeable {
                     BaseStats.CALL_TYPE_OPTIMIZE,
                     /*callStatsBuilder=*/ null);
             mReadWriteLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Runs the 2-stage Icing optimize.
+     *
+     * <ol>
+     *     <li>Stage 1, under the read lock: {@link
+     *     IcingSearchEngineInterface#optimizePrepareDestDirectory()} compacts the storage into a
+     *     temporary directory. Like the single-stage Icing optimize, it is preceded by a
+     *     {@link PersistType.Code#FULL} persist unless {@link Flags#enableOptimizeImprovements()}
+     *     is enabled.
+     *     <li>Stage 2, under the write lock: {@link
+     *     IcingSearchEngineInterface#optimizeSwapToDestDirectory} swaps the prepared directory in.
+     * </ol>
+     *
+     * <p>If a write lands between the two stages, Icing aborts Stage 2 without touching the active
+     * storage, and an {@link AppSearchException} is thrown.
+     *
+     * <p>If the caller already holds the write lock (e.g. {@link #checkForOptimize}), Stage 1
+     * effectively runs under the write lock too.
+     */
+    // TODO(b/448657720): Replace the read lock + write lock with an upgradable lock, so that the
+    //  lock is upgraded for Stage 2 without being released and no write can land between the two
+    //  stages and abort Stage 2.
+    private void twoStageOptimize(
+            OptimizeStats.@Nullable Builder optimizeStatsBuilder,
+            CallStats.@Nullable Builder callStatsBuilder)
+            throws AppSearchException {
+        long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+        long javaLockAcquisitionEndTimeMillis = 0;
+        OptimizePrepareResultProto optimizePrepareResultProto;
+
+        // Stage 1: prepare the optimized storage under the read lock.
+        mReadWriteLock.readLock().lock();
+        try {
+            javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
+            throwIfClosedLocked();
+            if (optimizeStatsBuilder != null) {
+                optimizeStatsBuilder
+                        .addJavaLockAcquisitionLatencyMillis(
+                                (int) (javaLockAcquisitionEndTimeMillis - totalLatencyStartMillis))
+                        .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
+                        .setLastBlockingOperationLatencyMillis(
+                                mLastReadOrWriteOperationLatencyMillisLocked)
+                        .setLaunchVmEnabled(mLaunchVmFeatures.isVmEnabled())
+                        .setLaunchAiSealEnabled(mLaunchVmFeatures.isAiSealEnabled());
+            }
+
+            // Holding the read lock guarantees no AppSearch write between persist and prepare.
+            if (!Flags.enableOptimizeImprovements()) {
+                LogUtil.piiTrace(TAG, "optimize persistToDisk, request");
+                PersistToDiskResultProto persistToDiskResultProto =
+                        mIcingSearchEngineLocked.persistToDisk(PersistType.Code.FULL);
+                LogUtil.piiTrace(
+                        TAG,
+                        "optimize persistToDisk, response",
+                        persistToDiskResultProto.getStatus(),
+                        persistToDiskResultProto);
+                if (callStatsBuilder != null) {
+                    callStatsBuilder
+                            .addGetVmLatencyMillis(persistToDiskResultProto.getGetVmLatencyMs())
+                            .addIcingSearchEngineResponseBytes(
+                                    persistToDiskResultProto.getResponseBytes());
+                }
+                if (optimizeStatsBuilder != null) {
+                    optimizeStatsBuilder
+                            .setStatusCode(
+                                    statusProtoToResultCode(persistToDiskResultProto.getStatus()))
+                            .addGetVmLatencyMillis(persistToDiskResultProto.getGetVmLatencyMs());
+                }
+                checkSuccess(persistToDiskResultProto.getStatus());
+            }
+
+            LogUtil.piiTrace(TAG, "optimizePrepareDestDirectory, request");
+            optimizePrepareResultProto = mIcingSearchEngineLocked.optimizePrepareDestDirectory();
+            LogUtil.piiTrace(
+                    TAG,
+                    "optimizePrepareDestDirectory, response",
+                    optimizePrepareResultProto.getStatus(),
+                    optimizePrepareResultProto);
+            // TODO(b/448657720): Record the VM latency and response bytes of
+            //  optimizePrepareDestDirectory in callStatsBuilder and optimizeStatsBuilder (which
+            //  also counts it as an Icing call), once OptimizePrepareResultProto has the
+            //  get_vm_latency_ms and response_bytes fields.
+            if (optimizeStatsBuilder != null) {
+                optimizeStatsBuilder.setStatusCode(
+                        statusProtoToResultCode(optimizePrepareResultProto.getStatus()));
+                // Stage 1 carries the actual optimize stats (document counts, storage sizes...).
+                AppSearchLoggerHelper.copyNativeStats(
+                        optimizePrepareResultProto.getOptimizeStats(), optimizeStatsBuilder);
+            }
+            checkSuccess(optimizePrepareResultProto.getStatus());
+        } finally {
+            logReadOperationLatencyLocked(totalLatencyStartMillis,
+                    javaLockAcquisitionEndTimeMillis,
+                    /*totalLatencyEndMillis=*/ SystemClock.elapsedRealtime(),
+                    BaseStats.CALL_TYPE_OPTIMIZE,
+                    /*callStatsBuilder=*/ null);
+            mReadWriteLock.readLock().unlock();
+        }
+
+        // Stage 2: swap the prepared storage in under the write lock.
+        long swapLatencyStartMillis = SystemClock.elapsedRealtime();
+        long swapJavaLockAcquisitionEndTimeMillis = 0;
+        mReadWriteLock.writeLock().lock();
+        try {
+            swapJavaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
+            // The lock is released between the two stages, so AppSearchImpl may have been closed
+            // by another thread in the meantime.
+            throwIfClosedLocked();
+            LogUtil.piiTrace(TAG, "optimizeSwapToDestDirectory, request");
+            OptimizeResultProto optimizeResultProto =
+                    mIcingSearchEngineLocked.optimizeSwapToDestDirectory(
+                            optimizePrepareResultProto);
+            LogUtil.piiTrace(
+                    TAG,
+                    "optimizeSwapToDestDirectory, response",
+                    optimizeResultProto.getStatus(),
+                    optimizeResultProto);
+            if (callStatsBuilder != null) {
+                callStatsBuilder
+                        .addGetVmLatencyMillis(optimizeResultProto.getGetVmLatencyMs())
+                        .addIcingSearchEngineResponseBytes(
+                                optimizeResultProto.getResponseBytes());
+            }
+            if (optimizeStatsBuilder != null) {
+                optimizeStatsBuilder
+                        .setStatusCode(statusProtoToResultCode(optimizeResultProto.getStatus()))
+                        .setNativeLatencyMillis(
+                                optimizePrepareResultProto.getOptimizeStats().getLatencyMs()
+                                        + optimizeResultProto.getOptimizeStats().getLatencyMs())
+                        .addGetVmLatencyMillis(optimizeResultProto.getGetVmLatencyMs());
+            }
+            checkSuccess(optimizeResultProto.getStatus());
+
+            removeOptimizedBlobFilesLocked(optimizeResultProto.getBlobFileNamesToRemoveList());
+        } finally {
+            logWriteOperationLatencyLocked(swapLatencyStartMillis,
+                    swapJavaLockAcquisitionEndTimeMillis,
+                    /*totalLatencyEndMillis=*/ SystemClock.elapsedRealtime(),
+                    BaseStats.CALL_TYPE_OPTIMIZE,
+                    /*callStatsBuilder=*/ null);
+            mReadWriteLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Removes the blob files that are no longer referenced after optimize, if AppSearch manages
+     * blob files.
+     */
+    @GuardedBy("mReadWriteLock")
+    private void removeOptimizedBlobFilesLocked(@NonNull List<String> blobFileNamesToRemove) {
+        if (!Flags.enableAppSearchManageBlobFiles()) {
+            return;
+        }
+        for (int i = 0; i < blobFileNamesToRemove.size(); i++) {
+            String blobFileNameToRemove = blobFileNamesToRemove.get(i);
+            try {
+                File blobFileToRemove = getSafeBlobFileLocked(blobFileNameToRemove);
+                if (!blobFileToRemove.delete()) {
+                    Log.e(
+                            TAG,
+                            "Cannot delete the optimized blob file: "
+                                    + blobFileToRemove.getName());
+                }
+            } catch (AppSearchException | IOException e) {
+                Log.e(
+                        TAG,
+                        "Path traversal/resolution error for optimized blob file to"
+                                + " remove: "
+                                + blobFileNameToRemove,
+                        e);
+            }
         }
     }
 

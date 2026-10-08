@@ -334,4 +334,11 @@ public class FlagsTest {
                         "com.android.appsearch.flags"
                                 + ".enable_managed_profile_calendar_screenshots");
     }
+
+    @Test
+    public void testFlagValue_enableUpgradableLockAndTwoStageOptimize() {
+        assertThat(Flags.FLAG_ENABLE_UPGRADABLE_LOCK_AND_TWO_STAGE_OPTIMIZE)
+                .isEqualTo("com.android.appsearch.flags."
+                        + "enable_upgradable_lock_and_two_stage_optimize");
+    }
 }
