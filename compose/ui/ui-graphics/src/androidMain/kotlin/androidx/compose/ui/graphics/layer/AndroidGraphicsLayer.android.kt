@@ -522,7 +522,7 @@ public actual class GraphicsLayer internal constructor(internal val impl: Graphi
     }
 
     internal fun drawForPersistence(canvas: Canvas) {
-        if (canvas.nativeCanvas.isHardwareAccelerated || impl.supportsSoftwareRendering) {
+        if (canvas.nativeCanvas.isHardwareAccelerated) {
             recreateDisplayListIfNeeded()
             impl.draw(canvas)
         }
@@ -594,7 +594,7 @@ public actual class GraphicsLayer internal constructor(internal val impl: Graphi
 
         parentLayer?.addSubLayer(this)
 
-        if (canvas.nativeCanvas.isHardwareAccelerated || impl.supportsSoftwareRendering) {
+        if (canvas.nativeCanvas.isHardwareAccelerated) {
             impl.draw(canvas)
         } else {
             val drawScope = softwareDrawScope ?: CanvasDrawScope().also { softwareDrawScope = it }
@@ -930,13 +930,8 @@ public actual class GraphicsLayer internal constructor(internal val impl: Graphi
                 LayerSnapshotV21
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 LayerSnapshotV28
-            } else if (
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 &&
-                    SurfaceUtils.isLockHardwareCanvasAvailable()
-            ) {
-                LayerSnapshotV22
             } else {
-                LayerSnapshotV21
+                LayerSnapshotV22
             }
     }
 }
@@ -1019,14 +1014,6 @@ internal interface GraphicsLayerImpl {
      * @see GraphicsLayer.setRoundRectOutline
      */
     fun setOutline(outline: AndroidOutline?, outlineSize: IntSize)
-
-    /**
-     * Flag to determine if the layer implementation has a software backed implementation On Android
-     * L we conditionally also record drawing commands into a Picture as it does not natively
-     * support rendering into a Bitmap with hardware acceleration
-     */
-    val supportsSoftwareRendering: Boolean
-        get() = false
 
     /** Draw the GraphicsLayer into the provided canvas */
     fun draw(canvas: Canvas)

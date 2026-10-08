@@ -19,7 +19,6 @@ package androidx.compose.ui.graphics.layer
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Outline
-import android.graphics.Picture
 import android.graphics.PorterDuffXfermode
 import android.os.Build
 import android.view.View
@@ -42,18 +41,13 @@ import androidx.compose.ui.graphics.drawscope.DefaultDensity
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.layer.GraphicsLayerImpl.Companion.DefaultDrawBlock
-import androidx.compose.ui.graphics.layer.SurfaceUtils.isLockHardwareCanvasAvailable
 import androidx.compose.ui.graphics.layer.view.DrawChildContainer
-import androidx.compose.ui.graphics.layer.view.PlaceholderHardwareCanvas
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.requirePrecondition
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPorterDuffMode
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.toSize
-import java.lang.reflect.Method
 
 internal class ViewLayer(
     val ownerView: View,
@@ -67,14 +61,10 @@ internal class ViewLayer(
         outlineProvider = LayerOutlineProvider
     }
 
-    /**
-     * Configure the outline on the view, returning true if the outline was configured successfully
-     * and false otherwise. This can fail on API level 21 if the reflective call to rebuildOutline
-     * fails. In case of failure calls are expected to invalidate this view
-     */
-    fun setLayerOutline(outline: Outline?): Boolean {
+    /** Configure the outline on the view. */
+    fun setLayerOutline(outline: Outline?) {
         layerOutline = outline
-        return OutlineUtils.rebuildOutline(this)
+        invalidateOutline()
     }
 
     private var layerOutline: Outline? = null
@@ -191,25 +181,6 @@ internal class GraphicsViewLayer(
     private val resources = layerContainer.resources
     private val clipRect = android.graphics.Rect()
     private var layerPaint: android.graphics.Paint? = null
-
-    private val picture: Picture? =
-        if (mayRenderInSoftware) {
-            Picture()
-        } else {
-            null
-        }
-    private val pictureDrawScope: CanvasDrawScope? =
-        if (mayRenderInSoftware) {
-            CanvasDrawScope()
-        } else {
-            null
-        }
-    private val pictureCanvasHolder: CanvasHolder? =
-        if (mayRenderInSoftware) {
-            CanvasHolder()
-        } else {
-            null
-        }
 
     init {
         layerContainer.addView(viewLayer)
@@ -437,12 +408,7 @@ internal class GraphicsViewLayer(
 
     override fun setOutline(outline: Outline?, outlineSize: IntSize) {
         // outlineSize is not required for this GraphicsLayer implementation
-        // b/18175261 On the initial Lollipop release invalidateOutline
-        // would not invalidate shadows. As a workaround there is a reflective call to
-        // invoke View#rebuildOutline directly. However, if the reflection fails
-        // (setLayerOutline returns false), instead we need to invalidate the view and re-record
-        // the drawing operations.
-        val requiresRedraw = !viewLayer.setLayerOutline(outline)
+        viewLayer.setLayerOutline(outline)
         if (clip && outline != null) {
             viewLayer.clipToOutline = true
             if (clipToBounds) {
@@ -451,10 +417,6 @@ internal class GraphicsViewLayer(
             }
         }
         outlineIsProvided = outline != null
-        if (requiresRedraw) {
-            viewLayer.invalidate()
-            recordDrawingOperations()
-        }
     }
 
     override fun record(
@@ -484,40 +446,8 @@ internal class GraphicsViewLayer(
             viewLayer.visibility = View.INVISIBLE
             viewLayer.visibility = View.VISIBLE
             recordDrawingOperations()
-            picture?.let { p ->
-                val pictureCanvas = p.beginRecording(viewLayer.width, viewLayer.height)
-                try {
-                    pictureCanvasHolder?.drawInto(pictureCanvas) {
-                        if (outsetLeft > 0f || outsetTop > 0f) {
-                            translate(topLeftOutset.x, topLeftOutset.y)
-                            pictureDrawScope?.draw(
-                                density,
-                                layoutDirection,
-                                this,
-                                size.toSize(),
-                                layer,
-                                block,
-                            )
-                            translate(-topLeftOutset.x, -topLeftOutset.y)
-                        } else {
-                            pictureDrawScope?.draw(
-                                density,
-                                layoutDirection,
-                                this,
-                                size.toSize(),
-                                layer,
-                                block,
-                            )
-                        }
-                    }
-                } finally {
-                    p.endRecording()
-                }
-            }
         }
     }
-
-    override val supportsSoftwareRendering: Boolean = mayRenderInSoftware
 
     private fun recordDrawingOperations() {
         try {
@@ -533,12 +463,7 @@ internal class GraphicsViewLayer(
 
     override fun draw(canvas: androidx.compose.ui.graphics.Canvas) {
         updateClipBounds()
-        val androidCanvas = canvas.nativeCanvas
-        if (androidCanvas.isHardwareAccelerated) {
-            layerContainer.drawChild(canvas, viewLayer, viewLayer.drawingTime)
-        } else {
-            picture?.let { androidCanvas.drawPicture(it) }
-        }
+        layerContainer.drawChild(canvas, viewLayer, viewLayer.drawingTime)
     }
 
     override fun calculateMatrix(): Matrix = viewLayer.matrix
@@ -589,19 +514,9 @@ internal class GraphicsViewLayer(
 
     companion object {
 
-        val mayRenderInSoftware = !isLockHardwareCanvasAvailable()
-
         val PlaceholderCanvas =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                // For Android M+ we just need a Canvas that returns true for isHardwareAccelerated
-                // in order to get the draw calls to update the displaylist of the backing View
-                object : Canvas() {
-                    override fun isHardwareAccelerated(): Boolean = true
-                }
-            } else {
-                // On Android L, there is an instanceof check that verify that the Canvas is a
-                // HardwareCanvas so return our subclass of the HardwareCanvas stub
-                PlaceholderHardwareCanvas()
+            object : Canvas() {
+                override fun isHardwareAccelerated(): Boolean = true
             }
     }
 }
@@ -627,44 +542,5 @@ private object ViewLayerVerificationHelper28 {
 
     fun resetPivot(view: View) {
         view.resetPivot()
-    }
-}
-
-private object OutlineUtils {
-    private var rebuildOutlineMethod: Method? = null
-    private var hasRetrievedMethod = false
-
-    /**
-     * Returns true if the outline was rebuilt successfully, false otherwise. This can only return
-     * false on API 21 if the reflective API call had failed
-     */
-    fun rebuildOutline(view: View): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            view.invalidateOutline()
-            return true
-        } else {
-            // b/18175261 On the initial Lollipop release invalidateOutline
-            // would not invalidate shadows so directly call rebuildOutline
-            try {
-                val method: Method?
-                synchronized(this) {
-                    if (!hasRetrievedMethod) {
-                        hasRetrievedMethod = true
-
-                        method = View::class.java.getDeclaredMethod("rebuildOutline")
-                        method?.let {
-                            it.isAccessible = true
-                            rebuildOutlineMethod = it
-                        }
-                    } else {
-                        method = rebuildOutlineMethod
-                    }
-                }
-                method?.invoke(view)
-                return method != null
-            } catch (_: Throwable) {
-                return false
-            }
-        }
     }
 }
