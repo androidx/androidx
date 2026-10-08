@@ -67,4 +67,7 @@ androidx {
     description = "Provides Remote Compose foundation components"
     samples(project(":compose:remote:foundation:foundation-samples"))
     addGoldenImageAssets()
+    deviceTests {
+        maxShardCount = 1
+    }
 }
