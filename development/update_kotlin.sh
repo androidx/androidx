@@ -40,7 +40,6 @@ ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:abi-tools:$KOTLIN_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-build-tools-compat:$KOTLIN_VERSION,"
 
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-native-prebuilt:$KOTLIN_VERSION:linux-x86_64@tar.gz,"
-ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-native-prebuilt:$KOTLIN_VERSION:macos-x86_64@tar.gz,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-native-prebuilt:$KOTLIN_VERSION:macos-aarch64@tar.gz,"
 
 if [ "$KSP_VERSION" ]; then
@@ -78,10 +77,3 @@ ln -s -f "$REAL_NATIVE_PREBUILT_DIR/kotlin-native-prebuilt-$KOTLIN_VERSION-macos
     "$MAC_ARM_DIR/kotlin-native-prebuilt-macos-aarch64-$KOTLIN_VERSION.tar.gz"
 ln -s -f "$REAL_NATIVE_PREBUILT_DIR/kotlin-native-prebuilt-$KOTLIN_VERSION-macos-aarch64.tar.gz.asc" \
     "$MAC_ARM_DIR/kotlin-native-prebuilt-macos-aarch64-$KOTLIN_VERSION.tar.gz.asc"
-
-MAC_X86_DIR="../../prebuilts/androidx/konan/nativeCompilerPrebuilts/$CHANNEL/$KOTLIN_VERSION/macos-x86_64"
-mkdir -p "$MAC_X86_DIR"
-ln -s -f "$REAL_NATIVE_PREBUILT_DIR/kotlin-native-prebuilt-$KOTLIN_VERSION-macos-x86_64.tar.gz" \
-    "$MAC_X86_DIR/kotlin-native-prebuilt-macos-x86_64-$KOTLIN_VERSION.tar.gz"
-ln -s -f "$REAL_NATIVE_PREBUILT_DIR/kotlin-native-prebuilt-$KOTLIN_VERSION-macos-x86_64.tar.gz.asc" \
-    "$MAC_X86_DIR/kotlin-native-prebuilt-macos-x86_64-$KOTLIN_VERSION.tar.gz.asc"
