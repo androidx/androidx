@@ -409,4 +409,27 @@ public class VisibilityToDocumentConverterTest {
         assertThat(rebuildPublicPkg.getSha256Certificate()).isEqualTo(cert);
         assertThat(rebuildPublicPkg.getMultiSignerSha256Certificates()).isEmpty();
     }
+
+    @Test
+    public void testWriterUid_overlaySerializationAndDeserialization() throws Exception {
+        int testUid = 12345;
+        InternalVisibilityConfig visibilityConfig =
+                new InternalVisibilityConfig.Builder("someSchema")
+                        .setWriterUid(testUid)
+                        .build();
+
+        GenericDocument visibilityDoc =
+                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig);
+        GenericDocument androidVOverlayDoc =
+                VisibilityToDocumentConverter.createAndroidVOverlay(visibilityConfig);
+
+        assertThat(androidVOverlayDoc).isNotNull();
+
+        InternalVisibilityConfig convertedConfig =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        visibilityDoc, androidVOverlayDoc);
+
+        assertThat(convertedConfig.getWriterUid()).isEqualTo(testUid);
+        assertThat(convertedConfig).isEqualTo(visibilityConfig);
+    }
 }

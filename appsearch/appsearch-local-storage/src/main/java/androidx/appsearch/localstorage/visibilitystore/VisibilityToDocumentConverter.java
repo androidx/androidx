@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.visibilitystore;
 
 import android.util.Log;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema;
@@ -169,6 +170,7 @@ public class VisibilityToDocumentConverter {
      * @param androidVOverlayDocument  a {@link GenericDocument} holding visibility properties
      *                                 in {@link #ANDROID_V_OVERLAY_SCHEMA}
      */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     public static @NonNull InternalVisibilityConfig createInternalVisibilityConfig(
             @NonNull GenericDocument visibilityDocument,
             @Nullable GenericDocument androidVOverlayDocument) {
@@ -200,6 +202,7 @@ public class VisibilityToDocumentConverter {
                         .getPropertyBoolean(NOT_DISPLAYED_BY_SYSTEM_PROPERTY))
                 .setVisibilityConfig(schemaVisibilityConfig);
         if (androidVOverlayProto != null) {
+            builder.setWriterUid(androidVOverlayProto.getWriterUid());
             List<VisibilityConfigProto> visibleToConfigProtoList =
                     androidVOverlayProto.getVisibleToConfigsList();
             for (int i = 0; i < visibleToConfigProtoList.size(); i++) {
@@ -384,16 +387,17 @@ public class VisibilityToDocumentConverter {
      * Returns the {@link GenericDocument} for the Android V overlay schema if it is provided,
      * null otherwise.
      */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     public static @Nullable GenericDocument createAndroidVOverlay(
             @NonNull InternalVisibilityConfig internalVisibilityConfig) {
+        if (!doesConfigContainAndroidVOverlay(internalVisibilityConfig)) {
+            // This config doesn't contain any Android V overlay settings
+            return null;
+        }
         PackageIdentifier publiclyVisibleTargetPackage =
                 internalVisibilityConfig.getVisibilityConfig().getPubliclyVisibleTargetPackage();
         Set<SchemaVisibilityConfig> visibleToConfigs =
                 internalVisibilityConfig.getVisibleToConfigs();
-        if (publiclyVisibleTargetPackage == null && visibleToConfigs.isEmpty()) {
-            // This config doesn't contains any Android V overlay settings
-            return null;
-        }
 
         VisibilityConfigProto.Builder visibilityConfigProtoBuilder =
                 VisibilityConfigProto.newBuilder();
@@ -413,6 +417,9 @@ public class VisibilityToDocumentConverter {
                 androidVOverlayProtoBuilder.addVisibleToConfigs(visibleToConfigProto);
             }
         }
+        if (internalVisibilityConfig.getWriterUid() != InternalVisibilityConfig.INVALID_UID) {
+            androidVOverlayProtoBuilder.setWriterUid(internalVisibilityConfig.getWriterUid());
+        }
 
         GenericDocument.Builder<?> androidVOverlayBuilder = new GenericDocument.Builder<>(
                 ANDROID_V_OVERLAY_NAMESPACE,
@@ -428,6 +435,21 @@ public class VisibilityToDocumentConverter {
         androidVOverlayBuilder.setCreationTimestampMillis(0L);
 
         return androidVOverlayBuilder.build();
+    }
+
+    /**
+     * Whether the given {@link InternalVisibilityConfig} contains Android V overlay settings.
+     *
+     * <p>Android V overlay {@link #ANDROID_V_OVERLAY_SCHEMA} contains public acl, visible to
+     * config, and writer UID.
+     */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
+    public static boolean doesConfigContainAndroidVOverlay(
+            @Nullable InternalVisibilityConfig config) {
+        return config != null
+                && (config.getVisibilityConfig().getPubliclyVisibleTargetPackage() != null
+                || !config.getVisibleToConfigs().isEmpty()
+                || config.getWriterUid() != InternalVisibilityConfig.INVALID_UID);
     }
 
     private static @NonNull PackageIdentifierProto convertPackageIdentifierToProto(

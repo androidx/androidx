@@ -51,6 +51,9 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
     public static final Parcelable.@NonNull Creator<InternalVisibilityConfig> CREATOR =
             new InternalVisibilityConfigCreator();
 
+    /** An invalid UID value (-1), matching {@code android.os.Process.INVALID_UID}. */
+    public static final int INVALID_UID = -1;
+
     /**
      * Build the List of {@link InternalVisibilityConfig}s from given {@link SetSchemaRequest}.
      */
@@ -156,16 +159,21 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
     @Field(id = 4)
     final @NonNull List<SchemaVisibilityConfig> mVisibleToConfigs;
 
+    @Field(id = 5, getter = "getWriterUid")
+    private final int mWriterUid;
+
     @Constructor
     InternalVisibilityConfig(
             @Param(id = 1) @NonNull String schemaType,
             @Param(id = 2) boolean isNotDisplayedBySystem,
             @Param(id = 3) @NonNull SchemaVisibilityConfig schemaVisibilityConfig,
-            @Param(id = 4) @NonNull List<SchemaVisibilityConfig> visibleToConfigs) {
+            @Param(id = 4) @NonNull List<SchemaVisibilityConfig> visibleToConfigs,
+            @Param(id = 5) int writerUid) {
         mIsNotDisplayedBySystem = isNotDisplayedBySystem;
         mSchemaType = Objects.requireNonNull(schemaType);
         mVisibilityConfig = Objects.requireNonNull(schemaVisibilityConfig);
         mVisibleToConfigs = Objects.requireNonNull(visibleToConfigs);
+        mWriterUid = writerUid;
     }
 
     /**
@@ -176,6 +184,13 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
      */
     public @NonNull String getSchemaType() {
         return mSchemaType;
+    }
+
+    /** Returns the UID of the process that wrote this schema. */
+    @FlaggedApi(Flags.FLAG_ENABLE_PCC_DATA_ENCAPSULATION)
+    @ExperimentalAppSearchApi
+    public int getWriterUid() {
+        return mWriterUid;
     }
 
     /** Returns whether this schema is visible to the system. */
@@ -216,6 +231,7 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
         }
         InternalVisibilityConfig that = (InternalVisibilityConfig) o;
         return mIsNotDisplayedBySystem == that.mIsNotDisplayedBySystem
+                && mWriterUid == that.mWriterUid
                 && Objects.equals(mSchemaType, that.mSchemaType)
                 && Objects.equals(mVisibilityConfig, that.mVisibilityConfig)
                 && Objects.equals(mVisibleToConfigs, that.mVisibleToConfigs);
@@ -223,8 +239,12 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIsNotDisplayedBySystem, mSchemaType, mVisibilityConfig,
-                mVisibleToConfigs);
+        return Objects.hash(
+                mIsNotDisplayedBySystem,
+                mSchemaType,
+                mVisibilityConfig,
+                mVisibleToConfigs,
+                mWriterUid);
     }
 
     /** The builder class of {@link InternalVisibilityConfig}. */
@@ -234,6 +254,7 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
         private boolean mIsNotDisplayedBySystem;
         private SchemaVisibilityConfig.Builder mVisibilityConfigBuilder;
         private List<SchemaVisibilityConfig> mVisibleToConfigs = new ArrayList<>();
+        private int mWriterUid = INVALID_UID;
         private boolean mBuilt;
 
         /**
@@ -259,6 +280,7 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
             mVisibilityConfigBuilder = new SchemaVisibilityConfig.Builder(
                     internalVisibilityConfig.getVisibilityConfig());
             mVisibleToConfigs = internalVisibilityConfig.mVisibleToConfigs;
+            mWriterUid = internalVisibilityConfig.mWriterUid;
         }
 
         /** Sets schemaType, which will be as the id when converting to {@link GenericDocument}. */
@@ -269,9 +291,19 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
             return this;
         }
 
+        /** Sets the UID of the process that wrote this schema. */
+        @FlaggedApi(Flags.FLAG_ENABLE_PCC_DATA_ENCAPSULATION)
+        @CanIgnoreReturnValue
+        @ExperimentalAppSearchApi
+        public @NonNull Builder setWriterUid(int writerUid) {
+            resetIfBuilt();
+            mWriterUid = writerUid;
+            return this;
+        }
+
         /**
          * Resets all values contained in the VisibilityConfig with the values from the given
-         * VisibiltiyConfig.
+         * VisibilityConfig.
          */
         @CanIgnoreReturnValue
         public @NonNull Builder setVisibilityConfig(
@@ -398,7 +430,8 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
                     mSchemaType,
                     mIsNotDisplayedBySystem,
                     mVisibilityConfigBuilder.build(),
-                    mVisibleToConfigs);
+                    mVisibleToConfigs,
+                    mWriterUid);
         }
     }
 }
