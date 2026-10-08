@@ -388,6 +388,15 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isLazyLayoutItemAnimationEnterExitTransitionsEnabled: Boolean = true
+
+    /**
+     * Whether to use an updated implementation to render borders in [border]. If disabled, the old
+     * border implementation will be used instead.
+     */
+    // TODO: Remove this flag once it has soaked (b/569992152)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isNewBorderImplementationEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */

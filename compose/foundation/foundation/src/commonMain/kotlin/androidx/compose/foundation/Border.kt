@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.border.BorderLogic
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawModifierNode
@@ -40,16 +41,21 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.invalidateSemantics
+import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.shape
@@ -94,11 +100,15 @@ public fun Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShap
  * @param brush brush to paint the border with
  * @param shape shape of the border
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Stable
 public fun Modifier.border(width: Dp, brush: Brush, shape: Shape): Modifier =
-    this then BorderModifierNodeElement(width, brush, shape)
+    this then
+        if (ComposeFoundationFlags.isNewBorderImplementationEnabled)
+            BorderModifierNodeElement(width, brush, shape)
+        else OldBorderModifierNodeElement(width, brush, shape)
 
-internal data class BorderModifierNodeElement(val width: Dp, val brush: Brush, val shape: Shape) :
+internal class BorderModifierNodeElement(val width: Dp, val brush: Brush, val shape: Shape) :
     ModifierNodeElement<BorderModifierNode>() {
     override fun create() = BorderModifierNode(width, brush, shape)
 
@@ -119,9 +129,139 @@ internal data class BorderModifierNodeElement(val width: Dp, val brush: Brush, v
         }
         properties["shape"] = shape
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is BorderModifierNodeElement) return false
+
+        if (width != other.width) return false
+        if (brush != other.brush) return false
+        if (shape != other.shape) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = width.hashCode()
+        result = 31 * result + brush.hashCode()
+        result = 31 * result + shape.hashCode()
+        return result
+    }
 }
 
 internal class BorderModifierNode(
+    widthParameter: Dp,
+    brushParameter: Brush,
+    shapeParameter: Shape,
+) : Modifier.Node(), DrawModifierNode, SemanticsModifierNode {
+
+    override val shouldAutoInvalidate: Boolean = false
+    override val isImportantForBounds = false
+
+    private val borderLogic = BorderLogic()
+    private var borderLayer: GraphicsLayer? = null
+    private var borderLayerProvider: (() -> GraphicsLayer)? = null
+
+    var width = widthParameter
+        set(value) {
+            if (field != value) {
+                field = value
+                invalidateDraw()
+            }
+        }
+
+    var brush = brushParameter
+        set(value) {
+            if (field != value) {
+                field = value
+                invalidateDraw()
+            }
+        }
+
+    var shape = shapeParameter
+        set(value) {
+            if (field != value) {
+                field = value
+                invalidateDraw()
+                invalidateSemantics()
+            }
+        }
+
+    override fun ContentDrawScope.draw() {
+        drawContent()
+        val outline = shape.createOutline(size, layoutDirection, this)
+        borderLogic.drawBorder(
+            drawScope = this,
+            width = width,
+            brush = brush,
+            graphicsLayerProvider =
+                borderLayerProvider
+                    ?: {
+                        borderLayer
+                            ?: requireGraphicsContext().createGraphicsLayer().also {
+                                borderLayer = it
+                            }
+                    }
+                        .also { borderLayerProvider = it },
+            outline = outline,
+        )
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        shape = this@BorderModifierNode.shape
+    }
+
+    override fun onDetach() {
+        borderLayer?.let {
+            requireGraphicsContext().releaseGraphicsLayer(it)
+            borderLayer = null
+        }
+        borderLayerProvider = null
+    }
+}
+
+internal class OldBorderModifierNodeElement(val width: Dp, val brush: Brush, val shape: Shape) :
+    ModifierNodeElement<OldBorderModifierNode>() {
+    override fun create() = OldBorderModifierNode(width, brush, shape)
+
+    override fun update(node: OldBorderModifierNode) {
+        node.width = width
+        node.brush = brush
+        node.shape = shape
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "border"
+        properties["width"] = width
+        if (brush is SolidColor) {
+            properties["color"] = brush.value
+            value = brush.value
+        } else {
+            properties["brush"] = brush
+        }
+        properties["shape"] = shape
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is OldBorderModifierNodeElement) return false
+
+        if (width != other.width) return false
+        if (brush != other.brush) return false
+        if (shape != other.shape) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = width.hashCode()
+        result = 31 * result + brush.hashCode()
+        result = 31 * result + shape.hashCode()
+        return result
+    }
+}
+
+internal class OldBorderModifierNode(
     widthParameter: Dp,
     brushParameter: Brush,
     shapeParameter: Shape,
@@ -354,7 +494,7 @@ internal class BorderModifierNode(
     }
 
     override fun SemanticsPropertyReceiver.applySemantics() {
-        shape = this@BorderModifierNode.shape
+        shape = this@OldBorderModifierNode.shape
     }
 }
 

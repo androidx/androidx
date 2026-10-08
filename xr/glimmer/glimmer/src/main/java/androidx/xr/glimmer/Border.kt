@@ -16,7 +16,6 @@
 
 package androidx.xr.glimmer
 
-import android.os.Build
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -32,10 +31,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
+import androidx.compose.ui.graphics.LinearGradient
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.RadialGradient
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.SweepGradient
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -69,6 +72,8 @@ internal class BorderLogic @RememberInComposition constructor() {
     // This object is only used for generic shapes and rounded rectangles with different corner
     // radius sizes.
     private var borderPath: Path? = null
+    // This path is only used for rounded rectangles with different corner radius sizes.
+    private var roundRectInsetPath: Path? = null
 
     // Lazily allocated when offscreen ImageBitmap rendering is used for generic shapes.
     private var imageBitmap: ImageBitmap? = null
@@ -199,7 +204,19 @@ internal class BorderLogic @RememberInComposition constructor() {
         val pathBoundsSize =
             IntSize(ceil(pathBounds.width).toInt(), ceil(pathBounds.height).toInt())
 
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        // RuntimeShaders can't be drawn in a software bitmap. Special case known types that don't
+        // need a runtime shader so we can render in software, and avoid minor visual regressions
+        // for Modifier.border b/570069301.
+        // Note that it's possible to use a ShaderBrush with a non-runtime shader, such as manually
+        // passing LinearGradientShader to a ShaderBrush, but these cases are rare and difficult to
+        // check for. In any case the only change will be minor antialiasing differences.
+        val brushCanDrawInSoftware =
+            brush !is ShaderBrush ||
+                brush is LinearGradient ||
+                brush is RadialGradient ||
+                brush is SweepGradient
+
+        return if (shouldUseGraphicsLayerForGenericBorder() || !brushCanDrawInSoftware) {
             createDrawGenericBorderWithGraphicsLayer(
                 brush = brush,
                 graphicsLayerProvider = graphicsLayerProvider,
@@ -323,7 +340,7 @@ internal class BorderLogic @RememberInComposition constructor() {
                 }
                 translate(pathBounds.left, pathBounds.top) {
                     drawImage(
-                        cacheImageBitmap!!,
+                        cacheImageBitmap,
                         srcSize = pathBoundsSize,
                         colorFilter = colorFilter,
                     )
@@ -367,6 +384,9 @@ internal class BorderLogic @RememberInComposition constructor() {
     }
 
     private fun obtainPath(): Path = borderPath ?: Path().also { borderPath = it }
+
+    private fun obtainRoundRectInsetPath(): Path =
+        roundRectInsetPath ?: Path().also { roundRectInsetPath = it }
 
     /** Border implementation for simple rounded rects and those with different corner radii */
     private fun createDrawRoundRectBorder(
@@ -421,6 +441,7 @@ internal class BorderLogic @RememberInComposition constructor() {
             }
         } else {
             val path = obtainPath()
+            val insetPath = obtainRoundRectInsetPath()
             var lastStrokeWidth = Float.NaN
             var roundedRectPath: Path? = null
 
@@ -428,7 +449,8 @@ internal class BorderLogic @RememberInComposition constructor() {
                 val strokeWidthPx = strokeWidthPx(widthPx)
                 val fillArea = fillArea(strokeWidthPx)
                 if (lastStrokeWidth != strokeWidthPx) {
-                    roundedRectPath = createRoundRectPath(path, roundRect, strokeWidthPx, fillArea)
+                    roundedRectPath =
+                        createRoundRectPath(path, insetPath, roundRect, strokeWidthPx, fillArea)
                     lastStrokeWidth = strokeWidthPx
                 }
                 drawPath(roundedRectPath!!, brush = brush)
@@ -460,6 +482,7 @@ internal class BorderLogic @RememberInComposition constructor() {
  */
 private fun createRoundRectPath(
     targetPath: Path,
+    insetPath: Path,
     roundedRect: RoundRect,
     strokeWidth: Float,
     fillArea: Boolean,
@@ -467,23 +490,25 @@ private fun createRoundRectPath(
     reset()
     addRoundRect(roundedRect)
     if (!fillArea) {
-        val insetPath =
-            Path().apply { addRoundRect(createInsetRoundedRect(strokeWidth, roundedRect)) }
+        val insetPath = insetPath.apply {
+            reset()
+            addRoundRect(
+                RoundRect(
+                    left = roundedRect.left + strokeWidth,
+                    top = roundedRect.top + strokeWidth,
+                    right = roundedRect.right - strokeWidth,
+                    bottom = roundedRect.bottom - strokeWidth,
+                    topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(strokeWidth),
+                    topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(strokeWidth),
+                    bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(strokeWidth),
+                    bottomRightCornerRadius =
+                        roundedRect.bottomRightCornerRadius.shrink(strokeWidth),
+                )
+            )
+        }
         op(this, insetPath, PathOperation.Difference)
     }
 }
-
-private fun createInsetRoundedRect(widthPx: Float, roundedRect: RoundRect) =
-    RoundRect(
-        left = roundedRect.left + widthPx,
-        top = roundedRect.top + widthPx,
-        right = roundedRect.right - widthPx,
-        bottom = roundedRect.bottom - widthPx,
-        topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(widthPx),
-        topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(widthPx),
-        bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(widthPx),
-        bottomRightCornerRadius = roundedRect.bottomRightCornerRadius.shrink(widthPx),
-    )
 
 /**
  * Helper method to shrink the corner radius by the given value, clamping to 0 if the resultant
@@ -491,3 +516,13 @@ private fun createInsetRoundedRect(widthPx: Float, roundedRect: RoundRect) =
  */
 private fun CornerRadius.shrink(value: Float): CornerRadius =
     CornerRadius(max(0f, this.x - value), max(0f, this.y - value))
+
+// TODO: b/570069301 currently disabled due to minor anti-aliasing differences on API 28+.
+//  Investigate making this enabled on 28+ again.
+/**
+ * On API 28+, we use a GraphicsLayer as it is more performant than allocating an offscreen bitmap.
+ * On API < 28, GraphicsLayer uses the legacy OpenGL ES pipeline which rasterizes generic paths and
+ * BlendMode.Clear differently from Skia, so we fall back to an offscreen ImageBitmap for consistent
+ * rendering.
+ */
+internal fun shouldUseGraphicsLayerForGenericBorder(): Boolean = false
