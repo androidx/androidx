@@ -553,6 +553,34 @@ class BuilderTest {
         myDb.close()
     }
 
+    @Test
+    @OptIn(ExperimentalRoomApi::class)
+    fun setPreparedStatementCacheSize() {
+        val defaultDb = databaseBuilder<TestDatabase>("test.db").build()
+        assertThat(defaultDb.getConfiguration().preparedStatementCacheSize).isEqualTo(25)
+        defaultDb.close()
+
+        val customDb =
+            databaseBuilder<TestDatabase>("test.db").setPreparedStatementCacheSize(50).build()
+        assertThat(customDb.getConfiguration().preparedStatementCacheSize).isEqualTo(50)
+        customDb.close()
+
+        val disabledCacheDb =
+            databaseBuilder<TestDatabase>("test.db").setPreparedStatementCacheSize(0).build()
+        assertThat(disabledCacheDb.getConfiguration().preparedStatementCacheSize).isEqualTo(0)
+        disabledCacheDb.close()
+    }
+
+    @Test
+    @OptIn(ExperimentalRoomApi::class)
+    fun setPreparedStatementCacheSize_invalid() {
+        assertThrows<IllegalArgumentException> {
+                databaseBuilder<TestDatabase>("test.db").setPreparedStatementCacheSize(-1)
+            }
+            .hasMessageThat()
+            .isEqualTo("Cache size must be >= 0")
+    }
+
     internal abstract class TestDatabase : RoomDatabase()
 
     internal class EmptyMigration(start: Int, end: Int) : Migration(start, end) {
