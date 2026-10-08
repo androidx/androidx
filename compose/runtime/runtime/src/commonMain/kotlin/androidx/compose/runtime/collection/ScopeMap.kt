@@ -185,6 +185,13 @@ internal value class ScopeMap<Key : Any, Scope : Any>(
         }
     }
 
+    /** Remove all values that match [predicate]. */
+    inline fun removeValueIf(crossinline predicate: (key: Key) -> Boolean) {
+        map.removeIf { key, _ ->
+            predicate(@Suppress("UNCHECKED_CAST") (key as Key))
+        }
+    }
+
     @Suppress("UNCHECKED_CAST")
     inline fun removeIf(predicate: (Key, Scope) -> Boolean) {
         map.removeIf { key, scopes ->
