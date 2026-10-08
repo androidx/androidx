@@ -91,6 +91,7 @@ dependencies {
     testImplementation(project(":compose:remote:remote-player-compose"))
     testImplementation(project(":compose:remote:remote-player-compose-testutils"))
     testImplementation(project(":compose:remote:remote-testing"))
+    testImplementation("androidx.activity:activity:1.7.2")
     testImplementation(project(":wear:compose:remote:remote-material3-samples"))
 
     androidTestImplementation(project(":wear:compose:remote:remote-material3-samples"))
