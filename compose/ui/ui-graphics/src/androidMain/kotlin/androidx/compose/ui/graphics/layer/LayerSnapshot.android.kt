@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.graphics.layer
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Picture
@@ -26,13 +25,11 @@ import android.media.Image
 import android.media.ImageReader
 import android.os.Build
 import android.os.Looper
-import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Canvas as ComposeCanvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.os.HandlerCompat
-import java.lang.reflect.Method
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -73,7 +70,6 @@ internal object LayerSnapshotV28 : LayerSnapshotImpl {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
 internal object LayerSnapshotV22 : LayerSnapshotImpl {
 
     override suspend fun toBitmap(graphicsLayer: GraphicsLayer): Bitmap {
@@ -93,7 +89,7 @@ internal object LayerSnapshotV22 : LayerSnapshotImpl {
                     )
 
                     val surface = reader.surface
-                    val canvas = SurfaceUtils.lockCanvas(surface)
+                    val canvas = surface.lockHardwareCanvas()
                     try {
                         // Clear contents of the buffer before rendering
                         canvas.drawColor(Color.Black.toArgb(), PorterDuff.Mode.CLEAR)
@@ -115,85 +111,6 @@ internal object LayerSnapshotV21 : LayerSnapshotImpl {
         val canvas = ComposeCanvas(Canvas(bitmap))
         graphicsLayer.draw(canvas, null)
         return bitmap
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.M)
-private object SurfaceVerificationHelper {
-
-    fun lockHardwareCanvas(surface: Surface): Canvas = surface.lockHardwareCanvas()
-}
-
-internal object SurfaceUtils {
-
-    private var lockHardwareCanvasMethod: Method? = null
-    private var hasRetrievedMethod = false
-
-    /**
-     * Attempts to obtain a hardware accelerated [android.graphics.Canvas] from the provided
-     * [Surface]. In certain scenarios it will fallback to returning a software backed [Canvas]. For
-     * Android versions M (inclusive) and above this will always return a hardware accelerated
-     * [Canvas].
-     *
-     * For Android L_MR1 (API 22) this will attempt to leverage reflection to obtain a hardware
-     * accelerated [Canvas].
-     *
-     * If the reflective call fails or this method is invoked on Android L (API 21) this will always
-     * return a software backed [Canvas]
-     */
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    fun lockCanvas(surface: Surface): Canvas {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            SurfaceVerificationHelper.lockHardwareCanvas(surface)
-        } else {
-            lockCanvasFallback(surface)
-        }
-    }
-
-    fun isLockHardwareCanvasAvailable(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            true
-        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP_MR1) {
-            resolveLockHardwareCanvasMethod() != null
-        } else {
-            false
-        }
-    }
-
-    @SuppressLint("BanUncheckedReflection")
-    private fun resolveLockHardwareCanvasMethod(): Method? {
-        synchronized(this) {
-            return try {
-                var method: Method? = lockHardwareCanvasMethod
-                if (!hasRetrievedMethod) {
-                    hasRetrievedMethod = true
-
-                    // getDeclaredMethod as a @NotNull annotation and always returns a non-null
-                    // method instance on success and throws on failure. Avoiding usage of the
-                    // the safe call operator as it shows warnings in the IDE that it is not
-                    // necessary as a result
-                    method =
-                        Surface::class.java.getDeclaredMethod("lockHardwareCanvas").also {
-                            it.isAccessible = true
-                            lockHardwareCanvasMethod = it
-                        }
-                }
-                method
-            } catch (_: Throwable) {
-                lockHardwareCanvasMethod = null
-                null
-            }
-        }
-    }
-
-    @SuppressLint("BanUncheckedReflection")
-    private fun lockCanvasFallback(surface: Surface): Canvas {
-        val method = resolveLockHardwareCanvasMethod()
-        return if (method != null) {
-            method.invoke(surface) as Canvas
-        } else {
-            surface.lockCanvas(null)
-        }
     }
 }
 
