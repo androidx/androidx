@@ -19,6 +19,7 @@ package androidx.compose.ui.tooling
 import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.UiMediaScope
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
@@ -416,5 +417,106 @@ class PreviewMediaQueryTest {
             )
         assertEquals(411.dp, squareOrientationScope.windowWidth)
         assertEquals(891.dp, squareOrientationScope.windowHeight)
+    }
+
+    @Test
+    fun testReferencePhone() {
+        assertReferenceDevice(
+            spec = Devices.PHONE,
+            isTabletop = false,
+            pointerPrecision = UiMediaScope.PointerPrecision.Coarse,
+            keyboardKind = UiMediaScope.KeyboardKind.Virtual,
+            viewingDistance = UiMediaScope.ViewingDistance.Near,
+        )
+    }
+
+    @Test
+    fun testReferenceFoldable() {
+        assertReferenceDevice(
+            spec = Devices.FOLDABLE,
+            isTabletop = true,
+            pointerPrecision = UiMediaScope.PointerPrecision.Coarse,
+            keyboardKind = UiMediaScope.KeyboardKind.Virtual,
+            viewingDistance = UiMediaScope.ViewingDistance.Near,
+        )
+    }
+
+    @Test
+    fun testReferenceTablet() {
+        assertReferenceDevice(
+            spec = Devices.TABLET,
+            isTabletop = false,
+            pointerPrecision = UiMediaScope.PointerPrecision.Coarse,
+            keyboardKind = UiMediaScope.KeyboardKind.Virtual,
+            viewingDistance = UiMediaScope.ViewingDistance.Medium,
+        )
+    }
+
+    @Test
+    fun testReferenceDesktop() {
+        assertReferenceDevice(
+            spec = Devices.DESKTOP,
+            isTabletop = false,
+            pointerPrecision = UiMediaScope.PointerPrecision.Fine,
+            keyboardKind = UiMediaScope.KeyboardKind.Physical,
+            viewingDistance = UiMediaScope.ViewingDistance.Medium,
+        )
+    }
+
+    /**
+     * The parser silently ignores keys it does not know, so a misspelled key that carries a default
+     * value would go unnoticed. Overriding each parameter of each reference device with a value
+     * none of them use must therefore show up in the parsed scope.
+     */
+    @Test
+    fun testReferenceDeviceParametersAreAllParsed() {
+        for (spec in listOf(Devices.PHONE, Devices.FOLDABLE, Devices.TABLET, Devices.DESKTOP)) {
+            fun scopeWith(key: String, value: String) =
+                createPreviewUiMediaScope(fakeWindowInfo(), spec.withParameter(key, value))
+
+            val posture = scopeWith("windowPosture", "book").windowPosture
+            assertFalse(spec, posture.isFlat || posture.isTabletop)
+            assertEquals(
+                spec,
+                UiMediaScope.PointerPrecision.Blunt,
+                scopeWith("pointerPrecision", "blunt").pointerPrecision,
+            )
+            assertEquals(
+                spec,
+                UiMediaScope.KeyboardKind.None,
+                scopeWith("keyboardKind", "none").keyboardKind,
+            )
+            assertFalse(spec, scopeWith("hasCamera", "false").hasCamera)
+            assertFalse(spec, scopeWith("hasMicrophone", "false").hasMicrophone)
+            assertEquals(
+                spec,
+                UiMediaScope.ViewingDistance.Far,
+                scopeWith("viewingDistance", "far").viewingDistance,
+            )
+        }
+    }
+
+    private fun assertReferenceDevice(
+        spec: String,
+        isTabletop: Boolean,
+        pointerPrecision: UiMediaScope.PointerPrecision,
+        keyboardKind: UiMediaScope.KeyboardKind,
+        viewingDistance: UiMediaScope.ViewingDistance,
+    ) {
+        val scope = createPreviewUiMediaScope(fakeWindowInfo(), spec)
+        assertEquals(isTabletop, scope.windowPosture.isTabletop)
+        assertEquals(!isTabletop, scope.windowPosture.isFlat)
+        assertEquals(pointerPrecision, scope.pointerPrecision)
+        assertEquals(keyboardKind, scope.keyboardKind)
+        assertTrue(scope.hasCamera)
+        assertTrue(scope.hasMicrophone)
+        assertEquals(viewingDistance, scope.viewingDistance)
+    }
+
+    /** Returns this spec with the value of [key] replaced, failing unless [key] appears once. */
+    private fun String.withParameter(key: String, value: String): String {
+        val parameter = Regex("(?<=[:,])$key=[^,]*")
+        assertEquals("$key in $this", 1, parameter.findAll(this).count())
+        return replace(parameter, "$key=$value")
     }
 }
