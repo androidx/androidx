@@ -108,7 +108,7 @@ public fun RemoteSplitRadioButton(
     val progress =
         animateRemoteFloatAsState(
             targetValue = selected.select(1f.rf, 0f.rf),
-            animationSpec = SelectionAnimationSpec,
+            animationSpec = RemoteMotionTokens.fastEffectsSpec(),
         )
     val (startSectionShape, endSectionShape) =
         splitSectionShapes(shape, RemoteSplitRadioButtonDefaults.splitSectionsShape)

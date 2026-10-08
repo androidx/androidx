@@ -112,7 +112,7 @@ public fun RemoteSplitCheckboxButton(
     val progress =
         animateRemoteFloatAsState(
             targetValue = checked.select(1f.rf, 0f.rf),
-            animationSpec = SelectionAnimationSpec,
+            animationSpec = RemoteMotionTokens.fastEffectsSpec(),
         )
     val (startSectionShape, endSectionShape) =
         splitSectionShapes(shape, RemoteSplitCheckboxButtonDefaults.splitSectionsShape)
