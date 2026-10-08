@@ -105,6 +105,7 @@ abstract class ManagedIdeTask : DefaultTask() {
         private const val EXT_TAR_GZ = "tar.gz"
         private const val EXT_ZIP = "zip"
         private const val EXT_BURRITO = "burrito"
+        private const val EXT_DEB = "deb"
     }
 
     private fun getArchiveExtension(): String =
@@ -114,6 +115,7 @@ abstract class ManagedIdeTask : DefaultTask() {
                 name.endsWith(EXT_DMG) -> EXT_DMG
                 name.endsWith(EXT_ZIP) -> EXT_ZIP
                 name.endsWith(EXT_BURRITO) -> EXT_BURRITO
+                name.endsWith(EXT_DEB) -> EXT_DEB
                 else -> throw GradleException("Unsupported archive extension in filename: $name")
             }
         }
@@ -259,10 +261,17 @@ abstract class ManagedIdeTask : DefaultTask() {
                 val extractDir =
                     Files.createTempDirectory(archiveFile.parentFile.toPath(), "extract").toFile()
 
-                // untar the burrito file
+                // unpack the archive
                 execOperations.exec { execSpec ->
                     execSpec.executable("tar")
-                    execSpec.args("-x", "-z", "-f", fromPath.trim(), "-C", extractDir.absolutePath)
+                    execSpec.args(
+                        "-x",
+                        "-z",
+                        "-f",
+                        fromPath.trim(),
+                        "-C",
+                        extractDir.absolutePath,
+                    )
                 }
 
                 // copy the .app into the installation dir
@@ -273,6 +282,35 @@ abstract class ManagedIdeTask : DefaultTask() {
                 Files.move(app.toPath(), File(toPath, app.name).toPath())
 
                 fileSystemOperations.delete { it.delete(extractDir) }
+            }
+            EXT_DEB -> {
+                // unpack the archive
+                execOperations.exec { execSpec ->
+                    execSpec.executable("dpkg-deb")
+                    execSpec.args(
+                        "-x",
+                        fromPath.trim(),
+                        toPath,
+                    )
+                }
+
+                // rename the inner directory to remove the version information
+                // this allows the launch command to be the same no matter the version of aswb
+                val tmpDir = File("$toPath/tmp")
+
+                // Find the folder starting with the expected prefix
+                val sourceDir =
+                    tmpDir.listFiles()?.find {
+                        it.name.startsWith("android-studio-with-blaze") && it.isDirectory
+                    }
+
+                if (sourceDir != null) {
+                    val targetDir = File(tmpDir, "android-studio-with-blaze")
+
+                    sourceDir.renameTo(targetDir)
+                } else {
+                    throw GradleException("Extracting the aswb archive failed")
+                }
             }
             else -> throw GradleException("Unsupported archive extension: ${getArchiveExtension()}")
         }
