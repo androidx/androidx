@@ -31,6 +31,11 @@ public interface ForegroundProcessor {
     /**
      * Makes the foreground service aware of the {@link androidx.work.impl.model.WorkSpec} id.
      *
+     * <p>Must be called on
+     * {@link androidx.work.impl.utils.taskexecutor.TaskExecutor#getSerialTaskExecutor()} so that
+     * foreground service start and deferred stop transactions cannot interleave outside the
+     * processor lock.
+     *
      * @param workSpecId     The {@link androidx.work.impl.model.WorkSpec} id
      * @param foregroundInfo The {@link ForegroundInfo} associated
      */
