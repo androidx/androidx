@@ -117,9 +117,7 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
             val layerImpl =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     GraphicsLayerV29(ownerId)
-                } else if (
-                    isRenderNodeCompatible && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                ) {
+                } else if (isRenderNodeCompatible) {
                     try {
                         GraphicsLayerV23(ownerView, ownerId)
                     } catch (_: Throwable) {
