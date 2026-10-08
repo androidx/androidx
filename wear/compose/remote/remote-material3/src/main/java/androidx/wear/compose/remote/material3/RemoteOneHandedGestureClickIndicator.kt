@@ -124,26 +124,35 @@ public fun RemoteOneHandedGestureClickIndicator(
 
 /** Phase timings for the 1.82s gesture hint sequence. */
 private object HintTimeline {
+    private const val MillisPerSecond = 1000f
+
     /** Duration of the initial content fade-out and indicator scale-in (450 ms). */
-    const val EnterDurationSeconds = 0.450f
+    const val EnterDurationMillis = RemoteMotionTokens.DurationLong1
 
     /** Start time of the double-pinch gesture animation (450 ms). */
-    const val GestureStartSeconds = EnterDurationSeconds
+    const val GestureStartMillis = EnterDurationMillis
 
     /** Duration of the double-pinch gesture animation (617 ms). */
-    const val GestureDurationSeconds = 0.617f
+    const val GestureDurationMillis = 617
 
     /** Hold duration after the double-pinch gesture finishes before exiting (200 ms). */
-    const val PostGestureHoldSeconds = 0.200f
+    const val PostGestureHoldMillis = RemoteMotionTokens.DurationShort4
 
     /** Start time of the indicator scale-out and content fade-in (1267 ms). */
-    const val ExitStartSeconds =
-        GestureStartSeconds + GestureDurationSeconds + PostGestureHoldSeconds
+    const val ExitStartMillis = GestureStartMillis + GestureDurationMillis + PostGestureHoldMillis
 
     /** Duration of the indicator scale-out and content fade-in (553 ms). */
-    const val ExitDurationSeconds = 0.553f
+    const val ExitDurationMillis = 553
 
-    /** Total sequence duration in milliseconds (1820 ms) and seconds (1.82 s). */
-    const val TotalMillis = 1820
-    const val TotalSeconds = 1.820f
+    /** Total sequence duration (1820 ms). */
+    const val TotalMillis = ExitStartMillis + ExitDurationMillis
+
+    // The same timings in seconds, derived from the integer milliseconds above so that they don't
+    // accumulate float rounding errors.
+    const val EnterDurationSeconds = EnterDurationMillis / MillisPerSecond
+    const val GestureStartSeconds = GestureStartMillis / MillisPerSecond
+    const val GestureDurationSeconds = GestureDurationMillis / MillisPerSecond
+    const val ExitStartSeconds = ExitStartMillis / MillisPerSecond
+    const val ExitDurationSeconds = ExitDurationMillis / MillisPerSecond
+    const val TotalSeconds = TotalMillis / MillisPerSecond
 }

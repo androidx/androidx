@@ -32,7 +32,6 @@ import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.RemoteEasing
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.max
@@ -239,29 +238,19 @@ internal fun checkedColor(
     }
 
 /**
- * Duration of the color animation between the checked states, matching `COLOR_ANIMATION_SPEC` of
- * Wear Material3 toggle buttons (`MotionTokens.DurationMedium1`).
+ * Default [RemoteAnimationSpec] for the color animation between checked and unchecked states,
+ * matching `COLOR_ANIMATION_SPEC` of Wear Material3 toggle buttons.
  */
-private const val CheckedAnimationDurationMillis = 250
-
-/** Easing of the color animation, matching `MotionTokens.EasingStandardDecelerate`. */
-private val CheckedAnimationEasing = RemoteEasing.Cubic(0f, 0f, 0f, 1f)
-
-/** Default [RemoteAnimationSpec] for the color animation between checked and unchecked states. */
 internal val CheckedAnimationSpec: RemoteAnimationSpec =
-    remoteTween(CheckedAnimationDurationMillis, CheckedAnimationEasing)
-
-/** Duration of the animation to the pressed shape. */
-private const val PressAnimationDurationMillis = 100
+    remoteTween(RemoteMotionTokens.DurationMedium1, RemoteMotionTokens.EasingStandardDecelerate)
 
 /** Default [RemoteAnimationSpec] for the animation to the pressed shape. */
-internal val PressAnimationSpec: RemoteAnimationSpec = remoteTween(PressAnimationDurationMillis)
-
-/** Duration of the animation back to the resting shape. */
-private const val ReleaseAnimationDurationMillis = 300
+internal val PressAnimationSpec: RemoteAnimationSpec =
+    remoteTween(RemoteMotionTokens.DurationShort2)
 
 /** Default [RemoteAnimationSpec] for the animation back to the resting shape. */
-internal val ReleaseAnimationSpec: RemoteAnimationSpec = remoteTween(ReleaseAnimationDurationMillis)
+internal val ReleaseAnimationSpec: RemoteAnimationSpec =
+    remoteTween(RemoteMotionTokens.DurationMedium2)
 
 /**
  * Fraction of the corner sizes of a variant toggle button shape used for its pressed shape. See
