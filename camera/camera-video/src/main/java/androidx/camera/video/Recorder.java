@@ -1071,11 +1071,11 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case IDLING:
                     if (mState == State.IDLING) {
-                        Preconditions.checkState(
-                                mActiveRecordingRecord == null
-                                        && mPendingRecordingRecord == null,
-                                "Expected recorder to be idle but a recording is either "
-                                        + "pending or in progress.");
+                        // The active recording may still be finalizing if the Recorder was reset
+                        // and reconfigured before it was finalized. In that case, the new pending
+                        // recording will be serviced in onRecordingFinalized().
+                        Preconditions.checkState(mPendingRecordingRecord == null,
+                                "Expected recorder to be idle but a recording is pending.");
                     }
                     try {
                         RecordingRecord recordingRecord = RecordingRecord.from(pendingRecording,
@@ -2988,12 +2988,11 @@ public final class Recorder implements VideoOutput {
                     // Error state is non-recoverable. Nothing to do here.
                     break;
                 case CONFIGURING:
-                    // No-op, the Recorder has been reset before the recording is finalized. So
-                    // keep the state in CONFIGURING.
-                    break;
+                    // Fall-through
                 case IDLING:
-                    throw new AssertionError("Unexpected state on finalize of recording: "
-                            + mState);
+                    // No-op, the Recorder has been reset (and possibly reconfigured) before the
+                    // recording is finalized. So keep the current state.
+                    break;
             }
         }
 
@@ -3043,8 +3042,15 @@ public final class Recorder implements VideoOutput {
                 case IDLING:
                     // Fall-through
                 case ERROR:
-                    throw new AssertionError("In-progress recording error occurred while in "
-                            + "unexpected state: " + mState);
+                    // The Recorder can be reset (and reconfigured) while the in-progress
+                    // recording is still being finalized, e.g. a recording is started while the
+                    // previous one is stopping, the camera is unbound and the pending recording
+                    // is then stopped. The in-progress recording is normally already stopping,
+                    // so stopInternal() is a no-op and it is finalized once its encoders stop.
+                    Logger.w(TAG, "In-progress recording error " + error + " occurred in state "
+                            + mState + ", stopping: " + mInProgressRecordingStopping);
+                    needsStop = true;
+                    break;
             }
         }
 

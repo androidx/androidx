@@ -61,6 +61,7 @@ import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REAC
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NO_VALID_DATA
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_RECORDER_ERROR
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
@@ -1254,6 +1255,214 @@ class RecorderTest {
     }
 
     @Test
+    fun sourceInactive_whileStoppedRecordingIsFinalizingInConfiguringState_doesNotCrash() {
+        val (recorder, videoEncoder, _, firstRecording) =
+            setUpStoppedRecordingFinalizingInConfiguringState()
+
+        // Rebind and unbind again before the first recording is finalized. The new video encoder
+        // can't be set up until the old one is released, which happens after it stops, so the
+        // Recorder stays in CONFIGURING. The INACTIVE source still reports an error for the
+        // in-progress recording since mActiveSurface is not cleared when the encoder is released.
+        recorder.sendSurfaceRequest()
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        idleMainLooper()
+        recorder.onSourceStateChanged(INACTIVE)
+        idleMainLooper()
+        firstRecording.verifyNoFinalize()
+
+        // The first recording is finalized in CONFIGURING once its encoder stops, with the error
+        // of the user's stop.
+        videoEncoder.completeDeferredStop()
+        idleMainLooper()
+        firstRecording.verifyFinalize(error = ERROR_NONE)
+    }
+
+    @Test
+    fun sourceInactive_whileStoppedRecordingIsFinalizingInIdleState_doesNotCrash() {
+        val (recorder, videoEncoder, audioEncoder, firstRecording) =
+            setUpStoppedRecordingFinalizingInConfiguringState(withAudio = true)
+
+        // Only the video encoder stops, so the first recording is still waiting for the audio
+        // encoder, while the released video encoder lets the Recorder be configured to IDLING on
+        // rebind. Then unbind again.
+        videoEncoder.completeDeferredStop()
+        recorder.sendSurfaceRequest()
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        idleMainLooper()
+        recorder.onSourceStateChanged(INACTIVE)
+        idleMainLooper()
+        firstRecording.verifyNoFinalize()
+
+        // The first recording is finalized in IDLING once the audio encoder stops, with the error
+        // of the user's stop.
+        checkNotNull(audioEncoder).completeDeferredStop()
+        idleMainLooper()
+        firstRecording.verifyFinalize(error = ERROR_NONE)
+
+        // The Recorder can still record after a new surface is provided.
+        recorder.sendSurfaceRequest()
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        idleMainLooper()
+        createRecording(recorder = recorder).startAndVerify().sendFrames(3).stopAndVerify()
+    }
+
+    @Test
+    fun start_whileStoppedRecordingIsFinalizingInIdleState_startsAfterFinalized() {
+        val (recorder, videoEncoder, audioEncoder, firstRecording) =
+            setUpStoppedRecordingFinalizingInConfiguringState(withAudio = true)
+
+        // Rebind after only the video encoder stops, so the Recorder is IDLING while the first
+        // recording is still waiting for the audio encoder.
+        videoEncoder.completeDeferredStop()
+        recorder.sendSurfaceRequest()
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        idleMainLooper()
+
+        // Start a recording while IDLING. It is pending until the first recording is finalized.
+        val thirdRecording = createRecording(recorder = recorder).start()
+        idleMainLooper()
+        thirdRecording.verifyNoMoreEvent()
+        firstRecording.verifyNoFinalize()
+
+        checkNotNull(audioEncoder).completeDeferredStop()
+        idleMainLooper()
+        firstRecording.verifyFinalize(error = ERROR_NONE)
+        thirdRecording.verifyStart()
+        thirdRecording.sendFrames(3)
+        thirdRecording.stopAndVerify()
+    }
+
+    @Test
+    fun sourceInactive_whileStoppedRecordingIsFinalizingInErrorState_doesNotCrash() {
+        var failEncoderCreation = false
+        val originalRetrySetupVideoMaxCount = sRetrySetupVideoMaxCount
+        try {
+            val (recorder, videoEncoder, audioEncoder, firstRecording) =
+                setUpStoppedRecordingFinalizingInConfiguringState(
+                    withAudio = true,
+                    onCreateLaterVideoEncoder = {
+                        if (failEncoderCreation) {
+                            throw InvalidConfigException("Create video encoder fail on purpose.")
+                        }
+                    },
+                )
+            sRetrySetupVideoMaxCount = 0
+
+            // Only the video encoder stops, then rebind with a video encoder that fails to be
+            // created, so that the Recorder goes to ERROR while the first recording is still
+            // waiting for the audio encoder. Then unbind again.
+            videoEncoder.completeDeferredStop()
+            failEncoderCreation = true
+            recorder.sendSurfaceRequest()
+            assertThat(requireNotNull(recorder.streamInfo.fetchData().get()).id)
+                .isEqualTo(StreamInfo.STREAM_ID_ERROR)
+            recorder.onSourceStateChanged(ACTIVE_STREAMING)
+            idleMainLooper()
+            recorder.onSourceStateChanged(INACTIVE)
+            idleMainLooper()
+            firstRecording.verifyNoFinalize()
+
+            // The first recording is finalized in ERROR once the audio encoder stops, with the
+            // error of the user's stop.
+            checkNotNull(audioEncoder).completeDeferredStop()
+            idleMainLooper()
+            firstRecording.verifyFinalize(error = ERROR_NONE)
+        } finally {
+            sRetrySetupVideoMaxCount = originalRetrySetupVideoMaxCount
+        }
+    }
+
+    private data class FinalizingRecordingSetup(
+        val recorder: Recorder,
+        val videoEncoder: StopDeferringEncoder,
+        val audioEncoder: StopDeferringEncoder?,
+        val firstRecording: Recording,
+    )
+
+    /**
+     * Sets up a Recorder in CONFIGURING state while a stopped recording is still being finalized.
+     *
+     * A recording is stopped with its encoders' stop held back, a second recording is started
+     * (PENDING_RECORDING), the camera is unbound which resets the Recorder, and then the pending
+     * recording is stopped so the Recorder restores the non-pending CONFIGURING state.
+     *
+     * @param withAudio whether the first recording has audio. If true, the stop of the first audio
+     *   encoder is also held back.
+     * @param onCreateLaterVideoEncoder invoked before creating every video encoder except the
+     *   first.
+     */
+    private fun setUpStoppedRecordingFinalizingInConfiguringState(
+        withAudio: Boolean = false,
+        onCreateLaterVideoEncoder: () -> Unit = {},
+    ): FinalizingRecordingSetup {
+        var videoEncoder: StopDeferringEncoder? = null
+        var audioEncoder: StopDeferringEncoder? = null
+        val startTrackingFactory = createStartTrackingVideoEncoderFactory(mutableListOf())
+        // Only the first encoders defer stop(), so the first recording can be kept finalizing
+        // while the Recorder moves on to other states.
+        val recorder =
+            createRecorder(
+                videoEncoderFactory = { executor, config, sessionType ->
+                    if (videoEncoder != null) {
+                        onCreateLaterVideoEncoder()
+                    }
+                    val encoder =
+                        startTrackingFactory.createEncoder(executor, config, sessionType)
+                            as FakeEncoder
+                    if (videoEncoder == null) {
+                        StopDeferringEncoder(encoder).also { videoEncoder = it }
+                    } else {
+                        encoder
+                    }
+                },
+                audioEncoderFactory = { _, _, _ ->
+                    val encoder = createFakeAudioEncoder()
+                    if (audioEncoder == null) {
+                        StopDeferringEncoder(encoder).also { audioEncoder = it }
+                    } else {
+                        encoder
+                    }
+                },
+            )
+        val oldSurfaceRequest = checkNotNull(latestSurfaceRequest)
+        val firstVideoEncoder = checkNotNull(videoEncoder)
+        val firstRecording =
+            createRecording(recorder = recorder, withAudio = withAudio)
+                .startAndVerify()
+                .sendFrames()
+        val firstAudioEncoder = if (withAudio) checkNotNull(audioEncoder) else null
+
+        // Stop the first recording but hold back the encoders' stop so it keeps finalizing, then
+        // start a second recording while STOPPING, i.e. PENDING_RECORDING.
+        firstVideoEncoder.deferStop = true
+        firstAudioEncoder?.deferStop = true
+        firstRecording.stop()
+        val secondRecording = createRecording(recorder = recorder).start()
+        idleMainLooper()
+        firstRecording.verifyNoFinalize()
+
+        // Unbind: the source becomes INACTIVE and the old surface is released, which resets the
+        // Recorder while the first recording is still finalizing.
+        recorder.onSourceStateChanged(INACTIVE)
+        oldSurfaceRequest.deferrableSurface.close()
+        idleMainLooper()
+
+        // Stop the pending second recording, so the Recorder restores the non-pending CONFIGURING
+        // state even though the first recording is still in progress.
+        secondRecording.stop()
+        idleMainLooper()
+        secondRecording.verifyFinalize(error = ERROR_NO_VALID_DATA)
+        firstRecording.verifyNoFinalize()
+
+        return FinalizingRecordingSetup(
+            recorder,
+            firstVideoEncoder,
+            firstAudioEncoder,
+            firstRecording,
+        )
+    }
+
+    @Test
     fun getVideoCapabilitiesStabilizationSupportIsCorrect_whenNotSupportedInExtensions() {
         val cameraInfo = FakeCameraInfoInternal().apply { isVideoStabilizationSupported = true }
         val sessionProcessor =
@@ -1694,10 +1903,16 @@ class RecorderTest {
         }
     }
 
-    /** An [Encoder] that can hold back [stop] so a test controls when the encoder stops. */
+    /**
+     * An [Encoder] that can hold back [stop] so a test controls when the encoder stops.
+     *
+     * Like `EncoderImpl`, [release] while the stop is held back is deferred until the encoder
+     * stops.
+     */
     private class StopDeferringEncoder(private val delegate: FakeEncoder) : Encoder by delegate {
         var deferStop = false
         private var deferredStopTimeUs: Long? = null
+        private var isReleaseDeferred = false
 
         override fun stop(expectedStopTimeUs: Long) {
             if (deferStop) {
@@ -1707,10 +1922,22 @@ class RecorderTest {
             }
         }
 
+        override fun release() {
+            if (deferredStopTimeUs != null) {
+                isReleaseDeferred = true
+            } else {
+                delegate.release()
+            }
+        }
+
         fun completeDeferredStop() {
             val stopTimeUs = checkNotNull(deferredStopTimeUs) { "stop() was not called." }
             deferredStopTimeUs = null
             delegate.stop(stopTimeUs)
+            if (isReleaseDeferred) {
+                isReleaseDeferred = false
+                delegate.release()
+            }
         }
     }
 
