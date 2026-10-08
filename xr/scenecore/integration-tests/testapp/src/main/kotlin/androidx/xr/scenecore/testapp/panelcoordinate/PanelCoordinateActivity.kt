@@ -30,6 +30,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize2d
+import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
@@ -128,7 +129,8 @@ class PanelCoordinateActivity : AppCompatActivity() {
 
         val movable = MovableComponent.createSystemMovable(session, scaleInZ = false)
         val resizable =
-            ResizableComponent.create(session) { event ->
+            ResizableComponent.create(session, minimumSize = FloatSize3d(0.1f, 0.1f, 0.1f)) { event
+                ->
                 panel.size = FloatSize2d(event.newSize.width, event.newSize.height)
                 updateSizeText()
                 updateXyzPose()
