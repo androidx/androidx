@@ -18,6 +18,7 @@ package androidx.work
 
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.net.Uri
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiNetworkSpecifier
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -88,5 +89,15 @@ class ConstraintsTest {
         Truth.assertThat(constraints1).isEqualTo(constraints2)
         Truth.assertThat(constraints1.hashCode()).isEqualTo(constraints2.hashCode())
         Truth.assertThat(constraints1).isNotEqualTo(constraints3)
+    }
+
+    @Test
+    fun testHasContentUriTriggers() {
+        val emptyConstraints = Constraints.Builder().build()
+        Truth.assertThat(emptyConstraints.hasContentUriTriggers()).isFalse()
+
+        val triggerConstraints =
+            Constraints.Builder().addContentUriTrigger(Uri.parse("content://test"), false).build()
+        Truth.assertThat(triggerConstraints.hasContentUriTriggers()).isTrue()
     }
 }
