@@ -32,12 +32,13 @@ plugins {
 }
 
 dependencies {
-    def compose_version = "1.9.0"
+    def compose_version = "1.10.0"
 
     api(project(":web:web"))
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.compose.runtime:runtime:$compose_version")
     api("androidx.compose.ui:ui:$compose_version")
+    implementation("androidx.compose.runtime:runtime-retain:$compose_version")
     implementation("androidx.compose.ui:ui-graphics:$compose_version")
     implementation("androidx.compose.ui:ui-unit:$compose_version")
     implementation("androidx.compose.ui:ui-util:$compose_version")
