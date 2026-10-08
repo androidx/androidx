@@ -231,7 +231,7 @@ internal class LoweredIntExpressionKey(private val array: LongArray) {
     override fun hashCode(): Int = hashCode
 }
 
-private object NoOpPlatformImageProvider : PlatformImageProvider {
+internal object NoOpPlatformImageProvider : PlatformImageProvider {
     override fun addBitmap(document: RemoteComposeWriter, image: ImageBitmap): Int = -1
 
     override fun addNamedBitmap(

@@ -18,13 +18,11 @@
     ExperimentalCoroutinesApi::class,
     ExperimentalRemoteCreationComposeApi::class,
 )
+@file:JvmName("CaptureRemoteDocumentKt")
+@file:JvmMultifileClass
 
 package androidx.compose.remote.creation.compose.capture
 
-import android.content.Context
-import android.content.res.Configuration
-import android.os.Build
-import android.text.format.DateFormat
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.remote.core.RemoteClock
@@ -34,7 +32,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteComposeApplier
 import androidx.compose.remote.creation.compose.layout.RemoteRootNode
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.BroadcastFrameClock
@@ -44,8 +41,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -99,42 +94,19 @@ import kotlinx.coroutines.yield
 
 /**
  * Capture a single RemoteCompose document from the specified [content] Composable by rendering it
- * once inside a virtual display.
- *
- * This is a suspending function that performs the composition and rendering, returning a
- * [CapturedDocument] which contains the serialized bytes and metadata.
- *
- * @param context The Android [Context] to use.
- * @param creationDisplayInfo Details about the virtual display to capture for (size, density,
- *   etc.). Defaults to display metrics derived from [context].
- * @param remoteDensity The logical screen density and font scale to use for unit conversions.
- *   Defaults to density derived from [creationDisplayInfo]. Note: If passing custom values, they
- *   should typically match the density and font scale specified in [creationDisplayInfo] to avoid
- *   layout scaling discrepancies.
- * @param layoutDirection The layout direction (LTR or RTL) to use. Defaults to the layout direction
- *   of [context]'s configuration.
- * @param clock The clock used for the composition timeline. Defaults to [RemoteClock.SYSTEM].
- * @param profile The writing profile that determines supported operations. Defaults to
- *   [RcPlatformProfiles.ANDROIDX].
- * @param writerEvents Callback to handle non-serializable events (e.g. pending intents).
- * @param content The Composable content to render and capture.
- * @return A [CapturedDocument] containing the serialized document bytes.
+ * once without requiring an Android `Context`.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend fun captureSingleRemoteDocument(
-    context: Context,
-    creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
-    remoteDensity: RemoteDensity =
-        RemoteDensity(
-            creationDisplayInfo.density.density.rf,
-            creationDisplayInfo.density.fontScale.rf,
-        ),
-    layoutDirection: LayoutDirection =
-        toLayoutDirection(context.resources.configuration.layoutDirection),
+    creationDisplayInfo: RemoteCreationDisplayInfo,
+    remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
+    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
-    writerEvents: WriterEvents = WriterEvents(),
+    writerCallback: Any? = null,
+    platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
     content: @Composable @RemoteComposable () -> Unit,
-): CapturedDocument {
+): ByteArray {
     val rootNode = RemoteRootNode()
     val applier = RemoteComposeApplier(rootNode)
 
@@ -152,9 +124,10 @@ public suspend fun captureSingleRemoteDocument(
             RemoteComposeCreationState(
                 creationDisplayInfo = creationDisplayInfo,
                 profile = profile,
-                writerEvents = writerEvents,
-                layoutDirection = layoutDirection,
+                writerCallback = writerCallback,
                 remoteDensity = remoteDensity,
+                layoutDirection = layoutDirection,
+                platformImageProvider = platformImageProvider,
             )
 
         val initialSize = creationState.document.buffer.buffer.size()
@@ -170,13 +143,8 @@ public suspend fun captureSingleRemoteDocument(
                             creationDisplayInfo.density.fontScale,
                         ),
                     LocalRemoteDensity provides remoteDensity,
-                    LocalContext provides context,
-                    LocalConfiguration provides context.resources.configuration,
                     LocalLayoutDirection provides layoutDirection,
-                    LocalFontWeightAdjustment provides
-                        platformFontWeightAdjustment(context.resources.configuration),
                     LocalLifecycleOwner provides lifecycleOwner,
-                    LocalIs24HourFormat provides DateFormat.is24HourFormat(context),
                     content = content,
                 )
             }
@@ -254,27 +222,24 @@ public suspend fun captureSingleRemoteDocument(
             }
         }
 
-        val document =
-            withContext(recomposerDispatcher) {
-                withRenderSnapshot {
-                    val remoteCanvas = RemoteCanvas(creationState)
+        return withContext(recomposerDispatcher) {
+            withRenderSnapshot {
+                val remoteCanvas = RemoteCanvas(creationState)
 
-                    if (RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled) {
-                        check(creationState.document.buffer.buffer.size() == initialSize) {
-                            "Document was written to during composition. Expected size $initialSize, got ${creationState.document.buffer.buffer.size()}"
-                        }
+                if (RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled) {
+                    check(creationState.document.buffer.buffer.size() == initialSize) {
+                        "Document was written to during composition. Expected size $initialSize, got ${creationState.document.buffer.buffer.size()}"
                     }
-
-                    trace("CaptureRemoteDocument:captureSingleRemoteDocument:rootNodeRender") {
-                        rootNode.render(creationState, remoteCanvas)
-                        remoteCanvas.flush()
-                    }
-
-                    creationState.document.encodeToByteArray()
                 }
-            }
 
-        return CapturedDocument(document, writerEvents.pendingIntents, writerEvents.lambdas)
+                trace("CaptureRemoteDocument:captureSingleRemoteDocument:rootNodeRender") {
+                    rootNode.render(creationState, remoteCanvas)
+                    remoteCanvas.flush()
+                }
+
+                creationState.document.encodeToByteArray()
+            }
+        }
     } finally {
         withContext(recomposerDispatcher + NonCancellable) {
             recomposer.cancel()
@@ -285,88 +250,19 @@ public suspend fun captureSingleRemoteDocument(
 }
 
 /**
- * Capture a stream of RemoteCompose documents by rendering the specified [content] Composable in a
- * virtual display and emitting the resulting byte arrays whenever recomposition occurs and the
- * layout visually changes.
- *
- * This API allows capturing dynamic Compose content (e.g., containing animations, transitions, or
- * state updates) as a Flow of serialized document byte arrays.
- *
- * Crucially, recomposition is handled cleanly, and duplicate documents (where nothing visually
- * changed in the layout tree) are automatically filtered out, so new byte arrays are only emitted
- * when the document actually changes.
- *
- * Remote documents are expected to change rarely; animate with remote expressions rather than
- * recomposition. Content that updates faster than a few documents in quick succession followed by
- * about one per second is throttled, and a warning is logged. The latest state is still emitted
- * once the throttle allows.
- *
- * @param creationDisplayInfo Details about the virtual display to capture for (size, density,
- *   etc.).
- * @param remoteDensity The logical screen density and font scale to use for unit conversions.
- *   Defaults to density derived from [creationDisplayInfo]. Note: If passing custom values, they
- *   should typically match the density and font scale specified in [creationDisplayInfo] to avoid
- *   layout scaling discrepancies.
- * @param layoutDirection The layout direction (LTR or RTL) to use. Defaults to the layout direction
- *   of [context]'s configuration when `null`.
- * @param writerEvents Callback to handle non-serializable events (e.g. pending intents).
- * @param context The Android [Context] to use.
- * @param clock The clock used for the recomposer timeline. Defaults to [RemoteClock.SYSTEM].
- * @param profile The writing profile that determines supported operations. Defaults to
- *   [RcPlatformProfiles.ANDROIDX].
- * @param coroutineContext The CoroutineContext to run recomposition and rendering on. Defaults to
- *   [Dispatchers.Default].
- * @param content The Composable content to render and capture.
- * @return A [Flow] of [ByteArray]s containing the serialized RemoteCompose documents.
- */
-public fun captureRemoteDocument(
-    context: Context,
-    creationDisplayInfo: RemoteCreationDisplayInfo,
-    remoteDensity: RemoteDensity =
-        RemoteDensity(
-            creationDisplayInfo.density.density.rf,
-            creationDisplayInfo.density.fontScale.rf,
-        ),
-    layoutDirection: LayoutDirection? = null,
-    writerEvents: WriterEvents = WriterEvents(),
-    clock: RemoteClock = RemoteClock.SYSTEM,
-    profile: Profile = RcPlatformProfiles.ANDROIDX,
-    coroutineContext: CoroutineContext = Dispatchers.Default,
-    content: @Composable @RemoteComposable () -> Unit,
-): Flow<ByteArray> =
-    captureRemoteDocument(
-        context = context,
-        creationDisplayInfo = creationDisplayInfo,
-        updateThrottle = CaptureUpdateThrottle.Default,
-        remoteDensity = remoteDensity,
-        layoutDirection = layoutDirection,
-        writerEvents = writerEvents,
-        clock = clock,
-        profile = profile,
-        coroutineContext = coroutineContext,
-        content = content,
-    )
-
-/**
- * Like the public [captureRemoteDocument], but with [updateThrottle] deciding how often documents
- * are emitted instead of [CaptureUpdateThrottle.Default].
- *
- * TODO(b/567847315): Make the update strategy public together with [CaptureUpdateThrottle].
+ * Capture a stream of RemoteCompose documents from the specified [content] Composable without
+ * requiring an Android `Context`.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun captureRemoteDocument(
-    context: Context,
     creationDisplayInfo: RemoteCreationDisplayInfo,
-    updateThrottle: CaptureUpdateThrottle,
-    remoteDensity: RemoteDensity =
-        RemoteDensity(
-            creationDisplayInfo.density.density.rf,
-            creationDisplayInfo.density.fontScale.rf,
-        ),
-    layoutDirection: LayoutDirection? = null,
-    writerEvents: WriterEvents = WriterEvents(),
+    updateThrottle: CaptureUpdateThrottle = CaptureUpdateThrottle.Default,
+    remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
+    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
+    writerCallback: Any? = null,
+    platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
     coroutineContext: CoroutineContext = Dispatchers.Default,
     content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> = flow {
@@ -388,15 +284,14 @@ public fun captureRemoteDocument(
     val lifecycleOwner = HeadlessLifecycleOwner()
 
     try {
-        val layoutDirection =
-            (layoutDirection ?: toLayoutDirection(context.resources.configuration.layoutDirection))
         val creationState =
             RemoteComposeCreationState(
                 creationDisplayInfo = creationDisplayInfo,
                 profile = profile,
-                writerEvents = writerEvents,
-                layoutDirection = layoutDirection,
+                writerCallback = writerCallback,
                 remoteDensity = remoteDensity,
+                layoutDirection = layoutDirection,
+                platformImageProvider = platformImageProvider,
             )
 
         val initialSize = creationState.document.buffer.buffer.size()
@@ -412,13 +307,8 @@ public fun captureRemoteDocument(
                             creationDisplayInfo.density.fontScale,
                         ),
                     LocalRemoteDensity provides remoteDensity,
-                    LocalContext provides context,
-                    LocalConfiguration provides context.resources.configuration,
                     LocalLayoutDirection provides layoutDirection,
-                    LocalFontWeightAdjustment provides
-                        platformFontWeightAdjustment(context.resources.configuration),
                     LocalLifecycleOwner provides lifecycleOwner,
-                    LocalIs24HourFormat provides DateFormat.is24HourFormat(context),
                     content = content,
                 )
             }
@@ -503,7 +393,7 @@ public fun captureRemoteDocument(
                                         creationState.document =
                                             profile.create(
                                                 creationDisplayInfo.toCreationDisplayInfo(),
-                                                writerEvents,
+                                                writerCallback,
                                             )
                                         creationState.clearDocumentCaches()
                                         val remoteCanvas = RemoteCanvas(creationState)
@@ -1212,14 +1102,3 @@ private class HeadlessLifecycleOwner : LifecycleOwner {
         }
     }
 }
-
-private fun platformFontWeightAdjustment(configuration: Configuration): Int =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        if (configuration.fontWeightAdjustment != Configuration.FONT_WEIGHT_ADJUSTMENT_UNDEFINED) {
-            configuration.fontWeightAdjustment
-        } else {
-            0
-        }
-    } else {
-        0
-    }
