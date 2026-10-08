@@ -307,4 +307,11 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_USE_NEEDS_PERSIST_TYPE_FROM_ICING)
                 .isEqualTo("com.android.appsearch.flags.enable_use_needs_persist_type_from_icing");
     }
+
+    @Test
+    public void testFlagValue_enablePccDataEncapsulation() {
+        assertThat(Flags.FLAG_ENABLE_PCC_DATA_ENCAPSULATION)
+                .isEqualTo(
+                        "com.android.appsearch.flags.enable_pcc_data_encapsulation");
+    }
 }

@@ -18,9 +18,22 @@ package androidx.appsearch.localstorage.visibilitystore;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.testutil.AppSearchTestUtils;
+import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
+
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 public class VisibilityUtilTest {
+    @Rule public final RuleChain mRuleChain = AppSearchTestUtils.createCommonTestRules();
+
     @Test
     public void testIsSchemaSearchableByCaller_selfAccessDefaultAllowed() {
         CallerAccess callerAccess = new CallerAccess("package1");
@@ -54,5 +67,36 @@ public class VisibilityUtilTest {
                 /*prefixedSchema=*/ "schema",
                 /*visibilityStore=*/ null,
                 /*visibilityChecker=*/ null)).isFalse();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_PCC_DATA_ENCAPSULATION)
+    public void testIsSchemaSearchableByCaller_delegatesToVisibilityChecker() {
+        CallerAccess callerAccess = new CallerAccess("package");
+        VisibilityStore mockVisibilityStore = mock(VisibilityStore.class);
+        VisibilityChecker mockVisibilityChecker = mock(VisibilityChecker.class);
+
+        when(mockVisibilityChecker.isSchemaSearchableByCaller(
+                        eq(callerAccess),
+                        eq("package"),
+                        eq("schema"),
+                        eq(mockVisibilityStore)))
+                .thenReturn(false);
+
+        // Even with same package, when visibilityChecker is provided, it delegates to checker.
+        assertThat(
+                        VisibilityUtil.isSchemaSearchableByCaller(
+                                callerAccess,
+                                /* targetPackageName= */ "package",
+                                /* prefixedSchema= */ "schema",
+                                mockVisibilityStore,
+                                mockVisibilityChecker))
+                .isFalse();
+        verify(mockVisibilityChecker)
+                .isSchemaSearchableByCaller(
+                        eq(callerAccess),
+                        eq("package"),
+                        eq("schema"),
+                        eq(mockVisibilityStore));
     }
 }

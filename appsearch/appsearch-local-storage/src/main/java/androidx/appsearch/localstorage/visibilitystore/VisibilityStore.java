@@ -655,7 +655,7 @@ public class VisibilityStore {
     private void maybeRemoveOverlayDocument(@NonNull String prefixedSchemaType,
             @Nullable InternalVisibilityConfig oldVisibilityConfig,
             CallStats.@Nullable Builder callStatsBuilder) throws AppSearchException {
-        if (isConfigContainsAndroidVOverlay(oldVisibilityConfig)) {
+        if (VisibilityToDocumentConverter.doesConfigContainAndroidVOverlay(oldVisibilityConfig)) {
             try {
                 mAppSearchImpl.remove(VISIBILITY_PACKAGE_NAME,
                         mAndroidVOverlayDatabaseName,
@@ -689,18 +689,5 @@ public class VisibilityStore {
                     callStatsBuilder);
         }
         return getSchemaResponse;
-    }
-
-    /**
-     * Whether the given {@link InternalVisibilityConfig} contains Android V overlay settings.
-     *
-     * <p> Android V overlay {@link VisibilityToDocumentConverter#ANDROID_V_OVERLAY_SCHEMA}
-     * contains public acl and visible to config.
-     */
-    private static boolean isConfigContainsAndroidVOverlay(
-            @Nullable InternalVisibilityConfig config) {
-        return config != null
-                && (config.getVisibilityConfig().getPubliclyVisibleTargetPackage() != null
-                || !config.getVisibleToConfigs().isEmpty());
     }
 }

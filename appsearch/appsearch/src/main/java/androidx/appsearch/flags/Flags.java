@@ -298,6 +298,12 @@ public final class Flags {
     public static final String FLAG_ENABLE_USE_NEEDS_PERSIST_TYPE_FROM_ICING =
             FLAG_PREFIX + "enable_use_needs_persist_type_from_icing";
 
+    /**
+     * Enables encapsulation and isolation for Private Compute Core data in AppSearch.
+     */
+    public static final String FLAG_ENABLE_PCC_DATA_ENCAPSULATION =
+            FLAG_PREFIX + "enable_pcc_data_encapsulation";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -653,6 +659,15 @@ public final class Flags {
     /** Whether to enable AppSearch to use needsPersistType decided by Icing. */
     public static boolean enableUseNeedsPersistTypeFromIcing() {
         // TODO(b/417463182): Enable this once the feature is rolled out to Nextfood in platform.
+        return false;
+    }
+
+    /**
+     * Whether Private Compute Core data encapsulation should be enabled.
+     *
+     * <p>PCC is a framework-side feature so this should remain false in Jetpack
+     */
+    public static boolean enablePccDataEncapsulation() {
         return false;
     }
 }
