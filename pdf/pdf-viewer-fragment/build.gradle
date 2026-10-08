@@ -70,4 +70,7 @@ androidx {
     description = "This library can be used in your Android application to embed a fragment that renders a PDF document and provides functionalities to interact with it."
     addGoldenImageAssets()
     enableRobolectric()
+    deviceTests {
+        maxShardCount = 1
+    }
 }
