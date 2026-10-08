@@ -35,6 +35,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
@@ -177,6 +178,7 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
                 val resizableComponent =
                     ResizableComponent.create(
                         session!!,
+                        minimumSize = FloatSize3d(0.1f, 0.1f, 0.1f),
                         executor = Executors.newSingleThreadExecutor(),
                         resizeEventListener =
                             Consumer<ResizeEvent> { resizeEvent: ResizeEvent ->

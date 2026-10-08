@@ -33,6 +33,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize2d
+import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
@@ -116,6 +117,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "InputMoveResizeTest"
+        private val MIN_PANEL_SIZE = FloatSize3d(0.1f, 0.1f, 0.1f)
     }
 
     private fun updatePanelAspectRatio(
@@ -372,6 +374,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
         val mainPanelResizableComponent =
             ResizableComponent.create(
                 session!!,
+                minimumSize = MIN_PANEL_SIZE,
                 executor = mainExecutor,
                 resizeEventListener = resizeListener,
             )
@@ -565,6 +568,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
             val everythingPanelResizeComponent =
                 ResizableComponent.create(
                     session!!,
+                    minimumSize = MIN_PANEL_SIZE,
                     executor = mainExecutor,
                     resizeEventListener = resizeListener,
                 )
@@ -608,6 +612,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
             val resizablePanelComponent =
                 ResizableComponent.create(
                     session!!,
+                    minimumSize = MIN_PANEL_SIZE,
                     executor = mainExecutor,
                     resizeEventListener = resizeListener,
                 )

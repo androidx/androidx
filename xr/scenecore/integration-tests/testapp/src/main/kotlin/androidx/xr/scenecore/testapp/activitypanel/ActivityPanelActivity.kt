@@ -116,6 +116,7 @@ class ActivityPanelActivity : AppCompatActivity() {
                         val resizeableComponent =
                             ResizableComponent.create(
                                 session!!,
+                                minimumSize = FloatSize3d(0.1f, 0.1f, 0.1f),
                                 resizeEventListener = resizeListener,
                             )
                         activityPanelEntity.addComponent(resizeableComponent)
