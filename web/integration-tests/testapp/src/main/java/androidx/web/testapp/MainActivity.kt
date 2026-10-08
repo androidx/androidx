@@ -34,7 +34,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -44,22 +43,7 @@ import androidx.web.WebContent
 import androidx.web.WebFeature
 import androidx.web.compose.WebSurface
 import androidx.web.compose.WebViewBridge
-
-/**
- * Creates and retains a [WebContent] instance across configuration changes, automatically releasing
- * it via [RetainedEffect] when retired.
- */
-@Composable
-@Suppress("RestrictedApiAndroidX")
-fun rememberWebContent(block: WebContent.Builder.() -> Unit = {}): WebContent {
-    val webContent = retain { WebContent(block) }
-    RetainedEffect(webContent) {
-        onRetire {
-            webContent.close()
-        }
-    }
-    return webContent
-}
+import androidx.web.compose.retainWebContent
 
 /**
  * The primary Compose-based Activity demonstrating [WebContent] and [WebSurface] usage. Showcases
@@ -83,7 +67,7 @@ fun AppContent() {
         return
     }
 
-    val webContent = rememberWebContent()
+    val webContent = retainWebContent()
 
     val urlInputState = rememberTextFieldState("https://www.google.com")
     var pendingUrl by retain { mutableStateOf<String?>("https://www.google.com") }
