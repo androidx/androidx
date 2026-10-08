@@ -62,6 +62,7 @@ import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.integration.core.util.CameraInfoUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ExtensionsUtil
@@ -1658,6 +1659,12 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
                 .getCameraInfo(cameraSelector)
                 .querySupportedDynamicRanges(setOf(DynamicRange.HLG_10_BIT))
                 .contains(DynamicRange.HLG_10_BIT)
+        )
+        // Skip for b/569835725: The emulator camera HAL advertises HLG10 but stalls when
+        // streaming 10-bit output, which hangs the flush and triggers a cameraserver abort.
+        assumeFalse(
+            "Emulator camera HAL can not reliably stream HLG10 frames",
+            AndroidUtil.isEmulator(),
         )
 
         val preview = Preview.Builder().setDynamicRange(DynamicRange.HLG_10_BIT).build()
