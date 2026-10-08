@@ -2532,6 +2532,16 @@ class GridTest : LayoutTest() {
         }
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun testGrid_infiniteFlexWeight_throws() {
+        GridTrackSize.Flex(Fr(Float.POSITIVE_INFINITY))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testGrid_infiniteMinMaxWeight_throws() {
+        GridTrackSize.MinMax(0.dp, Fr(Float.POSITIVE_INFINITY))
+    }
+
     @Test
     fun testGrid_config_accessConstraints() =
         with(density) {
