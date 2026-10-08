@@ -327,7 +327,7 @@ internal class BaseWidgetDelegate(
                 // [options] even if it was first updated before they were stored.
                 putString(
                     GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID,
-                    requestedWidgetId ?: GlanceAdaptiveWidgetReceiver.generateWidgetId(),
+                    requestedWidgetId ?: WidgetOptionsCache.generateWidgetId(),
                 )
             }
         return RequestPinCallbackReceiver.createSuccessCallback(
