@@ -613,8 +613,8 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
-     * Reschedules all the eligible work. Useful for cases like, app was force stopped or
-     * BOOT_COMPLETED, TIMEZONE_CHANGED and TIME_SET for AlarmManager.
+     * Reschedules all the eligible work. Useful when the app was force-stopped or after
+     * {@code BOOT_COMPLETED}.
      */
     public void rescheduleEligibleWork() {
         // Delegate to the getter so mocks continue to work when testing.
