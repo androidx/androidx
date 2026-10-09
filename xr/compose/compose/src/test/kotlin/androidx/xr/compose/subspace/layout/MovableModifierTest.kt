@@ -18,6 +18,8 @@
 
 package androidx.xr.compose.subspace.layout
 
+import android.annotation.TargetApi
+import android.os.Build
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
@@ -36,8 +38,13 @@ import androidx.test.rule.GrantPermissionRule
 import androidx.xr.arcore.runtime.Plane
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.compose.spatial.Subspace
+import androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi
+import androidx.xr.compose.subspace.SpatialGltfModel
+import androidx.xr.compose.subspace.SpatialGltfModelSource
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
+import androidx.xr.compose.subspace.draw.scale
+import androidx.xr.compose.subspace.rememberSpatialGltfModelState
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
@@ -66,6 +73,7 @@ import androidx.xr.scenecore.testing.FakeMovableComponent
 import androidx.xr.scenecore.testing.FakeSceneRuntime
 import com.google.common.truth.Truth.assertThat
 import com.google.errorprone.annotations.CanIgnoreReturnValue
+import java.nio.file.Paths
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -1054,6 +1062,209 @@ class MovableModifierTest {
         composeTestRule.waitForIdle()
         assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
         assertThat(entity.getScale()).isEqualTo(1f)
+    }
+
+    @OptIn(ExperimentalSpatialGltfModelApi::class)
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    @Test
+    fun policySystemToCustom_onSpatialGltfModel_resetsSystemDraggedPoseAndRestoresFitScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var useCustom by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier =
+                        SubspaceModifier.testTag("model")
+                            .size(400.dp)
+                            .movable(
+                                enabled = true,
+                                movePolicy =
+                                    if (useCustom) MovePolicy.custom {} else MovePolicy.system(),
+                            ),
+                )
+            }
+        }
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().semanticsEntity
+            )
+        // Intrinsic model size is 2000x2000x2000px, so at 400.dp the uniform fit scale is 0.2f.
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(0.6f, 0.6f, 0.6f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        // The scale is 0.6f because it gets divided by the entity's gltfUniformScale scale but then
+        // re-multiplied.
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.6f)
+
+        useCustom = true
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
+    }
+
+    @OptIn(ExperimentalSpatialGltfModelApi::class)
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    @Test
+    fun policySystemOnSpatialGltfModel_whenMoved_updatesPoseAndScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier =
+                        SubspaceModifier.testTag("model")
+                            .size(400.dp)
+                            .movable(
+                                enabled = true,
+                                movePolicy = MovePolicy.system(),
+                            ),
+                )
+            }
+        }
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().semanticsEntity
+            )
+        // Intrinsic model size is 2000x2000x2000px, so at 400.dp the uniform fit scale is 0.2f.
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(0.6f, 0.6f, 0.6f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        // The scale is 0.6f because it gets divided by the entity's gltfUniformScale scale but then
+        // re-multiplied.
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.6f)
+    }
+
+    @OptIn(ExperimentalSpatialGltfModelApi::class)
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    @Test
+    fun policySystemOnSpatialGltfModel_whenMovedWithScale_updatesPoseAndScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier =
+                        SubspaceModifier.testTag("model")
+                            .size(400.dp)
+                            .movable(
+                                enabled = true,
+                                movePolicy = MovePolicy.system(),
+                            )
+                            .scale(2f),
+                )
+            }
+        }
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().semanticsEntity
+            )
+        // Intrinsic model size is 2000x2000x2000px, so at 400.dp the uniform fit scale is 0.2f,
+        // this is then multiplied by 2 due to the scale applier.
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.4f)
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(0.6f, 0.6f, 0.6f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        // The scale is 1.2f because it gets divided by the entity's gltfUniformScale scale but then
+        // re-multiplied by the scale applier and system scale.
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.6f)
+    }
+
+    @OptIn(ExperimentalSpatialGltfModelApi::class)
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    @Test
+    fun policySystemOnSpatialGltfModel_whenModifierRemoved_resetsDraggedPoseAndScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var useModifier by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier =
+                        if (useModifier) {
+                            SubspaceModifier.testTag("model").size(400.dp)
+                        } else {
+                            SubspaceModifier.testTag("model")
+                                .size(400.dp)
+                                .movable(
+                                    enabled = true,
+                                    movePolicy = MovePolicy.system(),
+                                )
+                        },
+                )
+            }
+        }
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().semanticsEntity
+            )
+        // Intrinsic model size is 2000x2000x2000px, so at 400.dp the uniform fit scale is 0.2f.
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(0.6f, 0.6f, 0.6f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        // The scale is 0.6f because it gets divided by the entity's gltfUniformScale scale but then
+        // re-multiplied.
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.6f)
+
+        useModifier = true
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
     }
 
     // ========================================================================

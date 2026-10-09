@@ -583,6 +583,16 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
             layoutNodeFromParentPixels.compose(parentFromDraggedNodePixels)
         scaleFromMovement = scale
 
+        // If the Entity is a CoreModelEntity a scale is already applied to fit the model within
+        // bounds. We need to divide by the applied scale to get the effective scale applied by the
+        // movable component.
+        scaleFromMovement =
+            if (coreEntity is CoreModelEntity) {
+                scale / coreEntity.scale
+            } else {
+                scale
+            }
+
         // Make sure that the pose isn't lost when using system movement
         invalidatePlacement()
         invalidateCoreEntity()

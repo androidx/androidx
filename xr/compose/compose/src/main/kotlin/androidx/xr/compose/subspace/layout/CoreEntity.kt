@@ -617,7 +617,8 @@ internal class CoreModelEntity(pixelDensity: PixelDensity) : CoreEntity(pixelDen
         get() = (entity as? GltfModelEntity)?.nodes ?: emptyList()
 
     /** Scale factor calculated to uniformly fit the [GltfModelEntity] within container bounds. */
-    private var gltfUniformScale = 1f
+    internal var gltfUniformScale = 1f
+        private set
 
     /**
      * Explicit scale factor applied by modifiers such as [SubspaceModifier.movable]. This is null
@@ -675,7 +676,10 @@ internal class CoreModelEntity(pixelDensity: PixelDensity) : CoreEntity(pixelDen
      * [GltfModelEntity] scale in SceneCore.
      */
     private fun syncCoreEntityCombinedScale() {
-        super.scale = userScale ?: gltfUniformScale
+        super.scale =
+            userScale?.let {
+                it * gltfUniformScale
+            } ?: gltfUniformScale
     }
 
     private fun onEntity(action: GltfModelEntity.() -> Unit) {
