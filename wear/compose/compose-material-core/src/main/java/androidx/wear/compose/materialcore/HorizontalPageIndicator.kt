@@ -71,7 +71,7 @@ public class PagesState(public val totalPages: Int, public val pagesOnScreen: In
      * Depending on the page index, return a size ratio for this indicator
      *
      * @param page Page index
-     * @return An size ratio for page index - in range 0..1
+     * @return A size ratio for page index - in range 0..1
      */
     public fun sizeRatio(page: Int): Float =
         when (page) {
@@ -128,7 +128,7 @@ public class PagesState(public val totalPages: Int, public val pagesOnScreen: In
         lastAlpha = smoothProgress
         secondSize = 1 - 0.5f * smoothProgress
 
-        // Depending on offsetInPages we'll either show a shrinked first indicator, or full-size
+        // Depending on offsetInPages we'll either show a shrunken first indicator, or full-size
         firstSize =
             if (hiddenPagesToTheLeft == 0 || hiddenPagesToTheLeft == 1 && scrolledToTheLeft) {
                 1 - smoothProgress
@@ -136,7 +136,7 @@ public class PagesState(public val totalPages: Int, public val pagesOnScreen: In
                 0.5f * (1 - smoothProgress)
             }
 
-        // Depending on offsetInPages and other parameters, we'll either show a shrinked
+        // Depending on offsetInPages and other parameters, we'll either show a shrunken
         // last indicator, or full-size
         lastSize =
             if (

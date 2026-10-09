@@ -335,7 +335,7 @@ class CurvedTextStyleTest {
     }
 
     @Test
-    fun `merge with other's line height is unspecified should use this' line height `() {
+    fun `merge with other's line height is unspecified should use this' line height`() {
         val style = CurvedTextStyle(lineHeight = 10.sp)
 
         val newStyle = style.merge(CurvedTextStyle(letterSpacing = TextUnit.Unspecified))

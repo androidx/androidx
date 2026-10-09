@@ -50,7 +50,7 @@ internal data class TransformingLazyColumnMeasuredItem(
      */
     val rightPadding: Int,
 
-    /** The scroll progress computed a the end of the measure pass. */
+    /** The scroll progress computed at the end of the measure pass. */
     private var measureScrollProgress: TransformingLazyColumnItemScrollProgress,
     override var measurementDirection: MeasurementDirection,
     /** The horizontal alignment to apply during placement. */

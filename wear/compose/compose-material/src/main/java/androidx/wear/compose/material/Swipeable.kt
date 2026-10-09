@@ -175,7 +175,7 @@ public open class SwipeableState<T>(
                     // first, try to map old state to the new state
                     val oldState = oldAnchors[animationTargetValue]
                     val newState = newAnchors.getOffset(oldState)
-                    // return new state if exists, or find the closes one among new anchors
+                    // return new state if exists, or find the closest one among new anchors
                     newState ?: newAnchors.keys.minByOrNull { abs(it - animationTargetValue) }!!
                 } else {
                     // we're not animating, proceed by finding the new anchors for an old value
@@ -299,7 +299,7 @@ public open class SwipeableState<T>(
     /**
      * The direction in which the [swipeable] is moving, relative to the current [currentValue].
      *
-     * This will be either 1f if it is is moving from left to right or top to bottom, -1f if it is
+     * This will be either 1f if it is moving from left to right or top to bottom, -1f if it is
      * moving from right to left or bottom to top, or 0f if no swipe or animation is in progress.
      */
     @ExperimentalWearMaterialApi

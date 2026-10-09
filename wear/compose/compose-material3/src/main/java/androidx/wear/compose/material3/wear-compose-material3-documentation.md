@@ -94,5 +94,5 @@ For more information, check out the [Wear OS Compose guides](https://developer.a
 
 This package offers APIs providing one-handed gesture support, consisting of gesture handlers for primary action (e.g. double pinch) and dismiss action (e.g. wrist turn).
 A gesture configuration should be created for each component that supports a gesture, such as a button, card or scrollable container.
-Animated indicators are provided that show when the gestures are available on clickable UI elements (like buttons and cards), scrollable  lists or pagers.
+Animated indicators are provided that show when the gestures are available on clickable UI elements (like buttons and cards), scrollable lists or pagers.
 

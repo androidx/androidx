@@ -250,7 +250,7 @@ private class ScrollAwayModifierNode(
                                 // Animation spec for showing the TimeText
                                 MotionTokens.EasingStandard
                             } else {
-                                // Animation spec for hidding the TimeText
+                                // Animation spec for hiding the TimeText
                                 MotionTokens.EasingStandardDecelerate
                             },
                     ),

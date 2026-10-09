@@ -493,7 +493,7 @@ public object SwipeToDismissBoxDefaults {
     public val EdgeWidth: Dp = 30.dp
 }
 
-/** Keys used to persistent state in [BasicSwipeToDismissBox]. */
+/** Keys used to persist state in [BasicSwipeToDismissBox]. */
 public enum class SwipeToDismissKeys {
     /**
      * The default background key to identify the content displayed by the content block when

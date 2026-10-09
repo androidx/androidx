@@ -138,7 +138,7 @@ import java.util.Locale
  * @param modifier Modifier to be applied to the `Box` containing the UI elements.
  * @param timePickerType The different [TimePickerType] supported by this time picker. It indicates
  *   whether to show seconds or AM/PM selector as well as hours and minutes.
- * @param colors [TimePickerColors] be applied to the TimePicker.
+ * @param colors [TimePickerColors] to be applied to the TimePicker.
  * @param initialSelection The initial time component to be selected when the `TimePicker` is first
  *   displayed. By default, this is the first available time component based on the [timePickerType]
  *   and the device's locale (e.g., the hour component for a [TimePickerType.HoursMinutes24H]
@@ -432,7 +432,7 @@ public fun TimePicker(
  * @param modifier Modifier to be applied to the `Box` containing the UI elements.
  * @param timePickerType The different [TimePickerType] supported by this time picker. It indicates
  *   whether to show seconds or AM/PM selector as well as hours and minutes.
- * @param colors [TimePickerColors] be applied to the TimePicker.
+ * @param colors [TimePickerColors] to be applied to the TimePicker.
  */
 @Deprecated(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.5. " +
@@ -614,7 +614,7 @@ public class TimePickerColors(
     public val confirmButtonContainerColor: Color,
 ) {
     /**
-     * Returns a copy of this TimePickerColors( optionally overriding some of the values.
+     * Returns a copy of this TimePickerColors, optionally overriding some of the values.
      *
      * @param selectedPickerContentColor The content color of selected picker.
      * @param unselectedPickerContentColor The content color of unselected pickers.

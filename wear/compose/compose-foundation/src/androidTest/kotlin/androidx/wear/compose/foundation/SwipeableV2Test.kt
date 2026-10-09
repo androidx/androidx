@@ -59,7 +59,7 @@ import org.junit.Test
 internal const val CHILD_TEST_TAG = "childTestTag"
 
 // TODO(b/201009199) Some of these tests may need specific values adjusted when swipeableV2
-// supports property nested scrolling, but the tests should all still be valid.
+// supports proper nested scrolling, but the tests should all still be valid.
 @OptIn(ExperimentalWearFoundationApi::class)
 class SwipeableV2Test {
     @get:Rule val rule = createComposeRule()
@@ -419,8 +419,8 @@ class SwipeableV2Test {
     }
 
     /**
-     * A square [Box] has the [TEST_TAG] test tag. Touch slop is disabled to make swipe calculations
-     * more exact.
+     * A square [Box] that has the [TEST_TAG] test tag. Touch slop is disabled to make swipe
+     * calculations more exact.
      */
     @Composable
     private fun SimpleSwipeableV2Box(swipeableV2Modifier: (Size) -> Modifier) {

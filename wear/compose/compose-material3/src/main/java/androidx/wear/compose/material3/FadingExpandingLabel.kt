@@ -50,9 +50,8 @@ import androidx.compose.ui.unit.TextUnit
  * component.
  *
  * Displays the given string in a [Text], with an animation that fades text in line by line when new
- * lines of text are added or removed. This is intended to be be used for labels in a Button or
- * Card, where we want the container to expand to fit the contents when the lines of the text
- * change.
+ * lines of text are added or removed. This is intended to be used for labels in a Button or Card,
+ * where we want the container to expand to fit the contents when the lines of the text change.
  *
  * @sample androidx.wear.compose.material3.samples.FadingExpandingLabelButtonSample
  *
@@ -63,7 +62,7 @@ import androidx.compose.ui.unit.TextUnit
  * @param text Text string that will be shown.
  * @param modifier Modifier to be applied to the animated text.
  * @param color [Color] to apply to the text. If [Color.Unspecified], and [textStyle] has no color
- *   set,this will be [LocalContentColor].
+ *   set, this will be [LocalContentColor].
  * @param fontSize The size of glyphs to use when painting the text. See [TextStyle.fontSize].
  * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic). See
  *   [TextStyle.fontStyle].

@@ -217,7 +217,7 @@ public object TimeTextDefaults {
      * screens
      *
      * @param curvedTextStyle A [CurvedTextStyle] for the separator
-     * @param contentArcPadding A [ArcPaddingValues] for the separator text
+     * @param contentArcPadding An [ArcPaddingValues] for the separator text
      */
     public fun CurvedScope.CurvedTextSeparator(
         curvedTextStyle: CurvedTextStyle? = null,

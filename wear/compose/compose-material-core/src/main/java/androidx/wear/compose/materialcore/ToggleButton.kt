@@ -148,8 +148,8 @@ public fun ToggleButton(
  *   the button respectively.
  * @param icon An optional slot for providing an icon to indicate the purpose of the ToggleButton.
  * @param secondaryLabel A slot for providing the ToggleButton's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon preset and "start" or "center"
- *   aligned if not. label and secondaryLabel contents should be consistently aligned.
+ *   expected to be text which is "start" aligned if there is an icon present and "start" or
+ *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
  * @param background Composable lambda to set the background of the toggle button. This expects to
  *   return Modifier.paint or Modifier.background for the background treatment.
  * @param enabled Controls the enabled state of the ToggleButton. When `false`, this ToggleButton

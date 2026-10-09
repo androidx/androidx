@@ -97,13 +97,13 @@ internal fun TransformingLazyColumnMeasureResult.checkLayoutIsCorrect() {
 
     with(visibleItems.fastMapToFloatList { it.scrollProgress.topOffsetFraction }) {
         check(isDistinct() && isMonotonicallyIncreasing()) {
-            "Incorrect layout: scrollProgress top offset fraction should be increating $this"
+            "Incorrect layout: scrollProgress top offset fraction should be increasing $this"
         }
     }
 
     with(visibleItems.fastMapToFloatList { it.scrollProgress.bottomOffsetFraction }) {
         check(isDistinct() && isMonotonicallyIncreasing()) {
-            "Incorrect layout: scrollProgress bottom offset fraction should be increating $this"
+            "Incorrect layout: scrollProgress bottom offset fraction should be increasing $this"
         }
     }
 }

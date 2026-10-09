@@ -679,7 +679,7 @@ class ToggleChipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun split_chip_background_color_correct() {
-        var actualBackgrondColor = Color.Transparent
+        var actualBackgroundColor = Color.Transparent
 
         rule.setContentWithTheme {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -694,13 +694,13 @@ class ToggleChipTest {
                     modifier = Modifier.testTag(TEST_TAG).fillMaxWidth(),
                 )
             }
-            actualBackgrondColor = MaterialTheme.colors.surface
+            actualBackgroundColor = MaterialTheme.colors.surface
         }
 
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertContainsColor(actualBackgrondColor, 50.0f)
+            .assertContainsColor(actualBackgroundColor, 50.0f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

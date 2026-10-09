@@ -174,7 +174,7 @@ internal enum class MeasurementDirection {
     DOWNWARD,
 
     /**
-     * Indicates that the item is being measured upward This corresponds to using
+     * Indicates that the item is being measured upward. This corresponds to using
      * [TransformingLazyColumnItemScrollProgress.upwardMeasuredItemScrollProgress].
      */
     UPWARD,

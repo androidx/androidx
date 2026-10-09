@@ -77,8 +77,8 @@ import kotlinx.coroutines.launch
  * dismissal. To hide the dialog, [visible] parameter should be set to false.
  *
  * This dialog is typically used to indicate that an action has been initiated and will continue on
- * the user's phone. Once this dialog is displayed, it's developer responsibility to establish the
- * connection between the watch and the phone.
+ * the user's phone. Once this dialog is displayed, it's the developer's responsibility to establish
+ * the connection between the watch and the phone.
  *
  * Example of an [OpenOnPhoneDialog] usage:
  *
@@ -333,7 +333,7 @@ public object OpenOnPhoneDialogDefaults {
     }
 
     /**
-     * Creates a [OpenOnPhoneDialogColors] that represents the default colors used in
+     * Creates an [OpenOnPhoneDialogColors] that represents the default colors used in
      * [OpenOnPhoneDialog].
      */
     @Composable
@@ -341,7 +341,7 @@ public object OpenOnPhoneDialogDefaults {
         MaterialTheme.colorScheme.defaultOpenOnPhoneDialogColors
 
     /**
-     * Creates a [OpenOnPhoneDialogColors] with modified colors used in [OpenOnPhoneDialog].
+     * Creates an [OpenOnPhoneDialogColors] with modified colors used in [OpenOnPhoneDialog].
      *
      * @param iconColor The icon color.
      * @param iconContainerColor The icon container color.

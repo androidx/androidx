@@ -39,7 +39,7 @@ import kotlinx.coroutines.CoroutineScope
  *
  * This class is responsible for:
  * - animating item appearance for the new items.
- * - detecting when item position changed, figuring our start/end offsets and starting the
+ * - detecting when item position changed, figuring out start/end offsets and starting the
  *   animations for placement animations.
  * - animating item disappearance for the removed items.
  */

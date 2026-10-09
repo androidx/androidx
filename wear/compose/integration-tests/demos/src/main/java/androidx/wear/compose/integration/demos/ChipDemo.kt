@@ -168,7 +168,7 @@ fun StandardChips() {
                 colors = chipColors(chipStyle),
                 label = "Long label that will span multiple lines and more than 2 lines",
                 secondaryLabel =
-                    "Long secondary label to show truncation which does not fit into" + "1 line",
+                    "Long secondary label to show truncation which does not fit into 1 line",
                 enabled = enabled,
             ) {
                 DemoIcon(resourceId = R.drawable.icon_accessibility_24px)

@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
  * will work together correctly.
  *
  * The Scaffold provides the main application structure in a Wear Material application. It provides
- * slots for the different parts of the application and sensible defaults were appropriate.
+ * slots for the different parts of the application and sensible defaults where appropriate.
  *
  * The layout of the Wear Scaffold is typically z-layered with decorations such as
  * [PositionIndicator], [HorizontalPageIndicator] and [Vignette] applied in the order laid out in

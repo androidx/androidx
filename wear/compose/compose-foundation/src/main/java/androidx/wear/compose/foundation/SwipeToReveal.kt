@@ -513,7 +513,7 @@ public fun rememberRevealState(
  *   threshold config of the swipeable modifier which is applied.
  * @param secondaryAction An optional action that can be added to the component. We strongly
  *   recommend triggering the action when it is clicked.
- * @param undoAction The optional undo action that will be applied to the component once the the
+ * @param undoAction The optional undo action that will be applied to the component once the
  *   [RevealState.currentValue] becomes [RevealValue.RightRevealed].
  * @param gestureInclusion Provides fine-grained control so that touch gestures can be excluded when
  *   they start in a certain region. An instance of [GestureInclusion] can be passed in here which

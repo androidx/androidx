@@ -122,7 +122,7 @@ public fun HorizontalPageIndicator(
 
     val indicatorFactory: @Composable (Int) -> Unit = { page ->
         // An external box with a fixed indicatorSize - let us remain the same size for
-        // an indicator even if it's shrinked for smooth animations
+        // an indicator even if it's shrunken for smooth animations
         Box(modifier = Modifier.padding(horizontal = horizontalPadding).size(indicatorSize)) {
             Box(
                 modifier =

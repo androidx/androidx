@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import kotlin.math.PI
 
 /**
- * Specified a solid background for a curved element.
+ * Specifies a solid background for a curved element.
  *
  * @param color The color to use to paint the background.
  * @param cap How to start and end the background.
@@ -160,7 +160,7 @@ internal class DrawWrapper(
         centerOffset: Offset,
     ): Float {
         /* We want the background to fill the space that our parent assigned us (outerLayoutInfo),
-         * as opposed to the size of or wrapped child (layoutInfo).
+         * as opposed to the size of our wrapped child (layoutInfo).
          */
         outerLayoutInfo =
             CurvedLayoutInfo(

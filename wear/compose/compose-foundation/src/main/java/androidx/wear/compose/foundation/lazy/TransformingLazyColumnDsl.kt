@@ -81,7 +81,7 @@ public sealed interface TransformingLazyColumnItemScope {
      *   from item reordering all other position changes caused by events like arrangement or
      *   alignment changes will also be animated. When null is provided no animations will happen.
      * @param fadeOutSpec an animation spec to use for animating the item disappearance. When null
-     *   is provided the item will be disappearance without animations.
+     *   is provided the item will disappear without animations.
      */
     public fun Modifier.animateItem(
         fadeInSpec: FiniteAnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),

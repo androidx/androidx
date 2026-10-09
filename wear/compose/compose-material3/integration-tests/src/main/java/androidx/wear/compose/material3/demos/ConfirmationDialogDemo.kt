@@ -42,7 +42,7 @@ import androidx.wear.compose.material3.samples.FailureConfirmationDialogWithGene
 import androidx.wear.compose.material3.samples.LongTextConfirmationDialogSample
 import androidx.wear.compose.material3.samples.SuccessConfirmationDialogSample
 
-val ComfirmationDialogDemos =
+val ConfirmationDialogDemos =
     listOf(
         ComposableDemo("Generic confirmation") { ConfirmationDialogSample() },
         ComposableDemo("Long content confirmation") { LongTextConfirmationDialogSample() },

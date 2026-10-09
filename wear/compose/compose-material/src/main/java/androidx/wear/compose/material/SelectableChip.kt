@@ -79,7 +79,7 @@ import androidx.compose.ui.unit.dp
  *   [SelectableChipDefaults.IconSize]. In order to correctly render when the Chip is not enabled
  *   the icon must set its alpha value to [LocalContentAlpha].
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
- *   to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned
+ *   to be text which is "start" aligned if there is an icon present and "start" or "center" aligned
  *   if not. label and secondaryLabel contents should be consistently aligned.
  * @param colors [SelectableChipColors] that will be used to resolve the background and content
  *   color for this chip in different states, see [SelectableChipDefaults.selectableChipColors].
@@ -500,7 +500,7 @@ public object SelectableChipDefaults {
      *
      * @param backgroundColor The background color of this [SplitSelectableChip] when enabled
      * @param contentColor The content color of this [SplitSelectableChip] when enabled.
-     * @param secondaryContentColor The secondary content color of this[SplitSelectableChip] when
+     * @param secondaryContentColor The secondary content color of this [SplitSelectableChip] when
      *   enabled
      * @param selectedSelectionControlColor The selection control content color of this
      *   [SplitSelectableChip] when enabled.

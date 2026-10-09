@@ -168,7 +168,7 @@ constructor(
             if (config == null) {
                 EmptyScalingLazyListLayoutInfo
             } else {
-                // read list state once here to for performance reasons and to ensure consistency
+                // read list state once here for performance reasons and to ensure consistency
                 val lazyListLayoutInfo = lazyListState.layoutInfo
                 val initialized = initialized.value
 
@@ -341,7 +341,7 @@ constructor(
                                 (
                                 // or Empty list (other than the 2 spacers)
                                 lazyListLayoutInfo.visibleItemsInfo.size == 2 ||
-                                    // or first item is correctly size
+                                    // or first item is correctly sized
                                     topSpacerIsCorrectlySized(
                                         config,
                                         lazyListLayoutInfo.visibleItemsInfo,
@@ -629,7 +629,7 @@ constructor(
         visibleItems: List<LazyListItemInfo>,
         totalItemCount: Int,
     ): Boolean {
-        // If the top items has a non-zero size we know that it has been correctly inflated.
+        // If the top item has a non-zero size we know that it has been correctly inflated.
         if (visibleItems.first().size > 0) return true
 
         // Work out the index we want to find - if there are less items in the list than would be
@@ -656,7 +656,7 @@ constructor(
                 }
             }
         }
-        // Finally if the remaining space needed is less that the gap between items then we do not
+        // Finally if the remaining space needed is less than the gap between items then we do not
         // need to add any additional space so the spacer being size zero is correct. Otherwise we
         // need to wait for it to be inflated.
         return spaceNeeded < params.gapBetweenItemsPx

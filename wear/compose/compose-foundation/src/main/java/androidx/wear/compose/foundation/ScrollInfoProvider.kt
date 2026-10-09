@@ -32,7 +32,7 @@ import androidx.wear.compose.foundation.pager.PagerState
 import androidx.wear.compose.foundation.pager.VerticalPager
 
 /**
- * An interface for providing scroll information for different scrollable containers, such lists.
+ * An interface for providing scroll information for different scrollable containers, such as lists.
  * Used for scrolling away, showing, hiding or scaling screen elements based on scrollable state.
  *
  * [ScrollInfoProvider] can be used to create a ScrollAway modifier, typically applied to an object
@@ -114,7 +114,7 @@ public fun ScrollInfoProvider(state: ScrollState): ScrollInfoProvider =
  * Function for creating a [ScrollInfoProvider] from a [PagerState], for use with [HorizontalPager]
  * and [VerticalPager]
  * - used to coordinate when to fade out the PageIndicator and
- *   [androidx.wear.compose.material.TimeText]. The PageIndicator fades out when when scrolling is
+ *   [androidx.wear.compose.material.TimeText]. The PageIndicator fades out when scrolling is
  *   finished and the screen is in an idle state.
  *
  * @param state the [PagerState] to use as the base for creating the [ScrollInfoProvider]

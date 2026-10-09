@@ -141,7 +141,7 @@ public interface PositionIndicatorState {
 }
 
 /**
- * Creates an [PositionIndicator] based on the values in a [ScrollState] object. e.g. a [Column]
+ * Creates a [PositionIndicator] based on the values in a [ScrollState] object. e.g. a [Column]
  * implementing [androidx.compose.foundation.verticalScroll] provides a [ScrollState].
  *
  * For more information, see the
@@ -186,7 +186,7 @@ public fun PositionIndicator(
     )
 
 /**
- * Creates an [PositionIndicator] based on the values in a [ScrollState] object. e.g. a [Column]
+ * Creates a [PositionIndicator] based on the values in a [ScrollState] object. e.g. a [Column]
  * implementing [androidx.compose.foundation.verticalScroll] provides a [ScrollState].
  *
  * For more information, see the
@@ -216,7 +216,7 @@ public fun PositionIndicator(
     )
 
 /**
- * Creates an [PositionIndicator] based on the values in a [ScalingLazyListState] object that a
+ * Creates a [PositionIndicator] based on the values in a [ScalingLazyListState] object that a
  * [ScalingLazyColumn] uses.
  *
  * For more information, see the
@@ -262,7 +262,7 @@ public fun PositionIndicator(
     )
 
 /**
- * Creates an [PositionIndicator] based on the values in a [ScalingLazyListState] object that a
+ * Creates a [PositionIndicator] based on the values in a [ScalingLazyListState] object that a
  * [ScalingLazyColumn] uses.
  *
  * For more information, see the
@@ -293,7 +293,7 @@ public fun PositionIndicator(
     )
 
 /**
- * Creates an [PositionIndicator] based on the values in a [ScalingLazyListState] object that a
+ * Creates a [PositionIndicator] based on the values in a [ScalingLazyListState] object that a
  * [ScalingLazyColumn] uses.
  *
  * For more information, see the
@@ -327,7 +327,7 @@ public fun PositionIndicator(
     )
 
 /**
- * Creates an [PositionIndicator] based on the values in a [LazyListState] object that a
+ * Creates a [PositionIndicator] based on the values in a [LazyListState] object that a
  * [androidx.compose.foundation.lazy.LazyColumn] uses.
  *
  * For more information, see the
@@ -372,7 +372,7 @@ public fun PositionIndicator(
     )
 
 /**
- * Creates an [PositionIndicator] based on the values in a [LazyListState] object that a
+ * Creates a [PositionIndicator] based on the values in a [LazyListState] object that a
  * [androidx.compose.foundation.lazy.LazyColumn] uses.
  *
  * For more information, see the
