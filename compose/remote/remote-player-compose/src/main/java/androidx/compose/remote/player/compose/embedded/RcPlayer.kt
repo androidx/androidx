@@ -502,19 +502,34 @@ public fun RcPlayer(
             LocalCurrentTimeMillis provides currentTimeMillisState,
             LocalGraphContext provides graphContext,
             LocalRcImageLoader provides resolvedImageLoader,
-            LocalRemoteActionHandler provides onAction,
+            LocalRemoteActionHandler provides
+                { id, metadata ->
+                    // A PendingIntentAction written as an id action. Its id is allocated by the
+                    // library, so the host is not also notified.
+                    val pendingIntent =
+                        PendingIntentAction.indexForActionId(id)?.let { pendingIntents[it] }
+                    if (pendingIntent != null) {
+                        sendPendingIntent(pendingIntent)
+                    } else {
+                        onAction(id, metadata)
+                    }
+                },
             LocalRemoteNamedActionHandler provides
                 { name, value ->
                     val lambdaId = LambdaAction.parseId(name)
+                    // A PendingIntentAction written as a named action.
+                    val pendingIntent =
+                        PendingIntentAction.indexForNamedAction(name, value)?.let {
+                            pendingIntents[it]
+                        }
                     if (lambdaId != null) {
                         lambdas[lambdaId]?.invoke()
+                        onNamedAction(name, value, stateUpdater)
+                    } else if (pendingIntent != null) {
+                        sendPendingIntent(pendingIntent)
                     } else {
-                        val pendingIntentId = PendingIntentAction.parseId(name)
-                        if (pendingIntentId != null) {
-                            pendingIntents[pendingIntentId]?.send()
-                        }
+                        onNamedAction(name, value, stateUpdater)
                     }
-                    onNamedAction(name, value, stateUpdater)
                 },
             LocalRcCustomPlugins provides customPlugins,
             LocalTypefaceResolver provides (typefaceResolver ?: remoteContext.typefaceResolver),
@@ -1551,4 +1566,12 @@ internal fun initializePlayerRemoteContext(
         }
     }
     return ctx
+}
+
+private fun sendPendingIntent(pendingIntent: PendingIntent) {
+    try {
+        pendingIntent.send()
+    } catch (e: PendingIntent.CanceledException) {
+        Log.w("RcPlayer", "Failed to send PendingIntent", e)
+    }
 }

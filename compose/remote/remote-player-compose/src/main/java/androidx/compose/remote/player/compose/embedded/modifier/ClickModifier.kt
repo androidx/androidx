@@ -33,6 +33,7 @@ import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation
 import androidx.compose.remote.core.operations.layout.TouchUpModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.HostActionMetadataOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.core.operations.layout.modifiers.RunActionOperation
@@ -311,6 +312,9 @@ private fun applyClickAction(
         }
         // Host callback (id only; HostActionOperation carries no value).
         is HostActionOperation -> onAction(action.actionId, null)
+        // Host callback with metadata, resolved to the current value of its text.
+        is HostActionMetadataOperation ->
+            onAction(action.actionId, remoteContext.getText(action.metadataId))
         // Named host action (what the public hostAction(name, value) authors): resolve the name
         // and the typed value, then notify the host.
         is HostNamedActionOperation -> {
@@ -325,6 +329,8 @@ private fun applyClickAction(
                         HostNamedActionOperation.FLOAT_TYPE -> remoteContext.getFloat(valueId)
                         HostNamedActionOperation.INT_TYPE -> remoteContext.getInteger(valueId)
                         HostNamedActionOperation.STRING_TYPE -> remoteContext.getText(valueId)
+                        HostNamedActionOperation.FLOAT_ARRAY_TYPE ->
+                            remoteContext.mRemoteComposeState.getFloats(valueId)
                         else -> null
                     }
                 }

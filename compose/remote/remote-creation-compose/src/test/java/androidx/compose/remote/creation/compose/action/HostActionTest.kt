@@ -16,14 +16,19 @@
 
 package androidx.compose.remote.creation.compose.action
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionMetadataOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
+import androidx.compose.remote.creation.compose.capture.CapturedDocument
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -31,6 +36,8 @@ import androidx.compose.remote.creation.compose.state.RemoteString.Companion.cre
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.serialization.yaml.YAMLSerializer
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.remember
@@ -97,34 +104,96 @@ class HostActionTest {
     }
 
     @Test
-    fun hostActionWithVariableRemoteString_createsHostActionOperation() = runTest {
+    fun hostActionWithVariableRemoteString_createsHostNamedActionOperation() = runTest {
         val doc =
             captureRule.captureDocument(context) {
                 val variableName = remember { createNamedRemoteString("action_name", "my_action") }
                 RemoteBox(modifier = RemoteModifier.clickable(hostAction(variableName)))
             }
+        assertThat(doc.findOperations<HostActionOperation>()).isEmpty()
         val namedOps = doc.findOperations<HostNamedActionOperation>()
-        assertThat(namedOps).isEmpty()
-
-        val hostActionOps = doc.findOperations<HostActionOperation>()
-        assertThat(hostActionOps).hasSize(1)
-        assertThat(doc.displayHierarchy()).contains("HOST_ACTION")
+        assertThat(namedOps).hasSize(1)
+        assertThat(namedOps.first().getActionType()).isEqualTo("NONE_TYPE")
     }
 
     @Test
-    fun hostActionWithVariableRemoteStringAndValue_createsHostActionMetadataOperation() = runTest {
+    fun hostActionWithVariableRemoteStringAndValue_keepsTypedValue() = runTest {
         val doc =
             captureRule.captureDocument(context) {
                 val variableName = remember { createNamedRemoteString("action_name", "my_action") }
-                RemoteBox(modifier = RemoteModifier.clickable(hostAction(variableName, "value".rs)))
+                RemoteBox(modifier = RemoteModifier.clickable(hostAction(variableName, 1.5f.rf)))
             }
+        assertThat(doc.findOperations<HostActionMetadataOperation>()).isEmpty()
         val namedOps = doc.findOperations<HostNamedActionOperation>()
-        assertThat(namedOps).isEmpty()
-
-        val metadataOps = doc.findOperations<HostActionMetadataOperation>()
-        assertThat(metadataOps).hasSize(1)
-        assertThat(doc.displayHierarchy()).contains("HOST_METADATA_ACTION")
+        assertThat(namedOps).hasSize(1)
+        assertThat(namedOps.first().getActionType()).isEqualTo("FLOAT_TYPE")
     }
+
+    @Test
+    fun pendingIntentAction_defaultProfile_writesNamedAction() = runTest {
+        assertWritesNamedAction(RcPlatformProfiles.ANDROIDX)
+    }
+
+    @Test
+    fun pendingIntentAction_wearWidgetsProfile_writesNamedAction() = runTest {
+        // Wear hosts dispatch this named action, so its encoding must not change.
+        assertWritesNamedAction(RcPlatformProfiles.WEAR_WIDGETS)
+    }
+
+    @Test
+    fun pendingIntentAction_launcherWidgetsV6_writesIdAction() = runTest {
+        assertWritesIdAction(LauncherWidgetTestProfiles.WIDGETS_V6)
+    }
+
+    @Test
+    fun pendingIntentAction_launcherWidgetsV7_writesIdAction() = runTest {
+        assertWritesIdAction(LauncherWidgetTestProfiles.WIDGETS_V7)
+    }
+
+    private suspend fun assertWritesNamedAction(profile: Profile) {
+        val pendingIntent = testPendingIntent()
+        val captured =
+            captureSingleRemoteDocument(context = context, profile = profile) {
+                RemoteBox(
+                    modifier = RemoteModifier.clickable(pendingIntentAction { pendingIntent })
+                )
+            }
+        val doc = captured.toCoreDocument()
+        assertThat(doc.findOperations<HostActionOperation>()).isEmpty()
+        val namedOps = doc.findOperations<HostNamedActionOperation>()
+        assertThat(namedOps).hasSize(1)
+        assertThat(namedOps.first().getActionType()).isEqualTo("INT_TYPE")
+        assertThat(captured.pendingIntents[0]).isSameInstanceAs(pendingIntent)
+    }
+
+    private suspend fun assertWritesIdAction(profile: Profile) {
+        val pendingIntent = testPendingIntent()
+        val captured =
+            captureSingleRemoteDocument(context = context, profile = profile) {
+                RemoteBox(
+                    modifier = RemoteModifier.clickable(pendingIntentAction { pendingIntent })
+                )
+            }
+        val doc = captured.toCoreDocument()
+        assertThat(doc.findOperations<HostNamedActionOperation>()).isEmpty()
+        val ops = doc.findOperations<HostActionOperation>()
+        assertThat(ops).hasSize(1)
+        assertThat(ops.first().actionId).isEqualTo(PendingIntentAction.FIRST_ACTION_ID)
+        assertThat(captured.pendingIntents[0]).isSameInstanceAs(pendingIntent)
+    }
+
+    private fun testPendingIntent(): PendingIntent =
+        PendingIntent.getBroadcast(
+            context,
+            0,
+            Intent("test").setPackage(context.packageName),
+            PendingIntent.FLAG_IMMUTABLE,
+        )
+
+    private fun CapturedDocument.toCoreDocument(): CoreDocument =
+        CoreDocument().apply {
+            initFromBuffer(RemoteComposeBuffer.fromInputStream(bytes.inputStream()))
+        }
 
     private fun <T : Operation> CoreDocument.findOperations(clazz: Class<T>): List<T> {
         val result = mutableListOf<T>()
