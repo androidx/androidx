@@ -22,24 +22,19 @@ import androidx.savedstate.SavedStateValue
 import androidx.savedstate.read
 import androidx.savedstate.savedState
 
-internal class LiveDataSavedStateValue<T>(val liveData: MutableLiveData<T>) : SavedStateValue<T> {
+internal class LiveDataSavedStateValue<T>(liveData: MutableLiveData<T>) :
+    SavedStateValue<MutableLiveData<T>> {
 
-    @Suppress("UNCHECKED_CAST")
-    override var value: T
-        get() = liveData.value as T
-        set(value) {
-            liveData.value = value
-        }
+    override val value: MutableLiveData<T> = liveData
 
     override fun saveState(): SavedState {
-        return if (liveData.isInitialized) savedState(mapOf(SAVED_STATE_VALUE_KEY to value))
+        return if (value.isInitialized) savedState(mapOf(SAVED_STATE_VALUE_KEY to value.value))
         else savedState()
     }
 
     override fun restoreState(savedState: SavedState?) {
         if (savedState != null && savedState.read { contains(SAVED_STATE_VALUE_KEY) }) {
-            @Suppress("UNCHECKED_CAST")
-            value = unwrapSavedStateValue(savedState) as T
+            @Suppress("UNCHECKED_CAST") value.setValue(unwrapSavedStateValue(savedState) as T)
         }
     }
 }
