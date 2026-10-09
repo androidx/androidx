@@ -32,6 +32,8 @@ import android.text.style.CharacterStyle
 import android.text.style.ForegroundColorSpan
 import android.text.style.MetricAffectingSpan
 import android.text.style.ReplacementSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.UnderlineSpan
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.VisibleForTesting
@@ -596,6 +598,18 @@ private fun buildComplexText(density: Density) =
             text("日本語の斜体はEnglishのItalicとは少し違います。\n")
         }
         withEmphasis(style = EmphasisStyle.Sesame) { text("傍点") }
+        text("も")
+        text(
+            SpannableString("傍線").apply {
+                setSpan(UnderlineSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        )
+        text("も")
+        text(
+            SpannableString("取消線").apply {
+                setSpan(StrikethroughSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        )
         text("もSupportされてます。")
     }
 
