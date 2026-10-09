@@ -72,6 +72,12 @@ import androidx.xr.glimmer.internal.color.withTone
  * size of this button, [buttonSize] affects default values and values internal to the button.
  *
  * @sample androidx.xr.glimmer.samples.LargeToggleButtonSample
+ *
+ * Focused and checked background colors can be customized via [ToggleButtonDefaults.colors] using
+ * [ToggleButtonDefaults.focusedBackgroundColor], [ToggleButtonDefaults.checkedBackgroundColor], and
+ * [ToggleButtonDefaults.focusedCheckedBackgroundColor]:
+ *
+ * @sample androidx.xr.glimmer.samples.CustomColorsToggleButtonSample
  * @param checked a boolean flag indicating whether this toggle button is currently checked.
  * @param onCheckedChange A callback to be invoked when this toggle button is clicked, receiving the
  *   inverted [checked] value.
@@ -126,7 +132,9 @@ public fun ToggleButton(
     val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
 
     val color = colors.resolveBackgroundColor(checked)
+    val focusedColor = colors.resolveFocusedBackgroundColor(checked)
     val contentColor = colors.resolveContentColor(checked)
+    val focusedContentColor = colors.resolveFocusedContentColor(checked)
 
     CompositionLocalProvider(LocalTextStyle provides GlimmerTheme.typography.bodySmall) {
         Row(
@@ -135,9 +143,9 @@ public fun ToggleButton(
                     enabled = enabled,
                     shape = shape,
                     color = color,
-                    focusedColor = color,
+                    focusedColor = focusedColor,
                     contentColor = contentColor,
-                    focusedContentColor = contentColor,
+                    focusedContentColor = focusedContentColor,
                     depthEffect = null,
                     interactionSource = internalInteractionSource,
                 )
@@ -219,56 +227,114 @@ public object ToggleButtonDefaults {
     /**
      * Creates [ToggleButtonColors] with default values for a [ToggleButton].
      *
-     * @param backgroundColor the background color when the button is unchecked
-     * @param checkedBackgroundColor the background color when the button is checked
-     * @param contentColor the content color when the button is unchecked
-     * @param checkedContentColor the content color when the button is checked
+     * @param backgroundColor the background color when the button is unchecked and unfocused
+     * @param focusedBackgroundColor the background color when the button is unchecked and focused
+     * @param checkedBackgroundColor the background color when the button is checked and unfocused
+     * @param focusedCheckedBackgroundColor the background color when the button is checked and
+     *   focused. Defaults to a color derived from [checkedBackgroundColor]
+     * @param contentColor the content color when the button is unchecked and unfocused
+     * @param focusedContentColor the content color when the button is unchecked and focused
+     * @param checkedContentColor the content color when the button is checked and unfocused
+     * @param focusedCheckedContentColor the content color when the button is checked and focused
      */
     @Composable
     public fun colors(
         backgroundColor: Color = GlimmerTheme.colors.surface,
+        focusedBackgroundColor: Color = focusedBackgroundColor(backgroundColor),
         checkedBackgroundColor: Color = checkedBackgroundColor(),
+        focusedCheckedBackgroundColor: Color =
+            focusedCheckedBackgroundColor(checkedBackgroundColor),
         contentColor: Color = calculateContentColor(backgroundColor),
+        focusedContentColor: Color = calculateContentColor(focusedBackgroundColor),
         checkedContentColor: Color = calculateContentColor(checkedBackgroundColor),
+        focusedCheckedContentColor: Color = calculateContentColor(focusedCheckedBackgroundColor),
     ): ToggleButtonColors =
         ToggleButtonColors(
             backgroundColor = backgroundColor,
+            focusedBackgroundColor = focusedBackgroundColor,
             checkedBackgroundColor = checkedBackgroundColor,
+            focusedCheckedBackgroundColor = focusedCheckedBackgroundColor,
             contentColor = contentColor,
+            focusedContentColor = focusedContentColor,
             checkedContentColor = checkedContentColor,
+            focusedCheckedContentColor = focusedCheckedContentColor,
         )
 
     /**
-     * Calculates the checked background color for a [ToggleButton] derived from a primary or custom
-     * [color].
+     * Returns the unchecked, focused background [Color] for a [ToggleButton] derived from the
+     * provided [baseColor].
      *
-     * @param color the primary or custom [Color] to derive the checked background color from
-     * @return the background [Color] for the button when checked
+     * [baseColor] is not the final color. It is the unchecked, unfocused background color of the
+     * button, which is adjusted so that it is suitable for use as a focused background.
+     *
+     * @param baseColor the unchecked, unfocused background [Color] of the button, such as
+     *   [Colors.surface] or a custom background color
+     * @return the background [Color] for the button when unchecked and focused
      */
     @Composable
-    public fun checkedBackgroundColor(color: Color = GlimmerTheme.colors.primary): Color =
-        color.withTone(newTone = CheckedBackgroundColorTone)
+    public fun focusedBackgroundColor(baseColor: Color = GlimmerTheme.colors.surface): Color =
+        SurfaceDefaults.focusedColor(baseColor)
+
+    /**
+     * Returns the checked, unfocused background [Color] for a [ToggleButton] derived from the
+     * provided [baseColor].
+     *
+     * [baseColor] is not the final color. It is a brand or accent color, which is adjusted to a
+     * tone that is suitable for use as a checked background.
+     *
+     * @param baseColor the brand or accent [Color] to derive from, such as [Colors.primary]
+     * @return the background [Color] for the button when checked and unfocused
+     */
+    @Composable
+    public fun checkedBackgroundColor(baseColor: Color = GlimmerTheme.colors.primary): Color =
+        baseColor.withTone(newTone = CheckedBackgroundColorTone)
+
+    /**
+     * Returns the checked, focused background [Color] for a [ToggleButton] derived from the
+     * provided [baseColor].
+     *
+     * [baseColor] is not the final color. It is the same brand or accent color passed to
+     * [checkedBackgroundColor], which is adjusted to a tone that is suitable for use as a checked,
+     * focused background.
+     *
+     * @param baseColor the brand or accent [Color] to derive from, such as [Colors.primary]
+     * @return the background [Color] for the button when checked and focused
+     */
+    @Composable
+    public fun focusedCheckedBackgroundColor(
+        baseColor: Color = GlimmerTheme.colors.primary
+    ): Color = baseColor.withTone(newTone = FocusedCheckedBackgroundColorTone)
 
     private const val CheckedBackgroundColorTone = 70f
+    private const val FocusedCheckedBackgroundColorTone = 82f
 
-    /** Default shape for [ToggleButton] and [IconToggleButton] in the checked state. */
+    /** Default shape for [ToggleButton] in the checked state. */
     public val CheckedShape: Shape = RoundedCornerShape(20.dp)
 }
 
 /**
  * Represents the colors used by a [ToggleButton] in different states.
  *
- * @property backgroundColor the background color when the button is unchecked
- * @property checkedBackgroundColor the background color when the button is checked
- * @property contentColor the content color when the button is unchecked
- * @property checkedContentColor the content color when the button is checked
+ * @property backgroundColor the background color when the button is unchecked and unfocused
+ * @property focusedBackgroundColor the background color when the button is unchecked and focused
+ * @property checkedBackgroundColor the background color when the button is checked and unfocused
+ * @property focusedCheckedBackgroundColor the background color when the button is checked and
+ *   focused
+ * @property contentColor the content color when the button is unchecked and unfocused
+ * @property focusedContentColor the content color when the button is unchecked and focused
+ * @property checkedContentColor the content color when the button is checked and unfocused
+ * @property focusedCheckedContentColor the content color when the button is checked and focused
  */
 @Immutable
 public class ToggleButtonColors(
     public val backgroundColor: Color,
+    public val focusedBackgroundColor: Color,
     public val checkedBackgroundColor: Color,
+    public val focusedCheckedBackgroundColor: Color,
     public val contentColor: Color,
+    public val focusedContentColor: Color,
     public val checkedContentColor: Color,
+    public val focusedCheckedContentColor: Color,
 ) {
 
     /** Chooses a content color of the button based on the [checked] state. */
@@ -276,23 +342,41 @@ public class ToggleButtonColors(
         return if (checked) checkedContentColor else contentColor
     }
 
+    /** Chooses a focused content color of the button based on the [checked] state. */
+    internal fun resolveFocusedContentColor(checked: Boolean): Color {
+        return if (checked) focusedCheckedContentColor else focusedContentColor
+    }
+
     /** Chooses a background color of the button based on the [checked] state. */
     internal fun resolveBackgroundColor(checked: Boolean): Color {
         return if (checked) checkedBackgroundColor else backgroundColor
     }
 
+    /** Chooses a focused background color of the button based on the [checked] state. */
+    internal fun resolveFocusedBackgroundColor(checked: Boolean): Color {
+        return if (checked) focusedCheckedBackgroundColor else focusedBackgroundColor
+    }
+
     /** Returns a copy of this [ToggleButtonColors], optionally overriding some of the values. */
     public fun copy(
         backgroundColor: Color = this.backgroundColor,
+        focusedBackgroundColor: Color = this.focusedBackgroundColor,
         checkedBackgroundColor: Color = this.checkedBackgroundColor,
+        focusedCheckedBackgroundColor: Color = this.focusedCheckedBackgroundColor,
         contentColor: Color = this.contentColor,
+        focusedContentColor: Color = this.focusedContentColor,
         checkedContentColor: Color = this.checkedContentColor,
+        focusedCheckedContentColor: Color = this.focusedCheckedContentColor,
     ): ToggleButtonColors =
         ToggleButtonColors(
             backgroundColor = backgroundColor,
+            focusedBackgroundColor = focusedBackgroundColor,
             checkedBackgroundColor = checkedBackgroundColor,
+            focusedCheckedBackgroundColor = focusedCheckedBackgroundColor,
             contentColor = contentColor,
+            focusedContentColor = focusedContentColor,
             checkedContentColor = checkedContentColor,
+            focusedCheckedContentColor = focusedCheckedContentColor,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -303,18 +387,26 @@ public class ToggleButtonColors(
         other as ToggleButtonColors
 
         if (backgroundColor != other.backgroundColor) return false
+        if (focusedBackgroundColor != other.focusedBackgroundColor) return false
         if (checkedBackgroundColor != other.checkedBackgroundColor) return false
+        if (focusedCheckedBackgroundColor != other.focusedCheckedBackgroundColor) return false
         if (contentColor != other.contentColor) return false
+        if (focusedContentColor != other.focusedContentColor) return false
         if (checkedContentColor != other.checkedContentColor) return false
+        if (focusedCheckedContentColor != other.focusedCheckedContentColor) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = backgroundColor.hashCode()
+        result = 31 * result + focusedBackgroundColor.hashCode()
         result = 31 * result + checkedBackgroundColor.hashCode()
+        result = 31 * result + focusedCheckedBackgroundColor.hashCode()
         result = 31 * result + contentColor.hashCode()
+        result = 31 * result + focusedContentColor.hashCode()
         result = 31 * result + checkedContentColor.hashCode()
+        result = 31 * result + focusedCheckedContentColor.hashCode()
         return result
     }
 }

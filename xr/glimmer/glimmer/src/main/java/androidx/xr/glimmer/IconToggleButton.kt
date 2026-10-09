@@ -144,7 +144,7 @@ public object IconToggleButtonDefaults {
     @Composable
     public fun shape(
         checked: Boolean,
-        checkedShape: Shape = ToggleButtonDefaults.CheckedShape,
+        checkedShape: Shape = CheckedShape,
         uncheckedShape: Shape = GlimmerTheme.shapes.large,
     ): Shape = if (checked) checkedShape else uncheckedShape
 
@@ -245,6 +245,9 @@ public object IconToggleButtonDefaults {
     public fun focusedCheckedBackgroundColor(
         baseColor: Color = GlimmerTheme.colors.primary
     ): Color = baseColor.withTone(newTone = FocusedCheckedBackgroundColorTone)
+
+    /** Default shape for [IconToggleButton] in the checked state. */
+    public val CheckedShape: Shape = ToggleButtonDefaults.CheckedShape
 
     private const val CheckedBackgroundColorTone = 70f
     private const val FocusedCheckedBackgroundColorTone = 82f
