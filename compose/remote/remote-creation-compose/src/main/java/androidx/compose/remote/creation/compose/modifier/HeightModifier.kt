@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+@file:JvmName("HeightModifierKt")
+@file:JvmMultifileClass
+
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -70,12 +72,3 @@ public fun RemoteModifier.fillParentMaxHeight(fraction: RemoteFloat = 1f.rf): Re
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.height(height: Int): RemoteModifier =
     then(HeightModifier(Type.EXACT, height.rf))
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteModifier.height(height: IntrinsicSize): RemoteModifier {
-    return if (height == IntrinsicSize.Min) {
-        then(HeightModifier(Type.INTRINSIC_MIN, RemoteFloat(0f)))
-    } else {
-        then(HeightModifier(Type.INTRINSIC_MAX, RemoteFloat(0f)))
-    }
-}
