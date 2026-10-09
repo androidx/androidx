@@ -20,6 +20,9 @@ import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.PaintingStyle
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
@@ -105,6 +108,29 @@ internal fun BlendMode.toInt(): Int {
         else -> PaintBundle.BLEND_MODE_SRC_OVER
     }
 }
+
+internal fun StrokeCap.toInt(): Int =
+    when (this) {
+        StrokeCap.Butt -> 0
+        StrokeCap.Round -> 1
+        StrokeCap.Square -> 2
+        else -> 0
+    }
+
+internal fun StrokeJoin.toInt(): Int =
+    when (this) {
+        StrokeJoin.Miter -> 0
+        StrokeJoin.Round -> 1
+        StrokeJoin.Bevel -> 2
+        else -> 0
+    }
+
+internal fun PaintingStyle.toInt(): Int =
+    when (this) {
+        PaintingStyle.Fill -> PaintBundle.STYLE_FILL
+        PaintingStyle.Stroke -> PaintBundle.STYLE_STROKE
+        else -> PaintBundle.STYLE_FILL
+    }
 
 internal fun LineBreak.encode(): Int =
     when (this.strategy) {

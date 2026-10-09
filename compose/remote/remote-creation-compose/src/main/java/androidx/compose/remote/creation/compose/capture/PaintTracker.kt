@@ -17,14 +17,9 @@
 
 package androidx.compose.remote.creation.compose.capture
 
-import android.annotation.SuppressLint
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
-import androidx.compose.remote.creation.compose.layout.toAndroidCap
-import androidx.compose.remote.creation.compose.layout.toAndroidJoin
-import androidx.compose.remote.creation.compose.layout.toAndroidStyle
-import androidx.compose.remote.creation.compose.layout.toComposeBlendMode
 import androidx.compose.remote.creation.compose.layout.toInt
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.state.ComposeRemoteColorFilter
@@ -35,8 +30,8 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.combineFontSettings
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.BlendModeColorFilter
 import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontVariation
 
@@ -86,7 +81,6 @@ internal class PaintTracker {
         return newValue
     }
 
-    @SuppressLint("ObsoleteSdkInt")
     fun updateWithPaint(
         newPaint: RemotePaint,
         paintBundle: PaintBundle,
@@ -131,19 +125,19 @@ internal class PaintTracker {
                 paintBundle.setStrokeWidth(it)
             }
 
-        val targetCap = newPaint.strokeCap.toAndroidCap().ordinal
+        val targetCap = newPaint.strokeCap.toInt()
         updateIfChanged(targetCap, strokeCap) {
             strokeCap = targetCap
             paintBundle.setStrokeCap(targetCap)
         }
 
-        val targetJoin = newPaint.strokeJoin.toAndroidJoin().ordinal
+        val targetJoin = newPaint.strokeJoin.toInt()
         updateIfChanged(targetJoin, strokeJoin) {
             strokeJoin = targetJoin
             paintBundle.setStrokeJoin(targetJoin)
         }
 
-        val targetStyle = newPaint.style.toAndroidStyle().ordinal
+        val targetStyle = newPaint.style.toInt()
         updateIfChanged(targetStyle, style) {
             style = targetStyle
             paintBundle.setStyle(targetStyle)
@@ -229,14 +223,14 @@ internal class PaintTracker {
                 }
 
                 is ComposeRemoteColorFilter -> {
-                    val native = targetColorFilter.composeColorFilter.asAndroidColorFilter()
-                    if (native is android.graphics.BlendModeColorFilter) {
+                    val composeColorFilter = targetColorFilter.composeColorFilter
+                    if (composeColorFilter is BlendModeColorFilter) {
                         paintBundle.setColorFilter(
-                            native.color,
-                            native.mode.toComposeBlendMode().toInt(),
+                            composeColorFilter.color.toArgb(),
+                            composeColorFilter.blendMode.toInt(),
                         )
                     } else {
-                        TODO("Native color filter not supported: " + native)
+                        TODO("Native color filter not supported: $composeColorFilter")
                     }
                 }
             }
