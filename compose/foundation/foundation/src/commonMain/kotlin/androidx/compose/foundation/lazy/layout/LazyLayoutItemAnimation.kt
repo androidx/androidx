@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -141,7 +142,7 @@ internal sealed interface LazyLayoutItemAnimation {
     }
 }
 
-private class StateBasedLazyLayoutItemAnimation(
+internal class StateBasedLazyLayoutItemAnimation(
     private val coroutineScope: CoroutineScope,
     private val graphicsContext: GraphicsContext,
     private val onLayerPropertyChanged: () -> Unit = {},
@@ -157,17 +158,15 @@ private class StateBasedLazyLayoutItemAnimation(
     override var enterTransition: EnterTransition? = null
     override var exitTransition: ExitTransition? = null
     override var placementSpec: FiniteAnimationSpec<IntOffset>? = null
+    var itemSize: IntSize = IntSize.Zero
 
     private var transitionState by mutableStateOf(TransitionState.New)
 
     private var transitionJob: Job? = null
 
-    private val fadeAnimation = EnterExitFadeAnimation { alpha ->
-        layer?.let {
-            it.alpha = alpha
-            onLayerPropertyChanged()
-        }
-    }
+    private val fadeAnimation = EnterExitFadeAnimation(::updateLayerProperties)
+
+    private val slideAnimation = EnterExitSlideAnimation(::updateLayerProperties)
 
     override var isRunningMovingAwayAnimation = false
         private set
@@ -197,6 +196,9 @@ private class StateBasedLazyLayoutItemAnimation(
 
     override var placementDelta by mutableStateOf(IntOffset.Zero)
         private set
+
+    private val containerSize
+        get() = layer?.size?.takeIf { it != IntSize.Zero } ?: itemSize
 
     override fun applyScrollOffset(offset: IntOffset) {
         targetOffset += offset
@@ -253,16 +255,23 @@ private class StateBasedLazyLayoutItemAnimation(
 
     override fun animateEnterTransition() {
         if (layer == null || transitionState == TransitionState.Entering) return
+        val config = enterTransition?.config
+        val size = containerSize
         runTransition(TransitionState.Entering, TransitionState.Placed) {
-            launchUndispatched { fadeAnimation.animateFadeIn(enterTransition?.config?.fade) }
+            launchUndispatched { fadeAnimation.animateFadeIn(config?.fade) }
+            launchUndispatched { slideAnimation.animateSlideIn(config?.slide, size) }
         }
     }
 
     override fun animateExitTransition() {
         if (layer == null || transitionState == TransitionState.Exiting) return
         val config = exitTransition?.config
+        val size = containerSize
         runTransition(TransitionState.Exiting, TransitionState.Finished) {
             launchUndispatched { fadeAnimation.animateFadeOut(config?.fade) }
+            launchUndispatched {
+                slideAnimation.animateSlideOut(config?.slide, size, { IntOffset.Zero })
+            }
         }
     }
 
@@ -273,9 +282,11 @@ private class StateBasedLazyLayoutItemAnimation(
     ) {
         transitionJob?.cancel()
         transitionState = startState
+        updateLayerProperties()
         transitionJob = coroutineScope.launchUndispatched {
             coroutineScope { animations() }
             transitionState = endState
+            updateLayerProperties()
         }
     }
 
@@ -292,6 +303,7 @@ private class StateBasedLazyLayoutItemAnimation(
         job?.cancel()
         transitionState = TransitionState.New
         fadeAnimation.release()
+        slideAnimation.release()
         isRunningMovingAwayAnimation = false
         placementDelta = IntOffset.Zero
         targetOffset = NotInitialized
@@ -300,10 +312,22 @@ private class StateBasedLazyLayoutItemAnimation(
         enterTransition = null
         exitTransition = null
         placementSpec = null
+        itemSize = IntSize.Zero
+    }
+
+    private fun updateLayerProperties() {
+        val layer = layer ?: return
+        val offset = slideAnimation.value ?: IntOffset.Zero
+
+        layer.alpha = fadeAnimation.value ?: 1f
+        layer.translationX = offset.x.toFloat()
+        layer.translationY = offset.y.toFloat()
+
+        onLayerPropertyChanged()
     }
 }
 
-private class BooleanBasedLazyLayoutItemAnimation(
+internal class BooleanBasedLazyLayoutItemAnimation(
     private val coroutineScope: CoroutineScope,
     private val graphicsContext: GraphicsContext,
     private val onLayerPropertyChanged: () -> Unit = {},

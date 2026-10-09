@@ -18,7 +18,6 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.collection.mutableScatterMapOf
 import androidx.collection.mutableScatterSetOf
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.translate
@@ -69,7 +68,6 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
      *
      * Note that this method can compose new item and add it into the [positionedItems] list.
      */
-    @OptIn(ExperimentalFoundationApi::class)
     fun onMeasured(
         consumedScroll: Int,
         layoutWidth: Int,
@@ -195,7 +193,10 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                         if (shouldAnimateAppearance) {
                             itemInfo.animations.forEach {
                                 if (it != null) {
-                                    if (it.isDisappearanceAnimationInProgress) {
+                                    if (
+                                        it.isDisappearanceAnimationInProgress ||
+                                            it.isDisappearanceAnimationFinished
+                                    ) {
                                         disappearingItems.remove(it)
                                         displayingNode?.invalidateDraw()
                                     }
@@ -408,6 +409,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             }
             keyToItemInfoMap.clear()
         }
+        disappearingItems.fastForEach { it.release() }
+        disappearingItems.clear()
     }
 
     private fun initializeAnimation(
@@ -577,6 +580,13 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                     animation.enterTransition = specs.enterTransition
                     animation.exitTransition = specs.exitTransition
                     animation.placementSpec = specs.placementSpec
+                    when (animation) {
+                        is BooleanBasedLazyLayoutItemAnimation -> Unit
+                        is StateBasedLazyLayoutItemAnimation -> {
+                            val placeable = positionedItem.placeables[index]
+                            animation.itemSize = IntSize(placeable.width, placeable.height)
+                        }
+                    }
                 }
             }
         }
@@ -585,6 +595,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
     fun DrawScope.onDrawDisappearingItems() {
         disappearingItems.fastForEach {
             val layer = it.layer ?: return@fastForEach
+            if (it.isDisappearanceAnimationFinished) return@fastForEach
             val x = it.placementOffset.x.toFloat()
             val y = it.placementOffset.y.toFloat()
             translate(x - layer.topLeft.x.toFloat(), y - layer.topLeft.y.toFloat()) {
