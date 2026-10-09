@@ -87,7 +87,6 @@ PLandroidx/wear/compose/material3/IconToggleButtonKt**->**(**)**
 PLandroidx/wear/compose/material3/IconToggleButtonShapes;->**(**)**
 Landroidx/wear/compose/material3/IndicatorState;
 SPLandroidx/wear/compose/material3/InteractiveComponentSizeKt**->**(**)**
-PLandroidx/wear/compose/material3/KeepScreenOnKt**->**(**)**
 PLandroidx/wear/compose/material3/LevelIndicatorColors;->**(**)**
 PLandroidx/wear/compose/material3/LevelIndicatorDefaults;->**(**)**
 PLandroidx/wear/compose/material3/LevelIndicatorKt**->**(**)**

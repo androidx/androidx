@@ -17,6 +17,7 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,6 +29,7 @@ import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
@@ -71,6 +73,23 @@ class ConfirmationDialogTest {
             ) {}
         }
         rule.onNodeWithTag(TEST_TAG).assertExists()
+    }
+
+    @Test
+    fun confirmationDialog_keepsScreenOn_whenVisible() {
+        var dialogView: View? = null
+        rule.setContentWithTheme {
+            ConfirmationDialog(
+                visible = true,
+                onDismissRequest = {},
+                text = {},
+            ) {
+                dialogView = LocalView.current
+            }
+        }
+        rule.runOnIdle {
+            Assert.assertTrue(dialogView?.keepScreenOn == true)
+        }
     }
 
     @Test

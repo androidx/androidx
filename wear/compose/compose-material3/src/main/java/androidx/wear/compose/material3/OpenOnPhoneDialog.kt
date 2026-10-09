@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.keepScreenOn
 import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -116,12 +117,6 @@ public fun OpenOnPhoneDialog(
     durationMillis: Long = OpenOnPhoneDialogDefaults.DurationMillis,
     content: @Composable () -> Unit = { OpenOnPhoneDialogDefaults.Icon() },
 ) {
-    if (visible) {
-        // This will activate the screen-on flag for the duration of this screen, so that the
-        // animations run to completion and then the dialog self-dismisses.
-        KeepScreenOn()
-    }
-
     val a11yFullDurationMillis =
         LocalAccessibilityManager.current?.calculateRecommendedTimeoutMillis(
             originalTimeoutMillis = durationMillis,
@@ -138,7 +133,7 @@ public fun OpenOnPhoneDialog(
     }
     Dialog(
         visible = visible,
-        modifier = modifier,
+        modifier = modifier.keepScreenOn(),
         onDismissRequest = onDismissRequest,
         properties = properties,
     ) {
