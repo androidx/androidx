@@ -21,9 +21,7 @@ import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.annotation.RequiresApi
 
-@RequiresApi(23)
 internal class FloatingTextActionModeCallback(private val callback: TextActionModeCallback) :
     ActionMode.Callback2() {
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {

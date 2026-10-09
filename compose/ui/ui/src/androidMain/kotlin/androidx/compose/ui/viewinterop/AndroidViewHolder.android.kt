@@ -19,7 +19,6 @@ package androidx.compose.ui.viewinterop
 import android.content.Context
 import android.graphics.Rect as AndroidRect
 import android.graphics.Region
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
@@ -345,15 +344,6 @@ internal open class AndroidViewHolder(
         } else {
             // when not drawing, we can invalidate any time and not risk multiple draws, we don't
             // defer to avoid waiting a full frame to draw content.
-            layoutNode.invalidateLayer()
-        }
-    }
-
-    override fun onWindowVisibilityChanged(visibility: Int) {
-        super.onWindowVisibilityChanged(visibility)
-        // On Lollipop, when the Window becomes visible, child Views need to be explicitly
-        // invalidated for some reason.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M && visibility == View.VISIBLE) {
             layoutNode.invalidateLayer()
         }
     }

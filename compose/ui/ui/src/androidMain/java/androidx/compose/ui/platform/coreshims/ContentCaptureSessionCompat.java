@@ -18,7 +18,6 @@ package androidx.compose.ui.platform.coreshims;
 
 import static android.os.Build.VERSION.SDK_INT;
 
-import android.os.Bundle;
 import android.view.View;
 import android.view.ViewStructure;
 import android.view.autofill.AutofillId;
@@ -254,7 +253,7 @@ public class ContentCaptureSessionCompat implements ContentCaptureSessionWrapper
         } else if (SDK_INT >= 29) {
             ViewStructure treeAppearing = Api29Impl.newViewStructure(
                     (ContentCaptureSession) mWrappedObj, mView);
-            Api23Impl.getExtras(treeAppearing).putBoolean(KEY_VIEW_TREE_APPEARING, true);
+            treeAppearing.getExtras().putBoolean(KEY_VIEW_TREE_APPEARING, true);
             Api29Impl.notifyViewAppeared((ContentCaptureSession) mWrappedObj, treeAppearing);
 
             for (int i = 0; i < appearedNodes.size(); i++) {
@@ -264,7 +263,7 @@ public class ContentCaptureSessionCompat implements ContentCaptureSessionWrapper
 
             ViewStructure treeAppeared = Api29Impl.newViewStructure(
                     (ContentCaptureSession) mWrappedObj, mView);
-            Api23Impl.getExtras(treeAppeared).putBoolean(KEY_VIEW_TREE_APPEARED, true);
+            treeAppeared.getExtras().putBoolean(KEY_VIEW_TREE_APPEARED, true);
             Api29Impl.notifyViewAppeared((ContentCaptureSession) mWrappedObj, treeAppeared);
         }
     }
@@ -295,7 +294,7 @@ public class ContentCaptureSessionCompat implements ContentCaptureSessionWrapper
         } else if (SDK_INT >= 29) {
             ViewStructure treeAppearing = Api29Impl.newViewStructure(
                     (ContentCaptureSession) mWrappedObj, mView);
-            Api23Impl.getExtras(treeAppearing).putBoolean(KEY_VIEW_TREE_APPEARING, true);
+            treeAppearing.getExtras().putBoolean(KEY_VIEW_TREE_APPEARING, true);
             Api29Impl.notifyViewAppeared((ContentCaptureSession) mWrappedObj, treeAppearing);
 
             Api29Impl.notifyViewsDisappeared(
@@ -305,7 +304,7 @@ public class ContentCaptureSessionCompat implements ContentCaptureSessionWrapper
 
             ViewStructure treeAppeared = Api29Impl.newViewStructure(
                     (ContentCaptureSession) mWrappedObj, mView);
-            Api23Impl.getExtras(treeAppeared).putBoolean(KEY_VIEW_TREE_APPEARED, true);
+            treeAppeared.getExtras().putBoolean(KEY_VIEW_TREE_APPEARED, true);
             Api29Impl.notifyViewAppeared((ContentCaptureSession) mWrappedObj, treeAppeared);
         }
     }
@@ -382,16 +381,5 @@ public class ContentCaptureSessionCompat implements ContentCaptureSessionWrapper
             contentCaptureSession.notifyViewTextChanged(id, charSequence);
 
         }
-    }
-    @RequiresApi(23)
-    private static class Api23Impl {
-        private Api23Impl() {
-            // This class is not instantiable.
-        }
-
-        static Bundle getExtras(ViewStructure viewStructure) {
-            return viewStructure.getExtras();
-        }
-
     }
 }

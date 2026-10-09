@@ -52,9 +52,7 @@ internal fun NullableInputConnectionWrapper(
             NullableInputConnectionWrapperApi34(delegate, onConnectionClosed)
         Build.VERSION.SDK_INT >= 25 ->
             NullableInputConnectionWrapperApi25(delegate, onConnectionClosed)
-        Build.VERSION.SDK_INT >= 24 ->
-            NullableInputConnectionWrapperApi24(delegate, onConnectionClosed)
-        else -> NullableInputConnectionWrapperApi21(delegate, onConnectionClosed)
+        else -> NullableInputConnectionWrapperApi24(delegate, onConnectionClosed)
     }
 
 /**
@@ -173,7 +171,6 @@ private open class NullableInputConnectionWrapperApi21(
     protected open fun closeDelegate(delegate: InputConnection) {}
 }
 
-@RequiresApi(24)
 private open class NullableInputConnectionWrapperApi24(
     delegate: InputConnection,
     onConnectionClosed: (NullableInputConnectionWrapper) -> Unit,

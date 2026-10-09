@@ -33,7 +33,6 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.BAKLAVA
 import android.os.Build.VERSION_CODES.CINNAMON_BUN
 import android.os.Build.VERSION_CODES.M
-import android.os.Build.VERSION_CODES.N
 import android.os.Build.VERSION_CODES.O
 import android.os.Build.VERSION_CODES.Q
 import android.os.Build.VERSION_CODES.S
@@ -1352,8 +1351,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      * more details.
      */
     override fun dispatchProvideStructure(structure: ViewStructure) {
-        if (SDK_INT in 23..27) {
-            Api23Impl.setClassName(structure, view)
+        if (SDK_INT in 24..27) {
+            structure.setClassName(view.accessibilityClassName.toString())
         } else {
             super.dispatchProvideStructure(structure)
         }
@@ -1834,21 +1833,12 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 decorationSize = decorationSize,
                 drawDragDecoration = drawDragDecoration,
             )
-        @Suppress("DEPRECATION")
-        return if (SDK_INT >= N) {
-            Api24Impl.startDragAndDrop(
-                view = this,
-                transferData = transferData,
-                dragShadowBuilder = shadowBuilder,
-            )
-        } else {
-            startDrag(
-                transferData.clipData,
-                shadowBuilder,
-                transferData.localState,
-                transferData.flags,
-            )
-        }
+        return startDragAndDrop(
+            transferData.clipData,
+            shadowBuilder,
+            transferData.localState,
+            transferData.flags,
+        )
     }
 
     private fun clearChildInvalidObservations(viewGroup: ViewGroup) {
@@ -3641,7 +3631,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             event.rawY != lastEvent.rawY
     }
 
-    @RequiresApi(N)
     override fun onResolvePointerIcon(
         event: MotionEvent,
         pointerIndex: Int,
@@ -3654,7 +3643,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         ) {
             val icon = pointerIconService.getStylusHoverIcon()
             if (icon != null) {
-                return Api24Impl.toAndroidPointerIcon(context, icon)
+                return toAndroidPointerIcon(context, icon)
             }
         }
         // TODO: This will cause a class verification error on M and earlier
@@ -3672,8 +3661,9 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
             override fun setIcon(value: PointerIcon?) {
                 currentMouseCursorIcon = value ?: PointerIcon.Default
-                if (SDK_INT >= N) {
-                    Api24Impl.setPointerIcon(this@AndroidComposeView, currentMouseCursorIcon)
+                val iconToSet = toAndroidPointerIcon(context, currentMouseCursorIcon)
+                if (pointerIcon != iconToSet) {
+                    pointerIcon = iconToSet
                 }
             }
 
@@ -4333,55 +4323,16 @@ private object Api21Impl {
     }
 }
 
-@SuppressLint("ObsoleteSdkInt")
-@RequiresApi(23)
-private object Api23Impl {
-    @JvmStatic
-    @DoNotInline
-    fun setClassName(structure: ViewStructure, view: View) {
-        structure.setClassName(view.accessibilityClassName.toString())
+private fun toAndroidPointerIcon(context: Context, icon: PointerIcon?): android.view.PointerIcon =
+    when (icon) {
+        is AndroidPointerIcon -> icon.pointerIcon
+        is AndroidPointerIconType -> android.view.PointerIcon.getSystemIcon(context, icon.type)
+        else ->
+            android.view.PointerIcon.getSystemIcon(
+                context,
+                android.view.PointerIcon.TYPE_DEFAULT,
+            )
     }
-}
-
-@RequiresApi(24)
-private object Api24Impl {
-    @JvmStatic
-    @DoNotInline
-    fun toAndroidPointerIcon(context: Context, icon: PointerIcon?): android.view.PointerIcon =
-        when (icon) {
-            is AndroidPointerIcon -> icon.pointerIcon
-            is AndroidPointerIconType -> android.view.PointerIcon.getSystemIcon(context, icon.type)
-            else ->
-                android.view.PointerIcon.getSystemIcon(
-                    context,
-                    android.view.PointerIcon.TYPE_DEFAULT,
-                )
-        }
-
-    @JvmStatic
-    @DoNotInline
-    fun setPointerIcon(view: View, icon: PointerIcon?) {
-        val iconToSet = toAndroidPointerIcon(view.context, icon)
-
-        if (view.pointerIcon != iconToSet) {
-            view.pointerIcon = iconToSet
-        }
-    }
-
-    @JvmStatic
-    @DoNotInline
-    fun startDragAndDrop(
-        view: View,
-        transferData: DragAndDropTransferData,
-        dragShadowBuilder: ComposeDragShadowBuilder,
-    ): Boolean =
-        view.startDragAndDrop(
-            transferData.clipData,
-            dragShadowBuilder,
-            transferData.localState,
-            transferData.flags,
-        )
-}
 
 @RequiresApi(26)
 private object Api26Impl {
