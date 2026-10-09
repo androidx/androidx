@@ -454,7 +454,7 @@ class BackupRestoreControllerImplTest {
         backupServiceResult = BackupResult.Error(ErrorCode.APP_NOT_INSTALLED, failure)
 
         val e =
-            assertFailsWith<IOException> {
+            assertFailsWith<BackupRestoreException> {
                 runBlocking {
                     controller.performBackup(BackupTransportMode.CLOUD_ENCRYPTED, outputDir())
                 }
@@ -462,6 +462,7 @@ class BackupRestoreControllerImplTest {
 
         assertEquals("$PACKAGE is not installed", e.message)
         assertSame(failure, e.rootCause())
+        assertEquals(BackupErrorCode.BACKUP_FAILED, e.errorCode)
     }
 
     @Test
@@ -470,10 +471,14 @@ class BackupRestoreControllerImplTest {
         restoreServiceResult = BackupResult.Error(ErrorCode.INVALID_BACKUP_FILE, failure)
         val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
 
-        val e = assertFailsWith<IOException> { runBlocking { controller.performRestore(archive) } }
+        val e =
+            assertFailsWith<BackupRestoreException> {
+                runBlocking { controller.performRestore(archive) }
+            }
 
         assertEquals("File is not a valid backup", e.message)
         assertSame(failure, e.rootCause())
+        assertEquals(BackupErrorCode.RESTORE_FAILED, e.errorCode)
     }
 
     @Test
@@ -608,11 +613,12 @@ class BackupRestoreControllerImplTest {
         val archive = tempFolder.newFile("backup_local_device.zip").toPath()
 
         val e =
-            assertFailsWith<IOException> {
+            assertFailsWith<BackupRestoreException> {
                 runBlocking { controller.performRestore(archive, SHORT_TIMEOUT) }
             }
 
         assertEquals("Restore timed out after 200ms", e.message)
+        assertEquals(BackupErrorCode.RESTORE_POLL_TIMEOUT, e.errorCode)
         assertEquals("am force-stop $PACKAGE", device.commands.last())
     }
 
@@ -751,10 +757,12 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
-    fun flowClassifiesARestoreBmgrFailure() {
+    fun flowClassifiesAFailureToSelectTheLocalTransportForTheRestoreAsABmgrFailure() {
+        var transportSelections = 0
         onHealthyDevice { command ->
-            if (command.startsWith("bmgr restore")) {
-                throw IOException("bmgr: transport initialization error")
+            // The backup selects the local transport first; the restore's selection fails.
+            if (command == "bmgr transport '$LOCAL_TRANSPORT'" && ++transportSelections == 2) {
+                shellOutput("Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n")
             } else {
                 null
             }
@@ -765,6 +773,24 @@ class BackupRestoreControllerImplTest {
         }
 
         assertFailure(BackupExecutionStage.RESTORE, BackupErrorCode.BMGR_INIT_FAILED)
+    }
+
+    /** The cause comes from the step that failed, not from words in the message. */
+    @Test
+    fun flowClassifiesAFailedRestoreCommandAsARestoreFailureWhateverItsMessage() {
+        onHealthyDevice { command ->
+            if (command.startsWith("bmgr restore")) {
+                throw IOException("bmgr: transport initialization error, timed out polling")
+            } else {
+                null
+            }
+        }
+
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.RESTORE, BackupErrorCode.RESTORE_FAILED)
     }
 
     @Test
@@ -846,7 +872,7 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
-    fun flowClassifiesARestorePollingTimeout() {
+    fun flowClassifiesAFailureWhileWaitingForTheLocalRestoreAsARestoreFailure() {
         onHealthyDevice { command ->
             if (command == "dumpsys backup") {
                 throw IOException("RESTORE POLLING TIMED OUT WAITING FOR COMPLETION")
@@ -859,7 +885,57 @@ class BackupRestoreControllerImplTest {
             runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
         }
 
-        assertFailure(BackupExecutionStage.RESTORE, BackupErrorCode.RESTORE_POLL_TIMEOUT)
+        assertFailure(BackupExecutionStage.RESTORE, BackupErrorCode.RESTORE_FAILED)
+    }
+
+    /** The message of this backup service error names neither GmsCore nor the Play Store. */
+    @Test
+    fun flowClassifiesAnOutdatedGmsCoreByTheErrorCodeOfTheBackupService() {
+        onHealthyDevice()
+        backupServiceResult =
+            BackupResult.Error(
+                ErrorCode.GMSCORE_IS_TOO_OLD,
+                BackupException(ErrorCode.GMSCORE_IS_TOO_OLD, "Google Services are outdated"),
+            )
+
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), CLOUD) }
+        }
+
+        assertFailure(BackupExecutionStage.BACKUP, BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING)
+    }
+
+    /** The error code decides the cause, even though the message says "Timed out". */
+    @Test
+    fun flowClassifiesATransportFailureByTheErrorCodeOfTheBackupService() {
+        onHealthyDevice()
+        restoreServiceResult =
+            BackupResult.Error(
+                ErrorCode.TRANSPORT_NOT_SELECTED,
+                BackupException(
+                    ErrorCode.TRANSPORT_NOT_SELECTED,
+                    "Timed out when setting transport",
+                ),
+            )
+
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), CLOUD) }
+        }
+
+        assertFailure(BackupExecutionStage.RESTORE, BackupErrorCode.BMGR_INIT_FAILED)
+    }
+
+    @Test
+    fun flowClassifiesAnyOtherErrorOfTheBackupServiceByItsStage() {
+        onHealthyDevice()
+        backupServiceResult =
+            BackupResult.Error(ErrorCode.UNEXPECTED_ERROR, IOException("bmgr transport GmsCore"))
+
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), CLOUD) }
+        }
+
+        assertFailure(BackupExecutionStage.BACKUP, BackupErrorCode.BACKUP_FAILED)
     }
 
     @Test
@@ -1049,6 +1125,7 @@ class BackupRestoreControllerImplTest {
         const val RUNNER = "androidx.test.backup.BackupRestoreTestRunner"
         const val RESULT_MARKER = "BACKUP_RESTORE_RESULT: "
         val LOCAL = BackupTransportMode.LOCAL
+        val CLOUD = BackupTransportMode.CLOUD_ENCRYPTED
         val PREFERENCE = StorageDomain.Preference("app_prefs", "key", "val")
         val SHORT_TIMEOUT: Duration = Duration.ofMillis(200)
 
