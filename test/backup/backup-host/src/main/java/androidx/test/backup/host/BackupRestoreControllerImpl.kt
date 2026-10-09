@@ -20,6 +20,7 @@ import com.android.adblib.AdbSession
 import com.android.backup.BackupResult
 import com.android.backup.BackupService as Service
 import com.android.backup.BackupType as ServiceType
+import com.android.backup.ErrorCode
 import com.google.common.util.concurrent.ListenableFuture
 import java.io.File
 import java.io.IOException
@@ -313,7 +314,7 @@ internal class BackupRestoreControllerImpl(
                         "does not allow backups (android:allowBackup=\"false\")"
                 )
             }
-            is BackupResult.Error -> throw asIOException(result.throwable)
+            is BackupResult.Error -> throw serviceFailure(result, BackupErrorCode.BACKUP_FAILED)
         }
     }
 
@@ -322,7 +323,10 @@ internal class BackupRestoreControllerImpl(
         timeout: Duration,
     ): BackupRestoreController {
         withinTimeout(timeout) { restore(backupFile, timeout) }
-            ?: throw IOException("Restore timed out after ${timeout.toKotlinDuration()}")
+            ?: throw BackupRestoreException(
+                BackupErrorCode.RESTORE_POLL_TIMEOUT,
+                "Restore timed out after ${timeout.toKotlinDuration()}",
+            )
         return this
     }
 
@@ -351,7 +355,7 @@ internal class BackupRestoreControllerImpl(
                 throw IOException(
                     "Restore of $applicationId from ${backupFile.fileName} restored no app data"
                 )
-            is BackupResult.Error -> throw asIOException(result.throwable)
+            is BackupResult.Error -> throw serviceFailure(result, BackupErrorCode.RESTORE_FAILED)
         }
     }
 
@@ -587,16 +591,37 @@ internal class BackupRestoreControllerImpl(
             )
 
         /**
-         * Returns [failure] of the backup service as the [IOException] that
-         * [BackupRestoreController] documents, with the same message. Cancellations and errors are
+         * Returns [error] of the backup service as the [IOException] that [BackupRestoreController]
+         * documents: a [BackupRestoreException] with the message of the failure, and the cause that
+         * the error code of the service names, or else [fallback]. Cancellations and errors are
          * returned unchanged, so a timeout still cancels the call.
          */
-        fun asIOException(failure: Throwable): Throwable =
-            when (failure) {
-                is IOException,
+        fun serviceFailure(error: BackupResult.Error, fallback: BackupErrorCode): Throwable =
+            when (val failure = error.throwable) {
                 is CancellationException,
                 is Error -> failure
-                else -> IOException(failure.message, failure)
+                else ->
+                    BackupRestoreException(
+                        causeOf(error.errorCode) ?: fallback,
+                        failure.message,
+                        failure,
+                    )
+            }
+
+        /** Returns the cause that [errorCode] of the backup service names, if it names one. */
+        private fun causeOf(errorCode: ErrorCode): BackupErrorCode? =
+            when (errorCode) {
+                ErrorCode.GMSCORE_NOT_FOUND,
+                ErrorCode.GMSCORE_IS_TOO_OLD,
+                ErrorCode.GMSCORE_IS_TOO_OLD_NO_PLAY_STORE,
+                ErrorCode.PLAY_STORE_NOT_INSTALLED -> BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING
+                ErrorCode.CANNOT_ENABLE_BMGR,
+                ErrorCode.BACKUP_NOT_SUPPORTED,
+                ErrorCode.BACKUP_NOT_ACTIVATED,
+                ErrorCode.BACKUP_MANAGER_IS_NOT_RUNNING,
+                ErrorCode.TRANSPORT_NOT_SELECTED,
+                ErrorCode.TRANSPORT_INIT_FAILED -> BackupErrorCode.BMGR_INIT_FAILED
+                else -> null
             }
 
         fun backupFileName(mode: BackupTransportMode): String =
