@@ -16,25 +16,15 @@
 
 package androidx.biometric.internal.viewmodel
 
-import androidx.biometric.internal.data.AuthenticationStateRepository
-import androidx.biometric.internal.data.PromptConfigRepository
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-/**
- * A [ViewModelProvider.Factory] that can create instances of [AuthenticationViewModel].
- *
- * This is required because [AuthenticationViewModel] has a non-empty constructor.
- */
-internal class AuthenticationViewModelFactory() : ViewModelProvider.Factory {
+/** A [ViewModelProvider.Factory] that can create instances of [AuthenticationViewModel]. */
+internal class AuthenticationViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AuthenticationViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return AuthenticationViewModel(
-                PromptConfigRepository.instance,
-                AuthenticationStateRepository.instance,
-            )
-                as T
+            return AuthenticationViewModel() as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

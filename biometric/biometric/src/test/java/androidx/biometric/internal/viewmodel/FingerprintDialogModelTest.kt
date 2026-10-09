@@ -28,8 +28,8 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-class FingerprintDialogViewModelTest {
-    private val viewModel: FingerprintDialogViewModel = FingerprintDialogViewModel()
+class FingerprintDialogModelTest {
+    private val viewModel: FingerprintDialogModel = FingerprintDialogModel()
 
     @Test
     fun testInitialState() = runTest {

@@ -141,6 +141,7 @@ internal class AuthenticationManager(
         // reconnecting view models.
         val observer = LifecycleEventObserver { owner, event ->
             when (event) {
+                Lifecycle.Event.ON_CREATE,
                 Lifecycle.Event.ON_START -> {
                     startObservingAuth()
                 }
@@ -313,10 +314,10 @@ internal class AuthenticationManager(
      */
     @Suppress("WeakerAccess")
     private fun showPromptForAuthentication(showAuthentication: () -> Unit) {
-        showAuthentication()
-
         viewModel.isPromptShowing = true
         viewModel.isAwaitingResult = true
+
+        showAuthentication()
     }
 
     private companion object {

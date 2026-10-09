@@ -27,6 +27,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.biometric.internal.data.FakeAuthenticationStateRepository
 import androidx.biometric.internal.data.FakePromptConfigRepository
 import androidx.biometric.internal.viewmodel.AuthenticationViewModel
+import androidx.biometric.internal.viewmodel.FingerprintDialogModel
 import androidx.biometric.utils.DeviceUtils
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -45,7 +46,16 @@ class AuthenticationHandlerTest {
     private val promptRepository = FakePromptConfigRepository()
     private val authRepository = FakeAuthenticationStateRepository()
     private val viewModel: AuthenticationViewModel =
-        AuthenticationViewModel(promptRepository, authRepository)
+        AuthenticationViewModel(
+            promptRepository,
+            authRepository,
+            // These tests verify handler selection, not sensor availability. Robolectric has no
+            // fingerprint hardware, so a real pre-auth check would fail with ERROR_HW_NOT_PRESENT
+            // and immediately dismiss the handler under test.
+            FingerprintDialogModel(
+                fingerprintPreAuthChecker = { BiometricPrompt.BIOMETRIC_SUCCESS }
+            ),
+        )
     private val testLifecycleOwner = TestLifecycleOwner()
 
     private val bioAndCredentialInfo =
@@ -157,6 +167,38 @@ class AuthenticationHandlerTest {
 
         val handler2Recreated = createHandler()
         handler2Recreated.assertInternalHandlerIsNotNull()
+    }
+
+    @Test
+    fun init_resetsHandlerKeyOnDestroy_whenRotatedBeforeAuthenticate() {
+        val lifecycleOwner1 = TestLifecycleOwner()
+        lifecycleOwner1.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_CREATE)
+
+        val handler1Initial = createHandler(lifecycleOwner = lifecycleOwner1)
+        val handler2Initial = createHandler(lifecycleOwner = lifecycleOwner1)
+        assertThat(handler1Initial.key).isEqualTo(1)
+        assertThat(handler2Initial.key).isEqualTo(2)
+
+        // Rotate before authenticate() is ever called
+        lifecycleOwner1.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_DESTROY)
+
+        // Recreate handlers on new lifecycleOwner; keys should start from 1 again
+        val lifecycleOwner2 = TestLifecycleOwner()
+        lifecycleOwner2.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_CREATE)
+        val handler1Recreated = createHandler(lifecycleOwner = lifecycleOwner2)
+        val handler2Recreated = createHandler(lifecycleOwner = lifecycleOwner2)
+        assertThat(handler1Recreated.key).isEqualTo(1)
+        assertThat(handler2Recreated.key).isEqualTo(2)
+
+        // Start authentication on handler2Recreated and rotate again
+        handler2Recreated.authenticate(bioAndCredentialInfo, null)
+        lifecycleOwner2.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_DESTROY)
+
+        val lifecycleOwner3 = TestLifecycleOwner()
+        val handler1AfterSecondRotation = createHandler(lifecycleOwner = lifecycleOwner3)
+        val handler2AfterSecondRotation = createHandler(lifecycleOwner = lifecycleOwner3)
+        handler1AfterSecondRotation.assertInternalHandlerIsNull()
+        handler2AfterSecondRotation.assertInternalHandlerIsNotNull()
     }
 
     @Test
@@ -295,6 +337,7 @@ class AuthenticationHandlerTest {
         whenever(mockContext.packageManager).thenReturn(packageManager)
         whenever(mockContext.applicationContext).thenReturn(mockContext)
         whenever(mockContext.resources).thenReturn(resources)
+        whenever(mockContext.getString(anyInt())).thenReturn("")
         whenever(resources.getStringArray(anyInt())).thenReturn(emptyArray())
 
         whenever(mockContext.getSystemService(KeyguardManager::class.java))
@@ -312,13 +355,14 @@ class AuthenticationHandlerTest {
 
     private fun createHandler(
         context: Context = this.context,
+        lifecycleOwner: androidx.lifecycle.LifecycleOwner = this.testLifecycleOwner,
         onConfirmButtonClicked: () -> Unit = {},
         mainExecutor: Executor? = null,
         authenticationCallback: BiometricPrompt.AuthenticationCallback? = null,
     ): AuthenticationHandler =
         AuthenticationHandler.create(
             context,
-            testLifecycleOwner,
+            lifecycleOwner,
             viewModel,
             onConfirmButtonClicked,
             mainExecutor,
