@@ -59,6 +59,7 @@ import androidx.compose.remote.core.operations.DrawTweenPath
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.FloatFunctionCall
 import androidx.compose.remote.core.operations.FloatFunctionDefine
+import androidx.compose.remote.core.operations.HapticFeedback
 import androidx.compose.remote.core.operations.ImageAttribute
 import androidx.compose.remote.core.operations.MatrixRestore
 import androidx.compose.remote.core.operations.MatrixRotate
@@ -1418,6 +1419,10 @@ private fun DrawScope.executeOperationsInPass(
                     ComponentValue.HEIGHT -> remoteContext.loadFloat(op.getValueId(), h)
                 }
             }
+            // Performed on the host view through the document's haptic engine (see
+            // RcPlayerHapticEffect). It fires each time the stream runs it, so documents gate it
+            // with an impulse or conditional.
+            is HapticFeedback -> op.apply(remoteContext)
         }
     }
     // If a DRAW_TO_BITMAP redirect was left active (document didn't reset with bitmapId 0), restore
