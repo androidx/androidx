@@ -10,7 +10,7 @@ Enforces AndroidX conventions for formatting, updating APIs, drafting commit mes
 > [!IMPORTANT]
 > **CoG / Isolated Workspace Execution Directive (`/google/cog/cloud/...`)**:
 > In CoG workspaces, standard `repo` commands and standard repository-modifying `git` commands are **disabled or will fail** (`fatal: not a git repository`).
-> You **MUST ONLY** use the `gob_vcs` skill and its `cog_api.sh` script.
+> You **MUST ONLY** use the `gob_vcs` skill and its `cog_api.py` script.
 >
 > **NEVER run `repo upload`, `repo start`, `git status`, or `git commit` in a CoG workspace.**
 
