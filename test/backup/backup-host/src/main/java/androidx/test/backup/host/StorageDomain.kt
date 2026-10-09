@@ -108,8 +108,8 @@ public sealed class StorageDomain {
      *   record.
      * @property primaryKeyVal The value of the primary key used to identify the target record.
      *   Supported types are: String, Int, Long, Float, Double, Boolean.
-     * @property columnValues A Map of column names to their values to populate or verify. Supported
-     *   types are: String, Int, Long, Float, Double, Boolean, or null. It may include
+     * @property columnValues A non-empty Map of column names to their values to populate or verify.
+     *   Supported types are: String, Int, Long, Float, Double, Boolean, or null. It may include
      *   [primaryKeyCol], matched case-insensitively like SQLite column names, but only with a value
      *   whose string form equals that of [primaryKeyVal]; otherwise construction fails with an
      *   [IllegalArgumentException]. When it is omitted, [primaryKeyVal] is written to that column.
@@ -123,6 +123,9 @@ public sealed class StorageDomain {
     ) : StorageDomain() {
 
         init {
+            require(columnValues.isNotEmpty()) {
+                "Database columnValues must contain at least one column to populate and verify."
+            }
             require(isValidDatabaseType(primaryKeyVal)) {
                 "Unsupported Database primaryKeyVal type: ${primaryKeyVal.javaClass.name}. " +
                     "Supported types are: String, Int, Long, Float, Double, Boolean."

@@ -25,6 +25,7 @@ import java.io.IOException
 import java.nio.file.Path
 import java.time.Duration
 import java.util.Locale
+import java.util.UUID
 import java.util.logging.Logger
 import kotlin.time.Duration as KotlinDuration
 import kotlin.time.Duration.Companion.seconds
@@ -95,6 +96,8 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
      *
      * Targets [component] when it is not null, and otherwise lets the system resolve the intent
      * within [packageName].
+     *
+     * @throws IOException if the activity does not start
      */
     suspend fun startActivity(
         action: String,
@@ -116,7 +119,20 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
             }
         }
         logger.info("Launching app via am start: $command")
-        exec(command)
+        val output = exec(command)
+        // With -W, `am start` reports an activity that it did not start, such as one that does
+        // not exist, as an "Error" line on stdout, and still exits with 0. Outcomes that leave the
+        // activity running, such as bringing its task to the front, are "Warning" lines.
+        val started =
+            output.exitCode == 0 &&
+                output.stdout.lineSequence().none { it.trim().startsWith("Error") }
+        if (!started) {
+            throw commandFailure(
+                "Failed to start ${component ?: packageName} (exit code ${output.exitCode})",
+                output.stderr,
+                output.stdout,
+            )
+        }
     }
 
     /**
@@ -134,6 +150,36 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
         val component = Regex("""\b${Regex.escape(packageName)}/[a-zA-Z0-9._${'$'}]+\b""")
         return component.find(output)?.value
     }
+
+    /**
+     * Returns the instrumentations installed for [targetPackage], as `package/class` components
+     * with a fully qualified class.
+     */
+    suspend fun listInstrumentations(targetPackage: String): List<String> =
+        exec("pm list instrumentation ${quoteIfNeeded(targetPackage)}")
+            .stdout
+            .lineSequence()
+            .mapNotNull { INSTRUMENTATION_LINE.matchEntire(it.trim())?.destructured }
+            .filter { (_, _, target) -> target == targetPackage }
+            // pm abbreviates a class inside the instrumentation's package as ".<name>".
+            .map { (pkg, cls, _) -> if (cls.startsWith(".")) "$pkg/$pkg$cls" else "$pkg/$cls" }
+            .toList()
+
+    /**
+     * Returns the installed packages whose name contains [filter], as the sorted lines
+     * `package:<path of the base APK>=<package>` that `pm list packages -f` prints for them.
+     *
+     * The package manager installs each package at a new path, so the lines change whenever one of
+     * the packages is installed again.
+     */
+    suspend fun listPackagePaths(filter: String): List<String> =
+        exec("pm list packages -f ${quoteIfNeeded(filter)}")
+            .stdout
+            .lineSequence()
+            .map { it.trim() }
+            .filter { it.startsWith("package:") }
+            .sorted()
+            .toList()
 
     /**
      * Takes [packageName] out of the stopped state (`FLAG_STOPPED`).
@@ -177,10 +223,7 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
         // "Failed", or the exception that stopped it, on stderr with a non-zero exit code.
         // Continuing after a failed clear would restore onto the seeded data and let verification
         // pass without a restore having taken place.
-        val succeeded =
-            output.exitCode == 0 &&
-                output.stdout.lineSequence().any { it.trim().equals("Success", ignoreCase = true) }
-        if (!succeeded) {
+        if (!output.reportsSuccess()) {
             throw commandFailure(
                 "Failed to clear app data for $packageName (exit code ${output.exitCode})",
                 output.stderr,
@@ -192,18 +235,28 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
     /**
      * Installs [apkFile] with the package manager [options].
      *
-     * @throws IllegalStateException if the package manager does not report success
+     * @throws IOException if the package manager does not report success
      */
     suspend fun installPackage(apkFile: Path, options: List<String>) {
-        withCleanup(cleanup = { removeFile(STAGED_APK_PATH) }) {
+        // A path of its own, so that concurrent installs on the device cannot overwrite or delete
+        // each other's staged APK.
+        val stagedApk = "$STAGING_DIR/backup_test_${UUID.randomUUID()}.apk"
+        withCleanup(cleanup = { removeFile(stagedApk) }) {
             logger.info("Pushing APK: ${apkFile.toAbsolutePath()} to device staging area...")
-            pushFile(apkFile, STAGED_APK_PATH)
+            pushFile(apkFile, stagedApk)
 
             logger.info("Installing staged APK via pm install...")
             val flags = options.joinToString(" ") { quoteIfNeeded(it) }
-            val result = exec("pm install $flags ${quote(STAGED_APK_PATH)}")
-            if (!result.stdout.contains("Success", ignoreCase = true)) {
-                throw IllegalStateException("Failed to install APK: ${result.stdout.trim()}")
+            val output = exec("pm install $flags ${quote(stagedApk)}")
+            // `pm install` prints "Success" on stdout. It reports a rejected package as
+            // "Failure [<reason>]" on stdout, and an error such as an unreadable APK on stderr with
+            // a non-zero exit code.
+            if (!output.reportsSuccess()) {
+                throw commandFailure(
+                    "Failed to install $apkFile (exit code ${output.exitCode})",
+                    output.stderr,
+                    output.stdout,
+                )
             }
         }
     }
@@ -264,11 +317,28 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
         const val ACTION_MAIN = "android.intent.action.MAIN"
         const val CATEGORY_LAUNCHER = "android.intent.category.LAUNCHER"
 
-        private const val STAGED_APK_PATH = "/data/local/tmp/backup_test_temp.apk"
+        /** Where APKs are pushed before they are installed, which the package manager can read. */
+        private const val STAGING_DIR = "/data/local/tmp"
         private const val ACTIVITY_SETTLE_DELAY_MS = 500L
 
         /** `rwxrwxrwx`, so the package manager can read the staged file. */
         private val PUSHED_FILE_MODE = RemoteFileMode.fromModeBits(511)
+
+        /**
+         * A line of `pm list instrumentation`, which reads `instrumentation:<package>/<class>
+         * (target=<package>)`. A class in the instrumentation's own package can be shortened to
+         * `.<name>`.
+         */
+        private val INSTRUMENTATION_LINE =
+            Regex("""instrumentation:([^/\s]+)/(\S+) \(target=([^)\s]+)\)""")
+
+        /**
+         * Returns whether a package manager command succeeded: it exited with 0 and printed a
+         * `Success` line.
+         */
+        private fun ShellCommandOutput.reportsSuccess(): Boolean =
+            exitCode == 0 &&
+                stdout.lineSequence().any { it.trim().equals("Success", ignoreCase = true) }
 
         /**
          * Quotes [arg] as a single POSIX shell word, so the shell passes it through unchanged:

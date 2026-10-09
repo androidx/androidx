@@ -20,7 +20,6 @@ import com.android.adblib.AdbSession
 import com.android.backup.BackupResult
 import com.android.backup.BackupService as Service
 import com.android.backup.BackupType as ServiceType
-import com.android.tools.environment.Logger as PlatformLogger
 import com.google.common.util.concurrent.ListenableFuture
 import java.io.File
 import java.io.IOException
@@ -32,7 +31,9 @@ import java.util.logging.Logger
 import kotlin.time.Duration as KotlinDuration
 import kotlin.time.toKotlinDuration
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.guava.future
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 
 internal class BackupRestoreControllerImpl(
@@ -112,7 +113,11 @@ internal class BackupRestoreControllerImpl(
                 }
             }
         } catch (e: Exception) {
-            record(tracker.failed(e))
+            // A cancelled flow has no outcome to report. A CancellationException thrown while the
+            // flow is still active, such as the timeout of an inner withTimeout, is a failure.
+            if (e !is CancellationException || currentCoroutineContext().isActive) {
+                record(tracker.failed(e))
+            }
             throw e
         }
         val summary = tracker.succeeded()
@@ -192,7 +197,7 @@ internal class BackupRestoreControllerImpl(
     ): BackupActionResult {
         val stdout =
             shell.instrument(
-                BackupActionWireProtocol.runnerComponent(applicationId),
+                findRunner(),
                 BackupActionWireProtocol.instrumentationArgs(
                     actionClassName,
                     args,
@@ -220,7 +225,7 @@ internal class BackupRestoreControllerImpl(
                 else ->
                     report.inlinePayload.orEmpty().also {
                         logger.info("Executed $actionClassName on device.")
-                        if (it.isNotEmpty()) logger.info("Payload returned: $it")
+                        if (it.isNotEmpty()) logger.fine("Payload returned: $it")
                     }
             }
         return report.resultFor(payloadJson, actionClassName)
@@ -236,6 +241,24 @@ internal class BackupRestoreControllerImpl(
         } finally {
             localFile.delete()
         }
+    }
+
+    /**
+     * Returns the instrumentation component of the runner that is installed for the app: the only
+     * one, or else the one AGP gives the test APK.
+     *
+     * Without any installed runner, `am instrument` then reports that the test APK is missing.
+     */
+    private suspend fun findRunner(): String {
+        val defaultRunner = BackupActionWireProtocol.runnerComponent(applicationId)
+        val runners =
+            shell.listInstrumentations(applicationId).filter {
+                it.substringAfter('/') == BackupActionWireProtocol.RUNNER_CLASS
+            }
+        if (runners.size > 1 && defaultRunner !in runners) {
+            logger.warning("Several test APKs have a runner for $applicationId: $runners")
+        }
+        return runners.singleOrNull() ?: defaultRunner
     }
 
     override suspend fun performBackup(
@@ -290,7 +313,7 @@ internal class BackupRestoreControllerImpl(
                         "does not allow backups (android:allowBackup=\"false\")"
                 )
             }
-            is BackupResult.Error -> throw result.throwable
+            is BackupResult.Error -> throw asIOException(result.throwable)
         }
     }
 
@@ -324,8 +347,11 @@ internal class BackupRestoreControllerImpl(
         when (result) {
             is BackupResult.Success ->
                 logger.info("BackupService successfully executed production restore.")
-            is BackupResult.Error -> throw result.throwable
-            else -> logger.warning("Restore finished with result: $result")
+            is BackupResult.WithoutAppData ->
+                throw IOException(
+                    "Restore of $applicationId from ${backupFile.fileName} restored no app data"
+                )
+            is BackupResult.Error -> throw asIOException(result.throwable)
         }
     }
 
@@ -359,6 +385,15 @@ internal class BackupRestoreControllerImpl(
         shell.installPackage(apkFile, options)
         return this
     }
+
+    /**
+     * Returns the installed APK paths of the app and of the other packages whose name contains its
+     * application ID, such as its test APK, or null if none of them is installed.
+     *
+     * The paths change whenever one of these packages is installed again.
+     */
+    suspend fun installedApkPaths(): List<String>? =
+        shell.listPackagePaths(applicationId).ifEmpty { null }
 
     override suspend fun launchApp(
         activityClass: String?,
@@ -542,9 +577,22 @@ internal class BackupRestoreControllerImpl(
         fun createBackupService(adbSession: AdbSession): Service =
             Service.getInstance(
                 adbSession,
-                PlatformLogger.getInstance(BackupRestoreControllerImpl::class.java),
+                BackupServiceLogger(BackupRestoreControllerImpl::class.java.name),
                 MIN_GMS_VERSION,
             )
+
+        /**
+         * Returns [failure] of the backup service as the [IOException] that
+         * [BackupRestoreController] documents, with the same message. Cancellations and errors are
+         * returned unchanged, so a timeout still cancels the call.
+         */
+        fun asIOException(failure: Throwable): Throwable =
+            when (failure) {
+                is IOException,
+                is CancellationException,
+                is Error -> failure
+                else -> IOException(failure.message, failure)
+            }
 
         fun backupFileName(mode: BackupTransportMode): String =
             "backup_${mode.toString().lowercase(Locale.ROOT)}_device.zip"

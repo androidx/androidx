@@ -18,6 +18,7 @@ package androidx.test.backup
 
 import android.app.Instrumentation
 import android.os.Bundle
+import android.os.Debug
 import java.io.File
 import java.util.UUID
 
@@ -45,6 +46,9 @@ public class BackupRestoreTestRunner : Instrumentation() {
 
         /** The intent extra key representing the fully-qualified action class name to run. */
         private const val KEY_ACTION_CLASS = "actionClass"
+
+        /** The argument that, when "true", makes the runner wait for a debugger to attach. */
+        private const val KEY_DEBUG = "debug"
 
         /** The result bundle key enclosing the JSON-serialized execution outcome. */
         private const val KEY_RESULT_JSON = "resultJson"
@@ -81,6 +85,10 @@ public class BackupRestoreTestRunner : Instrumentation() {
         if (actionClassName == null) {
             reportResult(false, "No actionClass parameter specified.", null, null, null)
             return
+        }
+
+        if (args.getString(KEY_DEBUG).toBoolean()) {
+            Debug.waitForDebugger()
         }
 
         try {

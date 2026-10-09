@@ -17,8 +17,12 @@
 package androidx.test.backup.host
 
 import com.android.adblib.ShellCommandOutput
+import com.android.backup.BackupException
+import com.android.backup.BackupProgressListener
 import com.android.backup.BackupResult
 import com.android.backup.BackupService
+import com.android.backup.BackupType
+import com.android.backup.ErrorCode
 import java.io.IOException
 import java.nio.file.Path
 import java.time.Duration
@@ -28,14 +32,18 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.Rule
@@ -55,6 +63,9 @@ class BackupRestoreControllerImplTest {
 
     /** What every backup through the fake backup service ends with. */
     private var backupServiceResult: BackupResult = BackupResult.Success
+
+    /** What every restore through the fake backup service ends with. */
+    private var restoreServiceResult: BackupResult = BackupResult.Success
     private val controller =
         BackupRestoreControllerImpl(
             device.session,
@@ -79,7 +90,7 @@ class BackupRestoreControllerImplTest {
         val result = controller.runOnDevice("com.example.MyAction", mapOf("user_id" to "123"))
 
         assertEquals(BackupActionResult.Success(mapOf("user_id" to "123")), result)
-        val command = device.commands.single()
+        val command = instrumentCommand()
         assertTrue(command.startsWith("am instrument -w -e action "), command)
         assertTrue(command.contains(" -e user_id '123' "), command)
         assertTrue(command.endsWith(" $PACKAGE.test/$RUNNER"), command)
@@ -120,7 +131,7 @@ class BackupRestoreControllerImplTest {
             )
 
         assertIs<BackupActionResult.Success>(result)
-        val cmd = device.commands.single()
+        val cmd = instrumentCommand()
         listOf(
                 "-e action 'com.example.MyTest\$CustomAction'",
                 "-e actionClass 'com.example.MyTest\$CustomAction'",
@@ -141,9 +152,55 @@ class BackupRestoreControllerImplTest {
 
         controller.runOnDevice("com.example.MyAction", emptyMap(), waitForDebugger = true)
 
-        assertTrue(
-            device.commands.single().startsWith("am instrument -w -e debug 'true' -e action "),
-            device.commands.single(),
+        val command = instrumentCommand()
+        assertTrue(command.startsWith("am instrument -w -e debug 'true' -e action "), command)
+    }
+
+    /** `<applicationId>.test` is only the package that AGP gives the test APK. */
+    @Test
+    fun runOnDeviceRunsTheRunnerInstalledForTheApp() = runBlocking {
+        onDeviceWithInstrumentations(
+            "com.example.tests/$RUNNER",
+            "$PACKAGE.test/androidx.test.runner.AndroidJUnitRunner",
+        )
+
+        controller.runOnDevice("com.example.MyAction")
+
+        assertTrue(instrumentCommand().endsWith(" com.example.tests/$RUNNER"), instrumentCommand())
+        assertEquals("pm list instrumentation $PACKAGE", device.commands.first())
+    }
+
+    @Test
+    fun runOnDevicePrefersTheRunnerOfAgpAmongSeveral() = runBlocking {
+        onDeviceWithInstrumentations("com.example.tests/$RUNNER", "$PACKAGE.test/$RUNNER")
+
+        controller.runOnDevice("com.example.MyAction")
+
+        assertTrue(instrumentCommand().endsWith(" $PACKAGE.test/$RUNNER"), instrumentCommand())
+    }
+
+    /**
+     * Without a runner, the default one is run, so that `am instrument` reports it missing. Every
+     * action looks the runner up, so it runs the one installed at that time.
+     */
+    @Test
+    fun runOnDeviceLooksUpTheRunnerForEveryAction() = runBlocking {
+        onDeviceWithInstrumentations()
+        controller.runOnDevice("com.example.MyAction")
+        onDeviceWithInstrumentations("com.example.tests/$RUNNER")
+        controller.runOnDevice("com.example.MyAction")
+        onDeviceWithInstrumentations("com.example.other/$RUNNER")
+        controller.runOnDevice("com.example.MyAction")
+
+        assertEquals(
+            listOf(
+                "$PACKAGE.test/$RUNNER",
+                "com.example.tests/$RUNNER",
+                "com.example.other/$RUNNER",
+            ),
+            device.commands
+                .filter { it.startsWith("am instrument") }
+                .map { it.substringAfterLast(' ') },
         )
     }
 
@@ -258,6 +315,33 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
+    fun launchAppThrowsWhenTheActivityDoesNotExist() {
+        device.onShell { command ->
+            if (command.startsWith("am start")) {
+                shellOutput(
+                    "Starting: Intent { act=android.intent.action.MAIN " +
+                        "cmp=$PACKAGE/.DoesNotExistActivity }\n" +
+                        "Error type 3\n" +
+                        "Error: Activity class {$PACKAGE/$PACKAGE.DoesNotExistActivity} " +
+                        "does not exist.\n"
+                )
+            } else {
+                null
+            }
+        }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { controller.launchApp(".DoesNotExistActivity") }
+            }
+
+        assertTrue(
+            e.message.orEmpty().startsWith("Failed to start $PACKAGE/.DoesNotExistActivity "),
+            e.message,
+        )
+    }
+
+    @Test
     fun deviceOperationsRunOnTheApplication() = runBlocking {
         device.onShell { command ->
             if (command.startsWith("pm clear")) shellOutput("Success\n") else shellOutput()
@@ -365,6 +449,74 @@ class BackupRestoreControllerImplTest {
     }
 
     @Test
+    fun performBackupThrowsAFailureOfTheBackupServiceAsAnIOException() {
+        val failure = BackupException(ErrorCode.APP_NOT_INSTALLED, "$PACKAGE is not installed")
+        backupServiceResult = BackupResult.Error(ErrorCode.APP_NOT_INSTALLED, failure)
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking {
+                    controller.performBackup(BackupTransportMode.CLOUD_ENCRYPTED, outputDir())
+                }
+            }
+
+        assertEquals("$PACKAGE is not installed", e.message)
+        assertSame(failure, e.rootCause())
+    }
+
+    @Test
+    fun performRestoreThrowsAFailureOfTheBackupServiceAsAnIOException() {
+        val failure = BackupException(ErrorCode.INVALID_BACKUP_FILE, "File is not a valid backup")
+        restoreServiceResult = BackupResult.Error(ErrorCode.INVALID_BACKUP_FILE, failure)
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        val e = assertFailsWith<IOException> { runBlocking { controller.performRestore(archive) } }
+
+        assertEquals("File is not a valid backup", e.message)
+        assertSame(failure, e.rootCause())
+    }
+
+    @Test
+    fun performRestoreThrowsWhenTheBackupServiceRestoresNoAppData() {
+        restoreServiceResult = BackupResult.WithoutAppData
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        val e = assertFailsWith<IOException> { runBlocking { controller.performRestore(archive) } }
+
+        assertEquals(
+            "Restore of $PACKAGE from backup_cloud_encrypted_device.zip restored no app data",
+            e.message,
+        )
+    }
+
+    /** Studio's backup service returns its own cancellation, such as by a timeout, as an error. */
+    @Test
+    fun performBackupTimesOutWhenTheBackupServiceReturnsItsCancellation() {
+        val controller =
+            BackupRestoreControllerImpl(
+                device.session,
+                FAKE_SERIAL,
+                34,
+                PACKAGE,
+                backupServiceProvider = { CancellationReturningBackupService() },
+            )
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking {
+                    controller.performBackup(
+                        BackupTransportMode.CLOUD_ENCRYPTED,
+                        outputDir(),
+                        SHORT_TIMEOUT,
+                    )
+                }
+            }
+
+        assertEquals("Backup (CLOUD_ENCRYPTED) timed out after 200ms", e.message)
+        assertEquals("am force-stop $PACKAGE", device.commands.last())
+    }
+
+    @Test
     fun runOnDeviceReturnsAFailureAndStopsTheAppWhenTheActionTimesOut() = runBlocking {
         device.hangOn { it.startsWith("am instrument") }
 
@@ -411,6 +563,7 @@ class BackupRestoreControllerImplTest {
         assertEquals("am force-stop $PACKAGE", device.commands.last())
     }
 
+    /** A timeout truncated to zero would expire before the action sends any command. */
     @Test
     fun runOnDeviceRunsTheActionForASubMillisecondTimeout() = runBlocking {
         device.hangOn { it.startsWith("am instrument") }
@@ -418,7 +571,12 @@ class BackupRestoreControllerImplTest {
         val result = controller.runOnDevice("com.example.MyAction", timeout = Duration.ofNanos(500))
 
         assertEquals(BackupActionResult.Failure("Timed out after 500ns"), result)
-        assertTrue(device.commands.first().startsWith("am instrument"), "${device.commands}")
+        // The action starts by looking up its runner, and the deadline may end it there.
+        assertEquals(
+            "pm list instrumentation $PACKAGE",
+            device.commands.first(),
+            "${device.commands}",
+        )
     }
 
     @Test
@@ -755,6 +913,37 @@ class BackupRestoreControllerImplTest {
         assertTrue(device.commands.isEmpty(), "${device.commands}")
     }
 
+    /** A cancelled flow, such as one that a test timeout stops, neither failed nor succeeded. */
+    @Test
+    fun flowRecordsNothingWhenCancelled() = runBlocking {
+        device.hangOn { it.startsWith("am instrument") }
+
+        val flow = launch { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        withTimeout(10.seconds) {
+            while (device.commands.none { it.startsWith("am instrument") }) delay(10)
+        }
+        flow.cancelAndJoin()
+
+        assertNull(controller.lastExecutionSummary)
+        assertTrue(publishedMetrics.isEmpty(), "$publishedMetrics")
+    }
+
+    /** A CancellationException that does not cancel the flow reports an error, like a timeout. */
+    @Test
+    fun flowRecordsACancellationExceptionOfAnActiveFlowAsAFailure() {
+        onHealthyDevice { command ->
+            if (command.startsWith("am instrument")) throw CancellationException("Timed out")
+            else null
+        }
+
+        assertFailsWith<CancellationException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+        }
+
+        assertFailure(BackupExecutionStage.SEEDING, BackupErrorCode.SEEDING_FAILED)
+        assertEquals("FAILURE", publishedMetrics[BackupReportKeys.STATUS])
+    }
+
     /**
      * Answers shell commands as a device on which every step of the local backup and restore flow
      * succeeds, except where [override] returns an output or throws.
@@ -780,22 +969,68 @@ class BackupRestoreControllerImplTest {
     }
 
     /**
-     * Returns a backup service whose backups end with [backupServiceResult]. Unless that is an
-     * error, a backup first writes the archive, as Studio's backup service does.
+     * Answers shell commands as a device on which [instrumentations] target the app, given as
+     * `package/class` components, and every action succeeds.
      */
-    private fun fakeBackupService(): BackupService =
-        // `backup` is a suspend function, which Mockito cannot stub with `when`.
-        mock(BackupService::class.java) { invocation ->
-            if (invocation.method.name == "backup") {
-                val result = backupServiceResult
-                if (result !is BackupResult.Error) {
-                    (invocation.arguments[3] as Path).toFile().writeText("archive")
-                }
-                result
-            } else {
-                RETURNS_DEFAULTS.answer(invocation)
+    private fun onDeviceWithInstrumentations(vararg instrumentations: String) {
+        device.onShell { command ->
+            when {
+                command.startsWith("pm list instrumentation") ->
+                    shellOutput(
+                        instrumentations.joinToString("") {
+                            "instrumentation:$it (target=$PACKAGE)\n"
+                        }
+                    )
+                command.startsWith("am instrument") -> shellOutput(runnerStdout("{}"))
+                else -> null
             }
         }
+    }
+
+    /** Returns the only `am instrument` command run on the device. */
+    private fun instrumentCommand(): String =
+        device.commands.single { it.startsWith("am instrument") }
+
+    /**
+     * Returns a backup service whose backups end with [backupServiceResult] and whose restores end
+     * with [restoreServiceResult]. Unless the backup result is an error, a backup first writes the
+     * archive, as Studio's backup service does.
+     */
+    private fun fakeBackupService(): BackupService =
+        // `backup` and `restore` are suspend functions, which Mockito cannot stub with `when`.
+        mock(BackupService::class.java) { invocation ->
+            when (invocation.method.name) {
+                "backup" -> {
+                    val result = backupServiceResult
+                    if (result !is BackupResult.Error) {
+                        (invocation.arguments[3] as Path).toFile().writeText("archive")
+                    }
+                    result
+                }
+                "restore" -> restoreServiceResult
+                else -> RETURNS_DEFAULTS.answer(invocation)
+            }
+        }
+
+    /**
+     * A backup service whose backups run until they are cancelled and then return the cancellation
+     * as an error, as Studio's backup service does.
+     */
+    private class CancellationReturningBackupService :
+        BackupService by mock(BackupService::class.java) {
+        override suspend fun backup(
+            serialNumber: String,
+            applicationId: String,
+            type: BackupType,
+            backupFile: Path,
+            listener: BackupProgressListener?,
+        ): BackupResult =
+            try {
+                awaitCancellation()
+            } catch (e: CancellationException) {
+                BackupResult.Error(ErrorCode.UNEXPECTED_ERROR, e)
+            }
+    }
 
     private fun assertFailure(stage: BackupExecutionStage, errorCode: BackupErrorCode) {
         val summary = assertNotNull(controller.lastExecutionSummary)
@@ -805,6 +1040,9 @@ class BackupRestoreControllerImplTest {
     }
 
     private fun outputDir() = tempFolder.root.toPath()
+
+    /** Stack-trace recovery may wrap an exception that crosses a coroutine in a copy of it. */
+    private fun Throwable.rootCause(): Throwable = generateSequence(this) { it.cause }.last()
 
     private companion object {
         const val PACKAGE = "com.example.app"
