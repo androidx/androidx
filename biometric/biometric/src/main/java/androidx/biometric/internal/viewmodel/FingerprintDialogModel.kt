@@ -19,18 +19,17 @@ package androidx.biometric.internal.viewmodel
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.R
 import androidx.biometric.internal.ui.FingerprintDialogState
-import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 
-/** A [ViewModel] that manages the UI state of the fingerprint dialog. */
-internal class FingerprintDialogViewModel(
+/** UI state for the legacy fingerprint dialog, owned by [AuthenticationViewModel]. */
+internal class FingerprintDialogModel(
     @Suppress("deprecation")
     val fingerprintPreAuthChecker: (androidx.biometric.internal.FingerprintManagerCompat) -> Int =
         ::checkForFingerprintPreAuthenticationErrors
-) : ViewModel() {
+) {
 
     /** Whether the fingerprint dialog should always be dismissed instantly. */
     var isDismissedInstantly: Boolean = true

@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.biometric.AuthenticationRequest
 import androidx.biometric.AuthenticationRequest.Biometric
@@ -42,6 +43,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import java.util.concurrent.Executor
 
+private const val TAG = "AuthResultRegistry"
+
 /**
  * A registry that stores [auth result callbacks][AuthenticationCallback] for
  * [registered calls][androidx.biometric.registerForAuthenticationResult].
@@ -59,30 +62,57 @@ public class AuthenticationResultRegistry {
         confirmCredentialActivityLauncher: Runnable,
         resultCallback: AuthenticationResultCallback,
         callbackExecutor: Executor? = null,
+    ): AuthenticationResultLauncher =
+        register(
+            contextProvider = { context },
+            lifecycleOwner = lifecycleOwner,
+            viewModelStoreOwner = viewModelStoreOwner,
+            confirmCredentialActivityLauncher = confirmCredentialActivityLauncher,
+            resultCallback = resultCallback,
+            callbackExecutor = callbackExecutor,
+        )
+
+    /**
+     * Register a new callback with this registry using a lazy [contextProvider]. This allows
+     * registration before a [androidx.fragment.app.Fragment] is attached to its host context.
+     */
+    public fun register(
+        contextProvider: () -> Context,
+        lifecycleOwner: LifecycleOwner,
+        viewModelStoreOwner: ViewModelStoreOwner,
+        confirmCredentialActivityLauncher: Runnable,
+        resultCallback: AuthenticationResultCallback,
+        callbackExecutor: Executor? = null,
     ): AuthenticationResultLauncher {
         val callback = createAuthenticationCallback(resultCallback)
         var biometricPrompt: BiometricPrompt? = null
+        var pendingRequest: AuthenticationRequest? = null
         val lifecycleContainer = LifecycleContainer(lifecycleOwner.lifecycle)
         val initPrompt = {
-            if (biometricPrompt == null) {
-                biometricPrompt =
-                    BiometricPrompt(
-                        context,
+            biometricPrompt
+                ?: BiometricPrompt(
+                        contextProvider(),
                         lifecycleOwner,
                         viewModelStoreOwner,
                         confirmCredentialActivityLauncher,
                         callbackExecutor,
                         callback,
                     )
-            }
+                    .also { biometricPrompt = it }
         }
 
         val lifecycleObserver = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_START) {
                 initPrompt()
-                // The authentication should not be canceled in ON_DESTROY.
+                pendingRequest?.let { request ->
+                    pendingRequest = null
+                    initPrompt().onLaunch(contextProvider(), request)
+                }
+            } else if (event == Lifecycle.Event.ON_DESTROY) {
+                // The authentication itself should not be canceled in ON_DESTROY.
                 // Instead, rely on the app to manage cancellation through cancel() calls,
                 // ensuring the authentication survives configuration changes.
+                pendingRequest = null
                 lifecycleContainer.clearObservers()
             }
         }
@@ -90,10 +120,23 @@ public class AuthenticationResultRegistry {
 
         return object : AuthenticationResultLauncher {
             override fun launch(input: AuthenticationRequest) {
-                biometricPrompt?.onLaunch(context, input)
+                val state = lifecycleOwner.lifecycle.currentState
+                if (state == Lifecycle.State.DESTROYED) {
+                    // ON_DESTROY has already cleared any pending request and observers, so a
+                    // queued request would never be dispatched. Drop it rather than leak it.
+                    Log.w(TAG, "Ignoring launch() on a destroyed LifecycleOwner.")
+                    return
+                }
+                if (state.isAtLeast(Lifecycle.State.STARTED)) {
+                    val context = contextProvider()
+                    initPrompt().onLaunch(context, input)
+                } else {
+                    pendingRequest = input
+                }
             }
 
             override fun cancel() {
+                pendingRequest = null
                 biometricPrompt?.cancelAuthentication()
             }
         }

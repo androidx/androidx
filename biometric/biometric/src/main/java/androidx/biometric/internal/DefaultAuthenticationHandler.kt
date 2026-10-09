@@ -29,6 +29,8 @@ import androidx.biometric.utils.AuthenticatorUtils
 import androidx.biometric.utils.DeviceUtils
 import androidx.biometric.utils.KeyguardUtils
 import androidx.biometric.utils.PackageUtils
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import java.util.concurrent.Executor
 
@@ -47,8 +49,21 @@ internal class DefaultAuthenticationHandler(
 ) : AuthenticationHandler {
     val key: Int = viewModel.generateNextHandlerKey()
     @VisibleForTesting var internalHandler: AuthenticationHandler? = null
+    private val lifecycleContainer = BiometricPrompt.LifecycleContainer(lifecycleOwner.lifecycle)
 
     init {
+        // The handler key counter lives in the retained view model, so it must be reset whenever
+        // the host is destroyed - even if authenticate() was never called and no
+        // AuthenticationManager exists - so that recreated handlers receive the same keys and can
+        // reconnect to an in-progress session.
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                viewModel.resetHandlerKey()
+                lifecycleContainer.clearObservers()
+            }
+        }
+        lifecycleContainer.addObserver(observer)
+
         // If the prompt is already showing (e.g., after a configuration change),
         // reconnect to the existing authentication session.
         if (viewModel.isPromptShowing && key == viewModel.currentAuthenticationKey) {
@@ -62,7 +77,10 @@ internal class DefaultAuthenticationHandler(
     ) {
         // currentAuthenticationKey must be set prior to observing for correct validation.
         viewModel.currentAuthenticationKey = key
-        viewModel.isPromptShowing = true
+        // Leave isPromptShowing false until the prompt is actually shown by
+        // AuthenticationManager.showPromptForAuthentication(). createHandler() below replays
+        // lifecycle events synchronously, and a true value here would be mistaken for a reconnect.
+        viewModel.isPromptShowing = false
         viewModel.isAwaitingResult = true
 
         // PromptInfo has to be set prior to others.

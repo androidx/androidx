@@ -75,17 +75,13 @@ internal interface PromptConfigRepository {
      * @param delayedTime The amount of time to wait, in milliseconds.
      */
     suspend fun setDelayedDelayingPrompt(delayingPrompt: Boolean, delayedTime: Long)
-
-    companion object {
-        val instance: PromptConfigRepository by lazy { PromptConfigRepositoryImpl() }
-    }
 }
 
 /**
- * A repository for authentication state and events.
+ * A repository for prompt configuration and dynamic state.
  *
- * This repository and all of its data is persisted over the lifetime of the client activity that
- * hosts the [BiometricPrompt].
+ * This repository and all of its data are persisted over the lifetime of the
+ * [androidx.lifecycle.ViewModelStoreOwner] (Activity or Fragment) that hosts the [BiometricPrompt].
  */
 internal class PromptConfigRepositoryImpl : PromptConfigRepository {
     override var currentAuthenticationKey: Int = 0

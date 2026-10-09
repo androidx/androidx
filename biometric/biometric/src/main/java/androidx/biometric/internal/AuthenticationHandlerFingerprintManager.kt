@@ -16,10 +16,9 @@
 
 package androidx.biometric.internal
 
-import android.content.Intent
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.internal.data.CanceledFrom
-import androidx.biometric.internal.ui.FingerprintDialogActivity
+import androidx.biometric.internal.ui.FingerprintDialogController
 import androidx.biometric.utils.ErrorUtils
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
@@ -29,8 +28,8 @@ import kotlinx.coroutines.launch
  * An authentication handler that uses the legacy `FingerprintManager` API to display a fingerprint
  * prompt.
  *
- * This handler is responsible for launching [FingerprintDialogActivity] to show the UI, and for
- * handling the results of the authentication.
+ * This handler is responsible for using [FingerprintDialogController] to show the UI in the host
+ * window, and for handling the results of the authentication.
  */
 internal class AuthenticationHandlerFingerprintManager(
     private val authenticationManager: AuthenticationManager
@@ -46,6 +45,9 @@ internal class AuthenticationHandlerFingerprintManager(
 
     val confirmCredentialActivityLauncher
         get() = authenticationManager.confirmCredentialActivityLauncher
+
+    private val fingerprintDialogController =
+        FingerprintDialogController(context, lifecycleOwner, viewModel)
 
     private val resultDispatcher =
         object :
@@ -73,6 +75,9 @@ internal class AuthenticationHandlerFingerprintManager(
         object : AuthenticationUiStateObserver() {
             override fun createObserverJob(): Job =
                 lifecycleOwner.lifecycleScope.launch {
+                    if (viewModel.isPromptShowing && !viewModel.isConfirmingDeviceCredential) {
+                        fingerprintDialogController.showDialogForReconnect()
+                    }
                     viewModel.isNegativeButtonPressPending.collect {
                         authenticationManager.isNegativeButtonPressPendingObserver()
                     }
@@ -92,13 +97,12 @@ internal class AuthenticationHandlerFingerprintManager(
 
     override fun cancelAuthentication(canceledFrom: CanceledFrom) {
         authenticationManager.cancelAuthentication(canceledFrom)
+        fingerprintDialogController.dismiss()
     }
 
     /** Shows the fingerprint dialog UI to the user and begins authentication. */
     private fun showAuthentication() {
-        val intent = Intent(context, FingerprintDialogActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(intent)
+        fingerprintDialogController.showAuthentication()
     }
 
     /** Dismisses any visible authentication UI. */
@@ -108,7 +112,13 @@ internal class AuthenticationHandlerFingerprintManager(
 
     /** Shows the keyguard manager as a fallback for authentication. */
     private fun showKMAsFallback() {
+        fingerprintDialogController.dismiss()
+        // Launch the confirm credential screen before canceling the fingerprint sensor. Launching
+        // sets viewModel.isConfirmingDeviceCredential, which is what suppresses the ERROR_CANCELED
+        // that the framework delivers in response to the cancellation below. Doing it in this
+        // order keeps that suppression independent of callback timing.
         confirmCredentialActivityLauncher.run()
+        viewModel.cancellationSignalProvider.cancel()
     }
 
     private fun onAuthenticationError(errorCode: Int, errorMessage: CharSequence?) {
