@@ -354,9 +354,11 @@ package androidx.xr.glimmer {
     method @BytecodeOnly @androidx.compose.runtime.Composable public long focusedBackgroundColor-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color focusedCheckedBackgroundColor(optional androidx.compose.ui.graphics.Color baseColor);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long focusedCheckedBackgroundColor-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Shape getCheckedShape();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getContentPadding(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape shape(boolean checked, optional androidx.compose.ui.graphics.Shape checkedShape, optional androidx.compose.ui.graphics.Shape uncheckedShape);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape shape(boolean, androidx.compose.ui.graphics.Shape?, androidx.compose.ui.graphics.Shape?, androidx.compose.runtime.Composer?, int, int);
+    property public androidx.compose.ui.graphics.Shape CheckedShape;
     property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding;
     field public static final androidx.xr.glimmer.IconToggleButtonDefaults INSTANCE;
   }
@@ -464,30 +466,42 @@ package androidx.xr.glimmer {
   }
 
   @androidx.compose.runtime.Immutable public final class ToggleButtonColors {
-    ctor @KotlinOnly public ToggleButtonColors(androidx.compose.ui.graphics.Color backgroundColor, androidx.compose.ui.graphics.Color checkedBackgroundColor, androidx.compose.ui.graphics.Color contentColor, androidx.compose.ui.graphics.Color checkedContentColor);
-    ctor @BytecodeOnly public ToggleButtonColors(long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @KotlinOnly public androidx.xr.glimmer.ToggleButtonColors copy(optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color checkedBackgroundColor, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.compose.ui.graphics.Color checkedContentColor);
-    method @BytecodeOnly public androidx.xr.glimmer.ToggleButtonColors copy-jRlVdoo(long, long, long, long);
-    method @BytecodeOnly public static androidx.xr.glimmer.ToggleButtonColors! copy-jRlVdoo$default(androidx.xr.glimmer.ToggleButtonColors!, long, long, long, long, int, Object!);
+    ctor @KotlinOnly public ToggleButtonColors(androidx.compose.ui.graphics.Color backgroundColor, androidx.compose.ui.graphics.Color focusedBackgroundColor, androidx.compose.ui.graphics.Color checkedBackgroundColor, androidx.compose.ui.graphics.Color focusedCheckedBackgroundColor, androidx.compose.ui.graphics.Color contentColor, androidx.compose.ui.graphics.Color focusedContentColor, androidx.compose.ui.graphics.Color checkedContentColor, androidx.compose.ui.graphics.Color focusedCheckedContentColor);
+    ctor @BytecodeOnly public ToggleButtonColors(long, long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public androidx.xr.glimmer.ToggleButtonColors copy(optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color focusedBackgroundColor, optional androidx.compose.ui.graphics.Color checkedBackgroundColor, optional androidx.compose.ui.graphics.Color focusedCheckedBackgroundColor, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.compose.ui.graphics.Color focusedContentColor, optional androidx.compose.ui.graphics.Color checkedContentColor, optional androidx.compose.ui.graphics.Color focusedCheckedContentColor);
+    method @BytecodeOnly public androidx.xr.glimmer.ToggleButtonColors copy-FD3wquc(long, long, long, long, long, long, long, long);
+    method @BytecodeOnly public static androidx.xr.glimmer.ToggleButtonColors! copy-FD3wquc$default(androidx.xr.glimmer.ToggleButtonColors!, long, long, long, long, long, long, long, long, int, Object!);
     method @BytecodeOnly public long getBackgroundColor-0d7_KjU();
     method @BytecodeOnly public long getCheckedBackgroundColor-0d7_KjU();
     method @BytecodeOnly public long getCheckedContentColor-0d7_KjU();
     method @BytecodeOnly public long getContentColor-0d7_KjU();
+    method @BytecodeOnly public long getFocusedBackgroundColor-0d7_KjU();
+    method @BytecodeOnly public long getFocusedCheckedBackgroundColor-0d7_KjU();
+    method @BytecodeOnly public long getFocusedCheckedContentColor-0d7_KjU();
+    method @BytecodeOnly public long getFocusedContentColor-0d7_KjU();
     property public androidx.compose.ui.graphics.Color backgroundColor;
     property public androidx.compose.ui.graphics.Color checkedBackgroundColor;
     property public androidx.compose.ui.graphics.Color checkedContentColor;
     property public androidx.compose.ui.graphics.Color contentColor;
+    property public androidx.compose.ui.graphics.Color focusedBackgroundColor;
+    property public androidx.compose.ui.graphics.Color focusedCheckedBackgroundColor;
+    property public androidx.compose.ui.graphics.Color focusedCheckedContentColor;
+    property public androidx.compose.ui.graphics.Color focusedContentColor;
   }
 
   public final class ToggleButtonDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedShape(boolean checked);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedShape(boolean, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color checkedBackgroundColor(optional androidx.compose.ui.graphics.Color color);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color checkedBackgroundColor(optional androidx.compose.ui.graphics.Color baseColor);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long checkedBackgroundColor-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.xr.glimmer.ToggleButtonColors colors(optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color checkedBackgroundColor, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.compose.ui.graphics.Color checkedContentColor);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.xr.glimmer.ToggleButtonColors colors-ro_MJ88(long, long, long, long, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.xr.glimmer.ToggleButtonColors colors(optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color focusedBackgroundColor, optional androidx.compose.ui.graphics.Color checkedBackgroundColor, optional androidx.compose.ui.graphics.Color focusedCheckedBackgroundColor, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.compose.ui.graphics.Color focusedContentColor, optional androidx.compose.ui.graphics.Color checkedContentColor, optional androidx.compose.ui.graphics.Color focusedCheckedContentColor);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.xr.glimmer.ToggleButtonColors colors-oq7We08(long, long, long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding(androidx.xr.glimmer.ButtonSize buttonSize);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding-XrOh4SM(int, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color focusedBackgroundColor(optional androidx.compose.ui.graphics.Color baseColor);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long focusedBackgroundColor-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color focusedCheckedBackgroundColor(optional androidx.compose.ui.graphics.Color baseColor);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long focusedCheckedBackgroundColor-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
     method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Shape getCheckedShape();
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape shape(boolean checked, optional androidx.compose.ui.graphics.Shape checkedShape, optional androidx.compose.ui.graphics.Shape uncheckedShape);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape shape(boolean, androidx.compose.ui.graphics.Shape?, androidx.compose.ui.graphics.Shape?, androidx.compose.runtime.Composer?, int, int);
