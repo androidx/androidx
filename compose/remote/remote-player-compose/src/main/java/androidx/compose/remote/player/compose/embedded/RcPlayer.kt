@@ -54,6 +54,7 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableProvider
 import androidx.compose.remote.core.VariableSupport
+import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.core.operations.ColorConstant
 import androidx.compose.remote.core.operations.ColorTheme
 import androidx.compose.remote.core.operations.ComponentValue
@@ -70,6 +71,7 @@ import androidx.compose.remote.core.operations.PathCreate
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
+import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.TextLookupInt
 import androidx.compose.remote.core.operations.TextMeasure
@@ -1161,6 +1163,9 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
                     is VariableProvider -> op.id
                     is TextMeasure -> op.mId
                     is ImageAttribute -> op.mId
+                    is TextAttribute -> op.mId
+                    is TimeAttribute -> op.mId
+                    is BitmapTextMeasure -> op.mId
                     else -> -1
                 }
             // Warn when a document operation defines an ID that collides with a reserved system
@@ -1281,6 +1286,18 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
                 }
             } else if (op is ImageAttribute) {
                 val id = op.mId
+                if (id > 0 && !computedOpIndex.containsKey(id)) {
+                    computedOpIndex[id] = op
+                }
+            } else if (op is TextAttribute || op is TimeAttribute || op is BitmapTextMeasure) {
+                // Value-producing paint operations that aren't VariableProviders: their output
+                // is computed on demand through the GraphContext, like TextMeasure.
+                val id =
+                    when (op) {
+                        is TextAttribute -> op.mId
+                        is TimeAttribute -> op.mId
+                        else -> (op as BitmapTextMeasure).mId
+                    }
                 if (id > 0 && !computedOpIndex.containsKey(id)) {
                     computedOpIndex[id] = op
                 }
