@@ -23,7 +23,6 @@ import android.text.StaticLayout.Builder
 import android.text.TextDirectionHeuristic
 import android.text.TextPaint
 import android.text.TextUtils.TruncateAt
-import android.util.Log
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
@@ -33,20 +32,11 @@ import androidx.compose.ui.text.android.LayoutCompat.JustificationMode
 import androidx.compose.ui.text.android.LayoutCompat.LineBreakStyle
 import androidx.compose.ui.text.android.LayoutCompat.LineBreakWordStyle
 import androidx.compose.ui.text.internal.requirePrecondition
-import java.lang.reflect.Constructor
-import java.lang.reflect.InvocationTargetException
-
-private const val TAG = "StaticLayoutFactory"
 
 @InternalPlatformTextApi
 public object StaticLayoutFactory {
 
-    private val delegate: StaticLayoutFactoryImpl =
-        if (Build.VERSION.SDK_INT >= 23) {
-            StaticLayoutFactory23()
-        } else {
-            StaticLayoutFactoryDefault()
-        }
+    private val delegate: StaticLayoutFactoryImpl = StaticLayoutFactory23()
 
     /** Builder class for StaticLayout. */
     public fun create(
@@ -157,7 +147,6 @@ private interface StaticLayoutFactoryImpl {
     fun isFallbackLineSpacingEnabled(layout: StaticLayout, useFallbackLineSpacing: Boolean): Boolean
 }
 
-@RequiresApi(23)
 private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
 
     override fun create(params: StaticLayoutParams): StaticLayout {
@@ -252,106 +241,5 @@ private object StaticLayoutFactory35 {
     @JvmStatic
     fun disableUseBoundsForWidth(builder: Builder) {
         builder.setUseBoundsForWidth(false)
-    }
-}
-
-private class StaticLayoutFactoryDefault : StaticLayoutFactoryImpl {
-
-    companion object {
-        private var isInitialized = false
-        private var staticLayoutConstructor: Constructor<StaticLayout>? = null
-
-        private fun getStaticLayoutConstructor(): Constructor<StaticLayout>? {
-            if (isInitialized) return staticLayoutConstructor
-            isInitialized = true
-            try {
-                staticLayoutConstructor =
-                    StaticLayout::class
-                        .java
-                        .getConstructor(
-                            CharSequence::class.java,
-                            Int::class.javaPrimitiveType, /* start */
-                            Int::class.javaPrimitiveType, /* end */
-                            TextPaint::class.java,
-                            Int::class.javaPrimitiveType, /* width */
-                            Alignment::class.java,
-                            TextDirectionHeuristic::class.java,
-                            Float::class.javaPrimitiveType, /* lineSpacingMultiplier */
-                            Float::class.javaPrimitiveType, /* lineSpacingExtra */
-                            Boolean::class.javaPrimitiveType, /* includePadding */
-                            TruncateAt::class.java,
-                            Int::class.javaPrimitiveType, /* ellipsizeWidth */
-                            Int::class.javaPrimitiveType, /* maxLines */
-                        )
-            } catch (e: NoSuchMethodException) {
-                staticLayoutConstructor = null
-                Log.e(TAG, "unable to collect necessary constructor.")
-            }
-
-            return staticLayoutConstructor
-        }
-    }
-
-    override fun create(params: StaticLayoutParams): StaticLayout {
-        // On API 21 to 23, try to call the StaticLayoutConstructor which supports the
-        // textDir and maxLines.
-        val result =
-            getStaticLayoutConstructor()?.let {
-                try {
-                    it.newInstance(
-                        params.text,
-                        params.start,
-                        params.end,
-                        params.paint,
-                        params.width,
-                        params.alignment,
-                        params.textDir,
-                        params.lineSpacingMultiplier,
-                        params.lineSpacingExtra,
-                        params.includePadding,
-                        params.ellipsize,
-                        params.ellipsizedWidth,
-                        params.maxLines,
-                    )
-                } catch (e: IllegalAccessException) {
-                    staticLayoutConstructor = null
-                    Log.e(TAG, "unable to call constructor")
-                    null
-                } catch (e: InstantiationException) {
-                    staticLayoutConstructor = null
-                    Log.e(TAG, "unable to call constructor")
-                    null
-                } catch (e: InvocationTargetException) {
-                    staticLayoutConstructor = null
-                    Log.e(TAG, "unable to call constructor")
-                    null
-                }
-            }
-
-        if (result != null) return result
-
-        // On API 21 to 23 where it failed to find StaticLayout.Builder, create with
-        // deprecated constructor, textDir and maxLines won't work in this case.
-        @Suppress("DEPRECATION")
-        return StaticLayout(
-            params.text,
-            params.start,
-            params.end,
-            params.paint,
-            params.width,
-            params.alignment,
-            params.lineSpacingMultiplier,
-            params.lineSpacingExtra,
-            params.includePadding,
-            params.ellipsize,
-            params.ellipsizedWidth,
-        )
-    }
-
-    override fun isFallbackLineSpacingEnabled(
-        layout: StaticLayout,
-        useFallbackLineSpacing: Boolean,
-    ): Boolean {
-        return false
     }
 }

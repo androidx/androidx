@@ -16,11 +16,5 @@
 
 package androidx.compose.ui.text.intl
 
-import android.os.Build
-
-internal actual fun createPlatformLocaleDelegate() =
-    if (Build.VERSION.SDK_INT >= 24) {
-        AndroidLocaleDelegateAPI24()
-    } else {
-        AndroidLocaleDelegateAPI23()
-    }
+internal actual fun createPlatformLocaleDelegate(): PlatformLocaleDelegate =
+    AndroidLocaleDelegateAPI24()
