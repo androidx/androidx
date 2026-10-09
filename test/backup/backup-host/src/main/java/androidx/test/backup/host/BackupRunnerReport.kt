@@ -101,8 +101,8 @@ internal class BackupRunnerReport(
     }
 
     companion object {
-        private const val RESULT_MARKER = "BACKUP_RESTORE_RESULT: "
-        private const val FALLBACK_RESULT_MARKER = "resultJson="
+        /** Start of the line on which `am instrument` prints the result of the runner. */
+        private const val RESULT_LINE_PREFIX = "INSTRUMENTATION_RESULT: resultJson="
 
         private const val KEY_IS_SUCCESS = "isSuccess"
         private const val KEY_ERROR_MESSAGE = "errorMessage"
@@ -118,7 +118,11 @@ internal class BackupRunnerReport(
          */
         fun parse(stdout: String): BackupRunnerReport {
             val json =
-                resultLine(stdout, RESULT_MARKER) ?: resultLine(stdout, FALLBACK_RESULT_MARKER)
+                stdout
+                    .lineSequence()
+                    .firstOrNull { it.startsWith(RESULT_LINE_PREFIX) }
+                    ?.removePrefix(RESULT_LINE_PREFIX)
+                    ?.trim()
             if (json.isNullOrEmpty()) {
                 return failed("No execution result was received from device. Raw stdout:\n$stdout")
             }
@@ -162,13 +166,6 @@ internal class BackupRunnerReport(
                 inlinePayload = null,
                 payloadPath = null,
             )
-
-        /** Returns the first line after [marker] in [stdout], or null if [marker] is absent. */
-        private fun resultLine(stdout: String, marker: String): String? {
-            val index = stdout.indexOf(marker)
-            if (index == -1) return null
-            return stdout.substring(index + marker.length).trim().lineSequence().firstOrNull() ?: ""
-        }
 
         private fun JsonObject.string(key: String): String? =
             this[key]?.jsonPrimitive?.contentOrNull
