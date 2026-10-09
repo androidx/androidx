@@ -66,8 +66,8 @@ import kotlinx.coroutines.asExecutor
  *
  * @param enabled true if this composable should be movable. Setting this to false will remove the
  *   interactable affordance associated with the content. Disabling the modifier after movement
- *   keeps the composable at its last dragged position. Removing the modifier entirely resets the
- *   composable to its original layout position.
+ *   keeps the composable at its last dragged position. Changing the type of [MovePolicy] or
+ *   removing the modifier entirely resets the composable to its original layout position.
  * @param movePolicy The [MovePolicy] that dictates how movement transformations are calculated and
  *   applied. Defaults to [MovePolicy.Default].
  * @sample androidx.xr.compose.samples.BasicMovableSample
@@ -304,6 +304,13 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
                             movePolicy.anchorPlaneSemantics != oldAnchor.anchorPlaneSemantics
                     }
                 }
+        if (policyTypeChanged) {
+            layoutNodeFromDraggedNodePixels = Pose.Identity
+            scaleFromMovement = 1f
+            invalidatePlacement()
+            invalidateCoreEntity()
+        }
+
         this.enabled = enabled
         this.movePolicy = movePolicy
 
@@ -331,6 +338,9 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
     }
 
     override fun onDetach() {
+        if (scaleFromMovement != null) {
+            coreEntity.scale = 1f
+        }
         if (component != null) {
             disableComponent()
         }

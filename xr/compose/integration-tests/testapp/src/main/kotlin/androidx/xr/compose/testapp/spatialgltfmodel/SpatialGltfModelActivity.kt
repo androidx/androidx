@@ -152,7 +152,10 @@ class SpatialGltfModelActivity : ComponentActivity() {
                 SwitchRow(
                     label = "Use App-Managed Movement (movable)",
                     checked = state.useCustomMovement,
-                    onCheckedChange = { state.useCustomMovement = it },
+                    onCheckedChange = {
+                        state.resetCustomMovement()
+                        state.useCustomMovement = it
+                    },
                 )
 
                 if (state.useCustomMovement) {

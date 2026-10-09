@@ -40,6 +40,7 @@ import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.runtime.Config
@@ -788,6 +789,273 @@ class MovableModifierTest {
         assertThat(moveEvent!!.type).isEqualTo(SpatialMoveEventType.End)
     }
 
+    @Test
+    fun policySystemToCustom_resetsSystemDraggedPoseAndScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var useCustom by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .movable(
+                                enabled = true,
+                                movePolicy =
+                                    if (useCustom) MovePolicy.custom {} else MovePolicy.system(),
+                            )
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(2f, 2f, 2f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isEqualTo(2f)
+
+        useCustom = true
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        assertThat(entity.getScale()).isEqualTo(1f)
+    }
+
+    @Test
+    fun policySystem_whenModifierRemoved_resetsDraggedPoseAndScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var isMovable by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        if (isMovable) {
+                            SubspaceModifier.testTag("panel")
+                                .movable(enabled = true, movePolicy = MovePolicy.system())
+                        } else {
+                            SubspaceModifier.testTag("panel")
+                        }
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(2f, 2f, 2f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isEqualTo(2f)
+
+        isMovable = false
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        assertThat(entity.getScale()).isEqualTo(1f)
+    }
+
+    @Test
+    fun policySystemToCustom_withInitialOffset_resetsToInitialLayoutOffset() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var useCustom by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .offset(x = 10.dp, y = 20.dp, z = 30.dp)
+                            .movable(
+                                enabled = true,
+                                movePolicy =
+                                    if (useCustom) MovePolicy.custom {} else MovePolicy.system(),
+                            )
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+        composeTestRule
+            .onSubspaceNodeWithTag("panel")
+            .assertPositionInRootIsEqualTo(10.dp, 20.dp, 30.dp)
+        val initialPose = entity.getPose(Space.ACTIVITY)
+        assertThat(initialPose).isNotEqualTo(Pose.Identity)
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(2f, 2f, 2f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isEqualTo(2f)
+
+        useCustom = true
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onSubspaceNodeWithTag("panel")
+            .assertPositionInRootIsEqualTo(10.dp, 20.dp, 30.dp)
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(initialPose)
+        assertThat(entity.getScale()).isEqualTo(1f)
+    }
+
+    @Test
+    fun policySystem_whenParameterUpdated_preservesDraggedPoseAndScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var scaleWithDistance by mutableStateOf(true)
+        var onMoveCallback by mutableStateOf<((SpatialMoveEvent) -> Unit)?>(null)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .movable(
+                                enabled = true,
+                                movePolicy =
+                                    MovePolicy.system(
+                                        scaleWithDistance = scaleWithDistance,
+                                        onMove = onMoveCallback,
+                                    ),
+                            )
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(2f, 2f, 2f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isEqualTo(2f)
+
+        // Updating parameters within the same policy type (scaleWithDistance and onMove) has
+        // policyTypeChanged == false and must preserve the dragged pose and scale.
+        scaleWithDistance = false
+        onMoveCallback = {}
+        composeTestRule.waitForIdle()
+
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isEqualTo(2f)
+    }
+
+    @Test
+    fun policySystemToCustomToSystem_roundTrip_reenablesSystemMovementAndResetsAgain() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var useCustom by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .movable(
+                                enabled = true,
+                                movePolicy =
+                                    if (useCustom) MovePolicy.custom {} else MovePolicy.system(),
+                            )
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+
+        // 1. Drag under initial MovePolicy.system()
+        val firstMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val firstDraggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val firstDraggedScale = Vector3(2f, 2f, 2f)
+        initiateMoveEvents(
+            firstMovableComponent,
+            activitySpace,
+            firstDraggedPose,
+            firstDraggedScale,
+        )
+        composeTestRule.waitForIdle()
+
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(firstDraggedPose)
+        assertThat(entity.getScale()).isEqualTo(2f)
+
+        // 2. Switch to MovePolicy.custom {} -> resets pose and scale
+        useCustom = true
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        assertThat(entity.getScale()).isEqualTo(1f)
+
+        // 3. Switch back to MovePolicy.system() -> re-enables system movement
+        useCustom = false
+        composeTestRule.waitForIdle()
+
+        val secondMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val secondDraggedPose =
+            Pose(Vector3(4f, 5f, 6f), Quaternion.fromAxisAngle(axis = Vector3.Up, 90f))
+        val secondDraggedScale = Vector3(3f, 3f, 3f)
+        initiateMoveEvents(
+            secondMovableComponent,
+            activitySpace,
+            secondDraggedPose,
+            secondDraggedScale,
+        )
+        composeTestRule.waitForIdle()
+
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(secondDraggedPose)
+        assertThat(entity.getScale()).isEqualTo(3f)
+
+        // 4. Switch to MovePolicy.custom {} again -> resets pose and scale again
+        useCustom = true
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        assertThat(entity.getScale()).isEqualTo(1f)
+    }
+
     // ========================================================================
     // HELPER FUNCTIONS
     // ========================================================================
@@ -865,6 +1133,7 @@ class MovableModifierTest {
         rtMovableComponent: FakeMovableComponent,
         activitySpace: FakeActivitySpace,
         movePose: Pose,
+        moveScale: Vector3 = Vector3(1f, 1f, 1f),
     ) {
         rtMovableComponent.onMoveEvent(
             MoveEvent(
@@ -874,7 +1143,7 @@ class MovableModifierTest {
                 Pose.Identity,
                 movePose,
                 Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
+                moveScale,
                 activitySpace,
                 updatedParent = null,
                 disposedEntity = null,
@@ -889,7 +1158,7 @@ class MovableModifierTest {
                 Pose.Identity,
                 movePose,
                 Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
+                moveScale,
                 activitySpace,
                 updatedParent = null,
                 disposedEntity = null,
@@ -904,7 +1173,7 @@ class MovableModifierTest {
                 Pose.Identity,
                 movePose,
                 Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
+                moveScale,
                 activitySpace,
                 updatedParent = null,
                 disposedEntity = null,

@@ -60,6 +60,7 @@ import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.R
 import androidx.xr.compose.testapp.common.AnotherActivity
 import androidx.xr.compose.testapp.ui.components.ColumnWithCenterText
+import androidx.xr.compose.testapp.ui.components.ColumnWithTextAndButton
 import androidx.xr.compose.testapp.ui.components.CommonTestPanel
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.math.Quaternion
@@ -73,6 +74,8 @@ class MovableActivity : ComponentActivity() {
     @Composable
     @SubspaceComposable
     private fun SpatialContent() {
+        var toggleModifierType by remember { mutableStateOf(false) }
+        var toggleModifierOn by remember { mutableStateOf(false) }
         val transition =
             rememberInfiniteTransition("dynamicValue")
                 .animateFloat(
@@ -118,6 +121,25 @@ class MovableActivity : ComponentActivity() {
             }
             rotateValueMovable *= deltaRot
         }
+        // Another callback to remember the position of the second entity with custom movable.
+        var xValueToggleable by remember { mutableStateOf(0.dp) }
+        var yValueToggleable by remember { mutableStateOf(0.dp) }
+        var zValueToggleable by remember { mutableStateOf(0.dp) }
+        var rotateValueToggleable by remember { mutableStateOf(Quaternion.Identity) }
+        val customMovementForToggleable: (SpatialMoveEvent) -> Unit = { event ->
+            val deltaX = event.pose.translation.x - event.previousPose.translation.x
+            val deltaY = event.pose.translation.y - event.previousPose.translation.y
+            val deltaZ = event.pose.translation.z - event.previousPose.translation.z
+
+            val deltaRot = event.previousPose.rotation.inverse * event.pose.rotation
+
+            with(density) {
+                xValueToggleable += deltaX.toDp()
+                yValueToggleable += deltaY.toDp()
+                zValueToggleable += deltaZ.toDp()
+            }
+            rotateValueToggleable *= deltaRot
+        }
         SpatialColumn(SubspaceModifier.testTag("PanelGridSpatialColumn")) {
             SpatialRow(
                 modifier = SubspaceModifier.fillMaxWidth(),
@@ -138,8 +160,35 @@ class MovableActivity : ComponentActivity() {
                             PanelContent("[NOT MOVABLE] Delayed Panel")
                         }
                     }
-                    SpatialPanel(modifier = SubspaceModifier.weight(1f).fillMaxWidth()) {
-                        PanelContent("[NOT MOVABLE]")
+                    // Create a spatial panel that can toggle between custom and system movable.
+                    val movableType: String
+                    SpatialPanel(
+                        modifier =
+                            if (toggleModifierType) {
+                                movableType = "CUSTOM"
+                                SubspaceModifier.weight(1f)
+                                    .fillMaxWidth()
+                                    .offset(xValueToggleable, yValueToggleable, zValueToggleable)
+                                    .rotate(rotateValueToggleable)
+                                    .movable(
+                                        movePolicy =
+                                            MovePolicy.custom(onMove = customMovementForToggleable)
+                                    )
+                            } else {
+                                movableType = "SYSTEM"
+                                xValueToggleable = 0.dp
+                                yValueToggleable = 0.dp
+                                zValueToggleable = 0.dp
+                                rotateValueToggleable = Quaternion.Identity
+                                SubspaceModifier.weight(1f).fillMaxWidth().movable()
+                            }
+                    ) {
+                        ColumnWithTextAndButton(
+                            text = "[TOGGLE MOVABLE: $movableType]",
+                            buttonText = "TOGGLE SYSTEM/CUSTOM",
+                        ) {
+                            toggleModifierType = !toggleModifierType
+                        }
                     }
                     SpatialPanel(modifier = SubspaceModifier.weight(1f).fillMaxWidth().movable()) {
                         PanelContent("[SYSTEM MOVABLE]")
@@ -186,8 +235,25 @@ class MovableActivity : ComponentActivity() {
                             .testTag("RightColumn"),
                     verticalArrangement = SpatialArrangement.spacedBy(20.dp),
                 ) {
-                    SpatialPanel(modifier = SubspaceModifier.weight(1f).fillMaxWidth()) {
-                        PanelContent("[NOT MOVABLE]")
+                    // Create a spatial panel that can toggle between having and not having a
+                    // movable modifier.
+                    val movableState: String
+                    SpatialPanel(
+                        modifier =
+                            if (toggleModifierOn) {
+                                movableState = "OFF"
+                                SubspaceModifier.weight(1f).fillMaxWidth()
+                            } else {
+                                movableState = "ON"
+                                SubspaceModifier.weight(1f).fillMaxWidth().movable()
+                            }
+                    ) {
+                        ColumnWithTextAndButton(
+                            text = "[TOGGLE MOVABLE: $movableState]",
+                            buttonText = "TOGGLE ON/OFF",
+                        ) {
+                            toggleModifierOn = !toggleModifierOn
+                        }
                     }
                     val intent = Intent(this@MovableActivity, AnotherActivity::class.java)
                     SpatialActivityPanel(
