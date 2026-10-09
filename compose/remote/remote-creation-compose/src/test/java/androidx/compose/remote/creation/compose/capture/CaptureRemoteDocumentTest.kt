@@ -1136,7 +1136,10 @@ class CaptureRemoteDocumentTest {
             val displayInfo = RemoteCreationDisplayInfo(width = 200, height = 200, densityDpi = 160)
 
             val bytes =
-                captureSingleRemoteDocument(creationDisplayInfo = displayInfo) {
+                captureSingleRemoteDocument(
+                    creationDisplayInfo = displayInfo,
+                    profile = RcPlatformProfiles.ANDROIDX,
+                ) {
                     RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc)) {
                         RemoteText("HeadlessNoContext".rs)
                     }
