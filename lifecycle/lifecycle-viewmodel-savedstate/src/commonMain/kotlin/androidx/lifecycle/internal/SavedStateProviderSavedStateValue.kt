@@ -21,15 +21,15 @@ import androidx.savedstate.SavedStateRegistry.SavedStateProvider
 import androidx.savedstate.SavedStateValue
 
 internal class SavedStateProviderSavedStateValue(
-    override var value: SavedState? = null,
-    val provider: SavedStateProvider,
-) : SavedStateValue<SavedState?> {
+    override val value: SavedStateProvider,
+    var savedState: SavedState? = null,
+) : SavedStateValue<SavedStateProvider> {
 
     override fun saveState(): SavedState {
-        return provider.saveState().also { value = it }
+        return value.saveState().also { savedState = it }
     }
 
     override fun restoreState(savedState: SavedState?) {
-        value = unwrapSavedStateValue(savedState)
+        this.savedState = unwrapSavedStateValue(savedState)
     }
 }

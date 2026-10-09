@@ -47,12 +47,16 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
             val savedState = existing.value as? SavedState
             container.removeSavedStateValue<Any?, SavedStateValue<Any?>>(key)
             return container.getOrCreateContainer(key).also { childContainer ->
-                savedState?.read {
-                    for ((childKey, childValue) in toMap()) {
-                        childContainer.putSavedStateValue(
-                            childKey,
-                            SimpleSavedStateValue(initialValue = unwrapSavedStateValue(childValue)),
-                        )
+                if (savedState != null) {
+                    savedState.read {
+                        for ((childKey, childValue) in toMap()) {
+                            childContainer.putSavedStateValue(
+                                childKey,
+                                SimpleSavedStateValue(
+                                    initialValue = unwrapSavedStateValue(childValue)
+                                ),
+                            )
+                        }
                     }
                 }
             }
@@ -60,7 +64,7 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
         return container.getOrCreateContainer(key)
     }
 
-    @MainThread operator fun contains(key: String): Boolean = get<Any?>(key) != null
+    @MainThread operator fun contains(key: String): Boolean = key in container
 
     @MainThread
     fun <T> getStateFlow(key: String, initialValue: T): StateFlow<T> {
@@ -72,9 +76,13 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
         val existing = container.getSavedStateValue<T, SavedStateValue<T>>(key)
         val savedStateValue =
             when (existing) {
-                is StateFlowSavedStateValue<T> -> existing
-                is SimpleSavedStateValue<T> -> {
-                    StateFlowSavedStateValue(existing.value).also {
+                is StateFlowSavedStateValue<*> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    existing as StateFlowSavedStateValue<T>
+                }
+                is SimpleSavedStateValue<*> -> {
+                    @Suppress("UNCHECKED_CAST") val existingValue = existing.value as T
+                    StateFlowSavedStateValue(existingValue).also {
                         container.putSavedStateValue(key, it)
                     }
                 }
@@ -89,15 +97,22 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
                     }
                 }
             }
-        return savedStateValue.flow
+        return savedStateValue.value
     }
 
     @MainThread fun keys(): Set<String> = container.keys()
 
     @MainThread
     operator fun <T> get(key: String): T? {
+        val savedStateValue = container.getSavedStateValue<T, SavedStateValue<T>>(key)
         return try {
-            container.getSavedStateValue<T, SavedStateValue<T>>(key)?.value
+            @Suppress("UNCHECKED_CAST")
+            (when (savedStateValue) {
+                is StateFlowSavedStateValue<*> -> savedStateValue.value.value
+                is SavedStateProviderSavedStateValue -> savedStateValue.savedState
+                else -> savedStateValue?.value
+            })
+                as T?
         } catch (e: ClassCastException) {
             // Instead of failing on ClassCastException, we remove the value from the
             // SavedStateHandle and return null.
@@ -108,18 +123,20 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
 
     @MainThread
     operator fun <T> set(key: String, value: T?) {
-        val currentSavedStateValue = container.getSavedStateValue<T?, SavedStateValue<T?>>(key)
+        val currentSavedStateValue = container.getSavedStateValue<T, SavedStateValue<T>>(key)
         when (currentSavedStateValue) {
-            is SimpleSavedStateValue<T?> -> {
-                currentSavedStateValue.value = value
+            is SimpleSavedStateValue<*> -> {
+                @Suppress("UNCHECKED_CAST")
+                (currentSavedStateValue as SimpleSavedStateValue<T?>).value = value
             }
 
-            is StateFlowSavedStateValue<T?> -> {
-                currentSavedStateValue.value = value
+            is StateFlowSavedStateValue<*> -> {
+                @Suppress("UNCHECKED_CAST")
+                (currentSavedStateValue.value as MutableStateFlow<T?>).value = value
             }
 
             is SavedStateProviderSavedStateValue -> {
-                currentSavedStateValue.value = value as? SavedState
+                currentSavedStateValue.savedState = value as? SavedState
             }
 
             null -> {
@@ -139,17 +156,13 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
     fun setSavedStateProvider(key: String, provider: SavedStateProvider) {
         container.putSavedStateValue(
             key,
-            SavedStateProviderSavedStateValue(value = get(key), provider = provider),
+            SavedStateProviderSavedStateValue(value = provider, savedState = get(key)),
         )
     }
 
     @MainThread
     fun clearSavedStateProvider(key: String) {
-        val removed =
-            container.removeSavedStateValue<SavedState?, SavedStateProviderSavedStateValue>(key)
-        if (removed?.value != null) {
-            set(key, removed.value)
-        }
+        container.removeSavedStateValue<SavedStateProvider, SavedStateProviderSavedStateValue>(key)
     }
 }
 
