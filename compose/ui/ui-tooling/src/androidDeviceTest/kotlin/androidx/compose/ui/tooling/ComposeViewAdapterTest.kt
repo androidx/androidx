@@ -72,6 +72,7 @@ class ComposeViewAdapterTest {
         previewWrapperProvider: Class<out PreviewWrapperProvider>? = null,
         lookaheadAnimationVisualDebuggingEnabled: Boolean = false,
         lookaheadAnimationVisualDebuggingKeyLabelEnabled: Boolean = false,
+        device: String? = null,
     ): List<ViewInfo> {
         initAndWaitForDraw(
             className,
@@ -80,6 +81,7 @@ class ComposeViewAdapterTest {
             lookaheadAnimationVisualDebuggingEnabled = lookaheadAnimationVisualDebuggingEnabled,
             lookaheadAnimationVisualDebuggingKeyLabelEnabled =
                 lookaheadAnimationVisualDebuggingKeyLabelEnabled,
+            device = device,
         )
         activityTestRule.runOnUiThread { assertTrue(composeViewAdapter.viewInfos.isNotEmpty()) }
 
@@ -96,6 +98,7 @@ class ComposeViewAdapterTest {
         previewWrapperProvider: Class<out PreviewWrapperProvider>? = null,
         lookaheadAnimationVisualDebuggingEnabled: Boolean = false,
         lookaheadAnimationVisualDebuggingKeyLabelEnabled: Boolean = false,
+        device: String? = null,
     ) {
         val committedAndDrawn = CountDownLatch(1)
         val committed = AtomicBoolean(false)
@@ -107,6 +110,7 @@ class ComposeViewAdapterTest {
                 lookForDesignInfoProviders = true,
                 designInfoProvidersArgument = designInfoProvidersArgument,
                 previewWrapperProvider = previewWrapperProvider,
+                device = device,
                 onCommit = { committed.set(true) },
                 onDraw = {
                     if (committed.get()) {
@@ -949,6 +953,41 @@ class ComposeViewAdapterTest {
                 return
             }
             Thread.sleep(200)
+        }
+    }
+
+    @Test
+    fun testMediaQueryPreviewRendersCorrectly() {
+        val viewInfos =
+            assertRendersCorrectly(
+                "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
+                "TestMediaQueryPreview",
+            )
+        activityTestRule.runOnUiThread {
+            assertTrue(viewInfos.isNotEmpty())
+            val previewNode =
+                viewInfos
+                    .flatMap { it.allChildren() + it }
+                    .find { it.name == "Text" && it.fileName == "SimpleComposablePreview.kt" }
+            assertTrue("TestMediaQueryPreview should be present", previewNode != null)
+        }
+    }
+
+    @Test
+    fun testMediaQueryPreviewWithDeviceSpecRendersCorrectly() {
+        val viewInfos =
+            assertRendersCorrectly(
+                "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
+                "TestTabletopMediaQueryPreview",
+                device = "spec:width=673dp,height=841dp,windowPosture=tabletop",
+            )
+        activityTestRule.runOnUiThread {
+            assertTrue(viewInfos.isNotEmpty())
+            val previewNode =
+                viewInfos
+                    .flatMap { it.allChildren() + it }
+                    .find { it.name == "Text" && it.fileName == "SimpleComposablePreview.kt" }
+            assertTrue("TestTabletopMediaQueryPreview should be present", previewNode != null)
         }
     }
 
