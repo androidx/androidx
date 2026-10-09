@@ -22,7 +22,6 @@ import com.android.adblib.connectedDevicesTracker
 import com.android.adblib.deviceProperties
 import com.android.adblib.isOnline
 import com.android.adblib.serialNumber
-import com.android.adblib.shellAsText
 import com.android.adblib.tools.createStandaloneSession
 import java.io.File
 import java.lang.reflect.Modifier
@@ -253,7 +252,7 @@ internal constructor(
                 apiLevel = api,
                 applicationId = applicationId,
                 telemetryPublisher = { key, value ->
-                    extensionContext?.publishReportEntry(key, value)
+                    extensionContext.publishReportEntry(key, value)
                 },
             )
 
@@ -265,9 +264,7 @@ internal constructor(
         // storage is decrypted and accessible
         runBlocking {
             try {
-                val selector = com.android.adblib.DeviceSelector.fromSerialNumber(serial)
-                adbSession.deviceServices.shellAsText(selector, "wm dismiss-keyguard")
-                adbSession.deviceServices.shellAsText(selector, "input keyevent 82")
+                deviceImpl.wakeAndDismissKeyguard()
             } catch (e: Exception) {
                 logger.info("Failed to proactively dismiss keyguard: ${e.message}")
             }

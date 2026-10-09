@@ -395,6 +395,11 @@ internal class BackupRestoreControllerImpl(
     suspend fun installedApkPaths(): List<String>? =
         shell.listPackagePaths(applicationId).ifEmpty { null }
 
+    /** Turns the screen on and dismisses the keyguard. */
+    suspend fun wakeAndDismissKeyguard() {
+        shell.wakeAndDismissKeyguard()
+    }
+
     override suspend fun launchApp(
         activityClass: String?,
         intentExtras: Map<String, String>,
