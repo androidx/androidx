@@ -431,7 +431,17 @@ public class EncoderBase implements AutoCloseable,
 
         codecFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 0);
         codecFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
+
+        // TODO: Let callers configure the color aspects/range on the Builder.
+        // Even for 8-bit INPUT_MODE_BUFFER, YUV_420_888 isn't guaranteed to be full-range
+        // JFIF (e.g. if the buffer comes from a video decoder), and for Surface/Bitmap
+        // inputs we're still hardcoding BT.601 SDR at configure() time regardless of the
+        // input's actual color space.
         if (useBitDepth10) {
+            // KEY_COLOR_RANGE sets the bitstream (output) range. The 10-bit EGL surface uses a
+            // BT.2020 PQ/HLG colorspace, which the platform maps to a full-range dataspace
+            // (HAL_DATASPACE_BT2020_PQ/HLG) passed to the encoder as input; request full range
+            // to match.
             codecFormat.setInteger(
                     MediaFormat.KEY_COLOR_STANDARD, MediaFormat.COLOR_STANDARD_BT2020);
             codecFormat.setInteger(
@@ -441,8 +451,14 @@ public class EncoderBase implements AutoCloseable,
         } else {
             codecFormat.setInteger(
                     MediaFormat.KEY_COLOR_STANDARD, MediaFormat.COLOR_STANDARD_BT601_NTSC);
-            codecFormat.setInteger(
-                    MediaFormat.KEY_COLOR_RANGE, MediaFormat.COLOR_RANGE_FULL);
+            // Buffer input: the client's YUV is passed through as is, so only label its range
+            // (full range, as in camera/JFIF YUV). Surface/bitmap input: the 8-bit EGL surface
+            // has no dataspace, so the encoder's RGB-to-YUV range is device-specific (often
+            // limited); leave the range unset so the codec picks one consistent with its output.
+            if (!useSurfaceInternally) {
+                codecFormat.setInteger(
+                        MediaFormat.KEY_COLOR_RANGE, MediaFormat.COLOR_RANGE_FULL);
+            }
             codecFormat.setInteger(
                     MediaFormat.KEY_COLOR_TRANSFER, MediaFormat.COLOR_TRANSFER_SDR_VIDEO);
         }
