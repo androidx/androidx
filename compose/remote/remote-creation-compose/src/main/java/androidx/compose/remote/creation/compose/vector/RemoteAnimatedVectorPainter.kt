@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+@file:JvmName("RemoteAnimatedVectorPainterKt")
+@file:JvmMultifileClass
+
 package androidx.compose.remote.creation.compose.vector
 
-import android.content.Context
-import androidx.annotation.DrawableRes
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -40,7 +41,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
 
@@ -106,24 +106,6 @@ public fun painterRemoteAnimatedVector(
 }
 
 /**
- * Creates a [RemotePainter] to render an XML Animated Vector Drawable resource at [progress].
- * Defaults to animating continually based on [RemoteTimeVariables.animationTime].
- *
- * @param context The Android context used to load the resource.
- * @param id The XML drawable resource ID.
- * @param progress The [RemoteFloat] animation progress.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun painterRemoteAnimatedVector(
-    context: Context,
-    @DrawableRes id: Int,
-    progress: RemoteFloat = defaultProgress(RemoteAnimatedVector.fromXml(context.resources, id)),
-): RemotePainter {
-    val avd = RemoteAnimatedVector.fromXml(context.resources, id)
-    return RemoteAnimatedVectorPainter(avd, progress)
-}
-
-/**
  * Remembers a [RemotePainter] for a [RemoteAnimatedVector] evaluated at the given [progress].
  * Defaults to animating continually based on [RemoteTimeVariables.animationTime].
  *
@@ -138,27 +120,6 @@ public fun rememberRemoteAnimatedVectorPainter(
 ): RemotePainter {
     return remember(animatedVector, progress) {
         RemoteAnimatedVectorPainter(animatedVector, progress)
-    }
-}
-
-/**
- * Remembers a [RemotePainter] for an XML Animated Vector Drawable resource at the given [progress].
- * Defaults to animating continually based on [RemoteTimeVariables.animationTime].
- *
- * @param id The XML drawable resource ID.
- * @param progress The [RemoteFloat] animation progress.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-public fun rememberRemoteAnimatedVectorPainter(
-    @DrawableRes id: Int,
-    progress: RemoteFloat =
-        defaultProgress(RemoteAnimatedVector.fromXml(LocalResources.current, id)),
-): RemotePainter {
-    val resources = LocalResources.current
-    return remember(id, progress) {
-        val avd = RemoteAnimatedVector.fromXml(resources, id)
-        RemoteAnimatedVectorPainter(avd, progress)
     }
 }
 

@@ -22,7 +22,6 @@ import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.max
 import kotlin.math.min
@@ -104,8 +103,7 @@ constructor(
                 val glyph = glyphs[index]
                 BitmapFontData.Glyph(
                     glyph.chars,
-                    glyph.bitmap?.let { creationState.document.addBitmap(it.asAndroidBitmap()) }
-                        ?: -1,
+                    glyph.bitmap?.let { creationState.addBitmap(it) } ?: -1,
                     glyph.marginLeft,
                     glyph.marginTop,
                     glyph.marginRight,

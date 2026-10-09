@@ -33,7 +33,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteComposeApplier
 import androidx.compose.remote.creation.compose.layout.RemoteRootNode
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
@@ -102,7 +101,7 @@ public suspend fun captureSingleRemoteDocument(
     remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     clock: RemoteClock = RemoteClock.SYSTEM,
-    profile: Profile = RcPlatformProfiles.ANDROIDX,
+    profile: Profile,
     writerCallback: Any? = null,
     platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
     content: @Composable @RemoteComposable () -> Unit,
@@ -260,7 +259,7 @@ public fun captureRemoteDocument(
     remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     clock: RemoteClock = RemoteClock.SYSTEM,
-    profile: Profile = RcPlatformProfiles.ANDROIDX,
+    profile: Profile,
     writerCallback: Any? = null,
     platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
     coroutineContext: CoroutineContext = Dispatchers.Default,
