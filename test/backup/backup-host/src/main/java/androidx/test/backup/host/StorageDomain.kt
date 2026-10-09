@@ -30,6 +30,9 @@ package androidx.test.backup.host
 public sealed class StorageDomain {
 
     internal companion object {
+        /** Number of characters of a [TextFile] that its string form shows. */
+        private const val MAX_SHOWN_CONTENT_LENGTH = 64
+
         fun isValidPreferenceType(value: Any): Boolean {
             return value is String ||
                 value is Int ||
@@ -176,8 +179,8 @@ public sealed class StorageDomain {
     /**
      * Targets local raw text files stored within internal app storage.
      *
-     * @property path The relative path of the file inside the app sandbox (e.g.
-     *   "files/my_data.txt").
+     * @property path The path of the file, relative to the app's files directory
+     *   (`Context.getFilesDir()`), such as `"my_data.txt"`. An absolute path is used as is.
      * @property content The string content of the file.
      */
     public class TextFile(public val path: String, public val content: String) : StorageDomain() {
@@ -194,15 +197,21 @@ public sealed class StorageDomain {
         }
 
         override fun toString(): String {
-            return "TextFile(path='$path', content='$content')"
+            val shownContent =
+                if (content.length <= MAX_SHOWN_CONTENT_LENGTH) {
+                    "'$content'"
+                } else {
+                    "'${content.take(MAX_SHOWN_CONTENT_LENGTH)}...' (${content.length} chars)"
+                }
+            return "TextFile(path='$path', content=$shownContent)"
         }
     }
 
     /**
      * Targets local raw binary files stored within internal app storage.
      *
-     * @property path The relative path of the file inside the app sandbox (e.g.
-     *   "files/my_image.png").
+     * @property path The path of the file, relative to the app's files directory
+     *   (`Context.getFilesDir()`), such as `"my_image.png"`. An absolute path is used as is.
      * @property content The raw byte array content of the file.
      */
     public class BinaryFile(public val path: String, content: ByteArray) : StorageDomain() {

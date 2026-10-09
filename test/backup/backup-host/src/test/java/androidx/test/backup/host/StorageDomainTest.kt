@@ -139,4 +139,28 @@ class StorageDomainTest {
         returnedBytes[0] = 99
         assertEquals(1.toByte(), binaryFile.content[0]) // Internal array remains unchanged
     }
+
+    @Test
+    fun testTextFile_toStringShowsContentUpToTheBound() {
+        val atTheBound = "a".repeat(64)
+
+        assertEquals(
+            "TextFile(path='notes.txt', content='hello')",
+            StorageDomain.TextFile("notes.txt", "hello").toString(),
+        )
+        assertEquals(
+            "TextFile(path='notes.txt', content='$atTheBound')",
+            StorageDomain.TextFile("notes.txt", atTheBound).toString(),
+        )
+    }
+
+    @Test
+    fun testTextFile_toStringCutsLongerContent() {
+        val content = "a".repeat(64) + "b".repeat(36)
+
+        assertEquals(
+            "TextFile(path='big.txt', content='${"a".repeat(64)}...' (100 chars))",
+            StorageDomain.TextFile("big.txt", content).toString(),
+        )
+    }
 }

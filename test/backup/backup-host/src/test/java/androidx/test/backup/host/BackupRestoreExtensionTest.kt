@@ -20,6 +20,7 @@ import com.android.adblib.AdbSession
 import java.io.File
 import java.lang.reflect.Method
 import java.nio.file.Path
+import java.util.Optional
 import java.util.Properties
 import java.util.function.Function
 import kotlin.test.assertContains
@@ -35,6 +36,7 @@ import org.junit.Test
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource
 import org.junit.jupiter.api.extension.ParameterContext
+import org.junit.platform.commons.PreconditionViolationException
 import org.junit.rules.TemporaryFolder
 import org.mockito.Mockito.any
 import org.mockito.Mockito.doThrow
@@ -57,6 +59,10 @@ class BackupRestoreExtensionTest {
 
     @Suppress("UNUSED_PARAMETER")
     private fun deviceAfterDirMethod(dir: Path, device: BackupRestoreController) {}
+
+    @Isolation(IsolationPolicy.MANUAL) private fun manuallyIsolatedMethod() {}
+
+    @Isolation(IsolationPolicy.AUTOMATIC) class AutomaticallyIsolatedTestClass
 
     @BackupRestoreConfig(applicationId = "com.example.outer")
     @Isolation(IsolationPolicy.MANUAL)
@@ -170,6 +176,35 @@ class BackupRestoreExtensionTest {
         val nested = ConfiguredTestClass.StaticNestedClass::class.java
 
         assertNull(BackupRestoreExtension().findClassAnnotation(nested, Isolation::class.java))
+    }
+
+    /**
+     * JUnit resolves the parameters of a test class constructor and of a `@BeforeAll` method in the
+     * context of the class, which has no test method.
+     */
+    @Test
+    fun aControllerOutsideOfATestMethodTakesTheIsolationOfItsClass() {
+        val extension = BackupRestoreExtension()
+
+        assertEquals(
+            IsolationPolicy.MANUAL,
+            extension.isolationPolicyFor(classContext(ConfiguredTestClass::class.java)),
+        )
+        assertEquals(
+            IsolationPolicy.AUTOMATIC,
+            extension.isolationPolicyFor(classContext(UnconfiguredTestClass::class.java)),
+        )
+    }
+
+    /** The two annotations disagree, and the one of the method is not the default. */
+    @Test
+    fun theIsolationOfATestMethodTakesPrecedenceOverThatOfItsClass() {
+        val method =
+            BackupRestoreExtensionTest::class.java.getDeclaredMethod("manuallyIsolatedMethod")
+        val context = classContext(AutomaticallyIsolatedTestClass::class.java)
+        `when`(context.testMethod).thenReturn(Optional.of(method))
+
+        assertEquals(IsolationPolicy.MANUAL, BackupRestoreExtension().isolationPolicyFor(context))
     }
 
     @Test
@@ -490,6 +525,25 @@ class BackupRestoreExtensionTest {
             val context = mock(ExtensionContext::class.java)
             `when`(context.root).thenReturn(context)
             `when`(context.getStore(any())).thenReturn(store)
+            return context
+        }
+
+        /**
+         * Returns the [ExtensionContext] of [testClass] itself, which has no test method, like the
+         * one in which JUnit resolves the parameters of its constructor and `@BeforeAll` methods.
+         */
+        fun classContext(testClass: Class<*>): ExtensionContext {
+            val context = mock(ExtensionContext::class.java)
+            `when`(context.testClass).thenReturn(Optional.of(testClass))
+            `when`(context.requiredTestClass).thenReturn(testClass)
+            `when`(context.testMethod).thenReturn(Optional.empty())
+            `when`(context.requiredTestMethod)
+                .thenThrow(
+                    PreconditionViolationException(
+                        "Illegal state: required test method is not present in the current " +
+                            "ExtensionContext"
+                    )
+                )
             return context
         }
 
