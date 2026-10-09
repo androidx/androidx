@@ -38,6 +38,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.work.Configuration;
@@ -126,6 +127,18 @@ public class WorkManagerImpl extends WorkManager {
     public static void setDelegate(@Nullable WorkManagerImpl delegate) {
         synchronized (sLock) {
             sDelegatedInstance = delegate;
+        }
+    }
+
+    /**
+     * Resets singleton instances for testing purposes.
+     */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static void resetInstanceForTesting() {
+        synchronized (sLock) {
+            sDefaultInstance = null;
+            sDelegatedInstance = null;
         }
     }
 
