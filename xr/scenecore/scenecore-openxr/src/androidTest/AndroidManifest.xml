@@ -17,7 +17,26 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
+        <!--
+          Opt in to experimental (*X1) OpenXR extensions. The Vitreous runtime omits
+          extensions tagged [EXPERIMENTAL] - including XR_EXTX1_system_renderer and
+          XR_ANDROIDX1_system_renderer - from xrEnumerateInstanceExtensionProperties()
+          unless this is declared, and the OpenXR loader refuses to enable any
+          extension that was not enumerated.
+          -->
+        <meta-data
+            android:name="com.android.extensions.xr.uses_experimental_openxr_feature"
+            android:value="true" />
         <activity android:name="androidx.activity.ComponentActivity" />
+        <activity
+            android:name="androidx.xr.scenecore.openxr.smoketest.SceneCoreOpenXrLauncherActivity"
+            android:exported="true"
+            android:label="SceneCore OpenXR">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name="androidx.xr.scenecore.openxr.smoketest.SceneCoreOpenXrSmokeTestActivity"
             android:exported="true"
@@ -25,6 +44,17 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="androidx.xr.scenecore.openxr.smoketest.SceneCorePanelActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:requiredDisplayCategory="android.hardware.display.category.XR_PROJECTED"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar"
+            android:label="SceneCore Panel (Glasses)">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
     </application>
