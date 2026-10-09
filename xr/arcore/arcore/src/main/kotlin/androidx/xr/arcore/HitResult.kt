@@ -30,10 +30,11 @@ import androidx.xr.runtime.math.Pose
  *
  * If the hit [Trackable] is a [Plane], the hitPose will be parallel to the [Pose] of the [Plane].
  *
- * The hit [Trackable] may also be an instance of [Anchorable]. If so, an anchor representing the
- * hit position can be created from the [Anchorable]
- *
  * @property trackable the [Trackable] that was hit
+ *
+ * The hit [Trackable] may also be an instance of [Anchorable]. If so, an anchor representing the
+ * hit position can be created from the [Anchorable].
+ *
  * @see Anchorable.createAnchor
  */
 public class HitResult

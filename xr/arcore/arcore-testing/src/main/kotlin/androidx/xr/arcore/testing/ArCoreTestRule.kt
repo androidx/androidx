@@ -18,7 +18,6 @@ package androidx.xr.arcore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Trackable
-import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntime
 import androidx.xr.arcore.testing.internal.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.internal.FakeRuntimeAnchor
@@ -270,8 +269,8 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
      * Adds the given [TestTrackable] objects and registers them with this ArCoreTestRule.
      *
      * Objects that are added are not removed during the lifetime of the test. Instead, their
-     * [TrackingState] will be updated based on their [TestTrackable.isVisible] property and the
-     * [androidx.xr.runtime.Session] configuration.
+     * [androidx.xr.arcore.TrackingState] will be updated based on their [TestTrackable.isVisible]
+     * property and the [androidx.xr.runtime.Session] configuration.
      *
      * @param trackables [TestTrackable] objects to add
      */
