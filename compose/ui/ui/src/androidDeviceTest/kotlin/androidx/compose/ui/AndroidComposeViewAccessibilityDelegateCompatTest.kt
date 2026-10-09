@@ -3632,8 +3632,10 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                         actual.scrollY == expected.scrollY &&
                         actual.maxScrollX == expected.maxScrollX &&
                         actual.maxScrollY == expected.maxScrollY &&
-                        (SDK_INT < P || actual.scrollDeltaX == expected.scrollDeltaX) &&
-                        (SDK_INT < P || actual.scrollDeltaY == expected.scrollDeltaY) &&
+                        // Prior to API 30 (R), AccessibilityRecord.clear() does not reset
+                        // mScrollDeltaX/Y when AccessibilityEvents are recycled into sPool.
+                        (SDK_INT < R || actual.scrollDeltaX == expected.scrollDeltaX) &&
+                        (SDK_INT < R || actual.scrollDeltaY == expected.scrollDeltaY) &&
                         actual.addedCount == expected.addedCount &&
                         actual.removedCount == expected.removedCount &&
                         actual.parcelableData == expected.parcelableData &&
