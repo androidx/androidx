@@ -37,6 +37,7 @@ import androidx.car.app.sample.showcase.common.screens.settings.CarHardwareDemoS
 import androidx.car.app.sample.showcase.common.screens.settings.ContentLimitsDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.settings.LatestFeatures;
 import androidx.car.app.sample.showcase.common.screens.settings.ParkedVsDrivingDemoScreen;
+import androidx.car.app.versioning.CarAppApiLevels;
 
 import org.jspecify.annotations.NonNull;
 
@@ -90,7 +91,9 @@ public final class SettingsScreen extends Screen {
         listBuilder.addItem(buildRowForTemplate(new LatestFeatures(getCarContext()),
                 R.string.latest_feature_title));
 
-        listBuilder.addItem(buildRowForTemplate(R.string.app_theme_title, mAppThemeToggle));
+        if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_9) {
+            listBuilder.addItem(buildRowForTemplate(R.string.app_theme_title, mAppThemeToggle));
+        }
 
         listBuilder.addItem(buildRowForTemplate(R.string.loading_demo_title, mLoadingToggle));
 
