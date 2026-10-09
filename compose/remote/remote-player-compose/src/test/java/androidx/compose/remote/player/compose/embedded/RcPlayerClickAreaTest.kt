@@ -18,6 +18,7 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.ADD
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -82,5 +83,21 @@ class RcPlayerClickAreaTest {
             .assertTopPositionInRootIsEqualTo(20.dp)
             .assertWidthIsEqualTo(50.dp)
             .assertHeightIsEqualTo(30.dp)
+    }
+
+    @Test
+    fun clickAreaEdgesCanBeExpressions() {
+        rule.setRemoteContent {
+            RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                // 30 + 30 = 60: the same bounds as above, with the right edge computed.
+                val right = document.floatExpression(30f, 30f, ADD)
+                document.addClickArea(1, "Area", 10f, 20f, right, 50f, null)
+            }
+        }
+
+        rule
+            .onNodeWithContentDescription("Area")
+            .assertLeftPositionInRootIsEqualTo(10.dp)
+            .assertWidthIsEqualTo(50.dp)
     }
 }
