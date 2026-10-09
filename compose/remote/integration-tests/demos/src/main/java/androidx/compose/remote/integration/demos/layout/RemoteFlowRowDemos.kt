@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.integration.demos.layout
 
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -51,8 +52,10 @@ private val experimentalProfile =
     "RestrictedApiAndroidX"
 ) // Referring to RemoteComponentPreview, remote-core, remote-creation-core
 @Composable
-fun RemoteFlowRowDemo() {
-    RemoteDemo(profile = experimentalProfile) { RemoteFlowRowDemoContent() }
+fun RemoteFlowRowDemo(onDocument: (CoreDocument) -> Unit = {}) {
+    RemoteDemo(profile = experimentalProfile, onDocument = onDocument) {
+        RemoteFlowRowDemoContent()
+    }
 }
 
 @Suppress(

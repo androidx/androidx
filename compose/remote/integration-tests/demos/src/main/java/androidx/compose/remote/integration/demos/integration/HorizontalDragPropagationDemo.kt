@@ -51,6 +51,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
@@ -96,7 +97,7 @@ private enum class HostContainerMode(val label: String) {
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
-fun HorizontalDragPropagationDemo() {
+fun HorizontalDragPropagationDemo(onDocument: (CoreDocument) -> Unit = {}) {
     var selectedModeIndex by remember { mutableIntStateOf(0) }
     val modes = HostContainerMode.entries
 
@@ -146,8 +147,13 @@ fun HorizontalDragPropagationDemo() {
         Spacer(modifier = Modifier.height(8.dp))
 
         when (modes[selectedModeIndex]) {
-            HostContainerMode.PAGER -> HorizontalPagerHostDemo(modifier = Modifier.fillMaxSize())
-            HostContainerMode.ROW -> HorizontalScrollRowHostDemo(modifier = Modifier.fillMaxSize())
+            HostContainerMode.PAGER ->
+                HorizontalPagerHostDemo(modifier = Modifier.fillMaxSize(), onDocument = onDocument)
+            HostContainerMode.ROW ->
+                HorizontalScrollRowHostDemo(
+                    modifier = Modifier.fillMaxSize(),
+                    onDocument = onDocument,
+                )
             HostContainerMode.VIEW ->
                 HorizontalScrollViewHostDemo(modifier = Modifier.fillMaxSize())
         }
@@ -156,7 +162,10 @@ fun HorizontalDragPropagationDemo() {
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
-private fun HorizontalPagerHostDemo(modifier: Modifier = Modifier) {
+private fun HorizontalPagerHostDemo(
+    modifier: Modifier = Modifier,
+    onDocument: (CoreDocument) -> Unit = {},
+) {
     val pageCount = 3
     val pagerState = rememberPagerState { pageCount }
     val coroutineScope = rememberCoroutineScope()
@@ -253,7 +262,10 @@ private fun HorizontalPagerHostDemo(modifier: Modifier = Modifier) {
                                         .background(Color.White, RoundedCornerShape(8.dp))
                                         .padding(8.dp)
                             ) {
-                                RemoteDemo(modifier = Modifier.fillMaxSize()) {
+                                RemoteDemo(
+                                    modifier = Modifier.fillMaxSize(),
+                                    onDocument = onDocument,
+                                ) {
                                     VerticalScrollDemoContent()
                                 }
                             }
@@ -277,7 +289,10 @@ private fun HorizontalPagerHostDemo(modifier: Modifier = Modifier) {
 
 @Suppress("RestrictedApiAndroidX", "FrequentlyChangingValue")
 @Composable
-private fun HorizontalScrollRowHostDemo(modifier: Modifier = Modifier) {
+private fun HorizontalScrollRowHostDemo(
+    modifier: Modifier = Modifier,
+    onDocument: (CoreDocument) -> Unit = {},
+) {
     val scrollState = rememberScrollState()
 
     Column(modifier = modifier) {
@@ -337,7 +352,7 @@ private fun HorizontalScrollRowHostDemo(modifier: Modifier = Modifier) {
                                 .background(Color.White, RoundedCornerShape(8.dp))
                                 .padding(8.dp)
                     ) {
-                        RemoteDemo(modifier = Modifier.fillMaxSize()) {
+                        RemoteDemo(modifier = Modifier.fillMaxSize(), onDocument = onDocument) {
                             VerticalScrollDemoContent()
                         }
                     }
