@@ -20,8 +20,11 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionManager
+import androidx.appfunctions.ExperimentalAppFunctionsApi
+import androidx.appfunctions.testing.internal.FakeAppFunctionInventory
 import androidx.appfunctions.testing.internal.FakeAppFunctionManagerApi
 import androidx.appfunctions.testing.internal.FakeAppFunctionReader
+import kotlin.OptIn
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -34,133 +37,78 @@ import org.robolectric.shadows.ShadowSystemProperties
  * Prefer real system-level testing where possible. This rule is intended only for local tests that
  * simulate cross-app interactions via AppFunctions.
  *
- * Any functions annotated with [androidx.appfunctions.AppFunctionDeclaration] in test code will be
- * automatically registered in this environment during initialization, provided the
- * `appfunctions-compiler` is applied to the test configuration with the
- * `appfunctions:aggregateAppFunctions` compiler option set to true.
+ * ### Setup
  *
- * ### Example Gradle Setup
+ * 1. Apply the `appfunctions-compiler` annotation processor to the test configuration:
+ *    ```groovy
+ *    dependencies {
+ *        // ...
+ *        kspTest("androidx.appfunctions:appfunctions-compiler:xx.xx.xx")
+ *    }
+ *    ```
  *
- * ```
- * dependencies {
- *     ...
- *     kspTest("androidx.appfunctions:appfunctions-compiler:xx.xx.xx")
- * }
+ * 2. Define the service entry point class with `@AppFunctionServiceEntryPoint`. This is either an
+ *    existing service in the app under test or a test service created specifically for agent
+ *    integration testing. See [androidx.appfunctions.AppFunctionServiceEntryPoint] for set-up
+ *    instructions.<br> **Note:** If a service's enabled state changes dynamically via
+ *    [android.content.pm.PackageManager.setComponentEnabledSetting], call [reloadAppFunctions] to
+ *    reload its functions.
  *
- * ksp {
- *     arg("appfunctions:aggregateAppFunctions", "true")
- * }
- * ```
- *
- * ### Example: Testing App Functions in the Same App
- *
- * ```
+ * ### Example:
+ * ```kotlin
  * package com.example.appfunctions
  *
- * // Sample functions under test.
- * class ExampleFunctions {
- *     @AppFunctionDeclaration
- *     suspend fun add(a: Int, b: Int): Int = a + b
- * }
- *
- * // Test file.
  * class ExampleFunctionsTest {
  *     @get:Rule val appFunctionTestRule = AppFunctionTestRule(context)
- *     private val appFunctionManagerCompat = appFunctionTestRule.getAppFunctionManagerCompat()
+ *     private val appFunctionManager = appFunctionTestRule.getAppFunctionManager()
  *
  *     @Test
  *     fun addFunction_returnsCorrectSum() = runBlocking {
- *         val appFunctionPackageMetadata = appFunctionManagerCompat.observeAppFunctions(
- *                 AppFunctionSearchSpec(
- *                     packageNames = listOf(packageName),
- *                     schemaName = schemaName
- *                 )
- *             )
- *             .first()
- *             .single()
- *         val addFunctionMetadata = appFunctionPackageMetadata.appFunctions.single()
+ *         val appFunctionName = AppFunctionName(
+ *             packageName = "com.example.appfunctions",
+ *             functionIdentifier = "com.example.pkg.TestAppFunctionService#addFunction"
+ *         )
+ *         val appFunctions = appFunctionManager.searchAppFunctions(
+ *             AppFunctionSearchSpec(functionNames = setOf(appFunctionName))
+ *         )
+ *         val addFunctionMetadata = appFunctions.single()
  *
- *         val response = appFunctionManagerCompat.executeAppFunction(
- *             ExecuteAppFunctionRequest(...)
+ *         val response = appFunctionManager.executeAppFunction(
+ *             ExecuteAppFunctionRequest(
+ *                 targetPackageName = context.packageName,
+ *                 functionIdentifier = addFunctionMetadata.id,
+ *                 functionParameters = AppFunctionData.Builder(
+ *                     addFunctionMetadata.parameters,
+ *                     addFunctionMetadata.components
+ *                 )
+ *                     .setLong("a", 2)
+ *                     .setLong("b", 3)
+ *                     .build()
+ *             )
  *         )
  *
- *         // assert on returned response.
- *     }
- * }
- * ```
- *
- * ### Example: Testing App Function Execution in an Agent
- *
- * ```
- * package com.example.agent.appfunctions
- *
- * class AppFunctionsAgent(
- *     private val appFunctionManagerCompat: AppFunctionManager
- * ) {
- *     suspend fun executeAppFunction(
- *         packageName: String,
- *         schemaName: String,
- *         params: Any
- *     ): AppFunctionData {
- *         val appFunctionPackageMetadata = appFunctionManagerCompat
- *             .observeAppFunctions(
- *                 AppFunctionSearchSpec(
- *                     packageNames = listOf(packageName),
- *                     schemaName = schemaName
- *                 )
- *             )
- *             .first()
- *             .single()
- *
- *         val appFunctionMetadata = appFunctionPackageMetadata.appFunctions.single()
- *
- *         val request = ExecuteAppFunctionRequest(...)
- *
- *         val response = appFunctionManagerCompat.executeAppFunction(request)
- *
- *
- *        // return response.
- *     }
- * }
- *
- * // Test file.
- * class TestFunctions {
- *     @AppFunctionDeclaration
- *     fun testFun(parameters: TestParam): TestReturn { ... }
- * }
- *
- * class AppFunctionsAgentTest {
- *     @get:Rule val appFunctionTestRule = AppFunctionTestRule(context)
- *     private val appFunctionsAgent = AppFunctionsAgent(
- *         appFunctionTestRule.getAppFunctionManagerCompat()
- *     )
- *
- *     @Test
- *     fun testFun_returnsExpectedResult() = runBlocking {
- *         val response = appFunctionsAgent.executeAppFunction(
- *             context.packageName,
- *             TestFunctionsIds.TEST_FUN_ID,
- *             TestParam()
- *         )
- *
- *         // assert on response.
+ *         // Assert on returned response.
  *     }
  * }
  * ```
  */
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@RequiresApi(Build.VERSION_CODES.BAKLAVA)
 public class AppFunctionTestRule(private val context: Context) : TestRule {
     // TODO: b/426219836 - Dynamic registration and changing app function enabled state API(s).
     // TODO: b/425327400 - Move to use Robolectric shadows
 
+    private val inventory = FakeAppFunctionInventory(context)
     // TODO(b/426219836): appFunctionReader is internal to set dynamic AppFunctionMetadata manually
     //  in tests. Make it private once dynamic app functions are supported in test rule API.
-    internal val appFunctionReader = FakeAppFunctionReader(context)
-    private val appFunctionManagerApi = FakeAppFunctionManagerApi(context, appFunctionReader)
+    internal val appFunctionReader = FakeAppFunctionReader(context, inventory)
+    private val appFunctionManagerApi =
+        FakeAppFunctionManagerApi(context, appFunctionReader, inventory)
 
     override fun apply(base: Statement?, description: Description?): Statement =
         object : Statement() {
+            @OptIn(ExperimentalAppFunctionsApi::class)
             override fun evaluate() {
+                reloadAppFunctions()
                 // Robolectric platform doesn't set these properties, we have checks for certain
                 // AppSearch features that are only available if the sdk extensions for T are above
                 // 13.
@@ -179,6 +127,41 @@ public class AppFunctionTestRule(private val context: Context) : TestRule {
             appFunctionReader = appFunctionReader,
             appFunctionManagerApi = appFunctionManagerApi,
         )
+    }
+
+    /**
+     * Triggers AppFunction indexing.
+     *
+     * Call this function after updating service component state with
+     * [android.content.pm.PackageManager.setComponentEnabledSetting] to re-index available
+     * functions.
+     *
+     * Once returned, the AppFunctions indexation is guaranteed to be finished. If any static
+     * metadata has changed, active observers of [AppFunctionManager.observeAppFunctions] will be
+     * notified of changes. [AppFunctionManager.searchAppFunctions] will return the updated
+     * metadata, if queried, and [AppFunctionManager.executeAppFunction] will use the updated
+     * metadata.
+     *
+     * ### Example: Enabling a Disabled Service Component
+     *
+     * ```kotlin
+     * // Target the generated service specified by serviceName in @AppFunctionServiceEntryPoint.
+     * val componentName = ComponentName(
+     *     context,
+     *     "com.example.appfunctions.TestAppFunctionService"
+     * )
+     * context.packageManager.setComponentEnabledSetting(
+     *     componentName,
+     *     PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+     *     PackageManager.DONT_KILL_APP
+     * )
+     * // Re-index to discover updated service functions.
+     * appFunctionTestRule.reloadAppFunctions()
+     * ```
+     */
+    @ExperimentalAppFunctionsApi
+    public fun reloadAppFunctions() {
+        appFunctionReader.reloadAppFunctions()
     }
 
     private companion object {
