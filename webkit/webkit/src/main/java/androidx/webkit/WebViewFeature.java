@@ -145,7 +145,8 @@ public class WebViewFeature {
             DOWNLOAD_FAVICONS_ENABLED,
             HTTP_CACHE_MANAGER,
             CROSS_ORIGIN_ISOLATED_ALLOWLIST,
-            ADD_QUIC_HINTS_WILDCARDS
+            ADD_QUIC_HINTS_WILDCARDS,
+            NAVIGATION_GET_RESPONSE_HEADERS,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -1023,6 +1024,15 @@ public class WebViewFeature {
      */
     public static final String CROSS_ORIGIN_ISOLATED_ALLOWLIST =
             "CROSS_ORIGIN_ISOLATED_ALLOWLIST";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link NavigationRedirectParameters#getResponseHeaders()}
+     * {@link NavigationRedirectParameters#getStatusCode()}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String NAVIGATION_GET_RESPONSE_HEADERS = "NAVIGATION_GET_RESPONSE_HEADERS";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is
