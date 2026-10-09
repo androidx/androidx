@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.keepScreenOn
 import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -883,12 +884,6 @@ private fun AnimateConfirmationDialog(
     durationMillis: Long,
     content: @Composable () -> Unit,
 ) {
-    if (visible) {
-        // This will activate the screen-on flag for the duration of this screen, so that the
-        // animations run to completion and then the dialog self-dismisses.
-        KeepScreenOn()
-    }
-
     val a11yDurationMillis =
         LocalAccessibilityManager.current?.calculateRecommendedTimeoutMillis(
             originalTimeoutMillis = durationMillis,
@@ -907,7 +902,7 @@ private fun AnimateConfirmationDialog(
 
     Dialog(
         visible = visible,
-        modifier = modifier,
+        modifier = modifier.keepScreenOn(),
         onDismissRequest = onDismissRequest,
         properties = properties,
         content = content,
