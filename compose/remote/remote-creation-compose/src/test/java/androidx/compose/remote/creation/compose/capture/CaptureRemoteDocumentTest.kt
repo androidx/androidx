@@ -1130,6 +1130,22 @@ class CaptureRemoteDocumentTest {
         assertDocumentContainsText(doc, "AfterFrame")
     }
 
+    @Test
+    fun captureSingleRemoteDocument_withoutContext() =
+        runTest(UnconfinedTestDispatcher()) {
+            val displayInfo = RemoteCreationDisplayInfo(width = 200, height = 200, densityDpi = 160)
+
+            val bytes =
+                captureSingleRemoteDocument(creationDisplayInfo = displayInfo) {
+                    RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc)) {
+                        RemoteText("HeadlessNoContext".rs)
+                    }
+                }
+
+            val doc = bytes.toCoreDocument()
+            assertDocumentContainsText(doc, "HeadlessNoContext")
+        }
+
     private fun ByteArray.toCoreDocument(): CoreDocument {
         val bytes = this
         return CoreDocument().apply {
