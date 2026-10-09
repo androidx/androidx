@@ -72,6 +72,7 @@ import androidx.compose.remote.core.operations.PathCreate
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
+import androidx.compose.remote.core.operations.RootContentBehavior
 import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.TextLookup
@@ -142,6 +143,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -363,9 +365,10 @@ public fun RcPlayer(
                             root.setHeight(size.height.toFloat())
                             // Re-evaluate the root's ComponentValues (its WIDTH / HEIGHT).
                             root.updateVariables(remoteContext)
-                        } else {
+                        } else if (document.contentSizing != RootContentBehavior.SIZING_SCALE) {
                             // Raw draw-list document: mirror CoreDocument.paint, so draws
-                            // positioned by the document size resolve.
+                            // positioned by the document size resolve. A document that scales
+                            // its content keeps its own size (see RcPlayerRawDocument).
                             document.setWidth(size.width)
                             document.setHeight(size.height)
                         }
@@ -639,15 +642,63 @@ internal fun RcPlayerRawDocument() {
     val remoteContext = LocalRemoteContext.current
     val graph = LocalGraphContext.current
     val textMeasurer = rememberTextMeasurer()
+    val scale = remember(document) { FloatArray(2) }
     Canvas(modifier = Modifier.fillMaxSize()) {
         // The document size is published from the player's onPlaced, which runs before draw.
-        executeOperations(
-            document.getOperationsReflection(),
-            remoteContext,
-            graph = graph,
-            textMeasurer = textMeasurer,
-        )
+        if (document.contentSizing == RootContentBehavior.SIZING_SCALE) {
+            // RootContentBehavior: scale and align the document's own size into the player, as
+            // CoreDocument.paint does.
+            document.computeScale(size.width, size.height, scale)
+            val translate = document.contentTranslation(size.width, size.height, scale)
+            withTransform({
+                translate(translate.x, translate.y)
+                scale(scale[0], scale[1], pivot = Offset.Zero)
+            }) {
+                executeOperations(
+                    document.getOperationsReflection(),
+                    remoteContext,
+                    graph = graph,
+                    textMeasurer = textMeasurer,
+                )
+            }
+        } else {
+            executeOperations(
+                document.getOperationsReflection(),
+                remoteContext,
+                graph = graph,
+                textMeasurer = textMeasurer,
+            )
+        }
     }
+}
+
+/**
+ * Where content scaled by [scale] is placed in a [width] x [height] player, following the
+ * document's RootContentBehavior alignment. Mirrors CoreDocument.computeTranslate.
+ */
+internal fun CoreDocument.contentTranslation(
+    width: Float,
+    height: Float,
+    scale: FloatArray,
+): Offset {
+    val alignment = contentAlignmentReflection
+    val contentWidth = this.width * scale[0]
+    val contentHeight = this.height * scale[1]
+    // RootContentBehavior packs horizontal alignment in the upper nibble (0xF0) and vertical
+    // alignment in the lower nibble (0xF); see CoreDocument.computeTranslate.
+    val x =
+        when (alignment and 0xF0) {
+            RootContentBehavior.ALIGNMENT_HORIZONTAL_CENTER -> (width - contentWidth) / 2f
+            RootContentBehavior.ALIGNMENT_END -> width - contentWidth
+            else -> 0f
+        }
+    val y =
+        when (alignment and 0xF) {
+            RootContentBehavior.ALIGNMENT_VERTICAL_CENTER -> (height - contentHeight) / 2f
+            RootContentBehavior.ALIGNMENT_BOTTOM -> height - contentHeight
+            else -> 0f
+        }
+    return Offset(x, y)
 }
 
 @Composable

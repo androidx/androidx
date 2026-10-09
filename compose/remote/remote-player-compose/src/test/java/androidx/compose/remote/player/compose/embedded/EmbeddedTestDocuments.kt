@@ -39,15 +39,20 @@ import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.ByteArrayInputStream
 
-/** Builds a raw draw-list [CoreDocument] (AndroidX + experimental profile) from [content]. */
-internal fun buildDocument(content: RemoteComposeContextAndroid.() -> Unit): CoreDocument {
+/**
+ * Builds a raw draw-list [CoreDocument] with [profiles] (AndroidX + experimental) from [content].
+ */
+internal fun buildDocument(
+    profiles: Int = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+    content: RemoteComposeContextAndroid.() -> Unit,
+): CoreDocument {
     val docContext =
         RemoteComposeContextAndroid(
             100,
             100,
             "test",
             CoreDocument.DOCUMENT_API_LEVEL,
-            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            profiles,
             AndroidxRcPlatformServices(),
         ) {
             content()
@@ -72,7 +77,7 @@ internal fun ComposeContentTestRule.renderDocument(document: CoreDocument): Bitm
 /** Builds a raw draw-list document from [content] and renders it, see [renderDocument]. */
 internal fun ComposeContentTestRule.renderDocument(
     content: RemoteComposeContextAndroid.() -> Unit
-): Bitmap = renderDocument(buildDocument(content))
+): Bitmap = renderDocument(buildDocument(content = content))
 
 /** Asserts the pixel at ([x], [y]) is red. */
 internal fun assertRed(bitmap: Bitmap, x: Int, y: Int) {
