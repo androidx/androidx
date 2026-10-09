@@ -17,6 +17,7 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
@@ -55,6 +57,24 @@ class OpenOnPhoneDialogTest {
             )
         }
         rule.onNodeWithTag(TEST_TAG).assertExists()
+    }
+
+    @Test
+    fun openOnPhone_keepsScreenOn_whenVisible() {
+        var dialogView: View? = null
+        rule.setContentWithTheme {
+            OpenOnPhoneDialog(
+                visible = true,
+                onDismissRequest = {},
+                curvedText = null,
+                content = {
+                    dialogView = LocalView.current
+                },
+            )
+        }
+        rule.runOnIdle {
+            Assert.assertTrue(dialogView?.keepScreenOn == true)
+        }
     }
 
     @Test
