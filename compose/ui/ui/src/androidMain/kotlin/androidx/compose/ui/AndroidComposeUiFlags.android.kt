@@ -90,15 +90,6 @@ public object AndroidComposeUiFlags {
     @JvmField
     public var isOutOfFrameSchedulerForTextInputEventsEnabled: Boolean = true
 
-    /**
-     * Enables sorting of accessibility children based on their traversal index when the parent is a
-     * traversal group and is a merging container.
-     */
-    // TODO: b/522932901
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isTraversalGroupSortingEnabled: Boolean = true
-
     /** Enables propagation of hideFromAccessibility to children of merging parents. */
     // TODO: b/522817006
     @field:Suppress("MutableBareField")
