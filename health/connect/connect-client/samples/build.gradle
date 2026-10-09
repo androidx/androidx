@@ -47,5 +47,5 @@ android {
     defaultConfig {
         minSdk { version = release(26) }
     }
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
 }

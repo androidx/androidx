@@ -70,7 +70,7 @@ android {
         aidl = true
     }
     namespace = "androidx.health.connect.client"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
 }
 
 androidx {

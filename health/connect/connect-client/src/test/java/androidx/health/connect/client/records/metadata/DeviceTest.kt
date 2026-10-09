@@ -32,22 +32,48 @@ class DeviceTest {
     }
 
     @Test
+    fun constructor_argumentsOmitted_udiIsNull() {
+        val device = Device(type = Device.TYPE_WATCH)
+
+        assertThat(device.udi).isNull()
+    }
+
+    @Test
     fun constructor_onlyDisplayName_setsDisplayName() {
         val device = Device(type = Device.TYPE_SCALE, displayName = "Bathroom scale")
 
         assertThat(device.manufacturer).isNull()
         assertThat(device.model).isNull()
         assertThat(device.displayName).isEqualTo("Bathroom scale")
+        assertThat(device.udi).isNull()
+    }
+
+    @Test
+    fun constructor_onlyUdi_setsUdi() {
+        val device = Device(type = Device.TYPE_CONSUMER_MEDICAL_DEVICE, udi = "04015674011832")
+
+        assertThat(device.manufacturer).isNull()
+        assertThat(device.model).isNull()
+        assertThat(device.displayName).isNull()
+        assertThat(device.udi).isEqualTo("04015674011832")
     }
 
     @Test
     fun constructor_allArguments_setsAllProperties() {
-        val device = Device(Device.TYPE_WATCH, "Google", "Pixel Watch 3", "Alex's watch")
+        val device =
+            Device(
+                Device.TYPE_WATCH,
+                "Google",
+                "Pixel Watch 3",
+                "Alex's watch",
+                "04015674011832",
+            )
 
         assertThat(device.type).isEqualTo(Device.TYPE_WATCH)
         assertThat(device.manufacturer).isEqualTo("Google")
         assertThat(device.model).isEqualTo("Pixel Watch 3")
         assertThat(device.displayName).isEqualTo("Alex's watch")
+        assertThat(device.udi).isEqualTo("04015674011832")
     }
 
     @Test
@@ -60,9 +86,45 @@ class DeviceTest {
     }
 
     @Test
+    fun equals_threeArgumentConstructor_equalsNullUdi() {
+        val threeArguments = Device(Device.TYPE_CONSUMER_MEDICAL_DEVICE, "Omron", "HEM-7121")
+        val nullUdi =
+            Device(
+                Device.TYPE_CONSUMER_MEDICAL_DEVICE,
+                "Omron",
+                "HEM-7121",
+                displayName = null,
+                udi = null,
+            )
+
+        assertThat(threeArguments).isEqualTo(nullUdi)
+        assertThat(threeArguments.hashCode()).isEqualTo(nullUdi.hashCode())
+    }
+
+    @Test
     fun equals_differentDisplayName_notEqual() {
         val device = Device(Device.TYPE_WATCH, "Google", "Pixel Watch 3", "Alex's watch")
         val otherDevice = Device(Device.TYPE_WATCH, "Google", "Pixel Watch 3", "Sam's watch")
+
+        assertThat(device).isNotEqualTo(otherDevice)
+    }
+
+    @Test
+    fun equals_differentUdi_notEqual() {
+        val device =
+            Device(
+                Device.TYPE_CONSUMER_MEDICAL_DEVICE,
+                "Omron",
+                "HEM-7121",
+                udi = "04015674011832",
+            )
+        val otherDevice =
+            Device(
+                Device.TYPE_CONSUMER_MEDICAL_DEVICE,
+                "Omron",
+                "HEM-7121",
+                udi = "04015674099999",
+            )
 
         assertThat(device).isNotEqualTo(otherDevice)
     }
@@ -72,5 +134,12 @@ class DeviceTest {
         val device = Device(type = Device.TYPE_SCALE, displayName = "Bathroom scale")
 
         assertThat(device.toString()).contains("displayName=Bathroom scale")
+    }
+
+    @Test
+    fun toString_includesUdi() {
+        val device = Device(type = Device.TYPE_CONSUMER_MEDICAL_DEVICE, udi = "04015674011832")
+
+        assertThat(device.toString()).contains("udi=04015674011832")
     }
 }

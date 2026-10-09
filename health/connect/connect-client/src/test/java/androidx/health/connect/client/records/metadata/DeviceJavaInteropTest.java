@@ -32,11 +32,20 @@ public class DeviceJavaInteropTest {
         Device withModel = new Device(Device.TYPE_WATCH, "Google", "Pixel Watch 3");
         Device withDisplayName =
                 new Device(Device.TYPE_WATCH, "Google", "Pixel Watch 3", "Alex's watch");
+        Device withUdi =
+                new Device(
+                        Device.TYPE_WATCH,
+                        "Google",
+                        "Pixel Watch 3",
+                        "Alex's watch",
+                        "04015674011832");
 
         assertThat(typeOnly.getManufacturer()).isNull();
         assertThat(withManufacturer.getManufacturer()).isEqualTo("Google");
         assertThat(withModel.getModel()).isEqualTo("Pixel Watch 3");
         assertThat(withModel.getDisplayName()).isNull();
         assertThat(withDisplayName.getDisplayName()).isEqualTo("Alex's watch");
+        assertThat(withDisplayName.getUdi()).isNull();
+        assertThat(withUdi.getUdi()).isEqualTo("04015674011832");
     }
 }

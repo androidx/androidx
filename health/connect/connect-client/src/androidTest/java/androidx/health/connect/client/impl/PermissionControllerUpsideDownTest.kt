@@ -51,8 +51,10 @@ class PermissionControllerUpsideDownTest {
         // Permissions may have been granted by the other instrumented test in this directory.
         // Since there is no way to revoke permissions with grantPermissionRule, use containsAtLeast
         // instead of containsExactly.
-        assertThat(permissionController.getGrantedPermissions())
+        val grantedPermissions = permissionController.getGrantedPermissions()
+        assertThat(grantedPermissions)
             .containsAtLeast(HealthPermissions.WRITE_STEPS, HealthPermissions.READ_DISTANCE)
+        assertThat(grantedPermissions).doesNotContain(HealthPermissions.WRITE_DEVICE_UDI)
     }
 
     @Test
@@ -65,5 +67,6 @@ class PermissionControllerUpsideDownTest {
             }
         permissionController.revokeAllPermissions()
         assertThat(revokedPermissions.all { it.startsWith(PERMISSION_PREFIX) }).isTrue()
+        assertThat(revokedPermissions).doesNotContain(HealthPermissions.WRITE_DEVICE_UDI)
     }
 }

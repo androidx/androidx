@@ -385,6 +385,31 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
+    fun insertRecords_deviceWithUdi_readRecordReturnsUdi() = runTest {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 23)
+        val record =
+            StepsRecord(
+                count = 10,
+                startTime = START_TIME,
+                startZoneOffset = null,
+                endTime = START_TIME + 1.minutes,
+                endZoneOffset = null,
+                metadata =
+                    Metadata.autoRecorded(
+                        Device(
+                            type = Device.TYPE_CONSUMER_MEDICAL_DEVICE,
+                            udi = "04015674011832",
+                        )
+                    ),
+            )
+
+        val recordId = healthConnectClient.insertRecords(listOf(record)).recordIdsList[0]
+        val readRecord = healthConnectClient.readRecord(StepsRecord::class, recordId).record
+
+        assertThat(readRecord.metadata.device?.udi).isEqualTo("04015674011832")
+    }
+
+    @Test
     fun deleteRecords_byId() = runTest {
         val recordIds =
             healthConnectClient

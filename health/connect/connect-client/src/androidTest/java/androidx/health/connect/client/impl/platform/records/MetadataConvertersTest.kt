@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.health.connect.datatypes.Metadata.RECORDING_METHOD_UNKNOWN
 import android.os.Build
 import androidx.health.connect.client.records.isAtLeastSdkExtension22
+import androidx.health.connect.client.records.isAtLeastSdkExtension23
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
@@ -213,6 +214,56 @@ class MetadataConvertersTest {
     fun device_withDisplayName_belowSdkExtension22_dropsDisplayName() {
         assumeFalse(isAtLeastSdkExtension22())
         val device = Device(type = Device.TYPE_WATCH, displayName = "Pixel Watch 3")
+
+        val roundTrippedDevice = device.toPlatformDevice().toSdkDevice()
+
+        assertThat(roundTrippedDevice).isEqualTo(Device(type = Device.TYPE_WATCH))
+    }
+
+    @SuppressLint("NewApi") // Using assumeTrue to only run on the new API version
+    @Test
+    fun device_withUdi_convertToPlatform() {
+        assumeTrue(isAtLeastSdkExtension23())
+        val device =
+            Device(
+                type = Device.TYPE_CONSUMER_MEDICAL_DEVICE,
+                udi = "04015674011832",
+            )
+
+        val platformDevice = device.toPlatformDevice()
+
+        assertThat(platformDevice.udi).isEqualTo("04015674011832")
+    }
+
+    @SuppressLint("NewApi") // Using assumeTrue to only run on the new API version
+    @Test
+    fun device_withUdi_convertToSdk() {
+        assumeTrue(isAtLeastSdkExtension23())
+        val platformDevice =
+            PlatformDeviceBuilder()
+                .setType(PlatformDevice.DEVICE_TYPE_CONSUMER_MEDICAL_DEVICE)
+                .setUdi("04015674011832")
+                .build()
+
+        val device = platformDevice.toSdkDevice()
+
+        assertThat(device)
+            .isEqualTo(
+                Device(
+                    type = Device.TYPE_CONSUMER_MEDICAL_DEVICE,
+                    udi = "04015674011832",
+                )
+            )
+    }
+
+    @Test
+    fun device_withUdi_belowSdkExtension23_dropsUdi() {
+        assumeFalse(isAtLeastSdkExtension23())
+        val device =
+            Device(
+                type = Device.TYPE_WATCH,
+                udi = "04015674011832",
+            )
 
         val roundTrippedDevice = device.toPlatformDevice().toSdkDevice()
 
