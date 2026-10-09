@@ -24,6 +24,7 @@ package androidx.photopicker.activity {
     field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_IN_ORDER = "androidx.activity.result.contract.extra.PICK_IMAGES_IN_ORDER";
     field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB = "androidx.activity.result.contract.extra.PICK_IMAGES_LAUNCH_TAB";
     field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX = "androidx.activity.result.contract.extra.PICK_IMAGES_MAX";
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS = "androidx.activity.result.contract.extra.PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS";
   }
 
   public static final class PickVisualMedia.Companion {
@@ -34,6 +35,7 @@ package androidx.photopicker.activity {
     property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_IN_ORDER;
     property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB;
     property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX;
+    property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS;
   }
 
   public abstract static class PickVisualMedia.DefaultTab {
