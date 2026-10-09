@@ -34,7 +34,6 @@ import androidx.compose.remote.creation.compose.vector.toRemotePathNodes
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -571,8 +570,8 @@ internal constructor(
  * @param strokeLineCap specifies the linecap for a stroked path
  * @param strokeLineJoin specifies the linejoin for a stroked path
  * @param strokeLineMiter specifies the miter limit for a stroked path
- * @param pathFillType specifies the winding rule that decides how the interior of a [Path] is
- *   calculated.
+ * @param pathFillType specifies the winding rule that decides how the interior of a
+ *   [androidx.compose.remote.creation.RemotePath] is calculated.
  * @param pathBuilder [RemotePathScope] lambda for adding [RemotePathNode]s to this path.
  */
 public fun RemoteImageVector.Builder.path(
