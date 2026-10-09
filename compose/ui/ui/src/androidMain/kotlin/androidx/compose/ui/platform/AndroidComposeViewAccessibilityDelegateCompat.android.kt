@@ -638,8 +638,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     ) {
         val resources = view.context.resources
         val isInMergingHiddenSubtree =
-            AndroidComposeUiFlags.isPropagateHideFromAccessibilityToMergingChildrenEnabled &&
-                currentSemanticsNodes[virtualViewId]?.isInMergingHiddenSubtree == true
+            currentSemanticsNodes[virtualViewId]?.isInMergingHiddenSubtree == true
 
         // set classname
         info.className = ClassName
@@ -2366,8 +2365,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             val semanticsNode = SemanticsNode(layoutNode, false)
 
             val isInMergingHiddenSubtree =
-                AndroidComposeUiFlags.isPropagateHideFromAccessibilityToMergingChildrenEnabled &&
-                    currentSemanticsNodes[virtualViewId]?.isInMergingHiddenSubtree == true
+                currentSemanticsNodes[virtualViewId]?.isInMergingHiddenSubtree == true
             if (semanticsNode.isHidden || isInMergingHiddenSubtree) {
                 continue
             }
@@ -3645,7 +3643,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
  *   node that should be traversed after the node specified by the id.
  * @param resources: Application resources.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 private fun setTraversalValues(
     currentSemanticsNodes: IntObjectMap<AdjustedSemanticsNode>,
     outputBeforeMap: MutableIntIntMap,
@@ -3665,9 +3662,7 @@ private fun setTraversalValues(
                 isScreenReaderFocusable(
                     it,
                     resources,
-                    AndroidComposeUiFlags
-                        .isPropagateHideFromAccessibilityToMergingChildrenEnabled &&
-                        currentSemanticsNodes[it.id]?.isInMergingHiddenSubtree == true,
+                    currentSemanticsNodes[it.id]?.isInMergingHiddenSubtree == true,
                 )
             },
             listToSort = listOf(hostSemanticsNode),
