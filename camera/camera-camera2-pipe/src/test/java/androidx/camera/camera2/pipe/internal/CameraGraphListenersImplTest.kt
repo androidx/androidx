@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.pipe.internal
 
-import android.graphics.SurfaceTexture
-import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.Request
@@ -34,6 +32,7 @@ import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Compani
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.listeners
 import androidx.camera.camera2.pipe.testing.FakeGraphConfigs
 import androidx.camera.camera2.pipe.testing.FakeRequestListener
+import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -42,6 +41,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
@@ -73,13 +73,22 @@ class CameraGraphListenersImplTest {
             ),
         )
 
+    private val fakeSurfaces = FakeSurfaces()
     private val surfaceMap =
-        mapOf(StreamId(0) to Surface(SurfaceTexture(0)), StreamId(1) to Surface(SurfaceTexture(1)))
+        mapOf(
+            StreamId(0) to fakeSurfaces.createFakeSurface(),
+            StreamId(1) to fakeSurfaces.createFakeSurface(),
+        )
     private val csp = FakeCaptureSequenceProcessor().also { it.surfaceMap = surfaceMap }
     private val grp = GraphRequestProcessor.from(csp)
     private val requestListener: Request.Listener = mock()
     private val request = Request(listOf(StreamId(0)), listeners = listOf(requestListener))
     private val request2 = Request(listOf(StreamId(1)), listeners = listOf(requestListener))
+
+    @After
+    fun tearDown() {
+        fakeSurfaces.close()
+    }
 
     @Test
     fun add_requestContainsBothGraphAndAddedListeners() = testScope.runTest {

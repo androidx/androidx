@@ -17,8 +17,6 @@
 package androidx.camera.camera2.pipe.graph
 
 import android.content.Context
-import android.graphics.SurfaceTexture
-import android.view.Surface
 import androidx.camera.camera2.pipe.CameraBackendFactory
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraphId
@@ -28,6 +26,7 @@ import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
 import androidx.camera.camera2.pipe.internal.CameraPipeLifetime
 import androidx.camera.camera2.pipe.testing.CameraControllerSimulator
 import androidx.camera.camera2.pipe.testing.FakeGraphConfigs
+import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.test.core.app.ApplicationProvider
@@ -98,29 +97,21 @@ class SurfaceGraphTest {
     private val stream9 = streamMap[config.sharedStreamConfig1]!!
     private val stream10 = streamMap[config.sharedStreamConfig2]!!
 
-    private val fakeSurface1 = Surface(SurfaceTexture(1))
-    private val fakeSurface2 = Surface(SurfaceTexture(2))
-    private val fakeSurface3 = Surface(SurfaceTexture(3))
-    private val fakeSurface4 = Surface(SurfaceTexture(4))
-    private val fakeSurface5 = Surface(SurfaceTexture(5))
-    private val fakeSurface6 = Surface(SurfaceTexture(6))
-    private val fakeSurface7 = Surface(SurfaceTexture(7))
-    private val fakeSurface8 = Surface(SurfaceTexture(8))
-    private val fakeSurface9 = Surface(SurfaceTexture(9))
-    private val fakeSurface10 = Surface(SurfaceTexture(10))
+    private val fakeSurfaces = FakeSurfaces()
+    private val fakeSurface1 = fakeSurfaces.createFakeSurface()
+    private val fakeSurface2 = fakeSurfaces.createFakeSurface()
+    private val fakeSurface3 = fakeSurfaces.createFakeSurface()
+    private val fakeSurface4 = fakeSurfaces.createFakeSurface()
+    private val fakeSurface5 = fakeSurfaces.createFakeSurface()
+    private val fakeSurface6 = fakeSurfaces.createFakeSurface()
+    private val fakeSurface7 = fakeSurfaces.createFakeSurface()
+    private val fakeSurface8 = fakeSurfaces.createFakeSurface()
+    private val fakeSurface9 = fakeSurfaces.createFakeSurface()
+    private val fakeSurface10 = fakeSurfaces.createFakeSurface()
 
     @After
     fun teardown() {
-        fakeSurface1.release()
-        fakeSurface2.release()
-        fakeSurface3.release()
-        fakeSurface4.release()
-        fakeSurface5.release()
-        fakeSurface6.release()
-        fakeSurface7.release()
-        fakeSurface8.release()
-        fakeSurface9.release()
-        fakeSurface10.release()
+        fakeSurfaces.close()
     }
 
     @Test
@@ -183,8 +174,8 @@ class SurfaceGraphTest {
 
     @Test
     fun onlyMostRecentSurfacesArePassedToSession() {
-        val fakeSurface1A = Surface(SurfaceTexture(7))
-        val fakeSurface1B = Surface(SurfaceTexture(8))
+        val fakeSurface1A = fakeSurfaces.createFakeSurface()
+        val fakeSurface1B = fakeSurfaces.createFakeSurface()
 
         surfaceGraph[stream1.id] = fakeSurface1A
         surfaceGraph[stream1.id] = fakeSurface1B
@@ -213,9 +204,6 @@ class SurfaceGraphTest {
         assertThat(surfaceMap[stream8.id]).isEqualTo(fakeSurface8)
         assertThat(surfaceMap[stream9.id]).isEqualTo(fakeSurface9)
         assertThat(surfaceMap[stream10.id]).isEqualTo(fakeSurface10)
-
-        fakeSurface1A.release()
-        fakeSurface1B.release()
     }
 
     @Test

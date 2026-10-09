@@ -16,10 +16,8 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.graphics.SurfaceTexture
 import android.os.Build
 import android.util.Size
-import android.view.Surface
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraController.ControllerState
 import androidx.camera.camera2.pipe.CameraError
@@ -109,10 +107,8 @@ class Camera2CameraControllerTest {
     private val fakeShutdownListener: Camera2CameraController.ShutdownListener = mock()
     private val fakeConcurrentSessionSequencers = ConcurrentSessionSequencers()
 
-    private val fakeSurfaceTexture = SurfaceTexture(0).apply { setDefaultBufferSize(1280, 720) }
-    private val fakeSurface = Surface(fakeSurfaceTexture)
-
     private val fakeSurfaces = FakeSurfaces()
+    private val fakeSurface = fakeSurfaces.createFakeSurface(Size(1280, 720))
     private val fakeImageReaders = FakeImageReaders(fakeSurfaces)
 
     private fun createCamera2CameraController(): Camera2CameraController {
@@ -151,8 +147,6 @@ class Camera2CameraControllerTest {
 
     @After
     fun tearDown() {
-        fakeSurface.release()
-        fakeSurfaceTexture.release()
         fakeSurfaces.close()
     }
 
