@@ -25,13 +25,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -44,11 +41,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onVisibilityChanged
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.invalidateSemantics
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.onClick as semanticOnClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -56,6 +59,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -725,13 +730,13 @@ public fun AlertDialogContent(
         },
     content: (ScalingLazyListScope.() -> Unit)? = null,
 ) {
-    val scrollableLayout: @Composable () -> Unit = {
+    val scrollableLayout: @Composable (Modifier) -> Unit = { scaffoldModifier ->
         val scrollState = rememberScalingLazyListState(initialCenterItemIndex = 0)
         val gestureScrollState = rememberGestureScrollState()
 
         ScreenScaffold(
             scrollState = scrollState,
-            modifier = modifier,
+            modifier = scaffoldModifier,
             contentPadding = contentPadding,
             scrollIndicator = {
                 GestureScrollIndicator(
@@ -761,21 +766,22 @@ public fun AlertDialogContent(
         }
     }
 
-    if (content != null) scrollableLayout()
-    else {
+    if (content != null) {
+        scrollableLayout(modifier)
+    } else {
         DynamicScrollableOrFixedLayout(
-            scrollableContent = scrollableLayout,
-            fixedContent = { forMeasure ->
+            modifier = modifier,
+            scrollableContent = { scrollableLayout(Modifier) },
+            fixedContent = { fixedModifier ->
                 AlertDialogContentFixedWithConfirmationButtons(
                     confirmButton = confirmButton,
                     title = title,
                     dismissButton = dismissButton,
-                    modifier = modifier,
+                    modifier = fixedModifier,
                     icon = icon,
                     text = text,
                     verticalArrangement = verticalArrangement,
                     contentPadding = contentPadding,
-                    forMeasure = forMeasure,
                 )
             },
         )
@@ -843,13 +849,13 @@ public fun AlertDialogContent(
         },
     content: (TransformingLazyColumnScope.() -> Unit)? = null,
 ) {
-    val scrollableLayout: @Composable () -> Unit = {
+    val scrollableLayout: @Composable (Modifier) -> Unit = { scaffoldModifier ->
         val scrollState = rememberTransformingLazyColumnState(initialAnchorItemIndex = 0)
         val gestureScrollState = rememberGestureScrollState()
 
         ScreenScaffold(
             scrollState = scrollState,
-            modifier = modifier,
+            modifier = scaffoldModifier,
             contentPadding = contentPadding,
             scrollIndicator = {
                 GestureScrollIndicator(
@@ -885,21 +891,22 @@ public fun AlertDialogContent(
         }
     }
 
-    if (content != null) scrollableLayout()
-    else {
+    if (content != null) {
+        scrollableLayout(modifier)
+    } else {
         DynamicScrollableOrFixedLayout(
-            scrollableContent = scrollableLayout,
-            fixedContent = { forMeasure ->
+            modifier = modifier,
+            scrollableContent = { scrollableLayout(Modifier) },
+            fixedContent = { fixedModifier ->
                 AlertDialogContentFixedWithConfirmationButtons(
                     confirmButton = confirmButton,
                     title = title,
                     dismissButton = dismissButton,
-                    modifier = modifier,
+                    modifier = fixedModifier,
                     icon = icon,
                     text = text,
                     verticalArrangement = verticalArrangement,
                     contentPadding = contentPadding,
-                    forMeasure = forMeasure,
                 )
             },
         )
@@ -950,13 +957,13 @@ public fun AlertDialogContent(
         },
     content: (ScalingLazyListScope.() -> Unit)? = null,
 ) {
-    val scrollableLayout: @Composable () -> Unit = {
+    val scrollableLayout: @Composable (Modifier) -> Unit = { scaffoldModifier ->
         val scrollState = rememberScalingLazyListState(initialCenterItemIndex = 0)
         val gestureScrollState = rememberGestureScrollState()
 
         ScreenScaffold(
             scrollState = scrollState,
-            modifier = modifier,
+            modifier = scaffoldModifier,
             contentPadding = contentPadding,
             scrollIndicator = {
                 GestureScrollIndicator(
@@ -979,19 +986,20 @@ public fun AlertDialogContent(
         }
     }
 
-    if (content != null) scrollableLayout()
-    else {
+    if (content != null) {
+        scrollableLayout(modifier)
+    } else {
         DynamicScrollableOrFixedLayout(
-            scrollableContent = scrollableLayout,
-            fixedContent = { forMeasure ->
+            modifier = modifier,
+            scrollableContent = { scrollableLayout(Modifier) },
+            fixedContent = { fixedModifier ->
                 AlertDialogContentFixed(
                     title = title,
+                    modifier = fixedModifier,
                     icon = icon,
                     text = text,
-                    modifier = modifier,
                     verticalArrangement = verticalArrangement,
                     contentPadding = contentPadding,
-                    forMeasure = forMeasure,
                 )
             },
         )
@@ -1051,13 +1059,13 @@ public fun AlertDialogContent(
     },
     content: (TransformingLazyColumnScope.() -> Unit)? = null,
 ) {
-    val scrollableLayout: @Composable () -> Unit = {
+    val scrollableLayout: @Composable (Modifier) -> Unit = { scaffoldModifier ->
         val scrollState = rememberTransformingLazyColumnState(initialAnchorItemIndex = 0)
         val gestureScrollState = rememberGestureScrollState()
 
         ScreenScaffold(
             scrollState = scrollState,
-            modifier = modifier,
+            modifier = scaffoldModifier,
             contentPadding = contentPadding(true),
             scrollIndicator = {
                 GestureScrollIndicator(
@@ -1085,19 +1093,20 @@ public fun AlertDialogContent(
         }
     }
 
-    if (content != null) scrollableLayout()
-    else {
+    if (content != null) {
+        scrollableLayout(modifier)
+    } else {
         DynamicScrollableOrFixedLayout(
-            scrollableContent = scrollableLayout,
-            fixedContent = { forMeasure ->
+            modifier = modifier,
+            scrollableContent = { scrollableLayout(Modifier) },
+            fixedContent = { fixedModifier ->
                 AlertDialogContentFixed(
                     title = title,
+                    modifier = fixedModifier,
                     icon = icon,
                     text = text,
-                    modifier = modifier,
                     verticalArrangement = verticalArrangement,
                     contentPadding = contentPadding(false),
-                    forMeasure = forMeasure,
                 )
             },
         )
@@ -1689,32 +1698,112 @@ private fun Modifier.gestureScroll(
 
 @Composable
 private fun DynamicScrollableOrFixedLayout(
+    modifier: Modifier = Modifier,
     scrollableContent: @Composable () -> Unit,
-    fixedContent: @Composable (measureStep: Boolean) -> Unit,
+    fixedContent: @Composable (Modifier) -> Unit,
 ) {
-    val measurableContentLambda =
-        @Composable {
-            Box(modifier = Modifier.wrapContentHeight().clearAndSetSemantics {}) {
-                fixedContent(true)
-            }
-        }
-    val fixedContentLambda = @Composable { fixedContent(false) }
-    SubcomposeLayout { constraints ->
-        val fixedMeasurable =
-            subcompose("measurableContent", measurableContentLambda)
-                .first()
-                .measure(constraints.copy(maxHeight = Constraints.Infinity))
-        val isScrollable = fixedMeasurable.height > constraints.maxHeight
+    // SubcomposeLayout keeps all slots subcomposed during the current measure pass active in the
+    // semantics tree even when unplaced. When isScrollable is true, we clear descendant semantics
+    // on fixedContent via a SemanticsModifierNode so its nodes aren't duplicated in the merged
+    // semantics tree alongside scrollableContent, without triggering a recomposition.
+    val clearSemanticsState = remember { ClearSemanticsState() }
+    val fixedContentLambda: @Composable () -> Unit = {
+        fixedContent(Modifier.clearSemanticsIf(clearSemanticsState))
+    }
+    SubcomposeLayout(modifier = modifier) { constraints ->
+        val fixedMeasurable = subcompose("fixedContent", fixedContentLambda).first()
+        val fixedPlaceable =
+            fixedMeasurable.measure(
+                if (constraints.hasBoundedHeight) {
+                    constraints.copy(
+                        minHeight = constraints.maxHeight,
+                        maxHeight = Constraints.Infinity,
+                    )
+                } else {
+                    constraints
+                }
+            )
+        val isScrollable = fixedPlaceable.height > constraints.maxHeight
+        clearSemanticsState.shouldClear = isScrollable
 
         val placeable =
-            subcompose(
-                    if (isScrollable) "scrollableContent" else "fixedContent",
-                    if (isScrollable) scrollableContent else fixedContentLambda,
-                )
-                .first()
-                .measure(constraints)
+            if (isScrollable) {
+                subcompose("scrollableContent", scrollableContent).first().measure(constraints)
+            } else {
+                fixedPlaceable
+            }
         layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
     }
+}
+
+private fun Modifier.clearSemanticsIf(state: ClearSemanticsState): Modifier =
+    this then ClearSemanticsIfElement(state)
+
+private class ClearSemanticsState {
+    var node: ClearSemanticsIfNode? = null
+    var shouldClear: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                node?.invalidateSemantics()
+            }
+        }
+}
+
+private class ClearSemanticsIfElement(val state: ClearSemanticsState) :
+    ModifierNodeElement<ClearSemanticsIfNode>() {
+    override fun create(): ClearSemanticsIfNode = ClearSemanticsIfNode(state)
+
+    override fun update(node: ClearSemanticsIfNode) {
+        if (node.state !== state) {
+            if (node.state.node === node) {
+                node.state.node = null
+            }
+            val shouldInvalidate = node.state.shouldClear != state.shouldClear
+            node.state = state
+            if (node.isAttached) {
+                state.node = node
+                if (shouldInvalidate) {
+                    node.invalidateSemantics()
+                }
+            }
+        }
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "clearSemanticsIf"
+        properties["shouldClear"] = state.shouldClear
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other !is ClearSemanticsIfElement) {
+            return false
+        }
+        return state === other.state
+    }
+
+    override fun hashCode(): Int = state.hashCode()
+}
+
+private class ClearSemanticsIfNode(var state: ClearSemanticsState) :
+    Modifier.Node(), SemanticsModifierNode {
+    override val shouldClearDescendantSemantics: Boolean
+        get() = state.shouldClear
+
+    override fun onAttach() {
+        state.node = this
+    }
+
+    override fun onDetach() {
+        if (state.node === this) {
+            state.node = null
+        }
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {}
 }
 
 @Composable
@@ -1727,68 +1816,87 @@ private fun AlertDialogContentFixedWithConfirmationButtons(
     text: @Composable (() -> Unit)? = null,
     verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
     contentPadding: PaddingValues,
-    forMeasure: Boolean,
 ) {
-    Column(
-        // Ignore the incoming modifier on measuring pass. We need to know the unconstrained height.
-        modifier =
-            if (forMeasure) Modifier.padding(contentPadding).wrapContentSize()
-            else modifier.padding(contentPadding).fillMaxSize(),
-        verticalArrangement = verticalArrangement,
-    ) {
-        Column(
-            modifier =
-                Modifier.fillMaxWidth().let { modifier ->
-                    if (!forMeasure) modifier.weight(1f) else modifier
-                },
-            verticalArrangement = verticalArrangement,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            if (icon != null) {
-                Row { IconAlert(content = icon) }
-            }
-            Row { Title(content = title) }
-            if (text != null) {
-                Row { TextMessage(content = text) }
+    val measurePolicy =
+        remember(verticalArrangement) {
+            MeasurePolicy { measurables, constraints ->
+                val spacing = verticalArrangement.spacing.roundToPx()
+                val buttonsPlaceable =
+                    measurables[1].measure(constraints.copy(minWidth = 0, minHeight = 0))
+                val topMinHeight =
+                    (constraints.minHeight - buttonsPlaceable.height - spacing).coerceIn(
+                        0,
+                        constraints.maxHeight,
+                    )
+                val topPlaceable =
+                    measurables[0].measure(constraints.copy(minHeight = topMinHeight))
+                val width =
+                    constraints.constrainWidth(maxOf(topPlaceable.width, buttonsPlaceable.width))
+                val height =
+                    constraints.constrainHeight(
+                        (topPlaceable.height + spacing + buttonsPlaceable.height).coerceAtLeast(0)
+                    )
+                layout(width, height) {
+                    topPlaceable.place(
+                        Alignment.CenterHorizontally.align(
+                            topPlaceable.width,
+                            width,
+                            layoutDirection,
+                        ),
+                        0,
+                    )
+                    buttonsPlaceable.place(
+                        Alignment.CenterHorizontally.align(
+                            buttonsPlaceable.width,
+                            width,
+                            layoutDirection,
+                        ),
+                        topPlaceable.height + spacing,
+                    )
+                }
             }
         }
-        Box(
-            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-            contentAlignment = Alignment.Center,
-        ) {
+    Layout(
+        modifier = modifier.padding(contentPadding).fillMaxSize(),
+        content = {
+            AlertDialogContentFixed(
+                title = title,
+                icon = icon,
+                text = text,
+                verticalArrangement = verticalArrangement,
+            )
             ConfirmDismissButtons(
                 confirmButton = confirmButton,
                 dismissButton = dismissButton,
                 extraBottomPaddingEnabled = false,
             )
-        }
-    }
+        },
+        measurePolicy = measurePolicy,
+    )
 }
 
 @Composable
 private fun AlertDialogContentFixed(
     title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
     icon: @Composable (() -> Unit)? = null,
     text: @Composable (() -> Unit)? = null,
-    modifier: Modifier,
     verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
-    contentPadding: PaddingValues,
-    forMeasure: Boolean,
+    contentPadding: PaddingValues? = null,
 ) {
     Column(
-        // Ignore the incoming modifier on measuring pass. We need to know the unconstrained height.
         modifier =
-            if (forMeasure) Modifier.padding(contentPadding).wrapContentSize()
-            else modifier.padding(contentPadding).fillMaxSize(),
+            (if (contentPadding != null) modifier.padding(contentPadding) else modifier)
+                .fillMaxSize(),
         verticalArrangement = verticalArrangement,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (icon != null) {
-            Row { IconAlert(content = icon) }
+            IconAlert(content = icon)
         }
-        Row { Title(content = title) }
+        Title(content = title)
         if (text != null) {
-            Row { TextMessage(content = text) }
+            TextMessage(content = text)
         }
     }
 }

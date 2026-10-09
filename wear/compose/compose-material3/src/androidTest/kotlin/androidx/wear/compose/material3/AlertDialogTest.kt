@@ -21,10 +21,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -42,11 +44,15 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -742,9 +748,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                 screenHeight = LocalConfiguration.current.screenHeightDp.dp
                 AlertDialogContentHelper(
                     contentContainer = contentContainer,
-                    title = {
-                        Text("Title", modifier = Modifier.testTag(TitleTestTag).fillMaxSize())
-                    },
+                    title = { Text("Title", modifier = Modifier.testTag(TitleTestTag)) },
                     confirmButton = {
                         Button(onClick = {}, modifier = Modifier.testTag(ConfirmButtonTestTag)) {}
                     },
@@ -752,7 +756,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                         Button(onClick = {}, modifier = Modifier.testTag(DismissButtonTestTag)) {}
                     },
                     verticalArrangement =
-                        Arrangement.spacedBy(space = 0.dp, alignment = Alignment.CenterVertically),
+                        Arrangement.spacedBy(space = 0.dp, alignment = Alignment.Bottom),
                     modifier = Modifier.size(screenHeight).testTag(TEST_TAG),
                 )
                 expectedBottomPadding = PaddingDefaults.verticalContentPadding()
@@ -816,9 +820,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                 AlertDialogContentHelper(
                     contentContainer = contentContainer,
                     icon = { TestIcon(iconLabel = IconTestTag) },
-                    title = {
-                        Text("Title", modifier = Modifier.testTag(TitleTestTag).fillMaxSize())
-                    },
+                    title = { Text("Title", modifier = Modifier.testTag(TitleTestTag)) },
                     confirmButton = {
                         Button(onClick = {}, modifier = Modifier.testTag(ConfirmButtonTestTag)) {}
                     },
@@ -826,7 +828,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                         Button(onClick = {}, modifier = Modifier.testTag(DismissButtonTestTag)) {}
                     },
                     verticalArrangement =
-                        Arrangement.spacedBy(space = 0.dp, alignment = Alignment.CenterVertically),
+                        Arrangement.spacedBy(space = 0.dp, alignment = Alignment.Bottom),
                     modifier = Modifier.size(screenHeight).testTag(TEST_TAG),
                 )
             }
@@ -851,7 +853,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                     contentContainer = contentContainer,
                     icon = { TestIcon(iconLabel = IconTestTag) },
                     title = { Text("Title", modifier = Modifier.testTag(TitleTestTag)) },
-                    text = { Text("Text", modifier = Modifier.fillMaxSize().testTag(TextTestTag)) },
+                    text = { Text("Text", modifier = Modifier.testTag(TextTestTag)) },
                     confirmButton = {
                         Button(onClick = {}, modifier = Modifier.testTag(ConfirmButtonTestTag)) {}
                     },
@@ -859,7 +861,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                         Button(onClick = {}, modifier = Modifier.testTag(DismissButtonTestTag)) {}
                     },
                     verticalArrangement =
-                        Arrangement.spacedBy(space = 0.dp, alignment = Alignment.CenterVertically),
+                        Arrangement.spacedBy(space = 0.dp, alignment = Alignment.Bottom),
                     modifier = Modifier.size(screenHeight).testTag(TEST_TAG),
                 )
             }
@@ -976,11 +978,9 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                 screenHeight = LocalConfiguration.current.screenHeightDp.dp
                 AlertDialogContentHelper(
                     contentContainer = contentContainer,
-                    title = {
-                        Text("Title", modifier = Modifier.testTag(TitleTestTag).fillMaxSize())
-                    },
+                    title = { Text("Title", modifier = Modifier.testTag(TitleTestTag)) },
                     verticalArrangement =
-                        Arrangement.spacedBy(space = 0.dp, alignment = Alignment.CenterVertically),
+                        Arrangement.spacedBy(space = 0.dp, alignment = Alignment.Bottom),
                     modifier = Modifier.size(screenHeight).testTag(TEST_TAG),
                 )
                 expectedBottomPadding =
@@ -1025,6 +1025,361 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
 
         val titleBottom = rule.onNodeWithTag(TitleTestTag).getUnclippedBoundsInRoot().bottom
         titleBottom.assertIsEqualTo(screenHeight - expectedBottomPadding)
+    }
+
+    @Test
+    fun dialog_fixedContent_composesParametersOnce() {
+        var iconCompositions = 0
+        var titleCompositions = 0
+        var textCompositions = 0
+        var confirmButtonCompositions = 0
+        var dismissButtonCompositions = 0
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(AlertScreenSize) {
+                AlertDialogHelper(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    visible = true,
+                    onDismissRequest = {},
+                    icon = {
+                        iconCompositions++
+                        TestIcon(iconLabel = IconTestTag)
+                    },
+                    title = {
+                        titleCompositions++
+                        Text("Title", modifier = Modifier.testTag(TitleTestTag))
+                    },
+                    text = {
+                        textCompositions++
+                        Text("Short text", modifier = Modifier.testTag(TextTestTag))
+                    },
+                    confirmButton = {
+                        confirmButtonCompositions++
+                        AlertDialogDefaults.ConfirmButton(
+                            onClick = {},
+                            modifier = Modifier.testTag(ConfirmButtonTestTag),
+                        )
+                    },
+                    dismissButton = {
+                        dismissButtonCompositions++
+                        AlertDialogDefaults.DismissButton(
+                            onClick = {},
+                            modifier = Modifier.testTag(DismissButtonTestTag),
+                        )
+                    },
+                    contentContainer = contentContainer,
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        Assert.assertEquals(1, iconCompositions)
+        Assert.assertEquals(1, titleCompositions)
+        Assert.assertEquals(1, textCompositions)
+        Assert.assertEquals(1, confirmButtonCompositions)
+        Assert.assertEquals(1, dismissButtonCompositions)
+    }
+
+    @Test
+    fun dialog_noButtons_fixedContent_composesParametersOnce() {
+        var iconCompositions = 0
+        var titleCompositions = 0
+        var textCompositions = 0
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(AlertScreenSize) {
+                AlertDialogHelper(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    visible = true,
+                    onDismissRequest = {},
+                    icon = {
+                        iconCompositions++
+                        TestIcon(iconLabel = IconTestTag)
+                    },
+                    title = {
+                        titleCompositions++
+                        Text("Title", modifier = Modifier.testTag(TitleTestTag))
+                    },
+                    text = {
+                        textCompositions++
+                        Text("Short text", modifier = Modifier.testTag(TextTestTag))
+                    },
+                    contentContainer = contentContainer,
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        Assert.assertEquals(1, iconCompositions)
+        Assert.assertEquals(1, titleCompositions)
+        Assert.assertEquals(1, textCompositions)
+    }
+
+    @Test
+    fun dialog_withContentParameter_composesParametersOnce() {
+        var iconCompositions = 0
+        var titleCompositions = 0
+        var textCompositions = 0
+        var contentCompositions = 0
+        var confirmButtonCompositions = 0
+        var dismissButtonCompositions = 0
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(AlertScreenSize) {
+                AlertDialogHelper(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    visible = true,
+                    onDismissRequest = {},
+                    icon = {
+                        iconCompositions++
+                        TestIcon(iconLabel = IconTestTag)
+                    },
+                    title = {
+                        titleCompositions++
+                        Text("Title", modifier = Modifier.testTag(TitleTestTag))
+                    },
+                    text = {
+                        textCompositions++
+                        Text("Short text", modifier = Modifier.testTag(TextTestTag))
+                    },
+                    slcContent = {
+                        item {
+                            contentCompositions++
+                            Text("ContentText", modifier = Modifier.testTag(ContentTestTag))
+                        }
+                    },
+                    tlcContent = {
+                        item {
+                            contentCompositions++
+                            Text("ContentText", modifier = Modifier.testTag(ContentTestTag))
+                        }
+                    },
+                    confirmButton = {
+                        confirmButtonCompositions++
+                        AlertDialogDefaults.ConfirmButton(
+                            onClick = {},
+                            modifier = Modifier.testTag(ConfirmButtonTestTag),
+                        )
+                    },
+                    dismissButton = {
+                        dismissButtonCompositions++
+                        AlertDialogDefaults.DismissButton(
+                            onClick = {},
+                            modifier = Modifier.testTag(DismissButtonTestTag),
+                        )
+                    },
+                    contentContainer = contentContainer,
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        Assert.assertEquals(1, iconCompositions)
+        Assert.assertEquals(1, titleCompositions)
+        Assert.assertEquals(1, textCompositions)
+        Assert.assertEquals(1, contentCompositions)
+        Assert.assertEquals(1, confirmButtonCompositions)
+        Assert.assertEquals(1, dismissButtonCompositions)
+    }
+
+    @Test
+    fun alert_dialog_overflow_content_semantics_exist_once_only() {
+        val title = "Overflow Title"
+        val text = "Line 1\nLine 2\nLine 3\nLine 4"
+        val confirm = "Confirm"
+        val dismiss = "Dismiss"
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(190) {
+                AlertDialogHelper(
+                    contentContainer = contentContainer,
+                    visible = true,
+                    onDismissRequest = {},
+                    modifier = Modifier.size(190.dp),
+                    title = { Text(title) },
+                    text = { Text(text) },
+                    confirmButton = {
+                        AlertDialogDefaults.ConfirmButton(
+                            onClick = {},
+                            modifier = Modifier.testTag(ConfirmButtonTestTag),
+                        ) {
+                            Text(confirm)
+                        }
+                    },
+                    dismissButton = {
+                        AlertDialogDefaults.DismissButton(
+                            onClick = {},
+                            modifier = Modifier.testTag(DismissButtonTestTag),
+                        ) {
+                            Text(dismiss)
+                        }
+                    },
+                )
+            }
+        }
+
+        rule.onAllNodes(hasScrollAction()).assertCountEquals(1)
+        rule.onAllNodesWithText(title).assertCountEquals(1)
+        rule.onAllNodesWithText(text).assertCountEquals(1)
+        rule.onAllNodesWithTag(ConfirmButtonTestTag).assertCountEquals(1)
+        rule.onAllNodesWithTag(DismissButtonTestTag).assertCountEquals(1)
+        rule.onAllNodesWithText(confirm).assertCountEquals(1)
+        rule.onAllNodesWithText(dismiss).assertCountEquals(1)
+    }
+
+    @Test
+    fun alert_dialog_no_buttons_overflow_content_semantics_exist_once_only() {
+        val title = "No Buttons Overflow Title"
+        val text = "Line 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8"
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(190) {
+                AlertDialogHelper(
+                    contentContainer = contentContainer,
+                    visible = true,
+                    onDismissRequest = {},
+                    modifier = Modifier.size(190.dp),
+                    icon = { TestIcon(iconLabel = IconTestTag) },
+                    title = { Text(title) },
+                    text = { Text(text) },
+                )
+            }
+        }
+
+        rule.onAllNodes(hasScrollAction()).assertCountEquals(1)
+        rule.onAllNodesWithTag(IconTestTag).assertCountEquals(1)
+        rule.onAllNodesWithText(title).assertCountEquals(1)
+        rule.onAllNodesWithText(text).assertCountEquals(1)
+    }
+
+    @Test
+    fun alert_dialog_dynamic_height_transition_semantics_remain_unique() {
+        val title = "Dynamic Title"
+        val shortText = "Short text"
+        val longText = "Line 1\nLine 2\nLine 3\nLine 4"
+        val confirm = "Confirm"
+        val dismiss = "Dismiss"
+
+        var messageText by mutableStateOf(shortText)
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(190) {
+                AlertDialogHelper(
+                    contentContainer = contentContainer,
+                    visible = true,
+                    onDismissRequest = {},
+                    modifier = Modifier.size(190.dp),
+                    title = { Text(title) },
+                    text = { Text(messageText) },
+                    confirmButton = {
+                        AlertDialogDefaults.ConfirmButton(
+                            onClick = {},
+                            modifier = Modifier.testTag(ConfirmButtonTestTag),
+                        ) {
+                            Text(confirm)
+                        }
+                    },
+                    dismissButton = {
+                        AlertDialogDefaults.DismissButton(
+                            onClick = {},
+                            modifier = Modifier.testTag(DismissButtonTestTag),
+                        ) {
+                            Text(dismiss)
+                        }
+                    },
+                )
+            }
+        }
+
+        // 1. Initial short text (isScrollable == false)
+        rule.onAllNodes(hasScrollAction()).assertCountEquals(0)
+        rule.onAllNodesWithText(title).assertCountEquals(1)
+        rule.onAllNodesWithText(shortText).assertCountEquals(1)
+        rule.onAllNodesWithTag(ConfirmButtonTestTag).assertCountEquals(1)
+        rule.onAllNodesWithTag(DismissButtonTestTag).assertCountEquals(1)
+
+        // 2. Transition to overflowing text (isScrollable == true)
+        messageText = longText
+        rule.waitForIdle()
+        rule.onAllNodes(hasScrollAction()).assertCountEquals(1)
+        rule.onAllNodesWithText(title).assertCountEquals(1)
+        rule.onAllNodesWithText(longText).assertCountEquals(1)
+        rule.onAllNodesWithTag(ConfirmButtonTestTag).assertCountEquals(1)
+        rule.onAllNodesWithTag(DismissButtonTestTag).assertCountEquals(1)
+
+        // 3. Transition back to short text (isScrollable == false)
+        messageText = shortText
+        rule.waitForIdle()
+        rule.onAllNodes(hasScrollAction()).assertCountEquals(0)
+        rule.onAllNodesWithText(title).assertCountEquals(1)
+        rule.onAllNodesWithText(shortText).assertCountEquals(1)
+        rule.onAllNodesWithTag(ConfirmButtonTestTag).assertCountEquals(1)
+        rule.onAllNodesWithTag(DismissButtonTestTag).assertCountEquals(1)
+    }
+
+    @Test
+    fun alert_dialog_with_boxWithConstraints_in_slot_measures_successfully() {
+        var titleCompositions = 0
+        var textCompositions = 0
+        var messageText by mutableStateOf("Short text")
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(190) {
+                AlertDialogHelper(
+                    contentContainer = contentContainer,
+                    visible = true,
+                    onDismissRequest = {},
+                    modifier = Modifier.size(190.dp),
+                    title = {
+                        BoxWithConstraints {
+                            titleCompositions++
+                            Text(
+                                "Title",
+                                modifier = Modifier.widthIn(max = maxWidth).testTag(TitleTestTag),
+                            )
+                        }
+                    },
+                    text = {
+                        BoxWithConstraints {
+                            textCompositions++
+                            Text(
+                                messageText,
+                                modifier = Modifier.widthIn(max = maxWidth).testTag(TextTestTag),
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        AlertDialogDefaults.ConfirmButton(
+                            onClick = {},
+                            modifier = Modifier.testTag(ConfirmButtonTestTag),
+                        )
+                    },
+                    dismissButton = {
+                        AlertDialogDefaults.DismissButton(
+                            onClick = {},
+                            modifier = Modifier.testTag(DismissButtonTestTag),
+                        )
+                    },
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        Assert.assertEquals(1, titleCompositions)
+        Assert.assertEquals(1, textCompositions)
+        rule.onAllNodes(hasScrollAction()).assertCountEquals(0)
+        rule.onAllNodesWithTag(TitleTestTag).assertCountEquals(1)
+        rule.onAllNodesWithTag(TextTestTag).assertCountEquals(1)
+        rule.onAllNodesWithTag(ConfirmButtonTestTag).assertCountEquals(1)
+        rule.onAllNodesWithTag(DismissButtonTestTag).assertCountEquals(1)
+
+        messageText = "Line 1\nLine 2\nLine 3\nLine 4"
+        rule.waitForIdle()
+        rule.onAllNodes(hasScrollAction()).assertCountEquals(1)
+        rule.onAllNodesWithTag(TitleTestTag).assertCountEquals(1)
+        rule.onAllNodesWithTag(TextTestTag).assertCountEquals(1)
+        rule.onAllNodesWithTag(ConfirmButtonTestTag).assertCountEquals(1)
+        rule.onAllNodesWithTag(DismissButtonTestTag).assertCountEquals(1)
     }
 
     // TODO: add more positioning tests for EdgeButton.
