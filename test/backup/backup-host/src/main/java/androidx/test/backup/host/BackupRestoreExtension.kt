@@ -271,18 +271,26 @@ internal constructor(
         }
 
         // Run automatic pm clear before the test starts if policy is AUTOMATIC
-        val testMethod = extensionContext.requiredTestMethod
-        val sandboxIsolation =
-            testMethod.getAnnotation(Isolation::class.java)
-                ?: findClassAnnotation(requiredClass, Isolation::class.java)
-        val policy = sandboxIsolation?.value ?: IsolationPolicy.AUTOMATIC
-
-        if (policy == IsolationPolicy.AUTOMATIC) {
+        if (isolationPolicyFor(extensionContext) == IsolationPolicy.AUTOMATIC) {
             logger.info("Initializing test. Running automatic pm clear for isolation.")
             runBlocking { deviceImpl.clearAppData() }
         }
 
         return deviceImpl
+    }
+
+    /**
+     * Returns the isolation policy of a controller provided in [context]: the one that the
+     * [Isolation] annotation of its test method names, or else that of its test class.
+     *
+     * A controller that a test class constructor or a `@BeforeAll` method receives has no test
+     * method, so it takes the policy of the class.
+     */
+    internal fun isolationPolicyFor(context: ExtensionContext): IsolationPolicy {
+        val isolation =
+            context.testMethod.orElse(null)?.getAnnotation(Isolation::class.java)
+                ?: findClassAnnotation(context.requiredTestClass, Isolation::class.java)
+        return isolation?.value ?: IsolationPolicy.AUTOMATIC
     }
 
     /**
