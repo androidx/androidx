@@ -54,9 +54,9 @@ public val PROPERTY_XR_ACTIVITY_START_MODE: String =
  * Value to launch an activity in unmanaged full space mode. The activity itself renders the space
  * and controls its own scene graph. Use this for all activities using OpenXR to render.
  *
- * @see [PROPERTY_XR_ACTIVITY_START_MODE]
- *
  * Constant Value: "XR_ACTIVITY_START_MODE_FULL_SPACE_UNMANAGED"
+ *
+ * @see [PROPERTY_XR_ACTIVITY_START_MODE]
  */
 @JvmField
 public val XR_ACTIVITY_START_MODE_FULL_SPACE_UNMANAGED: String =
@@ -68,34 +68,33 @@ public val XR_ACTIVITY_START_MODE_FULL_SPACE_UNMANAGED: String =
  * [PROPERTY_XR_ACTIVITY_START_MODE] is used at the application level, apps can use this value to
  * reset at individual activity level.
  *
- * @see [PROPERTY_XR_ACTIVITY_START_MODE]
- *
  * Constant Value: "XR_ACTIVITY_START_MODE_UNDEFINED"
+ *
+ * @see [PROPERTY_XR_ACTIVITY_START_MODE]
  */
 @JvmField public val XR_ACTIVITY_START_MODE_UNDEFINED: String = "XR_ACTIVITY_START_MODE_UNDEFINED"
 
 /**
  * Value to launch an activity in managed full space mode. The system renders the activity from a
- * scene graph. See <a
- * href="https://developer.android.com/develop/xr/jetpack-xr-sdk/transition-home-space-to-full-space">managed
- * full space mode</a>.
- *
- * @see [PROPERTY_XR_ACTIVITY_START_MODE]
+ * scene graph. See
+ * [managed full space mode](https://developer.android.com/develop/xr/jetpack-xr-sdk/transition-home-space-to-full-space).
  *
  * Constant Value: "XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED"
+ *
+ * @see [PROPERTY_XR_ACTIVITY_START_MODE]
  */
 @JvmField
 public val XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED: String =
     "XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED"
 
 /**
- * Value to launch an activity in <a
- * href="https://developer.android.com/develop/xr/jetpack-xr-sdk/transition-home-space-to-full-space">home
- * space mode</a> in XR.
- *
- * @see [PROPERTY_XR_ACTIVITY_START_MODE]
+ * Value to launch an activity in
+ * [home space mode](https://developer.android.com/develop/xr/jetpack-xr-sdk/transition-home-space-to-full-space)
+ * in XR.
  *
  * Constant Value: "XR_ACTIVITY_START_MODE_HOME_SPACE"
+ *
+ * @see [PROPERTY_XR_ACTIVITY_START_MODE]
  */
 @JvmField public val XR_ACTIVITY_START_MODE_HOME_SPACE: String = "XR_ACTIVITY_START_MODE_HOME_SPACE"
 
@@ -132,9 +131,9 @@ public val PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED: String =
  * Value to launch an activity with no recommendations for the type of safety boundary. The system
  * continues to use the type of safety boundary currently in use.
  *
- * @see [PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED]
- *
  * Constant Value: "XR_BOUNDARY_TYPE_NO_RECOMMENDATION"
+ *
+ * @see [PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED]
  */
 @JvmField
 public val XR_BOUNDARY_TYPE_NO_RECOMMENDATION: String = "XR_BOUNDARY_TYPE_NO_RECOMMENDATION"
@@ -145,9 +144,9 @@ public val XR_BOUNDARY_TYPE_NO_RECOMMENDATION: String = "XR_BOUNDARY_TYPE_NO_REC
  * boundary and check that their space is clear, if the larger size is not already in use. This
  * larger size is determined by the system.
  *
- * @see [PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED]
- *
  * Constant Value: "XR_BOUNDARY_TYPE_LARGE"
+ *
+ * @see [PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED]
  */
 @JvmField public val XR_BOUNDARY_TYPE_LARGE: String = "XR_BOUNDARY_TYPE_LARGE"
 
