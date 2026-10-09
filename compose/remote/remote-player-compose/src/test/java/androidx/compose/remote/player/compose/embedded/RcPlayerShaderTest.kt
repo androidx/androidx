@@ -16,8 +16,15 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteClock
+import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -26,20 +33,25 @@ import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,12 +67,55 @@ class RcPlayerShaderTest {
 
     @get:Rule val rule = createComposeRule()
 
-    /**
-     * Baseline: does the Robolectric NATIVE graphics pipeline actually rasterize a `Shader`? Draws
-     * a horizontal red->blue `LinearGradient` straight to an `android.graphics.Bitmap` (no Compose,
-     * no RcPlayer) and checks the ends differ in the expected direction. This is the "do shaders
-     * work in Robolectric" question in its purest form.
-     */
+    @Test
+    fun runtimeShaderDisabledByDefaultWhenTrustedContentIsFalse() {
+        var shaderId = 0
+        lateinit var remoteContext: RemoteContext
+        val document = buildDocument {
+            shaderId = writer.createShader(AGSL_SOLID_RED).commit()
+            writer.drawCircle(1f, 1f, 1f)
+        }
+
+        rule.setContent {
+            val state = rememberRcPlayerState(document)
+            remoteContext = state.remoteContext
+            Box(modifier = Modifier.size(100.dp)) { RcPlayer(state = state) }
+        }
+        rule.waitForIdle()
+
+        val bundle = PaintBundle().apply { setShader(shaderId) }
+        val paintState = ComposeLocalPaint()
+        updatePaintFromBundle(bundle, paintState, remoteContext, read = remoteContext)
+
+        assertThat(remoteContext.mRemoteComposeState.getFromId(shaderId)).isNull()
+        assertThat(paintState.brush).isNull()
+        assertThat(paintState.nativeShader).isNull()
+    }
+
+    @Test
+    fun runtimeShaderEnabledWhenTrustedContentIsTrue() {
+        var shaderId = 0
+        lateinit var remoteContext: RemoteContext
+        val document = buildDocument {
+            shaderId = writer.createShader(AGSL_SOLID_RED).commit()
+            writer.drawCircle(1f, 1f, 1f)
+        }
+
+        rule.setContent {
+            val state = rememberRcPlayerState(document)
+            remoteContext = state.remoteContext
+            Box(modifier = Modifier.size(100.dp)) { RcPlayer(state = state, trustedContent = true) }
+        }
+        rule.waitForIdle()
+
+        val bundle = PaintBundle().apply { setShader(shaderId) }
+        val paintState = ComposeLocalPaint()
+        updatePaintFromBundle(bundle, paintState, remoteContext, read = remoteContext)
+
+        assertThat(remoteContext.mRemoteComposeState.getFromId(shaderId)).isNotNull()
+        assertThat(paintState.brush).isInstanceOf(ShaderBrush::class.java)
+        assertThat(paintState.nativeShader).isNotNull()
+    }
 
     /**
      * The embedded player should ingest a shader/gradient document and run its draw path without
@@ -69,8 +124,8 @@ class RcPlayerShaderTest {
      */
     @Test
     fun embeddedPlayerComposesGradientDocument() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val content: @Composable @RemoteComposable () -> Unit = {
                 RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                     val paint =
@@ -95,18 +150,14 @@ class RcPlayerShaderTest {
             }
             val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(bytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(bytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("gradient")) {
+                Box(modifier = Modifier.size(100.dp).testTag("gradient")) {
                     RcPlayer(document = document)
                 }
             }
@@ -126,20 +177,14 @@ class RcPlayerShaderTest {
      */
     @Test
     fun embeddedPlayerComposesClippedCanvas() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val content: @Composable @RemoteComposable () -> Unit = {
                 RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                     // Scoped clip (emits CLIP_RECT + save/restore around the block).
                     clipRect(0f.rf, 0f.rf, 50f.rf, 50f.rf) {
                         drawRect(
-                            paint =
-                                RemotePaint().apply {
-                                    color =
-                                        androidx.compose.remote.creation.compose.state.RemoteColor(
-                                            Color.Red
-                                        )
-                                },
+                            paint = RemotePaint().apply { color = RemoteColor(Color.Red) },
                             topLeft = RemoteOffset(0f.rf, 0f.rf),
                             size = RemoteSize(100f.rf, 100f.rf),
                         )
@@ -148,18 +193,14 @@ class RcPlayerShaderTest {
             }
             val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(bytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(bytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("clipped")) {
+                Box(modifier = Modifier.size(100.dp).testTag("clipped")) {
                     RcPlayer(document = document)
                 }
             }
@@ -177,37 +218,28 @@ class RcPlayerShaderTest {
      */
     @Test
     fun embeddedPlayerComposesCanvasText() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val content: @Composable @RemoteComposable () -> Unit = {
                 RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                     drawText(
                         "Hi".rs,
                         10f.rf,
                         50f.rf,
-                        RemotePaint().apply {
-                            color =
-                                androidx.compose.remote.creation.compose.state.RemoteColor(
-                                    Color.Black
-                                )
-                        },
+                        RemotePaint().apply { color = RemoteColor(Color.Black) },
                     )
                 }
             }
             val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(bytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(bytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvastext")) {
+                Box(modifier = Modifier.size(100.dp).testTag("canvastext")) {
                     RcPlayer(document = document)
                 }
             }
@@ -225,9 +257,9 @@ class RcPlayerShaderTest {
      */
     @Test
     fun embeddedPlayerComposesTextOnPath() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-            val path = androidx.compose.remote.creation.RemotePath("M 10 50 L 90 50")
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val path = RemotePath("M 10 50 L 90 50")
             val content: @Composable @RemoteComposable () -> Unit = {
                 RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                     drawTextOnPath(
@@ -235,29 +267,20 @@ class RcPlayerShaderTest {
                         path,
                         0f.rf,
                         0f.rf,
-                        RemotePaint().apply {
-                            color =
-                                androidx.compose.remote.creation.compose.state.RemoteColor(
-                                    Color.Black
-                                )
-                        },
+                        RemotePaint().apply { color = RemoteColor(Color.Black) },
                     )
                 }
             }
             val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(bytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(bytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("textonpath")) {
+                Box(modifier = Modifier.size(100.dp).testTag("textonpath")) {
                     RcPlayer(document = document)
                 }
             }
@@ -275,20 +298,15 @@ class RcPlayerShaderTest {
      */
     @Test
     fun embeddedPlayerComposesAnchoredText() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
             val content: @Composable @RemoteComposable () -> Unit = {
                 RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                     drawAnchoredText(
                         "Hi".rs,
                         50f.rf,
                         50f.rf,
-                        RemotePaint().apply {
-                            color =
-                                androidx.compose.remote.creation.compose.state.RemoteColor(
-                                    Color.Black
-                                )
-                        },
+                        RemotePaint().apply { color = RemoteColor(Color.Black) },
                         0f.rf,
                         0f.rf,
                         0,
@@ -297,18 +315,14 @@ class RcPlayerShaderTest {
             }
             val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(bytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(bytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("anchoredtext")) {
+                Box(modifier = Modifier.size(100.dp).testTag("anchoredtext")) {
                     RcPlayer(document = document)
                 }
             }
@@ -326,10 +340,10 @@ class RcPlayerShaderTest {
      */
     @Test
     fun embeddedPlayerComposesTweenPath() {
-        kotlinx.coroutines.runBlocking {
-            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-            val pathA = androidx.compose.remote.creation.RemotePath("M 10 10 L 90 10 L 90 90 Z")
-            val pathB = androidx.compose.remote.creation.RemotePath("M 10 10 L 90 50 L 50 90 Z")
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val pathA = RemotePath("M 10 10 L 90 10 L 90 90 Z")
+            val pathB = RemotePath("M 10 10 L 90 50 L 50 90 Z")
             val content: @Composable @RemoteComposable () -> Unit = {
                 RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                     drawTweenPath(
@@ -338,29 +352,20 @@ class RcPlayerShaderTest {
                         0.5f.rf,
                         0f.rf,
                         1f.rf,
-                        RemotePaint().apply {
-                            color =
-                                androidx.compose.remote.creation.compose.state.RemoteColor(
-                                    Color.Red
-                                )
-                        },
+                        RemotePaint().apply { color = RemoteColor(Color.Red) },
                     )
                 }
             }
             val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(bytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(bytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("tweenpath")) {
+                Box(modifier = Modifier.size(100.dp).testTag("tweenpath")) {
                     RcPlayer(document = document)
                 }
             }
@@ -369,5 +374,9 @@ class RcPlayerShaderTest {
 
             rule.onNodeWithTag("tweenpath").assertExists()
         }
+    }
+
+    private companion object {
+        const val AGSL_SOLID_RED = "half4 main(float2 coord) { return half4(1.0, 0.0, 0.0, 1.0); }"
     }
 }

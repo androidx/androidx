@@ -185,7 +185,7 @@ public fun RcPlayer(
     state: RcPlayerState,
     modifier: Modifier = Modifier,
     imageLoader: RcImageLoader? = null,
-    isShaderValid: (shaderSource: String) -> Boolean = { true },
+    trustedContent: Boolean = false,
     onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
     customPlugins: CustomPluginRegistry? = null,
@@ -198,6 +198,9 @@ public fun RcPlayer(
         "Embedded player is disabled. Set RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true to enable."
     }
 
+    (state.remoteContext.mRemoteComposeState as? SnapshotRemoteComposeState)?.trustedContent =
+        trustedContent
+
     val document = state.document
     val clock = remember(document) { document.clock }
 
@@ -209,7 +212,7 @@ public fun RcPlayer(
 
     val density = LocalDensity.current
     val remoteContext =
-        remember(typefaceResolver, preprocessed, state) {
+        remember(typefaceResolver, preprocessed, state, trustedContent) {
             val ctx = state.remoteContext
             val resolvedResolver = typefaceResolver ?: EmbeddedPlayerTypefaceResolver
             ctx.setTypefaceResolver(resolvedResolver)
@@ -226,7 +229,7 @@ public fun RcPlayer(
             }
             document.checkShaders(
                 ctx,
-                CoreDocument.ShaderControl { source -> isShaderValid(source) },
+                CoreDocument.ShaderControl { trustedContent },
             )
             ctx
         }
@@ -584,7 +587,7 @@ public fun RcPlayer(
     document: CoreDocument,
     modifier: Modifier = Modifier,
     imageLoader: RcImageLoader? = null,
-    isShaderValid: (shaderSource: String) -> Boolean = { true },
+    trustedContent: Boolean = false,
     onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
     customPlugins: CustomPluginRegistry? = null,
@@ -598,7 +601,7 @@ public fun RcPlayer(
         state = state,
         modifier = modifier,
         imageLoader = imageLoader,
-        isShaderValid = isShaderValid,
+        trustedContent = trustedContent,
         onAction = onAction,
         onNamedAction = onNamedAction,
         customPlugins = customPlugins,
@@ -624,7 +627,7 @@ public fun RcPlayer(
     capturedDocument: CapturedDocument,
     modifier: Modifier = Modifier,
     imageLoader: RcImageLoader? = null,
-    isShaderValid: (shaderSource: String) -> Boolean = { true },
+    trustedContent: Boolean = false,
     onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
     customPlugins: CustomPluginRegistry? = null,
@@ -635,7 +638,7 @@ public fun RcPlayer(
         state = state,
         modifier = modifier,
         imageLoader = imageLoader,
-        isShaderValid = isShaderValid,
+        trustedContent = trustedContent,
         onAction = onAction,
         onNamedAction = onNamedAction,
         customPlugins = customPlugins,
