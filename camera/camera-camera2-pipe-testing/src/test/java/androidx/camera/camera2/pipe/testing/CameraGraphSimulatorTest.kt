@@ -17,11 +17,9 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureResult
 import android.util.Size
-import android.view.Surface
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
@@ -79,10 +77,12 @@ class CameraGraphSimulatorTest {
     private val context = ApplicationProvider.getApplicationContext() as Context
     private val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
     private val stream = checkNotNull(simulator.streams[streamConfig])
+    private val fakeSurfaces = FakeSurfaces()
 
     @After
     fun tearDown() {
         simulator.close()
+        fakeSurfaces.close()
     }
 
     @Test
@@ -393,15 +393,11 @@ class CameraGraphSimulatorTest {
 
     @Test
     fun externalSurfacesCanBeSetOnSimulator() = testScope.runTest {
-        val surfaceTexture = SurfaceTexture(0)
-        val fakeSurface = Surface(surfaceTexture)
+        val fakeSurface = fakeSurfaces.createFakeSurface()
 
         simulator.setSurface(stream.id, fakeSurface)
         // All Surfaces are set, no initializeSurfaces() call should be required.
         simulator.simulateCameraStarted()
-
-        fakeSurface.release()
-        surfaceTexture.release()
     }
 
     @Test
@@ -498,7 +494,6 @@ class CameraGraphSimulatorTest {
 
     @Test
     fun simulatorShouldThrowWhenDifferentExternalSurfaceIsSet() = testScope.runTest {
-        val fakeSurfaces = FakeSurfaces()
         val fakeSurface = fakeSurfaces.createFakeSurface(Size(1280, 720))
 
         val streamConfig = CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
@@ -513,7 +508,6 @@ class CameraGraphSimulatorTest {
             simulator.setSurface(cameraStream.id, fakeSurface)
         }
 
-        fakeSurfaces.close()
         fakeImageReader.close()
         simulator.close()
     }

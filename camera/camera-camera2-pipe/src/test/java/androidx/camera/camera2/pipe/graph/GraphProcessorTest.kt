@@ -16,10 +16,8 @@
 
 package androidx.camera.camera2.pipe.graph
 
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_LOCK
-import android.view.Surface
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
@@ -42,6 +40,7 @@ import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Compani
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.requiredParameters
 import androidx.camera.camera2.pipe.testing.FakeGraphConfigs
 import androidx.camera.camera2.pipe.testing.FakeRequestListener
+import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -70,7 +69,8 @@ internal class GraphProcessorTest {
     private val globalListener = FakeRequestListener()
     private val graphListener3A = Listener3A()
     private val streamId = StreamId(0)
-    private val surfaceMap = mapOf(streamId to Surface(SurfaceTexture(1)))
+    private val fakeSurfaces = FakeSurfaces()
+    private val surfaceMap = mapOf(streamId to fakeSurfaces.createFakeSurface())
     private val fakeGraphStateListener = FakeGraphStateListener()
 
     private val csp1 = FakeCaptureSequenceProcessor().also { it.surfaceMap = surfaceMap }
@@ -104,7 +104,7 @@ internal class GraphProcessorTest {
 
     @After
     fun teardown() {
-        surfaceMap[streamId]?.release()
+        fakeSurfaces.close()
     }
 
     @Test

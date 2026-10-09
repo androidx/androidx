@@ -16,12 +16,12 @@
 
 package androidx.camera.camera2.pipe
 
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.params.OutputConfiguration
 import android.util.Size
-import android.view.Surface
+import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -29,6 +29,13 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(sdk = [Config.ALL_SDKS])
 internal class StreamTest {
+    private val fakeSurfaces = FakeSurfaces()
+
+    @After
+    fun tearDown() {
+        fakeSurfaces.close()
+    }
+
     private val streamConfig1 =
         CameraStream.Config.create(size = Size(640, 480), format = StreamFormat.YUV_420_888)
 
@@ -87,8 +94,7 @@ internal class StreamTest {
     @Test
     @Config(minSdk = 34)
     fun externalOutputConfig_useReadoutTimestampMirrorsOutputConfiguration() {
-        val surfaceTexture = SurfaceTexture(0)
-        val surface = Surface(surfaceTexture)
+        val surface = fakeSurfaces.createFakeSurface()
         val externalOutputConfigEnabled =
             OutputConfiguration(surface).apply { setReadoutTimestampEnabled(true) }
 
@@ -110,16 +116,12 @@ internal class StreamTest {
                 streamUseHint = null,
             )
         assertThat(externalConfigDefault.useReadoutTimestamp).isFalse()
-
-        surface.release()
-        surfaceTexture.release()
     }
 
     @Test
     @Config(sdk = [33])
     fun externalOutputConfig_api33_useReadoutTimestampIsNull() {
-        val surfaceTexture = SurfaceTexture(0)
-        val surface = Surface(surfaceTexture)
+        val surface = fakeSurfaces.createFakeSurface()
         val externalOutputConfig = OutputConfiguration(surface)
 
         val externalConfig =
@@ -130,8 +132,5 @@ internal class StreamTest {
                 streamUseHint = null,
             )
         assertThat(externalConfig.useReadoutTimestamp).isNull()
-
-        surface.release()
-        surfaceTexture.release()
     }
 }

@@ -16,10 +16,8 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
 import android.os.Looper.getMainLooper
-import android.view.Surface
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraInterop
@@ -36,6 +34,7 @@ import androidx.camera.camera2.pipe.testing.FakeAudioRestrictionController
 import androidx.camera.camera2.pipe.testing.FakeCamera2DeviceCloser
 import androidx.camera.camera2.pipe.testing.FakeCamera2MetadataProvider
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -73,11 +72,13 @@ internal class VirtualCameraStateTest {
     private val testCamera = RobolectricCameras.open(cameraId)
     private val graphListener: GraphListener = mock()
     private val cameraErrorListener: CameraErrorListener = mock()
+    private val fakeSurfaces = FakeSurfaces()
 
     @After
     fun teardown() {
         mainLooper.idle()
         RobolectricCameras.clear()
+        fakeSurfaces.close()
     }
 
     @Test
@@ -277,14 +278,11 @@ internal class VirtualCameraStateTest {
         val virtualAndroidCameraState = deviceWrapper as VirtualAndroidCameraDevice
         virtualCamera.disconnect()
 
-        val surfaceTexture = SurfaceTexture(0).also { it.setDefaultBufferSize(640, 480) }
-        val surface = Surface(surfaceTexture)
+        val surface = fakeSurfaces.createFakeSurface()
         val callback: CameraCaptureSessionWrapper.StateCallback = mock()
         val result = virtualAndroidCameraState.createCaptureSession(listOf(surface), callback)
         assertThat(result).isFalse()
         verify(callback, times(1)).onSessionFinalized()
-        surface.release()
-        surfaceTexture.release()
     }
 }
 
