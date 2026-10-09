@@ -196,15 +196,9 @@ internal class BackupRestoreControllerImpl(
         args: Map<String, String>,
         waitForDebugger: Boolean,
     ): BackupActionResult {
-        val stdout =
-            shell.instrument(
-                findRunner(),
-                BackupActionWireProtocol.instrumentationArgs(
-                    actionClassName,
-                    args,
-                    waitForDebugger,
-                ),
-            )
+        val instrumentationArgs =
+            BackupActionWireProtocol.instrumentationArgs(actionClassName, args, waitForDebugger)
+        val stdout = shell.instrument(findRunner(), instrumentationArgs)
         val report = BackupRunnerReport.parse(stdout)
         val payloadPath = report.payloadPath
         val payloadJson =

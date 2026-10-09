@@ -41,6 +41,8 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.mockito.Mockito.RETURNS_DEFAULTS
 import org.mockito.Mockito.any
 import org.mockito.Mockito.anyBoolean
@@ -60,6 +62,30 @@ internal const val LOCAL_TRANSPORT = "com.android.localtransport/.LocalTransport
 /** Returns a [ShellCommandOutput] for a stubbed shell command. */
 internal fun shellOutput(stdout: String = "", stderr: String = "", exitCode: Int = 0) =
     ShellCommandOutput(stdout, stderr, exitCode)
+
+/** Returns what `am instrument` prints for a run in which the runner reported [resultJson]. */
+internal fun instrumentOutput(resultJson: String): String =
+    "INSTRUMENTATION_RESULT: resultJson=$resultJson\nINSTRUMENTATION_CODE: -1\n"
+
+/** Returns what `am instrument` prints for a run of an action that returned [payloadJson]. */
+internal fun runnerStdout(payloadJson: String): String =
+    instrumentOutput(
+        buildJsonObject {
+            put("isSuccess", true)
+            put("payloadJson", payloadJson)
+        }
+            .toString()
+    )
+
+/** Returns what `am instrument` prints when the runner wrote the payload to [devicePath]. */
+internal fun overflowStdout(devicePath: String): String =
+    instrumentOutput(
+        buildJsonObject {
+            put("isSuccess", true)
+            put("payload_path", devicePath)
+        }
+            .toString()
+    )
 
 /**
  * Returns what `bmgr` prints when [command] succeeds, as captured on an API 34 device, or null if
