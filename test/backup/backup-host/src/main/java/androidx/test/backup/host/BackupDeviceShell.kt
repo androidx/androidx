@@ -37,9 +37,9 @@ import kotlinx.coroutines.withTimeoutOrNull
 /**
  * Runs shell commands and file transfers on one device over ADB.
  *
- * This is the only class that talks to `adblib`. Each method builds one device command, quotes the
- * values it interpolates, runs it, and interprets its output, so callers never assemble shell
- * strings themselves.
+ * Every shell command of this library goes through this class. Each method builds one device
+ * command, quotes the values it interpolates, runs it, and interprets its output, so callers never
+ * assemble shell strings themselves.
  */
 internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumber: String) {
 
