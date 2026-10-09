@@ -33,6 +33,8 @@ import androidx.compose.remote.core.WireBuffer
 import androidx.compose.remote.core.serialize.MapSerializer
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
+import androidx.compose.remote.player.compose.embedded.draw.UnknownOperationPolicy
+import androidx.compose.remote.player.compose.embedded.draw.UnknownOperations
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -74,6 +76,8 @@ class RcPlayerFeatureTest {
 
     @Test
     fun operationIsSkippedWithoutItsFeature() {
+        // An operation no feature handles is left to the unknown-operation policy.
+        UnknownOperations.policy = UnknownOperationPolicy.Log
         val document = documentWithFeatureOperation()
 
         rule.setContent { Player(document, RcPlayerFeatureSet.Empty) }
