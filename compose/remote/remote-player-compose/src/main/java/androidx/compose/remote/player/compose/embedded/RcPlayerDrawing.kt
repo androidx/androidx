@@ -34,6 +34,7 @@ import androidx.compose.remote.core.operations.ColorConstant
 import androidx.compose.remote.core.operations.ColorExpression
 import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.ConditionalOperations
+import androidx.compose.remote.core.operations.DataMapLookup
 import androidx.compose.remote.core.operations.DrawArc
 import androidx.compose.remote.core.operations.DrawBitmap
 import androidx.compose.remote.core.operations.DrawBitmapFontText
@@ -79,6 +80,7 @@ import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.TouchExpression
+import androidx.compose.remote.core.operations.UpdateDynamicFloatList
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.ContainerEnd
@@ -283,6 +285,10 @@ private fun DrawScope.executeOperationsInPass(
             }
             is TimeAttribute,
             is BitmapTextMeasure -> op.paint(evalPaintContext())
+            // Data operations in a draw stream run each time the stream does, as in the View
+            // player's CanvasOperations, so they follow inputs that change after setup.
+            is UpdateDynamicFloatList,
+            is DataMapLookup -> op.apply(remoteContext)
             is NamedVariable -> op.apply(remoteContext)
             is ParticlesLoop -> {
                 // Particle system: bridged to the core (View player) implementation. Needs the

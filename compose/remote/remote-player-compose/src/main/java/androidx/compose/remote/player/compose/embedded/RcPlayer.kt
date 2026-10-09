@@ -61,6 +61,7 @@ import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.core.operations.IdLookup
 import androidx.compose.remote.core.operations.ImageAttribute
 import androidx.compose.remote.core.operations.IntegerExpression
 import androidx.compose.remote.core.operations.NamedVariable
@@ -73,6 +74,7 @@ import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
 import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.TextFromFloat
+import androidx.compose.remote.core.operations.TextLookup
 import androidx.compose.remote.core.operations.TextLookupInt
 import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.Theme
@@ -1289,14 +1291,18 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
                 if (id > 0 && !computedOpIndex.containsKey(id)) {
                     computedOpIndex[id] = op
                 }
-            } else if (op is TextAttribute || op is TimeAttribute || op is BitmapTextMeasure) {
-                // Value-producing paint operations that aren't VariableProviders: their output
-                // is computed on demand through the GraphContext, like TextMeasure.
+            } else {
+                // Value-producing operations that aren't VariableProviders: their output is
+                // computed on demand through the GraphContext, like TextMeasure, so it follows
+                // inputs that change after setup.
                 val id =
                     when (op) {
                         is TextAttribute -> op.mId
                         is TimeAttribute -> op.mId
-                        else -> (op as BitmapTextMeasure).mId
+                        is BitmapTextMeasure -> op.mId
+                        is TextLookup -> op.mTextId
+                        is IdLookup -> op.mTextId
+                        else -> -1
                     }
                 if (id > 0 && !computedOpIndex.containsKey(id)) {
                     computedOpIndex[id] = op
