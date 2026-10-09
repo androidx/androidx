@@ -378,13 +378,8 @@ internal class ViewLayer(
         drawBlock = null
         invalidateParentLayer = null
 
-        val recycle = ownerView.recycle(this@ViewLayer)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || shouldUseDispatchDraw || !recycle) {
-            container.removeViewInLayout(this)
-        } else {
-            visibility = GONE
-        }
+        ownerView.recycle(this@ViewLayer)
+        container.removeViewInLayout(this)
     }
 
     override fun updateDisplayList() {
@@ -419,11 +414,7 @@ internal class ViewLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
     ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || shouldUseDispatchDraw) {
-            container.addView(this)
-        } else {
-            visibility = VISIBLE
-        }
+        container.addView(this)
         matrixCache.reset()
         clipToBounds = false
         drawnWithZ = false
