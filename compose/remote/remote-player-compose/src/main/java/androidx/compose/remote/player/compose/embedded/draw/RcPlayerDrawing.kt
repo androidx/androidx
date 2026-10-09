@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("RestrictedApiAndroidX", "PrimitiveInCollection")
+@file:OptIn(ExperimentalRemotePlayerApi::class)
 
 package androidx.compose.remote.player.compose.embedded.draw
 
@@ -89,6 +90,9 @@ import androidx.compose.remote.core.operations.layout.managers.CanvasLayout
 import androidx.compose.remote.core.operations.matrix.MatrixConstant
 import androidx.compose.remote.core.operations.matrix.MatrixExpression
 import androidx.compose.remote.core.operations.matrix.MatrixVectorMath
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.embedded.RcFeatureDrawScope
+import androidx.compose.remote.player.compose.embedded.RcPlayerFeatureSet
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
 import androidx.compose.remote.player.compose.embedded.doc.applyTrackingPathChange
@@ -152,6 +156,7 @@ internal fun DrawScope.executeOperations(
                 offscreenState = offscreenState,
                 contentLayer = contentLayer,
                 contentOrigin = contentOrigin,
+                features = graph?.features ?: RcPlayerFeatureSet.Empty,
             )
         }
     }
@@ -167,6 +172,7 @@ private fun DrawScope.executeOperationsInPass(
     contentLayer: GraphicsLayer? = null,
     contentOrigin: Offset = Offset.Zero,
     loopScope: Long = 0L,
+    features: RcPlayerFeatureSet = RcPlayerFeatureSet.Empty,
 ) {
     // Reads route through the GraphContext when present: it resolves time ids from the Compose
     // frame clock and computed ids via per-pass DAG memoization over reactive leaf states, and a
@@ -186,6 +192,12 @@ private fun DrawScope.executeOperationsInPass(
             .also {
                 it.paintState = paintState
                 it.textMeasurer = textMeasurer
+            }
+    var featureScope: RcFeatureDrawScope? = null
+    fun featureScope(): RcFeatureDrawScope =
+        featureScope
+            ?: RcFeatureDrawScope(this, remoteContext, paintState, graph, ::evalPaintContext).also {
+                featureScope = it
             }
     var canvasLevel = 0
     val initialOffscreenDepth = offscreenState.depth
@@ -335,6 +347,7 @@ private fun DrawScope.executeOperationsInPass(
                             contentLayer,
                             contentOrigin,
                             loopScope = loopScope,
+                            features = features,
                         )
                     } else if (process != null) {
                         executeOperationsInPass(
@@ -348,6 +361,7 @@ private fun DrawScope.executeOperationsInPass(
                             contentLayer,
                             contentOrigin,
                             loopScope = loopScope,
+                            features = features,
                         )
                     }
                 } else {
@@ -385,6 +399,7 @@ private fun DrawScope.executeOperationsInPass(
                         contentLayer,
                         contentOrigin,
                         loopScope = loopScope,
+                        features = features,
                     )
             }
             is LoopOperation -> {
@@ -425,6 +440,7 @@ private fun DrawScope.executeOperationsInPass(
                             contentOrigin,
                             // Iteration path for per-iteration impulse fire state.
                             loopScope = loopScope * LOOP_SCOPE_RADIX + guard + 1,
+                            features = features,
                         )
                         i += step
                         guard++
@@ -458,6 +474,7 @@ private fun DrawScope.executeOperationsInPass(
                         contentLayer,
                         contentOrigin,
                         loopScope = loopScope,
+                        features = features,
                     )
                 }
             }
@@ -543,6 +560,8 @@ private fun DrawScope.executeOperationsInPass(
             // it plays each time the stream runs it, so documents gate it with an impulse.
             // SoundExpression / SoundData are registered once at setup, not per draw.
             is PlaySound -> op.apply(remoteContext)
+            // Anything else may belong to an optional feature (see RcPlayerFeature).
+            else -> features.paint(op, featureScope())
         }
     }
     // If a DRAW_TO_BITMAP redirect was left active (document didn't reset with bitmapId 0), restore

@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("RestrictedApiAndroidX", "PrimitiveInCollection", "BanConcurrentHashMap")
+@file:OptIn(ExperimentalRemotePlayerApi::class)
 
 package androidx.compose.remote.player.compose.embedded.doc
 
@@ -33,7 +34,9 @@ import androidx.compose.remote.core.operations.ImageAttribute
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.embedded.RcImageLoader
+import androidx.compose.remote.player.compose.embedded.RcPlayerFeatureSet
 import androidx.compose.remote.player.compose.embedded.RcTypefaceResolver
 import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
 import androidx.compose.remote.player.compose.embedded.draw.GraphPaintContext
@@ -163,6 +166,9 @@ internal class GraphContext(
     }
 
     internal var imageLoader: RcImageLoader? = null
+
+    /** The optional features of the player, see [RcPlayerFeatureSet]. */
+    internal var features: RcPlayerFeatureSet = RcPlayerFeatureSet.Empty
 
     private class EvalPassState {
         var depth: Int = 0
