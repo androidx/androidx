@@ -40,8 +40,9 @@ import kotlinx.coroutines.flow.asStateFlow
  * lifecycles are controlled by the runtime so if the data will not be used upon receiving, a copy
  * should be made.
  *
+ * OpenXR does not support [DepthEstimationMode.SMOOTH_AND_RAW].
+ *
  * @property state the current [State] of the depth data
- * @note OpenXr does not support [DepthEstimationMode.SMOOTH_AND_RAW].
  */
 @SuppressWarnings("HiddenSuperclass")
 public class Depth internal constructor(internal val runtimeDepth: RuntimeDepth) : Updatable() {

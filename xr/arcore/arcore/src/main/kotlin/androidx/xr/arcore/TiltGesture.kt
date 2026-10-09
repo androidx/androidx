@@ -159,10 +159,11 @@ public object TiltGesture {
     /**
      * Determines new tilt state based on rotation and hysteresis.
      *
-     * Hysteresis is achieved by using separate thresholds for tilting up and down: - To transition
-     * from [Tilt.UP] to [Tilt.DOWN], the angle must fall below the
-     * [TILT_DOWN_COMPLETE_THRESHOLD]. - To transition from [Tilt.DOWN] to [Tilt.UP], the angle must
-     * rise above the [TILT_UP_COMPLETE_THRESHOLD].
+     * Hysteresis is achieved by using separate thresholds for tilting up and down:
+     * - To transition from [Tilt.UP] to [Tilt.DOWN], the angle must fall below the
+     *   [TILT_DOWN_COMPLETE_THRESHOLD].
+     * - To transition from [Tilt.DOWN] to [Tilt.UP], the angle must rise above the
+     *   [TILT_UP_COMPLETE_THRESHOLD].
      *
      * This ensures that when the device's tilt angle is between the two thresholds, the state
      * remains stable and only changes when a threshold is definitively crossed.
@@ -266,11 +267,12 @@ public object TiltGesture {
     /**
      * Calculates the tilt angle in degrees from a device's rotation quaternion.
      *
-     * The tilt angle is defined within a specific coordinate system where: - **0 degrees**
-     * corresponds to the device looking vertically downwards (-Z axis of device points towards
-     * world -Y). - **90 degrees** corresponds to the device looking horizontally straight ahead. -
-     * **180 degrees** corresponds to the device looking vertically upwards (-Z axis of device
-     * points towards world +Y).
+     * The tilt angle is defined within a specific coordinate system where:
+     * - **0 degrees** corresponds to the device looking vertically downwards (-Z axis of device
+     *   points towards world -Y).
+     * - **90 degrees** corresponds to the device looking horizontally straight ahead.
+     * - **180 degrees** corresponds to the device looking vertically upwards (-Z axis of device
+     *   points towards world +Y).
      *
      * This function derives the angle by calculating the pitch from the quaternion and mapping it
      * to the desired 0-to-180-degree range.

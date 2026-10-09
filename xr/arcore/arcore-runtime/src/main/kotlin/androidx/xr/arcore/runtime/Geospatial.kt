@@ -75,8 +75,8 @@ public interface Geospatial {
              * [request additional quota](https://cloud.google.com/docs/quota#requesting_higher_quota)
              * for the ARCore API for their project from the Google Cloud Console.
              *
-             * Sessions are limited per-minute [link TBD] and enabling may succeed if retried. The
-             * application can disable and re-enable Geospatial to try again.
+             * Sessions are limited per-minute and enabling may succeed if retried. The application
+             * can disable and re-enable Geospatial to try again.
              */
             @JvmField public val ERROR_RESOURCE_EXHAUSTED: State = State(-3)
 

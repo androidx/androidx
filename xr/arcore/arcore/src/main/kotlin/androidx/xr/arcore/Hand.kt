@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.asStateFlow
 @SuppressWarnings("HiddenSuperclass")
 public class Hand internal constructor(internal val runtimeHand: RuntimeHand) :
     Trackable<Hand.State>, Updatable() {
-    /** * Companion object holding info to the left and right hands. */
+    /** Companion object holding info to the left and right hands. */
     public companion object {
 
         internal const val PRIMARY_HAND_SETTING_NAME = "primary_hand"
