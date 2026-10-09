@@ -78,6 +78,21 @@ internal object LineBreaker {
         val lineCount: Int
             get() = lineLayouts.size
 
+        /** Maximum height in pixels among all laid-out lines, or `0f` when empty. */
+        val height: Float = lineLayouts.maxOfOrNull { it.height } ?: 0f
+
+        /** Uniform width in pixels of a single vertical line (column). */
+        val lineWidth: Float
+            get() = lineRightSide - lineLeftSide
+
+        /**
+         * Returns the laid-out height in pixels of the line at [lineNo].
+         *
+         * @param lineNo 0-based line (column) index
+         * @return height in pixels of the line at [lineNo]
+         */
+        fun getLineHeight(lineNo: Int): Float = lineLayouts[lineNo].height
+
         /**
          * Retrieves the inclusive starting character index of a specified line.
          *
@@ -103,7 +118,6 @@ internal object LineBreaker {
          * @param paint The TextPaint object to use for text rendering.
          */
         fun draw(canvas: Canvas, x: Float, y: Float, paint: TextPaint) {
-            val lineWidth = lineRightSide - lineLeftSide
             lineLayouts.forEachIndexed { i, line ->
                 // Baseline offset of the i-th line.
                 val baselineOffset = -lineWidth * i - lineRightSide
