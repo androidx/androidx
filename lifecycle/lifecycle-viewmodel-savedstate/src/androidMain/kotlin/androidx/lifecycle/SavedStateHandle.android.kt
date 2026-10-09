@@ -50,7 +50,15 @@ public actual class SavedStateHandle {
         impl = SavedStateHandleImpl()
     }
 
-    @MainThread public actual operator fun contains(key: String): Boolean = key in impl
+    @MainThread
+    public actual operator fun contains(key: String): Boolean {
+        if (key !in impl) return false
+        // We need to check if the value is initialized to be consistent with previous behavior
+        // where contains returned false. Since we are tracking all values as part of the
+        // container, we would incorrectly return true otherwise.
+        val savedStateValue = impl.container.getSavedStateValue<Any?, SavedStateValue<Any?>>(key)
+        return savedStateValue !is LiveDataSavedStateValue<*> || savedStateValue.value.isInitialized
+    }
 
     /**
      * Returns a [LiveData] that accesses data associated with the given [key].
@@ -121,9 +129,10 @@ public actual class SavedStateHandle {
 
         val liveDataSavedStateValue =
             when (existing) {
-                is LiveDataSavedStateValue<T> -> existing
+                is LiveDataSavedStateValue<*> -> existing
                 is SimpleSavedStateValue<T> -> {
-                    val liveData = MutableLiveData(existing.value)
+                    @Suppress("UNCHECKED_CAST") val existingValue = existing.value as T
+                    val liveData = MutableLiveData(existingValue)
                     LiveDataSavedStateValue(liveData).also {
                         impl.container.putSavedStateValue(key, it)
                     }
@@ -141,7 +150,8 @@ public actual class SavedStateHandle {
                 }
                 else -> throw IllegalArgumentException(createMutuallyExclusiveErrorMessage(key))
             }
-        return liveDataSavedStateValue.liveData
+        @Suppress("UNCHECKED_CAST")
+        return (liveDataSavedStateValue as LiveDataSavedStateValue<T>).value
     }
 
     @MainThread
@@ -164,16 +174,25 @@ public actual class SavedStateHandle {
 
     @MainThread public actual fun keys(): Set<String> = impl.keys()
 
-    @MainThread public actual operator fun <T> get(key: String): T? = impl[key]
+    @MainThread
+    public actual operator fun <T> get(key: String): T? {
+        val existing = impl.container.getSavedStateValue<T, SavedStateValue<T>>(key)
+        if (existing is LiveDataSavedStateValue<*>) {
+            @Suppress("UNCHECKED_CAST")
+            return existing.value.value as T?
+        }
+        return impl[key]
+    }
 
     @MainThread
     public actual operator fun <T> set(key: String, value: T?) {
         require(validateValue(value)) {
             "Can't put value with type ${value!!::class.java} into saved state"
         }
-        val existing = impl.container.getSavedStateValue<T?, SavedStateValue<T?>>(key)
-        if (existing is LiveDataSavedStateValue<T?>) {
-            existing.value = value
+        val existing = impl.container.getSavedStateValue<T, SavedStateValue<T>>(key)
+        if (existing is LiveDataSavedStateValue<*>) {
+            @Suppress("UNCHECKED_CAST")
+            (existing.value as MutableLiveData<T?>).value = value
         } else {
             impl[key] = value
         }
