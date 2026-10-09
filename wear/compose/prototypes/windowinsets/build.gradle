@@ -21,11 +21,18 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
+def appVersion = "2.1"
+def buildTimestamp = new java.text.SimpleDateFormat("MMdd.HHmm", Locale.US).format(new Date())
+
 android {
     compileSdk { version = release(37) { minorApiLevel = 1 } }
     defaultConfig {
         applicationId = "androidx.wear.compose.prototypes.windowinsets"
         minSdk { version = release(30) }
+        versionCode = 20260929
+        versionName = "${appVersion}-${buildTimestamp}"
+        resValue "string", "app_version", appVersion
+        resValue "string", "build_timestamp", buildTimestamp
     }
 
     buildTypes {
@@ -35,6 +42,9 @@ android {
             }
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
+    }
+    buildFeatures {
+        resValues = true
     }
     namespace = "androidx.wear.compose.prototypes.windowinsets"
 }
