@@ -695,12 +695,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val replacedChildren = semanticsNode.replacedChildren
         val childrenSize = replacedChildren.size
 
-        if (
-            isTraversalGroup &&
-                isMerging &&
-                AndroidComposeUiFlags.isTraversalGroupSortingEnabled &&
-                childrenSize > 1
-        ) {
+        if (isTraversalGroup && isMerging && childrenSize > 1) {
             val sortedChildren = getSortedChildren(replacedChildren)
             for (i in 0 until childrenSize) {
                 val child = sortedChildren[i]

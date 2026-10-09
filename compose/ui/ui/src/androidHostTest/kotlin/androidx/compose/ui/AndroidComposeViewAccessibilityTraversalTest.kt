@@ -34,8 +34,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,25 +42,12 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-@OptIn(ExperimentalComposeUiApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, minSdk = 29)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class AndroidComposeViewAccessibilityTraversalTest {
 
     @get:Rule val rule = createComposeRule()
-
-    private var originalTraversalGroupSortingEnabled = true
-
-    @Before
-    fun setUp() {
-        originalTraversalGroupSortingEnabled = AndroidComposeUiFlags.isTraversalGroupSortingEnabled
-    }
-
-    @After
-    fun tearDown() {
-        AndroidComposeUiFlags.isTraversalGroupSortingEnabled = originalTraversalGroupSortingEnabled
-    }
 
     @Test
     fun findViewByAccessibilityIdTraversal_doesNotCrash() {
@@ -75,7 +60,7 @@ class AndroidComposeViewAccessibilityTraversalTest {
     }
 
     @Test
-    fun testMergedDescendants_respectsTraversalIndex_sortingEnabled() {
+    fun testMergedDescendants_respectsTraversalIndex() {
         var androidComposeView: AndroidComposeView? = null
         val parentTag = "parent"
         val text1 = "first"
@@ -109,49 +94,8 @@ class AndroidComposeViewAccessibilityTraversalTest {
         val provider = delegate.getAccessibilityNodeProvider(androidComposeView!!)
         val parentId = rule.onNodeWithTag(parentTag).fetchSemanticsNode().id
 
-        AndroidComposeUiFlags.isTraversalGroupSortingEnabled = true
         val parentInfo = provider.createAccessibilityNodeInfo(parentId)
         assertChildOrder(parentInfo, listOf(child1Id, child2Id, child3Id))
-    }
-
-    @Test
-    fun testMergedDescendants_respectsTraversalIndex_sortingDisabled() {
-        var androidComposeView: AndroidComposeView? = null
-        val parentTag = "parent"
-        val text1 = "first"
-        val text2 = "second"
-        val text3 = "third"
-
-        rule.setContent {
-            androidComposeView = LocalView.current as AndroidComposeView
-            SimpleRow(
-                Modifier.semantics(mergeDescendants = true) { isTraversalGroup = true }
-                    .testTag(parentTag)
-            ) {
-                SimpleText(text1, Modifier.semantics { traversalIndex = 1f })
-                SimpleText(text3, Modifier.semantics { traversalIndex = 3f })
-                SimpleText(text2, Modifier.semantics { traversalIndex = 2f })
-            }
-        }
-
-        val delegate =
-            ViewCompat.getAccessibilityDelegate(androidComposeView!!)
-                as AndroidComposeViewAccessibilityDelegateCompat
-        delegate.accessibilityForceEnabledForTesting = true
-
-        val child1Id =
-            rule.onNodeWithContentDescription(text1, useUnmergedTree = true).fetchSemanticsNode().id
-        val child2Id =
-            rule.onNodeWithContentDescription(text2, useUnmergedTree = true).fetchSemanticsNode().id
-        val child3Id =
-            rule.onNodeWithContentDescription(text3, useUnmergedTree = true).fetchSemanticsNode().id
-
-        val provider = delegate.getAccessibilityNodeProvider(androidComposeView!!)
-        val parentId = rule.onNodeWithTag(parentTag).fetchSemanticsNode().id
-
-        AndroidComposeUiFlags.isTraversalGroupSortingEnabled = false
-        val parentInfo = provider.createAccessibilityNodeInfo(parentId)
-        assertChildOrder(parentInfo, listOf(child1Id, child3Id, child2Id))
     }
 
     @Test
@@ -201,7 +145,6 @@ class AndroidComposeViewAccessibilityTraversalTest {
         val provider = delegate.getAccessibilityNodeProvider(androidComposeView!!)
         val parentId = rule.onNodeWithTag(parentTag).fetchSemanticsNode().id
 
-        AndroidComposeUiFlags.isTraversalGroupSortingEnabled = true
         val parentInfo = provider.createAccessibilityNodeInfo(parentId)
         assertChildOrder(parentInfo, listOf(groupId, child3Id, child4Id))
 
