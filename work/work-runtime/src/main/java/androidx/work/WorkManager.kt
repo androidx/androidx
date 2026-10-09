@@ -22,7 +22,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.work.WorkManager.Companion.getInstance
 import androidx.work.WorkManager.Companion.initialize
-import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.WorkManagerWrapper
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
@@ -148,7 +148,8 @@ public abstract class WorkManager internal constructor() {
         )
         @JvmStatic
         public open fun getInstance(): WorkManager {
-            @Suppress("DEPRECATION") val workManager: WorkManager? = WorkManagerImpl.getInstance()
+            @Suppress("DEPRECATION")
+            val workManager: WorkManager? = WorkManagerWrapper.getInstance()
             checkNotNull(workManager) {
                 "WorkManager is not initialized properly.  The most " +
                     "likely cause is that you disabled WorkManagerInitializer in your manifest " +
@@ -172,7 +173,7 @@ public abstract class WorkManager internal constructor() {
         @Suppress("NON_FINAL_MEMBER_IN_OBJECT")
         @JvmStatic
         public open fun getInstance(context: Context): WorkManager {
-            return WorkManagerImpl.getInstance(context)
+            return WorkManagerWrapper.getInstance(context)
         }
 
         /**
@@ -200,7 +201,7 @@ public abstract class WorkManager internal constructor() {
         @Suppress("NON_FINAL_MEMBER_IN_OBJECT")
         @JvmStatic
         public open fun initialize(context: Context, configuration: Configuration) {
-            WorkManagerImpl.initialize(context, configuration)
+            WorkManagerWrapper.initialize(context, configuration)
         }
 
         /**
@@ -210,7 +211,7 @@ public abstract class WorkManager internal constructor() {
          */
         @Suppress("NON_FINAL_MEMBER_IN_OBJECT")
         @JvmStatic
-        public open fun isInitialized(): Boolean = WorkManagerImpl.isInitialized()
+        public open fun isInitialized(): Boolean = WorkManagerWrapper.isInitialized()
     }
 
     /** The [Configuration] instance that [WorkManager] was initialized with. */
