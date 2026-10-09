@@ -24,7 +24,6 @@ import androidx.test.backup.BackupActionInputKeys
 import androidx.test.backup.BackupActionOutputKeys
 import androidx.test.backup.BackupActionValues
 import androidx.test.backup.BackupDeviceActionArgs
-import androidx.test.backup.BackupRestoreTestRunner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
@@ -54,10 +53,10 @@ public class StorageActionTest {
 
     @Before
     public fun setUp() {
-        // Initialize BackupRestoreTestRunner.instance with active test instrumentation
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        BackupRestoreTestRunner.instance = instrumentation
-        context = instrumentation.targetContext.createDeviceProtectedStorageContext()
+        context =
+            InstrumentationRegistry.getInstrumentation()
+                .targetContext
+                .createDeviceProtectedStorageContext()
     }
 
     /**

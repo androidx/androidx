@@ -91,17 +91,36 @@ class BackupRestoreControllerImplTest {
 
         assertEquals(BackupActionResult.Success(mapOf("user_id" to "123")), result)
         val command = instrumentCommand()
-        assertTrue(command.startsWith("am instrument -w -e action "), command)
+        assertTrue(
+            command.startsWith("am instrument -w -e actionClass 'com.example.MyAction' "),
+            command,
+        )
         assertTrue(command.contains(" -e user_id '123' "), command)
         assertTrue(command.endsWith(" $PACKAGE.test/$RUNNER"), command)
+    }
+
+    /** The runner reads these keys itself, so an action argument must not set them. */
+    @Test
+    fun runOnDeviceRejectsArgumentsWithTheKeysOfTheRunner() {
+        for (key in listOf("actionClass", "debug", "redirect_dir")) {
+            val e =
+                assertFailsWith<IllegalArgumentException> {
+                    runBlocking {
+                        controller.runOnDevice("com.example.MyAction", mapOf(key to "x"))
+                    }
+                }
+            assertTrue(e.message.orEmpty().contains(key), e.message)
+        }
+        assertTrue(device.commands.isEmpty(), "${device.commands}")
     }
 
     @Test
     fun runOnDeviceReturnsTheRunnerFailureAndStackTrace() = runBlocking {
         device.onShell {
             shellOutput(
-                RESULT_MARKER +
+                instrumentOutput(
                     """{"isSuccess":false,"errorMessage":"Something broke","stackTrace":"at MyAction.kt:15"}"""
+                )
             )
         }
 
@@ -133,7 +152,6 @@ class BackupRestoreControllerImplTest {
         assertIs<BackupActionResult.Success>(result)
         val cmd = instrumentCommand()
         listOf(
-                "-e action 'com.example.MyTest\$CustomAction'",
                 "-e actionClass 'com.example.MyTest\$CustomAction'",
                 "-e dollar_var '\$100 \${USER} \$(id)'",
                 "-e backticks '`whoami`'",
@@ -153,7 +171,7 @@ class BackupRestoreControllerImplTest {
         controller.runOnDevice("com.example.MyAction", emptyMap(), waitForDebugger = true)
 
         val command = instrumentCommand()
-        assertTrue(command.startsWith("am instrument -w -e debug 'true' -e action "), command)
+        assertTrue(command.startsWith("am instrument -w -e debug 'true' -e actionClass "), command)
     }
 
     /** `<applicationId>.test` is only the package that AGP gives the test APK. */
@@ -1123,28 +1141,9 @@ class BackupRestoreControllerImplTest {
     private companion object {
         const val PACKAGE = "com.example.app"
         const val RUNNER = "androidx.test.backup.BackupRestoreTestRunner"
-        const val RESULT_MARKER = "BACKUP_RESTORE_RESULT: "
         val LOCAL = BackupTransportMode.LOCAL
         val CLOUD = BackupTransportMode.CLOUD_ENCRYPTED
         val PREFERENCE = StorageDomain.Preference("app_prefs", "key", "val")
         val SHORT_TIMEOUT: Duration = Duration.ofMillis(200)
-
-        /** Wraps an action payload in the envelope the on-device runner prints to stdout. */
-        fun runnerStdout(payloadJson: String): String {
-            val envelope = buildJsonObject {
-                put("isSuccess", true)
-                put("payloadJson", payloadJson)
-            }
-            return "$RESULT_MARKER$envelope\n"
-        }
-
-        /** Runner output for a payload that was written to [devicePath] instead of printed. */
-        fun overflowStdout(devicePath: String): String {
-            val envelope = buildJsonObject {
-                put("isSuccess", true)
-                put("payload_path", devicePath)
-            }
-            return "$RESULT_MARKER$envelope\n"
-        }
     }
 }

@@ -67,13 +67,15 @@ public interface BackupRestoreController : AutoCloseable {
      * Runs an on-device action inside the target application process.
      *
      * @param actionClassName class name of the [androidx.test.backup.BackupDeviceAction] to run
-     * @param args arguments to pass to the action
+     * @param args arguments to pass to the action. The keys `actionClass`, `debug` and
+     *   `redirect_dir` are reserved for the runner.
      * @param timeout maximum duration to wait for the action to complete. When it expires, the app
      *   is force-stopped and a [BackupActionResult.Failure] is returned. Must be positive.
      * @param waitForDebugger whether the runner waits for a debugger to attach before running
      * @return result of the action execution
      * @throws IOException if communicating with the device fails
-     * @throws IllegalArgumentException if [timeout] is not positive
+     * @throws IllegalArgumentException if [timeout] is not positive, or if [args] uses a reserved
+     *   key
      */
     @Throws(IOException::class)
     public suspend fun runOnDevice(
@@ -249,7 +251,9 @@ public interface BackupRestoreController : AutoCloseable {
      * Runs an on-device action asynchronously inside the target application process.
      *
      * @param actionClassName class name of the [androidx.test.backup.BackupDeviceAction] to run
-     * @param args arguments to pass to the action
+     * @param args arguments to pass to the action. The keys `actionClass`, `debug` and
+     *   `redirect_dir` are reserved for the runner; with one of them, the returned future fails
+     *   with an [IllegalArgumentException].
      * @return a [ListenableFuture] with the action result
      */
     @CheckResult
@@ -262,7 +266,9 @@ public interface BackupRestoreController : AutoCloseable {
      * Runs an on-device action asynchronously inside the target application process.
      *
      * @param actionClassName class name of the [androidx.test.backup.BackupDeviceAction] to run
-     * @param args arguments to pass to the action
+     * @param args arguments to pass to the action. The keys `actionClass`, `debug` and
+     *   `redirect_dir` are reserved for the runner; with one of them, the returned future fails
+     *   with an [IllegalArgumentException].
      * @param timeout maximum duration to wait for the action to complete. When it expires, the app
      *   is force-stopped and a [BackupActionResult.Failure] is returned. Must be positive, or the
      *   returned future fails with an [IllegalArgumentException].
@@ -279,7 +285,9 @@ public interface BackupRestoreController : AutoCloseable {
      * Runs an on-device action asynchronously inside the target application process.
      *
      * @param actionClassName class name of the [androidx.test.backup.BackupDeviceAction] to run
-     * @param args arguments to pass to the action
+     * @param args arguments to pass to the action. The keys `actionClass`, `debug` and
+     *   `redirect_dir` are reserved for the runner; with one of them, the returned future fails
+     *   with an [IllegalArgumentException].
      * @param timeout maximum duration to wait for the action to complete. When it expires, the app
      *   is force-stopped and a [BackupActionResult.Failure] is returned. Must be positive, or the
      *   returned future fails with an [IllegalArgumentException].
