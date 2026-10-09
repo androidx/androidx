@@ -49,9 +49,9 @@ public val FEATURE_XR_INPUT_EYE_TRACKING: String = "android.hardware.xr.input.ey
 
 /**
  * Feature for [android.content.pm.PackageManager.getSystemAvailableFeatures] and
- * [android.content.pm.PackageManager.hasSystemFeature]: This device supports <a
- * href="https://www.khronos.org/openxr/">OpenXR</a>. The feature version indicates the highest
- * version of OpenXR supported by the device using the following encoding:
+ * [android.content.pm.PackageManager.hasSystemFeature]: This device supports
+ * [OpenXR](https://www.khronos.org/openxr/). The feature version indicates the highest version of
+ * OpenXR supported by the device using the following encoding:
  * - Major version in bits 31-16
  * - Minor version in bits 15-0
  *
@@ -69,7 +69,7 @@ public val FEATURE_XR_INPUT_EYE_TRACKING: String = "android.hardware.xr.input.ey
  * APIs. The feature version indicates the highest version of the Android XR Spatial APIs supported
  * by the device.
  *
- * Also see <a href="https://developer.android.com/develop/xr">Develop with the Android XR SDK</a>.
+ * Also see [Develop with the Android XR SDK](https://developer.android.com/develop/xr).
  *
  * Constant Value: "android.software.xr.api.spatial"
  */
