@@ -24,6 +24,7 @@ import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.Banner
 import androidx.car.app.model.BannerSection
+import androidx.car.app.model.CarIconStyle
 import androidx.car.app.model.CarProgressBar
 import androidx.car.app.model.ChipSection
 import androidx.car.app.model.CondensedItem
@@ -62,9 +63,9 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
     private var isHovEnabled = true
     private val navigateTitle = getString(R.string.navigate)
     private val icMenu = getCarIcon(R.drawable.ic_fastfood_white_48dp)
-    private val icPhotos = getCarIcon(R.drawable.patio)
-    private val icAndroid = getCarIcon(R.drawable.test_android_media)
-    private val icSquare = getCarIcon(R.drawable.test_image_square)
+    private val icPhotos = getCarIcon(R.drawable.patio, CarIconStyle.ORIGINAL)
+    private val icAndroid = getCarIcon(R.drawable.test_android_media, CarIconStyle.ORIGINAL)
+    private val icSquare = getCarIcon(R.drawable.test_image_square, CarIconStyle.ORIGINAL)
     private val icNavigate = getCarIcon(R.drawable.ic_explore_white_24dp)
     private val icRoute = getCarIcon(R.drawable.arrow_right_turn)
     private val icRefresh = getCarIcon(R.drawable.baseline_refresh_24)
