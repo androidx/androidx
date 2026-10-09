@@ -45,6 +45,10 @@ public enum class IsolationPolicy {
  * test method takes precedence over one on its class, and an annotation on a class also applies to
  * its [@Nested][org.junit.jupiter.api.Nested] test classes.
  *
+ * A controller that a test class constructor or a [@BeforeAll][org.junit.jupiter.api.BeforeAll]
+ * method receives follows the annotation of the class, and [IsolationPolicy.AUTOMATIC] clears the
+ * app data when the constructor or method receives it.
+ *
  * @property value The isolation policy to apply. Defaults to [IsolationPolicy.AUTOMATIC].
  */
 @MustBeDocumented
