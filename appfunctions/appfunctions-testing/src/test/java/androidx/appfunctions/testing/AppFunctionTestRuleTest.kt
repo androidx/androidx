@@ -16,13 +16,17 @@
 
 package androidx.appfunctions.testing
 
+import android.content.ComponentName
+import android.content.pm.PackageManager
 import android.os.Build
-import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionData.Builder
+import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
@@ -38,10 +42,10 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
+import kotlin.collections.single
 import kotlin.test.assertIs
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -56,9 +60,9 @@ import org.robolectric.junit.rules.TimeoutRule
 import org.robolectric.shadows.ShadowSystemProperties
 
 @RunWith(RobolectricTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-@OptIn(FlowPreview::class)
+@Config(minSdk = Build.VERSION_CODES.BAKLAVA)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+@OptIn(FlowPreview::class, ExperimentalAppFunctionsApi::class)
 class AppFunctionTestRuleTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
@@ -74,7 +78,7 @@ class AppFunctionTestRuleTest {
         runBlocking<Unit> {
             val results = appFunctionManager.searchAppFunctions(AppFunctionSearchSpec())
 
-            assertThat(results).hasSize(8)
+            assertThat(results).hasSize(TOTAL_FUNCTION_COUNT)
         }
 
     @Test(timeout = 5000)
@@ -89,7 +93,9 @@ class AppFunctionTestRuleTest {
                 )
 
             assertThat(results.map { it.id })
-                .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
+                .containsExactly(
+                    "androidx.appfunctions.testing.BaseTestAppFunctionService#createNote"
+                )
         }
 
     @Test(timeout = 5000)
@@ -100,7 +106,7 @@ class AppFunctionTestRuleTest {
                     AppFunctionSearchSpec(packageNames = setOf(context.packageName))
                 )
 
-            assertThat(results).hasSize(8)
+            assertThat(results).hasSize(TOTAL_FUNCTION_COUNT)
         }
 
     @Test(timeout = 5000)
@@ -115,7 +121,9 @@ class AppFunctionTestRuleTest {
                 )
 
             assertThat(results.map { it.id })
-                .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
+                .containsExactly(
+                    "androidx.appfunctions.testing.BaseTestAppFunctionService#createNote"
+                )
         }
 
     @Test(timeout = 5000)
@@ -128,14 +136,16 @@ class AppFunctionTestRuleTest {
                             setOf(
                                 AppFunctionName(
                                     context.packageName,
-                                    "androidx.appfunctions.testing.NotesFunctions#createNote",
+                                    "androidx.appfunctions.testing.BaseTestAppFunctionService#createNote",
                                 )
                             )
                     )
                 )
 
             assertThat(results.map { it.id })
-                .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
+                .containsExactly(
+                    "androidx.appfunctions.testing.BaseTestAppFunctionService#createNote"
+                )
         }
 
     @Test(timeout = 5000)
@@ -150,7 +160,9 @@ class AppFunctionTestRuleTest {
                 )
 
             assertThat(results.map { it.id })
-                .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
+                .containsExactly(
+                    "androidx.appfunctions.testing.BaseTestAppFunctionService#createNote"
+                )
         }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
@@ -163,7 +175,7 @@ class AppFunctionTestRuleTest {
                 )
 
             assertThat(results.map { it.id })
-                .contains("androidx.appfunctions.testing.NotesFunctions#createNote")
+                .contains("androidx.appfunctions.testing.BaseTestAppFunctionService#createNote")
         }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
@@ -172,7 +184,7 @@ class AppFunctionTestRuleTest {
         runBlocking<Unit> {
             val activityScopeFunctionId =
                 "androidx.appfunctions.testing.ActivityScopeFunction#activityScopeFunction"
-            // TODO(b/426219836): Manually setting metadata with activity scope because reading
+            // TODO(b/426219836): Manually setting metadata with activity scope because registering
             //  dynamic app functions is not yet supported in test rule. Test using API once
             //  supported.
             appFunctionTestRule.appFunctionReader.setAppFunctionStaticAndRuntimeMetadata(
@@ -206,13 +218,135 @@ class AppFunctionTestRuleTest {
 
             assertThat(results.map { it.id }).contains(activityScopeFunctionId)
             assertThat(results.map { it.id })
-                .doesNotContain("androidx.appfunctions.testing.NotesFunctions#createNote")
+                .doesNotContain(
+                    "androidx.appfunctions.testing.BaseTestAppFunctionService#createNote"
+                )
+        }
+
+    @Test(timeout = 5000)
+    fun reloadAppFunctions_serviceDisabled_reflectsOnSearchResults() =
+        runBlocking<Unit> {
+            val functionId = "androidx.appfunctions.testing.BaseTestAppFunctionService#createNote"
+            val functionName = AppFunctionName(context.packageName, functionId)
+            val componentName =
+                ComponentName(
+                    targetContext,
+                    Class.forName("androidx.appfunctions.testing.TestAppFunctionService"),
+                )
+
+            val initialResults =
+                appFunctionManager.searchAppFunctions(
+                    AppFunctionSearchSpec(functionNames = setOf(functionName))
+                )
+            assertThat(initialResults).hasSize(1)
+
+            try {
+                targetContext.packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP,
+                )
+                appFunctionTestRule.reloadAppFunctions()
+
+                val resultsAfterDisabled =
+                    appFunctionManager.searchAppFunctions(
+                        AppFunctionSearchSpec(functionNames = setOf(functionName))
+                    )
+                assertThat(resultsAfterDisabled).isEmpty()
+            } finally {
+                targetContext.packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
+                    PackageManager.DONT_KILL_APP,
+                )
+            }
+        }
+
+    @Test(timeout = 5000)
+    fun reloadAppFunctions_serviceEnabled_reflectsOnSearchResults() =
+        runBlocking<Unit> {
+            val functionId =
+                "androidx.appfunctions.testing.BaseDisabledAppFunctionService#disabledFunction"
+            val functionName = AppFunctionName(context.packageName, functionId)
+            val componentName =
+                ComponentName(
+                    targetContext,
+                    Class.forName("androidx.appfunctions.testing.DisabledAppFunctionService"),
+                )
+
+            val initialResults =
+                appFunctionManager.searchAppFunctions(
+                    AppFunctionSearchSpec(functionNames = setOf(functionName))
+                )
+            assertThat(initialResults).isEmpty()
+
+            try {
+                targetContext.packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP,
+                )
+                appFunctionTestRule.reloadAppFunctions()
+
+                val resultsAfterEnabled =
+                    appFunctionManager.searchAppFunctions(
+                        AppFunctionSearchSpec(functionNames = setOf(functionName))
+                    )
+                assertThat(resultsAfterEnabled).hasSize(1)
+            } finally {
+                targetContext.packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP,
+                )
+            }
+        }
+
+    @Test(timeout = 5000)
+    fun executeAppFunction_disabledService_functionFailsAfterIndexation() =
+        runBlocking<Unit> {
+            val functionId = "androidx.appfunctions.testing.BaseTestAppFunctionService#createNote"
+            val componentName =
+                ComponentName(
+                    targetContext,
+                    Class.forName("androidx.appfunctions.testing.TestAppFunctionService"),
+                )
+
+            try {
+                targetContext.packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP,
+                )
+                appFunctionTestRule.reloadAppFunctions()
+
+                val response =
+                    appFunctionManager.executeAppFunction(
+                        request =
+                            ExecuteAppFunctionRequest(
+                                context.packageName,
+                                functionId,
+                                Builder(emptyList(), AppFunctionComponentsMetadata()).build(),
+                            )
+                    )
+
+                val errorResponse = assertIs<ExecuteAppFunctionResponse.Error>(response)
+                assertThat(errorResponse.error)
+                    .isInstanceOf(AppFunctionFunctionNotFoundException::class.java)
+            } finally {
+                targetContext.packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
+                    PackageManager.DONT_KILL_APP,
+                )
+            }
         }
 
     @Test(timeout = 5000)
     fun returnedAppFunctionManagerCompat_observeAppFunctions_enabledStateChanged_emitsChange() =
         runBlocking<Unit> {
-            val functionIdToTest = "androidx.appfunctions.testing.TestFunctions#disabledByDefault"
+            val functionIdToTest =
+                "androidx.appfunctions.testing.BaseTestAppFunctionService#disabledByDefault"
             val changeEventFlow = appFunctionManager.observeAppFunctions()
 
             try {
@@ -223,7 +357,7 @@ class AppFunctionTestRuleTest {
                     )
                 }
 
-                val event = changeEventFlow.take(1).first()
+                val event = changeEventFlow.take(1).single()
                 assertIs<AppFunctionsChangeEvent.StatesChanged>(event)
                 assertThat(event.changedFunctionNames)
                     .containsExactly(AppFunctionName(context.packageName, functionIdToTest))
@@ -236,9 +370,80 @@ class AppFunctionTestRuleTest {
         }
 
     @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_observeAppFunctions_serviceDisabled_emitsChange() =
+        runBlocking<Unit> {
+            val functionIdToTest =
+                "androidx.appfunctions.testing.BaseTestAppFunctionService#createNote"
+            val componentName =
+                ComponentName(
+                    targetContext,
+                    Class.forName("androidx.appfunctions.testing.TestAppFunctionService"),
+                )
+            val changeEventFlow = appFunctionManager.observeAppFunctions()
+
+            try {
+                launch {
+                    targetContext.packageManager.setComponentEnabledSetting(
+                        componentName,
+                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                        PackageManager.DONT_KILL_APP,
+                    )
+                    appFunctionTestRule.reloadAppFunctions()
+                }
+
+                val event = changeEventFlow.take(1).single()
+                assertIs<AppFunctionsChangeEvent.StatesChanged>(event)
+                assertThat(event.changedFunctionNames)
+                    .contains(AppFunctionName(context.packageName, functionIdToTest))
+            } finally {
+                targetContext.packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
+                    PackageManager.DONT_KILL_APP,
+                )
+            }
+        }
+
+    @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_observeAppFunctions_serviceEnabled_emitsChange() =
+        runBlocking<Unit> {
+            val functionIdToTest =
+                "androidx.appfunctions.testing.BaseDisabledAppFunctionService#disabledFunction"
+            val componentName =
+                ComponentName(
+                    targetContext,
+                    Class.forName("androidx.appfunctions.testing.DisabledAppFunctionService"),
+                )
+            val changeEventFlow = appFunctionManager.observeAppFunctions()
+
+            try {
+                launch {
+                    targetContext.packageManager.setComponentEnabledSetting(
+                        componentName,
+                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                        PackageManager.DONT_KILL_APP,
+                    )
+                    appFunctionTestRule.reloadAppFunctions()
+                }
+
+                val event = changeEventFlow.take(1).single()
+                assertIs<AppFunctionsChangeEvent.StatesChanged>(event)
+                assertThat(event.changedFunctionNames)
+                    .containsExactly(AppFunctionName(context.packageName, functionIdToTest))
+            } finally {
+                targetContext.packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP,
+                )
+            }
+        }
+
+    @Test(timeout = 5000)
     fun returnedAppFunctionManagerCompat_currentPackage_enabledByDefault_modified_success() =
         runBlocking<Unit> {
-            val functionId = "androidx.appfunctions.testing.TestFunctions#enabledByDefault"
+            val functionId =
+                "androidx.appfunctions.testing.BaseTestAppFunctionService#enabledByDefault"
             assertThat(
                     appFunctionManager
                         .getAppFunctionStates(
@@ -268,7 +473,8 @@ class AppFunctionTestRuleTest {
     @Test(timeout = 5000)
     fun returnedAppFunctionManagerCompat_currentPackage_disabledByDefault_modified_success() =
         runBlocking<Unit> {
-            val functionId = "androidx.appfunctions.testing.TestFunctions#disabledByDefault"
+            val functionId =
+                "androidx.appfunctions.testing.BaseTestAppFunctionService#disabledByDefault"
             assertThat(
                     appFunctionManager
                         .getAppFunctionStates(
@@ -298,8 +504,10 @@ class AppFunctionTestRuleTest {
     @Test(timeout = 5000)
     fun returnedAppFunctionManagerCompat_getAppFunctionStates_multipleAppFunctionNames_returnsAllStates() =
         runBlocking<Unit> {
-            val functionId1 = "androidx.appfunctions.testing.TestFunctions#enabledByDefault"
-            val functionId2 = "androidx.appfunctions.testing.TestFunctions#disabledByDefault"
+            val functionId1 =
+                "androidx.appfunctions.testing.BaseTestAppFunctionService#enabledByDefault"
+            val functionId2 =
+                "androidx.appfunctions.testing.BaseTestAppFunctionService#disabledByDefault"
 
             val states =
                 appFunctionManager.getAppFunctionStates(
@@ -331,8 +539,10 @@ class AppFunctionTestRuleTest {
     @Test(timeout = 5000)
     fun returnedAppFunctionManagerCompat_getAppFunctionStates_multipleAppFunctionNames_skipsInvalid() =
         runBlocking<Unit> {
-            val validFunctionId = "androidx.appfunctions.testing.TestFunctions#enabledByDefault"
-            val invalidFunctionId = "androidx.appfunctions.testing.TestFunctions#unknown"
+            val validFunctionId =
+                "androidx.appfunctions.testing.BaseTestAppFunctionService#enabledByDefault"
+            val invalidFunctionId =
+                "androidx.appfunctions.testing.BaseTestAppFunctionService#unknown"
 
             val states =
                 appFunctionManager.getAppFunctionStates(
@@ -356,8 +566,8 @@ class AppFunctionTestRuleTest {
                     request =
                         ExecuteAppFunctionRequest(
                             context.packageName,
-                            "androidx.appfunctions.testing.TestFunctions#add",
-                            AppFunctionData.Builder(
+                            "androidx.appfunctions.testing.BaseTestAppFunctionService#add",
+                            Builder(
                                     listOf(
                                         AppFunctionParameterMetadata(
                                             name = "num1",
@@ -392,7 +602,8 @@ class AppFunctionTestRuleTest {
     @Test(timeout = 5000)
     fun returnedAppFunctionManagerCompat_currentPackage_disabledByDefault_modifiedAndRestoredToDefault_success() =
         runBlocking<Unit> {
-            val functionId = "androidx.appfunctions.testing.TestFunctions#disabledByDefault"
+            val functionId =
+                "androidx.appfunctions.testing.BaseTestAppFunctionService#disabledByDefault"
             assertThat(
                     appFunctionManager
                         .getAppFunctionStates(
@@ -466,9 +677,10 @@ class AppFunctionTestRuleTest {
     }
 
     private companion object {
-        val FLOW_COLLECTION_TIMEOUT = 2.seconds
         const val T_EXTENSION_PROPERTY = "build.version.extensions.t"
         // A value other than "13" so a reversed set/evaluate order is observable.
         const val SENTINEL_T_EXTENSION_PROPERTY = "0"
+
+        val TOTAL_FUNCTION_COUNT = 8
     }
 }

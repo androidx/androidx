@@ -24,11 +24,9 @@ import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.AppFunctionsChangeEvent
-import androidx.appfunctions.internal.AggregatedAppFunctionInventory
 import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.AppFunctionReader
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
-import androidx.appfunctions.internal.findImpl
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
@@ -39,53 +37,54 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
+@RequiresApi(Build.VERSION_CODES.BAKLAVA)
+internal class FakeAppFunctionReader(
+    val context: Context,
+    val inventory: FakeAppFunctionInventory,
+) : AppFunctionReader {
 
     private val packageToFunctionMetadataMapState:
-        MutableStateFlow<Map<String, Map<String, AppFunctionStaticAndRuntimeMetadata>>>
+        MutableStateFlow<Map<String, Map<String, AppFunctionStaticAndRuntimeMetadata>>> =
+        MutableStateFlow(emptyMap())
 
     private val packageToComponentsMetadataMapState:
-        MutableStateFlow<Map<String, AppFunctionComponentsMetadata>>
+        MutableStateFlow<Map<String, AppFunctionComponentsMetadata>> =
+        MutableStateFlow(emptyMap())
 
-    init {
-        val packageToFunctionMetadataMap:
-            MutableMap<String, MutableMap<String, AppFunctionStaticAndRuntimeMetadata>> =
-            mutableMapOf()
-        val packageToComponentsMetadataMap: MutableMap<String, AppFunctionComponentsMetadata> =
-            mutableMapOf()
+    fun reloadAppFunctions() {
+        inventory.reloadInventories()
 
-        val aggregatedAppFunctionInventory: AggregatedAppFunctionInventory? =
-            try {
-                AggregatedAppFunctionInventory::class.java.findImpl(prefix = "$", suffix = "_Impl")
-            } catch (e: Exception) {
-                if (isLoggingEnabled) {
-                    Log.d("AppFunctionsTesting", "No aggregated inventory found.", e)
-                }
-                null
+        val currentFunctionMap = packageToFunctionMetadataMapState.value[context.packageName]
+        val packageToFunctionMetadataMap =
+            packageToFunctionMetadataMapState.value.toMutableMap().apply {
+                put(
+                    context.packageName,
+                    inventory.functionIdToMetadataMap
+                        .mapValues { (id, staticMetadata) ->
+                            val existingRuntimeMetadata =
+                                currentFunctionMap?.get(id)?.runtimeMetadata
+                            AppFunctionStaticAndRuntimeMetadata(
+                                staticMetadata = staticMetadata,
+                                existingRuntimeMetadata
+                                    ?: AppFunctionRuntimeMetadata(
+                                        AppFunctionManager.APP_FUNCTION_STATE_DEFAULT
+                                    ),
+                            )
+                        }
+                        .toMutableMap(),
+                )
             }
 
-        val aggregatedFunctionIdToMetadataMap =
-            aggregatedAppFunctionInventory?.functionIdToMetadataMap ?: mutableMapOf()
-        packageToFunctionMetadataMap.putIfAbsent(
-            context.packageName,
-            aggregatedFunctionIdToMetadataMap
-                .mapValues { (_, staticMetadata) ->
-                    AppFunctionStaticAndRuntimeMetadata(
-                        staticMetadata = staticMetadata,
-                        AppFunctionRuntimeMetadata(AppFunctionManager.APP_FUNCTION_STATE_DEFAULT),
-                    )
-                }
-                .toMutableMap(),
-        )
+        val packageToComponentsMetadataMap =
+            packageToComponentsMetadataMapState.value.toMutableMap().apply {
+                put(
+                    context.packageName,
+                    inventory.componentsMetadata,
+                )
+            }
 
-        packageToComponentsMetadataMap.putIfAbsent(
-            context.packageName,
-            aggregatedAppFunctionInventory?.componentsMetadata ?: AppFunctionComponentsMetadata(),
-        )
-
-        packageToFunctionMetadataMapState = MutableStateFlow(packageToFunctionMetadataMap)
-        packageToComponentsMetadataMapState = MutableStateFlow(packageToComponentsMetadataMap)
+        packageToFunctionMetadataMapState.value = packageToFunctionMetadataMap
+        packageToComponentsMetadataMapState.value = packageToComponentsMetadataMap
     }
 
     override suspend fun searchAppFunctionsMetadata(

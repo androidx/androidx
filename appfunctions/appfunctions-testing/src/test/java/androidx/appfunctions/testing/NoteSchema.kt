@@ -17,7 +17,6 @@
 package androidx.appfunctions.testing
 
 import android.net.Uri
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSchemaDefinition
 import androidx.appfunctions.AppFunctionSerializableInterface
 
@@ -33,14 +32,10 @@ public interface CreateNoteAppFunction<
      * The implementing app should throw an appropriate subclass of
      * [androidx.appfunctions.AppFunctionException] in exceptional cases.
      *
-     * @param appFunctionContext The AppFunction execution context.
      * @param parameters The parameters for creating a note.
      * @return The response including the created note.
      */
-    public suspend fun createNote(
-        appFunctionContext: AppFunctionContext,
-        parameters: Parameters,
-    ): Response
+    public suspend fun createNote(parameters: Parameters): Response
 
     /** The parameters for creating a note. */
     @AppFunctionSerializableInterface
