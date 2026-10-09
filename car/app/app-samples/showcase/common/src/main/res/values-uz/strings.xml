@@ -144,7 +144,7 @@
     <string name="importance_title" msgid="9034862997821839831">"Muhimligi"</string>
     <string name="category_title" msgid="4783851267093259949">"Turkum"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"Hali bajarilmagan"</string>
-    <string name="default_importance" msgid="6347996298832939989">"Asosiy"</string>
+    <string name="default_importance" msgid="6347996298832939989">"Standart"</string>
     <string name="high_importance" msgid="5009120714837304882">"Yuqori"</string>
     <string name="low_importance" msgid="4721161314404294033">"Past"</string>
     <string name="unknown_importance" msgid="909001735933359216">"Noaniq"</string>
