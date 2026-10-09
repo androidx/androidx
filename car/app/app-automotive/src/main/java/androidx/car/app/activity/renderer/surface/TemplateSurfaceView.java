@@ -78,13 +78,20 @@ public final class TemplateSurfaceView extends SurfaceView {
             new ViewTreeObserver.OnTouchModeChangeListener() {
                 @Override
                 public void onTouchModeChanged(boolean isInTouchMode) {
-                    requireNonNull(mServiceDispatcher);
-
-                    ISurfaceControl surfaceControl = mSurfaceControl;
-                    if (surfaceControl != null) {
-                        mServiceDispatcher.dispatch("onWindowFocusChanged", () ->
-                                surfaceControl.onWindowFocusChanged(hasFocus(), isInTouchMode));
+                    // The view can be attached to a window, and thus receive touch mode
+                    // changes, before a ServiceDispatcher is set (e.g. when the activity binds
+                    // to its view model lazily). There is no host to notify in that case.
+                    ServiceDispatcher serviceDispatcher = mServiceDispatcher;
+                    if (serviceDispatcher == null) {
+                        logMissingServiceDispatcher("onTouchModeChanged");
+                        return;
                     }
+                    ISurfaceControl surfaceControl = mSurfaceControl;
+                    if (surfaceControl == null) {
+                        return;
+                    }
+                    serviceDispatcher.dispatch("onWindowFocusChanged", () ->
+                            surfaceControl.onWindowFocusChanged(hasFocus(), isInTouchMode));
                 }
             };
 
@@ -131,18 +138,28 @@ public final class TemplateSurfaceView extends SurfaceView {
     protected void onFocusChanged(boolean gainFocus, int direction,
             @Nullable Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
-        requireNonNull(mServiceDispatcher);
-        ISurfaceControl surfaceControl = mSurfaceControl;
-        if (surfaceControl != null) {
-            mServiceDispatcher.dispatch("onWindowFocusChanged", () ->
-                    surfaceControl.onWindowFocusChanged(gainFocus, isInTouchMode()));
+        ServiceDispatcher serviceDispatcher = mServiceDispatcher;
+        if (serviceDispatcher == null) {
+            logMissingServiceDispatcher("onFocusChanged");
+            return;
         }
+        ISurfaceControl surfaceControl = mSurfaceControl;
+        if (surfaceControl == null) {
+            return;
+        }
+        serviceDispatcher.dispatch("onWindowFocusChanged", () ->
+                surfaceControl.onWindowFocusChanged(gainFocus, isInTouchMode()));
     }
 
     @Override
     public @Nullable InputConnection onCreateInputConnection(@NonNull EditorInfo editorInfo) {
         requireNonNull(editorInfo);
-        requireNonNull(mServiceDispatcher);
+
+        ServiceDispatcher serviceDispatcher = mServiceDispatcher;
+        if (serviceDispatcher == null) {
+            logMissingServiceDispatcher("onCreateInputConnection");
+            return null;
+        }
 
         if (!mIsInInputMode || mOnCreateInputConnectionListener == null) {
             return null;
@@ -161,14 +178,14 @@ public final class TemplateSurfaceView extends SurfaceView {
         }
 
         EditorInfo hostEditorInfo =
-                mServiceDispatcher.fetch("getEditorInfo", null,
+                serviceDispatcher.fetch("getEditorInfo", null,
                         proxyInputConnection::getEditorInfo);
         if (hostEditorInfo == null) {
             Log.e(TAG, "Unable to retrieve host EditorInfo");
             return null;
         }
         copyEditorInfo(hostEditorInfo, editorInfo);
-        return new RemoteProxyInputConnection(mServiceDispatcher, proxyInputConnection);
+        return new RemoteProxyInputConnection(serviceDispatcher, proxyInputConnection);
     }
 
     private void copyEditorInfo(@NonNull EditorInfo from, @NonNull EditorInfo to) {
@@ -258,7 +275,11 @@ public final class TemplateSurfaceView extends SurfaceView {
      */
     @SuppressLint({"ClickableViewAccessibility"})
     private void setSurfacePackage(LegacySurfacePackage surfacePackage) {
-        requireNonNull(mServiceDispatcher);
+        ServiceDispatcher serviceDispatcher = mServiceDispatcher;
+        if (serviceDispatcher == null) {
+            Log.e(TAG, "ServiceDispatcher not set yet. Ignoring surface package");
+            return;
+        }
 
         ISurfaceControl surfaceControl = surfacePackage.getSurfaceControl();
         if (getDisplay() == null) {
@@ -266,7 +287,7 @@ public final class TemplateSurfaceView extends SurfaceView {
             return;
         }
         SurfaceWrapper surfaceWrapper = mSurfaceWrapperProvider.createSurfaceWrapper();
-        mServiceDispatcher.dispatch("setSurfaceWrapper", () ->
+        serviceDispatcher.dispatch("setSurfaceWrapper", () ->
                 surfaceControl.setSurfaceWrapper(Bundleable.create(surfaceWrapper)));
         mSurfaceControl = surfaceControl;
         setOnTouchListener((view, event) -> handleTouchEvent(event));
@@ -304,28 +325,47 @@ public final class TemplateSurfaceView extends SurfaceView {
 
     /** Passes the touch events to the host. */
     boolean handleTouchEvent(@NonNull MotionEvent event) {
-        requireNonNull(mServiceDispatcher);
+        requireNonNull(event);
 
-        // Make a copy to avoid double recycling of the event.
-        MotionEvent eventCopy = MotionEvent.obtain(requireNonNull(event));
-        ISurfaceControl surfaceControl = mSurfaceControl;
-        if (surfaceControl != null) {
-            mServiceDispatcher.dispatch("onTouchEvent",
-                    () -> surfaceControl.onTouchEvent(eventCopy));
-            return true;
+        ServiceDispatcher serviceDispatcher = mServiceDispatcher;
+        if (serviceDispatcher == null) {
+            logMissingServiceDispatcher("onTouchEvent");
+            return false;
         }
-        return false;
+        ISurfaceControl surfaceControl = mSurfaceControl;
+        if (surfaceControl == null) {
+            return false;
+        }
+        // Make a copy to avoid double recycling of the event.
+        MotionEvent eventCopy = MotionEvent.obtain(event);
+        serviceDispatcher.dispatch("onTouchEvent",
+                () -> surfaceControl.onTouchEvent(eventCopy));
+        return true;
     }
 
     @Override
     public boolean dispatchKeyEvent(@NonNull KeyEvent event) {
         ISurfaceControl surfaceControl = mSurfaceControl;
         if (surfaceControl != null) {
-            requireNonNull(mServiceDispatcher).dispatch("onKeyEvent",
-                    () -> surfaceControl.onKeyEvent(event));
-            return true;
+            ServiceDispatcher serviceDispatcher = mServiceDispatcher;
+            if (serviceDispatcher != null) {
+                serviceDispatcher.dispatch("onKeyEvent",
+                        () -> surfaceControl.onKeyEvent(event));
+                return true;
+            }
+            logMissingServiceDispatcher("onKeyEvent");
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    /**
+     * Logs that {@code eventName} was not forwarded to the host because
+     * {@link #setServiceDispatcher(ServiceDispatcher)} has not been called yet.
+     */
+    private static void logMissingServiceDispatcher(@NonNull String eventName) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "ServiceDispatcher not set yet. Ignoring " + eventName);
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
