@@ -76,7 +76,7 @@ public class Matrix4(dataToCopy: FloatArray) {
     /** Converts this matrix to a [Pose] object. */
     public fun toPose(): Pose = cachedPose
 
-    /** Creates a new matrix with a deep copy of the data from the [other] [Matrix4]. */
+    /** Creates a new matrix with a deep copy of the data from the [other] matrix. */
     public constructor(other: Matrix4) : this(other.data.copyOf())
 
     /** Multiplies this matrix by [other]. */
