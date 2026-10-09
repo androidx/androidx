@@ -28,6 +28,7 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.MUL
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.SUB
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -48,6 +49,7 @@ import org.robolectric.annotation.Config
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
+@OptIn(ExperimentalRemotePlayerApi::class)
 class RcPlayerImpulseRetriggerTest {
 
     @get:Rule val rule = RcPlayerTestRule()
@@ -189,7 +191,7 @@ class RcPlayerImpulseRetriggerTest {
         }
         val state = RcPlayerState(document)
         val player = Player(rule, state)
-        document.setSoundEngine(
+        val engine =
             object : CoreDocument.SoundEngine {
                 override fun loadSound(soundId: Int, data: ByteArray) {}
 
@@ -197,10 +199,15 @@ class RcPlayerImpulseRetriggerTest {
                     player.played++
                 }
             }
-        )
+        // The default SoundFeature plays through SoundSupport; count plays with a fake engine.
+        val features =
+            RcPlayerFeatures.forProfiles(document.profileMask) +
+                RcPlayerFeatureSet(SoundFeature { RcSoundEngineHandle(engine) {} })
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                Box(modifier = Modifier.size(100.dp)) { RcPlayer(state = state) }
+                Box(modifier = Modifier.size(100.dp)) {
+                    RcPlayer(state = state, features = features)
+                }
             }
         }
         rule.captureRootBitmap()

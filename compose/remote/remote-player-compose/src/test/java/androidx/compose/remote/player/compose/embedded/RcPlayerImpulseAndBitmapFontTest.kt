@@ -38,6 +38,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -63,6 +64,7 @@ import org.robolectric.annotation.Config
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
+@OptIn(ExperimentalRemotePlayerApi::class)
 class RcPlayerImpulseAndBitmapFontTest {
 
     @get:Rule val rule = RcPlayerTestRule()
@@ -207,6 +209,24 @@ class RcPlayerImpulseAndBitmapFontTest {
     fun soundInAnImpulseIsPlayedOnceWhenItsWindowOpens() {
         rule.mainClock.autoAdvance = false
         var soundId = 0
+        val loaded = mutableListOf<Int>()
+        val played = mutableListOf<Int>()
+        val engine =
+            object : CoreDocument.SoundEngine {
+                override fun loadSound(soundId: Int, data: ByteArray) {
+                    loaded += soundId
+                }
+
+                override fun playSound(soundId: Int) {
+                    played += soundId
+                }
+            }
+        // Replace the default SoundFeature (which plays through SoundSupport) with one that
+        // records into the fake engine.
+        val soundFeature = SoundFeature { RcSoundEngineHandle(engine) {} }
+        rule.features = { doc ->
+            RcPlayerFeatures.forProfiles(doc.profileMask) + RcPlayerFeatureSet(soundFeature)
+        }
         val document =
             rule.setRemoteContent(profile = experimentalProfile) {
                 RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
@@ -226,20 +246,8 @@ class RcPlayerImpulseAndBitmapFontTest {
                     document.drawRect(0f, 0f, 1f, 1f)
                 }
             }
-        val loaded = mutableListOf<Int>()
-        val played = mutableListOf<Int>()
-        document.setSoundEngine(
-            object : CoreDocument.SoundEngine {
-                override fun loadSound(soundId: Int, data: ByteArray) {
-                    loaded += soundId
-                }
-
-                override fun playSound(soundId: Int) {
-                    played += soundId
-                }
-            }
-        )
-        // The tone was synthesized once at load and handed over when the engine was installed.
+        // The tone was synthesized once at load and handed over when the feature installed the
+        // engine.
         assertThat(loaded).containsExactly(soundId)
 
         repeat(3) {

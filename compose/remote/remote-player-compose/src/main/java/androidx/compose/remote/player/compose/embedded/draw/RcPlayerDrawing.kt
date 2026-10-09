@@ -75,7 +75,6 @@ import androidx.compose.remote.core.operations.PathCreate
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
-import androidx.compose.remote.core.operations.PlaySound
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.TextMeasure
@@ -538,10 +537,6 @@ private fun DrawScope.executeOperationsInPass(
             // RcPlayerHapticEffect). It fires each time the stream runs it, so documents gate it
             // with an impulse or conditional.
             is HapticFeedback -> op.apply(remoteContext)
-            // Played through the document's sound engine, if the host installed one. Like haptics,
-            // it plays each time the stream runs it, so documents gate it with an impulse.
-            // SoundExpression / SoundData are registered once at setup, not per draw.
-            is PlaySound -> op.apply(remoteContext)
             // Anything else may belong to an optional feature (see RcPlayerFeature).
             else -> features.paint(op, featureScope())
         }
