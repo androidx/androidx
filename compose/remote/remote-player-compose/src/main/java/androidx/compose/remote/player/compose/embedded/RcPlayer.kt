@@ -564,6 +564,9 @@ public fun RcPlayer(
                 // directly.
                 RcPlayerRawDocument()
             }
+            // Click area boxes obscure areas below them, matching the View player's ClickAreaView
+            // overlay behavior.
+            RcPlayerClickAreas(document)
         }
     }
 }
