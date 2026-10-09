@@ -62,6 +62,10 @@ androidXMultiplatform {
             compileOnly(libs.kotlinReflect)
         }
 
+        androidHostTest.dependencies {
+            implementation(libs.junit)
+        }
+
         androidDeviceTest.dependencies {
             implementation(project(":compose:ui:ui-test-junit4"))
 
