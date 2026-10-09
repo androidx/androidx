@@ -19,7 +19,7 @@ package androidx.wear.compose.remote.lint
 import androidx.compose.lint.Name
 import androidx.compose.lint.Package
 
-/** Contains wear compose specific names used for lint checks. */
+/** Contains Wear Compose specific names used for lint checks. */
 internal object WearComposeNames {
     object Material {
         val PackageName = Package("androidx.wear.compose.material")

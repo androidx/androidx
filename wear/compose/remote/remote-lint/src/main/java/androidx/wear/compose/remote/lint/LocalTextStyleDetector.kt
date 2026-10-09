@@ -106,7 +106,7 @@ class LocalTextStyleDetector : Detector(), SourceCodeScanner {
         val LocalTextStyleUsage =
             Issue.create(
                 "LocalTextStyleUsage",
-                "Using wear ${WearComposeNames.Material.LocalTextStyle.shortName} inside a " +
+                "Using Wear ${WearComposeNames.Material.LocalTextStyle.shortName} inside a " +
                     "@${RemoteNames.CreationCompose.Layout.RemoteComposable.shortName} function",
                 "${WearComposeNames.Material.LocalTextStyle.shortName} from " +
                     "${WearComposeNames.Material.PackageName.javaPackageName} or " +

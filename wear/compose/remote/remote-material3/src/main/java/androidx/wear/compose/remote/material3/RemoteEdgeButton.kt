@@ -394,11 +394,11 @@ public object RemoteEdgeButtonDefaults {
         )
 }
 
-// How tall the ellipsis is for the extra small button.
-private val ExtraSmallEllipsisHeight: RemoteDp = 58.rdp
+// How tall the ellipse is for the extra small button.
+private val ExtraSmallEllipseHeight: RemoteDp = 58.rdp
 
-// How much the ellipsis grows as the button height grows.
-private val ButtonToEllipsisRatio: RemoteFloat = 1.42f.rf
+// How much the ellipse grows as the button height grows.
+private val ButtonToEllipseRatio: RemoteFloat = 1.42f.rf
 
 // Distance from the leftmost/rightmost point in the button to the edge of the screen.
 private val TargetSidePadding: RemoteDp = 20.rdp
@@ -448,26 +448,26 @@ public class RemoteEdgeButtonShape(
 
         val bottomPaddingPx = RemoteEdgeButtonDefaults.VerticalPadding.toPx(density)
         val extraSmallHeightPx = RemoteEdgeButtonSize.ExtraSmall.maximumHeight.toPx(density)
-        val extraSmallEllipsisHeightPx = ExtraSmallEllipsisHeight.toPx(density)
-        val buttonToEllipsisRatio = ButtonToEllipsisRatio
+        val extraSmallEllipseHeightPx = ExtraSmallEllipseHeight.toPx(density)
+        val buttonToEllipseRatio = ButtonToEllipseRatio
 
         val finalFadeProgress = clamp(1f.rf - h / extraSmallHeightPx, 0f.rf, 1f.rf)
-        val ellipsisHeight =
-            (extraSmallEllipsisHeightPx + (h - extraSmallHeightPx) * buttonToEllipsisRatio) *
+        val ellipseHeight =
+            (extraSmallEllipseHeightPx + (h - extraSmallHeightPx) * buttonToEllipseRatio) *
                 (1f.rf - finalFadeProgress) + h * finalFadeProgress
         val screenRadius = max(w / 2f.rf - bottomPaddingPx, 1f.rf)
-        val ellipsisRadiusY = max(ellipsisHeight / 2f.rf, 0f.rf)
-        val ellipsisRadiusX = min(sqrt(max(ellipsisRadiusY * screenRadius, 0f.rf)), screenRadius)
-        val circleRadius = max(h - ellipsisRadiusY, 0f.rf)
+        val ellipseRadiusY = max(ellipseHeight / 2f.rf, 0f.rf)
+        val ellipseRadiusX = min(sqrt(max(ellipseRadiusY * screenRadius, 0f.rf)), screenRadius)
+        val circleRadius = max(h - ellipseRadiusY, 0f.rf)
 
         val halfStroke = strokeWidth / 2f.rf
         val topY = halfStroke
         val bottomY = h - halfStroke
-        val insetEllipsisRadiusX = max(ellipsisRadiusX - halfStroke, 0f.rf)
+        val insetEllipseRadiusX = max(ellipseRadiusX - halfStroke, 0f.rf)
         val insetCircleRadius = max(circleRadius - halfStroke, 0f.rf)
 
-        val circleCenterRightX = w / 2f.rf + insetEllipsisRadiusX - insetCircleRadius
-        val circleCenterLeftX = w / 2f.rf - insetEllipsisRadiusX + insetCircleRadius
+        val circleCenterRightX = w / 2f.rf + insetEllipseRadiusX - insetCircleRadius
+        val circleCenterLeftX = w / 2f.rf - insetEllipseRadiusX + insetCircleRadius
         val circularArcWeight = 0.70710678f.rf
 
         return RemoteOutline.Generic {
@@ -475,16 +475,16 @@ public class RemoteEdgeButtonShape(
 
             // Top-right corner
             conicTo(
-                x1 = w / 2f.rf + insetEllipsisRadiusX,
+                x1 = w / 2f.rf + insetEllipseRadiusX,
                 y1 = topY,
-                x2 = w / 2f.rf + insetEllipsisRadiusX,
+                x2 = w / 2f.rf + insetEllipseRadiusX,
                 y2 = topY + insetCircleRadius,
                 weight = circularArcWeight,
             )
 
             // Bottom-right quadrant of ellipse
             conicTo(
-                x1 = w / 2f.rf + insetEllipsisRadiusX,
+                x1 = w / 2f.rf + insetEllipseRadiusX,
                 y1 = bottomY,
                 x2 = w / 2f.rf,
                 y2 = bottomY,
@@ -493,16 +493,16 @@ public class RemoteEdgeButtonShape(
 
             // Bottom-left quadrant of ellipse
             conicTo(
-                x1 = w / 2f.rf - insetEllipsisRadiusX,
+                x1 = w / 2f.rf - insetEllipseRadiusX,
                 y1 = bottomY,
-                x2 = w / 2f.rf - insetEllipsisRadiusX,
+                x2 = w / 2f.rf - insetEllipseRadiusX,
                 y2 = topY + insetCircleRadius,
                 weight = circularArcWeight,
             )
 
             // Top-left corner
             conicTo(
-                x1 = w / 2f.rf - insetEllipsisRadiusX,
+                x1 = w / 2f.rf - insetEllipseRadiusX,
                 y1 = topY,
                 x2 = circleCenterLeftX,
                 y2 = topY,
@@ -532,22 +532,22 @@ internal fun calculateEdgeButtonContentWidth(
     // Calculation operates in DP space using RemoteFloats.
     val extraSmallHeight = RemoteEdgeButtonSize.ExtraSmall.maximumHeight.value
     val bottomPadding = RemoteEdgeButtonDefaults.VerticalPadding.value
-    val extraSmallEllipsisHeight = ExtraSmallEllipsisHeight.value
-    val buttonToEllipsisRatio = ButtonToEllipsisRatio
+    val extraSmallEllipseHeight = ExtraSmallEllipseHeight.value
+    val buttonToEllipseRatio = ButtonToEllipseRatio
     val targetSidePadding = TargetSidePadding.value
 
     val h = buttonHeight.value
     val w = actualButtonWidth.value
 
     val finalFadeProgress = clamp(1f.rf - h / extraSmallHeight, 0f.rf, 1f.rf)
-    val ellipsisHeight =
-        (extraSmallEllipsisHeight + (h - extraSmallHeight) * buttonToEllipsisRatio) *
+    val ellipseHeight =
+        (extraSmallEllipseHeight + (h - extraSmallHeight) * buttonToEllipseRatio) *
             (1f.rf - finalFadeProgress) + h * finalFadeProgress
 
     val screenRadius = w / 2f.rf
-    val diff = max(screenRadius - bottomPadding - ellipsisHeight / 2f.rf, 0f.rf)
+    val diff = max(screenRadius - bottomPadding - ellipseHeight / 2f.rf, 0f.rf)
     val localHalfWidth = sqrt(max(screenRadius * screenRadius - diff * diff, 0f.rf))
-    val r = h - ellipsisHeight / 2f.rf
+    val r = h - ellipseHeight / 2f.rf
 
     val contentWidth = max(localHalfWidth - targetSidePadding - r, 0f.rf) * 2f.rf
     return contentWidth.asRemoteDp()

@@ -25,7 +25,7 @@ import androidx.compose.remote.foundation.icon.RemoteBasicIcon
 import androidx.compose.runtime.Composable
 
 /**
- * Composable function that displays an icon using an [RemoteImageVector].
+ * Composable function that displays an icon using a [RemoteImageVector].
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteIconSimpleSample
  *

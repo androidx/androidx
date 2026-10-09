@@ -70,10 +70,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ButtonDefaults.scrimGradientEndColor
 import androidx.wear.compose.material3.ButtonDefaults.scrimGradientStartColor
-import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.TextConfiguration
 import androidx.wear.compose.remote.material3.RemoteButtonDefaults.buttonColors
 import androidx.wear.compose.remote.material3.RemoteButtonDefaults.defaultButtonWithContainerPainterColors
@@ -87,7 +85,7 @@ import androidx.wear.compose.remote.material3.RemoteButtonDefaults.defaultButton
  * colored background, contrasting content color and no border. This is a high-emphasis button for
  * the primary, most important or most common action on a screen.
  *
- * Button can be enabled or disabled. A disabled button will not respond to click events.
+ * [RemoteButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteButtonSimpleSample
  * @param onClick Will be called when the user clicks the button
@@ -104,7 +102,7 @@ import androidx.wear.compose.remote.material3.RemoteButtonDefaults.defaultButton
  *   button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
- * @param content Slot for composable body content displayed on the Button
+ * @param content Slot for composable body content displayed on the [RemoteButton]
  */
 @Composable
 @RemoteComposable
@@ -160,7 +158,7 @@ public fun RemoteButton(
  *   button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
- * @param content Slot for composable body content displayed on the Button
+ * @param content Slot for composable body content displayed on the [RemoteButton]
  */
 @Composable
 @RemoteComposable
@@ -224,8 +222,8 @@ public fun RemoteButton(
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon preset and "start" or "center"
- *   aligned if not. label and secondaryLabel contents should be consistently aligned.
+ *   expected to be text which is "start" aligned if there is an icon present and "start" or
+ *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [RemoteButtonDefaults.IconSize] or
  *   [RemoteButtonDefaults.LargeIconSize].
@@ -249,7 +247,7 @@ public fun RemoteButton(
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
  */
 // TODO(b/261838497) Add Material3 UX guidance links
 @Composable
@@ -318,10 +316,10 @@ public fun RemoteButton(
  * provided.
  *
  * The [RemoteCompactButton] is Stadium shaped and has a max height designed to take no more than
- * one line of text and/or one icon. The default max height is [ButtonDefaults.CompactButtonHeight].
- * This includes a visible button height of 32.dp and 8.dp of padding above and below the button in
- * order to meet accessibility guidelines that request a minimum of 48.dp height and width of
- * tappable area.
+ * one line of text and/or one icon. The default max height is
+ * [RemoteButtonDefaults.CompactButtonHeight]. This includes a visible button height of 32.dp and
+ * 8.dp of padding above and below the button in order to meet accessibility guidelines that request
+ * a minimum of 48.dp height and width of tappable area.
  *
  * If an icon is provided then the labels should be "start" aligned, e.g. left aligned in
  * left-to-right mode so that the text starts next to the icon.
@@ -334,8 +332,8 @@ public fun RemoteButton(
  *    default height of [RemoteButtonDefaults.CompactButtonHeight] and the default width of
  *    [RemoteButtonDefaults.IconOnlyCompactButtonWidth]
  *
- * If neither icon nor label is provided then the button will displayed like an icon only button but
- * with no contents or background color.
+ * If neither icon nor label is provided then the button will be displayed like an icon only button
+ * but with no contents or background color.
  *
  * [RemoteCompactButton] takes the [RemoteButtonDefaults.buttonColors] color scheme by default, with
  * colored background, contrasting content color and no border. This is a high-emphasis button for
@@ -363,7 +361,7 @@ public fun RemoteButton(
  *   button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
- * @param label Slot for composable body content displayed on the Button
+ * @param label Slot for composable body content displayed on the [RemoteCompactButton]
  */
 @Composable
 @RemoteComposable
@@ -798,12 +796,13 @@ public object RemoteButtonDefaults {
      * of prominence.
      *
      * @param contentColor The content color of this [RemoteButton] when enabled
-     * @param secondaryContentColor The content color of this [RemoteButton] when enabled
-     * @param iconColor The content color of this [RemoteButton] when enabled
+     * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled,
+     *   used for secondaryLabel content
+     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content
      * @param disabledContentColor The content color of this [RemoteButton] when not enabled
-     * @param disabledSecondaryContentColor The content color of this [RemoteButton] when not
-     *   enabled
-     * @param disabledIconColor The content color of this [RemoteButton] when not enabled
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
+     *   not enabled
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
      */
     @Composable
     public fun childButtonColors(
@@ -905,7 +904,9 @@ public object RemoteButtonDefaults {
      */
     public val ExtraSmallIconSize: RemoteDp = 20.rdp
 
-    /** The recommended icon size when used in [CompactButton]s containing icon-only content. */
+    /**
+     * The recommended icon size when used in [RemoteCompactButton]s containing icon-only content.
+     */
     public val SmallIconSize: RemoteDp = 24.rdp
 
     /** The recommended default size for icons when used inside a [RemoteButton]. */
@@ -947,7 +948,7 @@ public object RemoteButtonDefaults {
     internal val CompactButtonHorizontalPadding: RemoteDp = 12.rdp
     internal val CompactButtonVerticalPadding: RemoteDp = 0.rdp
 
-    /** The default content padding used by [CompactButton] */
+    /** The default content padding used by [RemoteCompactButton] */
     public val CompactButtonContentPadding: RemotePaddingValues =
         RemotePaddingValues(
             leftPadding = CompactButtonHorizontalPadding,
@@ -1204,7 +1205,7 @@ public class RemoteButtonColors(
         )
 }
 
-/** Draws a colored and shaped background with when clipping is not supported. */
+/** Draws a colored and shaped background when clipping is not supported. */
 internal fun RemoteDrawScope.drawShapedBackground(
     shape: RemoteShape,
     color: RemoteColor,

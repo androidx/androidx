@@ -43,5 +43,5 @@ androidx {
     name = "Wear Remote Compose Lint Checks"
     type = SoftwareType.LINT
     inceptionYear = "2026"
-    description = "Wear Compose Remote Lint Checks"
+    description = "Wear Remote Compose Lint Checks"
 }
