@@ -217,10 +217,10 @@ abstract class AndroidXExtension(
     abstract val inceptionYear: Property<String>
 
     /** The main license to add when publishing. Default is Apache 2. */
-    var license: License =
-        License().apply {
-            name = "The Apache Software License, Version 2.0"
-            url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    val license: License =
+        project.objects.newInstance(License::class.java).apply {
+            name.convention("The Apache Software License, Version 2.0")
+            url.convention("http://www.apache.org/licenses/LICENSE-2.0.txt")
         }
 
     private var extraLicenses: MutableCollection<License> = ArrayList()
@@ -279,7 +279,10 @@ abstract class AndroidXExtension(
     }
 
     fun extraLicense(closure: Closure<Any>): License {
-        val license = project.configure(License(), closure) as License
+        val license =
+            project.configure(project.objects.newInstance(License::class.java), closure) as License
+        check(license.name.isPresent) { "extraLicense in ${project.path} is missing 'name'" }
+        check(license.url.isPresent) { "extraLicense in ${project.path} is missing 'url'" }
         extraLicenses.add(license)
         return license
     }
@@ -394,9 +397,9 @@ abstract class AndroidXExtension(
     }
 }
 
-class License {
-    var name: String? = null
-    var url: String? = null
+abstract class License {
+    abstract val name: Property<String>
+    abstract val url: Property<String>
 }
 
 abstract class DeviceTests @Inject constructor(objects: ObjectFactory) {
