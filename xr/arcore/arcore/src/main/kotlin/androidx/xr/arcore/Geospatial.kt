@@ -19,7 +19,6 @@ package androidx.xr.arcore
 import androidx.xr.arcore.runtime.AnchorNotAuthorizedException as RtAnchorNotAuthorizedException
 import androidx.xr.arcore.runtime.AnchorNotTrackingException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
-import androidx.xr.arcore.runtime.AnchorUnsupportedLocationException
 import androidx.xr.arcore.runtime.Geospatial as RuntimeGeospatial
 import androidx.xr.arcore.runtime.GeospatialPoseNotTrackingException
 import androidx.xr.runtime.GeospatialMode
@@ -94,8 +93,7 @@ internal constructor(
      * called without calling [Session.configure].
      *
      * Your app must be properly set up to communicate with the Google Cloud ARCore API in order to
-     * obtain a result from this call, otherwise the result will be
-     * [androidx.xr.arcore.runtime.VpsAvailabilityNotAuthorized].
+     * obtain a result from this call, otherwise the result will be [VpsAvailabilityNotAuthorized].
      *
      * @param latitude the latitude in degrees
      * @param longitude the longitude in degrees
@@ -140,8 +138,8 @@ internal constructor(
     /**
      * Converts the input [Pose] to a [GeospatialPose] in the same position as the original pose.
      *
-     * This method may return a [GeospatialPoseNotTrackingException] result if Geospatial is not
-     * currently tracking.
+     * This method may return a [CreateGeospatialPoseFromPoseNotTracking] result if Geospatial is
+     * not currently tracking.
      *
      * @param pose the [Pose] to be converted into a [GeospatialPose]
      * @return a [CreateGeospatialPoseFromPoseResult] with the result of the conversion

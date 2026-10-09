@@ -77,11 +77,12 @@ internal constructor(
         /**
          * Returns the RenderViewpoint associated with the single device display.
          *
+         * When the device supports [androidx.xr.runtime.RenderingMode.MONO], this will return the
+         * render viewpoint for that display. When the device uses
+         * [androidx.xr.runtime.RenderingMode.STEREO], this will return the render viewpoint for the
+         * center of the two displays.
+         *
          * @param session the currently active [Session]
-         * @note When the device supports [androidx.xr.runtime.RenderingMode.MONO], this will return
-         *   the render viewpoint for that display. When the device uses
-         *   [androidx.xr.runtime.RenderingMode.STEREO], this will return the render viewpoint for
-         *   the center of the two displays.
          */
         @JvmStatic
         public fun mono(session: Session): RenderViewpoint {
