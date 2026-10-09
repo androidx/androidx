@@ -66,7 +66,7 @@ internal fun <T> FiniteAnimationSpec<T>.speedFactor(
  * Returns a new [FiniteAnimationSpec] that is a faster version of this one.
  *
  * @param speedupPct How much to speed up the animation, as a percentage of the current speed. 0f
- *   being no change, 100f being double, speed and so on.
+ *   being no change, 100f being double speed and so on.
  */
 internal fun <T> FiniteAnimationSpec<T>.faster(
     @FloatRange(from = 0.0) speedupPct: Float

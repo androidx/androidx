@@ -449,7 +449,7 @@ public object IconButtonDefaults {
     @Composable public fun shapes(): IconButtonShapes = MaterialTheme.shapes.defaultIconButtonShapes
 
     /**
-     * Returns a [IconButtonShapes] for a static [IconButton].
+     * Returns an [IconButtonShapes] for a static [IconButton].
      *
      * @param shape The normal shape of the IconButton.
      */
@@ -458,7 +458,7 @@ public object IconButtonDefaults {
         MaterialTheme.shapes.defaultIconButtonShapes.copy(shape = shape)
 
     /**
-     * Returns the default [IconButtonShapes] with a animation between two CornerBasedShapes when
+     * Returns the default [IconButtonShapes] with an animation between two CornerBasedShapes when
      * pressed.
      *
      * Example of a simple icon button using the default colors, animated when pressed:
@@ -482,7 +482,7 @@ public object IconButtonDefaults {
         MaterialTheme.shapes.defaultIconButtonAnimatedShapes
 
     /**
-     * Returns a [IconButtonShapes] with an animation between two CornerBasedShapes when pressed.
+     * Returns an [IconButtonShapes] with an animation between two CornerBasedShapes when pressed.
      *
      * Example of a simple icon button using the default colors, animated when pressed:
      *

@@ -645,7 +645,7 @@ internal value class PlaceholderStage internal constructor(internal val type: In
 
         /**
          * Indicates that placeholders no longer to be shown. Enter this stage from [WipeOff] in the
-         * loop after the wire-off animation.
+         * loop after the wipe-off animation.
          */
         val ShowContent = PlaceholderStage(2)
 

@@ -356,7 +356,7 @@ class PagerTest {
     }
 
     @Test
-    fun vertical_pager_not_rotary_scrolled_with_disabled_userScrolledEnabled() {
+    fun vertical_pager_not_rotary_scrolled_with_disabled_userScrollEnabled() {
         verticalPagerRotaryScrolledBy(
             lowRes = false,
             userScrollEnabled = false,
@@ -423,7 +423,7 @@ class PagerTest {
     }
 
     @Test
-    fun horizontal_pager_not_rotary_scrolled_with_disabled_userScrolledEnabled() {
+    fun horizontal_pager_not_rotary_scrolled_with_disabled_userScrollEnabled() {
         horizontalPagerRotaryScrolledBy(
             lowRes = false,
             userScrollEnabled = false,

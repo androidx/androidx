@@ -260,7 +260,7 @@ public fun CheckboxButton(
  * events.
  *
  * @param checked Boolean flag indicating whether this button is currently checked.
- * @param onCheckedChange Callback to be invoked when this buttons checked status is changed.
+ * @param onCheckedChange Callback to be invoked when this button's checked status is changed.
  * @param toggleContentDescription The content description for the checkbox control part of the
  *   component.
  * @param onContainerClick Click listener called when the user clicks the main body of the button,

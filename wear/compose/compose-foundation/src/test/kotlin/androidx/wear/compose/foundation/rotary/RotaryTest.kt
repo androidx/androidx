@@ -189,7 +189,7 @@ class RotaryFlingHandlerTest {
             object : FlingBehavior {
                 override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
                     // Scroll by the fixed amount. It doesn't matter how much we scroll - we just
-                    // want to test that the scrollState is changes.
+                    // want to test that the scrollState is changed.
                     scrollBy(10f)
                     return initialVelocity
                 }

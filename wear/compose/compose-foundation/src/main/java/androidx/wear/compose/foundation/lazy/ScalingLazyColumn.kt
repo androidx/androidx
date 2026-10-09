@@ -769,7 +769,7 @@ public object ScalingLazyColumnDefaults {
      * minTransitionArea and 0.75f for maxTransitionArea determines that all transition lines will
      * fall between 1/5th (20%) and 3/4s (75%) of the height of the viewport.
      *
-     * The size of the each item is used to determine where within the transition area range
+     * The size of each item is used to determine where within the transition area range
      * minTransitionArea..maxTransitionArea the actual transition line will be. [minElementHeight]
      * and [maxElementHeight] are used along with the item height (as a fraction of the viewport
      * height in the range [0f..1f]) to find the transition line. So if the items size is 0.25f
@@ -781,7 +781,7 @@ public object ScalingLazyColumnDefaults {
      * between minElementHeight..maxElementHeight is then used to determine where the transition
      * line sits between minTransitionArea..maxTransition area.
      *
-     * If an item is smaller than or equal to minElementSize its transition line with be at
+     * If an item is smaller than or equal to minElementSize its transition line will be at
      * minTransitionArea and if it is larger than or equal to maxElementSize its transition line
      * will be at maxTransitionArea.
      *
@@ -822,7 +822,7 @@ public object ScalingLazyColumnDefaults {
      * @param maxTransitionArea The upper bound of the transition line area, closest to the center
      *   of the viewport. The fraction (value between 0f..1f) of the distance between the viewport
      *   edges. Must be greater than or equal to [minTransitionArea].
-     * @param scaleInterpolator An interpolator to use to determine how to apply scaling as a item
+     * @param scaleInterpolator An interpolator to use to determine how to apply scaling as an item
      *   transitions across the scaling transition area.
      * @param viewportVerticalOffsetResolver The additional padding to consider above and below the
      *   viewport of a [ScalingLazyColumn] when considering which items to draw in the viewport. If
@@ -935,7 +935,7 @@ private fun ScalingLazyColumnItemWrapper(
                     scaleX = currentItem.scale
                     scaleY = currentItem.scale
                     // Calculate how much to adjust/translate the position of the list item by
-                    // determining the different between the unadjusted start position based on the
+                    // determining the difference between the unadjusted start position based on the
                     // underlying LazyList layout and the start position adjusted to take into
                     // account
                     // scaling of the list items. Items further from the middle of the visible

@@ -216,7 +216,7 @@ import kotlinx.coroutines.launch
  *   [undoPrimaryAction] is provided, the undo button will be displayed after [SwipeToReveal] has
  *   animated to the revealed state and the primary action button has been hidden.
  * @param onSwipePrimaryAction A callback which will be triggered when a full swipe is performed. It
- *   is expected that the same callback is given to [SwipeToRevealScope.PrimaryActionButton]s
+ *   is expected that the same callback is given to [SwipeToRevealScope.PrimaryActionButton]'s
  *   onClick action. If [undoPrimaryAction] is provided, that will be displayed after the swipe
  *   gesture is completed.
  * @param transformation The transformation for the SwipeToReveal when it's inside a dynamically
@@ -773,7 +773,7 @@ public fun SwipeToReveal(
  *   [undoPrimaryAction] is provided, the undo button will be displayed after [SwipeToReveal] has
  *   animated to the revealed state and the primary action button has been hidden.
  * @param onSwipePrimaryAction A callback which will be triggered when a full swipe is performed. It
- *   is expected that the same callback is given to [SwipeToRevealScope.PrimaryActionButton]s
+ *   is expected that the same callback is given to [SwipeToRevealScope.PrimaryActionButton]'s
  *   onClick action. If [undoPrimaryAction] is provided, that will be displayed after the swipe
  *   gesture is completed.
  * @param modifier [Modifier] to be applied on the composable.
@@ -899,7 +899,7 @@ public fun SwipeToReveal(
  *   [undoPrimaryAction] is provided, the undo button will be displayed after [SwipeToReveal] has
  *   animated to the revealed state and the primary action button has been hidden.
  * @param onSwipePrimaryAction A callback which will be triggered when a full swipe is performed. It
- *   is expected that the same callback is given to [SwipeToRevealScope.PrimaryActionButton]s
+ *   is expected that the same callback is given to [SwipeToRevealScope.PrimaryActionButton]'s
  *   onClick action. If [undoPrimaryAction] is provided, that will be displayed after the swipe
  *   gesture is completed.
  * @param modifier [Modifier] to be applied on the composable.
@@ -1053,8 +1053,8 @@ internal constructor(
      * @param onClick Callback to be executed when the action is performed via a button click.
      * @param icon Icon composable to be displayed for this action.
      * @param modifier [Modifier] to be applied on the composable.
-     * @param containerColor Container color for this action.This can be [Color.Unspecified], and in
-     *   case it is, a default color will be used.
+     * @param containerColor Container color for this action. This can be [Color.Unspecified], and
+     *   in case it is, a default color will be used.
      * @param contentColor Content color for this action. This can be [Color.Unspecified], and in
      *   case it is, a default color will be used.
      */
@@ -1401,7 +1401,7 @@ internal data class SwipeToRevealAction(
 
     /**
      * Icon composable to be displayed for this action. This accepts a scale parameter that should
-     * be used to increase icon icon when an action is fully revealed.
+     * be used to increase icon size when an action is fully revealed.
      */
     val icon: @Composable (() -> Unit)?,
 

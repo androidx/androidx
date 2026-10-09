@@ -65,14 +65,14 @@ import kotlin.math.sqrt
 
 /**
  * [basicCurvedText] is a component allowing developers to easily write curved text following the
- * curvature a circle (usually at the edge of a circular screen). [basicCurvedText] can be only
+ * curvature of a circle (usually at the edge of a circular screen). [basicCurvedText] can be only
  * created within a [CurvedLayout] since it's not a composable.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  * @param text The text to display
  * @param modifier The [CurvedModifier] to apply to this curved text.
  * @param angularDirection Specify if the text is laid out clockwise or anti-clockwise, and if those
- *   needs to be reversed in a Rtl layout. If not specified, it will be inherited from the enclosing
+ *   need to be reversed in a Rtl layout. If not specified, it will be inherited from the enclosing
  *   [curvedRow] or [CurvedLayout] See [CurvedDirection.Angular].
  * @param overflow How visual overflow should be handled. Note that this takes into account only
  *   explicit size curved modifiers in this element, to size this element matching the parent's, add
@@ -99,7 +99,7 @@ public fun CurvedScope.basicCurvedText(
 
 /**
  * [basicCurvedText] is a component allowing developers to easily write curved text following the
- * curvature a circle (usually at the edge of a circular screen). [basicCurvedText] can be only
+ * curvature of a circle (usually at the edge of a circular screen). [basicCurvedText] can be only
  * created within a [CurvedLayout] since it's not a composable.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
@@ -107,7 +107,7 @@ public fun CurvedScope.basicCurvedText(
  * @param style A style to use.
  * @param modifier The [CurvedModifier] to apply to this curved text.
  * @param angularDirection Specify if the text is laid out clockwise or anti-clockwise, and if those
- *   needs to be reversed in a Rtl layout. If not specified, it will be inherited from the enclosing
+ *   need to be reversed in a Rtl layout. If not specified, it will be inherited from the enclosing
  *   [curvedRow] or [CurvedLayout] See [CurvedDirection.Angular].
  * @param overflow How visual overflow should be handled.
  */
@@ -279,7 +279,7 @@ internal class CurvedTextDelegate {
     var lastLayoutInfo: CurvedLayoutInfo? = null
     var lastParentSweepRadians: Float = 0f
 
-    // Start with the android rendered, will switch to the warped rendered if possible/needed.
+    // Start with the android renderer, will switch to the warped renderer if possible/needed.
     private var textRender: CurvedTextRenderer = AndroidCurvedTextRenderer()
     private var prevWarping = CurvedTextStyle.WarpOffset.None
     private var warpRadiusOffset = 0f
@@ -302,7 +302,7 @@ internal class CurvedTextDelegate {
 
             if (actualWarping != prevWarping) {
                 prevWarping = actualWarping
-                // Note that the Rendered may be stateful (computing things in the `preRender` to
+                // Note that the Renderer may be stateful (computing things in the `preRender` to
                 // (re)use during `render`), so we need our own instance.
                 textRender =
                     // b/484319336: androidx.graphics.path native library does not work in a
@@ -366,7 +366,7 @@ internal class CurvedTextDelegate {
     /**
      * This is 0 when there is no warping, and the warping offset when there is, defining the
      * horizontal (before warping) line at which the text will maintain its width (lines closer to
-     * the center will be shrink and lines further away will be stretched).
+     * the center will be shrunk and lines further away will be stretched).
      */
     fun getMeasureOffset() = warpRadiusOffset
 
@@ -526,7 +526,7 @@ internal class CurvedTextDelegate {
                 .setMaxLines(1)
                 .build()
 
-        // Cut text that it's too big when in TextOverFlow.Clip mode.
+        // Cut text that is too big when in TextOverflow.Clip mode.
         return text.substring(0, layout.getLineEnd(0))
     }
 }

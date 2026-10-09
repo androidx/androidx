@@ -185,7 +185,7 @@ public fun SwipeToRevealChip(
  *   recommend to keep this similar to primary action click action. This sets the
  *   [RevealState.lastActionType] to [RevealActionType.PrimaryAction].
  * @param modifier [Modifier] to be applied on the composable
- * @param secondaryAction A composable to describe the contents of secondary action.The action will
+ * @param secondaryAction A composable to describe the contents of secondary action. The action will
  *   be triggered on clicking the action. See [SwipeToRevealSecondaryAction]
  * @param undoPrimaryAction A composable to describe the contents of undo action when the primary
  *   action was triggered. See [SwipeToRevealUndoAction]

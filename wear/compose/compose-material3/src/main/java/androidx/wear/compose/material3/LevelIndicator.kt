@@ -30,8 +30,8 @@ import androidx.wear.compose.material3.tokens.ColorSchemeKeyTokens
 import kotlin.math.sin
 
 /**
- * Creates a [LevelIndicator] for screens that that control a setting such as volume with either
- * rotating side button, rotating bezel.
+ * Creates a [LevelIndicator] for screens that control a setting such as volume with either a
+ * rotating side button or rotating bezel.
  *
  * Example of [LevelIndicator]:
  *
@@ -82,7 +82,7 @@ public fun LevelIndicator(
 }
 
 /**
- * Creates a [StepperLevelIndicator] for screens that that control a setting, such as volume, with a
+ * Creates a [StepperLevelIndicator] for screens that control a setting, such as volume, with a
  * [Stepper].
  *
  * Example of [LevelIndicator] with a [Stepper]:
@@ -125,7 +125,7 @@ public fun StepperLevelIndicator(
     )
 
 /**
- * Creates a [StepperLevelIndicator] for screens that that control a setting, such as volume, with a
+ * Creates a [StepperLevelIndicator] for screens that control a setting, such as volume, with a
  * [Stepper].
  *
  * Example of [LevelIndicator] with a [Stepper] working on an [IntProgression]:

@@ -503,7 +503,7 @@ public object PickerDefaults {
 
     /**
      * Default Picker gradient ratio - the proportion of the Picker height allocated to each of the
-     * of the top and bottom gradients.
+     * top and bottom gradients.
      */
     public val GradientRatio: Float = 0.33f
 }

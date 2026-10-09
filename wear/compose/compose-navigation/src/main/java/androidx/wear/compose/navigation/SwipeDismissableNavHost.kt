@@ -125,7 +125,7 @@ public fun SwipeDismissableNavHost(
  * @param state State containing information about ongoing swipe and animation. This parameter is
  *   unused API level 36 onwards, because the platform supports predictive back and
  *   [SwipeDismissableNavHost] uses platform gestures to detect the back gestures.
- * @throws IllegalArgumentException if no WearNavigation.Destination is on the navigation backstack.
+ * @throws IllegalArgumentException if no WearNavigator.Destination is on the navigation backstack.
  */
 @Composable
 public fun SwipeDismissableNavHost(
@@ -232,7 +232,7 @@ public fun SwipeDismissableNavHost(
  * @param graph Graph for this host
  * @param modifier [Modifier] to be applied to the layout
  * @param state State containing information about ongoing swipe and animation.
- * @throws IllegalArgumentException if no WearNavigation.Destination is on the navigation backstack.
+ * @throws IllegalArgumentException if no WearNavigator.Destination is on the navigation backstack.
  */
 @Deprecated(
     "This overload is provided for backwards compatibility. " +

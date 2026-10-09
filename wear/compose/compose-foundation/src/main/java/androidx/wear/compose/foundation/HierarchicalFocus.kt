@@ -220,7 +220,7 @@ private class HierarchicalFocusCoordinatorModifierNode(
 
                     if (nextActiveNodePath != lastActiveNodePath) {
                         // Note that we assume the lists to be small (less than 5 elements, if this
-                        // proves not the be the case, we can do something fancier (like assigning
+                        // proves not to be the case, we can do something fancier (like assigning
                         // ids to each node, sorting and merging)
                         var focusSet = false
                         nextActiveNodePath.fastForEach { node ->

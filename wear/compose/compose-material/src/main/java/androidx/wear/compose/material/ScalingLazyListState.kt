@@ -335,7 +335,7 @@ constructor(
                             (
                             // or Empty list (other than the 2 spacers)
                             lazyListState.layoutInfo.visibleItemsInfo.size == 2 ||
-                                // or first item is correctly size
+                                // or first item is correctly sized
                                 topSpacerIsCorrectlySized(
                                     lazyListState.layoutInfo.visibleItemsInfo,
                                     lazyListState.layoutInfo.totalItemsCount,

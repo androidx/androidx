@@ -214,7 +214,7 @@ public fun rememberAnimatedTextFontRegistry(
  * @param textStyle Text style to be used for the animation
  * @param startFontSize Font size at the start of the animation
  * @param endFontSize Font size at the end of the animation
- * @param density Current density, used to to convert font sizes
+ * @param density Current density, used to convert font sizes
  * @param contentColor Content color of the animated text
  * @param fontFamilyResolver Current Resolver to use to resolve font families
  * @param cacheSize Size of the cache used to store animated variable fonts, this can be increased

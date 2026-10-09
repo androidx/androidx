@@ -86,7 +86,7 @@ import kotlinx.coroutines.launch
 
 /**
  * A modifier which connects rotary events with scrollable containers such as Column, LazyList and
- * others. [ScalingLazyColumn] has a build-in rotary support, and accepts [RotaryScrollableBehavior]
+ * others. [ScalingLazyColumn] has built-in rotary support, and accepts [RotaryScrollableBehavior]
  * directly as a parameter.
  *
  * This modifier handles rotary input devices, used for scrolling. These devices can be categorized
@@ -140,7 +140,7 @@ import kotlinx.coroutines.launch
  *   there. When used for horizontal scrolling, RTL/LTR orientations should be taken into account,
  *   as these can affect the expected scroll behavior. It's recommended to use
  *   `ScrollableDefaults.reverseDirection` for handling LTR/RTL layouts for horizontal scrolling.
- * @param overscrollEffect effect to which the deltas will be fed when the scrollable have some
+ * @param overscrollEffect effect to which the deltas will be fed when the scrollable has some
  *   scrolling delta left. Pass `null` for no overscroll. If you pass an effect you should also
  *   apply [androidx.compose.foundation.overscroll] modifier.
  */
@@ -160,7 +160,7 @@ public fun Modifier.rotaryScrollable(
 
 /**
  * A modifier which connects rotary events with scrollable containers such as Column, LazyList and
- * others. [ScalingLazyColumn] has a build-in rotary support, and accepts [RotaryScrollableBehavior]
+ * others. [ScalingLazyColumn] has built-in rotary support, and accepts [RotaryScrollableBehavior]
  * directly as a parameter.
  *
  * This modifier handles rotary input devices, used for scrolling. These devices can be categorized
@@ -219,7 +219,7 @@ public interface RotaryScrollableBehavior {
     /**
      * Executes a scrolling operation based on rotary input.
      *
-     * @param timestampMillis The time in milliseconds at which this even occurred
+     * @param timestampMillis The time in milliseconds at which this event occurred
      * @param delta The amount to scroll, in pixels
      * @param inputDeviceId The id for the input device that this event came from
      * @param orientation Orientation of the scrolling
@@ -1016,7 +1016,7 @@ internal class RotarySnapHandler(
         // Perform the snapping animation
         scrollableState.scroll(MutatePriority.Default) {
             debugLog {
-                "snap to the closest item, ceneredItem: ${layoutInfoProvider.currentItemIndex}, currentItemOffset: ${layoutInfoProvider.currentItemOffset}"
+                "snap to the closest item, centeredItem: ${layoutInfoProvider.currentItemIndex}, currentItemOffset: ${layoutInfoProvider.currentItemOffset}"
             }
             var prevPosition = 0f
 
@@ -1520,7 +1520,7 @@ internal class HighResSnapRotaryScrollableBehavior(
 
     /**
      * Calculates a value based on the rotaryScrollDistance and size of snapThreshold. The closer
-     * rotaryScrollDistance to snapThreshold, the lower the value.
+     * rotaryScrollDistance is to snapThreshold, the lower the value.
      */
     private fun calculateProximityFactor(snapThreshold: Float): Float =
         1 - scrollProximityEasing.transform(rotaryScrollDistance.absoluteValue / snapThreshold)

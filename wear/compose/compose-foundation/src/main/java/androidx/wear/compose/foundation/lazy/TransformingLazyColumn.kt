@@ -96,7 +96,7 @@ import androidx.wear.compose.foundation.rotary.rotaryScrollable
  * @param verticalArrangement The vertical arrangement of the items, to be used when there is enough
  *   space to show all the items. Note that only [Arrangement.Top], [Arrangement.Center] and
  *   [Arrangement.Bottom] arrangements (including their spacedBy variants, i.e., using spacedBy with
- *   [Alignment.Top], [Alignment.CenterVertically] and [Alignment.Bottom]) are supported, The
+ *   [Alignment.Top], [Alignment.CenterVertically] and [Alignment.Bottom]) are supported. The
  *   default is [Arrangement.Top] when [reverseLayout] is false and [Arrangement.Bottom] when
  *   [reverseLayout] is true.
  * @param horizontalAlignment The horizontal alignment of the items.
@@ -111,8 +111,8 @@ import androidx.wear.compose.foundation.rotary.rotaryScrollable
  *   scrolling with rotary.
  * @param rotaryScrollableBehavior Parameter for changing rotary scrollable behavior. Supports
  *   scroll [RotaryScrollableDefaults.behavior] and snap [RotaryScrollableDefaults.snapBehavior].
- *   Note that when configuring fling or snap behavior, this rotaryBehavior parameter and the
- *   [flingBehavior] parameter that controls touch scroll are expected to produce similar list
+ *   Note that when configuring fling or snap behavior, this rotaryScrollableBehavior parameter and
+ *   the [flingBehavior] parameter that controls touch scroll are expected to produce similar list
  *   scrolling. For example, if [rotaryScrollableBehavior] is set for snap (using
  *   [RotaryScrollableDefaults.snapBehavior]), [flingBehavior] should be set for snap as well (using
  *   [TransformingLazyColumnDefaults.snapFlingBehavior]). Can be null if rotary support is not
@@ -308,7 +308,7 @@ public fun TransformingLazyColumn(
  * @param verticalArrangement The vertical arrangement of the items, to be used when there is enough
  *   space to show all the items. Note that only [Arrangement.Top], [Arrangement.Center] and
  *   [Arrangement.Bottom] arrangements (including their spacedBy variants, i.e., using spacedBy with
- *   [Alignment.Top], [Alignment.CenterVertically] and [Alignment.Bottom]) are supported, The
+ *   [Alignment.Top], [Alignment.CenterVertically] and [Alignment.Bottom]) are supported. The
  *   default is [Arrangement.Top] when [reverseLayout] is false and [Arrangement.Bottom] when
  *   [reverseLayout] is true.
  * @param horizontalAlignment The horizontal alignment of the items.
@@ -323,8 +323,8 @@ public fun TransformingLazyColumn(
  *   scrolling with rotary.
  * @param rotaryScrollableBehavior Parameter for changing rotary scrollable behavior. Supports
  *   scroll [RotaryScrollableDefaults.behavior] and snap [RotaryScrollableDefaults.snapBehavior].
- *   Note that when configuring fling or snap behavior, this rotaryBehavior parameter and the
- *   [flingBehavior] parameter that controls touch scroll are expected to produce similar list
+ *   Note that when configuring fling or snap behavior, this rotaryScrollableBehavior parameter and
+ *   the [flingBehavior] parameter that controls touch scroll are expected to produce similar list
  *   scrolling. For example, if [rotaryScrollableBehavior] is set for snap (using
  *   [RotaryScrollableDefaults.snapBehavior]), [flingBehavior] should be set for snap as well (using
  *   [TransformingLazyColumnDefaults.snapFlingBehavior]). Can be null if rotary support is not
@@ -409,8 +409,8 @@ public fun TransformingLazyColumn(
  *   scrolling with rotary.
  * @param rotaryScrollableBehavior Parameter for changing rotary scrollable behavior. Supports
  *   scroll [RotaryScrollableDefaults.behavior] and snap [RotaryScrollableDefaults.snapBehavior].
- *   Note that when configuring fling or snap behavior, this rotaryBehavior parameter and the
- *   [flingBehavior] parameter that controls touch scroll are expected to produce similar list
+ *   Note that when configuring fling or snap behavior, this rotaryScrollableBehavior parameter and
+ *   the [flingBehavior] parameter that controls touch scroll are expected to produce similar list
  *   scrolling. For example, if [rotaryScrollableBehavior] is set for snap (using
  *   [RotaryScrollableDefaults.snapBehavior]), [flingBehavior] should be set for snap as well (using
  *   [TransformingLazyColumnDefaults.snapFlingBehavior]). Can be null if rotary support is not

@@ -75,7 +75,7 @@ fun listOfLabels(): List<String> {
         "Hello world again?",
         "More content as we add stuff",
         "I don't know if this will fit now, testing",
-        "Really long text that it's going to take multiple lines",
+        "Really long text that is going to take multiple lines",
         "And now we are really pushing it because the screen is really small",
     )
 }

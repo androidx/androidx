@@ -205,7 +205,7 @@ public fun HorizontalPager(
  *
  * @sample androidx.wear.compose.foundation.samples.SimpleVerticalPagerSample
  * @param state The state to control this pager
- * @param modifier A modifier instance to be apply to this Pager outer layout
+ * @param modifier A modifier instance to be applied to this Pager outer layout
  * @param contentPadding a padding around the whole content. This will add padding for the content
  *   after it has been clipped, which is not possible via [modifier] param. You can use it to add a
  *   padding before the first page or after the last one.
@@ -345,7 +345,7 @@ public object PagerDefaults {
      *   single page snapping this usually never happens since there won't be enough space to run a
      *   decay animation.
      * @param snapAnimationSpec The animation spec used to finally snap to the position. This
-     *   animation will be often used in 2 cases: 1) There was enough space to an approach
+     *   animation will be often used in 2 cases: 1) There was enough space to run an approach
      *   animation, the Pager will use [snapAnimationSpec] in the last step of the animation to
      *   settle the page into position. 2) There was not enough space to run the approach animation.
      *   By default a Spring animation with no bounciness and high stiffness is used to ensure the

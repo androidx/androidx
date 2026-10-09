@@ -48,7 +48,7 @@ internal const val FLOAT_TOLERANCE = 1f
  */
 
 /**
- * Checks whether [expectedColor] exist in current [ImageBitmap], covering at least the given ratio
+ * Checks whether [expectedColor] exists in current [ImageBitmap], covering at least the given ratio
  * of the image
  */
 fun ImageBitmap.assertDoesContainColor(expectedColor: Color, expectedRatio: Float = 0.75f) {
@@ -115,7 +115,7 @@ internal class RadialDimensions(
     rowCoords: LayoutCoordinates,
     coords: LayoutCoordinates,
 ) {
-    // Row dimmensions
+    // Row dimensions
     val rowCenter: Offset
     val rowRadius: Float
 

@@ -166,7 +166,7 @@ internal class Cam(
         }
 
         /**
-         * Create a color appearance model from a ARGB integer representing a color. It is assumed
+         * Create a color appearance model from an ARGB integer representing a color. It is assumed
          * the color was viewed in the frame defined in the sRGB standard.
          */
         fun fromInt(argb: Int): Cam {
@@ -174,7 +174,7 @@ internal class Cam(
         }
 
         /**
-         * Create a color appearance model from a ARGB integer representing a color, specifying the
+         * Create a color appearance model from an ARGB integer representing a color, specifying the
          * frame in which the color was viewed. Prefer Cam.fromInt.
          */
         private fun fromIntInFrame(argb: Int, frame: Frame): Cam {

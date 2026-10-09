@@ -81,7 +81,7 @@ public val LocalAmbientModeManager: ProvidableCompositionLocal<AmbientModeManage
 public fun rememberAmbientModeManager(): AmbientModeManager {
     val activity = LocalActivity.current
     requireNotNull(activity) {
-        "rememberAmbientModeManager requires non-null LocalActivity.current, because it turns on" +
+        "rememberAmbientModeManager requires non-null LocalActivity.current, because it turns on " +
             "always-on mode for that activity"
     }
     val ambientManager = remember(activity) { AmbientModeManagerImpl(activity) }

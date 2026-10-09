@@ -71,7 +71,7 @@ fun AdaptiveScreen(
  * Composes the `content` inside a circle/square of the given size, also changing the configuration
  * in `LocalConfiguration.current` to make the inner composable believe the screen is that size &
  * shape.
- * Works with almost all Composables, the only know exception is Dialog, that is designed to be
+ * Works with almost all Composables, the only known exception is Dialog, that is designed to be
  * full-screen.
  * Also applies a zoom effect.
  */

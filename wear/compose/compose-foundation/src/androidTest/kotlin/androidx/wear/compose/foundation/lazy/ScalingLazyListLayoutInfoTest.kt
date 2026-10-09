@@ -454,7 +454,7 @@ public class ScalingLazyListLayoutInfoTest {
             // Get the middle item on the screen
             val edgeScreenItem = state.layoutInfo.visibleItemsInfo.find { it.index == 0 }
 
-            // And that it is it scaled
+            // And that it is scaled
             assertThat(edgeScreenItem!!.scale).isLessThan(1.0f)
         }
     }

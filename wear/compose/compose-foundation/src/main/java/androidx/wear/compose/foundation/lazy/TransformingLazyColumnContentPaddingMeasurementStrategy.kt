@@ -466,7 +466,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                     // class used to implement Arrangement.spacedBy is not public), we "use it",
                     // asking it to arrange two small items in a big space, and see where they are
                     // put, to see if it's one of the arrangements we know. If we can't identify it,
-                    // maybe because is a custom arrangement or an unsupported one, we default to
+                    // maybe because it is a custom arrangement or an unsupported one, we default to
                     // top to bottom
                     val itemSize = 10
                     val spaceAvailable = 1000
@@ -511,7 +511,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                     canScrollBackward = false
                 } else if (isAtEndOrOverscrolledForward) {
                     // Bottom item moved where it is not supposed to be.
-                    // Pinning top item to the bottom most position.
+                    // Pinning bottom item to the bottom most position.
                     scrollAdjustment += pinToEnd()
                     addVisibleItemsBefore(measuredItemProvider)
                     canScrollForward = false

@@ -175,8 +175,8 @@ public fun Text(
  *   [softWrap]. If it is not null, then it must be greater than zero.
  * @param minLines The minimum height in terms of minimum number of visible lines. It is required
  *   that 1 <= [minLines] <= [maxLines].
- * @param inlineContent A map store composables that replaces certain ranges of the text. It's used
- *   to insert composables into text layout. Check [InlineTextContent] for more information.
+ * @param inlineContent A map that stores composables that replace certain ranges of the text. It's
+ *   used to insert composables into text layout. Check [InlineTextContent] for more information.
  * @param onTextLayout Callback that is executed when a new text layout is calculated. A
  *   [TextLayoutResult] object that callback provides contains paragraph information, size of the
  *   text, baselines and other details. The callback can be used to add additional decoration or

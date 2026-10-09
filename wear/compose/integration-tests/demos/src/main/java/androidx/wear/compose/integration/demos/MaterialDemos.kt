@@ -704,7 +704,7 @@ val WearMaterialDemos =
                     },
                     ComposableDemo(
                         "Scaling Details (G)",
-                        "A ScalingLazyColumn with items that show their position and size as" +
+                        "A ScalingLazyColumn with items that show their position and size as " +
                             "well as guidelines",
                     ) {
                         ScalingLazyColumnDetail()

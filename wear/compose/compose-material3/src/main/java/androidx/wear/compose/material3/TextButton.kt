@@ -78,7 +78,7 @@ import androidx.wear.compose.material3.tokens.TextButtonTokens
  *
  * @sample androidx.wear.compose.material3.samples.TextButtonWithOnLongClickSample
  *
- * Example of an [TextButton] with shape animation of rounded corners on press:
+ * Example of a [TextButton] with shape animation of rounded corners on press:
  *
  * @sample androidx.wear.compose.material3.samples.TextButtonWithCornerAnimationSample
  *
@@ -186,7 +186,7 @@ public object TextButtonDefaults {
         MaterialTheme.shapes.defaultTextButtonShapes.copy(shape = shape)
 
     /**
-     * Returns the default [TextButtonShapes] for a [TextButton ] with an animation between two
+     * Returns the default [TextButtonShapes] for a [TextButton] with an animation between two
      * CornerBasedShapes when pressed.
      *
      * Example of a simple text button using the default colors, animated when pressed:

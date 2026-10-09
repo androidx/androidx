@@ -551,7 +551,7 @@ private class DefaultSwitchColors(
     }
 }
 
-/** Default [SwitchColors] implementation. */
+/** Default [RadioButtonColors] implementation. */
 @Immutable
 private class DefaultRadioButtonColors(
     private val selectedRingColor: Color,

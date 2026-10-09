@@ -28,6 +28,6 @@ public sealed interface PagerLayoutInfo {
     /** The main axis size of the pages in this pager, in pixels. */
     public val pageSize: Int
 
-    /** The orientation of this pager (which could be [HorizontalPager] or [VerticalPager]. */
+    /** The orientation of this pager (which could be [HorizontalPager] or [VerticalPager]). */
     public val orientation: Orientation
 }
