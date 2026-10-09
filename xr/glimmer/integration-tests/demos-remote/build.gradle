@@ -1,0 +1,65 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.ApkCopyHelperKt
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("com.android.application")
+}
+
+dependencies {
+    // Direct deps for the libs being demoed.
+    implementation(project(":xr:glimmer:glimmer"))
+    implementation(project(":xr:glimmer:glimmer-remote"))
+    implementation(project(":xr:glimmer:glimmer-google-fonts"))
+
+    // Pinned deps for auxiliary libs.
+    implementation("androidx.activity:activity-compose:1.13.0")
+    implementation("androidx.compose.remote:remote-core:1.0.0-alpha20")
+    implementation("androidx.compose.remote:remote-player-compose:1.0.0-alpha20")
+    implementation("androidx.compose.remote:remote-player-core:1.0.0-alpha20")
+    implementation("androidx.compose.remote:remote-creation:1.0.0-alpha20")
+    implementation("androidx.navigation3:navigation3-ui:1.2.0")
+    implementation("androidx.navigation3:navigation3-runtime:1.2.0")
+    implementation("androidx.xr.projected:projected:1.0.0-alpha13")
+}
+
+// Publish an APK so demo app is available in ab/ for devs, UX, QA, and PMs to use.
+ApkCopyHelperKt.setupAppApkCopy(project, "release")
+
+android {
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
+    defaultConfig {
+        minSdk {
+            version = release(29)
+        }
+    }
+    namespace = "androidx.xr.glimmer.demos.remote"
+}
