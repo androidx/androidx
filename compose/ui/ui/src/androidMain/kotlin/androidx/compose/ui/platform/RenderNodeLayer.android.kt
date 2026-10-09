@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
 /** RenderNode implementation of OwnedLayer. */
-@RequiresApi(Build.VERSION_CODES.M)
 internal class RenderNodeLayer(
     val ownerView: AndroidComposeView,
     drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,

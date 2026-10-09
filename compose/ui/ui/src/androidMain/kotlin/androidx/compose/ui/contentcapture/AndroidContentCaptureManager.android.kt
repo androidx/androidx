@@ -610,10 +610,6 @@ internal class AndroidContentCaptureManager(
             contentCaptureManager: AndroidContentCaptureManager,
             response: LongSparseArray<ViewTranslationResponse?>,
         ) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                return
-            }
-
             // TODO(mnuzen): move post into `AndroidComposeView`
             // This callback can be invoked from non UI thread.
             if (Looper.getMainLooper().thread == Thread.currentThread()) {
