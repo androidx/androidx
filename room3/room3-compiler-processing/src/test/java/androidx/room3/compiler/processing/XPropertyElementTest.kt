@@ -17,6 +17,7 @@
 package androidx.room3.compiler.processing
 
 import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.compileFiles
 import androidx.room3.compiler.processing.util.runKspTest
@@ -226,6 +227,79 @@ class XPropertyElementTest {
             assertThat(backingFieldProp.getter).isNotNull()
             assertThat(backingFieldProp.getter!!.name).isEqualTo("getBackingFieldProp")
             assertThat(backingFieldProp.setter).isNull()
+        }
+    }
+
+    @Test
+    fun inaccessibleAnnotationsTest() {
+        val annoSrc =
+            Source.kotlin(
+                "Anno.kt",
+                """
+                @Target(AnnotationTarget.PROPERTY)
+                annotation class PropTargetAnno
+                """
+                    .trimIndent(),
+            )
+        fun subjectSrc(className: String) =
+            Source.kotlin(
+                "$className.kt",
+                """
+                class $className {
+                    @PropTargetAnno var annotatedProp: Int = 0
+                    var unannotatedProp: Int = 0
+
+                    companion object {
+                        @PropTargetAnno var annotatedCompanionProp: Int = 0
+                        @PropTargetAnno @JvmField var annotatedCompanionField: Int = 0
+                        var unannotatedCompanionProp: Int = 0
+                    }
+                }
+                """
+                    .trimIndent(),
+            )
+        val annotated = listOf("annotatedProp", "annotatedCompanionProp", "annotatedCompanionField")
+        val unannotated = listOf("unannotatedProp", "unannotatedCompanionProp")
+        // Look up properties through their backing fields; for companion properties the field is
+        // a static field of the outer class.
+        fun XTypeElement.prop(name: String) = getDeclaredFields().single { it.name == name }.owner
+
+        val lib = compileFiles(listOf(annoSrc, subjectSrc("LibSubject")))
+        runProcessorTest(sources = listOf(subjectSrc("SrcSubject")), classpath = lib) { invocation
+            ->
+            // Source: the synthetic $annotations methods are visible, so nothing is missing.
+            val srcSubject = invocation.processingEnv.requireTypeElement("SrcSubject")
+            for (name in annotated) {
+                val prop = srcSubject.prop(name)
+                assertWithMessage(name).that(prop.hasInaccessibleAnnotations()).isFalse()
+                assertWithMessage(name)
+                    .that(prop.getAllAnnotations().map { it.name })
+                    .contains("PropTargetAnno")
+            }
+            for (name in unannotated) {
+                assertWithMessage(name)
+                    .that(srcSubject.prop(name).hasInaccessibleAnnotations())
+                    .isFalse()
+            }
+
+            // Classpath: in KAPT the synthetic $annotations methods aren't visible (KT-34684).
+            val libSubject = invocation.processingEnv.requireTypeElement("LibSubject")
+            for (name in annotated) {
+                val prop = libSubject.prop(name)
+                if (invocation.isKsp) {
+                    assertWithMessage(name).that(prop.hasInaccessibleAnnotations()).isFalse()
+                    assertWithMessage(name)
+                        .that(prop.getAllAnnotations().map { it.name })
+                        .contains("PropTargetAnno")
+                } else {
+                    assertWithMessage(name).that(prop.hasInaccessibleAnnotations()).isTrue()
+                }
+            }
+            for (name in unannotated) {
+                assertWithMessage(name)
+                    .that(libSubject.prop(name).hasInaccessibleAnnotations())
+                    .isFalse()
+            }
         }
     }
 

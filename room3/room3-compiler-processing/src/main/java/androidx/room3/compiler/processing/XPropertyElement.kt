@@ -59,4 +59,19 @@ interface XPropertyElement : XVariableElement, XHasModifiers {
      * Kotlin property.
      */
     val setter: XMethodElement?
+
+    /**
+     * Returns `true` if this property is known to have annotations that are not visible to the
+     * processor, in which case [getAllAnnotations] and related methods may be incomplete.
+     *
+     * When running with KAPT, annotations on Kotlin properties are stored on a synthetic
+     * `$annotations` method. For properties of precompiled classes that method is marked
+     * `ACC_SYNTHETIC` and is not visible to javac, see
+     * https://youtrack.jetbrains.com/issue/KT-34684. In that case this returns `true` if the Kotlin
+     * metadata says the property has annotations, so processors can fall back to another source of
+     * information, or report an error, instead of silently missing an annotation.
+     *
+     * This is always `false` when running with KSP.
+     */
+    fun hasInaccessibleAnnotations(): Boolean = false
 }

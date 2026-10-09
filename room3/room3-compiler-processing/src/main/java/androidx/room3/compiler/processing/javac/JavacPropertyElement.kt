@@ -65,19 +65,39 @@ internal class JavacPropertyElement(env: JavacProcessingEnv, element: VariableEl
         return syntheticMethodForAnnotations?.hasAnnotationWithPackage(pkg) ?: false
     }
 
+    /**
+     * The class whose Kotlin metadata declares this property. For properties declared in a
+     * companion object, the backing field is a static field of the enclosing class, but the
+     * metadata and the synthetic `$annotations` method are in the companion object class.
+     */
+    private val declaringClass: JavacTypeElement? by lazy {
+        if (enclosingElement.kotlinMetadata?.getPropertyMetadata(element) != null) {
+            enclosingElement
+        } else {
+            enclosingElement.companionObject?.takeIf {
+                it.kotlinMetadata?.getPropertyMetadata(element) != null
+            }
+        }
+    }
+
     override val kotlinMetadata: KmPropertyContainer? by lazy {
-        enclosingElement.kotlinMetadata?.getPropertyMetadata(element)
-            // If the metadata isn't in the enclosing class, check the companion object next.
-            ?: enclosingElement.companionObject?.kotlinMetadata?.getPropertyMetadata(element)
+        declaringClass?.kotlinMetadata?.getPropertyMetadata(element)
     }
 
     private val syntheticMethodForAnnotations: JavacMethodElement? by lazy {
         val expectedName =
             kotlinMetadata?.syntheticMethodForAnnotations?.name
                 ?: (element.simpleName.toString() + "\$annotations")
-        enclosingElement.getSyntheticMethodsForAnnotations().singleOrNull {
+        (declaringClass ?: enclosingElement).getSyntheticMethodsForAnnotations().singleOrNull {
             it.name == expectedName
         }
+    }
+
+    override fun hasInaccessibleAnnotations(): Boolean {
+        // The Kotlin metadata records that there is a synthetic method for annotations, but it
+        // wasn't found, see https://youtrack.jetbrains.com/issue/KT-34684.
+        return kotlinMetadata?.syntheticMethodForAnnotations != null &&
+            syntheticMethodForAnnotations == null
     }
 
     override val kotlinType: KmTypeContainer?
