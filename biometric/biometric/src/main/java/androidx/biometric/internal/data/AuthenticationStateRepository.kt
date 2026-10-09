@@ -96,17 +96,13 @@ internal interface AuthenticationStateRepository {
 
     /** Emits an event for a more options button press. */
     suspend fun setMoreOptionsButtonPressPending()
-
-    companion object {
-        val instance: AuthenticationStateRepository by lazy { AuthenticationStateRepositoryImpl() }
-    }
 }
 
 /**
  * A repository for authentication state and events.
  *
- * This repository and all of its data is persisted over the lifetime of the client activity that
- * hosts the [BiometricPrompt].
+ * This repository and all of its data are persisted over the lifetime of the
+ * [androidx.lifecycle.ViewModelStoreOwner] (Activity or Fragment) that hosts the [BiometricPrompt].
  */
 internal class AuthenticationStateRepositoryImpl : AuthenticationStateRepository {
     override var canceledFrom: CanceledFrom = CanceledFrom.INTERNAL

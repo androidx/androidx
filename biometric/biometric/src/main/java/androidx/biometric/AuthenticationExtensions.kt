@@ -50,7 +50,7 @@ public fun ComponentActivity.registerForAuthenticationResult(
 ): AuthenticationResultLauncher {
     return AuthenticationResultRegistry()
         .register(
-            context = this,
+            contextProvider = { this },
             viewModelStoreOwner = this,
             lifecycleOwner = this,
             confirmCredentialActivityLauncher = getConfirmCredentialActivityLauncher(),
@@ -84,7 +84,7 @@ public fun ComponentActivity.registerForAuthenticationResult(
 ): AuthenticationResultLauncher {
     return AuthenticationResultRegistry()
         .register(
-            context = this,
+            contextProvider = { this },
             viewModelStoreOwner = this,
             lifecycleOwner = this,
             confirmCredentialActivityLauncher = getConfirmCredentialActivityLauncher(),
@@ -119,7 +119,7 @@ public fun Fragment.registerForAuthenticationResult(
 ): AuthenticationResultLauncher {
     return AuthenticationResultRegistry()
         .register(
-            context = requireContext(),
+            contextProvider = { requireContext() },
             viewModelStoreOwner = this,
             lifecycleOwner = this,
             confirmCredentialActivityLauncher = getConfirmCredentialActivityLauncher(),
@@ -153,7 +153,7 @@ public fun Fragment.registerForAuthenticationResult(
 ): AuthenticationResultLauncher {
     return AuthenticationResultRegistry()
         .register(
-            context = requireContext(),
+            contextProvider = { requireContext() },
             viewModelStoreOwner = this,
             lifecycleOwner = this,
             confirmCredentialActivityLauncher = getConfirmCredentialActivityLauncher(),

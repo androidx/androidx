@@ -24,8 +24,10 @@ import androidx.biometric.BiometricPrompt
 import androidx.biometric.PromptContentView
 import androidx.biometric.internal.AuthenticationManager
 import androidx.biometric.internal.data.AuthenticationStateRepository
+import androidx.biometric.internal.data.AuthenticationStateRepositoryImpl
 import androidx.biometric.internal.data.CanceledFrom
 import androidx.biometric.internal.data.PromptConfigRepository
+import androidx.biometric.internal.data.PromptConfigRepositoryImpl
 import androidx.biometric.utils.AuthenticationCallbackProvider
 import androidx.biometric.utils.AuthenticatorUtils
 import androidx.biometric.utils.BiometricErrorData
@@ -41,12 +43,17 @@ import kotlinx.coroutines.launch
  * A container for data associated with an ongoing authentication session, including intermediate
  * values needed to display the prompt UI.
  *
- * This model and all of its data is persisted over the lifetime of the client activity that hosts
- * the [androidx.biometric.BiometricPrompt].
+ * This model and all of its data are persisted over the lifetime of the
+ * [androidx.lifecycle.ViewModelStoreOwner] (Activity or Fragment) that hosts the
+ * [androidx.biometric.BiometricPrompt].
  */
-internal class AuthenticationViewModel(
-    private val promptConfigRepository: PromptConfigRepository,
-    private val authenticationStateRepository: AuthenticationStateRepository,
+internal class AuthenticationViewModel
+@JvmOverloads
+constructor(
+    private val promptConfigRepository: PromptConfigRepository = PromptConfigRepositoryImpl(),
+    private val authenticationStateRepository: AuthenticationStateRepository =
+        AuthenticationStateRepositoryImpl(),
+    val fingerprintDialogModel: FingerprintDialogModel = FingerprintDialogModel(),
 ) : ViewModel() {
     /**
      * The key associated with the current authentication session. This key is stored in

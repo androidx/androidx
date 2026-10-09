@@ -17,17 +17,16 @@ package androidx.biometric.internal.ui
 
 import android.content.Context
 import android.hardware.biometrics.BiometricManager
+import android.os.SystemClock
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.R
+import androidx.biometric.TestActivity
 import androidx.biometric.internal.isUsingFingerprintDialog
 import androidx.biometric.internal.viewmodel.AuthenticationViewModel
-import androidx.biometric.internal.viewmodel.AuthenticationViewModelFactory
-import androidx.biometric.internal.viewmodel.FingerprintDialogViewModel
+import androidx.biometric.internal.viewmodel.FingerprintDialogModel
 import androidx.biometric.utils.AuthenticatorUtils
 import androidx.biometric.utils.BiometricErrorData
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -38,7 +37,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.testutils.lifecycle.LifecycleOwnerUtils.waitUntilState
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assume.assumeTrue
@@ -48,20 +46,19 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class FingerprintDialogActivityTest {
-    private lateinit var scenario: ActivityScenario<FingerprintDialogActivity>
-    private val authenticationViewModel: AuthenticationViewModel =
-        AuthenticationViewModelFactory().create(AuthenticationViewModel::class.java)
+class FingerprintDialogControllerTest {
+    private lateinit var scenario: ActivityScenario<TestActivity>
+    private lateinit var dialogController: FingerprintDialogController
+    private lateinit var authenticationViewModel: AuthenticationViewModel
 
     @Before
     fun setUp() {
         val context: Context = ApplicationProvider.getApplicationContext()
-        assumeTrue(context.isUsingFingerprintDialog(authenticationViewModel.cryptoObject))
+        assumeTrue(context.isUsingFingerprintDialog(crypto = null))
     }
 
     @After
     fun tearDown() {
-        FingerprintDialogActivity.fingerprintDialogViewModelFactory = null
         // Only close the scenario if it has been initialized.
         // This is necessary because setUp may skip initialization via assumeTrue.
         if (::scenario.isInitialized) {
@@ -70,15 +67,15 @@ class FingerprintDialogActivityTest {
     }
 
     @Test
-    fun whenPreAuthFails_activityFinishes() {
-        startActivity(fingerprintPreAuthCheck = BiometricPrompt.ERROR_NO_BIOMETRICS)
+    fun whenPreAuthFails_dismissesDialog() {
+        startAuthentication(fingerprintPreAuthCheck = BiometricPrompt.ERROR_NO_BIOMETRICS)
 
-        assertThat(scenario.state).isEqualTo(Lifecycle.State.DESTROYED)
+        scenario.onActivity { assertThat(dialogController.isDialogShowing).isFalse() }
     }
 
     @Test
-    fun whenDialogIsCancelled_cancelsAuthenticationAndFinishes() {
-        startActivity()
+    fun whenDialogIsCancelled_cancelsAuthenticationAndDismissesDialog() {
+        startAuthentication()
 
         val cancellationSignal =
             authenticationViewModel.cancellationSignalProvider.fingerprintCancellationSignal
@@ -88,17 +85,15 @@ class FingerprintDialogActivityTest {
         pressBackUnconditionally()
 
         assertThat(cancellationSignal.isCanceled).isTrue()
-        assertThat(scenario.state).isEqualTo(Lifecycle.State.DESTROYED)
+        scenario.onActivity { assertThat(dialogController.isDialogShowing).isFalse() }
     }
 
     @Test
-    fun whenAuthenticationSucceeds_finishesActivity() {
-        startActivity()
+    fun whenAuthenticationSucceeds_dismissesDialog() {
+        startAuthentication()
         onView(withText("Test Title")).check(matches(isDisplayed()))
 
-        lateinit var activityFromScenario: FingerprintDialogActivity
-        scenario.onActivity { activity ->
-            activityFromScenario = activity
+        scenario.onActivity {
             authenticationViewModel.setAuthenticationResult(
                 BiometricPrompt.AuthenticationResult(
                     null,
@@ -106,29 +101,53 @@ class FingerprintDialogActivityTest {
                 )
             )
         }
-        waitUntilState(activityFromScenario, Lifecycle.State.DESTROYED)
+        scenario.onActivity { assertThat(dialogController.isDialogShowing).isFalse() }
     }
 
     @Test
-    fun whenAuthenticationError_finishesActivity() {
-        startActivity()
+    fun whenAuthenticationError_andDismissedInstantly_dismissesDialog() {
+        startAuthentication()
         onView(withText("Test Title")).check(matches(isDisplayed()))
 
         val errorCode = BiometricPrompt.ERROR_HW_UNAVAILABLE
         val errorMessage = "test error"
-        lateinit var activityFromScenario: FingerprintDialogActivity
-        scenario.onActivity { activity ->
-            activityFromScenario = activity
+        scenario.onActivity {
+            // Pin the flag on the main thread so the DISMISS_INSTANTLY_DELAY_MS timer started by
+            // showAlertDialog() cannot race this test into the delayed-dismiss branch.
+            authenticationViewModel.fingerprintDialogModel.isDismissedInstantly = true
             authenticationViewModel.setAuthenticationError(
                 BiometricErrorData(errorCode, errorMessage)
             )
         }
-        waitUntilState(activityFromScenario, Lifecycle.State.DESTROYED)
+        scenario.onActivity { assertThat(dialogController.isDialogShowing).isFalse() }
+    }
+
+    @Test
+    fun whenAuthenticationError_andNotDismissedInstantly_showsErrorThenDismisses() {
+        startAuthentication()
+        onView(withText("Test Title")).check(matches(isDisplayed()))
+
+        val errorCode = BiometricPrompt.ERROR_HW_UNAVAILABLE
+        val errorMessage = "test error"
+        scenario.onActivity {
+            authenticationViewModel.fingerprintDialogModel.isDismissedInstantly = false
+            authenticationViewModel.setAuthenticationError(
+                BiometricErrorData(errorCode, errorMessage)
+            )
+        }
+
+        // The error is shown first, and the dialog stays up for HIDE_DIALOG_DELAY_MS.
+        onView(withId(R.id.fingerprint_error)).check(matches(withText(errorMessage)))
+        scenario.onActivity { assertThat(dialogController.isDialogShowing).isTrue() }
+
+        waitUntil(timeoutMs = FingerprintDialogController.HIDE_DIALOG_DELAY_MS * 2L) {
+            !dialogController.isDialogShowing
+        }
     }
 
     @Test
     fun whenHelpMessageIsReceived_updatesDialogText() {
-        startActivity()
+        startAuthentication()
 
         val helpMessage = "test help"
         scenario.onActivity { authenticationViewModel.setAuthenticationHelpMessage(helpMessage) }
@@ -138,7 +157,7 @@ class FingerprintDialogActivityTest {
 
     @Test
     fun whenAuthenticationFails_updatesDialogText() {
-        startActivity()
+        startAuthentication()
 
         scenario.onActivity { authenticationViewModel.setAuthenticationFailurePending() }
 
@@ -148,7 +167,7 @@ class FingerprintDialogActivityTest {
 
     @Test
     fun whenActivityIsDestroyed_cancelsAuthentication() {
-        startActivity()
+        startAuthentication()
 
         val cancellationSignal =
             authenticationViewModel.cancellationSignalProvider.fingerprintCancellationSignal
@@ -156,24 +175,56 @@ class FingerprintDialogActivityTest {
         scenario.moveToState(Lifecycle.State.DESTROYED)
 
         assertThat(cancellationSignal.isCanceled).isTrue()
+        assertThat(dialogController.isDialogShowing).isFalse()
     }
 
-    private fun startActivity(fingerprintPreAuthCheck: Int = BiometricPrompt.BIOMETRIC_SUCCESS) {
-        val fingerprintDialogViewModel =
-            FingerprintDialogViewModel(fingerprintPreAuthChecker = { _ -> fingerprintPreAuthCheck })
-        fingerprintDialogViewModel.isDismissedInstantly = true
+    @Test
+    fun whenReconnectedAfterConfigChange_preservesDialogState() {
+        startAuthentication()
 
-        FingerprintDialogActivity.fingerprintDialogViewModelFactory =
-            object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return fingerprintDialogViewModel as T
-                }
-            }
+        val helpMessage = "Temporary help message"
+        scenario.onActivity {
+            authenticationViewModel.setAuthenticationHelpMessage(helpMessage)
+            dialogController.dismiss()
+            dialogController = FingerprintDialogController(it, it, authenticationViewModel)
+            dialogController.showDialogForReconnect()
+        }
 
+        onView(withId(R.id.fingerprint_error)).check(matches(withText(helpMessage)))
+    }
+
+    private fun startAuthentication(
+        fingerprintPreAuthCheck: Int = BiometricPrompt.BIOMETRIC_SUCCESS
+    ) {
+        val fingerprintDialogModel =
+            FingerprintDialogModel(fingerprintPreAuthChecker = { _ -> fingerprintPreAuthCheck })
+        fingerprintDialogModel.isDismissedInstantly = true
+        authenticationViewModel =
+            AuthenticationViewModel(fingerprintDialogModel = fingerprintDialogModel)
         authenticationViewModel.setPromptInfo(getPromptInfo())
 
-        scenario = ActivityScenario.launch(FingerprintDialogActivity::class.java)
+        scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            dialogController =
+                FingerprintDialogController(activity, activity, authenticationViewModel)
+            dialogController.showAuthentication()
+        }
+    }
+
+    /** Polls [condition] on the main thread until it is true or [timeoutMs] elapses. */
+    private fun waitUntil(timeoutMs: Long, condition: () -> Boolean) {
+        val deadline = SystemClock.uptimeMillis() + timeoutMs
+        while (true) {
+            var satisfied = false
+            scenario.onActivity { satisfied = condition() }
+            if (satisfied) {
+                return
+            }
+            if (SystemClock.uptimeMillis() >= deadline) {
+                throw AssertionError("Condition not met within $timeoutMs ms")
+            }
+            SystemClock.sleep(50)
+        }
     }
 
     private fun getPromptInfo(
