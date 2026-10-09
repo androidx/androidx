@@ -23,7 +23,8 @@ import androidx.xr.runtime.FaceTrackingMode
 
 /**
  * Controls a simulated [androidx.xr.arcore.Face] in unit tests. If [isValid] is `false`, the
- * [blendShapeValues] will be ignored and tracking will be [TrackingState.PAUSED].
+ * [blendShapeValues] will be ignored and tracking will be
+ * [androidx.xr.arcore.TrackingState.PAUSED].
  *
  * @property isValid whether the [blendShapeValues] are valid
  * @property blendShapeValues a list of normalized blend shape values of facial features
