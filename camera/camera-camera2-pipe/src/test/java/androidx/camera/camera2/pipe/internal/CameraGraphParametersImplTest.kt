@@ -15,9 +15,7 @@
  */
 package androidx.camera.camera2.pipe.internal
 
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CaptureRequest
-import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraTimestamp
@@ -44,6 +42,7 @@ import androidx.camera.camera2.pipe.testing.FakeMetadata.Companion.TEST_KEY
 import androidx.camera.camera2.pipe.testing.FakeRequestFailure
 import androidx.camera.camera2.pipe.testing.FakeRequestListener
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -53,6 +52,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -81,7 +81,8 @@ class CameraGraphParametersImplTest {
                 strictMode = StrictMode(false),
             ),
         )
-    private val surfaceMap = mapOf(StreamId(0) to Surface(SurfaceTexture(1)))
+    private val fakeSurfaces = FakeSurfaces()
+    private val surfaceMap = mapOf(StreamId(0) to fakeSurfaces.createFakeSurface())
     private val csp1 = FakeCaptureSequenceProcessor().also { it.surfaceMap = surfaceMap }
     private val grp1 = GraphRequestProcessor.from(csp1)
     private val request1 = Request(listOf(StreamId(0)), listeners = listOf(FakeRequestListener()))
@@ -92,6 +93,11 @@ class CameraGraphParametersImplTest {
     private val failure = FakeRequestFailure(requestMetadata, frameNumber)
     private val listener1 = FakeParameterUpdateListener(CAPTURE_REQUEST_KEY)
     private val listener2 = FakeParameterUpdateListener(CAPTURE_REQUEST_KEY)
+
+    @After
+    fun tearDown() {
+        fakeSurfaces.close()
+    }
 
     @Test
     fun get_returnLatestValue() {

@@ -17,11 +17,9 @@
 package androidx.camera.camera2.pipe.graph
 
 import android.content.Context
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.util.Size
-import android.view.Surface
 import androidx.camera.camera2.pipe.CameraBackendFactory
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
@@ -130,6 +128,7 @@ internal class StreamGraphImplTest {
             streamGraph.close()
         }
         imageSources.checkImageSourcesClosed()
+        fakeSurfaces.close()
     }
 
     @Test
@@ -808,8 +807,7 @@ internal class StreamGraphImplTest {
     @Test
     @Config(minSdk = 34)
     fun testUseReadoutTimestampAboveApi34() {
-        val surfaceTexture = SurfaceTexture(0)
-        val surface = Surface(surfaceTexture)
+        val surface = fakeSurfaces.createFakeSurface()
         val preEnabledOutputConfiguration =
             OutputConfiguration(surface).apply { setReadoutTimestampEnabled(true) }
         val defaultOutputConfiguration = OutputConfiguration(surface)
@@ -864,16 +862,12 @@ internal class StreamGraphImplTest {
         assertThat(externalDefaultOutput.useReadoutTimestamp).isFalse()
         assertThat(streamGraph.outputConfigMap[externalDefaultOutput]!!.useReadoutTimestamp)
             .isFalse()
-
-        surface.release()
-        surfaceTexture.release()
     }
 
     @Test
     @Config(sdk = [33])
     fun testUseReadoutTimestampBelowApi34() {
-        val surfaceTexture = SurfaceTexture(0)
-        val surface = Surface(surfaceTexture)
+        val surface = fakeSurfaces.createFakeSurface()
         val externalConfig =
             CameraStream.Config.create(
                 OutputStream.Config.external(
@@ -898,9 +892,6 @@ internal class StreamGraphImplTest {
         val externalOutput = streamGraph[externalConfig]!!.outputs.single()
         assertThat(externalOutput.useReadoutTimestamp).isFalse()
         assertThat(streamGraph.outputConfigMap[externalOutput]!!.useReadoutTimestamp).isNull()
-
-        surface.release()
-        surfaceTexture.release()
     }
 
     @Test

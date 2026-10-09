@@ -65,6 +65,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -157,7 +158,6 @@ internal class CameraGraphImplTest {
         checkNotNull(cameraGraph.streams[stream1Config]) {
             "Failed to find stream for $stream1Config!"
         }
-
     private val stream2 =
         checkNotNull(cameraGraph.streams[stream2Config]) {
             "Failed to find stream for $stream2Config!"
@@ -170,6 +170,11 @@ internal class CameraGraphImplTest {
     @Before
     fun setUp() {
         cameraController.streamGraph = streamGraph
+    }
+
+    @After
+    fun tearDown() {
+        fakeSurfaces.close()
     }
 
     @Test fun createCameraGraphImpl() = testScope.runTest { assertThat(cameraGraph).isNotNull() }

@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.content.Context
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.os.Looper
@@ -57,6 +56,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequence
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
+import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
@@ -83,11 +83,13 @@ internal class CaptureSessionFactoryTest {
     private val cameraId = RobolectricCameras.create()
     private val testCamera = RobolectricCameras.open(cameraId)
     private val cameraErrorListener: CameraErrorListener = mock()
+    private val fakeSurfaces = FakeSurfaces()
 
     @After
     fun teardown() {
         mainLooper.idle()
         RobolectricCameras.clear()
+        fakeSurfaces.close()
     }
 
     @Test
@@ -118,9 +120,7 @@ internal class CaptureSessionFactoryTest {
         val stream1 = streamMap[cameraStreamConfig]!!
         val stream1Output = stream1.outputs.first()
 
-        val surfaceTexture = SurfaceTexture(0)
-        surfaceTexture.setDefaultBufferSize(stream1Output.size.width, stream1Output.size.height)
-        val surface = Surface(surfaceTexture)
+        val surface = fakeSurfaces.createFakeSurface(stream1Output.size)
         val threads = FakeThreads.fromTestScope(this)
 
         val result =
@@ -163,7 +163,6 @@ internal class CaptureSessionFactoryTest {
         val pendingOutputs = (result as CaptureSessionFactory.Result.Success).deferred
         assertThat(pendingOutputs).isNotNull()
         assertThat(pendingOutputs).isEmpty()
-        surface.release()
     }
 
     @Test
@@ -193,8 +192,7 @@ internal class CaptureSessionFactoryTest {
         val stream1 = checkNotNull(streamGraph[streamConfig1])
         val stream2 = checkNotNull(streamGraph[streamConfig2])
 
-        val surfaceTexture = SurfaceTexture(0).apply { setDefaultBufferSize(640, 480) }
-        val surface1 = Surface(surfaceTexture)
+        val surface1 = fakeSurfaces.createFakeSurface(Size(640, 480))
 
         val outputs =
             buildOutputConfigurations(graphConfig, streamGraph, mapOf(stream1.id to surface1))
@@ -204,9 +202,6 @@ internal class CaptureSessionFactoryTest {
         assertThat(outputs.all.single().surfaces).containsExactly(surface1)
         assertThat(outputs.deferred.keys).containsExactly(stream2.id)
         assertThat(outputs.outputSurfaceMap).containsExactly(stream1.outputs.single().id, surface1)
-
-        surface1.release()
-        surfaceTexture.release()
     }
 
     @Test
@@ -248,24 +243,19 @@ internal class CaptureSessionFactoryTest {
     @Test
     @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun androidOutputConfiguration_create_withUseReadoutTimestamp_enablesReadoutTimestampOnApi34() {
-        val surfaceTexture = SurfaceTexture(0).apply { setDefaultBufferSize(640, 480) }
-        val surface = Surface(surfaceTexture)
+        val surface = fakeSurfaces.createFakeSurface(Size(640, 480))
 
         val enabledWrapper = AndroidOutputConfiguration.create(surface, useReadoutTimestamp = true)
         assertThat(enabledWrapper).isNotNull()
         val enabledConfig = enabledWrapper!!.unwrapAs(OutputConfiguration::class.java)
         assertThat(enabledConfig).isNotNull()
         assertThat(Api34Compat.isReadoutTimestampEnabled(enabledConfig!!)).isTrue()
-
-        surface.release()
-        surfaceTexture.release()
     }
 
     @Test
     @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     fun androidOutputConfiguration_create_withUseReadoutTimestamp_preApi34_throwsIfNotNull() {
-        val surfaceTexture = SurfaceTexture(0).apply { setDefaultBufferSize(640, 480) }
-        val surface = Surface(surfaceTexture)
+        val surface = fakeSurfaces.createFakeSurface(Size(640, 480))
 
         assertThat(AndroidOutputConfiguration.create(surface, useReadoutTimestamp = null))
             .isNotNull()
@@ -275,18 +265,13 @@ internal class CaptureSessionFactoryTest {
         assertThrows<IllegalStateException> {
             AndroidOutputConfiguration.create(surface, useReadoutTimestamp = true)
         }
-
-        surface.release()
-        surfaceTexture.release()
     }
 
     @Test
     @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun buildOutputConfigurations_wiresUseReadoutTimestamp() = runTest {
-        val surfaceTexture1 = SurfaceTexture(0).apply { setDefaultBufferSize(640, 480) }
-        val surface1 = Surface(surfaceTexture1)
-        val surfaceTexture2 = SurfaceTexture(1).apply { setDefaultBufferSize(640, 480) }
-        val surface2 = Surface(surfaceTexture2)
+        val surface1 = fakeSurfaces.createFakeSurface(Size(640, 480))
+        val surface2 = fakeSurfaces.createFakeSurface(Size(640, 480))
 
         val streamWithReadout =
             CameraStream.Config.create(
@@ -357,11 +342,6 @@ internal class CaptureSessionFactoryTest {
             )
             .isFalse()
         assertThat(Api34Compat.isReadoutTimestampEnabled(deferredConfig)).isTrue()
-
-        surface1.release()
-        surfaceTexture1.release()
-        surface2.release()
-        surfaceTexture2.release()
     }
 }
 
