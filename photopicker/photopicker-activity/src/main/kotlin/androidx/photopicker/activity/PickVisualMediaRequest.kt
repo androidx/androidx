@@ -323,7 +323,9 @@ public class PickVisualMediaRequest internal constructor() {
          * location sharing is final. If granted, calling apps can access this metadata when the
          * selected media files are opened via the returned URIs.
          *
-         * This parameter might be not supported by the underlying Photopicker implementation.
+         * This feature was added in SDK extension 23 on Android Tiramisu (API level 33) and higher.
+         * If the underlying Photopicker implementation or device does not support this feature,
+         * this request is safely ignored.
          *
          * @param isLocationMetadataAccessRequested boolean whether to request location metadata
          *   access from the Photopicker
