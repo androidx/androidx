@@ -77,6 +77,8 @@ import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.TextLookup
 import androidx.compose.remote.core.operations.TextLookupInt
 import androidx.compose.remote.core.operations.TextMeasure
+import androidx.compose.remote.core.operations.TextSubtext
+import androidx.compose.remote.core.operations.TextTransform
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.TouchExpression
@@ -1302,6 +1304,8 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
                         is BitmapTextMeasure -> op.mId
                         is TextLookup -> op.mTextId
                         is IdLookup -> op.mTextId
+                        is TextSubtext -> op.textIdReflection
+                        is TextTransform -> op.textIdReflection
                         else -> -1
                     }
                 if (id > 0 && !computedOpIndex.containsKey(id)) {

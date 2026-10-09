@@ -54,6 +54,8 @@ import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.ParticlesLoop
 import androidx.compose.remote.core.operations.PathCombine
 import androidx.compose.remote.core.operations.PathData
+import androidx.compose.remote.core.operations.TextSubtext
+import androidx.compose.remote.core.operations.TextTransform
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Component
@@ -748,6 +750,22 @@ private val hnaTypeField =
     HostNamedActionOperation::class.java.getDeclaredField("mType").apply { isAccessible = true }
 private val hnaValueIdField =
     HostNamedActionOperation::class.java.getDeclaredField("mValueId").apply { isAccessible = true }
+
+// TextSubtext, TextTransform
+// TODO: replace with the core getters once aosp/4167988 adds them.
+
+/** The id of the text this operation produces. */
+internal val TextSubtext.textIdReflection: Int
+    get() = textSubtextTextIdField.getInt(this)
+
+/** The id of the text this operation produces. */
+internal val TextTransform.textIdReflection: Int
+    get() = textTransformTextIdField.getInt(this)
+
+private val textSubtextTextIdField =
+    TextSubtext::class.java.getDeclaredField("mTextId").apply { isAccessible = true }
+private val textTransformTextIdField =
+    TextTransform::class.java.getDeclaredField("mTextId").apply { isAccessible = true }
 
 // 5. Draw Operations Helpers
 

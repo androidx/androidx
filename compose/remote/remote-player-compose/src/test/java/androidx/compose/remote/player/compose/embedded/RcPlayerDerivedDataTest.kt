@@ -23,6 +23,7 @@ import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.operations.TextTransform
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_DEREF
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.MUL
@@ -67,6 +68,40 @@ class RcPlayerDerivedDataTest {
 
         assertBarWidth(play(document), 10)
         assertBarWidth(update(index, 2f), 30)
+    }
+
+    @Test
+    fun textSubtextFollowsItsLength() {
+        var length = 0
+        val document = buildDocument {
+            val lengthVar = writer.addNamedFloat("length", 1f)
+            length = Utils.idFromNan(lengthVar)
+            val text = writer.textSubtext(writer.textCreateId("abcdef"), 0f, lengthVar)
+            bar(writer.floatExpression(writer.textLength(text), 10f, MUL))
+        }
+
+        assertBarWidth(play(document), 10)
+        assertBarWidth(update(length, 4f), 40)
+    }
+
+    @Test
+    fun textTransformFollowsItsLength() {
+        var length = 0
+        val document = buildDocument {
+            val lengthVar = writer.addNamedFloat("length", 2f)
+            length = Utils.idFromNan(lengthVar)
+            val text =
+                writer.textTransform(
+                    writer.textCreateId("abcdef"),
+                    0f,
+                    lengthVar,
+                    TextTransform.TEXT_TO_UPPERCASE,
+                )
+            bar(writer.floatExpression(writer.textLength(text), 10f, MUL))
+        }
+
+        assertBarWidth(play(document), 20)
+        assertBarWidth(update(length, 5f), 50)
     }
 
     @Test

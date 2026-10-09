@@ -124,6 +124,8 @@ class CoreReflectionGuardTest {
                     "mOutGlyphSpacing",
                 ),
             "$modifiers.HostNamedActionOperation" to listOf("mTextId", "mType", "mValueId"),
+            "$ops.TextSubtext" to listOf("mTextId"),
+            "$ops.TextTransform" to listOf("mTextId"),
             "$modifiers.DimensionConstraintsModifierOperation" to listOf("mType"),
             "$modifiers.DimensionModifierOperation" to listOf("mValue"),
             "$managers.RowLayout" to listOf("mSpacedBy"),
