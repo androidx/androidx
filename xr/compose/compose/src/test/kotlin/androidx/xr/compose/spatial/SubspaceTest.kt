@@ -1479,8 +1479,8 @@ class SubspaceTest {
                             PlanarEmbeddedSubspace {
                                 SpatialPanel(SubspaceModifier.size(100.dp).testTag("innerPanel")) {
                                     Orbiter(
-                                        anchorPoint = OrbiterAnchorPoint.Top,
-                                        offset = DpVolumeOffset.Zero,
+                                        position =
+                                            OrbiterPosition.TopCenter(offset = DpVolumeOffset.Zero)
                                     ) {
                                         Box(Modifier.size(10.dp).testTag("orbiterContent"))
                                     }
