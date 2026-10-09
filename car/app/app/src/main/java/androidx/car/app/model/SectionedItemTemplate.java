@@ -365,7 +365,10 @@ public final class SectionedItemTemplate implements Template {
          * Sets the actions that show up alongside the sections of this template (as opposed to the
          * actions in the header), overwriting any other previously set actions from {@link
          * #addAction(Action)} or {@link #setActions(List)}. All actions must conform to the
-         * {@link ActionsConstraints#ACTIONS_CONSTRAINTS_FAB} constraints.
+         * {@link ActionsConstraints#ACTIONS_CONSTRAINTS_CONTENT_BUTTONS} constraints.
+         *
+         * <p>Starting in Car API 9, actions may have a title. Depending on how the host displays
+         * the actions, it may show or ignore the title, so an icon is always required.
          *
          * <p>Note: Starting in Car API 9, for media apps (apps with
          * {@link androidx.car.app.CarAppPermission#MEDIA_TEMPLATES}), a maximum of 1 action can be
@@ -374,7 +377,7 @@ public final class SectionedItemTemplate implements Template {
          */
         @CanIgnoreReturnValue
         public @NonNull Builder setActions(@NonNull List<Action> actions) {
-            ActionsConstraints.ACTIONS_CONSTRAINTS_FAB.validateOrThrow(actions);
+            ActionsConstraints.ACTIONS_CONSTRAINTS_CONTENT_BUTTONS.validateOrThrow(actions);
             for (Action action : actions) {
                 if (action.getType() == Action.TYPE_MEDIA_PLAYBACK) {
                     Log.w(LogTags.TAG,
@@ -390,7 +393,10 @@ public final class SectionedItemTemplate implements Template {
         /**
          * Adds a single {@link Action} to this template, appending to the existing list of
          * actions. All actions must conform to the
-         * {@link ActionsConstraints#ACTIONS_CONSTRAINTS_FAB} constraints.
+         * {@link ActionsConstraints#ACTIONS_CONSTRAINTS_CONTENT_BUTTONS} constraints.
+         *
+         * <p>Starting in Car API 9, actions may have a title. Depending on how the host displays
+         * the actions, it may show or ignore the title, so an icon is always required.
          *
          * <p>Note: Starting in Car API 9, for media apps (apps with
          * {@link androidx.car.app.CarAppPermission#MEDIA_TEMPLATES}), a maximum of 1 action can be
@@ -401,7 +407,7 @@ public final class SectionedItemTemplate implements Template {
         public @NonNull Builder addAction(@NonNull Action action) {
             List<Action> actionsCopy = new ArrayList<>(mActions);
             actionsCopy.add(action);
-            ActionsConstraints.ACTIONS_CONSTRAINTS_FAB.validateOrThrow(actionsCopy);
+            ActionsConstraints.ACTIONS_CONSTRAINTS_CONTENT_BUTTONS.validateOrThrow(actionsCopy);
             if (action.getType() == Action.TYPE_MEDIA_PLAYBACK) {
                 Log.w(LogTags.TAG,
                         "Action.TYPE_MEDIA_PLAYBACK is ignored as a floating action button on"
