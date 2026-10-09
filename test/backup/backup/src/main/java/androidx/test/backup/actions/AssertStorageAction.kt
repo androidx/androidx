@@ -17,6 +17,8 @@
 package androidx.test.backup.actions
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
 import androidx.test.backup.BackupActionInputKeys.DB_NAME
 import androidx.test.backup.BackupActionInputKeys.EXPECTED
 import androidx.test.backup.BackupActionInputKeys.EXPECTED_COL
@@ -180,8 +182,12 @@ public class AssertStorageAction : BackupDeviceAction {
                             listOf(expectedCol to expectedVal)
                         }
 
-                    targetContext.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null).use { db
-                        ->
+                    // Verifying must not create a database that the restore did not bring back.
+                    val dbFile = targetContext.getDatabasePath(dbName)
+                    if (!dbFile.exists()) {
+                        return failure("Database '$dbName' not found at ${dbFile.absolutePath}.")
+                    }
+                    SQLiteDatabase.openDatabase(dbFile.path, null, OPEN_READONLY).use { db ->
                         val projection = expectedColumns.joinToString(", ") { "`${it.first}`" }
                         db.rawQuery(
                                 "SELECT $projection FROM `$table` WHERE `$keyCol` = ?",

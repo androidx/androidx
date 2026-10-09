@@ -921,6 +921,41 @@ public class StorageActionTest {
         )
     }
 
+    /** Verifying a database that the restore did not bring back fails, and creates no database. */
+    @Test
+    public fun testDatabaseVerifyOfAMissingDatabaseFailsWithoutCreatingIt() {
+        val dbName = "test_missing_db.db"
+
+        context.deleteDatabase(dbName)
+
+        val verifyResult =
+            AssertStorageAction()
+                .execute(
+                    context,
+                    BackupDeviceActionArgs(
+                        mapOf(
+                            BackupActionInputKeys.STORAGE_TYPE to
+                                BackupActionValues.STORAGE_TYPE_DATABASE,
+                            BackupActionInputKeys.DB_NAME to dbName,
+                            BackupActionInputKeys.TABLE to "test_table",
+                            BackupActionInputKeys.KEY_COL to "id",
+                            BackupActionInputKeys.KEY_VAL to "row1",
+                            BackupActionInputKeys.VALUES to "id=row1&payload=hello",
+                        )
+                    ),
+                )
+
+        assertEquals(
+            BackupActionValues.STATUS_FAILURE,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+        assertEquals(
+            "Database '$dbName' not found at ${context.getDatabasePath(dbName).absolutePath}.",
+            verifyResult.payload[BackupActionOutputKeys.ERROR],
+        )
+        assertFalse(context.getDatabasePath(dbName).exists())
+    }
+
     /**
      * A column named in `values` that the existing table does not have fails the populate, and the
      * underlying SQLite error is surfaced rather than swallowed.
@@ -968,7 +1003,7 @@ public class StorageActionTest {
     /**
      * Pins the [SQLiteDatabase.insertWithOnConflict] contract that [PopulateStorageAction] relies
      * on: SQLite errors are thrown, they are not reported as a `-1` return. Only
-     * [SQLiteDatabase .insert] and [SQLiteDatabase.replace] convert the exception to `-1`. If this
+     * [SQLiteDatabase.insert] and [SQLiteDatabase.replace] convert the exception to `-1`. If this
      * ever changes, the `catch` in [PopulateStorageAction] would stop being the path that reports
      * bad inserts.
      */

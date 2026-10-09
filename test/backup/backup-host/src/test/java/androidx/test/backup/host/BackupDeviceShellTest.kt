@@ -199,6 +199,82 @@ class BackupDeviceShellTest {
     }
 
     @Test
+    fun startActivityThrowsWhenTheActivityDoesNotExist() {
+        // `am start -W` exits with 0 here.
+        val stdout =
+            "Starting: Intent { act=android.intent.action.MAIN cmp=com.example.app/.Missing }\n" +
+                "Error type 3\n" +
+                "Error: Activity class {com.example.app/com.example.app.Missing} does not exist.\n"
+        device.onShell { shellOutput(stdout = stdout) }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { startMainActivity("com.example.app/.Missing") }
+            }
+
+        assertEquals(
+            "Failed to start com.example.app/.Missing (exit code 0): ${stdout.trim()}",
+            e.message,
+        )
+    }
+
+    @Test
+    fun startActivityThrowsWhenTheIntentDoesNotResolve() {
+        val stdout =
+            "Starting: Intent { act=android.intent.action.MAIN pkg=com.example.app }\n" +
+                "Error: Activity not started, unable to resolve Intent " +
+                "{ act=android.intent.action.MAIN flg=0x10000000 pkg=com.example.app }\n"
+        device.onShell { shellOutput(stdout = stdout) }
+
+        val e = assertFailsWith<IOException> { runBlocking { startMainActivity(component = null) } }
+
+        assertEquals("Failed to start com.example.app (exit code 0): ${stdout.trim()}", e.message)
+    }
+
+    @Test
+    fun startActivityThrowsWhenAmStartFails() {
+        val stdout = "Starting: Intent { cmp=com.example.app/.Private }\n"
+        val stderr =
+            "\nException occurred while executing 'start':\n" +
+                "java.lang.SecurityException: Permission Denial: starting Intent " +
+                "{ cmp=com.example.app/.Private } not exported from uid 10123\n"
+        device.onShell { shellOutput(stdout = stdout, stderr = stderr, exitCode = 255) }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { startMainActivity("com.example.app/.Private") }
+            }
+
+        assertEquals(
+            "Failed to start com.example.app/.Private (exit code 255): " +
+                "${stderr.trim()} ${stdout.trim()}",
+            e.message,
+        )
+    }
+
+    @Test
+    fun startActivityAcceptsAnActivityThatIsAlreadyRunning() = runBlocking {
+        device.onShell {
+            shellOutput(
+                stdout =
+                    "Starting: Intent { act=android.intent.action.MAIN cmp=com.example.app/.Main }\n" +
+                        "Warning: Activity not started, its current task has been brought to " +
+                        "the front\n" +
+                        "Status: ok\n" +
+                        "LaunchState: HOT\n" +
+                        "Activity: com.example.app/.Main\n" +
+                        "TotalTime: 923\n" +
+                        "WaitTime: 925\n" +
+                        "Complete\n"
+            )
+        }
+
+        startMainActivity("com.example.app/.Main")
+
+        assertEquals(1, device.commands.size)
+    }
+
+    @Test
     fun resolveLauncherActivitySkipsTheOtherResolveFields() = runBlocking {
         device.onShell {
             shellOutput(RESOLVE_OUTPUT_PREFIX + "com.example.app/.ui.Main\$Launcher\n")
@@ -222,6 +298,51 @@ class BackupDeviceShellTest {
         device.onShell { shellOutput("No activity found\n") }
 
         assertNull(shell.resolveLauncherActivity("com.example.app"))
+    }
+
+    /** `pm` shortens a class in the instrumentation's own package to `.<name>`. */
+    @Test
+    fun listInstrumentationsReturnsFullyQualifiedComponentsForTheTarget() = runBlocking {
+        device.onShell {
+            shellOutput(
+                "instrumentation:com.example.app.test/androidx.test.backup.BackupRestoreTestRunner" +
+                    " (target=com.example.app)\n" +
+                    "instrumentation:com.example.tests/.Runner (target=com.example.app)\n" +
+                    "instrumentation:com.other.test/.Runner (target=com.other)\n"
+            )
+        }
+
+        assertEquals(
+            listOf(
+                "com.example.app.test/androidx.test.backup.BackupRestoreTestRunner",
+                "com.example.tests/com.example.tests.Runner",
+            ),
+            shell.listInstrumentations("com.example.app"),
+        )
+        assertEquals(listOf("pm list instrumentation com.example.app"), device.commands)
+    }
+
+    @Test
+    fun listInstrumentationsReturnsNothingWhenNoneIsInstalled() = runBlocking {
+        assertEquals(emptyList(), shell.listInstrumentations("com.example.app"))
+    }
+
+    @Test
+    fun listPackagePathsReturnsTheSortedLinesOfThePackagesThatMatchTheFilter() = runBlocking {
+        val app = "package:/data/app/~~bW9Kg==/com.example.app-aXd2Q==/base.apk=com.example.app"
+        val testApk =
+            "package:/data/app/~~Zr3Fq==/com.example.app.test-Qm1Lp==/base.apk=com.example.app.test"
+        device.onShell { shellOutput("$app\n$testApk\n") }
+
+        assertEquals(listOf(testApk, app), shell.listPackagePaths("com.example.app"))
+        assertEquals(listOf("pm list packages -f com.example.app"), device.commands)
+    }
+
+    @Test
+    fun listPackagePathsReturnsNothingWhenNoPackageMatches() = runBlocking {
+        device.onShell { shellOutput() }
+
+        assertEquals(emptyList(), shell.listPackagePaths("com.example.app"))
     }
 
     @Test
@@ -326,18 +447,32 @@ class BackupDeviceShellTest {
 
         shell.installPackage(tempFolder.newFile("app.apk").toPath(), listOf("-r", "-t"))
 
-        assertEquals(listOf(STAGED_APK), device.pushedPaths)
+        val stagedApk = device.pushedPaths.single()
+        assertTrue(STAGED_APK.matches(stagedApk), stagedApk)
         assertEquals(
-            listOf("pm install -r -t '$STAGED_APK'", "rm -f -- '$STAGED_APK'"),
+            listOf("pm install -r -t '$stagedApk'", "rm -f -- '$stagedApk'"),
             device.commands,
         )
+    }
+
+    @Test
+    fun installPackageStagesEachApkAtItsOwnPath() = runBlocking {
+        device.onShell { command ->
+            if (command.startsWith("pm install")) shellOutput("Success\n") else shellOutput()
+        }
+        val apk = tempFolder.newFile("app.apk").toPath()
+
+        shell.installPackage(apk, emptyList())
+        shell.installPackage(apk, emptyList())
+
+        assertEquals(2, device.pushedPaths.distinct().size, "${device.pushedPaths}")
     }
 
     @Test
     fun installPackageRemovesTheStagedApkWhenPmInstallFails() {
         device.onShell { command ->
             if (command.startsWith("pm install")) {
-                shellOutput("Failure [INSTALL_FAILED_OLDER_SDK]\n")
+                shellOutput("Failure [INSTALL_FAILED_OLDER_SDK]\n", exitCode = 1)
             } else {
                 shellOutput()
             }
@@ -345,11 +480,31 @@ class BackupDeviceShellTest {
         val apk = tempFolder.newFile("app.apk").toPath()
 
         val e =
-            assertFailsWith<IllegalStateException> {
-                runBlocking { shell.installPackage(apk, emptyList()) }
+            assertFailsWith<IOException> { runBlocking { shell.installPackage(apk, emptyList()) } }
+        assertEquals(
+            "Failed to install $apk (exit code 1): Failure [INSTALL_FAILED_OLDER_SDK]",
+            e.message,
+        )
+        assertEquals("rm -f -- '${device.pushedPaths.single()}'", device.commands.last())
+    }
+
+    @Test
+    fun installPackageThrowsWhenPmInstallCannotParseTheApk() {
+        val stderr =
+            "\nException occurred while executing 'install':\n" +
+                "java.lang.IllegalArgumentException: Error: Failed to parse APK file\n"
+        device.onShell { command ->
+            if (command.startsWith("pm install")) {
+                shellOutput(stderr = stderr, exitCode = 255)
+            } else {
+                shellOutput()
             }
-        assertEquals("Failed to install APK: Failure [INSTALL_FAILED_OLDER_SDK]", e.message)
-        assertEquals("rm -f -- '$STAGED_APK'", device.commands.last())
+        }
+        val apk = tempFolder.newFile("not_an.apk").toPath()
+
+        val e =
+            assertFailsWith<IOException> { runBlocking { shell.installPackage(apk, emptyList()) } }
+        assertEquals("Failed to install $apk (exit code 255): ${stderr.trim()}", e.message)
     }
 
     @Test
@@ -558,9 +713,20 @@ class BackupDeviceShellTest {
         }
     }
 
+    /** Starts the main activity [component], or resolves one within [PACKAGE] if it is null. */
+    private suspend fun startMainActivity(component: String?) {
+        shell.startActivity(
+            action = BackupDeviceShell.ACTION_MAIN,
+            category = null,
+            component = component,
+            packageName = PACKAGE,
+            stringExtras = emptyMap(),
+        )
+    }
+
     private companion object {
         const val PACKAGE = "com.example.app"
-        const val STAGED_APK = "/data/local/tmp/backup_test_temp.apk"
+        val STAGED_APK = Regex("""/data/local/tmp/backup_test_[0-9a-f-]{36}\.apk""")
         const val RESOLVE_OUTPUT_PREFIX =
             "priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true\n"
         const val DEVICE_EPOCH_SECONDS = 1_700_000_000L

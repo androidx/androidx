@@ -118,6 +118,13 @@ class StorageDomainTest {
     }
 
     @Test
+    fun testDatabase_emptyColumnValues_throws() {
+        assertThrows(IllegalArgumentException::class.java) {
+            StorageDomain.Database("db", "users", "id", 42, emptyMap())
+        }
+    }
+
+    @Test
     fun testBinaryFile_immutabilityCloning() {
         val originalBytes = byteArrayOf(1, 2, 3)
         val binaryFile = StorageDomain.BinaryFile("files/data.bin", originalBytes)
