@@ -18,9 +18,8 @@ package androidx.test.backup.host
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.util.UUID
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
+import kotlin.test.assertFailsWith
 import org.junit.Test
 
 /**
@@ -136,25 +135,21 @@ class BackupActionWireProtocolTest {
                 waitForDebugger = false,
             )
 
-        assertEquals(
-            listOf("action", "actionClass", "payload_id", "redirect_dir", "k1", "k2"),
-            args.keys.toList(),
-        )
-        assertEquals("com.example.MyAction", args["action"])
+        assertEquals(listOf("actionClass", "redirect_dir", "k1", "k2"), args.keys.toList())
         assertEquals("com.example.MyAction", args["actionClass"])
         assertEquals("/data/local/tmp", args["redirect_dir"])
         assertEquals("v1", args["k1"])
         assertEquals("v2", args["k2"])
     }
 
+    /** The runner reads these keys itself, so an action argument must not set them. */
     @Test
-    fun instrumentationArgsUseAFreshPayloadIdPerCall() {
-        fun payloadId() =
-            BackupActionWireProtocol.instrumentationArgs("A", emptyMap(), false)["payload_id"]!!
-
-        val first = payloadId()
-        assertEquals(first, UUID.fromString(first).toString())
-        assertNotEquals(first, payloadId())
+    fun instrumentationArgsRejectTheKeysOfTheRunner() {
+        for (key in listOf("actionClass", "debug", "redirect_dir")) {
+            assertFailsWith<IllegalArgumentException>(key) {
+                BackupActionWireProtocol.instrumentationArgs("A", mapOf(key to "x"), false)
+            }
+        }
     }
 
     @Test

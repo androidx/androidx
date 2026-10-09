@@ -19,7 +19,6 @@ package androidx.test.backup.host
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.Base64
-import java.util.UUID
 
 /**
  * Mirrors `androidx.test.backup.BackupActionInputKeys` for the host.
@@ -94,18 +93,24 @@ internal object BackupActionWireProtocol {
      * Returns the instrumentation arguments that make the runner execute [actionClassName] with the
      * action [args]. When [waitForDebugger] is true, the runner waits for a debugger to attach
      * before it starts.
+     *
+     * @throws IllegalArgumentException if [args] has one of the keys that the runner reads itself
      */
     fun instrumentationArgs(
         actionClassName: String,
         args: Map<String, String>,
         waitForDebugger: Boolean,
-    ): Map<String, String> = buildMap {
-        if (waitForDebugger) put(RUNNER_DEBUG, "true")
-        put(RUNNER_ACTION, actionClassName)
-        put(RUNNER_ACTION_CLASS, actionClassName)
-        put(RUNNER_PAYLOAD_ID, UUID.randomUUID().toString())
-        put(RUNNER_REDIRECT_DIR, OVERFLOW_REDIRECT_DIR)
-        putAll(args)
+    ): Map<String, String> {
+        val runnerKeys = args.keys.filter { it in RUNNER_KEYS }
+        require(runnerKeys.isEmpty()) {
+            "Action arguments must not use the keys $runnerKeys, which the runner reads itself."
+        }
+        return buildMap {
+            if (waitForDebugger) put(RUNNER_DEBUG, "true")
+            put(RUNNER_ACTION_CLASS, actionClassName)
+            put(RUNNER_REDIRECT_DIR, OVERFLOW_REDIRECT_DIR)
+            putAll(args)
+        }
     }
 
     /**
@@ -220,12 +225,12 @@ internal object BackupActionWireProtocol {
 
     private fun base64(bytes: ByteArray): String = Base64.getEncoder().encodeToString(bytes)
 
-    // Instrumentation arguments read by `androidx.test.backup.BackupRestoreTestRunner`.
+    // Instrumentation arguments read by `androidx.test.backup.BackupRestoreTestRunner`, which it
+    // does not pass on to the action.
     private const val RUNNER_DEBUG = "debug"
-    private const val RUNNER_ACTION = "action"
     private const val RUNNER_ACTION_CLASS = "actionClass"
-    private const val RUNNER_PAYLOAD_ID = "payload_id"
     private const val RUNNER_REDIRECT_DIR = "redirect_dir"
+    private val RUNNER_KEYS = setOf(RUNNER_DEBUG, RUNNER_ACTION_CLASS, RUNNER_REDIRECT_DIR)
 
     /** Device directory the runner may write a payload to when it is too large to print. */
     private const val OVERFLOW_REDIRECT_DIR = "/data/local/tmp"

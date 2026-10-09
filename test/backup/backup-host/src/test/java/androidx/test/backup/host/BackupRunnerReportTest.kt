@@ -40,8 +40,9 @@ class BackupRunnerReportTest {
     fun parseReadsTheRunnerFailureAndStackTrace() {
         val report =
             BackupRunnerReport.parse(
-                RESULT_MARKER +
+                instrumentOutput(
                     """{"isSuccess":false,"errorMessage":"Something broke","stackTrace":"at A.kt:15"}"""
+                )
             )
 
         assertEquals(
@@ -53,7 +54,7 @@ class BackupRunnerReportTest {
 
     @Test
     fun parseReportsAFailureWithoutAMessageAsUnknown() {
-        val report = BackupRunnerReport.parse(RESULT_MARKER + """{"isSuccess":false}""")
+        val report = BackupRunnerReport.parse(instrumentOutput("""{"isSuccess":false}"""))
 
         assertEquals("Unknown device failure.", report.runnerFailure?.errorMessage)
     }
@@ -61,40 +62,39 @@ class BackupRunnerReportTest {
     @Test
     fun parseTreatsAMissingVerdictAsAFailure() {
         assertIs<BackupActionResult.Failure>(
-            BackupRunnerReport.parse(RESULT_MARKER + "{}").runnerFailure
+            BackupRunnerReport.parse(instrumentOutput("{}")).runnerFailure
         )
     }
 
     @Test
     fun parseReadsTheOverflowPath() {
-        val report =
-            BackupRunnerReport.parse(
-                RESULT_MARKER + """{"isSuccess":true,"payload_path":"/data/local/tmp/p.json"}"""
-            )
+        val report = BackupRunnerReport.parse(overflowStdout("/data/local/tmp/p.json"))
 
         assertEquals("/data/local/tmp/p.json", report.payloadPath)
         assertNull(report.inlinePayload)
     }
 
     @Test
-    fun parseReadsOnlyTheLineAfterTheMarker() {
+    fun parseFindsTheResultLineAmongOtherInstrumentationOutput() {
         val report =
             BackupRunnerReport.parse(
-                "INSTRUMENTATION_STATUS: x\n" +
-                    RESULT_MARKER +
-                    """{"isSuccess":true}""" +
-                    "\nINSTRUMENTATION_CODE: -1\n"
+                "INSTRUMENTATION_STATUS: x\n" + instrumentOutput("""{"isSuccess":true}""")
             )
 
         assertNull(report.runnerFailure)
     }
 
+    /**
+     * What the app prints to its own stdout goes to logcat, not to the output of `am instrument`.
+     */
     @Test
-    fun parseFallsBackToTheInstrumentationResultKey() {
+    fun parseReadsOnlyTheResultThatAmInstrumentPrints() {
         val report =
-            BackupRunnerReport.parse("""INSTRUMENTATION_RESULT: resultJson={"isSuccess":true}""")
+            BackupRunnerReport.parse(
+                """BACKUP_RESTORE_RESULT: {"isSuccess":true}""" + "\nINSTRUMENTATION_CODE: -1\n"
+            )
 
-        assertNull(report.runnerFailure)
+        assertTrue(report.runnerFailure!!.errorMessage.startsWith("No execution result"))
     }
 
     @Test
@@ -111,14 +111,14 @@ class BackupRunnerReportTest {
 
     @Test
     fun parseReportsAnEmptyResultAsAFailure() {
-        val report = BackupRunnerReport.parse(RESULT_MARKER)
+        val report = BackupRunnerReport.parse(instrumentOutput(""))
 
         assertTrue(report.runnerFailure!!.errorMessage.startsWith("No execution result"))
     }
 
     @Test
     fun parseReportsInvalidJsonAsAFailure() {
-        val report = BackupRunnerReport.parse(RESULT_MARKER + "{not json")
+        val report = BackupRunnerReport.parse(instrumentOutput("{not json"))
 
         val message = report.runnerFailure!!.errorMessage
         assertTrue(message.startsWith("Failed to parse runner output JSON: "), message)
@@ -281,15 +281,5 @@ class BackupRunnerReportTest {
 
     private companion object {
         const val ACTION = "com.example.MyAction"
-        const val RESULT_MARKER = "BACKUP_RESTORE_RESULT: "
-
-        /** Wraps an action payload in the envelope the on-device runner prints to stdout. */
-        fun runnerStdout(payloadJson: String): String {
-            val envelope = buildJsonObject {
-                put("isSuccess", true)
-                put("payloadJson", payloadJson)
-            }
-            return "$RESULT_MARKER$envelope\n"
-        }
     }
 }
