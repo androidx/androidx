@@ -365,13 +365,17 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
 }
 
 /**
- * Returns an [IOException] with [message], followed by [output]: what a failed command printed, so
- * that the failure explains itself. Blank and repeated entries of [output] are left out.
+ * Returns [message], followed by [output]: what a failed command printed, so that the failure
+ * explains itself. Blank and repeated entries of [output] are left out.
  */
-internal fun commandFailure(message: String, vararg output: String): IOException {
+internal fun commandFailureMessage(message: String, vararg output: String): String {
     val details = output.map { it.trim() }.filter { it.isNotEmpty() }.distinct().joinToString(" ")
-    return IOException(if (details.isEmpty()) message else "$message: $details")
+    return if (details.isEmpty()) message else "$message: $details"
 }
+
+/** Returns an [IOException] with the [commandFailureMessage] of [message] and [output]. */
+internal fun commandFailure(message: String, vararg output: String): IOException =
+    IOException(commandFailureMessage(message, *output))
 
 /** Upper bound for a [withCleanup] cleanup, which cannot be cancelled. */
 internal val DEFAULT_CLEANUP_TIMEOUT = 10.seconds

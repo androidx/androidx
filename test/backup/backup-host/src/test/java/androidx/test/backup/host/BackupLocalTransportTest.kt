@@ -117,13 +117,15 @@ class BackupLocalTransportTest {
             }
         }
 
-        val e = assertFailsWith<IOException> { runBlocking { transport.backup(archive()) } }
+        val e =
+            assertFailsWith<BackupRestoreException> { runBlocking { transport.backup(archive()) } }
 
         assertEquals(
             "Failed to enable the backup manager with bmgr: " +
                 "Error: Backup Manager is not activated for user 0",
             e.message,
         )
+        assertEquals(BackupErrorCode.BMGR_INIT_FAILED, e.errorCode)
         assertTrue(device.commands.none { it.startsWith("bmgr transport") }, "${device.commands}")
     }
 
@@ -140,13 +142,15 @@ class BackupLocalTransportTest {
             }
         }
 
-        val e = assertFailsWith<IOException> { runBlocking { transport.backup(archive()) } }
+        val e =
+            assertFailsWith<BackupRestoreException> { runBlocking { transport.backup(archive()) } }
 
         assertEquals(
             "Failed to select backup transport $LOCAL_TRANSPORT: " +
                 "Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.",
             e.message,
         )
+        assertEquals(BackupErrorCode.BMGR_INIT_FAILED, e.errorCode)
         assertTrue(device.commands.none { it.startsWith("bmgr backupnow") }, "${device.commands}")
         assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
     }
@@ -164,9 +168,11 @@ class BackupLocalTransportTest {
         }
         val archive = archive()
 
-        val e = assertFailsWith<IOException> { runBlocking { transport.backup(archive) } }
+        val e =
+            assertFailsWith<BackupRestoreException> { runBlocking { transport.backup(archive) } }
 
         assertEquals("Local backup of $PACKAGE failed: ${output.trim()}", e.message)
+        assertEquals(BackupErrorCode.BACKUP_FAILED, e.errorCode)
         assertFalse(archive.exists())
         assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
     }
@@ -251,13 +257,15 @@ class BackupLocalTransportTest {
             }
         }
 
-        val e = assertFailsWith<IOException> { runBlocking { transport.restore(1.minutes) } }
+        val e =
+            assertFailsWith<BackupRestoreException> { runBlocking { transport.restore(1.minutes) } }
 
         assertEquals(
             "Local restore of $PACKAGE failed: " +
                 "No available restore sets; no restore performed\ndone",
             e.message,
         )
+        assertEquals(BackupErrorCode.RESTORE_FAILED, e.errorCode)
         assertTrue(device.commands.none { it == "bmgr run" }, "${device.commands}")
         assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
     }

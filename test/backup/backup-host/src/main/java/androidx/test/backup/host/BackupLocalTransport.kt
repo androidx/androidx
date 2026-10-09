@@ -17,7 +17,6 @@
 package androidx.test.backup.host
 
 import java.io.File
-import java.io.IOException
 import java.util.logging.Logger
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -45,6 +44,7 @@ internal class BackupLocalTransport(
         shell.unstopPackage(applicationId)
         bmgr(
             "enable true",
+            BackupErrorCode.BMGR_INIT_FAILED,
             "Failed to enable the backup manager with bmgr",
             "Backup Manager now enabled",
         )
@@ -71,6 +71,7 @@ internal class BackupLocalTransport(
         withLocalTransport {
             bmgr(
                 "restore 1 ${BackupDeviceShell.quoteIfNeeded(applicationId)}",
+                BackupErrorCode.RESTORE_FAILED,
                 "Local restore of $applicationId failed",
                 "restoreFinished: 0",
             )
@@ -83,6 +84,7 @@ internal class BackupLocalTransport(
     private suspend fun backUpNow(packageName: String) {
         bmgr(
             "backupnow ${BackupDeviceShell.quoteIfNeeded(packageName)}",
+            BackupErrorCode.BACKUP_FAILED,
             "Local backup of $packageName failed",
             // The pass reports success even when it skips the package, e.g. if it doesn't allow
             // backups, so the result of the package is checked as well.
@@ -95,21 +97,30 @@ internal class BackupLocalTransport(
     private suspend fun selectTransport(transport: String) {
         bmgr(
             "transport ${BackupDeviceShell.quote(transport)}",
+            BackupErrorCode.BMGR_INIT_FAILED,
             "Failed to select backup transport $transport",
             "Selected transport $transport",
         )
     }
 
     /**
-     * Runs `bmgr` with [arguments], and throws an [IOException] with [failureMessage] unless its
-     * output contains every one of [expected].
+     * Runs `bmgr` with [arguments], and throws a [BackupRestoreException] with [errorCode] and
+     * [failureMessage] unless its output contains every one of [expected].
      *
      * bmgr reports failures only in its output: its exit code is 0 either way.
      */
-    private suspend fun bmgr(arguments: String, failureMessage: String, vararg expected: String) {
+    private suspend fun bmgr(
+        arguments: String,
+        errorCode: BackupErrorCode,
+        failureMessage: String,
+        vararg expected: String,
+    ) {
         val output = shell.exec("bmgr $arguments")
         if (!expected.all { output.stdout.contains(it) }) {
-            throw commandFailure(failureMessage, output.stderr, output.stdout)
+            throw BackupRestoreException(
+                errorCode,
+                commandFailureMessage(failureMessage, output.stderr, output.stdout),
+            )
         }
     }
 
