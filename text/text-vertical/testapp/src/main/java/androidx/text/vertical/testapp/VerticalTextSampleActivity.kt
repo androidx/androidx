@@ -47,7 +47,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -115,92 +115,100 @@ class VerticalTextSampleActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
-            val tabs = remember {
-                // Load the system CJK font as the primary typeface. Its top and bottom bounds are
-                // much larger than its ascent and descent, unlike the Latin default font when it
-                // falls back to CJK per glyph. Fall back to sans-serif when the file is absent.
-                val cjkFontFamily =
-                    File("/system/fonts/NotoSansCJK-Regular.ttc")
-                        .takeIf { it.exists() }
-                        ?.let { FontFamily(Typeface.createFromFile(it)) } ?: FontFamily.SansSerif
-                arrayOf(
-                    DemoTab("Vertical Text") { enabled ->
-                        ZoomableVerticalText(styleColorsEnabled = enabled) { LongText(it) }
-                    },
-                    DemoTab("Vertical Multi-style Text") { enabled ->
-                        ZoomableVerticalText(styleColorsEnabled = enabled) { ComplexText(it) }
-                    },
-                    DemoTab("Horizontal Text") { enabled ->
-                        ZoomableVerticalText(isVertical = false, styleColorsEnabled = enabled) {
-                            LongHorizontalText(it)
-                        }
-                    },
-                    DemoTab("Horizontal Multi-style Text") { enabled ->
-                        ZoomableVerticalText(isVertical = false, styleColorsEnabled = enabled) {
-                            ComplexHorizontalText(it)
-                        }
-                    },
-                    DemoTab("Horizontal CJK Font") { enabled ->
-                        ZoomableVerticalText(
-                            isVertical = false,
-                            styleColorsEnabled = enabled,
-                            fontFamily = cjkFontFamily,
-                        ) {
-                            ComplexHorizontalText(it)
-                        }
-                    },
-                    DemoTab("Style Colors", styleColorsInitiallyEnabled = true) { enabled ->
-                        ZoomableVerticalText(styleColorsEnabled = enabled) { StyleColorsText(it) }
-                    },
-                )
-            }
-            var selectedTabIndex by remember {
-                mutableIntStateOf(intent.getIntExtra("tab", 0).coerceIn(tabs.indices))
-            }
-            val styleColorsEnabled = remember {
-                tabs.map { it.styleColorsInitiallyEnabled }.toMutableStateList()
-            }
+        val initialTabIndex = intent.getIntExtra("tab", 0)
+        setContent { VerticalTextSampleApp(initialTabIndex = initialTabIndex) }
+    }
+}
 
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                floatingActionButton = {
-                    val enabled = styleColorsEnabled[selectedTabIndex]
-                    ExtendedFloatingActionButton(
-                        text = { Text("Style Colors") },
-                        icon = {
-                            Icon(
-                                painter =
-                                    painterResource(
-                                        if (enabled) R.drawable.checkbox
-                                        else R.drawable.checkbox_outline_blank
-                                    ),
-                                contentDescription = null,
-                            )
-                        },
-                        onClick = { styleColorsEnabled[selectedTabIndex] = !enabled },
-                        modifier =
-                            Modifier.semantics { stateDescription = if (enabled) "On" else "Off" },
+/**
+ * Displays the vertical text sample tabs inside a [Scaffold].
+ *
+ * @param initialTabIndex the 0-based tab index selected when the composable first enters
+ *   composition
+ */
+@Composable
+internal fun VerticalTextSampleApp(initialTabIndex: Int = 0) {
+    val tabs = remember {
+        // Load the system CJK font as the primary typeface. Its top and bottom bounds are
+        // much larger than its ascent and descent, unlike the Latin default font when it
+        // falls back to CJK per glyph. Fall back to sans-serif when the file is absent.
+        val cjkFontFamily =
+            File("/system/fonts/NotoSansCJK-Regular.ttc")
+                .takeIf { it.exists() }
+                ?.let { FontFamily(Typeface.createFromFile(it)) } ?: FontFamily.SansSerif
+        arrayOf(
+            DemoTab("Vertical Text") { enabled ->
+                ZoomableVerticalText(styleColorsEnabled = enabled) { LongText(it) }
+            },
+            DemoTab("Vertical Multi-style Text") { enabled ->
+                ZoomableVerticalText(styleColorsEnabled = enabled) { ComplexText(it) }
+            },
+            DemoTab("Horizontal Text") { enabled ->
+                ZoomableVerticalText(isVertical = false, styleColorsEnabled = enabled) {
+                    LongHorizontalText(it)
+                }
+            },
+            DemoTab("Horizontal Multi-style Text") { enabled ->
+                ZoomableVerticalText(isVertical = false, styleColorsEnabled = enabled) {
+                    ComplexHorizontalText(it)
+                }
+            },
+            DemoTab("Horizontal CJK Font") { enabled ->
+                ZoomableVerticalText(
+                    isVertical = false,
+                    styleColorsEnabled = enabled,
+                    fontFamily = cjkFontFamily,
+                ) {
+                    ComplexHorizontalText(it)
+                }
+            },
+            DemoTab("Style Colors", styleColorsInitiallyEnabled = true) { enabled ->
+                ZoomableVerticalText(styleColorsEnabled = enabled) { StyleColorsText(it) }
+            },
+            DemoTab("Subtitle Cue") { enabled -> SubtitleCueDemo(styleColorsEnabled = enabled) },
+        )
+    }
+    var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex.coerceIn(tabs.indices)) }
+    val styleColorsEnabled = remember {
+        tabs.map { it.styleColorsInitiallyEnabled }.toMutableStateList()
+    }
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        floatingActionButton = {
+            val enabled = styleColorsEnabled[selectedTabIndex]
+            ExtendedFloatingActionButton(
+                text = { Text("Style Colors") },
+                icon = {
+                    Icon(
+                        painter =
+                            painterResource(
+                                if (enabled) R.drawable.checkbox
+                                else R.drawable.checkbox_outline_blank
+                            ),
+                        contentDescription = null,
                     )
                 },
-            ) { innerPadding ->
-                Column(modifier = Modifier.padding(innerPadding)) {
-                    PrimaryTabRow(
-                        selectedTabIndex = selectedTabIndex,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        tabs.forEachIndexed { index, tab ->
-                            Tab(
-                                selected = selectedTabIndex == index,
-                                onClick = { selectedTabIndex = index },
-                                text = { Text(tab.title) },
-                            )
-                        }
-                    }
-                    key(selectedTabIndex) {
-                        tabs[selectedTabIndex].content(styleColorsEnabled[selectedTabIndex])
-                    }
+                onClick = { styleColorsEnabled[selectedTabIndex] = !enabled },
+                modifier = Modifier.semantics { stateDescription = if (enabled) "On" else "Off" },
+            )
+        },
+    ) { innerPadding ->
+        Column(modifier = Modifier.padding(innerPadding)) {
+            PrimaryScrollableTabRow(
+                selectedTabIndex = selectedTabIndex,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                tabs.forEachIndexed { index, tab ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        text = { Text(tab.title) },
+                    )
                 }
+            }
+            key(selectedTabIndex) {
+                tabs[selectedTabIndex].content(styleColorsEnabled[selectedTabIndex])
             }
         }
     }
