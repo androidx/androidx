@@ -84,6 +84,7 @@ import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
+import androidx.appsearch.localstorage.visibilitystore.PccEncapsulationUtil;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityUtil;
@@ -822,8 +823,10 @@ public final class AppSearchImpl implements Closeable {
      *                                    incompatible. Documents
      *                                    which do not comply with the new schema will be deleted.
      * @param version                     The overall version number of the request.
+     * @param callingUid                  Operating system UID of the caller.
      * @param setSchemaStatsBuilder       Builder for {@link SetSchemaStats} to hold stats for
      *                                    setSchema
+     * @param callStatsBuilder            Builder for {@link CallStats} to hold stats for the call
      * @return A success {@link InternalSetSchemaResponse} with a {@link SetSchemaResponse}. Or a
      * failed {@link InternalSetSchemaResponse} if this call contains incompatible change. The
      * {@link SetSchemaResponse} in the failed {@link InternalSetSchemaResponse} contains which type
@@ -844,8 +847,10 @@ public final class AppSearchImpl implements Closeable {
             @NonNull Map<String, Set<String>> accountPropertyPaths,
             boolean forceOverride,
             int version,
+            int callingUid,
             SetSchemaStats.@Nullable Builder setSchemaStatsBuilder,
-            CallStats.@Nullable Builder callStatsBuilder) throws AppSearchException {
+            CallStats.@Nullable Builder callStatsBuilder)
+            throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         long javaLockAcquisitionEndTimeMillis = 0;
         mReadWriteLock.writeLock().lock();
@@ -867,29 +872,137 @@ public final class AppSearchImpl implements Closeable {
                         .setLaunchVmEnabled(mLaunchVmFeatures.isVmEnabled())
                         .setLaunchAiSealEnabled(mLaunchVmFeatures.isAiSealEnabled());
             }
-            if (mObserverManager.isPackageObserved(packageName)) {
-                return doSetSchemaWithChangeNotificationNoGetSchemaLocked(
-                        packageName,
-                        databaseName,
-                        schemas,
-                        visibilityConfigs,
-                        accountPropertyPaths,
-                        forceOverride,
-                        version,
-                        setSchemaStatsBuilder,
-                        callStatsBuilder);
-            } else {
-                return doSetSchemaNoChangeNotificationLocked(
-                        packageName,
-                        databaseName,
-                        schemas,
-                        visibilityConfigs,
-                        accountPropertyPaths,
-                        forceOverride,
-                        version,
-                        setSchemaStatsBuilder,
-                        callStatsBuilder).first;
+
+            List<String> pccSchemasToWipeUnprefixed = new ArrayList<>();
+            Pair<InternalSetSchemaResponse, SetSchemaResultProto> wipeResult = null;
+            if (Flags.enablePccDataEncapsulation()
+                    && callingUid != InternalVisibilityConfig.INVALID_UID) {
+                visibilityConfigs = new ArrayList<>(visibilityConfigs);
+                PccEncapsulationUtil.updateSetSchemaVisibilityConfigs(
+                        callingUid, schemas, visibilityConfigs);
+                pccSchemasToWipeUnprefixed =
+                        PccEncapsulationUtil.calculatePccSchemasToWipe(
+                                mDocumentVisibilityStoreLocked,
+                                mVisibilityCheckerLocked,
+                                packageName,
+                                databaseName,
+                                callingUid,
+                                schemas);
+                if (!pccSchemasToWipeUnprefixed.isEmpty()) {
+                    // Need to wipe existing PCC documents for schemas being downgraded to non-PCC.
+                    // This requires forceOverride = true.
+                    if (!forceOverride) {
+                        if (setSchemaStatsBuilder != null) {
+                            setSchemaStatsBuilder
+                                    .setStatusCode(AppSearchResult.RESULT_SECURITY_ERROR)
+                                    .setBackwardsIncompatibleTypeChangeCount(
+                                            pccSchemasToWipeUnprefixed.size())
+                                    .setPccToNonPccTypesCount(pccSchemasToWipeUnprefixed.size());
+                        }
+                        SetSchemaResponse.Builder responseBuilder =
+                                new SetSchemaResponse.Builder();
+                        for (int i = 0; i < pccSchemasToWipeUnprefixed.size(); i++) {
+                            responseBuilder.addIncompatibleType(pccSchemasToWipeUnprefixed.get(i));
+                        }
+                        SetSchemaResponse setSchemaResponse = responseBuilder.build();
+                        String errorMessage =
+                                "Cannot modify PCC-written schema(s) from a non-PCC caller "
+                                        + "without forceOverride=true: "
+                                        + pccSchemasToWipeUnprefixed;
+                        return newFailedSetSchemaResponse(setSchemaResponse, errorMessage);
+                    }
+
+                    long pccSchemaDowngradeWipeStartTimeMillis = SystemClock.elapsedRealtime();
+                    Log.i(TAG,
+                            "Wiping existing documents for PCC schema(s) before applying non-PCC "
+                                    + "schema update: " + pccSchemasToWipeUnprefixed);
+                    // Omit the downgraded PCC schemas in an intermediate forceOverride=true
+                    // setSchema call so that Icing wipes those schema types and their documents
+                    List<AppSearchSchema> compatibleSchemas = new ArrayList<>(schemas.size());
+                    for (int i = 0; i < schemas.size(); i++) {
+                        AppSearchSchema schema = schemas.get(i);
+                        if (!pccSchemasToWipeUnprefixed.contains(schema.getSchemaType())) {
+                            compatibleSchemas.add(schema);
+                        }
+                    }
+                    wipeResult =
+                            doSetSchemaNoChangeNotificationLocked(
+                                    packageName,
+                                    databaseName,
+                                    compatibleSchemas,
+                                    /* visibilityConfigs= */ Collections.emptyList(),
+                                    /* accountPropertyPaths= */ Collections.emptyMap(),
+                                    /* forceOverride= */ true,
+                                    /* version= */ 0,
+                                    /* setSchemaStatsBuilder= */ null,
+                                    /* callStatsBuilder= */ null);
+                    long pccSchemaDowngradeWipeEndTimeMillis = SystemClock.elapsedRealtime();
+                    if (setSchemaStatsBuilder != null) {
+                        setSchemaStatsBuilder.setPccSchemaDowngradeWipeLatencyMillis(
+                                (int) (pccSchemaDowngradeWipeEndTimeMillis
+                                        - pccSchemaDowngradeWipeStartTimeMillis));
+                    }
+                    if (!wipeResult.first.isSuccess()) {
+                        return wipeResult.first;
+                    }
+                }
             }
+
+            Pair<InternalSetSchemaResponse, SetSchemaResultProto> setSchemaResultPair;
+            if (mObserverManager.isPackageObserved(packageName)) {
+                setSchemaResultPair =
+                        doSetSchemaWithChangeNotificationNoGetSchemaLocked(
+                                packageName,
+                                databaseName,
+                                schemas,
+                                visibilityConfigs,
+                                accountPropertyPaths,
+                                forceOverride,
+                                version,
+                                setSchemaStatsBuilder,
+                                callStatsBuilder);
+            } else {
+                setSchemaResultPair =
+                        doSetSchemaNoChangeNotificationLocked(
+                                packageName,
+                                databaseName,
+                                schemas,
+                                visibilityConfigs,
+                                accountPropertyPaths,
+                                forceOverride,
+                                version,
+                                setSchemaStatsBuilder,
+                                callStatsBuilder);
+            }
+
+            InternalSetSchemaResponse internalSetSchemaResponse = setSchemaResultPair.first;
+            if (internalSetSchemaResponse.isSuccess() && wipeResult != null) {
+                // Update stats and responses to track any pcc -> non-pcc downgrades
+                // Downgraded schemas were removed in the previous setSchema call in when wiping
+                // documents and so will be counted as new types here. Instead these should be
+                // counted as be counted as incompatible types
+                if (setSchemaStatsBuilder != null) {
+                    SetSchemaResultProto setSchemaResultProto = setSchemaResultPair.second;
+                    int pccToNonPccDowngradeCount = pccSchemasToWipeUnprefixed.size();
+                    setSchemaStatsBuilder
+                            .setNewTypeCount(
+                                    setSchemaResultProto.getNewSchemaTypesCount()
+                                            - pccToNonPccDowngradeCount)
+                            .setBackwardsIncompatibleTypeChangeCount(
+                                    setSchemaResultProto.getIncompatibleSchemaTypesCount()
+                                            + pccToNonPccDowngradeCount)
+                            .setPccToNonPccTypesCount(pccToNonPccDowngradeCount)
+                            .setDeletedDocumentCount(setSchemaResultProto.getDeletedDocumentCount()
+                                    + wipeResult.second.getDeletedDocumentCount());
+                }
+                SetSchemaResponse mergedResponse =
+                        new SetSchemaResponse.Builder(
+                                internalSetSchemaResponse.getSetSchemaResponse())
+                                .addIncompatibleTypes(pccSchemasToWipeUnprefixed)
+                                .build();
+                internalSetSchemaResponse = newSuccessfulSetSchemaResponse(mergedResponse);
+            }
+            return internalSetSchemaResponse;
         } finally {
             logWriteOperationLatencyLocked(totalLatencyStartMillis,
                     javaLockAcquisitionEndTimeMillis,
@@ -908,7 +1021,8 @@ public final class AppSearchImpl implements Closeable {
      * @see #doSetSchemaNoChangeNotificationLocked
      */
     @GuardedBy("mReadWriteLock")
-    private @NonNull InternalSetSchemaResponse doSetSchemaWithChangeNotificationNoGetSchemaLocked(
+    private @NonNull Pair<InternalSetSchemaResponse, SetSchemaResultProto>
+    doSetSchemaWithChangeNotificationNoGetSchemaLocked(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
@@ -954,7 +1068,7 @@ public final class AppSearchImpl implements Closeable {
         // This check is needed wherever setSchema is called to detect soft errors which do not
         // throw an exception but also prevent the schema from actually being applied.
         if (!setSchemaResponsePair.first.isSuccess()) {
-            return setSchemaResponsePair.first;
+            return setSchemaResponsePair;
         }
 
         long getNewSchemaObserverStartTimeMillis = SystemClock.elapsedRealtime();
@@ -1002,7 +1116,7 @@ public final class AppSearchImpl implements Closeable {
                             - preparingChangeNotificationStartTimeMillis));
         }
 
-        return setSchemaResponsePair.first;
+        return setSchemaResponsePair;
     }
 
     /**

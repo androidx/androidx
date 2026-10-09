@@ -93,6 +93,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ true, // force push the old version into disk
                 /*version=*/ 1,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -120,6 +121,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*schemaVersion=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();

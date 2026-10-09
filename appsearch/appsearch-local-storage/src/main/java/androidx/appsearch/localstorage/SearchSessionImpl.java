@@ -219,6 +219,7 @@ class SearchSessionImpl implements AppSearchSession {
                     accountPropertyPaths,
                     /*forceOverride=*/false,
                     request.getVersion(),
+                    /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                     firstSetSchemaStatsBuilder,
                     /*callStatsBuilder=*/null);
             long firstSetSchemaLatencyEndTimeMillis = SystemClock.elapsedRealtime();
@@ -262,6 +263,7 @@ class SearchSessionImpl implements AppSearchSession {
                             accountPropertyPaths,
                             /*forceOverride=*/ true,
                             request.getVersion(),
+                            /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                             secondSetSchemaStatsBuilder,
                             /*callStatsBuilder=*/null);
                     if (!internalSetSchemaResponse.isSuccess()) {
@@ -777,6 +779,7 @@ class SearchSessionImpl implements AppSearchSession {
                 accountPropertyPaths,
                 request.isForceOverride(),
                 request.getVersion(),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 setSchemaStatsBuilder,
                 /*callStatsBuilder=*/null);
         if (!internalSetSchemaResponse.isSuccess()) {

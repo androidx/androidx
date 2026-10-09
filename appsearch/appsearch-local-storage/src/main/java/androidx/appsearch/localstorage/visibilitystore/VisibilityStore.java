@@ -418,6 +418,9 @@ public class VisibilityStore {
             @NonNull List<InternalVisibilityConfig> migratedDocuments,
             CallStats.@Nullable Builder callStatsBuilder)
             throws AppSearchException {
+        // Pass INVALID_UID for internal VisibilityStore writes so that AppSearchImpl
+        // skips PCC encapsulation checks.
+        int callingUid = InternalVisibilityConfig.INVALID_UID;
         // The latest schema type doesn't exist yet. Add it. Set forceOverride true to
         // delete old schema.
         InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
@@ -429,6 +432,7 @@ public class VisibilityStore {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ true,
                 /*version=*/ VisibilityToDocumentConverter.SCHEMA_VERSION_LATEST,
+                callingUid,
                 /*setSchemaStatsBuilder=*/ null,
                 callStatsBuilder);
         if (!internalSetSchemaResponse.isSuccess()) {
@@ -448,6 +452,7 @@ public class VisibilityStore {
                         /*forceOverride=*/ true,
                         /*version=*/ VisibilityToDocumentConverter
                                 .ANDROID_V_OVERLAY_SCHEMA_VERSION_LATEST,
+                        callingUid,
                         /*setSchemaStatsBuilder=*/ null,
                         callStatsBuilder);
         if (!internalSetAndroidVOverlaySchemaResponse.isSuccess()) {
@@ -525,6 +530,9 @@ public class VisibilityStore {
                         /*accountPropertyPaths=*/ Collections.emptyMap(),
                         /*forceOverride=*/ true,  // force update to nest version.
                         VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA_VERSION_LATEST,
+                        // Pass INVALID_UID for internal VisibilityStore writes so that
+                        // AppSearchImpl skips PCC encapsulation checks.
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /*setSchemaStatsBuilder=*/ null,
                         callStatsBuilder);
                 if (!internalSetSchemaResponse.isSuccess()) {
@@ -559,6 +567,9 @@ public class VisibilityStore {
 
         // Check Visibility schema first.
         Set<AppSearchSchema> existingVisibilitySchema = getSchemaResponse.getSchemas();
+        // Pass INVALID_UID for internal VisibilityStore writes so that AppSearchImpl
+        // skips PCC encapsulation checks.
+        int callingUid = InternalVisibilityConfig.INVALID_UID;
         // Force to override visibility schema if it contains DEPRECATED_PUBLIC_ACL_OVERLAY_SCHEMA.
         // The DEPRECATED_PUBLIC_ACL_OVERLAY_SCHEMA was added to VISIBILITY_DATABASE_NAME and
         // removed to ANDROID_V_OVERLAY_DATABASE_NAME. We need to force update the schema to
@@ -578,6 +589,7 @@ public class VisibilityStore {
                     /*accountPropertyPaths=*/ Collections.emptyMap(),
                     /*forceOverride=*/ true,
                     /*version=*/ VisibilityToDocumentConverter.SCHEMA_VERSION_LATEST,
+                    callingUid,
                     /*setSchemaStatsBuilder=*/ null,
                     callStatsBuilder);
             if (!internalSetSchemaResponse.isSuccess()) {
@@ -598,6 +610,7 @@ public class VisibilityStore {
                     /*accountPropertyPaths=*/ Collections.emptyMap(),
                     /*forceOverride=*/ false,
                     /*version=*/ VisibilityToDocumentConverter.SCHEMA_VERSION_LATEST,
+                    callingUid,
                     /*setSchemaStatsBuilder=*/ null,
                     callStatsBuilder);
             if (!internalSetSchemaResponse.isSuccess()) {
@@ -639,6 +652,9 @@ public class VisibilityStore {
                     /*accountPropertyPaths=*/ Collections.emptyMap(),
                     /*forceOverride=*/ false,
                     VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA_VERSION_LATEST,
+                    // Pass INVALID_UID for internal VisibilityStore writes so that AppSearchImpl
+                    // skips PCC encapsulation checks.
+                    /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                     /*setSchemaStatsBuilder=*/ null,
                     callStatsBuilder);
             if (!internalSetSchemaResponse.isSuccess()) {
