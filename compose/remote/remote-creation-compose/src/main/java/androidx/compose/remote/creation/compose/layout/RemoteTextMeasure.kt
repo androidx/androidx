@@ -16,9 +16,6 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.core.operations.TextAttribute
-import androidx.compose.remote.creation.Painter
-import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -35,15 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-
-private val RemoteComposeWriter.painter: Painter
-    get() {
-        if (this !is RemoteComposeWriterAndroid) {
-            throw Exception("Invalid Writer $this, painter inaccessible")
-        }
-
-        return this.painter
-    }
 
 private val DefaultFontSize: RemoteTextUnit = 12.rsp
 
@@ -116,7 +104,7 @@ public class RemoteTextMeasurer(internal val density: RemoteDensity) {
         ) { creationState ->
             val doc = creationState.document
             val textSizePxId = textSize.getFloatIdForCreationState(creationState)
-            doc.painter
+            doc.rcPaint
                 .setTextSize(textSizePxId)
                 .setTypeface(
                     0,
@@ -159,7 +147,7 @@ public class RemoteTextMeasurer(internal val density: RemoteDensity) {
         ) { creationState ->
             val doc = creationState.document
             val textSizePxId = textSize.getFloatIdForCreationState(creationState)
-            doc.painter
+            doc.rcPaint
                 .setTextSize(textSizePxId)
                 .setTypeface(
                     0,

@@ -16,11 +16,19 @@
 
 package androidx.compose.remote.creation.compose.layout
 
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.capture.NoOpPlatformImageProvider
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import com.google.common.truth.Truth.assertThat
@@ -110,5 +118,43 @@ class RemoteTextMeasurerTest {
 
         assertThat(result.width).isNotNull()
         assertThat(result.height).isNotNull()
+    }
+
+    @Test
+    fun measure_writesToBaseRemoteComposeWriterWithoutThrowing() {
+        val displayInfo = RemoteCreationDisplayInfo(width = 200, height = 200, densityDpi = 160)
+        val headlessProfile =
+            Profile(
+                CoreDocument.DOCUMENT_API_LEVEL,
+                RcProfiles.PROFILE_ANDROIDX,
+                RcPlatformServices.None,
+            ) { creationDisplayInfo, profile, callback ->
+                RemoteComposeWriter(creationDisplayInfo, null, profile, callback)
+            }
+        val creationState =
+            RemoteComposeCreationState(
+                creationDisplayInfo = displayInfo,
+                contentDescription = null,
+                profile = headlessProfile,
+                platformImageProvider = NoOpPlatformImageProvider,
+            )
+        val measurer = RemoteTextMeasurer(density = density)
+        val result =
+            measurer.measure(
+                text = "HeadlessMeasure".rs,
+                style =
+                    RemoteTextStyle(
+                        fontSize = 16.rsp,
+                        fontWeight = FontWeight.Medium,
+                        fontStyle = FontStyle.Italic,
+                    ),
+            )
+
+        val widthId = result.width.getFloatIdForCreationState(creationState)
+        val heightId = result.height.getFloatIdForCreationState(creationState)
+
+        assertThat(widthId.isNaN()).isTrue()
+        assertThat(heightId.isNaN()).isTrue()
+        assertThat(creationState.document.bufferSize()).isGreaterThan(0)
     }
 }
