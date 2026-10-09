@@ -94,6 +94,73 @@ class ToggleButtonScreenshotTest(private val parameters: ToggleButtonStates) {
         rule.assertRootAgainstGolden(goldenName("toggle_button_with_icons"), screenshotRule)
     }
 
+    @Test
+    fun toggleButton_customColors() {
+        val customCheckedColor = Color(0xFF34E0A1)
+        val customFocusedColor = Color(0xFFE3FF6F)
+        rule.setGlimmerThemeContent {
+            DepthWrapper {
+                ToggleButton(
+                    checked = parameters.checked,
+                    enabled = parameters.enabled,
+                    onCheckedChange = {},
+                    colors =
+                        ToggleButtonDefaults.colors(
+                            focusedBackgroundColor =
+                                ToggleButtonDefaults.focusedBackgroundColor(customFocusedColor),
+                            checkedBackgroundColor =
+                                ToggleButtonDefaults.checkedBackgroundColor(customCheckedColor),
+                            focusedCheckedBackgroundColor =
+                                ToggleButtonDefaults.focusedCheckedBackgroundColor(
+                                    customCheckedColor
+                                ),
+                        ),
+                    interactionSource = parameters.interactionSource(),
+                ) {
+                    Text("Toggle")
+                }
+            }
+        }
+        rule.mainClock.advanceTimeBy(10_000)
+        rule.assertRootAgainstGolden(goldenName("toggle_button_custom_colors"), screenshotRule)
+    }
+
+    @Test
+    fun toggleButton_customColors_withIcons() {
+        val customCheckedColor = Color(0xFF34E0A1)
+        val customFocusedColor = Color(0xFFE3FF6F)
+        rule.setGlimmerThemeContent {
+            DepthWrapper {
+                ToggleButton(
+                    checked = parameters.checked,
+                    enabled = parameters.enabled,
+                    onCheckedChange = {},
+                    leadingIcon = { Icon(FavoriteIcon, null) },
+                    trailingIcon = { Icon(FavoriteIcon, null) },
+                    colors =
+                        ToggleButtonDefaults.colors(
+                            focusedBackgroundColor =
+                                ToggleButtonDefaults.focusedBackgroundColor(customFocusedColor),
+                            checkedBackgroundColor =
+                                ToggleButtonDefaults.checkedBackgroundColor(customCheckedColor),
+                            focusedCheckedBackgroundColor =
+                                ToggleButtonDefaults.focusedCheckedBackgroundColor(
+                                    customCheckedColor
+                                ),
+                        ),
+                    interactionSource = parameters.interactionSource(),
+                ) {
+                    Text("Toggle")
+                }
+            }
+        }
+        rule.mainClock.advanceTimeBy(10_000)
+        rule.assertRootAgainstGolden(
+            goldenName("toggle_button_custom_colors_with_icons"),
+            screenshotRule,
+        )
+    }
+
     /** Add an extra box with a white background around the button to allow capturing depth. */
     @Composable
     private fun DepthWrapper(content: @Composable () -> Unit) {
