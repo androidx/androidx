@@ -25,7 +25,6 @@ dependencies {
     api(libs.kotlinCoroutinesCore)
     api(libs.kotlinCoroutinesGuava)
     api(libs.androidx.annotation)
-    api(libs.kotlinTest)
     implementation(libs.kotlinSerializationJson)
 
     // JUnit 5 API dependencies for host extensions
@@ -38,6 +37,7 @@ dependencies {
     implementation(libs.androidToolsCommon)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
     testImplementation(libs.mockitoCore)
 }
 
