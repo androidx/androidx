@@ -53,10 +53,6 @@ dependencies {
     kspTest(project(":appfunctions:appfunctions-compiler"))
 }
 
-ksp {
-    arg("appfunctions:aggregateAppFunctions", "true")
-}
-
 android {
     compileSdk { version = release(37) }
     namespace = "androidx.appfunctions.testing"

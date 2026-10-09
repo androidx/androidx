@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <service
+            android:name="androidx.appfunctions.testing.TestAppFunctionService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.app.appfunctions.AppFunctionService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="androidx.appfunctions.testing.DisabledAppFunctionService"
+            android:enabled="false"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.app.appfunctions.AppFunctionService" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>
