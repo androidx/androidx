@@ -16,14 +16,12 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
 import android.hardware.camera2.CaptureRequest
 import android.os.Looper
 import android.util.Size
-import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.MemoryEstimator
@@ -35,6 +33,7 @@ import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.testing.FakeCameraDeviceWrapper
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceListener
+import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
@@ -105,37 +104,11 @@ internal class Camera2CaptureSequenceProcessorTest {
             MemoryEstimator.create(),
         )
 
-    private val surface1 =
-        Surface(
-            SurfaceTexture(0).also {
-                val output = stream1Config.outputs.first()
-                it.setDefaultBufferSize(output.size.width, output.size.height)
-            }
-        )
-
-    private val surface2 =
-        Surface(
-            SurfaceTexture(0).also {
-                val output = stream2Config.outputs.first()
-                it.setDefaultBufferSize(output.size.width, output.size.height)
-            }
-        )
-
-    private val surface3 =
-        Surface(
-            SurfaceTexture(0).also {
-                val output = stream3Config.outputs.first()
-                it.setDefaultBufferSize(output.size.width, output.size.height)
-            }
-        )
-
-    private val surface4 =
-        Surface(
-            SurfaceTexture(0).also {
-                val output = stream4Config.outputs.first()
-                it.setDefaultBufferSize(output.size.width, output.size.height)
-            }
-        )
+    private val fakeSurfaces = FakeSurfaces()
+    private val surface1 = fakeSurfaces.createFakeSurface(stream1Config.outputs.first().size)
+    private val surface2 = fakeSurfaces.createFakeSurface(stream2Config.outputs.first().size)
+    private val surface3 = fakeSurfaces.createFakeSurface(stream3Config.outputs.first().size)
+    private val surface4 = fakeSurfaces.createFakeSurface(stream4Config.outputs.first().size)
 
     private val stream1 = streamGraph[stream1Config]!!
     private val stream2 = streamGraph[stream2Config]!!
@@ -149,10 +122,7 @@ internal class Camera2CaptureSequenceProcessorTest {
     fun teardown() {
         mainLooper.idle()
         RobolectricCameras.clear()
-        surface1.release()
-        surface2.release()
-        surface3.release()
-        surface4.release()
+        fakeSurfaces.close()
     }
 
     @Test

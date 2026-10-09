@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.graphics.SurfaceTexture
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
@@ -40,6 +39,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequence
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeCaptureSessionFactory
+import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -85,8 +85,9 @@ class CaptureSessionStateTest {
             closeCaptureSessionOnDisconnect = false,
         )
 
-    private val surface1: Surface = Surface(SurfaceTexture(1))
-    private val surface2: Surface = Surface(SurfaceTexture(2))
+    private val fakeSurfaces = FakeSurfaces()
+    private val surface1: Surface = fakeSurfaces.createFakeSurface()
+    private val surface2: Surface = fakeSurfaces.createFakeSurface()
 
     private val cameraId = CameraId("1")
     private val streamConfig1 =
@@ -123,8 +124,7 @@ class CaptureSessionStateTest {
 
     @After
     fun teardown() {
-        surface1.release()
-        surface2.release()
+        fakeSurfaces.close()
     }
 
     @Test

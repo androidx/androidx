@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -71,6 +72,11 @@ class LatestFrameListenerTests {
 
     private val latestFrameInfoListener = LatestFrameInfoListener { latestFrameInfo = it }
     private val latestFrameNumberListener = LatestFrameNumberListener { latestFrameNumber = it }
+
+    @After
+    fun tearDown() {
+        fakeSurfaces.close()
+    }
 
     @Test
     fun latestFrameNumberListenerUpdatesLatestState() {
