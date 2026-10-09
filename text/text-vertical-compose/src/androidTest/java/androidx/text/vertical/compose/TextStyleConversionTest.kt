@@ -21,7 +21,14 @@ import android.graphics.Typeface
 import android.os.LocaleList as AndroidLocaleList
 import android.text.TextPaint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -197,5 +204,47 @@ class TextStyleConversionTest {
         assertThat(paint.textScaleX).isEqualTo(1f)
         assertThat(paint.textSkewX).isEqualTo(0f)
         assertThat(paint.isUnderlineText).isFalse()
+    }
+
+    @Test
+    fun toVerticalTextStyle_copiesSupportedFields() {
+        val localeList = LocaleList("ja-JP")
+        val textStyle =
+            TextStyle(
+                color = Color.Cyan,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                fontSynthesis = FontSynthesis.Weight,
+                fontFamily = FontFamily.Serif,
+                fontFeatureSettings = "palt",
+                background = Color.Magenta,
+                localeList = localeList,
+            )
+
+        assertThat(textStyle.toVerticalTextStyle())
+            .isEqualTo(
+                VerticalTextStyle(
+                    color = Color.Cyan,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontStyle = FontStyle.Italic,
+                    fontSynthesis = FontSynthesis.Weight,
+                    fontFamily = FontFamily.Serif,
+                    fontFeatureSettings = "palt",
+                    background = Color.Magenta,
+                    localeList = localeList,
+                )
+            )
+        assertThat(TextStyle.Default.toVerticalTextStyle()).isEqualTo(VerticalTextStyle.Default)
+        assertThat(
+                TextStyle(
+                        textDecoration = TextDecoration.Underline,
+                        shadow = Shadow(color = Color.Black),
+                        letterSpacing = 2.sp,
+                    )
+                    .toVerticalTextStyle()
+            )
+            .isEqualTo(VerticalTextStyle.Default)
     }
 }
