@@ -90,12 +90,6 @@ public object AndroidComposeUiFlags {
     @JvmField
     public var isOutOfFrameSchedulerForTextInputEventsEnabled: Boolean = true
 
-    /** Enables propagation of hideFromAccessibility to children of merging parents. */
-    // TODO: b/522817006
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isPropagateHideFromAccessibilityToMergingChildrenEnabled: Boolean = true
-
     /**
      * This flag enables performance improvements in accessibility, such as caching accessibility
      * state and deferring listener registration.
