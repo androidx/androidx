@@ -246,6 +246,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -306,6 +307,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -398,6 +400,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -672,6 +675,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -800,6 +804,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -949,6 +954,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1018,6 +1024,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1062,6 +1069,7 @@ public class AppSearchImplTest {
                         /* accountPropertyPaths= */ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1135,6 +1143,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1196,6 +1205,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1211,6 +1221,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1269,6 +1280,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1284,6 +1296,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1373,6 +1386,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1393,6 +1407,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1408,6 +1423,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1570,6 +1586,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1586,6 +1603,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1758,6 +1776,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
 
@@ -1824,6 +1843,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
 
@@ -1879,6 +1899,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
 
@@ -1943,6 +1964,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
 
@@ -2011,6 +2033,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         GenericDocument doc = new GenericDocument.Builder<>("namespace1", "id1", "type")
@@ -2077,6 +2100,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         GenericDocument doc = new GenericDocument.Builder<>("namespace1", "id1", "type")
@@ -2112,6 +2136,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2172,6 +2197,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2245,6 +2271,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2308,6 +2335,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2384,6 +2412,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2457,6 +2486,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2528,6 +2558,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2596,6 +2627,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2645,6 +2677,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2716,6 +2749,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2787,6 +2821,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2892,6 +2927,7 @@ public class AppSearchImplTest {
                         /*accountPropertyPaths=*/ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         schemaStatsBuilder,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2934,6 +2970,7 @@ public class AppSearchImplTest {
                         /*accountPropertyPaths=*/ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         schemaStatsBuilder,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2952,6 +2989,7 @@ public class AppSearchImplTest {
                         /*accountPropertyPaths=*/ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         schemaStatsBuilder,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -2988,6 +3026,7 @@ public class AppSearchImplTest {
                         /*accountPropertyPaths=*/ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         schemaStatsBuilder,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -3005,6 +3044,7 @@ public class AppSearchImplTest {
                         /*accountPropertyPaths=*/ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         schemaStatsBuilder,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -3058,6 +3098,7 @@ public class AppSearchImplTest {
                         /*accountPropertyPaths=*/ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         schemaStatsBuilder,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -3080,6 +3121,7 @@ public class AppSearchImplTest {
                         /*accountPropertyPaths=*/ ImmutableMap.of(),
                         /* forceOverride= */ true,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         schemaStatsBuilder,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -3108,6 +3150,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -3144,6 +3187,7 @@ public class AppSearchImplTest {
                         /*accountPropertyPaths=*/ ImmutableMap.of(),
                         /*forceOverride=*/ false,
                         /*version=*/ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         // We are fail to set this call since forceOverride is false.
@@ -3161,6 +3205,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -3201,6 +3246,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -3212,6 +3258,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -3258,6 +3305,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -3703,6 +3751,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4192,6 +4241,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4260,6 +4310,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4271,6 +4322,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4363,6 +4415,7 @@ public class AppSearchImplTest {
                     /*accountPropertyPaths=*/ ImmutableMap.of(),
                     /*forceOverride=*/ false,
                     /*version=*/ 0,
+                    /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                     /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
             assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4434,6 +4487,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4449,6 +4503,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4464,6 +4519,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4496,6 +4552,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4507,6 +4564,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4518,6 +4576,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4547,6 +4606,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4663,6 +4723,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4691,6 +4752,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4715,6 +4777,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4784,6 +4847,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4810,6 +4874,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4835,6 +4900,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -4846,6 +4912,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -5029,6 +5096,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -5044,6 +5112,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null));
 
@@ -5135,6 +5204,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -5199,6 +5269,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -5301,6 +5372,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -5409,6 +5481,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -5473,6 +5546,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -5576,6 +5650,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -5692,6 +5767,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -5751,6 +5827,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -5825,6 +5902,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 setSchemaStatsBuilder,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -5924,6 +6002,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 setSchemaStatsBuilder,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -6025,6 +6104,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 setSchemaStatsBuilder,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -6121,6 +6201,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 setSchemaStatsBuilder,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -6204,6 +6285,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 setSchemaStatsBuilder,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -6291,6 +6373,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 setSchemaStatsBuilder,
                 callStatsBuilder);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -6651,6 +6734,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 callStatsBuilder);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -6800,6 +6884,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 callStatsBuilder);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -6982,6 +7067,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -7062,6 +7148,7 @@ public class AppSearchImplTest {
                     /*accountPropertyPaths=*/ ImmutableMap.of(),
                     /*forceOverride=*/ false,
                     /*version=*/ 1,
+                    /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                     /*setSchemaStatsBuilder=*/ null,
                     /*callStatsBuilder=*/ null);
 
@@ -7156,6 +7243,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -7295,6 +7383,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -7439,6 +7528,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -7450,6 +7540,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -7461,6 +7552,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -7472,6 +7564,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -7654,6 +7747,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -7843,6 +7937,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -7952,6 +8047,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -8156,6 +8252,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -8235,6 +8332,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -8246,6 +8344,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -8257,6 +8356,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -8378,6 +8478,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -8470,6 +8571,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -8481,6 +8583,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -8636,6 +8739,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -8647,6 +8751,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -8946,6 +9051,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/false,
                 /*version=*/0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9035,6 +9141,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9093,6 +9200,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9149,6 +9257,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9224,6 +9333,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9288,6 +9398,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9335,6 +9446,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9380,6 +9492,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9444,6 +9557,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9477,6 +9591,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9516,6 +9631,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         String prefix = PrefixUtil.createPrefix("package", "database1");
@@ -9549,6 +9665,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
 
@@ -9561,6 +9678,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         // All-default visibility document won't be saved in AppSearch.
@@ -9596,6 +9714,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9643,6 +9762,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9703,6 +9823,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/false,
                 /*version=*/0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9728,6 +9849,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/false,
                 /*version=*/0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9755,6 +9877,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/false,
                 /*version=*/1,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9831,6 +9954,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/false,
                 /*version=*/1,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -9916,6 +10040,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/true,
                 /*version=*/1,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10021,6 +10146,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/true,
                 /*version=*/1,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10091,6 +10217,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/true,
                 /*version=*/1,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponseRemoved.isSuccess()).isTrue();
@@ -10127,6 +10254,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10189,6 +10317,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10238,6 +10367,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10314,6 +10444,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10378,6 +10509,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10432,6 +10564,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10460,6 +10593,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10487,6 +10621,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10509,6 +10644,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10544,6 +10680,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10574,6 +10711,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 1,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10603,6 +10741,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 2,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10642,6 +10781,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10678,6 +10818,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10766,6 +10907,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10795,6 +10937,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10831,6 +10974,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10866,6 +11010,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10938,6 +11083,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -10974,6 +11120,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11034,6 +11181,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11056,6 +11204,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11076,6 +11225,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11149,6 +11299,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11187,6 +11338,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11244,6 +11396,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 1,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11283,6 +11436,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 2,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isFalse();
@@ -11307,6 +11461,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ true,
                 /*version=*/ 3,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*calLStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11356,6 +11511,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11428,6 +11584,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11509,6 +11666,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11609,6 +11767,7 @@ public class AppSearchImplTest {
                                 ImmutableSet.of("account")),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11661,6 +11820,7 @@ public class AppSearchImplTest {
                                 ImmutableSet.of("account")),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11734,6 +11894,7 @@ public class AppSearchImplTest {
                                 ImmutableSet.of("account")),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11806,6 +11967,7 @@ public class AppSearchImplTest {
                                 ImmutableSet.of("account")),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11888,6 +12050,7 @@ public class AppSearchImplTest {
                                 ImmutableSet.of("account")),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -11990,6 +12153,7 @@ public class AppSearchImplTest {
                                 ImmutableSet.of("account")),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -12075,6 +12239,7 @@ public class AppSearchImplTest {
                                 ImmutableSet.of("account")),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -12182,6 +12347,7 @@ public class AppSearchImplTest {
                                 ImmutableSet.of("account")),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -12263,6 +12429,7 @@ public class AppSearchImplTest {
                                 ImmutableSet.of("account")),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -12357,6 +12524,7 @@ public class AppSearchImplTest {
                         /*accountPropertyPaths=*/ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -12440,6 +12608,7 @@ public class AppSearchImplTest {
                         /*accountPropertyPaths=*/ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -12527,6 +12696,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -12557,6 +12727,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -12589,6 +12760,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
@@ -12619,6 +12791,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ true,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse2.isSuccess()).isTrue();
@@ -12650,6 +12823,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
@@ -12667,6 +12841,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ true,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse2.isSuccess()).isTrue();
@@ -12698,6 +12873,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
@@ -12737,6 +12913,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ true,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse2.isSuccess()).isTrue();
@@ -12769,6 +12946,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
@@ -12810,6 +12988,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ true,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse2.isSuccess()).isTrue();
@@ -12840,6 +13019,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
@@ -12881,6 +13061,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse2.isSuccess()).isTrue();
@@ -12909,6 +13090,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
@@ -12934,6 +13116,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse2.isSuccess()).isTrue();
@@ -12970,6 +13153,7 @@ public class AppSearchImplTest {
                         /*accountPropertyPaths=*/ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* schemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse1.isSuccess()).isTrue();
@@ -12996,6 +13180,7 @@ public class AppSearchImplTest {
                         /*accountPropertyPaths=*/ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* schemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse2.isSuccess()).isTrue();
@@ -13024,6 +13209,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -13076,6 +13262,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -13143,6 +13330,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -13281,6 +13469,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -13355,6 +13544,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -13445,6 +13635,7 @@ public class AppSearchImplTest {
                         /* accountPropertyPaths= */ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -13610,6 +13801,7 @@ public class AppSearchImplTest {
                         /* accountPropertyPaths= */ ImmutableMap.of(),
                         /* forceOverride= */ false,
                         /* version= */ 0,
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                         /* setSchemaStatsBuilder= */ null,
                         /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -13714,6 +13906,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /* forceOverride= */ false,
                 /* version= */ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */ null,
                 /* callStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -13868,6 +14061,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*callStatsBuilder=*/ null);
 
@@ -13879,6 +14073,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of("Type", Collections.singleton("account")),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*callStatsBuilder=*/ null);
 
@@ -13908,6 +14103,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*callStatsBuilder=*/ null);
 
@@ -13919,6 +14115,7 @@ public class AppSearchImplTest {
                 /*accountPropertyPaths=*/ ImmutableMap.of("Type", Collections.singleton("account")),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*callStatsBuilder=*/ null);
 

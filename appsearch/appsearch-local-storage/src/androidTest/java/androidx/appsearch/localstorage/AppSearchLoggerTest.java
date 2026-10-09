@@ -24,6 +24,7 @@ import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.InternalSetSchemaResponse;
+import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
@@ -725,6 +726,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -812,6 +814,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -882,6 +885,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -944,6 +948,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -994,6 +999,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1043,6 +1049,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1144,6 +1151,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1205,6 +1213,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
 
@@ -1372,6 +1381,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1416,6 +1426,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1471,6 +1482,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1536,6 +1548,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* setSchemaStatsBuilder= */null,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -1551,6 +1564,7 @@ public class AppSearchLoggerTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 sStatsBuilder,
                 /*callStatsBuilder=*/null);
         assertThat(internalSetSchemaResponse.isSuccess()).isFalse();
