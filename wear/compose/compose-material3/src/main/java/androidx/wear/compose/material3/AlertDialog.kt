@@ -503,7 +503,7 @@ public fun AlertDialog(
  *   that when using an [EdgeButton] which is not Medium size, the contentPadding parameters should
  *   be specified.
  * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
- *   dialog's purpose or content and should not exceed 3 lines of text.By default,
+ *   dialog's purpose or content and should not exceed 3 lines of text. By default,
  *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
  * @param modifier Modifier to be applied to the dialog content.
  * @param icon Optional slot for an icon to be shown at the top of the dialog.
@@ -602,7 +602,7 @@ public fun AlertDialog(
  *   that when using an [EdgeButton] which is not Medium size, the contentPadding parameters should
  *   be specified.
  * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
- *   dialog's purpose or content and should not exceed 3 lines of text.By default,
+ *   dialog's purpose or content and should not exceed 3 lines of text. By default,
  *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
  * @param transformationSpec A spec that defines how items inside the [TransformingLazyColumn]
  *   transform and animate as they are scrolled. It is recommended to create a spec using

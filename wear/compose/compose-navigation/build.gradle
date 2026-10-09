@@ -65,7 +65,7 @@ androidx {
     name = "Android Wear Compose Navigation"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
-    description = "WearOS Compose Navigation Library. This library makes it easier for developers" +
+    description = "Wear OS Compose Navigation Library. This library makes it easier for developers " +
             "to write Jetpack Compose applications for Wearable devices by providing " +
             "functionality to support navigation. " +
             "It builds upon the Jetpack Compose libraries."

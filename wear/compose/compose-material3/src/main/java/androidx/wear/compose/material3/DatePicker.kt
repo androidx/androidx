@@ -273,7 +273,7 @@ public fun DatePicker(
                 }
             } ?: if (touchExplorationServicesEnabled) instructionHeadingString else ""
 
-        // Allow more room for the initial instruction heading under TalkBck
+        // Allow more room for the initial instruction heading under TalkBack
         val maxTextLines = if (selectedIndex == null) 2 else 1
         val textPaddingPercentage = 30f
         val topPadding = if (selectedIndex == null) 0.dp else 14.dp

@@ -568,7 +568,7 @@ class SwipeDismissableNavHostTest {
     }
 
     /**
-     * Dragss without releasing the finger.
+     * Drags without releasing the finger.
      *
      * Depending on API level, either drags right on the view with TEST_TAG, or emulates
      * system-level drag using backPressedDispatcher

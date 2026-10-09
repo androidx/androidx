@@ -87,7 +87,7 @@ internal class LazyLayoutItemAnimation(
     var rawOffset: IntOffset = NotInitialized
 
     /**
-     * The final offset the placeable associated with this animations was placed at. Unlike
+     * The final offset the placeable associated with this animation was placed at. Unlike
      * [rawOffset] it takes into account things like reverse layout and content padding.
      */
     var finalOffset: IntOffset = IntOffset.Zero
@@ -115,8 +115,8 @@ internal class LazyLayoutItemAnimation(
         private set
 
     /**
-     * When there is an animation going, this represent the scroll progress of the item. If there is
-     * no animation going, this is null. Note that this uses [placementDelta], which is a state
+     * When there is an animation going, this represents the scroll progress of the item. If there
+     * is no animation going, this is null. Note that this uses [placementDelta], which is a state
      * variable, so clients reading this will subscribe to be updated during the animation.
      */
     val animatedScrollProgress: TransformingLazyColumnItemScrollProgress

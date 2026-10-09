@@ -68,7 +68,7 @@ public interface CurvedDirection {
         }
     }
 
-    /** The direction in which components are lay down on a [curvedColumn] */
+    /** The direction in which components are laid down on a [curvedColumn] */
     @Immutable
     @kotlin.jvm.JvmInline
     public value class Radial internal constructor(internal val value: Int) {

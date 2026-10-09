@@ -81,13 +81,13 @@ public value class AnchorType internal constructor(internal val ratio: Float) {
  *   center the content on the anchor.
  * @param radialAlignment Specifies the radial alignment for children, if not specified, children
  *   can choose their own radial Alignment. Alignment specifies where to lay down children that are
- *   thiner than the CurvedRow, either closer to the center (INNER), apart from the center (OUTER)
+ *   thinner than the CurvedRow, either closer to the center (INNER), apart from the center (OUTER)
  *   or in the middle point (CENTER).
  * @param angularDirection Specify the direction the children are laid on. See
  *   [CurvedDirection.Angular]. The default is [CurvedDirection.Angular.Normal], which is clockwise
  *   under a LtR layout and counter clockwise on a RtL layout.
  * @param contentBuilder Specifies the content of this layout, currently there are 5 available
- *   elements defined in foundations for this DSL: the sub-layouts [curvedBox], [curvedRow] and
+ *   elements defined in foundation for this DSL: the sub-layouts [curvedBox], [curvedRow] and
  *   [curvedColumn], [basicCurvedText] and [curvedComposable] (used to add normal composables to
  *   curved layouts)
  */
@@ -374,7 +374,7 @@ internal abstract class CurvedChild() {
      */
     open fun computeParentData(): Any? = null
 
-    /** Estimate the thickness of this component given the maximus radius it can take. */
+    /** Estimate the thickness of this component given the maximum radius it can take. */
     fun estimateThickness(maxRadius: Float): Float =
         doEstimateThickness(maxRadius).also { estimatedThickness = it }
 
@@ -391,7 +391,7 @@ internal abstract class CurvedChild() {
      * @param parentOuterRadius The outer radius of the space we have in the parent container
      * @param parentThickness The thickness of the space we have in the parent container Return A
      *   [PartialLayoutInfo] representing most of the information needed to layout this component
-     *   (all except it's angular position)
+     *   (all except its angular position)
      */
     abstract fun doRadialPosition(
         parentOuterRadius: Float,

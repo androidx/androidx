@@ -76,7 +76,7 @@ class TimeTextTest {
         rule.onNodeWithText("Changed").assertIsDisplayed()
     }
 
-    // TODO(220086395): Reimplement this test when we have the infraestructure
+    // TODO(220086395): Reimplement this test when we have the infrastructure
     // @Test
     fun updates_clock_when_source_changes_on_round_device() {
         val timeState = mutableStateOf("Unchanged")

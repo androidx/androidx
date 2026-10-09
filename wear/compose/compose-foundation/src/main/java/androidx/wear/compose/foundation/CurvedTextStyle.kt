@@ -77,10 +77,10 @@ internal val DefaultCurvedTextStyles =
  *   Center, trim = None, mode = Fixed
  * @param warpOffset specifies if we want to warp the text, and if so, the offset for warping.
  *   Warping the text will cause each character to be modified in shape so that it is thinner when
- *   it is closer to the center of the center of the screen and wider when it's further away. This
- *   also makes adjacent characters share a line, so this is particularly useful for cursive fonts.
- *   When warping is active, this parameter specifies which horizontal line of the text will keep
- *   its width.
+ *   it is closer to the center of the screen and wider when it's further away. This also makes
+ *   adjacent characters share a line, so this is particularly useful for cursive fonts. When
+ *   warping is active, this parameter specifies which horizontal line of the text will keep its
+ *   width.
  */
 public class CurvedTextStyle(
     public val background: Color = Color.Unspecified,
@@ -471,7 +471,7 @@ public class CurvedTextStyle(
 
     override fun toString(): String {
         return "CurvedTextStyle(" +
-            "background=$background" +
+            "background=$background, " +
             "color=$color, " +
             "fontSize=$fontSize, " +
             "fontFamily=$fontFamily, " +
@@ -481,17 +481,16 @@ public class CurvedTextStyle(
             "letterSpacing=$letterSpacing, " +
             "letterSpacingCounterClockwise=$letterSpacingCounterClockwise, " +
             "lineHeight=$lineHeight, " +
-            "warpOffset=$warpOffset, " +
+            "warpOffset=$warpOffset" +
             ")"
     }
 
     /**
      * Used to specify if we want to warp the text, and if so, the offset for warping. Warping the
      * text will cause each character to be modified in shape so that it is thinner when it is
-     * closer to the center of the center of the screen and wider when it's further away. This also
-     * makes adjacent characters share a line, so this is particularly useful for cursive fonts.
-     * When warping is active, this parameter specifies which horizontal line of the text will keep
-     * its width.
+     * closer to the center of the screen and wider when it's further away. This also makes adjacent
+     * characters share a line, so this is particularly useful for cursive fonts. When warping is
+     * active, this parameter specifies which horizontal line of the text will keep its width.
      */
     // Note that options is a Byte because if we make it an Int there is a JVM signature conflict
     // with one of the Kotlin generated java methods for the previous overload.

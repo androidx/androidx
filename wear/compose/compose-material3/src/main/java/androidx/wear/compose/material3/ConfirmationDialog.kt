@@ -243,8 +243,8 @@ public fun ConfirmationDialog(
 
 /**
  * This overload of [ConfirmationDialogContent] provides the content for a [ConfirmationDialog] with
- * with an icon and optional short [text]. The length of the text should not exceed 3 lines. If the
- * text is very short and fits into 1-2 words, consider using the alternative [ConfirmationDialog]
+ * an icon and optional short [text]. The length of the text should not exceed 3 lines. If the text
+ * is very short and fits into 1-2 words, consider using the alternative [ConfirmationDialog]
  * overload with the curvedText parameter instead.
  *
  * Prefer using [ConfirmationDialog] directly, which provides built-in animations when
@@ -413,8 +413,7 @@ public fun SuccessConfirmationDialog(
  *   as the style.
  * @param modifier Modifier to be applied to the confirmation content.
  * @param colors A [ConfirmationDialogColors] object for customizing the colors used in this
- *   [SuccessConfirmationDialog]. will be adjusted by the accessibility manager according to the
- *   content displayed.
+ *   [SuccessConfirmationDialog].
  * @param content A slot for displaying an icon inside the confirmation dialog, which can be
  *   animated. Defaults to an animated [ConfirmationDialogDefaults.SuccessIcon].
  */
@@ -546,8 +545,7 @@ public fun FailureConfirmationDialog(
  *   will give the default sweep angle and padding.
  * @param modifier Modifier to be applied to the confirmation content.
  * @param colors A [ConfirmationDialogColors] object for customizing the colors used in this
- *   [FailureConfirmationDialog]. will be adjusted by the accessibility manager according to the
- *   content displayed.
+ *   [FailureConfirmationDialog].
  * @param content A slot for displaying an icon inside the confirmation dialog, which can be
  *   animated. The default value is [ConfirmationDialogDefaults.ConnectionFailureIcon], which shows
  *   a broken connection to the phone icon. Alternatively, provide

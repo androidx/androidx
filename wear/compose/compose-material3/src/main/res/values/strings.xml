@@ -22,11 +22,11 @@
         <item quantity="one">%d Hour</item>
         <item quantity="other">%d Hours</item>
     </plurals>
-    <plurals description="Content description of the current number of hours being selected in TimePicker component. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_minutes_content_description">
+    <plurals description="Content description of the current number of minutes being selected in TimePicker component. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_minutes_content_description">
         <item quantity="one">%d Minute</item>
         <item quantity="other">%d Minutes</item>
     </plurals>
-    <plurals description="Content description of the current number of hours being selected in TimePicker component. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_seconds_content_description">
+    <plurals description="Content description of the current number of seconds being selected in TimePicker component. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_seconds_content_description">
         <item quantity="one">%d Second</item>
         <item quantity="other">%d Seconds</item>
     </plurals>
@@ -45,7 +45,7 @@
     <string description="Content description of the increase button of Slider components. It lets the user increase value of the slider. [CHAR_LIMIT=NONE]" name="wear_m3c_slider_increase_content_description">Increase</string>
     <string description="Content description of the Confirm icon of AlertDialog components. It lets the user confirm the action of the dialog. [CHAR_LIMIT=NONE]" name="wear_m3c_alert_dialog_content_description_confirm_button">Confirm</string>
     <string description="Content description of the Dismiss icon of AlertDialog components. It lets the user dismiss the dialog. [CHAR_LIMIT=NONE]" name="wear_m3c_alert_dialog_content_description_dismiss_button">Dismiss</string>
-    <string description="A message which is used to indicate than the user should continue their action on their phone, used in OpenOnPhone component [CHAR_LIMIT=12]" name="wear_m3c_open_on_phone">Check your phone</string>
+    <string description="A message which is used to indicate that the user should continue their action on their phone, used in OpenOnPhone component [CHAR_LIMIT=12]" name="wear_m3c_open_on_phone">Check your phone</string>
     <string description="Content description of the icon of OpenOnPhone component. [CHAR_LIMIT=NONE]" name="wear_m3c_open_on_phone_icon_content_description">Check your phone icon</string>
     <string description="State description of Switch components when their state is on." name="wear_m3c_capital_on_state_description">ON</string>
     <string description="State description of Switch components when their state is off." name="wear_m3c_capital_off_state_description">OFF</string>

@@ -652,7 +652,7 @@ class ScaffoldTest {
         check_edge_button_reversed_slc(50.dp)
 
     /*
-     * Setup a  AppScaffold + ScreenScaffold(with a EdgeButton slot) + ScalingLazyColumn
+     * Set up an AppScaffold + ScreenScaffold (with an EdgeButton slot) + ScalingLazyColumn
      * Check that when we scroll all the way down, there is no space for the edge button, and when
      * we scroll all the way up, there is the expected space (equal to verticalPadding)
      */
@@ -741,7 +741,7 @@ class ScaffoldTest {
     }
 
     /*
-     * Setup a  AppScaffold + ScreenScaffold(with a EdgeButton slot) + LazyColumn
+     * Set up an AppScaffold + ScreenScaffold (with an EdgeButton slot) + LazyColumn
      * Check that when we scroll all the way down, there is no space for the edge button, and when
      * we scroll all the way up, there is the expected space (equal to verticalPadding)
      */

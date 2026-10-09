@@ -916,7 +916,7 @@ class SwipeToRevealTest {
 
         assertThrows(IllegalStateException::class.java) {
             // If use coroutineScope.launch, below block will run in parallel with test code, and we
-            // won't able to catch exception.
+            // won't be able to catch exception.
             runBlocking { revealState.animateTo(targetValue) }
         }
     }

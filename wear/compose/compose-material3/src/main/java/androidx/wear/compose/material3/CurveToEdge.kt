@@ -55,11 +55,11 @@ import org.intellij.lang.annotations.Language
  * There are currently some limitations: clickable components will have incorrect clickable bounds,
  * and talkback doesn't highlight components correctly.
  *
- * Simple example of applying Modifier.curvedToEdge to text:
+ * Simple example of applying Modifier.curveToEdge to text:
  *
  * @sample androidx.wear.compose.material3.samples.CurveToEdgeSample
  *
- * Example of applying Modifier.curvedToEdge to a long piece of text, with overflow handling:
+ * Example of applying Modifier.curveToEdge to a long piece of text, with overflow handling:
  *
  * @sample androidx.wear.compose.material3.samples.LongCurveToEdgeSample
  * @param maxSweepAngle The maximum sweep angle in degrees,

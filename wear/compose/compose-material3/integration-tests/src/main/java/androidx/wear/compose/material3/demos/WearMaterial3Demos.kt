@@ -128,7 +128,7 @@ val WearMaterial3Demos =
                 else null,
                 Material3DemoCategory("Curved Text", CurvedTextDemos),
                 Material3DemoCategory("Alert Dialog", AlertDialogDemos),
-                Material3DemoCategory("Confirmation Dialog", ComfirmationDialogDemos),
+                Material3DemoCategory("Confirmation Dialog", ConfirmationDialogDemos),
                 Material3DemoCategory("Open on phone Dialog", OpenOnPhoneDialogDemos),
                 Material3DemoCategory("Scaffold", ScaffoldDemos),
                 Material3DemoCategory("ScrollAway", ScrollAwayDemos),

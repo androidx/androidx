@@ -257,7 +257,7 @@ class HierarchicalFocusTest {
             Box {
                 HierarchicalFocusCoordinator(
                     // We switch between a lambda that always returns false and one that always
-                    // return true given the state of lambdaUpdated.
+                    // returns true given the state of lambdaUpdated.
                     requiresFocus =
                         if (lambdaUpdated) {
                             { true }

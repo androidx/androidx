@@ -40,7 +40,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyListState
  * [TimeText] item out of view as the user starts to scroll a vertically scrollable [Column] of
  * items upwards and bring additional items into view.
  *
- * @param scrollState The [ScrollState] to used as the basis for the scroll-away.
+ * @param scrollState The [ScrollState] to be used as the basis for the scroll-away.
  * @param offset Adjustment to the starting point for scrolling away. Positive values result in the
  *   scroll away starting later.
  */
@@ -53,7 +53,7 @@ public fun Modifier.scrollAway(scrollState: ScrollState, offset: Dp = 0.dp): Mod
  * [TimeText] item out of view as the user starts to scroll a [LazyColumn] of items upwards and
  * bring additional items into view.
  *
- * @param scrollState The [LazyListState] to used as the basis for the scroll-away.
+ * @param scrollState The [LazyListState] to be used as the basis for the scroll-away.
  * @param itemIndex The item for which the scroll offset will trigger scrolling away.
  * @param offset Adjustment to the starting point for scrolling away. Positive values result in the
  *   scroll away starting later.
@@ -77,7 +77,7 @@ public fun Modifier.scrollAway(
  * scroll a [TimeText] item out of view as the user starts to scroll a [ScalingLazyColumn] of items
  * upwards and bring additional items into view.
  *
- * @param scrollState The [ScalingLazyListState] to used as the basis for the scroll-away.
+ * @param scrollState The [ScalingLazyListState] to be used as the basis for the scroll-away.
  * @param itemIndex The item for which the scroll offset will trigger scrolling away.
  * @param offset Adjustment to the starting point for scrolling away. Positive values result in the
  *   scroll away starting later, negative values start scrolling away earlier.
@@ -101,7 +101,7 @@ public fun Modifier.scrollAway(
  * scroll a [TimeText] item out of view as the user starts to scroll a [ScalingLazyColumn] of items
  * upwards and bring additional items into view.
  *
- * @param scrollState The [ScalingLazyListState] to used as the basis for the scroll-away.
+ * @param scrollState The [ScalingLazyListState] to be used as the basis for the scroll-away.
  * @param itemIndex The item for which the scroll offset will trigger scrolling away.
  * @param offset Adjustment to the starting point for scrolling away. Positive values result in the
  *   scroll away starting later, negative values start scrolling away earlier.

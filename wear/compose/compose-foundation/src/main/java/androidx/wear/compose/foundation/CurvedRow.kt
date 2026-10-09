@@ -39,7 +39,7 @@ import androidx.compose.ui.util.fastMaxOfOrNull
  *   center [CurvedAlignment.Radial.Outer] or in the middle point [CurvedAlignment.Radial.Center].
  *   If unspecified, they can choose for themselves.
  * @param angularDirection Specify if the children are laid out clockwise or anti-clockwise, and if
- *   those needs to be reversed in a Rtl layout. If not specified, it will be inherited from the
+ *   those need to be reversed in a Rtl layout. If not specified, it will be inherited from the
  *   enclosing [curvedRow] or [CurvedLayout] See [CurvedDirection.Angular].
  * @param contentBuilder Scope used to provide the content for this row.
  */

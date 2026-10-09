@@ -98,7 +98,7 @@ class ListHeaderTest {
     }
 
     @Test
-    fun listsubHeader_has_adjustable_height() {
+    fun listSubHeader_has_adjustable_height() {
         val minHeight = ListSubHeaderTokens.Height + 1.dp
 
         rule

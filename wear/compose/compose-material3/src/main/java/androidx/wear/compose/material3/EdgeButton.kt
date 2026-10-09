@@ -140,7 +140,7 @@ import kotlin.math.sqrt
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content Slot for composable body content displayed on the Button. Either an Icon or Text.
- *   Note that when using an Icon is recommended to remove any extra spacing the icon may have,
+ *   Note that when using an Icon it is recommended to remove any extra spacing the icon may have,
  *   either processing the image or using something like the list sample.
  */
 // TODO(b/261838497) Add Material3 UX guidance links
@@ -292,7 +292,7 @@ public fun EdgeButton(
 }
 
 /**
- * Size of the [EdgeButton]. This in turns determines the full shape of the edge button, including
+ * Size of the [EdgeButton]. This in turn determines the full shape of the edge button, including
  * width, height, rounding radius for the top corners, the ellipsis size for the bottom part of the
  * shape and the space available for the content.
  */
@@ -320,13 +320,13 @@ public value class EdgeButtonSize internal constructor(internal val maximumHeigh
         /** The Size to be applied for an extra small [EdgeButton]. */
         public val ExtraSmall: EdgeButtonSize = EdgeButtonSize(46.dp)
 
-        /** The Size to be applied for an small [EdgeButton]. */
+        /** The Size to be applied for a small [EdgeButton]. */
         public val Small: EdgeButtonSize = EdgeButtonSize(56.dp)
 
-        /** The Size to be applied for an medium [EdgeButton]. */
+        /** The Size to be applied for a medium [EdgeButton]. */
         public val Medium: EdgeButtonSize = EdgeButtonSize(70.dp)
 
-        /** The Size to be applied for an large [EdgeButton]. */
+        /** The Size to be applied for a large [EdgeButton]. */
         public val Large: EdgeButtonSize = EdgeButtonSize(96.dp)
     }
 }
@@ -630,10 +630,10 @@ private class ScaleAndAlignContentNode(var buttonSize: EdgeButtonSize) :
     ): Int = buttonSize.maximumHeightPlusPadding().roundToPx()
 }
 
-// Padding around the Edge Button on it's top and bottom.
+// Padding around the Edge Button on its top and bottom.
 internal val EdgeButtonVerticalPadding = 3.dp
 
-// Syntactic sugar for Pair<Dp, Dp> when used to extra values for top and bottom vertical padding.
+// Syntactic sugar for Pair<Dp, Dp> when used to extract values for top and bottom vertical padding.
 private fun Pair<Dp, Dp>.top() = first
 
 private fun Pair<Dp, Dp>.bottom() = second
@@ -657,5 +657,5 @@ private const val BUTTON_TO_ELLIPSIS_RATIO = 1.42f
 // straight line parallel to the x axis.
 private val TARGET_SIDE_PADDING = 20.dp
 
-// Padding around the Edge Button on it's top and bottom.
+// Padding around the Edge Button on its top and bottom.
 private val VERTICAL_PADDING = 3.dp

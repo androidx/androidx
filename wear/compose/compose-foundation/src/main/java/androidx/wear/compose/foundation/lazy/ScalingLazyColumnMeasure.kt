@@ -60,7 +60,7 @@ import kotlin.math.roundToInt
  * 0.75f for maxTransitionArea determines that all transition lines will fall between 1/5th (20%)
  * and 3/4s (75%) of the height of the viewport.
  *
- * The size of the each item is used to determine where within the transition area range
+ * The size of each item is used to determine where within the transition area range
  * minTransitionArea..maxTransitionArea the actual transition line will be. [minElementHeight] and
  * [maxElementHeight] are used along with the item height (as a fraction of the viewport height in
  * the range [0f..1f]) to find the transition line. So if the items size is 0.25f (25%) of way
@@ -72,7 +72,7 @@ import kotlin.math.roundToInt
  * minElementHeight..maxElementHeight is then used to determine where the transition line sits
  * between minTransitionArea..maxTransition area.
  *
- * If an item is smaller than or equal to minElementSize its transition line with be at
+ * If an item is smaller than or equal to minElementSize its transition line will be at
  * minTransitionArea and if it is larger than or equal to maxElementSize its transition line will be
  * at maxTransitionArea.
  *
@@ -110,10 +110,10 @@ public interface ScalingParams {
     @get:FloatRange(from = 0.0, to = 1.0) public val edgeAlpha: Float
 
     /**
-     * The maximum element height as a ratio of the viewport size to use for determining the
+     * The minimum element height as a ratio of the viewport size to use for determining the
      * transition point within ([minTransitionArea], [maxTransitionArea]) that a given content item
-     * will start to be transitioned. Items larger than [maxElementHeight] will be treated as if
-     * [maxElementHeight]. Must be greater than or equal to [minElementHeight].
+     * will start to be transitioned. Items smaller than [minElementHeight] will be treated as if
+     * [minElementHeight]. Must be less than or equal to [maxElementHeight].
      */
     @get:FloatRange(from = 0.0, to = 1.0) public val minElementHeight: Float
 
@@ -158,7 +158,7 @@ public interface ScalingParams {
     @get:FloatRange(from = 0.0, to = 1.0) public val maxTransitionArea: Float
 
     /**
-     * An interpolator to use to determine how to apply scaling as a item transitions across the
+     * An interpolator to use to determine how to apply scaling as an item transitions across the
      * scaling transition area.
      */
     public val scaleInterpolator: Easing
@@ -176,7 +176,7 @@ public interface ScalingParams {
      * ensure there are always enough content items available to be rendered. By default will be 20%
      * of the maxHeight of the viewport above and below the content.
      *
-     * @param viewportConstraints the viewports constraints
+     * @param viewportConstraints the viewport's constraints
      */
     public fun resolveViewportVerticalOffset(viewportConstraints: Constraints): Int
 }
@@ -312,7 +312,7 @@ internal class ReduceMotionScalingParams(private val initial: ScalingParams) : S
  * @param itemTopPx The top of the content item in pixels.
  * @param itemBottomPx The bottom of the content item in pixels.
  * @param scalingParams The parameters that determine where the item's scaling transition line is,
- *   how scaling and transparency to apply.
+ *   how much scaling and transparency to apply.
  */
 internal fun calculateScaleAndAlpha(
     viewPortStartPx: Int,
@@ -375,7 +375,7 @@ internal fun calculateScaleAndAlpha(
  *   offset
  * @param visible a flag to determine whether the list items should be visible or transparent. Items
  *   are normally visible, but can be drawn transparently when the list is not yet initialized,
- *   unless we are in preview (LocalInspectionModel) mode.
+ *   unless we are in preview (LocalInspectionMode) mode.
  */
 internal fun calculateItemInfo(
     itemStart: Int,
@@ -495,10 +495,10 @@ public data class ScaleAndAlpha(val scale: Float, val alpha: Float) {
 }
 
 /**
- * Calculate the offset from the viewport center line of the Start|Center of an items unadjusted or
- * scaled size. The for items with an height that is an odd number and that have
+ * Calculate the offset from the viewport center line of the Start|Center of an item's unadjusted or
+ * scaled size. For items with a height that is an odd number and that have
  * ScalingLazyListAnchorType.Center the offset will be rounded down. E.g. An item which is 19 pixels
- * in height will have a center offset of 9 pixes.
+ * in height will have a center offset of 9 pixels.
  *
  * @param anchorType the anchor type of the ScalingLazyColumn
  * @param itemScrollOffset the LazyListItemInfo offset of the item

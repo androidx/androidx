@@ -22,7 +22,7 @@ import androidx.wear.compose.material3.macrobenchmark.common.AndroidDialogBenchm
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/** This benchmark tests androidx.app.Dialog implementation for performance issues */
+/** This benchmark tests android.app.Dialog implementation for performance issues */
 @LargeTest
 @RunWith(Parameterized::class)
 class AndroidDialogBenchmarkTest(compilationMode: CompilationMode) :

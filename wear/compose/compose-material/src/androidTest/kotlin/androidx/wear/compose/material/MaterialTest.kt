@@ -359,7 +359,7 @@ private fun ImageBitmap.histogram(): MutableMap<Color, Long> {
 
 /**
  * writeToDevice - utility for writing an image bitmap to storage on the emulated device. The image
- * can be extract using adb pull, for example: adb pull
+ * can be extracted using adb pull, for example: adb pull
  * /storage/emulated/0/Android/data/androidx.wear.compose.test/cache/screenshots/mytest.png
  * /usr/local/username/Desktop/mytest.png
  */

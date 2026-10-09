@@ -84,7 +84,7 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         val result =
             strategy.measure(
                 listOf(screenHeight),
-                // Scroll is ignored as the item constrained by the screen.
+                // Scroll is ignored as the item is constrained by the screen.
                 scrollToBeConsumed = 25f,
             )
 

@@ -62,7 +62,7 @@ class TransformingLazyColumnLayoutInfoTest {
         rule.setContent {
             TransformingLazyColumn(
                 state = rememberTransformingLazyColumnState().also { state = it },
-                // Viewport take 4 items, item 0 is exactly above the center and there is space for
+                // Viewport takes 4 items, item 0 is exactly above the center and there is space for
                 // two more items below the center line.
                 modifier = Modifier.requiredSize(itemSizeDp * 5f),
                 verticalArrangement = Arrangement.spacedBy(0.dp),
@@ -84,7 +84,7 @@ class TransformingLazyColumnLayoutInfoTest {
         rule.setContent {
             TransformingLazyColumn(
                 state = rememberTransformingLazyColumnState().also { state = it },
-                // Viewport take 4 items, item 0 is exactly above the center and there is space for
+                // Viewport takes 4 items, item 0 is exactly above the center and there is space for
                 // two more items below the center line.
                 modifier = Modifier.requiredSize(itemSizeDp * 5f),
                 verticalArrangement = Arrangement.spacedBy(itemSizeDp),

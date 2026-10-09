@@ -408,11 +408,10 @@ public fun Slider(
  * accordingly to the start and end of the control. Buttons can have custom icons - [decreaseIcon]
  * and [increaseIcon].
  *
- * The bar in the middle of control can have separators if [segmented] flag is set to true. A number
- * of steps is calculated as the difference between max and min values of [valueProgression] divided
- * by [valueProgression].step - 1. For example, with a range of 100..120 and a step 5, number of by
- * [valueProgression].step - 1. For example, with a range of 100..120 and a step 5, number of steps
- * will be (120-100)/ 5 - 1 = 3. Steps are 100(first), 105, 110, 115, 120(last)
+ * The bar in the middle of control can have separators if [segmented] flag is set to true. The
+ * number of steps is calculated as the difference between max and min values of [valueProgression]
+ * divided by [valueProgression].step - 1. For example, with a range of 100..120 and a step of 5,
+ * the number of steps will be (120-100)/ 5 - 1 = 3. Steps are 100(first), 105, 110, 115, 120(last)
  *
  * If [valueProgression] range is not equally divisible by [valueProgression].step, then
  * [valueProgression].last will be adjusted to the closest divisible value in the range. For

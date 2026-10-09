@@ -33,7 +33,7 @@ import org.junit.runners.Parameterized
 // This test generates a baseline profile rules file that can be parsed to produce the
 // baseline-prof.txt files for the Wear Compose libraries.
 // 1) Build and run debug build of androidx.wear.compose.integration.macrobenchmark-target
-//    (not minified, because we need non-obsfuscated method/class names)
+//    (not minified, because we need non-obfuscated method/class names)
 // 2) Run this BaselineProfile test then click 'Baseline profile results' link
 // 3) Build profileparser:
 //    If necessary, include it in settings.gradle:

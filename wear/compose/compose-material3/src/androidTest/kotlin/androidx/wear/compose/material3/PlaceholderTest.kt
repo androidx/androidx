@@ -214,7 +214,7 @@ class PlaceholderTest {
             PlaceholderStage.ShowPlaceholder,
         )
 
-        // The placeholder shimmer effect is faint and largely transparent gradiant, but it should
+        // The placeholder shimmer effect is faint and largely transparent gradient, but it should
         // reduce the amount of the normal color.
         rule
             .onNodeWithTag(TEST_TAG)

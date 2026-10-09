@@ -626,7 +626,7 @@ class CardTest {
         var actualAppTextStyle = TextStyle.Default
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
-        var actuaContentTextStyle = TextStyle.Default
+        var actualContentTextStyle = TextStyle.Default
         var expectedAppTextStyle = TextStyle.Default
         var expectedTimeTextStyle = TextStyle.Default
         var expectedTitleTextStyle = TextStyle.Default
@@ -645,20 +645,20 @@ class CardTest {
                 title = { actualTitleTextStyle = LocalTextStyle.current },
                 modifier = Modifier.testTag(TEST_TAG),
             ) {
-                actuaContentTextStyle = LocalTextStyle.current
+                actualContentTextStyle = LocalTextStyle.current
             }
         }
         assertEquals(expectedAppTextStyle, actualAppTextStyle)
         assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
         assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
-        assertEquals(expectedContentTextStyle, actuaContentTextStyle)
+        assertEquals(expectedContentTextStyle, actualContentTextStyle)
     }
 
     @Test
     fun title_card_gives_correct_text_styles() {
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
-        var actuaContentTextStyle = TextStyle.Default
+        var actualContentTextStyle = TextStyle.Default
         var expectedTimeTextStyle = TextStyle.Default
         var expectedTitleTextStyle = TextStyle.Default
         var expectedContentTextStyle = TextStyle.Default
@@ -674,12 +674,12 @@ class CardTest {
                 title = { actualTitleTextStyle = LocalTextStyle.current },
                 modifier = Modifier.testTag(TEST_TAG),
             ) {
-                actuaContentTextStyle = LocalTextStyle.current
+                actualContentTextStyle = LocalTextStyle.current
             }
         }
         assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
         assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
-        assertEquals(expectedContentTextStyle, actuaContentTextStyle)
+        assertEquals(expectedContentTextStyle, actualContentTextStyle)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -688,7 +688,7 @@ class CardTest {
         var actualAppTextStyle = TextStyle.Default
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
-        var actuaContentTextStyle = TextStyle.Default
+        var actualContentTextStyle = TextStyle.Default
         var expectedAppTextStyle = TextStyle.Default
         var expectedTimeTextStyle = TextStyle.Default
         var expectedTitleTextStyle = TextStyle.Default
@@ -707,14 +707,14 @@ class CardTest {
                 title = { actualTitleTextStyle = LocalTextStyle.current },
                 modifier = Modifier.testTag(TEST_TAG),
             ) {
-                actuaContentTextStyle = LocalTextStyle.current
+                actualContentTextStyle = LocalTextStyle.current
             }
         }
         rule.onNodeWithTag(TEST_TAG).captureToImage()
         assertEquals(expectedAppTextStyle, actualAppTextStyle)
         assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
         assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
-        assertEquals(expectedContentTextStyle, actuaContentTextStyle)
+        assertEquals(expectedContentTextStyle, actualContentTextStyle)
     }
 
     private fun verifyHeight(expectedHeight: Dp, imageModifier: Modifier = Modifier) {
@@ -815,7 +815,7 @@ class CardTest {
         var actualAppTextStyle = TextStyle.Default
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
-        var actuaContentTextStyle = TextStyle.Default
+        var actualContentTextStyle = TextStyle.Default
         var expectedAppTextStyle = TextStyle.Default
         var expectedTimeTextStyle = TextStyle.Default
         var expectedTitleTextStyle = TextStyle.Default
@@ -832,20 +832,20 @@ class CardTest {
                 time = { actualTimeTextStyle = LocalTextStyle.current },
                 title = { actualTitleTextStyle = LocalTextStyle.current },
             ) {
-                actuaContentTextStyle = LocalTextStyle.current
+                actualContentTextStyle = LocalTextStyle.current
             }
         }
         assertEquals(expectedAppTextStyle, actualAppTextStyle)
         assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
         assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
-        assertEquals(expectedContentTextStyle, actuaContentTextStyle)
+        assertEquals(expectedContentTextStyle, actualContentTextStyle)
     }
 
     @Test
     fun title_card_content_gives_correct_text_styles() {
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
-        var actuaContentTextStyle = TextStyle.Default
+        var actualContentTextStyle = TextStyle.Default
         var actualSubtitleTextStyle = TextStyle.Default
         var expectedTimeTextStyle = TextStyle.Default
         var expectedTitleTextStyle = TextStyle.Default
@@ -862,12 +862,12 @@ class CardTest {
                 time = { actualTimeTextStyle = LocalTextStyle.current },
                 title = { actualTitleTextStyle = LocalTextStyle.current },
                 subtitle = { actualSubtitleTextStyle = LocalTextStyle.current },
-                content = { actuaContentTextStyle = LocalTextStyle.current },
+                content = { actualContentTextStyle = LocalTextStyle.current },
             )
         }
         assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
         assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
-        assertEquals(expectedContentTextStyle, actuaContentTextStyle)
+        assertEquals(expectedContentTextStyle, actualContentTextStyle)
         assertEquals(expectedSubtitleTextStyle, actualSubtitleTextStyle)
     }
 

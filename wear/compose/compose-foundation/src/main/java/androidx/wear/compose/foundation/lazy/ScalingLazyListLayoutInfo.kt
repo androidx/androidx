@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.IntSize
 
 /**
  * Contains useful information about the currently displayed layout state of [ScalingLazyColumn].
- * For example you can get the list of currently displayed item.
+ * For example you can get the list of currently displayed items.
  *
  * Use [ScalingLazyListState.layoutInfo] to retrieve this
  */
