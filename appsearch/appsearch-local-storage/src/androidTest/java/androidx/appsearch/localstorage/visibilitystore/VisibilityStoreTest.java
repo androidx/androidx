@@ -212,6 +212,7 @@ public class VisibilityStoreTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ true,
                 /*version=*/ VisibilityToDocumentConverter.SCHEMA_VERSION_LATEST,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
@@ -420,6 +421,7 @@ public class VisibilityStoreTest {
                 /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ true,
                 /*version=*/ VisibilityToDocumentConverter.SCHEMA_VERSION_LATEST,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*callStatsBuilder=*/ null);
 
@@ -495,6 +497,7 @@ public class VisibilityStoreTest {
                 /*forceOverride=*/ true,
                 /*version=*/ VisibilityToDocumentConverter
                         .OVERLAY_SCHEMA_VERSION_PUBLIC_ACL_VISIBLE_TO_CONFIG,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*setSchemaStatsBuilder=*/ null,
                 /*callStatsBuilder=*/ null);
 
