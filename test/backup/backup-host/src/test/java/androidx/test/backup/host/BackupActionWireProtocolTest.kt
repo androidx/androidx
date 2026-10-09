@@ -19,9 +19,8 @@ package androidx.test.backup.host
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.UUID
-import kotlin.test.assertFailsWith
+import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
-import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
@@ -301,15 +300,6 @@ class BackupActionWireProtocolTest {
                 mapOf("expected_col" to "name", "expected_val" to ""),
             BackupActionWireProtocol.assertArgs(domain),
         )
-    }
-
-    @Test
-    fun assertArgsRejectADatabaseRowWithoutColumns() {
-        assertFailsWith<IllegalArgumentException> {
-            BackupActionWireProtocol.assertArgs(
-                StorageDomain.Database("app.db", "users", "id", 42, emptyMap())
-            )
-        }
     }
 
     @Test

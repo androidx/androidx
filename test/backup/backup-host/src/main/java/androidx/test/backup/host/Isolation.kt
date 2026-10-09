@@ -41,7 +41,9 @@ public enum class IsolationPolicy {
 /**
  * Annotation to override the default automatic clear data behavior of the framework.
  *
- * Apply this to a test class or test method to configure the sandbox isolation.
+ * Apply this to a test class or test method to configure the sandbox isolation. An annotation on a
+ * test method takes precedence over one on its class, and an annotation on a class also applies to
+ * its [@Nested][org.junit.jupiter.api.Nested] test classes.
  *
  * @property value The isolation policy to apply. Defaults to [IsolationPolicy.AUTOMATIC].
  */

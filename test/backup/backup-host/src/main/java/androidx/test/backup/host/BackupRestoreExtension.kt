@@ -16,6 +16,7 @@
 
 package androidx.test.backup.host
 
+import androidx.annotation.VisibleForTesting
 import com.android.adblib.AdbSession
 import com.android.adblib.connectedDevicesTracker
 import com.android.adblib.deviceProperties
@@ -23,6 +24,10 @@ import com.android.adblib.isOnline
 import com.android.adblib.serialNumber
 import com.android.adblib.shellAsText
 import com.android.adblib.tools.createStandaloneSession
+import java.io.File
+import java.lang.reflect.Modifier
+import java.lang.reflect.Parameter
+import java.util.Properties
 import java.util.logging.Logger
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -40,6 +45,9 @@ import org.junit.jupiter.api.extension.ParameterResolver
  * automatic APK installation for tested and test packages, proactively dismisses
  * lockscreens/keyguards, and sets up data isolation (e.g. running `pm clear`) prior to test
  * execution.
+ *
+ * Each controller targets the app named by the test class's [BackupRestoreConfig]. Without one, it
+ * targets the tested app that the test suite properties name.
  */
 public class BackupRestoreExtension
 internal constructor(
@@ -91,9 +99,35 @@ internal constructor(
         parameterContext: ParameterContext?,
         extensionContext: ExtensionContext?,
     ): Boolean {
-        return parameterContext?.parameter?.type?.name ==
-            "androidx.test.backup.host.BackupRestoreController"
+        return parameterContext?.parameter?.let { isController(it) } ?: false
     }
+
+    /**
+     * Returns the position of the parameter of [parameterContext] among the
+     * [BackupRestoreController] parameters of its method or constructor.
+     *
+     * Device serials, API levels and online devices are assigned to controllers in this order, so
+     * that parameters of other types, such as a `@TempDir` path, do not shift the assignment.
+     */
+    @VisibleForTesting
+    internal fun deviceIndexOf(parameterContext: ParameterContext): Int =
+        parameterContext.parameter.declaringExecutable.parameters
+            .take(parameterContext.index)
+            .count { isController(it) }
+
+    /**
+     * Returns the [annotationClass] annotation of [testClass], or else of the innermost class that
+     * encloses it and has one. Only inner classes, such as `@Nested` test classes, take the
+     * annotations of the classes that enclose them.
+     */
+    internal fun <A : Annotation> findClassAnnotation(
+        testClass: Class<*>,
+        annotationClass: Class<A>,
+    ): A? =
+        generateSequence(testClass) { cls ->
+                cls.enclosingClass.takeIf { cls.isMemberClass && !Modifier.isStatic(cls.modifiers) }
+            }
+            .firstNotNullOfOrNull { it.getAnnotation(annotationClass) }
 
     override fun resolveParameter(
         parameterContext: ParameterContext?,
@@ -103,12 +137,10 @@ internal constructor(
         val requiredClass =
             extensionContext?.requiredTestClass
                 ?: throw IllegalStateException("Required test class is missing")
-        val config =
-            requiredClass.getAnnotation(BackupRestoreConfig::class.java)
-                ?: throw IllegalStateException(
-                    "BackupRestoreConfig annotation is required on class ${requiredClass.name}"
-                )
+        val suiteProperties = suiteProperties()
+        val applicationId = applicationIdFor(requiredClass, suiteProperties)
         val adbSession = sessionFor(extensionContext)
+        val deviceIndex = parameterContext?.let { deviceIndexOf(it) } ?: 0
 
         val deviceAnnotation = parameterContext?.parameter?.getAnnotation(Device::class.java)
         val requestedSerial = run {
@@ -120,9 +152,8 @@ internal constructor(
             val serialsProp = System.getProperty(PROP_DEVICE_SERIALS)
             if (!serialsProp.isNullOrEmpty()) {
                 val list = serialsProp.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                val index = parameterContext?.index
-                if (index != null && index >= 0 && index < list.size) {
-                    return@run list[index]
+                if (deviceIndex < list.size) {
+                    return@run list[deviceIndex]
                 }
             }
             val global = System.getProperty(PROP_DEVICE_SERIAL)
@@ -138,9 +169,8 @@ internal constructor(
                         .map { it.trim() }
                         .filter { it.isNotEmpty() }
                         .mapNotNull { it.toIntOrNull() }
-                val index = parameterContext?.index
-                if (index != null && index >= 0 && index < list.size) {
-                    return@run list[index]
+                if (deviceIndex < list.size) {
+                    return@run list[deviceIndex]
                 }
             }
             val globalApiProp = System.getProperty(PROP_DEVICE_API)
@@ -194,12 +224,11 @@ internal constructor(
             throw IllegalStateException(errorMsg)
         }
 
-        // Resolve the matching device (default to parameter index distribution if multiple devices
-        // match)
-        val paramIndex = parameterContext?.index ?: 0
+        // Resolve the matching device (default to distributing them over the controller parameters
+        // if multiple devices match)
         val selectedDevice =
-            if (requestedSerial.isEmpty() && paramIndex < matchingDevices.size) {
-                matchingDevices[paramIndex]
+            if (requestedSerial.isEmpty() && deviceIndex < matchingDevices.size) {
+                matchingDevices[deviceIndex]
             } else {
                 matchingDevices.first()
             }
@@ -222,7 +251,7 @@ internal constructor(
                 adbSession = adbSession,
                 serialNumber = serial,
                 apiLevel = api,
-                applicationId = config.applicationId,
+                applicationId = applicationId,
                 telemetryPublisher = { key, value ->
                     extensionContext?.publishReportEntry(key, value)
                 },
@@ -230,61 +259,7 @@ internal constructor(
 
         // Automatically install tested APKs (main app) and test APKs if provided by AGP test suite
         // task
-        val propertiesFileEnv = System.getenv("com.android.junit.engine.input.parameters")
-        var testedApkPath: String? = null
-        var testApkPath: String? = null
-
-        if (!propertiesFileEnv.isNullOrEmpty()) {
-            val propertiesFile = java.io.File(propertiesFileEnv)
-            if (propertiesFile.exists()) {
-                try {
-                    val props = java.util.Properties()
-                    propertiesFile.reader(Charsets.UTF_8).use { props.load(it) }
-                    testedApkPath = props.getProperty("com.android.agp.test.TESTED_APKS")
-                    testApkPath = props.getProperty("com.android.agp.test.TEST_APKS")
-                } catch (e: Exception) {
-                    logger.warning("Failed to load parameters properties file: ${e.message}")
-                }
-            }
-        }
-
-        if (testedApkPath.isNullOrEmpty()) {
-            testedApkPath = System.getProperty("com.android.agp.test.TESTED_APKS")
-        }
-        if (testApkPath.isNullOrEmpty()) {
-            testApkPath = System.getProperty("com.android.agp.test.TEST_APKS")
-        }
-
-        fun installApkFromPath(path: String) {
-            if (path.isEmpty()) return
-            val file = java.io.File(path)
-            if (file.exists()) {
-                if (file.isDirectory) {
-                    file.listFiles()?.forEach { child ->
-                        if (child.name.endsWith(".apk", ignoreCase = true)) {
-                            logger.info("Automatically installing child APK: ${child.absolutePath}")
-                            runBlocking { deviceImpl.installApk(child.toPath()) }
-                        }
-                    }
-                } else if (file.name.endsWith(".apk", ignoreCase = true)) {
-                    logger.info("Automatically installing APK: ${file.absolutePath}")
-                    runBlocking { deviceImpl.installApk(file.toPath()) }
-                }
-            }
-        }
-
-        if (!testedApkPath.isNullOrEmpty()) {
-            logger.info("Automatically installing tested APK from: $testedApkPath")
-            testedApkPath.split(java.io.File.pathSeparator).forEach { path ->
-                installApkFromPath(path)
-            }
-        }
-        if (!testApkPath.isNullOrEmpty()) {
-            logger.info("Automatically installing test APK from: $testApkPath")
-            testApkPath.split(java.io.File.pathSeparator).forEach { path ->
-                installApkFromPath(path)
-            }
-        }
+        runBlocking { installOnce(extensionContext, deviceImpl, suiteApks(suiteProperties)) }
 
         // Proactively unlock the emulator lockscreen/keyguard to ensure Credential Protected
         // storage is decrypted and accessible
@@ -299,11 +274,10 @@ internal constructor(
         }
 
         // Run automatic pm clear before the test starts if policy is AUTOMATIC
-        val testMethod = extensionContext?.requiredTestMethod
-        val testClass = extensionContext?.requiredTestClass
+        val testMethod = extensionContext.requiredTestMethod
         val sandboxIsolation =
-            testMethod?.getAnnotation(Isolation::class.java)
-                ?: testClass?.getAnnotation(Isolation::class.java)
+            testMethod.getAnnotation(Isolation::class.java)
+                ?: findClassAnnotation(requiredClass, Isolation::class.java)
         val policy = sandboxIsolation?.value ?: IsolationPolicy.AUTOMATIC
 
         if (policy == IsolationPolicy.AUTOMATIC) {
@@ -313,6 +287,86 @@ internal constructor(
 
         return deviceImpl
     }
+
+    /**
+     * Installs [apks] on the device of [controller], unless this test run already installed them
+     * there and neither the app nor its test APK has been installed again or uninstalled since.
+     *
+     * The installed APK paths identify an installation, since they change on every install. A test
+     * that installs another version of the app or of its test APK, or uninstalls one of them, thus
+     * gets [apks] installed again for the next test.
+     */
+    internal suspend fun installOnce(
+        context: ExtensionContext,
+        controller: BackupRestoreControllerImpl,
+        apks: List<File>,
+    ) {
+        if (apks.isEmpty()) return
+        val store = context.root.getStore(NAMESPACE)
+        val key = InstalledApp(controller.serialNumber, controller.applicationId, apks)
+        val installed = store.get(key)
+        if (installed != null && installed == controller.installedApkPaths()) {
+            logger.info("APKs already installed on ${controller.serialNumber}.")
+            return
+        }
+        for (apk in apks) {
+            logger.info("Automatically installing APK: ${apk.absolutePath}")
+            controller.installApk(apk.toPath())
+        }
+        store.put(key, controller.installedApkPaths())
+    }
+
+    /**
+     * Returns the APK files in [paths]: APK files and directories of APK files, separated by
+     * [File.pathSeparator].
+     */
+    internal fun apkFilesIn(paths: String?): List<File> =
+        paths
+            .orEmpty()
+            .split(File.pathSeparator)
+            .filter { it.isNotEmpty() }
+            .map { File(it) }
+            .flatMap { if (it.isDirectory) it.listFiles().orEmpty().asList() else listOf(it) }
+            .filter { it.isFile && it.name.endsWith(".apk", ignoreCase = true) }
+
+    /**
+     * Returns the inputs that an Android Gradle Plugin test suite passes to its tests in the
+     * properties file at [path], or no properties outside of a test suite or if the file can't be
+     * read.
+     */
+    internal fun suiteProperties(path: String? = System.getenv(SUITE_PROPERTIES_ENV)): Properties {
+        val file = path?.takeIf { it.isNotEmpty() }?.let { File(it) }
+        if (file == null || !file.exists()) return Properties()
+        return try {
+            Properties().apply { file.reader(Charsets.UTF_8).use { load(it) } }
+        } catch (e: Exception) {
+            logger.warning("Failed to load parameters properties file: ${e.message}")
+            Properties()
+        }
+    }
+
+    /**
+     * Returns the ID of the app that the tests of [testClass] target: the one that its
+     * [BackupRestoreConfig] names, or else the one of the app that the test suite of
+     * [suiteProperties] tests.
+     */
+    internal fun applicationIdFor(testClass: Class<*>, suiteProperties: Properties): String =
+        findClassAnnotation(testClass, BackupRestoreConfig::class.java)?.applicationId
+            ?: suiteProperty(suiteProperties, PROP_TESTED_APPLICATION_ID)
+            ?: throw IllegalStateException(
+                "No application ID for ${testClass.name}: annotate it with @BackupRestoreConfig, " +
+                    "or run it in an Android Gradle Plugin backup test suite."
+            )
+
+    /** Returns the APK files of the tested app, then of the test app, of [suiteProperties]. */
+    internal fun suiteApks(suiteProperties: Properties): List<File> =
+        apkFilesIn(suiteProperty(suiteProperties, PROP_TESTED_APKS)) +
+            apkFilesIn(suiteProperty(suiteProperties, PROP_TEST_APKS))
+
+    /** Returns the test suite input [name] of [suiteProperties], or else the system property. */
+    private fun suiteProperty(suiteProperties: Properties, name: String): String? =
+        suiteProperties.getProperty(name)?.takeIf { it.isNotEmpty() }
+            ?: System.getProperty(name)?.takeIf { it.isNotEmpty() }
 
     /**
      * Publishes the report entries describing a precondition failure, so that failures detected
@@ -345,6 +399,13 @@ internal constructor(
         }
     }
 
+    /** Store key of the installed APK paths after [installOnce] installed [apks] on a device. */
+    private data class InstalledApp(
+        val serialNumber: String,
+        val applicationId: String,
+        val apks: List<File>,
+    )
+
     /** Configuration constants and system property keys for device resolution and setup. */
     private companion object {
         /** Store namespace for the state that this extension keeps in extension contexts. */
@@ -369,10 +430,33 @@ internal constructor(
         /** Global property specifying a fallback device API level. */
         private const val PROP_DEVICE_API = "androidx.test.backup.device.api"
 
+        /**
+         * Environment variable with the path of the properties file in which an Android Gradle
+         * Plugin test suite passes its inputs to the tests.
+         */
+        private const val SUITE_PROPERTIES_ENV = "com.android.junit.engine.input.parameters"
+
+        /** Test suite input with the application ID of the tested app. */
+        private const val PROP_TESTED_APPLICATION_ID =
+            "com.android.junit.engine.tested.application.id"
+
+        /** Test suite input with the APK files of the tested app. */
+        private const val PROP_TESTED_APKS = "com.android.agp.test.TESTED_APKS"
+
+        /** Test suite input with the APK files of the test app. */
+        private const val PROP_TEST_APKS = "com.android.agp.test.TEST_APKS"
+
         /** Timeout limit for discovering connected devices via ADB. */
         private const val ADB_TIMEOUT_MS = 30000L
 
         /** Minimum Android API level required for backup/restore capability (Android 12). */
         private const val MIN_REQUIRED_API = 31
+
+        /**
+         * Returns whether [parameter] is a [BackupRestoreController], which this extension
+         * resolves.
+         */
+        private fun isController(parameter: Parameter): Boolean =
+            parameter.type == BackupRestoreController::class.java
     }
 }

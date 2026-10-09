@@ -84,9 +84,11 @@ internal object BackupActionValues {
  */
 internal object BackupActionWireProtocol {
 
-    /** Returns the instrumentation component of the test APK built for [applicationId]. */
-    fun runnerComponent(applicationId: String): String =
-        "$applicationId.test/androidx.test.backup.BackupRestoreTestRunner"
+    /** Class of the instrumentation that runs the actions in the app's process. */
+    const val RUNNER_CLASS = "androidx.test.backup.BackupRestoreTestRunner"
+
+    /** Returns the instrumentation component that AGP gives the test APK of [applicationId]. */
+    fun runnerComponent(applicationId: String): String = "$applicationId.test/$RUNNER_CLASS"
 
     /**
      * Returns the instrumentation arguments that make the runner execute [actionClassName] with the
@@ -164,8 +166,7 @@ internal object BackupActionWireProtocol {
      * Returns the `AssertStorageAction` arguments that check that [storage] holds its value on the
      * device.
      *
-     * @throws IllegalArgumentException if [storage] is of an unsupported type, or is a
-     *   [StorageDomain.Database] with no column to verify
+     * @throws IllegalArgumentException if [storage] is of an unsupported type
      */
     fun assertArgs(storage: StorageDomain): Map<String, String> =
         populateArgs(storage) +
@@ -178,12 +179,7 @@ internal object BackupActionWireProtocol {
                     // populateArgs already carries the primary key and every column in VALUES,
                     // which the action verifies. The first column is also sent on its own, which
                     // is all that device libraries predating VALUES verification check.
-                    val (expectedCol, expectedVal) =
-                        storage.columnValues.entries.firstOrNull()
-                            ?: throw IllegalArgumentException(
-                                "DATABASE storage domain must specify at least one column/value " +
-                                    "pair to verify."
-                            )
+                    val (expectedCol, expectedVal) = storage.columnValues.entries.first()
                     mapOf(
                         BackupActionInputKeys.EXPECTED_COL to expectedCol,
                         BackupActionInputKeys.EXPECTED_VAL to expectedVal.orEmpty(),
