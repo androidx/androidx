@@ -161,8 +161,9 @@ class ExperimentalPreviewScreenshotTest {
      */
     @Test
     fun viewAndEmbeddedPlayersRenderTheDocumentTheSame() {
-        val document = sampleDocument()
-        rule.setContent { RemotePlayersSideBySide(document) }
+        val viewDocument = sampleDocument()
+        val embeddedDocument = sampleDocument()
+        rule.setContent { RemotePlayersSideBySide(viewDocument, embeddedDocument) }
         rule.waitForIdle()
         val viewBitmap = rule.onNodeWithTag("view").captureToImage().asAndroidBitmap()
         val embeddedBitmap = rule.onNodeWithTag("embedded").captureToImage().asAndroidBitmap()
@@ -198,10 +199,13 @@ class ExperimentalPreviewScreenshotTest {
     }
 
     @Composable
-    private fun RemotePlayersSideBySide(document: RemoteDocument) {
+    private fun RemotePlayersSideBySide(
+        viewDocument: RemoteDocument,
+        embeddedDocument: RemoteDocument,
+    ) {
         Column {
-            PreviewUnderTest(document, PlayerImpl.JAVA, "view")
-            PreviewUnderTest(document, PlayerImpl.COMPOSE, "embedded")
+            PreviewUnderTest(viewDocument, PlayerImpl.JAVA, "view")
+            PreviewUnderTest(embeddedDocument, PlayerImpl.COMPOSE, "embedded")
         }
     }
 }

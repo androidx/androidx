@@ -125,7 +125,9 @@ internal class RemoteBaseScreenshotTestRule(
         try {
             val width = remoteCreationDisplayInfo.widthDp.value
             val height = remoteCreationDisplayInfo.heightDp.value
-            val player = TestPlayer(coreDocument, width, height)
+            val docForTestPlayer =
+                CoreDocument(coreDocument.clock).apply { initFromBuffer(coreDocument.buffer) }
+            val player = TestPlayer(docForTestPlayer, width, height)
             val actualCommands = player.paint()
 
             saveTextFile(actualCommands.joinToString(separator = "\n"), fileName)

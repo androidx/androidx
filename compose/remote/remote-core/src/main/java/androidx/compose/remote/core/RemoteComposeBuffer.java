@@ -1079,8 +1079,8 @@ public class RemoteComposeBuffer {
     }
 
     /**
-     * Replaces the buffer contents with the decompressed document, so later inflations (e.g. {@link
-     * CoreDocument#reinflate()}) read it directly instead of decompressing again.
+     * Replaces the buffer contents with the decompressed document, so later inflations read it
+     * directly instead of decompressing again.
      */
     private void decompress() throws IOException {
         byte[] document = Header.decompressDocument(mBuffer.mBuffer, mBuffer.mSize);
