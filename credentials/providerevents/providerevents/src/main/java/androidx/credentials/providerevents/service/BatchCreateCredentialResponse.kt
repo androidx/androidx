@@ -20,8 +20,8 @@ import androidx.annotation.RestrictTo
 import androidx.credentials.providerevents.internal.RequestValidationHelper
 
 /**
- * The results a credential provider's fulfillment activity returns for a
- * [ProviderBatchCreateCredentialRequest].
+ * The results a credential provider returns for a [ProviderBatchCreateCredentialRequest] through
+ * [androidx.credentials.providerevents.IntentHandler.setBatchCreateCredentialResponse].
  *
  * Results are matched to requests by [CreateCredentialResult.packageName], never by position. A
  * response should carry exactly one result per request. The system ignores results for package

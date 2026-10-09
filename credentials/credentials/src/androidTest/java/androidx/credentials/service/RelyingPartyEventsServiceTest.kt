@@ -24,7 +24,6 @@ import android.os.IBinder
 import androidx.core.os.OutcomeReceiverCompat
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CreatePublicKeyCredentialResponse
-import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -128,7 +127,7 @@ class RelyingPartyEventsServiceTest {
             object :
                 OutcomeReceiverCompat<
                     CheckPublicKeyCredentialCreationEligibilityResponse,
-                    CreateCredentialException,
+                    CheckPublicKeyCredentialCreationEligibilityException,
                 > {
                 override fun onResult(
                     response: CheckPublicKeyCredentialCreationEligibilityResponse
@@ -136,12 +135,40 @@ class RelyingPartyEventsServiceTest {
                     result = response
                 }
 
-                override fun onError(error: CreateCredentialException) {}
+                override fun onError(error: CheckPublicKeyCredentialCreationEligibilityException) {}
             },
         )
 
         assertThat(result).isNotNull()
         assertThat(result!!.isEligible).isTrue()
+    }
+
+    @Test
+    fun onCheckPublicKeyCredentialCreationEligibility_propagatesFailure() {
+        val service = TestRelyingPartyEventsService(shouldFail = true)
+        var error: CheckPublicKeyCredentialCreationEligibilityException? = null
+
+        service.onCheckPublicKeyCredentialCreationEligibility(
+            CheckPublicKeyCredentialCreationEligibilityRequest(),
+            CancellationSignal(),
+            object :
+                OutcomeReceiverCompat<
+                    CheckPublicKeyCredentialCreationEligibilityResponse,
+                    CheckPublicKeyCredentialCreationEligibilityException,
+                > {
+                override fun onResult(
+                    response: CheckPublicKeyCredentialCreationEligibilityResponse
+                ) {}
+
+                override fun onError(e: CheckPublicKeyCredentialCreationEligibilityException) {
+                    error = e
+                }
+            },
+        )
+
+        assertThat(error)
+            .isInstanceOf(CheckPublicKeyCredentialCreationEligibilityException::class.java)
+        assertThat(error?.errorMessage).isEqualTo("eligibility check failed")
     }
 
     @Test
@@ -155,13 +182,13 @@ class RelyingPartyEventsServiceTest {
             object :
                 OutcomeReceiverCompat<
                     GetPublicKeyCredentialCreationResponse,
-                    CreateCredentialException,
+                    GetPublicKeyCredentialCreationException,
                 > {
                 override fun onResult(response: GetPublicKeyCredentialCreationResponse) {
                     result = response
                 }
 
-                override fun onError(error: CreateCredentialException) {}
+                override fun onError(error: GetPublicKeyCredentialCreationException) {}
             },
         )
 
@@ -170,85 +197,111 @@ class RelyingPartyEventsServiceTest {
     }
 
     @Test
-    fun onPublicKeyCredentialCreated_exposesRegistrationResponseJson() {
-        val service = TestRelyingPartyEventsService()
-        val request =
-            PublicKeyCredentialCreatedRequest(CreatePublicKeyCredentialResponse(RESPONSE_JSON))
-        var succeeded = false
-
-        service.onPublicKeyCredentialCreated(
-            request,
-            CancellationSignal(),
-            object :
-                OutcomeReceiverCompat<
-                    PublicKeyCredentialCreatedResponse,
-                    CreateCredentialException,
-                > {
-                override fun onResult(response: PublicKeyCredentialCreatedResponse) {
-                    succeeded = true
-                }
-
-                override fun onError(error: CreateCredentialException) {}
-            },
-        )
-
-        assertThat(request.isSuccess).isTrue()
-        assertThat(request.response?.registrationResponseJson).isEqualTo(RESPONSE_JSON)
-        assertThat(request.exception).isNull()
-        assertThat(succeeded).isTrue()
-    }
-
-    @Test
-    fun onPublicKeyCredentialCreated_exposesCreationException() {
-        val service = TestRelyingPartyEventsService()
-        val creationException = CreateCredentialUnknownException("provider creation failed")
-        val request = PublicKeyCredentialCreatedRequest(creationException)
-        var succeeded = false
-
-        service.onPublicKeyCredentialCreated(
-            request,
-            CancellationSignal(),
-            object :
-                OutcomeReceiverCompat<
-                    PublicKeyCredentialCreatedResponse,
-                    CreateCredentialException,
-                > {
-                override fun onResult(response: PublicKeyCredentialCreatedResponse) {
-                    succeeded = true
-                }
-
-                override fun onError(error: CreateCredentialException) {}
-            },
-        )
-
-        assertThat(request.isSuccess).isFalse()
-        assertThat(request.response).isNull()
-        assertThat(request.exception).isSameInstanceAs(creationException)
-        assertThat(succeeded).isTrue()
-    }
-
-    @Test
-    fun onPublicKeyCredentialCreated_propagatesFailure() {
+    fun onGetPublicKeyCredentialCreationRequest_propagatesFailure() {
         val service = TestRelyingPartyEventsService(shouldFail = true)
-        var error: CreateCredentialException? = null
+        var error: GetPublicKeyCredentialCreationException? = null
 
-        service.onPublicKeyCredentialCreated(
-            PublicKeyCredentialCreatedRequest(CreatePublicKeyCredentialResponse(RESPONSE_JSON)),
+        service.onGetPublicKeyCredentialCreationRequest(
+            GetPublicKeyCredentialCreationRequest(),
             CancellationSignal(),
             object :
                 OutcomeReceiverCompat<
-                    PublicKeyCredentialCreatedResponse,
-                    CreateCredentialException,
+                    GetPublicKeyCredentialCreationResponse,
+                    GetPublicKeyCredentialCreationException,
                 > {
-                override fun onResult(response: PublicKeyCredentialCreatedResponse) {}
+                override fun onResult(response: GetPublicKeyCredentialCreationResponse) {}
 
-                override fun onError(e: CreateCredentialException) {
+                override fun onError(e: GetPublicKeyCredentialCreationException) {
                     error = e
                 }
             },
         )
 
-        assertThat(error).isInstanceOf(CreateCredentialUnknownException::class.java)
+        assertThat(error).isInstanceOf(GetPublicKeyCredentialCreationException::class.java)
+        assertThat(error?.errorMessage).isEqualTo("creation options failed")
+    }
+
+    @Test
+    fun onPublicKeyCredentialCreationResult_exposesRegistrationResponseJson() {
+        val service = TestRelyingPartyEventsService()
+        val result =
+            PublicKeyCredentialCreationResult(CreatePublicKeyCredentialResponse(RESPONSE_JSON))
+        var succeeded = false
+
+        service.onPublicKeyCredentialCreationResult(
+            result,
+            CancellationSignal(),
+            object :
+                OutcomeReceiverCompat<
+                    PublicKeyCredentialCreationResponse,
+                    PublicKeyCredentialCreationException,
+                > {
+                override fun onResult(response: PublicKeyCredentialCreationResponse) {
+                    succeeded = true
+                }
+
+                override fun onError(error: PublicKeyCredentialCreationException) {}
+            },
+        )
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.credential?.registrationResponseJson).isEqualTo(RESPONSE_JSON)
+        assertThat(result.exception).isNull()
+        assertThat(succeeded).isTrue()
+    }
+
+    @Test
+    fun onPublicKeyCredentialCreationResult_exposesCreationException() {
+        val service = TestRelyingPartyEventsService()
+        val creationException = CreateCredentialUnknownException("provider creation failed")
+        val result = PublicKeyCredentialCreationResult(creationException)
+        var succeeded = false
+
+        service.onPublicKeyCredentialCreationResult(
+            result,
+            CancellationSignal(),
+            object :
+                OutcomeReceiverCompat<
+                    PublicKeyCredentialCreationResponse,
+                    PublicKeyCredentialCreationException,
+                > {
+                override fun onResult(response: PublicKeyCredentialCreationResponse) {
+                    succeeded = true
+                }
+
+                override fun onError(error: PublicKeyCredentialCreationException) {}
+            },
+        )
+
+        assertThat(result.isSuccess).isFalse()
+        assertThat(result.credential).isNull()
+        assertThat(result.exception).isSameInstanceAs(creationException)
+        assertThat(succeeded).isTrue()
+    }
+
+    @Test
+    fun onPublicKeyCredentialCreationResult_propagatesFailure() {
+        val service = TestRelyingPartyEventsService(shouldFail = true)
+        var error: PublicKeyCredentialCreationException? = null
+
+        service.onPublicKeyCredentialCreationResult(
+            PublicKeyCredentialCreationResult(CreatePublicKeyCredentialResponse(RESPONSE_JSON)),
+            CancellationSignal(),
+            object :
+                OutcomeReceiverCompat<
+                    PublicKeyCredentialCreationResponse,
+                    PublicKeyCredentialCreationException,
+                > {
+                override fun onResult(response: PublicKeyCredentialCreationResponse) {}
+
+                override fun onError(e: PublicKeyCredentialCreationException) {
+                    error = e
+                }
+            },
+        )
+
+        assertThat(error).isInstanceOf(PublicKeyCredentialCreationException::class.java)
+        assertThat(error?.errorMessage).isEqualTo("registration failed")
     }
 
     @Test
@@ -286,22 +339,22 @@ class RelyingPartyEventsServiceTest {
         assertThat(creationResp.toString()).contains("createPublicKeyCredentialRequest=")
 
         val pkResponse = CreatePublicKeyCredentialResponse(RESPONSE_JSON)
-        val createdSuccess = PublicKeyCredentialCreatedRequest(pkResponse)
+        val createdSuccess = PublicKeyCredentialCreationResult(pkResponse)
         val ex = CreateCredentialUnknownException("failed")
-        val createdFailure = PublicKeyCredentialCreatedRequest(ex)
-        assertThat(createdSuccess).isEqualTo(PublicKeyCredentialCreatedRequest(pkResponse))
-        assertThat(createdFailure).isEqualTo(PublicKeyCredentialCreatedRequest(ex))
+        val createdFailure = PublicKeyCredentialCreationResult(ex)
+        assertThat(createdSuccess).isEqualTo(PublicKeyCredentialCreationResult(pkResponse))
+        assertThat(createdFailure).isEqualTo(PublicKeyCredentialCreationResult(ex))
         assertThat(createdSuccess).isNotEqualTo(createdFailure)
         assertThat(createdSuccess.hashCode())
-            .isEqualTo(PublicKeyCredentialCreatedRequest(pkResponse).hashCode())
-        assertThat(createdSuccess.toString()).contains("response=")
+            .isEqualTo(PublicKeyCredentialCreationResult(pkResponse).hashCode())
+        assertThat(createdSuccess.toString()).contains("credential=")
 
-        assertThat(PublicKeyCredentialCreatedResponse())
-            .isEqualTo(PublicKeyCredentialCreatedResponse())
-        assertThat(PublicKeyCredentialCreatedResponse().hashCode())
-            .isEqualTo(PublicKeyCredentialCreatedResponse().hashCode())
-        assertThat(PublicKeyCredentialCreatedResponse().toString())
-            .isEqualTo("PublicKeyCredentialCreatedResponse()")
+        assertThat(PublicKeyCredentialCreationResponse())
+            .isEqualTo(PublicKeyCredentialCreationResponse())
+        assertThat(PublicKeyCredentialCreationResponse().hashCode())
+            .isEqualTo(PublicKeyCredentialCreationResponse().hashCode())
+        assertThat(PublicKeyCredentialCreationResponse().toString())
+            .isEqualTo("PublicKeyCredentialCreationResponse()")
     }
 
     private class TestRelyingPartyEventsService(
@@ -323,10 +376,16 @@ class RelyingPartyEventsServiceTest {
             callback:
                 OutcomeReceiverCompat<
                     CheckPublicKeyCredentialCreationEligibilityResponse,
-                    CreateCredentialException,
+                    CheckPublicKeyCredentialCreationEligibilityException,
                 >,
         ) {
-            callback.onResult(CheckPublicKeyCredentialCreationEligibilityResponse(isEligible))
+            if (shouldFail) {
+                callback.onError(
+                    CheckPublicKeyCredentialCreationEligibilityException("eligibility check failed")
+                )
+            } else {
+                callback.onResult(CheckPublicKeyCredentialCreationEligibilityResponse(isEligible))
+            }
         }
 
         override fun onGetPublicKeyCredentialCreationRequest(
@@ -335,29 +394,33 @@ class RelyingPartyEventsServiceTest {
             callback:
                 OutcomeReceiverCompat<
                     GetPublicKeyCredentialCreationResponse,
-                    CreateCredentialException,
-                >,
-        ) {
-            callback.onResult(
-                GetPublicKeyCredentialCreationResponse(
-                    CreatePublicKeyCredentialRequest(REQUEST_JSON)
-                )
-            )
-        }
-
-        override fun onPublicKeyCredentialCreated(
-            request: PublicKeyCredentialCreatedRequest,
-            cancellationSignal: CancellationSignal,
-            callback:
-                OutcomeReceiverCompat<
-                    PublicKeyCredentialCreatedResponse,
-                    CreateCredentialException,
+                    GetPublicKeyCredentialCreationException,
                 >,
         ) {
             if (shouldFail) {
-                callback.onError(CreateCredentialUnknownException("registration failed"))
+                callback.onError(GetPublicKeyCredentialCreationException("creation options failed"))
             } else {
-                callback.onResult(PublicKeyCredentialCreatedResponse())
+                callback.onResult(
+                    GetPublicKeyCredentialCreationResponse(
+                        CreatePublicKeyCredentialRequest(REQUEST_JSON)
+                    )
+                )
+            }
+        }
+
+        override fun onPublicKeyCredentialCreationResult(
+            result: PublicKeyCredentialCreationResult,
+            cancellationSignal: CancellationSignal,
+            callback:
+                OutcomeReceiverCompat<
+                    PublicKeyCredentialCreationResponse,
+                    PublicKeyCredentialCreationException,
+                >,
+        ) {
+            if (shouldFail) {
+                callback.onError(PublicKeyCredentialCreationException("registration failed"))
+            } else {
+                callback.onResult(PublicKeyCredentialCreationResponse())
             }
         }
     }

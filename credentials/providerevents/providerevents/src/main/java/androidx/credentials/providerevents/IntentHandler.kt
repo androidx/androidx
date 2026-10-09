@@ -46,7 +46,7 @@ import androidx.credentials.providerevents.transfer.ProviderImportCredentialsRes
 /**
  * IntentHandler to be used by credential providers to extract requests from a given intent, or to
  * set back a response or an exception to a given intent while dealing with activities invoked by
- * intents from the credential import flow or the batch credential creation fulfillment flow.
+ * intents from the credential import flow or the batch credential creation flow.
  *
  * For the credential import flow, the Provider Selector UI Activity will display a list of
  * [ExportEntry] and create a launch intent that corresponds to the provider's activity. More info
@@ -56,9 +56,9 @@ import androidx.credentials.providerevents.transfer.ProviderImportCredentialsRes
  *
  * For the batch credential creation flow, when the user selects a
  * [androidx.credentials.provider.CreateEntry] returned from
- * [androidx.credentials.providerevents.service.CredentialProviderEventsService.onBatchCreateCredentialCandidatesRequest],
- * the credential provider's fulfillment activity is invoked with a
- * [ProviderBatchCreateCredentialRequest] that can be extracted via
+ * [androidx.credentials.providerevents.service.CredentialProviderEventsService.onBeginBatchCreateCredentialRequest],
+ * the `Activity` behind that entry's [androidx.credentials.provider.CreateEntry.pendingIntent] is
+ * launched with a [ProviderBatchCreateCredentialRequest] that can be extracted via
  * [retrieveProviderBatchCreateCredentialRequest].
  *
  * When user interaction is complete, credential providers must set the activity result by calling
@@ -206,19 +206,20 @@ public class IntentHandler {
 
         /**
          * Extracts the [ProviderBatchCreateCredentialRequest] from the [Intent] that started the
-         * provider's batch fulfillment [Activity].
+         * provider's batch creation [Activity].
          *
-         * The fulfillment activity is launched only through the [android.app.PendingIntent] of a
-         * [androidx.credentials.provider.CreateEntry] the provider returned from
-         * [androidx.credentials.providerevents.service.CredentialProviderEventsService.onBatchCreateCredentialCandidatesRequest].
-         * Once the user confirms the batch, the system sends that `PendingIntent` with a fill-in
-         * [Intent] carrying the batch.
+         * That activity is launched only through the
+         * [androidx.credentials.provider.CreateEntry.pendingIntent] of an entry the provider
+         * returned from
+         * [androidx.credentials.providerevents.service.CredentialProviderEventsService.onBeginBatchCreateCredentialRequest].
+         * Once the user confirms the batch, the system sends that `PendingIntent` with an [Intent]
+         * carrying the batch.
          *
          * This method never throws. If the extras are missing or malformed it returns `null`; the
          * activity should then fail the batch with [setBatchCreateCredentialException] and finish
          * with [Activity.RESULT_OK].
          *
-         * @param intent the `Intent` received by the provider's batch fulfillment `Activity`
+         * @param intent the `Intent` received by the provider's batch creation `Activity`
          * @return the batch, or `null` if it is missing or malformed
          */
         @JvmStatic
@@ -247,7 +248,7 @@ public class IntentHandler {
 
         /**
          * Sets the per-relying-party results of a batch on the result [Intent] of the provider's
-         * batch fulfillment [Activity], clearing any exception set by
+         * batch creation [Activity], clearing any exception set by
          * [setBatchCreateCredentialException].
          *
          * Return exactly one [CreateCredentialResult] per request in the
@@ -272,8 +273,8 @@ public class IntentHandler {
         }
 
         /**
-         * Fails the whole batch on the result [Intent] of the provider's batch fulfillment
-         * [Activity], clearing any response set by [setBatchCreateCredentialResponse].
+         * Fails the whole batch on the result [Intent] of the provider's batch creation [Activity],
+         * clearing any response set by [setBatchCreateCredentialResponse].
          *
          * Still finish with [Activity.RESULT_OK]. Use [Activity.RESULT_CANCELED] only when the user
          * backs out; the system then returns to its consent screen and no relying party is
