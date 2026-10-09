@@ -17,14 +17,12 @@
 package androidx.compose.ui.text.platform.extensions
 
 import android.graphics.Typeface
-import android.os.Build
 import android.text.Spannable
 import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.LeadingMarginSpan
-import android.text.style.LocaleSpan
 import android.text.style.MetricAffectingSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.ScaleXSpan
@@ -504,11 +502,7 @@ internal fun Spannable.setBackground(color: Color, start: Int, end: Int) {
 internal fun Spannable.setLocaleList(localeList: LocaleList?, start: Int, end: Int) {
     localeList?.let {
         setSpan(
-            if (Build.VERSION.SDK_INT >= 24) {
-                LocaleListHelperMethods.localeSpan(it)
-            } else {
-                LocaleSpan(it.firstOrNull()?.platformLocale)
-            },
+            LocaleListHelperMethods.localeSpan(it),
             start,
             end,
         )

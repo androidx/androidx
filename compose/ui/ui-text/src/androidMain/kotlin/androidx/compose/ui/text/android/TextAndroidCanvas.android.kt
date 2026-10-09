@@ -674,7 +674,6 @@ internal class TextAndroidCanvas : Canvas() {
         nativeCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun drawTextRun(
         text: CharArray,
         index: Int,
@@ -686,8 +685,7 @@ internal class TextAndroidCanvas : Canvas() {
         isRtl: Boolean,
         paint: Paint,
     ) {
-        CanvasCompatM.drawTextRun(
-            nativeCanvas,
+        nativeCanvas.drawTextRun(
             text,
             index,
             count,
@@ -700,7 +698,6 @@ internal class TextAndroidCanvas : Canvas() {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun drawTextRun(
         text: CharSequence,
         start: Int,
@@ -712,8 +709,7 @@ internal class TextAndroidCanvas : Canvas() {
         isRtl: Boolean,
         paint: Paint,
     ) {
-        CanvasCompatM.drawTextRun(
-            nativeCanvas,
+        nativeCanvas.drawTextRun(
             text,
             start,
             end,
@@ -785,40 +781,6 @@ internal class TextAndroidCanvas : Canvas() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun drawRenderNode(renderNode: RenderNode) {
         CanvasCompatQ.drawRenderNode(nativeCanvas, renderNode)
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.M)
-private object CanvasCompatM {
-
-    fun drawTextRun(
-        canvas: Canvas,
-        text: CharArray,
-        index: Int,
-        count: Int,
-        contextIndex: Int,
-        contextCount: Int,
-        x: Float,
-        y: Float,
-        isRtl: Boolean,
-        paint: Paint,
-    ) {
-        canvas.drawTextRun(text, index, count, contextIndex, contextCount, x, y, isRtl, paint)
-    }
-
-    fun drawTextRun(
-        canvas: Canvas,
-        text: CharSequence,
-        start: Int,
-        end: Int,
-        contextStart: Int,
-        contextEnd: Int,
-        x: Float,
-        y: Float,
-        isRtl: Boolean,
-        paint: Paint,
-    ) {
-        canvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
     }
 }
 
