@@ -38,7 +38,9 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.create
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
@@ -668,6 +670,31 @@ class PaintTrackerTest {
         assertThat(changes.mFilterBitmap).isFalse()
     }
 
+    @Test
+    fun testComposeRemoteColorFilter_blendModeAndClear() {
+        val tintedComposePaint =
+            Paint().apply { colorFilter = ColorFilter.tint(Color.Magenta, BlendMode.Multiply) }
+        val bundle1 = PaintBundle()
+        tracker.updateWithPaint(tintedComposePaint.asRemotePaint(), bundle1, creationState)
+
+        assertThat(tracker.isChanged).isTrue()
+        val changes1 = TestPaintChanges()
+        bundle1.applyPaintChange(paintContext, changes1)
+        assertThat(changes1.colorFilterSet).isTrue()
+        assertThat(changes1.mColorFilterColor).isEqualTo(Color.Magenta.toArgb())
+        assertThat(changes1.mColorFilterMode).isEqualTo(PaintBundle.BLEND_MODE_MULTIPLY)
+
+        tracker.reset(force = false)
+        val clearedComposePaint = Paint().apply { colorFilter = null }
+        val bundle2 = PaintBundle()
+        tracker.updateWithPaint(clearedComposePaint.asRemotePaint(), bundle2, creationState)
+
+        assertThat(tracker.isChanged).isTrue()
+        val changes2 = TestPaintChanges()
+        bundle2.applyPaintChange(paintContext, changes2)
+        assertThat(changes2.mClearedMask).isNotEqualTo(0L)
+    }
+
     private class DummyShader(override var remoteMatrix3x3: RemoteMatrix3x3) : RemoteShader() {
         override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
             paintBundle.setShader(1)
@@ -758,14 +785,24 @@ class PaintTrackerTest {
         override fun setAntiAlias(aa: Boolean) {}
 
         var mShaderMatrix: Float? = null
+        var mColorFilterColor: Int = 0
+        var mColorFilterMode: Int = -1
+        var colorFilterSet: Boolean = false
+        var mClearedMask: Long = 0L
 
-        override fun setColorFilter(color: Int, mode: Int) {}
+        override fun setColorFilter(color: Int, mode: Int) {
+            this.mColorFilterColor = color
+            this.mColorFilterMode = mode
+            this.colorFilterSet = true
+        }
 
         override fun setShaderMatrix(matrixId: Float) {
             this.mShaderMatrix = matrixId
         }
 
-        override fun clear(mask: Long) {}
+        override fun clear(mask: Long) {
+            this.mClearedMask = this.mClearedMask or mask
+        }
 
         override fun setLinearGradient(
             colorsArray: IntArray,
