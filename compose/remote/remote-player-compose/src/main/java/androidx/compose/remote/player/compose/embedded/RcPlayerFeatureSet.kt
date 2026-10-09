@@ -89,7 +89,8 @@ public class RcPlayerFeatureSet(features: List<RcPlayerFeature>) {
         val builtIn = Operations.getOperations(CoreDocument.DOCUMENT_API_LEVEL, BuiltInProfiles)
         for (opcode in 0..MAX_OPCODE) {
             if (required.get(opcode) == null) continue
-            if (builtIn?.get(opcode) != null || opcode in BuiltInExtraOpcodes) continue
+            val builtInOp = builtIn?.get(opcode) != null && opcode !in FeatureOpcodes
+            if (builtInOp || opcode in BuiltInExtraOpcodes) continue
             if (features.fastAny { opcode in it.opcodes }) continue
             unsupported.add(opcode)
         }
@@ -126,6 +127,17 @@ public class RcPlayerFeatureSet(features: List<RcPlayerFeature>) {
                 Operations.MODIFIER_DIMENSION_CONSTRAINTS,
             )
 
+        /**
+         * Operations of the built-in profiles that the draw loop leaves to features, so an app that
+         * doesn't need them can leave them out, see [MatrixFeature].
+         */
+        internal val FeatureOpcodes: IntSet =
+            intSetOf(
+                Operations.MATRIX_EXPRESSION,
+                Operations.MATRIX_VECTOR_MATH,
+                Operations.MATRIX_FROM_PATH,
+            )
+
         private const val MAX_OPCODE = 255
     }
 }
@@ -139,7 +151,7 @@ public class RcPlayerFeatureSet(features: List<RcPlayerFeature>) {
 public object RcPlayerFeatures {
     /** All features the library provides. */
     public val All: List<RcPlayerFeature>
-        get() = emptyList()
+        get() = listOf(MatrixFeature)
 
     /**
      * The features for documents with [profileMask]: those whose [RcPlayerFeature.profiles] the

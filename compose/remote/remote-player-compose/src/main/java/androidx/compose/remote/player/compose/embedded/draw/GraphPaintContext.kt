@@ -265,7 +265,18 @@ internal class GraphPaintContext(
 
     override fun getText(id: Int): String? = readContext.getText(id)
 
-    override fun matrixFromPath(pathId: Int, fraction: Float, vOffset: Float, flags: Int) {}
+    /**
+     * Receives `MatrixFromPath.paint` so the embedded draw pass can apply the path-derived matrix
+     * to its own canvas; when null (graph evaluation) the op is ignored like the other matrix ops
+     * here.
+     */
+    internal var onMatrixFromPath:
+        ((pathId: Int, fraction: Float, vOffset: Float, flags: Int) -> Unit)? =
+        null
+
+    override fun matrixFromPath(pathId: Int, fraction: Float, vOffset: Float, flags: Int) {
+        onMatrixFromPath?.invoke(pathId, fraction, vOffset, flags)
+    }
 
     override fun drawToBitmap(bitmapId: Int, mode: Int, color: Int) {}
 }

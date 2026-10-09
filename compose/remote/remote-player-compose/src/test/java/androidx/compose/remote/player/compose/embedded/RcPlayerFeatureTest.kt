@@ -126,11 +126,14 @@ class RcPlayerFeatureTest {
     }
 
     @Test
-    fun builtInProfilesNeedNoFeatures() {
-        assertThat(RcPlayerFeatureSet.Empty.unsupportedOpcodes(RcProfiles.PROFILE_BASELINE))
-            .isEqualTo(emptyIntSet())
+    fun builtInProfilesNeedOnlyTheMatrixFeature() {
+        val matrix = RcPlayerFeatureSet(MatrixFeature)
+
+        assertThat(matrix.unsupportedOpcodes(RcProfiles.PROFILE_BASELINE)).isEqualTo(emptyIntSet())
+        assertThat(matrix.unsupportedOpcodes(RcProfiles.PROFILE_ANDROIDX)).isEqualTo(emptyIntSet())
+        // Matrix ops are in the baseline profile, but left to MatrixFeature.
         assertThat(RcPlayerFeatureSet.Empty.unsupportedOpcodes(RcProfiles.PROFILE_ANDROIDX))
-            .isEqualTo(emptyIntSet())
+            .isEqualTo(MatrixFeature.opcodes)
     }
 
     @Test
