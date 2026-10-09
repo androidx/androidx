@@ -23,8 +23,8 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.compat.quirk.PixelJpegRSupportedQuirk
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraSelector
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil

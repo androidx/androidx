@@ -29,9 +29,9 @@ import androidx.camera.camera2.config.CameraAppComponent
 import androidx.camera.camera2.config.CameraModule
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.impl.FeatureCombinationQueryImpl
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.DoNotDisturbException
+import androidx.camera.common.CameraId
 import androidx.camera.core.InitializationException
 import androidx.camera.core.featuregroup.impl.FeatureCombinationQuery
 import androidx.camera.core.impl.AttachedSurfaceInfo

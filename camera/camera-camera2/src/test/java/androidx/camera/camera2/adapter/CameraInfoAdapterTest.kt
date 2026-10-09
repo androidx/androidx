@@ -39,7 +39,6 @@ import androidx.camera.camera2.internal.HLG10_UNCONSTRAINED
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.CameraBackendId
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata
@@ -49,6 +48,7 @@ import androidx.camera.camera2.testing.FakeCameraInfoAdapterCreator.createCamera
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.testing.FakeZoomCompat
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT

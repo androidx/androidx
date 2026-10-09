@@ -21,8 +21,8 @@ import android.hardware.camera2.CameraMetadata as Camera2Metadata
 import android.os.Build
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.pipe.CameraDevices
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.common.CameraId
 import androidx.camera.core.InitializationException
 
 /**

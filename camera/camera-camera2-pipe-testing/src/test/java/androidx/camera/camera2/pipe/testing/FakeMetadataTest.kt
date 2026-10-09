@@ -20,13 +20,13 @@ import android.graphics.PixelFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.MetadataTransform
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

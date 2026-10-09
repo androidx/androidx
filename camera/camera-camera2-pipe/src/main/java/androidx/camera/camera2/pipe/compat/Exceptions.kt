@@ -18,9 +18,9 @@ package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraAccessException
 import androidx.camera.camera2.pipe.CameraError
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
+import androidx.camera.common.CameraId
 
 /**
  * Thrown when an operation cannot be executed because underlying object is closed or in an unusable

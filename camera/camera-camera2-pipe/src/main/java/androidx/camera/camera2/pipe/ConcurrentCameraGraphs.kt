@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.pipe
 
+import androidx.camera.common.CameraId
+
 internal data class ConcurrentCameraGraphs(
     val cameraGraphIds: Set<CameraGraphId>,
     val cameraIds: Set<CameraId>,

@@ -25,13 +25,13 @@ import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.internal.CameraCompatibilityFilter
 import androidx.camera.camera2.internal.CameraSelectionOptimizer
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.core.Timestamps.measureNow
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig

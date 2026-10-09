@@ -23,7 +23,6 @@ import android.hardware.camera2.TotalCaptureResult
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.CaptureSequence
@@ -46,6 +45,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CameraId
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

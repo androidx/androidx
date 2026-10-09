@@ -21,8 +21,8 @@ import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraInterop
+import androidx.camera.common.CameraId
 import androidx.camera.core.impl.SessionConfig
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic

@@ -22,9 +22,9 @@ import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.common.CameraId
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.QuirkSettings
 import androidx.camera.core.impl.QuirkSettingsHolder

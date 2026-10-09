@@ -17,8 +17,8 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.view.Surface
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper
+import androidx.camera.common.CameraId
 import java.lang.Class
 
 /** Fake [OutputConfigurationWrapper] for use in tests. */

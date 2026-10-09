@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe
 
 import android.view.Surface
 import androidx.annotation.RestrictTo
+import androidx.camera.common.CameraId
 import kotlinx.atomicfu.atomic
 
 /** Public interfaces that are used to more safely interact with raw events from Camera2. */

@@ -28,7 +28,6 @@ import android.util.Size
 import androidx.camera.camera2.adapter.ZslControlImpl.Companion.MAX_IMAGES
 import androidx.camera.camera2.adapter.ZslControlImpl.Companion.RING_BUFFER_CAPACITY
 import androidx.camera.camera2.impl.CameraProperties
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
@@ -36,6 +35,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CameraId
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.testing.impl.fakes.FakeImageProxy

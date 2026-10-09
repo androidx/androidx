@@ -23,7 +23,6 @@ import android.hardware.camera2.params.InputConfiguration
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AudioRestrictionMode
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.compat.CameraCaptureSessionWrapper
 import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
@@ -32,6 +31,7 @@ import androidx.camera.camera2.pipe.compat.ExtensionSessionConfigData
 import androidx.camera.camera2.pipe.compat.InputConfigData
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper
 import androidx.camera.camera2.pipe.compat.SessionConfigData
+import androidx.camera.common.CameraId
 import java.lang.Class
 
 /** Fake implementation of [CameraDeviceWrapper] for tests. */

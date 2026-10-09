@@ -25,12 +25,12 @@ import android.util.Range
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.impl.CameraProperties
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
+import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage

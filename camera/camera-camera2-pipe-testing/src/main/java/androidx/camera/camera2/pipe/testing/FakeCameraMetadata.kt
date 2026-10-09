@@ -24,8 +24,8 @@ import android.hardware.camera2.CaptureResult
 import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 import java.lang.Class
 

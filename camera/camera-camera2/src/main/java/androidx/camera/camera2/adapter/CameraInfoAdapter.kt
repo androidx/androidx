@@ -50,7 +50,6 @@ import androidx.camera.camera2.internal.CameraCompatibilityFilter
 import androidx.camera.camera2.internal.IntrinsicZoomCalculator
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.maxTorchStrengthLevel
@@ -61,6 +60,7 @@ import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPreviewStab
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPrivateReprocessing
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsTorchStrength
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.common.CameraId
 import androidx.camera.common.UnsafeWrapper
 import androidx.camera.common.unwrapAs
 import androidx.camera.core.CameraInfo

@@ -20,10 +20,10 @@ import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBeforeCapture.CompletionBehavior.AT_LEAST
 import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBeforeCapture.CompletionBehavior.EXACT
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.compat.Camera2Quirks.Companion.SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP
+import androidx.camera.common.CameraId
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.max

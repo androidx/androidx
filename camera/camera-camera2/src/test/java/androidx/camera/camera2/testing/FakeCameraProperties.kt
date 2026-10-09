@@ -17,10 +17,10 @@
 package androidx.camera.camera2.testing
 
 import androidx.camera.camera2.impl.CameraProperties
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.common.CameraId
 
 class FakeCameraProperties(
     override val metadata: CameraMetadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),

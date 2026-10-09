@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.CameraGraph.Session
 import androidx.camera.camera2.pipe.compat.Camera2Quirks
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred

@@ -18,10 +18,10 @@ package androidx.camera.camera2.pipe.compat
 
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraGraphId
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.common.CameraId
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.launch

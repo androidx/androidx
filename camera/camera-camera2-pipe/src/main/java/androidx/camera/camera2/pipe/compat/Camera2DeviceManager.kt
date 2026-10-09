@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.compat
 
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraError
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.core.Log
@@ -30,6 +29,7 @@ import androidx.camera.camera2.pipe.core.Token
 import androidx.camera.camera2.pipe.core.WakeLock
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
+import androidx.camera.common.CameraId
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.seconds
