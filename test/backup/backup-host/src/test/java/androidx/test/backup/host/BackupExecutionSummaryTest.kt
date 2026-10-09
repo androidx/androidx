@@ -26,62 +26,54 @@ import org.junit.Test
 class BackupExecutionSummaryTest {
 
     @Test
-    fun errorCodeForClassifiesEachStage() {
-        fun code(stage: BackupExecutionStage, message: String?) =
-            stage.errorCodeFor(IOException(message))
+    fun errorCodeForClassifiesAFailureByItsStage() {
+        fun code(stage: BackupExecutionStage) = stage.errorCodeFor(IOException("x"))
 
-        assertEquals(BackupErrorCode.UNKNOWN_ERROR, code(BackupExecutionStage.PRECONDITION, "x"))
-        assertEquals(BackupErrorCode.SEEDING_FAILED, code(BackupExecutionStage.SEEDING, "timeout"))
-        assertEquals(BackupErrorCode.BACKUP_FAILED, code(BackupExecutionStage.BACKUP, "x"))
+        assertEquals(BackupErrorCode.UNKNOWN_ERROR, code(BackupExecutionStage.PRECONDITION))
+        assertEquals(BackupErrorCode.SEEDING_FAILED, code(BackupExecutionStage.SEEDING))
+        assertEquals(BackupErrorCode.BACKUP_FAILED, code(BackupExecutionStage.BACKUP))
+        assertEquals(BackupErrorCode.CLEAR_DATA_FAILED, code(BackupExecutionStage.CLEAR_DATA))
+        assertEquals(BackupErrorCode.RESTORE_FAILED, code(BackupExecutionStage.RESTORE))
+        assertEquals(BackupErrorCode.VERIFICATION_FAILED, code(BackupExecutionStage.VERIFICATION))
+    }
+
+    /** The cause comes from the code that threw, so the words of a message don't change it. */
+    @Test
+    fun errorCodeForIgnoresTheWordingOfTheMessage() {
+        val message = "Keyguard: bmgr transport timed out while polling; update GmsCore"
+
         assertEquals(
-            BackupErrorCode.CLEAR_DATA_FAILED,
-            code(BackupExecutionStage.CLEAR_DATA, "bmgr"),
+            BackupErrorCode.UNKNOWN_ERROR,
+            BackupExecutionStage.PRECONDITION.errorCodeFor(IllegalStateException(message)),
         )
-        assertEquals(BackupErrorCode.RESTORE_FAILED, code(BackupExecutionStage.RESTORE, null))
         assertEquals(
-            BackupErrorCode.VERIFICATION_FAILED,
-            code(BackupExecutionStage.VERIFICATION, "timeout"),
+            BackupErrorCode.BACKUP_FAILED,
+            BackupExecutionStage.BACKUP.errorCodeFor(IOException(message)),
+        )
+        assertEquals(
+            BackupErrorCode.RESTORE_FAILED,
+            BackupExecutionStage.RESTORE.errorCodeFor(IOException(message)),
         )
     }
 
     @Test
-    fun errorCodeForRecognizesCausesCaseInsensitively() {
-        assertEquals(
-            BackupErrorCode.RESTORE_POLL_TIMEOUT,
-            BackupExecutionStage.RESTORE.errorCodeFor(IOException("TIMEOUT DURING RESTORE")),
-        )
-        assertEquals(
-            BackupErrorCode.RESTORE_POLL_TIMEOUT,
-            BackupExecutionStage.RESTORE.errorCodeFor(IOException("POLLING FAILED")),
-        )
-        assertEquals(
-            BackupErrorCode.RESTORE_POLL_TIMEOUT,
-            BackupExecutionStage.RESTORE.errorCodeFor(IOException("Restore TIMED OUT after 5s")),
-        )
+    fun errorCodeForReportsTheCauseOfABackupRestoreException() {
         assertEquals(
             BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING,
-            BackupExecutionStage.BACKUP.errorCodeFor(IOException("MISSING GMSCORE")),
-        )
-        assertEquals(
-            BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING,
-            BackupExecutionStage.RESTORE.errorCodeFor(IOException("Update the Play Store")),
+            BackupExecutionStage.BACKUP.errorCodeFor(
+                BackupRestoreException(BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING, "x")
+            ),
         )
         assertEquals(
             BackupErrorCode.BMGR_INIT_FAILED,
-            BackupExecutionStage.BACKUP.errorCodeFor(IOException("BMGR TRANSPORT ERROR")),
+            BackupExecutionStage.RESTORE.errorCodeFor(
+                BackupRestoreException(BackupErrorCode.BMGR_INIT_FAILED, "x")
+            ),
         )
         assertEquals(
-            BackupErrorCode.BMGR_INIT_FAILED,
-            BackupExecutionStage.RESTORE.errorCodeFor(IOException("bmgr: transport error")),
-        )
-    }
-
-    @Test
-    fun errorCodeForRecognizesAKeyguardFailureBeforeTheFlowStarts() {
-        assertEquals(
-            BackupErrorCode.KEYGUARD_UNLOCK_FAILED,
-            BackupExecutionStage.PRECONDITION.errorCodeFor(
-                IllegalStateException("Device keyguard dismiss failed")
+            BackupErrorCode.RESTORE_POLL_TIMEOUT,
+            BackupExecutionStage.RESTORE.errorCodeFor(
+                BackupRestoreException(BackupErrorCode.RESTORE_POLL_TIMEOUT, "x")
             ),
         )
     }
@@ -125,7 +117,8 @@ class BackupExecutionSummaryTest {
     fun trackerAttributesAFailureToTheStageThatThrew() {
         val clock = FakeClock()
         val tracker = BackupExecutionTracker(BackupTransportMode.LOCAL, 1, clock::nanoTime)
-        val error = IOException("bmgr transport unavailable")
+        val error =
+            BackupRestoreException(BackupErrorCode.BMGR_INIT_FAILED, "transport unavailable")
 
         val thrown =
             assertFailsWith<IOException> {
@@ -148,7 +141,7 @@ class BackupExecutionSummaryTest {
                 isSuccess = false,
                 errorCode = BackupErrorCode.BMGR_INIT_FAILED,
                 failureStage = BackupExecutionStage.BACKUP,
-                errorMessage = "bmgr transport unavailable",
+                errorMessage = "transport unavailable",
             ),
             tracker.failed(thrown),
         )

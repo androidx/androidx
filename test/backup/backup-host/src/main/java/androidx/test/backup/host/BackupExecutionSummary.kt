@@ -16,9 +16,9 @@
 
 package androidx.test.backup.host
 
+import java.io.IOException
 import java.time.Duration
 import java.util.EnumMap
-import java.util.Locale
 
 /**
  * Categorized error codes capturing the root cause of an automated backup or restore test failure.
@@ -42,10 +42,7 @@ internal enum class BackupErrorCode {
     /** Backup Manager (BMGR) failed to initialize, enable, or activate the requested transport. */
     BMGR_INIT_FAILED,
 
-    /** The device keyguard/lockscreen could not be dismissed. */
-    KEYGUARD_UNLOCK_FAILED,
-
-    /** Device restore polling timed out before the restore operation completed. */
+    /** The restore did not complete within its timeout. */
     RESTORE_POLL_TIMEOUT,
 
     /** On-device seeding via PopulateStorageAction failed. */
@@ -87,39 +84,32 @@ internal enum class BackupExecutionStage {
     /** Asserting restored data integrity against expected values. */
     VERIFICATION;
 
-    /** Classifies [e], thrown during this stage, by the root cause its message points to. */
-    fun errorCodeFor(e: Exception): BackupErrorCode {
-        val msg = e.message?.lowercase(Locale.ROOT) ?: ""
-        val isGmsCore = msg.contains("gmscore") || msg.contains("play store")
-        val isBmgr = msg.contains("bmgr") || msg.contains("transport")
-        return when (this) {
-            PRECONDITION ->
-                if (msg.contains("keyguard")) {
-                    BackupErrorCode.KEYGUARD_UNLOCK_FAILED
-                } else {
-                    BackupErrorCode.UNKNOWN_ERROR
-                }
-            SEEDING -> BackupErrorCode.SEEDING_FAILED
-            BACKUP ->
-                when {
-                    isGmsCore -> BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING
-                    isBmgr -> BackupErrorCode.BMGR_INIT_FAILED
-                    else -> BackupErrorCode.BACKUP_FAILED
-                }
-            CLEAR_DATA -> BackupErrorCode.CLEAR_DATA_FAILED
-            RESTORE ->
-                when {
-                    msg.contains("timeout") ||
-                        msg.contains("timed out") ||
-                        msg.contains("polling") -> BackupErrorCode.RESTORE_POLL_TIMEOUT
-                    isGmsCore -> BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING
-                    isBmgr -> BackupErrorCode.BMGR_INIT_FAILED
-                    else -> BackupErrorCode.RESTORE_FAILED
-                }
-            VERIFICATION -> BackupErrorCode.VERIFICATION_FAILED
-        }
-    }
+    /**
+     * Classifies [e], thrown during this stage: by the cause that a [BackupRestoreException]
+     * carries, or else as a failure of this stage.
+     */
+    fun errorCodeFor(e: Exception): BackupErrorCode =
+        (e as? BackupRestoreException)?.errorCode
+            ?: when (this) {
+                PRECONDITION -> BackupErrorCode.UNKNOWN_ERROR
+                SEEDING -> BackupErrorCode.SEEDING_FAILED
+                BACKUP -> BackupErrorCode.BACKUP_FAILED
+                CLEAR_DATA -> BackupErrorCode.CLEAR_DATA_FAILED
+                RESTORE -> BackupErrorCode.RESTORE_FAILED
+                VERIFICATION -> BackupErrorCode.VERIFICATION_FAILED
+            }
 }
+
+/**
+ * An [IOException] that names the [BackupErrorCode] of the failure it reports.
+ *
+ * [BackupExecutionStage.errorCodeFor] reports that code instead of the default code of the stage.
+ */
+internal class BackupRestoreException(
+    val errorCode: BackupErrorCode,
+    message: String?,
+    cause: Throwable? = null,
+) : IOException(message, cause)
 
 /**
  * Encapsulates performance metrics, durations, and diagnostic telemetry for a completed or failed
