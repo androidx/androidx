@@ -66,12 +66,11 @@ public const val EYE_TRACKING_FINE: String = "android.permission.EYE_TRACKING_FI
 
 /**
  * Gets head tracking data. Unmanaged activities (OpenXR activities with the manifest property
- * "android.window.PROPERTY_XR_ACTIVITY_START_MODE" set to
- * "XR_ACTIVITY_START_MODE_FULL_SPACE_UNMANAGED") do not require this permission to get head
- * tracking data.
+ * [PROPERTY_XR_ACTIVITY_START_MODE] set to [XR_ACTIVITY_START_MODE_FULL_SPACE_UNMANAGED]) do not
+ * require this permission to get head tracking data.
  *
- * {@see
- * https://developer.android.com/develop/xr/get-started#property_activity_xr_start_mode_property}
+ * See
+ * [PROPERTY_XR_ACTIVITY_START_MODE](https://developer.android.com/develop/xr/get-started#property_activity_xr_start_mode_property).
  *
  * Protection level: dangerous
  *
