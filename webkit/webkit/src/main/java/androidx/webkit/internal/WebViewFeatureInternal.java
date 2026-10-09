@@ -37,6 +37,7 @@ import androidx.webkit.JavaScriptExecutionWorld;
 import androidx.webkit.Navigation;
 import androidx.webkit.NavigationListener;
 import androidx.webkit.NavigationParameters;
+import androidx.webkit.NavigationRedirectParameters;
 import androidx.webkit.Page;
 import androidx.webkit.PrefetchCache;
 import androidx.webkit.PrefetchParameters;
@@ -1111,6 +1112,16 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFramework CROSS_ORIGIN_ISOLATED_ALLOWLIST =
             new ApiFeature.NoFramework(WebViewFeature.CROSS_ORIGIN_ISOLATED_ALLOWLIST,
                     Features.CROSS_ORIGIN_ISOLATED_ALLOW_LIST);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link NavigationRedirectParameters#getResponseHeaders()}
+     * {@link NavigationRedirectParameters#getStatusCode()}
+     */
+    public static final ApiFeature.NoFramework NAVIGATION_GET_RESPONSE_HEADERS =
+            new ApiFeature.NoFramework(WebViewFeature.NAVIGATION_GET_RESPONSE_HEADERS,
+                    Features.NAVIGATION_GET_RESPONSE_HEADERS);
 
     // --- Add new feature constants above this line ---
 
