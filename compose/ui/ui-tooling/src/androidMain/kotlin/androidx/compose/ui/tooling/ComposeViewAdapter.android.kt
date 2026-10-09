@@ -40,15 +40,19 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.tooling.CompositionGroup
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.ExperimentalMediaQueryApi
+import androidx.compose.ui.LocalUiMediaScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.LayoutInfo
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalFontLoader
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.tooling.animation.AnimationSearch
@@ -195,6 +199,9 @@ internal class ComposeViewAdapter : FrameLayout {
 
     /** Boolean specifying whether to print animated element keys */
     private var lookaheadAnimationVisualDebuggingKeyLabelEnabled: Boolean = false
+
+    /** Device specification string (e.g. "spec:width=411dp,...") used for media query values. */
+    private var device: String? = null
 
     private val debugBoundsPaint =
         Paint().apply {
@@ -425,9 +432,15 @@ internal class ComposeViewAdapter : FrameLayout {
         get() = this::clock.isInitialized
 
     /** Wraps a given [Preview] method an does any necessary setup. */
-    @OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
+    @OptIn(
+        ExperimentalLookaheadAnimationVisualDebugApi::class,
+        ExperimentalMediaQueryApi::class,
+    )
     @Composable
     private fun WrapPreview(content: @Composable () -> Unit) {
+        val windowInfo = LocalWindowInfo.current
+        val previewUiMediaScope =
+            remember(windowInfo, device) { createPreviewUiMediaScope(windowInfo, device) }
         // We need to replace the FontResourceLoader to avoid using ResourcesCompat.
         // ResourcesCompat can not load fonts within Layoutlib and, since Layoutlib always runs
         // the latest version, we do not need it.
@@ -438,6 +451,7 @@ internal class ComposeViewAdapter : FrameLayout {
             LocalOnBackPressedDispatcherOwner provides FakeOnBackPressedDispatcherOwner,
             LocalNavigationEventDispatcherOwner provides FakeOnBackPressedDispatcherOwner,
             LocalActivityResultRegistryOwner provides FakeActivityResultRegistryOwner,
+            LocalUiMediaScope provides previewUiMediaScope,
         ) {
             if (lookaheadAnimationVisualDebuggingEnabled) {
                 LookaheadAnimationVisualDebugging(
@@ -529,6 +543,7 @@ internal class ComposeViewAdapter : FrameLayout {
      * @param lookForDesignInfoProviders if true, it will try to populate [designInfoList].
      * @param designInfoProvidersArgument String to use as an argument when populating
      *   [designInfoList].
+     * @param device preview device specification string (e.g. "spec:width=411dp,...").
      * @param onCommit callback invoked after every commit of the preview composable.
      * @param onDraw callback invoked after every draw of the adapter. Only for test use.
      */
@@ -548,6 +563,7 @@ internal class ComposeViewAdapter : FrameLayout {
         lookaheadAnimationVisualDebuggingKeyLabelEnabled: Boolean = false,
         lookForDesignInfoProviders: Boolean = false,
         designInfoProvidersArgument: String? = null,
+        device: String? = null,
         onCommit: () -> Unit = {},
         onDraw: () -> Unit = {},
     ) {
@@ -559,6 +575,7 @@ internal class ComposeViewAdapter : FrameLayout {
         this.lookaheadAnimationVisualDebuggingEnabled = lookaheadAnimationVisualDebuggingEnabled
         this.lookaheadAnimationVisualDebuggingKeyLabelEnabled =
             lookaheadAnimationVisualDebuggingKeyLabelEnabled
+        this.device = device
         this.onDraw = onDraw
         previewComposition =
             @Composable {
@@ -680,6 +697,7 @@ internal class ComposeViewAdapter : FrameLayout {
                 ),
             designInfoProvidersArgument =
                 attrs.getAttributeValue(TOOLS_NS_URI, "designInfoProvidersArgument"),
+            device = attrs.getAttributeValue(TOOLS_NS_URI, "device"),
         )
     }
 
