@@ -85,7 +85,7 @@ import kotlinx.coroutines.launch
  *   changing container. To prevent a "double transformation" (on both the group and its buttons),
  *   individual [Button]s inside this group must have their own container transformations disabled;
  *   only their content should be transformed.
- * @param content the content and properties of each button. The Ux guidance is to use no more than
+ * @param content the content and properties of each button. The UX guidance is to use no more than
  *   3 buttons within a ButtonGroup. Note that this content is on the [ButtonGroupScope], to provide
  *   access to 3 new modifiers to configure the buttons.
  */
@@ -237,7 +237,7 @@ public fun ButtonGroup(
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param verticalAlignment the vertical alignment of the button group's children.
- * @param content the content and properties of each button. The Ux guidance is to use no more than
+ * @param content the content and properties of each button. The UX guidance is to use no more than
  *   3 buttons within a ButtonGroup. Note that this content is on the [ButtonGroupScope], to provide
  *   access to 3 new modifiers to configure the buttons.
  */
@@ -280,9 +280,9 @@ public interface ButtonGroupScope {
 
     /**
      * Specifies the minimum width this item can be, in Dp. This will only be used if distributing
-     * the available space results in a item falling below its minimum width. Note that this is only
-     * used before animations, pressing a button may result on neighbor button(s) going below their
-     * minWidth. See also [Modifier.weight]
+     * the available space results in an item falling below its minimum width. Note that this is
+     * only used before animations, pressing a button may result in neighbor button(s) going below
+     * their minWidth. See also [Modifier.weight]
      *
      * @param minWidth the minimum width. If none is specified, minimumInteractiveComponentSize is
      *   used.
@@ -343,7 +343,7 @@ public object ButtonGroupDefaults {
  *   width assigned proportional to their weight (and available space). The exception is if that
  *   will make some item(s) width fall below its minWidth.
  * @param minWidth the minimum width this item can be. This will only be used if distributing the
- *   available space results on a item falling below its minimum width.
+ *   available space results in an item falling below its minimum width.
  * @param pressedState an animated float between 0f and 1f that captures an animated, continuous
  *   version of the item's interaction source pressed state.
  */

@@ -211,14 +211,14 @@ private class LazyLayoutSemanticsModifierNode(
         this.itemProviderLambda = itemProviderLambda
         this.state = state
 
-        // These properties are read when appling semantics, but don't need to rebuild the cache.
+        // These properties are read when applying semantics, but don't need to rebuild the cache.
         if (this.orientation != orientation) {
             this.orientation = orientation
             invalidateSemantics()
         }
 
-        // These values are used to build different cached values. If they, we need to rebuild the
-        // cache.
+        // These values are used to build different cached values. If they change, we need to
+        // rebuild the cache.
         if (
             this.userScrollEnabled != userScrollEnabled || this.reverseScrolling != reverseScrolling
         ) {

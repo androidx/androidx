@@ -1069,7 +1069,7 @@ public fun ScreenScaffold(
  * @param scrollInfoProvider Provider for scroll information used to scroll away screen elements
  *   such as the system status bar (or [TimeText]) and coordinate showing/hiding the
  *   [ScrollIndicator].
- * @param edgeButton slot for a [EdgeButton] that takes the available space below a scrolling list.
+ * @param edgeButton slot for an [EdgeButton] that takes the available space below a scrolling list.
  *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
  *   fade out as the user scrolls up.
  * @param modifier The modifier for the screen scaffold.
@@ -1082,7 +1082,7 @@ public fun ScreenScaffold(
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
  * @param edgeButtonSpacing The space between [EdgeButton] and the list content. This gap size could
- *   not be smaller then [ScreenScaffoldDefaults.EdgeButtonMinSpacing].
+ *   not be smaller than [ScreenScaffoldDefaults.EdgeButtonMinSpacing].
  * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
  *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
  *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
@@ -1139,7 +1139,7 @@ public fun ScreenScaffold(
  *
  * @param scrollInfoProvider Provider for scroll information used to scroll away screen elements
  *   such as the status bar (or [TimeText]) and coordinate showing/hiding the [ScrollIndicator].
- * @param edgeButton slot for a [EdgeButton] that takes the available space below a scrolling list.
+ * @param edgeButton slot for an [EdgeButton] that takes the available space below a scrolling list.
  *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
  *   fade out as the user scrolls up.
  * @param modifier The modifier for the screen scaffold.
@@ -1158,7 +1158,7 @@ public fun ScreenScaffold(
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
  * @param edgeButtonSpacing The space between [EdgeButton] and the list content. This gap size could
- *   not be smaller then [ScreenScaffoldDefaults.EdgeButtonMinSpacing].
+ *   not be smaller than [ScreenScaffoldDefaults.EdgeButtonMinSpacing].
  * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
  *   layout. This overscroll effect will be shared with all components within this ScreenScaffold
  *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this

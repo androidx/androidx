@@ -35,17 +35,17 @@ public fun CurvedModifier.padding(paddingValues: ArcPaddingValues): CurvedModifi
     this.then { child -> PaddingWrapper(child, paddingValues) }
 
 /**
- * Apply additional space along the edges of the content. Dimmensions are in dp. For before and
- * after they will be considered as if they are at the midpoint of the content (for conversion
- * between dimension and angle).
+ * Apply additional space along the edges of the content. Dimensions are in dp. For before and after
+ * they will be considered as if they are at the midpoint of the content (for conversion between
+ * dimension and angle).
  *
  * @param outer The space to add to the outer edge of the content (away from the center of the
  *   containing CurvedLayout)
  * @param inner The space to add to the inner edge of the content (towards the center of the
  *   containing CurvedLayout)
- * @param before The space added before the component, if it was draw clockwise. This is the edge of
- *   the component with the "smallest" angle.
- * @param after The space added after the component, if it was draw clockwise. This is the edge of
+ * @param before The space added before the component, if it was drawn clockwise. This is the edge
+ *   of the component with the "smallest" angle.
+ * @param after The space added after the component, if it was drawn clockwise. This is the edge of
  *   the component with the "biggest" angle.
  */
 public fun CurvedModifier.padding(outer: Dp, inner: Dp, before: Dp, after: Dp): CurvedModifier =
@@ -81,8 +81,8 @@ public interface ArcPaddingValues {
     public fun calculateInnerPadding(radialDirection: CurvedDirection.Radial): Dp
 
     /**
-     * Padding added before the component, if it was draw clockwise. This is the edge of the
-     * component with the "smallest" angle.
+     * Padding added after the component, if it was drawn clockwise. This is the edge of the
+     * component with the "biggest" angle.
      */
     public fun calculateAfterPadding(
         layoutDirection: LayoutDirection,
@@ -90,8 +90,8 @@ public interface ArcPaddingValues {
     ): Dp
 
     /**
-     * Padding added after the component, if it was draw clockwise. This is the edge of the
-     * component with the "biggest" angle.
+     * Padding added before the component, if it was drawn clockwise. This is the edge of the
+     * component with the "smallest" angle.
      */
     public fun calculateBeforePadding(
         layoutDirection: LayoutDirection,
@@ -100,13 +100,13 @@ public interface ArcPaddingValues {
 }
 
 /**
- * Apply additional space along each edge of the content in [Dp]. Note that that all dimensions are
- * applied to a concrete edge, indepenend on layout direction and curved layout direction.
+ * Apply additional space along each edge of the content in [Dp]. Note that all dimensions are
+ * applied to a concrete edge, independent of layout direction and curved layout direction.
  *
  * @param outer Padding in the outward direction from the center of the [CurvedLayout]
  * @param inner Padding in the inwards direction towards the center of the [CurvedLayout]
- * @param before Padding added before the component, if it was draw clockwise.
- * @param after Padding added after the component, if it was draw clockwise.
+ * @param before Padding added before the component, if it was drawn clockwise.
+ * @param after Padding added after the component, if it was drawn clockwise.
  */
 public fun ArcPaddingValues(
     outer: Dp = 0.dp,

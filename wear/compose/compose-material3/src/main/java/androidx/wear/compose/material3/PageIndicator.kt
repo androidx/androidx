@@ -583,8 +583,8 @@ private class PagesState(
                             smallIndicatorSizeFraction
                         else 1f
                     }
-                    // Depending on offsetInPages and other parameters,the last indicator will be
-                    // a fraction of a shrinked or full-size indicator.
+                    // Depending on offsetInPages and other parameters, the last indicator will be
+                    // a fraction of a shrunken or full-size indicator.
                     dotsCount - 1 -> {
                         if (
                             hiddenPagesToTheLeft == totalPages - pagesOnScreen - 1 &&

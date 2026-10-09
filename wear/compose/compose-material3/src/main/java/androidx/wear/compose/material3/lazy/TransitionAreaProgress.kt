@@ -72,8 +72,8 @@ internal value class TransitionAreaProgress(private val encodedProgress: Float) 
         fun Top(progress: Float) = TransitionAreaProgress((progress - 1f).coerceAtMost(0f))
 
         /**
-         * We are in the botom transition area, progress is 0 for an item entering the screen, up to
-         * 1 for an item exiting this transition area.
+         * We are in the bottom transition area, progress is 0 for an item entering the screen, up
+         * to 1 for an item exiting this transition area.
          */
         fun Bottom(progress: Float) = TransitionAreaProgress((1f - progress).coerceAtLeast(0f))
     }

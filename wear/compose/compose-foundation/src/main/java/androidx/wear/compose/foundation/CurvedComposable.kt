@@ -139,7 +139,7 @@ internal class CurvedComposableChild(
     ): PartialLayoutInfo {
         val parentInnerRadius = parentOuterRadius - parentThickness
 
-        // We know where we want it and the radial alignment, so we can compute it's positioning now
+        // We know where we want it and the radial alignment, so we can compute its positioning now
         val (myInnerRadius, myOuterRadius) =
             computeAnnulusRadii(
                 lerp(parentOuterRadius, parentInnerRadius, radialAlignment.ratio),

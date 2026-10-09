@@ -45,7 +45,7 @@ private val ignoredDemos =
 
 // Run this test on a phone emulator.
 // There are issues running on Watch emulators that menu items off screen are not found,
-// given the use of ScalingLAZYColumn.
+// given the use of ScalingLazyColumn.
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class DemoTest {
@@ -191,7 +191,7 @@ private val List<Demo>.navigationTitle: String
     get() = if (size == 1) first().title else drop(1).joinToString(" > ")
 
 /**
- * Trims the tree of [Demo]s represented by this [DemoCategory] by cutting all leave demos for which
+ * Trims the tree of [Demo]s represented by this [DemoCategory] by cutting all leaf demos for which
  * the [predicate] returns `false` and recursively removing all empty categories as a result.
  */
 private fun DemoCategory.filter(

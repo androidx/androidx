@@ -391,7 +391,7 @@ public class CardFontTest {
         var actualAppTextStyle = TextStyle.Default
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
-        var actuaContentTextStyle = TextStyle.Default
+        var actualContentTextStyle = TextStyle.Default
         var expectedAppTextStyle = TextStyle.Default
         var expectedTimeTextStyle = TextStyle.Default
         var expectedTitleTextStyle = TextStyle.Default
@@ -410,20 +410,20 @@ public class CardFontTest {
                 title = { actualTitleTextStyle = LocalTextStyle.current },
                 modifier = Modifier.testTag(TEST_TAG),
             ) {
-                actuaContentTextStyle = LocalTextStyle.current
+                actualContentTextStyle = LocalTextStyle.current
             }
         }
         assertEquals(expectedAppTextStyle, actualAppTextStyle)
         assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
         assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
-        assertEquals(expectedContentTextStyle, actuaContentTextStyle)
+        assertEquals(expectedContentTextStyle, actualContentTextStyle)
     }
 
     @Test
     public fun title_card_gives_correct_text_style_base() {
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
-        var actuaContentTextStyle = TextStyle.Default
+        var actualContentTextStyle = TextStyle.Default
         var expectedTimeTextStyle = TextStyle.Default
         var expectedTitleTextStyle = TextStyle.Default
         var expectedContentTextStyle = TextStyle.Default
@@ -439,12 +439,12 @@ public class CardFontTest {
                 title = { actualTitleTextStyle = LocalTextStyle.current },
                 modifier = Modifier.testTag(TEST_TAG),
             ) {
-                actuaContentTextStyle = LocalTextStyle.current
+                actualContentTextStyle = LocalTextStyle.current
             }
         }
         assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
         assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
-        assertEquals(expectedContentTextStyle, actuaContentTextStyle)
+        assertEquals(expectedContentTextStyle, actualContentTextStyle)
     }
 }
 

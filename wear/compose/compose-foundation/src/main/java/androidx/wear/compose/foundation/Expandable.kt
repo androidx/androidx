@@ -71,8 +71,8 @@ public fun rememberExpandableState(
 }
 
 /**
- * Create and [remember] a mapping from keys to [ExpandableState]s [ExpandableState]s can be
- * requested by key, and we will created with the parameters given here when a mapping didn't exist
+ * Create and [remember] a mapping from keys to [ExpandableState]s. [ExpandableState]s can be
+ * requested by key, and will be created with the parameters given here when a mapping didn't exist
  * before. This is mainly useful when you want to have a variable number of expandables, that can
  * change at runtime (for example, elements on a ScalingLazyColumn)
  *
@@ -246,7 +246,7 @@ internal constructor(
 
     /**
      * Represents the current state of the component, true means it's showing the extra information.
-     * If its in the middle of an animation, the value of this field takes into account only the
+     * If it's in the middle of an animation, the value of this field takes into account only the
      * target of that animation.
      *
      * Modifying this value triggers a change to show/hide the extra information.

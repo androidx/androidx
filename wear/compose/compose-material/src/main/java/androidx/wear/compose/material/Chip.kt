@@ -210,8 +210,8 @@ public fun Chip(
  * secondary label should be consistently aligned. With localisation and/or large font sizes, the
  * [Chip] height adjusts to accommodate the contents.
  *
- * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
- * the text starts next to the icon.
+ * If an icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so
+ * that the text starts next to the icon.
  *
  * The [Chip] can have different styles with configurable content colors, background colors
  * including gradients, these are provided by [ChipColors] implementations.
@@ -234,11 +234,11 @@ public fun Chip(
  * [Chips](https://developer.android.com/training/wearables/components/chips) guide.
  *
  * @param label A slot for providing the chip's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
  * @param onClick Will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
- *   to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned
+ *   to be text which is "start" aligned if there is an icon present and "start" or "center" aligned
  *   if not. label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
  *   and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize]. In
@@ -296,8 +296,8 @@ public fun Chip(
  * secondary label should be consistently aligned. With localisation and/or large font sizes, the
  * [Chip] height adjusts to accommodate the contents.
  *
- * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
- * the text starts next to the icon.
+ * If an icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so
+ * that the text starts next to the icon.
  *
  * The [Chip] can have different styles with configurable content colors, background colors
  * including gradients, these are provided by [ChipColors] implementations.
@@ -320,11 +320,11 @@ public fun Chip(
  * [Chips](https://developer.android.com/training/wearables/components/chips) guide.
  *
  * @param label A slot for providing the chip's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
  * @param onClick Will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
- *   to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned
+ *   to be text which is "start" aligned if there is an icon present and "start" or "center" aligned
  *   if not. label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
  *   and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize]. In
@@ -387,8 +387,8 @@ public fun Chip(
  * secondary label should be consistently aligned. With localisation and/or large font sizes, the
  * [OutlinedChip] height adjusts to accommodate the contents.
  *
- * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
- * the text starts next to the icon.
+ * If an icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so
+ * that the text starts next to the icon.
  *
  * the [OutlinedChip] has a transparent background, a thin border and contents which are colored
  * with the theme primary color. Colors can be obtained and customized using
@@ -404,11 +404,11 @@ public fun Chip(
  * [Chips](https://developer.android.com/training/wearables/components/chips) guide.
  *
  * @param label A slot for providing the chip's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
  * @param onClick Will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
- *   to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned
+ *   to be text which is "start" aligned if there is an icon present and "start" or "center" aligned
  *   if not. label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
  *   and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize]. In
@@ -465,8 +465,8 @@ public fun OutlinedChip(
  * includes a visible chip height of 32.dp and 8.dp of padding above and below the chip in order to
  * meet accessibility guidelines that request a minimum of 48.dp height and width of tappable area.
  *
- * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
- * the text starts next to the icon.
+ * If an icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so
+ * that the text starts next to the icon.
  *
  * The items are laid out as follows.
  * 1. If a label is provided then the chip will be laid out with the optional icon at the start of a
@@ -475,7 +475,7 @@ public fun OutlinedChip(
  *    default height of [ChipDefaults.CompactChipHeight] and the default width of
  *    [ChipDefaults.IconOnlyCompactChipWidth]
  *
- * If neither icon nor label is provided then the chip will displayed like an icon only chip but
+ * If neither icon nor label is provided then the chip will be displayed like an icon only chip but
  * with no contents and [ChipColors.background()] color.
  *
  * The [CompactChip] can have different styles with configurable content colors, background colors
@@ -506,7 +506,7 @@ public fun OutlinedChip(
  * @param onClick Will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
  * @param label A slot for providing the chip's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "center" aligned if not.
+ *   which is "start" aligned if there is an icon present and "center" aligned if not.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
  *   and vertically aligned icon of size [ChipDefaults.SmallIconSize] when used with a label or
  *   [ChipDefaults.IconSize] when used as the only content in the CompactChip. In order to correctly
@@ -561,8 +561,8 @@ public fun CompactChip(
  * includes a visible chip height of 32.dp and 8.dp of padding above and below the chip in order to
  * meet accessibility guidelines that request a minimum of 48.dp height and width of tappable area.
  *
- * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
- * the text starts next to the icon.
+ * If an icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so
+ * that the text starts next to the icon.
  *
  * The items are laid out as follows.
  * 1. If a label is provided then the chip will be laid out with the optional icon at the start of a
@@ -571,7 +571,7 @@ public fun CompactChip(
  *    default height of [ChipDefaults.CompactChipHeight] and the default width of
  *    [ChipDefaults.IconOnlyCompactChipWidth]
  *
- * If neither icon nor label is provided then the chip will displayed like an icon only chip but
+ * If neither icon nor label is provided then the chip will be displayed like an icon only chip but
  * with no contents and [ChipColors.background()] color.
  *
  * The [CompactChip] can have different styles with configurable content colors, background colors
@@ -602,7 +602,7 @@ public fun CompactChip(
  * @param onClick Will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
  * @param label A slot for providing the chip's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "center" aligned if not.
+ *   which is "start" aligned if there is an icon present and "center" aligned if not.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
  *   and vertically aligned icon of size [ChipDefaults.SmallIconSize] when used with a label or
  *   [ChipDefaults.IconSize] when used as the only content in the CompactChip. In order to correctly
@@ -690,8 +690,8 @@ public fun CompactChip(
  * includes a visible chip height of 32.dp and 8.dp of padding above and below the chip in order to
  * meet accessibility guidelines that request a minimum of 48.dp height and width of tappable area.
  *
- * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
- * the text starts next to the icon.
+ * If an icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so
+ * that the text starts next to the icon.
  *
  * The items are laid out as follows.
  * 1. If a label is provided then the chip will be laid out with the optional icon at the start of a
@@ -700,7 +700,7 @@ public fun CompactChip(
  *    default height of [ChipDefaults.CompactChipHeight] and the default width of
  *    [ChipDefaults.IconOnlyCompactChipWidth]
  *
- * If neither icon nor label is provided then the chip will displayed like an icon only chip but
+ * If neither icon nor label is provided then the chip will be displayed like an icon only chip but
  * with no contents and [ChipColors.background()] color.
  *
  * the [OutlinedCompactChip] has a transparent background, a thin border and contents which are
@@ -719,7 +719,7 @@ public fun CompactChip(
  * @param onClick Will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
  * @param label A slot for providing the chip's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "center" aligned if not.
+ *   which is "start" aligned if there is an icon present and "center" aligned if not.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
  *   and vertically aligned icon of size [ChipDefaults.SmallIconSize] when used with a label or
  *   [ChipDefaults.IconSize] when used as the only content in the CompactChip. In order to correctly

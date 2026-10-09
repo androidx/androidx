@@ -219,7 +219,7 @@ class IconTest {
             Icon(image, null, modifier = Modifier.testTag(testTag), tint = Color.Blue)
         }
 
-        // With a icon color provided, all pixels should be blue
+        // With an icon color provided, all pixels should be blue
         rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Blue }
     }
 

@@ -82,8 +82,8 @@ import kotlinx.coroutines.launch
  * @param enabled Whether this [swipeableV2] is enabled and should react to the user's input.
  * @param reverseDirection Whether to reverse the direction of the swipe, so a top to bottom swipe
  *   will behave like bottom to top, and a left to right swipe will behave like right to left.
- * @param interactionSource Optional [MutableInteractionSource] that will passed on to the internal
- *   [Modifier.draggable].
+ * @param interactionSource Optional [MutableInteractionSource] that will be passed on to the
+ *   internal [Modifier.draggable].
  */
 internal fun <T> Modifier.swipeableV2(
     state: SwipeableV2State<T>,
@@ -379,8 +379,8 @@ internal class SwipeableV2State<T>(
      * anchors, the [currentValue] will be updated to the [targetValue] without updating the offset.
      *
      * @param targetValue The target value of the animation
-     * @throws CancellationException if the interaction interrupted by another interaction like a
-     *   gesture interaction or another programmatic interaction like a [animateTo] or [snapTo]
+     * @throws CancellationException if the interaction is interrupted by another interaction like a
+     *   gesture interaction or another programmatic interaction like an [animateTo] or [snapTo]
      *   call.
      */
     public suspend fun snapTo(targetValue: T) {
@@ -393,8 +393,8 @@ internal class SwipeableV2State<T>(
      *
      * @param targetValue The target value of the animation
      * @param velocity The velocity the animation should start with, [lastVelocity] by default
-     * @throws CancellationException if the interaction interrupted by another interaction like a
-     *   gesture interaction or another programmatic interaction like a [animateTo] or [snapTo]
+     * @throws CancellationException if the interaction is interrupted by another interaction like a
+     *   gesture interaction or another programmatic interaction like an [animateTo] or [snapTo]
      *   call.
      */
     public suspend fun animateTo(targetValue: T, velocity: Float = lastVelocity) {
@@ -463,7 +463,7 @@ internal class SwipeableV2State<T>(
     /**
      * Swipe by the [delta], coerce it in the bounds and dispatch it to the [SwipeableV2State].
      *
-     * @return The delta the consumed by the [SwipeableV2State]
+     * @return The delta consumed by the [SwipeableV2State]
      */
     public fun dispatchRawDelta(delta: Float): Float {
         var remainingDelta = delta
@@ -560,10 +560,11 @@ internal class SwipeableV2State<T>(
 
     /**
      * Attempt to snap synchronously. Snapping can happen synchronously when there is no other swipe
-     * transaction like a drag or an animation is progress. If there is another interaction in
+     * transaction like a drag or an animation in progress. If there is another interaction in
      * progress, the suspending [snapTo] overload needs to be used.
      *
-     * @return true if the synchronous snap was successful, or false if we couldn't snap synchronous
+     * @return true if the synchronous snap was successful, or false if we couldn't snap
+     *   synchronously
      */
     internal fun trySnapTo(targetValue: T): Boolean = swipeMutex.tryMutate { snap(targetValue) }
 

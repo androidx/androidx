@@ -795,7 +795,7 @@ public object CardDefaults {
      * indicator like OneHandedGestureIndicator) while maintaining standard typography, colors, and
      * spacing.
      *
-     * Example of an [CardDefaults.AppCardContent] layout with OneHandedGestureIndicator:
+     * Example of a [CardDefaults.AppCardContent] layout with OneHandedGestureIndicator:
      *
      * @sample androidx.wear.compose.material3.samples.AppCardContentWithOneHandedGestureSample
      *
@@ -988,8 +988,8 @@ public object CardDefaults {
         )
 
     /**
-     * Creates a [Painter] for the background of an [Card] that displays an image with a scrim on
-     * top to make sure that any content above the background will be legible.
+     * Creates a [Painter] for the background of a [Card] that displays an image with a scrim on top
+     * to make sure that any content above the background will be legible.
      *
      * An Image background is a means to reinforce the meaning of information in a Card, e.g. to
      * help to contextualize the information. Cards should have a content color that contrasts with
@@ -1098,7 +1098,7 @@ public object CardDefaults {
             bottom = CardVerticalPadding + ImageBottomPadding,
         )
 
-    /** The default size of the app icon/image when used inside a [AppCard]. */
+    /** The default size of the app icon/image when used inside an [AppCard]. */
     public val AppImageSize: Dp = CardTokens.AppImageSize
 
     /** The default shape of [Card], which determines its corner radius. */

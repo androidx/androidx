@@ -320,7 +320,7 @@ public object IconToggleButtonDefaults {
         )
 
     /**
-     * Returns an [IconToggleButtonColors] for a [IconToggleButton]
+     * Returns an [IconToggleButtonColors] for an [IconToggleButton]
      * - by default, a colored background with a contrasting content color.
      *
      * If the button is disabled, then the colors will have an alpha ([DisabledContentAlpha] and
@@ -331,7 +331,7 @@ public object IconToggleButtonDefaults {
         MaterialTheme.colorScheme.defaultIconToggleButtonColors
 
     /**
-     * Returns an [IconToggleButtonColors] for a [IconToggleButton]
+     * Returns an [IconToggleButtonColors] for an [IconToggleButton]
      * - by default, a colored background with a contrasting content color.
      *
      * If the button is disabled, then the colors will have an alpha ([DisabledContentAlpha] and

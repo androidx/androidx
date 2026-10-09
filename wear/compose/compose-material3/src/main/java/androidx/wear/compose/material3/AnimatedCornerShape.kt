@@ -293,7 +293,7 @@ private fun AbsoluteCutCornerShape.toRoundedPolygon(size: Size, density: Density
  * Returns an implementation of Shape, animating a Morph based on an observable progress between 0.0
  * and 1.0.
  *
- * The Morph supports animated between different CornerBasedShapes such as a CutCorner to
+ * The Morph supports animating between different CornerBasedShapes such as a CutCorner to
  * RoundedCorner. Returns a simple non animated shape if `toRoundedPolygonOrNull` does not support
  * the shape.
  *

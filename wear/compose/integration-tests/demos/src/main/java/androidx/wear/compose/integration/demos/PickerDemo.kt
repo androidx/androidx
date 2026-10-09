@@ -953,7 +953,7 @@ constructor(
 }
 
 /**
- * This is copied from [TouchExplorationStateProvider]. Please updated if something changes over
+ * This is copied from [TouchExplorationStateProvider]. Please update if something changes over
  * there.
  */
 private class DefaultTouchExplorationStateProvider : TouchExplorationStateProvider {

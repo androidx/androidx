@@ -145,7 +145,7 @@ public fun ScrollIndicator(
  * A composable that displays a visual indicator of scrolling progress within a scrollable
  * container.
  *
- * Creates an [ScrollIndicator] based on the values in a [ScalingLazyListState] object that a
+ * Creates a [ScrollIndicator] based on the values in a [ScalingLazyListState] object that a
  * [ScalingLazyColumn] uses.
  *
  * Typically used with the [ScreenScaffold] but can be used to decorate any full screen situation.
@@ -201,7 +201,7 @@ public fun ScrollIndicator(
  * A composable that displays a visual indicator of scrolling progress within a scrollable
  * container.
  *
- * Creates an [ScrollIndicator] based on the values in a [TransformingLazyColumnState] object that a
+ * Creates a [ScrollIndicator] based on the values in a [TransformingLazyColumnState] object that a
  * [androidx.wear.compose.foundation.lazy.TransformingLazyColumn] uses.
  *
  * Typically used with the [ScreenScaffold] but can be used to decorate any full screen situation.
@@ -265,7 +265,7 @@ public fun ScrollIndicator(
  * A composable that displays a visual indicator of scrolling progress within a scrollable
  * container.
  *
- * Creates an [ScrollIndicator] based on the values in a [LazyListState] object that a [LazyColumn]
+ * Creates a [ScrollIndicator] based on the values in a [LazyListState] object that a [LazyColumn]
  * uses.
  *
  * To comply with Wear Material Design guidelines, this composable should be aligned to the center

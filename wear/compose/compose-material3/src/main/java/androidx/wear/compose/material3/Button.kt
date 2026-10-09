@@ -529,8 +529,8 @@ public fun ChildButton(
  * localisation and/or large font sizes, the [Button] height adjusts to accommodate the contents.
  * The label and secondary label should be consistently aligned.
  *
- * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
- * the text starts next to the icon.
+ * If an icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so
+ * that the text starts next to the icon.
  *
  * [Button] takes the [ButtonDefaults.buttonColors] color scheme by default, with colored
  * background, contrasting content color and no border. This is a high-emphasis button for the
@@ -782,11 +782,8 @@ public fun Button(
  * localisation and/or large font sizes, the [FilledTonalButton] height adjusts to accommodate the
  * contents. The label and secondary label should be consistently aligned.
  *
- * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
- * the text starts next to the icon.
- *
- * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
- * the text starts next to the icon.
+ * If an icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so
+ * that the text starts next to the icon.
  *
  * [FilledTonalButton] takes the [ButtonDefaults.filledTonalButtonColors] color scheme by default,
  * with muted background, contrasting content color and no border. This is a medium-emphasis button
@@ -904,8 +901,8 @@ public fun FilledTonalButton(
  * localisation and/or large font sizes, the [OutlinedButton] height adjusts to accommodate the
  * contents. The label and secondary label should be consistently aligned.
  *
- * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
- * the text starts next to the icon.
+ * If an icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so
+ * that the text starts next to the icon.
  *
  * [OutlinedButton] takes the [ButtonDefaults.outlinedButtonColors] color scheme by default, with a
  * transparent background and a thin border. This is a medium-emphasis button for important,
@@ -1021,8 +1018,8 @@ public fun OutlinedButton(
  * localisation and/or large font sizes, the [ChildButton] height adjusts to accommodate the
  * contents. The label and secondary label should be consistently aligned.
  *
- * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
- * the text starts next to the icon.
+ * If an icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so
+ * that the text starts next to the icon.
  *
  * [ChildButton] takes the [ButtonDefaults.childButtonColors] color scheme by default, with a
  * transparent background and no border. This is a low-emphasis button for optional or supplementary

@@ -559,7 +559,7 @@ class SegmentedCircularProgressIndicatorTest {
         rule.runOnIdle { progress.value = finalProgress }
 
         // Advance the clock to verify if reverse color animation is applied asap.
-        // When updating the progres from a value > 1f to a value < 1f,
+        // When updating the progress from a value > 1f to a value < 1f,
         // animation should be started since the very beginning. The behavior is different from
         // the case when update is done from a value < 1f to a value > 1f. In that case, colors are
         // animated after reaching the 1f threshold.

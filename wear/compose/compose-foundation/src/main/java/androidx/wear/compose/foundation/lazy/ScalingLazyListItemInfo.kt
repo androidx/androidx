@@ -38,7 +38,7 @@ public sealed interface ScalingLazyListItemInfo {
      * For [ScalingLazyListAnchorType.ItemCenter] the offset is from the center of the list item to
      * the center-line of the viewport.
      *
-     * For [ScalingLazyListAnchorType.ItemStart] if is the offset between the start (edge) of the
+     * For [ScalingLazyListAnchorType.ItemStart] it is the offset between the start (edge) of the
      * item and the center-line of the viewport, for normal layout this will be the top edge of the
      * item, for reverseLayout it will be the bottom edge.
      */
@@ -53,7 +53,7 @@ public sealed interface ScalingLazyListItemInfo {
      * For [ScalingLazyListAnchorType.ItemCenter] the offset is from the center of the list item to
      * the center-line of the viewport.
      *
-     * For [ScalingLazyListAnchorType.ItemStart] if is the offset between the start (edge) of the
+     * For [ScalingLazyListAnchorType.ItemStart] it is the offset between the start (edge) of the
      * item and the center-line of the viewport, for normal layout this will be the top edge of the
      * item, for reverseLayout it will be the bottom edge.
      *

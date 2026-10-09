@@ -54,7 +54,7 @@ import org.junit.rules.TestName
  *   locates the directory containing the golden screenshots.
  * @param generateScreenshots Whether to generate new golden screenshots.
  * @param testTagNode The semantic node to be verified.
- * @param matcher The matcher used to compare the screenshot against the goldens - default uses a a
+ * @param matcher The matcher used to compare the screenshot against the goldens - default uses a
  *   threshold of 0.98, it can be useful to pass 1.0 to test a more exact match.
  */
 @RequiresApi(Build.VERSION_CODES.O)
@@ -94,7 +94,7 @@ internal fun ComposeContentTestRule.verifyScreenshot(
  * @param generateScreenshots Whether to generate new golden screenshots.
  * @param testTagNode The semantic node to be verified.
  * @param layoutDirection The layout direction of the content.
- * @param matcher The matcher used to compare the screenshot against the goldens - default uses a a
+ * @param matcher The matcher used to compare the screenshot against the goldens - default uses a
  *   threshold of 0.98, it can be useful to pass 1.0 to test a more exact match.
  * @param content The content for which a screenshot will be generated.
  */

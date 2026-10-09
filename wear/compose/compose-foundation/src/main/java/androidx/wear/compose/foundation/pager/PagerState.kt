@@ -35,7 +35,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 
 /**
- * Creates and remember a [PagerState] to be used with a Wear Pager
+ * Creates and remembers a [PagerState] to be used with a Wear Pager
  *
  * @param initialPage The page that should be shown first.
  * @param initialPageOffsetFraction The offset of the initial page as a fraction of the page size.
@@ -109,7 +109,7 @@ constructor(
      *
      * This property is observable and is updated after every scroll or remeasure. If you use it in
      * the composable function it will be recomposed on every change causing potential performance
-     * issues including infinity recomposition loop. Therefore, avoid using it in the composition.
+     * issues including infinite recomposition loop. Therefore, avoid using it in the composition.
      *
      * If you want to run some side effects like sending an analytics event or updating a state
      * based on this value consider using "snapshotFlow".

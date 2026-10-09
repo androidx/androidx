@@ -105,7 +105,7 @@ import androidx.wear.compose.materialcore.isLayoutDirectionRtl
  * [SwitchButtonDefaults.switchButtonColors].
  *
  * @param checked Boolean flag indicating whether this button is currently checked.
- * @param onCheckedChange Callback to be invoked when this buttons checked status is changed.
+ * @param onCheckedChange Callback to be invoked when this button's checked status is changed.
  * @param modifier Modifier to be applied to the [SwitchButton].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable.
@@ -281,7 +281,7 @@ public fun SwitchButton(
  * events.
  *
  * @param checked Boolean flag indicating whether this button is currently checked.
- * @param onCheckedChange Callback to be invoked when this buttons checked status is changed.
+ * @param onCheckedChange Callback to be invoked when this button's checked status is changed.
  * @param toggleContentDescription The content description for the switch control part of the
  *   component.
  * @param onContainerClick Click listener called when the user clicks the main body of the button,
@@ -637,7 +637,7 @@ public object SwitchButtonDefaults {
      * @param disabledCheckedSecondaryContentColor The secondary content color of the
      *   [SplitSwitchButton] when disabled and checked, used for secondaryLabel content.
      * @param disabledCheckedSplitContainerColor The split container color of the
-     *   [ SplitSwitchButton] when disabled and checked.
+     *   [SplitSwitchButton] when disabled and checked.
      * @param disabledCheckedThumbColor The thumb color of the [SplitSwitchButton] when disabled and
      *   checked.
      * @param disabledCheckedThumbIconColor The thumb icon color of the [SplitSwitchButton] when

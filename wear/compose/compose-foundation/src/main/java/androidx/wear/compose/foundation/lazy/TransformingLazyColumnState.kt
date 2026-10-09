@@ -139,7 +139,7 @@ constructor(initialAnchorItemIndex: Int = -1, initialAnchorItemScrollOffset: Int
      * can use it to calculate what items are currently visible. Note that this property is
      * observable and is updated after every scroll or remeasure. If you use it in the composable
      * function it will be recomposed on every change causing potential performance issues including
-     * infinity recomposition loop. Therefore, avoid using it in the composition. If you want to run
+     * infinite recomposition loop. Therefore, avoid using it in the composition. If you want to run
      * some side effects like sending an analytics event or updating a state based on this value
      * consider using "snapshotFlow":
      */
