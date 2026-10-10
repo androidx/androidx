@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.BuildRejected
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.defaultParameters
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.graphParameters
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isAbort
@@ -203,6 +204,28 @@ class GraphLoopTest {
 
         assertThat(csp1.events[1].isRepeating).isTrue()
         assertThat(csp1.events[1].requests).containsExactly(request3)
+    }
+
+    @Test
+    fun repeatingRequestsAreRetried() = testScope.runTest {
+        // Reject building capture sequences to simulate that surface maps aren't ready.
+        csp1.rejectBuild = true
+        graphLoop.repeatingRequest = request1
+        graphLoop.requestProcessor = grp1
+        advanceUntilIdle()
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0]).isInstanceOf(BuildRejected::class.java)
+
+        // Now accept building capture sequences to simulate that surface maps are ready.
+        csp1.rejectBuild = false
+        // When surfaces are finalized, graph loop is invalidated to start retries.
+        graphLoop.invalidate()
+        advanceUntilIdle()
+
+        // The repeating request should be retried and submitted
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[1].isRepeating).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request1)
     }
 
     @Test

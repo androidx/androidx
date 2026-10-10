@@ -47,7 +47,6 @@ import androidx.camera.camera2.pipe.media.ImageWriterWrapper
 import androidx.camera.camera2.pipe.writeParameters
 import androidx.camera.common.Metadata
 import androidx.camera.common.unwrapAs
-import java.lang.Class
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.atomicfu.atomic
@@ -94,8 +93,6 @@ internal val captureSequenceDebugIds = atomic(0L)
 internal val requestTags = atomic(0L)
 
 internal fun nextRequestNumber(): RequestNumber = RequestNumber(requestTags.incrementAndGet())
-
-private const val REQUIRE_SURFACE_FOR_ALL_STREAMS = false
 
 /**
  * This class is designed to synchronously handle interactions with a [CameraCaptureSessionWrapper].
@@ -542,49 +539,23 @@ internal class Camera2CaptureSequenceProcessor(
         }
 
         for (request in requests) {
-
-            // Check to see if there is at least one valid surface for each stream.
-            var hasSurface = false
             for (stream in request.streams) {
                 if (streamToSurfaceMap.contains(stream)) {
-                    hasSurface = true
                     continue
                 }
 
-                val surface = this@Camera2CaptureSequenceProcessor.streamToSurfaceMap[stream]
-                if (surface != null) {
-                    // TODO(codelogic) There should be a more efficient way to do these lookups than
-                    // having two maps.
-                    surfaceToStreamMap[surface] = stream
-                    streamToSurfaceMap[stream] = surface
-                    val cameraStream = checkNotNull(streamGraph[stream])
-                    for (outputStream in cameraStream.outputs) {
-                        val surface = checkNotNull(outputToSurfaceMap[outputStream.id])
-                        surfaceToOutputMap[surface] = outputStream.id
-                    }
-                    hasSurface = true
-                } else if (REQUIRE_SURFACE_FOR_ALL_STREAMS) {
-                    Log.info { "  Failed to bind surface for $stream" }
-
-                    // If requireStreams is set we are required to map every stream to a valid
-                    // Surface object for this request. If this condition is violated, then we
-                    // return false because we cannot submit these request(s) until there is a valid
-                    // StreamId -> Surface mapping for all streams.
-                    return false
+                val surface =
+                    this@Camera2CaptureSequenceProcessor.streamToSurfaceMap[stream] ?: return false
+                // TODO(codelogic) There should be a more efficient way to do these lookups than
+                // having two maps.
+                surfaceToStreamMap[surface] = stream
+                streamToSurfaceMap[stream] = surface
+                val cameraStream = checkNotNull(streamGraph[stream])
+                for (outputStream in cameraStream.outputs) {
+                    val outputStreamSurface = outputToSurfaceMap[outputStream.id] ?: return false
+                    surfaceToOutputMap[outputStreamSurface] = outputStream.id
                 }
             }
-
-            // If there are no surfaces on a particular request, camera2 will not allow us to
-            // submit it.
-            if (!hasSurface) {
-                Log.info { "  Failed to bind any surfaces for $request!" }
-                return false
-            }
-
-            // Soundness check to make sure we add at least one surface. This should be guaranteed
-            // because we are supposed to exit early and return false if we cannot map at least one
-            // surface per request.
-            check(hasSurface)
         }
         return true
     }
