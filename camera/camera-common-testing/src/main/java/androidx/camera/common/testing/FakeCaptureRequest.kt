@@ -23,36 +23,21 @@ import androidx.camera.common.getUnchecked
 import java.lang.Class
 
 /**
- * A fake implementation of [CaptureRequestWrapper] designed for unit testing.
+ * Fake implementation of [CaptureRequestWrapper] for unit testing.
  *
- * This class allows tests to mock camera settings by configuring mock values for both native
- * [CaptureRequest.Key]s and custom [Metadata.Key]s.
+ * `FakeCaptureRequest` simulates camera request settings in tests by returning configured values
+ * for native [CaptureRequest.Key] instances and custom [Metadata.Key] instances.
  *
- * ### Kotlin Example
- *
- * ```kotlin
- * val fakeRequest = FakeCaptureRequest(
- *     requestParameters = mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON),
- *     requestMetadata = mapOf(customMetadataKey to "custom_value")
- * )
- *
- * // Querying values
- * val aeMode = fakeRequest[CaptureRequest.CONTROL_AE_MODE] // Returns CONTROL_AE_MODE_ON
- * ```
- *
- * ### Java Example
- *
- * ```java
- * Map<CaptureRequest.Key<?>, Object> parameters = new HashMap<>();
- * parameters.put(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
- *
- * FakeCaptureRequest fakeRequest = FakeCaptureRequest.create(parameters, Collections.emptyMap());
- * ```
+ * You can instantiate `FakeCaptureRequest` in two ways:
+ * - In **Kotlin**, call the companion [invoke] operator (`FakeCaptureRequest(...)`).
+ * - In **Java**, call the static [create] factory method (`FakeCaptureRequest.create(...)`).
  *
  * ### Behavior of [unwrapAs]
- * Because `FakeCaptureRequest` does not wrap a real, native [CaptureRequest] object, calling
- * `unwrapAs(CaptureRequest::class.java)` will return `null`. It only supports unwrapping to
- * [FakeCaptureRequest] itself or its supertypes.
+ * Because `FakeCaptureRequest` does not wrap a native [CaptureRequest] instance, calling
+ * `unwrapAs(CaptureRequest::class.java)` returns `null`. [unwrapAs] only returns non-null when
+ * unwrapping to [FakeCaptureRequest] or one of its supertypes.
+ *
+ * @sample androidx.camera.common.testing.samples.fakeCaptureRequestSample
  */
 public class FakeCaptureRequest
 private constructor(
@@ -105,13 +90,14 @@ private constructor(
         /**
          * Creates a [FakeCaptureRequest] instance.
          *
-         * This allows constructor-like syntax in Kotlin: `FakeCaptureRequest(...)`.
+         * This operator enables constructor-like syntax in Kotlin (`FakeCaptureRequest(...)`).
          *
          * @param requestParameters The map of capture request keys to their mock values. Defaults
          *   to an empty map.
          * @param requestMetadata The map of custom metadata keys to their mock values. Defaults to
          *   an empty map.
          * @return A configured [FakeCaptureRequest] instance.
+         * @sample androidx.camera.common.testing.samples.fakeCaptureRequestSample
          */
         @JvmSynthetic
         @Suppress("MissingJvmstatic")
@@ -123,13 +109,14 @@ private constructor(
         }
 
         /**
-         * Factory method to create a [FakeCaptureRequest] instance for Java interoperability.
+         * Creates a [FakeCaptureRequest] instance for Java interoperability.
          *
          * @param requestParameters The map of capture request keys to their mock values. Defaults
          *   to an empty map.
          * @param requestMetadata The map of custom metadata keys to their mock values. Defaults to
          *   an empty map.
          * @return A configured [FakeCaptureRequest] instance.
+         * @sample androidx.camera.common.testing.samples.fakeCaptureRequestSample
          */
         @JvmStatic
         @JvmOverloads

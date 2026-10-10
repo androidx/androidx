@@ -56,4 +56,5 @@ androidx {
     enableRobolectric()
     description = "Testing utilities and fakes for the androidx.camera.common" +
         "library, designed to facilitate Android Camera testing."
+    samples(project(":camera:camera-common:camera-common-samples"))
 }

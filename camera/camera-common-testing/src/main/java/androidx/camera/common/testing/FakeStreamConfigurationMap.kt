@@ -31,35 +31,31 @@ import java.util.LinkedHashMap
 private const val DURATION_20FPS_NS = 50000000L
 
 /**
- * A fake implementation of [StreamConfigurationMapWrapper] for testing.
+ * Fake implementation of [StreamConfigurationMapWrapper] for unit testing.
  *
- * This class enables a developer to specify a table of input and output formats, along with the
- * properties associated with them.
+ * `FakeStreamConfigurationMap` lets tests configure a deterministic table of supported input and
+ * output stream formats, sizes, frame durations, and high-speed video ranges without requiring a
+ * physical camera device.
  *
- * ### Example
- *
- * ```kotlin
- * val fakeMap = FakeStreamConfigurationMap(
- *     outputsTable = linkedMapOf(
- *         OutputKey(ImageFormat.YUV_420_888, Size(1920, 1080)) to OutputValues(),
- *         OutputKey(ImageFormat.JPEG, Size(1920, 1080)) to OutputValues(
- *             stallDuration = 200000000L // 200ms stall duration for JPEG
- *         )
- *     )
- * )
- * ```
- *
- * @param outputsTable The map of supported outputs, mapping [OutputKey] to [OutputValues]. Must be
- *   a [LinkedHashMap] to preserve insertion order. Used by output-related queries (e.g.,
- *   [getOutputFormats], [getOutputSizes], [getOutputMinFrameDuration]).
- * @param inputTable The list of supported inputs. Used by [getInputFormats] and [getInputSizes].
- * @param outputFormatsForInputFormats Mapping of input formats to their valid output formats. Used
- *   by [getValidOutputFormatsForInput].
- * @param outputClassTypes Set of class types that are supported as outputs. Used by
- *   [isOutputSupportedFor] (class-based queries) and [getOutputMinFrameDuration] (class-based
- *   queries). Class-based queries internally map to [GraphicsImageFormat.PRIVATE].
+ * @sample androidx.camera.common.testing.samples.fakeStreamConfigurationMapSample
+ * @sample androidx.camera.common.testing.samples.fakeCameraCharacteristicsSample
  */
 public class FakeStreamConfigurationMap
+/**
+ * Creates a [FakeStreamConfigurationMap] instance with the specified output and input tables.
+ *
+ * @param outputsTable The map of supported outputs, mapping [OutputKey] to [OutputValues]. Must be
+ *   a [LinkedHashMap] to preserve insertion order for output queries such as [getOutputFormats],
+ *   [getOutputSizes], and [getOutputMinFrameDuration].
+ * @param inputTable The list of supported input format and size entries used by [getInputFormats]
+ *   and [getInputSizes].
+ * @param outputFormatsForInputFormats Mapping of input formats to their valid output formats used
+ *   by [getValidOutputFormatsForInput].
+ * @param outputClassTypes Set of class types supported as outputs by class-based queries in
+ *   [isOutputSupportedFor] and [getOutputMinFrameDuration]. Class-based queries map internally to
+ *   [GraphicsImageFormat.PRIVATE].
+ * @sample androidx.camera.common.testing.samples.fakeStreamConfigurationMapSample
+ */
 @JvmOverloads
 constructor(
     outputsTable: LinkedHashMap<OutputKey, OutputValues>,
