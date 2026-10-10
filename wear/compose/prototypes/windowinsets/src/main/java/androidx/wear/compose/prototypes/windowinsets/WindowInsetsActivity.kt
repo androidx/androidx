@@ -27,6 +27,17 @@ class WindowInsetsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val buildTimestamp = getString(R.string.build_timestamp)
+        val appVersion = getString(R.string.app_version)
+        Log.i(
+            "WearStatusBarDebug",
+            "=============================================================\n" +
+                "WINDOWINSETS PROTOTYPE LAUNCHED (v$appVersion)\n" +
+                "BUILD TIMESTAMP : $buildTimestamp\n" +
+                "STATUS BAR DIAGNOSTICS: Active (Dynamic Border + Logcat)\n" +
+                "=============================================================",
+        )
+
         // Diagnostic: monitor DecorView mutation of mContentRoot LayoutParams topMargin
         window.decorView.post {
             (window.decorView as? ViewGroup)?.getChildAt(0)?.let { contentRoot ->

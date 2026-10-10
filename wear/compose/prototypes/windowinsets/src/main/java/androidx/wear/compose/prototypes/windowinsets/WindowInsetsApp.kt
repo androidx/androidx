@@ -42,6 +42,10 @@ sealed interface Screen : NavKey {
 
     @Serializable data object HorizontalPager : Screen
 
+    @Serializable data object HorizontalPagerWithVerticalScroll : Screen
+
+    @Serializable data object NestedPagers : Screen
+
     @Serializable data object VerticalPager : Screen
 
     @Serializable data object SelfRenderedSandbox : Screen
@@ -62,7 +66,9 @@ sealed interface Screen : NavKey {
 
     @Serializable data object DialogOutOfScaffold : Screen
 
-    @Serializable data object CustomSuppressStatusBarInScaffold : Screen
+    @Serializable data object SuppressStatusBarLambda : Screen
+
+    @Serializable data object SuppressStatusBarLeaf : Screen
 
     @Serializable data object CustomSuppressStatusBarOutOfScaffold : Screen
 
@@ -76,6 +82,8 @@ val Screen.title: String
             Screen.Recents -> "Recents"
             Screen.GlobalStatusBarSandbox -> "Global Status Bar Sandbox"
             Screen.HorizontalPager -> "Horizontal Pager"
+            Screen.HorizontalPagerWithVerticalScroll -> "Horizontal Pager with Vertical Scroll"
+            Screen.NestedPagers -> "Nested Pagers"
             Screen.VerticalPager -> "Vertical Pager"
             Screen.SelfRenderedSandbox -> "Self Rendered Sandbox"
             Screen.StepperInScaffold -> "Stepper (In Scaffold)"
@@ -86,7 +94,8 @@ val Screen.title: String
             Screen.DatePickerOutOfScaffold -> "DatePicker (Out of Scaffold)"
             Screen.DialogInScaffold -> "Dialog (In Scaffold)"
             Screen.DialogOutOfScaffold -> "Dialog (Out of Scaffold)"
-            Screen.CustomSuppressStatusBarInScaffold -> "SuppressStatusBar (In Scaffold)"
+            Screen.SuppressStatusBarLambda -> "SuppressStatusBar (Content Lambda)"
+            Screen.SuppressStatusBarLeaf -> "SuppressStatusBar (Component Leaf)"
             Screen.CustomSuppressStatusBarOutOfScaffold -> "SuppressStatusBar (Out of Scaffold)"
             Screen.PagerWithSuppression -> "Pager With Suppression"
         }
@@ -163,6 +172,16 @@ fun WindowInsetsApp() {
                     HorizontalPagerScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
                 }
 
+                entry<Screen.HorizontalPagerWithVerticalScroll> {
+                    HorizontalPagerWithVerticalScrollScreen(
+                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
+                }
+
+                entry<Screen.NestedPagers> {
+                    NestedPagersScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                }
+
                 entry<Screen.VerticalPager> {
                     VerticalPagerScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
                 }
@@ -207,8 +226,14 @@ fun WindowInsetsApp() {
                     DialogOutOfScaffoldScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
                 }
 
-                entry<Screen.CustomSuppressStatusBarInScaffold> {
-                    CustomSuppressStatusBarInScaffoldScreen(
+                entry<Screen.SuppressStatusBarLambda> {
+                    SuppressStatusBarLambdaScreen(
+                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
+                }
+
+                entry<Screen.SuppressStatusBarLeaf> {
+                    SuppressStatusBarLeafScreen(
                         onBack = { backStack.removeAt(backStack.lastIndex) }
                     )
                 }
