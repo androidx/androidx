@@ -16,6 +16,8 @@
 
 package androidx.credentials.providerevents.service
 
+import android.app.PendingIntent
+import android.content.Intent
 import android.content.pm.SigningInfo
 import android.os.Bundle
 import androidx.credentials.CreatePasswordRequest
@@ -24,7 +26,10 @@ import androidx.credentials.PublicKeyCredential
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.provider.BeginCreateCustomCredentialRequest
 import androidx.credentials.provider.CallingAppInfo
+import androidx.credentials.provider.CreateEntry
 import androidx.credentials.provider.ProviderCreateCredentialRequest
+import androidx.credentials.providerevents.exception.BeginBatchCreateCredentialException
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -97,6 +102,32 @@ class BatchCreateCredentialTypesTest {
             }
             .hasMessageThat()
             .contains("Duplicate package name")
+    }
+
+    @Test
+    fun beginBatchCreateCredentialResponse_copiesCreateEntries() {
+        val pendingIntent =
+            PendingIntent.getActivity(
+                ApplicationProvider.getApplicationContext(),
+                0,
+                Intent(),
+                PendingIntent.FLAG_IMMUTABLE,
+            )
+        val entry = CreateEntry("user@example.com", pendingIntent)
+        val entries = mutableListOf(entry)
+
+        val response = BeginBatchCreateCredentialResponse(entries)
+        entries.clear()
+
+        assertThat(response.createEntries).containsExactly(entry)
+    }
+
+    @Test
+    fun beginBatchCreateCredentialException_retainsMessage() {
+        val exception = BeginBatchCreateCredentialException("unavailable")
+
+        assertThat(exception.errorMessage).isEqualTo("unavailable")
+        assertThat(exception.message).isEqualTo("unavailable")
     }
 
     @Test

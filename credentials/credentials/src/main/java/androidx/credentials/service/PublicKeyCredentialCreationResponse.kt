@@ -19,17 +19,18 @@ package androidx.credentials.service
 import androidx.annotation.RestrictTo
 
 /**
- * The response delivered by a [RelyingPartyEventsService] indicating the outcome of registering the
- * created passkey with its backend server.
+ * Acknowledges a [PublicKeyCredentialCreationResult] delivered to
+ * [RelyingPartyEventsService.onPublicKeyCredentialCreationResult]. A relying party that fails to
+ * register the credential with its backend reports that through the callback's `onError` instead.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class PublicKeyCredentialCreatedResponse() {
+public class PublicKeyCredentialCreationResponse() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        return other is PublicKeyCredentialCreatedResponse
+        return other is PublicKeyCredentialCreationResponse
     }
 
     override fun hashCode(): Int = 0
 
-    override fun toString(): String = "PublicKeyCredentialCreatedResponse()"
+    override fun toString(): String = "PublicKeyCredentialCreationResponse()"
 }

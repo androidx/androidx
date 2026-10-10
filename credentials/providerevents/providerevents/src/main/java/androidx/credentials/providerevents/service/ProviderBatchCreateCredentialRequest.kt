@@ -21,8 +21,9 @@ import androidx.credentials.provider.ProviderCreateCredentialRequest
 import androidx.credentials.providerevents.internal.RequestValidationHelper
 
 /**
- * The batch of credential creation requests delivered to a credential provider's fulfillment
- * activity, one per relying party.
+ * The batch of credential creation requests, one per relying party, delivered to the `Activity`
+ * behind a provider's [androidx.credentials.provider.CreateEntry.pendingIntent]; read it with
+ * [androidx.credentials.providerevents.IntentHandler.retrieveProviderBatchCreateCredentialRequest].
  *
  * Each request is identified by the package name in its
  * [callingAppInfo][ProviderCreateCredentialRequest.callingAppInfo], which is the relying party as
