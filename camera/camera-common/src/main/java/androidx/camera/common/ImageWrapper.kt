@@ -31,7 +31,7 @@ import java.nio.ByteBuffer
  * testing by allowing mocking.
  *
  * @sample androidx.camera.common.samples.wrapImageSample
- * @sample androidx.camera.common.samples.fakeImageSample
+ * @sample androidx.camera.common.testing.samples.fakeImageSample
  */
 public interface ImageWrapper : UnsafeWrapper, AutoCloseable {
     /**

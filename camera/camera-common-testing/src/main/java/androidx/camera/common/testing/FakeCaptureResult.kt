@@ -26,33 +26,16 @@ import androidx.camera.common.getUnchecked
 import java.lang.Class
 
 /**
- * A fake implementation of [CaptureResultWrapper] for testing.
+ * Fake implementation of [CaptureResultWrapper] for unit testing.
  *
- * Allows mock values to be configured for capture result parameters, custom metadata, camera ID,
- * frame number, and capture request via its companion [invoke] operator (Kotlin) or [create]
- * factory method (Java).
+ * `FakeCaptureResult` simulates capture result metadata, camera ID, frame number, and the
+ * originating capture request in unit tests without requiring a physical camera device.
  *
- * ### Example (Kotlin)
+ * You can instantiate `FakeCaptureResult` in two ways:
+ * - In **Kotlin**, call the companion [invoke] operator (`FakeCaptureResult(...)`).
+ * - In **Java**, call the static [create] factory method (`FakeCaptureResult.create(...)`).
  *
- * ```kotlin
- * val fakeResult = FakeCaptureResult(
- *     cameraId = CameraId("0"),
- *     frameNumber = CameraFrameNumber(1L),
- *     resultParameters = mapOf(CaptureResult.LENS_STATE to CaptureResult.LENS_STATE_MOVING)
- * )
- * ```
- *
- * ### Example (Java)
- *
- * ```java
- * FakeCaptureResult fakeResult = FakeCaptureResult.create(
- *     "0",
- *     1L,
- *     new FakeCaptureRequest(),
- *     resultParametersMap,
- *     resultMetadataMap
- * );
- * ```
+ * @sample androidx.camera.common.testing.samples.fakeCaptureResultSample
  */
 public class FakeCaptureResult
 private constructor(
@@ -111,7 +94,7 @@ private constructor(
         /**
          * Creates a [FakeCaptureResult] instance for Kotlin clients.
          *
-         * Allows constructor-like syntax in Kotlin: `FakeCaptureResult(...)`.
+         * This operator enables constructor-like syntax in Kotlin (`FakeCaptureResult(...)`).
          *
          * @param cameraId The strongly typed [CameraId] associated with the result.
          * @param frameNumber The strongly typed [CameraFrameNumber] associated with the result.
@@ -122,6 +105,7 @@ private constructor(
          * @param resultMetadata Optional map of custom metadata keys to their mock values. Defaults
          *   to an empty map.
          * @return A configured [FakeCaptureResult] instance.
+         * @sample androidx.camera.common.testing.samples.fakeCaptureResultSample
          */
         @JvmSynthetic
         @Suppress("MissingJvmstatic", "ValueClassUsageWithoutJvmName")
@@ -156,6 +140,7 @@ private constructor(
          * @param resultMetadata The map of custom metadata keys to their mock values. Defaults to
          *   an empty map.
          * @return A configured [FakeCaptureResult] instance.
+         * @sample androidx.camera.common.testing.samples.fakeCaptureResultSample
          */
         @JvmStatic
         @JvmOverloads

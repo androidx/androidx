@@ -32,7 +32,7 @@ import android.hardware.camera2.CaptureRequest
  * (such as `FakeCaptureRequest`).
  *
  * @sample androidx.camera.common.samples.wrapCaptureRequestSample
- * @sample androidx.camera.common.samples.fakeCaptureRequestSample
+ * @sample androidx.camera.common.testing.samples.fakeCaptureRequestSample
  * @see CaptureRequestMetadata
  */
 public interface CaptureRequestWrapper : CaptureRequestMetadata {

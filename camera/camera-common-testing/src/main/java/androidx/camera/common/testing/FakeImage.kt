@@ -33,35 +33,66 @@ import java.nio.ByteBuffer
 import kotlinx.atomicfu.atomic
 
 /**
- * Fake implementation of [MutableImageWrapper] for testing.
+ * Fake implementation of [MutableImageWrapper] for unit testing.
  *
- * This class supports optional injection of both a [ByteBuffer] and a [HardwareBuffer].
+ * `FakeImage` simulates an image in tests without requiring camera hardware or native `Image`
+ * instances. You can configure pixel buffers, image planes, and hardware buffers directly through
+ * the constructor.
  *
- * ## HardwareBuffer & Backing Behavior
- * If a `hardwareBuffer` is provided, its width, height, and format metadata will be verified and
- * accessible. However, accessing pixel data directly from within the `HardwareBuffer` is not
- * supported on pure JVM. Accessing the buffer fields from [imagePlanes] will use data backed by the
- * `byteBuffer` parameter and/or `byteBuffer` field on this image.
+ * ## Plane and Buffer Backing
+ * By default, accessing [imagePlanes] lazily allocates a native-order direct [ByteBuffer] and
+ * slices it into format-specific [ImagePlane] instances. You can override this default behavior in
+ * two ways:
+ * - Provide a custom `byteBuffer` in the constructor to supply specific pixel bytes for automatic
+ *   plane generation.
+ * - Provide a non-empty `imagePlanes` list in the constructor or assign [imagePlanes] to define
+ *   custom plane layouts, row strides, or unsupported image formats.
  *
- * If provided, the `HardwareBuffer` will be closed when this [FakeImage] is closed.
+ * ## HardwareBuffer Behavior
+ * On API level 26 and higher, you can pass a [HardwareBuffer] to the constructor or let
+ * [hardwareBuffer] lazily create one on demand. Because the JVM cannot read pixel data directly
+ * from a `HardwareBuffer`, [imagePlanes] always reads from the backing `byteBuffer` or custom
+ * [ImagePlane] instances. Calling [close] closes the associated `HardwareBuffer` on the first
+ * invocation.
+ *
+ * @sample androidx.camera.common.testing.samples.fakeImageSample
+ * @sample androidx.camera.common.testing.samples.fakeImageCustomPlanesSample
  */
 public open class FakeImage
 /**
- * Creates a new [FakeImage].
+ * Creates a [FakeImage] instance with the specified dimensions, format, and optional backing
+ * buffers.
  *
- * @param width The width of the image in pixels.
- * @param height The height of the image in pixels.
- * @param format The format of the image. Must be a constant from [android.graphics.ImageFormat].
- * @param timestamp The timestamp associated with the image, in nanoseconds.
- * @param byteBuffer An optional [ByteBuffer] that backs the pixel data of this image. If not
- *   provided, a buffer of the minimum required size will be allocated automatically when needed,
- *   based on the [format], [width], and [height].
- * @param hardwareBuffer An optional [HardwareBuffer] associated with this image. If not provided, a
- *   fake [HardwareBuffer] will be created dynamically when accessed via [hardwareBuffer] (if
- *   supported on the platform).
- * @param cropRect The crop rectangle of the image. Defaults to the full size of the image.
- * @param imagePlanes An optional list of pre-configured [ImagePlane]s. If empty, the planes will be
- *   generated lazily from the backing [ByteBuffer] when accessed.
+ * You can configure plane and buffer backing through the following constructor options:
+ * - **Default automatic planes**: Leave `byteBuffer` as `null` and `imagePlanes` empty. Accessing
+ *   [imagePlanes] lazily allocates a native-order direct [ByteBuffer] and slices it into planes for
+ *   the formats listed in [imagePlanes].
+ * - **Custom backing buffer**: Pass a pre-populated `byteBuffer` and leave `imagePlanes` empty.
+ *   Accessing [imagePlanes] slices your buffer into format-specific planes.
+ * - **Custom image planes**: Pass a non-empty `imagePlanes` list to test custom row strides, pixel
+ *   strides, or formats that do not support automatic plane generation.
+ *
+ * @param width The image width in pixels.
+ * @param height The image height in pixels.
+ * @param format The image format constant from [android.graphics.ImageFormat].
+ * @param timestamp The capture timestamp in nanoseconds.
+ * @param byteBuffer An optional [ByteBuffer] that backs automatic [imagePlanes] generation and
+ *   `unwrapAs(ByteBuffer::class.java)`. If `null`, `FakeImage` lazily allocates a native-order
+ *   direct buffer of [ImageFormats.bytesPerImage] bytes when needed. If you provide a buffer and
+ *   leave `imagePlanes` empty, its capacity must be at least the minimum byte size for `format`,
+ *   `width`, and `height`.
+ * @param hardwareBuffer An optional [HardwareBuffer] associated with this image. On API level 26
+ *   and higher, its dimensions must match `width` and `height`. If `null`, accessing
+ *   [hardwareBuffer] lazily creates a synthetic [HardwareBuffer] when supported by the platform.
+ *   Calling [close] closes this buffer on the first invocation.
+ * @param cropRect The visible crop rectangle of the image. Defaults to `Rect(0, 0, width, height)`.
+ * @param imagePlanes An optional list of pre-configured [ImagePlane] instances. If non-empty,
+ *   [imagePlanes] returns this list directly without slicing `byteBuffer`. If empty, [imagePlanes]
+ *   lazily generates format-specific planes from `byteBuffer` on first access.
+ * @throws IllegalArgumentException If `hardwareBuffer` is non-null on API level 26 or higher and
+ *   its width or height does not match `width` or `height`.
+ * @sample androidx.camera.common.testing.samples.fakeImageSample
+ * @sample androidx.camera.common.testing.samples.fakeImageCustomPlanesSample
  */
 @JvmOverloads
 constructor(
