@@ -22,7 +22,7 @@ import androidx.credentials.providerevents.internal.RequestValidationHelper
 
 /**
  * Asks a credential provider which accounts it can create credentials under for a batch of relying
- * parties, delivered to [CredentialProviderEventsService.onBatchCreateCredentialCandidatesRequest].
+ * parties, delivered to [CredentialProviderEventsService.onBeginBatchCreateCredentialRequest].
  *
  * @property requests one request per relying party, each carrying that relying party as its
  *   [callingAppInfo][BeginCreateCredentialRequest.callingAppInfo]

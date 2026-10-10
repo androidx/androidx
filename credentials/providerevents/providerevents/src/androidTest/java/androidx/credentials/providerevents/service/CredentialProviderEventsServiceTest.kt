@@ -24,12 +24,10 @@ import android.os.CancellationSignal
 import android.os.IBinder
 import androidx.core.os.OutcomeReceiverCompat
 import androidx.credentials.PublicKeyCredential
-import androidx.credentials.exceptions.CreateCredentialException
-import androidx.credentials.exceptions.CreateCredentialUnknownException
-import androidx.credentials.provider.BeginCreateCredentialResponse
 import androidx.credentials.provider.BeginCreateCustomCredentialRequest
 import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.providerevents.CredentialEventsProvider
+import androidx.credentials.providerevents.exception.BeginBatchCreateCredentialException
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -74,9 +72,9 @@ class CredentialProviderEventsServiceTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
-    fun onBatchCreateCredentialCandidatesRequest_default_failsWithUnknownException() {
+    fun onBeginBatchCreateCredentialRequest_default_failsWithException() {
         val service = object : CredentialProviderEventsService() {}
-        var error: CreateCredentialException? = null
+        var error: BeginBatchCreateCredentialException? = null
         val request =
             BeginBatchCreateCredentialRequest(
                 listOf(
@@ -88,20 +86,25 @@ class CredentialProviderEventsServiceTest {
                 )
             )
 
-        service.onBatchCreateCredentialCandidatesRequest(
+        service.onBeginBatchCreateCredentialRequest(
             request,
             CancellationSignal(),
             object :
-                OutcomeReceiverCompat<BeginCreateCredentialResponse, CreateCredentialException> {
-                override fun onResult(result: BeginCreateCredentialResponse) {}
+                OutcomeReceiverCompat<
+                    BeginBatchCreateCredentialResponse,
+                    BeginBatchCreateCredentialException,
+                > {
+                override fun onResult(result: BeginBatchCreateCredentialResponse) {}
 
-                override fun onError(e: CreateCredentialException) {
+                override fun onError(e: BeginBatchCreateCredentialException) {
                     error = e
                 }
             },
         )
 
-        assertThat(error).isInstanceOf(CreateCredentialUnknownException::class.java)
+        assertThat(error).isInstanceOf(BeginBatchCreateCredentialException::class.java)
+        assertThat(error?.errorMessage)
+            .isEqualTo("Batch credential creation is not supported by this service")
     }
 
     // Dummy implementation of CredentialEventsProvider for testing

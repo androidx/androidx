@@ -26,7 +26,6 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.core.os.OutcomeReceiverCompat
-import androidx.credentials.exceptions.CreateCredentialException
 
 /**
  * A base service for relying party applications to receive batch passkey creation events from
@@ -64,15 +63,13 @@ import androidx.credentials.exceptions.CreateCredentialException
  *    to the user at all.
  * 2. [onGetPublicKeyCredentialCreationRequest] supplies the WebAuthn passkey registration options
  *    once the user has opted in.
- * 3. [onPublicKeyCredentialCreated] delivers the resulting attestation or creation failure so the
- *    relying party can register the credential with its backend or handle the error.
+ * 3. [onPublicKeyCredentialCreationResult] delivers the created credential or the creation failure
+ *    so the relying party can register the credential with its backend or handle the error.
  *
  * All three callbacks are invoked on the main thread, so implementations must offload any network
  * or disk I/O to a background thread or coroutine. The [OutcomeReceiverCompat] `callback` passed to
- * each method is thread-safe and may be completed from any thread. Each callback should be
- * completed exactly once; only the first completion is delivered and later ones are ignored. The
- * `cancellationSignal` passed to each callback is cancelled if the caller goes away before the
- * callback is completed, in which case the result can no longer be delivered.
+ * each method is thread-safe and may be completed from any thread. Complete each callback exactly
+ * once.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class RelyingPartyEventsService : Service() {
@@ -85,7 +82,7 @@ public abstract class RelyingPartyEventsService : Service() {
         if (classNames.isEmpty()) {
             return null
         }
-        val provider = instantiateStubProvider(classNames) ?: return null
+        val provider = instantiateProvider(classNames) ?: return null
         return try {
             provider.getStubImplementation(this)
         } catch (e: Throwable) {
@@ -94,7 +91,7 @@ public abstract class RelyingPartyEventsService : Service() {
         }
     }
 
-    private fun instantiateStubProvider(classNames: List<String>): RelyingPartyEventsStubProvider? {
+    private fun instantiateProvider(classNames: List<String>): RelyingPartyEventsStubProvider? {
         var provider: RelyingPartyEventsStubProvider? = null
         val loader = javaClass.classLoader ?: ClassLoader.getSystemClassLoader()
         for (className in classNames) {
@@ -155,12 +152,12 @@ public abstract class RelyingPartyEventsService : Service() {
      *
      * Implementations should offload any network or disk I/O to a background thread and complete
      * [callback] (which is thread-safe and may be called from any thread) with an eligibility
-     * response, or with a [CreateCredentialException] if eligibility could not be determined. Not
-     * completing the callback will leave the caller waiting until the binding times out.
+     * response, or with a [CheckPublicKeyCredentialCreationEligibilityException] if eligibility
+     * could not be determined. Not completing the callback will leave the caller waiting until the
+     * binding times out.
      *
      * @param request the eligibility query
-     * @param cancellationSignal a signal that is cancelled if the caller goes away before
-     *   [callback] is completed
+     * @param cancellationSignal a signal to cancel the operation
      * @param callback the thread-safe callback to receive the eligibility result
      */
     @MainThread
@@ -170,7 +167,7 @@ public abstract class RelyingPartyEventsService : Service() {
         callback:
             OutcomeReceiverCompat<
                 CheckPublicKeyCredentialCreationEligibilityResponse,
-                CreateCredentialException,
+                CheckPublicKeyCredentialCreationEligibilityException,
             >,
     )
 
@@ -191,8 +188,7 @@ public abstract class RelyingPartyEventsService : Service() {
      * is thread-safe and may be invoked from any thread.
      *
      * @param request the creation options query
-     * @param cancellationSignal a signal that is cancelled if the caller goes away before
-     *   [callback] is completed
+     * @param cancellationSignal a signal to cancel the operation
      * @param callback the thread-safe callback to receive the creation request
      */
     @MainThread
@@ -202,43 +198,40 @@ public abstract class RelyingPartyEventsService : Service() {
         callback:
             OutcomeReceiverCompat<
                 GetPublicKeyCredentialCreationResponse,
-                CreateCredentialException,
+                GetPublicKeyCredentialCreationException,
             >,
     )
 
     /**
      * Called on the main thread after the credential provider has attempted to create the passkey,
-     * delivering either the resulting WebAuthn attestation
-     * ([PublicKeyCredentialCreatedRequest.response]) so the relying party can register it with its
-     * backend, or the creation failure ([PublicKeyCredentialCreatedRequest.exception]).
+     * delivering either the created credential ([PublicKeyCredentialCreationResult.credential]) or
+     * the creation failure ([PublicKeyCredentialCreationResult.exception]).
      *
-     * When [PublicKeyCredentialCreatedRequest.response] is non-null, the relying party should
-     * verify and register the attestation with its backend on a background thread, then complete
-     * [callback] with `callback.onResult(PublicKeyCredentialCreatedResponse())` (or
-     * `callback.onError(...)` if backend registration fails). When
-     * [PublicKeyCredentialCreatedRequest.exception] is non-null, the relying party should call
-     * `callback.onResult(PublicKeyCredentialCreatedResponse())` once it has handled or recorded the
-     * creation failure. [callback] is thread-safe and may be completed from any thread.
+     * When [PublicKeyCredentialCreationResult.credential] is non-null, the relying party should
+     * verify and register the credential with its backend on a background thread, then complete
+     * [callback] with `callback.onResult(PublicKeyCredentialCreationResponse())`, or
+     * `callback.onError(...)` if backend registration fails. When
+     * [PublicKeyCredentialCreationResult.exception] is non-null, the relying party should call
+     * `callback.onResult(PublicKeyCredentialCreationResponse())` once it has handled or recorded
+     * the creation failure. [callback] is thread-safe and may be completed from any thread.
      *
      * **Security note**: The relying party backend MUST independently verify the WebAuthn
      * challenge, origin, and user entity before persisting the credential; it must not trust the
      * attestation based solely on the invocation of this callback.
      *
-     * @param request the request carrying either the created credential's attestation response or
-     *   the creation failure exception
-     * @param cancellationSignal a signal that is cancelled if the caller goes away before
-     *   [callback] is completed
+     * @param result the created credential or the creation failure
+     * @param cancellationSignal a signal to cancel the operation
      * @param callback the thread-safe callback to acknowledge handling of the result or report a
      *   backend registration failure
      */
     @MainThread
-    public abstract fun onPublicKeyCredentialCreated(
-        request: PublicKeyCredentialCreatedRequest,
+    public abstract fun onPublicKeyCredentialCreationResult(
+        result: PublicKeyCredentialCreationResult,
         cancellationSignal: CancellationSignal,
         callback:
             OutcomeReceiverCompat<
-                PublicKeyCredentialCreatedResponse,
-                CreateCredentialException,
+                PublicKeyCredentialCreationResponse,
+                PublicKeyCredentialCreationException,
             >,
     )
 
