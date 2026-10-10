@@ -25,7 +25,9 @@ import androidx.credentials.CreatePublicKeyCredentialResponse
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.ProviderCreateCredentialRequest
+import androidx.credentials.providerevents.exception.ImportCredentialsCancellationException
 import androidx.credentials.providerevents.exception.ImportCredentialsInvalidJsonException
+import androidx.credentials.providerevents.exception.ImportCredentialsNoExportOptionException
 import androidx.credentials.providerevents.exception.ImportCredentialsProviderConfigurationException
 import androidx.credentials.providerevents.exception.ImportCredentialsSystemErrorException
 import androidx.credentials.providerevents.exception.ImportCredentialsUnknownCallerException
@@ -156,7 +158,9 @@ class IntentHandlerTest {
         // A list of all specific exception types to be tested.
         val exceptionTypes =
             listOf(
+                ImportCredentialsCancellationException("User cancelled the import"),
                 ImportCredentialsInvalidJsonException("Invalid JSON format"),
+                ImportCredentialsNoExportOptionException("No export option available"),
                 ImportCredentialsProviderConfigurationException("Provider not configured"),
                 ImportCredentialsSystemErrorException("A system error occurred"),
                 ImportCredentialsUnknownCallerException("Caller is not recognized"),
