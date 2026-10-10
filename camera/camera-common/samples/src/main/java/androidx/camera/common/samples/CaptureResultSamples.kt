@@ -18,14 +18,10 @@ package androidx.camera.common.samples
 
 import android.hardware.camera2.CaptureResult
 import androidx.annotation.Sampled
-import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.CameraId
 import androidx.camera.common.CaptureRequestWrappers
 import androidx.camera.common.CaptureResultWrapper
 import androidx.camera.common.CaptureResultWrappers
-import androidx.camera.common.Metadata
-import androidx.camera.common.testing.FakeCaptureRequest
-import androidx.camera.common.testing.FakeCaptureResult
 
 @Sampled
 fun wrapCaptureResultSample(captureResult: CaptureResult) {
@@ -44,29 +40,4 @@ fun wrapCaptureResultSample(captureResult: CaptureResult) {
     val lensState = resultWrapper[CaptureResult.LENS_STATE]
     val frameNumber = resultWrapper.frameNumber
     val originatingRequest = resultWrapper.captureRequest
-}
-
-@Sampled
-fun fakeCaptureResultSample() {
-    val customKey = Metadata.Key<String>("com.example.custom_result_data")
-    val fakeRequest = FakeCaptureRequest()
-
-    // Create a FakeCaptureResult for unit testing without requiring a real camera device.
-    val fakeResult: CaptureResultWrapper =
-        FakeCaptureResult(
-            cameraId = CameraId("0"),
-            frameNumber = CameraFrameNumber(42L),
-            captureRequest = fakeRequest,
-            resultParameters =
-                mapOf(
-                    CaptureResult.LENS_STATE to CaptureResult.LENS_STATE_STATIONARY,
-                    CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED,
-                ),
-            resultMetadata = mapOf(customKey to "test_result_value"),
-        )
-
-    // Query values and verify assertions in unit tests:
-    val lensState = fakeResult[CaptureResult.LENS_STATE]
-    val frameNumber = fakeResult.frameNumber
-    val customValue = fakeResult[customKey]
 }

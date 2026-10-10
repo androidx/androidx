@@ -21,45 +21,26 @@ import java.lang.Class
 import java.nio.ByteBuffer
 
 /**
- * Fake implementation of [ImagePlane] for testing classes that consume camera image planes.
+ * Fake implementation of [ImagePlane] for unit testing components that consume camera image planes.
  *
- * This class provides lazy buffer allocation and multiple construction paradigms to support both
- * standalone dimension-based allocation and slicing from a shared contiguous parent buffer.
- *
- * ## Usage Examples
- *
- * ### 1. Standalone Allocation by Dimensions
- * Allocates a direct [ByteBuffer] of size `rowStride * rowCount` when accessed.
- *
- * ```kotlin
- * val plane = FakeImagePlane(rowStride = 640, rowCount = 480)
- * assertThat(plane.buffer.capacity()).isEqualTo(640 * 480)
- * ```
- *
- * ### 2. Custom Strides and Sub-sampling
- * Useful for mocking interleaved UV planes where pixel stride is 2.
- *
- * ```kotlin
- * val uvPlane = FakeImagePlane(rowStride = 640, rowCount = 240, pixelStride = 2)
- * ```
- *
- * ### 3. Backing by an Existing Buffer Slice
- * Avoids extra allocations by wrapping an existing buffer window (e.g. from a contiguous NV12
- * buffer). Ensure the slice maintains native byte ordering (`order(ByteOrder.nativeOrder())`).
- *
- * ```kotlin
- * val slice = parentBuffer.slice().order(ByteOrder.nativeOrder())
- * val plane = FakeImagePlane(rowStride = 640, pixelStride = 1, buffer = slice)
- * assertThat(plane.buffer).isSameInstanceAs(slice)
- * ```
+ * `FakeImagePlane` supports lazy buffer allocation and custom buffer backing through three
+ * construction patterns:
+ * - **Standalone allocation by dimensions**: Leave `buffer` as `null` to lazily allocate a
+ *   native-order direct [ByteBuffer] of `rowStride * rowCount` bytes on first access.
+ * - **Custom strides and sub-sampling**: Specify `pixelStride` to simulate interleaved chroma
+ *   planes where adjacent samples are separated by 2 bytes.
+ * - **Existing buffer slice backing**: Pass a pre-allocated native-order [ByteBuffer] slice to
+ *   share a contiguous parent buffer across multiple planes without extra allocations.
  *
  * @param rowStride The row stride of the plane in bytes.
- * @param rowCount The height of the plane in rows. Used for lazy buffer allocation if [buffer] is
- *   null. Defaults to 1 (convenient for single-row compressed formats like JPEG).
- * @param pixelStride The distance between adjacent pixel samples in bytes. Defaults to 1.
- * @param buffer An optional pre-allocated [ByteBuffer] to back this plane. If null, a direct
- *   [ByteBuffer] of size `rowStride * rowCount` is allocated lazily using
- *   [FakeByteBuffers.allocateNative] upon first access.
+ * @param rowCount The height of the plane in rows. Used for lazy buffer allocation when `buffer` is
+ *   `null`. Defaults to `1` for single-row compressed formats such as JPEG.
+ * @param pixelStride The distance between adjacent pixel samples in bytes. Defaults to `1`.
+ * @param buffer An optional pre-allocated [ByteBuffer] that backs this plane. If `null`, accessing
+ *   [buffer] lazily allocates a native-order direct [ByteBuffer] of `rowStride * rowCount` bytes
+ *   via [FakeByteBuffers.allocateNative].
+ * @sample androidx.camera.common.testing.samples.fakeImagePlaneSample
+ * @sample androidx.camera.common.testing.samples.fakeImageCustomPlanesSample
  */
 public class FakeImagePlane
 @JvmOverloads

@@ -17,10 +17,8 @@
 package androidx.camera.common.samples
 
 import android.content.Context
-import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.util.Size
 import androidx.annotation.Sampled
 import androidx.camera.common.CameraCharacteristicsWrapper
 import androidx.camera.common.CameraCharacteristicsWrappers
@@ -28,10 +26,6 @@ import androidx.camera.common.CameraCharacteristicsWrappers.availableColorSpaceP
 import androidx.camera.common.CameraCharacteristicsWrappers.availableDynamicRangeProfiles
 import androidx.camera.common.CameraCharacteristicsWrappers.streamConfigurationMap
 import androidx.camera.common.CameraId
-import androidx.camera.common.testing.FakeCameraCharacteristics
-import androidx.camera.common.testing.FakeStreamConfigurationMap
-import androidx.camera.common.testing.FakeStreamConfigurationMap.OutputKey
-import androidx.camera.common.testing.FakeStreamConfigurationMap.OutputValues
 
 @Sampled
 fun wrapCameraCharacteristicsSample(context: Context, cameraIdString: String) {
@@ -79,42 +73,4 @@ fun accessCameraCharacteristicsPropertiesSample(
     val streamConfigurationMap = cameraCharacteristics.streamConfigurationMap
     val colorSpaceProfiles = cameraCharacteristics.availableColorSpaceProfiles
     val dynamicRangeProfiles = cameraCharacteristics.availableDynamicRangeProfiles
-}
-
-@Sampled
-fun fakeCameraCharacteristicsSample() {
-    // Create a fake stream configuration map with custom resolutions and formats.
-    val fakeStreamConfigurationMap =
-        FakeStreamConfigurationMap(
-            outputsTable =
-                linkedMapOf(
-                    OutputKey(ImageFormat.YUV_420_888, Size(1920, 1080)) to OutputValues(),
-                    OutputKey(ImageFormat.JPEG, Size(1920, 1080)) to
-                        OutputValues(
-                            stallDuration = 200_000_000L // 200ms stall duration
-                        ),
-                )
-        )
-
-    // Supply the fake stream configuration map via STREAM_CONFIGURATION_MAP metadata key.
-    val fakeCharacteristics: CameraCharacteristicsWrapper =
-        FakeCameraCharacteristics(
-            cameraId = CameraId("0"),
-            cameraCharacteristics =
-                mapOf(
-                    CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
-                    CameraCharacteristics.SENSOR_ORIENTATION to 90,
-                ),
-            cameraMetadata =
-                mapOf(
-                    CameraCharacteristicsWrapper.Keys.STREAM_CONFIGURATION_MAP to
-                        fakeStreamConfigurationMap
-                ),
-        )
-
-    // The extension property accesses the wrapped version (STREAM_CONFIGURATION_MAP) first,
-    // returning the FakeStreamConfigurationMap in unit tests without needing real camera hardware.
-    val streamConfigMap = checkNotNull(fakeCharacteristics.streamConfigurationMap)
-    val supportedFormats = streamConfigMap.getOutputFormats()
-    val yuvSizes = streamConfigMap.getOutputSizes(ImageFormat.YUV_420_888)
 }

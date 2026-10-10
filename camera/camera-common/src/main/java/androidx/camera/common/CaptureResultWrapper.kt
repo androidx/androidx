@@ -40,7 +40,7 @@ import androidx.annotation.RestrictTo
  * such as `FakeCaptureResult`.
  *
  * @sample androidx.camera.common.samples.wrapCaptureResultSample
- * @sample androidx.camera.common.samples.fakeCaptureResultSample
+ * @sample androidx.camera.common.testing.samples.fakeCaptureResultSample
  * @see CaptureResultMetadata
  */
 public interface CaptureResultWrapper : CaptureResultMetadata {

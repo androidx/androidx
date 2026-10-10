@@ -47,7 +47,7 @@ import androidx.camera.common.compat.Api34Compat
  * @sample androidx.camera.common.samples.wrapCameraCharacteristicsSample
  * @sample androidx.camera.common.samples.loadCameraCharacteristicsSample
  * @sample androidx.camera.common.samples.accessCameraCharacteristicsPropertiesSample
- * @sample androidx.camera.common.samples.fakeCameraCharacteristicsSample
+ * @sample androidx.camera.common.testing.samples.fakeCameraCharacteristicsSample
  */
 public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
     /**
@@ -188,7 +188,7 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
          * Prefer using the [CameraCharacteristicsWrappers.streamConfigurationMap] property to
          * access this value.
          *
-         * @sample androidx.camera.common.samples.fakeCameraCharacteristicsSample
+         * @sample androidx.camera.common.testing.samples.fakeCameraCharacteristicsSample
          */
         @JvmField
         public val STREAM_CONFIGURATION_MAP: Metadata.Key<StreamConfigurationMapWrapper> =
@@ -217,7 +217,7 @@ public object CameraCharacteristicsWrappers {
      * populated.
      *
      * @sample androidx.camera.common.samples.accessCameraCharacteristicsPropertiesSample
-     * @sample androidx.camera.common.samples.fakeCameraCharacteristicsSample
+     * @sample androidx.camera.common.testing.samples.fakeCameraCharacteristicsSample
      */
     @get:JvmStatic
     public val CameraCharacteristicsMetadata.streamConfigurationMap: StreamConfigurationMapWrapper?
