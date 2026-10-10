@@ -22,56 +22,56 @@ import androidx.credentials.exceptions.CreateCredentialException
 import java.util.Objects
 
 /**
- * Delivered to a [RelyingPartyEventsService] after a batch passkey creation attempt for its relying
- * party, carrying either the created credential's attestation [response] or the [exception]
- * describing why creation failed.
+ * The outcome of a batch passkey creation attempt for a relying party, delivered to
+ * [RelyingPartyEventsService.onPublicKeyCredentialCreationResult] with either the created
+ * [credential] or the [exception] describing why creation failed.
  *
- * Exactly one of [response] or [exception] is non-null.
+ * Exactly one of [credential] or [exception] is non-null.
  *
- * @property response the created credential, carrying the WebAuthn registration response JSON, or
+ * @property credential the created credential, carrying the WebAuthn registration response JSON, or
  *   `null` if creation failed
  * @property exception the exception describing why passkey creation failed, or `null` if creation
  *   succeeded
- * @property isSuccess `true` if passkey creation succeeded ([response] is non-null), or `false` if
- *   it failed ([exception] is non-null)
+ * @property isSuccess `true` if passkey creation succeeded ([credential] is non-null), or `false`
+ *   if it failed ([exception] is non-null)
  */
 // TODO(b/436712597): Add sessionId once IRelyingPartyEventsService passes a session identifier.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class PublicKeyCredentialCreatedRequest
+public class PublicKeyCredentialCreationResult
 private constructor(
-    public val response: CreatePublicKeyCredentialResponse?,
+    public val credential: CreatePublicKeyCredentialResponse?,
     public val exception: CreateCredentialException?,
 ) {
-    /** Whether passkey creation succeeded ([response] is non-null). */
+    /** Whether passkey creation succeeded ([credential] is non-null). */
     public val isSuccess: Boolean
-        get() = response != null
+        get() = credential != null
 
     /**
-     * Constructs a [PublicKeyCredentialCreatedRequest] for a successfully created passkey.
+     * Constructs a [PublicKeyCredentialCreationResult] for a successfully created passkey.
      *
-     * @param response the created credential, carrying the WebAuthn registration response JSON
+     * @param credential the created credential, carrying the WebAuthn registration response JSON
      */
     public constructor(
-        response: CreatePublicKeyCredentialResponse
-    ) : this(response = response, exception = null)
+        credential: CreatePublicKeyCredentialResponse
+    ) : this(credential = credential, exception = null)
 
     /**
-     * Constructs a [PublicKeyCredentialCreatedRequest] for a passkey creation that failed.
+     * Constructs a [PublicKeyCredentialCreationResult] for a passkey creation that failed.
      *
      * @param exception the exception describing why passkey creation failed
      */
     public constructor(
         exception: CreateCredentialException
-    ) : this(response = null, exception = exception)
+    ) : this(credential = null, exception = exception)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is PublicKeyCredentialCreatedRequest) return false
-        return response == other.response && exception == other.exception
+        if (other !is PublicKeyCredentialCreationResult) return false
+        return credential == other.credential && exception == other.exception
     }
 
-    override fun hashCode(): Int = Objects.hash(response, exception)
+    override fun hashCode(): Int = Objects.hash(credential, exception)
 
     override fun toString(): String =
-        "PublicKeyCredentialCreatedRequest(response=$response, exception=$exception)"
+        "PublicKeyCredentialCreationResult(credential=$credential, exception=$exception)"
 }

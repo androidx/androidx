@@ -25,10 +25,9 @@ import androidx.annotation.RestrictTo
 import androidx.core.os.OutcomeReceiverCompat
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.exceptions.CreateCredentialException
-import androidx.credentials.exceptions.CreateCredentialUnknownException
-import androidx.credentials.provider.BeginCreateCredentialResponse
 import androidx.credentials.provider.CredentialProviderService
 import androidx.credentials.provider.ProviderCreateCredentialRequest
+import androidx.credentials.providerevents.exception.BeginBatchCreateCredentialException
 import androidx.credentials.providerevents.internal.CredentialEventsProviderFactory
 import androidx.credentials.providerevents.signal.ProviderSignalCredentialStateCallback
 import androidx.credentials.providerevents.signal.ProviderSignalCredentialStateRequest
@@ -146,34 +145,40 @@ public abstract class CredentialProviderEventsService() : Service() {
 
     /**
      * Called to get the accounts this provider can create passkeys under for a batch of relying
-     * parties, returned as [androidx.credentials.provider.CreateEntry] items. No credential is
-     * created here.
+     * parties, returned as [androidx.credentials.provider.CreateEntry] items on a
+     * [BeginBatchCreateCredentialResponse]. No credential is created here.
      *
-     * Each `CreateEntry` must carry a [android.app.PendingIntent] built from an explicit intent
-     * naming the provider's fulfillment activity, with [android.app.PendingIntent.FLAG_MUTABLE] so
-     * the system can fill in the batch. Declare that activity with `android:exported="false"`; it
-     * needs no intent filter. When the user selects the entry, the activity reads the batch with
-     * [androidx.credentials.providerevents.IntentHandler.retrieveProviderBatchCreateCredentialRequest].
+     * Each entry's [androidx.credentials.provider.CreateEntry.pendingIntent] must target an
+     * `Activity` of this provider through an explicit intent, with
+     * [android.app.PendingIntent.FLAG_MUTABLE] so the batch can be attached to it. Declare that
+     * activity with `android:exported="false"`; it needs no intent filter. When the user selects
+     * the entry, the activity reads the batch with
+     * [androidx.credentials.providerevents.IntentHandler.retrieveProviderBatchCreateCredentialRequest]
+     * and returns one result per request with
+     * [androidx.credentials.providerevents.IntentHandler.setBatchCreateCredentialResponse].
      *
      * This method is invoked on the main thread. Complete [callback] exactly once, from any thread.
-     * [cancellationSignal] is cancelled if the caller goes away first.
      *
-     * The default implementation fails with [CreateCredentialUnknownException].
+     * The default implementation fails with [BeginBatchCreateCredentialException].
      *
      * @param request one request per relying party in the batch
-     * @param cancellationSignal a signal that is cancelled if the caller goes away
+     * @param cancellationSignal a signal to cancel the operation
      * @param callback the callback to receive the create entries
      */
     @MainThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open fun onBatchCreateCredentialCandidatesRequest(
+    public open fun onBeginBatchCreateCredentialRequest(
         request: BeginBatchCreateCredentialRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiverCompat<BeginCreateCredentialResponse, CreateCredentialException>,
+        callback:
+            OutcomeReceiverCompat<
+                BeginBatchCreateCredentialResponse,
+                BeginBatchCreateCredentialException,
+            >,
     ) {
         callback.onError(
-            CreateCredentialUnknownException(
-                "Batch create credential candidates discovery is not supported by this service"
+            BeginBatchCreateCredentialException(
+                "Batch credential creation is not supported by this service"
             )
         )
     }
