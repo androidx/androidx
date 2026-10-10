@@ -150,8 +150,15 @@ public class PatternsCompatTest {
     }
 
     @Test
-    public void testWebUrl_doesNotMatchValidUrlWithInvalidProtocol() throws Exception {
+    public void testWebUrl_matchesValidUrlWithFtpProtocol() throws Exception {
         String url = "ftp://www.example.com";
+        assertTrue("Should match URL with ftp protocol",
+                PatternsCompat.WEB_URL.matcher(url).matches());
+    }
+
+    @Test
+    public void testWebUrl_doesNotMatchValidUrlWithInvalidProtocol() throws Exception {
+        String url = "gopher://www.example.com";
         assertFalse("Should not match URL with invalid protocol",
                 PatternsCompat.WEB_URL.matcher(url).matches());
     }
@@ -330,8 +337,15 @@ public class PatternsCompatTest {
     }
 
     @Test
-    public void testAutoLinkWebUrl_doesNotMatchValidUrlWithInvalidProtocol() throws Exception {
+    public void testAutoLinkWebUrl_matchesValidUrlWithFtpProtocol() throws Exception {
         String url = "ftp://www.example.com";
+        assertTrue("Should match URL with ftp protocol",
+                PatternsCompat.AUTOLINK_WEB_URL.matcher(url).matches());
+    }
+
+    @Test
+    public void testAutoLinkWebUrl_doesNotMatchValidUrlWithInvalidProtocol() throws Exception {
+        String url = "gopher://www.example.com";
         assertFalse("Should not match URL with invalid protocol",
                 PatternsCompat.AUTOLINK_WEB_URL.matcher(url).matches());
     }
@@ -382,7 +396,7 @@ public class PatternsCompatTest {
 
     @Test
     public void testAutoLinkWebUrl_doesNotPartiallyMatchUnknownProtocol() throws Exception {
-        String url = "ftp://foo.bar/baz";
+        String url = "gopher://foo.bar/baz";
         assertFalse("Should not partially match URL with unknown protocol",
                 PatternsCompat.AUTOLINK_WEB_URL.matcher(url).find());
     }
