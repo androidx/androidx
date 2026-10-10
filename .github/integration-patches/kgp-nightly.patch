@@ -1,8 +1,31 @@
+diff --git a/buildSrc/private/src/main/kotlin/androidx/build/AndroidXImplPlugin.kt b/buildSrc/private/src/main/kotlin/androidx/build/AndroidXImplPlugin.kt
+index 2666700081f..b296dd84f3c 100644
+--- a/buildSrc/private/src/main/kotlin/androidx/build/AndroidXImplPlugin.kt
++++ b/buildSrc/private/src/main/kotlin/androidx/build/AndroidXImplPlugin.kt
+@@ -380,6 +380,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
+         // to work, though.
+         afterEvaluate { evaluatedProject ->
+             evaluatedProject.kotlinExtensionOrNull?.let { kotlinExtension ->
++                @Suppress("DEPRECATION")
+                 kotlinExtension.coreLibrariesVersion = kotlinVersionStringProvider.get()
+             }
+             if (evaluatedProject.androidXExtension.shouldPublish.get()) {
+@@ -1723,10 +1724,6 @@ internal fun Project.hasAndroidMultiplatformPlugin(): Boolean =
+     extensions.findByType(AndroidXMultiplatformExtension::class.java)?.hasAndroidMultiplatform()
+         ?: false
+ 
+-@Suppress("DEPRECATION")
+-internal fun KotlinMultiplatformExtension.hasJavaEnabled(): Boolean =
+-    targets.withType(KotlinJvmTarget::class.java).singleOrNull()?.withJavaEnabled ?: false
+-
+ internal fun KotlinMultiplatformExtension.hasJvmTarget(): Boolean =
+     targets.withType(KotlinJvmTarget::class.java).isEmpty().not()
+ 
 diff --git a/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt b/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
-index 99fc74c1480..e358424fb92 100644
+index 88c069984ae..83540216b6b 100644
 --- a/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
 +++ b/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
-@@ -426,56 +426,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
+@@ -425,56 +425,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
          }
      }
  
@@ -59,7 +82,7 @@ index 99fc74c1480..e358424fb92 100644
      @JvmOverloads
      fun androidLibrary(
          block: Action<KotlinMultiplatformAndroidLibraryTarget>? = null
-@@ -554,23 +504,11 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
+@@ -553,23 +503,11 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
      @JvmOverloads
      fun watchos(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
          return listOfNotNull(
@@ -84,10 +107,10 @@ index 99fc74c1480..e358424fb92 100644
      fun watchosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
          supportedPlatforms.add(PlatformIdentifier.WATCHOS_ARM_64)
 diff --git a/buildSrc/private/src/main/kotlin/androidx/build/docs/AndroidXDocsImplPlugin.kt b/buildSrc/private/src/main/kotlin/androidx/build/docs/AndroidXDocsImplPlugin.kt
-index 317d1bf1d18..ca0abff38ac 100644
+index 454e056214f..b14a36f4548 100644
 --- a/buildSrc/private/src/main/kotlin/androidx/build/docs/AndroidXDocsImplPlugin.kt
 +++ b/buildSrc/private/src/main/kotlin/androidx/build/docs/AndroidXDocsImplPlugin.kt
-@@ -792,18 +792,12 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
+@@ -830,18 +830,12 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
  
          multiplatformExtension.jvm()
  
