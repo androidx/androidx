@@ -52,8 +52,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.ScrollInfoProvider
-import androidx.wear.compose.material3.samples.StatusBarSuppressionContentSample
-import androidx.wear.compose.material3.samples.StatusBarSuppressionSample
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.OptIn
@@ -2625,16 +2623,6 @@ class StatusBarTest {
 
         Assert.assertEquals(0, testView.testController.showCount)
         Assert.assertEquals(0, testView.testController.hideCount)
-    }
-
-    @Test
-    fun statusBarSuppression_sample_builds() {
-        composeTestRule.setContent { StatusBarSuppressionSample() }
-    }
-
-    @Test
-    fun statusBarSuppression_content_sample_builds() {
-        composeTestRule.setContent { StatusBarSuppressionContentSample() }
     }
 
     @Test

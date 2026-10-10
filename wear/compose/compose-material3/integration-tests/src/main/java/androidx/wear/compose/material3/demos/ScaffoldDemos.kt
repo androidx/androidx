@@ -17,11 +17,13 @@
 package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.text.BasicText
@@ -36,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
@@ -51,10 +54,15 @@ import androidx.wear.compose.material3.AppScaffoldDefaults
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.EdgeButton
+import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.HorizontalPagerScaffold
+import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.PagerScaffoldDefaults
 import androidx.wear.compose.material3.RadioButton
 import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.StatusBarSuppression
+import androidx.wear.compose.material3.Stepper
+import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.VerticalPagerScaffold
@@ -62,6 +70,8 @@ import androidx.wear.compose.material3.samples.HorizontalPagerScaffoldSample
 import androidx.wear.compose.material3.samples.HorizontalPagerScaffoldWithLowSensitivitySample
 import androidx.wear.compose.material3.samples.ScaffoldSample
 import androidx.wear.compose.material3.samples.ScaffoldWithTLCEdgeButtonSample
+import androidx.wear.compose.material3.samples.StatusBarSuppressionContentSample
+import androidx.wear.compose.material3.samples.StatusBarSuppressionSample
 import androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
 import androidx.wear.compose.material3.samples.VerticalPagerScaffoldWithLowSensitivitySample
 import androidx.wear.compose.material3.timeTextCurvedText
@@ -80,6 +90,18 @@ val ScaffoldDemos =
         },
         ComposableDemo("ScreenScaffold (custom time text)") { ScreenScaffoldCustomTimeTextDemo() },
         ComposableDemo("ScreenScaffold (immersive / hidden)") { ScreenScaffoldImmersiveDemo() },
+        ComposableDemo("StatusBarSuppression (content)") {
+            StatusBarSuppressionContentDemo()
+        },
+        ComposableDemo("StatusBarSuppression (component)") {
+            StatusBarSuppressionComponentDemo()
+        },
+        ComposableDemo("StatusBarSuppression Sample") {
+            Centralize { StatusBarSuppressionSample() }
+        },
+        ComposableDemo("StatusBarSuppression (content) Sample") {
+            Centralize { StatusBarSuppressionContentSample() }
+        },
         ComposableDemo("Scaffold Sample") { ScaffoldSample() },
         ComposableDemo("Screen Scaffold Loading TLC") { ScaffoldLoadingTLCEdgeButtonDemo() },
         ComposableDemo("Screen Scaffold with TLC") { ScaffoldWithTLCEdgeButtonSample() },
@@ -429,6 +451,146 @@ fun ScaffoldWithTLCNavigationSample() {
             BasicText("Page $page", style = TextStyle(color = Color.White))
             Spacer(Modifier.height(5.dp))
             Button(onClick = { page = -1 }) { BasicText("Back") }
+        }
+    }
+}
+
+@Composable
+fun StatusBarSuppressionContentDemo() {
+    var isSuppressed by remember { mutableStateOf(true) }
+
+    AppScaffold {
+        val screenContent: @Composable () -> Unit = {
+            val listState = rememberTransformingLazyColumnState()
+            ScreenScaffold(scrollState = listState) { contentPadding ->
+                TransformingLazyColumn(
+                    state = listState,
+                    contentPadding = contentPadding,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    item {
+                        ListHeader {
+                            Text(
+                                "StatusBarSuppression (Content)",
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                    item {
+                        Text(
+                            text =
+                                if (isSuppressed)
+                                    "Status Bar: SUPPRESSED\nTop Padding: ${contentPadding.calculateTopPadding()}"
+                                else
+                                    "Status Bar: VISIBLE\nTop Padding: ${contentPadding.calculateTopPadding()}",
+                            color = if (isSuppressed) Color(0xFFFF5252) else Color(0xFF4CAF50),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        )
+                    }
+                    item {
+                        SwitchButton(
+                            checked = isSuppressed,
+                            onCheckedChange = { isSuppressed = it },
+                            label = { Text("Suppress Status Bar") },
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .padding(horizontal = 24.dp, vertical = 4.dp),
+                        )
+                    }
+                    items(8) { index ->
+                        FilledTonalButton(
+                            onClick = {},
+                            label = { Text("Item ${index + 1}") },
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .padding(horizontal = 24.dp, vertical = 2.dp),
+                        )
+                    }
+                }
+            }
+        }
+
+        if (isSuppressed) {
+            StatusBarSuppression(content = screenContent)
+        } else {
+            screenContent()
+        }
+    }
+}
+
+@Composable
+fun StatusBarSuppressionComponentDemo() {
+    var showOverlay by remember { mutableStateOf(false) }
+
+    AppScaffold {
+        val listState = rememberTransformingLazyColumnState()
+        ScreenScaffold(scrollState = listState) { contentPadding ->
+            Box(modifier = Modifier.fillMaxSize()) {
+                TransformingLazyColumn(
+                    state = listState,
+                    contentPadding = contentPadding,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    item {
+                        ListHeader {
+                            Text(
+                                "Component Suppression",
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                    item {
+                        Text(
+                            "Status bar is visible until a component invoking StatusBarSuppression() is composed.",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        )
+                    }
+                    item {
+                        Button(
+                            onClick = { showOverlay = true },
+                            label = { Text("Open Stepper Overlay") },
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .padding(horizontal = 24.dp, vertical = 4.dp),
+                        )
+                    }
+                    items(8) { index ->
+                        FilledTonalButton(
+                            onClick = {},
+                            label = { Text("Item ${index + 1}") },
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .padding(horizontal = 24.dp, vertical = 2.dp),
+                        )
+                    }
+                }
+
+                if (showOverlay) {
+                    var value by remember { mutableIntStateOf(5) }
+                    Stepper(
+                        value = value,
+                        onValueChange = { value = it },
+                        valueProgression = 1..10,
+                        increaseIcon = { Text("+") },
+                        decreaseIcon = { Text("-") },
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        ) {
+                            Text("Stepper Suppresses Status Bar")
+                            Text("Value: $value")
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Button(onClick = { showOverlay = false }) { Text("Close") }
+                        }
+                    }
+                }
+            }
         }
     }
 }

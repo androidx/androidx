@@ -24,6 +24,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -39,6 +40,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,13 +51,16 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.HorizontalPager
+import androidx.wear.compose.foundation.pager.PagerState
 import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.AnimatedPage
@@ -93,6 +98,8 @@ private val generalScreens =
         Screen.Recents,
         Screen.GlobalStatusBarSandbox,
         Screen.HorizontalPager,
+        Screen.HorizontalPagerWithVerticalScroll,
+        Screen.NestedPagers,
         Screen.VerticalPager,
         Screen.SelfRenderedSandbox,
     )
@@ -107,7 +114,8 @@ private val statusBarSuppressionScreens =
         Screen.DatePickerOutOfScaffold,
         Screen.DialogInScaffold,
         Screen.DialogOutOfScaffold,
-        Screen.CustomSuppressStatusBarInScaffold,
+        Screen.SuppressStatusBarLambda,
+        Screen.SuppressStatusBarLeaf,
         Screen.CustomSuppressStatusBarOutOfScaffold,
         Screen.PagerWithSuppression,
     )
@@ -225,7 +233,7 @@ fun resolveEffectiveStatusBarVisibility(
  * Visual overlay highlighting the top padding clearance area with distinct colors for Show vs Hide.
  */
 @Composable
-fun StatusBarInsetOverlay(
+fun BoxScope.StatusBarInsetOverlay(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
     isStatusBarVisible: Boolean = true,
@@ -240,7 +248,14 @@ fun StatusBarInsetOverlay(
                 // Red when Status Bar is effectively hidden / suppressed
                 Color(0xFFC62828).copy(alpha = 0.40f)
             }
-        Box(modifier = modifier.fillMaxWidth().height(topPadding).background(overlayColor))
+        Box(
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .height(topPadding)
+                    .align(Alignment.TopCenter)
+                    .background(overlayColor)
+        )
     }
 }
 
@@ -460,11 +475,24 @@ fun MenuScreen(onNavigateTo: (Screen) -> Unit) {
                         .transformedHeight(this, transformationSpec),
                 transformation = SurfaceTransformation(transformationSpec),
             ) {
-                Text(
-                    text = "Prototypes",
-                    textAlign = TextAlign.Center,
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth(),
-                )
+                ) {
+                    val buildTag = stringResource(R.string.build_timestamp)
+                    val appVersion = stringResource(R.string.app_version)
+                    Text(
+                        text = "Prototypes",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text(
+                        text = "Build: $buildTag (v$appVersion)",
+                        style = MaterialTheme.typography.bodyExtraSmall.copy(fontSize = 9.sp),
+                        color = Color(0xFF64B5F6),
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
         item {
@@ -941,7 +969,7 @@ fun GlobalStatusBarSandboxScreen(onBack: () -> Unit) {
                         scrollInfoProvider = overridesScrollInfoProvider,
                     ) { contentPadding ->
                         Box(
-                            modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFFFF9100))
+                            modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFF536DFE))
                         ) {
                             TransformingLazyColumn(
                                 state = overridesScrollState,
@@ -1067,9 +1095,14 @@ fun HorizontalPagerScreen(onBack: () -> Unit) {
                                     customText = "Page ${page + 1}",
                                 )
                         ) { contentPadding ->
+                            val isStatusBarVisible =
+                                resolveEffectiveStatusBarVisibility(
+                                    screenTimeTextChoice = myChoice,
+                                    appTimeTextChoice = AppTimeTextChoice.Default,
+                                )
                             Box(
                                 modifier =
-                                    Modifier.fillMaxSize().screenDebugBorder(Color(0xFF7C4DFF))
+                                    Modifier.fillMaxSize().screenDebugBorder(Color(0xFF4CAF50))
                             ) {
                                 Column(
                                     modifier = Modifier.fillMaxSize().padding(contentPadding),
@@ -1083,7 +1116,24 @@ fun HorizontalPagerScreen(onBack: () -> Unit) {
                                             Modifier.background(Color.Blue.copy(alpha = 0.35f))
                                                 .padding(horizontal = 6.dp, vertical = 2.dp),
                                     )
-                                    Spacer(Modifier.height(6.dp))
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(
+                                        text =
+                                            if (isStatusBarVisible) {
+                                                "🟢 STATUS BAR: SHOW"
+                                            } else {
+                                                "🔴 STATUS BAR: HIDE"
+                                            },
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color =
+                                            if (isStatusBarVisible) {
+                                                Color(0xFF00E676)
+                                            } else {
+                                                Color(0xFFFF5252)
+                                            },
+                                        textAlign = TextAlign.Center,
+                                    )
+                                    Spacer(Modifier.height(4.dp))
                                     val defaultTop =
                                         ScreenScaffoldDefaults.contentPadding.calculateTopPadding()
                                     val statusBarTop =
@@ -1111,11 +1161,7 @@ fun HorizontalPagerScreen(onBack: () -> Unit) {
                                 }
                                 StatusBarInsetOverlay(
                                     contentPadding,
-                                    isStatusBarVisible =
-                                        resolveEffectiveStatusBarVisibility(
-                                            screenTimeTextChoice = myChoice,
-                                            appTimeTextChoice = AppTimeTextChoice.Default,
-                                        ),
+                                    isStatusBarVisible = isStatusBarVisible,
                                 )
                             }
                         }
@@ -1129,6 +1175,522 @@ fun HorizontalPagerScreen(onBack: () -> Unit) {
                     ) { page ->
                         AnimatedPage(pageIndex = page, pagerState = pagerState) {
                             pageContent(page)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Nested pagers screen featuring a HorizontalPager containing VerticalPagers (b/570029441), with
+ * per-page TimeText/GSB configuration.
+ */
+@Composable
+fun NestedPagersScreen(onBack: () -> Unit) {
+    var appTimeTextChoice by remember { mutableStateOf(AppTimeTextChoice.Default) }
+    val pageCount = 3
+    val verticalPageCount = 3
+    val horizontalPagerState = rememberPagerState(pageCount = { pageCount })
+    val verticalPagerStates = remember {
+        Array(pageCount) { PagerState(currentPage = 0) { verticalPageCount } }
+    }
+    val pageChoices = remember { mutableStateMapOf<Pair<Int, Int>, ScreenTimeTextChoice>() }
+
+    AppScaffold(timeText = resolveAppTimeText(appTimeTextChoice)) {
+        SwipeToDismissBox(onDismissed = onBack) { isBackground ->
+            if (!isBackground) {
+                HorizontalPagerScaffold(
+                    pagerState = horizontalPagerState,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    HorizontalPager(
+                        state = horizontalPagerState,
+                        modifier = Modifier.fillMaxSize(),
+                        flingBehavior =
+                            PagerScaffoldDefaults.snapWithSpringFlingBehavior(
+                                state = horizontalPagerState
+                            ),
+                    ) { hPage ->
+                        AnimatedPage(pageIndex = hPage, pagerState = horizontalPagerState) {
+                            val vPagerState = verticalPagerStates[hPage]
+                            VerticalPagerScaffold(
+                                pagerState = vPagerState,
+                                modifier = Modifier.fillMaxSize(),
+                            ) {
+                                VerticalPager(
+                                    state = vPagerState,
+                                    modifier = Modifier.fillMaxSize(),
+                                    flingBehavior =
+                                        PagerScaffoldDefaults.snapWithSpringFlingBehavior(
+                                            state = vPagerState
+                                        ),
+                                ) { vPage ->
+                                    AnimatedPage(pageIndex = vPage, pagerState = vPagerState) {
+                                        val myChoice =
+                                            pageChoices[hPage to vPage]
+                                                ?: ScreenTimeTextChoice.Inherit
+                                        ScreenScaffold(
+                                            timeText =
+                                                resolveScreenTimeText(
+                                                    myChoice,
+                                                    customText = "H$hPage-V$vPage 10:10",
+                                                )
+                                        ) { contentPadding ->
+                                            val isStatusBarVisible =
+                                                resolveEffectiveStatusBarVisibility(
+                                                    screenTimeTextChoice = myChoice,
+                                                    appTimeTextChoice = appTimeTextChoice,
+                                                )
+                                            Box(
+                                                modifier =
+                                                    Modifier.fillMaxSize()
+                                                        .screenDebugBorder(Color(0xFF7C4DFF)),
+                                                contentAlignment = Alignment.Center,
+                                            ) {
+                                                Column(
+                                                    modifier =
+                                                        Modifier.fillMaxSize()
+                                                            .padding(contentPadding),
+                                                    horizontalAlignment =
+                                                        Alignment.CenterHorizontally,
+                                                    verticalArrangement = Arrangement.Center,
+                                                ) {
+                                                    Text(
+                                                        "H-Page ${hPage + 1} / V-Page ${vPage + 1}",
+                                                        style =
+                                                            MaterialTheme.typography.titleMedium,
+                                                        textAlign = TextAlign.Center,
+                                                    )
+                                                    Spacer(Modifier.height(2.dp))
+                                                    Text(
+                                                        text =
+                                                            if (isStatusBarVisible) {
+                                                                "🟢 STATUS BAR: SHOW"
+                                                            } else {
+                                                                "🔴 STATUS BAR: HIDE"
+                                                            },
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        color =
+                                                            if (isStatusBarVisible) {
+                                                                Color(0xFF00E676)
+                                                            } else {
+                                                                Color(0xFFFF5252)
+                                                            },
+                                                        textAlign = TextAlign.Center,
+                                                    )
+                                                    Spacer(Modifier.height(2.dp))
+                                                    Text(
+                                                        "Swipe ←/→ for H, ↑/↓ for V",
+                                                        style =
+                                                            MaterialTheme.typography.bodyExtraSmall,
+                                                        textAlign = TextAlign.Center,
+                                                        color =
+                                                            MaterialTheme.colorScheme
+                                                                .onSurfaceVariant,
+                                                    )
+                                                    Spacer(Modifier.height(4.dp))
+                                                    Button(
+                                                        onClick = {
+                                                            pageChoices[hPage to vPage] =
+                                                                myChoice.cycle()
+                                                        },
+                                                        modifier =
+                                                            Modifier.fillMaxWidth()
+                                                                .padding(horizontal = 24.dp),
+                                                    ) {
+                                                        Text(
+                                                            "Page TimeText: ${myChoice.label}",
+                                                            style =
+                                                                MaterialTheme.typography.labelSmall,
+                                                        )
+                                                    }
+                                                    Spacer(Modifier.height(2.dp))
+                                                    Button(
+                                                        onClick = {
+                                                            appTimeTextChoice =
+                                                                appTimeTextChoice.cycle()
+                                                        },
+                                                        modifier =
+                                                            Modifier.fillMaxWidth()
+                                                                .padding(horizontal = 24.dp),
+                                                    ) {
+                                                        Text(
+                                                            "App TimeText: ${appTimeTextChoice.label}",
+                                                            style =
+                                                                MaterialTheme.typography.labelSmall,
+                                                        )
+                                                    }
+                                                    Spacer(Modifier.height(4.dp))
+                                                    Button(onClick = onBack) {
+                                                        Text(
+                                                            "Back",
+                                                            style =
+                                                                MaterialTheme.typography.labelSmall,
+                                                        )
+                                                    }
+                                                }
+                                                StatusBarInsetOverlay(
+                                                    contentPadding,
+                                                    isStatusBarVisible = isStatusBarVisible,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Horizontal pager screen featuring simultaneous vertical scrolling on pages (b/570029441). */
+@Composable
+fun HorizontalPagerWithVerticalScrollScreen(onBack: () -> Unit) {
+    var appTimeTextChoice by remember { mutableStateOf(AppTimeTextChoice.Default) }
+    var page1Choice by remember { mutableStateOf(ScreenTimeTextChoice.Inherit) }
+    var page2Choice by remember { mutableStateOf(ScreenTimeTextChoice.Inherit) }
+    var page3Choice by remember { mutableStateOf(ScreenTimeTextChoice.Inherit) }
+
+    AppScaffold(timeText = resolveAppTimeText(appTimeTextChoice)) {
+        SwipeToDismissBox(onDismissed = onBack) { isBackground ->
+            if (!isBackground) {
+                val pagerState = rememberPagerState(pageCount = { 3 })
+
+                HorizontalPagerScaffold(
+                    pagerState = pagerState,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize(),
+                        flingBehavior =
+                            PagerScaffoldDefaults.snapWithSpringFlingBehavior(state = pagerState),
+                    ) { page ->
+                        AnimatedPage(pageIndex = page, pagerState = pagerState) {
+                            when (page) {
+                                0 -> {
+                                    val listState = rememberTransformingLazyColumnState()
+                                    ScreenScaffold(
+                                        scrollState = listState,
+                                        timeText =
+                                            resolveScreenTimeText(
+                                                page1Choice,
+                                                customText = "Playlist 10:10",
+                                            ),
+                                    ) { contentPadding ->
+                                        Box(
+                                            modifier =
+                                                Modifier.fillMaxSize()
+                                                    .screenDebugBorder(Color(0xFF536DFE))
+                                        ) {
+                                            TransformingLazyColumn(
+                                                state = listState,
+                                                contentPadding = contentPadding,
+                                                modifier = Modifier.fillMaxSize(),
+                                            ) {
+                                                item {
+                                                    ListHeader {
+                                                        Text(
+                                                            "Playlist",
+                                                            style =
+                                                                MaterialTheme.typography.titleSmall,
+                                                            textAlign = TextAlign.Center,
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                        )
+                                                    }
+                                                }
+                                                item {
+                                                    Column(
+                                                        modifier =
+                                                            Modifier.fillMaxWidth()
+                                                                .padding(
+                                                                    horizontal = 16.dp,
+                                                                    vertical = 2.dp,
+                                                                ),
+                                                        horizontalAlignment =
+                                                            Alignment.CenterHorizontally,
+                                                    ) {
+                                                        Text(
+                                                            "Scroll vertically or swipe horizontally between pages.",
+                                                            style =
+                                                                MaterialTheme.typography
+                                                                    .bodyExtraSmall,
+                                                            textAlign = TextAlign.Center,
+                                                            color =
+                                                                MaterialTheme.colorScheme
+                                                                    .onSurfaceVariant,
+                                                        )
+                                                        Spacer(Modifier.height(4.dp))
+                                                        Button(
+                                                            onClick = {
+                                                                page1Choice = page1Choice.cycle()
+                                                            },
+                                                            modifier =
+                                                                Modifier.fillMaxWidth()
+                                                                    .padding(horizontal = 8.dp),
+                                                        ) {
+                                                            Text(
+                                                                "Page TimeText: ${page1Choice.label}",
+                                                                style =
+                                                                    MaterialTheme.typography
+                                                                        .labelSmall,
+                                                            )
+                                                        }
+                                                        Spacer(Modifier.height(2.dp))
+                                                        Button(
+                                                            onClick = {
+                                                                appTimeTextChoice =
+                                                                    appTimeTextChoice.cycle()
+                                                            },
+                                                            modifier =
+                                                                Modifier.fillMaxWidth()
+                                                                    .padding(horizontal = 8.dp),
+                                                        ) {
+                                                            Text(
+                                                                "App TimeText: ${appTimeTextChoice.label}",
+                                                                style =
+                                                                    MaterialTheme.typography
+                                                                        .labelSmall,
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                                items(15) { index ->
+                                                    Button(
+                                                        onClick = {},
+                                                        modifier =
+                                                            Modifier.fillMaxWidth()
+                                                                .padding(
+                                                                    horizontal = 24.dp,
+                                                                    vertical = 2.dp,
+                                                                ),
+                                                    ) {
+                                                        Text("Track ${index + 1}")
+                                                    }
+                                                }
+                                                item {
+                                                    Spacer(Modifier.height(56.dp))
+                                                }
+                                            }
+                                            StatusBarInsetOverlay(
+                                                contentPadding,
+                                                isStatusBarVisible =
+                                                    resolveEffectiveStatusBarVisibility(
+                                                        screenTimeTextChoice = page1Choice,
+                                                        appTimeTextChoice = appTimeTextChoice,
+                                                    ),
+                                            )
+                                        }
+                                    }
+                                }
+                                1 -> {
+                                    val isStatusBarVisible =
+                                        resolveEffectiveStatusBarVisibility(
+                                            screenTimeTextChoice = page2Choice,
+                                            appTimeTextChoice = appTimeTextChoice,
+                                        )
+                                    ScreenScaffold(
+                                        timeText =
+                                            resolveScreenTimeText(
+                                                page2Choice,
+                                                customText = "Player 10:10",
+                                            )
+                                    ) { contentPadding ->
+                                        Box(
+                                            modifier =
+                                                Modifier.fillMaxSize()
+                                                    .screenDebugBorder(Color(0xFFFF9800)),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                verticalArrangement = Arrangement.Center,
+                                                modifier =
+                                                    Modifier.fillMaxWidth().padding(contentPadding),
+                                            ) {
+                                                Text(
+                                                    "Now Playing",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                )
+                                                Spacer(modifier = Modifier.height(2.dp))
+                                                Text(
+                                                    text =
+                                                        if (isStatusBarVisible) {
+                                                            "🟢 STATUS BAR: SHOW"
+                                                        } else {
+                                                            "🔴 STATUS BAR: HIDE"
+                                                        },
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color =
+                                                        if (isStatusBarVisible) {
+                                                            Color(0xFF00E676)
+                                                        } else {
+                                                            Color(0xFFFF5252)
+                                                        },
+                                                    textAlign = TextAlign.Center,
+                                                )
+                                                Spacer(modifier = Modifier.height(2.dp))
+                                                Text(
+                                                    "Track Title",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = MaterialTheme.colorScheme.primary,
+                                                )
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                Button(onClick = {}) { Text("Play / Pause") }
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                Button(
+                                                    onClick = {
+                                                        page2Choice = page2Choice.cycle()
+                                                    },
+                                                    modifier =
+                                                        Modifier.fillMaxWidth()
+                                                            .padding(horizontal = 24.dp),
+                                                ) {
+                                                    Text(
+                                                        "Page TimeText: ${page2Choice.label}",
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                    )
+                                                }
+                                                Spacer(modifier = Modifier.height(2.dp))
+                                                Button(
+                                                    onClick = {
+                                                        appTimeTextChoice =
+                                                            appTimeTextChoice.cycle()
+                                                    },
+                                                    modifier =
+                                                        Modifier.fillMaxWidth()
+                                                            .padding(horizontal = 24.dp),
+                                                ) {
+                                                    Text(
+                                                        "App TimeText: ${appTimeTextChoice.label}",
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                    )
+                                                }
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                Button(onClick = onBack) {
+                                                    Text(
+                                                        "Back",
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                    )
+                                                }
+                                            }
+                                            StatusBarInsetOverlay(
+                                                contentPadding,
+                                                isStatusBarVisible = isStatusBarVisible,
+                                            )
+                                        }
+                                    }
+                                }
+                                else -> {
+                                    val listState = rememberTransformingLazyColumnState()
+                                    ScreenScaffold(
+                                        scrollState = listState,
+                                        timeText =
+                                            resolveScreenTimeText(
+                                                page3Choice,
+                                                customText = "Queue 10:10",
+                                            ),
+                                    ) { contentPadding ->
+                                        Box(
+                                            modifier =
+                                                Modifier.fillMaxSize()
+                                                    .screenDebugBorder(Color(0xFF536DFE))
+                                        ) {
+                                            TransformingLazyColumn(
+                                                state = listState,
+                                                contentPadding = contentPadding,
+                                                modifier = Modifier.fillMaxSize(),
+                                            ) {
+                                                item {
+                                                    ListHeader {
+                                                        Text(
+                                                            "Queue",
+                                                            style =
+                                                                MaterialTheme.typography.titleSmall,
+                                                            textAlign = TextAlign.Center,
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                        )
+                                                    }
+                                                }
+                                                item {
+                                                    Column(
+                                                        modifier =
+                                                            Modifier.fillMaxWidth()
+                                                                .padding(
+                                                                    horizontal = 16.dp,
+                                                                    vertical = 2.dp,
+                                                                ),
+                                                        horizontalAlignment =
+                                                            Alignment.CenterHorizontally,
+                                                    ) {
+                                                        Button(
+                                                            onClick = {
+                                                                page3Choice = page3Choice.cycle()
+                                                            },
+                                                            modifier =
+                                                                Modifier.fillMaxWidth()
+                                                                    .padding(horizontal = 8.dp),
+                                                        ) {
+                                                            Text(
+                                                                "Page TimeText: ${page3Choice.label}",
+                                                                style =
+                                                                    MaterialTheme.typography
+                                                                        .labelSmall,
+                                                            )
+                                                        }
+                                                        Spacer(Modifier.height(2.dp))
+                                                        Button(
+                                                            onClick = {
+                                                                appTimeTextChoice =
+                                                                    appTimeTextChoice.cycle()
+                                                            },
+                                                            modifier =
+                                                                Modifier.fillMaxWidth()
+                                                                    .padding(horizontal = 8.dp),
+                                                        ) {
+                                                            Text(
+                                                                "App TimeText: ${appTimeTextChoice.label}",
+                                                                style =
+                                                                    MaterialTheme.typography
+                                                                        .labelSmall,
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                                items(10) { index ->
+                                                    Button(
+                                                        onClick = {},
+                                                        modifier =
+                                                            Modifier.fillMaxWidth()
+                                                                .padding(
+                                                                    horizontal = 24.dp,
+                                                                    vertical = 2.dp,
+                                                                ),
+                                                    ) {
+                                                        Text("Queued Item ${index + 1}")
+                                                    }
+                                                }
+                                                item {
+                                                    Spacer(Modifier.height(56.dp))
+                                                }
+                                            }
+                                            StatusBarInsetOverlay(
+                                                contentPadding,
+                                                isStatusBarVisible =
+                                                    resolveEffectiveStatusBarVisibility(
+                                                        screenTimeTextChoice = page3Choice,
+                                                        appTimeTextChoice = appTimeTextChoice,
+                                                    ),
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -1165,6 +1727,11 @@ fun VerticalPagerScreen(onBack: () -> Unit) {
                                     customText = "Page ${page + 1}",
                                 )
                         ) { contentPadding ->
+                            val isStatusBarVisible =
+                                resolveEffectiveStatusBarVisibility(
+                                    screenTimeTextChoice = myChoice,
+                                    appTimeTextChoice = AppTimeTextChoice.Default,
+                                )
                             Box(
                                 modifier =
                                     Modifier.fillMaxSize().screenDebugBorder(Color(0xFF536DFE))
@@ -1181,7 +1748,24 @@ fun VerticalPagerScreen(onBack: () -> Unit) {
                                             Modifier.background(Color.Blue.copy(alpha = 0.35f))
                                                 .padding(horizontal = 6.dp, vertical = 2.dp),
                                     )
-                                    Spacer(Modifier.height(6.dp))
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(
+                                        text =
+                                            if (isStatusBarVisible) {
+                                                "🟢 STATUS BAR: SHOW"
+                                            } else {
+                                                "🔴 STATUS BAR: HIDE"
+                                            },
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color =
+                                            if (isStatusBarVisible) {
+                                                Color(0xFF00E676)
+                                            } else {
+                                                Color(0xFFFF5252)
+                                            },
+                                        textAlign = TextAlign.Center,
+                                    )
+                                    Spacer(Modifier.height(4.dp))
                                     val defaultTop =
                                         ScreenScaffoldDefaults.contentPadding.calculateTopPadding()
                                     val statusBarTop =
@@ -1209,11 +1793,7 @@ fun VerticalPagerScreen(onBack: () -> Unit) {
                                 }
                                 StatusBarInsetOverlay(
                                     contentPadding,
-                                    isStatusBarVisible =
-                                        resolveEffectiveStatusBarVisibility(
-                                            screenTimeTextChoice = myChoice,
-                                            appTimeTextChoice = AppTimeTextChoice.Default,
-                                        ),
+                                    isStatusBarVisible = isStatusBarVisible,
                                 )
                             }
                         }
@@ -1448,7 +2028,7 @@ fun SelfRenderedSandboxScreen(onBack: () -> Unit) {
         SwipeToDismissBox(onDismissed = onBack) { isBackground ->
             if (!isBackground) {
                 ScreenScaffold(scrollInfoProvider = scrollInfoProvider) { contentPadding ->
-                    Box(modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFFFFEA00))) {
+                    Box(modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFF536DFE))) {
                         TransformingLazyColumn(
                             state = listState,
                             contentPadding = contentPadding,
@@ -1620,7 +2200,7 @@ fun StepperInScaffoldScreen(onBack: () -> Unit) {
         ScreenScaffold { contentPadding ->
             SwipeToDismissBox(onDismissed = onBack) { isBackground ->
                 if (!isBackground) {
-                    Box(modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFF4CAF50))) {
+                    Box(modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFFFFEA00))) {
                         Stepper(
                             value = stepperValue,
                             onValueChange = { stepperValue = it },
@@ -1722,7 +2302,7 @@ fun TimePickerInScaffoldScreen(onBack: () -> Unit) {
             SwipeToDismissBox(onDismissed = onBack) { isBackground ->
                 if (!isBackground) {
                     Box(
-                        modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFF3F51B5)),
+                        modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFFFF9800)),
                         contentAlignment = Alignment.Center,
                     ) {
                         if (pickedTime != null) {
@@ -1825,7 +2405,7 @@ fun DatePickerInScaffoldScreen(onBack: () -> Unit) {
             SwipeToDismissBox(onDismissed = onBack) { isBackground ->
                 if (!isBackground) {
                     Box(
-                        modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFF009688)),
+                        modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFF4CAF50)),
                         contentAlignment = Alignment.Center,
                     ) {
                         if (pickedDate != null) {
@@ -2152,20 +2732,89 @@ fun DialogOutOfScaffoldScreen(onBack: () -> Unit) {
     }
 }
 
+/**
+ * Screen demonstrating status bar suppression using the wrapping content lambda overload:
+ * StatusBarSuppression { ScreenScaffold { ... } }
+ *
+ * Demonstrates that top padding collapses to 0.dp (full bleed) while suppressing the status bar.
+ */
 @Composable
-fun CustomSuppressStatusBarInScaffoldScreen(onBack: () -> Unit) {
-    var isSuppressed by remember { mutableStateOf(true) }
-
-    if (isSuppressed) {
-        StatusBarSuppression()
+fun SuppressStatusBarLambdaScreen(onBack: () -> Unit) {
+    StatusBarSuppression {
+        AppScaffold {
+            ScreenScaffold { contentPadding ->
+                SwipeToDismissBox(onDismissed = onBack) { isBackground ->
+                    if (!isBackground) {
+                        Box(
+                            modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFFFF5252)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(
+                                progress = { 0.75f },
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                            ) {
+                                Text(
+                                    "SuppressStatusBar (Content Lambda)",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    textAlign = TextAlign.Center,
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "SUPPRESSED",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = Color(0xFFFF5252),
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Top Pad: ${contentPadding.calculateTopPadding()}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    "Uses StatusBarSuppression { ... }.\nTop clearance collapses to 0.dp.",
+                                    style = MaterialTheme.typography.bodyExtraSmall,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Button(onClick = onBack) {
+                                    Text("Back", style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                            StatusBarInsetOverlay(
+                                contentPadding,
+                                isStatusBarVisible = false,
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
+}
 
+/**
+ * Screen demonstrating status bar suppression using the leaf component overload:
+ * StatusBarSuppression() placed inside ScreenScaffold.
+ *
+ * Demonstrates that top padding remains preserved for other status bar elements while status bar is
+ * suppressed.
+ */
+@Composable
+fun SuppressStatusBarLeafScreen(onBack: () -> Unit) {
     AppScaffold {
         ScreenScaffold { contentPadding ->
+            StatusBarSuppression()
             SwipeToDismissBox(onDismissed = onBack) { isBackground ->
                 if (!isBackground) {
                     Box(
-                        modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFF00BCD4)),
+                        modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFFFF5252)),
                         contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator(
@@ -2178,32 +2827,38 @@ fun CustomSuppressStatusBarInScaffoldScreen(onBack: () -> Unit) {
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                         ) {
                             Text(
-                                "SuppressStatusBar (In Scaffold)",
+                                "SuppressStatusBar (Component Leaf)",
                                 style = MaterialTheme.typography.titleSmall,
                                 textAlign = TextAlign.Center,
                             )
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = if (isSuppressed) "SUPPRESSED" else "VISIBLE",
+                                text = "SUPPRESSED",
                                 style = MaterialTheme.typography.titleMedium,
-                                color = if (isSuppressed) Color(0xFFFF5252) else Color(0xFF4CAF50),
+                                color = Color(0xFFFF5252),
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                "Toggling conditionally calls StatusBarSuppression() inside AppScaffold",
+                                text = "Top Pad: ${contentPadding.calculateTopPadding()}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                "Uses StatusBarSuppression().\nTop clearance remains preserved.",
                                 style = MaterialTheme.typography.bodyExtraSmall,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             Spacer(modifier = Modifier.height(6.dp))
-                            Button(onClick = { isSuppressed = !isSuppressed }) {
-                                Text(if (isSuppressed) "Show Status Bar" else "Suppress Status Bar")
-                            }
-                            Spacer(modifier = Modifier.height(4.dp))
                             Button(onClick = onBack) {
                                 Text("Back", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        StatusBarInsetOverlay(contentPadding, isStatusBarVisible = !isSuppressed)
+                        StatusBarInsetOverlay(
+                            contentPadding,
+                            isStatusBarVisible = false,
+                        )
                     }
                 }
             }
