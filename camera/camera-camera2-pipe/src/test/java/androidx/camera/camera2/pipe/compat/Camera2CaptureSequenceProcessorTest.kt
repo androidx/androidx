@@ -209,7 +209,7 @@ internal class Camera2CaptureSequenceProcessorTest {
     }
 
     @Test
-    fun requestIsSubmittedWithPartialSurfaces() = runTest {
+    fun requestIsNotSubmittedWithPartialSurfaces() = runTest {
         val captureSequenceProcessor =
             Camera2CaptureSequenceProcessor(
                 fakeCaptureSessionWrapper,
@@ -230,11 +230,7 @@ internal class Camera2CaptureSequenceProcessorTest {
                 sequenceListener = FakeCaptureSequenceListener(),
                 listeners = emptyList(),
             )
-        assertThat(captureSequence).isNotNull()
-
-        val result = captureSequenceProcessor.submit(captureSequence!!)
-        assertThat(result).isNotNull()
-        assertThat(result).isGreaterThan(0)
+        assertThat(captureSequence).isNull()
     }
 
     @Test
@@ -280,7 +276,7 @@ internal class Camera2CaptureSequenceProcessorTest {
         val captureSequence =
             captureSequenceProcessor.build(
                 isRepeating = false,
-                requests = listOf(Request(listOf(stream1.id, stream2.id))),
+                requests = listOf(Request(listOf(stream1.id))),
                 defaultParameters = mapOf<Any, Any?>(),
                 graphParameters = mapOf<Any, Any?>(),
                 requiredParameters = mapOf<Any, Any?>(),
