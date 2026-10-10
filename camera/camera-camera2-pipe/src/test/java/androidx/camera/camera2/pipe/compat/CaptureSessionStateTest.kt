@@ -88,6 +88,7 @@ class CaptureSessionStateTest {
     private val fakeSurfaces = FakeSurfaces()
     private val surface1: Surface = fakeSurfaces.createFakeSurface()
     private val surface2: Surface = fakeSurfaces.createFakeSurface()
+    private val surface3: Surface = fakeSurfaces.createFakeSurface()
 
     private val cameraId = CameraId("1")
     private val streamConfig1 =
@@ -99,7 +100,7 @@ class CaptureSessionStateTest {
             Size(1280, 720),
             StreamFormat.UNKNOWN,
             cameraId,
-            OutputStream.OutputType.SURFACE_VIEW,
+            OutputStream.OutputType.SURFACE_TEXTURE,
         )
     private val graphConfig =
         CameraGraph.Config(cameraId, listOf(streamConfig1, streamConfig2, streamConfig3))
@@ -187,6 +188,55 @@ class CaptureSessionStateTest {
         verify(fakeSurfaceListener, times(1)).onSurfaceInactive(eq(surface1))
         verify(fakeSurfaceListener, times(1)).onSurfaceInactive(eq(surface2))
     }
+
+    @Test
+    fun createCaptureSessionInvokesGraphStartedOnceAndGraphModifiedWhenDeferredSurfaceIsAvailable() =
+        runTest {
+            val fakeThreads = FakeThreads.fromTestScope(this)
+            val state =
+                CaptureSessionState(
+                    fakeGraphListener,
+                    captureSessionFactory,
+                    captureSequenceProcessorFactory,
+                    cameraSurfaceManager,
+                    timeSource,
+                    cameraGraphFlags,
+                    concurrentSessionSequencer = null,
+                    streamGraph,
+                    StrictMode(true),
+                    fakeThreads,
+                    this,
+                )
+
+            // When surfaces are configured
+            state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
+            verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(surface1))
+            verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(surface2))
+
+            // And a device is set
+            state.cameraDevice = fakeCameraDevice
+
+            // Advance to make sure a capture session is created.
+            advanceUntilIdle()
+
+            // Feed a fake capture session
+            state.onConfigured(fakeCaptureSession)
+
+            // The graph should be started (making request processor is active)
+            verify(fakeGraphListener, times(1)).onGraphStarted(any())
+
+            // Now provide the deferred Surface.
+            state.configureSurfaceMap(
+                mapOf(stream1 to surface1, stream2 to surface2, stream3Deferred to surface3)
+            )
+            advanceUntilIdle()
+
+            // The graph should be started only once.
+            verify(fakeGraphListener, times(1)).onGraphStarted(any())
+
+            // The graph should be modified (to retry any pending requests).
+            verify(fakeGraphListener, times(1)).onGraphModified(any())
+        }
 
     @Test
     fun shutdownAfterCaptureSessionDoesNotCallOnSurfaceInactive() = runTest {

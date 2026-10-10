@@ -424,8 +424,7 @@ internal class GraphLoop(
         // Repeating request failed, and there is a command in the queue after idx, and we are
         // allowed to attempt capture (Capture can invoke processRepeat, and this avoids loops)
         if (captureAllowed && idx + 1 < commands.size) {
-            val nextCommand = commands[idx + 1]
-            when (nextCommand) {
+            when (val nextCommand = commands[idx + 1]) {
                 is GraphCommand.Capture ->
                     processCapture(commands, idx + 1, nextCommand, repeatAllowed = false)
                 is GraphCommand.Trigger -> processTrigger(commands, idx + 1, nextCommand)

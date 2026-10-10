@@ -119,6 +119,7 @@ internal class CaptureSessionState(
         PENDING,
         CREATING,
         CREATED,
+        STARTED,
         CLOSING,
         CLOSED,
     }
@@ -240,7 +241,6 @@ internal class CaptureSessionState(
     }
 
     private fun configure(session: CameraCaptureSessionWrapper?) {
-        val captureSession: ConfiguredCameraCaptureSession?
         var tryConfigureDeferred = false
 
         // This block is designed to do two things:
@@ -255,28 +255,34 @@ internal class CaptureSessionState(
                         activeStreamSurfaceMap,
                         activeOutputSurfaceMap,
                     )
-                if (captureSequenceProcessor is Camera2CaptureSequenceProcessor) {
-                    captureSession =
+                cameraCaptureSession =
+                    if (captureSequenceProcessor is Camera2CaptureSequenceProcessor) {
                         ConfiguredCameraCaptureSession(
                             session,
                             GraphRequestProcessor.from(captureSequenceProcessor),
                             captureSequenceProcessor,
                         )
-                } else {
-                    captureSession =
+                    } else {
                         ConfiguredCameraCaptureSession(
                             session,
                             GraphRequestProcessor.from(captureSequenceProcessor),
                             null,
                         )
-                }
-                cameraCaptureSession = captureSession
-            } else {
-                captureSession = cameraCaptureSession
+                    }
+            }
+            val captureSession = cameraCaptureSession ?: return
+
+            if (state != State.CREATED && state != State.STARTED) {
+                return
             }
 
-            if (state != State.CREATED || captureSession == null) {
-                return
+            if (state == State.CREATED) {
+                Log.info {
+                    val duration = Timestamps.now(timeSource) - sessionCreatingTimestamp!!
+                    "Configured $this in ${duration.formatMs()}"
+                }
+                graphListener.onGraphStarted(captureSession.processor)
+                state = State.STARTED
             }
 
             // Finalize deferredConfigs if finalizeOutputConfigurations was previously invoked.
@@ -286,18 +292,7 @@ internal class CaptureSessionState(
         }
 
         if (tryConfigureDeferred) {
-            finalizeOutputsIfAvailable(retryAllowed = false)
-        }
-
-        synchronized(lock) {
-            captureSession?.let {
-                Log.info {
-                    val duration = Timestamps.now(timeSource) - sessionCreatingTimestamp!!
-                    "Configured $this in ${duration.formatMs()}"
-                }
-
-                graphListener.onGraphStarted(it.processor)
-            }
+            finalizeOutputsIfAvailable()
         }
     }
 
@@ -491,7 +486,7 @@ internal class CaptureSessionState(
         }
     }
 
-    private fun finalizeOutputsIfAvailable(retryAllowed: Boolean = true) {
+    private fun finalizeOutputsIfAvailable() {
         val captureSession: ConfiguredCameraCaptureSession?
         val pendingOutputs: Map<StreamId, OutputConfigurationWrapper>?
         val pendingSurfaces: Map<StreamId, Surface>?
@@ -535,7 +530,7 @@ internal class CaptureSessionState(
 
         var tryResubmit = false
         synchronized(lock) {
-            if (state == State.CREATED) {
+            if (state == State.CREATED || state == State.STARTED) {
                 activeStreamSurfaceMap.putAll(pendingSurfaces)
                 for ((streamId, surface) in pendingSurfaces) {
                     val cameraStream = checkNotNull(streamGraph[streamId])
@@ -553,7 +548,7 @@ internal class CaptureSessionState(
             }
         }
 
-        if (tryResubmit && retryAllowed) {
+        if (tryResubmit) {
             graphListener.onGraphModified(captureSession.processor)
         }
         Debug.traceStop()
