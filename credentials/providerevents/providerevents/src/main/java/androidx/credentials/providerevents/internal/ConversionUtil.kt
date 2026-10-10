@@ -17,6 +17,8 @@
 package androidx.credentials.providerevents.internal
 
 import androidx.annotation.RestrictTo
+import androidx.credentials.providerevents.exception.ImportCredentialsCancellationException
+import androidx.credentials.providerevents.exception.ImportCredentialsCancellationException.Companion.TYPE_IMPORT_CREDENTIALS_CANCELLATION_EXCEPTION
 import androidx.credentials.providerevents.exception.ImportCredentialsException
 import androidx.credentials.providerevents.exception.ImportCredentialsInvalidJsonException
 import androidx.credentials.providerevents.exception.ImportCredentialsInvalidJsonException.Companion.TYPE_IMPORT_CREDENTIALS_INVALID_JSON_EXCEPTION
@@ -38,6 +40,8 @@ import org.json.JSONObject
 public fun toJetpackGetException(errorType: String, errorMsg: String?): ImportCredentialsException {
 
     return when (errorType) {
+        TYPE_IMPORT_CREDENTIALS_CANCELLATION_EXCEPTION ->
+            ImportCredentialsCancellationException(errorMsg)
         TYPE_IMPORT_CREDENTIALS_INVALID_JSON_EXCEPTION ->
             ImportCredentialsInvalidJsonException(errorMsg)
         TYPE_IMPORT_CREDENTIALS_PROVIDER_CONFIGURATION_EXCEPTION ->
