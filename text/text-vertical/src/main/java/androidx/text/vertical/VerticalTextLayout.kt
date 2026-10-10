@@ -61,7 +61,10 @@ constructor(
     public val contentHeight: Float
         get() = result.height
 
-    /** Uniform width in pixels of a single vertical line (column). */
+    /**
+     * Bounding width in pixels across the maximum left and right extents of all vertical lines
+     * (columns).
+     */
     @get:Px
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     // TODO(b/571750156): Remove @RestrictTo in 1.1.0-alpha01
@@ -71,6 +74,18 @@ constructor(
     /** The number of lines (columns) in this vertical text layout. */
     public val lineCount: Int
         get() = result.lineCount
+
+    /**
+     * Returns the laid-out width in pixels of the vertical line (column) at [line].
+     *
+     * @param line 0-based line (column) index (`0 <= line <` [lineCount])
+     * @return line (column) width in pixels
+     * @throws IndexOutOfBoundsException if [line] is outside `0 until` [lineCount]
+     */
+    @Px
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // TODO(b/571750156): Remove @RestrictTo in 1.1.0-alpha01
+    public fun getLineWidth(line: Int): Float = result.getLineWidth(line)
 
     /**
      * Returns the laid-out height in pixels of the vertical line (column) at [line].

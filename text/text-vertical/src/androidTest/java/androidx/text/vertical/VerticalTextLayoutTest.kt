@@ -106,7 +106,7 @@ class VerticalTextLayoutTest {
     }
 
     @Test
-    fun columnWidth_matchesUniformLineWidth() {
+    fun columnWidth_isBoundingWidth_andWidthSumsColumns() {
         val text =
             SpannableString("吾輩は猫である。名前はまだ無い。").apply {
                 setSpan(RubySpan("わがはい"), 0, 2, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
@@ -114,7 +114,11 @@ class VerticalTextLayoutTest {
         val layout = VerticalTextLayout(text, 0, text.length, PAINT, 30f)
         assertThat(layout.lineCount).isGreaterThan(1)
         assertThat(layout.columnWidth).isWithin(1e-3f).of(1.5f * PAINT.textSize)
-        assertThat(layout.width).isWithin(1e-3f).of(layout.columnWidth * layout.lineCount)
+        assertThat(layout.getLineWidth(0)).isWithin(1e-3f).of(1.5f * PAINT.textSize)
+        assertThat(layout.getLineWidth(1)).isWithin(1e-3f).of(1.0f * PAINT.textSize)
+        assertThat(layout.width)
+            .isWithin(1e-3f)
+            .of((1.5f + (layout.lineCount - 1) * 1.0f) * PAINT.textSize)
     }
 
     @Test

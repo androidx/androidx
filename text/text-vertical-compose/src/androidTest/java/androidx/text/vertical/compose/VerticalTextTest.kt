@@ -43,6 +43,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.text.vertical.AnnotationPosition
+import androidx.text.vertical.EmphasisSpan
+import androidx.text.vertical.EmphasisStyle
 import androidx.text.vertical.TextOrientation
 import androidx.text.vertical.VerticalTextLayout
 import com.google.common.truth.Truth.assertThat
@@ -261,6 +264,113 @@ class VerticalTextTest {
             val wrappedPixels = layout.countColorPixels(Color.Black.toArgb(), measuredSize.height)
             assertThat(wrappedPixels).isGreaterThan(0)
             assertThat(wrappedPixels).isEqualTo(fullPixels)
+        }
+    }
+
+    @Test
+    fun multiColumnMixedWidth_wrapsToTotalLayoutWidth() {
+        val style = VerticalTextStyle(fontSize = 20.sp)
+        val text =
+            SpannableString("あ\nい").apply {
+                setSpan(
+                    EmphasisSpan(EmphasisStyle.Dot, isFilled = true, AnnotationPosition.Before),
+                    0,
+                    1,
+                    SpannableString.SPAN_INCLUSIVE_EXCLUSIVE,
+                )
+                setSpan(
+                    EmphasisSpan(EmphasisStyle.Dot, isFilled = true, AnnotationPosition.After),
+                    2,
+                    3,
+                    SpannableString.SPAN_INCLUSIVE_EXCLUSIVE,
+                )
+            }
+        var measuredSize = IntSize.Zero
+        var expectedWidthPx = 0
+        var uniformWidthPx = 0
+
+        rule.setContent {
+            val density = LocalDensity.current
+            val maxHeightPx = with(density) { 400.dp.roundToPx() }
+            val vtl =
+                VerticalTextLayoutCache()
+                    .getLayout(
+                        text = text,
+                        height = maxHeightPx,
+                        orientation = TextOrientation.Mixed,
+                        style = style,
+                        typeface = Typeface.DEFAULT,
+                        density = density,
+                    )
+            // Column 0 (Before): [-0.5em, +1.0em] = 1.5em; Column 1 (After): [-1.0em, +0.5em] =
+            // 1.5em; sum = 3.0em, whereas uniform columnWidth * lineCount = 2.0em * 2 = 4.0em.
+            expectedWidthPx = ceil(3f * with(density) { 20.sp.toPx() }).toInt()
+            uniformWidthPx = ceil(vtl.columnWidth * vtl.lineCount).toInt()
+            VerticalText(
+                text = text,
+                modifier = Modifier.maxHeight(maxHeightPx).onSizeChanged { measuredSize = it },
+                style = style,
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(measuredSize.width).isEqualTo(expectedWidthPx)
+            assertThat(measuredSize.width).isLessThan(uniformWidthPx)
+        }
+    }
+
+    @Test
+    fun maxColumns_mixedWidth_sizesToIncludedColumnsOnly() {
+        val style = VerticalTextStyle(fontSize = 20.sp)
+        val text =
+            SpannableString("あ\nい").apply {
+                setSpan(
+                    EmphasisSpan(EmphasisStyle.Dot, isFilled = true, AnnotationPosition.Before),
+                    0,
+                    1,
+                    SpannableString.SPAN_INCLUSIVE_EXCLUSIVE,
+                )
+                setSpan(
+                    EmphasisSpan(EmphasisStyle.Dot, isFilled = true, AnnotationPosition.After),
+                    2,
+                    3,
+                    SpannableString.SPAN_INCLUSIVE_EXCLUSIVE,
+                )
+            }
+        var measuredSize = IntSize.Zero
+        var expectedSingleColumnWidthPx = 0
+        var uniformColumnWidthPx = 0
+
+        rule.setContent {
+            val density = LocalDensity.current
+            val maxHeightPx = with(density) { 400.dp.roundToPx() }
+            val vtl =
+                VerticalTextLayoutCache()
+                    .getLayout(
+                        text = text,
+                        height = maxHeightPx,
+                        orientation = TextOrientation.Mixed,
+                        style = style,
+                        typeface = Typeface.DEFAULT,
+                        density = density,
+                    )
+            // Column 0 (Before) is 1.5em wide, whereas bounding columnWidth across both columns is
+            // 2.0em. With maxColumns = 1, desiredWidth must equal column 0's 1.5em width so column
+            // 1 does not leak into the clipped bounds.
+            expectedSingleColumnWidthPx = ceil(1.5f * with(density) { 20.sp.toPx() }).toInt()
+            uniformColumnWidthPx = ceil(vtl.columnWidth).toInt()
+            VerticalText(
+                text = text,
+                modifier = Modifier.maxHeight(maxHeightPx).onSizeChanged { measuredSize = it },
+                style = style,
+                overflow = TextOverflow.Clip,
+                maxColumns = 1,
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(measuredSize.width).isEqualTo(expectedSingleColumnWidthPx)
+            assertThat(measuredSize.width).isLessThan(uniformColumnWidthPx)
         }
     }
 }

@@ -16,13 +16,18 @@
 
 package androidx.text.vertical
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.text.SpannableString
 import android.text.TextPaint
+import android.text.style.BackgroundColorSpan
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.text.vertical.TextOrientationSpan.CombineUpright
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -430,7 +435,7 @@ class LineBreakerTest {
             // 日[25]月[12]年[2024]
             // ----
             assertThat(it.lineCount).isEqualTo(6)
-            assertThat(it.width).isEqualTo(6 * 1.1f * EM)
+            assertThat(it.width).isWithin(1e-3f).of((3 * 1.1f + 3 * 1.0f) * EM)
             assertThat(it.lineLeftSide).isEqualTo(-HALF_EM * 1.1f)
             assertThat(it.lineRightSide).isEqualTo(HALF_EM * 1.1f)
             assertThat(it.getLineStart(0)).isEqualTo(jpStart)
@@ -494,7 +499,7 @@ class LineBreakerTest {
             // 　　　　　　輩
             // ----
             assertThat(it.lineCount).isEqualTo(7)
-            assertThat(it.width).isEqualTo(7 * 1.5f * EM)
+            assertThat(it.width).isWithin(1e-3f).of((1.5f + 6 * 1.0f) * EM)
             assertThat(it.lineLeftSide).isEqualTo(-HALF_EM)
             assertThat(it.lineRightSide).isEqualTo(1 * EM) // 0.5em for right side, 0.5em for ruby
             assertThat(it.getLineStart(0)).isEqualTo(jpStart)
@@ -544,6 +549,53 @@ class LineBreakerTest {
             assertThat(it.getLineHeight(0)).isWithin(1e-3f).of(getVerticalAdvance("吾輩は猫であ"))
             assertThat(it.getLineHeight(1)).isWithin(1e-3f).of(getVerticalAdvance("る。"))
             assertThat(it.height).isWithin(1e-3f).of(it.getLineHeight(0))
+        }
+    }
+
+    @Test
+    fun lineBreaker_mixedBoutenPositions_sumsPerLineWidth() {
+        val bgColor = Color.RED
+        val text =
+            SpannableString("あ\nい").apply {
+                setSpan(
+                    EmphasisSpan(EmphasisStyle.Dot, isFilled = true, AnnotationPosition.Before),
+                    0,
+                    1,
+                    SPAN_FLAG,
+                )
+                setSpan(
+                    EmphasisSpan(EmphasisStyle.Dot, isFilled = true, AnnotationPosition.After),
+                    2,
+                    3,
+                    SPAN_FLAG,
+                )
+                setSpan(BackgroundColorSpan(bgColor), 2, 3, SPAN_FLAG)
+            }
+        val result =
+            LineBreaker.breakTextIntoLines(text, 0, text.length, PAINT, 100f, TextOrientation.Mixed)
+
+        assertThat(result.lineCount).isEqualTo(2)
+        // Line 0: [-0.5em, +1.0em] -> 1.5em; Line 1: [-1.0em, +0.5em] -> 1.5em; sum = 3.0em.
+        assertThat(result.getLineWidth(0)).isWithin(1e-3f).of(1.5f * EM)
+        assertThat(result.getLineWidth(1)).isWithin(1e-3f).of(1.5f * EM)
+        assertThat(result.width).isWithin(1e-3f).of(3.0f * EM)
+        assertThat(result.lineLeftSide).isWithin(1e-3f).of(-1.0f * EM)
+        assertThat(result.lineRightSide).isWithin(1e-3f).of(1.0f * EM)
+
+        // Draw at x = 3.0em: line 0 occupies [1.5em, 3.0em] and line 1 occupies [0.0em, 1.5em].
+        // Under uniform lineWidth (2.0em) stepping, line 1 shifts left to [-0.5em, 1.0em], leaving
+        // [1.0em, 1.5em] unpainted.
+        val bitmapWidth = (3.0f * EM).roundToInt()
+        val bitmapHeight = result.height.roundToInt().coerceAtLeast(10)
+        val bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888)
+        try {
+            result.draw(Canvas(bitmap), 3.0f * EM, 0f, PAINT)
+            val checkX = (1.25f * EM).roundToInt()
+            val hasLine1BgInRightHalf =
+                (0 until bitmapHeight).any { y -> bitmap.getPixel(checkX, y) == bgColor }
+            assertThat(hasLine1BgInRightHalf).isTrue()
+        } finally {
+            bitmap.recycle()
         }
     }
 }
