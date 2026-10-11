@@ -62,6 +62,27 @@ internal interface TestOwner {
     fun getRoots(atLeastOneRootExpected: Boolean): Set<RootForTest>
 
     /**
+     * Returns all [SemanticsNode]s from the given [roots].
+     *
+     * This is always called on the UI thread, with the [roots] that were just returned by
+     * [getRoots]. While the UI is expected to be stable, for example while
+     * [isImplicitWaitSuppressed] is `true`, implementations may return previously collected nodes
+     * instead of walking the semantics trees again. The default implementation delegates to
+     * [collectSemanticsNodes].
+     *
+     * @param roots The compose roots to get the semantics nodes from.
+     * @param useUnmergedTree Whether to get the nodes from the unmerged semantics tree.
+     * @param skipDeactivatedNodes Whether to skip
+     *   [deactivated][androidx.compose.ui.node.LayoutNode.isDeactivated] nodes.
+     * @see collectSemanticsNodes
+     */
+    fun getSemanticsNodes(
+        roots: Set<RootForTest>,
+        useUnmergedTree: Boolean,
+        skipDeactivatedNodes: Boolean,
+    ): List<SemanticsNode> = collectSemanticsNodes(roots, useUnmergedTree, skipDeactivatedNodes)
+
+    /**
      * Executes all tasks that are currently due for immediate execution on the virtual clock.
      *
      * Due tasks are operations scheduled to run on this clock without any delay. This method should
@@ -125,13 +146,22 @@ internal fun <R> TestOwner.getAllSemanticsNodes(
         }
 
     return runOnUiThread {
-        transform.invoke(
-            roots.flatMap {
-                it.semanticsOwner.getAllSemanticsNodes(
-                    mergingEnabled = !useUnmergedTree,
-                    skipDeactivatedNodes = skipDeactivatedNodes,
-                )
-            }
-        )
+        transform.invoke(getSemanticsNodes(roots, useUnmergedTree, skipDeactivatedNodes))
     }
+}
+
+/**
+ * Walks the semantics trees of the given [roots] and returns all their [SemanticsNode]s.
+ *
+ * @see TestOwner.getSemanticsNodes
+ */
+internal fun collectSemanticsNodes(
+    roots: Set<RootForTest>,
+    useUnmergedTree: Boolean,
+    skipDeactivatedNodes: Boolean,
+): List<SemanticsNode> = roots.flatMap {
+    it.semanticsOwner.getAllSemanticsNodes(
+        mergingEnabled = !useUnmergedTree,
+        skipDeactivatedNodes = skipDeactivatedNodes,
+    )
 }

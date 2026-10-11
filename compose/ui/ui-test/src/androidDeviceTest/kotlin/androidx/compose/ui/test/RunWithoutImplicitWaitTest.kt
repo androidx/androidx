@@ -21,6 +21,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,18 +29,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class RunWithoutImplicitWaitTest {
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun triggeredAnimationAndCaptureMotionValues() = runComposeUiTest {
         var size by mutableStateOf(64.dp)
@@ -92,7 +95,6 @@ class RunWithoutImplicitWaitTest {
             .inOrder()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun runWithoutImplicitWait_doesNotTriggerWaitForIdle() = runComposeUiTest {
         var isNodeVisible by mutableStateOf(true)
@@ -121,12 +123,151 @@ class RunWithoutImplicitWaitTest {
         onNodeWithTag("dummy_node").assertDoesNotExist()
     }
 
+    @Test
+    fun runWithoutImplicitWait_reusesSemanticsNodesWithinBlock() = runComposeUiTest {
+        setContent { Box(Modifier.testTag("node").size(10.dp)) }
+
+        val (first, second) =
+            runOnUiThread {
+                runWithoutImplicitWait {
+                    onNodeWithTag("node").fetchSemanticsNode() to
+                        onNodeWithTag("node").fetchSemanticsNode()
+                }
+            }
+        val nextBlock = runOnUiThread {
+            runWithoutImplicitWait { onNodeWithTag("node").fetchSemanticsNode() }
+        }
+        val outside = onNodeWithTag("node").fetchSemanticsNode()
+
+        // Queries in one block share the collected nodes, but every block collects them again
+        assertThat(second).isSameInstanceAs(first)
+        assertThat(nextBlock).isNotSameInstanceAs(first)
+        // Outside the block, the nodes are collected again for every query
+        assertThat(onNodeWithTag("node").fetchSemanticsNode()).isNotSameInstanceAs(outside)
+    }
+
+    @Test
+    fun runWithoutImplicitWait_seesSemanticsChangedBetweenBlocks() = runComposeUiTest {
+        var description by mutableStateOf("first")
+        setContent {
+            // The description is only read when the semantics are computed, so changing it doesn't
+            // recompose, and thus doesn't need the clock to advance
+            Box(Modifier.testTag("node").size(10.dp).semantics { contentDescription = description })
+        }
+        mainClock.autoAdvance = false
+        waitForIdle()
+        val startTime = mainClock.currentTime
+
+        runOnUiThread {
+            runWithoutImplicitWait { onNodeWithTag("node").assertContentDescriptionEquals("first") }
+        }
+
+        description = "second"
+        onNodeWithTag("node").assertContentDescriptionEquals("second")
+        assertThat(mainClock.currentTime).isEqualTo(startTime)
+
+        // The clock didn't advance, so the nodes collected in the previous block must not be reused
+        runOnUiThread {
+            runWithoutImplicitWait {
+                onNodeWithTag("node").assertContentDescriptionEquals("second")
+            }
+        }
+    }
+
+    @Test
+    fun runWithoutImplicitWait_cachesMergedAndUnmergedTreeSeparately() = runComposeUiTest {
+        setContent {
+            Box(Modifier.testTag("parent").semantics(mergeDescendants = true) {}) {
+                Box(Modifier.testTag("child").size(10.dp).semantics { contentDescription = "desc" })
+            }
+        }
+
+        runOnUiThread {
+            runWithoutImplicitWait {
+                // In the merged tree, the description of the child is merged into its parent
+                onNodeWithContentDescription("desc").assert(hasTestTag("parent"))
+                onNodeWithContentDescription("desc", useUnmergedTree = true)
+                    .assert(hasTestTag("child"))
+                onNodeWithContentDescription("desc").assert(hasTestTag("parent"))
+            }
+        }
+    }
+
+    @Test
+    fun runWithoutImplicitWait_cachesActiveAndDeactivatedNodesSeparately() = runComposeUiTest {
+        var active by mutableStateOf(true)
+        setContent { ReusableContentHost(active) { Box(Modifier.testTag("node").size(10.dp)) } }
+        // A deactivated node has no semantics properties, so find it by its id
+        val id = onNodeWithTag("node").fetchSemanticsNode().id
+        val node = onNode(SemanticsMatcher("SemanticsId = $id") { it.id == id })
+
+        active = false
+        waitForIdle()
+
+        runOnUiThread {
+            runWithoutImplicitWait {
+                // Regular queries skip deactivated nodes, assertIsDeactivated() includes them
+                node.assertDoesNotExist()
+                node.assertIsDeactivated()
+            }
+        }
+    }
+
+    @Test
+    fun runWithoutImplicitWait_capturesLastSeenSemanticsOfNewInteraction() = runComposeUiTest {
+        var showNode by mutableStateOf(true)
+        setContent {
+            if (showNode) {
+                Box(Modifier.testTag("node").size(10.dp).semantics { contentDescription = "desc" })
+            }
+        }
+
+        val node = onNodeWithTag("node")
+        runOnUiThread { runWithoutImplicitWait { node.assertExists() } }
+        showNode = false
+
+        val error = assertFailsWith<AssertionError> { node.assertExists() }
+        assertThat(error.message)
+            .contains("The node is no longer in the tree, last known semantics:")
+        assertThat(error.message).contains("ContentDescription = '[desc]'")
+    }
+
+    @Test
+    fun runWithoutImplicitWait_refreshesLastSeenSemanticsCapturedBefore() = runComposeUiTest {
+        var showNode by mutableStateOf(true)
+        var description by mutableStateOf("outside")
+        setContent {
+            if (showNode) {
+                val currentDescription = description
+                Box(
+                    Modifier.testTag("node").size(10.dp).semantics {
+                        contentDescription = currentDescription
+                    }
+                )
+            }
+        }
+
+        // Captures the semantics outside of the block
+        val node = onNodeWithTag("node")
+        node.assertExists()
+
+        description = "inside"
+        waitForIdle()
+        // The semantics were captured before, so they are captured again inside the block
+        runOnUiThread { runWithoutImplicitWait { node.assertExists() } }
+        showNode = false
+
+        val error = assertFailsWith<AssertionError> { node.assertExists() }
+        assertThat(error.message)
+            .contains("The node is no longer in the tree, last known semantics:")
+        assertThat(error.message).contains("ContentDescription = '[inside]'")
+    }
+
     /**
      * Illustrative implementation of a "sample the property values of the current frame" method.
      *
      * Motion tests do exactly that, just with more syntactic sugar 🍬.
      */
-    @OptIn(ExperimentalTestApi::class)
     private fun ComposeUiTest.captureMotionTestValues(fooSizeTimeSeries: MutableList<IntSize>) {
         // Capture a value and add to the time series.
         fooSizeTimeSeries.add(onNodeWithTag("foo").fetchSemanticsNode().size)
