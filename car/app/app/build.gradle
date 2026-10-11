@@ -29,7 +29,6 @@ import androidx.build.Version
 
 import com.google.common.io.Files
 import org.apache.commons.io.FileUtils
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -381,7 +380,6 @@ androidComponents {
         FileCollection dependencyClasspath = variant.compileClasspath
         FileCollection metalavaClasspath = MetalavaTasksKt.getMetalavaClasspath(project)
         FileCollection bootClasspath = project.files(sdkComponents.bootClasspath)
-        Provider<KotlinVersion> kotlinSourceLevel = androidx.kotlinApiVersion
 
         ProtocolLocation projectProtocolLocation = new ProtocolLocation(project)
         tasks.register("generateProtocolApi", GenerateProtocolApiTask) { task ->
@@ -392,7 +390,6 @@ androidComponents {
             task.dependencyClasspath.from(dependencyClasspath)
             task.metalavaClasspath.from(metalavaClasspath)
             task.bootClasspath.from(bootClasspath)
-            task.kotlinSourceLevel.set(kotlinSourceLevel)
         }
         tasks.register("checkProtocolApiCompat", CheckProtocolApiCompatibilityTask) { task ->
             task.description = "Check for BREAKING changes to the protocol API"
@@ -403,7 +400,6 @@ androidComponents {
             task.dependencyClasspath.from(dependencyClasspath)
             task.metalavaClasspath.from(metalavaClasspath)
             task.bootClasspath.from(bootClasspath)
-            task.kotlinSourceLevel.set(kotlinSourceLevel)
         }
         tasks.register("checkProtocolApi", CheckProtocolApiTask) { task ->
             task.description = "Check for changes to the protocol API"
