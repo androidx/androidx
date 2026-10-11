@@ -85,9 +85,9 @@ import androidx.savedstate.compose.LocalSavedStateRegistryOwner
  * child View to clip the contents, if desired. Developers will likely want to do this with all
  * subclasses of SurfaceView to keep its contents contained.
  *
- * [AndroidView] has nested scroll interop capabilities if the containing view has nested scroll
- * enabled. This means this Composable can dispatch scroll deltas if it is placed inside a container
- * that participates in nested scroll. For more information on how to enable nested scroll interop:
+ * [AndroidView] automatically participates in nested scrolling when a descendant [View] dispatches
+ * nested scroll events. This means this Composable can dispatch scroll deltas if it is placed
+ * inside a container that participates in nested scroll:
  *
  * @sample androidx.compose.ui.samples.ViewInComposeNestedScrollInteropSample
  * @sample androidx.compose.ui.samples.AndroidViewSample
@@ -168,9 +168,9 @@ public fun <T : View> AndroidView(
  * child View to clip the contents, if desired. Developers will likely want to do this with all
  * subclasses of SurfaceView to keep its contents contained.
  *
- * [AndroidView] has nested scroll interop capabilities if the containing view has nested scroll
- * enabled. This means this Composable can dispatch scroll deltas if it is placed inside a container
- * that participates in nested scroll. For more information on how to enable nested scroll interop:
+ * [AndroidView] automatically participates in nested scrolling when a descendant [View] dispatches
+ * nested scroll events. This means this Composable can dispatch scroll deltas if it is placed
+ * inside a container that participates in nested scroll:
  *
  * @sample androidx.compose.ui.samples.ViewInComposeNestedScrollInteropSample
  * @sample androidx.compose.ui.samples.AndroidViewSample
