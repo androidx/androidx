@@ -34,6 +34,7 @@ import androidx.compose.ui.node.RootForTest.UncaughtExceptionHandler
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.platform.WindowRecomposerPolicy
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.ComposeRootRegistry.OnRegistrationChangedListener
 import androidx.compose.ui.test.failure.FailurePipelineRunner
 import androidx.compose.ui.unit.Density
@@ -1095,7 +1096,19 @@ internal constructor(
     }
 
     private inner class AndroidTestOwner : TestOwner {
+        /**
+         * Inside [ComposeUiTest.runWithoutImplicitWait] the UI is expected to be stable, so node
+         * queries reuse the collected semantics nodes instead of walking the semantics trees for
+         * every query. The cache is cleared when the suppression state changes or due tasks are
+         * run, as both can change the semantics trees.
+         */
+        private val semanticsNodesCache = SemanticsNodesCache(mainClockImpl)
+
         override var isImplicitWaitSuppressed: Boolean = false
+            set(value) {
+                field = value
+                semanticsNodesCache.clear()
+            }
 
         override val mainClock: MainTestClock
             get() = mainClockImpl
@@ -1109,8 +1122,20 @@ internal constructor(
             return composeRootRegistry.getRegisteredComposeRoots()
         }
 
+        override fun getSemanticsNodes(
+            roots: Set<RootForTest>,
+            useUnmergedTree: Boolean,
+            skipDeactivatedNodes: Boolean,
+        ): List<SemanticsNode> =
+            if (isImplicitWaitSuppressed) {
+                semanticsNodesCache.getOrCollect(roots, useUnmergedTree, skipDeactivatedNodes)
+            } else {
+                collectSemanticsNodes(roots, useUnmergedTree, skipDeactivatedNodes)
+            }
+
         override fun runCurrent() {
             mainClockImpl.runCurrent()
+            semanticsNodesCache.clear()
         }
     }
 
