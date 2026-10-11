@@ -221,12 +221,13 @@ abstract class ManagedIdeTask : DefaultTask() {
                         mkdir()
                     }
                 execOperations.exec { execSpec ->
-                    execSpec.executable("hdiutil")
+                    execSpec.executable("diskutil")
                     execSpec.args(
+                        "image",
                         "attach",
                         fromPath,
-                        "-noverify",
-                        "-mountpoint",
+                        "-readOnly",
+                        "-mountPoint",
                         mountPoint.absolutePath,
                     )
                 }
@@ -238,8 +239,8 @@ abstract class ManagedIdeTask : DefaultTask() {
                     )
                 }
                 execOperations.exec { execSpec ->
-                    execSpec.executable("hdiutil")
-                    execSpec.args("detach", mountPoint.absolutePath)
+                    execSpec.executable("diskutil")
+                    execSpec.args("eject", mountPoint.absolutePath)
                 }
                 mountPoint.delete()
             }
