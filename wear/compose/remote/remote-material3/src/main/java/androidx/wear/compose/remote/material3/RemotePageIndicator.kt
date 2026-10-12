@@ -59,8 +59,8 @@ public interface RemotePageIndicatorState {
 /**
  * Default implementation of [RemotePageIndicatorState].
  *
- * @property selectedPage The currently selected page index as a [RemoteInt].
  * @property pageCount Total number of pages.
+ * @property selectedPage The currently selected page index as a [RemoteInt].
  * @property pageOffset The current offset from the start of the selected page, as a ratio of the
  *   page width.
  */
@@ -73,8 +73,8 @@ public class DefaultRemotePageIndicatorState(
 /**
  * Creates and remembers a [RemotePageIndicatorState].
  *
- * @param selectedPage The currently selected page index.
  * @param pageCount Total number of pages.
+ * @param selectedPage The currently selected page index.
  * @param pageOffset The current offset from the start of the selected page, as a ratio of the page
  *   width.
  */

@@ -1,6 +1,6 @@
 ---
 name: Scaffold Remote Component
-description: Scaffold a new RemoteCompose wear material3 component with test, sample, and preview
+description: Scaffold a new RemoteCompose Wear Material 3 component with test, sample, and preview
 ---
 
 # Scaffold Remote Component
@@ -19,7 +19,7 @@ Ensure you know the name of the new component (e.g., `RemoteSlider`). If the use
 * **onClick Parameters**: Use `Action.Empty` to mock any dummy `onClick` actions in samples, previews, and tests.
 
 ### Step 1: Create Component Implementation
-Create the file at relative to the root of the remote-material3 project:
+Create the file relative to the root of the remote-material3 project:
 `src/main/java/androidx/wear/compose/remote/material3/$COMPONENT_NAME.kt`
 
 Use this base template:
@@ -74,25 +74,32 @@ Use this base template, separating out components into clear descriptive variati
 ```kotlin
 package androidx.wear.compose.remote.material3.previews
 
+import androidx.compose.remote.creation.compose.layout.RemoteAlignment
+import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.wear.compose.material3.ui.util.WearPreviewDevices
 import androidx.wear.compose.remote.material3.${COMPONENT_NAME}
-import androidx.compose.remote.creation.compose.preview.RemotePreview
-import androidx.compose.remote.creation.compose.preview.Profile
-import androidx.compose.remote.creation.compose.preview.ProfilePreviewParameterProvider
+import androidx.wear.compose.remote.material3.previews.utils.ProfilePreviewParameterProvider
+import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @WearPreviewDevices
 @Composable
 fun ${COMPONENT_NAME}DefaultPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { ${COMPONENT_NAME}Default() } }
+) = RemoteContentPreview(profile = profile) { Container { ${COMPONENT_NAME}Default() } }
 
 @WearPreviewDevices
 @Composable
 fun ${COMPONENT_NAME}WithVariantPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
-) = RemotePreview(profile = profile) { Container { ${COMPONENT_NAME}WithVariant() } }
+) = RemoteContentPreview(profile = profile) { Container { ${COMPONENT_NAME}WithVariant() } }
 
 @Composable
 @RemoteComposable
@@ -118,7 +125,7 @@ private fun Container(
 
 ### Step 4: Create the Screenshot Test
 Create the test file relative to the root of the remote-material3 project:
-`src/androidTest/java/androidx/wear/compose/remote/material3/$COMPONENT_NAMETest.kt`
+`src/androidTest/java/androidx/wear/compose/remote/material3/${COMPONENT_NAME}Test.kt`
 
 Use this boilerplate, ensuring a separate `@Test` method exists for each explicit preview variation you generated in Step 3:
 ```kotlin
@@ -176,8 +183,8 @@ class ${COMPONENT_NAME}Test {
 ```
 
 ### Step 5: Create the Screenshot Test for Sample
-Create screenshot test for the sample at:
-`src/androidTest/java/androidx/wear/compose/remote/material3/samples/`
+Create the screenshot test for the sample at:
+`src/androidTest/java/androidx/wear/compose/remote/material3/samples/${COMPONENT_NAME}SampleTest.kt`
 
 Use this boilerplate:
 ```kotlin

@@ -46,7 +46,7 @@ import androidx.compose.ui.graphics.Color
  * [RemoteTextButton] can be enabled or disabled. A disabled button will not respond to click
  * events.
  *
- * Example of an [RemoteTextButton] with shape animation of rounded corners on press:
+ * Example of a [RemoteTextButton] with shape animation of rounded corners on press:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteTextButtonSimpleSample
  * @param onClick Will be called when the user clicks the button.
