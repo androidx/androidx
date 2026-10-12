@@ -22,6 +22,7 @@ import android.hardware.camera2.CaptureResult
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
@@ -30,6 +31,7 @@ import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.ImageSourceConfig
 import androidx.camera.camera2.pipe.OutputId
+import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
@@ -445,6 +447,124 @@ class CameraGraphSimulatorTest {
 
         assertThat(lastStreamId).isEqualTo(cameraStream.id)
         assertThat(lastOutputId).isEqualTo(cameraStream.outputs.single().id)
+        assertThat(lastImage).isNotNull()
+
+        fakeImageReader.close()
+        simulator.close()
+    }
+
+    @Test
+    fun simulatorCanSimulateImagesOnMultiOutputStreams() = testScope.runTest {
+        val physicalCameraIdFirst = CameraId("4")
+        val physicalCameraIdSecond = CameraId("5")
+        val physicalCameraIdThird = CameraId("6")
+        val outputStreamConfigs =
+            listOf(
+                OutputStream.Config.create(
+                    Size(1280, 720),
+                    StreamFormat.RAW_SENSOR,
+                    physicalCameraIdFirst,
+                ),
+                OutputStream.Config.create(
+                    Size(1920, 1080),
+                    StreamFormat.RAW_SENSOR,
+                    physicalCameraIdSecond,
+                ),
+                OutputStream.Config.create(
+                    Size(1600, 900),
+                    StreamFormat.RAW_SENSOR,
+                    physicalCameraIdThird,
+                ),
+            )
+        val streamConfig = CameraStream.Config.create(outputStreamConfigs)
+        val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
+        val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
+        val cameraStream = checkNotNull(simulator.streams[streamConfig])
+        val fakeImageReader = simulator.fakeImageReaders.create(cameraStream, 5)
+
+        var lastStreamId: StreamId? = null
+        var lastOutputId: OutputId? = null
+        var lastImage: ImageWrapper? = null
+        fakeImageReader.onImageListener =
+            ImageReaderWrapper.OnImageListener { streamId, outputId, image ->
+                lastStreamId = streamId
+                lastOutputId = outputId
+                lastImage = image
+            }
+
+        simulator.setSurface(cameraStream.id, fakeImageReader.surface)
+        simulator.simulateCameraStarted()
+
+        val request = Request(listOf(cameraStream.id))
+        simulator.acquireSession().use { it.submit(request) }
+
+        val frame = simulator.simulateNextFrame()
+        // Select CameraId
+        frame.simulateImages(physicalCameraIds = setOf(physicalCameraIdSecond))
+        frame.simulateComplete(emptyMap())
+        advanceUntilIdle()
+
+        assertThat(lastStreamId!!).isEqualTo(cameraStream.id)
+        assertThat(lastOutputId!!).isEqualTo(cameraStream.outputs[1].id)
+        assertThat(simulator.streams[lastOutputId]!!.camera).isEqualTo(physicalCameraIdSecond)
+        assertThat(lastImage).isNotNull()
+
+        fakeImageReader.close()
+        simulator.close()
+    }
+
+    @Test
+    fun simulatorCanSimulateImagesWithoutGivenPhysicalCameraIds() = testScope.runTest {
+        val physicalCameraIdFirst = CameraId("4")
+        val physicalCameraIdSecond = CameraId("5")
+        val physicalCameraIdThird = CameraId("6")
+        val outputStreamConfigs =
+            listOf(
+                OutputStream.Config.create(
+                    Size(1280, 720),
+                    StreamFormat.RAW_SENSOR,
+                    physicalCameraIdFirst,
+                ),
+                OutputStream.Config.create(
+                    Size(1920, 1080),
+                    StreamFormat.RAW_SENSOR,
+                    physicalCameraIdSecond,
+                ),
+                OutputStream.Config.create(
+                    Size(1600, 900),
+                    StreamFormat.RAW_SENSOR,
+                    physicalCameraIdThird,
+                ),
+            )
+        val streamConfig = CameraStream.Config.create(outputStreamConfigs)
+        val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
+        val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
+        val cameraStream = checkNotNull(simulator.streams[streamConfig])
+        val fakeImageReader = simulator.fakeImageReaders.create(cameraStream, 5)
+
+        var lastStreamId: StreamId? = null
+        var lastOutputId: OutputId? = null
+        var lastImage: ImageWrapper? = null
+        fakeImageReader.onImageListener =
+            ImageReaderWrapper.OnImageListener { streamId, outputId, image ->
+                lastStreamId = streamId
+                lastOutputId = outputId
+                lastImage = image
+            }
+
+        simulator.setSurface(cameraStream.id, fakeImageReader.surface)
+        simulator.simulateCameraStarted()
+
+        val request = Request(listOf(cameraStream.id))
+        simulator.acquireSession().use { it.submit(request) }
+
+        val frame = simulator.simulateNextFrame()
+        frame.simulateImages()
+        frame.simulateComplete(emptyMap())
+        advanceUntilIdle()
+
+        assertThat(lastStreamId).isEqualTo(cameraStream.id)
+        assertThat(lastOutputId).isEqualTo(cameraStream.outputs.first().id)
         assertThat(lastImage).isNotNull()
 
         fakeImageReader.close()
