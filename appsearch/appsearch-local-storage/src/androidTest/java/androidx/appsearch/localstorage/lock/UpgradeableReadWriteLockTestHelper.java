@@ -16,7 +16,7 @@
 
 package androidx.appsearch.localstorage.lock;
 
-import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.os.SystemClock;
 
@@ -24,19 +24,30 @@ import org.jspecify.annotations.NonNull;
 
 /** Shared synchronization utilities for {@link UpgradeableReadWriteLock} tests. */
 class UpgradeableReadWriteLockTestHelper {
+    private static final long WAIT_TIMEOUT_MILLIS = 10_000;
+
     private UpgradeableReadWriteLockTestHelper() {}
 
     /**
-     * Waits until the given thread is blocked or waiting (i.e. WAITING, TIMED_WAITING, or BLOCKED),
-     * ensuring deterministic multi-threaded test execution without arbitrary sleep delays.
+     * Waits until the given thread is queued waiting to acquire one of the internal locks of the
+     * given {@link UpgradeableReadWriteLock}.
+     *
+     * <p>This uses {@link UpgradeableReadWriteLock#hasQueuedThread(Thread)} as the synchronization
+     * barrier, which checks the lock's wait queue directly instead of {@link Thread#getState()}.
+     * Unlike a thread state check, it does not return early when the thread is waiting on an
+     * unrelated synchronizer (e.g. a latch), and it is not affected by how the runtime maps
+     * internal thread states.
      */
-    static void waitUntilThreadBlocks(@NonNull Thread thread) {
-        long deadline = SystemClock.elapsedRealtime() + 2000;
-        while (thread.getState() == Thread.State.RUNNABLE
-                && SystemClock.elapsedRealtime() < deadline) {
+    static void waitUntilThreadQueued(
+            @NonNull UpgradeableReadWriteLock lock, @NonNull Thread thread) {
+        long deadline = SystemClock.elapsedRealtime() + WAIT_TIMEOUT_MILLIS;
+        while (!lock.hasQueuedThread(thread) && SystemClock.elapsedRealtime() < deadline) {
             Thread.yield();
         }
-        assertThat(thread.getState())
-                .isAnyOf(Thread.State.WAITING, Thread.State.TIMED_WAITING, Thread.State.BLOCKED);
+        assertWithMessage(
+                        "Thread %s (state=%s) is not queued on the lock",
+                        thread.getName(), thread.getState())
+                .that(lock.hasQueuedThread(thread))
+                .isTrue();
     }
 }

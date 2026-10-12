@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.lock;
 
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import org.jspecify.annotations.NonNull;
 
@@ -130,6 +131,21 @@ public class UpgradeableReadWriteLock {
      */
     public @NonNull UpgradeLock upgradeLock() {
         return mUpgradeLock;
+    }
+
+    /**
+     * Returns whether the given thread is queued waiting to acquire any of the internal locks
+     * backing this {@link UpgradeableReadWriteLock} (the read/write lock or the upgrade mutex).
+     *
+     * <p>This method is designed for testing purposes only, to deterministically wait until a
+     * thread is blocked on this lock instead of relying on {@link Thread#getState()}.
+     *
+     * @param thread the thread to check.
+     * @return {@code true} if the given thread is queued waiting for this lock.
+     */
+    @VisibleForTesting
+    boolean hasQueuedThread(@NonNull Thread thread) {
+        return mRwLock.hasQueuedThread(thread) || mUpgradeMutex.hasQueuedThread(thread);
     }
 
     /**
