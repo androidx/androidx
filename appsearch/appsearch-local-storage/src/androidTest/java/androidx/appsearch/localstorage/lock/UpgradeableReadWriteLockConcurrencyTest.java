@@ -16,7 +16,7 @@
 
 package androidx.appsearch.localstorage.lock;
 
-import static androidx.appsearch.localstorage.lock.UpgradeableReadWriteLockTestHelper.waitUntilThreadBlocks;
+import static androidx.appsearch.localstorage.lock.UpgradeableReadWriteLockTestHelper.waitUntilThreadQueued;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -118,7 +118,7 @@ public class UpgradeableReadWriteLockConcurrencyTest {
         thread2UpgradeStarted.countDown();
 
         // Wait until Thread 2 blocks waiting for Thread 1 and Thread 3 to release their read locks.
-        waitUntilThreadBlocks(thread2);
+        waitUntilThreadQueued(mLock, thread2);
 
         // Step 2: Thread 4 attempts to acquire a write lock while upgrade is pending.
         // Must fail because upgrade lock is held.
@@ -224,7 +224,7 @@ public class UpgradeableReadWriteLockConcurrencyTest {
         externalWriterThread.start();
 
         // Wait until external writer is blocked.
-        waitUntilThreadBlocks(externalWriterThread);
+        waitUntilThreadQueued(mLock, externalWriterThread);
         externalWriterBlockedLatch.countDown();
 
         // Wait until upgrader finishes upgrade and writes "upgraded_write".
