@@ -19,6 +19,7 @@ package androidx.webkit;
 import android.os.Bundle;
 import android.webkit.WebView;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.ApiFeature;
@@ -216,6 +217,30 @@ public final class Navigation {
         if (feature.isSupportedByWebView()) {
             if (mNavigationImpl.getWebResourceError() == null) return null;
             return new WebResourceErrorImpl(mNavigationImpl.getWebResourceError());
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Takes a snapshot of the navigation's state. This allows you to hold a consistent
+     * representation of the navigation at a certain point in time, as the Navigation object gets
+     * updated as the navigation progresses.
+     *
+     * @return The immutable {@link NavigationState} object.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#NAVIGATION_LISTENER_NAVIGATION_STATE} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     */
+    @AnyThread
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public @NonNull NavigationState snapshotState() {
+        ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.NAVIGATION_LISTENER_NAVIGATION_STATE;
+        if (feature.isSupportedByWebView()) {
+            return NavigationState.forInvocationHandler(mNavigationImpl.snapshotState());
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
