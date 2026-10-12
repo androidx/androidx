@@ -30,7 +30,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":compose:ui:ui-tooling"))
+    implementation("androidx.compose.ui:ui-tooling:1.13.0-alpha02")
+    implementation(project(":compose:remote:remote-tooling-preview"))
 
     compileOnly(project(":annotation:annotation-sampled"))
 
