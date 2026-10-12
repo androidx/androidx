@@ -54,6 +54,7 @@ class StyleLayoutTest {
     @get:Rule val rule = createComposeRule()
 
     @Test
+    @Suppress("DEPRECATION")
     fun testPadding() {
         rule
             .onParentWith(parent = { contentPadding(10.dp) }, child = { size(10.dp) })
@@ -68,6 +69,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testPaddingValues() {
         rule
             .onParentWith(
@@ -83,6 +85,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testExternalPaddingValues() {
         rule
             .onParentWith(
@@ -109,11 +112,13 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testSize() {
         rule.onLeafWith { size(100.dp) }.assertWidthIsEqualTo(100.dp).assertHeightIsEqualTo(100.dp)
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testSizeWithWidthAndHeight() {
         rule
             .onLeafWith { size(width = 100.dp, height = 50.dp) }
@@ -127,6 +132,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testMaxWidth_limitedByParent() {
         rule
             .onChildWith(
@@ -140,6 +146,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testMaxWidth_limitedByStyle() {
         rule
             .onLeafWith {
@@ -150,6 +157,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testFractionalWidth_withStyleMaxWidth() {
         rule
             .onChildWith(
@@ -168,6 +176,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testMaxHeight_limitedByParent() {
         rule
             .onChildWith(
@@ -181,6 +190,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testMaxHeight_limitedByStyle() {
         rule
             .onLeafWith {
@@ -191,6 +201,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testFractionalHeight_withStyleMaxHeight() {
         rule
             .onChildWith(
@@ -204,6 +215,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testFillWidth() {
         rule
             .onChildWith(parent = { size(100.dp) }, child = { fillWidth() })
@@ -211,6 +223,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testFillHeight() {
         rule
             .onChildWith(parent = { size(100.dp) }, child = { fillHeight() })
@@ -218,6 +231,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testFillSize() {
         rule
             .onChildWith(parent = { size(100.dp) }, child = { fillSize() })
@@ -226,6 +240,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testFractionalWidth() {
         rule
             .onChildWith(parent = { size(100.dp) }, child = { width(0.5f) })
@@ -233,6 +248,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testFractionalHeight() {
         rule
             .onChildWith(parent = { size(100.dp) }, child = { height(0.5f) })
@@ -240,6 +256,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testPadding_individual_sides() {
         rule
             .onParentWith(
@@ -256,6 +273,7 @@ class StyleLayoutTest {
     }
 
     @Test // 483067194
+    @Suppress("DEPRECATION")
     fun test_border_width_as_additional_padding() {
         rule
             .onParentWith(
@@ -270,6 +288,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testPadding_horizontal_vertical() {
         rule
             .onParentWith(
@@ -303,6 +322,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testBorderSize() {
         rule
             .onLeafWith {
@@ -314,6 +334,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testPadding_all_sides_overload() {
         rule
             .onParentWith(
@@ -325,6 +346,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testOffset_positioning_right_bottom() {
         val childTag = "child"
         rule.setContent {
@@ -353,6 +375,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testText_simple_text() {
         rule.setContent {
             StyledColumn(
@@ -385,6 +408,7 @@ class StyleLayoutTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testAnimationCleanup() {
         val styleState = MutableStyleState(null)
         var animating = false
@@ -416,6 +440,7 @@ class StyleLayoutTest {
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private inline fun StyledColumn(
     modifier: Modifier = Modifier,
     style: Style = Style,
@@ -432,6 +457,7 @@ private inline fun StyledColumn(
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private inline fun StyledBox(
     modifier: Modifier = Modifier,
     style: Style = Style,
@@ -448,10 +474,12 @@ private inline fun StyledBox(
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private fun StyledBox(modifier: Modifier = Modifier, style: Style = Style) {
     Box(modifier = modifier.styleable(null, style))
 }
 
+@Suppress("DEPRECATION")
 private fun ComposeContentTestRule.onLeafWith(style: Style): SemanticsNodeInteraction {
     val tag = "style_layout_test_leaf"
     setContent { StyledBox(Modifier.testTag(tag), style) }
@@ -459,6 +487,7 @@ private fun ComposeContentTestRule.onLeafWith(style: Style): SemanticsNodeIntera
     return onNodeWithTag(tag)
 }
 
+@Suppress("DEPRECATION")
 private fun ComposeContentTestRule.onParentWith(
     parent: Style,
     child: Style,
@@ -473,6 +502,7 @@ private fun ComposeContentTestRule.onParentWith(
     return onNodeWithTag(tag)
 }
 
+@Suppress("DEPRECATION")
 private fun ComposeContentTestRule.onChildWith(
     parent: Style,
     child: Style,

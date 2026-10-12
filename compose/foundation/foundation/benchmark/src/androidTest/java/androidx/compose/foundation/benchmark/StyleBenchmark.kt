@@ -15,10 +15,10 @@
  */
 
 @file:OptIn(ExperimentalFoundationStyleApi::class)
+@file:Suppress("DEPRECATION")
 
 package androidx.compose.foundation.benchmark
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -147,7 +147,6 @@ class StyleBenchmark(val isStyle: Boolean) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 class BasicTextTestCase(@Suppress("unused") val isStyle: Boolean) : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {

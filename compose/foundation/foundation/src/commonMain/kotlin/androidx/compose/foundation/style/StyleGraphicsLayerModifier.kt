@@ -19,7 +19,6 @@ package androidx.compose.foundation.style
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -36,7 +35,7 @@ import androidx.compose.ui.unit.Constraints
 /**
  * A [Modifier.Node] that makes content draw into a draw layer. The draw layer can be invalidated
  * separately from parents. A [graphicsLayer] should be used when the content updates independently
- * from anything above it to minimize the invalidated content.
+ * of anything above it to minimize the invalidated content.
  *
  * [graphicsLayer] can be used to apply effects to content, such as scaling, rotation, opacity,
  * shadow, and clipping. Prefer this version when you have layer properties backed by a

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.material3.benchmark
 
 import androidx.compose.foundation.clickable
@@ -54,7 +56,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationStyleApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class StyledButtonBenchmark(private val type: StyledButtonType) {
@@ -62,7 +63,7 @@ class StyledButtonBenchmark(private val type: StyledButtonType) {
     companion object {
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
-        fun parameters() = StyledButtonType.values()
+        fun parameters() = StyledButtonType.entries.toTypedArray()
     }
 
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()

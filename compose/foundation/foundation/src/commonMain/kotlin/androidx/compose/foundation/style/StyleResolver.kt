@@ -335,8 +335,8 @@ constructor(
 
     internal fun discardUnneededProperties(current: StyleProperties, previous: StyleProperties) {
         // For values that will eventually be removed, return them to the parent value (or default
-        // if no parent has the value). We cannot just remove them yet as they may be animating and
-        // we need the placeholder for the animation until it finishes.
+        // if no parent has the value). We cannot just remove them yet as they may be animating,
+        // and we need the placeholder for the animation until it finishes.
         resolvedProperties.forEach { (property, value) ->
             if (property !in current) {
                 val newValue = property.defaultValue() ?: return@forEach
@@ -351,8 +351,8 @@ constructor(
         }
 
         // For values that will eventually be removed, return them to the parent value (or default
-        // if no parent has the value). We cannot just remove them yet as they may be animating and
-        // we need the placeholder for the animation until it finishes.
+        // if no parent has the value). We cannot just remove them yet as they may be animating,
+        // and we need the placeholder for the animation until it finishes.
         resolvedLocals.forEach { (property, value) ->
             if (property !in current) {
                 val newValue = resolveLocal(property) ?: property.defaultValue() ?: return@forEach

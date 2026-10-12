@@ -15,6 +15,7 @@
  */
 
 @file:OptIn(ExperimentalMediaQueryApi::class)
+@file:Suppress("DEPRECATION", "unused")
 
 package androidx.compose.ui.samples
 
