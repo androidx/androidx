@@ -19,18 +19,15 @@ package androidx.wear.protolayout.renderer.inflater
 import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.res.Resources
-import android.content.res.XmlResourceParser
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Size
 import android.util.TypedValue
-import android.util.Xml
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import java.nio.ByteBuffer
-import org.xmlpull.v1.XmlPullParser
 
 internal object ConstrainedImageDecoder {
     /**
@@ -39,82 +36,45 @@ internal object ConstrainedImageDecoder {
      */
     const val DEFAULT_DECODE_HARD_LIMIT_PX: Int = 2048
 
-    const val ANDROID_NS: String = "http://schemas.android.com/apk/res/android"
-    const val TAG_VECTOR: String = "vector"
-    const val TAG_ANIMATED_VECTOR: String = "animated-vector"
-    const val ATTR_DRAWABLE: String = "drawable"
-
-    @SuppressLint("ResourceType")
-    private fun <R> Resources.useXmlRootParser(
-        @DrawableRes resId: Int,
-        block: (XmlResourceParser) -> R,
-    ): R =
-        getXml(resId).use { parser ->
-            var type = parser.next()
-            while (type != XmlPullParser.START_TAG && type != XmlPullParser.END_DOCUMENT) {
-                type = parser.next()
-            }
-            if (type != XmlPullParser.START_TAG) {
-                throw IllegalArgumentException("No start tag found in XML resource")
-            }
-            block(parser)
-        }
-
-    @JvmStatic
-    fun verifyVectorDrawableXml(res: Resources, @DrawableRes resId: Int) {
-        val outValue = TypedValue()
-        res.getValue(resId, outValue, /* resolveRefs= */ true)
-        if (
-            outValue.string?.endsWith(".xml") != true ||
-                res.useXmlRootParser(resId) { it.name } != TAG_VECTOR
-        ) {
-            throw IllegalArgumentException(
-                "Only XML <vector> drawables are supported to prevent unbounded memory allocation."
-            )
-        }
+    @RequiresApi(28)
+    private val imageDecoderListener = ImageDecoder.OnHeaderDecodedListener { _, imageInfo, _ ->
+        checkSize(imageInfo.size)
     }
 
+    private fun isColorResource(outValue: TypedValue): Boolean =
+        outValue.type in TypedValue.TYPE_FIRST_COLOR_INT..TypedValue.TYPE_LAST_COLOR_INT
+
     @JvmStatic
+    @JvmOverloads
     @RequiresApi(28)
     @SuppressLint("ResourceType")
-    fun decodeDrawable(res: Resources, @DrawableRes resId: Int): Drawable {
+    fun decodeDrawable(
+        res: Resources,
+        @DrawableRes resId: Int,
+        theme: Resources.Theme? = null,
+    ): Drawable {
         val outValue = TypedValue()
         res.getValue(resId, outValue, /* resolveRefs= */ true)
+        if (isColorResource(outValue)) {
+            return res.getDrawable(resId, theme)
+        }
         if (outValue.string?.endsWith(".xml") == true) {
-            res.useXmlRootParser(resId) { parser ->
-                when (parser.name) {
-                    TAG_VECTOR -> {}
-                    TAG_ANIMATED_VECTOR -> {
-                        val attrs = Xml.asAttributeSet(parser)
-                        val drawableResId =
-                            attrs.getAttributeResourceValue(ANDROID_NS, ATTR_DRAWABLE, 0)
-                        if (drawableResId != 0) {
-                            verifyVectorDrawableXml(res, drawableResId)
-                        }
-                    }
-                    else ->
-                        throw IllegalArgumentException(
-                            "Only vector XML drawables are supported to prevent unbounded memory allocation."
-                        )
-                }
-            }
-            return res.getDrawable(resId, /* theme= */ null)
+            XmlDrawableValidator.verifyDrawableXml(res, resId)
+            return res.getDrawable(resId, theme)
         }
-        return ImageDecoder.decodeDrawable(ImageDecoder.createSource(res, resId)) { _, imageInfo, _
-            ->
-            checkSize(imageInfo.size)
-        }
+        return ImageDecoder.decodeDrawable(
+            ImageDecoder.createSource(res, resId),
+            imageDecoderListener,
+        )
     }
 
     @JvmStatic
     @RequiresApi(28)
     fun decodeDrawable(contentResolver: ContentResolver, uri: Uri): Drawable {
-        return ImageDecoder.decodeDrawable(ImageDecoder.createSource(contentResolver, uri)) {
-            _,
-            imageInfo,
-            _ ->
-            checkSize(imageInfo.size)
-        }
+        return ImageDecoder.decodeDrawable(
+            ImageDecoder.createSource(contentResolver, uri),
+            imageDecoderListener,
+        )
     }
 
     @JvmStatic
@@ -133,16 +93,18 @@ internal object ConstrainedImageDecoder {
         }
     }
 
-    private fun checkSize(imageSize: Size) {
+    internal fun checkSize(imageSize: Size) {
+        checkSize(imageSize.width, imageSize.height)
+    }
+
+    internal fun checkSize(width: Int, height: Int) {
         if (
-            imageSize.width <= 0 ||
-                imageSize.height <= 0 ||
-                imageSize.width > DEFAULT_DECODE_HARD_LIMIT_PX ||
-                imageSize.height > DEFAULT_DECODE_HARD_LIMIT_PX
+            width <= 0 ||
+                height <= 0 ||
+                width > DEFAULT_DECODE_HARD_LIMIT_PX ||
+                height > DEFAULT_DECODE_HARD_LIMIT_PX
         ) {
-            throw IllegalArgumentException(
-                "Image is too large (${imageSize.width}x${imageSize.height})."
-            )
+            throw IllegalArgumentException("Image is too large (${width}x${height}).")
         }
     }
 }
