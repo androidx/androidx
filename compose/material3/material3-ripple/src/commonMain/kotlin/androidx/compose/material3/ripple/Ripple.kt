@@ -138,7 +138,8 @@ internal abstract class RippleNode(
 
     private val animatedFocusRingInterpolation = Animatable(0f)
 
-    private var focusedBorderLogic: BorderLogicLayerDelegate? = null
+    private var innerFocusedBorderLogic: BorderLogicLayerDelegate? = null
+    private var outerFocusedBorderLogic: BorderLogicLayerDelegate? = null
 
     private var _rippleNodeConfiguration: RippleNodeConfiguration? = null
 
@@ -353,8 +354,10 @@ internal abstract class RippleNode(
     }
 
     override fun onDetach() {
-        focusedBorderLogic?.release()
-        focusedBorderLogic = null
+        innerFocusedBorderLogic?.release()
+        innerFocusedBorderLogic = null
+        outerFocusedBorderLogic?.release()
+        outerFocusedBorderLogic = null
         _rippleNodeConfiguration = null
         hasValidSize = false
         rippleSize = Size.Zero
@@ -391,7 +394,6 @@ internal abstract class RippleNode(
         }
 
         if (animatedFocusRingInterpolation.value > 0f) {
-            focusedBorderLogic = focusedBorderLogic ?: BorderLogicLayerDelegate()
             val config = resolveRippleNodeConfiguration()
             val insetRing =
                 config.focusConfiguration as? RippleNodeConfiguration.FocusConfiguration.InsetRing
@@ -403,14 +405,20 @@ internal abstract class RippleNode(
                     layoutDirection = layoutDirection,
                     density = this,
                 )
-            focusedBorderLogic!!.drawBorder(
+            val innerBorderLogic =
+                innerFocusedBorderLogic
+                    ?: BorderLogicLayerDelegate().also { innerFocusedBorderLogic = it }
+            val outerBorderLogic =
+                outerFocusedBorderLogic
+                    ?: BorderLogicLayerDelegate().also { outerFocusedBorderLogic = it }
+            innerBorderLogic.drawBorder(
                 drawScope = this,
                 width = { insetRing.innerStrokeWidth * animatedFocusRingInterpolation.value },
                 inset = { insetRing.innerStrokeInset * animatedFocusRingInterpolation.value },
                 brush = SolidColor(insetRing.innerStrokeColor()),
                 outline = outline,
             )
-            focusedBorderLogic!!.drawBorder(
+            outerBorderLogic.drawBorder(
                 drawScope = this,
                 width = { insetRing.outerStrokeWidth * animatedFocusRingInterpolation.value },
                 inset = { insetRing.outerStrokeInset * animatedFocusRingInterpolation.value },
@@ -451,7 +459,10 @@ internal abstract class RippleNode(
         fun obtainGraphicsLayer(): GraphicsLayer = requireGraphicsContext().createGraphicsLayer()
 
         fun release() {
-            layer?.let { requireGraphicsContext().releaseGraphicsLayer(it) }
+            layer?.let {
+                requireGraphicsContext().releaseGraphicsLayer(it)
+                layer = null
+            }
         }
     }
 }
