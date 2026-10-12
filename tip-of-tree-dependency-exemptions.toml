@@ -174,26 +174,26 @@ reason = "b/TODO - <reason>"
 [[tipOfTreeExemptions]]
 library = ":glance:wear:wear"
 dependsOn = ":compose:remote:remote-creation"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.0.0"
+reason = "b/567567898 - released together by the same team with Remote Compose as libraries are intentionally using unreleased APIs."
 
 [[tipOfTreeExemptions]]
 library = ":glance:wear:wear"
 dependsOn = ":compose:remote:remote-creation-compose"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.0.0"
+reason = "b/567567898 - released together by the same team with Remote Compose as libraries are intentionally using unreleased APIs."
 
 [[tipOfTreeExemptions]]
 library = ":glance:wear:wear-tooling-preview"
 dependsOn = ":compose:remote:remote-player-core"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.0.0"
+reason = "b/567567898 - released together by the same team with Remote Compose as libraries are intentionally using unreleased APIs."
 
 [[tipOfTreeExemptions]]
 library = ":glance:wear:wear-tooling-preview"
 dependsOn = ":compose:remote:remote-tooling-preview"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.0.0"
+reason = "b/567567898 - released together by the same team with Remote Compose as libraries are intentionally using unreleased APIs."
 
 [[tipOfTreeExemptions]]
 library = ":hilt:hilt-navigation"
@@ -312,92 +312,92 @@ reason = "b/TODO - <reason>"
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles"
 dependsOn = ":wear:protolayout:protolayout"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles"
 dependsOn = ":wear:protolayout:protolayout-expression"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles"
 dependsOn = ":wear:protolayout:protolayout-material3"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles-material"
 dependsOn = ":wear:protolayout:protolayout-expression"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles-proto"
 dependsOn = ":wear:protolayout:protolayout-proto"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles-renderer"
 dependsOn = ":wear:protolayout:protolayout"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles-renderer"
 dependsOn = ":wear:protolayout:protolayout-expression"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles-renderer"
 dependsOn = ":wear:protolayout:protolayout-expression-pipeline"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles-renderer"
 dependsOn = ":wear:protolayout:protolayout-renderer"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles-testing"
 dependsOn = ":wear:protolayout:protolayout"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles-tooling"
 dependsOn = ":wear:protolayout:protolayout"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles-tooling"
 dependsOn = ":wear:protolayout:protolayout-expression"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles-tooling"
 dependsOn = ":wear:protolayout:protolayout-expression-pipeline"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles-tooling-preview"
 dependsOn = ":wear:protolayout:protolayout"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:tiles:tiles-tooling-preview"
 dependsOn = ":wear:protolayout:protolayout-expression"
-validThroughLibraryVersion = "1.7.0-beta01"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.7.0"
+reason = "b/567526586 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":wear:wear-input-testing"
