@@ -1256,6 +1256,7 @@ includeProject(":wear:watchfacepush:watchfacepush", [BuildType.MAIN, BuildType.W
 includeProject(":web:web", [BuildType.MAIN])
 includeProject(":web:web-compose", [BuildType.COMPOSE])
 includeProject(":web:integration-tests:testapp", [BuildType.COMPOSE])
+includeProject(":web:integration-tests:macrobenchmark", [BuildType.COMPOSE])
 includeProject(":webgpu:webgpu", [BuildType.MAIN])
 includeProject(":webkit:integration-tests:instrumentation", [BuildType.MAIN])
 includeProject(":webkit:integration-tests:common", [BuildType.MAIN])
