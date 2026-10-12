@@ -25,9 +25,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.TextTransform
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.ADD
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_DEREF
+import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_LEN
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.MUL
+import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.SUB
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
+import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
@@ -117,6 +121,46 @@ class RcPlayerDerivedDataTest {
 
         assertBarWidth(play(document), 20)
         assertBarWidth(update(value, 5f), 50)
+    }
+
+    @Test
+    fun floatListCollectionSurvivesPlayerContextInitialization() {
+        val document = buildDocument {
+            root {
+                canvas(RecordingModifier().fillMaxSize()) {
+                    val list = writer.addFloatArray(floatArrayOf(10f, 20f, 30f, 40f))
+                    val len = writer.floatExpression(list, A_LEN)
+                    val last = writer.floatExpression(list, len, 1f, SUB, A_DEREF)
+                    bar(last)
+                }
+            }
+        }
+
+        assertBarWidth(play(document), 40)
+    }
+
+    @Test
+    fun sequentialLoopsSharingIndexVariableDoNotEvaluateOutOfBounds() {
+        val document = buildDocument {
+            val list = writer.addFloatArray(floatArrayOf(10f, 20f, 30f, 40f))
+            val len = writer.floatExpression(list, A_LEN)
+            val loopIndexNan = writer.reserveFloatVariable()
+            val loopIndexId = Utils.idFromNan(loopIndexNan)
+            // First loop runs i = 0..3, leaving loopIndexId = 3f at loop completion.
+            writer.loop(loopIndexId, 0f, 1f, len) {
+                val v = writer.floatExpression(list, loopIndexNan, A_DEREF)
+                bar(v)
+            }
+            // Second loop runs i = 0..2 and indexes list[i + 1]; must not evaluate its body
+            // with the stale loopIndexId = 3f before resetting loopIndexId to 0f.
+            val lenMinusOne = writer.floatExpression(len, 1f, SUB)
+            writer.loop(loopIndexId, 0f, 1f, lenMinusOne) {
+                val next = writer.floatExpression(list, loopIndexNan, 1f, ADD, A_DEREF)
+                bar(next)
+            }
+        }
+
+        assertBarWidth(play(document), 40)
     }
 
     private fun play(document: CoreDocument): Bitmap {
