@@ -69,74 +69,35 @@ class ConstrainedImageDecoderTest {
 
     @Test
     @Suppress("DEPRECATION")
-    fun decodeDrawable_xmlWrappedBitmapDrawable_throws() {
+    fun decodeDrawable_colorResource_loadsSuccessfully() {
         val testResources =
             object :
                 Resources(resources.assets, resources.displayMetrics, resources.configuration) {
                 override fun getValue(id: Int, outValue: TypedValue, resolveRefs: Boolean) {
-                    outValue.string = "res/drawable/wrapped_bitmap.xml"
+                    outValue.type = TypedValue.TYPE_INT_COLOR_ARGB8
+                    outValue.data = 0xFF000000.toInt()
+                    outValue.string = null
                 }
 
-                override fun getXml(id: Int): XmlResourceParser =
-                    CustomTagXmlResourceParser(super.getXml(R.drawable.android_24dp), "bitmap")
+                override fun getDrawable(
+                    id: Int,
+                    theme: Theme?,
+                ): android.graphics.drawable.Drawable =
+                    android.graphics.drawable.ColorDrawable(0xFF000000.toInt())
             }
 
-        assertFailsWith<IllegalArgumentException> {
-            ConstrainedImageDecoder.decodeDrawable(testResources, 1)
-        }
+        val drawable = ConstrainedImageDecoder.decodeDrawable(testResources, 1)
+        assertThat(drawable).isInstanceOf(android.graphics.drawable.ColorDrawable::class.java)
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun decodeDrawable_xmlWrappedNinePatchDrawable_throws() {
+    fun decodeDrawable_xmlWrappedBitmapDrawableWithLargeRaster_throws() {
         val testResources =
-            object :
-                Resources(resources.assets, resources.displayMetrics, resources.configuration) {
-                override fun getValue(id: Int, outValue: TypedValue, resolveRefs: Boolean) {
-                    outValue.string = "res/drawable/wrapped_ninepatch.xml"
-                }
-
-                override fun getXml(id: Int): XmlResourceParser =
-                    CustomTagXmlResourceParser(super.getXml(R.drawable.android_24dp), "nine-patch")
-            }
-
-        assertFailsWith<IllegalArgumentException> {
-            ConstrainedImageDecoder.decodeDrawable(testResources, 1)
-        }
-    }
-
-    @Test
-    @Suppress("DEPRECATION")
-    fun decodeDrawable_xmlLayerListDrawable_throws() {
-        val testResources =
-            object :
-                Resources(resources.assets, resources.displayMetrics, resources.configuration) {
-                override fun getValue(id: Int, outValue: TypedValue, resolveRefs: Boolean) {
-                    outValue.string = "res/drawable/malicious_layer_list.xml"
-                }
-
-                override fun getXml(id: Int): XmlResourceParser =
-                    CustomTagXmlResourceParser(super.getXml(R.drawable.android_24dp), "layer-list")
-            }
-
-        assertFailsWith<IllegalArgumentException> {
-            ConstrainedImageDecoder.decodeDrawable(testResources, 1)
-        }
-    }
-
-    @Test
-    @Suppress("DEPRECATION")
-    fun decodeDrawable_animatedVectorWithNonVectorChild_throws() {
-        val testResources =
-            object :
-                Resources(resources.assets, resources.displayMetrics, resources.configuration) {
-                override fun getXml(id: Int): XmlResourceParser =
-                    if (id == R.drawable.android_head_24dp) {
-                        CustomTagXmlResourceParser(super.getXml(id), "layer-list")
-                    } else {
-                        super.getXml(id)
-                    }
-            }
+            createTestResources(
+                xmlResId = R.drawable.android_animated_24dp,
+                customXmlRootTag = "bitmap",
+                childDrawableReplacementResId = R.drawable.test2049x2049,
+            )
 
         assertFailsWith<IllegalArgumentException> {
             ConstrainedImageDecoder.decodeDrawable(testResources, R.drawable.android_animated_24dp)
@@ -144,25 +105,92 @@ class ConstrainedImageDecoderTest {
     }
 
     @Test
+    fun decodeDrawable_xmlWrappedNinePatchDrawableWithLargeRaster_throws() {
+        val testResources =
+            createTestResources(
+                xmlResId = R.drawable.android_animated_24dp,
+                customXmlRootTag = "nine-patch",
+                childDrawableReplacementResId = R.drawable.test2049x2049,
+            )
+
+        assertFailsWith<IllegalArgumentException> {
+            ConstrainedImageDecoder.decodeDrawable(testResources, R.drawable.android_animated_24dp)
+        }
+    }
+
+    @Test
+    fun decodeDrawable_xmlShapeDrawable_loadsSuccessfully() {
+        val testResources =
+            createTestResources(xmlResId = R.drawable.android_24dp, customXmlRootTag = "shape")
+
+        val drawable =
+            ConstrainedImageDecoder.decodeDrawable(testResources, R.drawable.android_24dp)
+        assertThat(drawable).isNotNull()
+    }
+
+    @Test
     @Suppress("DEPRECATION")
+    fun verifyDrawableXml_repeatedCalls_usesCachedPixelCostWithoutReopeningXml() {
+        var xmlOpenCount = 0
+        val testResources =
+            object :
+                Resources(resources.assets, resources.displayMetrics, resources.configuration) {
+                override fun getXml(id: Int): XmlResourceParser {
+                    xmlOpenCount++
+                    return super.getXml(id)
+                }
+            }
+
+        XmlDrawableValidator.verifyDrawableXml(testResources, R.drawable.android_24dp)
+        assertThat(xmlOpenCount).isEqualTo(1)
+
+        XmlDrawableValidator.verifyDrawableXml(testResources, R.drawable.android_24dp)
+        assertThat(xmlOpenCount).isEqualTo(1)
+    }
+
+    @Test
+    fun decodeDrawable_xmlLayerListWithSmallRasterChild_loadsSuccessfully() {
+        val testResources =
+            createTestResources(
+                xmlResId = R.drawable.android_animated_24dp,
+                customXmlRootTag = "layer-list",
+                childDrawableReplacementResId = R.drawable.filled_image,
+            )
+
+        XmlDrawableValidator.verifyDrawableXml(testResources, R.drawable.android_animated_24dp)
+    }
+
+    @Test
+    fun decodeDrawable_xmlLayerListWithRasterChild_throws() {
+        val testResources =
+            createTestResources(
+                xmlResId = R.drawable.android_animated_24dp,
+                customXmlRootTag = "layer-list",
+                childDrawableReplacementResId = R.drawable.test2049x2049,
+            )
+
+        assertFailsWith<IllegalArgumentException> {
+            ConstrainedImageDecoder.decodeDrawable(testResources, R.drawable.android_animated_24dp)
+        }
+    }
+
+    @Test
+    fun decodeDrawable_animatedVectorWithBitmapChild_throws() {
+        val testResources =
+            createTestResources(
+                xmlResId = R.drawable.android_head_24dp,
+                customXmlRootTag = "bitmap",
+            )
+
+        assertFailsWith<IllegalArgumentException> {
+            ConstrainedImageDecoder.decodeDrawable(testResources, R.drawable.android_animated_24dp)
+        }
+    }
+
+    @Test
     fun decodeDrawable_animatedVectorWithRasterChild_throws() {
         val testResources =
-            object :
-                Resources(resources.assets, resources.displayMetrics, resources.configuration) {
-                override fun getValue(id: Int, outValue: TypedValue, resolveRefs: Boolean) {
-                    super.getValue(id, outValue, resolveRefs)
-                    if (id == R.drawable.android_head_24dp) {
-                        outValue.string = "res/drawable/large_image.png"
-                    }
-                }
-
-                override fun getXml(id: Int): XmlResourceParser =
-                    if (id == R.drawable.android_head_24dp) {
-                        throw NotFoundException("Raster PNG cannot be opened as XML")
-                    } else {
-                        super.getXml(id)
-                    }
-            }
+            createTestResources(childDrawableReplacementResId = R.drawable.test2049x2049)
 
         assertFailsWith<IllegalArgumentException> {
             ConstrainedImageDecoder.decodeDrawable(testResources, R.drawable.android_animated_24dp)
@@ -170,18 +198,13 @@ class ConstrainedImageDecoderTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun animatedImageResolver_restrictImageSizeTrue_xmlWrappedBitmap_throws() {
+    fun animatedImageResolver_restrictImageSizeTrue_xmlWrappedBitmapWithLargeRaster_throws() {
         val testResources =
-            object :
-                Resources(resources.assets, resources.displayMetrics, resources.configuration) {
-                override fun getValue(id: Int, outValue: TypedValue, resolveRefs: Boolean) {
-                    outValue.string = "res/drawable/wrapped_bitmap.xml"
-                }
-
-                override fun getXml(id: Int): XmlResourceParser =
-                    CustomTagXmlResourceParser(super.getXml(R.drawable.android_24dp), "bitmap")
-            }
+            createTestResources(
+                xmlResId = R.drawable.android_animated_24dp,
+                customXmlRootTag = "bitmap",
+                childDrawableReplacementResId = R.drawable.test2049x2049,
+            )
         val resolver =
             DefaultAndroidAnimatedImageResourceByResIdResolver(
                 testResources,
@@ -190,7 +213,7 @@ class ConstrainedImageDecoderTest {
         val resource =
             AndroidAnimatedImageResourceByResId.newBuilder()
                 .setAnimatedImageFormat(AnimatedImageFormat.ANIMATED_IMAGE_FORMAT_AVD)
-                .setResourceId(1)
+                .setResourceId(R.drawable.android_animated_24dp)
                 .build()
 
         assertFailsWith<IllegalArgumentException> { resolver.getDrawableOrThrow(resource) }
@@ -214,18 +237,12 @@ class ConstrainedImageDecoderTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun seekableAnimatedImageResolver_restrictImageSizeTrue_xmlWrappedBitmap_throws() {
         val testResources =
-            object :
-                Resources(resources.assets, resources.displayMetrics, resources.configuration) {
-                override fun getXml(id: Int): XmlResourceParser =
-                    if (id == R.drawable.android_head_24dp) {
-                        CustomTagXmlResourceParser(super.getXml(id), "bitmap")
-                    } else {
-                        super.getXml(id)
-                    }
-            }
+            createTestResources(
+                xmlResId = R.drawable.android_head_24dp,
+                customXmlRootTag = "bitmap",
+            )
         val resolver =
             DefaultAndroidSeekableAnimatedImageResourceByResIdResolver(
                 testResources,
@@ -239,6 +256,55 @@ class ConstrainedImageDecoderTest {
 
         assertFailsWith<IllegalArgumentException> { resolver.getDrawableOrThrow(resource) }
     }
+
+    @Test
+    fun seekableAnimatedImageResolver_restrictImageSizeTrue_animatedVectorWithRasterChild_throws() {
+        val testResources =
+            createTestResources(childDrawableReplacementResId = R.drawable.test2049x2049)
+        val resolver =
+            DefaultAndroidSeekableAnimatedImageResourceByResIdResolver(
+                testResources,
+                /* restrictImageSize= */ true,
+            )
+        val resource =
+            AndroidSeekableAnimatedImageResourceByResId.newBuilder()
+                .setAnimatedImageFormat(AnimatedImageFormat.ANIMATED_IMAGE_FORMAT_AVD)
+                .setResourceId(R.drawable.android_animated_24dp)
+                .build()
+
+        assertFailsWith<IllegalArgumentException> { resolver.getDrawableOrThrow(resource) }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun createTestResources(
+        @DrawableRes xmlResId: Int = 0,
+        customXmlRootTag: String? = null,
+        @DrawableRes childDrawableReplacementResId: Int = 0,
+    ): Resources =
+        object : Resources(resources.assets, resources.displayMetrics, resources.configuration) {
+            private fun resolveId(id: Int): Int =
+                if (childDrawableReplacementResId != 0 && id == R.drawable.android_head_24dp) {
+                    childDrawableReplacementResId
+                } else {
+                    id
+                }
+
+            override fun getValue(id: Int, outValue: TypedValue, resolveRefs: Boolean) {
+                super.getValue(resolveId(id), outValue, resolveRefs)
+            }
+
+            override fun openRawResource(id: Int, value: TypedValue): java.io.InputStream =
+                super.openRawResource(resolveId(id), value)
+
+            override fun getXml(id: Int): XmlResourceParser {
+                val resolvedId = resolveId(id)
+                return if (customXmlRootTag != null && resolvedId == xmlResId) {
+                    CustomTagXmlResourceParser(super.getXml(resolvedId), customXmlRootTag)
+                } else {
+                    super.getXml(resolvedId)
+                }
+            }
+        }
 
     private class CustomTagXmlResourceParser(
         private val delegate: XmlResourceParser,
