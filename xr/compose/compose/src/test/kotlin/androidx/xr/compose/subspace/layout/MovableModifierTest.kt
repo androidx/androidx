@@ -37,6 +37,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import androidx.xr.arcore.runtime.Plane
 import androidx.xr.arcore.runtime.TrackingState
+import androidx.xr.compose.spatial.LocalSubspaceRootNode
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi
 import androidx.xr.compose.subspace.SpatialGltfModel
@@ -62,6 +63,7 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.math.assertPose
+import androidx.xr.scenecore.ActivitySpace
 import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.Space
@@ -1267,6 +1269,207 @@ class MovableModifierTest {
         assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMoveAnchorPolicy::class)
+    @Test
+    fun policyAnchorToSystem_restoresParentAndResetsPose() =
+        runTest(testDispatcher) {
+            val anchorTestSession = setupAnchorTestSession()
+            var useSystem by mutableStateOf(false)
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialRow(modifier = SubspaceModifier.testTag("row")) {
+                        SpatialPanel(
+                            modifier =
+                                SubspaceModifier.testTag("panel")
+                                    .size(200.dp)
+                                    .movable(
+                                        enabled = true,
+                                        movePolicy =
+                                            if (useSystem) {
+                                                MovePolicy.system()
+                                            } else {
+                                                MovePolicy.anchor(
+                                                    anchorPlaneSemantics = setOf(PlaneSemantic.Any),
+                                                    anchorPlaneOrientations =
+                                                        setOf(PlaneOrientation.Any),
+                                                )
+                                            },
+                                    )
+                        ) {
+                            Text(text = "Spatial Panel")
+                        }
+                    }
+                }
+            }
+
+            val entity =
+                assertNotNull(
+                    composeTestRule
+                        .onSubspaceNodeWithTag("panel")
+                        .fetchSemanticsNode()
+                        .semanticsEntity
+                )
+            val originalParent = entity.parent
+
+            addFloorPlaneToRuntime(
+                anchorTestSession.perceptionRuntime,
+                anchorTestSession.perceptionManager,
+            )
+
+            assertSingleMovableComponentExist()
+            val rtMovableComponent =
+                assertNotNull(anchorTestSession.sceneRuntime.lastMovableComponent)
+            val movePose = Pose(Vector3(2f, 0.01f, 3f), Quaternion.fromEulerAngles(20f, 30f, 45f))
+            initiateMoveEvents(rtMovableComponent, anchorTestSession.activitySpace, movePose)
+
+            assertIs<AnchorSpace>(entity.parent)
+            assertThat(entity.getPose(Space.ACTIVITY)).isNotEqualTo(Pose.Identity)
+
+            useSystem = true
+            composeTestRule.waitForIdle()
+
+            assertThat(entity.parent).isNotInstanceOf(AnchorSpace::class.java)
+            assertThat(entity.parent).isEqualTo(originalParent)
+            assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMoveAnchorPolicy::class)
+    @Test
+    fun policyAnchor_whenModifierRemoved_restoresParent() =
+        runTest(testDispatcher) {
+            val anchorTestSession = setupAnchorTestSession()
+            var isMovable by mutableStateOf(true)
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialRow(modifier = SubspaceModifier.testTag("row")) {
+                        SpatialPanel(
+                            modifier =
+                                if (isMovable) {
+                                    SubspaceModifier.testTag("panel")
+                                        .size(200.dp)
+                                        .movable(
+                                            enabled = true,
+                                            movePolicy =
+                                                MovePolicy.anchor(
+                                                    anchorPlaneSemantics = setOf(PlaneSemantic.Any),
+                                                    anchorPlaneOrientations =
+                                                        setOf(PlaneOrientation.Any),
+                                                ),
+                                        )
+                                } else {
+                                    SubspaceModifier.testTag("panel").size(200.dp)
+                                }
+                        ) {
+                            Text(text = "Spatial Panel")
+                        }
+                    }
+                }
+            }
+
+            val entity =
+                assertNotNull(
+                    composeTestRule
+                        .onSubspaceNodeWithTag("panel")
+                        .fetchSemanticsNode()
+                        .semanticsEntity
+                )
+            val originalParent = entity.parent
+
+            addFloorPlaneToRuntime(
+                anchorTestSession.perceptionRuntime,
+                anchorTestSession.perceptionManager,
+            )
+
+            assertSingleMovableComponentExist()
+            val rtMovableComponent =
+                assertNotNull(anchorTestSession.sceneRuntime.lastMovableComponent)
+            val movePose = Pose(Vector3(2f, 0.01f, 3f), Quaternion.fromEulerAngles(20f, 30f, 45f))
+            initiateMoveEvents(rtMovableComponent, anchorTestSession.activitySpace, movePose)
+
+            assertIs<AnchorSpace>(entity.parent)
+
+            isMovable = false
+            composeTestRule.waitForIdle()
+
+            assertThat(entity.parent).isNotInstanceOf(AnchorSpace::class.java)
+            assertThat(entity.parent).isEqualTo(originalParent)
+        }
+
+    @OptIn(
+        ExperimentalCoroutinesApi::class,
+        ExperimentalMoveAnchorPolicy::class,
+        ExperimentalSpatialGltfModelApi::class,
+    )
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    @Test
+    fun policyAnchor_onSpatialGltfModel_maintainsScaleWhenAnchoredAndUnanchored() =
+        runTest(testDispatcher) {
+            val anchorTestSession = setupAnchorTestSession()
+
+            composeTestRule.setContent {
+                anchorTestSession.session.scene.keyEntity = LocalSubspaceRootNode.current
+                anchorTestSession.session.scene.keyEntity?.setScale(2f)
+                Subspace {
+                    SpatialGltfModel(
+                        state =
+                            rememberSpatialGltfModelState(
+                                source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                            ),
+                        modifier =
+                            SubspaceModifier.testTag("model")
+                                .size(400.dp)
+                                .movable(
+                                    enabled = true,
+                                    movePolicy =
+                                        MovePolicy.anchor(
+                                            anchorPlaneSemantics = setOf(PlaneSemantic.Any),
+                                            anchorPlaneOrientations = setOf(PlaneOrientation.Any),
+                                        ),
+                                ),
+                    )
+                }
+            }
+
+            val entity =
+                assertNotNull(
+                    composeTestRule
+                        .onSubspaceNodeWithTag("model")
+                        .fetchSemanticsNode()
+                        .semanticsEntity
+                )
+            val keyRtEntity = assertNotNull(anchorTestSession.sceneRuntime.keyEntity)
+            // Intrinsic model size is 2000x2000x2000px, so at 400.dp the uniform fit scale is 0.2f.
+            assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
+
+            addFloorPlaneToRuntime(
+                anchorTestSession.perceptionRuntime,
+                anchorTestSession.perceptionManager,
+            )
+
+            assertSingleMovableComponentExist("model")
+            val rtMovableComponent =
+                assertNotNull(anchorTestSession.sceneRuntime.lastMovableComponent)
+            val movePose = Pose(Vector3(1f, 0.01f, 1f), Quaternion.fromEulerAngles(20f, 30f, 45f))
+            initiateMoveEvents(rtMovableComponent, keyRtEntity, movePose)
+            composeTestRule.waitForIdle()
+
+            // When anchored from the Subspace (scaled by 2f via keyEntity) to AnchorSpace (scale
+            // 1f), the relative scale (0.2f * 2f = 0.4f) is preserved via scaleFromAnchoring.
+            assertIs<AnchorSpace>(entity.parent)
+            assertThat(entity.getScale()).isWithin(0.001f).of(0.4f)
+
+            // Moving away from the plane unanchors the entity and exercises the non-null
+            // scaleFromAnchoring path while maintaining the scale because the parent is the
+            // unscaled activity space.
+            val unanchorPose = Pose(Vector3(10f, 10f, 10f))
+            initiateMoveEvents(rtMovableComponent, anchorTestSession.activitySpace, unanchorPose)
+            composeTestRule.waitForIdle()
+            assertThat(entity.parent).isInstanceOf(ActivitySpace::class.java)
+            assertThat(entity.getScale()).isWithin(0.001f).of(0.4f)
+        }
+
     // ========================================================================
     // HELPER FUNCTIONS
     // ========================================================================
@@ -1342,7 +1545,7 @@ class MovableModifierTest {
 
     private fun initiateMoveEvents(
         rtMovableComponent: FakeMovableComponent,
-        activitySpace: FakeActivitySpace,
+        initialParent: androidx.xr.scenecore.runtime.Entity,
         movePose: Pose,
         moveScale: Vector3 = Vector3(1f, 1f, 1f),
     ) {
@@ -1355,7 +1558,7 @@ class MovableModifierTest {
                 movePose,
                 Vector3(1f, 1f, 1f),
                 moveScale,
-                activitySpace,
+                initialParent,
                 updatedParent = null,
                 disposedEntity = null,
             )
@@ -1370,7 +1573,7 @@ class MovableModifierTest {
                 movePose,
                 Vector3(1f, 1f, 1f),
                 moveScale,
-                activitySpace,
+                initialParent,
                 updatedParent = null,
                 disposedEntity = null,
             )
@@ -1385,7 +1588,7 @@ class MovableModifierTest {
                 movePose,
                 Vector3(1f, 1f, 1f),
                 moveScale,
-                activitySpace,
+                initialParent,
                 updatedParent = null,
                 disposedEntity = null,
             )

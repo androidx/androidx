@@ -261,6 +261,7 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
      * entity has not yet been moved.
      */
     private var scaleFromMovement: Float? = null
+    private var scaleFromAnchoring: Float? = null
 
     /** Pose based on user adjustments from MoveEvents from SceneCore. */
     private var layoutNodeFromDraggedNodePixels: Pose = Pose.Identity
@@ -305,6 +306,12 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
                     }
                 }
         if (policyTypeChanged) {
+            // Calling syncCoreEntityHierarchy will reset the parent of the Node's underlying entity
+            // if it was anchored.
+            if (this.movePolicy is Anchor) {
+                layoutNode?.syncCoreEntityHierarchy()
+                scaleFromAnchoring = null
+            }
             layoutNodeFromDraggedNodePixels = Pose.Identity
             scaleFromMovement = 1f
             invalidatePlacement()
@@ -338,6 +345,11 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
     }
 
     override fun onDetach() {
+        // Calling syncCoreEntityHierarchy will reset the parent of the Node's underlying entity
+        // if it was anchored.
+        if (movePolicy is Anchor) {
+            layoutNode?.syncCoreEntityHierarchy()
+        }
         if (scaleFromMovement != null) {
             coreEntity.scale = 1f
         }
@@ -396,6 +408,7 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
                 }
                 component =
                     MovableComponent.createAnchorable(session, anchorPlacement = anchorPlacement)
+                        .also { it.addMoveListener(MainExecutor, this) }
             }
         }
         coreEntity.onEntityAttached { entity ->
@@ -484,6 +497,7 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
             }
 
             is Anchor -> {
+                layoutNode?.markSystemMoveOngoing(true)
                 policy.onMove?.invoke(event)
             }
         }
@@ -521,6 +535,10 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
                 policy.onMove.invoke(event)
             }
             is Anchor -> {
+                updatePoseOnMoveEvent(
+                    parentFromDraggedNodeMeters = currentPose,
+                    scale = currentScale,
+                )
                 previousPose = currentPose
                 previousScale = currentScale
                 policy.onMove?.invoke(event)
@@ -559,9 +577,27 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
                 policy.onMove.invoke(event)
             }
             is Anchor -> {
+                val entityScale = coreEntity.scale
+                updatePoseOnMoveEvent(
+                    parentFromDraggedNodeMeters = finalPose,
+                    scale = finalScale,
+                )
+                // Since the SpatialModel scale is multiplied by the box factor we mus get the
+                // relative scale to store and apply. For the SpatialModel we use the previous
+                // scale.
+                if (coreEntity is CoreModelEntity) {
+                    scaleFromAnchoring?.let {
+                        scaleFromAnchoring = finalScale / entityScale * it
+                    }
+                        ?: run {
+                            scaleFromAnchoring = finalScale / entityScale
+                        }
+                }
+
                 previousPose = Pose.Identity
                 previousScale = 1.0F
                 policy.onMove?.invoke(event)
+                layoutNode?.markSystemMoveOngoing(false)
             }
         }
     }
@@ -581,17 +617,18 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
         val layoutNodeFromParentPixels = parentFromLayoutNodePixels.inverse
         layoutNodeFromDraggedNodePixels =
             layoutNodeFromParentPixels.compose(parentFromDraggedNodePixels)
-        scaleFromMovement = scale
 
         // If the Entity is a CoreModelEntity a scale is already applied to fit the model within
         // bounds. We need to divide by the applied scale to get the effective scale applied by the
-        // movable component.
-        scaleFromMovement =
-            if (coreEntity is CoreModelEntity) {
-                scale / coreEntity.scale
-            } else {
-                scale
-            }
+        // movable component. If it was anchored we need to apply the scale to account for the
+        // updated parent.
+        if (coreEntity is CoreModelEntity) {
+            var updatedScale = scale / coreEntity.scale
+            scaleFromAnchoring?.let { updatedScale *= it }
+            scaleFromMovement = updatedScale
+        } else {
+            scaleFromMovement = scale
+        }
 
         // Make sure that the pose isn't lost when using system movement
         invalidatePlacement()
