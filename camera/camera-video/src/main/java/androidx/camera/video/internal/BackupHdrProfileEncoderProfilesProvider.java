@@ -35,6 +35,7 @@ import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.ImmutableEncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
+import androidx.camera.video.internal.config.VideoConfigUtil;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 
 import org.jspecify.annotations.NonNull;
@@ -236,6 +237,9 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
     /**
      * Check if any encoder supports the video profile and adapt the bitrate if possible. A null
      * will be returned if the video profile is not able to support.
+     *
+     * <p>A 10-bit HDR profile is only supported when the encoder is hardware-accelerated. See
+     * {@link VideoConfigUtil#isVideoProfileDynamicRangeSupported}.
      */
     @VisibleForTesting
     static @Nullable VideoProfileProxy validateOrAdapt(@Nullable VideoProfileProxy profile,
@@ -247,6 +251,11 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
         if (videoEncoderInfo == null
                 || !videoEncoderInfo.isSizeSupportedAllowSwapping(profile.getWidth(),
                 profile.getHeight())) {
+            return null;
+        }
+        // 10-bit HDR requires a hardware-accelerated encoder (b/567407353).
+        if (!VideoConfigUtil.isVideoProfileDynamicRangeSupported(profile, videoEncoderInfo)) {
+            Logger.d(TAG, "Encoder doesn't support dynamic range of profile: " + profile);
             return null;
         }
         int baseBitrate = profile.getBitrate();

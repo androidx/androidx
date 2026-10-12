@@ -19,6 +19,7 @@ package androidx.camera.video.internal
 import android.content.Context
 import android.media.CamcorderProfile
 import android.media.EncoderProfiles.VideoProfile.HDR_HLG
+import android.media.MediaFormat.MIMETYPE_VIDEO_HEVC
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.adapter.EncoderProfilesProviderAdapter
@@ -162,6 +163,8 @@ class BackupHdrProfileEncoderProfilesProviderTest(
     fun providerWithDefaultEncoderInfoFinder_provideHdrBackupProfile_whenBaseSdrProfileIsValid() {
         // Pre-arrange.
         assumeTrue(cameraInfo.supportedDynamicRanges.containsAll(setOf(SDR, HLG_10_BIT)))
+        // Backup HLG10 profiles require a hardware-accelerated HEVC encoder (b/567407353).
+        assumeTrue(isHevcEncoderHardwareAccelerated())
 
         // Arrange.
         assumeFalse(hasMediaCodecIncorrectInfoQuirk())
@@ -179,4 +182,30 @@ class BackupHdrProfileEncoderProfilesProviderTest(
         assertThat(backupVideoProfiles.last().hdrFormat).isEqualTo(HDR_HLG)
         assertThat(backupVideoProfiles.last().bitDepth).isEqualTo(BIT_DEPTH_10)
     }
+
+    // Regression test for b/567407353: feeding camera surfaces into a software HEVC encoder for
+    // 10-bit HDR crashes mediaswcodec or drops frames, so no backup HLG10 profile may be added.
+    @LabTestRule.LabTestOnly
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    fun providerWithDefaultEncoderInfoFinder_noHdrBackupProfile_whenHevcEncoderIsSoftware() {
+        // Pre-arrange.
+        assumeTrue(cameraInfo.supportedDynamicRanges.containsAll(setOf(SDR, HLG_10_BIT)))
+        assumeFalse(isHevcEncoderHardwareAccelerated())
+
+        // Arrange.
+        assumeTrue(baseProvider.hasProfile(quality))
+        val baseVideoProfiles = requireNotNull(baseProvider.getAll(quality)).videoProfiles
+
+        // Act.
+        val backupProvider =
+            BackupHdrProfileEncoderProfilesProvider(baseProvider, VideoEncoderInfoImpl.FINDER)
+        val backupVideoProfiles = requireNotNull(backupProvider.getAll(quality)).videoProfiles
+
+        // Verify.
+        assertThat(backupVideoProfiles).containsExactlyElementsIn(baseVideoProfiles)
+    }
+
+    private fun isHevcEncoderHardwareAccelerated(): Boolean =
+        VideoEncoderInfoImpl.FINDER.find(MIMETYPE_VIDEO_HEVC)?.isHardwareAccelerated == true
 }

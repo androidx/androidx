@@ -56,8 +56,7 @@ import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_FORCE_ENABLE_
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_ENCODER_INFO_FINDER;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_OUTPUT;
 import static androidx.camera.video.internal.utils.DynamicRangeUtil.isHdrSettingsMatched;
-import static androidx.camera.video.internal.utils.DynamicRangeUtil.videoProfileBitDepthToDynamicRangeBitDepth;
-import static androidx.camera.video.internal.utils.DynamicRangeUtil.videoProfileHdrFormatsToDynamicRangeEncoding;
+import static androidx.camera.video.internal.utils.DynamicRangeUtil.videoProfileToDynamicRange;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
@@ -1869,9 +1868,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         for (EncoderProfilesProxy.VideoProfileProxy videoProfile :
                 encoderProfiles.getVideoProfiles()) {
             if (isHdrSettingsMatched(videoProfile, dynamicRange)) {
-                DynamicRange profileDynamicRange = new DynamicRange(
-                        videoProfileHdrFormatsToDynamicRangeEncoding(videoProfile.getHdrFormat()),
-                        videoProfileBitDepthToDynamicRangeBitDepth(videoProfile.getBitDepth()));
+                DynamicRange profileDynamicRange = videoProfileToDynamicRange(videoProfile);
                 MediaInfo mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec,
                         profileDynamicRange, encoderProfiles);
                 VideoEncoderInfo videoEncoderInfo = resolveVideoEncoderInfo(videoEncoderInfoFinder,
