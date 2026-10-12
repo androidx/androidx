@@ -230,7 +230,7 @@ internal class PaintTracker {
                             composeColorFilter.blendMode.toInt(),
                         )
                     } else {
-                        TODO("Native color filter not supported: $composeColorFilter")
+                        TODO("Color filter not supported: $composeColorFilter")
                     }
                 }
             }
