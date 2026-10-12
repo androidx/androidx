@@ -91,4 +91,7 @@ androidx {
     description = "Allows developers to build Widgets on Wear OS using Remote Compose."
     enableRobolectric()
     addGoldenImageAssets()
+    deviceTests {
+        maxShardCount = 1
+    }
 }
