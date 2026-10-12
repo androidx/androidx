@@ -243,6 +243,25 @@ public object VideoConfigUtil {
         }
 
     /**
+     * Checks if [videoEncoderInfo] supports the dynamic range of [profile].
+     *
+     * See [getSupportedDynamicRanges] for the hardware-acceleration requirement on 10-bit HDR
+     * (b/567407353).
+     *
+     * @param profile the video profile to check
+     * @param videoEncoderInfo the video encoder info for the profile's media type
+     * @return `true` if supported, `false` otherwise
+     */
+    @JvmStatic
+    public fun isVideoProfileDynamicRangeSupported(
+        profile: VideoProfileProxy,
+        videoEncoderInfo: VideoEncoderInfo,
+    ): Boolean {
+        val dynamicRange = DynamicRangeUtil.videoProfileToDynamicRange(profile)
+        return dynamicRange in getSupportedDynamicRanges(profile.mediaType, videoEncoderInfo)
+    }
+
+    /**
      * Resolves video related information into a [VideoEncoderConfig].
      *
      * @param videoMimeInfo the video mime info.

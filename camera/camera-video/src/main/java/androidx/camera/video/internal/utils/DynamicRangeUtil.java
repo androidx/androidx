@@ -274,6 +274,19 @@ public class DynamicRangeUtil {
     }
 
     /**
+     * Converts a {@link EncoderProfilesProxy.VideoProfileProxy} to a {@link DynamicRange}.
+     *
+     * @throws IllegalArgumentException if the HDR format or bit depth is not defined in
+     *         {@link EncoderProfilesProxy.VideoProfileProxy}.
+     */
+    public static @NonNull DynamicRange videoProfileToDynamicRange(
+            EncoderProfilesProxy.@NonNull VideoProfileProxy videoProfile) {
+        return new DynamicRange(
+                videoProfileHdrFormatsToDynamicRangeEncoding(videoProfile.getHdrFormat()),
+                videoProfileBitDepthToDynamicRangeBitDepth(videoProfile.getBitDepth()));
+    }
+
+    /**
      * Returns the bit depth of {@link DynamicRange} for the given bit depth of
      * {@link androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy}.
      *
