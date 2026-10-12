@@ -72,19 +72,7 @@ internal class EspressoLink(private val registry: IdlingResourceRegistry) :
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     override fun runUntilIdle() {
-        // Assertions and actions were historically forbidden on the main thread under Espresso
-        // to avoid deadlocks. This feature flag allows testing main-thread synchronization in
-        // connected tests prior to deprecating the check permanently.
-        if (!ComposeUiTestFlags.isMainThreadTestSynchronizationEnabledForDeviceTests) {
-            check(!isOnUiThread()) {
-                "Functions that involve synchronization (Assertions, Actions, Synchronization; " +
-                    "e.g. assertIsSelected(), doClick(), runOnIdle()) cannot be run " +
-                    "from the main thread. Did you nest such a function inside " +
-                    "runOnIdle {}, runOnUiThread {} or setContent {}?"
-            }
-        }
         runEspressoOnIdle()
         // When synchronization runs directly on the UI thread, some post-synchronization cleanup
         // or deferred lifecycle messages might be scheduled at the final moment Espresso yields.
