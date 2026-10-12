@@ -177,8 +177,7 @@ class AppFunctionRuntimeRegistrationTest {
     fun getAppFunctionActivityStates_thenExecuteAppFunction_shouldSucceed() {
         val functionId =
             AppFunctionMetadataTestHelper.FunctionIds.ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS
-        val functionName =
-            androidx.appfunctions.metadata.AppFunctionName(context.packageName, functionId)
+        val functionName = AppFunctionName(context.packageName, functionId)
 
         runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
             val appFunction = AppFunction { _, _, callback ->

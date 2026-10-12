@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appfunctions.metadata
+package androidx.appfunctions
 
 import android.os.Build
 import androidx.annotation.RequiresApi

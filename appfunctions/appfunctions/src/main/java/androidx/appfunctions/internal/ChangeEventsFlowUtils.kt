@@ -16,8 +16,8 @@
 
 package androidx.appfunctions.internal
 
+import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.AppFunctionsChangeEvent
-import androidx.appfunctions.metadata.AppFunctionName
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.debounce

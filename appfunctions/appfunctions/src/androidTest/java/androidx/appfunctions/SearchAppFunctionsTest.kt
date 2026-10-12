@@ -29,7 +29,6 @@ import androidx.appfunctions.core.AppFunctionMetadataTestHelper.FunctionIds.MEDI
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
-import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry

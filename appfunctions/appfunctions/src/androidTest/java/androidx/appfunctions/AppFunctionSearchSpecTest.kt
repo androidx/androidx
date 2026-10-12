@@ -19,7 +19,6 @@ package androidx.appfunctions
 import android.app.appfunctions.AppFunctionName as PlatformAppFunctionName
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
-import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

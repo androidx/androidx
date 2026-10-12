@@ -17,6 +17,7 @@
 package androidx.appfunctions.integration.test.agent
 
 import android.os.Build
+import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.Components.SHARED_COMPONENTS
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADDITIONAL_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.COMPONENT_CHANGED_FUNCTION_ID
@@ -30,7 +31,6 @@ import androidx.appfunctions.metadata.AppFunctionFloatTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
-import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionOneOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata

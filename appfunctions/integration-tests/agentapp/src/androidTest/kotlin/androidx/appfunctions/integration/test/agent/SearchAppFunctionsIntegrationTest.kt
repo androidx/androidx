@@ -20,6 +20,7 @@ package androidx.appfunctions.integration.test.agent
 import android.Manifest
 import android.os.Build
 import androidx.appfunctions.AppFunctionManager
+import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID
@@ -44,7 +45,6 @@ import androidx.appfunctions.integration.test.agent.TestUtil.setAppFunctionState
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
-import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
