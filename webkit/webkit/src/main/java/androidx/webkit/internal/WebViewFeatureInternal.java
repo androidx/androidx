@@ -38,6 +38,7 @@ import androidx.webkit.Navigation;
 import androidx.webkit.NavigationListener;
 import androidx.webkit.NavigationParameters;
 import androidx.webkit.NavigationRedirectParameters;
+import androidx.webkit.NavigationState;
 import androidx.webkit.Page;
 import androidx.webkit.PrefetchCache;
 import androidx.webkit.PrefetchParameters;
@@ -1116,12 +1117,32 @@ public class WebViewFeatureInternal {
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
      * This feature covers
+     * {@link NavigationState#getResponseHeaders()}
      * {@link NavigationRedirectParameters#getResponseHeaders()}
      * {@link NavigationRedirectParameters#getStatusCode()}
      */
     public static final ApiFeature.NoFramework NAVIGATION_GET_RESPONSE_HEADERS =
             new ApiFeature.NoFramework(WebViewFeature.NAVIGATION_GET_RESPONSE_HEADERS,
                     Features.NAVIGATION_GET_RESPONSE_HEADERS);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link NavigationState#getNavigationStartUptimeMillis()}
+     */
+    public static final ApiFeature.NoFramework NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS =
+            new ApiFeature.NoFramework(WebViewFeature.NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS,
+                    Features.NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Navigation#snapshotState()}
+     * {@link Page#snapshotState()}
+     */
+    public static final ApiFeature.NoFramework NAVIGATION_LISTENER_NAVIGATION_STATE =
+            new ApiFeature.NoFramework(WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE,
+                    Features.NAVIGATION_LISTENER_NAVIGATION_STATE);
 
     // --- Add new feature constants above this line ---
 

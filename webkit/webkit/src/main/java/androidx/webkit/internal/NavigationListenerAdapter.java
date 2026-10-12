@@ -16,9 +16,10 @@
 
 package androidx.webkit.internal;
 
-import androidx.webkit.Navigation;
 import androidx.webkit.NavigationListener;
-import androidx.webkit.Page;
+import androidx.webkit.NavigationRedirectParameters;
+import androidx.webkit.NavigationState;
+import androidx.webkit.PageState;
 
 import org.chromium.support_lib_boundary.WebViewNavigationListenerBoundaryInterface;
 import org.chromium.support_lib_boundary.util.Features;
@@ -35,7 +36,8 @@ import java.lang.reflect.InvocationHandler;
 public class NavigationListenerAdapter implements WebViewNavigationListenerBoundaryInterface {
 
     private static final String[] SUPPORTED_FEATURES = {Features.WEB_VIEW_NAVIGATION_LISTENER_V1,
-            Features.WEB_VIEW_NAVIGATION_LISTENER_V2};
+            Features.WEB_VIEW_NAVIGATION_LISTENER_V2,
+            Features.NAVIGATION_LISTENER_NAVIGATION_STATE};
 
     private final NavigationListener mImpl;
 
@@ -45,32 +47,78 @@ public class NavigationListenerAdapter implements WebViewNavigationListenerBound
 
     @Override
     public void onNavigationStarted(@NonNull InvocationHandler navigation) {
-        mImpl.onNavigationStarted(Navigation.forInvocationHandler(navigation));
+        // on older WebView versions we still want to support the NavigationState callback,
+        // so we create a 'fake' NavigationState, which is thread-unsafe, and pass it into
+        // the NavigationState callback.
+        // This applies to all the below callbacks which aren't deprecated.
+        //
+        // TODO(b/571964854): If this is called and the user is still using the old
+        //  onNavigationStarted(Navigation) callbacks, we are doing unnecessary work by wrapping a
+        //  CopiedNavigationState and not directly calling the old callback.
+        mImpl.onNavigationStarted(new NavigationState(new CopiedNavigationState(navigation)));
+    }
+
+    @Override
+    public void onNavigationStartedThreadsafe(@NonNull InvocationHandler navigationState) {
+        mImpl.onNavigationStarted(NavigationState.forInvocationHandler(navigationState));
     }
 
     @Override
     public void onNavigationRedirected(@NonNull InvocationHandler navigation) {
-        mImpl.onNavigationRedirected(Navigation.forInvocationHandler(navigation));
+        mImpl.onNavigationRedirected(
+                new NavigationState(new CopiedNavigationState(navigation)),
+                NavigationRedirectParameters.forInvocationHandler(
+                        new NotImplementedInvocationHandler()));
+    }
+
+    @Override
+    public void onNavigationRedirectedThreadsafe(
+            @NonNull InvocationHandler navigationState,
+            @NonNull InvocationHandler redirectParameters) {
+        mImpl.onNavigationRedirected(
+                NavigationState.forInvocationHandler(navigationState),
+                NavigationRedirectParameters.forInvocationHandler(redirectParameters));
     }
 
     @Override
     public void onNavigationCompleted(@NonNull InvocationHandler navigation) {
-        mImpl.onNavigationCompleted(Navigation.forInvocationHandler(navigation));
+        mImpl.onNavigationCompleted(new NavigationState(new CopiedNavigationState(navigation)));
+    }
+
+    @Override
+    public void onNavigationCompletedThreadsafe(@NonNull InvocationHandler navigationState) {
+        mImpl.onNavigationCompleted(
+                NavigationState.forInvocationHandler(navigationState));
     }
 
     @Override
     public void onPageDeleted(@NonNull InvocationHandler page) {
-        mImpl.onPageDeleted(Page.forInvocationHandler(page));
+        mImpl.onPageDeleted(new PageState(new CopiedPageState(page)));
+    }
+
+    @Override
+    public void onPageDeletedThreadsafe(@NonNull InvocationHandler pageState) {
+        mImpl.onPageDeleted(PageState.forInvocationHandler(pageState));
     }
 
     @Override
     public void onPageLoadEventFired(@NonNull InvocationHandler page) {
-        mImpl.onPageLoadEvent(Page.forInvocationHandler(page));
+        mImpl.onPageLoadEvent(new PageState(new CopiedPageState(page)));
+    }
+
+    @Override
+    public void onPageLoadEventFiredThreadsafe(@NonNull InvocationHandler pageState) {
+        mImpl.onPageLoadEvent(PageState.forInvocationHandler(pageState));
     }
 
     @Override
     public void onPageDOMContentLoadedEventFired(@NonNull InvocationHandler page) {
-        mImpl.onPageDomContentLoadedEvent(Page.forInvocationHandler(page));
+        mImpl.onPageDomContentLoadedEvent(new PageState(new CopiedPageState(page)));
+    }
+
+    @Override
+    public void onPageDOMContentLoadedEventFiredThreadsafe(@NonNull InvocationHandler pageState) {
+        mImpl.onPageDomContentLoadedEvent(PageState.forInvocationHandler(pageState));
     }
 
     /**
@@ -81,19 +129,42 @@ public class NavigationListenerAdapter implements WebViewNavigationListenerBound
 
     @Override
     public void onFirstContentfulPaintMillis(@NonNull InvocationHandler page, long durationMillis) {
-        mImpl.onFirstContentfulPaintMillis(Page.forInvocationHandler(page), durationMillis);
+        mImpl.onFirstContentfulPaintMillis(
+                new PageState(new CopiedPageState(page)), durationMillis);
+    }
+
+    @Override
+    public void onFirstContentfulPaintMillisThreadsafe(
+            @NonNull InvocationHandler pageState, long durationMillis) {
+        mImpl.onFirstContentfulPaintMillis(
+                PageState.forInvocationHandler(pageState), durationMillis);
     }
 
     @Override
     public void onLargestContentfulPaintMillis(@NonNull InvocationHandler page,
             long durationMillis) {
-        mImpl.onLargestContentfulPaintMillis(Page.forInvocationHandler(page), durationMillis);
+        mImpl.onLargestContentfulPaintMillis(
+                new PageState(new CopiedPageState(page)), durationMillis);
+    }
+
+    @Override
+    public void onLargestContentfulPaintMillisThreadsafe(@NonNull InvocationHandler pageState,
+            long durationMillis) {
+        mImpl.onLargestContentfulPaintMillis(
+                PageState.forInvocationHandler(pageState), durationMillis);
     }
 
     @Override
     public void onPerformanceMarkMillis(@NonNull InvocationHandler page,
             @NonNull String markName, long markTimeMillis) {
-        mImpl.onPerformanceMarkMillis(Page.forInvocationHandler(page),
+        mImpl.onPerformanceMarkMillis(new PageState(new CopiedPageState(page)),
+                markName, markTimeMillis);
+    }
+
+    @Override
+    public void onPerformanceMarkMillisThreadsafe(@NonNull InvocationHandler pageState,
+            @NonNull String markName, long markTimeMillis) {
+        mImpl.onPerformanceMarkMillis(PageState.forInvocationHandler(pageState),
                 markName, markTimeMillis);
     }
 
