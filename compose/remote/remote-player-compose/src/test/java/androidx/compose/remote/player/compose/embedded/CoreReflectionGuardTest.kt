@@ -126,6 +126,7 @@ class CoreReflectionGuardTest {
             "$modifiers.HostNamedActionOperation" to listOf("mTextId", "mType", "mValueId"),
             "$ops.TextSubtext" to listOf("mTextId"),
             "$ops.TextTransform" to listOf("mTextId"),
+            "androidx.compose.remote.core.CoreDocument" to listOf("mContentAlignment"),
             "$modifiers.DimensionConstraintsModifierOperation" to listOf("mType"),
             "$modifiers.DimensionModifierOperation" to listOf("mValue"),
             "$managers.RowLayout" to listOf("mSpacedBy"),
