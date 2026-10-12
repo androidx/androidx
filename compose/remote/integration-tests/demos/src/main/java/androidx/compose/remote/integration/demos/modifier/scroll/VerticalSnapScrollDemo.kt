@@ -17,6 +17,7 @@
 package androidx.compose.remote.integration.demos.modifier.scroll
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -41,8 +42,10 @@ import androidx.compose.ui.graphics.Color
 
 @Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview
 @Composable
-fun VerticalSnapScrollDemo() {
-    RemoteDemo(modifier = Modifier.fillMaxSize()) { VerticalSnapScrollDemoContent() }
+fun VerticalSnapScrollDemo(onDocument: (CoreDocument) -> Unit = {}) {
+    RemoteDemo(modifier = Modifier.fillMaxSize(), onDocument = onDocument) {
+        VerticalSnapScrollDemoContent()
+    }
 }
 
 @Suppress("RestrictedApiAndroidX")

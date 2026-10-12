@@ -19,6 +19,7 @@ package androidx.compose.remote.integration.demos.player
 import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.collection.intListOf
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Limits
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteImage
@@ -66,10 +67,10 @@ class SolidColorBitmapLoader : BitmapLoader {
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
-fun BitmapLoaderDemo() {
+fun BitmapLoaderDemo(onDocument: (CoreDocument) -> Unit = {}) {
     Limits.ENABLE_IMAGE_URLS = true
     val colors = intListOf(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA)
-    RemoteDemo(bitmapLoader = SolidColorBitmapLoader()) {
+    RemoteDemo(bitmapLoader = SolidColorBitmapLoader(), onDocument = onDocument) {
         RemoteColumn {
             colors.forEach { color ->
                 val hex = String.format("%06X", 0xFFFFFF and color)

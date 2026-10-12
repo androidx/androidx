@@ -34,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -86,7 +87,7 @@ import androidx.compose.ui.unit.dp
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
-fun RemoteStateLayoutSimpleDemo() {
+fun RemoteStateLayoutSimpleDemo(onDocument: (CoreDocument) -> Unit = {}) {
     val stateId = "stateId"
     val states = intArrayOf(0, 1, 2)
     var selectedState by remember { mutableIntStateOf(states[0]) }
@@ -120,7 +121,10 @@ fun RemoteStateLayoutSimpleDemo() {
             }
         }
 
-        RemoteDemo(update = { player -> player.setUserLocalInt(stateId, selectedState) }) {
+        RemoteDemo(
+            update = { player -> player.setUserLocalInt(stateId, selectedState) },
+            onDocument = onDocument,
+        ) {
             val remoteState = remember(stateId) { createNamedRemoteInt(stateId, states[0]) }
 
             RemoteStateLayout(currentState = remoteState, states = states) { state ->
@@ -1467,7 +1471,7 @@ private fun NestedStatusWidget(innerStatus: MutableRemoteInt) {
 /** Main container demo combining all StateLayout shared element showcases. */
 @Suppress("RestrictedApiAndroidX")
 @Composable
-fun RemoteStateLayoutSharedElementsDemo() {
+fun RemoteStateLayoutSharedElementsDemo(onDocument: (CoreDocument) -> Unit = {}) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabTitles =
         listOf(
@@ -1498,7 +1502,7 @@ fun RemoteStateLayoutSharedElementsDemo() {
                         text = "Tap the card to morph between Compact and Expanded Detail view",
                         modifier = Modifier.padding(bottom = 12.dp),
                     )
-                    RemoteDemo { RemoteStateLayoutCardExpansion() }
+                    RemoteDemo(onDocument = onDocument) { RemoteStateLayoutCardExpansion() }
                 }
             }
             1 -> {
@@ -1507,7 +1511,7 @@ fun RemoteStateLayoutSharedElementsDemo() {
                         text = "Tap the player to morph between Mini Player and Full Player",
                         modifier = Modifier.padding(bottom = 12.dp),
                     )
-                    RemoteDemo { RemoteStateLayoutMediaPlayer() }
+                    RemoteDemo(onDocument = onDocument) { RemoteStateLayoutMediaPlayer() }
                 }
             }
             2 -> {
@@ -1519,7 +1523,7 @@ fun RemoteStateLayoutSharedElementsDemo() {
                         text = "Tap layout or buttons to morph arrangements",
                         modifier = Modifier.padding(bottom = 12.dp),
                     )
-                    RemoteDemo { RemoteStateLayoutMorphGrid() }
+                    RemoteDemo(onDocument = onDocument) { RemoteStateLayoutMorphGrid() }
                 }
             }
             3 -> {
@@ -1531,7 +1535,7 @@ fun RemoteStateLayoutSharedElementsDemo() {
                         text = "Morphing shapes, borders, scale, and rotation across states",
                         modifier = Modifier.padding(bottom = 12.dp),
                     )
-                    RemoteDemo { RemoteStateLayoutModifierTransitions() }
+                    RemoteDemo(onDocument = onDocument) { RemoteStateLayoutModifierTransitions() }
                 }
             }
             4 -> {
@@ -1543,7 +1547,7 @@ fun RemoteStateLayoutSharedElementsDemo() {
                         text = "Shared pill indicator sliding with entering/exiting unshared views",
                         modifier = Modifier.padding(bottom = 12.dp),
                     )
-                    RemoteDemo { RemoteStateLayoutTabContent() }
+                    RemoteDemo(onDocument = onDocument) { RemoteStateLayoutTabContent() }
                 }
             }
             5 -> {
@@ -1555,7 +1559,7 @@ fun RemoteStateLayoutSharedElementsDemo() {
                         text = "Multi-step flow testing rapid mid-flight transition interruption",
                         modifier = Modifier.padding(bottom = 12.dp),
                     )
-                    RemoteDemo { RemoteStateLayoutStepperInterruption() }
+                    RemoteDemo(onDocument = onDocument) { RemoteStateLayoutStepperInterruption() }
                 }
             }
             6 -> {
@@ -1567,7 +1571,7 @@ fun RemoteStateLayoutSharedElementsDemo() {
                         text = "Hierarchy isolation: Outer view switch with nested status toggle",
                         modifier = Modifier.padding(bottom = 12.dp),
                     )
-                    RemoteDemo { RemoteStateLayoutNestedDashboard() }
+                    RemoteDemo(onDocument = onDocument) { RemoteStateLayoutNestedDashboard() }
                 }
             }
         }

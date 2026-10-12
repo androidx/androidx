@@ -17,6 +17,9 @@
 package androidx.compose.remote.integration.demos.main
 
 import androidx.compose.material3.Text
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.integration.demos.document.DocumentScreen
+import androidx.compose.remote.integration.demos.document.DocumentViewState
 import androidx.compose.remote.integration.demos.integration.DragPropagationDemo
 import androidx.compose.remote.integration.demos.integration.GesturePropagationDemo
 import androidx.compose.remote.integration.demos.integration.GesturePropagationViewDemo
@@ -72,37 +75,46 @@ private object ScreenKeys {
     const val DRAG_PROPAGATION = "REMOTE_PLAYER_DRAG_PROPAGATION"
     const val HORIZONTAL_DRAG_PROPAGATION = "REMOTE_PLAYER_HORIZONTAL_DRAG_PROPAGATION"
     const val SETTINGS = "SETTINGS"
+    const val DOCUMENT = "DOCUMENT"
 }
 
+@Suppress("RestrictedApiAndroidX")
 @Composable
-fun ComposableScreenNavigation(key: String, onNavigateUp: () -> Unit) {
+internal fun ComposableScreenNavigation(
+    key: String,
+    onNavigateUp: () -> Unit,
+    documentViewState: DocumentViewState,
+    onDocument: (CoreDocument) -> Unit = {},
+) {
     when (key) {
-        ScreenKeys.REMOTE_BOX_ALIGNMENT -> RemoteBoxAlignmentsDemo()
-        ScreenKeys.REMOTE_FLOW_ROW -> RemoteFlowRowDemo()
-        ScreenKeys.REMOTE_STATE_LAYOUT -> RemoteStateLayoutSimpleDemo()
-        ScreenKeys.REMOTE_STATE_LAYOUT_SHARED_ELEMENTS -> RemoteStateLayoutSharedElementsDemo()
-        ScreenKeys.REMOTE_FIT_BOX_SHARED_ELEMENTS -> RemoteFitBoxSharedElementsDemo()
-        ScreenKeys.PADDING -> PaddingDemo()
-        ScreenKeys.ALPHA -> AlphaDemo()
-        ScreenKeys.ROTATE -> RotateDemo()
-        ScreenKeys.SCALE -> ScaleDemo()
-        ScreenKeys.VERTICAL_SCROLL -> VerticalScrollDemo()
-        ScreenKeys.HORIZONTAL_SCROLL -> HorizontalScrollDemo()
-        ScreenKeys.NESTED_SCROLL -> HorizontalScrollersInVerticalScrollerDemo()
-        ScreenKeys.VERTICAL_SNAP_SCROLL -> VerticalSnapScrollDemo()
-        ScreenKeys.HORIZONTAL_SNAP_SCROLL -> HorizontalSnapScrollDemo()
-        ScreenKeys.NESTED_SNAP_SCROLL -> NestedSnapScrollDemo()
-        ScreenKeys.CONTROLLED_SCROLL -> ControlledScrollableRowDemo()
-        ScreenKeys.CLICKABLE -> ClickableDemo()
-        ScreenKeys.COMBINED_CLICKABLE -> CombinedClickableDemo()
-        ScreenKeys.TOUCH_ACTION -> TouchActionDemo()
-        ScreenKeys.BITMAP_LOADER -> BitmapLoaderDemo()
-        ScreenKeys.REMOTE_ANNOTATED_STRING -> RemoteAnnotatedStringDemo()
-        ScreenKeys.GESTURE_PROPAGATION -> GesturePropagationDemo()
+        ScreenKeys.REMOTE_BOX_ALIGNMENT -> RemoteBoxAlignmentsDemo(onDocument)
+        ScreenKeys.REMOTE_FLOW_ROW -> RemoteFlowRowDemo(onDocument)
+        ScreenKeys.REMOTE_STATE_LAYOUT -> RemoteStateLayoutSimpleDemo(onDocument)
+        ScreenKeys.REMOTE_STATE_LAYOUT_SHARED_ELEMENTS ->
+            RemoteStateLayoutSharedElementsDemo(onDocument)
+        ScreenKeys.REMOTE_FIT_BOX_SHARED_ELEMENTS -> RemoteFitBoxSharedElementsDemo(onDocument)
+        ScreenKeys.PADDING -> PaddingDemo(onDocument)
+        ScreenKeys.ALPHA -> AlphaDemo(onDocument)
+        ScreenKeys.ROTATE -> RotateDemo(onDocument)
+        ScreenKeys.SCALE -> ScaleDemo(onDocument)
+        ScreenKeys.VERTICAL_SCROLL -> VerticalScrollDemo(onDocument)
+        ScreenKeys.HORIZONTAL_SCROLL -> HorizontalScrollDemo(onDocument)
+        ScreenKeys.NESTED_SCROLL -> HorizontalScrollersInVerticalScrollerDemo(onDocument)
+        ScreenKeys.VERTICAL_SNAP_SCROLL -> VerticalSnapScrollDemo(onDocument)
+        ScreenKeys.HORIZONTAL_SNAP_SCROLL -> HorizontalSnapScrollDemo(onDocument)
+        ScreenKeys.NESTED_SNAP_SCROLL -> NestedSnapScrollDemo(onDocument)
+        ScreenKeys.CONTROLLED_SCROLL -> ControlledScrollableRowDemo(onDocument)
+        ScreenKeys.CLICKABLE -> ClickableDemo(onDocument)
+        ScreenKeys.COMBINED_CLICKABLE -> CombinedClickableDemo(onDocument)
+        ScreenKeys.TOUCH_ACTION -> TouchActionDemo(onDocument)
+        ScreenKeys.BITMAP_LOADER -> BitmapLoaderDemo(onDocument)
+        ScreenKeys.REMOTE_ANNOTATED_STRING -> RemoteAnnotatedStringDemo(onDocument)
+        ScreenKeys.GESTURE_PROPAGATION -> GesturePropagationDemo(onDocument)
         ScreenKeys.GESTURE_PROPAGATION_VIEW -> GesturePropagationViewDemo()
-        ScreenKeys.DRAG_PROPAGATION -> DragPropagationDemo()
-        ScreenKeys.HORIZONTAL_DRAG_PROPAGATION -> HorizontalDragPropagationDemo()
+        ScreenKeys.DRAG_PROPAGATION -> DragPropagationDemo(onDocument)
+        ScreenKeys.HORIZONTAL_DRAG_PROPAGATION -> HorizontalDragPropagationDemo(onDocument)
         ScreenKeys.SETTINGS -> SettingsScreen()
+        ScreenKeys.DOCUMENT -> DocumentScreen(documentViewState)
         else -> Text("Unknown screen: $key")
     }
 }
@@ -227,3 +239,5 @@ val Screens =
     )
 
 val SettingsScreen = ComposableScreen(key = ScreenKeys.SETTINGS, title = "Settings")
+
+val DocumentScreen = ComposableScreen(key = ScreenKeys.DOCUMENT, title = "Document")

@@ -18,6 +18,7 @@ package androidx.compose.remote.integration.demos.modifier
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
@@ -53,7 +54,7 @@ private const val CLICK_ACTION = "clickAction"
     "RestrictedApiAndroidX"
 ) // Referring to RemoteComponentPreview, combinedClickable, remote-core
 @Composable
-fun CombinedClickableDemo() {
+fun CombinedClickableDemo(onDocument: (CoreDocument) -> Unit = {}) {
     val experimentalProfile =
         Profile(
             RcPlatformProfiles.ANDROIDX.apiLevel,
@@ -62,7 +63,11 @@ fun CombinedClickableDemo() {
             RcPlatformProfiles.ANDROIDX.profileFactory,
         )
 
-    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp), profile = experimentalProfile) {
+    RemoteDemo(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        profile = experimentalProfile,
+        onDocument = onDocument,
+    ) {
         CombinedClickableDemoContent()
     }
 }

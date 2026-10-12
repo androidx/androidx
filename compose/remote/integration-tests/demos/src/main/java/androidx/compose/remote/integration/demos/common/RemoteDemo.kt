@@ -18,6 +18,7 @@ package androidx.compose.remote.integration.demos.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -56,6 +57,7 @@ fun RemoteDemo(
     onNamedAction: (String, Any?, StateUpdater) -> Unit = { _, _, _ -> },
     bitmapLoader: BitmapLoader? = null,
     customSupport: AndroidCustomContext? = null,
+    onDocument: (CoreDocument) -> Unit = {},
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     var capturedBytes by remember { mutableStateOf<ByteArray?>(null) }
@@ -81,6 +83,7 @@ fun RemoteDemo(
             key(playerType, currentBytes) {
                 val remoteDoc = remember(playerType, currentBytes) { RemoteDocument(currentBytes) }
                 val doc = remoteDoc.document
+                LaunchedEffect(doc, onDocument) { onDocument(doc) }
                 if (playerType == PLAYER_TYPE_COMPOSE) {
                     RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true
                     RcPlayer(

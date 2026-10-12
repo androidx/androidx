@@ -18,6 +18,7 @@ package androidx.compose.remote.integration.demos.modifier
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -41,8 +42,10 @@ import androidx.compose.ui.unit.dp
 
 @Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview
 @Composable
-fun ScaleDemo() {
-    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { ScaleDemoContent() }
+fun ScaleDemo(onDocument: (CoreDocument) -> Unit = {}) {
+    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp), onDocument = onDocument) {
+        ScaleDemoContent()
+    }
 }
 
 @RemoteComponentPreview
