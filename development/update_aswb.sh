@@ -90,6 +90,5 @@ else
   gcloud storage cp android-studio-with-blaze-canary-$NEW_ASWB_BUILD_ID.burrito "gs://androidx-aswb-binaries/mac"
 
   cd .. && rm -rf tmp-aswb-install
+  echo "Update completed, please raise a CL with the change in libs.versions.toml"
 fi
-
-echo "Update completed, please raise a CL with the change in libs.versions.toml"
