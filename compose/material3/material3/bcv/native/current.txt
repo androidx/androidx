@@ -3016,6 +3016,17 @@ final object androidx.compose.material3/MaterialTheme { // androidx.compose.mate
     }
 }
 
+final object androidx.compose.material3/MaterialTransitions { // androidx.compose.material3/MaterialTransitions|null[0]
+    final val scrimColor // androidx.compose.material3/MaterialTransitions.scrimColor|{}scrimColor[0]
+        final fun <get-scrimColor>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.graphics/Color // androidx.compose.material3/MaterialTransitions.scrimColor.<get-scrimColor>|<get-scrimColor>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+
+    final object HorizontalSharedAxis { // androidx.compose.material3/MaterialTransitions.HorizontalSharedAxis|null[0]
+        final fun backwardTransform(): androidx.compose.animation/ContentTransform // androidx.compose.material3/MaterialTransitions.HorizontalSharedAxis.backwardTransform|backwardTransform(){}[0]
+        final fun forwardTransform(): androidx.compose.animation/ContentTransform // androidx.compose.material3/MaterialTransitions.HorizontalSharedAxis.forwardTransform|forwardTransform(){}[0]
+        final fun predictiveBackTransform(kotlin/Function0<androidx.navigationevent/NavigationEvent>, androidx.compose.ui.unit/Density, androidx.compose.ui.graphics/Color): androidx.compose.animation/MutableContentTransform // androidx.compose.material3/MaterialTransitions.HorizontalSharedAxis.predictiveBackTransform|predictiveBackTransform(kotlin.Function0<androidx.navigationevent.NavigationEvent>;androidx.compose.ui.unit.Density;androidx.compose.ui.graphics.Color){}[0]
+    }
+}
+
 final object androidx.compose.material3/MenuDefaults { // androidx.compose.material3/MenuDefaults|null[0]
     final val DefaultMenuProperties // androidx.compose.material3/MenuDefaults.DefaultMenuProperties|{}DefaultMenuProperties[0]
         final fun <get-DefaultMenuProperties>(): androidx.compose.ui.window/PopupProperties // androidx.compose.material3/MenuDefaults.DefaultMenuProperties.<get-DefaultMenuProperties>|<get-DefaultMenuProperties>(){}[0]
@@ -3885,6 +3896,8 @@ final val androidx.compose.material3/androidx_compose_material3_LoadingIndicator
 final val androidx.compose.material3/androidx_compose_material3_MaterialShapes$stableprop // androidx.compose.material3/androidx_compose_material3_MaterialShapes$stableprop|#static{}androidx_compose_material3_MaterialShapes$stableprop[0]
 final val androidx.compose.material3/androidx_compose_material3_MaterialTheme$stableprop // androidx.compose.material3/androidx_compose_material3_MaterialTheme$stableprop|#static{}androidx_compose_material3_MaterialTheme$stableprop[0]
 final val androidx.compose.material3/androidx_compose_material3_MaterialTheme_Values$stableprop // androidx.compose.material3/androidx_compose_material3_MaterialTheme_Values$stableprop|#static{}androidx_compose_material3_MaterialTheme_Values$stableprop[0]
+final val androidx.compose.material3/androidx_compose_material3_MaterialTransitions$stableprop // androidx.compose.material3/androidx_compose_material3_MaterialTransitions$stableprop|#static{}androidx_compose_material3_MaterialTransitions$stableprop[0]
+final val androidx.compose.material3/androidx_compose_material3_MaterialTransitions_HorizontalSharedAxis$stableprop // androidx.compose.material3/androidx_compose_material3_MaterialTransitions_HorizontalSharedAxis$stableprop|#static{}androidx_compose_material3_MaterialTransitions_HorizontalSharedAxis$stableprop[0]
 final val androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition$stableprop // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition$stableprop|#static{}androidx_compose_material3_MenuAnchorPosition$stableprop[0]
 final val androidx.compose.material3/androidx_compose_material3_MenuDefaults$stableprop // androidx.compose.material3/androidx_compose_material3_MenuDefaults$stableprop|#static{}androidx_compose_material3_MenuDefaults$stableprop[0]
 final val androidx.compose.material3/androidx_compose_material3_MenuGroupShapes$stableprop // androidx.compose.material3/androidx_compose_material3_MenuGroupShapes$stableprop|#static{}androidx_compose_material3_MenuGroupShapes$stableprop[0]
@@ -4366,6 +4379,8 @@ final fun androidx.compose.material3/androidx_compose_material3_LoadingIndicator
 final fun androidx.compose.material3/androidx_compose_material3_MaterialShapes$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MaterialShapes$stableprop_getter|androidx_compose_material3_MaterialShapes$stableprop_getter(){}[0]
 final fun androidx.compose.material3/androidx_compose_material3_MaterialTheme$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MaterialTheme$stableprop_getter|androidx_compose_material3_MaterialTheme$stableprop_getter(){}[0]
 final fun androidx.compose.material3/androidx_compose_material3_MaterialTheme_Values$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MaterialTheme_Values$stableprop_getter|androidx_compose_material3_MaterialTheme_Values$stableprop_getter(){}[0]
+final fun androidx.compose.material3/androidx_compose_material3_MaterialTransitions$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MaterialTransitions$stableprop_getter|androidx_compose_material3_MaterialTransitions$stableprop_getter(){}[0]
+final fun androidx.compose.material3/androidx_compose_material3_MaterialTransitions_HorizontalSharedAxis$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MaterialTransitions_HorizontalSharedAxis$stableprop_getter|androidx_compose_material3_MaterialTransitions_HorizontalSharedAxis$stableprop_getter(){}[0]
 final fun androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuAnchorPosition$stableprop_getter|androidx_compose_material3_MenuAnchorPosition$stableprop_getter(){}[0]
 final fun androidx.compose.material3/androidx_compose_material3_MenuDefaults$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuDefaults$stableprop_getter|androidx_compose_material3_MenuDefaults$stableprop_getter(){}[0]
 final fun androidx.compose.material3/androidx_compose_material3_MenuGroupShapes$stableprop_getter(): kotlin/Int // androidx.compose.material3/androidx_compose_material3_MenuGroupShapes$stableprop_getter|androidx_compose_material3_MenuGroupShapes$stableprop_getter(){}[0]
