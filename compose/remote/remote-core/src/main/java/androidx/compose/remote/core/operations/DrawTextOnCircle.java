@@ -246,4 +246,39 @@ public class DrawTextOnCircle extends PaintOperation implements VariableSupport,
                 .add("alignment", mAlignment)
                 .add("placement", mPlacement);
     }
+
+    /** Returns {@code mCenterX}. */
+    public float getCenterX() {
+        return mCenterX;
+    }
+
+    /** Returns {@code mCenterY}. */
+    public float getCenterY() {
+        return mCenterY;
+    }
+
+    /** Returns {@code mRadius}. */
+    public float getRadius() {
+        return mRadius;
+    }
+
+    /** Returns {@code mStartAngle}. */
+    public float getStartAngle() {
+        return mStartAngle;
+    }
+
+    /** Returns {@code mWarpRadiusOffset}. */
+    public float getWarpRadiusOffset() {
+        return mWarpRadiusOffset;
+    }
+
+    /** Returns {@code mAlignment}. */
+    public @NonNull Alignment getAlignment() {
+        return mAlignment;
+    }
+
+    /** Returns {@code mPlacement}. */
+    public @NonNull Placement getPlacement() {
+        return mPlacement;
+    }
 }

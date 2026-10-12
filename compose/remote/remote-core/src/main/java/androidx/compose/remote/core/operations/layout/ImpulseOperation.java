@@ -29,6 +29,7 @@ import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,10 +106,25 @@ public class ImpulseOperation extends PaintOperation implements VariableSupport,
         }
     }
 
+    /** Returns the raw impulse duration, preserving NaN-encoded variable IDs. */
+    public float getDuration() {
+        return mDuration;
+    }
+
+    /** Returns the raw impulse start time, preserving NaN-encoded variable IDs. */
+    public float getStartAt() {
+        return mStartAt;
+    }
+
     @NonNull
     @Override
     public ArrayList<Operation> getList() {
         return mList;
+    }
+
+    /** Returns {@code mProcess}, the operations run while the impulse is active, if any. */
+    public @Nullable ImpulseProcess getProcess() {
+        return mProcess;
     }
 
     @Override

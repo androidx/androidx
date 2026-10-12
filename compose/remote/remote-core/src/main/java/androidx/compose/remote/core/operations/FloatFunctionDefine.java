@@ -150,6 +150,11 @@ public class FloatFunctionDefine extends Operation implements VariableSupport, C
         return indent + toString();
     }
 
+    /** Returns the id of this function. */
+    public int getId() {
+        return mId;
+    }
+
     /**
      * @return the array of id's
      */

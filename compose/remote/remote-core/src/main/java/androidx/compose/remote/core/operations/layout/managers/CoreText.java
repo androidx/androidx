@@ -1343,4 +1343,124 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
         serializer.add("fontFamilyId", mFontFamilyId);
         serializer.add("textAlign", mTextAlign);
     }
+
+    /** Returns {@code mColorValue}. */
+    public int getColorValue() {
+        return mColorValue;
+    }
+
+    /** Returns the raw font size ({@code mFontSize}), preserving NaN-encoded variable IDs. */
+    public float getFontSize() {
+        return mFontSize;
+    }
+
+    /** Returns {@code mFontSizeValue}. */
+    public float getFontSizeValue() {
+        return mFontSizeValue;
+    }
+
+    /** Returns {@code mType}. */
+    public int getType() {
+        return mType;
+    }
+
+    /** Returns {@code mFontWeightValue}. */
+    public float getFontWeightValue() {
+        return mFontWeightValue;
+    }
+
+    /** Returns {@code mFontStyle}. */
+    public int getFontStyle() {
+        return mFontStyle;
+    }
+
+    /** Returns {@code mTextAlignValue}. */
+    public int getTextAlignValue() {
+        return mTextAlignValue;
+    }
+
+    /** Returns {@code mOverflow}. */
+    public int getOverflow() {
+        return mOverflow;
+    }
+
+    /** Returns {@code mMaxLines}. */
+    public int getMaxLines() {
+        return mMaxLines;
+    }
+
+    /** Returns {@code mLetterSpacing}. */
+    public float getLetterSpacing() {
+        return mLetterSpacing;
+    }
+
+    /** Returns {@code mLineHeightMultiplier}. */
+    public float getLineHeightMultiplier() {
+        return mLineHeightMultiplier;
+    }
+
+    /** Returns {@code mLineHeightAdd}. */
+    public float getLineHeightAdd() {
+        return mLineHeightAdd;
+    }
+
+    /** Returns {@code mUnderline}. */
+    public boolean getUnderline() {
+        return mUnderline;
+    }
+
+    /** Returns {@code mStrikethrough}. */
+    public boolean getStrikethrough() {
+        return mStrikethrough;
+    }
+
+    /** Returns {@code mFontAxis}. */
+    public int @Nullable [] getFontAxis() {
+        return mFontAxis;
+    }
+
+    /** Returns {@code mFontAxisValues}. */
+    public float @Nullable [] getFontAxisValues() {
+        return mFontAxisValues;
+    }
+
+    /** Returns {@code mAutosize}. */
+    public boolean getAutosize() {
+        return mAutosize;
+    }
+
+    /** Returns {@code mMinFontSize}. */
+    public float getMinFontSize() {
+        return mMinFontSize;
+    }
+
+    /** Returns {@code mMaxFontSize}. */
+    public float getMaxFontSize() {
+        return mMaxFontSize;
+    }
+
+    /** Returns {@code mLineBreakStrategy}. */
+    public int getLineBreakStrategy() {
+        return mLineBreakStrategy;
+    }
+
+    /** Returns {@code mHyphenationFrequency}. */
+    public int getHyphenationFrequency() {
+        return mHyphenationFrequency;
+    }
+
+    /** Returns {@code mJustificationMode}. */
+    public int getJustificationMode() {
+        return mJustificationMode;
+    }
+
+    /** Returns {@code mIsDynamicColorEnabled}. */
+    public boolean isDynamicColorEnabled() {
+        return mIsDynamicColorEnabled;
+    }
+
+    /** Returns {@code mColorId}. */
+    public int getColorId() {
+        return mColorId;
+    }
 }

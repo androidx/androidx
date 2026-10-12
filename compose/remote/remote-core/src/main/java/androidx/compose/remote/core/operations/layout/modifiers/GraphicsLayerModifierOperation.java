@@ -120,9 +120,20 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
     static final int INT_VALUE = 1;
 
     /** Utility class to manage attributes */
-    static class AttributeValue {
+    public static class AttributeValue {
         String mName;
         int mId;
+
+        /** Returns {@code mName}. */
+        public @NonNull String getName() {
+            return mName;
+        }
+
+        /** Returns {@code mId}. */
+        public int getId() {
+            return mId;
+        }
+
         @Nullable AnimatableValue mAnimatableValue;
         float mDefaultValue = 0f;
         int mIntValue = 0;
@@ -154,6 +165,18 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
             }
         }
 
+        /** Returns the raw source value, preserving NaN-encoded variable IDs. */
+        public float getSource() {
+            if (mType == FLOAT_VALUE) {
+                if (mAnimatableValue != null) {
+                    return mAnimatableValue.getSource();
+                }
+                return mDefaultValue;
+            } else {
+                return mIntValue;
+            }
+        }
+
         public int getIntValue() {
             if (mType == FLOAT_VALUE) {
                 if (mAnimatableValue != null) {
@@ -165,7 +188,7 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
             return 0;
         }
 
-        public void evaluate(PaintContext context) {
+        void evaluate(@NonNull PaintContext context) {
             if (mAnimatableValue != null) {
                 mAnimatableValue.evaluate(context);
             }
@@ -183,7 +206,7 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
             return false;
         }
 
-        public void write(WireBuffer buffer) {
+        void write(@NonNull WireBuffer buffer) {
             int tag = mId | (mType == FLOAT_VALUE ? DATA_TYPE_FLOAT << 10 : DATA_TYPE_INT << 10);
             buffer.writeInt(tag);
             if (mType == FLOAT_VALUE) {
@@ -193,7 +216,7 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
             }
         }
 
-        public Object getObjectValue() {
+        @NonNull Object getObjectValue() {
             if (mType == FLOAT_VALUE) {
                 return getValue();
             }
@@ -411,5 +434,10 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
                 .add("compositingStrategy", mValues[COMPOSITING_STRATEGY].getIntValue())
                 .add("spotShadowColorId", mValues[SPOT_SHADOW_COLOR].getIntValue())
                 .add("ambientShadowColorId", mValues[AMBIENT_SHADOW_COLOR].getIntValue());
+    }
+
+    /** Returns {@code mValues}. */
+    public AttributeValue @NonNull [] getValues() {
+        return mValues;
     }
 }

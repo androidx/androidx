@@ -855,4 +855,14 @@ public class LayoutComponent extends Component {
         float height = buffer.readFloat();
         operations.add(new LayoutComponent(null, componentId, animationId, x, y, width, height));
     }
+
+    /** Returns {@code mDrawContentOperations}. */
+    public @Nullable CanvasOperations getDrawContentOperations() {
+        return mDrawContentOperations;
+    }
+
+    /** Returns {@code mContent}. */
+    public @Nullable LayoutComponentContent getLayoutContent() {
+        return mContent;
+    }
 }

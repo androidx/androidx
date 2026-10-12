@@ -201,4 +201,54 @@ public class DrawBitmap extends PaintOperation implements VariableSupport {
                 .add("right", mRight, mOutputRight)
                 .add("bottom", mBottom, mOutputBottom);
     }
+
+    /** Returns {@code mLeft}. */
+    public float getLeft() {
+        return mLeft;
+    }
+
+    /** Returns {@code mTop}. */
+    public float getTop() {
+        return mTop;
+    }
+
+    /** Returns {@code mRight}. */
+    public float getRight() {
+        return mRight;
+    }
+
+    /** Returns {@code mBottom}. */
+    public float getBottom() {
+        return mBottom;
+    }
+
+    /** Returns {@code mOutputLeft}. */
+    public float getOutputLeft() {
+        return mOutputLeft;
+    }
+
+    /** Returns {@code mOutputTop}. */
+    public float getOutputTop() {
+        return mOutputTop;
+    }
+
+    /** Returns {@code mOutputRight}. */
+    public float getOutputRight() {
+        return mOutputRight;
+    }
+
+    /** Returns {@code mOutputBottom}. */
+    public float getOutputBottom() {
+        return mOutputBottom;
+    }
+
+    /** Returns {@code mDescriptionId}. */
+    public int getDescriptionId() {
+        return mDescriptionId;
+    }
+
+    /** Returns {@code mId}. */
+    public int getImageId() {
+        return mId;
+    }
 }

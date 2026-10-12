@@ -186,4 +186,29 @@ public class DrawTweenPath extends PaintOperation implements VariableSupport {
                 .add("start", mStart, mOutStart)
                 .add("stop", mStop, mOutStop);
     }
+
+    /** Returns {@code mPath1Id}. */
+    public int getPath1Id() {
+        return mPath1Id;
+    }
+
+    /** Returns {@code mPath2Id}. */
+    public int getPath2Id() {
+        return mPath2Id;
+    }
+
+    /** Returns {@code mOutTween}. */
+    public float getOutTween() {
+        return mOutTween;
+    }
+
+    /** Returns {@code mOutStart}. */
+    public float getOutStart() {
+        return mOutStart;
+    }
+
+    /** Returns {@code mOutStop}. */
+    public float getOutStop() {
+        return mOutStop;
+    }
 }

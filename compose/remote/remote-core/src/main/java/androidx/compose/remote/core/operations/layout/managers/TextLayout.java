@@ -732,4 +732,44 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
         serializer.add("overflow", mOverflow);
         serializer.add("maxLines", mMaxLines);
     }
+
+    /** Returns {@code mColorValue}. */
+    public int getColorValue() {
+        return mColorValue;
+    }
+
+    /** Returns {@code mType}. */
+    public int getType() {
+        return mType;
+    }
+
+    /** Returns {@code mFontWeight}. */
+    public float getFontWeight() {
+        return mFontWeight;
+    }
+
+    /** Returns {@code mTextAlignValue}. */
+    public int getTextAlignValue() {
+        return mTextAlignValue;
+    }
+
+    /** Returns {@code mOverflow}. */
+    public int getOverflow() {
+        return mOverflow;
+    }
+
+    /** Returns {@code mMaxLines}. */
+    public int getMaxLines() {
+        return mMaxLines;
+    }
+
+    /** Returns {@code mIsDynamicColorEnabled}. */
+    public boolean isDynamicColorEnabled() {
+        return mIsDynamicColorEnabled;
+    }
+
+    /** Returns {@code mColor}. */
+    public int getColor() {
+        return mColor;
+    }
 }

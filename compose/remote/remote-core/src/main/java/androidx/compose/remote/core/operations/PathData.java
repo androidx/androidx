@@ -58,6 +58,21 @@ public class PathData extends Operation implements VariableSupport, Serializable
         mInstanceId = id;
     }
 
+    /** Returns the source path data, preserving NaN-encoded variable IDs. */
+    public float @NonNull [] getFloatPath() {
+        return mFloatPath;
+    }
+
+    /** Returns the path data with any NaN-encoded variable IDs resolved to their values. */
+    public float @NonNull [] getOutputPath() {
+        return mOutputPath;
+    }
+
+    /** Forces the next {@link #apply(RemoteContext)} to reload the path into the context. */
+    public void markPathChanged() {
+        mPathChanged = true;
+    }
+
     @SuppressWarnings("UnknownNullness") // Annotations on a primitive array are compile error.
     public PathData(int instanceId, float @NonNull [] floatPath, int winding) {
         mInstanceId = instanceId;

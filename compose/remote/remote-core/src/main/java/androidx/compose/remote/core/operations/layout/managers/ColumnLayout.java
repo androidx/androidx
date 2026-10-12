@@ -648,4 +648,19 @@ public class ColumnLayout extends LayoutManager {
                 return "NONE";
         }
     }
+
+    /** Returns {@code mSpacedBy}. */
+    public float getSpacedBy() {
+        return mSpacedBy;
+    }
+
+    /** Returns {@code mHorizontalPositioning}. */
+    public int getHorizontalPositioning() {
+        return mHorizontalPositioning;
+    }
+
+    /** Returns {@code mVerticalPositioning}. */
+    public int getVerticalPositioning() {
+        return mVerticalPositioning;
+    }
 }

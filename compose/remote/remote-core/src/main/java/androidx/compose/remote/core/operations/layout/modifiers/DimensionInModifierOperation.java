@@ -99,6 +99,11 @@ public abstract class DimensionInModifierOperation extends Operation
         return mV1;
     }
 
+    /** Returns the raw minimum constraint source, preserving NaN-encoded variable IDs. */
+    public float getRawMin() {
+        return mValue1;
+    }
+
     /**
      * Returns the max value
      *
@@ -106,6 +111,11 @@ public abstract class DimensionInModifierOperation extends Operation
      */
     public float getMax() {
         return mV2;
+    }
+
+    /** Returns the raw maximum constraint source, preserving NaN-encoded variable IDs. */
+    public float getRawMax() {
+        return mValue2;
     }
 
     @Override

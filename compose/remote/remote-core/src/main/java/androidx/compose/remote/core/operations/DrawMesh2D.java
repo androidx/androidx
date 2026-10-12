@@ -76,6 +76,11 @@ public class DrawMesh2D extends PaintOperation implements Serializable {
         mImageId = imageId;
     }
 
+    /** Returns {@code mImageId}, the texture bitmap id, or {@link #NO_IMAGE}. */
+    public int getImageId() {
+        return mImageId;
+    }
+
     @Override
     public void write(@NonNull WireBuffer buffer) {
         apply(buffer, mMeshId, mBlend, mImageId);

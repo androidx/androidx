@@ -69,6 +69,11 @@ public class TextTransform extends Operation implements VariableSupport, Seriali
         mOperation = op;
     }
 
+    /** Returns {@code mTextId}, the id of the text this operation produces. */
+    public int getTextId() {
+        return mTextId;
+    }
+
     @Override
     public void write(@NonNull WireBuffer buffer) {
         apply(buffer, mTextId, mSrcId1, mStart, mLen, mOperation);

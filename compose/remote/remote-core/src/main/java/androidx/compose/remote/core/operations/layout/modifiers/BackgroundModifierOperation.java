@@ -324,4 +324,39 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation
         }
         serializer.add("shapeType", ShapeType.getString(mShapeType));
     }
+
+    /** Returns {@code mUseColorId}. */
+    public boolean getUseColorId() {
+        return mUseColorId;
+    }
+
+    /** Returns {@code mColorId}. */
+    public int getColorId() {
+        return mColorId;
+    }
+
+    /** Returns {@code mRId}. */
+    public float getRId() {
+        return mRId;
+    }
+
+    /** Returns {@code mGId}. */
+    public float getGId() {
+        return mGId;
+    }
+
+    /** Returns {@code mBId}. */
+    public float getBId() {
+        return mBId;
+    }
+
+    /** Returns {@code mAId}. */
+    public float getAId() {
+        return mAId;
+    }
+
+    /** Returns {@code mShapeType}. */
+    public int getShapeType() {
+        return mShapeType;
+    }
 }
