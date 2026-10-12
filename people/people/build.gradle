@@ -31,7 +31,9 @@ plugins {
 }
 
 dependencies {
-    // Add dependencies here
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
 }
 
 
