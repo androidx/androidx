@@ -65,9 +65,22 @@ public class NavigationListenerTest {
         }
     }
 
+    private static class PerformanceStateMark {
+        public final PageState pageState;
+        public final String markName;
+        public final long markTimeMs;
+
+        PerformanceStateMark(PageState markPageState, String name, long timeMs) {
+            pageState = markPageState;
+            markName = name;
+            markTimeMs = timeMs;
+        }
+    }
+
     public WebViewOnUiThread mWebViewOnUiThread;
     private WebView mWebView;
     private RecordingNavigationListener mListener;
+    private RecordingNavigationStateListener mStateListener;
     private MockWebServer mWebServer;
 
     @SuppressWarnings("NewClassNamingConvention") // Not a class containing tests.
@@ -152,6 +165,76 @@ public class NavigationListenerTest {
 
     }
 
+    @SuppressWarnings("NewClassNamingConvention")
+    private static class RecordingNavigationStateListener implements NavigationListener {
+        public final BlockingQueue<NavigationState> mOnNavigationStartedStateQueue =
+                new LinkedBlockingQueue<>();
+        public final BlockingQueue<Pair<NavigationState, NavigationRedirectParameters>>
+                mOnNavigationRedirectedStateQueue = new LinkedBlockingQueue<>();
+        public final BlockingQueue<NavigationState> mOnNavigationCompletedStateQueue =
+                new LinkedBlockingQueue<>();
+        public final BlockingQueue<PageState> mOnPageDeletedStateQueue =
+                new LinkedBlockingQueue<>();
+        public final BlockingQueue<PageState> mOnPageLoadEventFiredStateQueue =
+                new LinkedBlockingQueue<>();
+        public final BlockingQueue<PageState> mOnPageDomContentLoadedEventFiredStateQueue =
+                new LinkedBlockingQueue<>();
+        public final BlockingQueue<Pair<PageState, Long>> mOnFirstContentfulPaintStateQueue =
+                new LinkedBlockingQueue<>();
+        public final BlockingQueue<Pair<PageState, Long>> mOnLargestContentfulPaintStateQueue =
+                new LinkedBlockingQueue<>();
+        public final BlockingQueue<PerformanceStateMark> mOnPerformanceMarkStateQueue =
+                new LinkedBlockingQueue<>();
+
+        @Override
+        public void onNavigationStarted(@NonNull NavigationState navigationState) {
+            mOnNavigationStartedStateQueue.add(navigationState);
+        }
+
+        @Override
+        public void onNavigationRedirected(@NonNull NavigationState navigationState,
+                @NonNull NavigationRedirectParameters redirectParameters) {
+            mOnNavigationRedirectedStateQueue.add(new Pair<>(navigationState, redirectParameters));
+        }
+
+        @Override
+        public void onNavigationCompleted(@NonNull NavigationState navigationState) {
+            mOnNavigationCompletedStateQueue.add(navigationState);
+        }
+
+        @Override
+        public void onPageDeleted(@NonNull PageState pageState) {
+            mOnPageDeletedStateQueue.add(pageState);
+        }
+
+        @Override
+        public void onPageLoadEvent(@NonNull PageState pageState) {
+            mOnPageLoadEventFiredStateQueue.add(pageState);
+        }
+
+        @Override
+        public void onPageDomContentLoadedEvent(@NonNull PageState pageState) {
+            mOnPageDomContentLoadedEventFiredStateQueue.add(pageState);
+        }
+
+        @Override
+        public void onFirstContentfulPaintMillis(@NonNull PageState pageState, long durationMs) {
+            mOnFirstContentfulPaintStateQueue.add(new Pair<>(pageState, durationMs));
+        }
+
+        @Override
+        public void onLargestContentfulPaintMillis(@NonNull PageState pageState, long durationMs) {
+            mOnLargestContentfulPaintStateQueue.add(new Pair<>(pageState, durationMs));
+        }
+
+        @Override
+        public void onPerformanceMarkMillis(@NonNull PageState pageState,
+                @NonNull String markName, long markTimeMs) {
+            mOnPerformanceMarkStateQueue.add(new PerformanceStateMark(
+                    pageState, markName, markTimeMs));
+        }
+    }
+
     @Before
     public void setUp() throws Exception {
         WebkitUtils.checkFeature((WebViewFeature.NAVIGATION_LISTENER));
@@ -164,6 +247,8 @@ public class NavigationListenerTest {
             mWebView = mWebViewOnUiThread.getWebViewOnCurrentThread();
             mListener = new RecordingNavigationListener();
             WebViewCompat.addNavigationListener(mWebView, mListener);
+            mStateListener = new RecordingNavigationStateListener();
+            WebViewCompat.addNavigationListener(mWebView, mStateListener);
         });
     }
 
@@ -463,6 +548,144 @@ public class NavigationListenerTest {
         Assert.assertNotNull(mainExecutorPage);
         Assert.assertNotNull(backgroundExecutorPage);
         Assert.assertEquals(mainExecutorPage, backgroundExecutorPage);
+    }
+
+    @Test
+    public void testSameNavigationFromStateCallbacks() {
+        String redirectUrl = getRedirectUrl(getSuccessUrl());
+        mWebViewOnUiThread.loadUrl(redirectUrl);
+
+        Navigation startNavigation = waitForNextQueueElement(
+                mStateListener.mOnNavigationStartedStateQueue).getNavigation();
+        Navigation redirectNavigation = waitForNextQueueElement(
+                mStateListener.mOnNavigationRedirectedStateQueue).first.getNavigation();
+        Navigation completedNavigation = waitForNextQueueElement(
+                mStateListener.mOnNavigationCompletedStateQueue).getNavigation();
+
+        Assert.assertEquals(startNavigation, redirectNavigation);
+        Assert.assertEquals(startNavigation, completedNavigation);
+        Assert.assertEquals(redirectNavigation, completedNavigation);
+    }
+
+    @Test
+    public void testSamePageFromStateCallbacks() {
+        // Success URL is obtained outside of the activity scope in order to avoid a
+        // StrictModeViolation for attempting to resolve the hostname on the main thread.
+        final String successUrl = getSuccessUrl();
+        Page loadedPage;
+        try (ActivityScenario<WebViewTestActivity> scenario = ActivityScenario.launch(
+                WebViewTestActivity.class)) {
+            // The onFirstContentfulPaint event is only triggered if the WebView is attached to
+            // the view hierarchy, so this test runs in an Activity.
+            scenario.onActivity(activity -> {
+                WebView webView = activity.getWebView();
+                WebViewCompat.addNavigationListener(webView, mStateListener);
+                webView.getSettings().setJavaScriptEnabled(true);
+                webView.loadUrl(successUrl);
+            });
+
+            NavigationState completedNavigationState = waitForNextQueueElement(
+                    mStateListener.mOnNavigationCompletedStateQueue);
+
+            PageState navigationCompletePageState = completedNavigationState.getPageState();
+            Assert.assertNotNull(navigationCompletePageState);
+            Page navigationCompletePage = navigationCompletePageState.getPage();
+
+            loadedPage = waitForNextQueueElement(mStateListener.mOnPageLoadEventFiredStateQueue)
+                    .getPage();
+            Assert.assertEquals(navigationCompletePage, loadedPage);
+
+            Page domContentLoadedPage = waitForNextQueueElement(
+                    mStateListener.mOnPageDomContentLoadedEventFiredStateQueue).getPage();
+            Assert.assertEquals(navigationCompletePage, domContentLoadedPage);
+
+            Pair<PageState, Long> firstContentfulPaint = waitForNextQueueElement(
+                    mStateListener.mOnFirstContentfulPaintStateQueue);
+            Page firstContentfulPaintPage = firstContentfulPaint.first.getPage();
+            Assert.assertEquals(navigationCompletePage, firstContentfulPaintPage);
+            Assert.assertTrue(firstContentfulPaint.second > 0);
+
+            Pair<PageState, Long> largestContentfulPaint = waitForNextQueueElement(
+                    mStateListener.mOnLargestContentfulPaintStateQueue);
+            Page largestContentfulPaintPage = largestContentfulPaint.first.getPage();
+            Assert.assertEquals(navigationCompletePage, largestContentfulPaintPage);
+            Assert.assertTrue(largestContentfulPaint.second > 0);
+
+            PerformanceStateMark performanceMark = waitForNextQueueElement(
+                    mStateListener.mOnPerformanceMarkStateQueue);
+            Assert.assertEquals(navigationCompletePage, performanceMark.pageState.getPage());
+            Assert.assertTrue(performanceMark.markName.equals("testMark"));
+            Assert.assertTrue(performanceMark.markTimeMs > 0);
+        }
+
+        // Tearing down the activity and WebView will delete the page.
+        Page deletedPage = waitForNextQueueElement(mStateListener.mOnPageDeletedStateQueue)
+                .getPage();
+        Assert.assertEquals(loadedPage, deletedPage);
+    }
+
+    @Test
+    public void testNavigationRedirectParameters() {
+        WebkitUtils.checkFeature(WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE);
+        WebkitUtils.checkFeature(WebViewFeature.NAVIGATION_GET_RESPONSE_HEADERS);
+        final String successUrl = getSuccessUrl();
+        mWebViewOnUiThread.loadUrl(getRedirectUrl(successUrl));
+
+        NavigationRedirectParameters redirectParameters = waitForNextQueueElement(
+                mStateListener.mOnNavigationRedirectedStateQueue).second;
+        Assert.assertEquals(301, redirectParameters.getStatusCode());
+        Assert.assertEquals(successUrl, redirectParameters.getResponseHeaders().get("Location"));
+        NavigationState completedState = waitForNextQueueElement(
+                mStateListener.mOnNavigationCompletedStateQueue);
+
+        String responseHeadersContent = completedState.getResponseHeaders() == null
+                ? null
+                : completedState.getResponseHeaders().get("Content-Type");
+        Assert.assertEquals("text/html", responseHeadersContent);
+    }
+
+    @Test
+    public void testSnapshotState() {
+        WebkitUtils.checkFeature(WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE);
+        final String successUrl = getSuccessUrl();
+        mWebViewOnUiThread.loadUrl(successUrl);
+
+        Navigation completedNavigation = waitForNextQueueElement(
+                mListener.mOnNavigationCompletedQueue);
+        NavigationState completedNavigationState = completedNavigation.snapshotState();
+
+        Page onLoadedPage = waitForNextQueueElement(mListener.mOnPageLoadEventFiredQueue);
+        PageState onLoadedPageState = onLoadedPage.snapshotState();
+
+        Assert.assertEquals(completedNavigation.getUrl(), completedNavigationState.getUrl());
+        Assert.assertEquals(completedNavigationState.getUrl(), successUrl);
+        Assert.assertEquals(completedNavigation.didCommit(), completedNavigationState.didCommit());
+        Assert.assertTrue(completedNavigationState.didCommit());
+        Assert.assertEquals(completedNavigation.didCommitErrorPage(),
+                completedNavigationState.didCommitErrorPage());
+        Page completedStatePage = completedNavigationState.getPageState() == null
+                ? null
+                : completedNavigationState.getPageState().getPage();
+        Assert.assertEquals(completedNavigation.getPage(), completedStatePage);
+        Assert.assertNotNull(completedStatePage);
+        Assert.assertEquals(completedNavigation.getStatusCode(),
+                completedNavigationState.getStatusCode());
+        Assert.assertEquals(completedNavigation.getWebResourceError(),
+                completedNavigationState.getWebResourceError());
+        Assert.assertEquals(completedNavigation.isBack(), completedNavigationState.isBack());
+        Assert.assertEquals(completedNavigation.isForward(), completedNavigationState.isForward());
+        Assert.assertEquals(completedNavigation.isHistory(), completedNavigationState.isHistory());
+        Assert.assertEquals(completedNavigation.isReload(), completedNavigationState.isReload());
+        Assert.assertEquals(completedNavigation.isRestore(), completedNavigationState.isRestore());
+        Assert.assertEquals(completedNavigation.isSameDocument(),
+                completedNavigationState.isSameDocument());
+        Assert.assertEquals(completedNavigation.wasInitiatedByPage(),
+                completedNavigationState.wasInitiatedByPage());
+
+        Assert.assertEquals(completedNavigation, completedNavigationState.getNavigation());
+
+        Assert.assertEquals(onLoadedPage.getUrl(), onLoadedPageState.getUrl());
+        Assert.assertEquals(onLoadedPage, onLoadedPageState.getPage());
     }
 
     @NonNull

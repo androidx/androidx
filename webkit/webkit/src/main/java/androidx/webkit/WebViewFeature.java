@@ -147,6 +147,8 @@ public class WebViewFeature {
             CROSS_ORIGIN_ISOLATED_ALLOWLIST,
             ADD_QUIC_HINTS_WILDCARDS,
             NAVIGATION_GET_RESPONSE_HEADERS,
+            NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS,
+            NAVIGATION_LISTENER_NAVIGATION_STATE,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -1028,11 +1030,31 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
+     * {@link NavigationState#getResponseHeaders()}
      * {@link NavigationRedirectParameters#getResponseHeaders()}
      * {@link NavigationRedirectParameters#getStatusCode()}
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String NAVIGATION_GET_RESPONSE_HEADERS = "NAVIGATION_GET_RESPONSE_HEADERS";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link NavigationState#getNavigationStartUptimeMillis()}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS =
+            "NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Navigation#snapshotState()}
+     * {@link Page#snapshotState()}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String NAVIGATION_LISTENER_NAVIGATION_STATE =
+            "NAVIGATION_LISTENER_NAVIGATION_STATE";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is

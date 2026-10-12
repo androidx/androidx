@@ -16,6 +16,8 @@
 
 package androidx.webkit;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -57,12 +59,42 @@ public interface NavigationListener {
     }
 
     /**
+     * Called when a navigation starts, including same-document navigations.
+     * <p>
+     * Note: These navigation callbacks only fire for navigations happening on the main frame.
+     * <p>
+     * Note: Calling super will call the old
+     * {@link NavigationListener#onNavigationStarted(Navigation)}
+     *
+     * @param navigationState An immutable snapshot of the Navigation's state at the point when the
+     * Navigation is started.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void onNavigationStarted(@NonNull NavigationState navigationState) {
+        onNavigationStarted(navigationState.getNavigation());
+    }
+
+    /**
      * Called when a navigation is redirected.
      *
      * @param navigation The Navigation object representing the redirected navigation.
      */
     default void onNavigationRedirected(@NonNull Navigation navigation) {
 
+    }
+
+    /**
+     * Called when a navigation is redirected.
+     *
+     * @param navigationState An immutable snapshot of the Navigation's state at the point the
+     * Navigation is redirected.
+     * @param navigationRedirectParameters An object which exposes response headers for the callback
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void onNavigationRedirected(
+            @NonNull NavigationState navigationState,
+            @NonNull NavigationRedirectParameters navigationRedirectParameters) {
+        onNavigationRedirected(navigationState.getNavigation());
     }
 
     /**
@@ -78,6 +110,20 @@ public interface NavigationListener {
     }
 
     /**
+     * Called when a navigation completes.
+     * <p>
+     * The navigation might not have actually committed (e.g., results in 204/download/cancelled),
+     * but those that do they will have committed by this point.
+     *
+     * @param navigationState An immutable snapshot of the Navigation's state at the point the
+     * Navigation is completed.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void onNavigationCompleted(@NonNull NavigationState navigationState) {
+        onNavigationCompleted(navigationState.getNavigation());
+    }
+
+    /**
      * Called when any Page is evicted/destroyed. This can occur immediately
      * on navigation, or later if the page is BFCached and subsequently evicted.
      *
@@ -85,6 +131,17 @@ public interface NavigationListener {
      */
     default void onPageDeleted(@NonNull Page page) {
 
+    }
+
+    /**
+     * Called when any Page is evicted/destroyed. This can occur immediately
+     * on navigation, or later if the page is BFCached and subsequently evicted.
+     *
+     * @param pageState An immutable snapshot of the Page's state at the point the Page is deleted.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void onPageDeleted(@NonNull PageState pageState) {
+        onPageDeleted(pageState.getPage());
     }
 
     /**
@@ -97,12 +154,33 @@ public interface NavigationListener {
     }
 
     /**
+     * Called when the {@code window.load} event is fired for the current page.
+     *
+     * @param pageState An immutable snapshot of the Page's state at the point the Page is loaded.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void onPageLoadEvent(@NonNull PageState pageState) {
+        onPageLoadEvent(pageState.getPage());
+    }
+
+    /**
      * Called when the {@code DOMContentLoaded} event is fired for the current page.
      *
      * @param page The Page for which the {@code DOMContentLoaded} event fired.
      */
     default void onPageDomContentLoadedEvent(@NonNull Page page) {
 
+    }
+
+    /**
+     * Called when the {@code DOMContentLoaded} event is fired for the current page.
+     *
+     * @param pageState An immutable snapshot of the Page's state at the point the DOMContentLoaded
+     * event is fired.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void onPageDomContentLoadedEvent(@NonNull PageState pageState) {
+        onPageDomContentLoadedEvent(pageState.getPage());
     }
 
     /**
@@ -127,6 +205,28 @@ public interface NavigationListener {
     }
 
     /**
+     * Called when the page achieves "First Contentful Paint".
+     *
+     * <p>See <a href="https://web.dev/articles/fcp">First Contentful Paint (FCP)</a>
+     * for a definition.</p>
+     *
+     * Note: Delivery of this event may be delayed due to batching with other events,
+     * so it may not be sent in real-time.
+     *
+     * <p>This method is called only if
+     * {@link WebViewFeature#NAVIGATION_LISTENER} is supported.
+     * You can check whether that flag is supported using
+     * {@link WebViewFeature#isFeatureSupported(String)}.
+     *
+     * @param pageState           The Page's state at which the First Contentful Paint occurred.
+     * @param durationMillis Navigation to First Contentful Paint duration in milliseconds.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void onFirstContentfulPaintMillis(@NonNull PageState pageState, long durationMillis) {
+        onFirstContentfulPaintMillis(pageState.getPage(), durationMillis);
+    }
+
+    /**
      * Called when the page fires a "Largest Contentful Paint" event.
      *
      * <p>See <a href="https://web.dev/articles/lcp">Largest Contentful Paint (LCP)</a>
@@ -145,6 +245,28 @@ public interface NavigationListener {
      */
     default void onLargestContentfulPaintMillis(@NonNull Page page, long durationMillis) {
 
+    }
+
+    /**
+     * Called when the page fires a "Largest Contentful Paint" event.
+     *
+     * <p>See <a href="https://web.dev/articles/lcp">Largest Contentful Paint (LCP)</a>
+     * for a definition.</p>
+     *
+     * Note: Delivery of this event may be delayed due to batching with other events,
+     * so it may not be sent in real-time.
+     *
+     * <p>This method is called only if
+     * {@link WebViewFeature#NAVIGATION_LISTENER} is supported.
+     * You can check whether that flag is supported using
+     * {@link WebViewFeature#isFeatureSupported(String)}.
+     *
+     * @param pageState           The Page's state at which the Largest Contentful Paint occurred.
+     * @param durationMillis Navigation to Largest Contentful Paint duration in milliseconds.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void onLargestContentfulPaintMillis(@NonNull PageState pageState, long durationMillis) {
+        onLargestContentfulPaintMillis(pageState.getPage(), durationMillis);
     }
 
     /**
@@ -169,5 +291,30 @@ public interface NavigationListener {
     default void onPerformanceMarkMillis(@NonNull Page page,
             @NonNull String markName, long markTimeMillis) {
 
+    }
+
+    /**
+     * Called when the page registers a performance mark.
+     *
+     * <p>See <a href="https://developer.mozilla.org/en-US/docs/Web/API/Performance/mark">
+     *     Performance: mark() method</a> for a definition.</p>
+     *
+     * Note: Delivery of this event may be delayed due to batching with other events,
+     * so it may not be sent in real-time.
+     *
+     * <p>This method is called only if
+     * {@link WebViewFeature#NAVIGATION_LISTENER} is supported.
+     * You can check whether that flag is supported using
+     * {@link WebViewFeature#isFeatureSupported(String)}.
+     *
+     * @param pageState      The Page's state at which the performance mark was registered.
+     * @param markName       The name of the performance mark.
+     * @param markTimeMillis The time of the performance mark in milliseconds since
+     *                       Performance.timeOrigin.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void onPerformanceMarkMillis(
+            @NonNull PageState pageState, @NonNull String markName, long markTimeMillis) {
+        onPerformanceMarkMillis(pageState.getPage(), markName, markTimeMillis);
     }
 }

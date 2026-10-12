@@ -31,7 +31,7 @@ import java.util.Map;
 
 /**
  * A class which exposes response headers for
- * //TODO: put jdoc here
+ * {@link NavigationListener#onNavigationRedirected(NavigationState, NavigationRedirectParameters)}
  * in a way which is backwards compatible for older WebView versions.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
