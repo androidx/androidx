@@ -87,7 +87,14 @@ public object UseCaseAdditionSimulator {
         cameraUseCaseAdapter.viewPort = sessionConfig.viewPort
         cameraUseCaseAdapter.effects = sessionConfig.effects
         cameraUseCaseAdapter.sessionType = sessionConfig.sessionType
-        cameraUseCaseAdapter.frameRate = sessionConfig.frameRateRange
+        // The target frame rate of the session config must not constrain the query for its
+        // supported frame rate ranges, see CameraInfo#getSupportedFrameRateRanges(SessionConfig).
+        cameraUseCaseAdapter.frameRate =
+            if (findSupportedFrameRateRanges) {
+                StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
+            } else {
+                sessionConfig.frameRateRange
+            }
 
         return cameraUseCaseAdapter.simulateAddUseCases(
             sessionConfig.useCases,
