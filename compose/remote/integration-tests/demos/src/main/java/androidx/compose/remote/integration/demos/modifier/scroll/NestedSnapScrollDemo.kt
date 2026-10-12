@@ -18,6 +18,7 @@ package androidx.compose.remote.integration.demos.modifier.scroll
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -46,8 +47,10 @@ import androidx.compose.ui.unit.dp
 
 @Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview
 @Composable
-fun NestedSnapScrollDemo() {
-    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { NestedSnapScrollDemoContent() }
+fun NestedSnapScrollDemo(onDocument: (CoreDocument) -> Unit = {}) {
+    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp), onDocument = onDocument) {
+        NestedSnapScrollDemoContent()
+    }
 }
 
 @Suppress("RestrictedApiAndroidX")

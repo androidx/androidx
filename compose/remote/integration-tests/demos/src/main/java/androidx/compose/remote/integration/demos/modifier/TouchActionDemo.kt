@@ -18,6 +18,7 @@ package androidx.compose.remote.integration.demos.modifier
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -50,8 +51,10 @@ import androidx.compose.ui.unit.dp
 
 @Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview
 @Composable
-fun TouchActionDemo() {
-    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { TouchActionDemoContent() }
+fun TouchActionDemo(onDocument: (CoreDocument) -> Unit = {}) {
+    RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp), onDocument = onDocument) {
+        TouchActionDemoContent()
+    }
 }
 
 @Suppress("RestrictedApiAndroidX") // Referring to plus

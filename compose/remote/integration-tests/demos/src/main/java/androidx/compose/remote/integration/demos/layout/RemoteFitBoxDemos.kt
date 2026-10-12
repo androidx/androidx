@@ -37,6 +37,7 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -81,7 +82,7 @@ import androidx.compose.ui.unit.dp
  */
 @Suppress("RestrictedApiAndroidX")
 @Composable
-fun RemoteFitBoxSharedElementsDemo() {
+fun RemoteFitBoxSharedElementsDemo(onDocument: (CoreDocument) -> Unit = {}) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabTitles = listOf("Responsive Player", "Card to Banner", "Row to Column")
 
@@ -97,9 +98,9 @@ fun RemoteFitBoxSharedElementsDemo() {
         }
 
         when (selectedTab) {
-            0 -> RemoteFitBoxResponsivePlayerDemo()
-            1 -> RemoteFitBoxCardToBannerDemo()
-            2 -> RemoteFitBoxRowToColumnDemo()
+            0 -> RemoteFitBoxResponsivePlayerDemo(onDocument)
+            1 -> RemoteFitBoxCardToBannerDemo(onDocument)
+            2 -> RemoteFitBoxRowToColumnDemo(onDocument)
         }
     }
 }
@@ -111,7 +112,7 @@ fun RemoteFitBoxSharedElementsDemo() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("RestrictedApiAndroidX", "DEPRECATION")
 @Composable
-private fun RemoteFitBoxResponsivePlayerDemo() {
+private fun RemoteFitBoxResponsivePlayerDemo(onDocument: (CoreDocument) -> Unit = {}) {
     var containerWidth by remember { mutableFloatStateOf(340f) }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -165,7 +166,7 @@ private fun RemoteFitBoxResponsivePlayerDemo() {
                     .background(Color(0xFF161622))
                     .padding(8.dp)
         ) {
-            RemoteDemo {
+            RemoteDemo(onDocument = onDocument) {
                 RemoteFitBox(
                     modifier =
                         RemoteModifier.sharedElement(
@@ -312,7 +313,7 @@ private fun RemoteFitBoxResponsivePlayerDemo() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("RestrictedApiAndroidX", "DEPRECATION")
 @Composable
-private fun RemoteFitBoxCardToBannerDemo() {
+private fun RemoteFitBoxCardToBannerDemo(onDocument: (CoreDocument) -> Unit = {}) {
     var containerWidth by remember { mutableFloatStateOf(340f) }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -361,7 +362,7 @@ private fun RemoteFitBoxCardToBannerDemo() {
                     .background(Color(0xFF1A1C2E))
                     .padding(12.dp)
         ) {
-            RemoteDemo {
+            RemoteDemo(onDocument = onDocument) {
                 RemoteFitBox(
                     modifier =
                         RemoteModifier.sharedElement(
@@ -509,7 +510,7 @@ private fun RemoteFitBoxCardToBannerDemo() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("RestrictedApiAndroidX", "DEPRECATION")
 @Composable
-private fun RemoteFitBoxRowToColumnDemo() {
+private fun RemoteFitBoxRowToColumnDemo(onDocument: (CoreDocument) -> Unit = {}) {
     var containerWidth by remember { mutableFloatStateOf(320f) }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -558,7 +559,7 @@ private fun RemoteFitBoxRowToColumnDemo() {
                     .background(Color(0xFF1E1E2C))
                     .padding(12.dp)
         ) {
-            RemoteDemo {
+            RemoteDemo(onDocument = onDocument) {
                 RemoteFitBox(
                     modifier =
                         RemoteModifier.sharedElement(

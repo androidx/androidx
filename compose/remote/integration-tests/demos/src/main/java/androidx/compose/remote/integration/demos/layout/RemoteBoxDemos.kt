@@ -28,6 +28,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAbsoluteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -60,7 +61,7 @@ private const val ALIGNMENT_ID = "ALIGNMENT_ID"
 
 @Suppress("RestrictedApiAndroidX") // Referring to setUserLocalInt
 @Composable
-fun RemoteBoxAlignmentsDemo() {
+fun RemoteBoxAlignmentsDemo(onDocument: (CoreDocument) -> Unit = {}) {
     val alignments =
         listOf(
             0 to RemoteAlignment.TopStart,
@@ -112,7 +113,10 @@ fun RemoteBoxAlignmentsDemo() {
             }
         }
 
-        RemoteDemo(update = { player -> player.setUserLocalInt(ALIGNMENT_ID, selectedAlignment) }) {
+        RemoteDemo(
+            update = { player -> player.setUserLocalInt(ALIGNMENT_ID, selectedAlignment) },
+            onDocument = onDocument,
+        ) {
             RemoteBoxAlignmentsDemoContent(alignments)
         }
     }

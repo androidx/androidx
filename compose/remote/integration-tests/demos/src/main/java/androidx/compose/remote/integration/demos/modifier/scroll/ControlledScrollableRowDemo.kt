@@ -17,6 +17,7 @@
 package androidx.compose.remote.integration.demos.modifier.scroll
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.action.scrollBy
 import androidx.compose.remote.creation.compose.action.valueChange
@@ -49,8 +50,10 @@ import androidx.compose.ui.graphics.Color
 
 @Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview
 @Composable
-fun ControlledScrollableRowDemo() {
-    RemoteDemo(modifier = Modifier.fillMaxSize()) { ControlledScrollableRowDemoContent() }
+fun ControlledScrollableRowDemo(onDocument: (CoreDocument) -> Unit = {}) {
+    RemoteDemo(modifier = Modifier.fillMaxSize(), onDocument = onDocument) {
+        ControlledScrollableRowDemoContent()
+    }
 }
 
 @Suppress("RestrictedApiAndroidX") // Referring to scrollBy
