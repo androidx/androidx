@@ -25,6 +25,7 @@ dependencies {
     api(project(":camera:camera-core"))
     api(libs.androidx.core)
     api("androidx.lifecycle:lifecycle-livedata-core:2.3.1")
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation(libs.playServicesCameraLowLightBoost)
 
     testImplementation(project(":camera:camera-testing"))
