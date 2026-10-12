@@ -194,6 +194,96 @@ src/androidx/compose/ui/ComposeUiFlags.kt:9: Error: Feature flags must have a TO
     }
 
     @Test
+    fun validMultiLineTodo() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                        package androidx.compose.ui
+
+                        import kotlin.jvm.JvmField
+
+                        object ComposeUiFlags {
+                            // TODO: Remove this flag once it has soaked and remove the old code path
+                            //  entirely (b/123456789)
+                            @field:Suppress("MutableBareField")
+                            @JvmField
+                            var isFeatureEnabled: Boolean = false
+
+                            // TODO: Remove this flag once it has soaked
+                            //  b/123456789
+                            @JvmField
+                            var isOtherFeatureEnabled: Boolean = false
+                        }
+                        """
+                )
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun missingBugInMultiLineTodo() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                        package androidx.compose.ui
+
+                        import kotlin.jvm.JvmField
+
+                        object ComposeUiFlags {
+                            // TODO: Remove this flag once it has soaked and remove the old code path
+                            //  entirely
+                            @JvmField
+                            var isFeatureEnabled: Boolean = false
+                        }
+                        """
+                )
+            )
+            .run()
+            .expect(
+                """
+src/androidx/compose/ui/ComposeUiFlags.kt:10: Error: Feature flags must have a TODO comment with a bug link immediately above them [FeatureFlagSetup]
+                            var isFeatureEnabled: Boolean = false
+                                ~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+            """
+            )
+    }
+
+    @Test
+    fun bugInSeparateCommentBlockFromTodo() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                        package androidx.compose.ui
+
+                        import kotlin.jvm.JvmField
+
+                        object ComposeUiFlags {
+                            // TODO: remove me
+
+                            // See b/123456789
+                            @JvmField
+                            var isFeatureEnabled: Boolean = false
+                        }
+                        """
+                )
+            )
+            .run()
+            .expect(
+                """
+src/androidx/compose/ui/ComposeUiFlags.kt:11: Error: Feature flags must have a TODO comment with a bug link immediately above them [FeatureFlagSetup]
+                            var isFeatureEnabled: Boolean = false
+                                ~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+            """
+            )
+    }
+
+    @Test
     fun ignoreNonFlagsObject() {
         lint()
             .files(
