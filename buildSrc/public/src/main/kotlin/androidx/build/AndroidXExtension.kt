@@ -308,8 +308,7 @@ abstract class AndroidXExtension(
     }
 
     /** List of documentation samples projects for this project. */
-    var samplesProjects: MutableCollection<Project> = mutableSetOf()
-        private set
+    abstract val samplesProjects: SetProperty<Project>
 
     /**
      * Used to register a project that will be providing documentation samples for this project. Can
