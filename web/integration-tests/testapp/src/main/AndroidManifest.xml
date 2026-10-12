@@ -18,6 +18,9 @@
         <activity
             android:name=".JavaWebActivity"
             android:exported="true" />
+        <activity
+            android:name=".BenchmarkActivity"
+            android:exported="true" />
     </application>
 
 </manifest>
