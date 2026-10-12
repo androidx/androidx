@@ -143,6 +143,8 @@ public final class NavigationState {
 
     /**
      * Indicates whether the navigation committed (i.e., did not get aborted/return 204/etc).
+     * <p>
+     * Note: This will return true if {@link #didCommitErrorPage()} returns true.
      *
      * @return True if committed, false otherwise.
      */

@@ -235,7 +235,7 @@ public final class Navigation {
     @AnyThread
     @RequiresFeature(name = WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public @NonNull NavigationState snapshotState() {
+    public @NonNull NavigationState captureState() {
         ApiFeature.NoFramework feature =
                 WebViewFeatureInternal.NAVIGATION_LISTENER_NAVIGATION_STATE;
         if (feature.isSupportedByWebView()) {

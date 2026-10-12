@@ -1137,8 +1137,8 @@ public class WebViewFeatureInternal {
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
      * This feature covers
-     * {@link Navigation#snapshotState()}
-     * {@link Page#snapshotState()}
+     * {@link Navigation#captureState()}
+     * {@link Page#captureState()}
      */
     public static final ApiFeature.NoFramework NAVIGATION_LISTENER_NAVIGATION_STATE =
             new ApiFeature.NoFramework(WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE,
