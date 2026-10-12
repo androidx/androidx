@@ -35,7 +35,7 @@ class WearRemoteIssueRegistry : IssueRegistry() {
 
     override val vendor =
         Vendor(
-            vendorName = "Jetpack Wear Compose Remote",
+            vendorName = "Jetpack Wear Remote Compose",
             identifier = "androidx.wear.compose.remote",
             feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128",
         )

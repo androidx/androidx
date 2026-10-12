@@ -65,9 +65,9 @@ import androidx.wear.compose.material3.ColorScheme
  *   top of [tertiaryContainer].
  * @property surfaceContainerLow A surface color used for large containment components such as Card
  *   and Button with low prominence.
- * @property surfaceContainer The main surface color that affect surfaces of components with large
+ * @property surfaceContainer The main surface color that affects surfaces of components with large
  *   containment areas, such as Card and Button.
- * @property surfaceContainerHigh A surface color used for large containment components such Card
+ * @property surfaceContainerHigh A surface color used for large containment components such as Card
  *   and Button with high prominence.
  * @property onSurface Color used for text and icons displayed on top of the surface color.
  * @property onSurfaceVariant The color for secondary text and icons on top of [surfaceContainer].
@@ -83,7 +83,7 @@ import androidx.wear.compose.material3.ColorScheme
  *   failed dialog overlays or stop buttons.
  * @property errorContainer A less prominent container color than [error], for components using the
  *   error state. Can also indicate an active error state which feels less interactive than a filled
- *   state, such as an active emergency sharing button, or on a failed overlay dialog..
+ *   state, such as an active emergency sharing button, or on a failed overlay dialog.
  * @property onError Color used for text and icons displayed on top of the error color.
  * @property onErrorContainer Color used for text and icons on the errorContainer color.
  */

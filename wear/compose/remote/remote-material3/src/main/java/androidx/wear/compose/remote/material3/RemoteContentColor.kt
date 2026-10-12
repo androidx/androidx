@@ -22,13 +22,12 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.wear.compose.material3.ColorScheme
 
 /**
  * CompositionLocal containing the preferred content color for a given position in the hierarchy.
- * This typically represents the `on` color for a color in [ColorScheme]. For example, if the
- * background color is [ColorScheme.surfaceContainer], this color is typically set to
- * [ColorScheme.onSurface].
+ * This typically represents the `on` color for a color in [RemoteColorScheme]. For example, if the
+ * background color is [RemoteColorScheme.surfaceContainer], this color is typically set to
+ * [RemoteColorScheme.onSurface].
  *
  * This color should be used for any typography / iconography, to ensure that the color of these
  * adjusts when the background color changes. For example, on a dark background, text should be

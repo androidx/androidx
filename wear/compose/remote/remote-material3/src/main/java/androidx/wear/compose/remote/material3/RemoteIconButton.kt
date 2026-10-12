@@ -47,7 +47,7 @@ import androidx.compose.ui.graphics.Color
  * [RemoteIconButton] can be enabled or disabled. A disabled button will not respond to click
  * events.
  *
- * Example of an [RemoteIconButton] with shape animation of rounded corners on press:
+ * Example of a [RemoteIconButton] with shape animation of rounded corners on press:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteIconButtonSimpleSample
  * @param onClick Will be called when the user clicks the button.
@@ -99,7 +99,7 @@ public object RemoteIconButtonDefaults {
     public val shape: RemoteRoundedCornerShape
         get() = RemoteCircleShape
 
-    /** Recommended alpha to apply to an IconButton with Image content with disabled */
+    /** Recommended alpha to apply to a [RemoteIconButton] with Image content when disabled */
     public val DisabledImageOpacity: RemoteFloat = DisabledContentAlpha.rf
 
     /**
@@ -390,10 +390,10 @@ public class RemoteIconButtonColors(
     /**
      * Returns a copy of this RemoteIconButtonColors optionally overriding some of the values.
      *
-     * @param containerColor the background color of this text button when enabled.
-     * @param contentColor the content color of this text button when enabled.
-     * @param disabledContainerColor the background color of this text button when not enabled.
-     * @param disabledContentColor the content color of this text button when not enabled.
+     * @param containerColor the background color of this icon button when enabled.
+     * @param contentColor the content color of this icon button when enabled.
+     * @param disabledContainerColor the background color of this icon button when not enabled.
+     * @param disabledContentColor the content color of this icon button when not enabled.
      */
     public fun copy(
         containerColor: RemoteColor? = this.containerColor,

@@ -39,8 +39,8 @@ import androidx.compose.runtime.Composable
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param verticalAlignment the vertical alignment of the button group's children.
- * @param content the content and properties of each button. The Ux guidance is to use no more than
- *   3 buttons within a ButtonGroup.
+ * @param content the content and properties of each button. The UX guidance is to use no more than
+ *   3 buttons within a [RemoteButtonGroup].
  */
 @Composable
 @RemoteComposable

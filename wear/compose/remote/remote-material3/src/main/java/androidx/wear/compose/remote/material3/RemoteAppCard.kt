@@ -54,7 +54,7 @@ import androidx.compose.runtime.CompositionLocalProvider
  * @param appImage A slot for a small ([RemoteCardDefaults.AppImageSize]) image associated with the
  *   app.
  * @param time A slot for displaying the time relevant to the contents of the card.
- * @param content The main slot for a content of this card
+ * @param content The main slot for the content of this card
  */
 @RemoteComposable
 @Composable

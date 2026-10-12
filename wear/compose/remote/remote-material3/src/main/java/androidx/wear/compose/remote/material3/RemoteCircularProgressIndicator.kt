@@ -53,10 +53,10 @@ import androidx.compose.ui.graphics.StrokeCap
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCircularProgressIndicatorAnimatedSample
  * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
  *   represents completion.
- * @param modifier Modifier to be applied to the CircularProgressIndicator.
+ * @param modifier Modifier to be applied to the [RemoteCircularProgressIndicator].
  * @param enabled controls the enabled state. When enabled is `false`, this component will appear
- *   visually disabled. Note that only solid colors are when [enabled] is an expression, otherwise
- *   it must be a constant.
+ *   visually disabled. Note that only solid colors are supported when [enabled] is an expression,
+ *   otherwise it must be a constant.
  * @param startAngle The starting position of the progress arc, measured clockwise in degrees. For
  *   example, 0 is 3 o'clock.
  * @param endAngle The ending position of the progress arc.
@@ -94,7 +94,7 @@ public fun RemoteCircularProgressIndicator(
  * Example of indeterminate circular progress indicator:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteIndeterminateCircularProgressIndicatorSample
- * @param modifier Modifier to be applied to the CircularProgressIndicator.
+ * @param modifier Modifier to be applied to the [RemoteCircularProgressIndicator].
  * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
  *   track color.
  * @param strokeWidth The stroke width for the progress indicator.
@@ -415,11 +415,11 @@ public class RemoteProgressIndicatorColors(
     private fun resolveRemoteBrush(
         enabled: RemoteBoolean,
         enabledBrush: RemoteBrush,
-        disableBrush: RemoteBrush,
+        disabledBrush: RemoteBrush,
     ): RemoteBrush {
         // Always returns the enabled brush if enabled is not constant
         return enabled.constantValueOrNull?.let { isEnabled ->
-            if (isEnabled) enabledBrush else disableBrush
+            if (isEnabled) enabledBrush else disabledBrush
         } ?: enabledBrush
     }
 }
