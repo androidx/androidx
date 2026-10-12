@@ -89,6 +89,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -174,6 +175,7 @@ public class EncoderImpl implements Encoder {
     private final EncoderInfo mEncoderInfo;
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     final Executor mEncoderExecutor;
+    private final AtomicBoolean mHasLoggedEncoderExecutorRejection = new AtomicBoolean(false);
     private final ListenableFuture<Void> mReleasedFuture;
     private final Completer<Void> mReleasedCompleter;
     @SuppressWarnings("WeakerAccess") // synthetic accessor
@@ -524,7 +526,7 @@ public class EncoderImpl implements Encoder {
                         // Set mDataStopTimeStamp to be null in order to catch this issue in test.
                         mStopTimeoutFuture =
                                 mainThreadExecutor().schedule(
-                                        () -> mEncoderExecutor.execute(() -> {
+                                        () -> tryExecuteOnEncoderExecutor("stopTimeout", () -> {
                                             if (mPendingCodecStop) {
                                                 Logger.w(mTag,
                                                         "The data didn't reach the expected "
@@ -765,12 +767,12 @@ public class EncoderImpl implements Encoder {
     private void addSignalEosTimeoutIfNeeded() {
         if (DeviceQuirks.get(SignalEosOutputBufferNotComeQuirk.class) != null) {
             MediaCodecCallback codecCallback = mMediaCodecCallback;
-            Executor executor = mEncoderExecutor;
             if (mSignalEosTimeoutFuture != null) {
                 mSignalEosTimeoutFuture.cancel(false);
             }
             mSignalEosTimeoutFuture = mainThreadExecutor().schedule(
-                    () -> executor.execute(codecCallback::reachEndData),
+                    () -> tryExecuteOnEncoderExecutor("signalEosTimeout",
+                            codecCallback::reachEndData),
                     SIGNAL_EOS_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         }
     }
@@ -779,7 +781,7 @@ public class EncoderImpl implements Encoder {
     private void signalEndOfInputStream() {
         Logger.d(mTag, "signalEndOfInputStream");
         Futures.addCallback(acquireInputBuffer(),
-                new FutureCallback<InputBuffer>() {
+                new FutureCallback<>() {
                     @Override
                     public void onSuccess(InputBuffer inputBuffer) {
                         inputBuffer.setPresentationTimeUs(generatePresentationTimeUs());
@@ -787,7 +789,7 @@ public class EncoderImpl implements Encoder {
                         inputBuffer.submit();
 
                         Futures.addCallback(inputBuffer.getTerminationFuture(),
-                                new FutureCallback<Void>() {
+                                new FutureCallback<>() {
                                     @ExecutedBy("mEncoderExecutor")
                                     @Override
                                     public void onSuccess(@Nullable Void result) {
@@ -814,6 +816,38 @@ public class EncoderImpl implements Encoder {
                                 "Unable to acquire InputBuffer.", t);
                     }
                 }, mEncoderExecutor);
+    }
+
+    /**
+     * Posts a task to the encoder executor from a thread that must not throw, such as the
+     * MediaCodec callback looper or the main thread.
+     *
+     * <p>The encoder executor wraps the executor supplied by the app, e.g. via
+     * {@code Recorder.Builder#setExecutor(Executor)}, which rejects tasks if the app shuts it
+     * down while the encoder is still active. An uncaught exception on those threads (typically
+     * the main thread) would crash the app, so the rejection is logged and the task is dropped
+     * instead. Dropping is acceptable only because a rejecting executor is treated as terminal:
+     * the encoder can no longer make progress either way.
+     *
+     * @return {@code true} if the task was accepted, {@code false} if it was rejected.
+     */
+    @SuppressWarnings("WeakerAccess") // synthetic accessor
+    boolean tryExecuteOnEncoderExecutor(@NonNull String taskName, @NonNull Runnable task) {
+        try {
+            mEncoderExecutor.execute(task);
+            return true;
+        } catch (RejectedExecutionException e) {
+            // Log the first rejection with the stack trace to avoid flooding the log at frame
+            // rate, then log subsequent drops briefly.
+            if (mHasLoggedEncoderExecutorRejection.compareAndSet(false, true)) {
+                Logger.w(mTag, "Unable to post " + taskName + " to the encoder executor. The"
+                        + " supplied executor may have been shut down while the encoder is still"
+                        + " active.", e);
+            } else {
+                Logger.w(mTag, "Dropped " + taskName + ": encoder executor rejected the task.");
+            }
+            return false;
+        }
     }
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
@@ -1154,7 +1188,7 @@ public class EncoderImpl implements Encoder {
 
         @Override
         public void onInputBufferAvailable(@NonNull MediaCodec mediaCodec, int index) {
-            mEncoderExecutor.execute(() -> {
+            tryExecuteOnEncoderExecutor("onInputBufferAvailable", () -> {
                 if (mStopped) {
                     Logger.w(mTag, "Receives input frame after codec is reset.");
                     return;
@@ -1183,7 +1217,7 @@ public class EncoderImpl implements Encoder {
         @Override
         public void onOutputBufferAvailable(@NonNull MediaCodec mediaCodec, int index,
                 @NonNull BufferInfo bufferInfo) {
-            mEncoderExecutor.execute(() -> {
+            boolean posted = tryExecuteOnEncoderExecutor("onOutputBufferAvailable", () -> {
                 if (mStopped) {
                     Logger.w(mTag, "Receives frame after codec is reset.");
                     return;
@@ -1278,6 +1312,19 @@ public class EncoderImpl implements Encoder {
                         throw new IllegalStateException("Unknown state: " + mState);
                 }
             });
+            if (!posted) {
+                // The task was dropped, so nothing else will return this buffer to the codec.
+                // Release it here to avoid the codec holding it indefinitely. Like
+                // EncodedDataImpl#close(), releasing an output buffer doesn't need to run on
+                // the encoder executor.
+                try {
+                    mediaCodec.releaseOutputBuffer(index, false);
+                } catch (IllegalStateException e) {
+                    // The codec may have been stopped or released already. Includes
+                    // MediaCodec.CodecException.
+                    Logger.w(mTag, "Unable to release output buffer " + index, e);
+                }
+            }
         }
 
         @ExecutedBy("mEncoderExecutor")
@@ -1315,7 +1362,7 @@ public class EncoderImpl implements Encoder {
                 @NonNull EncoderCallback callback, @NonNull Executor executor) {
             mEncodedDataSet.add(encodedData);
             Futures.addCallback(encodedData.getClosedFuture(),
-                    new FutureCallback<Void>() {
+                    new FutureCallback<>() {
                         @Override
                         public void onSuccess(@Nullable Void result) {
                             mEncodedDataSet.remove(encodedData);
@@ -1466,7 +1513,11 @@ public class EncoderImpl implements Encoder {
                     executor = mEncoderCallbackExecutor;
                     encoderCallback = mEncoderCallback;
                 }
-                executor.execute(encoderCallback::onEncodePaused);
+                try {
+                    executor.execute(encoderCallback::onEncodePaused);
+                } catch (RejectedExecutionException e) {
+                    Logger.e(mTag, "Unable to post to the supplied executor.", e);
+                }
 
                 // We must ensure that the current state is PAUSED before we stop the input
                 // source and pause the codec. This is because start() may be called before the
@@ -1512,7 +1563,7 @@ public class EncoderImpl implements Encoder {
 
         @Override
         public void onError(@NonNull MediaCodec mediaCodec, MediaCodec.@NonNull CodecException e) {
-            mEncoderExecutor.execute(() -> {
+            tryExecuteOnEncoderExecutor("onError", () -> {
                 switch (mState) {
                     case STARTED:
                     case PAUSED:
@@ -1538,7 +1589,7 @@ public class EncoderImpl implements Encoder {
                 @NonNull MediaFormat mediaFormat) {
             Logger.d(mTag, "onOutputFormatChanged: mediaFormat = " + mediaFormat
                     + ", CSD data = " + getCsdHex(mediaFormat));
-            mEncoderExecutor.execute(() -> {
+            tryExecuteOnEncoderExecutor("onOutputFormatChanged", () -> {
                 if (mStopped) {
                     Logger.w(mTag, "Receives onOutputFormatChanged after codec is reset.");
                     return;
