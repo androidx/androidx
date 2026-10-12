@@ -48,6 +48,7 @@ val BaselineProfileScreens =
         PickerScreen,
         PlaceHolderScreen,
         ProgressIndicatorScreen,
+        PullToRefreshScreen,
         RadioButtonScreen,
         ScaffoldScreen,
         ScrollIndicatorScreen,
