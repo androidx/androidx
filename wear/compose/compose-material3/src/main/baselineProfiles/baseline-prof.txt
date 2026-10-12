@@ -17,6 +17,7 @@ SPLandroidx/wear/compose/material3/AnimationSpecUtilsKt**->**(**)**
 SPLandroidx/wear/compose/material3/AppScaffoldKt**->**(**)**
 PLandroidx/wear/compose/material3/ArcProgressIndicatorDefaults;->**(**)**
 HPLandroidx/wear/compose/material3/ArcProgressIndicatorKt**->**(**)**
+PLandroidx/wear/compose/material3/ArrowValues;->**(**)**
 PLandroidx/wear/compose/material3/AutoCenteringRowParentData;->**(**)**
 SPLandroidx/wear/compose/material3/ButtonColors;->**(**)**
 HSPLandroidx/wear/compose/material3/ButtonDefaults;->**(**)**
@@ -132,6 +133,11 @@ PLandroidx/wear/compose/material3/ProgressIndicatorColors;->**(**)**
 PLandroidx/wear/compose/material3/ProgressIndicatorDefaults;->**(**)**
 SPLandroidx/wear/compose/material3/ProgressIndicatorKt**->**(**)**
 SPLandroidx/wear/compose/material3/ProvidersKt**->**(**)**
+PLandroidx/wear/compose/material3/PullToRefreshDefaults;->**(**)**
+PLandroidx/wear/compose/material3/PullToRefreshElement;->**(**)**
+PLandroidx/wear/compose/material3/PullToRefreshKt**->**(**)**
+PLandroidx/wear/compose/material3/PullToRefreshModifierNode;->**(**)**
+PLandroidx/wear/compose/material3/PullToRefreshState;->**(**)**
 Landroidx/wear/compose/material3/R;
 PLandroidx/wear/compose/material3/RadioButtonColors;->**(**)**
 PLandroidx/wear/compose/material3/RadioButtonDefaults;->**(**)**
