@@ -27,6 +27,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
 @AppFunctionSignature(
     scope = AppFunctionMetadata.SCOPE_GLOBAL,
     appFunctionXmlFileName = "dynamic_signature_definitions",
+    isDescribedByKDoc = false,
 )
 fun interface DynamicAllPrimitivesInputsSignature {
     suspend fun processPrimitives(
@@ -46,10 +47,10 @@ fun interface DynamicAllPrimitivesInputsSignature {
     ): Boolean
 }
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class InnerComplexData(val id: String, val scores: IntArray, val optionalTag: String? = null)
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class OuterComplexData(
     val title: String,
     val primaryInner: InnerComplexData,
@@ -60,6 +61,7 @@ data class OuterComplexData(
 @AppFunctionSignature(
     scope = AppFunctionMetadata.SCOPE_GLOBAL,
     appFunctionXmlFileName = "dynamic_signature_definitions",
+    isDescribedByKDoc = false,
 )
 fun interface DynamicComplexSerializableSignature {
     suspend fun processComplex(input: OuterComplexData): OuterComplexData
@@ -68,6 +70,7 @@ fun interface DynamicComplexSerializableSignature {
 @AppFunctionSignature(
     scope = AppFunctionMetadata.SCOPE_GLOBAL,
     appFunctionXmlFileName = "dynamic_signature_definitions",
+    isDescribedByKDoc = false,
 )
 fun interface DynamicVoidReturnSignature {
     suspend fun processVoid(message: String)
@@ -76,6 +79,7 @@ fun interface DynamicVoidReturnSignature {
 @AppFunctionSignature(
     scope = AppFunctionMetadata.SCOPE_ACTIVITY,
     appFunctionXmlFileName = "dynamic_signature_definitions",
+    isDescribedByKDoc = false,
 )
 fun interface DynamicActivityScopeSignature {
     suspend fun processVoid(message: String)
@@ -84,6 +88,7 @@ fun interface DynamicActivityScopeSignature {
 @AppFunctionSignature(
     scope = AppFunctionMetadata.SCOPE_GLOBAL,
     appFunctionXmlFileName = "dynamic_signature_definitions",
+    isDescribedByKDoc = false,
 )
 fun interface DynamicThrowingSignature {
     suspend fun processAndThrow(exceptionType: String): String
@@ -92,6 +97,7 @@ fun interface DynamicThrowingSignature {
 @AppFunctionSignature(
     scope = AppFunctionMetadata.SCOPE_GLOBAL,
     appFunctionXmlFileName = "dynamic_signature_definitions",
+    isDescribedByKDoc = false,
 )
 @AppFunctionAccessLevel(
     level = AppFunctionMetadata.ACCESS_LEVEL_SELF,
@@ -104,6 +110,7 @@ fun interface DynamicSelfAccessSignature {
 @AppFunctionSignature(
     scope = AppFunctionMetadata.SCOPE_GLOBAL,
     appFunctionXmlFileName = "dynamic_signature_definitions",
+    isDescribedByKDoc = false,
 )
 @AppFunctionAccessLevel(
     level = AppFunctionMetadata.ACCESS_LEVEL_SELF,
@@ -116,6 +123,7 @@ fun interface DynamicSelfAccessDisabledCompatSignature {
 @AppFunctionSignature(
     scope = AppFunctionMetadata.SCOPE_GLOBAL,
     appFunctionXmlFileName = "dynamic_signature_definitions",
+    isDescribedByKDoc = false,
 )
 @AppFunctionAccessLevel(
     level = AppFunctionMetadata.ACCESS_LEVEL_SYSTEM,

@@ -33,7 +33,8 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
  * ```kotlin
  * @AppFunctionSignature(
  *     scope = AppFunctionMetadata.SCOPE_ACTIVITY,
- *     appFunctionXmlFileName = "cart_functions"
+ *     appFunctionXmlFileName = "cart_functions",
+ *     isDescribedByKDoc = true,
  * )
  * fun interface AddCurrentItemToCart {
  *     /** Adds the item currently shown on screen to the cart. Returns the new cart size. */
@@ -160,7 +161,7 @@ public annotation class AppFunctionSignature(
 
     /**
      * Whether to use the functional interface's abstract method KDoc as a function's description
-     * for the agent. The default value is `false`.
+     * for the agent.
      *
      * If set to `true`, the KDoc will be used to populate:
      * - The function's [androidx.appfunctions.metadata.AppFunctionMetadata.description] as the
@@ -204,5 +205,5 @@ public annotation class AppFunctionSignature(
      * - [androidx.appfunctions.metadata.AppFunctionResponseMetadata.description] will be: "Whether
      *   the captions were successfully enabled."
      */
-    public val isDescribedByKDoc: Boolean = false,
+    public val isDescribedByKDoc: Boolean,
 )

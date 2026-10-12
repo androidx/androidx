@@ -38,21 +38,21 @@ import androidx.appfunctions.AppFunctionUriGrant
     appFunctionXmlFileName = "simple_app_function_service",
 )
 abstract class BaseSimpleAppFunctionService : AppFunctionService() {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun echoProxyTypes(value: MultiServiceProxyTypesWrapper): MultiServiceProxyTypesWrapper = value
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun doThrow() {
         throw AppFunctionInvalidArgumentException("invalid")
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun enumValueFunction(
         @AppFunctionIntValueConstraint(enumValues = [0, 1]) intEnum: Int,
         @AppFunctionStringValueConstraint(enumValues = ["A", "B"]) stringEnum: String,
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun getFilesData(): MultiServiceFilesData {
         return MultiServiceFilesData(
             readOnlyUri =

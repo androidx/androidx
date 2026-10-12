@@ -8,7 +8,7 @@ import androidx.appfunctions.AppFunctionDeclaration
 @RequiresApi(34)
 @AppFunctionServiceEntryPoint("MyRequiresApiService", "my_requires_api_service")
 abstract class RequiresApiEntryPoint: AppFunctionService() {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun simpleFunction(int: Int, string: String): String {
         TODO("Not implemented")
     }

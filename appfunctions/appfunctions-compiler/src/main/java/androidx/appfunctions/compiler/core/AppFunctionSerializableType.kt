@@ -94,7 +94,7 @@ interface AppFunctionSerializableType {
      *     override val intentToOpen: PendingIntent
      * }
      *
-     * @AppFunctionSerializable
+     * @AppFunctionSerializable(isDescribedByKDoc = false)
      * class MySerializableClass(
      *   override val intentToOpen: PendingIntent
      * ) : OpenableResponse
@@ -139,7 +139,7 @@ interface AppFunctionSerializableType {
      *
      * For example, consider the following classes:
      * ```
-     * @AppFunctionSerializable
+     * @AppFunctionSerializable(isDescribedByKDoc = false)
      * open class Address (
      *     open val street: String,
      *     open val city: String,
@@ -147,7 +147,7 @@ interface AppFunctionSerializableType {
      *     open val zipCode: String,
      * )
      *
-     * @AppFunctionSerializable
+     * @AppFunctionSerializable(isDescribedByKDoc = false)
      * class MySerializableClass(
      *     override val street: String,
      *     override val city: String,

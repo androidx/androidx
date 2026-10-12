@@ -34,7 +34,7 @@ import androidx.annotation.RestrictTo.Scope
  *     public val intentToOpen: PendingIntent
  * }
  *
- * @AppFunctionSerializable
+ * @AppFunctionSerializable(isDescribedByKDoc = false)
  * data class NoteWithOpenIntent(
  *     override val intentToOpen,
  *     val title: String) : OpenIntent {}

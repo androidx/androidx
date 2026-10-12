@@ -20,7 +20,7 @@ import androidx.appfunctions.AppFunctionSerializable
 import android.app.PendingIntent
 import android.os.Bundle
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class SerializableWithParcelables(
     val pendingIntent: PendingIntent,
     val pendingIntentList: List<PendingIntent>,

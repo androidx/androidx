@@ -25,7 +25,7 @@ class FakeFreeFormFunctionsWithInstruction {
         return (arg1 + arg2).toString()
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionInstruction("Overridden function description without kdoc")
     fun myInstructionFunctionWithoutKdoc(
         appFunctionContext: AppFunctionContext,
@@ -46,7 +46,7 @@ data class SerializableWithKDocAndInstruction(
     val data: String
 )
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 @AppFunctionInstruction("SerializableWithOnlyInstruction instruction")
 data class SerializableWithOnlyInstruction(
     @AppFunctionInstruction("SerializableWithOnlyInstruction#data instruction")

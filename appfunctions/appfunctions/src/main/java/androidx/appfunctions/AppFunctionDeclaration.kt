@@ -41,7 +41,8 @@ package androidx.appfunctions
  *
  * For example:
  * ```kotlin
- * @AppFunctionDeclaration
+ * /** Processes large data. */
+ * @AppFunctionDeclaration(isDescribedByKDoc = true)
  * suspend fun processLargeData(
  *     context: AppFunctionContext,
  *     data: List<String>
@@ -84,7 +85,7 @@ package androidx.appfunctions
  *
  * Example:
  * ```
- * @AppFunctionDeclaration
+ * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * @Deprecated(
  *   message = "Use newSearchFunction(query) instead. " +
  *     "This function will be removed in a future version.",
@@ -103,17 +104,7 @@ package androidx.appfunctions
 @Target(AnnotationTarget.FUNCTION)
 public annotation class AppFunctionDeclaration(
     /**
-     * Indicates whether this function is enabled. The default value is `true`.
-     *
-     * If set to `false`, this function will be unavailable for invocation by other applications
-     * unless explicitly enabled at runtime. When disabled, any attempt to call this function by
-     * another application will be rejected.
-     */
-    public val isEnabled: Boolean = true,
-
-    /**
-     * Whether to use the function's KDoc as a function's description for the agent. The default
-     * value is `false`.
+     * Whether to use the function's KDoc as a function's description for the agent.
      *
      * If set to `true`, the KDoc will be used to populate:
      * - The function's [androidx.appfunctions.metadata.AppFunctionMetadata.description] as the
@@ -150,5 +141,13 @@ public annotation class AppFunctionDeclaration(
      *   the note."
      * - `AppFunctionResponseMetadata.description` will be: "The created note."
      */
-    public val isDescribedByKDoc: Boolean = false,
+    public val isDescribedByKDoc: Boolean,
+    /**
+     * Indicates whether this function is enabled. The default value is `true`.
+     *
+     * If set to `false`, this function will be unavailable for invocation by other applications
+     * unless explicitly enabled at runtime. When disabled, any attempt to call this function by
+     * another application will be rejected.
+     */
+    public val isEnabled: Boolean = true,
 )

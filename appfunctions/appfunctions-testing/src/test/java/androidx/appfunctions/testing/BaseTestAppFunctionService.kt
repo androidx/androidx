@@ -33,43 +33,44 @@ import java.time.LocalDateTime
 )
 abstract class BaseTestAppFunctionService :
     AppFunctionService(), CreateNoteAppFunction<CreateNoteParameters, CreateNoteResponse> {
-    @AppFunctionDeclaration fun add(num1: Long, num2: Long) = num1 + num2
+    @AppFunctionDeclaration(isDescribedByKDoc = false) fun add(num1: Long, num2: Long) = num1 + num2
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun logLocalDateTime(dateTime: DateTime) {
         Log.d("TestFunctions", "LocalDateTime: ${dateTime.localDateTime}")
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun getLocalDate(): DateTime {
         return DateTime(localDateTime = LocalDateTime.now())
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun doThrow() {
         throw AppFunctionInvalidArgumentException("invalid")
     }
 
-    @AppFunctionDeclaration fun voidFunction() {}
+    @AppFunctionDeclaration(isDescribedByKDoc = false) fun voidFunction() {}
 
-    @AppFunctionDeclaration fun enabledByDefault() {}
+    @AppFunctionDeclaration(isDescribedByKDoc = false) fun enabledByDefault() {}
 
-    @AppFunctionDeclaration(isEnabled = false) fun disabledByDefault() {}
+    @AppFunctionDeclaration(isDescribedByKDoc = false, isEnabled = false) fun disabledByDefault() {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     override suspend fun createNote(parameters: CreateNoteParameters): CreateNoteResponse {
         return CreateNoteResponse(MyNote(id = "testId", title = parameters.title))
     }
 }
 
-@AppFunctionSerializable data class DateTime(val localDateTime: LocalDateTime)
+@AppFunctionSerializable(isDescribedByKDoc = false)
+data class DateTime(val localDateTime: LocalDateTime)
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class MyNote(override val id: String, override val title: String) : AppFunctionNote
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class CreateNoteParameters(override val title: String) : CreateNoteAppFunction.Parameters
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class CreateNoteResponse(override val createdNote: MyNote) : CreateNoteAppFunction.Response

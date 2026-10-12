@@ -6,7 +6,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class SerializableWithProxyType(
     val localDateTime: LocalDateTime,
     val localDateTimeList: List<LocalDateTime>,

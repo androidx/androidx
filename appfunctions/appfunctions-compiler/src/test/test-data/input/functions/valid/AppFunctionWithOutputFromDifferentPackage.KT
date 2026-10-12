@@ -7,14 +7,14 @@ import com.testdata.diffPackageSchemas.DiffPackageOutputSchemas
 import com.testdata.differentPackage.DiffPackageSerializable
 
 class AppFunctionWithOutputFromDifferentPackage : DiffPackageOutputSchemas {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     override fun functionWithDiffPackageOutput(
         appFunctionContext: AppFunctionContext,
     ): DiffPackageSerializable {
         return DiffPackageSerializable(2L)
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     override fun functionWithAnotherDiffPackageOutput(
         appFunctionContext: AppFunctionContext,
     ): List<AnotherDiffPackageSerializable> {

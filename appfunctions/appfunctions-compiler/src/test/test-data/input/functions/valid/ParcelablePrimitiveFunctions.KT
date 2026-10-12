@@ -6,16 +6,16 @@ import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class ParcelablePrimitiveFunctions {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun pendingIntentInput(appFunctionContext: AppFunctionContext, pendingIntent: PendingIntent) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun listPendingIntentInput(
         appFunctionContext: AppFunctionContext,
         listPendingIntent: List<PendingIntent>
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun pendingIntentOutput(appFunctionContext: AppFunctionContext): PendingIntent {
         val intent = Intent()
         return PendingIntent.getActivity(
@@ -27,7 +27,7 @@ class ParcelablePrimitiveFunctions {
     }
 
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun listPendingIntentOutput(appFunctionContext: AppFunctionContext): List<PendingIntent> {
         val intent = Intent()
         return listOf(

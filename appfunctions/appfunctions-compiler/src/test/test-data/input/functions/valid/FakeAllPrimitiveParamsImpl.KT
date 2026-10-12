@@ -4,7 +4,7 @@ import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class FakeAllPrimitiveParamsImpl : FakeAllPrimitiveParams {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     override fun allPrimitiveParams(
         appFunctionContext: AppFunctionContext,
         arg1: Int,
@@ -17,7 +17,7 @@ class FakeAllPrimitiveParamsImpl : FakeAllPrimitiveParams {
 }
 
 class FakeAllPrimitiveArrayParamsImpl : FakeAllPrimitiveArrayParams {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     override fun allPrimitiveArrayParams(
         appFunctionContext: AppFunctionContext,
         arg1: IntArray,

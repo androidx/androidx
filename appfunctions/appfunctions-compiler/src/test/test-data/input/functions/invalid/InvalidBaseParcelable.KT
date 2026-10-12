@@ -21,7 +21,7 @@ import androidx.appfunctions.AppFunctionDeclaration
 import android.os.Parcelable
 
 class InvalidBaseParcelable {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun invalidBaseParcelable(
         ctx: AppFunctionContext,
         parcelableParam: Parcelable,

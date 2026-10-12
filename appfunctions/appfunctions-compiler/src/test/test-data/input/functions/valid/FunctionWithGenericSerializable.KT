@@ -22,7 +22,7 @@ data class UpdateNoteParams(
 )
 
 class FunctionWithGenericSerializable {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     suspend fun test(
         appFunctionContext: AppFunctionContext,
         params: UpdateNoteParams,

@@ -18,11 +18,11 @@ package com.testdata.oneofserializable
 
 import androidx.appfunctions.AppFunctionSerializable
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 sealed interface OneOfSealedInterface {
     class ASubclass(val str: String) : OneOfSealedInterface
 
-    @AppFunctionSerializable
+    @AppFunctionSerializable(isDescribedByKDoc = false)
     class BSubclass(val integer: Int) : OneOfSealedInterface
 
 }

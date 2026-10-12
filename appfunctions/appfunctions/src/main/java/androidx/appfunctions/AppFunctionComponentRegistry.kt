@@ -37,7 +37,7 @@ import androidx.annotation.StringDef
  * package com.notes
  *
  * class NotesFunction {
- *   @AppFunctionDeclaration
+ *   @AppFunctionDeclaration(isDescribedByKDoc = false)
  *   suspend fun createNote(params: Params): Note { ... }
  * }
  * ```

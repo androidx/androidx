@@ -8,14 +8,14 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
 
 @AppFunctionServiceEntryPoint("MyAccessLevelService", "my_access_level_service")
 abstract class AccessLevelEntryPoint : AppFunctionService() {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionAccessLevel(
         level = AppFunctionMetadata.ACCESS_LEVEL_SELF,
         isCompatEnforcementEnabled = false,
     )
     internal fun selfFunction() {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionAccessLevel(
         level = AppFunctionMetadata.ACCESS_LEVEL_SYSTEM,
         isCompatEnforcementEnabled = true,

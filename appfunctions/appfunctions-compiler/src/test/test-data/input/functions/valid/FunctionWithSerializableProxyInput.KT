@@ -5,13 +5,13 @@ import androidx.appfunctions.AppFunctionContext
 import java.time.LocalDateTime
 
 class FunctionWithSerializableProxyInput {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionWithLocalDateTime(
         appFunctionContext: AppFunctionContext,
         localDateTime: LocalDateTime
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionWithSerializableWithProxy(
         appFunctionContext: AppFunctionContext,
         serializableWithProxyType: SerializableWithProxyType
