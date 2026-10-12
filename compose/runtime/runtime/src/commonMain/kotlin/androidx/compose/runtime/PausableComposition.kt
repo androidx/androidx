@@ -192,14 +192,26 @@ public fun PausableComposition(
     parent: CompositionContext,
 ): PausableComposition = CompositionImpl(parent, applier)
 
-internal enum class PausedCompositionState {
-    Invalid,
-    Cancelled,
-    InitialPending,
-    RecomposePending,
-    Recomposing,
-    ApplyPending,
-    Applied,
+internal sealed class PausedCompositionState(val ordinal: Int) {
+    class Invalid(val cause: Throwable) : PausedCompositionState(ordinal) {
+        companion object {
+            const val ordinal = 0
+        }
+    }
+
+    object Cancelled : PausedCompositionState(1)
+
+    object InitialPending : PausedCompositionState(2)
+
+    object RecomposePending : PausedCompositionState(3)
+
+    object Recomposing : PausedCompositionState(4)
+
+    object ApplyPending : PausedCompositionState(5)
+
+    object Applied : PausedCompositionState(6)
+
+    operator fun compareTo(other: PausedCompositionState) = this.ordinal.compareTo(other.ordinal)
 }
 
 internal class PausedCompositionImpl(
@@ -212,7 +224,9 @@ internal class PausedCompositionImpl(
     val applier: Applier<*>,
     val lock: SynchronizedObject,
 ) : PausedComposition {
-    private var state = AtomicReference(PausedCompositionState.InitialPending)
+    private val state =
+        AtomicReference<PausedCompositionState>(PausedCompositionState.InitialPending)
+
     private var owningThread = currentThreadId()
     private var invalidScopes = emptyScatterSet<RecomposeScopeImpl>()
     internal val rememberManager =
@@ -232,9 +246,10 @@ internal class PausedCompositionImpl(
         get() = state.get() == PausedCompositionState.Cancelled
 
     override fun resume(shouldPause: ShouldPauseCallback): Boolean {
+        val currentState = state.get()
         try {
-            when (state.get()) {
-                PausedCompositionState.InitialPending -> {
+            when (currentState.ordinal) {
+                PausedCompositionState.InitialPending.ordinal -> {
                     if (reusable) composer.startReuseFromRoot()
                     var completed = false
                     try {
@@ -252,7 +267,7 @@ internal class PausedCompositionImpl(
                     )
                     if (invalidScopes.isEmpty()) markComplete()
                 }
-                PausedCompositionState.RecomposePending -> {
+                PausedCompositionState.RecomposePending.ordinal -> {
                     updateState(
                         PausedCompositionState.RecomposePending,
                         PausedCompositionState.Recomposing,
@@ -271,44 +286,56 @@ internal class PausedCompositionImpl(
                     }
                     if (invalidScopes.isEmpty()) markComplete()
                 }
-                PausedCompositionState.Recomposing -> {
+                PausedCompositionState.Recomposing.ordinal -> {
                     composeRuntimeError("Recursive call to resume()")
                 }
-                PausedCompositionState.ApplyPending ->
+                PausedCompositionState.ApplyPending.ordinal ->
                     error("Pausable composition is complete and apply() should be applied")
-                PausedCompositionState.Applied -> error("The paused composition has been applied")
-                PausedCompositionState.Cancelled ->
+                PausedCompositionState.Applied.ordinal ->
+                    error("The paused composition has been applied")
+                PausedCompositionState.Cancelled.ordinal ->
                     error("The paused composition has been cancelled")
-                PausedCompositionState.Invalid ->
-                    error("The paused composition is invalid because of a previous exception")
+                PausedCompositionState.Invalid.ordinal ->
+                    throw IllegalStateException(
+                        "The paused composition is invalid because of a previous exception",
+                        (currentState as PausedCompositionState.Invalid).cause,
+                    )
             }
         } catch (e: Exception) {
-            state.set(PausedCompositionState.Invalid)
+            if (currentState !is PausedCompositionState.Invalid) {
+                state.set(PausedCompositionState.Invalid(e))
+            }
             throw e
         }
         return isComplete
     }
 
     override fun apply() {
+        val currentState = state.get()
         try {
-            when (state.get()) {
-                PausedCompositionState.InitialPending,
-                PausedCompositionState.RecomposePending,
-                PausedCompositionState.Recomposing ->
+            when (currentState.ordinal) {
+                PausedCompositionState.InitialPending.ordinal,
+                PausedCompositionState.RecomposePending.ordinal,
+                PausedCompositionState.Recomposing.ordinal ->
                     error("The paused composition has not completed yet")
-                PausedCompositionState.ApplyPending -> {
+                PausedCompositionState.ApplyPending.ordinal -> {
                     applyChanges()
                     updateState(PausedCompositionState.ApplyPending, PausedCompositionState.Applied)
                 }
-                PausedCompositionState.Applied ->
+                PausedCompositionState.Applied.ordinal ->
                     error("The paused composition has already been applied")
-                PausedCompositionState.Cancelled ->
+                PausedCompositionState.Cancelled.ordinal ->
                     error("The paused composition has been cancelled")
-                PausedCompositionState.Invalid ->
-                    error("The paused composition is invalid because of a previous exception")
+                PausedCompositionState.Invalid.ordinal ->
+                    throw IllegalStateException(
+                        "The paused composition is invalid because of a previous exception",
+                        (currentState as PausedCompositionState.Invalid).cause,
+                    )
             }
         } catch (e: Exception) {
-            state.set(PausedCompositionState.Invalid)
+            if (currentState !is PausedCompositionState.Invalid) {
+                state.set(PausedCompositionState.Invalid(e))
+            }
             throw e
         }
     }
@@ -414,6 +441,7 @@ internal class RecordingApplier<N>(root: N) : Applier<N> {
 
     fun playTo(applier: Applier<N>, rememberManager: RememberEventDispatcher) {
         var currentOperation = 0
+        var lastOperation = 0
         var currentInstance = 0
         val operations = operations
         val size = operations.size
@@ -422,6 +450,7 @@ internal class RecordingApplier<N>(root: N) : Applier<N> {
         applier.onBeginChanges()
         try {
             while (currentOperation < size) {
+                lastOperation = currentOperation
                 val operation = operations[currentOperation++]
                 when (operation) {
                     UP -> {
@@ -481,7 +510,7 @@ internal class RecordingApplier<N>(root: N) : Applier<N> {
                 instances,
                 reused,
                 operations,
-                currentOperation - 1,
+                lastOperation,
                 e,
             )
         } finally {
