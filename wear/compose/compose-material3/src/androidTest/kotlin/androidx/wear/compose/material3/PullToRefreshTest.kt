@@ -376,7 +376,10 @@ class PullToRefreshTest {
             swipeDownFromContent(2 * positionalThreshold + touchSlop + 5f)
         }
 
-        rule.runOnIdle { assertThat(refreshCount).isEqualTo(1) }
+        rule.runOnIdle {
+            assertThat(refreshCount).isEqualTo(1)
+            assertThat(state.distanceFraction).isEqualTo(0f)
+        }
     }
 
     @Test
@@ -451,7 +454,10 @@ class PullToRefreshTest {
         assertThat(state.distanceFraction).isWithin(0.1f).of(1.5f)
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput { up() }
-        rule.runOnIdle { assertThat(refreshCount).isEqualTo(1) }
+        rule.runOnIdle {
+            assertThat(refreshCount).isEqualTo(1)
+            assertThat(state.distanceFraction).isEqualTo(0f)
+        }
     }
 
     @Test
@@ -483,6 +489,7 @@ class PullToRefreshTest {
         assertThat(state.distanceFraction).isEqualTo(2f)
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput { up() }
+        rule.runOnIdle { assertThat(state.distanceFraction).isEqualTo(0f) }
     }
 
     // ========================================================================
