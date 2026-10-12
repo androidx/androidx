@@ -77,6 +77,24 @@ public class AnimatableValue implements Serializable {
         return mValue;
     }
 
+    /** Returns whether the value represents a variable. */
+    public boolean isVariable() {
+        return mIsVariable;
+    }
+
+    /** Returns the variable ID if {@link #isVariable()} is true, or 0. */
+    public int getId() {
+        return mId;
+    }
+
+    /**
+     * Returns the raw source value, which is a NaN-encoded variable ID if this represents a
+     * variable, or the float value otherwise.
+     */
+    public float getSource() {
+        return mIsVariable ? Utils.asNan(mId) : mValue;
+    }
+
     /**
      * Evaluate going through FloatAnimation if needed
      *

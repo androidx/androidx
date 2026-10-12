@@ -249,4 +249,49 @@ public class DrawBitmapInt extends PaintOperation implements AccessibleComponent
                 .add("dstRight", mDstRight)
                 .add("dstBottom", mDstBottom);
     }
+
+    /** Returns {@code mImageId}. */
+    public int getImageId() {
+        return mImageId;
+    }
+
+    /** Returns {@code mSrcLeft}. */
+    public int getSrcLeft() {
+        return mSrcLeft;
+    }
+
+    /** Returns {@code mSrcTop}. */
+    public int getSrcTop() {
+        return mSrcTop;
+    }
+
+    /** Returns {@code mSrcRight}. */
+    public int getSrcRight() {
+        return mSrcRight;
+    }
+
+    /** Returns {@code mSrcBottom}. */
+    public int getSrcBottom() {
+        return mSrcBottom;
+    }
+
+    /** Returns {@code mDstLeft}. */
+    public int getDstLeft() {
+        return mDstLeft;
+    }
+
+    /** Returns {@code mDstTop}. */
+    public int getDstTop() {
+        return mDstTop;
+    }
+
+    /** Returns {@code mDstRight}. */
+    public int getDstRight() {
+        return mDstRight;
+    }
+
+    /** Returns {@code mDstBottom}. */
+    public int getDstBottom() {
+        return mDstBottom;
+    }
 }

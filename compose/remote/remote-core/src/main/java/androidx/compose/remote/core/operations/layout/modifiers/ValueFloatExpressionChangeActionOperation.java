@@ -142,4 +142,14 @@ public class ValueFloatExpressionChangeActionOperation extends Operation
                 .add("targetValueId", mTargetValueId)
                 .add("valueExpressionId", mValueExpressionId);
     }
+
+    /** Returns {@code mTargetValueId}. */
+    public int getTargetValueId() {
+        return mTargetValueId;
+    }
+
+    /** Returns {@code mValueExpressionId}. */
+    public int getValueExpressionId() {
+        return mValueExpressionId;
+    }
 }

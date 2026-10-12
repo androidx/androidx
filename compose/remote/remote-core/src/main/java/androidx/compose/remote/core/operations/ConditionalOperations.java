@@ -282,4 +282,29 @@ public class ConditionalOperations extends PaintOperation
                 .add("VarB", mVarB, mVarBOut)
                 .add("list", mList);
     }
+
+    /** Returns the raw first operand, preserving NaN-encoded variable IDs. */
+    public float getVarA() {
+        return mVarA;
+    }
+
+    /** Returns the raw second operand, preserving NaN-encoded variable IDs. */
+    public float getVarB() {
+        return mVarB;
+    }
+
+    /** Returns {@code mVarAOut}. */
+    public float getVarAOut() {
+        return mVarAOut;
+    }
+
+    /** Returns {@code mVarBOut}. */
+    public float getVarBOut() {
+        return mVarBOut;
+    }
+
+    /** Returns {@code mType}. */
+    public byte getType() {
+        return mType;
+    }
 }

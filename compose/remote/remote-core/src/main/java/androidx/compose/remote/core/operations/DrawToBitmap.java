@@ -202,4 +202,19 @@ public class DrawToBitmap extends PaintOperation implements Serializable {
                 .add("mode", mMode)
                 .add("color", mColor);
     }
+
+    /** Returns {@code mBitmapId}. */
+    public int getBitmapId() {
+        return mBitmapId;
+    }
+
+    /** Returns {@code mMode}. */
+    public int getMode() {
+        return mMode;
+    }
+
+    /** Returns {@code mColor}. */
+    public int getColor() {
+        return mColor;
+    }
 }

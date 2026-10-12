@@ -59,8 +59,18 @@ public class OffsetModifierOperation extends DecoratorModifierOperation implemen
         return mXValue;
     }
 
+    /** Returns the raw x source value, preserving NaN-encoded variable IDs. */
+    public float getRawX() {
+        return mX;
+    }
+
     public float getY() {
         return mYValue;
+    }
+
+    /** Returns the raw y source value, preserving NaN-encoded variable IDs. */
+    public float getRawY() {
+        return mY;
     }
 
     public void setX(float x) {

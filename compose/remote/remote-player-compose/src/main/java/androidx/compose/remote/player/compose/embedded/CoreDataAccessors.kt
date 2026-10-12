@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("BanUncheckedReflection", "RestrictedApiAndroidX", "PrimitiveInCollection")
+@file:Suppress("RestrictedApiAndroidX", "PrimitiveInCollection")
 
 package androidx.compose.remote.player.compose.embedded
 
@@ -23,10 +23,8 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.core.TimeVariables
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.BitmapData
-import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.ClipPath
 import androidx.compose.remote.core.operations.ComponentData
 import androidx.compose.remote.core.operations.ConditionalOperations
@@ -66,6 +64,8 @@ import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
+import androidx.compose.remote.core.operations.layout.managers.BoxLayout
+import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.Custom
@@ -95,130 +95,119 @@ import androidx.compose.remote.core.operations.layout.modifiers.ValueStringChang
 import androidx.compose.remote.core.operations.layout.modifiers.ZIndexModifierOperation
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.semantics.CoreSemantics
-import java.lang.reflect.Field
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import java.util.ArrayList
 import java.util.HashMap
 
 /*
- * Centralized reflective accessors for package-private remote-core operation fields the embedded
- * player needs to read (remote-core left unchanged — no public getters yet).
- * Encapsulated via Kotlin data classes and extension methods.
+ * Centralized accessors for the remote-core operation state the embedded player needs to read,
+ * encapsulated via Kotlin data classes and extension methods over the core getters
+ * (the "*Reflection" names are historical: these used to read package-private fields
+ * reflectively before remote-core exposed accessors).
  */
 
-// --- Data Classes ---
-
-// --- Extension Methods ---
-
 internal fun ClipPath.readData(): ClipPathData {
-    return ClipPathData(
-        id = clipPathIdField.getInt(this),
-        regionOp = clipPathRegionOpField.getInt(this),
-    )
+    return ClipPathData(id = getId(), regionOp = getRegionOp())
 }
 
 internal fun DrawTextOnPath.readData(): DrawTextOnPathData {
     return DrawTextOnPathData(
-        pathId = dtopPathIdField.getInt(this),
-        hOffset = dtopOutHOffsetField.getFloat(this),
-        vOffset = dtopOutVOffsetField.getFloat(this),
+        pathId = getPathId(),
+        hOffset = getOutHOffset(),
+        vOffset = getOutVOffset(),
     )
 }
 
 internal fun DrawTextAnchored.readData(): DrawTextAnchoredData {
     return DrawTextAnchoredData(
-        textId = dtaTextIdField.getInt(this),
-        x = dtaOutXField.getFloat(this),
-        y = dtaOutYField.getFloat(this),
-        panX = dtaOutPanXField.getFloat(this),
-        panY = dtaOutPanYField.getFloat(this),
-        flags = dtaFlagsField.getInt(this),
+        textId = getTextID(),
+        x = getOutX(),
+        y = getOutY(),
+        panX = getOutPanX(),
+        panY = getOutPanY(),
+        flags = getFlags(),
     )
 }
 
 internal fun DrawBitmapInt.readData(): DrawBitmapIntData {
     return DrawBitmapIntData(
-        imageId = dbiImageIdField.getInt(this),
-        srcLeft = dbiSrcLeftField.getInt(this),
-        srcTop = dbiSrcTopField.getInt(this),
-        srcRight = dbiSrcRightField.getInt(this),
-        srcBottom = dbiSrcBottomField.getInt(this),
-        dstLeft = dbiDstLeftField.getInt(this),
-        dstTop = dbiDstTopField.getInt(this),
-        dstRight = dbiDstRightField.getInt(this),
-        dstBottom = dbiDstBottomField.getInt(this),
+        imageId = getImageId(),
+        srcLeft = getSrcLeft(),
+        srcTop = getSrcTop(),
+        srcRight = getSrcRight(),
+        srcBottom = getSrcBottom(),
+        dstLeft = getDstLeft(),
+        dstTop = getDstTop(),
+        dstRight = getDstRight(),
+        dstBottom = getDstBottom(),
     )
 }
 
 internal fun DrawTextOnCircle.readData(): DrawTextOnCircleData {
     return DrawTextOnCircleData(
-        centerX = dtocCenterXField.getFloat(this),
-        centerY = dtocCenterYField.getFloat(this),
-        radius = dtocRadiusField.getFloat(this),
-        startAngle = dtocStartAngleField.getFloat(this),
-        warpRadiusOffset = dtocWarpRadiusOffsetField.getFloat(this),
-        alignment = dtocAlignmentField.get(this) as DrawTextOnCircle.Alignment,
-        placement = dtocPlacementField.get(this) as DrawTextOnCircle.Placement,
+        centerX = getCenterX(),
+        centerY = getCenterY(),
+        radius = getRadius(),
+        startAngle = getStartAngle(),
+        warpRadiusOffset = getWarpRadiusOffset(),
+        alignment = getAlignment() as DrawTextOnCircle.Alignment,
+        placement = getPlacement() as DrawTextOnCircle.Placement,
     )
 }
 
 internal fun DrawBitmapFontText.readData(): DrawBitmapFontTextData {
     return DrawBitmapFontTextData(
-        textId = dbftTextIdField.getInt(this),
-        fontId = dbftFontIdField.getInt(this),
-        start = dbftStartField.getInt(this),
-        end = dbftEndField.getInt(this),
-        x = dbftOutXField.getFloat(this),
-        y = dbftOutYField.getFloat(this),
-        glyphSpacing = dbftOutGlyphSpacingField.getFloat(this),
+        textId = getTextID(),
+        fontId = getBitmapFontID(),
+        start = getStart(),
+        end = getEnd(),
+        x = getOutX(),
+        y = getOutY(),
+        glyphSpacing = getOutGlyphSpacing(),
     )
-}
-
-@Suppress("UNCHECKED_CAST")
-internal fun BitmapFontData.getKerningTable(): Map<String, Short>? {
-    return bitmapFontKerningField.get(this) as? Map<String, Short>
 }
 
 internal fun DrawBitmapFontTextOnPath.readData(): DrawBitmapFontTextOnPathData {
     return DrawBitmapFontTextOnPathData(
-        textId = dbfopTextIdField.getInt(this),
-        fontId = dbfopFontIdField.getInt(this),
-        pathId = dbfopPathIdField.getInt(this),
-        start = dbfopStartField.getInt(this),
-        end = dbfopEndField.getInt(this),
-        yAdj = dbfopOutYAdjField.getFloat(this),
-        glyphSpacing = dbfopOutGlyphSpacingField.getFloat(this),
+        textId = getTextID(),
+        fontId = getBitmapFontID(),
+        pathId = getPathID(),
+        start = getStart(),
+        end = getEnd(),
+        yAdj = getOutYAdj(),
+        glyphSpacing = getOutGlyphSpacing(),
     )
 }
 
 internal fun DrawBitmapTextAnchored.readData(): DrawBitmapTextAnchoredData {
     return DrawBitmapTextAnchoredData(
-        textId = dbtaTextIdField.getInt(this),
-        fontId = dbtaFontIdField.getInt(this),
-        start = dbtaOutStartField.getFloat(this).toInt(),
-        end = dbtaOutEndField.getFloat(this).toInt(),
-        x = dbtaOutXField.getFloat(this),
-        y = dbtaOutYField.getFloat(this),
-        panX = dbtaOutPanXField.getFloat(this),
-        panY = dbtaOutPanYField.getFloat(this),
-        glyphSpacing = dbtaOutGlyphSpacingField.getFloat(this),
+        textId = getTextID(),
+        fontId = getBitmapFontID(),
+        start = getOutStart().toInt(),
+        end = getOutEnd().toInt(),
+        x = getOutX(),
+        y = getOutY(),
+        panX = getOutPanX(),
+        panY = getOutPanY(),
+        glyphSpacing = getOutGlyphSpacing(),
     )
 }
 
 internal fun DrawToBitmap.readData(): DrawToBitmapData {
     return DrawToBitmapData(
-        bitmapId = dtbBitmapIdField.getInt(this),
-        mode = dtbModeField.getInt(this),
-        color = dtbColorField.getInt(this),
+        bitmapId = getBitmapId(),
+        mode = getMode(),
+        color = getColor(),
     )
 }
 
 internal fun DrawTweenPath.readData(): DrawTweenPathData {
     return DrawTweenPathData(
-        path1Id = dtpPath1IdField.getInt(this),
-        path2Id = dtpPath2IdField.getInt(this),
-        tween = dtpOutTweenField.getFloat(this),
-        start = dtpOutStartField.getFloat(this),
-        stop = dtpOutStopField.getFloat(this),
+        path1Id = getPath1Id(),
+        path2Id = getPath2Id(),
+        tween = getOutTween(),
+        start = getOutStart(),
+        stop = getOutStop(),
     )
 }
 
@@ -228,237 +217,97 @@ internal fun DrawTweenPath.readData(): DrawTweenPathData {
  * seeding path once per document.
  */
 internal val ParticlesLoop.particlesSourceReflection: ParticlesCreate?
-    get() = plSourceField.get(this) as? ParticlesCreate
+    get() = getParticlesSource()
 
-internal fun ConditionalOperations.readData(): ConditionalOperationsData {
+internal fun ConditionalOperations.readData(
+    context: RemoteContext? = null
+): ConditionalOperationsData {
+    val a =
+        if (context != null) {
+            val rawA = getVarA()
+            if (rawA.isNaN()) context.getFloat(Utils.idFromNan(rawA)) else rawA
+        } else {
+            getVarAOut()
+        }
+    val b =
+        if (context != null) {
+            val rawB = getVarB()
+            if (rawB.isNaN()) context.getFloat(Utils.idFromNan(rawB)) else rawB
+        } else {
+            getVarBOut()
+        }
     return ConditionalOperationsData(
-        varAOut = condAOutField.getFloat(this),
-        varBOut = condBOutField.getFloat(this),
-        type = condTypeField.getByte(this),
+        varAOut = a,
+        varBOut = b,
+        type = getType(),
     )
 }
 
-internal fun LoopOperation.readData(): LoopOperationData {
+internal fun LoopOperation.readData(context: RemoteContext? = null): LoopOperationData {
+    val from =
+        if (context != null) {
+            val rawFrom = getFrom()
+            if (rawFrom.isNaN()) context.getFloat(Utils.idFromNan(rawFrom)) else rawFrom
+        } else {
+            getFromOut()
+        }
+    val until =
+        if (context != null) {
+            val rawUntil = getUntil()
+            if (rawUntil.isNaN()) context.getFloat(Utils.idFromNan(rawUntil)) else rawUntil
+        } else {
+            getUntilOut()
+        }
+    val step =
+        if (context != null) {
+            val rawStep = getStep()
+            if (rawStep.isNaN()) context.getFloat(Utils.idFromNan(rawStep)) else rawStep
+        } else {
+            getStepOut()
+        }
     return LoopOperationData(
-        fromOut = loopFromOutField.getFloat(this),
-        untilOut = loopUntilOutField.getFloat(this),
-        stepOut = loopStepOutField.getFloat(this),
-        indexVariableId = loopIndexVarField.getInt(this),
+        fromOut = from,
+        untilOut = until,
+        stepOut = step,
+        indexVariableId = getIndexVariableId(),
     )
 }
 
 internal fun FloatFunctionCall.readData(): FloatFunctionCallData {
     return FloatFunctionCallData(
-        function = ffcFunctionField.get(this),
-        outArgs = ffcOutArgsField.get(this) as? FloatArray,
+        function = getFunction(),
+        outArgs = getOutArgs(),
     )
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Custom.readData(): CustomData {
     return CustomData(
-        config = customConfigField.get(this) as? String,
-        configId = customConfigIdField.getInt(this),
-        properties = customPropertiesField.get(this),
+        config = getConfig(),
+        configId = getConfigId(),
+        properties = getProperties(),
     )
 }
 
 internal val Custom.CustomProperty.typeNameReflection: String
-    get() = customPropertyGetTypeNameMethod.invoke(this) as String
-
-// --- Private Reflective Fields ---
-
-private val clipPathIdField =
-    ClipPath::class.java.getDeclaredField("mId").apply { isAccessible = true }
-private val clipPathRegionOpField =
-    ClipPath::class.java.getDeclaredField("mRegionOp").apply { isAccessible = true }
-
-private val dtopPathIdField =
-    DrawTextOnPath::class.java.getDeclaredField("mPathId").apply { isAccessible = true }
-private val dtopOutHOffsetField =
-    DrawTextOnPath::class.java.getDeclaredField("mOutHOffset").apply { isAccessible = true }
-private val dtopOutVOffsetField =
-    DrawTextOnPath::class.java.getDeclaredField("mOutVOffset").apply { isAccessible = true }
-
-private val dtaTextIdField =
-    DrawTextAnchored::class.java.getDeclaredField("mTextID").apply { isAccessible = true }
-private val dtaOutXField =
-    DrawTextAnchored::class.java.getDeclaredField("mOutX").apply { isAccessible = true }
-private val dtaOutYField =
-    DrawTextAnchored::class.java.getDeclaredField("mOutY").apply { isAccessible = true }
-private val dtaOutPanXField =
-    DrawTextAnchored::class.java.getDeclaredField("mOutPanX").apply { isAccessible = true }
-private val dtaOutPanYField =
-    DrawTextAnchored::class.java.getDeclaredField("mOutPanY").apply { isAccessible = true }
-private val dtaFlagsField =
-    DrawTextAnchored::class.java.getDeclaredField("mFlags").apply { isAccessible = true }
-
-private val dbiImageIdField =
-    DrawBitmapInt::class.java.getDeclaredField("mImageId").apply { isAccessible = true }
-private val dbiSrcLeftField =
-    DrawBitmapInt::class.java.getDeclaredField("mSrcLeft").apply { isAccessible = true }
-private val dbiSrcTopField =
-    DrawBitmapInt::class.java.getDeclaredField("mSrcTop").apply { isAccessible = true }
-private val dbiSrcRightField =
-    DrawBitmapInt::class.java.getDeclaredField("mSrcRight").apply { isAccessible = true }
-private val dbiSrcBottomField =
-    DrawBitmapInt::class.java.getDeclaredField("mSrcBottom").apply { isAccessible = true }
-private val dbiDstLeftField =
-    DrawBitmapInt::class.java.getDeclaredField("mDstLeft").apply { isAccessible = true }
-private val dbiDstTopField =
-    DrawBitmapInt::class.java.getDeclaredField("mDstTop").apply { isAccessible = true }
-private val dbiDstRightField =
-    DrawBitmapInt::class.java.getDeclaredField("mDstRight").apply { isAccessible = true }
-private val dbiDstBottomField =
-    DrawBitmapInt::class.java.getDeclaredField("mDstBottom").apply { isAccessible = true }
-
-private val dtocCenterXField =
-    DrawTextOnCircle::class.java.getDeclaredField("mCenterX").apply { isAccessible = true }
-private val dtocCenterYField =
-    DrawTextOnCircle::class.java.getDeclaredField("mCenterY").apply { isAccessible = true }
-private val dtocRadiusField =
-    DrawTextOnCircle::class.java.getDeclaredField("mRadius").apply { isAccessible = true }
-private val dtocStartAngleField =
-    DrawTextOnCircle::class.java.getDeclaredField("mStartAngle").apply { isAccessible = true }
-private val dtocWarpRadiusOffsetField =
-    DrawTextOnCircle::class.java.getDeclaredField("mWarpRadiusOffset").apply { isAccessible = true }
-private val dtocAlignmentField =
-    DrawTextOnCircle::class.java.getDeclaredField("mAlignment").apply { isAccessible = true }
-private val dtocPlacementField =
-    DrawTextOnCircle::class.java.getDeclaredField("mPlacement").apply { isAccessible = true }
-
-private val dbftTextIdField =
-    DrawBitmapFontText::class.java.getDeclaredField("mTextID").apply { isAccessible = true }
-private val dbftFontIdField =
-    DrawBitmapFontText::class.java.getDeclaredField("mBitmapFontID").apply { isAccessible = true }
-private val dbftStartField =
-    DrawBitmapFontText::class.java.getDeclaredField("mStart").apply { isAccessible = true }
-private val dbftEndField =
-    DrawBitmapFontText::class.java.getDeclaredField("mEnd").apply { isAccessible = true }
-private val dbftOutXField =
-    DrawBitmapFontText::class.java.getDeclaredField("mOutX").apply { isAccessible = true }
-private val dbftOutYField =
-    DrawBitmapFontText::class.java.getDeclaredField("mOutY").apply { isAccessible = true }
-private val dbftOutGlyphSpacingField =
-    DrawBitmapFontText::class.java.getDeclaredField("mOutGlyphSpacing").apply {
-        isAccessible = true
-    }
-
-private val bitmapFontKerningField =
-    BitmapFontData::class.java.getDeclaredField("mKerningTable").apply { isAccessible = true }
-
-private val dbfopTextIdField =
-    DrawBitmapFontTextOnPath::class.java.getDeclaredField("mTextID").apply { isAccessible = true }
-private val dbfopFontIdField =
-    DrawBitmapFontTextOnPath::class.java.getDeclaredField("mBitmapFontID").apply {
-        isAccessible = true
-    }
-private val dbfopPathIdField =
-    DrawBitmapFontTextOnPath::class.java.getDeclaredField("mPathID").apply { isAccessible = true }
-private val dbfopStartField =
-    DrawBitmapFontTextOnPath::class.java.getDeclaredField("mStart").apply { isAccessible = true }
-private val dbfopEndField =
-    DrawBitmapFontTextOnPath::class.java.getDeclaredField("mEnd").apply { isAccessible = true }
-private val dbfopOutYAdjField =
-    DrawBitmapFontTextOnPath::class.java.getDeclaredField("mOutYAdj").apply { isAccessible = true }
-private val dbfopOutGlyphSpacingField =
-    DrawBitmapFontTextOnPath::class.java.getDeclaredField("mOutGlyphSpacing").apply {
-        isAccessible = true
-    }
-
-private val dbtaTextIdField =
-    DrawBitmapTextAnchored::class.java.getDeclaredField("mTextID").apply { isAccessible = true }
-private val dbtaFontIdField =
-    DrawBitmapTextAnchored::class.java.getDeclaredField("mBitmapFontID").apply {
-        isAccessible = true
-    }
-private val dbtaOutStartField =
-    DrawBitmapTextAnchored::class.java.getDeclaredField("mOutStart").apply { isAccessible = true }
-private val dbtaOutEndField =
-    DrawBitmapTextAnchored::class.java.getDeclaredField("mOutEnd").apply { isAccessible = true }
-private val dbtaOutXField =
-    DrawBitmapTextAnchored::class.java.getDeclaredField("mOutX").apply { isAccessible = true }
-private val dbtaOutYField =
-    DrawBitmapTextAnchored::class.java.getDeclaredField("mOutY").apply { isAccessible = true }
-private val dbtaOutPanXField =
-    DrawBitmapTextAnchored::class.java.getDeclaredField("mOutPanX").apply { isAccessible = true }
-private val dbtaOutPanYField =
-    DrawBitmapTextAnchored::class.java.getDeclaredField("mOutPanY").apply { isAccessible = true }
-private val dbtaOutGlyphSpacingField =
-    DrawBitmapTextAnchored::class.java.getDeclaredField("mOutGlyphSpacing").apply {
-        isAccessible = true
-    }
-
-private val dtbBitmapIdField =
-    DrawToBitmap::class.java.getDeclaredField("mBitmapId").apply { isAccessible = true }
-private val dtbModeField =
-    DrawToBitmap::class.java.getDeclaredField("mMode").apply { isAccessible = true }
-private val dtbColorField =
-    DrawToBitmap::class.java.getDeclaredField("mColor").apply { isAccessible = true }
-
-private val dtpPath1IdField =
-    DrawTweenPath::class.java.getDeclaredField("mPath1Id").apply { isAccessible = true }
-private val dtpPath2IdField =
-    DrawTweenPath::class.java.getDeclaredField("mPath2Id").apply { isAccessible = true }
-private val dtpOutTweenField =
-    DrawTweenPath::class.java.getDeclaredField("mOutTween").apply { isAccessible = true }
-private val dtpOutStartField =
-    DrawTweenPath::class.java.getDeclaredField("mOutStart").apply { isAccessible = true }
-private val dtpOutStopField =
-    DrawTweenPath::class.java.getDeclaredField("mOutStop").apply { isAccessible = true }
-
-private val plSourceField =
-    ParticlesLoop::class.java.getDeclaredField("mParticlesSource").apply { isAccessible = true }
-
-private val condAOutField =
-    ConditionalOperations::class.java.getDeclaredField("mVarAOut").apply { isAccessible = true }
-private val condBOutField =
-    ConditionalOperations::class.java.getDeclaredField("mVarBOut").apply { isAccessible = true }
-private val condTypeField =
-    ConditionalOperations::class.java.getDeclaredField("mType").apply { isAccessible = true }
-
-private val loopFromOutField =
-    LoopOperation::class.java.getDeclaredField("mFromOut").apply { isAccessible = true }
-private val loopUntilOutField =
-    LoopOperation::class.java.getDeclaredField("mUntilOut").apply { isAccessible = true }
-private val loopStepOutField =
-    LoopOperation::class.java.getDeclaredField("mStepOut").apply { isAccessible = true }
-private val loopIndexVarField =
-    LoopOperation::class.java.getDeclaredField("mIndexVariableId").apply { isAccessible = true }
-
-private val ffcFunctionField =
-    FloatFunctionCall::class.java.getDeclaredField("mFunction").apply { isAccessible = true }
-private val ffcOutArgsField =
-    FloatFunctionCall::class.java.getDeclaredField("mOutArgs").apply { isAccessible = true }
-
-private val customConfigField =
-    Custom::class.java.getDeclaredField("mConfig").apply { isAccessible = true }
-private val customConfigIdField =
-    Custom::class.java.getDeclaredField("mConfigId").apply { isAccessible = true }
-private val customPropertiesField =
-    Custom::class.java.getDeclaredField("mProperties").apply { isAccessible = true }
-private val customPropertyGetTypeNameMethod =
-    Custom.CustomProperty::class.java.getDeclaredMethod("getTypeName").apply { isAccessible = true }
-
-// --- Appended Reflection Helpers for Bypassing Core Changes ---
+    get() = getTypeName()
 
 // 1. CoreDocument Helpers
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun CoreDocument.getOperationsReflection(): ArrayList<Operation> {
-    return docOperationsField.get(this) as ArrayList<Operation>
+    return getOperations() as ArrayList<Operation>
 }
 
-@Suppress("UNCHECKED_CAST")
 internal fun CoreDocument.getFloatExpressionsReflection(): HashMap<Int, FloatExpression> {
-    return docFloatExpressionsField.get(this) as HashMap<Int, FloatExpression>
+    return getFloatExpressions()
 }
 
 internal fun CoreDocument.registerVariablesReflection(
     context: RemoteContext,
     operations: ArrayList<Operation>,
 ) {
-    docRegisterVariablesMethod.invoke(this, context, operations)
+    registerVariables(context, operations)
 }
 
 internal inline fun <R> RemoteContext.withOpCountReset(block: () -> R): R {
@@ -493,11 +342,6 @@ internal fun CoreDocument.applyOperationsReflection(
     context.withOpCountReset { applyOperationsWithoutBitmaps(context, operations) }
 }
 
-/**
- * Applies operations during document setup without eagerly decoding bitmaps. Registers [BitmapData]
- * metadata on the context so images can be decoded lazily on demand without blocking setup
- * traversal or failing on unresolved remote URLs.
- */
 internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Operation>) {
     for (i in list.indices) {
         val op = list[i]
@@ -525,7 +369,7 @@ internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Op
         context.incrementOpCount()
         if (op is BitmapData) {
             // Register metadata object without decoding pixels
-            context.putObject(op.mImageId, op)
+            context.putObject(op.id, op)
         } else if (op is Container) {
             if (op is ComponentData) {
                 op.apply(context)
@@ -559,11 +403,8 @@ private fun registerNestedBitmapMetadata(context: RemoteContext, list: List<Oper
 }
 
 /**
- * Initializes document data operations while deferring bitmap decoding for lazy playback.
- *
- * Note: CoreDocument's applyDataOperations ends with `if (UPDATE_VARIABLES_BEFORE_LAYOUT)
- * mFirstPaint = true`, which is omitted here as UPDATE_VARIABLES_BEFORE_LAYOUT is currently false
- * in CoreDocument.
+ * Fast-path DATA-mode document evaluation that registers variables, updates time, and registers
+ * bitmap metadata without running pixel decoding passes.
  */
 internal fun CoreDocument.applyDataOperationsWithoutBitmaps(context: RemoteContext) {
     context.withOpCountReset {
@@ -578,728 +419,345 @@ internal fun CoreDocument.applyDataOperationsWithoutBitmaps(context: RemoteConte
     }
 }
 
-private val docOperationsField =
-    CoreDocument::class.java.getDeclaredField("mOperations").apply { isAccessible = true }
-
-private val docFloatExpressionsField =
-    CoreDocument::class.java.getDeclaredField("mFloatExpressions").apply { isAccessible = true }
-
-private val docRegisterVariablesMethod =
-    CoreDocument::class
-        .java
-        .getDeclaredMethod("registerVariables", RemoteContext::class.java, ArrayList::class.java)
-        .apply { isAccessible = true }
-
 // 2. RemoteComposeState Helpers
 internal fun RemoteComposeState.getRemoteContextReflection(): RemoteContext? {
-    return stateRemoteContextField.get(this) as? RemoteContext
+    return getRemoteContext() as? RemoteContext
 }
-
-private val stateRemoteContextField =
-    RemoteComposeState::class.java.getDeclaredField("mRemoteContext").apply { isAccessible = true }
 
 // 3. Layout Component / Manager Helpers
-@Suppress("UNCHECKED_CAST")
 internal fun LayoutComponent.getDrawContentOperationsListReflection(): ArrayList<Operation>? {
-    val canvasOps = layoutDrawContentOpsField.get(this) ?: return null
-    val listField = canvasOps.javaClass.getDeclaredField("mList").apply { isAccessible = true }
-    return listField.get(canvasOps) as? ArrayList<Operation>
+    return getDrawContentOperations()?.list
 }
 
-private val layoutDrawContentOpsField =
-    LayoutComponent::class.java.getDeclaredField("mDrawContentOperations").apply {
-        isAccessible = true
-    }
-
 internal val LayoutManager.horizontalPositioningReflection: Int
-    get() {
-        var clazz: Class<*>? = this.javaClass
-        var field: Field? = null
-        while (clazz != null && field == null) {
-            try {
-                field = clazz.getDeclaredField("mHorizontalPositioning")
-            } catch (e: NoSuchFieldException) {
-                clazz = clazz.superclass
-            }
+    get() =
+        when (this) {
+            is RowLayout -> getHorizontalPositioning()
+            is ColumnLayout -> getHorizontalPositioning()
+            is FitBoxLayout -> getHorizontalPositioning()
+            is BoxLayout -> getHorizontalPositioning()
+            else -> throw NoSuchFieldException("mHorizontalPositioning not found in $javaClass")
         }
-        if (field == null)
-            throw NoSuchFieldException("mHorizontalPositioning not found in ${this.javaClass}")
-        field.isAccessible = true
-        return field.getInt(this)
-    }
 
 internal val LayoutManager.verticalPositioningReflection: Int
-    get() {
-        var clazz: Class<*>? = this.javaClass
-        var field: Field? = null
-        while (clazz != null && field == null) {
-            try {
-                field = clazz.getDeclaredField("mVerticalPositioning")
-            } catch (e: NoSuchFieldException) {
-                clazz = clazz.superclass
-            }
+    get() =
+        when (this) {
+            is RowLayout -> getVerticalPositioning()
+            is ColumnLayout -> getVerticalPositioning()
+            is FitBoxLayout -> getVerticalPositioning()
+            is BoxLayout -> getVerticalPositioning()
+            else -> throw NoSuchFieldException("mVerticalPositioning not found in $javaClass")
         }
-        if (field == null)
-            throw NoSuchFieldException("mVerticalPositioning not found in ${this.javaClass}")
-        field.isAccessible = true
-        return field.getInt(this)
-    }
 
 // 4. Modifier Operations Helpers
 internal fun ComponentVisibilityOperation.getVisibilityIdReflection(): Int {
-    return visVisibilityIdField.getInt(this)
+    return getVisibilityId()
 }
 
-private val visVisibilityIdField =
-    ComponentVisibilityOperation::class.java.getDeclaredField("mVisibilityId").apply {
-        isAccessible = true
-    }
-
 internal val ZIndexModifierOperation.valueReflection: Float
-    get() = zIndexValueField.getFloat(this)
+    get() = getRawValue()
 
-private val zIndexValueField =
-    ZIndexModifierOperation::class.java.getDeclaredField("mValue").apply { isAccessible = true }
-
-// Marquee
+// --- MarqueeModifierOperation Helper ---
 
 internal fun MarqueeModifierOperation.readDataReflection(): MarqueeModifierOperationData {
     return MarqueeModifierOperationData(
-        iterations = marqueeIterationsField.getInt(this),
-        animationMode = marqueeAnimationModeField.getInt(this),
-        repeatDelayMillis = marqueeRepeatDelayField.getFloat(this),
-        initialDelayMillis = marqueeInitialDelayField.getFloat(this),
-        spacing = marqueeSpacingField.getFloat(this),
-        velocity = marqueeVelocityField.getFloat(this),
+        iterations = getIterations(),
+        animationMode = getAnimationMode(),
+        repeatDelayMillis = getRepeatDelayMillis(),
+        initialDelayMillis = getInitialDelayMillis(),
+        spacing = getSpacing(),
+        velocity = getVelocity(),
     )
 }
 
-private val marqueeIterationsField =
-    MarqueeModifierOperation::class.java.getDeclaredField("mIterations").apply {
-        isAccessible = true
-    }
-private val marqueeAnimationModeField =
-    MarqueeModifierOperation::class.java.getDeclaredField("mAnimationMode").apply {
-        isAccessible = true
-    }
-private val marqueeRepeatDelayField =
-    MarqueeModifierOperation::class.java.getDeclaredField("mRepeatDelayMillis").apply {
-        isAccessible = true
-    }
-private val marqueeInitialDelayField =
-    MarqueeModifierOperation::class.java.getDeclaredField("mInitialDelayMillis").apply {
-        isAccessible = true
-    }
-private val marqueeSpacingField =
-    MarqueeModifierOperation::class.java.getDeclaredField("mSpacing").apply { isAccessible = true }
-private val marqueeVelocityField =
-    MarqueeModifierOperation::class.java.getDeclaredField("mVelocity").apply { isAccessible = true }
+// --- GraphicsLayerModifierOperation Helper ---
 
-// GraphicsLayer AttributeValue
-
-@Suppress("UNCHECKED_CAST")
 internal fun GraphicsLayerModifierOperation.getValuesReflection():
     List<GraphicsLayerAttributeValueData> {
-    val array = graphicsLayerValuesField.get(this) as? Array<*> ?: return emptyList()
-    return array.map { item ->
-        val clazz = item!!.javaClass
-        val nameField = clazz.getDeclaredField("mName").apply { isAccessible = true }
-        val idField = clazz.getDeclaredField("mId").apply { isAccessible = true }
-        val getValueMethod = clazz.getDeclaredMethod("getValue").apply { isAccessible = true }
-        val animatable =
-            clazz.getDeclaredField("mAnimatableValue").apply { isAccessible = true }.get(item)
-        val source =
-            if (animatable != null && animatableIsVariableField.getBoolean(animatable)) {
-                Utils.asNan(animatableIdField.getInt(animatable))
-            } else {
-                getValueMethod.invoke(item) as Float
-            }
+    return values.map { item ->
         GraphicsLayerAttributeValueData(
-            name = nameField.get(item) as String,
-            id = idField.getInt(item),
-            source = source,
+            name = item.name,
+            id = item.id,
+            source = item.source,
         )
     }
 }
 
-private val graphicsLayerValuesField =
-    GraphicsLayerModifierOperation::class.java.getDeclaredField("mValues").apply {
-        isAccessible = true
-    }
-
-private val animatableValueClass =
-    Class.forName("androidx.compose.remote.core.operations.layout.AnimatableValue")
-private val animatableIsVariableField =
-    animatableValueClass.getDeclaredField("mIsVariable").apply { isAccessible = true }
-private val animatableIdField =
-    animatableValueClass.getDeclaredField("mId").apply { isAccessible = true }
-
-// HostNamedActionOperation
+// --- HostNamedActionOperation Helper ---
 
 internal fun HostNamedActionOperation.readData(): HostNamedActionOperationData {
     return HostNamedActionOperationData(
-        textId = hnaTextIdField.getInt(this),
-        type = hnaTypeField.getInt(this),
-        valueId = hnaValueIdField.getInt(this),
+        textId = getTextId(),
+        type = getType(),
+        valueId = getValueId(),
     )
 }
 
-private val hnaTextIdField =
-    HostNamedActionOperation::class.java.getDeclaredField("mTextId").apply { isAccessible = true }
-private val hnaTypeField =
-    HostNamedActionOperation::class.java.getDeclaredField("mType").apply { isAccessible = true }
-private val hnaValueIdField =
-    HostNamedActionOperation::class.java.getDeclaredField("mValueId").apply { isAccessible = true }
-
 // TextSubtext, TextTransform
-// TODO: replace with the core getters once aosp/4167988 adds them.
 
 /** The id of the text this operation produces. */
 internal val TextSubtext.textIdReflection: Int
-    get() = textSubtextTextIdField.getInt(this)
+    get() = getTextId()
 
 /** The id of the text this operation produces. */
 internal val TextTransform.textIdReflection: Int
-    get() = textTransformTextIdField.getInt(this)
-
-private val textSubtextTextIdField =
-    TextSubtext::class.java.getDeclaredField("mTextId").apply { isAccessible = true }
-private val textTransformTextIdField =
-    TextTransform::class.java.getDeclaredField("mTextId").apply { isAccessible = true }
+    get() = getTextId()
 
 /** The document's RootContentBehavior alignment (`mContentAlignment`). */
 internal val CoreDocument.contentAlignmentReflection: Int
-    get() = contentAlignmentField.getInt(this)
+    get() = getContentAlignment()
 
-private val contentAlignmentField =
-    CoreDocument::class.java.getDeclaredField("mContentAlignment").apply { isAccessible = true }
-
-// 5. Draw Operations Helpers
-
-// DrawBase2
+// --- DrawBase Helpers ---
 
 internal fun DrawBase2.readDataReflection(): DrawBase2Data {
     return DrawBase2Data(
-        v1 = db2V1Field.getFloat(this),
-        v2 = db2V2Field.getFloat(this),
-        value1 = db2Value1Field.getFloat(this),
-        value2 = db2Value2Field.getFloat(this),
+        v1 = getV1(),
+        v2 = getV2(),
+        value1 = getValue1(),
+        value2 = getValue2(),
     )
 }
-
-private val db2V1Field = DrawBase2::class.java.getDeclaredField("mV1").apply { isAccessible = true }
-private val db2V2Field = DrawBase2::class.java.getDeclaredField("mV2").apply { isAccessible = true }
-private val db2Value1Field =
-    DrawBase2::class.java.getDeclaredField("mValue1").apply { isAccessible = true }
-private val db2Value2Field =
-    DrawBase2::class.java.getDeclaredField("mValue2").apply { isAccessible = true }
-
-// DrawBase3
 
 internal fun DrawBase3.readDataReflection(): DrawBase3Data {
     return DrawBase3Data(
-        v1 = db3V1Field.getFloat(this),
-        v2 = db3V2Field.getFloat(this),
-        v3 = db3V3Field.getFloat(this),
-        value1 = db3Value1Field.getFloat(this),
-        value2 = db3Value2Field.getFloat(this),
-        value3 = db3Value3Field.getFloat(this),
+        v1 = getV1(),
+        v2 = getV2(),
+        v3 = getV3(),
+        value1 = getValue1(),
+        value2 = getValue2(),
+        value3 = getValue3(),
     )
 }
-
-private val db3V1Field = DrawBase3::class.java.getDeclaredField("mV1").apply { isAccessible = true }
-private val db3V2Field = DrawBase3::class.java.getDeclaredField("mV2").apply { isAccessible = true }
-private val db3V3Field = DrawBase3::class.java.getDeclaredField("mV3").apply { isAccessible = true }
-private val db3Value1Field =
-    DrawBase3::class.java.getDeclaredField("mValue1").apply { isAccessible = true }
-private val db3Value2Field =
-    DrawBase3::class.java.getDeclaredField("mValue2").apply { isAccessible = true }
-private val db3Value3Field =
-    DrawBase3::class.java.getDeclaredField("mValue3").apply { isAccessible = true }
-
-// DrawBase4
 
 internal fun DrawBase4.readDataReflection(): DrawBase4Data {
     return DrawBase4Data(
-        x1 = db4X1Field.getFloat(this),
-        y1 = db4Y1Field.getFloat(this),
-        x2 = db4X2Field.getFloat(this),
-        y2 = db4Y2Field.getFloat(this),
-        x1Value = db4X1ValueField.getFloat(this),
-        y1Value = db4Y1ValueField.getFloat(this),
-        x2Value = db4X2ValueField.getFloat(this),
-        y2Value = db4Y2ValueField.getFloat(this),
+        x1 = getRawX1(),
+        y1 = getRawY1(),
+        x2 = getRawX2(),
+        y2 = getRawY2(),
+        x1Value = getX1Value(),
+        y1Value = getY1Value(),
+        x2Value = getX2Value(),
+        y2Value = getY2Value(),
     )
 }
-
-private val db4X1Field = DrawBase4::class.java.getDeclaredField("mX1").apply { isAccessible = true }
-private val db4Y1Field = DrawBase4::class.java.getDeclaredField("mY1").apply { isAccessible = true }
-private val db4X2Field = DrawBase4::class.java.getDeclaredField("mX2").apply { isAccessible = true }
-private val db4Y2Field = DrawBase4::class.java.getDeclaredField("mY2").apply { isAccessible = true }
-private val db4X1ValueField =
-    DrawBase4::class.java.getDeclaredField("mX1Value").apply { isAccessible = true }
-private val db4Y1ValueField =
-    DrawBase4::class.java.getDeclaredField("mY1Value").apply { isAccessible = true }
-private val db4X2ValueField =
-    DrawBase4::class.java.getDeclaredField("mX2Value").apply { isAccessible = true }
-private val db4Y2ValueField =
-    DrawBase4::class.java.getDeclaredField("mY2Value").apply { isAccessible = true }
-
-// DrawBase6
 
 internal fun DrawBase6.readDataReflection(): DrawBase6Data {
     return DrawBase6Data(
-        v1 = db6V1Field.getFloat(this),
-        v2 = db6V2Field.getFloat(this),
-        v3 = db6V3Field.getFloat(this),
-        v4 = db6V4Field.getFloat(this),
-        v5 = db6V5Field.getFloat(this),
-        v6 = db6V6Field.getFloat(this),
-        value1 = db6Value1Field.getFloat(this),
-        value2 = db6Value2Field.getFloat(this),
-        value3 = db6Value3Field.getFloat(this),
-        value4 = db6Value4Field.getFloat(this),
-        value5 = db6Value5Field.getFloat(this),
-        value6 = db6Value6Field.getFloat(this),
+        v1 = getV1(),
+        v2 = getV2(),
+        v3 = getV3(),
+        v4 = getV4(),
+        v5 = getV5(),
+        v6 = getV6(),
+        value1 = getValue1(),
+        value2 = getValue2(),
+        value3 = getValue3(),
+        value4 = getValue4(),
+        value5 = getValue5(),
+        value6 = getValue6(),
     )
 }
 
-private val db6V1Field = DrawBase6::class.java.getDeclaredField("mV1").apply { isAccessible = true }
-private val db6V2Field = DrawBase6::class.java.getDeclaredField("mV2").apply { isAccessible = true }
-private val db6V3Field = DrawBase6::class.java.getDeclaredField("mV3").apply { isAccessible = true }
-private val db6V4Field = DrawBase6::class.java.getDeclaredField("mV4").apply { isAccessible = true }
-private val db6V5Field = DrawBase6::class.java.getDeclaredField("mV5").apply { isAccessible = true }
-private val db6V6Field = DrawBase6::class.java.getDeclaredField("mV6").apply { isAccessible = true }
-private val db6Value1Field =
-    DrawBase6::class.java.getDeclaredField("mValue1").apply { isAccessible = true }
-private val db6Value2Field =
-    DrawBase6::class.java.getDeclaredField("mValue2").apply { isAccessible = true }
-private val db6Value3Field =
-    DrawBase6::class.java.getDeclaredField("mValue3").apply { isAccessible = true }
-private val db6Value4Field =
-    DrawBase6::class.java.getDeclaredField("mValue4").apply { isAccessible = true }
-private val db6Value5Field =
-    DrawBase6::class.java.getDeclaredField("mValue5").apply { isAccessible = true }
-private val db6Value6Field =
-    DrawBase6::class.java.getDeclaredField("mValue6").apply { isAccessible = true }
-
-// DrawBitmap
+// --- DrawBitmap Helper ---
 
 internal fun DrawBitmap.readDataReflection(): DrawBitmapData {
     return DrawBitmapData(
-        left = dbmpLeftField.getFloat(this),
-        top = dbmpTopField.getFloat(this),
-        right = dbmpRightField.getFloat(this),
-        bottom = dbmpBottomField.getFloat(this),
-        outputLeft = dbmpOutputLeftField.getFloat(this),
-        outputTop = dbmpOutputTopField.getFloat(this),
-        outputRight = dbmpOutputRightField.getFloat(this),
-        outputBottom = dbmpOutputBottomField.getFloat(this),
-        id = dbmpIdField.getInt(this),
-        descriptionId = dbmpDescriptionIdField.getInt(this),
+        left = getLeft(),
+        top = getTop(),
+        right = getRight(),
+        bottom = getBottom(),
+        outputLeft = getOutputLeft(),
+        outputTop = getOutputTop(),
+        outputRight = getOutputRight(),
+        outputBottom = getOutputBottom(),
+        id = getImageId(),
+        descriptionId = getDescriptionId(),
     )
 }
 
-private val dbmpLeftField =
-    DrawBitmap::class.java.getDeclaredField("mLeft").apply { isAccessible = true }
-private val dbmpTopField =
-    DrawBitmap::class.java.getDeclaredField("mTop").apply { isAccessible = true }
-private val dbmpRightField =
-    DrawBitmap::class.java.getDeclaredField("mRight").apply { isAccessible = true }
-private val dbmpBottomField =
-    DrawBitmap::class.java.getDeclaredField("mBottom").apply { isAccessible = true }
-private val dbmpOutputLeftField =
-    DrawBitmap::class.java.getDeclaredField("mOutputLeft").apply { isAccessible = true }
-private val dbmpOutputTopField =
-    DrawBitmap::class.java.getDeclaredField("mOutputTop").apply { isAccessible = true }
-private val dbmpOutputRightField =
-    DrawBitmap::class.java.getDeclaredField("mOutputRight").apply { isAccessible = true }
-private val dbmpOutputBottomField =
-    DrawBitmap::class.java.getDeclaredField("mOutputBottom").apply { isAccessible = true }
-private val dbmpIdField =
-    DrawBitmap::class.java.getDeclaredField("mId").apply { isAccessible = true }
-private val dbmpDescriptionIdField =
-    DrawBitmap::class.java.getDeclaredField("mDescriptionId").apply { isAccessible = true }
-
-// DrawBitmapScaled
+// --- DrawBitmapScaled Helper ---
 
 internal fun DrawBitmapScaled.readDataReflection(): DrawBitmapScaledData {
     return DrawBitmapScaledData(
-        imageId = dbmpsImageIdField.getInt(this),
-        srcLeft = dbmpsSrcLeftField.getFloat(this),
-        outSrcLeft = dbmpsOutSrcLeftField.getFloat(this),
-        srcTop = dbmpsSrcTopField.getFloat(this),
-        outSrcTop = dbmpsOutSrcTopField.getFloat(this),
-        srcRight = dbmpsSrcRightField.getFloat(this),
-        outSrcRight = dbmpsOutSrcRightField.getFloat(this),
-        srcBottom = dbmpsSrcBottomField.getFloat(this),
-        outSrcBottom = dbmpsOutSrcBottomField.getFloat(this),
-        dstLeft = dbmpsDstLeftField.getFloat(this),
-        outDstLeft = dbmpsOutDstLeftField.getFloat(this),
-        dstTop = dbmpsDstTopField.getFloat(this),
-        outDstTop = dbmpsOutDstTopField.getFloat(this),
-        dstRight = dbmpsDstRightField.getFloat(this),
-        outDstRight = dbmpsOutDstRightField.getFloat(this),
-        dstBottom = dbmpsDstBottomField.getFloat(this),
-        outDstBottom = dbmpsOutDstBottomField.getFloat(this),
-        contentDescId = dbmpsContentDescIdField.getInt(this),
-        scaleFactor = dbmpsScaleFactorField.getFloat(this),
-        outScaleFactor = dbmpsOutScaleFactorField.getFloat(this),
-        scaleType = dbmpsScaleTypeField.getInt(this),
+        imageId = getImageId(),
+        srcLeft = getSrcLeft(),
+        outSrcLeft = getOutSrcLeft(),
+        srcTop = getSrcTop(),
+        outSrcTop = getOutSrcTop(),
+        srcRight = getSrcRight(),
+        outSrcRight = getOutSrcRight(),
+        srcBottom = getSrcBottom(),
+        outSrcBottom = getOutSrcBottom(),
+        dstLeft = getDstLeft(),
+        outDstLeft = getOutDstLeft(),
+        dstTop = getDstTop(),
+        outDstTop = getOutDstTop(),
+        dstRight = getDstRight(),
+        outDstRight = getOutDstRight(),
+        dstBottom = getDstBottom(),
+        outDstBottom = getOutDstBottom(),
+        contentDescId = getContentDescId(),
+        scaleFactor = getScaleFactor(),
+        outScaleFactor = getOutScaleFactor(),
+        scaleType = getScaleType(),
     )
 }
 
-private val dbmpsImageIdField =
-    DrawBitmapScaled::class.java.getDeclaredField("mImageId").apply { isAccessible = true }
-private val dbmpsSrcLeftField =
-    DrawBitmapScaled::class.java.getDeclaredField("mSrcLeft").apply { isAccessible = true }
-private val dbmpsOutSrcLeftField =
-    DrawBitmapScaled::class.java.getDeclaredField("mOutSrcLeft").apply { isAccessible = true }
-private val dbmpsSrcTopField =
-    DrawBitmapScaled::class.java.getDeclaredField("mSrcTop").apply { isAccessible = true }
-private val dbmpsOutSrcTopField =
-    DrawBitmapScaled::class.java.getDeclaredField("mOutSrcTop").apply { isAccessible = true }
-private val dbmpsSrcRightField =
-    DrawBitmapScaled::class.java.getDeclaredField("mSrcRight").apply { isAccessible = true }
-private val dbmpsOutSrcRightField =
-    DrawBitmapScaled::class.java.getDeclaredField("mOutSrcRight").apply { isAccessible = true }
-private val dbmpsSrcBottomField =
-    DrawBitmapScaled::class.java.getDeclaredField("mSrcBottom").apply { isAccessible = true }
-private val dbmpsOutSrcBottomField =
-    DrawBitmapScaled::class.java.getDeclaredField("mOutSrcBottom").apply { isAccessible = true }
-private val dbmpsDstLeftField =
-    DrawBitmapScaled::class.java.getDeclaredField("mDstLeft").apply { isAccessible = true }
-private val dbmpsOutDstLeftField =
-    DrawBitmapScaled::class.java.getDeclaredField("mOutDstLeft").apply { isAccessible = true }
-private val dbmpsDstTopField =
-    DrawBitmapScaled::class.java.getDeclaredField("mDstTop").apply { isAccessible = true }
-private val dbmpsOutDstTopField =
-    DrawBitmapScaled::class.java.getDeclaredField("mOutDstTop").apply { isAccessible = true }
-private val dbmpsDstRightField =
-    DrawBitmapScaled::class.java.getDeclaredField("mDstRight").apply { isAccessible = true }
-private val dbmpsOutDstRightField =
-    DrawBitmapScaled::class.java.getDeclaredField("mOutDstRight").apply { isAccessible = true }
-private val dbmpsDstBottomField =
-    DrawBitmapScaled::class.java.getDeclaredField("mDstBottom").apply { isAccessible = true }
-private val dbmpsOutDstBottomField =
-    DrawBitmapScaled::class.java.getDeclaredField("mOutDstBottom").apply { isAccessible = true }
-private val dbmpsContentDescIdField =
-    DrawBitmapScaled::class.java.getDeclaredField("mContentDescId").apply { isAccessible = true }
-private val dbmpsScaleFactorField =
-    DrawBitmapScaled::class.java.getDeclaredField("mScaleFactor").apply { isAccessible = true }
-private val dbmpsOutScaleFactorField =
-    DrawBitmapScaled::class.java.getDeclaredField("mOutScaleFactor").apply { isAccessible = true }
-private val dbmpsScaleTypeField =
-    DrawBitmapScaled::class.java.getDeclaredField("mScaleType").apply { isAccessible = true }
-
-// DrawPath
+// --- DrawPath Helper ---
 
 internal fun DrawPath.readDataReflection(): DrawPathData {
-    return DrawPathData(
-        id = dpathIdField.getInt(this),
-        start = dpathStartField.getFloat(this),
-        end = dpathEndField.getFloat(this),
-    )
+    return DrawPathData(id = getPathId(), start = getStart(), end = getEnd())
 }
 
-private val dpathIdField =
-    DrawPath::class.java.getDeclaredField("mId").apply { isAccessible = true }
-private val dpathStartField =
-    DrawPath::class.java.getDeclaredField("mStart").apply { isAccessible = true }
-private val dpathEndField =
-    DrawPath::class.java.getDeclaredField("mEnd").apply { isAccessible = true }
-
-// BitmapData
+// --- BitmapData Helper ---
 
 internal fun BitmapData.readDataReflection(): BitmapDataData {
     return BitmapDataData(
-        imageId = bmpDataImageIdField.getInt(this),
-        imageWidth = bmpDataWidthField.getInt(this),
-        imageHeight = bmpDataHeightField.getInt(this),
-        type = bmpDataTypeField.getShort(this),
-        encoding = bmpDataEncodingField.getShort(this),
-        bitmap = bmpDataBitmapField.get(this) as ByteArray,
+        imageId = mImageId,
+        imageWidth = getImageWidth(),
+        imageHeight = getImageHeight(),
+        type = getType().toShort(),
+        encoding = getEncoding(),
+        bitmap = getBitmap(),
     )
 }
 
-private val bmpDataImageIdField =
-    BitmapData::class.java.getDeclaredField("mImageId").apply { isAccessible = true }
-private val bmpDataWidthField =
-    BitmapData::class.java.getDeclaredField("mImageWidth").apply { isAccessible = true }
-private val bmpDataHeightField =
-    BitmapData::class.java.getDeclaredField("mImageHeight").apply { isAccessible = true }
-private val bmpDataTypeField =
-    BitmapData::class.java.getDeclaredField("mType").apply { isAccessible = true }
-private val bmpDataEncodingField =
-    BitmapData::class.java.getDeclaredField("mEncoding").apply { isAccessible = true }
-private val bmpDataBitmapField =
-    BitmapData::class.java.getDeclaredField("mBitmap").apply { isAccessible = true }
-
-// PaintBundle
+// 5. PaintBundle Reflection Helper
 internal fun PaintBundle.getArrayReflection(): IntArray {
-    return paintBundleArrayField.get(this) as IntArray
+    return getArray()
 }
 
 internal fun PaintBundle.getPosReflection(): Int {
-    return paintBundlePosField.getInt(this)
+    return getPos()
 }
 
-private val paintBundleArrayField =
-    PaintBundle::class.java.getDeclaredField("mArray").apply { isAccessible = true }
-private val paintBundlePosField =
-    PaintBundle::class.java.getDeclaredField("mPos").apply { isAccessible = true }
-
-// CoreSemantics nullable content description
+// CoreSemantics
 internal fun CoreSemantics.getContentDescriptionIdReflection(): Int? {
-    val id = semContentDescriptionIdField.getInt(this)
+    val id = mContentDescriptionId
     return if (id != 0) id else null
 }
-
-private val semContentDescriptionIdField =
-    CoreSemantics::class.java.getDeclaredField("mContentDescriptionId").apply {
-        isAccessible = true
-    }
 
 // Recollect collections
 internal fun CoreDocument.recollectCollectionsReflection() {
     val operations = this.getOperationsReflection()
     val state = this.remoteComposeState
-    docCollectCollectionsMethod.invoke(this, operations, state)
+    collectCollections(operations, state)
+    recollectCanvasCollections(this, operations, state)
+}
+
+private fun recollectCanvasCollections(
+    document: CoreDocument,
+    operations: ArrayList<Operation>,
+    state: RemoteComposeState,
+) {
+    for (i in operations.indices) {
+        val op = operations[i]
+        if (op is LayoutComponent) {
+            op.getDrawContentOperationsListReflection()?.let { canvasOps ->
+                document.collectCollections(canvasOps, state)
+                recollectCanvasCollections(document, canvasOps, state)
+            }
+        }
+        if (op is Container) {
+            recollectCanvasCollections(document, op.list, state)
+        }
+    }
 }
 
 internal fun CoreDocument.updateTimeReflection(context: RemoteContext) {
-    timeVariablesField.get(this)?.let { timeVars -> updateTimeMethod.invoke(timeVars, context) }
+    updateTime(context)
 }
 
-private val timeVariablesField =
-    CoreDocument::class.java.getDeclaredField("mTimeVariables").apply { isAccessible = true }
-
-private val updateTimeMethod =
-    TimeVariables::class.java.getDeclaredMethod("updateTime", RemoteContext::class.java).apply {
-        isAccessible = true
-    }
-
-private val docCollectCollectionsMethod =
-    CoreDocument::class
-        .java
-        .getDeclaredMethod(
-            "collectCollections",
-            ArrayList::class.java,
-            RemoteComposeState::class.java,
-        )
-        .apply { isAccessible = true }
-
-// getVariableId via reflection
 internal fun RemoteContext.getVariableIdReflection(name: String): Int {
-    try {
-        var clazz: Class<*>? = this.javaClass
-        var field: Field? = null
-        while (clazz != null) {
-            try {
-                field = clazz.getDeclaredField("mVarNameHashMap")
-                break
-            } catch (e: NoSuchFieldException) {
-                clazz = clazz.superclass
-            }
-        }
-        if (field == null) return -1
-        field.isAccessible = true
-        val map = field.get(this) as? Map<*, *> ?: return -1
-        val list = map[name] as? List<*> ?: return -1
-        if (list.isEmpty()) return -1
-        val varNameObj = list[0]!!
-        val idField = varNameObj.javaClass.getDeclaredField("mId").apply { isAccessible = true }
-        return idField.getInt(varNameObj)
-    } catch (e: Exception) {
-        return -1
+    val context = this as? AndroidRemoteContext ?: return -1
+    return try {
+        context.getVariableId(name)
+    } catch (e: NoSuchElementException) {
+        -1
     }
 }
-
-// --- Action Operations Helpers ---
 
 // ValueIntegerChangeActionOperation
 internal val ValueIntegerChangeActionOperation.targetValueIdReflection: Int
-    get() = valIntChangeTargetField.getInt(this)
-internal val ValueIntegerChangeActionOperation.valueReflection: Int
-    get() = valIntChangeValueField.getInt(this)
+    get() = getTargetValueId()
 
-private val valIntChangeTargetField =
-    ValueIntegerChangeActionOperation::class.java.getDeclaredField("mTargetValueId").apply {
-        isAccessible = true
-    }
-private val valIntChangeValueField =
-    ValueIntegerChangeActionOperation::class.java.getDeclaredField("mValue").apply {
-        isAccessible = true
-    }
+internal val ValueIntegerChangeActionOperation.valueReflection: Int
+    get() = getValue()
 
 // ValueFloatChangeActionOperation
 internal val ValueFloatChangeActionOperation.targetValueIdReflection: Int
-    get() = valFloatChangeTargetField.getInt(this)
-internal val ValueFloatChangeActionOperation.valueReflection: Float
-    get() = valFloatChangeValueField.getFloat(this)
+    get() = getTargetValueId()
 
-private val valFloatChangeTargetField =
-    ValueFloatChangeActionOperation::class.java.getDeclaredField("mTargetValueId").apply {
-        isAccessible = true
-    }
-private val valFloatChangeValueField =
-    ValueFloatChangeActionOperation::class.java.getDeclaredField("mValue").apply {
-        isAccessible = true
-    }
+internal val ValueFloatChangeActionOperation.valueReflection: Float
+    get() = getValue()
 
 // ValueStringChangeActionOperation
 internal val ValueStringChangeActionOperation.targetValueIdReflection: Int
-    get() = valStringChangeTargetField.getInt(this)
-internal val ValueStringChangeActionOperation.valueIdReflection: Int
-    get() = valStringChangeValueIdField.getInt(this)
+    get() = getTargetValueId()
 
-private val valStringChangeTargetField =
-    ValueStringChangeActionOperation::class.java.getDeclaredField("mTargetValueId").apply {
-        isAccessible = true
-    }
-private val valStringChangeValueIdField =
-    ValueStringChangeActionOperation::class.java.getDeclaredField("mValueId").apply {
-        isAccessible = true
-    }
+internal val ValueStringChangeActionOperation.valueIdReflection: Int
+    get() = getValueId()
 
 // ValueIntegerExpressionChangeActionOperation
 internal val ValueIntegerExpressionChangeActionOperation.targetValueIdReflection: Long
-    get() = valIntExprChangeTargetField.getLong(this)
-internal val ValueIntegerExpressionChangeActionOperation.valueExpressionIdReflection: Long
-    get() = valIntExprChangeValueExprField.getLong(this)
+    get() = getTargetValueId()
 
-private val valIntExprChangeTargetField =
-    ValueIntegerExpressionChangeActionOperation::class
-        .java
-        .getDeclaredField("mTargetValueId")
-        .apply { isAccessible = true }
-private val valIntExprChangeValueExprField =
-    ValueIntegerExpressionChangeActionOperation::class
-        .java
-        .getDeclaredField("mValueExpressionId")
-        .apply { isAccessible = true }
+internal val ValueIntegerExpressionChangeActionOperation.valueExpressionIdReflection: Long
+    get() = getValueExpressionId()
 
 // ValueFloatExpressionChangeActionOperation
 internal val ValueFloatExpressionChangeActionOperation.targetValueIdReflection: Int
-    get() = valFloatExprChangeTargetField.getInt(this)
-internal val ValueFloatExpressionChangeActionOperation.valueExpressionIdReflection: Int
-    get() = valFloatExprChangeValueExprField.getInt(this)
+    get() = getTargetValueId()
 
-private val valFloatExprChangeTargetField =
-    ValueFloatExpressionChangeActionOperation::class.java.getDeclaredField("mTargetValueId").apply {
-        isAccessible = true
-    }
-private val valFloatExprChangeValueExprField =
-    ValueFloatExpressionChangeActionOperation::class
-        .java
-        .getDeclaredField("mValueExpressionId")
-        .apply { isAccessible = true }
+internal val ValueFloatExpressionChangeActionOperation.valueExpressionIdReflection: Int
+    get() = getValueExpressionId()
 
 // --- BorderModifierOperation Helper ---
 
 internal fun BorderModifierOperation.readDataReflection(): BorderModifierOperationData {
     return BorderModifierOperationData(
-        useColorId = borderUseColorIdField.getBoolean(this),
-        colorId = borderColorIdField.getInt(this),
-        r = borderRField.getFloat(this),
-        g = borderGField.getFloat(this),
-        b = borderBField.getFloat(this),
-        a = borderAField.getFloat(this),
-        borderWidth = borderWidthField.getFloat(this),
-        roundedCorner = borderRoundedCornerField.getFloat(this),
-        shapeType = borderShapeTypeField.getInt(this),
+        useColorId = getUseColorId(),
+        colorId = getColorId(),
+        r = getR(),
+        g = getG(),
+        b = getB(),
+        a = getA(),
+        borderWidth = getBorderWidth(),
+        roundedCorner = getRoundedCorner(),
+        shapeType = getShapeType(),
     )
 }
-
-private val borderUseColorIdField =
-    BorderModifierOperation::class.java.getDeclaredField("mUseColorId").apply {
-        isAccessible = true
-    }
-private val borderColorIdField =
-    BorderModifierOperation::class.java.getDeclaredField("mColorId").apply { isAccessible = true }
-private val borderRField =
-    BorderModifierOperation::class.java.getDeclaredField("mR").apply { isAccessible = true }
-private val borderGField =
-    BorderModifierOperation::class.java.getDeclaredField("mG").apply { isAccessible = true }
-private val borderBField =
-    BorderModifierOperation::class.java.getDeclaredField("mB").apply { isAccessible = true }
-private val borderAField =
-    BorderModifierOperation::class.java.getDeclaredField("mA").apply { isAccessible = true }
-private val borderWidthField =
-    BorderModifierOperation::class.java.getDeclaredField("mBorderWidth").apply {
-        isAccessible = true
-    }
-private val borderRoundedCornerField =
-    BorderModifierOperation::class.java.getDeclaredField("mRoundedCorner").apply {
-        isAccessible = true
-    }
-private val borderShapeTypeField =
-    BorderModifierOperation::class.java.getDeclaredField("mShapeType").apply { isAccessible = true }
 
 // --- BackgroundModifierOperation Helper ---
 
 internal fun BackgroundModifierOperation.readDataReflection(): BackgroundModifierOperationData {
     return BackgroundModifierOperationData(
-        useColorId = bgUseColorIdField.getBoolean(this),
-        colorId = bgColorIdField.getInt(this),
-        rId = bgRIdField.getFloat(this),
-        gId = bgGIdField.getFloat(this),
-        bId = bgBIdField.getFloat(this),
-        aId = bgAIdField.getFloat(this),
-        shapeType = bgShapeTypeField.getInt(this),
+        useColorId = getUseColorId(),
+        colorId = getColorId(),
+        rId = getRId(),
+        gId = getGId(),
+        bId = getBId(),
+        aId = getAId(),
+        shapeType = getShapeType(),
     )
 }
 
-private val bgUseColorIdField =
-    BackgroundModifierOperation::class.java.getDeclaredField("mUseColorId").apply {
-        isAccessible = true
-    }
-private val bgColorIdField =
-    BackgroundModifierOperation::class.java.getDeclaredField("mColorId").apply {
-        isAccessible = true
-    }
-private val bgRIdField =
-    BackgroundModifierOperation::class.java.getDeclaredField("mRId").apply { isAccessible = true }
-private val bgGIdField =
-    BackgroundModifierOperation::class.java.getDeclaredField("mGId").apply { isAccessible = true }
-private val bgBIdField =
-    BackgroundModifierOperation::class.java.getDeclaredField("mBId").apply { isAccessible = true }
-private val bgAIdField =
-    BackgroundModifierOperation::class.java.getDeclaredField("mAId").apply { isAccessible = true }
-private val bgShapeTypeField =
-    BackgroundModifierOperation::class.java.getDeclaredField("mShapeType").apply {
-        isAccessible = true
-    }
-
 // --- StateLayout Helper ---
 internal val StateLayout.indexIdReflection: Int
-    get() = stateLayoutIndexIdField.getInt(this)
-
-private val stateLayoutIndexIdField =
-    StateLayout::class.java.getDeclaredField("mIndexId").apply { isAccessible = true }
+    get() = getIndexId()
 
 // --- IntegerExpression Helper ---
 /** The bit mask marking which [IntegerExpression.mSrcValue] entries are variable IDs. */
 internal val IntegerExpression.maskReflection: Int
-    get() = integerExpressionMaskField.getInt(this)
-
-private val integerExpressionMaskField =
-    IntegerExpression::class.java.getDeclaredField("mMask").apply { isAccessible = true }
+    get() = getMask()
 
 // --- FitBoxLayout Helpers ---
 internal val FitBoxLayout.horizontalPositioningReflection: Int
-    get() = fitBoxHorizontalPositioningField.getInt(this)
-
-private val fitBoxHorizontalPositioningField =
-    FitBoxLayout::class.java.getDeclaredField("mHorizontalPositioning").apply {
-        isAccessible = true
-    }
+    get() = getHorizontalPositioning()
 
 internal val FitBoxLayout.verticalPositioningReflection: Int
-    get() = fitBoxVerticalPositioningField.getInt(this)
-
-private val fitBoxVerticalPositioningField =
-    FitBoxLayout::class.java.getDeclaredField("mVerticalPositioning").apply { isAccessible = true }
+    get() = getVerticalPositioning()
 
 // --- CoreDocument updateVariables Helper ---
 internal fun CoreDocument.updateVariablesReflection(
@@ -1307,384 +765,174 @@ internal fun CoreDocument.updateVariablesReflection(
     theme: Int,
     operations: List<Operation>,
 ) {
-    docUpdateVariablesMethod.invoke(this, context, theme, operations)
+    updateVariables(context, theme, operations)
 }
-
-private val docUpdateVariablesMethod =
-    CoreDocument::class
-        .java
-        .getDeclaredMethod(
-            "updateVariables",
-            RemoteContext::class.java,
-            Int::class.javaPrimitiveType,
-            List::class.java,
-        )
-        .apply { isAccessible = true }
 
 // AlignByModifierOperation
 internal val AlignByModifierOperation.lineReflection: Float
-    get() = alignByLineField.getFloat(this)
-
-private val alignByLineField =
-    AlignByModifierOperation::class.java.getDeclaredField("mLine").apply { isAccessible = true }
+    get() = getLine()
 
 // --- CoreText Reflection Helper ---
 
 internal fun CoreText.readDataReflection(): CoreTextData {
     return CoreTextData(
-        colorValue = coreTextColorField.getInt(this),
-        fontSizeValue = coreTextFontSizeField.getFloat(this),
-        type = coreTextTypeField.getInt(this),
-        fontWeightValue = coreTextFontWeightField.getFloat(this),
-        fontStyle = coreTextFontStyleField.getInt(this),
-        textAlignValue = coreTextTextAlignField.getInt(this),
-        overflow = coreTextOverflowField.getInt(this),
-        maxLines = coreTextMaxLinesField.getInt(this),
-        letterSpacing = coreTextLetterSpacingField.getFloat(this),
-        lineHeightMultiplier = coreTextLineHeightMultiplierField.getFloat(this),
-        lineHeightAdd = coreTextLineHeightAddField.getFloat(this),
-        underline = coreTextUnderlineField.getBoolean(this),
-        strikethrough = coreTextStrikethroughField.getBoolean(this),
-        fontAxis = coreTextFontAxisField.get(this) as? IntArray,
-        fontAxisValues = coreTextFontAxisValuesField.get(this) as? FloatArray,
-        autosize = coreTextAutosizeField.getBoolean(this),
-        minFontSize = coreTextMinFontSizeField.getFloat(this),
-        maxFontSize = coreTextMaxFontSizeField.getFloat(this),
-        lineBreakStrategy = coreTextLineBreakStrategyField.getInt(this),
-        hyphenationFrequency = coreTextHyphenationFrequencyField.getInt(this),
-        justificationMode = coreTextJustificationModeField.getInt(this),
-        isDynamicColorEnabled = coreTextIsDynamicColorEnabledField.getBoolean(this),
-        colorId = coreTextColorIdField.getInt(this),
+        colorValue = getColorValue(),
+        fontSizeValue = getFontSizeValue(),
+        type = getType(),
+        fontWeightValue = getFontWeightValue(),
+        fontStyle = getFontStyle(),
+        textAlignValue = getTextAlignValue(),
+        overflow = getOverflow(),
+        maxLines = getMaxLines(),
+        letterSpacing = getLetterSpacing(),
+        lineHeightMultiplier = getLineHeightMultiplier(),
+        lineHeightAdd = getLineHeightAdd(),
+        underline = getUnderline(),
+        strikethrough = getStrikethrough(),
+        fontAxis = getFontAxis(),
+        fontAxisValues = getFontAxisValues(),
+        autosize = getAutosize(),
+        minFontSize = getMinFontSize(),
+        maxFontSize = getMaxFontSize(),
+        lineBreakStrategy = getLineBreakStrategy(),
+        hyphenationFrequency = getHyphenationFrequency(),
+        justificationMode = getJustificationMode(),
+        isDynamicColorEnabled = isDynamicColorEnabled(),
+        colorId = getColorId(),
+        fontSize = getFontSize(),
     )
 }
-
-private val coreTextColorField =
-    CoreText::class.java.getDeclaredField("mColorValue").apply { isAccessible = true }
-private val coreTextColorIdField =
-    CoreText::class.java.getDeclaredField("mColorId").apply { isAccessible = true }
-private val coreTextIsDynamicColorEnabledField =
-    CoreText::class.java.getDeclaredField("mIsDynamicColorEnabled").apply { isAccessible = true }
-private val coreTextFontSizeField =
-    CoreText::class.java.getDeclaredField("mFontSizeValue").apply { isAccessible = true }
-private val coreTextTypeField =
-    CoreText::class.java.getDeclaredField("mType").apply { isAccessible = true }
-private val coreTextFontWeightField =
-    CoreText::class.java.getDeclaredField("mFontWeightValue").apply { isAccessible = true }
-private val coreTextFontStyleField =
-    CoreText::class.java.getDeclaredField("mFontStyle").apply { isAccessible = true }
-private val coreTextTextAlignField =
-    CoreText::class.java.getDeclaredField("mTextAlignValue").apply { isAccessible = true }
-private val coreTextOverflowField =
-    CoreText::class.java.getDeclaredField("mOverflow").apply { isAccessible = true }
-private val coreTextMaxLinesField =
-    CoreText::class.java.getDeclaredField("mMaxLines").apply { isAccessible = true }
-private val coreTextLetterSpacingField =
-    CoreText::class.java.getDeclaredField("mLetterSpacing").apply { isAccessible = true }
-private val coreTextLineHeightMultiplierField =
-    CoreText::class.java.getDeclaredField("mLineHeightMultiplier").apply { isAccessible = true }
-private val coreTextLineHeightAddField =
-    CoreText::class.java.getDeclaredField("mLineHeightAdd").apply { isAccessible = true }
-private val coreTextUnderlineField =
-    CoreText::class.java.getDeclaredField("mUnderline").apply { isAccessible = true }
-private val coreTextStrikethroughField =
-    CoreText::class.java.getDeclaredField("mStrikethrough").apply { isAccessible = true }
-private val coreTextFontAxisField =
-    CoreText::class.java.getDeclaredField("mFontAxis").apply { isAccessible = true }
-private val coreTextFontAxisValuesField =
-    CoreText::class.java.getDeclaredField("mFontAxisValues").apply { isAccessible = true }
-private val coreTextAutosizeField =
-    CoreText::class.java.getDeclaredField("mAutosize").apply { isAccessible = true }
-private val coreTextMinFontSizeField =
-    CoreText::class.java.getDeclaredField("mMinFontSize").apply { isAccessible = true }
-private val coreTextMaxFontSizeField =
-    CoreText::class.java.getDeclaredField("mMaxFontSize").apply { isAccessible = true }
-private val coreTextLineBreakStrategyField =
-    CoreText::class.java.getDeclaredField("mLineBreakStrategy").apply { isAccessible = true }
-private val coreTextHyphenationFrequencyField =
-    CoreText::class.java.getDeclaredField("mHyphenationFrequency").apply { isAccessible = true }
-private val coreTextJustificationModeField =
-    CoreText::class.java.getDeclaredField("mJustificationMode").apply { isAccessible = true }
 
 // --- TextLayout Reflection Helper ---
 
 internal fun TextLayout.readDataReflection(): TextLayoutData {
     return TextLayoutData(
-        colorValue = textLayoutColorField.getInt(this),
-        fontSizeValue = textLayoutFontSizeField.getFloat(this),
-        type = textLayoutTypeField.getInt(this),
-        fontWeight = textLayoutFontWeightField.getFloat(this),
-        textAlignValue = textLayoutTextAlignField.getInt(this),
-        overflow = textLayoutOverflowField.getInt(this),
-        maxLines = textLayoutMaxLinesField.getInt(this),
-        isDynamicColorEnabled = textLayoutIsDynamicColorEnabledField.getBoolean(this),
-        colorId = textLayoutColorIdField.getInt(this),
+        colorValue = getColorValue(),
+        fontSizeValue = getFontSizeValue(),
+        type = getType(),
+        fontWeight = getFontWeight(),
+        textAlignValue = getTextAlignValue(),
+        overflow = getOverflow(),
+        maxLines = getMaxLines(),
+        isDynamicColorEnabled = isDynamicColorEnabled(),
+        colorId = getColor(),
+        fontSize = getFontSize(),
     )
 }
-
-private val textLayoutColorField =
-    TextLayout::class.java.getDeclaredField("mColorValue").apply { isAccessible = true }
-private val textLayoutColorIdField =
-    TextLayout::class.java.getDeclaredField("mColor").apply { isAccessible = true }
-private val textLayoutIsDynamicColorEnabledField =
-    TextLayout::class.java.getDeclaredField("mIsDynamicColorEnabled").apply { isAccessible = true }
-private val textLayoutFontSizeField =
-    TextLayout::class.java.getDeclaredField("mFontSizeValue").apply { isAccessible = true }
-private val textLayoutTypeField =
-    TextLayout::class.java.getDeclaredField("mType").apply { isAccessible = true }
-private val textLayoutFontWeightField =
-    TextLayout::class.java.getDeclaredField("mFontWeight").apply { isAccessible = true }
-private val textLayoutTextAlignField =
-    TextLayout::class.java.getDeclaredField("mTextAlignValue").apply { isAccessible = true }
-private val textLayoutOverflowField =
-    TextLayout::class.java.getDeclaredField("mOverflow").apply { isAccessible = true }
-private val textLayoutMaxLinesField =
-    TextLayout::class.java.getDeclaredField("mMaxLines").apply { isAccessible = true }
 
 // 6. Layout Spacing Helpers
-private val rowSpacedByField =
-    RowLayout::class.java.getDeclaredField("mSpacedBy").apply { isAccessible = true }
-private val columnSpacedByField =
-    ColumnLayout::class.java.getDeclaredField("mSpacedBy").apply { isAccessible = true }
+internal fun rowSpacedBy(layout: RowLayout): Float = layout.getSpacedBy()
 
-internal fun rowSpacedBy(layout: RowLayout): Float = rowSpacedByField.getFloat(layout)
-
-internal fun columnSpacedBy(layout: ColumnLayout): Float = columnSpacedByField.getFloat(layout)
+internal fun columnSpacedBy(layout: ColumnLayout): Float = layout.getSpacedBy()
 
 // 7. ScrollModifier Reflection
-private val scrollPositionField =
-    ScrollModifierOperation::class.java.getDeclaredField("mPositionExpression").apply {
-        isAccessible = true
-    }
+internal fun scrollPosition(op: ScrollModifierOperation): Float = op.getPositionExpression()
 
-internal fun scrollPosition(op: ScrollModifierOperation): Float = scrollPositionField.getFloat(op)
+internal fun touchStopMode(touch: TouchExpression): Int = touch.getStopMode()
 
-private val touchStopModeField =
-    TouchExpression::class.java.getDeclaredField("mStopMode").apply { isAccessible = true }
-private val touchStopSpecField =
-    TouchExpression::class.java.getDeclaredField("mStopSpec").apply { isAccessible = true }
-
-internal fun touchStopMode(touch: TouchExpression): Int = touchStopModeField.getInt(touch)
-
-internal fun touchStopSpec(touch: TouchExpression): FloatArray? =
-    touchStopSpecField.get(touch) as? FloatArray
+internal fun touchStopSpec(touch: TouchExpression): FloatArray? = touch.getStopSpec()
 
 // 8. DimensionConstraints Reflection
-private val dimensionConstraintsTypeField =
-    DimensionConstraintsModifierOperation::class.java.getDeclaredField("mType").apply {
-        isAccessible = true
-    }
-
-internal fun dimensionConstraintsType(op: DimensionConstraintsModifierOperation): Int =
-    dimensionConstraintsTypeField.getInt(op)
+internal fun dimensionConstraintsType(op: DimensionConstraintsModifierOperation): Int = op.getType()
 
 // 9. DimensionModifier Reflection
-private val dimensionMValueField =
-    DimensionModifierOperation::class.java.getDeclaredField("mValue").apply { isAccessible = true }
+internal fun dimensionRawValue(op: DimensionModifierOperation): Float = op.getRawValue()
 
-internal fun dimensionRawValue(op: DimensionModifierOperation): Float =
-    dimensionMValueField.getFloat(op)
-
-// OffsetModifier Reflection
-private val offsetXSourceField =
-    OffsetModifierOperation::class.java.getDeclaredField("mX").apply { isAccessible = true }
-private val offsetYSourceField =
-    OffsetModifierOperation::class.java.getDeclaredField("mY").apply { isAccessible = true }
-
+// OffsetModifier
 internal fun offsetRawValues(op: OffsetModifierOperation): FloatArray =
-    floatArrayOf(offsetXSourceField.getFloat(op), offsetYSourceField.getFloat(op))
+    floatArrayOf(op.rawX, op.rawY)
 
-// DimensionInModifier Reflection
-private val dimensionInMinSourceField =
-    DimensionInModifierOperation::class.java.getDeclaredField("mValue1").apply {
-        isAccessible = true
-    }
-private val dimensionInMaxSourceField =
-    DimensionInModifierOperation::class.java.getDeclaredField("mValue2").apply {
-        isAccessible = true
-    }
-
+// DimensionInModifier
 /** The raw min/max constraint sources, in dp or as NaN-encoded variable ids. */
 internal fun dimensionInRawValues(op: DimensionInModifierOperation): FloatArray =
-    floatArrayOf(dimensionInMinSourceField.getFloat(op), dimensionInMaxSourceField.getFloat(op))
+    floatArrayOf(op.rawMin, op.rawMax)
 
 // 10. CollapsiblePriority Reflection
-private val sortWithPrioritiesMethod =
-    Class.forName("androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority")
-        .getDeclaredMethod(
-            "sortWithPriorities",
-            ArrayList::class.java,
-            Int::class.javaPrimitiveType,
-        )
-        .apply { isAccessible = true }
-
-internal fun sortWithPriorities(children: ArrayList<Component>, orientation: Int): List<Component> {
-    @Suppress("UNCHECKED_CAST")
-    return sortWithPrioritiesMethod.invoke(null, children, orientation) as ArrayList<Component>
-}
+internal fun sortWithPriorities(children: ArrayList<Component>, orientation: Int): List<Component> =
+    CollapsiblePriority.sortWithPriorities(children, orientation)
 
 // 11. LayoutComponent Content Reflection
-private val layoutContentField =
-    LayoutComponent::class.java.getDeclaredField("mContent").apply { isAccessible = true }
-
-internal fun LayoutComponent.getContentReflection(): LayoutComponentContent? {
-    return layoutContentField.get(this) as? LayoutComponentContent
-}
+internal fun LayoutComponent.getContentReflection(): LayoutComponentContent? = getLayoutContent()
 
 // 12. Component AnimationSpec Reflection
-private val componentAnimationSpecField =
-    Component::class.java.getDeclaredField("mAnimationSpec").apply { isAccessible = true }
-
 internal val Component.animationSpecReflection: AnimationSpec?
-    get() = componentAnimationSpecField.get(this) as? AnimationSpec
+    get() = getAnimationSpec()
 
-// 13. PaddingModifierOperation Raw Values Reflection
-private val paddingLeftField =
-    PaddingModifierOperation::class.java.getDeclaredField("mLeft").apply { isAccessible = true }
-private val paddingTopField =
-    PaddingModifierOperation::class.java.getDeclaredField("mTop").apply { isAccessible = true }
-private val paddingRightField =
-    PaddingModifierOperation::class.java.getDeclaredField("mRight").apply { isAccessible = true }
-private val paddingBottomField =
-    PaddingModifierOperation::class.java.getDeclaredField("mBottom").apply { isAccessible = true }
+// 13. PaddingModifierOperation Raw Values
+internal fun paddingRawValues(op: PaddingModifierOperation): FloatArray =
+    floatArrayOf(op.rawLeft, op.rawTop, op.rawRight, op.rawBottom)
 
-internal fun paddingRawValues(op: PaddingModifierOperation): FloatArray {
-    return floatArrayOf(
-        paddingLeftField.getFloat(op),
-        paddingTopField.getFloat(op),
-        paddingRightField.getFloat(op),
-        paddingBottomField.getFloat(op),
-    )
-}
-
-// 14. MultiClickModifier clickType Reflection
-private val multiClickTypeField =
-    MultiClickModifier::class.java.getDeclaredField("mClickType").apply { isAccessible = true }
-
+// 14. MultiClickModifier clickType
 internal val MultiClickModifier.clickTypeReflection: Int
-    get() = multiClickTypeField.getInt(this)
+    get() = getClickType()
 
-// 15. PathCombine and PathData Reflection
-private val pathCombineOperationField =
-    PathCombine::class.java.getDeclaredField("mOperation").apply { isAccessible = true }
-
+// 15. PathCombine and PathData
 internal val PathCombine.operationReflection: Byte
-    get() = pathCombineOperationField.getByte(this)
-
-private val pathDataInstanceIdField =
-    PathData::class.java.getDeclaredField("mInstanceId").apply { isAccessible = true }
-private val pathDataOutputPathField =
-    PathData::class.java.getDeclaredField("mOutputPath").apply { isAccessible = true }
-private val pathDataChangedField =
-    PathData::class.java.getDeclaredField("mPathChanged").apply { isAccessible = true }
+    get() = getOperation()
 
 internal fun PathData.applyReflection(context: RemoteContext) {
-    val instanceId = pathDataInstanceIdField.getInt(this)
-    val outputPath = pathDataOutputPathField.get(this) as? FloatArray
-    if (outputPath != null && context.getPathData(instanceId) !== outputPath) {
-        pathDataChangedField.setBoolean(this, true)
+    val outputPath = getOutputPath()
+    if (context.getPathData(getId()) !== outputPath) {
+        markPathChanged()
     }
     apply(context)
 }
 
-private val pathDataFloatPathField =
-    PathData::class.java.getDeclaredField("mFloatPath").apply { isAccessible = true }
-
 internal val PathData.instanceIdReflection: Int
-    get() = pathDataInstanceIdField.getInt(this)
+    get() = getId()
 
 internal val PathData.floatPathReflection: FloatArray
-    get() = pathDataFloatPathField.get(this) as FloatArray
+    get() = getFloatPath()
 
-// 16. ConditionalOperations, LoopOperation, Function, Text, and Impulse Reflection
-
-private val condARawField =
-    ConditionalOperations::class.java.getDeclaredField("mVarA").apply { isAccessible = true }
-private val condBRawField =
-    ConditionalOperations::class.java.getDeclaredField("mVarB").apply { isAccessible = true }
+// 16. ConditionalOperations, LoopOperation, Function, Text, and Impulse raw values
 
 internal val ConditionalOperations.varARawReflection: Float
-    get() = condARawField.getFloat(this)
+    get() = getVarA()
 
 internal val ConditionalOperations.varBRawReflection: Float
-    get() = condBRawField.getFloat(this)
-
-private val loopFromRawField =
-    LoopOperation::class.java.getDeclaredField("mFrom").apply { isAccessible = true }
-private val loopUntilRawField =
-    LoopOperation::class.java.getDeclaredField("mUntil").apply { isAccessible = true }
-private val loopStepRawField =
-    LoopOperation::class.java.getDeclaredField("mStep").apply { isAccessible = true }
+    get() = getVarB()
 
 internal val LoopOperation.fromRawReflection: Float
-    get() = loopFromRawField.getFloat(this)
+    get() = getFrom()
 
 internal val LoopOperation.untilRawReflection: Float
-    get() = loopUntilRawField.getFloat(this)
+    get() = getUntil()
 
 internal val LoopOperation.stepRawReflection: Float
-    get() = loopStepRawField.getFloat(this)
-
-private val ffdIdField =
-    FloatFunctionDefine::class.java.getDeclaredField("mId").apply { isAccessible = true }
-private val ffdFloatVarIdsField =
-    FloatFunctionDefine::class.java.getDeclaredField("mFloatVarId").apply { isAccessible = true }
+    get() = getStep()
 
 internal val FloatFunctionDefine.idReflection: Int
-    get() = ffdIdField.getInt(this)
+    get() = getId()
 
 internal val FloatFunctionDefine.floatVarIdsReflection: IntArray
-    get() = ffdFloatVarIdsField.get(this) as IntArray
-
-private val ffcIdField =
-    FloatFunctionCall::class.java.getDeclaredField("mId").apply { isAccessible = true }
-private val ffcArgsField =
-    FloatFunctionCall::class.java.getDeclaredField("mArgs").apply { isAccessible = true }
+    get() = getArgs()
 
 internal val FloatFunctionCall.idReflection: Int
-    get() = ffcIdField.getInt(this)
+    get() = getId()
 
 internal val FloatFunctionCall.argsReflection: FloatArray?
-    get() = ffcArgsField.get(this) as? FloatArray
-
-private val dtopHOffsetRawField =
-    DrawTextOnPath::class.java.getDeclaredField("mHOffset").apply { isAccessible = true }
-private val dtopVOffsetRawField =
-    DrawTextOnPath::class.java.getDeclaredField("mVOffset").apply { isAccessible = true }
+    get() = getArgs()
 
 internal val DrawTextOnPath.hOffsetRawReflection: Float
-    get() = dtopHOffsetRawField.getFloat(this)
+    get() = getHOffset()
 
 internal val DrawTextOnPath.vOffsetRawReflection: Float
-    get() = dtopVOffsetRawField.getFloat(this)
-
-private val dtaXRawField =
-    DrawTextAnchored::class.java.getDeclaredField("mX").apply { isAccessible = true }
-private val dtaYRawField =
-    DrawTextAnchored::class.java.getDeclaredField("mY").apply { isAccessible = true }
-private val dtaPanXRawField =
-    DrawTextAnchored::class.java.getDeclaredField("mPanX").apply { isAccessible = true }
-private val dtaPanYRawField =
-    DrawTextAnchored::class.java.getDeclaredField("mPanY").apply { isAccessible = true }
+    get() = getVOffset()
 
 internal val DrawTextAnchored.xRawReflection: Float
-    get() = dtaXRawField.getFloat(this)
+    get() = getX()
 
 internal val DrawTextAnchored.yRawReflection: Float
-    get() = dtaYRawField.getFloat(this)
+    get() = getY()
 
 internal val DrawTextAnchored.panXRawReflection: Float
-    get() = dtaPanXRawField.getFloat(this)
+    get() = getPanX()
 
 internal val DrawTextAnchored.panYRawReflection: Float
-    get() = dtaPanYRawField.getFloat(this)
-
-private val impulseDurationField =
-    ImpulseOperation::class.java.getDeclaredField("mDuration").apply { isAccessible = true }
-private val impulseStartAtField =
-    ImpulseOperation::class.java.getDeclaredField("mStartAt").apply { isAccessible = true }
+    get() = getPanY()
 
 internal val ImpulseOperation.durationReflection: Float
-    get() = impulseDurationField.getFloat(this)
+    get() = getDuration()
 
 internal val ImpulseOperation.startAtReflection: Float
-    get() = impulseStartAtField.getFloat(this)
+    get() = getStartAt()

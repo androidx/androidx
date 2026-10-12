@@ -191,4 +191,9 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
         }
         return mParent.getAlignValue(context, mLine);
     }
+
+    /** Returns {@code mLine}. */
+    public float getLine() {
+        return mLine;
+    }
 }

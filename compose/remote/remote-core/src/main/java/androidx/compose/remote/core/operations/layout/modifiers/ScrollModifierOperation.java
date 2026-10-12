@@ -615,4 +615,9 @@ public class ScrollModifierOperation extends ListActionsOperation
             return new ScrollAxisRange(mScrollX, mMaxScrollX, true, true);
         }
     }
+
+    /** Returns {@code mPositionExpression}. */
+    public float getPositionExpression() {
+        return mPositionExpression;
+    }
 }

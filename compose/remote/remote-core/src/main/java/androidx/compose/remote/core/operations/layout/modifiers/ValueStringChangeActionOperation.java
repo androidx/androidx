@@ -142,4 +142,14 @@ public class ValueStringChangeActionOperation extends Operation implements Actio
                 .add("targetValueId", mTargetValueId)
                 .add("valueId", mValueId);
     }
+
+    /** Returns {@code mTargetValueId}. */
+    public int getTargetValueId() {
+        return mTargetValueId;
+    }
+
+    /** Returns {@code mValueId}. */
+    public int getValueId() {
+        return mValueId;
+    }
 }

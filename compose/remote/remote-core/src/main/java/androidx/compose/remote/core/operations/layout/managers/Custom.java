@@ -71,7 +71,8 @@ public class Custom extends LayoutManager implements VariableSupport {
         public static final short COLOR_PROP = 8;
         public static final short INT_ID_PROP = 9;
 
-        String getTypeName() {
+        /** Returns a human-readable name for this property's data type. */
+        public @NonNull String getTypeName() {
             switch (mDataType) {
                 case INT_PROP:
                     return "INT_PROP";
@@ -530,5 +531,20 @@ public class Custom extends LayoutManager implements VariableSupport {
         }
 
         operations.add(new Custom(null, componentId, animationId, configId, null, properties));
+    }
+
+    /** Returns {@code mConfig}. */
+    public @Nullable String getConfig() {
+        return mConfig;
+    }
+
+    /** Returns {@code mConfigId}. */
+    public int getConfigId() {
+        return mConfigId;
+    }
+
+    /** Returns {@code mProperties}. */
+    public @NonNull ArrayList<CustomProperty> getProperties() {
+        return mProperties;
     }
 }

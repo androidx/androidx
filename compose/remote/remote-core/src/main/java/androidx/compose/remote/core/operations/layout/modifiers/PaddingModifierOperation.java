@@ -68,16 +68,36 @@ public class PaddingModifierOperation extends Operation
         return mLeftValue;
     }
 
+    /** Returns the raw left padding source, preserving NaN-encoded variable IDs. */
+    public float getRawLeft() {
+        return mLeft;
+    }
+
     public float getTop() {
         return mTopValue;
+    }
+
+    /** Returns the raw top padding source, preserving NaN-encoded variable IDs. */
+    public float getRawTop() {
+        return mTop;
     }
 
     public float getRight() {
         return mRightValue;
     }
 
+    /** Returns the raw right padding source, preserving NaN-encoded variable IDs. */
+    public float getRawRight() {
+        return mRight;
+    }
+
     public float getBottom() {
         return mBottomValue;
+    }
+
+    /** Returns the raw bottom padding source, preserving NaN-encoded variable IDs. */
+    public float getRawBottom() {
+        return mBottom;
     }
 
     public void setLeft(float left) {

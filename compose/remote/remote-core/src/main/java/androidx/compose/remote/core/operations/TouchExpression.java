@@ -789,4 +789,14 @@ public class TouchExpression extends Operation
                 .add("mode", mMode)
                 .addFloatExpressionSrc("srcExp", mSrcExp);
     }
+
+    /** Returns {@code mStopMode}. */
+    public int getStopMode() {
+        return mStopMode;
+    }
+
+    /** Returns {@code mStopSpec}. */
+    public float @Nullable [] getStopSpec() {
+        return mStopSpec;
+    }
 }

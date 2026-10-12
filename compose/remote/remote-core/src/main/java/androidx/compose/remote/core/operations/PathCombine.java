@@ -71,6 +71,11 @@ public class PathCombine extends PaintOperation
         mOutId = id;
     }
 
+    /** Returns the combine operation, one of {@link #OP_DIFFERENCE} .. {@link #OP_XOR}. */
+    public byte getOperation() {
+        return mOperation;
+    }
+
     public PathCombine(int outId, int pathId1, int pathId2, byte operation) {
         this.mOutId = outId;
         this.mPathId1 = pathId1;

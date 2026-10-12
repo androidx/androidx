@@ -269,6 +269,7 @@ internal data class CoreTextData(
     val justificationMode: Int = 0,
     val isDynamicColorEnabled: Boolean = false,
     val colorId: Int = -1,
+    val fontSize: Float = fontSizeValue,
 )
 
 internal data class TextLayoutData(
@@ -281,4 +282,5 @@ internal data class TextLayoutData(
     val maxLines: Int,
     val isDynamicColorEnabled: Boolean = false,
     val colorId: Int = -1,
+    val fontSize: Float = fontSizeValue,
 )

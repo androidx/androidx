@@ -340,4 +340,9 @@ public class BitmapFontData extends Operation implements Serializable {
     public void serialize(@NonNull MapSerializer serializer) {
         serializer.addType(CLASS_NAME).add("id", mId);
     }
+
+    /** Returns {@code mKerningTable}. */
+    public @NonNull Map<String, Short> getKerningTable() {
+        return mKerningTable;
+    }
 }

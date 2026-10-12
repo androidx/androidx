@@ -171,4 +171,9 @@ public class ComponentVisibilityOperation extends Operation
         updateVariables(context);
         return isDirty();
     }
+
+    /** Returns {@code mVisibilityId}. */
+    public int getVisibilityId() {
+        return mVisibilityId;
+    }
 }

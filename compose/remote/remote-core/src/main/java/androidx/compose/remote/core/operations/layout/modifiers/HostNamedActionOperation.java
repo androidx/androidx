@@ -183,4 +183,19 @@ public class HostNamedActionOperation extends Operation implements ActionOperati
                 return "INVALID_TYPE";
         }
     }
+
+    /** Returns {@code mTextId}. */
+    public int getTextId() {
+        return mTextId;
+    }
+
+    /** Returns {@code mType}. */
+    public int getType() {
+        return mType;
+    }
+
+    /** Returns {@code mValueId}. */
+    public int getValueId() {
+        return mValueId;
+    }
 }
