@@ -26,7 +26,6 @@ import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.MUL
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import java.time.LocalDateTime
 import java.time.ZoneId
 import org.junit.Rule
@@ -44,9 +43,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerAttributesTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @Test
     fun textAttributeLengthIsComputed() {

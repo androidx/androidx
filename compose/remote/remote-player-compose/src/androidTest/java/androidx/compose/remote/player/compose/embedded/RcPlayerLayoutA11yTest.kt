@@ -39,7 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
@@ -63,9 +62,7 @@ import org.junit.runner.RunWith
 @MediumTest
 class RcPlayerLayoutA11yTest {
 
-    @get:Rule val rule = createComposeRule()
-
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @get:Rule val captureRule = RemoteCaptureTestRule()
 
@@ -89,14 +86,16 @@ class RcPlayerLayoutA11yTest {
     /** A semantics contentDescription authored on a component is queryable on device. */
     @Test
     fun componentSemanticsAreExposed() {
-        val document = captureDocument {
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(200.dp)) { content() }
+            }
+        ) {
             RemoteBox(
                 modifier =
                     RemoteModifier.size(80.rdp).semantics { contentDescription = "inner box".rs }
             )
         }
-
-        rule.setContent { Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) } }
         rule.waitForIdle()
 
         rule.onNodeWithContentDescription("inner box").assertIsDisplayed()
@@ -109,7 +108,11 @@ class RcPlayerLayoutA11yTest {
      */
     @Test
     fun scrollPublishesPositionToBoundVariable() {
-        val document = captureDocument {
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(300.dp)) { content() }
+            }
+        ) {
             val scrollState = remember { RemoteScrollState() }
             RemoteColumn(modifier = RemoteModifier.size(200.rdp)) {
                 RemoteBox(
@@ -128,8 +131,6 @@ class RcPlayerLayoutA11yTest {
                 )
             }
         }
-
-        rule.setContent { Box(modifier = Modifier.size(300.dp)) { RcPlayer(document = document) } }
         rule.waitForIdle()
 
         fun markerWidth() =
