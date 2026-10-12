@@ -365,7 +365,7 @@ private fun Project.validateCoordinatesAndGetGroup(extension: AndroidXExtension)
     }
     val strippedGroupId = mavenGroup.group.substringAfterLast(".")
     if (
-        !extension.bypassCoordinateValidation &&
+        !extension.bypassCoordinateValidation.get() &&
             mavenGroup.group.startsWith("androidx") &&
             !name.startsWith(strippedGroupId)
     ) {

@@ -164,6 +164,6 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
          * [AndroidXExtension.doNotDocumentReason].
          */
         fun AndroidXExtension.requiresDocs() =
-            shouldConfigureApiTasks().map { it && doNotDocumentReason == null }
+            shouldConfigureApiTasks().map { it && !doNotDocumentReason.isPresent }
     }
 }

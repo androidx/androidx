@@ -245,7 +245,7 @@ abstract class AndroidXExtension(
         return type.map { type -> type.publish.shouldPublish() || type == SoftwareType.IDE_PLUGIN }
     }
 
-    var doNotDocumentReason: String? = null
+    abstract val doNotDocumentReason: Property<String>
 
     val type: Property<SoftwareType> =
         project.objects.property(SoftwareType::class.java).convention(SoftwareType.UNSET)
@@ -256,7 +256,8 @@ abstract class AndroidXExtension(
     /** Whether this project should fail on javac compilation warnings */
     fun failOnDeprecationWarnings(enabled: Boolean) = failOnDeprecationWarnings.set(enabled)
 
-    var bypassCoordinateValidation = false
+    val bypassCoordinateValidation: Property<Boolean> =
+        project.objects.property(Boolean::class.java).convention(false)
 
     abstract val additionalDeviceTestApkKeys: ListProperty<String>
 
