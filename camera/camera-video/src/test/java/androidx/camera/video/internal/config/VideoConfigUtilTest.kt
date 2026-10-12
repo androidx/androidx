@@ -56,6 +56,7 @@ import androidx.camera.video.VideoSpec
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
 import androidx.camera.video.internal.config.VideoConfigUtil.VIDEO_FRAME_RATE_FIXED_DEFAULT
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -370,6 +371,66 @@ class VideoConfigUtilTest {
                 VideoConfigUtil.getSupportedDynamicRanges(MIMETYPE_VIDEO_APV, hardwareEncoderInfo)
             )
             .contains(HDR10_PLUS_10_BIT)
+    }
+
+    @Test
+    fun isVideoProfileDynamicRangeSupported_softwareEncoder_rejects10BitHdr() {
+        val softwareEncoderInfo =
+            FakeVideoEncoderInfo(isHardwareAccelerated = false, mime = MIMETYPE_VIDEO_HEVC)
+
+        assertThat(
+                VideoConfigUtil.isVideoProfileDynamicRangeSupported(
+                    VIDEO_PROFILE_HEVC_HLG10,
+                    softwareEncoderInfo,
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun isVideoProfileDynamicRangeSupported_hardwareEncoder_accepts10BitHdr() {
+        val hardwareEncoderInfo =
+            FakeVideoEncoderInfo(isHardwareAccelerated = true, mime = MIMETYPE_VIDEO_HEVC)
+
+        assertThat(
+                VideoConfigUtil.isVideoProfileDynamicRangeSupported(
+                    VIDEO_PROFILE_HEVC_HLG10,
+                    hardwareEncoderInfo,
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun isVideoProfileDynamicRangeSupported_softwareEncoder_accepts8BitSdr() {
+        val softwareEncoderInfo =
+            FakeVideoEncoderInfo(isHardwareAccelerated = false, mime = MIMETYPE_VIDEO_AVC)
+
+        assertThat(
+                VideoConfigUtil.isVideoProfileDynamicRangeSupported(
+                    VIDEO_PROFILE_DEFAULT,
+                    softwareEncoderInfo,
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun isVideoProfileDynamicRangeSupported_unrecognizedHdrFormat_throwsException() {
+        val hardwareEncoderInfo =
+            FakeVideoEncoderInfo(isHardwareAccelerated = true, mime = MIMETYPE_VIDEO_HEVC)
+        val invalidProfile =
+            EncoderProfilesUtil.createFakeVideoProfileProxy(
+                DEFAULT_VIDEO_RESOLUTION,
+                videoCodec = HEVC,
+                videoMediaType = MIMETYPE_VIDEO_HEVC,
+                videoHdrFormat = -1,
+                videoBitDepth = BIT_DEPTH_10,
+            )
+
+        assertThrows(IllegalArgumentException::class.java) {
+            VideoConfigUtil.isVideoProfileDynamicRangeSupported(invalidProfile, hardwareEncoderInfo)
+        }
     }
 
     companion object {
