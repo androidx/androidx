@@ -157,17 +157,6 @@ public object ComposeUiFlags {
     public var isMinimalistLocalsEnabled: Boolean = true
 
     /**
-     * Enables calculating velocity from two sample points instead of returning zero. This changes
-     * how velocity is calculated for flings, which may affect scrolling, nested scrolling, and
-     * similar gesture behaviors. Please file a bug report if disabling this flag resolves the
-     * issue.
-     */
-    // TODO: b/530873034 - Cleanup feature flag
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isVelocityTrackerMinSampleSizeFixEnabled: Boolean = true
-
-    /**
      * If enabled, [androidx.compose.ui.graphics.vector.VectorPainter] will use a shared cache to
      * reuse [androidx.compose.ui.graphics.vector.DrawCache] instances across different painters
      * using the same [androidx.compose.ui.graphics.vector.ImageVector].
