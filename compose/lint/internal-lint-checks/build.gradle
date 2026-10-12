@@ -32,7 +32,7 @@ dependencies {
     compileOnly(libs.androidLintApi)
     compileOnly(libs.kotlinStdlib)
     implementation(project(":compose:lint:common"))
-    implementation("androidx.collection:collection:1.5.0")
+    implementation("androidx.collection:collection:1.7.0")
 
     testImplementation(project(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
