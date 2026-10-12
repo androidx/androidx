@@ -82,7 +82,6 @@ public final class Page {
      *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @AnyThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public @NonNull PageState snapshotState() {

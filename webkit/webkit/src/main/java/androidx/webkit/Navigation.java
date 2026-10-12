@@ -233,7 +233,6 @@ public final class Navigation {
      *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
     @AnyThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public @NonNull NavigationState snapshotState() {

@@ -31,10 +31,8 @@ import java.util.Map;
 
 /**
  * A class which exposes response headers for
- * {@link NavigationListener#onNavigationRedirected(NavigationState, NavigationRedirectParameters)}
- * in a way which is backwards compatible for older WebView versions.
+ * {@link NavigationListener#onNavigationRedirected(NavigationState, NavigationRedirectParameters)}.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class NavigationRedirectParameters {
 
     private final @NonNull NavigationRedirectParametersBoundaryInterface mBoundaryInterface;
@@ -67,7 +65,6 @@ public final class NavigationRedirectParameters {
      * @throws UnsupportedOperationException if the
      *     {@link WebViewFeature#NAVIGATION_GET_RESPONSE_HEADERS} feature is not supported.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.NAVIGATION_GET_RESPONSE_HEADERS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public @NonNull Map<String, String> getResponseHeaders() {
@@ -87,7 +84,6 @@ public final class NavigationRedirectParameters {
      * @throws UnsupportedOperationException if the
      *     {@link WebViewFeature#NAVIGATION_GET_RESPONSE_HEADERS} feature is not supported.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.NAVIGATION_GET_RESPONSE_HEADERS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public int getStatusCode() {
