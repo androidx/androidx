@@ -578,6 +578,21 @@ private val TopAppBar =
         examples = TopAppBarExamples,
     )
 
+private val Transitions =
+    Component(
+        id = nextId(),
+        name = "Transitions",
+        description =
+            "Transitions guide users between screens and navigation states, maintaining " +
+                "spatial context through expressive motion, including gesture-driven " +
+                "predictive back.",
+        // No transitions icon
+        guidelinesUrl = "$StyleGuidelinesUrl/motion",
+        docsUrl = "$PackageSummaryUrl#materialtransitions",
+        sourceUrl = "$Material3SourceUrl/MaterialTransitions.kt",
+        examples = TransitionExamples,
+    )
+
 private val Typography =
     Component(
         id = nextId(),
@@ -635,5 +650,6 @@ val Components =
         ToggleButtons,
         Tooltips,
         TopAppBar,
+        Transitions,
         Typography,
     )
