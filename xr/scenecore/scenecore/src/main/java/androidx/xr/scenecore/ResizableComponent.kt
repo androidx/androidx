@@ -35,10 +35,12 @@ import java.util.function.Consumer
  * boundaries of a user-resize affordance. While resizing an overlay will appear indicating the
  * proposed updated size.
  *
+ * When attached to a [GltfModelEntity], the user scales the model instead. The proposed scale is
+ * delivered in [ResizeEvent.newSize] and the application applies it, for example with
+ * [Entity.setScale].
+ *
  * This component cannot be attached to an [AnchorSpace] or to the [ActivitySpace]. Calling
  * [Entity.addComponent] to an Entity with these types will return false.
- *
- * Note: This Component is currently unsupported on GltfModelEntity.
  */
 public class ResizableComponent
 private constructor(
@@ -276,7 +278,8 @@ private constructor(
          * @param executor The Executor to run the listener on. By default, listener is invoked on
          *   the main thread.
          * @param resizeEventListener A resize event listener for the event. The application should
-         *   set the size of a PanelEntity using [PanelEntity.size].
+         *   set the size of a [PanelEntity] using [PanelEntity.size], or apply the proposed scale
+         *   of a [GltfModelEntity] using [Entity.setScale].
          * @return [ResizableComponent] instance.
          */
         @JvmOverloads
