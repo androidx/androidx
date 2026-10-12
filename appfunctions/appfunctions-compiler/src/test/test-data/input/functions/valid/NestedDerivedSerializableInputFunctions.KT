@@ -4,13 +4,13 @@ import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class NestedDerivedSerializableInputFunctions {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun functionWithDerivedSerializable(
         appFunctionContext: AppFunctionContext,
         serializable: NestedDerivedSerializable
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun functionWithDerivedSerializableList(
         appFunctionContext: AppFunctionContext,
         serializable: List<NestedDerivedSerializable>,

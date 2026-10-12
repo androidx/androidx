@@ -37,7 +37,7 @@ package androidx.appfunctions
  * ### Usage Example:
  * ```
  * // Constraining a parameter:
- * @AppFunctionDeclaration
+ * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * fun updateWallpaper(
  *     @AppFunctionUriValueConstraint(allowedSchemes = ["content"])
  *     wallpaperUri: Uri
@@ -46,14 +46,14 @@ package androidx.appfunctions
  * }
  *
  * // Constraining a function return value:
- * @AppFunctionDeclaration
+ * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * @AppFunctionUriValueConstraint(allowedSchemes = ["content"])
  * fun getProfilePictureUri(): Uri {
  *     // Function body
  * }
  *
  * // Constraining a property within an AppFunctionSerializable:
- * @AppFunctionSerializable
+ * @AppFunctionSerializable(isDescribedByKDoc = false)
  * data class WallpaperConfig(
  *     @property:AppFunctionUriValueConstraint(allowedSchemes = ["content"])
  *     val wallpaperUri: Uri

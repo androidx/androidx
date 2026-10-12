@@ -4,6 +4,6 @@ package com.testdata.diff
     import androidx.appfunctions.AppFunctionContext
 
 class DiffPackageFunction {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun diffPackageFunction(appFunctionContext: AppFunctionContext) {}
 }

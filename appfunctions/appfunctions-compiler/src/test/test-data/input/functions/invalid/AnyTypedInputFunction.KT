@@ -4,6 +4,6 @@ import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class AnyTypedInputFunction {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun badFunctionInput(appFunctionContext: AppFunctionContext, badParam: Any) {}
 }

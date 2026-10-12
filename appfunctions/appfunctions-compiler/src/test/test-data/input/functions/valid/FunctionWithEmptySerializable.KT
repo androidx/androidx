@@ -5,8 +5,8 @@ import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 
 class FunctionWithEmptySerializable {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionWithEmptySerializable(appFunctionContext: AppFunctionContext, empty: Empty) {}
 }
 
-@AppFunctionSerializable class Empty()
+@AppFunctionSerializable(isDescribedByKDoc = false) class Empty()

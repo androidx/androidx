@@ -12,13 +12,13 @@ public interface OpenableResponse : AppFunctionOpenable {
     override val stringToOpen: String
 }
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 open class LongBaseSerializable(
     open val age: Long,
     override val stringToOpen: String,
 ) : OpenableResponse {}
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class DerivedSerializable(
     override val stringToOpen: String,
     override val age: Long,

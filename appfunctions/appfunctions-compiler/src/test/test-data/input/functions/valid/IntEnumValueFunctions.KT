@@ -22,7 +22,7 @@ import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionDeclaration
 
 class IntEnumValueFunctions {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun intEnumParamFunction(
         ctx: AppFunctionContext,
         @AppFunctionIntValueConstraint(enumValues = [0, 1])
@@ -30,13 +30,13 @@ class IntEnumValueFunctions {
     ) {
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionIntValueConstraint(enumValues = [0, 1])
     fun intEnumReturnFunction(
         ctx: AppFunctionContext,
     ): Int = 0
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun intEnumSerializableFunction(
         ctx: AppFunctionContext,
         intEnumPropSerializable: IntEnumPropSerializable
@@ -44,7 +44,7 @@ class IntEnumValueFunctions {
     }
 }
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class IntEnumPropSerializable(
     @AppFunctionIntValueConstraint(enumValues = [0, 1])
     val intProp: Int

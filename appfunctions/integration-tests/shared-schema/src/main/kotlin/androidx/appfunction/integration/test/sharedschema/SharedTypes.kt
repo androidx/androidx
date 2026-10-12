@@ -46,7 +46,7 @@ data class SetField<T>(
     val value: T
 )
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class UpdateNoteParams(
     val title: SetField<String>? = null,
     val nullableTitle: SetField<String?>? = null,
@@ -56,11 +56,12 @@ data class UpdateNoteParams(
     val modifiedTime: SetField<LocalDateTime>? = null,
 )
 
-@AppFunctionSerializable data class Attachment(val uri: String, val nested: Attachment? = null)
+@AppFunctionSerializable(isDescribedByKDoc = false)
+data class Attachment(val uri: String, val nested: Attachment? = null)
 
-@AppFunctionSerializable data class Owner(val name: String)
+@AppFunctionSerializable(isDescribedByKDoc = false) data class Owner(val name: String)
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class CreateNoteParams(
     val title: String,
     val content: List<String>,
@@ -84,7 +85,7 @@ data class Note(
     val modifiedTime: LocalDateTime? = null,
 )
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class OpenableNote(
     val title: String,
     val content: List<String>,
@@ -99,9 +100,10 @@ interface AppFunctionOpenable {
     val intentToOpen: PendingIntent
 }
 
-@AppFunctionSerializable data class DateTime(val localDateTime: LocalDateTime)
+@AppFunctionSerializable(isDescribedByKDoc = false)
+data class DateTime(val localDateTime: LocalDateTime)
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class ProxyTypesWrapper(
     val localDateTime: LocalDateTime,
     val localDate: LocalDate,
@@ -111,7 +113,7 @@ data class ProxyTypesWrapper(
     val zoneId: ZoneId,
 )
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class ClassWithOptionalValues(
     // Int
     val optionalNonNullInt: Int = 1,
@@ -263,7 +265,7 @@ data class ClassWithOptionalValues(
     }
 }
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class FilesData(
     val readOnlyUri: AppFunctionUriGrant,
     val writeOnlyUri: AppFunctionUriGrant,
@@ -271,30 +273,30 @@ data class FilesData(
     val persistReadWriteUri: AppFunctionUriGrant,
 )
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 sealed interface OneOfSealedInterface {
     val interfaceProperty: String
 }
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class ASubclass(override val interfaceProperty: String, val str: String) : OneOfSealedInterface
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class BSubclass(
     override val interfaceProperty: String,
     val integer: Int,
     override val resources: List<AppFunctionTextResource>,
 ) : OneOfSealedInterface, AppFunctionResourceContainer
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class OneOfSealedNestedSerializable(val sealedInterface: OneOfSealedInterface)
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class IntEnumSerializable(
     @property:AppFunctionIntValueConstraint(enumValues = [10, 20]) val value: Int
 )
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class UriConstraintSerializable(
     @property:AppFunctionUriValueConstraint(allowedSchemes = ["content", "file"]) val uri: Uri,
     @property:AppFunctionStringValueConstraint(
@@ -305,7 +307,7 @@ data class UriConstraintSerializable(
     val numericString: String,
 )
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class ResourceFunctionResponse(
     val stringValue: String,
     override val resources: List<AppFunctionTextResource>,
@@ -329,7 +331,7 @@ data class MultiServiceCreateNoteParams(
     val content: List<String>,
 )
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class MultiServiceProxyTypesWrapper(
     val localDateTime: LocalDateTime,
     val localDate: LocalDate,
@@ -339,7 +341,7 @@ data class MultiServiceProxyTypesWrapper(
     val zoneId: ZoneId,
 )
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class MultiServiceFilesData(
     val readOnlyUri: AppFunctionUriGrant,
     val writeOnlyUri: AppFunctionUriGrant,

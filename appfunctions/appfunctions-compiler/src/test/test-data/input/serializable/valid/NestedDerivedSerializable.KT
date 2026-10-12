@@ -2,20 +2,20 @@ package com.testdata
 
 import androidx.appfunctions.AppFunctionSerializable
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 open class NestedBaseSerializable(
     open val stringBaseName: String,
     open val nestedBase: NestedBaseSerializable?,
 ) {}
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 open class NonNestedChildSerializable(
     override val stringBaseName: String,
     override val nestedBase: NestedBaseSerializable?,
     open val longBaseValue: Long,
 ) : NestedBaseSerializable(stringBaseName, nestedBase) {}
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class NestedDerivedSerializable(
     override val stringBaseName: String,
     override val nestedBase: NestedBaseSerializable?,

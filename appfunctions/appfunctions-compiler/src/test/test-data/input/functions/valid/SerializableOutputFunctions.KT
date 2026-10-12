@@ -5,26 +5,26 @@ import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 
 class SerializableOutputFunctions {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunction(appFunctionContext: AppFunctionContext): SampleSerializable {
         return SampleSerializable("testValue", listOf("testListValue"))
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionSerializableList(
         appFunctionContext: AppFunctionContext,
     ): List<SampleSerializable> {
         return listOf(SampleSerializable("testValue", listOf("testListValue")))
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableSerializableList(
         appFunctionContext: AppFunctionContext,
     ): List<SampleSerializable>? {
         return null
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableSerializable(
         appFunctionContext: AppFunctionContext,
     ): SampleSerializable? {
@@ -32,4 +32,4 @@ class SerializableOutputFunctions {
     }
 }
 
-@AppFunctionSerializable class SampleSerializable(val value: String, val listValue: List<String>) {}
+@AppFunctionSerializable(isDescribedByKDoc = false) class SampleSerializable(val value: String, val listValue: List<String>) {}

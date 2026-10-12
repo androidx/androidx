@@ -104,8 +104,8 @@ package androidx.appfunctions {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface AppFunctionDeclaration {
-    ctor @KotlinOnly public AppFunctionDeclaration(optional boolean isEnabled, optional boolean isDescribedByKDoc);
-    method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc() default false;
+    ctor @KotlinOnly public AppFunctionDeclaration(boolean isDescribedByKDoc, optional boolean isEnabled);
+    method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc();
     method @InaccessibleFromKotlin public abstract boolean isEnabled() default true;
     property public abstract boolean isDescribedByKDoc;
     property public abstract boolean isEnabled;
@@ -255,8 +255,8 @@ package androidx.appfunctions {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AppFunctionSerializable {
-    ctor @KotlinOnly public AppFunctionSerializable(optional boolean isDescribedByKDoc);
-    method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc() default false;
+    ctor @KotlinOnly public AppFunctionSerializable(boolean isDescribedByKDoc);
+    method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc();
     property public abstract boolean isDescribedByKDoc;
   }
 
@@ -275,9 +275,9 @@ package androidx.appfunctions {
   }
 
   @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AppFunctionSignature {
-    ctor @KotlinOnly public AppFunctionSignature(int scope, String appFunctionXmlFileName, optional boolean isDescribedByKDoc);
+    ctor @KotlinOnly public AppFunctionSignature(int scope, String appFunctionXmlFileName, boolean isDescribedByKDoc);
     method @InaccessibleFromKotlin public abstract String appFunctionXmlFileName();
-    method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc() default false;
+    method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc();
     method @InaccessibleFromKotlin public abstract int scope();
     property public abstract String appFunctionXmlFileName;
     property public abstract boolean isDescribedByKDoc;
@@ -326,7 +326,7 @@ package androidx.appfunctions {
     property public int errorCode;
   }
 
-  @androidx.appfunctions.AppFunctionSerializable public final class AppFunctionUriGrant {
+  @androidx.appfunctions.AppFunctionSerializable(isDescribedByKDoc=false) public final class AppFunctionUriGrant {
     ctor public AppFunctionUriGrant(android.net.Uri uri, int modeFlags);
     method @InaccessibleFromKotlin public int getModeFlags();
     method @InaccessibleFromKotlin public android.net.Uri getUri();

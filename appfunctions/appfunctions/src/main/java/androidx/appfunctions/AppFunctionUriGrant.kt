@@ -47,7 +47,7 @@ import java.util.Objects
  * @see FLAG_GRANT_PREFIX_URI_PERMISSION
  * @see FLAG_GRANT_PERSISTABLE_URI_PERMISSION
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 public class AppFunctionUriGrant(
     /** The [Uri] to be granted. */
     public val uri: Uri,

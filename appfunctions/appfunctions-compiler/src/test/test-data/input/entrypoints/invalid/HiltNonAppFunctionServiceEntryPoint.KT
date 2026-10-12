@@ -9,7 +9,7 @@ import androidx.appfunctions.AppFunctionDeclaration
 @AndroidEntryPoint(Service::class)
 @AppFunctionServiceEntryPoint("MyHiltAppFunctionServiceEntryPoint", "app_functions_v2.xml")
 abstract class HiltNonAppFunctionServiceEntryPoint: Hilt_HiltNonAppFunctionServiceEntryPoint() {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun helloWorld(): String {
         return "Hello World"
     }

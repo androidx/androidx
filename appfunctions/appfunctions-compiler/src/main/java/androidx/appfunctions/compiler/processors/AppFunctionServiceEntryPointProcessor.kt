@@ -74,7 +74,7 @@ import com.squareup.kotlinpoet.buildCodeBlock
  * ```
  * @AppFunctionServiceEntryPoint(serviceName = "MyService")
  * abstract class MyBaseService : AppFunctionService() {
- *   @AppFunctionDeclaration
+ *   @AppFunctionDeclaration(isDescribedByKDoc = false)
  *   suspend fun doSomething() { ... }
  * }
  * ```

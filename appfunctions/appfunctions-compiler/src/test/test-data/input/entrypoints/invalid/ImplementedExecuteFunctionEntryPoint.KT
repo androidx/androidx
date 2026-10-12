@@ -10,7 +10,7 @@ import android.os.CancellationSignal
 
 @AppFunctionServiceEntryPoint("MySimpleService", "app_functions_v2.xml")
 abstract class ImplementedExecuteFunctionEntryPoint: AppFunctionService() {
-    @AppFunctionDeclaration fun simpleFunction() {}
+    @AppFunctionDeclaration(isDescribedByKDoc = false) fun simpleFunction() {}
 
     override fun onExecuteFunction(
         request: ExecuteAppFunctionRequest,

@@ -8,13 +8,13 @@ import androidx.appfunctions.AppFunctionUriValueConstraint
 
 @AppFunctionServiceEntryPoint("InvalidUriSerializableService", "invalid_uri_serializable_service")
 abstract class InvalidUriConstraintTargetInSerializable : AppFunctionService() {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun functionWithInvalidSerializable(
         param: InvalidSerializableUriTarget
     ) {}
 }
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class InvalidSerializableUriTarget(
     @AppFunctionUriValueConstraint
     val invalidProp: String

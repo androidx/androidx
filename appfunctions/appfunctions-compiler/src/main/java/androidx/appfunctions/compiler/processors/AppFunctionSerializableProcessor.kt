@@ -41,7 +41,7 @@ import com.squareup.kotlinpoet.FileSpec
  * **Example:**
  *
  * ```
- * @AppFunctionSerializable
+ * @AppFunctionSerializable(isDescribedByKDoc = false)
  * class Location(val latitude: Double, val longitude: Double)
  * ```
  *

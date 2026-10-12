@@ -2,10 +2,10 @@ package com.testdata
 
 import androidx.appfunctions.AppFunctionSerializable
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class NestedSerializable(val intValue: Int)
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class SerializableWithDefaultValue(
     // Int
     val optionalNonNullInt: Int = 0,
