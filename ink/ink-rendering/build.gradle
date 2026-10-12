@@ -97,6 +97,9 @@ androidx {
     inceptionYear = "2024"
     description = "Display beautiful strokes"
     addGoldenImageAssets()
+    deviceTests {
+        maxShardCount = 1
+    }
 }
 
 tasks.configureEach { task ->
