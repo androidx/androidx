@@ -26,6 +26,7 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.BitmapFontData
+import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.core.operations.ClipPath
 import androidx.compose.remote.core.operations.ClipRect
 import androidx.compose.remote.core.operations.ColorAttribute
@@ -33,6 +34,7 @@ import androidx.compose.remote.core.operations.ColorConstant
 import androidx.compose.remote.core.operations.ColorExpression
 import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.ConditionalOperations
+import androidx.compose.remote.core.operations.DataMapLookup
 import androidx.compose.remote.core.operations.DrawArc
 import androidx.compose.remote.core.operations.DrawBitmap
 import androidx.compose.remote.core.operations.DrawBitmapFontText
@@ -74,8 +76,11 @@ import androidx.compose.remote.core.operations.PathCreate
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
+import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.TextMeasure
+import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.TouchExpression
+import androidx.compose.remote.core.operations.UpdateDynamicFloatList
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.ContainerEnd
@@ -272,6 +277,18 @@ private fun DrawScope.executeOperationsInPass(
                 graph?.setTextMeasurePaint(op.mId, paintState.copy())
                 op.paint(evalPaintContext())
             }
+            is TextAttribute -> {
+                // Text bounds depend on the paint at this point of the stream.
+                graph?.textMeasurer = textMeasurer
+                graph?.setTextMeasurePaint(op.mId, paintState.copy())
+                op.paint(evalPaintContext())
+            }
+            is TimeAttribute,
+            is BitmapTextMeasure -> op.paint(evalPaintContext())
+            // Data operations in a draw stream run each time the stream does, as in the View
+            // player's CanvasOperations, so they follow inputs that change after setup.
+            is UpdateDynamicFloatList,
+            is DataMapLookup -> op.apply(remoteContext)
             is NamedVariable -> op.apply(remoteContext)
             is ParticlesLoop -> {
                 // Particle system: bridged to the core (View player) implementation. Needs the

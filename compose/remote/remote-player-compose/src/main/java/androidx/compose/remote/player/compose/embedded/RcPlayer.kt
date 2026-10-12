@@ -54,12 +54,14 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableProvider
 import androidx.compose.remote.core.VariableSupport
+import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.core.operations.ColorConstant
 import androidx.compose.remote.core.operations.ColorTheme
 import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.core.operations.IdLookup
 import androidx.compose.remote.core.operations.ImageAttribute
 import androidx.compose.remote.core.operations.IntegerExpression
 import androidx.compose.remote.core.operations.NamedVariable
@@ -70,9 +72,13 @@ import androidx.compose.remote.core.operations.PathCreate
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
+import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.TextFromFloat
+import androidx.compose.remote.core.operations.TextLookup
 import androidx.compose.remote.core.operations.TextLookupInt
 import androidx.compose.remote.core.operations.TextMeasure
+import androidx.compose.remote.core.operations.TextSubtext
+import androidx.compose.remote.core.operations.TextTransform
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.TouchExpression
@@ -1161,6 +1167,9 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
                     is VariableProvider -> op.id
                     is TextMeasure -> op.mId
                     is ImageAttribute -> op.mId
+                    is TextAttribute -> op.mId
+                    is TimeAttribute -> op.mId
+                    is BitmapTextMeasure -> op.mId
                     else -> -1
                 }
             // Warn when a document operation defines an ID that collides with a reserved system
@@ -1281,6 +1290,24 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
                 }
             } else if (op is ImageAttribute) {
                 val id = op.mId
+                if (id > 0 && !computedOpIndex.containsKey(id)) {
+                    computedOpIndex[id] = op
+                }
+            } else {
+                // Value-producing operations that aren't VariableProviders: their output is
+                // computed on demand through the GraphContext, like TextMeasure, so it follows
+                // inputs that change after setup.
+                val id =
+                    when (op) {
+                        is TextAttribute -> op.mId
+                        is TimeAttribute -> op.mId
+                        is BitmapTextMeasure -> op.mId
+                        is TextLookup -> op.mTextId
+                        is IdLookup -> op.mTextId
+                        is TextSubtext -> op.textIdReflection
+                        is TextTransform -> op.textIdReflection
+                        else -> -1
+                    }
                 if (id > 0 && !computedOpIndex.containsKey(id)) {
                     computedOpIndex[id] = op
                 }
