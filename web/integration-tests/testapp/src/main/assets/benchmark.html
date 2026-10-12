@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { margin: 0; font-family: sans-serif; background: #f1f5f9; }
+        .header {
+            position: sticky; top: 0; background: #fff; padding: 12px 16px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .spinner {
+            width: 24px; height: 24px; border: 3px solid #cbd5e1;
+            border-top-color: #2563eb; border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .card {
+            background: #fff; border-radius: 12px; padding: 16px; margin: 12px 16px;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <strong>Web Benchmark Target</strong>
+        <div class="spinner"></div>
+    </div>
+    <div id="cards"></div>
+    <script>
+        const container = document.getElementById('cards');
+        for (let i = 1; i <= 8; i++) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `<h2>Benchmark Item #${i}</h2><p>Item ${i} content for rendering and scrolling benchmarks.</p>`;
+            container.appendChild(card);
+        }
+    </script>
+</body>
+</html>
