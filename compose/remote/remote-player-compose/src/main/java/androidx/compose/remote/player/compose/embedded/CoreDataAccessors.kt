@@ -767,6 +767,13 @@ private val textSubtextTextIdField =
 private val textTransformTextIdField =
     TextTransform::class.java.getDeclaredField("mTextId").apply { isAccessible = true }
 
+/** The document's RootContentBehavior alignment (`mContentAlignment`). */
+internal val CoreDocument.contentAlignmentReflection: Int
+    get() = contentAlignmentField.getInt(this)
+
+private val contentAlignmentField =
+    CoreDocument::class.java.getDeclaredField("mContentAlignment").apply { isAccessible = true }
+
 // 5. Draw Operations Helpers
 
 // DrawBase2
