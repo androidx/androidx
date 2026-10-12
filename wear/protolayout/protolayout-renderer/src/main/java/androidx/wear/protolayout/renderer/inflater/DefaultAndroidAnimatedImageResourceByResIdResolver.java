@@ -61,7 +61,7 @@ public class DefaultAndroidAnimatedImageResourceByResIdResolver
     public @NonNull Drawable getDrawableOrThrow(
             @NonNull AndroidAnimatedImageResourceByResId resource) throws ResourceAccessException {
         if (resource.getAnimatedImageFormat() == AnimatedImageFormat.ANIMATED_IMAGE_FORMAT_AVD) {
-            if (mRestrictImageSize && Build.VERSION.SDK_INT >= 31) {
+            if (mRestrictImageSize && Build.VERSION.SDK_INT >= 28) {
                 return ConstrainedImageDecoder.decodeDrawable(
                         mAndroidResources, resource.getResourceId());
             }

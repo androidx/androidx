@@ -16,11 +16,12 @@
 
 package androidx.wear.protolayout.renderer.inflater;
 
-import static androidx.wear.protolayout.renderer.inflater.ConstrainedImageDecoder.ANDROID_NS;
-import static androidx.wear.protolayout.renderer.inflater.ConstrainedImageDecoder.ATTR_DRAWABLE;
-import static androidx.wear.protolayout.renderer.inflater.ConstrainedImageDecoder.TAG_ANIMATED_VECTOR;
+import static androidx.wear.protolayout.renderer.inflater.XmlDrawableValidator.ANDROID_NAMESPACE;
+import static androidx.wear.protolayout.renderer.inflater.XmlDrawableValidator.ATTR_DRAWABLE;
+import static androidx.wear.protolayout.renderer.inflater.XmlDrawableValidator.TAG_ANIMATED_VECTOR;
 
 import android.content.res.Resources;
+import android.content.res.XmlResourceParser;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -71,12 +72,12 @@ public class DefaultAndroidSeekableAnimatedImageResourceByResIdResolver
     }
 
     @Override
+    @SuppressWarnings("KotlinInternal")
     public @NonNull Drawable getDrawableOrThrow(
             @NonNull AndroidSeekableAnimatedImageResourceByResId resource)
             throws ResourceAccessException {
         if (resource.getAnimatedImageFormat() == AnimatedImageFormat.ANIMATED_IMAGE_FORMAT_AVD) {
-            try {
-                final XmlPullParser parser = mAndroidResources.getXml(resource.getResourceId());
+            try (XmlResourceParser parser = mAndroidResources.getXml(resource.getResourceId())) {
                 final AttributeSet attrs = Xml.asAttributeSet(parser);
                 int type;
                 do {
@@ -92,9 +93,9 @@ public class DefaultAndroidSeekableAnimatedImageResourceByResIdResolver
                 }
                 if (mRestrictImageSize) {
                     int drawableResId =
-                            attrs.getAttributeResourceValue(ANDROID_NS, ATTR_DRAWABLE, 0);
+                            attrs.getAttributeResourceValue(ANDROID_NAMESPACE, ATTR_DRAWABLE, 0);
                     if (drawableResId != 0) {
-                        ConstrainedImageDecoder.verifyVectorDrawableXml(
+                        XmlDrawableValidator.verifyVectorDrawableXml(
                                 mAndroidResources, drawableResId);
                     }
                 }
