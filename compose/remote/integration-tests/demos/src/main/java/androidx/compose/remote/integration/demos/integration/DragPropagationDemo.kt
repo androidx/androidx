@@ -32,6 +32,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
@@ -67,7 +68,7 @@ import androidx.compose.ui.unit.dp
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
-fun DragPropagationDemo() {
+fun DragPropagationDemo(onDocument: (CoreDocument) -> Unit = {}) {
     val outerScrollState = rememberScrollState()
     var hostActionClicks by remember { mutableIntStateOf(0) }
     var hostTouchUpCount by remember { mutableIntStateOf(0) }
@@ -138,6 +139,7 @@ fun DragPropagationDemo() {
                         hostTouchUpCount++
                     }
                 },
+                onDocument = onDocument,
             ) {
                 val valueChangeClicks = remember { MutableRemoteInt(0) }
                 val touchValueClicks = remember { MutableRemoteInt(0) }
@@ -245,7 +247,7 @@ fun DragPropagationDemo() {
                     .background(Color.White, RoundedCornerShape(8.dp))
                     .padding(8.dp)
         ) {
-            RemoteDemo(modifier = Modifier.fillMaxSize()) {
+            RemoteDemo(modifier = Modifier.fillMaxSize(), onDocument = onDocument) {
                 val scrollState = remember { RemoteScrollState() }
                 RemoteColumn(
                     modifier =

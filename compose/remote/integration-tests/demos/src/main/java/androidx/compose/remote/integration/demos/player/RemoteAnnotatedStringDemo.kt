@@ -18,6 +18,7 @@
 
 package androidx.compose.remote.integration.demos.player
 
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -245,13 +246,17 @@ fun TransformationsAndConcatSample() {
 /** Comprehensive showcase of [RemoteAnnotatedString] features. */
 @Suppress("RestrictedApiAndroidX")
 @Composable
-fun RemoteAnnotatedStringDemo() {
+fun RemoteAnnotatedStringDemo(onDocument: (CoreDocument) -> Unit = {}) {
     val customSupport = remember {
         AndroidCustomContextImpl().apply {
             registerDelegate("SupportSpannableString", SupportSpannableString())
         }
     }
-    RemoteDemo(profile = experimentalProfile, customSupport = customSupport) {
+    RemoteDemo(
+        profile = experimentalProfile,
+        customSupport = customSupport,
+        onDocument = onDocument,
+    ) {
         RemoteColumn(modifier = RemoteModifier.padding(16.rdp)) {
             LinksSample()
             SpanStylesSample()

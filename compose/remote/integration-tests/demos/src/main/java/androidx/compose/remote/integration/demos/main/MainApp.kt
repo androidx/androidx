@@ -34,8 +34,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,6 +50,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.integration.demos.document.DocumentViewState
 import androidx.compose.remote.integration.demos.settings.LAYOUT_DIRECTION_LTR
 import androidx.compose.remote.integration.demos.settings.LAYOUT_DIRECTION_PREF_KEY
 import androidx.compose.remote.integration.demos.settings.LAYOUT_DIRECTION_RTL
@@ -55,6 +61,7 @@ import androidx.compose.remote.integration.demos.settings.PLAYER_TYPE_PREF_KEY
 import androidx.compose.remote.integration.demos.settings.dataStore
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -77,6 +84,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import kotlinx.coroutines.flow.map
 
+@Suppress("RestrictedApiAndroidX")
 @Composable
 fun MainApp(backDispatcher: OnBackPressedDispatcher) {
     val context = LocalContext.current
@@ -101,6 +109,7 @@ fun MainApp(backDispatcher: OnBackPressedDispatcher) {
         MaterialTheme {
             val rootScreen = Screens
             val backStack = rememberNavBackStack(rootScreen)
+            var currentDocument by remember { mutableStateOf<CoreDocument?>(null) }
 
             val filteringMode =
                 rememberSaveable(saver = FilterMode.Saver(backDispatcher)) {
@@ -127,6 +136,7 @@ fun MainApp(backDispatcher: OnBackPressedDispatcher) {
                 onStartFiltering = onStartFiltering,
                 onEndFiltering = onEndFiltering,
                 onNavigateToScreen = { screen ->
+                    currentDocument = null
                     if (filteringMode.isFiltering) {
                         onEndFiltering()
                         backStack.clear()
@@ -135,17 +145,30 @@ fun MainApp(backDispatcher: OnBackPressedDispatcher) {
                     backStack.add(screen)
                 },
                 canNavigateUp = backStack.size > 1,
-                onNavigateUp = { backStack.removeAt(backStack.lastIndex) },
+                onNavigateUp = {
+                    val removed = backStack.removeAt(backStack.lastIndex)
+                    if (removed != DocumentScreen && removed != SettingsScreen) {
+                        currentDocument = null
+                    }
+                },
                 launchSettings = {
                     if (backStack.last() != SettingsScreen) {
                         backStack.add(SettingsScreen)
                     }
                 },
+                launchDocument = {
+                    if (backStack.last() != DocumentScreen) {
+                        backStack.add(DocumentScreen)
+                    }
+                },
+                currentDocument = currentDocument,
+                onDocument = { currentDocument = it },
             )
         }
     }
 }
 
+@Suppress("RestrictedApiAndroidX")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainApp(
@@ -158,6 +181,9 @@ fun MainApp(
     canNavigateUp: Boolean,
     onNavigateUp: () -> Unit,
     launchSettings: () -> Unit,
+    launchDocument: () -> Unit = {},
+    currentDocument: CoreDocument? = null,
+    onDocument: (CoreDocument) -> Unit = {},
 ) {
     val navigationIcon = (@Composable { AppBarIcons.Back(onNavigateUp) }).takeIf { canNavigateUp }
 
@@ -165,13 +191,20 @@ fun MainApp(
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
+    val currentScreen = backStack.last() as Screen
+    val documentViewState = remember { DocumentViewState(currentDocument) }
+    LaunchedEffect(currentDocument) { documentViewState.document = currentDocument }
+
     Scaffold(
         topBar = {
             MainAppBar(
                 title = backStackTitle,
+                currentScreen = currentScreen,
                 scrollBehavior = scrollBehavior,
                 navigationIcon = navigationIcon ?: {},
                 launchSettings = launchSettings,
+                launchDocument = launchDocument,
+                documentViewState = documentViewState,
                 isFiltering = isFiltering,
                 filterText = filterText,
                 onFilter = { filterText = it },
@@ -182,10 +215,20 @@ fun MainApp(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
     ) { innerPadding ->
         val modifier = Modifier.consumeWindowInsets(innerPadding).padding(innerPadding)
-        MainContent(modifier, backStack, isFiltering, filterText, onNavigateToScreen, onNavigateUp)
+        MainContent(
+            modifier = modifier,
+            backStack = backStack,
+            isFiltering = isFiltering,
+            filterText = filterText,
+            onNavigate = onNavigateToScreen,
+            onNavigateUp = onNavigateUp,
+            documentViewState = documentViewState,
+            onDocument = onDocument,
+        )
     }
 }
 
+@Suppress("RestrictedApiAndroidX")
 @Composable
 private fun MainContent(
     modifier: Modifier,
@@ -194,6 +237,8 @@ private fun MainContent(
     filterText: String,
     onNavigate: (Screen) -> Unit,
     onNavigateUp: () -> Unit,
+    documentViewState: DocumentViewState = remember { DocumentViewState(null) },
+    onDocument: (CoreDocument) -> Unit = {},
 ) {
     Crossfade(isFiltering to backStack.last()) { (filtering, _) ->
         Surface(modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -226,7 +271,12 @@ private fun MainContent(
                             }
                             entry<ComposableScreen> { composableScreen ->
                                 Box {
-                                    ComposableScreenNavigation(composableScreen.key, onNavigateUp)
+                                    ComposableScreenNavigation(
+                                        key = composableScreen.key,
+                                        onNavigateUp = onNavigateUp,
+                                        documentViewState = documentViewState,
+                                        onDocument = onDocument,
+                                    )
                                 }
                             }
                         },
@@ -255,6 +305,7 @@ private fun DisplayScreenCategory(category: Category, onNavigate: (Screen) -> Un
 @Composable
 private fun MainAppBar(
     title: String,
+    currentScreen: Screen,
     scrollBehavior: TopAppBarScrollBehavior,
     navigationIcon: @Composable () -> Unit,
     isFiltering: Boolean,
@@ -263,6 +314,8 @@ private fun MainAppBar(
     onStartFiltering: () -> Unit,
     onEndFiltering: () -> Unit,
     launchSettings: () -> Unit,
+    launchDocument: () -> Unit = {},
+    documentViewState: DocumentViewState = remember { DocumentViewState(null) },
 ) {
     if (isFiltering) {
         FilterAppBar(
@@ -277,8 +330,22 @@ private fun MainAppBar(
             scrollBehavior = scrollBehavior,
             navigationIcon = navigationIcon,
             actions = {
-                AppBarIcons.Filter(onClick = onStartFiltering)
-                AppBarIcons.Settings(onClick = launchSettings)
+                if (currentScreen is Category) {
+                    AppBarIcons.Filter(onClick = onStartFiltering)
+                }
+                if (
+                    currentScreen is ComposableScreen &&
+                        currentScreen != DocumentScreen &&
+                        currentScreen != SettingsScreen
+                ) {
+                    AppBarIcons.Document(onClick = launchDocument)
+                }
+                if (currentScreen != DocumentScreen) {
+                    AppBarIcons.Settings(onClick = launchSettings)
+                }
+                if (currentScreen == DocumentScreen) {
+                    AppBarIcons.DocumentMenu(documentViewState = documentViewState)
+                }
             },
         )
     }
@@ -296,8 +363,58 @@ private object AppBarIcons {
     }
 
     @Composable
+    fun Document(onClick: () -> Unit) {
+        IconButton(onClick = onClick) { Icon(Icons.Filled.Description, null) }
+    }
+
+    @Composable
     fun Settings(onClick: () -> Unit) {
         IconButton(onClick = onClick) { Icon(Icons.Filled.Settings, null) }
+    }
+
+    @Composable
+    fun DocumentMenu(documentViewState: DocumentViewState) {
+        var expanded by remember { mutableStateOf(false) }
+        Box {
+            IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.Menu, null) }
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                DropdownMenuItem(
+                    text = { Text("Search") },
+                    onClick = {
+                        documentViewState.showSearch()
+                        expanded = false
+                    },
+                )
+                DropdownMenuItem(
+                    text = { Text("Show as text") },
+                    onClick = {
+                        documentViewState.showAsText()
+                        expanded = false
+                    },
+                )
+                DropdownMenuItem(
+                    text = { Text("Show as YAML") },
+                    onClick = {
+                        documentViewState.showAsYaml()
+                        expanded = false
+                    },
+                )
+                DropdownMenuItem(
+                    text = { Text("Expand all") },
+                    onClick = {
+                        documentViewState.expandAll()
+                        expanded = false
+                    },
+                )
+                DropdownMenuItem(
+                    text = { Text("Collapse all") },
+                    onClick = {
+                        documentViewState.collapseAll()
+                        expanded = false
+                    },
+                )
+            }
+        }
     }
 }
 
@@ -351,6 +468,7 @@ private class FilterMode(backDispatcher: OnBackPressedDispatcher, initialValue: 
     }
 }
 
+@Suppress("RestrictedApiAndroidX")
 @Preview
 @Composable
 private fun MainAppPreview() {
@@ -369,6 +487,7 @@ private fun MainAppPreview() {
     }
 }
 
+@Suppress("RestrictedApiAndroidX")
 @Preview
 @Composable
 private fun MainContentPreview() {
@@ -397,6 +516,7 @@ private fun MainAppBarPreview() {
     MaterialTheme {
         MainAppBar(
             title = "Title",
+            currentScreen = Screens,
             scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
             navigationIcon = { AppBarIcons.Back {} },
             isFiltering = false,

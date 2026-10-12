@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.valueChange
@@ -76,7 +77,7 @@ import androidx.compose.ui.unit.dp
     "RestrictedApiAndroidX"
 ) // Referring to combinedClickable, remote-core, remote-creation-core
 @Composable
-fun GesturePropagationDemo() {
+fun GesturePropagationDemo(onDocument: (CoreDocument) -> Unit = {}) {
     val experimentalProfile =
         Profile(
             RcPlatformProfiles.ANDROIDX.apiLevel,
@@ -161,6 +162,7 @@ fun GesturePropagationDemo() {
                         remoteComposeLongClick -> remoteComposeLongClickCounter++
                     }
                 },
+                onDocument = onDocument,
             ) {
                 val scrollState = remember { RemoteScrollState() }
                 val clickCount = remember { MutableRemoteInt(0) }
