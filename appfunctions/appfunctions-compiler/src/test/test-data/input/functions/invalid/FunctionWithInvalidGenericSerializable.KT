@@ -4,15 +4,15 @@ import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class SetField<T>(val value: T)
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class UpdateNoteParams(
     val content: SetField<Byte>? = null, // Unsupported type "Byte"
 )
 
 class FunctionWithGenericSerializable {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     suspend fun test(appFunctionContext: AppFunctionContext, params: UpdateNoteParams) {}
 }

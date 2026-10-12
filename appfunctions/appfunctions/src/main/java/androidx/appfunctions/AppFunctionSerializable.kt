@@ -73,10 +73,12 @@ package androidx.appfunctions
  * **Example:**
  *
  * ```
- * @AppFunctionSerializable
+ * /** The location. */
+ * @AppFunctionSerializable(isDescribedByKDoc = true)
  * class Location(val latitude: Double, val longitude: Double)
  *
- * @AppFunctionSerializable
+ * /** The place. */
+ * @AppFunctionSerializable(isDescribedByKDoc = true)
  * class Place(
  *     val name: String,
  *     val location: Location, // Nested AppFunctionSerializable
@@ -85,12 +87,14 @@ package androidx.appfunctions
  *     val notes: String? = "default"
  * )
  *
- * @AppFunctionSerializable
+ * /** The search place result. */
+ * @AppFunctionSerializable(isDescribedByKDoc = true)
  * class SearchPlaceResult(
  *     val places: List<Place> // If missing, will be an empty list
  * )
  *
- * @AppFunctionSerializable
+ * /** The attachment. */
+ * @AppFunctionSerializable(isDescribedByKDoc = true)
  * class Attachment(
  *   uri: String // Putting constructor parameter without getter will result in compiler error
  * )
@@ -104,13 +108,12 @@ package androidx.appfunctions
 @Target(AnnotationTarget.CLASS)
 public annotation class AppFunctionSerializable(
     /**
-     * Whether to use the serializable's KDoc as the type's description to the agent. The default
-     * value is `false`.
+     * Whether to use the serializable's KDoc as the type's description to the agent.
      *
      * If set to `true`, the serializable's KDoc will be set as the type's
      * [androidx.appfunctions.metadata.AppFunctionDataTypeMetadata.description]. The class's
      * properties' KDoc will also be set as their corresponding descriptions. The caller will use
      * the descriptions to interpret when and how to use the class and its properties.
      */
-    public val isDescribedByKDoc: Boolean = false
+    public val isDescribedByKDoc: Boolean
 )

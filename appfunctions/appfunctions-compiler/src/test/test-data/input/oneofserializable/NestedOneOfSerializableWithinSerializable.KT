@@ -19,7 +19,7 @@ package com.testdata.oneofserializable
 import androidx.appfunctions.AppFunctionSerializable
 
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class NestedOneOfSerializableWithinSerializable(
     val str: String,
     val oneOfSerializable: OneOfSealedInterface,

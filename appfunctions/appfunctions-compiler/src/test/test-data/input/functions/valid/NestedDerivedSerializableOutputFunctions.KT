@@ -4,12 +4,12 @@ import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class NestedDerivedSerializableOutputFunctions {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunction(appFunctionContext: AppFunctionContext): NestedDerivedSerializable {
         return NestedDerivedSerializable("testValue", null, 2, null)
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionSerializableList(
         appFunctionContext: AppFunctionContext,
     ): List<NestedDerivedSerializable> {

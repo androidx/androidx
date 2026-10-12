@@ -4,5 +4,5 @@ import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class FakeNoArgImpl_IsEnabled_False : FakeNoArg {
-    @AppFunctionDeclaration(isEnabled = false) override fun noArg(appFunctionContext: AppFunctionContext) {}
+    @AppFunctionDeclaration(isDescribedByKDoc = false, isEnabled = false) override fun noArg(appFunctionContext: AppFunctionContext) {}
 }

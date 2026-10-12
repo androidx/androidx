@@ -7,7 +7,7 @@ import com.testdata.diffPackageSchemas.DiffPackageInputSchemas
 import com.testdata.differentPackage.DiffPackageSerializable
 
 class AppFunctionWithInputFromDifferentPackage : DiffPackageInputSchemas {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     override fun functionWithDiffPackageInput(
         appFunctionContext: AppFunctionContext,
         input: DiffPackageSerializable,

@@ -2,7 +2,7 @@ package com.testdata
 
 import androidx.appfunctions.AppFunctionSerializable
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class EntityWithValidNullableProperties(
     val longParam: Long?,
     val doubleParam: Double?,

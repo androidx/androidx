@@ -28,7 +28,7 @@ package androidx.appfunctions
  * ### Usage Example:
  * ```
  * // Accepts values that start with "acct_" OR consist only of digits.
- * @AppFunctionDeclaration
+ * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * fun setAccountId(
  *     @AppFunctionStringValueConstraint(
  *         patternMatchers = [

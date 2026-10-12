@@ -22,7 +22,7 @@ import androidx.appfunctions.AppFunctionDeclaration
 
 class OneOfFunctions {
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun oneOfSealedParam(
         appFunctionContext: AppFunctionContext,
         oneOfSealedInterface: OneOfSealedInterface,
@@ -30,21 +30,21 @@ class OneOfFunctions {
         oneOfSealedInterfaceList: List<OneOfSealedInterface>,
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun oneOfSealedReturn(appFunctionContext: AppFunctionContext): OneOfSealedClass =
         OneOfSealedClass.ASubclass("", "")
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun oneOfSealedListReturn(appFunctionContext: AppFunctionContext): List<OneOfSealedClass> =
         emptyList()
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun oneOfSealedNestedSerializable(
         appFunctionContext: AppFunctionContext,
         oneOfSealedNestedSerializable: OneOfSealedNestedSerializable,
     ) = OneOfSealedNestedSerializable(BSubclass("", 0))
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun oneOfNonSealedOneOfSerializableParam(
         appFunctionContext: AppFunctionContext,
         nonSealedOneOfSerializable: NonSealedOneOfSerializable,
@@ -53,5 +53,5 @@ class OneOfFunctions {
     ) {}
 }
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class OneOfSealedNestedSerializable(val sealedInterface: OneOfSealedInterface)

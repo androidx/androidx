@@ -4,25 +4,25 @@ import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class RecursiveSerializableInputFunctions {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunction(
         appFunctionContext: AppFunctionContext,
         serializable: RecursiveSerializable
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionSerializableList(
         appFunctionContext: AppFunctionContext,
         serializable: List<RecursiveSerializable>
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableSerializableList(
         appFunctionContext: AppFunctionContext,
         serializable: List<RecursiveSerializable>?
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableSerializable(
         appFunctionContext: AppFunctionContext,
         serializable: RecursiveSerializable?

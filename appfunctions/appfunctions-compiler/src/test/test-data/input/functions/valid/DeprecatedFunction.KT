@@ -4,7 +4,7 @@ import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class DeprecatedFunction {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     @Deprecated("Deprecated Message")
     fun deprecatedFunction(appFunctionContext: AppFunctionContext) {}
 }

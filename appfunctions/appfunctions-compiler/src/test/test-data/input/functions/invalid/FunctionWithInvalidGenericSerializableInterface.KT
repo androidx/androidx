@@ -5,7 +5,7 @@ import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionSerializableInterface
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class SetField<T>(val value: T)
 
 @AppFunctionSerializableInterface
@@ -13,12 +13,12 @@ interface Note {
     val id: String
 }
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class UpdateNoteParams(
     val content: SetField<Note>? = null,
 )
 
 class FunctionWithGenericSerializable {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     suspend fun test(appFunctionContext: AppFunctionContext, params: UpdateNoteParams) {}
 }

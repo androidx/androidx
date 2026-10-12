@@ -6,6 +6,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
 @AppFunctionSignature(
     scope = AppFunctionMetadata.SCOPE_GLOBAL,
     appFunctionXmlFileName = "app_level_app_functions",
+    isDescribedByKDoc = false,
 )
 interface MultiMethodsInterface {
     fun methodOne()

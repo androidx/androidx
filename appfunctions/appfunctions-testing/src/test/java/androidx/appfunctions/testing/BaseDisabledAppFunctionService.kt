@@ -28,7 +28,7 @@ import androidx.appfunctions.AppFunctionServiceEntryPoint
     appFunctionXmlFileName = "disabled_app_function_service",
 )
 abstract class BaseDisabledAppFunctionService : AppFunctionService() {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun disabledFunction(value: Int): Int {
         return value
     }

@@ -49,7 +49,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
  *
  * Example usage for service-based functions:
  * ```kotlin
- * @AppFunctionDeclaration
+ * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * @AppFunctionAccessLevel(
  *     level = AppFunctionMetadata.ACCESS_LEVEL_SELF,
  *     isCompatEnforcementEnabled = true,
@@ -62,6 +62,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
  * @AppFunctionSignature(
  *     scope = AppFunctionMetadata.SCOPE_GLOBAL,
  *     appFunctionXmlFileName = "dynamic_signature_definitions",
+ *     isDescribedByKDoc = false,
  * )
  * @AppFunctionAccessLevel(
  *     level = AppFunctionMetadata.ACCESS_LEVEL_SELF,

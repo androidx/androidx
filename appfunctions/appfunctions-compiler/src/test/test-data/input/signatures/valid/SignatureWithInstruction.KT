@@ -4,7 +4,7 @@ import androidx.appfunctions.AppFunctionSignature
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.AppFunctionInstruction
 
-@AppFunctionSignature(scope = AppFunctionMetadata.SCOPE_GLOBAL, appFunctionXmlFileName = "app_level_app_functions")
+@AppFunctionSignature(scope = AppFunctionMetadata.SCOPE_GLOBAL, appFunctionXmlFileName = "app_level_app_functions", isDescribedByKDoc = false)
 fun interface SignatureWithInstruction {
     @AppFunctionInstruction("Instruction for method.")
     suspend fun doSomething(

@@ -4,11 +4,11 @@ import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class SerializableData(val intValue: Int)
 
 class AppFunctionWithOptionalNonNullSerializable {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun withOptionalNonNullSerializable(
         appFunctionContext: AppFunctionContext,
         optionalNonNullSerializable: SerializableData = SerializableData(0)

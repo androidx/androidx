@@ -34,10 +34,10 @@ public interface AppFunctionInvoker {
      * For example, consider the following AppFunction implementation class:
      * ```kotlin
      * class NoteFunctions : CreateNote, EditNote {
-     *   @AppFunctionDeclaration
+     *   @AppFunctionDeclaration(isDescribedByKDoc = false)
      *   override suspend fun createNote() : Note { ... }
      *
-     *   @AppFunctionDeclaration
+     *   @AppFunctionDeclaration(isDescribedByKDoc = false)
      *   override suspend fun editNote() : Note { ... }
      * }
      * ```
