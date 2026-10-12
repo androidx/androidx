@@ -22,6 +22,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -181,6 +182,91 @@ public object MaterialTransitions {
                 }
             }
         }
+
+        private const val SlideFraction = 0.2f
+        private const val TargetScaleDelta = 0.05f
+        private const val BackwardTargetContentZIndex = -10f
+        private const val PivotFractionXRightEdge = 0.5f
+        private const val PivotFractionXDefault = 0.9f
+        private const val PivotFractionY = 0.5f
+        private const val FadeDurationMillis = 90
+        private const val FadeDelayMillis = 50
+    }
+
+    /**
+     * Provides fade through transforms adhering to Material 3 motion specifications.
+     *
+     * Use these animations for transitions between destinations without a strong spatial or
+     * directional relationship, such as switching between tabs in a bottom navigation bar. See
+     * [Material 3 transition patterns](https://m3.material.io/styles/motion/transitions/transition-patterns).
+     */
+    public object FadeThrough {
+
+        /**
+         * Creates a [ContentTransform] for a fade through transition.
+         *
+         * @sample androidx.compose.material3.samples.FadeThroughTransitionSample
+         */
+        public fun transform(): ContentTransform {
+            return (fadeIn(
+                animationSpec =
+                    tween(
+                        durationMillis = FadeInDurationMillis,
+                        delayMillis = FadeOutDurationMillis,
+                        easing = LinearEasing,
+                    )
+            ) + scaleIn(initialScale = InitialScale)) togetherWith
+                (fadeOut(
+                    animationSpec =
+                        tween(durationMillis = FadeOutDurationMillis, easing = LinearEasing)
+                ) + scaleOut(targetScale = TargetScale))
+        }
+
+        /**
+         * Creates a [MutableContentTransform] configured for the gesture phase of a fade through
+         * predictive back transition.
+         *
+         * @sample androidx.compose.material3.samples.FadeThroughTransitionSample
+         * @param backEvent provider of the ongoing [NavigationEvent]
+         * @param density the [Density] used to convert display bounds margins to pixels
+         */
+        public fun predictiveBackTransform(
+            backEvent: () -> NavigationEvent,
+            density: Density,
+        ): MutableContentTransform {
+            val displayBoundsMarginPx = with(density) { DisplayBoundsMargin.toPx() }
+            val initialTouchY = backEvent().touchY
+
+            return MutableContentTransform {
+                initialContentTransform { fullSize ->
+                    val event = backEvent()
+                    val rawYDelta = event.touchY - initialTouchY
+                    val easedProgress = PredictiveBack.transform(event.progress)
+                    val currentScale = 1f - (easedProgress * ScaleProgressMultiplier)
+
+                    alpha = 1f
+                    scale = currentScale
+                    transformOrigin = TransformOrigin.Center
+                    offset =
+                        calculateSlideOffset(
+                            fullSize = fullSize,
+                            currentScale = currentScale,
+                            rawYDelta = rawYDelta,
+                            displayBoundsMargin = displayBoundsMarginPx,
+                        )
+                }
+                targetContentTransform {
+                    alpha = 0f
+                    scale = InitialScale
+                    transformOrigin = TransformOrigin.Center
+                }
+            }
+        }
+
+        private const val FadeOutDurationMillis = 90
+        private const val FadeInDurationMillis = 210
+        private const val InitialScale = 0.8f
+        private const val TargetScale = 1.05f
     }
 }
 
@@ -190,16 +276,8 @@ public object MaterialTransitions {
 
 private const val ScrimAlphaLight = 0.2f
 private const val ScrimAlphaDark = 0.8f
-private const val SlideFraction = 0.2f
 private const val ScaleProgressMultiplier = 0.15f
-private const val TargetScaleDelta = 0.05f
-private const val BackwardTargetContentZIndex = -10f
-private const val PivotFractionXRightEdge = 0.5f
-private const val PivotFractionXDefault = 0.9f
-private const val PivotFractionY = 0.5f
 private val DisplayBoundsMargin = 8.dp
-private const val FadeDurationMillis = 90
-private const val FadeDelayMillis = 50
 
 private fun calculateSlideOffset(
     fullSize: IntSize,
