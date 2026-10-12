@@ -22,7 +22,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":activity:activity"))
+    api("androidx.activity:activity:1.14.0-alpha03")
     implementation("androidx.annotation:annotation:1.9.1")
 
     androidTestImplementation(libs.junit)
