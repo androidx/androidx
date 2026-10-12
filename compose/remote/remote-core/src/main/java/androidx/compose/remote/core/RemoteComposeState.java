@@ -748,4 +748,10 @@ public class RemoteComposeState implements CollectionsAccess {
     public void markVariableDirty(int id) {
         updateListeners(id);
     }
+
+    /** Returns {@code mRemoteContext}. */
+    @SuppressWarnings("KotlinPropertyAccess")
+    public @Nullable RemoteContext getRemoteContext() {
+        return mRemoteContext;
+    }
 }

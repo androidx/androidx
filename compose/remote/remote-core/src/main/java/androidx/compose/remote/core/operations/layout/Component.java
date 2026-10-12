@@ -461,7 +461,8 @@ public class Component extends PaintOperation
         }
     }
 
-    protected @NonNull AnimationSpec getAnimationSpec() {
+    /** Returns {@code mAnimationSpec}. */
+    public @NonNull AnimationSpec getAnimationSpec() {
         return mAnimationSpec;
     }
 

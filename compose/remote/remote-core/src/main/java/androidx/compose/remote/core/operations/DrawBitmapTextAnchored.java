@@ -399,4 +399,49 @@ public class DrawBitmapTextAnchored extends PaintOperation implements VariableSu
                 .add("y", mY, mOutY)
                 .add("mGlyphSpacing", mGlyphSpacing);
     }
+
+    /** Returns {@code mTextID}. */
+    public int getTextID() {
+        return mTextID;
+    }
+
+    /** Returns {@code mBitmapFontID}. */
+    public int getBitmapFontID() {
+        return mBitmapFontID;
+    }
+
+    /** Returns {@code mOutStart}. */
+    public float getOutStart() {
+        return mOutStart;
+    }
+
+    /** Returns {@code mOutEnd}. */
+    public float getOutEnd() {
+        return mOutEnd;
+    }
+
+    /** Returns {@code mOutX}. */
+    public float getOutX() {
+        return mOutX;
+    }
+
+    /** Returns {@code mOutY}. */
+    public float getOutY() {
+        return mOutY;
+    }
+
+    /** Returns {@code mOutPanX}. */
+    public float getOutPanX() {
+        return mOutPanX;
+    }
+
+    /** Returns {@code mOutPanY}. */
+    public float getOutPanY() {
+        return mOutPanY;
+    }
+
+    /** Returns {@code mOutGlyphSpacing}. */
+    public float getOutGlyphSpacing() {
+        return mOutGlyphSpacing;
+    }
 }

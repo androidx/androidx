@@ -312,4 +312,34 @@ public class MarqueeModifierOperation extends DecoratorModifierOperation impleme
                 .add("spacing", mSpacing)
                 .add("velocity", mVelocity);
     }
+
+    /** Returns {@code mIterations}. */
+    public int getIterations() {
+        return mIterations;
+    }
+
+    /** Returns {@code mAnimationMode}. */
+    public int getAnimationMode() {
+        return mAnimationMode;
+    }
+
+    /** Returns {@code mRepeatDelayMillis}. */
+    public float getRepeatDelayMillis() {
+        return mRepeatDelayMillis;
+    }
+
+    /** Returns {@code mInitialDelayMillis}. */
+    public float getInitialDelayMillis() {
+        return mInitialDelayMillis;
+    }
+
+    /** Returns {@code mSpacing}. */
+    public float getSpacing() {
+        return mSpacing;
+    }
+
+    /** Returns {@code mVelocity}. */
+    public float getVelocity() {
+        return mVelocity;
+    }
 }

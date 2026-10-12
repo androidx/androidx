@@ -145,4 +145,34 @@ public abstract class DrawBase3 extends PaintOperation implements VariableSuppor
                 .add(v2Name, mValue2, mV2)
                 .add(v3Name, mValue3, mV3);
     }
+
+    /** Returns {@code mV1}. */
+    public float getV1() {
+        return mV1;
+    }
+
+    /** Returns {@code mV2}. */
+    public float getV2() {
+        return mV2;
+    }
+
+    /** Returns {@code mV3}. */
+    public float getV3() {
+        return mV3;
+    }
+
+    /** Returns {@code mValue1}. */
+    public float getValue1() {
+        return mValue1;
+    }
+
+    /** Returns {@code mValue2}. */
+    public float getValue2() {
+        return mValue2;
+    }
+
+    /** Returns {@code mValue3}. */
+    public float getValue3() {
+        return mValue3;
+    }
 }

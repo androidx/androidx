@@ -469,4 +469,49 @@ public class BorderModifierOperation extends DecoratorModifierOperation implemen
     private static boolean isAtLeastVersion7(@NonNull RemoteContext context) {
         return context.supportsVersion(1, 1, 0);
     }
+
+    /** Returns {@code mUseColorId}. */
+    public boolean getUseColorId() {
+        return mUseColorId;
+    }
+
+    /** Returns {@code mColorId}. */
+    public int getColorId() {
+        return mColorId;
+    }
+
+    /** Returns {@code mR}. */
+    public float getR() {
+        return mR;
+    }
+
+    /** Returns {@code mG}. */
+    public float getG() {
+        return mG;
+    }
+
+    /** Returns {@code mB}. */
+    public float getB() {
+        return mB;
+    }
+
+    /** Returns {@code mA}. */
+    public float getA() {
+        return mA;
+    }
+
+    /** Returns {@code mBorderWidth}. */
+    public float getBorderWidth() {
+        return mBorderWidth;
+    }
+
+    /** Returns {@code mRoundedCorner}. */
+    public float getRoundedCorner() {
+        return mRoundedCorner;
+    }
+
+    /** Returns {@code mShapeType}. */
+    public int getShapeType() {
+        return mShapeType;
+    }
 }

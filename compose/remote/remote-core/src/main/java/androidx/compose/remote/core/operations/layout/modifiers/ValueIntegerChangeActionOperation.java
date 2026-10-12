@@ -138,4 +138,14 @@ public class ValueIntegerChangeActionOperation extends Operation implements Acti
                 .add("targetValueId", mTargetValueId)
                 .add("value", mValue);
     }
+
+    /** Returns {@code mTargetValueId}. */
+    public int getTargetValueId() {
+        return mTargetValueId;
+    }
+
+    /** Returns {@code mValue}. */
+    public int getValue() {
+        return mValue;
+    }
 }

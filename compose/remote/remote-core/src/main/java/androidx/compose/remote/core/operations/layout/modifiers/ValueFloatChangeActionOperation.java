@@ -136,4 +136,14 @@ public class ValueFloatChangeActionOperation extends Operation implements Action
                 .add("targetValueId", mTargetValueId)
                 .add("value", mValue);
     }
+
+    /** Returns {@code mTargetValueId}. */
+    public int getTargetValueId() {
+        return mTargetValueId;
+    }
+
+    /** Returns {@code mValue}. */
+    public float getValue() {
+        return mValue;
+    }
 }

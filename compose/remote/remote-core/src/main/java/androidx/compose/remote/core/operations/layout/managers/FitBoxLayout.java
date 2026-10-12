@@ -506,4 +506,14 @@ public class FitBoxLayout extends LayoutManager {
                 return "NONE";
         }
     }
+
+    /** Returns {@code mHorizontalPositioning}. */
+    public int getHorizontalPositioning() {
+        return mHorizontalPositioning;
+    }
+
+    /** Returns {@code mVerticalPositioning}. */
+    public int getVerticalPositioning() {
+        return mVerticalPositioning;
+    }
 }

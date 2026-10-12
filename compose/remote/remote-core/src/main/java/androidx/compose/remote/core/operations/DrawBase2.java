@@ -126,4 +126,24 @@ public abstract class DrawBase2 extends PaintOperation implements VariableSuppor
             @NonNull MapSerializer serializer, @NonNull String v1Name, @NonNull String v2Name) {
         return serializer.add(v1Name, mValue1, mV1).add(v2Name, mValue2, mV2);
     }
+
+    /** Returns {@code mV1}. */
+    public float getV1() {
+        return mV1;
+    }
+
+    /** Returns {@code mV2}. */
+    public float getV2() {
+        return mV2;
+    }
+
+    /** Returns {@code mValue1}. */
+    public float getValue1() {
+        return mValue1;
+    }
+
+    /** Returns {@code mValue2}. */
+    public float getValue2() {
+        return mValue2;
+    }
 }

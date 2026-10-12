@@ -424,4 +424,109 @@ public class DrawBitmapScaled extends PaintOperation
                 return "INVALID_SCALE_TYPE";
         }
     }
+
+    /** Returns {@code mImageId}. */
+    public int getImageId() {
+        return mImageId;
+    }
+
+    /** Returns {@code mSrcLeft}. */
+    public float getSrcLeft() {
+        return mSrcLeft;
+    }
+
+    /** Returns {@code mOutSrcLeft}. */
+    public float getOutSrcLeft() {
+        return mOutSrcLeft;
+    }
+
+    /** Returns {@code mSrcTop}. */
+    public float getSrcTop() {
+        return mSrcTop;
+    }
+
+    /** Returns {@code mOutSrcTop}. */
+    public float getOutSrcTop() {
+        return mOutSrcTop;
+    }
+
+    /** Returns {@code mSrcRight}. */
+    public float getSrcRight() {
+        return mSrcRight;
+    }
+
+    /** Returns {@code mOutSrcRight}. */
+    public float getOutSrcRight() {
+        return mOutSrcRight;
+    }
+
+    /** Returns {@code mSrcBottom}. */
+    public float getSrcBottom() {
+        return mSrcBottom;
+    }
+
+    /** Returns {@code mOutSrcBottom}. */
+    public float getOutSrcBottom() {
+        return mOutSrcBottom;
+    }
+
+    /** Returns {@code mDstLeft}. */
+    public float getDstLeft() {
+        return mDstLeft;
+    }
+
+    /** Returns {@code mOutDstLeft}. */
+    public float getOutDstLeft() {
+        return mOutDstLeft;
+    }
+
+    /** Returns {@code mDstTop}. */
+    public float getDstTop() {
+        return mDstTop;
+    }
+
+    /** Returns {@code mOutDstTop}. */
+    public float getOutDstTop() {
+        return mOutDstTop;
+    }
+
+    /** Returns {@code mDstRight}. */
+    public float getDstRight() {
+        return mDstRight;
+    }
+
+    /** Returns {@code mOutDstRight}. */
+    public float getOutDstRight() {
+        return mOutDstRight;
+    }
+
+    /** Returns {@code mDstBottom}. */
+    public float getDstBottom() {
+        return mDstBottom;
+    }
+
+    /** Returns {@code mOutDstBottom}. */
+    public float getOutDstBottom() {
+        return mOutDstBottom;
+    }
+
+    /** Returns {@code mContentDescId}. */
+    public int getContentDescId() {
+        return mContentDescId;
+    }
+
+    /** Returns {@code mScaleFactor}. */
+    public float getScaleFactor() {
+        return mScaleFactor;
+    }
+
+    /** Returns {@code mOutScaleFactor}. */
+    public float getOutScaleFactor() {
+        return mOutScaleFactor;
+    }
+
+    /** Returns {@code mScaleType}. */
+    public int getScaleType() {
+        return mScaleType;
+    }
 }

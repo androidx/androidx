@@ -185,4 +185,44 @@ public abstract class DrawBase4 extends PaintOperation implements VariableSuppor
                 .add(x2Name, mX2Value, mX2)
                 .add(y2Name, mY2Value, mY2);
     }
+
+    /** Returns {@code mX1Value}. */
+    public float getX1Value() {
+        return mX1Value;
+    }
+
+    /** Returns {@code mY1Value}. */
+    public float getY1Value() {
+        return mY1Value;
+    }
+
+    /** Returns {@code mX2Value}. */
+    public float getX2Value() {
+        return mX2Value;
+    }
+
+    /** Returns {@code mY2Value}. */
+    public float getY2Value() {
+        return mY2Value;
+    }
+
+    /** Returns the raw (possibly NaN-encoded variable id) {@code mX1}. */
+    public float getRawX1() {
+        return mX1;
+    }
+
+    /** Returns the raw (possibly NaN-encoded variable id) {@code mY1}. */
+    public float getRawY1() {
+        return mY1;
+    }
+
+    /** Returns the raw (possibly NaN-encoded variable id) {@code mX2}. */
+    public float getRawX2() {
+        return mX2;
+    }
+
+    /** Returns the raw (possibly NaN-encoded variable id) {@code mY2}. */
+    public float getRawY2() {
+        return mY2;
+    }
 }

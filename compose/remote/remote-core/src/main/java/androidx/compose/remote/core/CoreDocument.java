@@ -448,6 +448,11 @@ public class CoreDocument implements Serializable {
         return mContentMode;
     }
 
+    /** Returns {@code mContentAlignment}, the document's RootContentBehavior alignment. */
+    public int getContentAlignment() {
+        return mContentAlignment;
+    }
+
     /**
      * Returns the density behavior of the document. 0: Current behavior (mixed) 1: Values are
      * interpreted as pixels, no density applied by default 2: Values are interpreted as dp, density
@@ -1226,7 +1231,8 @@ public class CoreDocument implements Serializable {
 
     public final LoomManager mLoomManager = new LoomManager();
 
-    private void collectCollections(
+    /** Collects collections from the given operations and adds them to the state. */
+    public void collectCollections(
             @NonNull ArrayList<Operation> operations, @NonNull RemoteComposeState state) {
         for (Operation op : operations) {
             if (op instanceof DataListIds) {
@@ -1536,7 +1542,7 @@ public class CoreDocument implements Serializable {
      * @param context the context
      * @param list    list of operations
      */
-    private void registerVariables(
+    public void registerVariables(
             @NonNull RemoteContext context, @NonNull ArrayList<Operation> list) {
         for (Operation op : list) {
             if (op instanceof LayoutCompute) {
@@ -1590,7 +1596,7 @@ public class CoreDocument implements Serializable {
      * @param context the context
      * @param list    list of operations
      */
-    private void applyOperations(
+    public void applyOperations(
             @NonNull RemoteContext context, @NonNull ArrayList<Operation> list) {
         for (Operation op : list) {
             if (op instanceof VariableSupport) {
@@ -2284,8 +2290,8 @@ public class CoreDocument implements Serializable {
      * @param context    the context
      * @param operations list of operations
      */
-    private void updateVariables(
-            @NonNull RemoteContext context, int theme, List<Operation> operations) {
+    public void updateVariables(
+            @NonNull RemoteContext context, int theme, @NonNull List<Operation> operations) {
         for (int i = 0; i < operations.size(); i++) {
             Operation op = operations.get(i);
             if (op.isDirty() && op instanceof VariableSupport) {
@@ -2777,5 +2783,15 @@ public class CoreDocument implements Serializable {
      */
     public boolean isUpdateDoc() {
         return mIsUpdateDoc;
+    }
+
+    /** Returns {@code mFloatExpressions}. */
+    public @NonNull HashMap<Integer, FloatExpression> getFloatExpressions() {
+        return mFloatExpressions;
+    }
+
+    /** Updates the time variables for the document. */
+    public void updateTime(@NonNull RemoteContext context) {
+        mTimeVariables.updateTime(context);
     }
 }

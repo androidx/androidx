@@ -84,6 +84,11 @@ public class HostActionMetadataOperation extends Operation
         return (indent != null ? indent : "") + toString();
     }
 
+    /** Returns {@code mMetadataId}, the id of the text passed with the action. */
+    public int getMetadataId() {
+        return mMetadataId;
+    }
+
     @Override
     public void write(@NonNull WireBuffer buffer) {
         apply(buffer, mActionId, mMetadataId);
