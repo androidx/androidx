@@ -204,6 +204,65 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
         val title = if (colored) "Colored Grid Items ($sizeLabel)" else "Grid Items ($sizeLabel)"
         val builder = GridSection.Builder().setItemSize(itemSize).setTitle(title)
 
+        if (colored) {
+            val colors = listOf(CarColor.RED, CarColor.GREEN, CarColor.BLUE, CarColor.YELLOW)
+            val colorNames = listOf("Red", "Green", "Blue", "Yellow")
+            for ((color, name) in colors.zip(colorNames)) {
+                builder.addItem(
+                    GridItem.Builder()
+                        .setTitle("$name 0.5")
+                        .setImage(largeTestImage)
+                        .setProgressBar(
+                            CarProgressBar.Builder(0.5f)
+                                .setStyle(
+                                    CarProgressBarStyle.Builder()
+                                        .setColor(color)
+                                        .setTrackColor(color)
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .build()
+                )
+            }
+
+            // Track color examples
+            builder.addItem(
+                GridItem.Builder()
+                    .setTitle("Green / Blue Track")
+                    .setImage(largeTestImage)
+                    .setProgressBar(
+                        CarProgressBar.Builder(0.5f)
+                            .setStyle(
+                                CarProgressBarStyle.Builder()
+                                    .setColor(CarColor.GREEN)
+                                    .setTrackColor(CarColor.BLUE)
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .build()
+            )
+
+            builder.addItem(
+                GridItem.Builder()
+                    .setTitle("Red / Yellow Track")
+                    .setImage(largeTestImage)
+                    .setProgressBar(
+                        CarProgressBar.Builder(0.5f)
+                            .setStyle(
+                                CarProgressBarStyle.Builder()
+                                    .setColor(CarColor.RED)
+                                    .setTrackColor(CarColor.YELLOW)
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .build()
+            )
+            return builder.build()
+        }
+
         // 1. Title + Progress (0.3)
         builder.addItem(
             GridItem.Builder()
@@ -240,28 +299,20 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         )
 
-        // 5. Title + Colored Progress (0.5), Large Image
+        // 5. Title + Progress (0.5), Small Icon
         builder.addItem(
             GridItem.Builder()
-                .setTitle("Colored 0.5")
-                .setImage(largeTestImage)
-                .setProgressBar(
-                    CarProgressBar.Builder(0.5f)
-                        .setStyle(CarProgressBarStyle.Builder().setColor(CarColor.GREEN).build())
-                        .build()
-                )
+                .setTitle("Small Image 0.5")
+                .setImage(testImage)
+                .setProgressBar(CarProgressBar.Builder(0.5f).build())
                 .build()
         )
 
-        // 6. Just Progress Bar, Small Icon
+        // 6. Just Progress Bar (no title)
         builder.addItem(
             GridItem.Builder()
                 .setImage(largeTestImage)
-                .setProgressBar(
-                    CarProgressBar.Builder(0.5f)
-                        .setStyle(CarProgressBarStyle.Builder().setColor(CarColor.YELLOW).build())
-                        .build()
-                )
+                .setProgressBar(CarProgressBar.Builder(0.5f).build())
                 .build()
         )
 
