@@ -372,7 +372,9 @@ class LazyStaggeredGridItemPlacementAnimationTest(private val config: Config) {
     fun animateSpacingChange() {
         var currentSpacing by mutableStateOf(0.dp)
         rule.setContent {
-            LazyStaggeredGrid(1, spacing = currentSpacing) {
+            // fixed size container so the second item visually moves when the spacing changes
+            // in reverse layout too (otherwise the layout grows with the spacing).
+            LazyStaggeredGrid(1, minSize = containerSizeDp, spacing = currentSpacing) {
                 items(listOf(0, 1), key = { it }) { Item(it) }
             }
         }
@@ -1708,7 +1710,9 @@ class LazyStaggeredGridItemPlacementAnimationTest(private val config: Config) {
         var item0Size by mutableStateOf(itemSizeDp)
         val animSpec = spring(visibilityThreshold = IntOffset.VisibilityThreshold)
         rule.setContent {
-            LazyStaggeredGrid(cells = 1) {
+            // fixed size container so the second item visually moves when the first one is
+            // resized in reverse layout too (otherwise the layout shrinks with the item).
+            LazyStaggeredGrid(cells = 1, minSize = containerSizeDp) {
                 items(2, key = { it }) {
                     Item(it, if (it == 0) item0Size else itemSizeDp, animSpec = animSpec)
                 }

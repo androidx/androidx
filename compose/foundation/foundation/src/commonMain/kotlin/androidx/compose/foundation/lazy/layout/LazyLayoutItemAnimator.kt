@@ -51,6 +51,10 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
     // keeps the index of the first visible item index.
     private var firstVisibleIndex = 0
 
+    // Keeps track of the previous size of the main axis of the layout recorded
+    // at the point where placement animations were started.
+    private var previousMainAxisLayoutSize = 0
+
     // stored to not allocate it every pass.
     private val movingAwayKeys = mutableScatterSetOf<Any>()
     private val movingInFromStartBound = mutableListOf<T>()
@@ -82,9 +86,34 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         coroutineScope: CoroutineScope,
         graphicsContext: GraphicsContext,
         shouldRunItemAnimation: Boolean,
+        reverseLayout: Boolean = false,
     ) {
         val previousKeyToIndexMap = this.keyIndexMap
         this.keyIndexMap = keyIndexMap
+
+        // Only setup animations when we have access to target value in the current pass, which
+        // means lookahead pass, or regular pass when not in a lookahead scope.
+        val shouldSetupAnimation = isLookingAhead || !hasLookaheadOccurred
+
+        val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
+
+        // In reverse layouts offsets are relative to the end of the layout
+        // (visual = layoutSize - offset - itemSize), so resizing the layout shifts every offset
+        // by the size delta even though the items may not have moved visually.
+        // We need to remove this delta component when assessing if we need to
+        // re-setup placement animations.
+        val layoutSizeOffset =
+            if (shouldSetupAnimation && reverseLayout) {
+                    mainAxisLayoutSize - previousMainAxisLayoutSize
+                } else {
+                    0
+                }
+                .apply {
+                    if (shouldSetupAnimation) previousMainAxisLayoutSize = mainAxisLayoutSize
+                }
+                .let {
+                    if (isVertical) IntOffset(0, it) else IntOffset(it, 0)
+                }
 
         val hasAnimations = positionedItems.fastAny { it.hasAnimations }
         if (!hasAnimations && keyToItemInfoMap.isEmpty()) {
@@ -104,9 +133,6 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 IntOffset(consumedScroll, 0)
             }
 
-        // Only setup animations when we have access to target value in the current pass, which
-        // means lookahead pass, or regular pass when not in a lookahead scope.
-        val shouldSetupAnimation = isLookingAhead || !hasLookaheadOccurred
         // first add all items we had in the previous run
         keyToItemInfoMap.forEachKey { movingAwayKeys.add(it) }
         // iterate through the items which are visible (without animated offsets)
@@ -177,7 +203,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                                 }
                             }
                         }
-                        startPlacementAnimationsIfNeeded(item)
+                        startPlacementAnimationsIfNeeded(item, layoutSizeOffset = layoutSizeOffset)
                     }
                 }
             } else {
@@ -312,7 +338,11 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                     layoutHeight = layoutHeight,
                 )
                 if (shouldSetupAnimation) {
-                    startPlacementAnimationsIfNeeded(item, isMovingAway = true)
+                    startPlacementAnimationsIfNeeded(
+                        item,
+                        isMovingAway = true,
+                        layoutSizeOffset = layoutSizeOffset,
+                    )
                 }
             }
             accumulatedOffsetPerLane.fill(0)
@@ -336,7 +366,11 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 )
 
                 if (shouldSetupAnimation) {
-                    startPlacementAnimationsIfNeeded(item, isMovingAway = true)
+                    startPlacementAnimationsIfNeeded(
+                        item,
+                        isMovingAway = true,
+                        layoutSizeOffset = layoutSizeOffset,
+                    )
                 }
             }
         }
@@ -401,7 +435,17 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         }
     }
 
-    private fun startPlacementAnimationsIfNeeded(item: T, isMovingAway: Boolean = false) {
+    /**
+     * Starts placement animations for the placeables of [item] whose offset changed since the
+     * previous pass. [layoutSizeOffset] is the part of the offset change caused purely by the
+     * layout being resized (non-zero only in reverse layouts); it is not a visual movement and is
+     * therefore excluded from the animated delta.
+     */
+    private fun startPlacementAnimationsIfNeeded(
+        item: T,
+        isMovingAway: Boolean = false,
+        layoutSizeOffset: IntOffset = IntOffset.Zero,
+    ) {
         val itemInfo = keyToItemInfoMap[item.key]!!
         itemInfo.animations.forEachIndexed { placeableIndex, animation ->
             if (animation != null) {
@@ -411,7 +455,10 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                     currentTarget != LazyLayoutItemAnimation.NotInitialized &&
                         currentTarget != newTarget
                 ) {
-                    animation.animatePlacementDelta(newTarget - currentTarget, isMovingAway)
+                    val delta = newTarget - currentTarget - layoutSizeOffset
+                    if (delta != IntOffset.Zero) {
+                        animation.animatePlacementDelta(delta, isMovingAway)
+                    }
                 }
                 animation.targetOffset = newTarget
             }

@@ -108,6 +108,7 @@ internal fun measureLazyGrid(
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext,
             shouldRunItemAnimation = true,
+            reverseLayout = reverseLayout,
         )
         if (!isLookingAhead) {
             val disappearingItemsSize = itemAnimator.minSizeToFitDisappearingItems
@@ -396,6 +397,7 @@ internal fun measureLazyGrid(
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext,
             shouldRunItemAnimation = true,
+            reverseLayout = reverseLayout,
         )
 
         if (!isLookingAhead) {
