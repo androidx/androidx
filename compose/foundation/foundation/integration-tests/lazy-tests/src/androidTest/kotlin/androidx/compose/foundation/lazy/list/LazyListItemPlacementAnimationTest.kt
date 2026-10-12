@@ -376,6 +376,55 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
     }
 
     @Test
+    fun noAnimationWhenParentSizeChanges_reverseLayout_itemsStayInPlace() {
+        // Regression test for b/548989579: with reverseLayout the items are positioned relative
+        // to the end of the layout, so the layout resizing must not start placement animations
+        // for items which did not visually move.
+        var size by mutableStateOf(itemSizeDp * 5)
+        rule.setContent {
+            LazyList(
+                arrangement = if (isVertical) Arrangement.Top else Arrangement.Start,
+                reverseLayout = true,
+                minSize = size,
+                maxSize = size,
+            ) {
+                items(listOf(0, 1), key = { it }) { Item(it) }
+            }
+        }
+
+        assertPositions(1 to 0f, 0 to itemSize, autoReverse = false)
+
+        rule.runOnUiThread { size = itemSizeDp * 3 }
+        rule.mainClock.advanceTimeByFrame()
+
+        onAnimationFrame { fraction ->
+            assertPositions(1 to 0f, 0 to itemSize, autoReverse = false, fraction = fraction)
+        }
+    }
+
+    @Test
+    fun noAnimationWhenLayoutShrinksWithItem_reverseLayout() {
+        // The layout wraps its content. In reverse layout the first item is placed at the end,
+        // so when it shrinks the layout shrinks with it and the other item does not visually
+        // move, even though its offset relative to the end of the layout changed.
+        var item0Size by mutableStateOf(itemSizeDp)
+        rule.setContent {
+            LazyList(reverseLayout = true) {
+                items(2, key = { it }) { Item(it, if (it == 0) item0Size else itemSizeDp) }
+            }
+        }
+
+        assertPositions(1 to 0f, 0 to itemSize, autoReverse = false)
+
+        rule.runOnUiThread { item0Size = itemSize2Dp }
+        rule.mainClock.advanceTimeByFrame()
+
+        onAnimationFrame { fraction ->
+            assertPositions(1 to 0f, 0 to itemSize, autoReverse = false, fraction = fraction)
+        }
+    }
+
+    @Test
     fun moveItemToTheBottomOutsideOfBounds() {
         var list by mutableStateOf(listOf(0, 1, 2, 3, 4, 5))
         val listSize = itemSize * 3
@@ -1605,7 +1654,9 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         var item0Size by mutableStateOf(itemSizeDp)
         val animSpec = spring(visibilityThreshold = IntOffset.VisibilityThreshold)
         rule.setContent {
-            LazyList {
+            // fixed size container so the second item visually moves when the first one is
+            // resized in reverse layout too (otherwise the layout shrinks with the item).
+            LazyList(minSize = containerSizeDp) {
                 items(2, key = { it }) {
                     Item(it, if (it == 0) item0Size else itemSizeDp, animSpec = animSpec)
                 }
@@ -1736,7 +1787,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
 
     @Composable
     private fun LazyList(
-        arrangement: Arrangement.HorizontalOrVertical? = null,
+        arrangement: Any? = null,
         minSize: Dp = 0.dp,
         maxSize: Dp = containerSizeDp,
         startIndex: Int = 0,
@@ -1744,6 +1795,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
         startPadding: Dp = 0.dp,
         endPadding: Dp = 0.dp,
+        reverseLayout: Boolean = this.reverseLayout,
         content: LazyListScope.() -> Unit,
     ) {
         val container: @Composable (@Composable () -> Unit) -> Unit =
@@ -1756,7 +1808,8 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             state = rememberLazyListState(startIndex)
             if (isVertical) {
                 val verticalArrangement =
-                    arrangement ?: if (!reverseLayout) Arrangement.Top else Arrangement.Bottom
+                    arrangement as? Arrangement.Vertical
+                        ?: if (!reverseLayout) Arrangement.Top else Arrangement.Bottom
                 val horizontalAlignment =
                     if (crossAxisAlignment == CrossAxisAlignment.Start) {
                         Alignment.Start
@@ -1785,7 +1838,8 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 )
             } else {
                 val horizontalArrangement =
-                    arrangement ?: if (!reverseLayout) Arrangement.Start else Arrangement.End
+                    arrangement as? Arrangement.Horizontal
+                        ?: if (!reverseLayout) Arrangement.Start else Arrangement.End
                 val verticalAlignment =
                     if (crossAxisAlignment == CrossAxisAlignment.Start) {
                         Alignment.Top

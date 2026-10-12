@@ -298,6 +298,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
                 coroutineScope = coroutineScope,
                 graphicsContext = graphicsContext,
                 shouldRunItemAnimation = true,
+                reverseLayout = reverseLayout,
             )
 
             if (!isLookingAhead) {
@@ -952,6 +953,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext,
             shouldRunItemAnimation = true,
+            reverseLayout = reverseLayout,
         )
 
         if (!isLookingAhead) {
