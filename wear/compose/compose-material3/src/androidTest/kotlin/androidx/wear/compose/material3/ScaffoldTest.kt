@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
@@ -618,6 +619,32 @@ class ScaffoldTest {
         // Use floats so we can specify a pixel of tolerance. SLC is less precise with respect to
         // contentPadding, hence the tolerance is higher.
         assertThat(spaceAvailable.toFloat()).isWithin(1.5f).of(expectedSpace)
+    }
+
+    @Test
+    fun room_for_edge_button_without_animation_in_inspection_mode() {
+        var spaceAvailable: Int = Int.MAX_VALUE
+        // Previews render a single frame: the edge button can't rely on its reveal animation.
+        rule.mainClock.autoAdvance = false
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalInspectionMode provides true) {
+                // Ensure we use the same size no mater where this is run.
+                Box(Modifier.size(300.dp)) {
+                    // A single item, so there is room for the edge button below it.
+                    TestScreenScaffoldWithTLCAndEdgeButton(
+                        scrollIndicatorColor = Color.Blue,
+                        timeTextColor = Color.Red,
+                        itemsCount = 1,
+                    ) {
+                        BoxWithConstraints { spaceAvailable = constraints.maxHeight }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        assertThat(spaceAvailable).isGreaterThan(0)
     }
 
     @Test
