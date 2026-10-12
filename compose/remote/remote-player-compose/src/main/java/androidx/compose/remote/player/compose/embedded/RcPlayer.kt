@@ -318,6 +318,8 @@ public fun RcPlayer(
     // accessibility — the embedded equivalent of the View player's root-view contentDescription.
     val rootContentDescription = remember(document) { document.contentDescription }
 
+    RcPlayerHapticEffect(document)
+
     // Desired frame rate (Header DOC_DESIRED_FPS): expressed as a platform hint via Compose's
     // preferredFrameRate modifier (which sets the layer's frame rate) rather than throttling the
     // time
