@@ -35,7 +35,9 @@ package androidx.appfunctions
  *   appFunctionXmlFileName = "my_service"
  * )
  * abstract class BaseMyAppFunctionService : AppFunctionService() {
- *   @AppFunctionDeclaration fun add(a: Int, b: Int): Int = a + b
+ *   /** Adds [a] to [b]. */
+ *   @AppFunctionDeclaration(isDescribedByKDoc = true)
+ *   fun add(a: Int, b: Int): Int = a + b
  * }
  * ```
  *

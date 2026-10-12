@@ -10,12 +10,12 @@ interface Note {
     val id: String
 }
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class UpdateNoteParams(
     val content: Note,
 )
 
 class FunctionWithNestedSerializableInterface {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     suspend fun test(appFunctionContext: AppFunctionContext, params: UpdateNoteParams) {}
 }

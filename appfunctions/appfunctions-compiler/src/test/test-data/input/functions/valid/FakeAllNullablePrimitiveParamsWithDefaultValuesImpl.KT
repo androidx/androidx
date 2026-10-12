@@ -5,7 +5,7 @@ import androidx.appfunctions.AppFunctionContext
 
 class FakeAllNullablePrimitiveParamsWithDefaultValuesImpl :
     FakeAllNullablePrimitiveParamsWithDefaultValues {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     override fun allNullablePrimitiveParamsWithDefault(
         appFunctionContext: AppFunctionContext,
         arg1: Int?,
@@ -19,7 +19,7 @@ class FakeAllNullablePrimitiveParamsWithDefaultValuesImpl :
 
 class FakeAllNullablePrimitiveArrayParamsWithDefaultValuesImpl :
     FakeAllNullablePrimitiveArrayParamsWithDefaultValues {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     override fun allNullablePrimitiveArrayParamsWithDefault(
         appFunctionContext: AppFunctionContext,
         arg1: IntArray?,

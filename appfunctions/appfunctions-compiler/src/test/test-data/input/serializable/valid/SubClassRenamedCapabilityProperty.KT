@@ -8,5 +8,5 @@ public interface AppFunctionOpenable {
     public val stringToOpen: String
 }
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class SubClassRenamedCapabilityProperty(val anotherString: String) : AppFunctionOpenable

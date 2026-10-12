@@ -22,7 +22,7 @@ import androidx.appfunctions.AppFunctionStringValueConstraint
 import androidx.appfunctions.AppFunctionDeclaration
 
 class StringEnumValueFunctions {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun stringEnumParamFunction(
         ctx: AppFunctionContext,
         @AppFunctionStringValueConstraint(enumValues = ["ON", "OFF"])
@@ -30,13 +30,13 @@ class StringEnumValueFunctions {
     ) {
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionStringValueConstraint(enumValues = ["ON", "OFF"])
     fun stringEnumReturnFunction(
         ctx: AppFunctionContext,
     ): String = "ON"
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun stringEnumSerializableFunction(
         ctx: AppFunctionContext,
         stringEnumPropSerializable: StringEnumPropSerializable
@@ -44,7 +44,7 @@ class StringEnumValueFunctions {
     }
 }
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class StringEnumPropSerializable(
     @AppFunctionStringValueConstraint(enumValues = ["ON", "OFF"])
     val stringProp: String

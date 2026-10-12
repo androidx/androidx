@@ -39,21 +39,21 @@ import androidx.appfunctions.AppFunctionUriGrant
     appFunctionXmlFileName = "simple_app_function_service",
 )
 abstract class SimpleAppFunctionServiceWithAdditionalFunctions : AppFunctionService() {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun echoProxyTypes(value: MultiServiceProxyTypesWrapper): MultiServiceProxyTypesWrapper = value
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun doThrow() {
         throw AppFunctionInvalidArgumentException("invalid")
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun enumValueFunction(
         @AppFunctionIntValueConstraint(enumValues = [0, 1]) intEnum: Int,
         @AppFunctionStringValueConstraint(enumValues = ["A", "B"]) stringEnum: String,
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun getFilesData(): MultiServiceFilesData {
         return MultiServiceFilesData(
             readOnlyUri =
@@ -107,10 +107,12 @@ abstract class SimpleAppFunctionServiceWithAdditionalFunctions : AppFunctionServ
         return MultiServiceNote(title = createNoteParams.title, content = createNoteParams.content)
     }
 
-    @AppFunctionDeclaration fun additionalFunction(): String = "new function"
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
+    fun additionalFunction(): String = "new function"
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun componentChangeFunction(param: ComponentChangeSerializable): String = param.prop1
 }
 
-@AppFunctionSerializable data class ComponentChangeSerializable(val prop1: String)
+@AppFunctionSerializable(isDescribedByKDoc = false)
+data class ComponentChangeSerializable(val prop1: String)

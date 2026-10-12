@@ -18,5 +18,5 @@ package com.testdata
 
 import androidx.appfunctions.AppFunctionSerializable
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 class EntityWithInvalidListParameterType(val badParam: List<Any>)

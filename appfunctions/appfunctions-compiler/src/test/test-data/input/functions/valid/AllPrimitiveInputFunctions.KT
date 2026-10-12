@@ -4,109 +4,109 @@ import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class AllPrimitiveInputFunctions {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionInt(appFunctionContext: AppFunctionContext, intParam: Int) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionLong(appFunctionContext: AppFunctionContext, longParam: Long) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionFloat(appFunctionContext: AppFunctionContext, floatParam: Float) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionDouble(appFunctionContext: AppFunctionContext, doubleParam: Double) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionBoolean(appFunctionContext: AppFunctionContext, booleanParam: Boolean) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionString(appFunctionContext: AppFunctionContext, stringParam: String) {}
 
     // Nullable single
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableInt(appFunctionContext: AppFunctionContext, intParam: Int?) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableLong(appFunctionContext: AppFunctionContext, longParam: Long?) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableFloat(appFunctionContext: AppFunctionContext, floatParam: Float?) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableDouble(appFunctionContext: AppFunctionContext, doubleParam: Double?) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableBoolean(appFunctionContext: AppFunctionContext, booleanParam: Boolean?) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableString(appFunctionContext: AppFunctionContext, stringParam: String?) {}
 
     // Array
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionIntArray(appFunctionContext: AppFunctionContext, intArrayParam: IntArray) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionLongArray(
         appFunctionContext: AppFunctionContext,
         longArrayParam: LongArray
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionFloatArray(
         appFunctionContext: AppFunctionContext,
         floatArrayParam: FloatArray
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionDoubleArray(
         appFunctionContext: AppFunctionContext,
         doubleArrayParam: DoubleArray
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionBooleanArray(
         appFunctionContext: AppFunctionContext,
         booleanArrayParam: BooleanArray
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionStringList(
         appFunctionContext: AppFunctionContext,
         stringListParam: List<String>
     ) {}
 
     // Nullable array
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableIntArray(
         appFunctionContext: AppFunctionContext,
         intArrayParam: IntArray?
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableLongArray(
         appFunctionContext: AppFunctionContext,
         longArrayParam: LongArray?
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableFloatArray(
         appFunctionContext: AppFunctionContext,
         floatArrayParam: FloatArray?
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableDoubleArray(
         appFunctionContext: AppFunctionContext,
         doubleArrayParam: DoubleArray?
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableBooleanArray(
         appFunctionContext: AppFunctionContext,
         booleanArrayParam: BooleanArray?
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableStringList(
         appFunctionContext: AppFunctionContext,
         stringListParam: List<String>?

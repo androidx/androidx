@@ -7,7 +7,7 @@ import androidx.appfunctions.AppFunctionUriValueConstraint
 
 @AppFunctionServiceEntryPoint("InvalidUriService", "invalid_uri_service")
 abstract class InvalidUriConstraintTarget : AppFunctionService() {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun invalidUriConstraint(
         @AppFunctionUriValueConstraint
         invalidParam: String

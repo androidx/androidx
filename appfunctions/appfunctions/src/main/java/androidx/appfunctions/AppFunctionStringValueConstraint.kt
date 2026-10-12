@@ -28,14 +28,14 @@ package androidx.appfunctions
  * ### Usage Example:
  * ```
  * // Constraining a function return value:
- * @AppFunctionDeclaration
+ * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * @AppFunctionStringValueConstraint(enumValues = ["LOW", "MEDIUM", "HIGH"])
  * fun getPriorityLevel(): String {
  *     // Function body
  * }
  *
  * // Constraining a parameter:
- * @AppFunctionDeclaration
+ * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * fun setMode(
  *     @AppFunctionStringValueConstraint(enumValues = ["AUTO", "MANUAL"])
  *     mode: String
@@ -44,7 +44,7 @@ package androidx.appfunctions
  * }
  *
  * // Constraining a property within an AppFunctionSerializable:
- * @AppFunctionSerializable
+ * @AppFunctionSerializable(isDescribedByKDoc = false)
  * data class AppConfig(
  *     @property:AppFunctionStringValueConstraint(enumValues = ["ENABLED", "DISABLED"])
  *     val featureFlag: String

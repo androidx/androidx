@@ -40,7 +40,7 @@ import androidx.annotation.RestrictTo
  * If an app attempts to implement this base interface, it must respect the original property status
  *
  * ```
- * @AppFunctionSerializable
+ * @AppFunctionSerializable(isDescribedByKDoc = false)
  * public class MyNote(
  *   override val title: String,
  *   override val content: String,
@@ -51,7 +51,7 @@ import androidx.annotation.RestrictTo
  *
  * Attempting to have an incompatible override would result in a compiler error:
  * ```
- * @AppFunctionSerializable
+ * @AppFunctionSerializable(isDescribedByKDoc = false)
  * public class MyNote(
  *   override val title: String,
  *   override val content: String,

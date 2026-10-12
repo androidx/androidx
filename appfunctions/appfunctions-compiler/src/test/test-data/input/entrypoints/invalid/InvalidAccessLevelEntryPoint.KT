@@ -7,7 +7,7 @@ import androidx.appfunctions.AppFunctionServiceEntryPoint
 
 @AppFunctionServiceEntryPoint("InvalidAccessLevelService", "invalid_access_level_service")
 abstract class InvalidAccessLevelEntryPoint : AppFunctionService() {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionAccessLevel(
         level = 999,
         isCompatEnforcementEnabled = true,

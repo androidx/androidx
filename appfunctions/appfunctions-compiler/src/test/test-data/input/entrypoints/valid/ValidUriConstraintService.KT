@@ -12,22 +12,22 @@ import androidx.appfunctions.AppFunctionUriValueConstraint
 
 @AppFunctionServiceEntryPoint("ValidUriService", "valid_uri_service")
 abstract class ValidUriConstraintService : AppFunctionService() {
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun functionWithContentUri(
         @AppFunctionUriValueConstraint(allowedSchemes = ["content"]) fileUri: Uri
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun functionWithMultiSchemeUri(
         @AppFunctionUriValueConstraint(allowedSchemes = ["content", "file"]) multiUri: Uri
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun functionWithUnconstrainedUri(
         plainUri: Uri
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun functionWithStringConstraintNoEnumValues(
         @AppFunctionStringValueConstraint(
             patternMatchers =
@@ -37,7 +37,7 @@ abstract class ValidUriConstraintService : AppFunctionService() {
         stringParam: String
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun functionWithAllStringPatternKinds(
         @AppFunctionStringValueConstraint(
             patternMatchers =
@@ -54,19 +54,19 @@ abstract class ValidUriConstraintService : AppFunctionService() {
         stringParam: String
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun functionWithSerializableValueConstraints(
         param: SerializableWithValueConstraints
     ) {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionUriValueConstraint(allowedSchemes = ["content"])
     fun functionWithUriReturn(): Uri {
         return Uri.EMPTY
     }
 }
 
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = false)
 data class SerializableWithValueConstraints(
     @AppFunctionUriValueConstraint(allowedSchemes = ["content"])
     val contentUri: Uri,

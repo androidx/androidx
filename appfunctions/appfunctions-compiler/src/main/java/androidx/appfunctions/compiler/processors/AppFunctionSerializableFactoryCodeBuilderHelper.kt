@@ -78,7 +78,7 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
      *
      * For example, given the following non proxy serializable class:
      * ```
-     * @AppFunctionSerializable
+     * @AppFunctionSerializable(isDescribedByKDoc = false)
      * class SampleSerializable(
      *     val longParam: Long,
      *     val doubleParam: Double,
@@ -180,7 +180,7 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
      * ```
      * package com.example
      *
-     * @AppFunctionSerializable
+     * @AppFunctionSerializable(isDescribedByKDoc = false)
      * class SampleSerializable(
      *     val longParam: Long,
      *     val doubleParam: Double,
@@ -246,7 +246,7 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
      *
      * For example, given the following non proxy serializable class:
      * ```
-     * @AppFunctionSerializable
+     * @AppFunctionSerializable(isDescribedByKDoc = false)
      * class SampleSerializable(
      *     val longParam: Long,
      *     val doubleParam: Double,
@@ -361,7 +361,7 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
      *
      * For example, given the following serializable class:
      * ```
-     * @AppFunctionSerializable
+     * @AppFunctionSerializable(isDescribedByKDoc = false)
      * class SampleSerializable(
      *     val longParam: Long,
      *     val doubleParam: Double,

@@ -8,7 +8,7 @@ import androidx.appfunctions.AppFunctionDeclaration
 
 @AppFunctionServiceEntryPoint("MySimpleService", "app_functions_v2.xml")
 class NotAbstractEntryPoint: AppFunctionService() {
-    @AppFunctionDeclaration fun simpleFunction() {}
+    @AppFunctionDeclaration(isDescribedByKDoc = false) fun simpleFunction() {}
     override suspend fun onExecuteFunction(
         request: ExecuteAppFunctionRequest
     ): ExecuteAppFunctionResponse {

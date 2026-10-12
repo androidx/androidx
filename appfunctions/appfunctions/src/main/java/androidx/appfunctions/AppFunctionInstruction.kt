@@ -28,14 +28,14 @@ package androidx.appfunctions
  *   AppFunction.
  *
  * ```
- * @AppFunctionDeclaration
+ * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * @AppFunctionInstruction("Creates a new calendar event.")
  * fun createEvent(title: String)
  * ```
  * - A parameter of an `@AppFunctionDeclaration`: Sets the description for that specific parameter.
  *
  * ```
- * @AppFunctionDeclaration
+ * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * fun getWeather(
  *   context: AppFunctionContext,
  *   @AppFunctionInstruction("The city to get the weather for, e.g., 'San Francisco'.")
@@ -45,7 +45,7 @@ package androidx.appfunctions
  * - The return type of `@AppFunctionDeclaration`: Sets the description for the response.
  *
  * ```
- * @AppFunctionDeclaration
+ * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * fun calculateDistance(
  *     context: AppFunctionContext,
  *     start: Location,
@@ -57,7 +57,7 @@ package androidx.appfunctions
  *   or its return type.
  *
  * ```
- * @AppFunctionSignature
+ * @AppFunctionSignature(isDescribedByKDoc = false)
  * fun interface EnableCaptionsSignature {
  *     @AppFunctionInstruction("Enables closed captions for media playback.")
  *     suspend fun enableCaptions(
@@ -71,14 +71,14 @@ package androidx.appfunctions
  * - A class annotated with `@AppFunctionSerializable`: Sets the description of the data type.
  *
  * ```
- * @AppFunctionSerializable
+ * @AppFunctionSerializable(isDescribedByKDoc = false)
  * @AppFunctionInstruction("Represents a geographical location.")
  * class Location(val lat: Double, val lng: Double)
  * ```
  * - A property of an `@AppFunctionSerializable` class: Sets the description for that property.
  *
  * ```
- * @AppFunctionSerializable
+ * @AppFunctionSerializable(isDescribedByKDoc = false)
  * class UserProfile(
  *     @AppFunctionInstruction("The user's display name.")
  *     val displayName: String

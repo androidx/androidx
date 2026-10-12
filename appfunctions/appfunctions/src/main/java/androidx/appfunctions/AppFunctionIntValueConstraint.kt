@@ -28,14 +28,14 @@ package androidx.appfunctions
  * ### Usage Example:
  * ```
  * // Constraining a function return value:
- * @AppFunctionDeclaration
+ * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * @AppFunctionIntValueConstraint(enumValues = [0, 1, 2])
  * fun getDisplayMode(): Int {
  *     // Function body
  * }
  *
  * // Constraining a parameter:
- * @AppFunctionDeclaration
+ * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * fun adjustVolume(
  *     @AppFunctionIntValueConstraint(enumValues = [10, 15, 20, 25])
  *     volumeLevel: Int
@@ -44,7 +44,7 @@ package androidx.appfunctions
  * }
  *
  * // Constraining a property within an AppFunctionSerializable:
- * @AppFunctionSerializable
+ * @AppFunctionSerializable(isDescribedByKDoc = false)
  * data class MySettings(
  *     @property:AppFunctionIntValueConstraint(enumValues = [0, 1])
  *     val darkMode: Int

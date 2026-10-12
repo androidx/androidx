@@ -68,17 +68,17 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     internal fun add(num1: Long, num2: Long) = num1 + num2
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun echoProxyTypes(value: ProxyTypesWrapper): ProxyTypesWrapper = value
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun doThrow() {
         throw AppFunctionInvalidArgumentException("invalid")
     }
 
-    @AppFunctionDeclaration internal fun voidFunction() {}
+    @AppFunctionDeclaration(isDescribedByKDoc = false) internal fun voidFunction() {}
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun createNoteSimple(createNoteParams: CreateNoteParams): Note {
         return Note(
             title = createNoteParams.title,
@@ -88,7 +88,7 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun updateNote(updateNoteParams: UpdateNoteParams): Note {
         return Note(
             title =
@@ -104,7 +104,7 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun getOpenableNote(createNoteParams: CreateNoteParams): OpenableNote {
         return OpenableNote(
             title = createNoteParams.title,
@@ -116,14 +116,14 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun echoClassWithOptionalValues(
         classWithOptionalValues: ClassWithOptionalValues
     ): ClassWithOptionalValues {
         return classWithOptionalValues
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun enumValueFunction(
         @AppFunctionIntValueConstraint(enumValues = [0, 1]) intEnum: Int,
         @AppFunctionStringValueConstraint(enumValues = ["A", "B"]) stringEnum: String,
@@ -132,7 +132,7 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         throw UnsupportedOperationException("Not implemented")
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun echoFunctionWithOptionalParameters(
         // Int
         optionalNonNullInt: Int = 1,
@@ -218,7 +218,7 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun getFilesData(): FilesData {
         return FilesData(
             readOnlyUri =
@@ -261,19 +261,21 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal suspend fun longRunningFunction(): String {
         delay(500)
         return "Completed"
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     @Deprecated("deprecatedFunction is deprecated")
     internal fun deprecatedFunction() {}
 
-    @AppFunctionDeclaration(isEnabled = false) internal fun functionDisabledByDefault() {}
+    @AppFunctionDeclaration(isDescribedByKDoc = false, isEnabled = false)
+    internal fun functionDisabledByDefault() {}
 
-    @AppFunctionDeclaration(isEnabled = true) internal fun functionEnabledByDefault() {}
+    @AppFunctionDeclaration(isDescribedByKDoc = false, isEnabled = true)
+    internal fun functionEnabledByDefault() {}
 
     /**
      * Create a note.
@@ -294,7 +296,7 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunctionDeclaration(isEnabled = false)
+    @AppFunctionDeclaration(isDescribedByKDoc = false, isEnabled = false)
     internal suspend fun createNoteDisabled(
         parameters: CreateNoteAppFunction.Parameters,
         tag: String?,
@@ -305,18 +307,18 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         )
     }
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun oneOfFunction(oneOfList: List<OneOfSealedInterface>) = oneOfList.map {
         OneOfSealedNestedSerializable(sealedInterface = it)
     }
 
     // TODO: b/542935459 - Add additional integration tests for multiple allowed URI schemes
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun echoUriWithConstraint(
         @AppFunctionUriValueConstraint(allowedSchemes = ["content"]) uriParam: Uri
     ): Uri = uriParam
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun echoStringWithConstraint(
         @AppFunctionStringValueConstraint(
             patternMatchers =
@@ -326,28 +328,28 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         stringParam: String
     ): String = stringParam
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun textResourceFunction(text: String): ResourceFunctionResponse =
         ResourceFunctionResponse(
             stringValue = text,
             resources = listOf(AppFunctionTextResource(mimeType = "text/plain", content = text)),
         )
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionAccessLevel(
         level = AppFunctionMetadata.ACCESS_LEVEL_SELF,
         isCompatEnforcementEnabled = true,
     )
     internal fun selfAccessFunction(): String = "self_success"
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionAccessLevel(
         level = AppFunctionMetadata.ACCESS_LEVEL_SYSTEM,
         isCompatEnforcementEnabled = true,
     )
     internal fun systemAccessFunction(): String = "system_success"
 
-    @AppFunctionDeclaration
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionAccessLevel(
         AppFunctionMetadata.ACCESS_LEVEL_SELF,
         isCompatEnforcementEnabled = false,
