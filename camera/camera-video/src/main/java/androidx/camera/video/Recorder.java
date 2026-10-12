@@ -4134,6 +4134,12 @@ public final class Recorder implements VideoOutput {
          * capable of running at least two tasks concurrently, such as a
          * {@link java.util.concurrent.ThreadPoolExecutor} backed by 2 or more threads.
          *
+         * <p>The executor must keep accepting tasks for the lifetime of the Recorder. It should
+         * not reject tasks, e.g. by using a bounded queue with an abort policy. If the executor
+         * is an {@link java.util.concurrent.ExecutorService}, do not shut it down while the
+         * Recorder may still be used, including while any recording is finalizing. Otherwise,
+         * encoding tasks will be dropped and recordings may fail or stop producing data.
+         *
          * <p>If not set, the Recorder will be run on the IO executor internally managed by CameraX.
          */
         public @NonNull Builder setExecutor(@NonNull Executor executor) {
