@@ -1601,6 +1601,176 @@ class RecorderTest {
     }
 
     @Test
+    fun persistentRecording_stopThenRebind_newVideoEncoderConfiguredWhileStopping_doesNotCrash() {
+        var audioEncoder: StopDeferringEncoder? = null
+        val recorder =
+            createRecorder(
+                audioEncoderFactory = { _, _, _ ->
+                    StopDeferringEncoder(createFakeAudioEncoder()).also { audioEncoder = it }
+                }
+            )
+        val recording =
+            createRecording(recorder, asPersistentRecording = true, withAudio = true)
+                .startAndVerify()
+                .sendFrames()
+
+        // Unbind, so the video encoder is released while the recording is retained.
+        recorder.onSourceStateChanged(INACTIVE)
+        latestSurfaceRequest?.deferrableSurface?.close()
+        idleMainLooper()
+
+        // Stop the recording, which stays in STOPPING until the audio encoder stops.
+        val deferringAudioEncoder = checkNotNull(audioEncoder)
+        deferringAudioEncoder.deferStop = true
+        recording.stop()
+        idleMainLooper()
+
+        // Rebind, so a new video encoder is configured while the Recorder is STOPPING.
+        recorder.sendSurfaceRequest()
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        idleMainLooper()
+        recording.verifyNoFinalize()
+
+        deferringAudioEncoder.completeDeferredStop()
+        idle(recorder)
+        recording.verifyFinalize(error = ERROR_NONE)
+
+        // The new video encoder can be used for the next recording.
+        createRecording(recorder = recorder).startAndVerify().sendFrames(3).stopAndVerify()
+    }
+
+    @Test
+    fun persistentRecording_stopThenRebind_newVideoEncoderConfiguredAfterFinalized_doesNotCrash() {
+        val recorder = createRecorder()
+        val recording =
+            createRecording(recorder, asPersistentRecording = true, withAudio = false)
+                .startAndVerify()
+                .sendFrames()
+
+        // Unbind and stop the recording, so it is finalized while there is no video encoder.
+        recorder.onSourceStateChanged(INACTIVE)
+        latestSurfaceRequest?.deferrableSurface?.close()
+        idleMainLooper()
+        recording.stopAndVerify()
+
+        // Rebind, so a new video encoder is configured after the recording is finalized.
+        recorder.sendSurfaceRequest()
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        idleMainLooper()
+
+        createRecording(recorder = recorder).startAndVerify().sendFrames(3).stopAndVerify()
+    }
+
+    @Test
+    fun persistentRecording_rebindThenStop_newVideoEncoderConfiguredWhileStopping_doesNotCrash() {
+        var failVideoEncoderCreation = false
+        var audioEncoder: StopDeferringEncoder? = null
+        val originalRetrySetupVideoMaxCount = sRetrySetupVideoMaxCount
+        val originalRetrySetupVideoDelayMs = sRetrySetupVideoDelayMs
+        try {
+            val recorder =
+                createRecorder(
+                    videoEncoderFactory =
+                        createVideoEncoderFactory(
+                            shouldFail = {
+                                failVideoEncoderCreation.also { failVideoEncoderCreation = false }
+                            }
+                        ),
+                    audioEncoderFactory = { _, _, _ ->
+                        StopDeferringEncoder(createFakeAudioEncoder()).also { audioEncoder = it }
+                    },
+                    retrySetupVideoMaxCount = 1,
+                    retrySetupVideoDelayMs = RETRY_SETUP_VIDEO_DELAY_MS,
+                )
+            val recording =
+                createRecording(recorder, asPersistentRecording = true, withAudio = true)
+                    .startAndVerify()
+                    .sendFrames()
+
+            // Unbind, so the video encoder is released while the recording is retained.
+            recorder.onSourceStateChanged(INACTIVE)
+            latestSurfaceRequest?.deferrableSurface?.close()
+            idleMainLooper()
+
+            // Rebind. The first attempt to create the new video encoder fails, so the new video
+            // encoder isn't configured until the setup is retried.
+            failVideoEncoderCreation = true
+            recorder.sendSurfaceRequest()
+            recorder.onSourceStateChanged(ACTIVE_STREAMING)
+            idleMainLooper()
+
+            // Stop the recording, which stays in STOPPING until the audio encoder stops.
+            val deferringAudioEncoder = checkNotNull(audioEncoder)
+            deferringAudioEncoder.deferStop = true
+            recording.stop()
+            recording.verifyNoFinalize()
+
+            // The new video encoder is configured while the Recorder is STOPPING.
+            shadowOf(Looper.getMainLooper())
+                .idleFor(RETRY_SETUP_VIDEO_DELAY_MS, TimeUnit.MILLISECONDS)
+            recording.verifyNoFinalize()
+
+            deferringAudioEncoder.completeDeferredStop()
+            idle(recorder)
+            recording.verifyFinalize(error = ERROR_NONE)
+
+            // The new video encoder can be used for the next recording.
+            createRecording(recorder = recorder).startAndVerify().sendFrames(3).stopAndVerify()
+        } finally {
+            sRetrySetupVideoMaxCount = originalRetrySetupVideoMaxCount
+            sRetrySetupVideoDelayMs = originalRetrySetupVideoDelayMs
+        }
+    }
+
+    @Test
+    fun persistentRecording_rebindThenStop_newVideoEncoderConfiguredAfterFinalized_doesNotCrash() {
+        var failVideoEncoderCreation = false
+        val originalRetrySetupVideoMaxCount = sRetrySetupVideoMaxCount
+        val originalRetrySetupVideoDelayMs = sRetrySetupVideoDelayMs
+        try {
+            val recorder =
+                createRecorder(
+                    videoEncoderFactory =
+                        createVideoEncoderFactory(
+                            shouldFail = {
+                                failVideoEncoderCreation.also { failVideoEncoderCreation = false }
+                            }
+                        ),
+                    retrySetupVideoMaxCount = 1,
+                    retrySetupVideoDelayMs = RETRY_SETUP_VIDEO_DELAY_MS,
+                )
+            val recording =
+                createRecording(recorder, asPersistentRecording = true, withAudio = false)
+                    .startAndVerify()
+                    .sendFrames()
+
+            // Unbind, so the video encoder is released while the recording is retained.
+            recorder.onSourceStateChanged(INACTIVE)
+            latestSurfaceRequest?.deferrableSurface?.close()
+            idleMainLooper()
+
+            // Rebind. The first attempt to create the new video encoder fails, so the new video
+            // encoder isn't configured until the setup is retried.
+            failVideoEncoderCreation = true
+            recorder.sendSurfaceRequest()
+            recorder.onSourceStateChanged(ACTIVE_STREAMING)
+            idleMainLooper()
+
+            // Stop the recording. It is finalized right away since it has no video encoder.
+            recording.stopAndVerify()
+
+            // The new video encoder is configured after the recording is finalized.
+            shadowOf(Looper.getMainLooper())
+                .idleFor(RETRY_SETUP_VIDEO_DELAY_MS, TimeUnit.MILLISECONDS)
+
+            createRecording(recorder = recorder).startAndVerify().sendFrames(3).stopAndVerify()
+        } finally {
+            sRetrySetupVideoMaxCount = originalRetrySetupVideoMaxCount
+            sRetrySetupVideoDelayMs = originalRetrySetupVideoDelayMs
+        }
+    }
+
+    @Test
     fun persistentRecording_canContinueRecordingAfterRebind() {
         val recorder = createRecorder()
         val recording =
@@ -1732,6 +1902,20 @@ class RecorderTest {
         onEncoderCreated()
         encoder
     }
+
+    /** Creates a video [EncoderFactory] that fails to create an encoder when [shouldFail]. */
+    private fun createVideoEncoderFactory(shouldFail: () -> Boolean): EncoderFactory =
+        EncoderFactory { _, config, _ ->
+            if (shouldFail()) {
+                throw InvalidConfigException("Create video encoder fail on purpose.")
+            }
+            FakeEncoder(
+                    encoderInfo =
+                        FakeVideoEncoderInfo(supportedBitrateRange = Range(1, 100_000_000)),
+                    encoderConfig = config,
+                )
+                .also { latestVideoEncoder = it }
+        }
 
     private fun createFailingVideoEncoderFactory(failCreationTimes: Int = 2): EncoderFactory {
         var createEncoderRequestCount = 0
@@ -1943,5 +2127,6 @@ class RecorderTest {
 
     private companion object {
         private const val VERIFY_AUDIO_STREAM_TIMEOUT_MS = 10_000L
+        private const val RETRY_SETUP_VIDEO_DELAY_MS = 10L
     }
 }

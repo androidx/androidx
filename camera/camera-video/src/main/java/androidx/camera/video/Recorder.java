@@ -516,6 +516,10 @@ public final class Recorder implements VideoOutput {
     private @Nullable ListenableFuture<Void> mVideoEncodingFuture = null;
     private @Nullable ListenableFuture<Void> mAudioEncodingFuture = null;
     private CallbackToFutureAdapter.@Nullable Completer<Void> mVideoEncoderCompleter = null;
+    // The video encoder that the in-progress recording's video encoding future is waiting on. It
+    // differs from mVideoEncoder when the encoder of a retained recording has been released and a
+    // new one is configured but not attached to the recording, e.g. the recording is stopping.
+    private @Nullable Encoder mInProgressVideoEncoder = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Integer mAudioTrackIndex = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -1656,8 +1660,13 @@ public final class Recorder implements VideoOutput {
                     throw new AssertionError(
                             "Incorrectly invoke onConfigured() in state " + mState);
                 case STOPPING:
-                    throw new AssertionError("Unexpectedly invoke onConfigured() in a "
-                            + "STOPPING state when it's not waiting for a new surface.");
+                    // A retained recording, e.g. a persistent recording, can be stopped while a
+                    // new video encoder is being set up after its previous one was released, e.g.
+                    // the camera is rebound. The stopping recording doesn't use the new encoder,
+                    // so keep it for the next recording. The Recorder becomes IDLING once the
+                    // recording is finalized.
+                    Logger.d(TAG, "onConfigured() was invoked while the recording is stopping.");
+                    break;
                 case PAUSED:
                     recordingPaused = true;
                     // Fall-through
@@ -2117,6 +2126,7 @@ public final class Recorder implements VideoOutput {
         mVideoEncodingFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
                     mVideoEncoderCompleter = completer;
+                    mInProgressVideoEncoder = mVideoEncoder;
                     mVideoEncoder.setEncoderCallback(new EncoderCallback() {
                         @ExecutedBy("mSequentialExecutor")
                         @Override
@@ -2612,7 +2622,10 @@ public final class Recorder implements VideoOutput {
                 mPendingFirstVideoData = null;
             }
 
-            if (mVideoEncoder != null) {
+            // The video encoder may not be attached to the recording if the recording is retained
+            // and its encoder has been released, e.g. a new video encoder is configured before
+            // stopInternal() runs. Stopping that encoder never completes the video encoding future.
+            if (mVideoEncoder != null && mVideoEncoder == mInProgressVideoEncoder) {
                 if (mSourceState != SourceState.ACTIVE_NON_STREAMING) {
                     // As b/197047288, if the source is still ACTIVE, we will wait for the source
                     // to become non-streaming before notifying the encoder the source has stopped.
@@ -2879,6 +2892,7 @@ public final class Recorder implements VideoOutput {
         mVideoEncodingFuture = null;
         mAudioEncodingFuture = null;
         mVideoEncoderCompleter = null;
+        mInProgressVideoEncoder = null;
         mOutputUri = Uri.EMPTY;
         mRecordingBytes = 0L;
         mRecordingAudioBytes = 0L;
@@ -2959,7 +2973,10 @@ public final class Recorder implements VideoOutput {
                     // likely finalized due to an error.
                     // Fall-through
                 case STOPPING:
-                    setState(State.IDLING);
+                    // A retained recording can be finalized after its video encoder has been
+                    // released, e.g. it is stopped while the camera is unbound. Then wait for a
+                    // new video encoder to be configured.
+                    setState(mVideoEncoder == null ? State.CONFIGURING : State.IDLING);
                     break;
                 case PENDING_PAUSED:
                     startRecordingPaused = true;
