@@ -63,6 +63,7 @@ import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -1186,6 +1187,9 @@ public fun ScreenScaffold(
     val lastItemOffsetCorrection = with(localDensity) { effectiveEdgeButtonSpacing.toPx() }
     val edgeButtonHeightAnimationThresholdPx =
         with(localDensity) { EDGE_BUTTON_HEIGHT_ANIMATION_THRESHOLD.toPx() }
+    // Previews render a single frame, so the edge button would never be revealed by the height
+    // animation below. Show it at its target height directly instead.
+    val isInspectionMode = LocalInspectionMode.current
 
     ScreenScaffold(
         modifier = modifier,
@@ -1207,7 +1211,7 @@ public fun ScreenScaffold(
 
             // Remember lambdas to avoid re-evaluations on recomposition.
             val edgeButtonContent: @Composable () -> Unit =
-                remember(edgeButton, scrollInfoProvider) {
+                remember(edgeButton, scrollInfoProvider, isInspectionMode) {
                     {
                         Box(
                             contentAlignment = Alignment.BottomCenter,
@@ -1220,7 +1224,8 @@ public fun ScreenScaffold(
                                         }
                                     }
                                 ) {
-                                    edgeButtonAnimatedHeight.value
+                                    if (isInspectionMode) currentEdgeButtonTargetHeight
+                                    else edgeButtonAnimatedHeight.value
                                 },
                         )
                     }
