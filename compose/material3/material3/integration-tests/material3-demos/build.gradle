@@ -44,6 +44,7 @@ dependencies {
     implementation(project(":compose:ui:ui-text"))
 
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation("androidx.navigationevent:navigationevent-compose:1.1.2")
 }
 
 androidx {
