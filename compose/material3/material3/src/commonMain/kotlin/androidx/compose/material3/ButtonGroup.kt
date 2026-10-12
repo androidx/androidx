@@ -710,8 +710,16 @@ private class ButtonGroupMeasurePolicy(
                 mainSpace += arrangementSpacingInt * lastItem
                 shownItemSpace += arrangementSpacingInt * lastItem
 
+                // Reset minWidth: the incoming constraints may have a fixed width (e.g. from
+                // Modifier.fillMaxWidth()) that is larger than the space available for the
+                // overflow indicator.
                 overflowMeasurables.fastMap {
-                    it.measure(constraints.copy(maxWidth = remainingSpace + overflowWidth))
+                    it.measure(
+                        constraints.copy(
+                            minWidth = 0,
+                            maxWidth = (remainingSpace + overflowWidth).coerceAtLeast(0),
+                        )
+                    )
                 }
             }
 
