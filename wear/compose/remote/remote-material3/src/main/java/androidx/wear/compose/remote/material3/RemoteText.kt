@@ -29,8 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
@@ -43,14 +41,14 @@ import androidx.wear.compose.material3.LocalTextConfiguration
  *
  * For ease of use, commonly used parameters from [androidx.compose.ui.text.TextStyle] are also
  * present here. The order of precedence is as follows:
- * - If a parameter is explicitly set here (i.e, it is _not_ `null` or
+ * - If a parameter is explicitly set here (i.e., it is _not_ `null` or
  *   [androidx.compose.ui.unit.TextUnit.Unspecified]), then this parameter will always be used.
  * - If a parameter is _not_ set, (`null` or [androidx.compose.ui.unit.TextUnit.Unspecified]), then
  *   the corresponding value from [style] will be used instead.
  *
  * @param text The text to be displayed.
- * @param modifier [Modifier] to apply to this layout node.
- * @param color [Color] to apply to the text.
+ * @param modifier [RemoteModifier] to apply to this layout node.
+ * @param color [RemoteColor] to apply to the text.
  * @param fontSize The size of glyphs to use when painting the text. See
  *   [androidx.compose.ui.text.TextStyle.fontSize].
  * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic). See

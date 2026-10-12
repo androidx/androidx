@@ -173,7 +173,7 @@ class RemoteTransformingLazyColumnScope internal constructor() {
 }
 
 /**
- * Scrolling list, rendered as `androidx.wear.foundation.lazy.TransformingLazyColumn`.
+ * Scrolling list, rendered as `androidx.wear.compose.foundation.lazy.TransformingLazyColumn`.
  *
  * The host applies the Material3 transformation spec (morphing and scaling at the edges of the
  * screen) to each item, so there is no need to use `transformedHeight` or `SurfaceTransformation`

@@ -30,14 +30,14 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * Remote Material components such as [RemoteButton] and [RemoteText] use values provided here when
  * retrieving default values.
  *
- * All values may be set by providing this component with the [RemoteColorScheme],
- * [RemoteTypography] attributes. Use this to configure the overall theme of elements within this
- * MaterialTheme.
+ * All values may be set by providing this component with the [RemoteColorScheme], [RemoteShapes],
+ * and [RemoteTypography] attributes. Use this to configure the overall theme of elements within
+ * this [RemoteMaterialTheme].
  *
  * Any values that are not set will inherit the current value from the theme, falling back to the
- * defaults if there is no parent MaterialTheme. This allows using a MaterialTheme at the top of
- * your application, and then separate MaterialTheme(s) for different screens / parts of your UI,
- * overriding only the parts of the theme definition that need to change.
+ * defaults if there is no parent [RemoteMaterialTheme]. This allows using a [RemoteMaterialTheme]
+ * at the top of your application, and then separate [RemoteMaterialTheme]s for different screens /
+ * parts of your UI, overriding only the parts of the theme definition that need to change.
  *
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param shapes A set of shapes to be used as this hierarchy's shape system

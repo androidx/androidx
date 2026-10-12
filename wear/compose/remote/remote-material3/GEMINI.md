@@ -61,7 +61,7 @@ usage.
 - **Usage**: Use Samples in **Previews** whenever possible.
 - **Co-location**: ALWAYS place Previews of samples in the same file as the sample.
 - **Annotation**: Tag the sample function with `@Sampled`.
-- **Preview Integration**: key samples MUST include a corresponding preview function annotated with
+- **Preview Integration**: Key samples MUST include a corresponding preview function annotated with
   `@WearPreviewDevices`.
 - **Naming Convention**: Use `[ComponentName]Sample.kt` for the file and `[ComponentName]SimpleSample`
   (or similar) for the function name.

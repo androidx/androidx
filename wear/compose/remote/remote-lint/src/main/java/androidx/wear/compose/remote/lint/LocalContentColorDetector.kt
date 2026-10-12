@@ -106,7 +106,7 @@ class LocalContentColorDetector : Detector(), SourceCodeScanner {
         val LocalContentColorUsage =
             Issue.create(
                 "LocalContentColorUsage",
-                "Using wear ${WearComposeNames.Material.LocalContentColor.shortName} inside a " +
+                "Using Wear ${WearComposeNames.Material.LocalContentColor.shortName} inside a " +
                     "@${RemoteNames.CreationCompose.Layout.RemoteComposable.shortName} function",
                 "${WearComposeNames.Material.LocalContentColor.shortName} from " +
                     "${WearComposeNames.Material.PackageName.javaPackageName} or " +

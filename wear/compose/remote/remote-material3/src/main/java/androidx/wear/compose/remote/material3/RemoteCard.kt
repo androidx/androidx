@@ -69,7 +69,7 @@ import androidx.compose.ui.layout.ContentScale
  * @param border A [RemoteBorderStroke] used for drawing the card's outline border
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
- * @param content The main slot for a content of this card
+ * @param content The main slot for the content of this card
  */
 @RemoteComposable
 @Composable
@@ -120,7 +120,7 @@ public fun RemoteCard(
  * @param border A [RemoteBorderStroke] used for drawing the card's outline border
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
- * @param content The main slot for a content of this card
+ * @param content The main slot for the content of this card
  */
 @RemoteComposable
 @Composable
@@ -163,7 +163,7 @@ public fun RemoteCard(
  *   content
  * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card. See
  *   [RemoteCardDefaults.outlinedCardColors].
- * @param content The main slot for a content of this card
+ * @param content The main slot for the content of this card
  */
 @RemoteComposable
 @Composable
@@ -236,7 +236,7 @@ public object RemoteCardDefaults {
 
     /**
      * Creates a [RemoteCardColors] that represents the default container and content colors used in
-     * an [RemoteOutlinedCard], outlined [RemoteAppCard] or [RemoteTitleCard].
+     * a [RemoteOutlinedCard], outlined [RemoteAppCard] or [RemoteTitleCard].
      */
     @Composable
     @RemoteComposable
@@ -245,7 +245,7 @@ public object RemoteCardDefaults {
 
     /**
      * Creates a [RemoteCardColors] that represents the default container and content colors used in
-     * an [RemoteOutlinedCard], outlined [RemoteAppCard] or [RemoteTitleCard].
+     * a [RemoteOutlinedCard], outlined [RemoteAppCard] or [RemoteTitleCard].
      *
      * @param contentColor the content color of this [RemoteOutlinedCard].
      * @param appNameColor the color used for appName, only applies to [RemoteAppCard].
@@ -294,7 +294,7 @@ public object RemoteCardDefaults {
     /** The default content padding used by [RemoteCard] */
     public val ContentPadding: RemotePaddingValues = RemotePaddingValues(12.rdp)
 
-    /** Additional bottom padding added for TitleCard with an image background */
+    /** Additional bottom padding added for [RemoteTitleCard] with an image background */
     public val ImageBottomPadding: RemoteDp = 12.rdp
 
     /**

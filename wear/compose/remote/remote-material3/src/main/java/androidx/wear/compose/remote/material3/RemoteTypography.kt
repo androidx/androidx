@@ -69,17 +69,17 @@ import androidx.wear.compose.material3.Typography
  * @property bodyLarge BodyLarge is the largest body. Body texts are typically used for long-form
  *   writing as it works well for small text sizes. For longer sections of text, a serif or sans
  *   serif typeface is recommended.
- * @property bodyMedium BodyMedium is second largest body. Body texts are typically used for
+ * @property bodyMedium BodyMedium is the second largest body. Body texts are typically used for
  *   long-form writing as it works well for small text sizes. For longer sections of text, a serif
  *   or sans serif typeface is recommended.
- * @property bodySmall BodySmall is third largest body. Body texts are typically used for long-form
- *   writing as it works well for small text sizes. For longer sections of text, a serif or sans
- *   serif typeface is recommended.
+ * @property bodySmall BodySmall is the third largest body. Body texts are typically used for
+ *   long-form writing as it works well for small text sizes. For longer sections of text, a serif
+ *   or sans serif typeface is recommended.
  * @property bodyExtraSmall BodyExtraSmall is the smallest body. Body texts are typically used for
  *   long-form writing as it works well for small text sizes. For longer sections of text, a serif
  *   or sans serif typeface is recommended.
  * @property numeralExtraLarge NumeralExtraLarge is the largest role for digits. Numerals use
- *   tabular spacing by default. They highlight and express glanceable numbers that are limited to a
+ *   tabular spacing by default. They highlight and express glanceable numbers that are limited to
  *   two or three characters only, where no localization is required like the charging screen.
  * @property numeralLarge NumeralLarge is the second largest role for digits. Numerals use tabular
  *   spacing by default. They are large sized number strings that are limited to big displays of

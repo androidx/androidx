@@ -56,7 +56,7 @@ import androidx.compose.ui.graphics.StrokeCap
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteSegmentedCircularProgressIndicatorAnimatedSample
  * @param segmentCount Number of equal segments that the progress indicator should be divided into.
- *   Has to be a constant [RemoteInt] equal or greater to 1.
+ *   Has to be a constant [RemoteInt] greater than or equal to 1.
  * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
  *   represents completion. Values outside of this range are coerced into the range.
  * @param modifier Modifier to be applied to the progress indicator.
@@ -120,7 +120,7 @@ public fun RemoteSegmentedCircularProgressIndicator(
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteSegmentedCircularProgressIndicatorBinarySample
  * @param segmentCount Number of equal segments that the progress indicator should be divided into.
- *   Has to be a constant [RemoteInt] equal or greater to 1.
+ *   Has to be a constant [RemoteInt] greater than or equal to 1.
  * @param segmentValue A function that for each segment index between 0 and [segmentCount] - 1
  *   returns a [RemoteBoolean] that is true if this segment should be displayed with the indicator
  *   color to show progress, and false if the segment should be displayed with the track color.
