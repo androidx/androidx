@@ -1,5 +1,10 @@
 #!/bin/bash
 
+OS=$(uname -a | awk '{print $1}')
+if [ "$OS" != "Linux" ]; then
+  echo "This script must be run on cloudtop"
+fi
+
 function echoAndDo() {
   echo "$@"
   eval "$@"
@@ -17,6 +22,8 @@ function sedInPlace() {
 echo Getting Studio version and link
 AGP_VERSION=${1:-9.5.0-alpha08}
 STUDIO_VERSION_STRING=${2:-"Android Studio Rabbit 2 | 2026.2.2 Canary 3"}
+# Instructions for how to update the build id can be found here: go/androidx/playbook#update-aswb
+NEW_ASWB_BUILD_ID=${5:-"16488178"}
 
 # Get studio version number from version name
 STUDIO_IFRAME_LINK=`curl "https://developer.android.com/studio/archive.html" | grep "<iframe " | sed "s/.* src=\"\([^\"]*\)\".*/\1/g"`
@@ -79,3 +86,6 @@ ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:core:$ATP_VERSION"
 
 # Download all the artifacts
 echoAndDo ./development/importMaven/importMaven.sh "$ARTIFACTS_TO_DOWNLOAD"
+
+# update aswb
+./development/update_aswb.sh $NEW_ASWB_BUILD_ID
