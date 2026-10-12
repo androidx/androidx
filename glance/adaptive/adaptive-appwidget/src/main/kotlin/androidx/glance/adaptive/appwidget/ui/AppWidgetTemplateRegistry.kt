@@ -18,10 +18,7 @@ package androidx.glance.adaptive.appwidget.ui
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
-import androidx.glance.adaptive.appwidget.ui.selection.LocalContainerDimensions
 import androidx.glance.adaptive.appwidget.ui.templates.track.TrackSizeSelector
 import androidx.glance.adaptive.appwidget.ui.templates.track.TrackTemplateRenderer
 import androidx.glance.adaptive.core.ui.TemplateRenderer
@@ -33,7 +30,7 @@ import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 
 /**
  * Registry mapping each [AdaptiveGlanceTemplate] to the [TemplateRenderer] that turns it into
- * Glance content for platform AppWidgets.
+ * [AppWidgetRenderOutput] for platform AppWidgets.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object AppWidgetTemplateRegistry {
@@ -43,7 +40,7 @@ public object AppWidgetTemplateRegistry {
     internal val registryMap:
         MutableMap<
             Class<out AdaptiveGlanceTemplate>,
-            TemplateRenderer<*, AppWidgetGlanceSurface, @Composable () -> Unit>,
+            TemplateRenderer<*, AppWidgetGlanceSurface, AppWidgetRenderOutput>,
         > =
         mutableMapOf()
 
@@ -79,7 +76,7 @@ public object AppWidgetTemplateRegistry {
      *
      * @param T The template type implementing [AdaptiveGlanceTemplate].
      * @param templateClass The runtime class of the [AdaptiveGlanceTemplate] data payload.
-     * @param renderer Produces Glance content for that template on AppWidget surfaces.
+     * @param renderer Produces [AppWidgetRenderOutput] for that template on AppWidget surfaces.
      * @param selector Optional [ArchetypeSelector] used to resolve the active layout archetype for
      *   telemetry reporting. Archetypes should ideally be an [Enum] or override [Any.toString] to
      *   return a stable identifier. Note that [HostConstraints.dimensions] may be `(0, 0)` when the
@@ -90,7 +87,7 @@ public object AppWidgetTemplateRegistry {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun <T : AdaptiveGlanceTemplate> register(
         templateClass: Class<T>,
-        renderer: TemplateRenderer<T, AppWidgetGlanceSurface, @Composable () -> Unit>,
+        renderer: TemplateRenderer<T, AppWidgetGlanceSurface, AppWidgetRenderOutput>,
         selector: ArchetypeSelector<T, AppWidgetGlanceSurface, *>? = null,
     ) {
         synchronized(lock) {
@@ -104,33 +101,29 @@ public object AppWidgetTemplateRegistry {
     }
 
     /**
-     * Central rendering entry-point for Glance Adaptive widgets.
-     *
-     * Combines the active [LocalContainerDimensions] with [surface] into [HostConstraints], asks
-     * the registered renderer for content, and emits it.
+     * Resolves the registered [TemplateRenderer] for [data] and invokes it with [constraints] to
+     * produce an [AppWidgetRenderOutput].
      *
      * @param data Declarative template data payload.
-     * @param surface Target AppWidget surface.
+     * @param constraints Host layout constraints and target AppWidget surface.
+     * @return The [AppWidgetRenderOutput] produced by the registered renderer.
      * @throws IllegalArgumentException if no renderer is registered for the type of [data].
      */
-    @Composable
-    @Suppress("UNCHECKED_CAST", "ComposableNaming")
-    public fun <T : AdaptiveGlanceTemplate> render(data: T, surface: AppWidgetGlanceSurface) {
+    @Suppress("UNCHECKED_CAST")
+    public fun <T : AdaptiveGlanceTemplate> render(
+        data: T,
+        constraints: HostConstraints<AppWidgetGlanceSurface>,
+    ): AppWidgetRenderOutput {
         val renderer =
             synchronized(lock) {
                 requireNotNull(
                     registryMap[data.javaClass]
-                        as? TemplateRenderer<T, AppWidgetGlanceSurface, @Composable () -> Unit>
+                        as? TemplateRenderer<T, AppWidgetGlanceSurface, AppWidgetRenderOutput>
                 ) {
                     "No renderer registered for template: ${data.javaClass.name}"
                 }
             }
-        val constraints =
-            HostConstraints(dimensions = LocalContainerDimensions.current, surface = surface)
-        // render() allocates a fresh lambda per call, which would invalidate the subtree on every
-        // recomposition; key it on the inputs that actually decide the content instead.
-        val content = remember(renderer, data, constraints) { renderer.render(data, constraints) }
-        content()
+        return renderer.render(data, constraints)
     }
 
     /**

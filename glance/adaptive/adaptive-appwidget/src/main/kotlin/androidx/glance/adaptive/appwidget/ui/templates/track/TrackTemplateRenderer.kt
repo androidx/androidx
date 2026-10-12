@@ -18,7 +18,6 @@ package androidx.glance.adaptive.appwidget.ui.templates.track
 
 import android.os.Build
 import androidx.annotation.DrawableRes
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -26,10 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.adaptive.appwidget.R
+import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.components.estimateTextWidthDp
 import androidx.glance.adaptive.appwidget.ui.components.fitMetric
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
-import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 import androidx.glance.appwidget.appWidgetBackground
@@ -109,13 +108,11 @@ private val PlaceholderBadgeOutline = ColorProvider(Color(0xFFFFE347))
 /**
  * Glance renderer for [TrackTemplate] on platform AppWidget surfaces.
  *
- * Substitutes `@Composable () -> Unit` for the host content type of [TemplateRenderer]: [render]
- * resolves the slot plan eagerly — outside composition, so it stays unit testable — and returns the
- * Glance content to emit for it.
+ * Implements [GlanceTemplateRenderer]: [renderGlance] resolves the slot plan eagerly — outside
+ * composition, so it stays unit testable — and returns the Glance content to emit for it.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object TrackTemplateRenderer :
-    TemplateRenderer<TrackTemplate, AppWidgetGlanceSurface, @Composable () -> Unit> {
+internal object TrackTemplateRenderer :
+    GlanceTemplateRenderer<TrackTemplate, AppWidgetGlanceSurface> {
 
     /**
      * Resolves the slot plan for [template] under [constraints] and returns the Glance content
@@ -125,7 +122,7 @@ public object TrackTemplateRenderer :
      * @param constraints Container size in DP plus the target AppWidget surface.
      * @return Glance content for the resolved [TrackSlots].
      */
-    override fun render(
+    override fun renderGlance(
         template: TrackTemplate,
         constraints: HostConstraints<AppWidgetGlanceSurface>,
     ): @Composable () -> Unit {

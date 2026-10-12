@@ -17,6 +17,7 @@
 package androidx.glance.adaptive.appwidget.ui.templates.track
 
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
+import androidx.glance.adaptive.appwidget.ui.GlanceRenderOutput
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.appwidget.ui.selection.from
 import androidx.glance.adaptive.core.ui.selection.Dimensions
@@ -51,11 +52,11 @@ class TrackTemplateRendererTest {
     }
 
     @Test
-    fun render_returnsContentWithoutComposing() {
+    fun render_returnsGlanceOutputWithoutComposing() {
         // The contract is value-returning, so producing content needs no composer at all.
-        val content = TrackTemplateRenderer.render(template, constraints(widthDp = 120))
+        val output = TrackTemplateRenderer.render(template, constraints(widthDp = 120))
 
-        assertThat(content).isNotNull()
+        assertThat(output).isInstanceOf(GlanceRenderOutput::class.java)
     }
 
     @Test

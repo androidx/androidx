@@ -21,10 +21,14 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
+import android.widget.RemoteViews
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.glance.LocalSize
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
+import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
+import androidx.glance.adaptive.appwidget.ui.RemoteViewsRenderOutput
+import androidx.glance.adaptive.appwidget.ui.RemoteViewsTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.Dimensions
@@ -69,7 +73,7 @@ class GlanceRemoteViewsComposerTest {
         AppWidgetTemplateRegistry.resetForTesting()
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
-            TemplateRenderer { _, constraints ->
+            GlanceTemplateRenderer { _, constraints ->
                 recordedConstraints += constraints
                 { recordedLocalSizes += LocalSize.current }
             },
@@ -372,7 +376,7 @@ class GlanceRemoteViewsComposerTest {
     fun compose_acrossComposerInstances_preservesAndRotatesLayoutIdOnStructureChange() = runTest {
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
-            TemplateRenderer { _, constraints ->
+            GlanceTemplateRenderer { _, constraints ->
                 {
                     if (constraints.dimensions.widthDp >= 200) {
                         Row { Text("wide") }
@@ -395,6 +399,48 @@ class GlanceRemoteViewsComposerTest {
 
         assertThat(second.layoutId).isEqualTo(first.layoutId)
         assertThat(third.layoutId).isNotEqualTo(first.layoutId)
+    }
+
+    @Test
+    fun compose_remoteViewsRenderer_invokesRendererDirectlyWithoutGlanceComposition() = runTest {
+        val expectedRemoteViews =
+            RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
+        var observedContext: Context? = null
+        var observedConstraints: HostConstraints<AppWidgetGlanceSurface>? = null
+
+        AppWidgetTemplateRegistry.register(
+            TestTemplate::class.java,
+            RemoteViewsTemplateRenderer { ctx, _, constraints ->
+                observedContext = ctx
+                observedConstraints = constraints
+                expectedRemoteViews
+            },
+        )
+        val target = RenderTarget(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN, Dimensions(348, 88))
+
+        val result = composer.compose(TestTemplate(), target)
+
+        assertThat(result).isSameInstanceAs(expectedRemoteViews)
+        assertThat(observedContext).isEqualTo(context.applicationContext)
+        assertThat(observedConstraints)
+            .isEqualTo(HostConstraints(Dimensions(348, 88), target.surface))
+        assertThat(recordedLocalSizes).isEmpty()
+    }
+
+    @Test
+    fun compose_remoteViewsConstructor_returnsProvidedRemoteViews() = runTest {
+        val expectedRemoteViews =
+            RemoteViews(context.packageName, android.R.layout.simple_list_item_2)
+
+        AppWidgetTemplateRegistry.register(
+            TestTemplate::class.java,
+            TemplateRenderer { _, _ -> RemoteViewsRenderOutput(expectedRemoteViews) },
+        )
+        val target = RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(200, 100))
+
+        val result = composer.compose(TestTemplate(), target)
+
+        assertThat(result).isSameInstanceAs(expectedRemoteViews)
     }
 
     // endregion
