@@ -26,4 +26,7 @@ message WearWidgetUpdateRequestProto {
 
   // The namespace for the ID of the widget instance.
   string id_namespace = 2;
+
+  // The system uptime in milliseconds when the update request was created.
+  optional uint64 creation_uptime_millis = 3;
 }
