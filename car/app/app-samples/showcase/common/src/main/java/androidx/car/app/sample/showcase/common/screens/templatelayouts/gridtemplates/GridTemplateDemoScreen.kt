@@ -25,6 +25,7 @@ import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.constraints.ConstraintManager.CONTENT_LIMIT_TYPE_GRID
 import androidx.car.app.model.Action
 import androidx.car.app.model.Action.BACK
+import androidx.car.app.model.CarIconStyle
 import androidx.car.app.model.GridItem
 import androidx.car.app.model.GridTemplate
 import androidx.car.app.model.Header
@@ -44,7 +45,7 @@ class GridTemplateDemoScreen(carContext: CarContext) :
 
     private val handler = Handler(Looper.getMainLooper())
     private val itemLimit = determineListLimit(MAX_GRID_ITEMS, CONTENT_LIMIT_TYPE_GRID)
-    private val pageImage = getCarIcon(R.drawable.test_image_square)
+    private val pageImage = getCarIcon(R.drawable.test_image_square, CarIconStyle.ORIGINAL)
     private val pageIcon = getCarIcon(R.drawable.ic_fastfood_white_48dp)
     private val mapXIcon = getCarIcon(R.drawable.ic_emoji_food_beverage_white_48dp)
     private val pageTitle = getString(R.string.grid_template_demo_title)
