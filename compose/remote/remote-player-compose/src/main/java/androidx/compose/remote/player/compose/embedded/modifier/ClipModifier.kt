@@ -23,6 +23,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
+import androidx.compose.remote.player.compose.embedded.rawDimensionPx
 import androidx.compose.remote.player.compose.embedded.readDataReflection
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -136,11 +137,7 @@ internal fun State<Float>.resolveRadius(
     densityBehavior: Int,
 ): Float {
     val v = value
-    return when {
-        !v.isFinite() -> fallback
-        // Under DENSITY_BEHAVIOR_DP, both literal and variable-backed corner radii represent DP
-        // values and must be scaled by density to match remote-core behavior.
-        densityBehavior == CoreDocument.DENSITY_BEHAVIOR_DP -> v * density
-        else -> v
-    }
+    // Under DENSITY_BEHAVIOR_DP, both literal and variable-backed corner radii represent DP
+    // values and must be scaled by density to match remote-core behavior.
+    return if (!v.isFinite()) fallback else rawDimensionPx(v, densityBehavior, density)
 }
