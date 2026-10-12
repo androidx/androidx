@@ -41,7 +41,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.collection.LongSparseArray
 import androidx.collection.set
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.indirect.AndroidIndirectPointerEvent
@@ -289,7 +288,6 @@ internal class MotionEventAdapter {
                 motionEvent.classification == MotionEvent.CLASSIFICATION_PINCH
         val shouldReinterpretPinch =
             isPinch &&
-                ComposeUiFlags.isTrackpadPinchReinterpretationEnabled &&
                 ((motionEvent.actionMasked == ACTION_DOWN && lastHoverRawOffset != null) ||
                     (motionEvent.actionMasked != ACTION_DOWN && isReinterpretingFakeFingerGesture))
 
