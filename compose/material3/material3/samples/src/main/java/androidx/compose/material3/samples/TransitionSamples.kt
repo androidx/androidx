@@ -98,3 +98,49 @@ fun HorizontalSharedAxisTransitionSample() {
         }
     }
 }
+
+@Preview
+@Sampled
+@Composable
+fun FadeThroughTransitionSample() {
+    var targetTab by remember { mutableIntStateOf(1) }
+    var isGestureInProgress by remember { mutableStateOf(false) }
+    var backEvent by remember { mutableStateOf(NavigationEvent()) }
+
+    val transitionState = remember { DeferredTransitionState(targetTab) }
+    val transition = rememberDeferredTransition(transitionState)
+
+    LaunchedEffect(isGestureInProgress, targetTab) {
+        if (isGestureInProgress) {
+            transitionState.defer(targetTab)
+        } else {
+            transitionState.animateTo(targetTab)
+        }
+    }
+
+    val density = LocalDensity.current
+
+    transition.DeferredAnimatedContent(
+        transitionSpec = { MaterialTransitions.FadeThrough.transform() },
+        mutableTransformSpec = {
+            MaterialTransitions.FadeThrough.predictiveBackTransform(
+                backEvent = { backEvent },
+                density = density,
+            )
+        },
+    ) { tab ->
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color =
+                if (tab == 1) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.tertiaryContainer
+                },
+        ) {
+            Box(Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
+                Text("Tab $tab", style = MaterialTheme.typography.headlineLarge)
+            }
+        }
+    }
+}
