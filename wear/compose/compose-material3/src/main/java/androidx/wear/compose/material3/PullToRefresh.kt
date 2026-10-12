@@ -42,6 +42,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -574,9 +575,6 @@ internal class PullToRefreshModifierNode(
         if (isRefreshing) return 0f // Already refreshing, do nothing
 
         val refreshTriggered = adjustedDistancePulled > thresholdPx
-        if (refreshTriggered) {
-            onRefresh()
-        }
 
         val consumed =
             when {
@@ -590,9 +588,16 @@ internal class PullToRefreshModifierNode(
                 else -> velocity
             }
 
-        // Only animate to hidden if refresh was not triggered. When a refresh is triggered,
-        // update() will handle animating the indicator to the threshold position.
-        if (!refreshTriggered) {
+        if (refreshTriggered) {
+            onRefresh()
+
+            // Wait a frame for recomposition so isRefreshing reflects any state update from
+            // onRefresh(). If isRefreshing becomes true, update() will animate to the threshold;
+            // if it remains false (e.g., synchronous or rejected refresh), animate to hidden below.
+            withFrameNanos {}
+        }
+
+        if (!isRefreshing) {
             animateToHidden()
         }
 
