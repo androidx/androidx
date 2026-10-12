@@ -104,6 +104,7 @@ internal fun measureLazyList(
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext,
             shouldRunItemAnimation = true,
+            reverseLayout = reverseLayout,
         )
 
         if (!isLookingAhead) {
@@ -393,6 +394,7 @@ internal fun measureLazyList(
             layoutMaxOffset = currentMainAxisOffset,
             graphicsContext = graphicsContext,
             shouldRunItemAnimation = shouldRunItemAnimation,
+            reverseLayout = reverseLayout,
         )
 
         if (!isLookingAhead) {
