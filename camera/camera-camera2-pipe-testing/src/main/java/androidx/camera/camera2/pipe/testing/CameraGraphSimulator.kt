@@ -280,7 +280,13 @@ internal constructor(
                 if (stream.outputs.size == 1) {
                     listOf(stream.outputs.single().id)
                 } else {
-                    stream.outputs.filter { physicalCameraIds.contains(it.camera) }.map { it.id }
+                    if (physicalCameraIds.isNotEmpty()) {
+                        stream.outputs
+                            .filter { physicalCameraIds.contains(it.camera) }
+                            .map { it.id }
+                    } else {
+                        listOf(stream.outputs.first().id)
+                    }
                 }
             if (stream.outputs.size > 1) {
                 simulateExpectedOutputs(streamId, imageTimestamp, outputIds.toSet())
