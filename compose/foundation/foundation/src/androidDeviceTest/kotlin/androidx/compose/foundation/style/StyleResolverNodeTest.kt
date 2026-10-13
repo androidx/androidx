@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -212,5 +213,89 @@ class StyleResolverNodeTest {
             // resolverB should now also be disposed
             assertFailsWith<IllegalStateException> { resolverB.resolve { testProp.value } }
         }
+    }
+
+    @Test
+    fun nodeReuse_conditionalRememberedStyleSwap_resolvesNewStyle() {
+        var resolvedInNewStyle = false
+        var useLargeStyle by mutableStateOf(false)
+
+        rule.setContent {
+            val style =
+                if (!useLargeStyle) {
+                    Style { size(50.dp) }
+                } else {
+                    Style {
+                        resolvedInNewStyle = true
+                        size(100.dp)
+                    }
+                }
+            val resolver = remember(style) { StyleResolver(style.toCommonStyle()) }
+            Box(Modifier.testTag("box").styleable(resolver))
+        }
+
+        rule.onNodeWithTag("box").assertWidthIsEqualTo(50.dp)
+
+        useLargeStyle = true
+
+        rule.onNodeWithTag("box").assertWidthIsEqualTo(100.dp)
+        rule.runOnIdle { assertEquals(true, resolvedInNewStyle) }
+    }
+
+    @Test
+    fun parentResolverSwap_childReadingStyleLocal_updates() {
+        val sizeLocal = styleLocalOf("sizeLocal") { 10 }
+        var useLarge by mutableStateOf(false)
+        var resolvedValue = 0
+
+        rule.setContent {
+            val parentResolver =
+                remember(useLarge) {
+                    val value = if (useLarge) 100 else 50
+                    StyleResolver({ sizeLocal.provide(value) })
+                }
+            val childResolver = remember { StyleResolver({}) }
+            Box(Modifier.styleResolver(parentResolver)) {
+                Box(
+                    Modifier.styleResolver(childResolver).layout { measurable, constraints ->
+                        resolvedValue = childResolver.resolve { sizeLocal.value }
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle { assertEquals(50, resolvedValue) }
+
+        useLarge = true
+
+        rule.runOnIdle { assertEquals(100, resolvedValue) }
+    }
+
+    @Test
+    fun parentResolverSwap_childApplyingNestedStyle_updates() {
+        val key = NestedStyleKey("child")
+        var useLarge by mutableStateOf(false)
+
+        rule.setContent {
+            val parentResolver =
+                remember(useLarge) {
+                    val size = if (useLarge) 100.dp else 50.dp
+                    StyleResolver({
+                        provideNestedStyle(key, Style { size(size) }.toCommonStyle())
+                    })
+                }
+            val childResolver = remember { StyleResolver({ applyNestedStyle(key) }) }
+            Box(Modifier.styleResolver(parentResolver)) {
+                Box(Modifier.testTag("child").styleable(childResolver))
+            }
+        }
+
+        rule.onNodeWithTag("child").assertWidthIsEqualTo(50.dp)
+
+        useLarge = true
+
+        rule.onNodeWithTag("child").assertWidthIsEqualTo(100.dp)
     }
 }

@@ -18,7 +18,9 @@ package androidx.compose.foundation.style
 
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
@@ -146,10 +148,11 @@ internal value class ResolvedProperties(
 @ExperimentalFoundationStyleApi
 internal class StyleResolverNode(styleResolver: StyleResolver, val overrideScope: CoroutineScope?) :
     DelegatingNode(), TraversableNode, ObserverModifierNode, CompositionLocalConsumerModifierNode {
-    internal var styleResolverField: StyleResolver = styleResolver
+    internal var styleResolverField: StyleResolver by mutableStateOf(styleResolver)
     private var resolved = false
     private var sourceJob: Job? = null
     private var currentInteractionSource: InteractionSource? = null
+
     internal var styleResolver: StyleResolver
         get() {
             ensureResolved()
