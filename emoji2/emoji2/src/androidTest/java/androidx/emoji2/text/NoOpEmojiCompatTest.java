@@ -58,6 +58,7 @@ public class NoOpEmojiCompatTest {
 
         assertThat(successCalled.get()).isTrue();
         assertThat(EmojiCompat.get().getLoadState()).isEqualTo(EmojiCompat.LOAD_STATE_SUCCEEDED);
+        assertThat(EmojiCompat.get().isDisabledForUpdatableSystemFonts()).isTrue();
 
         CharSequence input = "hello 🐣";
         CharSequence output = EmojiCompat.get().process(input);
@@ -88,6 +89,7 @@ public class NoOpEmojiCompatTest {
 
         assertThat(successCalled.get()).isTrue();
         assertThat(EmojiCompat.get().getLoadState()).isEqualTo(EmojiCompat.LOAD_STATE_SUCCEEDED);
+        assertThat(EmojiCompat.get().isDisabledForUpdatableSystemFonts()).isTrue();
 
         CharSequence input = "hello 🐣";
         CharSequence output = EmojiCompat.get().process(input);
@@ -119,6 +121,7 @@ public class NoOpEmojiCompatTest {
 
         assertThat(successCalled.get()).isFalse();
         assertThat(EmojiCompat.get().getLoadState()).isEqualTo(EmojiCompat.LOAD_STATE_LOADING);
+        assertThat(EmojiCompat.get().isDisabledForUpdatableSystemFonts()).isFalse();
 
         try {
             EmojiCompat.get().process("hello 🐣");
@@ -153,5 +156,6 @@ public class NoOpEmojiCompatTest {
 
         assertThat(successCalled.get()).isFalse();
         assertThat(EmojiCompat.get().getLoadState()).isEqualTo(EmojiCompat.LOAD_STATE_LOADING);
+        assertThat(EmojiCompat.get().isDisabledForUpdatableSystemFonts()).isFalse();
     }
 }
