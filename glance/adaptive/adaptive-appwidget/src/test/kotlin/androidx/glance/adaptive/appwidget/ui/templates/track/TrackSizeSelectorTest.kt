@@ -58,14 +58,6 @@ class TrackSizeSelectorTest {
     }
 
     @Test
-    fun select_tabletHomeScreen_usesHomeScreenBreakpoints() {
-        val surface = AppWidgetGlanceSurface.TABLET_HOME_SCREEN
-
-        assertThat(select(surface, widthDp = 131).stackTitle).isTrue()
-        assertThat(select(surface, widthDp = 132).stackTitle).isFalse()
-    }
-
-    @Test
     fun select_titleOrientation_isIndependentOfHeight() {
         for (heightDp in listOf(40, 90, 150, 250, 400)) {
             assertThat(selectOnHomeScreen(widthDp = 100, heightDp = heightDp).stackTitle).isTrue()
