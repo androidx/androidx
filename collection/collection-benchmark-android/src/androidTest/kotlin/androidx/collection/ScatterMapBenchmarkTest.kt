@@ -37,6 +37,11 @@ class ScatterMapBenchmarkTest(private val size: Int) {
     }
 
     @Test
+    fun putAll() {
+        benchmark.runCollectionBenchmark(ScatterMapPutAllBenchmark(sourceSet))
+    }
+
+    @Test
     fun insert_bad_hash() {
         benchmark.runCollectionBenchmark(ScatterMapInsertBenchmarkBadHash(badHashSourceSet))
     }
@@ -53,17 +58,17 @@ class ScatterMapBenchmarkTest(private val size: Int) {
 
     @Test
     fun read() {
-        benchmark.runCollectionBenchmark(ScatterHashMapReadBenchmark(sourceSet))
+        benchmark.runCollectionBenchmark(ScatterMapReadBenchmark(sourceSet))
     }
 
     @Test
     fun read_bad_hash() {
-        benchmark.runCollectionBenchmark(ScatterHashMapReadBadHashBenchmark(badHashSourceSet))
+        benchmark.runCollectionBenchmark(ScatterMapReadBadHashBenchmark(badHashSourceSet))
     }
 
     @Test
     fun read_float() {
-        benchmark.runCollectionBenchmark(ScatterHashMapReadBenchmarkFloat(floatSourceSet))
+        benchmark.runCollectionBenchmark(ScatterMapReadBenchmarkFloat(floatSourceSet))
     }
 
     @Test

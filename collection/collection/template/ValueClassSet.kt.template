@@ -143,7 +143,7 @@ VISIBILITY fun mutableVALUE_CLASSSetOf(
  * [builderAction].
  *
  * The set passed as a receiver to the [builderAction] is valid only inside that function.
- * Using it outside of the function produces an unspecified behavior.
+ * Using it outside the function produces an unspecified behavior.
  */
 VISIBILITY inline fun buildVALUE_CLASSSet(
     builderAction: MutableVALUE_CLASSSet.() -> Unit,
@@ -157,7 +157,7 @@ VISIBILITY inline fun buildVALUE_CLASSSet(
  * [builderAction].
  *
  * The set passed as a receiver to the [builderAction] is valid only inside that function.
- * Using it outside of the function produces an unspecified behavior.
+ * Using it outside the function produces an unspecified behavior.
  *
  * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
  */
@@ -255,7 +255,7 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
 
     /**
      * Returns true if all elements match the given [predicate].
-     * @param predicate called for elements in the set to determine if it returns return `true` for
+     * @param predicate called for elements in the set to determine if it returns `true` for
      * all elements.
      */
     public inline fun all(predicate: (element: VALUE_CLASS) -> Boolean): Boolean {
@@ -405,7 +405,7 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
 
     /**
      * Returns true if all elements match the given [predicate].
-     * @param predicate called for elements in the set to determine if it returns return `true` for
+     * @param predicate called for elements in the set to determine if it returns `true` for
      * all elements.
      */
     public inline fun all(predicate: (element: VALUE_CLASS) -> Boolean): Boolean {

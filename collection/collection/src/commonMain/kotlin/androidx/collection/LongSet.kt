@@ -38,7 +38,7 @@ import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// DO NOT MAKE CHANGES to the kotlin source file.
+// DO NOT MAKE CHANGES to the Kotlin source file.
 //
 // This file was generated from a template in the template directory.
 // Make a change to the original template and run the generateCollections.sh script
@@ -109,7 +109,7 @@ public fun mutableLongSetOf(vararg elements: Long): MutableLongSet =
  * Builds a new [LongSet] by populating a [MutableLongSet] using the given [builderAction].
  *
  * The set passed as a receiver to the [builderAction] is valid only inside that function. Using it
- * outside of the function produces an unspecified behavior.
+ * outside the function produces an unspecified behavior.
  *
  * @param builderAction Lambda in which the [MutableLongSet] can be populated.
  */
@@ -122,7 +122,7 @@ public inline fun buildLongSet(builderAction: MutableLongSet.() -> Unit): LongSe
  * Builds a new [LongSet] by populating a [MutableLongSet] using the given [builderAction].
  *
  * The set passed as a receiver to the [builderAction] is valid only inside that function. Using it
- * outside of the function produces an unspecified behavior.
+ * outside the function produces an unspecified behavior.
  *
  * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
  * @param builderAction Lambda in which the [MutableLongSet] can be populated.
@@ -233,7 +233,7 @@ public sealed class LongSet {
             val slot = m[i]
             // In metadata, Empty (0x80), Deleted (0xFE), and Sentinel (0xFF) all have bit 7
             // set; Full slots have bit 7 unset (< 0x80). Inverting the word and masking
-            // with BitmaskMsb sets bit (8j + 7) iff slot j is Full. Sentinel (0xFF) at
+            // with BitmaskMsb sets bit (8j + 7) if slot j is Full. Sentinel (0xFF) at
             // capacity index is naturally skipped since its bit 7 is set.
             var mask = slot.inv() and BitmaskMsb
             while (mask != 0L) {
@@ -261,8 +261,8 @@ public sealed class LongSet {
     /**
      * Returns true if all elements match the given [predicate].
      *
-     * @param predicate called for elements in the set to determine if it returns return `true` for
-     *   all elements.
+     * @param predicate called for elements in the set to determine if it returns `true` for all
+     *   elements.
      */
     public inline fun all(predicate: (element: Long) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
@@ -324,7 +324,7 @@ public sealed class LongSet {
     public fun joinToString(
         separator: CharSequence = ", ",
         prefix: CharSequence = "",
-        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        postfix: CharSequence = "", // I know this should be "suffix", but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
     ): String = buildString {
@@ -358,7 +358,7 @@ public sealed class LongSet {
     public inline fun joinToString(
         separator: CharSequence = ", ",
         prefix: CharSequence = "",
-        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        postfix: CharSequence = "", // I know this should be "suffix", but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
         crossinline transform: (Long) -> CharSequence,
@@ -872,7 +872,6 @@ public class MutableLongSet(initialCapacity: Int = DefaultScatterCapacity) : Lon
     internal fun resizeStorage(newCapacity: Int) {
         val previousMetadata = metadata
         val previousElements = elements
-        val previousCapacity = _capacity
 
         initializeStorage(newCapacity)
 
@@ -880,14 +879,20 @@ public class MutableLongSet(initialCapacity: Int = DefaultScatterCapacity) : Lon
         val newElements = elements
         val capacity = _capacity
 
-        for (i in 0 until previousCapacity) {
-            if (isFull(previousMetadata, i)) {
-                val previousElement = previousElements[i]
+        val lastIndex = previousMetadata.size - 2 // We always have 0 or at least 2 entries
+        for (i in 0..lastIndex) {
+            val slot = previousMetadata[i]
+            var mask = slot.inv() and BitmaskMsb
+            while (mask != 0L) {
+                val previousIndex = (i shl 3) + (mask.countTrailingZeroBits() ushr 3)
+                val previousElement = previousElements[previousIndex]
                 val hash = hash(previousElement)
                 val index = findFirstAvailableSlot(h1(hash))
 
                 writeMetadata(newMetadata, capacity, index, h2(hash).toLong())
                 newElements[index] = previousElement
+
+                mask = mask and (mask - 1L)
             }
         }
     }

@@ -153,7 +153,9 @@ internal value class ColorList(val list: LongList) {
      */
     public inline fun <R> fold(initial: R, operation: (acc: R, element: Color) -> R): R {
         contract { callsInPlace(operation) }
-        return list.fold(initial) { acc, element -> operation(acc, Color(element.toULong())) }
+        return list.fold(initial) { acc, element ->
+            operation(acc, Color(element.toULong()))
+        }
     }
 
     /**
@@ -181,7 +183,9 @@ internal value class ColorList(val list: LongList) {
      */
     public inline fun <R> foldRight(initial: R, operation: (element: Color, acc: R) -> R): R {
         contract { callsInPlace(operation) }
-        return list.foldRight(initial) { element, acc -> operation(Color(element.toULong()), acc) }
+        return list.foldRight(initial) { element, acc ->
+            operation(Color(element.toULong()), acc)
+        }
     }
 
     /**
@@ -217,7 +221,9 @@ internal value class ColorList(val list: LongList) {
      */
     public inline fun forEachIndexed(block: (index: Int, element: Color) -> Unit) {
         contract { callsInPlace(block) }
-        list.forEachIndexed { index, element -> block(index, Color(element.toULong())) }
+        list.forEachIndexed { index, element ->
+            block(index, Color(element.toULong()))
+        }
     }
 
     /**
@@ -239,7 +245,9 @@ internal value class ColorList(val list: LongList) {
      */
     public inline fun forEachReversedIndexed(block: (index: Int, element: Color) -> Unit) {
         contract { callsInPlace(block) }
-        list.forEachReversedIndexed { index, element -> block(index, Color(element.toULong())) }
+        list.forEachReversedIndexed { index, element ->
+            block(index, Color(element.toULong()))
+        }
     }
 
     /**
@@ -449,7 +457,9 @@ internal value class MutableColorList(val list: MutableLongList) {
      */
     public inline fun <R> fold(initial: R, operation: (acc: R, element: Color) -> R): R {
         contract { callsInPlace(operation) }
-        return list.fold(initial) { acc, element -> operation(acc, Color(element.toULong())) }
+        return list.fold(initial) { acc, element ->
+            operation(acc, Color(element.toULong()))
+        }
     }
 
     /**
@@ -477,7 +487,9 @@ internal value class MutableColorList(val list: MutableLongList) {
      */
     public inline fun <R> foldRight(initial: R, operation: (element: Color, acc: R) -> R): R {
         contract { callsInPlace(operation) }
-        return list.foldRight(initial) { element, acc -> operation(Color(element.toULong()), acc) }
+        return list.foldRight(initial) { element, acc ->
+            operation(Color(element.toULong()), acc)
+        }
     }
 
     /**
@@ -513,7 +525,9 @@ internal value class MutableColorList(val list: MutableLongList) {
      */
     public inline fun forEachIndexed(block: (index: Int, element: Color) -> Unit) {
         contract { callsInPlace(block) }
-        list.forEachIndexed { index, element -> block(index, Color(element.toULong())) }
+        list.forEachIndexed { index, element ->
+            block(index, Color(element.toULong()))
+        }
     }
 
     /**
@@ -535,7 +549,9 @@ internal value class MutableColorList(val list: MutableLongList) {
      */
     public inline fun forEachReversedIndexed(block: (index: Int, element: Color) -> Unit) {
         contract { callsInPlace(block) }
-        list.forEachReversedIndexed { index, element -> block(index, Color(element.toULong())) }
+        list.forEachReversedIndexed { index, element ->
+            block(index, Color(element.toULong()))
+        }
     }
 
     /**
@@ -642,8 +658,10 @@ internal value class MutableColorList(val list: MutableLongList) {
      *
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
-    public inline fun add(@IntRange(from = 0) index: Int, element: Color) =
-        list.add(index, element.value.toLong())
+    public inline fun add(
+        @IntRange(from = 0) index: Int,
+        element: Color,
+    ) = list.add(index, element.value.toLong())
 
     /**
      * Adds all [elements] to the [MutableColorList] at the given [index], shifting over any
@@ -652,8 +670,10 @@ internal value class MutableColorList(val list: MutableLongList) {
      * @return `true` if the [MutableColorList] was changed or `false` if [elements] was empty
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
-    public inline fun addAll(@IntRange(from = 0) index: Int, elements: ColorList): Boolean =
-        list.addAll(index, elements.list)
+    public inline fun addAll(
+        @IntRange(from = 0) index: Int,
+        elements: ColorList,
+    ): Boolean = list.addAll(index, elements.list)
 
     /**
      * Adds all [elements] to the [MutableColorList] at the given [index], shifting over any
@@ -662,8 +682,10 @@ internal value class MutableColorList(val list: MutableLongList) {
      * @return `true` if the [MutableColorList] was changed or `false` if [elements] was empty
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
-    public inline fun addAll(@IntRange(from = 0) index: Int, elements: MutableColorList): Boolean =
-        list.addAll(index, elements.list)
+    public inline fun addAll(
+        @IntRange(from = 0) index: Int,
+        elements: MutableColorList,
+    ): Boolean = list.addAll(index, elements.list)
 
     /**
      * Adds all [elements] to the end of the [MutableColorList] and returns `true` if the
@@ -753,8 +775,10 @@ internal value class MutableColorList(val list: MutableLongList) {
      * @throws IndexOutOfBoundsException if [start] or [end] isn't between 0 and [size], inclusive
      * @throws IllegalArgumentException if [start] is greater than [end]
      */
-    public inline fun removeRange(@IntRange(from = 0) start: Int, @IntRange(from = 0) end: Int) =
-        list.removeRange(start, end)
+    public inline fun removeRange(
+        @IntRange(from = 0) start: Int,
+        @IntRange(from = 0) end: Int,
+    ) = list.removeRange(start, end)
 
     /**
      * Keeps only [elements] in the [MutableColorList] and removes all other values.
@@ -776,8 +800,10 @@ internal value class MutableColorList(val list: MutableLongList) {
      * @return the previous value set at [index]
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [lastIndex], inclusive
      */
-    public inline operator fun set(@IntRange(from = 0) index: Int, element: Color): Color =
-        Color(list.set(index, element.value.toLong()).toULong())
+    public inline operator fun set(
+        @IntRange(from = 0) index: Int,
+        element: Color,
+    ): Color = Color(list.set(index, element.value.toLong()).toULong())
 }
 
 /** @return a read-only [ColorList] with nothing in it. */
@@ -792,15 +818,28 @@ internal inline fun colorListOf(element1: Color): ColorList =
 
 /** @return a new read-only [ColorList] with 2 elements, [element1] and [element2], in order. */
 internal inline fun colorListOf(element1: Color, element2: Color): ColorList =
-    ColorList(mutableLongListOf(element1.value.toLong(), element2.value.toLong()))
+    ColorList(
+        mutableLongListOf(
+            element1.value.toLong(),
+            element2.value.toLong(),
+        )
+    )
 
 /**
  * @return a new read-only [ColorList] with 3 elements, [element1], [element2], and [element3], in
  *   order.
  */
-internal inline fun colorListOf(element1: Color, element2: Color, element3: Color): ColorList =
+internal inline fun colorListOf(
+    element1: Color,
+    element2: Color,
+    element3: Color,
+): ColorList =
     ColorList(
-        mutableLongListOf(element1.value.toLong(), element2.value.toLong(), element3.value.toLong())
+        mutableLongListOf(
+            element1.value.toLong(),
+            element2.value.toLong(),
+            element3.value.toLong(),
+        )
     )
 
 /** @return a new empty [MutableColorList] with the default capacity. */
@@ -811,8 +850,16 @@ internal inline fun mutableColorListOf(element1: Color): MutableColorList =
     MutableColorList(mutableLongListOf(element1.value.toLong()))
 
 /** @return a new [MutableColorList] with 2 elements, [element1] and [element2], in order. */
-internal inline fun mutableColorListOf(element1: Color, element2: Color): MutableColorList =
-    MutableColorList(mutableLongListOf(element1.value.toLong(), element2.value.toLong()))
+internal inline fun mutableColorListOf(
+    element1: Color,
+    element2: Color,
+): MutableColorList =
+    MutableColorList(
+        mutableLongListOf(
+            element1.value.toLong(),
+            element2.value.toLong(),
+        )
+    )
 
 /**
  * @return a new [MutableColorList] with 3 elements, [element1], [element2], and [element3], in
@@ -824,7 +871,11 @@ internal inline fun mutableColorListOf(
     element3: Color,
 ): MutableColorList =
     MutableColorList(
-        mutableLongListOf(element1.value.toLong(), element2.value.toLong(), element3.value.toLong())
+        mutableLongListOf(
+            element1.value.toLong(),
+            element2.value.toLong(),
+            element3.value.toLong(),
+        )
     )
 
 /**

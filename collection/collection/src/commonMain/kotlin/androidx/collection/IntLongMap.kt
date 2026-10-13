@@ -33,7 +33,7 @@ import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// DO NOT MAKE CHANGES to the kotlin source file.
+// DO NOT MAKE CHANGES to the Kotlin source file.
 //
 // This file was generated from a template in the template directory.
 // Make a change to the original template and run the generateCollections.sh script
@@ -234,7 +234,7 @@ public fun mutableIntLongMapOf(
  * Builds a new [IntLongMap] by populating a [MutableIntLongMap] using the given [builderAction].
  *
  * The instance passed as a receiver to the [builderAction] is valid only inside that function.
- * Using it outside of the function produces an unspecified behavior.
+ * Using it outside the function produces an unspecified behavior.
  *
  * @param builderAction Lambda in which the [MutableIntLongMap] can be populated.
  */
@@ -247,7 +247,7 @@ public inline fun buildIntLongMap(builderAction: MutableIntLongMap.() -> Unit): 
  * Builds a new [IntLongMap] by populating a [MutableIntLongMap] using the given [builderAction].
  *
  * The instance passed as a receiver to the [builderAction] is valid only inside that function.
- * Using it outside of the function produces an unspecified behavior.
+ * Using it outside the function produces an unspecified behavior.
  *
  * @param initialCapacity Hint for the expected number of pairs added in the [builderAction].
  * @param builderAction Lambda in which the [MutableIntLongMap] can be populated.
@@ -376,7 +376,7 @@ public sealed class IntLongMap {
             val slot = m[i]
             // In metadata, Empty (0x80), Deleted (0xFE), and Sentinel (0xFF) all have bit 7
             // set; Full slots have bit 7 unset (< 0x80). Inverting the word and masking
-            // with BitmaskMsb sets bit (8j + 7) iff slot j is Full. Sentinel (0xFF) at
+            // with BitmaskMsb sets bit (8j + 7) if slot j is Full. Sentinel (0xFF) at
             // capacity index is naturally skipped since its bit 7 is set.
             var mask = slot.inv() and BitmaskMsb
             while (mask != 0L) {
@@ -472,7 +472,7 @@ public sealed class IntLongMap {
     public fun joinToString(
         separator: CharSequence = ", ",
         prefix: CharSequence = "",
-        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        postfix: CharSequence = "", // I know this should be "suffix", but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
     ): String = buildString {
@@ -508,7 +508,7 @@ public sealed class IntLongMap {
     public inline fun joinToString(
         separator: CharSequence = ", ",
         prefix: CharSequence = "",
-        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        postfix: CharSequence = "", // I know this should be "suffix", but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
         crossinline transform: (key: Int, value: Long) -> CharSequence,
@@ -576,7 +576,7 @@ public sealed class IntLongMap {
 
     /**
      * Returns a string representation of this map. The map is denoted in the string by the `{}`.
-     * Each key/value pair present in the map is represented inside '{}` by a substring of the form
+     * Each key/value pair present in the map is represented inside '{}' by a substring of the form
      * `key=value`, and pairs are separated by `, `.
      */
     public override fun toString(): String {
@@ -588,7 +588,7 @@ public sealed class IntLongMap {
         var i = 0
         forEach { key, value ->
             s.append(key)
-            s.append("=")
+            s.append('=')
             s.append(value)
             i++
             if (i < _size) {
@@ -767,6 +767,8 @@ public class MutableIntLongMap(initialCapacity: Int = DefaultScatterCapacity) : 
 
     /** Puts all the key/value mappings in the [from] map into this map. */
     public fun putAll(from: IntLongMap) {
+        val newCapacity = normalizeCapacity(unloadedCapacity(_size))
+        if (newCapacity < _capacity) resizeStorage(newCapacity)
         from.forEach { key, value ->
             this[key] = value
         }
@@ -837,9 +839,19 @@ public class MutableIntLongMap(initialCapacity: Int = DefaultScatterCapacity) : 
     internal fun removeValueAt(index: Int) {
         _size -= 1
 
-        // TODO: We could just mark the entry as empty if there's a group
-        //       window around this entry that was already empty
-        writeMetadata(metadata, _capacity, index, Deleted)
+        // If the group of size GroupWidth around the entry we are deleting is already empty,
+        // we can just mark the entry as empty instead of marking it Deleted. This will avoid
+        // unnecessary and expensive cleanup (dropDeletes()) and resize phases
+        val m = metadata
+        val groupEmptyAfter = group(m, index).maskEmpty()
+        val groupEmptyBefore = group(m, (index - GroupWidth) and _capacity).maskEmpty()
+        val trigger =
+            (groupEmptyAfter != 0L) and
+                (groupEmptyBefore != 0L) and
+                (((groupEmptyAfter.countTrailingZeroBits() +
+                    groupEmptyBefore.countLeadingZeroBits()) ushr 3) < GroupWidth)
+        writeMetadata(m, _capacity, index, if (trigger) Empty else Deleted)
+        growthLimit += if (trigger) 1 else 0
     }
 
     /** Removes all mappings from this map. */
@@ -1047,7 +1059,6 @@ public class MutableIntLongMap(initialCapacity: Int = DefaultScatterCapacity) : 
         val previousMetadata = metadata
         val previousKeys = keys
         val previousValues = values
-        val previousCapacity = _capacity
 
         initializeStorage(newCapacity)
 
@@ -1056,15 +1067,21 @@ public class MutableIntLongMap(initialCapacity: Int = DefaultScatterCapacity) : 
         val newValues = values
         val capacity = _capacity
 
-        for (i in 0 until previousCapacity) {
-            if (isFull(previousMetadata, i)) {
-                val previousKey = previousKeys[i]
+        val lastIndex = previousMetadata.size - 2 // We always have 0 or at least 2 entries
+        for (i in 0..lastIndex) {
+            val slot = previousMetadata[i]
+            var mask = slot.inv() and BitmaskMsb
+            while (mask != 0L) {
+                val previousIndex = (i shl 3) + (mask.countTrailingZeroBits() ushr 3)
+                val previousKey = previousKeys[previousIndex]
                 val hash = hash(previousKey)
                 val index = findFirstAvailableSlot(h1(hash))
 
                 writeMetadata(newMetadata, capacity, index, h2(hash).toLong())
                 newKeys[index] = previousKey
-                newValues[index] = previousValues[i]
+                newValues[index] = previousValues[previousIndex]
+
+                mask = mask and (mask - 1L)
             }
         }
     }

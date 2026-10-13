@@ -60,14 +60,30 @@ internal inline fun colorSetOf(element1: Color): ColorSet =
 
 /** Returns a new read-only [ColorSet] with only [element1] and [element2] in it. */
 @Suppress("UNCHECKED_CAST")
-internal fun colorSetOf(element1: Color, element2: Color): ColorSet =
-    ColorSet(mutableLongSetOf(element1.value.toLong(), element2.value.toLong()))
+internal fun colorSetOf(
+    element1: Color,
+    element2: Color,
+): ColorSet =
+    ColorSet(
+        mutableLongSetOf(
+            element1.value.toLong(),
+            element2.value.toLong(),
+        )
+    )
 
 /** Returns a new read-only [ColorSet] with only [element1], [element2], and [element3] in it. */
 @Suppress("UNCHECKED_CAST")
-internal fun colorSetOf(element1: Color, element2: Color, element3: Color): ColorSet =
+internal fun colorSetOf(
+    element1: Color,
+    element2: Color,
+    element3: Color,
+): ColorSet =
     ColorSet(
-        mutableLongSetOf(element1.value.toLong(), element2.value.toLong(), element3.value.toLong())
+        mutableLongSetOf(
+            element1.value.toLong(),
+            element2.value.toLong(),
+            element3.value.toLong(),
+        )
     )
 
 /** Returns a new [MutableColorSet]. */
@@ -78,13 +94,29 @@ internal fun mutableColorSetOf(element1: Color): MutableColorSet =
     MutableColorSet(mutableLongSetOf(element1.value.toLong()))
 
 /** Returns a new [MutableColorSet] with only [element1] and [element2] in it. */
-internal fun mutableColorSetOf(element1: Color, element2: Color): MutableColorSet =
-    MutableColorSet(mutableLongSetOf(element1.value.toLong(), element2.value.toLong()))
+internal fun mutableColorSetOf(
+    element1: Color,
+    element2: Color,
+): MutableColorSet =
+    MutableColorSet(
+        mutableLongSetOf(
+            element1.value.toLong(),
+            element2.value.toLong(),
+        )
+    )
 
 /** Returns a new [MutableColorSet] with only [element1], [element2], and [element3] in it. */
-internal fun mutableColorSetOf(element1: Color, element2: Color, element3: Color): MutableColorSet =
+internal fun mutableColorSetOf(
+    element1: Color,
+    element2: Color,
+    element3: Color,
+): MutableColorSet =
     MutableColorSet(
-        mutableLongSetOf(element1.value.toLong(), element2.value.toLong(), element3.value.toLong())
+        mutableLongSetOf(
+            element1.value.toLong(),
+            element2.value.toLong(),
+            element3.value.toLong(),
+        )
     )
 
 /**
