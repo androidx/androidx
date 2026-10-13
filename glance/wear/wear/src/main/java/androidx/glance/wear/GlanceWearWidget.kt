@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Build
+import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
 import androidx.annotation.MainThread
@@ -265,6 +266,7 @@ internal constructor(
      */
     // TODO: b/446828899 - Add RequiresApi(37) annotation.
     private suspend fun pushUpdate(context: Context, instanceId: WidgetInstanceId) {
+        val creationUptimeMillis = SystemClock.uptimeMillis()
         val cache = widgetCache ?: WearWidgetCache(context)
         val containerType = cache.getContainerTypeForInstance(instanceId)
         val params = cache.getWidgetParams(containerType, instanceId)
@@ -274,7 +276,11 @@ internal constructor(
                 provideWidgetDataAsRawContentInternal(context, params)
             }
 
-        updateClient.pushUpdate(context, WearWidgetUpdateRequest(instanceId), rawContent)
+        updateClient.pushUpdate(
+            context,
+            WearWidgetUpdateRequest(instanceId, creationUptimeMillis),
+            rawContent,
+        )
     }
 
     @VisibleForTesting
