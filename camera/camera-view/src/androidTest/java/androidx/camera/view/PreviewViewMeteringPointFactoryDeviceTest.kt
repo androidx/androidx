@@ -242,7 +242,7 @@ class PreviewViewMeteringPointFactoryDeviceTest(
                 FAKE_TARGET_ROTATION,
                 /*hasCameraTransform=*/ true,
                 /*sensorToBufferTransform=*/ getSensorToBufferTransformMatrix(surfaceSize),
-                /*mirroring=*/ false,
+                /*mirroring=*/ isFrontCamera,
             ),
             surfaceSize,
             isFrontCamera,
