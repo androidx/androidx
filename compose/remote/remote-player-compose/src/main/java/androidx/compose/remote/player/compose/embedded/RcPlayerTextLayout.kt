@@ -27,6 +27,7 @@ import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
+import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.Composable
@@ -66,15 +67,14 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
     val data = layout.readDataReflection()
 
     val color =
-        if (paintState.isColorSet) {
-            Color(paintState.color)
-        } else if (data.isDynamicColorEnabled) {
-            rememberRemoteColorAsState(data.colorId).value
-        } else {
-            Color(data.colorValue)
-        }
-    val fontSize = if (paintState.isTextSizeSet) paintState.textSize else data.fontSizeValue
+        resolveTextColor(
+            paintState = paintState,
+            isDynamicColorEnabled = data.isDynamicColorEnabled,
+            colorId = data.colorId,
+            colorValue = data.colorValue,
+        )
     val density = LocalDensity.current
+    val fontSize = resolveTextFontSizePx(paintState, data.fontSize)
     val fontSizeSp = with(density) { fontSize.toSp() }
 
     val remoteContext = LocalRemoteContext.current
@@ -204,15 +204,15 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
     val data = layout.readDataReflection()
 
     val color =
-        if (paintState.isColorSet) {
-            Color(paintState.color)
-        } else if (data.isDynamicColorEnabled) {
-            rememberRemoteColorAsState(data.colorId).value
-        } else {
-            Color(data.colorValue)
-        }
-    val fontSize = if (paintState.isTextSizeSet) paintState.textSize else data.fontSizeValue
-    val fontSizeSp = with(LocalDensity.current) { fontSize.toSp() }
+        resolveTextColor(
+            paintState = paintState,
+            isDynamicColorEnabled = data.isDynamicColorEnabled,
+            colorId = data.colorId,
+            colorValue = data.colorValue,
+        )
+    val density = LocalDensity.current
+    val fontSize = resolveTextFontSizePx(paintState, data.fontSize)
+    val fontSizeSp = with(density) { fontSize.toSp() }
 
     val fontWeight =
         if (paintState.isTypefaceSet) FontWeight(paintState.fontWeight)
@@ -261,6 +261,31 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
         overflow = overflow,
         maxLines = data.maxLines,
     )
+}
+
+@Composable
+private fun resolveTextColor(
+    paintState: ComposeLocalPaint,
+    isDynamicColorEnabled: Boolean,
+    colorId: Int,
+    colorValue: Int,
+): Color =
+    if (paintState.isColorSet) {
+        Color(paintState.color)
+    } else if (isDynamicColorEnabled) {
+        rememberRemoteColorAsState(colorId).value
+    } else {
+        Color(colorValue)
+    }
+
+@Composable
+private fun resolveTextFontSizePx(paintState: ComposeLocalPaint, rawFontSize: Float): Float {
+    val resolvedFontSize by rememberRemoteFloatAsState(rawFontSize)
+    return when {
+        paintState.isTextSizeSet -> paintState.textSize
+        rawFontSize.isNaN() -> resolvedFontSize
+        else -> rawDimensionPx(resolvedFontSize)
+    }
 }
 
 internal fun resolveTextAlign(textAlignValue: Int, justificationMode: Int = 0): TextAlign =
