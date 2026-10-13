@@ -293,7 +293,12 @@ internal constructor(
 
     /**
      * An [IBinder] reference that represents the anchor, or null if the anchor is not exportable.
+     *
+     * The token is requested from the runtime when this is read, not when the anchor is created.
+     * Getting a token exports the anchor, which not every caller needs and which can fail on
+     * runtimes that don't support exporting anchors.
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val anchorToken: IBinder? = runtimeAnchor.anchorToken
+    public val anchorToken: IBinder?
+        get() = runtimeAnchor.anchorToken
 }
