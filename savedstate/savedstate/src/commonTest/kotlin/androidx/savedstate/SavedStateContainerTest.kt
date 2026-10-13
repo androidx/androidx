@@ -22,13 +22,13 @@ import kotlin.test.Test
 @IgnoreWebTarget
 internal class SavedStateContainerTest : RobolectricTest() {
 
-    private class TestSavedStateValue(override var value: String = "") : SavedStateValue<String> {
+    private class TestSavedStateValue(override var value: String? = "") : SavedStateValue<String?> {
         var restoredState: SavedState? = null
         var saveStateCalled: Boolean = false
 
         override fun saveState(): SavedState {
             saveStateCalled = true
-            return savedState { putString("key", value) }
+            return if (value != null) savedState { putString("key", value!!) } else savedState()
         }
 
         override fun restoreState(savedState: SavedState?) {
@@ -63,7 +63,7 @@ internal class SavedStateContainerTest : RobolectricTest() {
         container.putSavedStateValue("testKey", testValue)
 
         val retrieved: TestSavedStateValue? =
-            container.getSavedStateValue<String, TestSavedStateValue>("testKey")
+            container.getSavedStateValue<String?, TestSavedStateValue>("testKey")
         assertThat(retrieved).isNotNull()
         assertThat(retrieved).isSameInstanceAs(testValue)
         assertThat(retrieved?.value).isEqualTo("hello")
@@ -73,7 +73,7 @@ internal class SavedStateContainerTest : RobolectricTest() {
     fun getSavedStateValue_returnsNullWhenKeyNotFound() {
         val container = SavedStateContainer()
         val retrieved: TestSavedStateValue? =
-            container.getSavedStateValue<String, TestSavedStateValue>("nonExistent")
+            container.getSavedStateValue<String?, TestSavedStateValue>("nonExistent")
         assertThat(retrieved).isNull()
     }
 
@@ -87,7 +87,7 @@ internal class SavedStateContainerTest : RobolectricTest() {
         container.putSavedStateValue("key", value2)
 
         val retrieved: TestSavedStateValue? =
-            container.getSavedStateValue<String, TestSavedStateValue>("key")
+            container.getSavedStateValue<String?, TestSavedStateValue>("key")
         assertThat(retrieved).isSameInstanceAs(value2)
         assertThat(retrieved?.value).isEqualTo("second")
     }
@@ -124,7 +124,7 @@ internal class SavedStateContainerTest : RobolectricTest() {
 
         assertThat(factoryCalled).isTrue()
         assertThat(result).isSameInstanceAs(created)
-        assertThat(container.getSavedStateValue<String, TestSavedStateValue>("key"))
+        assertThat(container.getSavedStateValue<String?, TestSavedStateValue>("key"))
             .isSameInstanceAs(created)
     }
 
@@ -135,10 +135,10 @@ internal class SavedStateContainerTest : RobolectricTest() {
         container.putSavedStateValue("key", testValue)
 
         val removed: TestSavedStateValue? =
-            container.removeSavedStateValue<String, TestSavedStateValue>("key")
+            container.removeSavedStateValue<String?, TestSavedStateValue>("key")
 
         assertThat(removed).isSameInstanceAs(testValue)
-        assertThat(container.getSavedStateValue<String, TestSavedStateValue>("key")).isNull()
+        assertThat(container.getSavedStateValue<String?, TestSavedStateValue>("key")).isNull()
     }
 
     @Test
@@ -252,7 +252,7 @@ internal class SavedStateContainerTest : RobolectricTest() {
 
         container.restoreState(bundle)
 
-        val retrieved = container.getSavedStateValue<String, TestSavedStateValue>("key1")
+        val retrieved = container.getSavedStateValue<String?, TestSavedStateValue>("key1")
         assertThat(retrieved).isSameInstanceAs(testValue)
         assertThat(retrieved?.value).isEqualTo("restoredVal")
         assertThat(testValue.restoredState).isEqualTo(key1Bundle)
@@ -269,7 +269,7 @@ internal class SavedStateContainerTest : RobolectricTest() {
         val testValue = TestSavedStateValue("initial")
         container.putSavedStateValue("key1", testValue)
 
-        val retrieved = container.getSavedStateValue<String, TestSavedStateValue>("key1")
+        val retrieved = container.getSavedStateValue<String?, TestSavedStateValue>("key1")
         assertThat(retrieved).isSameInstanceAs(testValue)
         assertThat(retrieved?.value).isEqualTo("restoredVal")
         assertThat(testValue.restoredState).isEqualTo(key1Bundle)
@@ -285,7 +285,21 @@ internal class SavedStateContainerTest : RobolectricTest() {
         container.putSavedStateValue("key", value)
         assertThat("key" in container).isTrue()
 
-        container.removeSavedStateValue<String, TestSavedStateValue>("key")
+        container.removeSavedStateValue<String?, TestSavedStateValue>("key")
+        assertThat("key" in container).isFalse()
+    }
+
+    @Test
+    fun contains_returnsTrueWhenKeyExistsAndValueIsNull() {
+        val container = SavedStateContainer()
+        val value = TestSavedStateValue(null)
+
+        assertThat("key" in container).isFalse()
+
+        container.putSavedStateValue("key", value)
+        assertThat("key" in container).isTrue()
+
+        container.removeSavedStateValue<String?, TestSavedStateValue>("key")
         assertThat("key" in container).isFalse()
     }
 

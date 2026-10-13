@@ -92,6 +92,72 @@ class SavedStateHandleTest {
         assertThat(handle.contains("foo2")).isFalse()
         handle.set("foo2", "spb")
         assertThat(handle.contains("foo2")).isTrue()
+        handle.setSavedStateProvider("provider") { Bundle() }
+        assertThat(handle.contains("provider")).isFalse()
+        handle.asContainer().saveState()
+        assertThat(handle.contains("provider")).isTrue()
+    }
+
+    @Test
+    @UiThreadTest
+    fun testContainsWithNullValues() {
+        val handle = SavedStateHandle(mapOf("simpleNull" to null))
+        assertThat(handle.contains("simpleNull")).isTrue()
+        assertThat(handle.get<String?>("simpleNull")).isNull()
+
+        handle["stateNull"] = null
+        assertThat(handle.contains("stateNull")).isTrue()
+        assertThat(handle.get<String?>("stateNull")).isNull()
+
+        handle.getStateFlow<String?>("flowNull", null)
+        assertThat(handle.contains("flowNull")).isTrue()
+        assertThat(handle.get<String?>("flowNull")).isNull()
+
+        handle.getMutableStateFlow<String?>("mutableFlowNull", null)
+        assertThat(handle.contains("mutableFlowNull")).isTrue()
+        assertThat(handle.get<String?>("mutableFlowNull")).isNull()
+    }
+
+    @Test
+    @UiThreadTest
+    fun testContainsWithLiveData() {
+        val handle = SavedStateHandle()
+        val uninitialized = handle.getLiveData<String?>("uninitialized")
+        assertThat("uninitialized" in handle.asContainer()).isTrue()
+        assertThat(handle.contains("uninitialized")).isFalse()
+
+        uninitialized.value = null
+        assertThat(handle.contains("uninitialized")).isTrue()
+        assertThat(handle.get<String?>("uninitialized")).isNull()
+
+        handle.getLiveData<String?>("initializedNullLd", null)
+        assertThat(handle.contains("initializedNullLd")).isTrue()
+        assertThat(handle.get<String?>("initializedNullLd")).isNull()
+    }
+
+    @Test
+    @UiThreadTest
+    fun testContainsWithSavedStateProvider() {
+        val handle = SavedStateHandle()
+        handle.setSavedStateProvider("provider") { Bundle().apply { putString("key", "value") } }
+        assertThat("provider" in handle.asContainer()).isTrue()
+        assertThat(handle.contains("provider")).isFalse()
+        assertThat(handle.get<Bundle?>("provider")).isNull()
+
+        handle.clearSavedStateProvider("provider")
+        assertThat("provider" in handle.asContainer()).isFalse()
+        assertThat(handle.contains("provider")).isFalse()
+
+        handle.setSavedStateProvider("provider") { Bundle().apply { putString("key", "value") } }
+        assertThat(handle.contains("provider")).isFalse()
+
+        handle.asContainer().saveState()
+        assertThat(handle.contains("provider")).isTrue()
+        assertThat(handle.get<Bundle?>("provider")?.getString("key")).isEqualTo("value")
+
+        handle.clearSavedStateProvider("provider")
+        assertThat(handle.contains("provider")).isTrue()
+        assertThat(handle.get<Bundle?>("provider")?.getString("key")).isEqualTo("value")
     }
 
     @Test
@@ -586,6 +652,32 @@ class SavedStateHandleTest {
         assertThat("key2" in container).isTrue()
         assertThat(container.getSavedStateValue<String, SavedStateValue<String>>("key2")?.value)
             .isEqualTo("value2")
+
+        handle.getMutableStateFlow("flowKey", "flowValue")
+        assertThat(container.getSavedStateValue<String, SavedStateValue<String>>("flowKey")?.value)
+            .isEqualTo("flowValue")
+
+        handle.getLiveData("liveDataKey", "liveDataValue")
+        assertThat(
+                container.getSavedStateValue<String, SavedStateValue<String>>("liveDataKey")?.value
+            )
+            .isEqualTo("liveDataValue")
+
+        val providerBundle = Bundle().apply { putString("k", "v") }
+        handle.setSavedStateProvider("providerKey") { providerBundle }
+        assertThat(
+                container
+                    .getSavedStateValue<SavedState?, SavedStateValue<SavedState?>>("providerKey")
+                    ?.value
+            )
+            .isNull()
+        handle.asContainer().saveState()
+        assertThat(
+                container
+                    .getSavedStateValue<SavedState?, SavedStateValue<SavedState?>>("providerKey")
+                    ?.value
+            )
+            .isEqualTo(providerBundle)
     }
 
     @Test
