@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appfunctions.metadata
+package androidx.appfunctions
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

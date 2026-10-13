@@ -24,10 +24,10 @@ import android.os.Binder
 import android.os.Bundle
 import android.os.Process
 import androidx.appfunctions.AppFunctionDeniedException
+import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
-import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
 import androidx.appfunctions.metadata.AppFunctionUnitTypeMetadata

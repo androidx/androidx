@@ -25,7 +25,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor.AutoCloseInputStream
 import androidx.appfunctions.AppFunctionManager
-import androidx.appfunctions.metadata.AppFunctionName
+import androidx.appfunctions.AppFunctionName
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.security.MessageDigest

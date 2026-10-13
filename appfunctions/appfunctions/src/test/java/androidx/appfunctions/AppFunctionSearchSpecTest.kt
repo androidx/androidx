@@ -17,7 +17,6 @@
 package androidx.appfunctions
 
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
-import androidx.appfunctions.metadata.AppFunctionName
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test

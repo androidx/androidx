@@ -20,7 +20,6 @@ import android.os.Build
 import android.util.ArraySet
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.appfunctions.metadata.AppFunctionName
 import java.util.Objects
 
 /**

@@ -19,7 +19,6 @@ package androidx.appfunctions
 import android.os.Binder
 import android.os.Build
 import android.util.ArraySet
-import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeTrue

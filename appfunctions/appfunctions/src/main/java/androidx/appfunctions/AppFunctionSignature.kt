@@ -142,7 +142,7 @@ public annotation class AppFunctionSignature(
      *
      * The scope determines the function's lifecycle and uniqueness rules. Depending on the scope,
      * there could be at most one or multiple functions registered in the system with the same
-     * [androidx.appfunctions.metadata.AppFunctionName].
+     * [AppFunctionName].
      *
      * Possible values:
      * - [androidx.appfunctions.metadata.AppFunctionMetadata.SCOPE_GLOBAL]
