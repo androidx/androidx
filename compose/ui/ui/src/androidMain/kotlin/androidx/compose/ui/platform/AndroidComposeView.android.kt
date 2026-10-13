@@ -1192,8 +1192,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             // Trackpad pan (two-finger swipe) is another system-recognized gesture that triggers
             // scrolling, which requires us to update the hover state as layout changes.
             val isTrackpadPan =
-                ComposeUiFlags.isTrackpadPanHoverFixEnabled &&
-                    lastEvent.actionMasked == ACTION_MOVE &&
+                lastEvent.actionMasked == ACTION_MOVE &&
                     SDK_INT >= 34 &&
                     lastEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
 
@@ -3248,8 +3247,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 action == ACTION_HOVER_MOVE ||
                 action == ACTION_HOVER_EXIT
         val isTrackpadPanHover =
-            ComposeUiFlags.isTrackpadPanHoverFixEnabled &&
-                isHover &&
+            isHover &&
                 SDK_INT >= 34 &&
                 motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
         val pointerProperties = Array(pointerCount) { MotionEvent.PointerProperties() }
@@ -3288,7 +3286,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 MotionEvent.CLASSIFICATION_NONE
             }
         val event =
-            if (ComposeUiFlags.isTrackpadPanHoverFixEnabled && SDK_INT >= 34) {
+            if (SDK_INT >= 34) {
                 Api34Impl.obtainMotionEventWithClassification(
                     /* downTime */ downTime,
                     /* eventTime */ eventTime,
@@ -3356,10 +3354,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         // items relative to the stationary cursor position.
         // The correct thing to do here would probably be to read off the cursor position,
         // assuming we could access it in the future.
-        if (
-            ComposeUiFlags.isTrackpadPanHoverFixEnabled &&
-                activeGesture == PointerClassification.Pan
-        ) {
+        if (activeGesture == PointerClassification.Pan) {
             return true
         }
         val x = motionEvent.x

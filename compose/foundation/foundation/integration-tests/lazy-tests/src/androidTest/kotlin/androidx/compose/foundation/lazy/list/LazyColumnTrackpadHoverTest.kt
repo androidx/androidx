@@ -35,7 +35,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -56,8 +55,6 @@ import androidx.compose.ui.unit.sp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assume.assumeTrue
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -65,12 +62,6 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class LazyColumnTrackpadHoverTest {
     @get:Rule val rule = createComposeRule()
-
-    @Before
-    @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
-    fun setUp() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
-    }
 
     val numberOfItemsInLazyColumn = 500
 
