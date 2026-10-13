@@ -19,7 +19,9 @@ package androidx.compose.runtime.snapshots
 import androidx.collection.MutableScatterSet
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposeRuntimeFlags
 import androidx.compose.runtime.DisallowComposableCalls
+import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.checkPrecondition
@@ -98,6 +100,15 @@ public sealed class Snapshot(
      * nested snapshot it is the parent's [root].
      */
     public abstract val root: Snapshot
+
+    /**
+     * The snapshot that `this` is a child of. This may return any of the following:
+     * - The snapshot that `this` is nested in
+     * - A transparent snapshot that does not provide its own isolation
+     * - The [globalSnapshot]
+     * - `null`, if `this` is the [GlobalSnapshot]
+     */
+    internal abstract val parent: Snapshot?
 
     /** True if any change to a state object in this snapshot will throw. */
     public abstract val readOnly: Boolean
@@ -792,6 +803,7 @@ internal constructor(
     invalid: SnapshotIdSet,
     override val readObserver: ((Any) -> Unit)?,
     override val writeObserver: ((Any) -> Unit)?,
+    override val parent: Snapshot?,
 ) : Snapshot(snapshotId, invalid) {
     /**
      * Whether there are any pending changes in this snapshot. These changes are not visible until
@@ -822,7 +834,10 @@ internal constructor(
         return creatingSnapshot(this, readObserver, writeObserver, readonly = false) {
             actualReadObserver,
             actualWriteObserver ->
-            advance {
+            @OptIn(ExperimentalComposeApi::class)
+            advance(
+                advanceParents = ComposeRuntimeFlags.advanceParentSnapshotsWhenTakingNestedSnapshot
+            ) {
                 sync {
                     val newId = nextSnapshotId
                     nextSnapshotId += 1
@@ -978,7 +993,7 @@ internal constructor(
             writeObserver = null,
             readonly = true,
         ) { actualReadObserver, _ ->
-            advance {
+            advance(false) {
                 sync {
                     val readonlyId = nextSnapshotId.also { nextSnapshotId += 1 }
                     openNonGlobalSnapshots = openNonGlobalSnapshots.set(readonlyId)
@@ -1189,7 +1204,10 @@ internal constructor(
         return SnapshotApplyResult.Success
     }
 
-    internal inline fun <T> advance(block: () -> T): T {
+    internal inline fun <T> advance(
+        advanceParents: Boolean,
+        block: () -> T,
+    ): T {
         recordPrevious(snapshotId)
         return block().also {
             // Only advance this snapshot if it's possible for it to be applied later,
@@ -1201,13 +1219,45 @@ internal constructor(
                 sync {
                     snapshotId = nextSnapshotId.also { nextSnapshotId += 1 }
                     openNonGlobalSnapshots = openNonGlobalSnapshots.set(snapshotId)
+                    if (advanceParents) {
+                        advanceParentsLocked()
+                    }
                 }
                 invalid = invalid.addRange(previousId + 1, snapshotId)
             }
         }
     }
 
-    internal fun advance(): Unit = advance {}
+    /**
+     * Walks all parents of this snapshot, and advances each parent that introduces snapshot
+     * isolation. This causes each parent-child pair to have snapshot IDs such that any parent has a
+     * higher snapshot ID than all of its descendant snapshots along this chain. Calling this
+     * function ensures that changes in a child snapshot are considered to be "before" the parent
+     * snapshot when they are applied.
+     *
+     * The global snapshot is also advanced by this call, but its apply observers are **NOT**
+     * notified.
+     *
+     * Must be called from a [sync] block.
+     */
+    internal fun advanceParentsLocked() {
+        val globalSnapshot = globalSnapshot
+        var parent: Snapshot? = parent
+        while (parent != null && parent !== globalSnapshot) {
+            if (parent is MutableSnapshot && !parent.applied && !parent.disposed) {
+                val previousId = parent.snapshotId
+                parent.recordPrevious(previousId)
+                parent.snapshotId = nextSnapshotId.also { nextSnapshotId += 1 }
+                openNonGlobalSnapshots = openNonGlobalSnapshots.set(parent.snapshotId)
+                parent.invalid = parent.invalid.addRange(previousId + 1, parent.snapshotId)
+            }
+            parent = parent.parent
+        }
+
+        advanceGlobalSnapshotWithoutNotifications()
+    }
+
+    internal fun advance(): Unit = advance(false) {}
 
     internal fun recordPrevious(id: SnapshotId) {
         sync { previousIds = previousIds.set(id) }
@@ -1437,6 +1487,7 @@ internal constructor(
     snapshotId: SnapshotId,
     invalid: SnapshotIdSet,
     override val readObserver: ((Any) -> Unit)?,
+    override val parent: Snapshot?,
 ) : Snapshot(snapshotId, invalid) {
     /**
      * The number of nested snapshots that are active. To simplify the code, this snapshot counts
@@ -1531,6 +1582,9 @@ internal class TransparentReadOnlySnapshot(private var parentSnapshot: Snapshot?
     private val currentSnapshot: Snapshot
         get() = parentSnapshot ?: globalSnapshot
 
+    override val parent: Snapshot?
+        get() = parentSnapshot
+
     override fun dispose() {
         // Explicitly don't call super.dispose()
         disposed = true
@@ -1597,7 +1651,7 @@ internal class NestedReadonlySnapshot(
     snapshotId: SnapshotId,
     invalid: SnapshotIdSet,
     override val readObserver: ((Any) -> Unit)?,
-    val parent: Snapshot,
+    override val parent: Snapshot,
 ) : Snapshot(snapshotId, invalid) {
     init {
         parent.nestedActivated(this)
@@ -1662,10 +1716,11 @@ private val emptyLambda: (invalid: SnapshotIdSet) -> Unit = {}
  */
 internal class GlobalSnapshot(snapshotId: SnapshotId, invalid: SnapshotIdSet) :
     MutableSnapshot(
-        snapshotId,
-        invalid,
-        null,
-        { state -> sync { globalWriteObservers.fastForEach { it(state) } } },
+        snapshotId = snapshotId,
+        invalid = invalid,
+        parent = null,
+        readObserver = null,
+        writeObserver = { state -> sync { globalWriteObservers.fastForEach { it(state) } } },
     ) {
 
     @OptIn(ExperimentalComposeRuntimeApi::class)
@@ -1681,6 +1736,7 @@ internal class GlobalSnapshot(snapshotId: SnapshotId, invalid: SnapshotIdSet) :
                     snapshotId = sync { nextSnapshotId.also { nextSnapshotId += 1 } },
                     invalid = invalid,
                     readObserver = actualReadObserver,
+                    parent = this,
                 )
             }
         }
@@ -1700,6 +1756,7 @@ internal class GlobalSnapshot(snapshotId: SnapshotId, invalid: SnapshotIdSet) :
                 MutableSnapshot(
                     snapshotId = sync { nextSnapshotId.also { nextSnapshotId += 1 } },
                     invalid = invalid,
+                    parent = this,
 
                     // It is intentional that the global read observers are not merged with mutable
                     // snapshots read observers.
@@ -1734,8 +1791,15 @@ internal class NestedMutableSnapshot(
     invalid: SnapshotIdSet,
     readObserver: ((Any) -> Unit)?,
     writeObserver: ((Any) -> Unit)?,
-    val parent: MutableSnapshot,
-) : MutableSnapshot(snapshotId, invalid, readObserver, writeObserver) {
+    override val parent: MutableSnapshot,
+) :
+    MutableSnapshot(
+        snapshotId = snapshotId,
+        invalid = invalid,
+        parent = null,
+        readObserver = readObserver,
+        writeObserver = writeObserver,
+    ) {
     private var deactivated = false
 
     init {
@@ -1824,11 +1888,16 @@ internal class TransparentObserverMutableSnapshot(
     private var ownsParentSnapshot: Boolean,
 ) :
     MutableSnapshot(
-        INVALID_SNAPSHOT,
-        SnapshotIdSet.EMPTY,
-        null,
-        null,
+        snapshotId = INVALID_SNAPSHOT,
+        invalid = SnapshotIdSet.EMPTY,
+        parent = null,
+        readObserver = null,
+        writeObserver = null,
     ) {
+
+    override val parent: Snapshot?
+        get() = parentSnapshot
+
     override var readObserver: ((Any) -> Unit)? =
         mergedReadObserver(
             specifiedReadObserver,
@@ -1980,6 +2049,9 @@ internal class TransparentObserverSnapshot(
 
     private val currentSnapshot: Snapshot
         get() = parentSnapshot ?: globalSnapshot
+
+    override val parent: Snapshot?
+        get() = parentSnapshot
 
     override fun dispose() {
         // Explicitly don't call super.dispose()
@@ -2223,6 +2295,12 @@ private fun <T> advanceGlobalSnapshot(block: (invalid: SnapshotIdSet) -> T): T {
     }
 
     return result
+}
+
+private fun advanceGlobalSnapshotWithoutNotifications() {
+    val globalSnapshot = globalSnapshot
+    globalSnapshot.snapshotId = nextSnapshotId.also { nextSnapshotId += 1 }
+    globalSnapshot.invalid = openNonGlobalSnapshots
 }
 
 private fun advanceGlobalSnapshot() = advanceGlobalSnapshot(emptyLambda)
