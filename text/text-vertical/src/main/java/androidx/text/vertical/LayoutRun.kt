@@ -246,6 +246,7 @@ internal class TateChuYokoLayoutRun(text: CharSequence, start: Int, end: Int, pa
                 x += w
             }
         }
+        // TODO(b/571931500): Draw vertical underline and strikethrough for tate-chu-yoko text.
 
         val emphasisSpans = text.getSpans<EmphasisSpan>(start, end)
         if (emphasisSpans.isNotEmpty()) {
@@ -333,6 +334,7 @@ internal class RotateLayoutRun(text: CharSequence, start: Int, end: Int, paint: 
                 }
 
                 // TODO: Draw Emphasis for rotated text.
+                // TODO(b/571931500): Draw vertical underline and strikethrough for rotated text.
 
                 x += width
             }
@@ -398,66 +400,127 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
         var y = originY
         text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, bgColor, fontShear, emphasis ->
             val runHeight = rPaint.measureTextVertical(text, rStart, rEnd)
-            // Use `width` (`leftSideOffset..rightSideOffset`) so mixed font sizes share a uniform
-            // column width and emphasis marks stay inside the background.
-            // Use `runHeight` so each style run covers only its own vertical advance.
-            canvas.drawBackground(originX + leftSideOffset, y, width, runHeight, bgColor)
-
-            if (fontShear == 0f) {
-                canvas.drawTextVertical(text, rStart, rEnd, originX, y, rPaint)
-            } else {
-                canvas.withSave {
-                    translate(originX, y)
-                    skew(0f, -fontShear)
-                    drawTextVertical(text, rStart, rEnd, 0f, 0f, rPaint)
-                }
+            val hasUnderline = rPaint.isUnderlineText
+            val hasStrikeThru = rPaint.isStrikeThruText
+            val hasDecoration = hasUnderline || hasStrikeThru
+            if (hasDecoration) {
+                rPaint.isUnderlineText = false
+                rPaint.isStrikeThruText = false
             }
+            try {
+                // Use `width` (`leftSideOffset..rightSideOffset`) so mixed font sizes share a
+                // uniform column width and emphasis marks stay inside the background.
+                // Use `runHeight` so each style run covers only its own vertical advance.
+                canvas.drawBackground(originX + leftSideOffset, y, width, runHeight, bgColor)
 
-            if (emphasis != null) {
-                var eY = y
-                // `magnitude` is the center of the mark. A sign flip mirrors it onto the reserved
-                // bound on the opposite side.
-                val magnitude = rPaint.textSize * (1f + emphasis.scale) / 2
-                val xOffset =
-                    if (emphasis.position != AnnotationPosition.After) magnitude else -magnitude
+                if (fontShear == 0f) {
+                    canvas.drawTextVertical(text, rStart, rEnd, originX, y, rPaint)
+                } else {
+                    canvas.withSave {
+                        translate(originX, y)
+                        skew(0f, -fontShear)
+                        drawTextVertical(text, rStart, rEnd, 0f, 0f, rPaint)
+                    }
+                }
 
-                val letterWidth =
-                    rPaint.withTextScale(emphasis.scale) { measureTextVertical(emphasis.letter) }
+                if (emphasis != null) {
+                    var eY = y
+                    // `magnitude` is the center of the mark. A sign flip mirrors it onto the
+                    // reserved bound on the opposite side.
+                    val magnitude = rPaint.textSize * (1f + emphasis.scale) / 2
+                    val xOffset =
+                        if (emphasis.position != AnnotationPosition.After) magnitude else -magnitude
 
-                text.forEachGrapheme(rStart, rEnd, rPaint.textLocale) { gStart, gEnd ->
-                    val positions = FloatArray(gEnd - gStart)
-                    rPaint.getRunCharacterAdvanceVertical(
-                        text,
-                        gStart,
-                        gEnd,
-                        gStart,
-                        gEnd,
-                        false,
-                        gEnd,
-                        positions,
-                        0,
-                    )
-                    rPaint.withTextScale(emphasis.scale) {
-                        positions.forEach {
-                            if (it == 0f) {
-                                return@forEach // Skip the surrogate pair or combining character.
+                    val letterWidth =
+                        rPaint.withTextScale(emphasis.scale) {
+                            measureTextVertical(emphasis.letter)
+                        }
+
+                    text.forEachGrapheme(rStart, rEnd, rPaint.textLocale) { gStart, gEnd ->
+                        val positions = FloatArray(gEnd - gStart)
+                        rPaint.getRunCharacterAdvanceVertical(
+                            text,
+                            gStart,
+                            gEnd,
+                            gStart,
+                            gEnd,
+                            false,
+                            gEnd,
+                            positions,
+                            0,
+                        )
+                        rPaint.withTextScale(emphasis.scale) {
+                            positions.forEach {
+                                if (it == 0f) {
+                                    // Skip the surrogate pair or combining character.
+                                    return@forEach
+                                }
+                                val yOffset = (letterWidth - it) / 2f
+                                if (isEmphasisTarget(Character.codePointAt(text, gStart))) {
+                                    canvas.drawTextVertical(
+                                        emphasis.letter,
+                                        originX + xOffset,
+                                        eY - yOffset,
+                                        this,
+                                    )
+                                }
+                                eY += it
                             }
-                            val yOffset = (letterWidth - it) / 2f
-                            if (isEmphasisTarget(Character.codePointAt(text, gStart))) {
-                                canvas.drawTextVertical(
-                                    emphasis.letter,
-                                    originX + xOffset,
-                                    eY - yOffset,
-                                    this,
-                                )
-                            }
-                            eY += it
                         }
                     }
+                }
+
+                if (hasDecoration && runHeight > 0f) {
+                    drawLineDecorations(
+                        canvas,
+                        rPaint,
+                        originX,
+                        y,
+                        runHeight,
+                        hasUnderline,
+                        hasStrikeThru,
+                    )
+                }
+            } finally {
+                if (hasDecoration) {
+                    rPaint.isUnderlineText = hasUnderline
+                    rPaint.isStrikeThruText = hasStrikeThru
                 }
             }
 
             y += runHeight
+        }
+    }
+
+    private fun drawLineDecorations(
+        canvas: Canvas,
+        rPaint: Paint,
+        originX: Float,
+        y: Float,
+        runHeight: Float,
+        hasUnderline: Boolean,
+        hasStrikeThru: Boolean,
+    ) {
+        val thickness = max(1f, rPaint.textSize / 18f)
+        val prevStyle = rPaint.style
+        rPaint.style = Paint.Style.FILL
+        try {
+            if (hasUnderline) {
+                val rightEdge = originX + rPaint.textSize * 0.5f
+                canvas.drawRect(rightEdge - thickness, y, rightEdge, y + runHeight, rPaint)
+            }
+            if (hasStrikeThru) {
+                val halfThickness = thickness * 0.5f
+                canvas.drawRect(
+                    originX - halfThickness,
+                    y,
+                    originX + halfThickness,
+                    y + runHeight,
+                    rPaint,
+                )
+            }
+        } finally {
+            rPaint.style = prevStyle
         }
     }
 

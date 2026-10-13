@@ -26,12 +26,16 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.BackgroundColorSpan
+import android.text.style.CharacterStyle
 import android.text.style.RelativeSizeSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.UnderlineSpan
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.text.vertical.ResolvedOrientation.Rotate
 import androidx.text.vertical.ResolvedOrientation.TateChuYoko
 import androidx.text.vertical.ResolvedOrientation.Upright
+import androidx.text.vertical.TestConstants.INVISIBLE_STRING
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.ceil
@@ -422,12 +426,125 @@ class LayoutRunTest {
             .that(bitmap.hasPixelWithColor(Color.YELLOW, left, top, right, bottom))
             .isTrue()
     }
+
+    @Test
+    fun uprightLayoutRun_underlineSpan_drawsVerticalLineAlongRightEdge() {
+        val paint =
+            TextPaint().apply {
+                textSize = DECO_TEXT_SIZE
+                color = Color.RED
+            }
+        val strokeSpan =
+            object : CharacterStyle() {
+                override fun updateDrawState(tp: TextPaint) {
+                    tp.style = Paint.Style.STROKE
+                    tp.strokeWidth = 1f
+                }
+            }
+        val text =
+            SpannableString(INVISIBLE_STRING).apply {
+                setSpan(UnderlineSpan(), 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+                setSpan(strokeSpan, 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
+        val run = createLayoutRun(text, 0, text.length, paint, Upright)
+        val bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888)
+        run.draw(Canvas(bitmap), DECO_ORIGIN_X, DECO_ORIGIN_Y, paint)
+
+        val rightEdgeX = (DECO_ORIGIN_X + DECO_TEXT_SIZE * 0.5f).toInt() - 1
+        val negativeBandX = (DECO_ORIGIN_X - DECO_TEXT_SIZE * 0.3f).toInt()
+        val top = DECO_ORIGIN_Y.toInt()
+        val bottom = (DECO_ORIGIN_Y + run.height).toInt()
+        assertThat(bitmap.columnCoverage(rightEdgeX, top, bottom)).isAtLeast(0.9f)
+        assertThat(bitmap.columnCoverage(negativeBandX, top, bottom)).isEqualTo(0f)
+    }
+
+    @Test
+    fun uprightLayoutRun_strikethroughSpan_drawsVerticalLineAlongCenter() {
+        val paint =
+            TextPaint().apply {
+                textSize = DECO_TEXT_SIZE
+                color = Color.RED
+            }
+        val text =
+            SpannableString(INVISIBLE_STRING).apply {
+                setSpan(StrikethroughSpan(), 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
+        val run = createLayoutRun(text, 0, text.length, paint, Upright)
+        val bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888)
+        run.draw(Canvas(bitmap), DECO_ORIGIN_X, DECO_ORIGIN_Y, paint)
+
+        val centerX = DECO_ORIGIN_X.toInt()
+        val negativeBandX = (DECO_ORIGIN_X - DECO_TEXT_SIZE * 0.3f).toInt()
+        val top = DECO_ORIGIN_Y.toInt()
+        val bottom = (DECO_ORIGIN_Y + run.height).toInt()
+        assertThat(bitmap.columnCoverage(centerX, top, bottom)).isAtLeast(0.9f)
+        assertThat(bitmap.columnCoverage(negativeBandX, top, bottom)).isEqualTo(0f)
+    }
+
+    @Test
+    fun uprightLayoutRun_partialRangeSpans_drawsBarsOnlyWithinStyledRun() {
+        val paint =
+            TextPaint().apply {
+                textSize = DECO_TEXT_SIZE
+                color = Color.RED
+            }
+        val text =
+            SpannableString(INVISIBLE_STRING).apply {
+                setSpan(UnderlineSpan(), 0, 1, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+                setSpan(StrikethroughSpan(), 0, 1, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
+        val run = createLayoutRun(text, 0, text.length, paint, Upright)
+        val bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888)
+        run.draw(Canvas(bitmap), DECO_ORIGIN_X, DECO_ORIGIN_Y, paint)
+
+        val rightEdgeX = (DECO_ORIGIN_X + DECO_TEXT_SIZE * 0.5f).toInt() - 1
+        val centerX = DECO_ORIGIN_X.toInt()
+        val top = DECO_ORIGIN_Y.toInt()
+        val mid = (DECO_ORIGIN_Y + run.height * 0.5f).toInt()
+        val bottom = (DECO_ORIGIN_Y + run.height).toInt()
+        assertThat(bitmap.columnCoverage(rightEdgeX, top, mid)).isAtLeast(0.9f)
+        assertThat(bitmap.columnCoverage(centerX, top, mid)).isAtLeast(0.9f)
+        assertThat(bitmap.columnCoverage(rightEdgeX, mid + 2, bottom)).isEqualTo(0f)
+        assertThat(bitmap.columnCoverage(centerX, mid + 2, bottom)).isEqualTo(0f)
+    }
+
+    @Test
+    fun uprightLayoutRun_underlinePaint_restoresPaintFlagsAfterDraw() {
+        val paint =
+            TextPaint().apply {
+                textSize = DECO_TEXT_SIZE
+                color = Color.RED
+                isUnderlineText = true
+                isStrikeThruText = true
+                style = Paint.Style.STROKE
+                strokeWidth = 1f
+            }
+        val text = INVISIBLE_STRING
+        val run = createLayoutRun(text, 0, text.length, paint, Upright)
+        val bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888)
+        run.draw(Canvas(bitmap), DECO_ORIGIN_X, DECO_ORIGIN_Y, paint)
+
+        assertThat(paint.isUnderlineText).isTrue()
+        assertThat(paint.isStrikeThruText).isTrue()
+        assertThat(paint.style).isEqualTo(Paint.Style.STROKE)
+        val rightEdgeX = (DECO_ORIGIN_X + DECO_TEXT_SIZE * 0.5f).toInt() - 1
+        val centerX = DECO_ORIGIN_X.toInt()
+        val negativeBandX = (DECO_ORIGIN_X - DECO_TEXT_SIZE * 0.3f).toInt()
+        val top = DECO_ORIGIN_Y.toInt()
+        val bottom = (DECO_ORIGIN_Y + run.height).toInt()
+        assertThat(bitmap.columnCoverage(rightEdgeX, top, bottom)).isAtLeast(0.9f)
+        assertThat(bitmap.columnCoverage(centerX, top, bottom)).isAtLeast(0.9f)
+        assertThat(bitmap.columnCoverage(negativeBandX, top, bottom)).isEqualTo(0f)
+    }
 }
 
 /** Large enough that glyph strokes cannot cover every pixel of the background rectangle. */
 private const val BG_TEXT_SIZE = 40f
 private const val ORIGIN_X = 60f
 private const val ORIGIN_Y = 10f
+private const val DECO_TEXT_SIZE = 40f
+private const val DECO_ORIGIN_X = 100f
+private const val DECO_ORIGIN_Y = 20f
 
 private fun bgTextPaint(): TextPaint =
     TextPaint().apply {
@@ -438,6 +555,18 @@ private fun bgTextPaint(): TextPaint =
 
 private fun Paint.hasVerticalTextFlag() =
     (flags and Paint.VERTICAL_TEXT_FLAG) == Paint.VERTICAL_TEXT_FLAG
+
+/** Returns the fraction of pixels at [x] in `[top, bottom)` with non-zero alpha. */
+private fun Bitmap.columnCoverage(x: Int, top: Int, bottom: Int): Float {
+    if (bottom <= top) return 0f
+    var nonZeroCount = 0
+    for (y in top until bottom) {
+        if (Color.alpha(getPixel(x, y)) != 0) {
+            nonZeroCount++
+        }
+    }
+    return nonZeroCount.toFloat() / (bottom - top)
+}
 
 /** Returns true when any pixel in `[left, right) x [top, bottom)` equals [expectedColor]. */
 private fun Bitmap.hasPixelWithColor(
