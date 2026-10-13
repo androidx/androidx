@@ -20,6 +20,7 @@ package androidx.emoji2.text {
     method public static androidx.emoji2.text.EmojiCompat? init(android.content.Context);
     method public static androidx.emoji2.text.EmojiCompat init(androidx.emoji2.text.EmojiCompat.Config);
     method public static boolean isConfigured();
+    method public boolean isDisabledForUpdatableSystemFonts();
     method public void load();
     method @CheckResult public CharSequence? process(CharSequence?);
     method @CheckResult public CharSequence? process(CharSequence?, @IntRange(from=0) int, @IntRange(from=0) int);
