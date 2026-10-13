@@ -47,7 +47,9 @@ class ObjectListBenchmarkTest {
         val mutableList = MutableObjectList<String>(ObjectCount)
         benchmark.measureRepeated {
             repeat(ObjectCount) { mutableList += array[it] }
-            mutableList.clear()
+            runWithMeasurementDisabled {
+                mutableList.clear()
+            }
         }
     }
 
@@ -66,7 +68,9 @@ class ObjectListBenchmarkTest {
         val mutableList = MutableObjectList<String>(ObjectCount)
         benchmark.measureRepeated {
             mutableList += list
-            mutableList.clear()
+            runWithMeasurementDisabled {
+                mutableList.clear()
+            }
         }
     }
 
@@ -74,7 +78,9 @@ class ObjectListBenchmarkTest {
     fun removeStart() {
         val mutableList = MutableObjectList<String>(ObjectCount)
         benchmark.measureRepeated {
-            mutableList += list
+            runWithMeasurementDisabled {
+                mutableList += list
+            }
             repeat(ObjectCount) { mutableList.removeAt(0) }
         }
     }
@@ -83,7 +89,9 @@ class ObjectListBenchmarkTest {
     fun removeEnd() {
         val mutableList = MutableObjectList<String>(ObjectCount)
         benchmark.measureRepeated {
-            mutableList += list
+            runWithMeasurementDisabled {
+                mutableList += list
+            }
             for (i in ObjectCount - 1 downTo 0) {
                 mutableList.removeAt(i)
             }
