@@ -839,6 +839,22 @@ public class EmojiCompat {
     }
 
     /**
+     * Returns whether {@link EmojiCompat} is disabled because the device supports Updatable System
+     * Fonts (API 35 and above) and {@link Config#setUseAfterUpdatableSystemFonts(boolean)} was not
+     * set to {@code true}.
+     *
+     * <p>When this returns {@code true}, {@link EmojiCompat} initialization and processing are
+     * no-ops even though {@link #getLoadState()} transitions to {@link #LOAD_STATE_SUCCEEDED}.
+     *
+     * @return {@code true} if {@link EmojiCompat} is disabled due to Updatable System Fonts;
+     *         {@code false} otherwise
+     * @see Config#setUseAfterUpdatableSystemFonts(boolean)
+     */
+    public boolean isDisabledForUpdatableSystemFonts() {
+        return mHelper.mIsNoOp;
+    }
+
+    /**
      * Together with {@link #getEmojiEnd(CharSequence, int)}, if the character at {@code offset} is
      * part of an emoji, returns the index range of that emoji, start index inclusively/end index
      * exclusively so that {@code charSequence.subSequence(start, end)} will return that emoji.
