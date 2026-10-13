@@ -42,6 +42,12 @@
         individual list represents one collection of signature hashes. Refer to your font provider's
         documentation for these values. -->
         <attr name="fontProviderCerts" format="reference" />
+        <!-- The sets of hashes for the certificates the provider should be signed with, only trusted
+        if the provider is installed as a system application (FLAG_SYSTEM or FLAG_UPDATED_SYSTEM_APP).
+        This value may point to one list or a list of lists, where each individual list represents
+        one collection of signature hashes. Refer to your font provider's documentation for these
+        values. -->
+        <attr name="fontProviderSystemCerts" format="reference" />
         <!-- The strategy to be used when fetching font data from a font provider in XML layouts.
         This attribute is ignored when the resource is loaded from code, as it is equivalent to the
         choice of API between {@link

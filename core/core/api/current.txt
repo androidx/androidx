@@ -2733,9 +2733,21 @@ package androidx.core.provider {
     ctor public FontRequest(String, String, String, java.util.List<java.util.List<byte[]!>!>, String?);
     method public java.util.List<java.util.List<byte[]!>!>? getCertificates();
     method @ArrayRes public int getCertificatesArrayResId();
+    method @ArrayRes public int getDebugFallbackCertificatesArrayResId();
     method public String getProviderAuthority();
     method public String getProviderPackage();
     method public String getQuery();
+    method public java.util.List<java.util.List<byte[]!>!>? getSystemCertificates();
+    method @ArrayRes public int getSystemCertificatesArrayResId();
+    method public String? getVariationSettings();
+  }
+
+  public static final class FontRequest.Builder {
+    ctor public FontRequest.Builder(androidx.core.provider.FontRequest);
+    ctor public FontRequest.Builder(String, String, String, @ArrayRes int);
+    method public androidx.core.provider.FontRequest build();
+    method public androidx.core.provider.FontRequest.Builder setDebugFallbackCertificates(@ArrayRes int);
+    method public androidx.core.provider.FontRequest.Builder setVariationSettings(String);
   }
 
   public class FontsContractCompat {
