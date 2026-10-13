@@ -25,6 +25,7 @@ import android.os.Build
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.action.PendingIntentAction
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.profile.Profile
@@ -140,6 +141,11 @@ public open class RCWidget(
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
             rv.setOnClickPendingIntent(intentId, pendingIntent)
+        }
+        // Under the widgets profile, pendingIntentAction writes an id action per PendingIntent,
+        // which RemoteViews dispatches to the PendingIntent registered for the same view id.
+        document.pendingIntents.forEach { index, pendingIntent ->
+            rv.setOnClickPendingIntent(PendingIntentAction.FIRST_ACTION_ID + index, pendingIntent)
         }
         return rv
     }
