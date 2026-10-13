@@ -96,7 +96,7 @@ private class CoreEntityAccumulator : CoreEntityScope {
 
     fun applyChanges(coreEntity: CoreEntity) {
         scale?.let { coreEntity.scale = it }
-        alpha?.let { coreEntity.alpha = it }
+        coreEntity.alpha = alpha ?: 1f
     }
 }
 
