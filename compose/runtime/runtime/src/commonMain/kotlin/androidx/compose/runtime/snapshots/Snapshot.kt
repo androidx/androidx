@@ -701,29 +701,33 @@ public sealed class Snapshot(
             if (changes) advanceGlobalSnapshot()
         }
 
-        // TODO(anbailey): Make this API public
         /**
          * Executes [block] in the current snapshot, throwing an exception if the lambda attempts to
-         * write to any snapshot state during its execution. The writes prohibited mode only lasts
-         * for the scope of the lambda. This read-only state applies to this snapshot and all nested
-         * snapshots on this thread only. Any arbitrary snapshots that are entered during [block]
-         * will not have the read-only restriction.
+         * write to any snapshot state during its execution. This is done by executing [block] in a
+         * transparent nested snapshot that prohibits writes. The original snapshot may still be
+         * modified from another thread. Any such modifications will be visible to [block].
          *
-         * If the current snapshot is read-only, function executes block without altering the
-         * current snapshot.
+         * The read-only state only applies to this thread for the scope of the [block]. It is
+         * enforced on the current snapshot and any nested snapshots taken during execution of the
+         * lambda. Any arbitrary snapshots that are entered during [block] will not have the
+         * read-only restriction.
          *
-         * @param block The lambda to execute without writes
+         * If the current snapshot is already read-only, this function executes [block] directly,
+         * without entering another snapshot.
+         *
+         * @param block The lambda to execute where no snapshot writes are allowed
          * @return The result of [block]
          */
-        internal inline fun <R> readOnly(crossinline block: () -> R): R {
-            val current = current
-            if (current.readOnly) return block()
-
+        public inline fun <R> readOnly(crossinline block: () -> R): R {
             val readOnlySnapshot = obtainTransparentReadOnlySnapshot(current)
+            val previous = readOnlySnapshot?.makeCurrent()
             try {
-                return readOnlySnapshot.enter(block)
+                return block()
             } finally {
-                releaseTransparentReadOnlySnapshot(readOnlySnapshot)
+                if (readOnlySnapshot != null) {
+                    readOnlySnapshot.restoreCurrent(previous)
+                    releaseTransparentReadOnlySnapshot(readOnlySnapshot)
+                }
             }
         }
 
@@ -1499,12 +1503,18 @@ internal constructor(
     }
 }
 
-internal fun obtainTransparentReadOnlySnapshot(snapshot: Snapshot): Snapshot {
-    return reusableTransparentReadOnlySnapshot.replace(null)?.apply {
-        reuse(snapshot)
-    } ?: TransparentReadOnlySnapshot(snapshot)
+@PublishedApi
+internal fun obtainTransparentReadOnlySnapshot(snapshot: Snapshot): Snapshot? {
+    return if (snapshot.readOnly) {
+        null
+    } else {
+        reusableTransparentReadOnlySnapshot.replace(null)?.apply {
+            reuse(snapshot)
+        } ?: TransparentReadOnlySnapshot(snapshot)
+    }
 }
 
+@PublishedApi
 internal fun releaseTransparentReadOnlySnapshot(snapshot: Snapshot) {
     snapshot.dispose()
 }

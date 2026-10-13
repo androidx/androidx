@@ -1717,7 +1717,7 @@ class SnapshotTests {
     fun readOnly_clearsParentSnapshotOnRelease() {
         val parent = takeMutableSnapshot(readObserver = {})
         try {
-            val readOnlySnapshot = obtainTransparentReadOnlySnapshot(parent)
+            val readOnlySnapshot = obtainTransparentReadOnlySnapshot(parent)!!
             assertSame(parent.readObserver, readOnlySnapshot.readObserver)
             assertFalse(readOnlySnapshot.disposed)
 
