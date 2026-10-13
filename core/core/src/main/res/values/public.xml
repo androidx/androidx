@@ -23,6 +23,7 @@
     <public type="attr" name="fontProviderPackage"/>
     <public type="attr" name="fontProviderQuery"/>
     <public type="attr" name="fontProviderCerts"/>
+    <public type="attr" name="fontProviderSystemCerts"/>
     <public type="attr" name="fontProviderFetchStrategy"/>
     <public type="attr" name="fontProviderFetchTimeout"/>
     <public type="attr" name="fontProviderSystemFontFamily"/>

@@ -223,6 +223,8 @@ public class FontResourcesParserCompat {
         String query = array.getString(R.styleable.FontFamily_fontProviderQuery);
         String fallbackQuery = array.getString(R.styleable.FontFamily_fontProviderFallbackQuery);
         int certsId = array.getResourceId(R.styleable.FontFamily_fontProviderCerts, 0);
+        int systemCertsId = array.getResourceId(
+                R.styleable.FontFamily_fontProviderSystemCerts, 0);
         int strategy = array.getInteger(R.styleable.FontFamily_fontProviderFetchStrategy,
                 FETCH_STRATEGY_ASYNC);
         int timeoutMs = array.getInteger(R.styleable.FontFamily_fontProviderFetchTimeout,
@@ -236,6 +238,7 @@ public class FontResourcesParserCompat {
 
         if (isProviderFont) {
             List<List<byte[]>> certs = readCerts(resources, certsId);
+            List<List<byte[]>> systemCerts = readCerts(resources, systemCertsId);
 
             List<FontRequest> requests = new ArrayList<>();
             while (parser.next() != XmlPullParser.END_TAG) {
@@ -247,7 +250,8 @@ public class FontResourcesParserCompat {
                             resources,
                             authority,
                             providerPackage,
-                            certs));
+                            certs,
+                            systemCerts));
                 } else {
                     skip(parser);
                 }
@@ -260,10 +264,11 @@ public class FontResourcesParserCompat {
                         systemFontFamilyName);
             } else if (query != null) {
                 // Legacy font provider definition.
-                requests.add(new FontRequest(authority, providerPackage, query, certs, null, null));
+                requests.add(new FontRequest(authority, providerPackage, query, certs, systemCerts,
+                        null, null));
                 if (fallbackQuery != null) {
                     requests.add(new FontRequest(authority, providerPackage, fallbackQuery, certs,
-                            null, null));
+                            systemCerts, null, null));
                 }
                 return new ProviderResourceEntry(requests, strategy, timeoutMs,
                         systemFontFamilyName);
@@ -343,7 +348,8 @@ public class FontResourcesParserCompat {
     }
 
     private static FontRequest readFallback(XmlPullParser parser, Resources res,
-            @NonNull String authority, @NonNull String pkg, @NonNull List<List<byte[]>> cert
+            @NonNull String authority, @NonNull String pkg, @NonNull List<List<byte[]>> cert,
+            @NonNull List<List<byte[]>> systemCert
     ) throws XmlPullParserException, IOException {
         AttributeSet attrs = Xml.asAttributeSet(parser);
         TypedArray a = res.obtainAttributes(attrs, R.styleable.FontFamilyProviderFallback);
@@ -360,7 +366,8 @@ public class FontResourcesParserCompat {
             while (parser.next() != XmlPullParser.END_TAG) {
                 skip(parser);
             }
-            return new FontRequest(authority, pkg, query, cert, systemFont, variationSettings);
+            return new FontRequest(authority, pkg, query, cert, systemCert, systemFont,
+                    variationSettings);
         } finally {
             a.recycle();
         }

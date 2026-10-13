@@ -41,7 +41,7 @@ public class FontProviderTest {
     @Test
     public void getSelectionArgs_emptyVariationSettings_returnsQueryOnly() {
         FontRequest request = new FontRequest(PROVIDER, PACKAGE, QUERY, Collections.emptyList(),
-                null, "");
+                "");
         String[] result = FontProvider.getSelectionArgs(request);
         assertArrayEquals(new String[]{QUERY}, result);
     }
@@ -49,7 +49,7 @@ public class FontProviderTest {
     @Test
     public void getSelectionArgs_blankVariationSettings_returnsQueryOnly() {
         FontRequest request = new FontRequest(PROVIDER, PACKAGE, QUERY, Collections.emptyList(),
-                null, "   ");
+                "   ");
         String[] result = FontProvider.getSelectionArgs(request);
         assertArrayEquals(new String[]{QUERY}, result);
     }
@@ -57,7 +57,7 @@ public class FontProviderTest {
     @Test
     public void getSelectionArgs_withVariationSettings_returnsQueryAndVFParam() {
         FontRequest request = new FontRequest(PROVIDER, PACKAGE, QUERY, Collections.emptyList(),
-                null, "'wght' 100");
+                "'wght' 100");
         String[] result = FontProvider.getSelectionArgs(request);
         assertArrayEquals(new String[]{QUERY, "VF"}, result);
     }
