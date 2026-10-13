@@ -87,7 +87,7 @@ public fun HorizontalPagerScaffold(
 ): Unit =
     PagerScaffoldImpl(
         orientation = Orientation.Horizontal,
-        scrollInfoProvider = ScrollInfoProvider(pagerState),
+        scrollInfoProvider = remember(pagerState) { ScrollInfoProvider(pagerState) },
         pager = content,
         modifier = modifier,
         pagerState = pagerState,
@@ -146,7 +146,7 @@ public fun VerticalPagerScaffold(
 ): Unit =
     PagerScaffoldImpl(
         orientation = Orientation.Vertical,
-        scrollInfoProvider = ScrollInfoProvider(pagerState),
+        scrollInfoProvider = remember(pagerState) { ScrollInfoProvider(pagerState) },
         pager = content,
         modifier = modifier,
         pagerState = pagerState,
@@ -336,12 +336,13 @@ private fun PagerScaffoldImpl(
     pageIndicatorAlignment: Alignment,
     pageIndicatorAnimationSpec: AnimationSpec<Float>?,
 ) {
-    val scaffoldState = LocalScaffoldState.current
     val showStatusBarState = rememberShowStatusBarState(StatusBarMode.Inherit)
     val timeTextState = rememberUpdatedState<(@Composable () -> Unit)?>(null)
     val scrollInfoProviderState = rememberUpdatedState(scrollInfoProvider)
+    val scaffoldState =
+        LocalScaffoldState.current ?: remember { ScreenScaffoldState(scrollInfoProviderState) }
 
-    scaffoldState?.screenContent?.UpdateIdlingDetectorIfNeeded()
+    scaffoldState.UpdateIdlingDetectorIfNeeded()
 
     ScreenContentRegistration(
         timeText = timeTextState,
@@ -355,8 +356,8 @@ private fun PagerScaffoldImpl(
 
             AnimatedIndicator(
                 isVisible = {
-                    (scaffoldState?.screenContent?.screenStage?.value ?: ScreenStage.New) !=
-                        ScreenStage.Idle || pagerState.isScrollInProgress
+                    scaffoldState.screenStage.value != ScreenStage.Idle ||
+                        pagerState.isScrollInProgress
                 },
                 animationSpec = pageIndicatorAnimationSpec,
                 modifier = Modifier.align(pageIndicatorAlignment),

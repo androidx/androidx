@@ -2965,3 +2965,6 @@ class StatusBarTest {
 @Suppress("UNCHECKED_CAST")
 private val LocalStatusBarEnabledForTest: ProvidableCompositionLocal<Boolean>
     get() = LocalStatusBarEnabled as ProvidableCompositionLocal<Boolean>
+
+private val ScaffoldState.screenContent: ScreenContent
+    get() = (this as AppScaffoldState).screenContent
