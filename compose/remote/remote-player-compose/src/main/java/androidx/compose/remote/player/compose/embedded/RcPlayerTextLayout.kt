@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.Typeface as ComposeTypeface
 import androidx.compose.ui.text.googlefonts.Font as GoogleFontFactory
 import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.text.style.Hyphens
@@ -376,6 +377,19 @@ internal fun resolveFontFamily(
     fontCertsResId: Int = 0,
     typefaceResolver: TypefaceResolver? = null,
 ): FontFamily {
+    // A font embedded in the document (FontData) has an id > 3 in the object table and no text
+    // entry (custom font family names are stored as strings via loadText, so fontName != null).
+    if (fontName == null && fontFamilyType > 3) {
+        documentFontTypeface(
+                context,
+                fontFamilyType,
+                fontWeight.weight,
+                fontStyle == FontStyle.Italic,
+            )
+            ?.let {
+                return FontFamily(ComposeTypeface(it))
+            }
+    }
     // Built-in EmbeddedPlayerTypefaceResolver and GmsFontTypefaceResolver rely on Compose's native
     // FontFamily / GoogleFont.Provider resolution path below (using fontCertsResId and variation
     // settings). When a caller supplies a custom TypefaceResolver (e.g. host app or test harness

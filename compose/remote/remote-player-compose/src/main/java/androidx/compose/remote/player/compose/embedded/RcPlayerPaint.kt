@@ -143,20 +143,25 @@ public class ComposeLocalPaint {
                 ?: EmbeddedPlayerTypefaceResolver
         val italic = fontStyle == FontStyle.Italic
 
-        val fontInstance =
+        val resolvedTypeface =
             if (isTypefaceSet) {
                 if (fontFamily in 0..3) {
-                    resolver.resolve(fontFamily, fontWeight, italic, null, 400, false)
+                    resolver.resolve(fontFamily, fontWeight, italic, null, 400, false).getTypeface()
                 } else {
                     val name = context.getText(fontFamily)
                     if (name != null) {
-                        resolver.resolve(name, fontWeight, italic, null, 400, false)
+                        resolver.resolve(name, fontWeight, italic, null, 400, false).getTypeface()
                     } else {
-                        resolver.resolve(0, fontWeight, italic, null, 400, false)
+                        // A font embedded in the document (FontData) has no text entry and is
+                        // stored in the object table as RemoteContext.FontInfo.
+                        documentFontTypeface(context, fontFamily, fontWeight, italic)
+                            ?: resolver
+                                .resolve(0, fontWeight, italic, null, 400, false)
+                                .getTypeface()
                     }
                 }
             } else {
-                resolver.resolve(0, fontWeight, italic, null, 400, false)
+                resolver.resolve(0, fontWeight, italic, null, 400, false).getTypeface()
             }
 
         return Paint().apply {
@@ -165,7 +170,7 @@ public class ComposeLocalPaint {
             if (!this@ComposeLocalPaint.textSize.isNaN()) {
                 textSize = this@ComposeLocalPaint.textSize
             }
-            typeface = fontInstance.getTypeface()
+            typeface = resolvedTypeface
         }
     }
 
@@ -324,6 +329,8 @@ private fun buildRuntimeShader(shaderId: Int, remoteContext: RemoteContext): Sha
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return null
     val data = remoteContext.mRemoteComposeState.getFromId(shaderId) as? ShaderData ?: return null
     val text = remoteContext.getText(data.shaderTextId) ?: return null
+    val state = remoteContext.mRemoteComposeState as? SnapshotRemoteComposeState
+    if (state != null && !state.trustedContent) return null
     // A shader that fails to compile or bind its uniforms (e.g. malformed AGSL, or a runtime that
     // doesn't fully support RuntimeShader such as a host without GPU shader compilation) must not
     // crash the whole document draw — fall back to no shader so the rest of the frame still
