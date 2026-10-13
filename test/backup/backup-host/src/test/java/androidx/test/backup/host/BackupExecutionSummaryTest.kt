@@ -177,7 +177,6 @@ class BackupExecutionSummaryTest {
 
         assertEquals(
             mapOf(
-                BackupReportKeys.LIBRARY_VERSION to BackupReportKeys.UNKNOWN_LIBRARY_VERSION,
                 BackupReportKeys.TRANSPORT_MODE to "LOCAL",
                 BackupReportKeys.STORAGE_DOMAIN_COUNT to "3",
                 BackupReportKeys.SEEDING_DURATION to "1",
