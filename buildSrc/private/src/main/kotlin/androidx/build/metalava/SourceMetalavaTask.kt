@@ -37,11 +37,14 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.workers.WorkerExecutor
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** A metalava task that takes source code as input (other tasks take signature files). */
 @CacheableTask
 internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
     MetalavaTask(workerExecutor) {
+    @get:Input abstract val kotlinSourceLevel: Property<KotlinVersion>
+
     /**
      * Specifies both the source files and their corresponding compiled class files
      *

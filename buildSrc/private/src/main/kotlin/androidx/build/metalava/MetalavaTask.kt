@@ -38,7 +38,6 @@ import org.gradle.process.ExecOperations
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** Base class for invoking Metalava. */
 @CacheableTask
@@ -53,8 +52,6 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
 
     /** Dependencies (compiled classes) of the project. */
     @get:Classpath abstract val dependencyClasspath: ConfigurableFileCollection
-
-    @get:Input abstract val kotlinSourceLevel: Property<KotlinVersion>
 
     // Marked optional for car app protocol API tasks
     @get:Optional @get:Input abstract val targetsJavaConsumers: Property<Boolean>
