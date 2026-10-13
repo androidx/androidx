@@ -112,7 +112,7 @@ import org.junit.runners.model.Statement
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-/** Robolectric test of [RecordingCanvas]. */
+/** Robolectric test of [captureSingleRemoteDocument]. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
