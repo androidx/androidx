@@ -607,6 +607,8 @@ package androidx.compose.ui.autofill {
 
   public final class ContentType_androidKt {
     method public static androidx.compose.ui.autofill.ContentType ContentType(String contentHint);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static java.util.Set<java.lang.String> getContentHints(androidx.compose.ui.autofill.ContentType);
+    property @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static java.util.Set<java.lang.String> androidx.compose.ui.autofill.ContentType.contentHints;
   }
 
   public interface FillableData {
