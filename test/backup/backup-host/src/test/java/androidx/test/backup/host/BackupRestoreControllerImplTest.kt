@@ -44,7 +44,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import org.junit.Rule
 import org.junit.Test
@@ -102,7 +105,7 @@ class BackupRestoreControllerImplTest {
     /** The runner reads these keys itself, so an action argument must not set them. */
     @Test
     fun runOnDeviceRejectsArgumentsWithTheKeysOfTheRunner() {
-        for (key in listOf("actionClass", "debug", "redirect_dir")) {
+        for (key in listOf("actionClass", "debug", "argsFile", "redirect_dir")) {
             val e =
                 assertFailsWith<IllegalArgumentException> {
                     runBlocking {
@@ -112,6 +115,85 @@ class BackupRestoreControllerImplTest {
             assertTrue(e.message.orEmpty().contains(key), e.message)
         }
         assertTrue(device.commands.isEmpty(), "${device.commands}")
+    }
+
+    /** Arguments that would make the command too long for adb reach the runner in a file. */
+    @Test
+    fun runOnDevicePassesArgumentsTooLongForTheCommandInAFile() = runBlocking {
+        device.onShell { command ->
+            if (command.startsWith("am instrument")) shellOutput(runnerStdout("{}")) else null
+        }
+        val args = mapOf("content" to "x'y".repeat(12_000), "other" to "1")
+
+        val result = controller.runOnDevice("com.example.MyAction", args)
+
+        assertEquals(BackupActionResult.Success(emptyMap()), result)
+        val argsFile = device.pushedPaths.single()
+        assertTrue(Regex("/data/local/tmp/backup_args_[0-9a-f-]+\\.json").matches(argsFile))
+        assertEquals(
+            args,
+            Json.parseToJsonElement(device.pushedContents.getValue(argsFile))
+                .jsonObject
+                .mapValues { (_, value) ->
+                    value.jsonPrimitive.content
+                },
+        )
+        assertEquals(384, device.pushedModes.getValue(argsFile).modeBits)
+        assertEquals(
+            "am instrument -w -e actionClass 'com.example.MyAction' -e argsFile '$argsFile' " +
+                "$PACKAGE.test/$RUNNER",
+            instrumentCommand(),
+        )
+        assertEquals("rm -f -- '$argsFile'", device.commands.last())
+    }
+
+    @Test
+    fun runOnDeviceKeepsArgumentsThatFitInTheCommandInline() = runBlocking {
+        device.onShell { shellOutput(runnerStdout("{}")) }
+
+        controller.runOnDevice("com.example.MyAction", mapOf("content" to "x".repeat(30_000)))
+
+        assertTrue(device.pushedPaths.isEmpty(), "${device.pushedPaths}")
+        assertTrue(instrumentCommand().contains(" -e content 'xxx"), "Arguments not inline")
+    }
+
+    /** The arguments file is deleted however the action ends. */
+    @Test
+    fun runOnDeviceDeletesTheArgumentsFileWhenTheActionTimesOut() = runBlocking {
+        device.hangOn { it.startsWith("am instrument") }
+
+        val result =
+            controller.runOnDevice(
+                "com.example.MyAction",
+                mapOf("content" to "x".repeat(40_000)),
+                timeout = SHORT_TIMEOUT,
+            )
+
+        assertEquals(BackupActionResult.Failure("Timed out after 200ms"), result)
+        val argsFile = device.pushedPaths.single()
+        assertTrue(device.commands.contains("rm -f -- '$argsFile'"), "${device.commands}")
+    }
+
+    /** The runner sends a result too large for one Binder transaction in parts. */
+    @Test
+    fun runOnDeviceReturnsAPayloadThatTheRunnerSentInParts() = runBlocking {
+        val data = "d".repeat(200_000)
+        val resultJson = buildJsonObject {
+            put("isSuccess", true)
+            put("payloadJson", buildJsonObject { put("data", data) }.toString())
+        }
+            .toString()
+        device.onShell { command ->
+            if (command.startsWith("am instrument")) {
+                shellOutput(partedInstrumentOutput(resultJson, partLength = 65_536))
+            } else {
+                null
+            }
+        }
+
+        val result = controller.runOnDevice("com.example.MyAction")
+
+        assertEquals(BackupActionResult.Success(mapOf("data" to data)), result)
     }
 
     @Test

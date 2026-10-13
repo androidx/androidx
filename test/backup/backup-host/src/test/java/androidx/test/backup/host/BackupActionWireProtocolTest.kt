@@ -20,6 +20,11 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Test
 
 /**
@@ -127,7 +132,7 @@ class BackupActionWireProtocolTest {
     }
 
     @Test
-    fun instrumentationArgsNameTheActionAndTheOverflowDirectory() {
+    fun instrumentationArgsNameTheActionAndCarryItsArguments() {
         val args =
             BackupActionWireProtocol.instrumentationArgs(
                 "com.example.MyAction",
@@ -135,9 +140,8 @@ class BackupActionWireProtocolTest {
                 waitForDebugger = false,
             )
 
-        assertEquals(listOf("actionClass", "redirect_dir", "k1", "k2"), args.keys.toList())
+        assertEquals(listOf("actionClass", "k1", "k2"), args.keys.toList())
         assertEquals("com.example.MyAction", args["actionClass"])
-        assertEquals("/data/local/tmp", args["redirect_dir"])
         assertEquals("v1", args["k1"])
         assertEquals("v2", args["k2"])
     }
@@ -145,7 +149,7 @@ class BackupActionWireProtocolTest {
     /** The runner reads these keys itself, so an action argument must not set them. */
     @Test
     fun instrumentationArgsRejectTheKeysOfTheRunner() {
-        for (key in listOf("actionClass", "debug", "redirect_dir")) {
+        for (key in listOf("actionClass", "debug", "argsFile", "redirect_dir")) {
             assertFailsWith<IllegalArgumentException>(key) {
                 BackupActionWireProtocol.instrumentationArgs("A", mapOf(key to "x"), false)
             }
@@ -158,6 +162,48 @@ class BackupActionWireProtocolTest {
 
         assertEquals("debug", args.keys.first())
         assertEquals("true", args["debug"])
+    }
+
+    @Test
+    fun argsFileInstrumentationArgsNameTheFileInsteadOfTheArguments() {
+        val path = "/data/local/tmp/backup_args_1.json"
+
+        assertEquals(
+            mapOf("actionClass" to "com.example.MyAction", "argsFile" to path),
+            BackupActionWireProtocol.argsFileInstrumentationArgs(
+                "com.example.MyAction",
+                path,
+                waitForDebugger = false,
+            ),
+        )
+        assertEquals(
+            listOf("debug", "actionClass", "argsFile"),
+            BackupActionWireProtocol.argsFileInstrumentationArgs("A", path, true).keys.toList(),
+        )
+    }
+
+    @Test
+    fun argsFileHoldsTheArgumentsAsAJsonObjectOfStrings() {
+        val args =
+            mapOf("quote" to "a\"b", "lines" to "1\n2", "unicode" to "café 😀", "empty" to "")
+
+        val decoded =
+            Json.parseToJsonElement(BackupActionWireProtocol.encodeArgsFile(args)).jsonObject
+
+        assertEquals(args, decoded.mapValues { (_, value) -> value.jsonPrimitive.content })
+    }
+
+    @Test
+    fun argsFilesHaveFreshPathsWithoutWhitespaceInTheShellTempDirectory() {
+        val first = BackupActionWireProtocol.newArgsFilePath()
+        val second = BackupActionWireProtocol.newArgsFilePath()
+
+        for (path in listOf(first, second)) {
+            assertTrue(path.startsWith("/data/local/tmp/backup_args_"), path)
+            assertTrue(path.endsWith(".json"), path)
+            assertTrue(path.none { it.isWhitespace() }, path)
+        }
+        assertNotEquals(first, second)
     }
 
     @Test
@@ -259,14 +305,17 @@ class BackupActionWireProtocolTest {
         )
     }
 
+    /** The action verifies a preference against its value, so the value is sent only once. */
     @Test
-    fun assertArgsExpectThePreferenceValue() {
-        val domain = StorageDomain.Preference("prefs", "key", 7)
+    fun assertArgsVerifyAPreferenceAgainstItsValue() {
+        for (value in listOf(7, "value", true)) {
+            val domain = StorageDomain.Preference("prefs", "key", value)
 
-        assertEquals(
-            BackupActionWireProtocol.populateArgs(domain) + ("expected" to "7"),
-            BackupActionWireProtocol.assertArgs(domain),
-        )
+            assertEquals(
+                BackupActionWireProtocol.populateArgs(domain),
+                BackupActionWireProtocol.assertArgs(domain),
+            )
+        }
     }
 
     @Test
@@ -297,17 +346,18 @@ class BackupActionWireProtocolTest {
         )
     }
 
+    /** Sending a file's content once keeps twice as large a file within the inline limit. */
     @Test
-    fun assertArgsExpectTheFileContent() {
+    fun assertArgsVerifyAFileAgainstItsValue() {
         val text = StorageDomain.TextFile("a.txt", "hello")
         val binary = StorageDomain.BinaryFile("b.bin", byteArrayOf(1, 2, -1))
 
         assertEquals(
-            BackupActionWireProtocol.populateArgs(text) + ("expected" to "hello"),
+            BackupActionWireProtocol.populateArgs(text),
             BackupActionWireProtocol.assertArgs(text),
         )
         assertEquals(
-            BackupActionWireProtocol.populateArgs(binary) + ("expected" to "AQL/"),
+            BackupActionWireProtocol.populateArgs(binary),
             BackupActionWireProtocol.assertArgs(binary),
         )
     }

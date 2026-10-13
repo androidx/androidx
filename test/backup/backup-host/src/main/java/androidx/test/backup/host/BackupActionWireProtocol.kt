@@ -19,6 +19,9 @@ package androidx.test.backup.host
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.Base64
+import java.util.UUID
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 /**
  * Mirrors `androidx.test.backup.BackupActionInputKeys` for the host.
@@ -86,13 +89,19 @@ internal object BackupActionWireProtocol {
     /** Class of the instrumentation that runs the actions in the app's process. */
     const val RUNNER_CLASS = "androidx.test.backup.BackupRestoreTestRunner"
 
+    /**
+     * The longest `am instrument` command, in UTF-8 bytes, that carries the action arguments
+     * inline. The adb protocol caps a shell command at 64 KB; longer arguments go in a file.
+     */
+    const val MAX_INLINE_COMMAND_BYTES = 32 * 1024
+
     /** Returns the instrumentation component that AGP gives the test APK of [applicationId]. */
     fun runnerComponent(applicationId: String): String = "$applicationId.test/$RUNNER_CLASS"
 
     /**
      * Returns the instrumentation arguments that make the runner execute [actionClassName] with the
-     * action [args]. When [waitForDebugger] is true, the runner waits for a debugger to attach
-     * before it starts.
+     * action [args], which it gets inline. When [waitForDebugger] is true, the runner waits for a
+     * debugger to attach before it starts.
      *
      * @throws IllegalArgumentException if [args] has one of the keys that the runner reads itself
      */
@@ -105,13 +114,33 @@ internal object BackupActionWireProtocol {
         require(runnerKeys.isEmpty()) {
             "Action arguments must not use the keys $runnerKeys, which the runner reads itself."
         }
-        return buildMap {
+        return runnerArgs(actionClassName, waitForDebugger) + args
+    }
+
+    /**
+     * Returns the instrumentation arguments that make the runner execute [actionClassName] with the
+     * action arguments in the device file [argsFile], which holds them as [encodeArgsFile] writes
+     * them.
+     */
+    fun argsFileInstrumentationArgs(
+        actionClassName: String,
+        argsFile: String,
+        waitForDebugger: Boolean,
+    ): Map<String, String> =
+        runnerArgs(actionClassName, waitForDebugger) + (RUNNER_ARGS_FILE to argsFile)
+
+    /** Returns the content of an arguments file for the action arguments [args]. */
+    fun encodeArgsFile(args: Map<String, String>): String =
+        JsonObject(args.mapValues { (_, value) -> JsonPrimitive(value) }).toString()
+
+    /** Returns a new device path for an arguments file, in a directory that the shell can write. */
+    fun newArgsFilePath(): String = "$DEVICE_TEMP_DIR/backup_args_${UUID.randomUUID()}.json"
+
+    private fun runnerArgs(actionClassName: String, waitForDebugger: Boolean): Map<String, String> =
+        buildMap {
             if (waitForDebugger) put(RUNNER_DEBUG, "true")
             put(RUNNER_ACTION_CLASS, actionClassName)
-            put(RUNNER_REDIRECT_DIR, OVERFLOW_REDIRECT_DIR)
-            putAll(args)
         }
-    }
 
     /**
      * Returns the `PopulateStorageAction` arguments that write [storage] on the device.
@@ -171,15 +200,16 @@ internal object BackupActionWireProtocol {
      * Returns the `AssertStorageAction` arguments that check that [storage] holds its value on the
      * device.
      *
+     * These are the [populateArgs] of [storage], since the action verifies a preference or a file
+     * against [BackupActionInputKeys.VALUE] when [BackupActionInputKeys.EXPECTED] is absent.
+     * Sending the value once keeps large files within the size that can be sent to the device
+     * inline.
+     *
      * @throws IllegalArgumentException if [storage] is of an unsupported type
      */
     fun assertArgs(storage: StorageDomain): Map<String, String> =
         populateArgs(storage) +
             when (storage) {
-                // A null value already carries EXPECT_NULL from populateArgs.
-                is StorageDomain.Preference ->
-                    storage.value?.let { mapOf(BackupActionInputKeys.EXPECTED to it.toString()) }
-                        ?: emptyMap()
                 is StorageDomain.Database -> {
                     // populateArgs already carries the primary key and every column in VALUES,
                     // which the action verifies. The first column is also sent on its own, which
@@ -190,10 +220,6 @@ internal object BackupActionWireProtocol {
                         BackupActionInputKeys.EXPECTED_VAL to expectedVal.orEmpty(),
                     )
                 }
-                is StorageDomain.TextFile ->
-                    mapOf(BackupActionInputKeys.EXPECTED to storage.content)
-                is StorageDomain.BinaryFile ->
-                    mapOf(BackupActionInputKeys.EXPECTED to base64(storage.content))
                 else -> emptyMap()
             }
 
@@ -226,12 +252,14 @@ internal object BackupActionWireProtocol {
     private fun base64(bytes: ByteArray): String = Base64.getEncoder().encodeToString(bytes)
 
     // Instrumentation arguments read by `androidx.test.backup.BackupRestoreTestRunner`, which it
-    // does not pass on to the action.
+    // does not pass on to the action. Older hosts sent `redirect_dir`, which runners ignore.
     private const val RUNNER_DEBUG = "debug"
     private const val RUNNER_ACTION_CLASS = "actionClass"
+    private const val RUNNER_ARGS_FILE = "argsFile"
     private const val RUNNER_REDIRECT_DIR = "redirect_dir"
-    private val RUNNER_KEYS = setOf(RUNNER_DEBUG, RUNNER_ACTION_CLASS, RUNNER_REDIRECT_DIR)
+    private val RUNNER_KEYS =
+        setOf(RUNNER_DEBUG, RUNNER_ACTION_CLASS, RUNNER_ARGS_FILE, RUNNER_REDIRECT_DIR)
 
-    /** Device directory the runner may write a payload to when it is too large to print. */
-    private const val OVERFLOW_REDIRECT_DIR = "/data/local/tmp"
+    /** Device directory for the files that the host pushes for the runner. */
+    private const val DEVICE_TEMP_DIR = "/data/local/tmp"
 }

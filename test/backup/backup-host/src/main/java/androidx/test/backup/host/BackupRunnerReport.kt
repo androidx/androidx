@@ -27,13 +27,15 @@ import kotlinx.serialization.json.jsonPrimitive
 /**
  * What `androidx.test.backup.BackupRestoreTestRunner` reported for one device action.
  *
- * The action's payload arrives either inline as [inlinePayload], or, when it is too large to print,
- * in a device file at [payloadPath] that the caller reads with [parseOverflowFile].
+ * The action's payload arrives as [inlinePayload], in one result or, when it is too large for one,
+ * joined from the parts of the result. Runners of earlier versions wrote a large payload to a
+ * device file at [payloadPath] instead, which the caller reads with [parseOverflowFile].
  *
  * @property runnerFailure the failure the runner reported, or that decoding its output produced;
  *   null if the runner reported success
- * @property inlinePayload the action's payload as a JSON object string, if it was printed
- * @property payloadPath the device file holding the action's payload, if it was too large to print
+ * @property inlinePayload the action's payload as a JSON object string, if the runner printed it
+ * @property payloadPath the device file holding the action's payload, if a runner of an earlier
+ *   version wrote it to one
  */
 internal class BackupRunnerReport(
     val runnerFailure: BackupActionResult.Failure?,
@@ -104,6 +106,18 @@ internal class BackupRunnerReport(
         /** Start of the line on which `am instrument` prints the result of the runner. */
         private const val RESULT_LINE_PREFIX = "INSTRUMENTATION_RESULT: resultJson="
 
+        /** Start of the line of a status that carries one part of a result sent in parts. */
+        private const val RESULT_PART_PREFIX = "INSTRUMENTATION_STATUS: resultPart="
+
+        /** Start of the result line with the number of parts of a result sent in parts. */
+        private const val RESULT_PARTS_PREFIX = "INSTRUMENTATION_RESULT: resultParts="
+
+        /** Start of the result line with the length of a result sent in parts. */
+        private const val RESULT_LENGTH_PREFIX = "INSTRUMENTATION_RESULT: resultLength="
+
+        /** Number of characters of the runner's output that a failure message shows. */
+        private const val MAX_SHOWN_OUTPUT_CHARS = 8 * 1024
+
         private const val KEY_IS_SUCCESS = "isSuccess"
         private const val KEY_ERROR_MESSAGE = "errorMessage"
         private const val KEY_STACK_TRACE = "stackTrace"
@@ -113,25 +127,51 @@ internal class BackupRunnerReport(
         /**
          * Decodes the output of an `am instrument` run of the runner.
          *
-         * Output that carries no result, or a result that is not valid JSON, is reported as a
-         * [runnerFailure] with no payload.
+         * The runner prints a result that is too large for one Binder transaction in parts, as
+         * statuses, before a final result that names how many parts there are.
+         *
+         * Output that carries no result, a result with missing parts, or a result that is not valid
+         * JSON, is reported as a [runnerFailure] with no payload.
          */
         fun parse(stdout: String): BackupRunnerReport {
-            val json =
-                stdout
-                    .lineSequence()
+            val lines = stdout.lines()
+            val inlineJson =
+                lines
                     .firstOrNull { it.startsWith(RESULT_LINE_PREFIX) }
                     ?.removePrefix(RESULT_LINE_PREFIX)
                     ?.trim()
-            if (json.isNullOrEmpty()) {
-                return failed("No execution result was received from device. Raw stdout:\n$stdout")
-            }
+            val json =
+                if (!inlineJson.isNullOrEmpty()) {
+                    inlineJson
+                } else {
+                    val partCount =
+                        lines.valueAfter(RESULT_PARTS_PREFIX)?.toIntOrNull()
+                            ?: return failed(
+                                "No execution result was received from device. " +
+                                    shownOutput("stdout", stdout)
+                            )
+                    // Parts are never trimmed: one can start or end within a JSON string.
+                    val parts =
+                        lines
+                            .filter { it.startsWith(RESULT_PART_PREFIX) }
+                            .map { it.removePrefix(RESULT_PART_PREFIX) }
+                    val joined = parts.joinToString("")
+                    val length = lines.valueAfter(RESULT_LENGTH_PREFIX)?.toIntOrNull()
+                    if (parts.size != partCount || (length != null && joined.length != length)) {
+                        return failed(
+                            "Received ${parts.size} of the $partCount parts of the result from " +
+                                "device, with ${joined.length} of ${length ?: "?"} characters."
+                        )
+                    }
+                    joined
+                }
             val result =
                 try {
                     Json.parseToJsonElement(json).jsonObject
                 } catch (e: Exception) {
                     return failed(
-                        "Failed to parse runner output JSON: ${e.message}. Raw JSON:\n$json"
+                        "Failed to parse runner output JSON: ${e.message}. " +
+                            shownOutput("JSON", json)
                     )
                 }
             val runnerFailure =
@@ -151,9 +191,29 @@ internal class BackupRunnerReport(
             )
         }
 
+        /** Returns what follows [prefix] on the first of these lines that starts with it. */
+        private fun List<String>.valueAfter(prefix: String): String? = firstOrNull {
+            it.startsWith(prefix)
+        }
+            ?.removePrefix(prefix)
+            ?.trim()
+
         /**
-         * Returns the payload held by an overflow file written by the runner, as a JSON object
-         * string.
+         * Returns [output] of the runner, named [name], as a failure message shows it: only its end
+         * if it is long, without the second half of a surrogate pair at the start.
+         */
+        private fun shownOutput(name: String, output: String): String {
+            if (output.length <= MAX_SHOWN_OUTPUT_CHARS) return "Raw $name:\n$output"
+            val end =
+                output.takeLast(MAX_SHOWN_OUTPUT_CHARS).let {
+                    if (it.first().isLowSurrogate()) it.substring(1) else it
+                }
+            return "Last ${end.length} of ${output.length} characters of raw $name:\n$end"
+        }
+
+        /**
+         * Returns the payload held by an overflow file that a runner of an earlier version wrote,
+         * as a JSON object string.
          *
          * @throws IllegalArgumentException if [content] is not a JSON object
          */

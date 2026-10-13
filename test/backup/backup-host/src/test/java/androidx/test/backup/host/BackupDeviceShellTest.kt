@@ -140,6 +140,32 @@ class BackupDeviceShellTest {
     }
 
     @Test
+    fun instrumentRunsTheCommandThatInstrumentCommandBuilds() = runBlocking {
+        val args = linkedMapOf("actionClass" to "com.example.MyAction", "key" to "it's")
+
+        shell.instrument("com.example.app.test/Runner", args)
+
+        assertEquals(
+            listOf(BackupDeviceShell.instrumentCommand("com.example.app.test/Runner", args)),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun pushFileGivesTheFileTheModeItIsAskedFor() = runBlocking {
+        val hostFile = tempFolder.newFile("args.json").toPath()
+        hostFile.toFile().writeText("{}")
+
+        shell.pushFile(hostFile, "/data/local/tmp/a.json", BackupDeviceShell.SHELL_ONLY_FILE_MODE)
+        shell.pushFile(hostFile, "/data/local/tmp/b.apk")
+
+        assertEquals("{}", device.pushedContents["/data/local/tmp/a.json"])
+        assertEquals(384, device.pushedModes.getValue("/data/local/tmp/a.json").modeBits)
+        // Readable by every user, as the package manager needs for an APK.
+        assertEquals(511, device.pushedModes.getValue("/data/local/tmp/b.apk").modeBits)
+    }
+
+    @Test
     fun startActivityTargetsTheComponentWhenGiven() = runBlocking {
         shell.startActivity(
             action = BackupDeviceShell.ACTION_MAIN,
