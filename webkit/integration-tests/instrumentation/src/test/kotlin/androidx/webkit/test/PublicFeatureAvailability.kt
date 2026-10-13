@@ -120,4 +120,7 @@ internal val PUBLIC_FEATURE_UNHIDE_CLS =
         WF.WEBVIEW_NAVIGATE_DRAIN_PREFETCH to "https://crrev.com/c/8256949",
         WF.USER_AGENT_METADATA_FORM_FACTORS to "https://crrev.com/c/8503916",
         WF.ADD_QUIC_HINTS_WILDCARDS to "https://crrev.com/c/8538366",
+        WF.NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS to "https://crrev.com/c/8545882",
+        WF.NAVIGATION_LISTENER_NAVIGATION_STATE to "https://crrev.com/c/8549000",
+        WF.NAVIGATION_GET_RESPONSE_HEADERS to "https://crrev.com/c/8552417",
     )
