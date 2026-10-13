@@ -370,7 +370,7 @@ public final class DynamicRange {
 
     @Override
     public @NonNull String toString() {
-        return "DynamicRange@" + Integer.toHexString(System.identityHashCode(this)) + "{"
+        return "DynamicRange{"
                 + "encoding=" + getEncodingLabel(mEncoding) + ", "
                 + "bitDepth=" + mBitDepth
                 + "}";
