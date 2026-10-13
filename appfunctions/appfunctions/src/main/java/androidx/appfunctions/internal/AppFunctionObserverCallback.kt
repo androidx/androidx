@@ -19,6 +19,7 @@ package androidx.appfunctions.internal
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.AppSearchAppFunctionReader.Companion.APP_FUNCTIONS_NAMESPACE
@@ -29,7 +30,6 @@ import androidx.appfunctions.internal.AppSearchAppFunctionReader.Companion.OBSER
 import androidx.appfunctions.internal.ChangeEventsFlowUtils.debounceAndMerge
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.metadata.AppFunctionMetadataDocument
-import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appsearch.observer.DocumentChangeInfo
 import androidx.appsearch.observer.ObserverCallback
 import androidx.appsearch.observer.SchemaChangeInfo

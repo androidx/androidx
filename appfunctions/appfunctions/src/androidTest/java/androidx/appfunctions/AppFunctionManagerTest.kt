@@ -21,7 +21,6 @@ import android.app.UiAutomation
 import android.content.Context
 import android.os.Build
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
-import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat

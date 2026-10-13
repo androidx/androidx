@@ -35,7 +35,6 @@ import androidx.appfunctions.internal.PlatformAppFunctionManagerApi
 import androidx.appfunctions.internal.PlatformAppFunctionReader
 import androidx.appfunctions.internal.findImpl
 import androidx.appfunctions.metadata.AppFunctionMetadata
-import androidx.appfunctions.metadata.AppFunctionName
 import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
 import kotlinx.coroutines.CancellationException
@@ -187,11 +186,10 @@ public constructor(
      * 3. When receiving [AppFunctionsChangeEvent.MetadataChanged], call [searchAppFunctions] with a
      *    [AppFunctionSearchSpec] that matches the changed packages to get the updated metadata.
      * 4. When receiving [AppFunctionsChangeEvent.StatesChanged], call [getAppFunctionStates] with
-     *    the list of [androidx.appfunctions.metadata.AppFunctionName]s matching the changed
-     *    functions to get the updated states. Note that this is guaranteed to trigger after
-     *    [AppFunctionsChangeEvent.MetadataChanged] for new functions or functions that also changed
-     *    states. There is no need to call [getAppFunctionStates] when receiving
-     *    [AppFunctionsChangeEvent.MetadataChanged].
+     *    the list of [AppFunctionName]s matching the changed functions to get the updated states.
+     *    Note that this is guaranteed to trigger after [AppFunctionsChangeEvent.MetadataChanged]
+     *    for new functions or functions that also changed states. There is no need to call
+     *    [getAppFunctionStates] when receiving [AppFunctionsChangeEvent.MetadataChanged].
      *
      * @return a [Flow] emitting [AppFunctionsChangeEvent]s representing metadata or state changes
      */

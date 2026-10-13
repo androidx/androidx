@@ -17,11 +17,11 @@
 package androidx.appfunctions.internal
 
 import androidx.annotation.RestrictTo
+import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.metadata.AppFunctionMetadata
-import androidx.appfunctions.metadata.AppFunctionName
 import kotlinx.coroutines.flow.Flow
 
 /** Searches AppFunctions. */

@@ -28,11 +28,11 @@ import android.os.CancellationSignal
 import android.os.OutcomeReceiver
 import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
-import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata

@@ -20,6 +20,7 @@ import android.Manifest
 import android.os.Build
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionManager
+import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.ExecuteAppFunctionRequest
@@ -42,7 +43,6 @@ import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAcc
 import androidx.appfunctions.integration.test.agent.TestUtil.retryAssert
 import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppFunctionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.setAppFunctionStateRemoteAsync
-import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry

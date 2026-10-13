@@ -24,7 +24,6 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVI
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.scopeToScopeXmlValue
 import androidx.appfunctions.metadata.AppFunctionMetadataDocument
-import androidx.appfunctions.metadata.AppFunctionName
 
 /**
  * Defines the specifications for filtering and searching app function snapshots.

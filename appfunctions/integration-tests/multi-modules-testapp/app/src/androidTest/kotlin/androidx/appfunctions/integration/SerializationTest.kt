@@ -21,11 +21,11 @@ import androidx.appfunction.integration.test.sharedschema.IntEnumSerializable
 import androidx.appfunction.integration.test.sharedschema.UriConstraintSerializable
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionManager
+import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionDataTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
-import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata

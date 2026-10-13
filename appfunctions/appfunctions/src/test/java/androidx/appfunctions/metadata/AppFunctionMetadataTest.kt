@@ -18,6 +18,7 @@
 package androidx.appfunctions.metadata
 
 import android.app.appfunctions.AppFunctionMetadata.PROPERTY_VALUE_SCOPE_GLOBAL
+import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

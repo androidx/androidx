@@ -17,12 +17,12 @@
 package androidx.appfunctions.testing
 
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
+import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.internal.AppFunctionReader
 import androidx.appfunctions.metadata.AppFunctionMetadata
-import androidx.appfunctions.metadata.AppFunctionName
 import kotlinx.coroutines.flow.Flow
 
 class FakeAppFunctionReader : AppFunctionReader {
