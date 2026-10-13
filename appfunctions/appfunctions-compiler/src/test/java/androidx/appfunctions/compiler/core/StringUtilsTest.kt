@@ -46,6 +46,11 @@ class StringUtilsTest {
     }
 
     @Test
+    fun toPascalCase_colonSeparator() {
+        assertThat("hello:world".toPascalCase()).isEqualTo("HelloWorld")
+    }
+
+    @Test
     fun toPascalCase_uppercaseString() {
         assertThat("HELLO_WORLD".toPascalCase()).isEqualTo("HelloWorld")
     }

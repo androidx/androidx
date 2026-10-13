@@ -1142,6 +1142,22 @@ class AppFunctionCompilerTest {
     }
 
     @Test
+    fun testGenerateSerializableComponentRegistry_withColonInModuleName() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("serializable/valid/InputSerializable.KT"),
+                moduleName = "my-group:my-module",
+            )
+
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName =
+                "${'$'}MyGroupMyModule_SerializableComponentRegistry.kt",
+            goldenFileName = "registry/${'$'}MyGroupMyModule_SerializableComponentRegistry.KT",
+        )
+    }
+
+    @Test
     fun testGenerateAggregateInventoryImpl() {
         val report =
             compilationTestHelper.compileAll(
