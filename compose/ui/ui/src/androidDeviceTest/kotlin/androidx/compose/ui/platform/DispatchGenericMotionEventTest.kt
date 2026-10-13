@@ -32,7 +32,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -60,8 +60,8 @@ class DispatchGenericMotionEventDirectlyToAndroidComposeViewTest {
 
     @Test
     fun dispatchGenericMotionEvent_sourceUnknownScroll_whenFlagEnabled_movesFocus() {
-        val originalFlagValue = ComposeUiFlags.isHardwareNavigationHandlingEnabled
-        ComposeUiFlags.isHardwareNavigationHandlingEnabled = true
+        val originalFlagValue = AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled
+        AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled = true
         val focusRequester1 = FocusRequester()
         var isFocused1 = false
         var isFocused2 = false
@@ -107,14 +107,14 @@ class DispatchGenericMotionEventDirectlyToAndroidComposeViewTest {
                 assertThat(isFocused2).isFalse()
             }
         } finally {
-            ComposeUiFlags.isHardwareNavigationHandlingEnabled = originalFlagValue
+            AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled = originalFlagValue
         }
     }
 
     @Test
     fun dispatchGenericMotionEvent_sourceUnknownScroll_whenFlagDisabled_doesNotMoveFocus() {
-        val originalFlagValue = ComposeUiFlags.isHardwareNavigationHandlingEnabled
-        ComposeUiFlags.isHardwareNavigationHandlingEnabled = false
+        val originalFlagValue = AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled
+        AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled = false
         val focusRequester1 = FocusRequester()
         var isFocused1 = false
         var isFocused2 = false
@@ -148,14 +148,14 @@ class DispatchGenericMotionEventDirectlyToAndroidComposeViewTest {
                 assertThat(isFocused2).isFalse()
             }
         } finally {
-            ComposeUiFlags.isHardwareNavigationHandlingEnabled = originalFlagValue
+            AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled = originalFlagValue
         }
     }
 
     @Test
     fun dispatchGenericMotionEvent_sourceUnknownScroll_whenAtBoundary_doesNotConsumeEvent() {
-        val originalFlagValue = ComposeUiFlags.isHardwareNavigationHandlingEnabled
-        ComposeUiFlags.isHardwareNavigationHandlingEnabled = true
+        val originalFlagValue = AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled
+        AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled = true
         val focusRequester2 = FocusRequester()
         var isFocused1 = false
         var isFocused2 = false
@@ -188,14 +188,14 @@ class DispatchGenericMotionEventDirectlyToAndroidComposeViewTest {
                 assertThat(consumed).isFalse()
             }
         } finally {
-            ComposeUiFlags.isHardwareNavigationHandlingEnabled = originalFlagValue
+            AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled = originalFlagValue
         }
     }
 
     @Test
     fun dispatchGenericMotionEvent_sourceUnknownScroll_whenThresholdNotExceeded_doesNotMoveFocus() {
-        val originalFlagValue = ComposeUiFlags.isHardwareNavigationHandlingEnabled
-        ComposeUiFlags.isHardwareNavigationHandlingEnabled = true
+        val originalFlagValue = AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled
+        AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled = true
         val focusRequester1 = FocusRequester()
         var isFocused1 = false
         var isFocused2 = false
@@ -241,7 +241,7 @@ class DispatchGenericMotionEventDirectlyToAndroidComposeViewTest {
                 assertThat(isFocused2).isTrue()
             }
         } finally {
-            ComposeUiFlags.isHardwareNavigationHandlingEnabled = originalFlagValue
+            AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled = originalFlagValue
         }
     }
 

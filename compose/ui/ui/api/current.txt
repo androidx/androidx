@@ -77,6 +77,7 @@ package androidx.compose.ui {
     property public boolean isDelayAndroidViewsHandlerCreationEnabled;
     property public boolean isDelayedWindowInsetsRulersEnabled;
     property public boolean isFrameworkVelocityTrackerEnabled;
+    property public boolean isHardwareNavigationHandlingEnabled;
     property public boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
     property public boolean isScrollAccessibilityFocusEventEnabled;
     property public boolean isViewBasedSemanticsHandlerEnabled;
@@ -86,6 +87,7 @@ package androidx.compose.ui {
     field public static boolean isDelayAndroidViewsHandlerCreationEnabled;
     field public static boolean isDelayedWindowInsetsRulersEnabled;
     field public static boolean isFrameworkVelocityTrackerEnabled;
+    field public static boolean isHardwareNavigationHandlingEnabled;
     field public static boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
     field public static boolean isScrollAccessibilityFocusEventEnabled;
     field public static boolean isViewBasedSemanticsHandlerEnabled;
@@ -165,7 +167,6 @@ package androidx.compose.ui {
     property public boolean isBypassUnfocusableComposeViewEnabled;
     property public boolean isClippedTouchBoundsOcclusionFixEnabled;
     property public boolean isFocusRestorationEnabled;
-    property public boolean isHardwareNavigationHandlingEnabled;
     property public boolean isInitialFocusOnFocusableAvailable;
     property public boolean isMediaQueryIntegrationEnabled;
     property public boolean isMinimalistLocalsEnabled;
@@ -179,7 +180,6 @@ package androidx.compose.ui {
     field public static boolean isBypassUnfocusableComposeViewEnabled;
     field public static boolean isClippedTouchBoundsOcclusionFixEnabled;
     field public static boolean isFocusRestorationEnabled;
-    field public static boolean isHardwareNavigationHandlingEnabled;
     field public static boolean isInitialFocusOnFocusableAvailable;
     field public static boolean isMediaQueryIntegrationEnabled;
     field public static boolean isMinimalistLocalsEnabled;
