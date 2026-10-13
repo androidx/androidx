@@ -51,7 +51,14 @@ public class BackupTransportMode private constructor(private val name: String) {
         @JvmField
         public val CLOUD_UNENCRYPTED: BackupTransportMode = BackupTransportMode("CLOUD_UNENCRYPTED")
 
-        /** Performs a local, low-latency offline filesystem transport backup. */
+        /**
+         * Performs a local, low-latency offline filesystem transport backup.
+         *
+         * The backup data stays in the local backup transport of the device. The archive that
+         * [BackupRestoreController.performBackup] returns only marks the backup, so only the same
+         * device can restore it. The archive names the device by its ADB serial number, which can
+         * change between runs, for example when an emulator starts on another port.
+         */
         @JvmField public val LOCAL: BackupTransportMode = BackupTransportMode("LOCAL")
     }
 }

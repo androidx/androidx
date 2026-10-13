@@ -366,8 +366,9 @@ internal class BackupRestoreControllerImpl(
     }
 
     private suspend fun restore(backupFile: Path, timeout: Duration) {
-        if (backupFile.fileName.toString() == backupFileName(BackupTransportMode.LOCAL)) {
-            localTransport.restore(timeout.toKotlinDuration())
+        val localBackup = BackupLocalTransport.localBackupOf(backupFile)
+        if (localBackup != null) {
+            localTransport.restore(backupFile, localBackup, timeout.toKotlinDuration())
             return
         }
         // Moves any foreground activity to the background so the restore agent can bind.

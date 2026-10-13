@@ -24,8 +24,11 @@ import com.android.backup.BackupService
 import com.android.backup.BackupType
 import com.android.backup.ErrorCode
 import java.io.IOException
+import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -515,9 +518,58 @@ class BackupRestoreControllerImplTest {
     fun performRestoreUsesTheLocalTransportForALocalArchive() = runBlocking {
         onHealthyDevice()
 
-        controller.performRestore(tempFolder.newFile("backup_local_device.zip").toPath())
+        controller.performRestore(localArchive())
 
         assertTrue(device.commands.contains("bmgr restore 1 $PACKAGE"), "${device.commands}")
+    }
+
+    @Test
+    fun performRestoreRestoresTheLocalArchiveThatPerformBackupWrote() = runBlocking {
+        onHealthyDevice()
+        val archive = controller.performBackup(LOCAL, outputDir())
+
+        controller.performRestore(archive)
+
+        assertTrue(device.commands.contains("bmgr restore 1 $PACKAGE"), "${device.commands}")
+    }
+
+    /** A LOCAL archive is recognized by what it holds, so it can be renamed or moved. */
+    @Test
+    fun performRestoreRecognizesALocalArchiveWhateverItsName() = runBlocking {
+        onHealthyDevice()
+
+        controller.performRestore(localArchive(name = "renamed.zip"))
+
+        assertTrue(device.commands.contains("bmgr restore 1 $PACKAGE"), "${device.commands}")
+    }
+
+    @Test
+    fun performRestoreRejectsTheLocalArchiveOfAnotherDevice() {
+        onHealthyDevice()
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { controller.performRestore(localArchive(serial = "emulator-5556")) }
+            }
+
+        assertTrue(e.message!!.startsWith("backup_local_device.zip is a LOCAL backup made on"))
+        assertTrue(device.commands.none { it.startsWith("bmgr") }, "${device.commands}")
+    }
+
+    /** A file named like a LOCAL archive that isn't one goes to the backup service. */
+    @Test
+    fun performRestoreSendsAnArchiveThatIsNotALocalOneToTheBackupService() {
+        val failure = BackupException(ErrorCode.INVALID_BACKUP_FILE, "File is not a valid backup")
+        restoreServiceResult = BackupResult.Error(ErrorCode.INVALID_BACKUP_FILE, failure)
+        val archive = tempFolder.newFile("backup_local_device.zip").toPath()
+
+        val e =
+            assertFailsWith<BackupRestoreException> {
+                runBlocking { controller.performRestore(archive) }
+            }
+
+        assertSame(failure, e.rootCause())
+        assertTrue(device.commands.none { it.startsWith("bmgr") }, "${device.commands}")
     }
 
     @Test
@@ -710,7 +762,7 @@ class BackupRestoreControllerImplTest {
     fun performRestoreThrowsAndStopsTheAppWhenTheRestoreTimesOut() {
         onHealthyDevice()
         device.hangOn { it == "bmgr run" }
-        val archive = tempFolder.newFile("backup_local_device.zip").toPath()
+        val archive = localArchive()
 
         val e =
             assertFailsWith<BackupRestoreException> {
@@ -733,7 +785,7 @@ class BackupRestoreControllerImplTest {
                 null
             }
         }
-        val archive = tempFolder.newFile("backup_local_device.zip").toPath()
+        val archive = localArchive()
 
         val e =
             assertFailsWith<IOException> {
@@ -753,7 +805,7 @@ class BackupRestoreControllerImplTest {
         onHealthyDevice { command ->
             if (command == "dumpsys backup") shellOutput("Restore in progress: false\n") else null
         }
-        val archive = tempFolder.newFile("backup_local_device.zip").toPath()
+        val archive = localArchive()
 
         controller.performRestore(archive, Duration.ofSeconds(1))
 
@@ -1216,6 +1268,21 @@ class BackupRestoreControllerImplTest {
     }
 
     private fun outputDir() = tempFolder.root.toPath()
+
+    /** Returns a new marker of a LOCAL backup of [packageName] made on [serial], named [name]. */
+    private fun localArchive(
+        packageName: String = PACKAGE,
+        serial: String = FAKE_SERIAL,
+        name: String = "backup_local_device.zip",
+    ): Path {
+        val archive = tempFolder.root.toPath().resolve(name)
+        ZipOutputStream(Files.newOutputStream(archive)).use { zip ->
+            zip.putNextEntry(ZipEntry("androidx.test.backup.local.properties"))
+            zip.write("package=$packageName\nserial=$serial\n".toByteArray())
+            zip.closeEntry()
+        }
+        return archive
+    }
 
     /** Stack-trace recovery may wrap an exception that crosses a coroutine in a copy of it. */
     private fun Throwable.rootCause(): Throwable = generateSequence(this) { it.cause }.last()
