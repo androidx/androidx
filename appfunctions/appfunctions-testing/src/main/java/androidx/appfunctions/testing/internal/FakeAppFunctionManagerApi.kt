@@ -68,10 +68,7 @@ internal class FakeAppFunctionManagerApi(
             appFunctionReader.getAppFunctionStaticAndRuntimeMetadata(
                 context.packageName,
                 functionId,
-            )
-                ?: throw AppFunctionFunctionNotFoundException(
-                    "No function found with id: $functionId"
-                )
+            ) ?: throw IllegalArgumentException("Function $functionId does not exist")
 
         appFunctionReader.setAppFunctionStaticAndRuntimeMetadata(
             context.packageName,
