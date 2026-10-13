@@ -39,17 +39,17 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 import kotlin.math.PI
 
-private const val OUTRO_DURATION_SEC = 0.85f
-private const val MILLIS_IN_SECOND = 1000f
 private const val SPRING_STIFFNESS = 50f
 private const val SPRING_DAMPING_RATIO = 1f
-private const val MIN_OUTRO_START_FRACTION = 0.5f
 private val MIN_SWEEP_ANGLE = 0.05f.rf
 private val EPSILON = 0.001f.rf
 private val RADIANS_TO_DEGREES = (180f / PI.toFloat()).rf
 
 /**
  * A generalized progress arc component for display on Wear OS.
+ *
+ * To also animate the start and end of the progress, for example for a timer or a goal, use
+ * [RemoteIntroOutroCurvedProgressIndicator].
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCurvedProgressIndicatorSample For an
  *   animated progress, see:
@@ -94,7 +94,7 @@ public fun RemoteCurvedProgressIndicator(
 ) {
     RemoteCurvedProgressIndicatorImpl(
         progress = progress,
-        totalTimerDurationMillis = 0L,
+        animateIntroOutro = false,
         modifier = modifier,
         enabled = enabled,
         startAngle = startAngle,
@@ -111,13 +111,15 @@ public fun RemoteCurvedProgressIndicator(
 }
 
 /**
- * A specialized progress arc component for timers that includes spring physics animations at the
- * start and end of the timer duration.
+ * A [RemoteCurvedProgressIndicator] that plays spring animations at the start and end of the
+ * progress, for example for a timer, or for a goal such as a distance, calories or steps.
  *
- * @param progress A float value representing progress (typically 0f to 1f).
- * @param totalTimerDurationMillis Total duration of the timer in milliseconds. Needed because
- *   fixed-duration intro and outro animations run for a constant amount of time regardless of timer
- *   length, requiring the component to calculate progress elapsed during these transitions.
+ * The intro animation plays as soon as [progress] leaves its start, and the outro animation plays
+ * once [progress] reaches its end, so it finishes shortly after the end. In between, the arc
+ * follows [progress] exactly. Pass a progress that is clamped to its range, so that reaching the
+ * end gives exactly its end value.
+ *
+ * @param progress A float value representing progress, from 0f to 1f.
  * @param modifier Modifier to be applied to the canvas.
  * @param enabled controls the enabled state. When enabled is `false`, this component will appear
  *   visually disabled.
@@ -134,16 +136,15 @@ public fun RemoteCurvedProgressIndicator(
  *   fades its opacity to transparent as it collapses/expands. Set to 0.0 to disable opacity fading
  *   and shrink purely through size.
  * @param reverseDirection Whether to reverse the direction of the progress indicator (RTL).
- * @param countDown Whether this is a countdown timer (i.e., progress goes from top to bottom). If
- *   true, the intro animation plays when progress is near 1.0, and the outro animation plays when
- *   progress approaches 0.0. If false, the other way around will be done.
+ * @param countDown Whether the progress goes from 1f down to 0f, for example the time or distance
+ *   left. If true, the intro animation plays when progress leaves 1f, and the outro animation plays
+ *   when progress reaches 0f.
  */
 @RemoteComposable
 @Composable
 @Suppress("RestrictedApiAndroidX")
-public fun RemoteCurvedProgressIndicator(
+public fun RemoteIntroOutroCurvedProgressIndicator(
     progress: RemoteFloat,
-    totalTimerDurationMillis: Long,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     startAngle: RemoteFloat = RemoteProgressIndicatorDefaults.CurvedIndicatorStartAngle,
@@ -159,7 +160,7 @@ public fun RemoteCurvedProgressIndicator(
 ) {
     RemoteCurvedProgressIndicatorImpl(
         progress = progress,
-        totalTimerDurationMillis = totalTimerDurationMillis,
+        animateIntroOutro = true,
         modifier = modifier,
         enabled = enabled,
         startAngle = startAngle,
@@ -169,6 +170,7 @@ public fun RemoteCurvedProgressIndicator(
         padding = padding,
         gapAngleDegrees = gapAngleDegrees,
         dotFadeOutFraction = dotFadeOutFraction,
+        // The animations grow the dot at the start and collapse it at the end.
         dotCollapsible = true.rb,
         reverseDirection = reverseDirection,
         countDown = countDown,
@@ -180,7 +182,7 @@ public fun RemoteCurvedProgressIndicator(
 @Suppress("RestrictedApiAndroidX")
 private fun RemoteCurvedProgressIndicatorImpl(
     progress: RemoteFloat,
-    totalTimerDurationMillis: Long,
+    animateIntroOutro: Boolean,
     modifier: RemoteModifier,
     enabled: RemoteBoolean,
     startAngle: RemoteFloat,
@@ -195,7 +197,6 @@ private fun RemoteCurvedProgressIndicatorImpl(
     countDown: RemoteBoolean,
 ) {
     RemoteCanvas(modifier = modifier.fillMaxSize()) {
-        val hasTimer = totalTimerDurationMillis > 0L
         val dotCollapseFreezeFraction = dotCollapsible.select(ifTrue = 0f.rf, ifFalse = 1f.rf)
 
         val strokePx = strokeWidth.toPx()
@@ -214,12 +215,12 @@ private fun RemoteCurvedProgressIndicatorImpl(
         val maxProgress = 1.0f.rf - totalTravel / max(EPSILON, sweepAngle)
         val drawActiveStartBase = startAngle + halfThicknessDegrees
 
-        // Timers use the same geometry, driven by a progress that eases in and out at both ends.
+        // With the intro and outro animations, the same geometry is driven by a progress that
+        // eases in and out at both ends.
         val animatedProgress =
-            if (hasTimer) {
-                calculateTimerAnimatedProgress(
+            if (animateIntroOutro) {
+                calculateAnimatedProgress(
                     progress = progress,
-                    totalDurationSec = totalTimerDurationMillis.toFloat() / MILLIS_IN_SECOND,
                     countDown = countDown,
                     endFraction = minProgress,
                 )
@@ -269,8 +270,8 @@ private class CurvedArcParams(
 )
 
 /**
- * Calculates arc layout and scaling parameters for static / collapsible progress. Timers use it
- * too, driven by the progress from [calculateTimerAnimatedProgress].
+ * Calculates arc layout and scaling parameters for static / collapsible progress. With the intro
+ * and outro animations, it's driven by the progress from [calculateAnimatedProgress].
  */
 private fun calculateCollapsibleArcParams(
     animatedProgress: RemoteFloat,
@@ -406,33 +407,25 @@ private fun calculateCollapsibleArcParams(
 }
 
 /**
- * Calculates the progress that drives [calculateCollapsibleArcParams] for timers (when
- * totalTimerDurationMillis > 0).
+ * Calculates the progress that drives [calculateCollapsibleArcParams] when the intro and outro are
+ * animated.
  *
  * The collapsible geometry plays the intro while its progress goes from 0 to [endFraction], and the
- * outro while it goes from 1 - [endFraction] to 1. For timers, each end is driven by a spring
- * instead, so that it takes the same time whatever the timer length, while the bar follows the
- * timer from start to end:
- * - the intro spring starts with the timer;
- * - the outro spring starts when [OUTRO_DURATION_SEC] are left, so that it ends when the timer
- *   ends.
+ * outro while it goes from 1 - [endFraction] to 1. With the animations, each end is driven by a
+ * spring instead, so that it takes the same time whatever the progress speed, while the bar follows
+ * the progress from start to end:
+ * - the intro spring starts as soon as the progress leaves its start;
+ * - the outro spring starts once the progress reaches its end, and ends about 0.85 s later.
  *
- * Between the two springs, the indicator at X % of the timer is the mirror image of the indicator
- * at (100 - X) %.
+ * Between the two springs, the indicator at X % is the mirror image of the one at (100 - X) %.
  */
 @Suppress("RestrictedApiAndroidX")
-private fun RemoteDrawScope.calculateTimerAnimatedProgress(
+private fun RemoteDrawScope.calculateAnimatedProgress(
     progress: RemoteFloat,
-    totalDurationSec: Float,
     countDown: RemoteBoolean,
     endFraction: RemoteFloat,
 ): RemoteFloat {
-    val elapsedTimerProgress = countDown.select(ifTrue = 1.0f.rf - progress, ifFalse = progress)
-
-    // The timer length is a constant, so this is evaluated in Kotlin. No upper cap, so that the
-    // outro still ends when the timer ends on long timers.
-    val outroStartThreshold =
-        (1.0f - OUTRO_DURATION_SEC / totalDurationSec).coerceIn(MIN_OUTRO_START_FRACTION, 1.0f)
+    val elapsedProgress = countDown.select(ifTrue = 1.0f.rf - progress, ifFalse = progress)
 
     val animateScale = { target: RemoteFloat ->
         remote.animateSpring(
@@ -443,17 +436,15 @@ private fun RemoteDrawScope.calculateTimerAnimatedProgress(
     }
     val introScale =
         animateScale(
-            elapsedTimerProgress.isLessThanOrEqualTo(0f.rf).select(ifTrue = 0f.rf, ifFalse = 1f.rf)
+            elapsedProgress.isLessThanOrEqualTo(0f.rf).select(ifTrue = 0f.rf, ifFalse = 1f.rf)
         )
     val outroScale =
         animateScale(
-            elapsedTimerProgress
-                .isGreaterThan(outroStartThreshold.rf)
-                .select(ifTrue = 1f.rf, ifFalse = 0f.rf)
+            elapsedProgress.isGreaterThanOrEqualTo(1f.rf).select(ifTrue = 1f.rf, ifFalse = 0f.rf)
         )
 
-    // The bar follows the timer from start to end, and the springs play on top of it.
-    val barProgress = clamp(elapsedTimerProgress, 0f.rf, 1f.rf)
+    // The bar follows the progress from start to end, and the springs play on top of it.
+    val barProgress = clamp(elapsedProgress, 0f.rf, 1f.rf)
 
     // Guards very short arcs, where the two ends would take more than the whole arc.
     val clampedEndFraction = min(endFraction, 0.5f.rf)
