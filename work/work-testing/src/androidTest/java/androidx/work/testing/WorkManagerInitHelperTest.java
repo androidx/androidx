@@ -31,6 +31,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.work.Configuration;
 import androidx.work.DefaultWorkerFactory;
 import androidx.work.NoOpInputMergerFactory;
+import androidx.work.WorkManager;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.utils.SerialExecutorImpl;
 import androidx.work.impl.utils.taskexecutor.SerialExecutor;
@@ -70,7 +71,7 @@ public class WorkManagerInitHelperTest {
                 .build();
 
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
-        WorkManagerImpl workManager = WorkManagerImpl.getInstance(mContext);
+        WorkManagerImpl workManager = (WorkManagerImpl) WorkManager.getInstance(mContext);
         assertThat(workManager, is(notNullValue()));
         SerialExecutorImpl serialExecutor =
                 (SerialExecutorImpl) workManager.getWorkTaskExecutor().getSerialTaskExecutor();
@@ -84,7 +85,7 @@ public class WorkManagerInitHelperTest {
                 .build();
 
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
-        WorkManagerImpl workManager = WorkManagerImpl.getInstance(mContext);
+        WorkManagerImpl workManager = (WorkManagerImpl) WorkManager.getInstance(mContext);
         assertThat(workManager, is(notNullValue()));
         SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getSerialTaskExecutor();
         assertThat(serialExecutor, instanceOf(SynchronousSerialExecutor.class));
@@ -103,7 +104,7 @@ public class WorkManagerInitHelperTest {
                 .build();
 
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
-        WorkManagerImpl workManager = WorkManagerImpl.getInstance(mContext);
+        WorkManagerImpl workManager = (WorkManagerImpl) WorkManager.getInstance(mContext);
         assertThat(workManager, is(notNullValue()));
         SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getSerialTaskExecutor();
         assertThat(serialExecutor, instanceOf(SynchronousSerialExecutor.class));
