@@ -3560,9 +3560,12 @@ package androidx.compose.ui.layout {
   }
 
   public static final class SubcomposeSlotReusePolicy.SlotIdsSet implements java.util.Collection<java.lang.Object?> kotlin.jvm.internal.markers.KMappedMarker {
-    method @BytecodeOnly public boolean addAll(java.util.Collection<? extends java.lang.Object!>!);
+    method @InaccessibleFromKotlin public boolean add(Object! p);
+    method @InaccessibleFromKotlin public boolean addAll(java.util.Collection<? extends java.lang.Object?>! p);
     method public void clear();
-    method public boolean contains(Object? element);
+    method @InaccessibleFromKotlin public boolean contains(Object? element);
+    method @InaccessibleFromKotlin public boolean contains(Object? element);
+    method @KotlinOnly public operator boolean contains(Object? element);
     method public boolean containsAll(java.util.Collection<? extends java.lang.Object?> elements);
     method public inline void fastForEach(kotlin.jvm.functions.Function1<java.lang.Object?,kotlin.Unit> block);
     method public void forEach(kotlin.jvm.functions.Function1<java.lang.Object?,kotlin.Unit> block);
@@ -3570,15 +3573,16 @@ package androidx.compose.ui.layout {
     method @InaccessibleFromKotlin public int getSize();
     method public boolean isEmpty();
     method public java.util.Iterator<java.lang.Object?> iterator();
-    method public boolean remove(Object? slotId);
+    method @InaccessibleFromKotlin public boolean remove(Object? slotId);
+    method @KotlinOnly public boolean remove(Object? slotId);
     method public boolean removeAll(java.util.Collection<? extends java.lang.Object?> slotIds);
     method public boolean removeAll(kotlin.jvm.functions.Function1<java.lang.Object?,java.lang.Boolean> predicate);
     method @BytecodeOnly public boolean removeIf(java.util.function.Predicate<? super java.lang.Object!>!);
     method public boolean retainAll(java.util.Collection<? extends java.lang.Object?> slotIds);
     method public boolean retainAll(kotlin.jvm.functions.Function1<java.lang.Object?,java.lang.Boolean> predicate);
-    method @BytecodeOnly public int size();
-    method @BytecodeOnly public Object![]! toArray();
-    method @BytecodeOnly public <T> T[]! toArray(T[]!);
+    method @InaccessibleFromKotlin public int size();
+    method @InaccessibleFromKotlin public Object![]! toArray();
+    method @InaccessibleFromKotlin public <T> T[]! toArray(T[]! p);
     method public void trimToSize(int maxSlotsToRetainForReuse);
     property public int size;
   }
