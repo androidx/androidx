@@ -1549,10 +1549,10 @@ internal fun initializePlayerRemoteContext(
     }
     if (document.remoteComposeState !is SnapshotRemoteComposeState) {
         document.setRemoteComposeState(SnapshotRemoteComposeState())
-        document.recollectCollectionsReflection()
     }
     ctx.withOpCountReset {
         document.initializeContext(ctx, null)
+        document.recollectCollectionsReflection()
         document.applyDataOperationsWithoutBitmaps(ctx)
         document.setLayoutCallback {}
         document.applyOperationsReflection(ctx, preprocessed.globalOps)
