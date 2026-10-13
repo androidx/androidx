@@ -76,7 +76,7 @@ public class PreviewViewMeteringPointFactoryTest {
                         /*sensorToBufferTransform=*/new Matrix(),
                         /*mirroring=*/false),
                 new Size(WIDTH, HEIGHT),
-                /*isFrontCamera=*/false);
+                /*useFrontCameraRotation=*/false);
         PreviewViewMeteringPointFactory previewViewMeteringPointFactory =
                 new PreviewViewMeteringPointFactory(previewTransformation);
         previewViewMeteringPointFactory.setSensorRect(SENSOR_RECT);
@@ -103,7 +103,7 @@ public class PreviewViewMeteringPointFactoryTest {
                         /*sensorToBufferTransform=*/new Matrix(),
                         /*mirroring=*/false),
                 new Size(WIDTH, HEIGHT),
-                /*isFrontCamera=*/false);
+                /*useFrontCameraRotation=*/false);
         PreviewViewMeteringPointFactory previewViewMeteringPointFactory =
                 new PreviewViewMeteringPointFactory(previewTransformation);
 
@@ -129,7 +129,7 @@ public class PreviewViewMeteringPointFactoryTest {
                         /*sensorToBufferTransform=*/new Matrix(),
                         /*mirroring=*/false),
                 new Size(WIDTH, HEIGHT),
-                /*isFrontCamera=*/false);
+                /*useFrontCameraRotation=*/false);
         PreviewViewMeteringPointFactory previewViewMeteringPointFactory =
                 new PreviewViewMeteringPointFactory(previewTransformation);
         previewViewMeteringPointFactory.setSensorRect(SENSOR_RECT);

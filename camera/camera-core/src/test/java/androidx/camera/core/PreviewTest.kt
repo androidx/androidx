@@ -318,6 +318,18 @@ class PreviewTest {
 
     @Config(minSdk = 33)
     @Test
+    fun setMirrorMode_withEffect_sessionConfigMirrorModeIsUnspecified() {
+        val preview = createPreview(effect = effect, mirrorMode = MIRROR_MODE_ON)
+        assertThat(preview.mirrorMode).isEqualTo(MIRROR_MODE_ON)
+        assertThat(preview.cameraEdge.isMirroring).isTrue()
+
+        val sessionConfig = preview.sessionConfig
+        assertThat(sessionConfig.outputConfigs[0].mirrorMode)
+            .isEqualTo(MirrorMode.MIRROR_MODE_UNSPECIFIED)
+    }
+
+    @Config(minSdk = 33)
+    @Test
     fun setMirrorMode_notifyReset() {
         // Arrange: create Preview with MIRROR_MODE_OFF
         val preview = createPreview(mirrorMode = MIRROR_MODE_OFF)
