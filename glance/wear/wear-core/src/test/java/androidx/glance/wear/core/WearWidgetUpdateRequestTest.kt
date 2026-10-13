@@ -27,11 +27,28 @@ class WearWidgetUpdateRequestTest {
 
     @Test
     fun fromParcel_matchesOriginal() {
+        val originalRequest =
+            WearWidgetUpdateRequest(
+                instanceId = WidgetInstanceId("ns", 123),
+                creationUptimeMillis = 456789L,
+            )
+
+        val parcel = originalRequest.toParcel()
+        val restoredRequest = WearWidgetUpdateRequest.fromParcel(parcel)
+
+        assertThat(restoredRequest.instanceId).isEqualTo(originalRequest.instanceId)
+        assertThat(restoredRequest.creationUptimeMillis)
+            .isEqualTo(originalRequest.creationUptimeMillis)
+    }
+
+    @Test
+    fun fromParcel_withoutCreationUptimeMillis_restoresNull() {
         val originalRequest = WearWidgetUpdateRequest(instanceId = WidgetInstanceId("ns", 123))
 
         val parcel = originalRequest.toParcel()
         val restoredRequest = WearWidgetUpdateRequest.fromParcel(parcel)
 
         assertThat(restoredRequest.instanceId).isEqualTo(originalRequest.instanceId)
+        assertThat(restoredRequest.creationUptimeMillis).isNull()
     }
 }

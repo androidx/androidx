@@ -18,6 +18,7 @@ package androidx.glance.wear
 
 import android.content.ComponentName
 import android.content.Context
+import android.os.SystemClock
 import android.provider.Settings
 import androidx.glance.wear.cache.WearWidgetCache
 import androidx.glance.wear.core.ActiveWearWidgetHandle
@@ -204,10 +205,18 @@ class GlanceWearWidgetTest {
                     )
                 )
                 .thenReturn(testWidgetParams(TEST_INSTANCE_ID))
+            SystemClock.setCurrentTimeMillis(12345L)
 
             widget.triggerUpdate(context, TEST_INSTANCE_ID)
 
-            verify(mockUpdateClient).pushUpdate(eq(context), any(), any())
+            verify(mockUpdateClient)
+                .pushUpdate(
+                    eq(context),
+                    argThat {
+                        instanceId == TEST_INSTANCE_ID && creationUptimeMillis == 12345L
+                    },
+                    any(),
+                )
         }
     }
 
