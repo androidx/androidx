@@ -825,20 +825,25 @@ private const val MaxInterruptionRetention = 3
  * Use [initialContentTransform] to define transformations for the exiting (initial) content and
  * [targetContentTransform] for the entering (target) content.
  *
+ * @param initialTransform The [MutableTransform] applied to the exiting (initial) content.
+ * @param targetTransform The [MutableTransform] applied to the entering (target) content.
  * @see MutableTransform
  */
-public class MutableContentTransform
-@PublishedApi
-internal constructor(
-    initialVeilMatchParentSize: Boolean,
-    targetVeilMatchParentSize: Boolean,
-    initialOffsetVelocityProvider: (() -> Offset)?,
-    targetOffsetVelocityProvider: (() -> Offset)?,
+public class MutableContentTransform(
+    internal val initialTransform: MutableTransform,
+    internal val targetTransform: MutableTransform,
 ) {
-    internal val targetTransform: MutableTransform =
-        MutableTransform(targetVeilMatchParentSize, targetOffsetVelocityProvider)
-    internal val initialTransform: MutableTransform =
-        MutableTransform(initialVeilMatchParentSize, initialOffsetVelocityProvider)
+    @PublishedApi
+    internal constructor(
+        initialVeilMatchParentSize: Boolean,
+        targetVeilMatchParentSize: Boolean,
+        initialOffsetVelocityProvider: (() -> Offset)?,
+        targetOffsetVelocityProvider: (() -> Offset)?,
+    ) : this(
+        initialTransform =
+            MutableTransform(initialVeilMatchParentSize, initialOffsetVelocityProvider),
+        targetTransform = MutableTransform(targetVeilMatchParentSize, targetOffsetVelocityProvider),
+    )
 
     /**
      * Define the manual transformation to apply to the exiting content during the deferred phase.

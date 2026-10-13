@@ -224,6 +224,7 @@ final class androidx.compose.animation/FadeConfig { // androidx.compose.animatio
 }
 
 final class androidx.compose.animation/MutableContentTransform { // androidx.compose.animation/MutableContentTransform|null[0]
+    constructor <init>(androidx.compose.animation/MutableTransform, androidx.compose.animation/MutableTransform) // androidx.compose.animation/MutableContentTransform.<init>|<init>(androidx.compose.animation.MutableTransform;androidx.compose.animation.MutableTransform){}[0]
     constructor <init>(kotlin/Boolean, kotlin/Boolean, kotlin/Function0<androidx.compose.ui.geometry/Offset>?, kotlin/Function0<androidx.compose.ui.geometry/Offset>?) // androidx.compose.animation/MutableContentTransform.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Function0<androidx.compose.ui.geometry.Offset>?;kotlin.Function0<androidx.compose.ui.geometry.Offset>?){}[0]
 
     final fun initialContentTransform(kotlin/Function2<androidx.compose.animation/TransformScope, androidx.compose.ui.unit/IntSize, kotlin/Unit>) // androidx.compose.animation/MutableContentTransform.initialContentTransform|initialContentTransform(kotlin.Function2<androidx.compose.animation.TransformScope,androidx.compose.ui.unit.IntSize,kotlin.Unit>){}[0]

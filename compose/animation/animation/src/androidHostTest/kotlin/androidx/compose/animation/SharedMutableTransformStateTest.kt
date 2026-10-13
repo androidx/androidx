@@ -100,4 +100,15 @@ class SharedMutableTransformStateTest {
             state.mutationPhase,
         )
     }
+
+    @Test
+    fun mutableContentTransform_fromTwoMutableTransforms_preservesInstances() {
+        val initialTransform = MutableTransform(veilMatchParentSize = false) { alpha = 0.5f }
+        val targetTransform = MutableTransform(veilMatchParentSize = true) { scale = 0.8f }
+
+        val contentTransform = MutableContentTransform(initialTransform, targetTransform)
+
+        assertEquals(initialTransform, contentTransform.initialTransform)
+        assertEquals(targetTransform, contentTransform.targetTransform)
+    }
 }
