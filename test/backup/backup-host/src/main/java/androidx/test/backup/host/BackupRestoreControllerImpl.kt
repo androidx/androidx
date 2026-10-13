@@ -16,6 +16,7 @@
 
 package androidx.test.backup.host
 
+import androidx.test.backup.host.BackupActionWireProtocol.MAX_INLINE_COMMAND_BYTES
 import com.android.adblib.AdbSession
 import com.android.backup.BackupResult
 import com.android.backup.BackupService as Service
@@ -198,7 +199,14 @@ internal class BackupRestoreControllerImpl(
     ): BackupActionResult {
         val instrumentationArgs =
             BackupActionWireProtocol.instrumentationArgs(actionClassName, args, waitForDebugger)
-        val stdout = shell.instrument(findRunner(), instrumentationArgs)
+        val runner = findRunner()
+        val command = BackupDeviceShell.instrumentCommand(runner, instrumentationArgs)
+        val stdout =
+            if (command.toByteArray(Charsets.UTF_8).size <= MAX_INLINE_COMMAND_BYTES) {
+                shell.instrument(runner, instrumentationArgs)
+            } else {
+                instrumentWithArgsFile(runner, actionClassName, args, waitForDebugger)
+            }
         val report = BackupRunnerReport.parse(stdout)
         val payloadPath = report.payloadPath
         val payloadJson =
@@ -226,7 +234,40 @@ internal class BackupRestoreControllerImpl(
         return report.resultFor(payloadJson, actionClassName)
     }
 
-    /** Reads the payload the runner wrote to [devicePath], then deletes that file. */
+    /**
+     * Runs [actionClassName] with the instrumentation [runner], passing it [args] in a file that is
+     * pushed to the device and deleted afterwards, and returns what the instrumentation printed.
+     */
+    private suspend fun instrumentWithArgsFile(
+        runner: String,
+        actionClassName: String,
+        args: Map<String, String>,
+        waitForDebugger: Boolean,
+    ): String {
+        val argsFile = BackupActionWireProtocol.newArgsFilePath()
+        val hostFile = Files.createTempFile("backup_args_", ".json")
+        try {
+            Files.write(hostFile, BackupActionWireProtocol.encodeArgsFile(args).toByteArray())
+            return withCleanup(cleanup = { shell.removeFile(argsFile) }, cleanupTimeout) {
+                logger.info("Pushing the arguments of $actionClassName to $argsFile...")
+                shell.pushFile(hostFile, argsFile, BackupDeviceShell.SHELL_ONLY_FILE_MODE)
+                shell.instrument(
+                    runner,
+                    BackupActionWireProtocol.argsFileInstrumentationArgs(
+                        actionClassName,
+                        argsFile,
+                        waitForDebugger,
+                    ),
+                )
+            }
+        } finally {
+            Files.deleteIfExists(hostFile)
+        }
+    }
+
+    /**
+     * Reads the payload that a runner of an older version wrote to [devicePath], then deletes it.
+     */
     private suspend fun pullOverflowPayload(devicePath: String): String {
         val localFile = File.createTempFile("overflow_", ".json")
         try {

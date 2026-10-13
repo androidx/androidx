@@ -109,6 +109,91 @@ class BackupRunnerReportTest {
         assertNull(report.payloadPath)
     }
 
+    /** The output of a run that sent a large result in parts can be megabytes long. */
+    @Test
+    fun parseShowsOnlyTheEndOfLongOutputWithoutAResult() {
+        val stdout = "x".repeat(20_000) + "\nINSTRUMENTATION_RESULT: shortMsg=Process crashed.\n"
+
+        val message = BackupRunnerReport.parse(stdout).runnerFailure!!.errorMessage
+
+        assertTrue(message.startsWith("No execution result was received from device. Last 8192 of"))
+        assertTrue(message.endsWith("shortMsg=Process crashed.\n"), message)
+        assertTrue(message.length < 8_500, "${message.length}")
+    }
+
+    @Test
+    fun parseDoesNotStartTheEndOfLongOutputWithHalfOfASurrogatePair() {
+        val end = "y".repeat(8191)
+        val stdout = "x".repeat(10_000) + "\uD83D\uDE00" + end
+
+        val message = BackupRunnerReport.parse(stdout).runnerFailure!!.errorMessage
+
+        assertEquals(
+            "No execution result was received from device. " +
+                "Last 8191 of 18193 characters of raw stdout:\n$end",
+            message,
+        )
+    }
+
+    /** The runner sends a result too large for one Binder transaction in parts. */
+    @Test
+    fun parseJoinsTheResultFromItsParts() {
+        val resultJson = buildJsonObject {
+            put("isSuccess", true)
+            put("payloadJson", """{"data":"${"x".repeat(300)} with spaces "}""")
+        }
+            .toString()
+
+        val report = BackupRunnerReport.parse(partedInstrumentOutput(resultJson, partLength = 7))
+
+        assertNull(report.runnerFailure)
+        assertEquals("""{"data":"${"x".repeat(300)} with spaces "}""", report.inlinePayload)
+    }
+
+    /** A part can start or end with a space within a JSON string, so parts are kept as they are. */
+    @Test
+    fun parseKeepsTheSpacesAtTheEndsOfParts() {
+        val resultJson = """{"isSuccess":true,"payloadJson":"{\"a\":\"  b  \"}"}"""
+        val partLength = resultJson.indexOf("  b") + 1
+
+        val report = BackupRunnerReport.parse(partedInstrumentOutput(resultJson, partLength))
+
+        assertEquals("""{"a":"  b  "}""", report.inlinePayload)
+    }
+
+    /** `Instrumentation.sendStatus` drops every status after one that fails to reach the host. */
+    @Test
+    fun parseReportsMissingPartsAsAFailure() {
+        val resultJson = """{"isSuccess":true,"payloadJson":"{}"}"""
+        val lastPart =
+            "INSTRUMENTATION_STATUS: resultPart=${resultJson.chunked(10).last()}\n" +
+                "INSTRUMENTATION_STATUS_CODE: 1\n"
+        val stdout = partedInstrumentOutput(resultJson, partLength = 10).replace(lastPart, "")
+
+        val report = BackupRunnerReport.parse(stdout)
+
+        assertEquals(
+            "Received 3 of the 4 parts of the result from device, with 30 of 37 characters.",
+            report.runnerFailure?.errorMessage,
+        )
+        assertNull(report.inlinePayload)
+    }
+
+    @Test
+    fun parseReportsAResultOfTheWrongLengthAsAFailure() {
+        val resultJson = """{"isSuccess":true}"""
+        val stdout =
+            partedInstrumentOutput(resultJson, partLength = 5)
+                .replace("resultLength=18", "resultLength=19")
+
+        val message = BackupRunnerReport.parse(stdout).runnerFailure!!.errorMessage
+
+        assertEquals(
+            "Received 4 of the 4 parts of the result from device, with 18 of 19 characters.",
+            message,
+        )
+    }
+
     @Test
     fun parseReportsAnEmptyResultAsAFailure() {
         val report = BackupRunnerReport.parse(instrumentOutput(""))
