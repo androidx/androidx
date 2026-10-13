@@ -177,7 +177,7 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
                 textDecoration = textDecoration,
             ),
         overflow = overflow,
-        maxLines = data.maxLines,
+        maxLines = resolveEffectiveMaxLines(data.maxLines, data.overflow),
     )
 }
 
@@ -259,7 +259,7 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
                 textAlign = resolveTextAlign(data.textAlignValue, 0),
             ),
         overflow = overflow,
-        maxLines = data.maxLines,
+        maxLines = resolveEffectiveMaxLines(data.maxLines, data.overflow),
     )
 }
 
@@ -286,6 +286,21 @@ private fun resolveTextFontSizePx(paintState: ComposeLocalPaint, rawFontSize: Fl
         rawFontSize.isNaN() -> resolvedFontSize
         else -> rawDimensionPx(resolvedFontSize)
     }
+}
+
+/**
+ * Mirrors `AndroidPaintContext.layoutComplexText`: `StaticLayout.Builder.setMaxLines` is only
+ * applied when `maxLines == 1` or when `overflow` is an ellipsis mode (`OVERFLOW_ELLIPSIS`,
+ * `OVERFLOW_START_ELLIPSIS`, `OVERFLOW_MIDDLE_ELLIPSIS`). For `OVERFLOW_CLIP` / `OVERFLOW_VISIBLE`
+ * with `maxLines > 1`, the View player does not cap line count on the layout builder.
+ */
+internal fun resolveEffectiveMaxLines(maxLines: Int, overflow: Int): Int {
+    if (maxLines <= 0) return Int.MAX_VALUE
+    val hasEllipsis =
+        overflow == CoreText.OVERFLOW_ELLIPSIS ||
+            overflow == CoreText.OVERFLOW_START_ELLIPSIS ||
+            overflow == CoreText.OVERFLOW_MIDDLE_ELLIPSIS
+    return if (maxLines == 1 || hasEllipsis) maxLines else Int.MAX_VALUE
 }
 
 internal fun resolveTextAlign(textAlignValue: Int, justificationMode: Int = 0): TextAlign =

@@ -338,4 +338,15 @@ class RcPlayerTextPropertiesTest {
         val textLayoutData = textLayout.readDataReflection()
         assertThat(textLayoutData.fontSize.toRawBits()).isEqualTo(dynamicFontSize.toRawBits())
     }
+
+    @Test
+    fun testResolveEffectiveMaxLinesMatchesAndroidPaintContext() {
+        assertThat(resolveEffectiveMaxLines(1, CoreText.OVERFLOW_CLIP)).isEqualTo(1)
+        assertThat(resolveEffectiveMaxLines(1, CoreText.OVERFLOW_VISIBLE)).isEqualTo(1)
+        assertThat(resolveEffectiveMaxLines(3, CoreText.OVERFLOW_CLIP)).isEqualTo(Int.MAX_VALUE)
+        assertThat(resolveEffectiveMaxLines(3, CoreText.OVERFLOW_VISIBLE)).isEqualTo(Int.MAX_VALUE)
+        assertThat(resolveEffectiveMaxLines(3, CoreText.OVERFLOW_ELLIPSIS)).isEqualTo(3)
+        assertThat(resolveEffectiveMaxLines(3, CoreText.OVERFLOW_START_ELLIPSIS)).isEqualTo(3)
+        assertThat(resolveEffectiveMaxLines(3, CoreText.OVERFLOW_MIDDLE_ELLIPSIS)).isEqualTo(3)
+    }
 }
