@@ -23,6 +23,10 @@ val Material3Demos =
     DemoCategory(
         "Material 3",
         listOf(
+            DemoCategory(
+                "Buttons",
+                listOf(ComposableDemo("Button variants") { ButtonVariantsDemo() }),
+            ),
             ComposableDemo("Button Groups") { ButtonGroupDemos() },
             ComposableDemo("Card") { CardDemo() },
             DemoCategory(
