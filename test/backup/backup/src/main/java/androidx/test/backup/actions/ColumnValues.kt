@@ -25,26 +25,26 @@ import java.nio.charset.StandardCharsets
  *
  * The format is `application/x-www-form-urlencoded`: pairs separated by `&`, each pair
  * `name=value`, with both halves percent-encoded in UTF-8. Decoding both halves is what allows a
- * column value to contain `&`, `=`, `%` or `+`.
+ * column value to contain `&`, `=`, `%` or `+`. A name without `=` stands for SQL `NULL`, and
+ * decodes to a null value.
  *
  * Both actions in this package share this function so that the format cannot drift between the
  * populate and the verify phase.
  *
- * @throws IllegalArgumentException if [encoded] is empty, if a segment is not a `name=value` pair,
- *   if a column name is empty, or if a half is not valid percent-encoded UTF-8
+ * @throws IllegalArgumentException if [encoded] is empty, if a column name is empty, or if a half
+ *   is not valid percent-encoded UTF-8
  */
-internal fun decodeColumnValues(encoded: String): List<Pair<String, String>> {
+internal fun decodeColumnValues(encoded: String): List<Pair<String, String?>> {
     require(encoded.isNotEmpty()) { "'${BackupActionInputKeys.VALUES}' must not be empty." }
     return encoded.split("&").map { segment ->
         val separator = segment.indexOf('=')
-        require(separator >= 0) {
-            "'${BackupActionInputKeys.VALUES}' segment '$segment' is not a 'name=value' pair."
-        }
-        val name = decodeComponent(segment.substring(0, separator), segment)
+        val name = decodeComponent(if (separator < 0) segment else segment.take(separator), segment)
         require(name.isNotEmpty()) {
             "'${BackupActionInputKeys.VALUES}' segment '$segment' has an empty column name."
         }
-        name to decodeComponent(segment.substring(separator + 1), segment)
+        val value =
+            if (separator < 0) null else decodeComponent(segment.drop(separator + 1), segment)
+        name to value
     }
 }
 

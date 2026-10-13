@@ -58,8 +58,9 @@ public object BackupActionInputKeys {
      *
      * Parsed with [String.toBoolean], so `"true"` in any casing enables it and every other value,
      * including an absent key, leaves it disabled. When enabled, the action runs against
-     * [android.content.Context.createDeviceProtectedStorageContext] instead of the default
-     * credential-encrypted context.
+     * [android.content.Context.createDeviceProtectedStorageContext] instead of the default storage
+     * of the app, which is credential-encrypted unless the app sets
+     * `android:defaultToDeviceProtectedStorage`.
      */
     public const val IS_DEVICE_PROTECTED: String = "is_device_protected"
 
@@ -106,10 +107,11 @@ public object BackupActionInputKeys {
      * Pairs are separated by `&` and each pair is `name=value`, with both the name and the value
      * percent-encoded in UTF-8 exactly as [java.net.URLEncoder] produces. Encoding is what makes
      * column values containing `&`, `=`, `%` or `+` round-trip correctly; a literal `+` decodes
-     * back to a space, so it must be encoded as `%2B`.
+     * back to a space, so it must be encoded as `%2B`. A name without `=` stands for SQL `NULL`,
+     * whereas `name=` is the empty string.
      *
-     * For example, the columns `name = "a&b"` and `city = "Rio"` are expressed as
-     * `"name=a%26b&city=Rio"`. Malformed pairs fail the action rather than being skipped.
+     * For example, the columns `name = "a&b"`, `city = "Rio"` and `note = NULL` are expressed as
+     * `"name=a%26b&city=Rio&note"`. Malformed pairs fail the action rather than being skipped.
      *
      * During verification this key replaces the [EXPECTED_COL] / [EXPECTED_VAL] pair. Every pair it
      * carries is checked against the row, so a restore that corrupts any column of the row fails,
