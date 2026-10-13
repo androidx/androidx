@@ -36,7 +36,7 @@ package androidx.a2ui.compose.ui {
     property public abstract java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> properties;
   }
 
-  @androidx.compose.runtime.Immutable public sealed nonexhaustive interface A2uiComponentCollection extends kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.a2ui.compose.ui.A2uiComponent> {
+  @androidx.compose.runtime.Immutable public sealed nonexhaustive interface A2uiComponentCollection extends java.util.List<androidx.a2ui.compose.ui.A2uiComponent> kotlin.jvm.internal.markers.KMappedMarker {
     method public operator androidx.a2ui.compose.ui.A2uiComponent? get(String name);
   }
 
