@@ -69,19 +69,28 @@ package androidx.webkit {
     method public boolean isReload();
     method public boolean isRestore();
     method public boolean isSameDocument();
+    method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.NavigationState snapshotState();
     method public boolean wasInitiatedByPage();
   }
 
   public interface NavigationListener {
-    method public default void onFirstContentfulPaintMillis(androidx.webkit.Page, long);
-    method public default void onLargestContentfulPaintMillis(androidx.webkit.Page, long);
-    method public default void onNavigationCompleted(androidx.webkit.Navigation);
-    method public default void onNavigationRedirected(androidx.webkit.Navigation);
-    method public default void onNavigationStarted(androidx.webkit.Navigation);
-    method public default void onPageDeleted(androidx.webkit.Page);
-    method public default void onPageDomContentLoadedEvent(androidx.webkit.Page);
-    method public default void onPageLoadEvent(androidx.webkit.Page);
-    method public default void onPerformanceMarkMillis(androidx.webkit.Page, String, long);
+    method @Deprecated public default void onFirstContentfulPaintMillis(androidx.webkit.Page, long);
+    method public default void onFirstContentfulPaintMillis(androidx.webkit.PageState, long);
+    method @Deprecated public default void onLargestContentfulPaintMillis(androidx.webkit.Page, long);
+    method public default void onLargestContentfulPaintMillis(androidx.webkit.PageState, long);
+    method @Deprecated public default void onNavigationCompleted(androidx.webkit.Navigation);
+    method public default void onNavigationCompleted(androidx.webkit.NavigationState);
+    method @Deprecated public default void onNavigationRedirected(androidx.webkit.Navigation);
+    method @Deprecated public default void onNavigationStarted(androidx.webkit.Navigation);
+    method public default void onNavigationStarted(androidx.webkit.NavigationState);
+    method @Deprecated public default void onPageDeleted(androidx.webkit.Page);
+    method public default void onPageDeleted(androidx.webkit.PageState);
+    method @Deprecated public default void onPageDomContentLoadedEvent(androidx.webkit.Page);
+    method public default void onPageDomContentLoadedEvent(androidx.webkit.PageState);
+    method @Deprecated public default void onPageLoadEvent(androidx.webkit.Page);
+    method public default void onPageLoadEvent(androidx.webkit.PageState);
+    method @Deprecated public default void onPerformanceMarkMillis(androidx.webkit.Page, String, long);
+    method public default void onPerformanceMarkMillis(androidx.webkit.PageState, String, long);
   }
 
   @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.WebViewCompat.ExperimentalNavigate public final class NavigationParameters {
@@ -95,6 +104,30 @@ package androidx.webkit {
     method public androidx.webkit.NavigationParameters.Builder addAdditionalHeaders(java.util.Map<java.lang.String!,java.lang.String!>);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.NavigationParameters build();
     method public androidx.webkit.NavigationParameters.Builder setShouldReplaceCurrentEntry(boolean);
+  }
+
+  public final class NavigationRedirectParameters {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_GET_RESPONSE_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public java.util.Map<java.lang.String!,java.lang.String!> getResponseHeaders();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_GET_RESPONSE_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public int getStatusCode();
+  }
+
+  @AnyThread public final class NavigationState {
+    method public boolean didCommit();
+    method public boolean didCommitErrorPage();
+    method public androidx.webkit.Navigation getNavigation();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public long getNavigationStartUptimeMillis();
+    method public androidx.webkit.PageState? getPageState();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_GET_RESPONSE_HEADERS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public java.util.Map<java.lang.String!,java.lang.String!>? getResponseHeaders();
+    method public int getStatusCode();
+    method public String getUrl();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_GET_WEB_RESOURCE_ERROR, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.WebResourceErrorCompat? getWebResourceError();
+    method public boolean isBack();
+    method public boolean isForward();
+    method public boolean isHistory();
+    method public boolean isReload();
+    method public boolean isRestore();
+    method public boolean isSameDocument();
+    method public boolean wasInitiatedByPage();
   }
 
   @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public class NoVarySearchHeader {
@@ -112,6 +145,12 @@ package androidx.webkit {
   }
 
   public final class Page {
+    method public String getUrl();
+    method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.PageState snapshotState();
+  }
+
+  @AnyThread public final class PageState {
+    method public androidx.webkit.Page getPage();
     method public String getUrl();
   }
 
@@ -743,8 +782,11 @@ package androidx.webkit {
     field public static final String MULTI_PROFILE = "MULTI_PROFILE";
     field public static final String MUTE_AUDIO = "MUTE_AUDIO";
     field @Deprecated public static final String NAVIGATION_CALLBACK_BASIC = "WEB_VIEW_NAVIGATION_CLIENT_BASIC_USAGE";
+    field public static final String NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS = "NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS";
+    field public static final String NAVIGATION_GET_RESPONSE_HEADERS = "NAVIGATION_GET_RESPONSE_HEADERS";
     field public static final String NAVIGATION_GET_WEB_RESOURCE_ERROR = "NAVIGATION_GET_WEB_RESOURCE_ERROR";
     field public static final String NAVIGATION_LISTENER = "NAVIGATION_LISTENER";
+    field public static final String NAVIGATION_LISTENER_NAVIGATION_STATE = "NAVIGATION_LISTENER_NAVIGATION_STATE";
     field @Deprecated public static final String NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS = "NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS";
     field @Deprecated public static final String NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED = "NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED";
     field @Deprecated public static final String NAVIGATION_LISTENER_V1 = "NAVIGATION_LISTENER_V1";

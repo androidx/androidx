@@ -33,7 +33,6 @@ import java.lang.reflect.InvocationHandler;
  * {@link PageState#getPage()}
  */
 @AnyThread
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class PageState {
 
     private final @NonNull WebViewPageStateBoundaryInterface mBoundaryInterface;

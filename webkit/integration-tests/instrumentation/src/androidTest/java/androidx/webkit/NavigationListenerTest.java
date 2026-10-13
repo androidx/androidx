@@ -83,7 +83,7 @@ public class NavigationListenerTest {
     private RecordingNavigationStateListener mStateListener;
     private MockWebServer mWebServer;
 
-    @SuppressWarnings("NewClassNamingConvention") // Not a class containing tests.
+    @SuppressWarnings({"NewClassNamingConvention", "deprecation"}) // Not a class containing tests.
     private static class RecordingNavigationListener implements NavigationListener {
         public final BlockingQueue<Navigation> mOnNavigationStartedQueue =
                 new LinkedBlockingQueue<>();
