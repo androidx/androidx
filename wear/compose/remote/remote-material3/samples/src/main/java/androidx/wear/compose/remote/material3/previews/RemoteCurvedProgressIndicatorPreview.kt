@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteCurvedProgressIndicator
+import androidx.wear.compose.remote.material3.RemoteIntroOutroCurvedProgressIndicator
 import androidx.wear.compose.remote.material3.RemoteProgressIndicatorDefaults
 import androidx.wear.compose.remote.material3.RemoteText
 import androidx.wear.compose.remote.material3.previews.utils.ProfilePreviewParameterProvider
@@ -289,20 +290,17 @@ public fun RemoteCurvedProgressIndicatorAnimatedPreview() {
 @Composable
 fun RemoteCurvedProgressIndicatorOutroLoop() {
     val time = RemoteTimeVariables.continuousSeconds
-    val cycleDuration = 6f.rf
-    val t = (time % cycleDuration) / cycleDuration
-    // Ramp progress from 95% to 100% over 5 seconds, then hold at 100% for 1 second.
-    // The outro animation triggers at 850ms remaining, which for a 5-minute timer (300,000ms)
-    // is at ~99.71% progress.
-    val rampProgress = clamp(t / (5f.rf / 6f.rf), 0f.rf, 1f.rf)
-    val progress = lerp(0.95f.rf, 1.0000f.rf, rampProgress)
+    val cycleDuration = 7f.rf
+    // Ramp progress from 95% by 1% per second, so that it reaches 100% after 5 seconds, then hold
+    // it at 100% for 2 seconds. The outro animation plays once the progress reaches 100%, so it
+    // plays during the hold. Clamping makes the progress exactly 100% at the end.
+    val progress = clamp(0.95f.rf + (time % cycleDuration) * 0.01f.rf, 0f.rf, 1f.rf)
     RemoteBox(modifier = RemoteModifier.size(150.rdp), contentAlignment = RemoteAlignment.Center) {
-        RemoteCurvedProgressIndicator(
+        RemoteIntroOutroCurvedProgressIndicator(
             modifier = RemoteModifier.fillMaxSize(),
             progress = progress,
             startAngle = 135f.rf,
             sweepAngle = 90f.rf,
-            totalTimerDurationMillis = 300_000L,
         )
         val livePctString = (progress * 100f.rf).toRemoteString(DecimalFormat("0.00")) + "%".rs
         RemoteText(
@@ -324,12 +322,11 @@ fun RemoteCurvedProgressIndicatorIntroLoop() {
     val rampProgress = clamp((t - (2.0f.rf / 12f.rf)) / (8.0f.rf / 12f.rf), 0f.rf, 1f.rf)
     val progress = lerp(0.00f.rf, 0.07f.rf, rampProgress)
     RemoteBox(modifier = RemoteModifier.size(150.rdp), contentAlignment = RemoteAlignment.Center) {
-        RemoteCurvedProgressIndicator(
+        RemoteIntroOutroCurvedProgressIndicator(
             modifier = RemoteModifier.fillMaxSize(),
             progress = progress,
             startAngle = 135f.rf,
             sweepAngle = 90f.rf,
-            totalTimerDurationMillis = 66_667L,
         )
         val livePctString = (progress * 100f.rf).toRemoteString(DecimalFormat("0.00")) + "%".rs
         RemoteText(
@@ -351,12 +348,11 @@ fun RemoteCurvedProgressIndicatorCountdownIntroLoop() {
     val rampProgress = clamp((t - (2.0f.rf / 12f.rf)) / (8.0f.rf / 12f.rf), 0f.rf, 1f.rf)
     val progress = lerp(1.00f.rf, 0.93f.rf, rampProgress)
     RemoteBox(modifier = RemoteModifier.size(150.rdp), contentAlignment = RemoteAlignment.Center) {
-        RemoteCurvedProgressIndicator(
+        RemoteIntroOutroCurvedProgressIndicator(
             modifier = RemoteModifier.fillMaxSize(),
             progress = progress,
             startAngle = 135f.rf,
             sweepAngle = 90f.rf,
-            totalTimerDurationMillis = 66_667L,
             countDown = true.rb,
         )
         val livePctString = (progress * 100f.rf).toRemoteString(DecimalFormat("0.00")) + "%".rs
@@ -372,20 +368,17 @@ fun RemoteCurvedProgressIndicatorCountdownIntroLoop() {
 @Composable
 fun RemoteCurvedProgressIndicatorCountdownOutroLoop() {
     val time = RemoteTimeVariables.continuousSeconds
-    val cycleDuration = 6f.rf
-    val t = (time % cycleDuration) / cycleDuration
-    // Ramp progress from 5% to 0% over 5 seconds, then hold at 0% for 1 second.
-    // The outro animation triggers at 850ms remaining, which for a 5-minute timer (300,000ms)
-    // is at ~0.29% progress.
-    val rampProgress = clamp(t / (5f.rf / 6f.rf), 0f.rf, 1f.rf)
-    val progress = lerp(0.05f.rf, 0.0000f.rf, rampProgress)
+    val cycleDuration = 7f.rf
+    // Ramp progress from 5% down by 1% per second, so that it reaches 0% after 5 seconds, then hold
+    // it at 0% for 2 seconds. The outro animation plays once the progress reaches 0%, so it plays
+    // during the hold. Clamping makes the progress exactly 0% at the end.
+    val progress = clamp(0.05f.rf - (time % cycleDuration) * 0.01f.rf, 0f.rf, 1f.rf)
     RemoteBox(modifier = RemoteModifier.size(150.rdp), contentAlignment = RemoteAlignment.Center) {
-        RemoteCurvedProgressIndicator(
+        RemoteIntroOutroCurvedProgressIndicator(
             modifier = RemoteModifier.fillMaxSize(),
             progress = progress,
             startAngle = 135f.rf,
             sweepAngle = 90f.rf,
-            totalTimerDurationMillis = 300_000L,
             countDown = true.rb,
         )
         val livePctString = (progress * 100f.rf).toRemoteString(DecimalFormat("0.00")) + "%".rs
