@@ -27,8 +27,6 @@ import android.view.MotionEvent.CLASSIFICATION_PINCH
 import android.view.MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
 import androidx.annotation.IntDef
 import androidx.collection.LongSparseArray
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.util.fastForEach
 
 /**
@@ -104,7 +102,6 @@ internal actual constructor(
     public actual var type: PointerEventType = calculatePointerEventType()
         internal set
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun calculatePointerEventType(): PointerEventType {
         val motionEvent = motionEvent
         if (motionEvent != null) {
@@ -112,13 +109,7 @@ internal actual constructor(
              * Special cases: for classifications, we interpret the motion event differently instead
              * of the fake finger press + move + release
              */
-            val isTwoFingerSwipe =
-                if (ComposeUiFlags.isTrackpadPanHoverFixEnabled) {
-                    internalPointerEvent?.activeGesture == PointerClassification.Pan
-                } else {
-                    Build.VERSION.SDK_INT >= 34 &&
-                        motionEvent.classification == CLASSIFICATION_TWO_FINGER_SWIPE
-                }
+            val isTwoFingerSwipe = internalPointerEvent?.activeGesture == PointerClassification.Pan
             val isPinch = internalPointerEvent?.activeGesture == PointerClassification.Pinch
             return when (motionEvent.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {

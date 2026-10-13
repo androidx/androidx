@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.TestViewConfiguration
 import androidx.compose.ui.AbsoluteAlignment
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -53,7 +52,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -971,9 +969,7 @@ class TapGestureDetectorTest {
 
     @SdkSuppress(minSdkVersion = 34)
     @Test
-    @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
     fun trackpadTapAfterScrollCancelled() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
         lateinit var view: View
         rule.setContent {
             view = LocalView.current
