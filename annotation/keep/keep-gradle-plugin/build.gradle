@@ -55,6 +55,10 @@ dependencies {
 }
 
 tasks.withType(Test).configureEach { test ->
+    // Needed to support Gradle 8.14 used in the tests
+    test.javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
     // Configure publishing tasks to be dependencies of 'test' so those artifacts are available for
     // the test project executed with Gradle Test Kit.
     test.dependsOn(

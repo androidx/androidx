@@ -95,7 +95,8 @@ function androidx_apply_build_environment() {
   # Toolchain and SDK environment variables
   export ANDROID_HOME="$support_root/../../prebuilts/fullsdk-$plat"
   export ANDROIDX_JDK21="$support_root/../../prebuilts/jdk/jdk21/$plat-$platform_suffix"
-  export JAVA_HOME="$ANDROIDX_JDK21"
+  export ANDROIDX_JDK25="$support_root/../../prebuilts/jdk/jdk25/$plat-$platform_suffix"
+  export JAVA_HOME="$ANDROIDX_JDK25"
   export STUDIO_GRADLE_JDK="$JAVA_HOME"
 
   # Validate toolchain presence

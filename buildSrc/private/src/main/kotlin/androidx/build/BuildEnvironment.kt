@@ -25,6 +25,8 @@ import org.gradle.api.GradleException
 object BuildEnvironment {
     /** Environment variable carrying the path to the JDK 21. */
     const val ANDROIDX_JDK21 = "ANDROIDX_JDK21"
+    /** Environment variable carrying the path to the JDK 25. */
+    const val ANDROIDX_JDK25 = "ANDROIDX_JDK25"
 
     /** Environment variable used to scope the build to a named project subset. */
     const val ANDROIDX_PROJECTS = "ANDROIDX_PROJECTS"

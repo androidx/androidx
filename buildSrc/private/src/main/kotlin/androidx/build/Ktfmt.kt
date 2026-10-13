@@ -120,7 +120,11 @@ abstract class BaseKtfmtTask : DefaultTask() {
             javaExecSpec.mainClass.set(MainClass)
             javaExecSpec.classpath = ktfmtClasspath
             javaExecSpec.args = getArgsList(format = format)
-            javaExecSpec.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
+            javaExecSpec.jvmArgs(
+                "--add-opens=java.base/java.lang=ALL-UNNAMED",
+                // https://github.com/Kotlin/ktfmt/issues/533
+                "--sun-misc-unsafe-memory-access=allow",
+            )
             // Ignore exit value to allow printing the process's error stream before asserting a
             // successful exit value.
             javaExecSpec.isIgnoreExitValue = true

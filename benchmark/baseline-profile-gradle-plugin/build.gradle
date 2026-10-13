@@ -119,6 +119,10 @@ androidx {
 }
 
 tasks.withType(Test).configureEach { test ->
+    // Needed to support Gradle 8.14 used in the tests
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
     test.maxParallelForks = 2
 }
 afterEvaluate { tasks.named("test") { it.dependsOn(tasks.named("publish")) } }

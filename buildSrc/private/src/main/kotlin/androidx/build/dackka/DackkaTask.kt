@@ -442,6 +442,8 @@ abstract class DackkaWorkAction @Inject constructor(private val execOperations: 
         execOperations.javaexec {
             it.mainClass.set("org.jetbrains.dokka.MainKt")
             it.args = parameters.args.get()
+            // b/553124184
+            it.jvmArgs = listOf("--sun-misc-unsafe-memory-access=allow")
             it.classpath(parameters.classpath.get())
         }
     }
