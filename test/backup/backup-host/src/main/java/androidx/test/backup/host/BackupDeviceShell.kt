@@ -62,11 +62,18 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
         }
     }
 
-    /** Copies [hostPath] to [devicePath] on the device. */
-    suspend fun pushFile(hostPath: Path, devicePath: String) {
+    /**
+     * Copies [hostPath] to [devicePath] on the device, which gets the permission bits [mode]: by
+     * default readable by every user, as the package manager needs for an APK.
+     */
+    suspend fun pushFile(
+        hostPath: Path,
+        devicePath: String,
+        mode: RemoteFileMode = PUSHED_FILE_MODE,
+    ) {
         adbSession.channelFactory.openFile(hostPath).use { input ->
             adbSession.deviceServices.sync(device).use { sync ->
-                sync.send(input, devicePath, PUSHED_FILE_MODE, null, null)
+                sync.send(input, devicePath, mode, null, null)
             }
         }
     }
@@ -80,16 +87,8 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
      * Runs the instrumentation [component] with string [args], waits for it to finish, and returns
      * what it printed.
      */
-    suspend fun instrument(component: String, args: Map<String, String>): String {
-        val command = buildString {
-            append("am instrument -w")
-            for ((key, value) in args) {
-                append(" -e ").append(quoteIfNeeded(key)).append(' ').append(quote(value))
-            }
-            append(' ').append(quoteIfNeeded(component))
-        }
-        return exec(command).stdout
-    }
+    suspend fun instrument(component: String, args: Map<String, String>): String =
+        exec(instrumentCommand(component, args)).stdout
 
     /**
      * Starts an activity and waits for it to launch.
@@ -323,6 +322,21 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumbe
 
         /** `rwxrwxrwx`, so the package manager can read the staged file. */
         private val PUSHED_FILE_MODE = RemoteFileMode.fromModeBits(511)
+
+        /** `rw-------`, for a file that only the shell user, which pushes it, reads. */
+        val SHELL_ONLY_FILE_MODE: RemoteFileMode = RemoteFileMode.fromModeBits(384)
+
+        /**
+         * Returns the `am instrument` command that runs the instrumentation [component] with string
+         * [args] and waits for it to finish.
+         */
+        fun instrumentCommand(component: String, args: Map<String, String>): String = buildString {
+            append("am instrument -w")
+            for ((key, value) in args) {
+                append(" -e ").append(quoteIfNeeded(key)).append(' ').append(quote(value))
+            }
+            append(' ').append(quoteIfNeeded(component))
+        }
 
         /**
          * A line of `pm list instrumentation`, which reads `instrumentation:<package>/<class>

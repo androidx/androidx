@@ -18,14 +18,14 @@ package androidx.test.backup
 
 import android.app.Activity
 import android.app.Instrumentation
+import android.app.UiAutomation
 import android.content.Context
 import android.os.Bundle
 import android.os.Debug
-import android.os.Environment
-import java.io.File
+import android.os.ParcelFileDescriptor
+import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.UUID
 import org.json.JSONObject
 
 /**
@@ -36,8 +36,12 @@ import org.json.JSONObject
  */
 /*
  * NOTE: The host wakes this runner up via `am instrument`, and the action class is loaded and
- * instantiated dynamically by name. Results larger than MAX_BINDER_PAYLOAD_SIZE_BYTES are written
- * to a file and referenced by path, because the Binder transaction cannot carry them.
+ * instantiated dynamically by name.
+ *
+ * Arguments too large for the `am instrument` command line arrive in a file that the host pushed to
+ * the device, which the runner reads as the shell user. A result too large for one Binder
+ * transaction goes back in parts, each sent as an instrumentation status, which `am instrument`
+ * prints before the final result.
  *
  * NOTE: This class MUST remain public. Custom `Instrumentation` subclasses must be public because
  * the Android operating system platform's system server (`system_server` via
@@ -57,7 +61,16 @@ public class BackupRestoreTestRunner : Instrumentation() {
 
     override fun onStart() {
         super.onStart()
-        finish(Activity.RESULT_OK, runAction(arguments, context, targetContext))
+        finish(
+            Activity.RESULT_OK,
+            runAction(
+                arguments,
+                context,
+                targetContext,
+                readFile = { path -> readFileAsShell(this, path) },
+                sendStatus = ::sendStatus,
+            ),
+        )
     }
 
     internal companion object {
@@ -67,23 +80,68 @@ public class BackupRestoreTestRunner : Instrumentation() {
         /** The argument that, when "true", makes the runner wait for a debugger to attach. */
         private const val KEY_DEBUG = "debug"
 
-        /** The argument naming the directory that receives a payload too large for Binder. */
+        /**
+         * The argument naming the device file that holds the arguments of the action, as a JSON
+         * object of strings. Without it, the action gets the other instrumentation arguments.
+         */
+        private const val KEY_ARGS_FILE = "argsFile"
+
+        /** An argument that older hosts send, which the runner ignores. */
         private const val KEY_REDIRECT_DIR = "redirect_dir"
 
         /** The arguments that the runner reads itself, which are not passed to the action. */
-        private val RUNNER_KEYS = setOf(KEY_ACTION_CLASS, KEY_DEBUG, KEY_REDIRECT_DIR)
+        private val RUNNER_KEYS =
+            setOf(KEY_ACTION_CLASS, KEY_DEBUG, KEY_ARGS_FILE, KEY_REDIRECT_DIR)
 
         /** The result bundle key enclosing the JSON-serialized execution outcome. */
         private const val KEY_RESULT_JSON = "resultJson"
 
-        /**
-         * The maximum size of the JSON payload (in bytes) before switching to disk storage to
-         * prevent Binder overflow transactions.
-         */
-        private const val MAX_BINDER_PAYLOAD_SIZE_BYTES = 500 * 1024
+        /** The status key of one part of a result that is sent in parts. */
+        private const val KEY_RESULT_PART = "resultPart"
 
-        /** The maximum length of an unhandled exception stack trace passed over Binder (50 KB). */
-        private const val MAX_STACK_TRACE_LENGTH_CHARS = 50 * 1024
+        /** The result bundle key with the number of parts of a result that was sent in parts. */
+        private const val KEY_RESULT_PARTS = "resultParts"
+
+        /** The result bundle key with the length of a result that was sent in parts. */
+        private const val KEY_RESULT_LENGTH = "resultLength"
+
+        /** The code of the statuses that carry the parts of a result. */
+        private const val RESULT_PART_STATUS_CODE = 1
+
+        /**
+         * The maximum length, in characters, of a result in one Binder transaction. A Bundle holds
+         * each character in two bytes, so this keeps a transaction far below the 1 MB Binder limit.
+         */
+        private const val MAX_RESULT_CHARS_PER_TRANSACTION = 64 * 1024
+
+        /** The maximum length of an error message or a stack trace in a result (50 KB). */
+        private const val MAX_TEXT_LENGTH_CHARS = 50 * 1024
+
+        /**
+         * Returns the content of the device file at [path], read as the shell user through the
+         * `UiAutomation` of [instrumentation]. The shell user can read the files that the host
+         * pushes to the device, which the app can't.
+         *
+         * @throws IOException if the file can't be read
+         */
+        internal fun readFileAsShell(instrumentation: Instrumentation, path: String): String {
+            // The command is split on whitespace and runs without a shell, so a path must have no
+            // whitespace to be one argument, and must be absolute not to be taken for an option.
+            if (!path.startsWith("/") || path.any { it.isWhitespace() }) {
+                throw IOException("Not an absolute path without whitespace: '$path'")
+            }
+            val automation =
+                instrumentation.getUiAutomation(UiAutomation.FLAG_DONT_USE_ACCESSIBILITY)
+                    ?: throw IOException("Can't connect to UiAutomation to read $path")
+            val content =
+                ParcelFileDescriptor.AutoCloseInputStream(
+                        automation.executeShellCommand("cat $path")
+                    )
+                    .use { it.readBytes().toString(Charsets.UTF_8) }
+            // cat prints why it fails on stderr, which this doesn't read, and nothing on stdout.
+            if (content.isEmpty()) throw IOException("$path is empty or can't be read")
+            return content
+        }
 
         /**
          * Runs the action that the instrumentation [arguments] name, and returns the result bundle
@@ -91,21 +149,35 @@ public class BackupRestoreTestRunner : Instrumentation() {
          *
          * @param testContext context of the test APK, whose class loader loads the action
          * @param targetContext context of the app under test, which the action runs in
+         * @param readFile returns the content of a device file that the host pushed
+         * @param sendStatus sends an instrumentation status to the host, which receives it before
+         *   the call returns
          */
         internal fun runAction(
             arguments: Bundle?,
             testContext: Context,
             targetContext: Context,
-        ): Bundle {
+            readFile: (path: String) -> String,
+            sendStatus: (resultCode: Int, results: Bundle) -> Unit,
+        ): Bundle =
+            resultBundle(outcomeOf(arguments, testContext, targetContext, readFile), sendStatus)
+
+        /** Runs the action that [arguments] name, and returns its outcome as a JSON object. */
+        private fun outcomeOf(
+            arguments: Bundle?,
+            testContext: Context,
+            targetContext: Context,
+            readFile: (path: String) -> String,
+        ): String {
             if (arguments == null) {
-                return result(
+                return outcome(
                     isSuccess = false,
                     errorMessage = "No instrumentation arguments received.",
                 )
             }
             val actionClassName =
                 arguments.getString(KEY_ACTION_CLASS)
-                    ?: return result(
+                    ?: return outcome(
                         isSuccess = false,
                         errorMessage = "No actionClass parameter specified.",
                     )
@@ -113,6 +185,26 @@ public class BackupRestoreTestRunner : Instrumentation() {
             if (arguments.getString(KEY_DEBUG).toBoolean()) {
                 Debug.waitForDebugger()
             }
+
+            val argsFile = arguments.getString(KEY_ARGS_FILE)
+            val actionArgs =
+                if (argsFile != null) {
+                    try {
+                        parseArgsFile(readFile(argsFile))
+                    } catch (e: Exception) {
+                        return outcome(
+                            isSuccess = false,
+                            errorMessage =
+                                "Failed to read the action arguments from $argsFile: ${e.message}",
+                        )
+                    }
+                } else {
+                    buildMap {
+                        for (key in arguments.keySet()) {
+                            if (key !in RUNNER_KEYS) arguments.getString(key)?.let { put(key, it) }
+                        }
+                    }
+                }
 
             return try {
                 val actionClass =
@@ -135,24 +227,18 @@ public class BackupRestoreTestRunner : Instrumentation() {
                 val actionInstance =
                     actionClass.getDeclaredConstructor().newInstance() as BackupDeviceAction
 
-                val actionArgs = buildMap {
-                    for (key in arguments.keySet()) {
-                        if (key !in RUNNER_KEYS) arguments.getString(key)?.let { put(key, it) }
-                    }
-                }
                 val actionResult =
                     actionInstance.execute(targetContext, BackupDeviceActionArgs(actionArgs))
 
-                result(
+                outcome(
                     isSuccess = actionResult.isSuccess,
                     errorMessage = actionResult.errorMessage,
                     payloadJson = JSONObject(actionResult.payload).toString(),
-                    overflowDir = { overflowDir(arguments, targetContext) },
                 )
             } catch (e: Throwable) {
                 val stackTrace = StringWriter()
                 e.printStackTrace(PrintWriter(stackTrace))
-                result(
+                outcome(
                     isSuccess = false,
                     errorMessage = "Exception executing action: ${e.message ?: e.toString()}",
                     stackTrace = stackTrace.toString(),
@@ -161,63 +247,71 @@ public class BackupRestoreTestRunner : Instrumentation() {
         }
 
         /**
-         * Returns the result bundle reporting an outcome. A [payloadJson] too large for Binder is
-         * written to a file in [overflowDir], and referenced by its path.
+         * Returns the arguments in [json], a JSON object whose values are all strings.
+         *
+         * @throws org.json.JSONException if [json] is not a JSON object
+         * @throws IllegalArgumentException if a value is not a string
          */
-        private fun result(
+        private fun parseArgsFile(json: String): Map<String, String> {
+            val jsonObject = JSONObject(json)
+            return jsonObject.keys().asSequence().associateWith { key ->
+                jsonObject.get(key) as? String
+                    ?: throw IllegalArgumentException("The value of '$key' is not a string")
+            }
+        }
+
+        /**
+         * Returns an outcome as the JSON object that the host decodes. The error message and the
+         * stack trace are bounded, so that a huge one can't hide the rest of the outcome.
+         */
+        private fun outcome(
             isSuccess: Boolean,
             errorMessage: String?,
             payloadJson: String? = null,
             stackTrace: String? = null,
-            overflowDir: () -> File = { error("No overflow directory for a payload") },
-        ): Bundle {
-            val result = mutableMapOf<String, Any?>()
-            result["isSuccess"] = isSuccess
-            result["errorMessage"] = errorMessage
-
-            // Bound the stack trace so the result stays within a Binder transaction.
-            val safeStackTrace =
-                stackTrace?.let {
-                    if (it.length > MAX_STACK_TRACE_LENGTH_CHARS) {
-                        it.substring(0, MAX_STACK_TRACE_LENGTH_CHARS) + "\n... [truncated]"
-                    } else {
-                        it
-                    }
-                } ?: ""
-            result["stackTrace"] = safeStackTrace
-
-            if (payloadJson != null) {
-                val payloadBytes = payloadJson.toByteArray(Charsets.UTF_8)
-                if (payloadBytes.size > MAX_BINDER_PAYLOAD_SIZE_BYTES) {
-                    val overflowFile = File(overflowDir(), "overflow_${UUID.randomUUID()}.json")
-                    try {
-                        overflowFile.parentFile?.mkdirs()
-                        val fileMap = mapOf<String, Any?>("payloadJson" to payloadJson)
-                        overflowFile.writeText(JSONObject(fileMap).toString())
-                        result["payload_path"] = overflowFile.absolutePath
-                    } catch (e: Throwable) {
-                        result["errorMessage"] =
-                            "Failed to write overflow payload file: " + e.message
-                        result["isSuccess"] = false
-                    }
-                } else {
-                    result["payloadJson"] = payloadJson
-                }
-            }
-
-            return Bundle().apply { putString(KEY_RESULT_JSON, JSONObject(result).toString()) }
+        ): String {
+            val outcome = mutableMapOf<String, Any?>()
+            outcome["isSuccess"] = isSuccess
+            outcome["errorMessage"] = errorMessage?.let { truncated(it, MAX_TEXT_LENGTH_CHARS) }
+            outcome["stackTrace"] = stackTrace?.let { truncated(it, MAX_TEXT_LENGTH_CHARS) } ?: ""
+            if (payloadJson != null) outcome["payloadJson"] = payloadJson
+            return JSONObject(outcome).toString()
         }
 
-        private fun overflowDir(arguments: Bundle, targetContext: Context): File {
-            val redirectDir = arguments.getString(KEY_REDIRECT_DIR)
-            if (!redirectDir.isNullOrEmpty()) {
-                val file = File(redirectDir)
-                if (file.exists() || file.mkdirs()) {
-                    return file
-                }
+        /**
+         * Returns the result bundle that reports [outcomeJson].
+         *
+         * An outcome too large for one Binder transaction is sent in parts with [sendStatus] first,
+         * and the result bundle then names how many parts there are.
+         */
+        private fun resultBundle(
+            outcomeJson: String,
+            sendStatus: (resultCode: Int, results: Bundle) -> Unit,
+        ): Bundle {
+            if (outcomeJson.length <= MAX_RESULT_CHARS_PER_TRANSACTION) {
+                return Bundle().apply { putString(KEY_RESULT_JSON, outcomeJson) }
             }
-            return targetContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-                ?: targetContext.cacheDir
+            var parts = 0
+            var start = 0
+            while (start < outcomeJson.length) {
+                val end =
+                    surrogateSafeEnd(
+                        outcomeJson,
+                        minOf(start + MAX_RESULT_CHARS_PER_TRANSACTION, outcomeJson.length),
+                    )
+                sendStatus(
+                    RESULT_PART_STATUS_CODE,
+                    Bundle().apply {
+                        putString(KEY_RESULT_PART, outcomeJson.substring(start, end))
+                    },
+                )
+                parts++
+                start = end
+            }
+            return Bundle().apply {
+                putString(KEY_RESULT_PARTS, parts.toString())
+                putString(KEY_RESULT_LENGTH, outcomeJson.length.toString())
+            }
         }
     }
 }
