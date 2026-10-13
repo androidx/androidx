@@ -19,19 +19,32 @@ description: Instructions for AI agents to perform strict CameraX code reviews.
 
 # Code Review Guidelines
 
-You are a highly experienced code reviewer specializing in the CameraX
-codebase and Android platform architectures. This guide serves two mandatory
-purposes:
-1. **Code Review Protocol:** When reviewing local changes, commits ahead of
-   `aosp/androidx-main`, or user-provided Git patches.
-2. **Author Self-Review Gate:** When writing new code or modifying existing
-   components, agents **MUST** execute this exact review protocol on their own
-   changes as a mandatory self-review before finalizing code edits or
-   uploading.
+You are a highly experienced code reviewer and architectural verifier
+specializing in the CameraX codebase and Android platform architectures. This
+guide and its **Universal Multi-Model Clean-Context Verification Gate** (Step 5
+& Step 6) apply to all high-stakes and quality-critical deliverables:
+1. **Code Changes & PRs (Code Review & Author Self-Review):** Reviewing local
+   changes, commits ahead of `aosp/androidx-main`, user-provided Git patches, or
+   executing mandatory author self-review before finalizing edits or uploading.
+2. **Issue Investigation & Root-Cause Analysis (Triage Audit):** Diagnosing
+   bugs, test failures, HAL crashes, or architectural questions before
+   delivering a root-cause conclusion.
+3. **Implementation & Architectural Planning (Plan Audit):** Producing an
+   implementation plan, refactoring design, API proposal, or test strategy
+   before presenting it to the user or executing complex changes.
+4. **Test / Verification Result Retrieval & Report Generation (Report
+   Fact-Checking & Accuracy Audit):** Generating analytical reports from device
+   or lab test executions, continuous integration histories, log analyses, or
+   metric queries.
+5. **Open-Ended Trade-Off Analysis, Quirk Scoping & Guideline Updates
+   (Multi-Perspective Synthesis):** Exploring competing architectural solutions
+   ("multi-input synthesis"), auditing empirical `DeviceQuirk` scoping rules,
+   designing complex race/stress tests, or updating KDoc and developer guides.
 
 Focus on identifying potential bugs, race conditions, resource leaks,
-architectural inconsistencies, security vulnerabilities, and code
-style/readability issues.
+architectural inconsistencies, flawed root-cause reasoning, numeric or factual
+inaccuracies in reports, security vulnerabilities, and code style/readability
+issues.
 
 In addition to analyzing the diff, leverage local environment capabilities:
 - **Context & Architectural Fit:** Never inspect only the modified lines
@@ -131,54 +144,167 @@ applicable. Prioritize clarity and conciseness.
 4.  **Verify Locally:** Execute local compilation, unit tests, and repohooks
     (`repo upload --dry-run .` / `runErrorProneRelease`) to validate build and
     pre-submit stability.
-5.  **Formulate Structured Feedback:** Organize feedback into clear, prioritized
-    sections:
-    - **Summary of Changes**: High-level overview of the patch.
-    - **Critical & High-Priority Issues**: Potential bugs, race conditions,
-      resource leaks, and build/test breakers.
-    - **Medium-Priority Issues**: Robustness improvements, modern API
-      migrations, and design antipatterns.
-    - **Style & Formatting**: Line-length violations, Kotlin idioms, and
-      documentation wrapping.
-    - **Testing & Coverage**: Missing test cases or assertion improvements.
-    - Provide **concrete, copy-pasteable replacement code snippets** for each
-      issue to make remediation effortless.
-6.  **Self-Review & Multi-Model Review Loop (Default, Max 3 Rounds):**
-    Before outputting review results or finalizing code edits, run both an
-    in-context completeness check and, by default, a sequential multi-model
-    independent review loop:
-    *   **Runtime Capability Detection & Notification:** Check whether the
-        agent console/harness supports spawning independent sub-agents across
-        distinct model tiers (see `AGENTS_INTERNAL.md` when configured).
-        Automatically inform the user of the active review mode:
-        - `MULTI_MODEL`: Spawning independent reviewer sub-agents across
-          different model tiers.
-        - `SINGLE_MODEL_FRESH_CONTEXT`: Spawning independent reviewer
+5.  **Formulate Structured Feedback & Deliverable-Specific Audit Checklists:**
+    Organize code review feedback into clear, prioritized sections, and apply
+    the mode-specific audit criteria matching the active deliverable:
+    *   **Mode 1 — Code Review (`git diff`):**
+        - **Summary of Changes**: High-level overview of the patch.
+        - **Critical & High-Priority Issues**: Potential bugs, race conditions,
+          resource leaks, and build/test breakers.
+        - **Medium-Priority Issues**: Robustness improvements, modern API
+          migrations, and design antipatterns.
+        - **Style & Formatting**: Line-length violations, Kotlin idioms, and
+          documentation wrapping.
+        - **Testing & Coverage**: Missing test cases or assertion improvements.
+        - Provide **concrete, copy-pasteable replacement code snippets** for
+          each issue, verifying wide codebase context, single responsibility
+          ("object job"), preservation of intentional workarounds, AndroidX /
+          Kotlin guidelines, and concurrency/lifecycle safety.
+    *   **Mode 2 — Issue Investigation & Root-Cause Triage (Triage Audit):**
+        - **Anti-Confirmation-Bias Check**: Verify the raw logcat, stack trace,
+          or test log slice from the beginning; confirm the claimed root cause
+          is the *first* causal failure, not a downstream symptom.
+        - **Code & Blame Verification**: Open every cited `file:line` in CameraX
+          and surrounding callers to verify the code actually behaves as
+          claimed.
+        - **Rubric Classification Audit**: Verify whether the diagnosis properly
+          maps to Section 6 (Step 1 Internal Contract vs. Step 2 Platform Spec
+          vs. Step 3 Hardware/HAL Quirk vs. Sub-case 3B Test-Only Constraint) or
+          a physical test fixture/environment defect.
+    *   **Mode 3 — Implementation & Architectural Planning (Plan Audit):**
+        - **Architectural Fit & Object Job**: Read all target classes, callers,
+          and sibling implementations; verify each proposed change belongs in
+          the right layer and class.
+        - **Completeness & Edge Cases**: Check lifecycle teardown, multi-stream
+          combinations (`StreamSharing`, RAW+JPEG), thread/dispatcher
+          confinement, public API/ABI compatibility, and missing test coverage.
+    *   **Mode 4 — Test / Verification Result Reports & Data Summaries (Report
+        Fact-Checking & Accuracy Audit):**
+        - **Strict Numeric & Math Reconciliation**: Re-count total targets,
+          passed devices, failed devices, and skipped/unallocated devices
+          directly from the raw test runner output; verify all table row and
+          column totals sum up accurately.
+        - **Target & Device Name Accuracy**: Verify target and device name
+          parsing, camera lens facing tags, and module disambiguation, and
+          confirm every test run URL and issue tracker ID matches the raw output
+          verbatim (zero hallucinated or transposed IDs).
+        - **Failure Attribution Audit**: Verify that infrastructure and fixture
+          failures (device offline or disconnected, test runner timeouts, APK
+          installation or storage errors, unpowered/dark test enclosure) are
+          strictly separated from real JUnit/CameraX assertion failures, and
+          that baseline comparisons accurately distinguish new regressions from
+          pre-existing failures.
+    *   **Mode 5 — Open-Ended Trade-Offs, Quirk Scoping & Test/Doc Synthesis
+        (Multi-Perspective Quality Audit):**
+        - **Competing Design Trade-Offs**: When multiple valid solutions exist,
+          compare independent model perspectives to select the most idiomatic,
+          minimal-complexity design before implementation.
+        - **Quirk Precision & Test Determinism**: Verify that proposed
+          `DeviceQuirk` mappings avoid magic heuristics, check OS version
+          ceiling persistence (Section 6.E), and confirm new async/stress tests
+          use deterministic synchronization without `Thread.sleep()`.
+        - **Documentation & KDoc Integrity**: Confirm public API docs and guide
+          updates are accurate, wrapped at 80 characters, and 100% public-safe.
+6.  **Universal Clean-Context Multi-Model Verification Loop (Default, Max 3
+    Rounds):**
+    Before delivering any finalized review, code change, root-cause
+    investigation, implementation plan, test verification report, or complex
+    technical recommendation, run both an in-context completeness check and, by
+    default, a clean-context multi-model verification-and-correction loop
+    (capped at **3 rounds max**):
+    *   **Smart & Flexible Trigger Scope (When to Auto-Invoke vs. Skip):**
+        - **Auto-Trigger (Mandatory by Default)**: Automatically trigger for
+          (1) Code Review / Pre-Upload Self-Review, (2) Issue Investigation /
+          Root-Cause Triage, (3) Implementation & Architectural Planning,
+          (4) Test / Verification Reports & Data Summaries, and (5) Open-Ended
+          Design Trade-Offs, Quirk Scoping, Complex Test Synthesis, or any task
+          where high quality or multiple independent perspectives can uncover a
+          better solution before final delivery.
+        - **Skip (Lightweight Direct Execution)**: Skip for simple, single-step
+          operational commands or status checks (e.g., listing devices, checking
+          device status, initializing a workspace, or answering a trivial
+          factual question) where no analytical report, plan, root-cause
+          conclusion, or code diff is being delivered.
+    *   **Runtime Capability Detection, Live Model Query & Notification:** Check
+        whether the agent console/harness supports spawning independent
+        sub-agents across distinct model families/tiers (see
+        `AGENTS_INTERNAL.md` when configured). When the harness provides a
+        lightweight model-catalog query (zero token cost), always query the live
+        catalog before Round 1 to dynamically select the latest available
+        quota-sustainable model in each model family. For daily quota-limited
+        model families, match the reasoning tier to task complexity: select a
+        high-reasoning tier for complex code changes, concurrency/lifecycle
+        audits, deep root-cause investigations, or architectural plans, and
+        select a medium/standard tier for routine or lightweight tasks (e.g.,
+        documentation edits, simple test/quirk updates, or numeric test report
+        fact-checking), while avoiding quota-heavy maximum tiers unless
+        explicitly requested. Automatically inform the user of the active
+        verification mode:
+        - `MULTI_MODEL`: Spawning independent verifier sub-agents across
+          distinct model families or tiers.
+        - `SINGLE_MODEL_FRESH_CONTEXT`: Spawning independent verifier
           sub-agents with a clean context on the current model.
-        - `UNSUPPORTED`: Falling back to single-agent in-context review.
-    *   **Independent Reviewer Onboarding ("New Engineer Brain"):** Each
-        spawned reviewer sub-agent must start with a clean context (without the
-        author's chain-of-thought) and be instructed to read this `AGENTS.md`
-        (Code Review Guidelines + Standards Hierarchy), `AGENTS_INTERNAL.md`
-        (if available), the diff, and the surrounding CameraX codebase widely
-        (structural design, object job, code placement, and intentional code).
-    *   **Sequential Model-Switching Review & Fix Chain (Max 3 Rounds):**
-        1. *Round 1:* Switch to a reviewer sub-agent on an alternative or
-           high-reasoning model tier to execute steps 1–5 read-only. Validate
-           its findings against the source code and apply all fixes.
-        2. *Round 2:* Switch to another reviewer sub-agent on a different
-           model tier to review the updated diff from scratch and verify the
-           fixes. Apply any remaining fixes.
-        3. *Round 3 (if needed):* If Critical or High-priority issues were
-           fixed in Round 2, run one final independent review round (hard cap:
-           **3 rounds maximum**; stop early once a round reports zero
-           Critical/High/Medium architectural issues).
-    *   **Read-Only Reviewer Rule:** Reviewer sub-agents must never edit files
-        or run build/Gradle tasks; only the main orchestrating agent applies
-        edits and runs verification commands.
-7.  **Finalize / Present Review:** Present the structured review report (noting
-    the review mode and rounds completed) or proceed to the pre-upload quality
-    gate before committing or uploading.
+        - `UNSUPPORTED`: Falling back to single-agent in-context verification.
+    *   **Evidence & Draft Handoff Mechanism for Non-Diff Tasks:**
+        Because clean-context verifiers start with zero conversation history:
+        - For **Code Review (Mode 1)**, verifiers inspect `git status` / `git
+          diff` in the workspace directly.
+        - For **Non-Diff Deliverables (Modes 2–5)**, the orchestrating agent
+          MUST write:
+          1. The **Draft Deliverable** (e.g.,
+             `<scratch_or_tmp>/draft_deliverable.md`) AND
+          2. The **Raw Evidence / Source Data** (or exact file paths to raw CLI
+             or test runner outputs, saved log slices, and source `file:line`
+             references)
+          so each clean-context verifier can independently cross-examine the
+          draft against the raw ground truth without anchoring bias.
+    *   **Independent Verifier Onboarding ("New Engineer Brain"):** Each
+        spawned verifier sub-agent (`verifier-r1`, `verifier-r2`, `verifier-r3`)
+        must start with a clean context (without the author's chain-of-thought)
+        and be instructed to read this `AGENTS.md` (Code Review Guidelines,
+        Step 5 Mode Checklist, Section 6 & Section 8 Rubrics, and Standards
+        Hierarchy), `AGENTS_INTERNAL.md` (if available), the target diff or
+        draft deliverable, the raw evidence files, and the surrounding CameraX
+        codebase widely.
+    *   **Adaptive Multi-Round Verification & Correction Chain (Max 3 Rounds +
+        Flexible Early Exit):**
+        1. *Round 1 (Model Family / Tier A in fresh context):* Spawn
+           `verifier-r1` (`reviewer-r1`) to audit the draft deliverable against
+           raw evidence and codebase rules (or spawn parallel models when
+           exploring competing Mode 5 design trade-offs). Validate every finding
+           against raw data/code, fix all factual errors, miscalculations,
+           flawed reasoning, or code issues in the draft, and retire
+           `verifier-r1`.
+        2. *Round 2 (Model Family / Tier B in fresh context):* Spawn a
+           brand-new `verifier-r2` (`reviewer-r2`) in a clean context to audit
+           the updated deliverable from scratch. Apply any remaining fixes and
+           retire `verifier-r2`.
+        3. *Round 3 (Model Family / Tier C in fresh context — Conditional Hard
+           Cap):* Run Round 3 (`verifier-r3` / `reviewer-r3`) if Round 2
+           uncovered material errors/issues that required changes (factual,
+           architectural, or Critical/High/Medium issues, or if the user
+           explicitly requested all models), then retire `verifier-r3` and
+           deliver the finalized output (running Stage 2 checks first for code
+           changes).
+        4. *Flexible Early Exit:*
+           - **After Round 1 (Routine Non-Code / Doc Deliverables Only):** For
+             routine or low-risk non-code deliverables (e.g., straightforward
+             test result tables or localized doc-only updates) where
+             `verifier-r1` reports **zero factual, numeric, or reasoning
+             issues** and zero edits were needed, you may exit early after
+             Round 1 and deliver immediately.
+           - **After Round 2 (Code, Deep Triage, Plans, Trade-Offs & Edited
+             Drafts):** For all production/test code changes (`git diff`),
+             complex investigations/plans, trade-off syntheses (`Mode 5`), or
+             any draft modified after Round 1, run Round 2 on a second model
+             tier; stop early after Round 2 once it reports **zero factual,
+             architectural, or Critical/High/Medium issues**.
+    *   **Read-Only Verifier Rule:** Verifier sub-agents must never edit
+        repository files or run build/Gradle tasks; only the main orchestrating
+        agent applies edits and runs verification commands.
+7.  **Finalize / Present Deliverable:** Present the verified deliverable (noting
+    the verification mode and rounds completed) or proceed to the pre-upload
+    quality gate before committing or uploading.
 
 ***
 
@@ -417,11 +543,14 @@ When directed to an index page, directory list, or guide linking to sub-guides
 - **Mandatory Two-Stage Verification & Pre-Upload Quality Gate**:
   Never skip verification or declare a task complete without executing both
   stages:
-  - **Stage 1: Pre-Finalization Deep Self-Review & Multi-Model Review Loop**:
-    Before declaring any new code or code modification complete, agents **MUST**
-    conduct a full diagnostic review against the **Code Review Guidelines** at
-    the top of this file, including the **Default Multi-Model Review Loop (Max
-    3 Rounds)** in Step 6:
+  - **Stage 1: Pre-Finalization Deep Self-Review & Universal Multi-Model
+    Verification Loop**:
+    Before declaring any code modification, root-cause investigation,
+    implementation plan, test verification report, or design trade-off /
+    quirk-scoping synthesis complete, agents **MUST** conduct a full diagnostic
+    audit against the **Code Review Guidelines** at the top of this file,
+    including the **Universal Clean-Context Multi-Model Verification Loop (Max
+    3 Rounds, Modes 1–5)** in Step 5 & Step 6:
     1. *Wide Structural Design, Object Job & Intentionality:* Read surrounding
        CameraX classes widely (not just changed lines) to verify structural
        design, object responsibility, code placement elegance, and preservation
@@ -434,12 +563,13 @@ When directed to an index page, directory list, or guide linking to sub-guides
        `@Suppress("DEPRECATION")` when modern replacements exist.
     5. *Strict Line Lengths:* 80 chars for markdown, 72 chars for commit body,
        100 chars for Kotlin.
-    6. *Default Multi-Model Review & Completeness Check (Max 3 Rounds):* Detect
-       whether the agent harness supports multi-model sub-agents, inform the
-       user of the active review mode (`MULTI_MODEL`,
-       `SINGLE_MODEL_FRESH_CONTEXT`, or `UNSUPPORTED`), and run up to 3
-       sequential review-and-fix rounds across independent reviewer models
-       before moving to Stage 2.
+    6. *Default Multi-Model Verification & Completeness Check (Max 3 Rounds):*
+       Detect whether the agent harness supports multi-model sub-agents, inform
+       the user of the active verification mode (`MULTI_MODEL`,
+       `SINGLE_MODEL_FRESH_CONTEXT`, or `UNSUPPORTED`), stage draft deliverables
+       and raw evidence for non-diff tasks, and run up to 3 sequential
+       verification-and-fix rounds across independent verifier models before
+       moving to Stage 2 or delivering the final output.
   - **Stage 2: Pre-Upload Full Verification & Tooling Gate**:
     Before committing or uploading a CL (`repo upload`), you **MUST** execute:
     1. **Kotlin Formatting**:
@@ -710,14 +840,16 @@ CameraX involves complex hardware interactions, making robust testing essential.
   ```bash
   ./gradlew <project>:lintRelease
   ```
-- **Self-Review & Multi-Model Review Loop (Default, Max 3 Rounds)**: Before
-  committing or finalizing edits, analyze your changes against the **Code
-  Review Guidelines** at the top of this file (including wide structural
-  design, object job, code placement, concurrency, lifecycle, deprecations, and
-  line lengths). Detect whether multi-model sub-agents are supported, inform
-  the user of the review mode, and execute the default sequential multi-model
-  review-and-fix chain (up to 3 rounds maximum) before declaring the task
-  complete.
+- **Universal Clean-Context Multi-Model Verification Loop (Default, Max 3
+  Rounds)**: Before committing edits or delivering any root-cause
+  investigation, implementation plan, test verification report, or trade-off /
+  quirk-scoping synthesis, audit your deliverable against the **Code Review
+  Guidelines** at the top of this file (Step 5 & Step 6, Modes 1–5). Detect
+  whether multi-model sub-agents are supported, inform the user of the active
+  verification mode, stage draft and raw evidence files for non-diff
+  deliverables, and execute the sequential clean-context multi-model
+  verification-and-correction chain (up to 3 rounds maximum) before declaring
+  the task complete.
 
 
 #### 4. Troubleshooting Unit Test Leaks (Robolectric)
@@ -1040,13 +1172,25 @@ When inspecting or authoring quirks with OS version checks (e.g.,
   to check whether an existing quirk previously protected the device family
   but was turned off by an outdated OS version ceiling.
 
+##### F. Mandatory Clean-Context Verification Gate for Triage & Fix Plans
+Before delivering any root-cause diagnosis, triage classification (Step 1
+Core Fix vs. Step 2 Capability Check vs. Step 3 Device Quirk vs. Sub-case 3B
+Test-Only Scope), or proposed implementation plan, agents **MUST** write the
+draft analysis and raw evidence paths (log slices, stack traces, cited
+`file:line` references) to a scratch/temp file and execute the **Universal
+Clean-Context Multi-Model Verification Loop** (Step 5 & Step 6, Mode 2: Issue
+Investigation Audit and Mode 3: Plan Audit; see `AGENTS_INTERNAL.md` Phase 4
+when configured). Each clean-context verifier must independently confirm that
+the claimed root cause is the first causal failure in the raw logs and that the
+rubric classification is backed by actual source code and hardware evidence.
+
 > [!NOTE]
 > **Internal Lab Automation & Fleet Query Tooling**:
 > When operating in Google-internal environments with access to automated
 > physical device testing labs and continuous test history, refer to
-> `AGENTS_INTERNAL.md` (Section 5.14) for instructions on using fleet-wide
-> blast radius analysis and CI diagnostic properties to operationalize this
-> decision hierarchy.
+> `AGENTS_INTERNAL.md` (Phase 4 and Section 5.14) for instructions on using
+> fleet-wide blast radius analysis, CI diagnostic properties, and multi-model
+> verification to operationalize this decision hierarchy.
 
 #### 7. Safety & Code Path Auditing Protocol
 Before finalizing changes to shared infrastructure (e.g. `UseCase`,
@@ -1073,7 +1217,7 @@ Before finalizing changes to shared infrastructure (e.g. `UseCase`,
 
 When resolving hardware capability, format negotiation, or platform abstraction
 issues (e.g. video/audio codecs, dynamic ranges, stream combinations, or
-physical camera sensors), agents and developers MUST follow this 5-phase
+physical camera sensors), agents and developers MUST follow this 6-phase
 pathway to engineer robust, architecturally sound solutions:
 
 1. **Deconstruct Operational Asymmetries (Real-Time Surface vs. Byte-Buffer)**:
@@ -1131,6 +1275,15 @@ pathway to engineer robust, architecturally sound solutions:
    - Test edge-case encodings (e.g. SDR variants, partial feature support).
    - Verify that dominant baseline configurations (AVC/HEVC SDR/HDR, AAC)
      maintain 100% behavioral backward compatibility.
+
+6. **Clean-Context Multi-Model Verification Gate (Step 6)**:
+   - Before presenting a capability investigation, architectural proposal,
+     code change, multi-device verification report, or quirk-scoping synthesis
+     engineered under this framework, pass the draft deliverable and raw
+     evidence through the **Universal Clean-Context Multi-Model Verification
+     Loop** (Step 5 & Step 6, Modes 1–5; up to 3 rounds max) to independently
+     audit specification claims, architectural placement, test coverage, and
+     report accuracy.
 
 #### 9. Solution Engineering & Test Pyramid Modernization Protocol
 
