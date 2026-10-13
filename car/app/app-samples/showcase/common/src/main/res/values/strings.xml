@@ -325,6 +325,9 @@
     <!-- SpotlightSectionDemo -->
     <string name="spotlight_section_demo_title">Spotlight Section Demo</string>
 
+    <!-- SectionedItemSearchDemoScreen -->
+    <string name="sectioned_item_search_demo_title">Sectioned Item Search Demo</string>
+
   <!-- PaneTemplateDemoScreen -->
   <string name="pane_template_demo_title">Pane Template Demo</string>
 
