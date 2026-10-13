@@ -956,6 +956,29 @@ class ButtonGroupTest {
     }
 
     @Test
+    fun overflowIndicator_fixedWidthConstraints_doesNotCrash() {
+        val numButtons = 10
+        rule.setContent {
+            // A fixed-width parent gives the ButtonGroup constraints where minWidth == maxWidth.
+            // fillMaxWidth() then forwards those fixed constraints into the measure policy.
+            Box(Modifier.width(150.dp).testTag(wrapperTestTag)) {
+                ButtonGroup(
+                    overflowIndicator = {
+                        IconButton(modifier = Modifier.testTag(overflowIndicator), onClick = {}) {}
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    for (i in 0 until numButtons) {
+                        clickableItem(onClick = {}, label = "Item $i")
+                    }
+                }
+            }
+        }
+        rule.onNodeWithTag(overflowIndicator).assertIsDisplayed()
+    }
+
+    @Test
     fun overflowMenu_tooManyItems_exists() {
         val numButtons = 10
         rule.setContent {
