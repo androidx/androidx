@@ -20,10 +20,21 @@ package androidx.test.backup.host
  * Qualifier annotation used for multi-device orchestration. Instructs the JUnit 5 extension which
  * connected device characteristics to resolve.
  *
- * @property role The requested role of the device in the multi-device test setup. Defaults to "".
+ * A [BackupRestoreController] parameter that asks for a serial number, through [serial], a binding
+ * of [role] or a system property, gets the device with that serial number. The other controller
+ * parameters of a method or constructor get, in the order of the parameters, the first online
+ * device by serial number that matches them and that no other parameter asks for or got before
+ * them. When every device that matches a parameter is taken, the parameter shares the first one.
+ *
+ * @property role The role of the device in a multi-device test, such as `"source"` or `"target"`.
+ *   The system property `androidx.test.backup.device.serial.<role>` binds the role to the device
+ *   with that serial number, whatever [serial] and the other device properties ask for. Without the
+ *   property, the role doesn't change which device is selected. Defaults to "".
  * @property api The requested SDK API level (e.g. 31, 34). Defaults to 0 (any matches).
- * @property serial The specific hardware/emulator serial number to match. Defaults to "" (any
- *   match).
+ * @property serial The specific hardware/emulator serial number to match, or a name that the system
+ *   property `androidx.test.backup.device.serial.<serial>` binds to a serial number. The system
+ *   properties `androidx.test.backup.device.serials` and `androidx.test.backup.device.serial` take
+ *   precedence over a literal serial number. Defaults to "" (any match).
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)
