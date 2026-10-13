@@ -1641,39 +1641,40 @@ package androidx.compose.foundation.lazy.layout {
 
   public final class LazyLayoutPinnedItemList implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> {
     ctor public LazyLayoutPinnedItemList();
-    method @BytecodeOnly public boolean add(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!);
-    method @BytecodeOnly public void add(int, androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!);
-    method @BytecodeOnly public boolean addAll(int, java.util.Collection<? extends androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!>!);
-    method @BytecodeOnly public boolean addAll(java.util.Collection<? extends androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!>!);
+    method @InaccessibleFromKotlin public boolean add(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem! p);
+    method @InaccessibleFromKotlin public void add(int p, androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem! p1);
+    method @InaccessibleFromKotlin public boolean addAll(int p, java.util.Collection<? extends androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!>! p1);
+    method @InaccessibleFromKotlin public boolean addAll(java.util.Collection<? extends androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!>! p);
     method @BytecodeOnly public void addFirst(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!);
     method @BytecodeOnly public void addLast(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!);
-    method @BytecodeOnly public void clear();
+    method @InaccessibleFromKotlin public void clear();
     method public operator boolean contains(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem element);
-    method @BytecodeOnly public boolean contains(Object!);
-    method public boolean containsAll(java.util.Collection<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> elements);
+    method @InaccessibleFromKotlin public boolean contains(Object element);
+    method @InaccessibleFromKotlin public boolean containsAll(java.util.Collection<? extends java.lang.Object?> elements);
+    method @KotlinOnly public boolean containsAll(java.util.Collection<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> elements);
     method public operator androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem get(int index);
     method public int getSize();
     method public int indexOf(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem element);
-    method @BytecodeOnly public int indexOf(Object!);
+    method @InaccessibleFromKotlin public int indexOf(Object element);
     method public boolean isEmpty();
     method public operator java.util.Iterator<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> iterator();
     method public int lastIndexOf(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem element);
-    method @BytecodeOnly public int lastIndexOf(Object!);
+    method @InaccessibleFromKotlin public int lastIndexOf(Object element);
     method public java.util.ListIterator<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> listIterator();
     method public java.util.ListIterator<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> listIterator(int index);
-    method @BytecodeOnly public androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem! remove(int);
-    method @BytecodeOnly public boolean remove(Object!);
-    method @BytecodeOnly public boolean removeAll(java.util.Collection<? extends java.lang.Object!>!);
+    method @InaccessibleFromKotlin public androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem! remove(int p);
+    method @InaccessibleFromKotlin public boolean remove(Object! p);
+    method @InaccessibleFromKotlin public boolean removeAll(java.util.Collection<? extends java.lang.Object?>! p);
     method @BytecodeOnly public androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem! removeFirst();
     method @BytecodeOnly public androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem! removeLast();
     method @BytecodeOnly public void replaceAll(java.util.function.UnaryOperator<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!>!);
-    method @BytecodeOnly public boolean retainAll(java.util.Collection<? extends java.lang.Object!>!);
-    method @BytecodeOnly public androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem! set(int, androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!);
-    method @BytecodeOnly public int size();
+    method @InaccessibleFromKotlin public boolean retainAll(java.util.Collection<? extends java.lang.Object?>! p);
+    method @InaccessibleFromKotlin public androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem! set(int p, androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem! p1);
+    method @InaccessibleFromKotlin public int size();
     method @BytecodeOnly public void sort(java.util.Comparator<? super androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!>!);
     method public java.util.List<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> subList(int fromIndex, int toIndex);
-    method @BytecodeOnly public Object![]! toArray();
-    method @BytecodeOnly public <T> T[]! toArray(T[]!);
+    method @InaccessibleFromKotlin public Object![]! toArray();
+    method @InaccessibleFromKotlin public <T> T[]! toArray(T[]! p);
     property public int size;
   }
 

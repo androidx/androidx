@@ -8,7 +8,7 @@ package androidx.a2ui.model.catalog {
     property public abstract androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
   }
 
-  public sealed nonexhaustive interface A2uiFunctionCollection extends kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.a2ui.model.catalog.A2uiFunction> {
+  public sealed nonexhaustive interface A2uiFunctionCollection extends java.util.List<androidx.a2ui.model.catalog.A2uiFunction> kotlin.jvm.internal.markers.KMappedMarker {
     method public operator androidx.a2ui.model.catalog.A2uiFunction? get(String name);
   }
 
