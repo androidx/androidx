@@ -78,94 +78,95 @@ private fun getPendingIntentForAction(
     when (action) {
         is StartActivityAction -> {
             val params = editParams(action.parameters)
+            val intent = getStartActivityIntent(action, translationContext, params)
+            val uniqueUri =
+                createUniqueUri(
+                    translationContext,
+                    viewId,
+                    ActionTrampolineType.CALLBACK,
+                    intent.flags.toString(),
+                )
+            val requestCode = getRequestCode(uniqueUri)
+            if (intent.data == null) {
+                setIdentifier(intent, uniqueUri)
+            }
             return PendingIntent.getActivity(
                 translationContext.context,
-                0,
-                getStartActivityIntent(action, translationContext, params).apply {
-                    // If there is no data URI set already, add a unique URI to ensure we get a
-                    // distinct PendingIntent.
-                    if (data == null) {
-                        val uniqueUri =
-                            createUniqueUri(
-                                translationContext,
-                                viewId,
-                                ActionTrampolineType.CALLBACK,
-                                flags.toString(),
-                            )
-                        setIdentifier(this, uniqueUri)
-                    }
-                },
+                requestCode,
+                intent,
                 mutability or PendingIntent.FLAG_UPDATE_CURRENT,
                 action.activityOptions,
             )
         }
         is StartServiceAction -> {
-            val intent =
-                getServiceIntent(action, translationContext).apply {
-                    if (data == null) {
-                        val uniqueUri =
-                            createUniqueUri(
-                                translationContext,
-                                viewId,
-                                ActionTrampolineType.CALLBACK,
-                                flags.toString(),
-                            )
-                        setIdentifier(this, uniqueUri)
-                    }
-                }
+            val intent = getServiceIntent(action, translationContext)
+            val uniqueUri =
+                createUniqueUri(
+                    translationContext,
+                    viewId,
+                    ActionTrampolineType.CALLBACK,
+                    intent.flags.toString(),
+                )
+            val requestCode = getRequestCode(uniqueUri)
+            if (intent.data == null) {
+                setIdentifier(intent, uniqueUri)
+            }
             return if (
                 action.isForegroundService && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
             ) {
                 ApplyActionApi26Impl.getForegroundServicePendingIntent(
                     context = translationContext.context,
                     intent = intent,
+                    requestCode = requestCode,
                 )
             } else {
                 PendingIntent.getService(
                     translationContext.context,
-                    0,
+                    requestCode,
                     intent,
                     mutability or PendingIntent.FLAG_UPDATE_CURRENT,
                 )
             }
         }
         is SendBroadcastAction -> {
+            val intent = getBroadcastReceiverIntent(action, translationContext)
+            val uniqueUri =
+                createUniqueUri(
+                    translationContext,
+                    viewId,
+                    ActionTrampolineType.CALLBACK,
+                    intent.flags.toString(),
+                )
+            val requestCode = getRequestCode(uniqueUri)
+            if (intent.data == null) {
+                setIdentifier(intent, uniqueUri)
+            }
             return PendingIntent.getBroadcast(
                 translationContext.context,
-                0,
-                getBroadcastReceiverIntent(action, translationContext).apply {
-                    if (data == null) {
-                        val uniqueUri =
-                            createUniqueUri(
-                                translationContext,
-                                viewId,
-                                ActionTrampolineType.CALLBACK,
-                                flags.toString(),
-                            )
-                        setIdentifier(this, uniqueUri)
-                    }
-                },
+                requestCode,
+                intent,
                 mutability or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
         is RunCallbackAction -> {
+            val intent =
+                ActionCallbackBroadcastReceiver.createIntent(
+                    translationContext,
+                    action.callbackClass,
+                    editParams(action.parameters),
+                )
+            val uniqueUri =
+                createUniqueUri(
+                    translationContext,
+                    viewId,
+                    ActionTrampolineType.CALLBACK,
+                )
+            val requestCode = getRequestCode(uniqueUri)
+            setIdentifier(intent, uniqueUri)
             return PendingIntent.getBroadcast(
                 translationContext.context,
-                0,
-                ActionCallbackBroadcastReceiver.createIntent(
-                        translationContext,
-                        action.callbackClass,
-                        editParams(action.parameters),
-                    )
-                    .apply {
-                        val uniqueUri =
-                            createUniqueUri(
-                                translationContext,
-                                viewId,
-                                ActionTrampolineType.CALLBACK,
-                            )
-                        setIdentifier(this, uniqueUri)
-                    },
+                requestCode,
+                intent,
                 mutability or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
@@ -173,24 +174,25 @@ private fun getPendingIntentForAction(
             requireNotNull(translationContext.actionBroadcastReceiver) {
                 "In order to use LambdaAction, actionBroadcastReceiver must be provided"
             }
+            val intent =
+                LambdaActionBroadcasts.createIntent(
+                    translationContext.actionBroadcastReceiver,
+                    action.key,
+                    translationContext.appWidgetId,
+                )
+            val uniqueUri =
+                createUniqueUri(
+                    translationContext,
+                    viewId,
+                    ActionTrampolineType.CALLBACK,
+                    action.key,
+                )
+            val requestCode = getRequestCode(uniqueUri)
+            setIdentifier(intent, uniqueUri)
             return PendingIntent.getBroadcast(
                 translationContext.context,
-                0,
-                LambdaActionBroadcasts.createIntent(
-                        translationContext.actionBroadcastReceiver,
-                        action.key,
-                        translationContext.appWidgetId,
-                    )
-                    .apply {
-                        val uniqueUri =
-                            createUniqueUri(
-                                translationContext,
-                                viewId,
-                                ActionTrampolineType.CALLBACK,
-                                action.key,
-                            )
-                        setIdentifier(this, uniqueUri)
-                    },
+                requestCode,
+                intent,
                 mutability or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
@@ -220,13 +222,13 @@ private fun getPendingIntentForAction(
     }
 }
 
+private fun getRequestCode(uniqueUri: Uri): Int {
+    return if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)) 0 else uniqueUri.hashCode()
+}
+
 private fun setIdentifier(intent: Intent, uniqueUri: Uri) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         ApplyActionApi29Impl.setIntentIdentifier(intent, uniqueUri.toString())
-    } else {
-        // On Android versions < 29, setting intent.data can cause a bug where
-        // PendingIntents could not be executed correctly. See b/265349282 for more details.
-        intent.data = uniqueUri
     }
 }
 
@@ -394,10 +396,14 @@ internal object ApplyActionApi29Impl {
 
 @RequiresApi(Build.VERSION_CODES.O)
 internal object ApplyActionApi26Impl {
-    fun getForegroundServicePendingIntent(context: Context, intent: Intent): PendingIntent {
+    fun getForegroundServicePendingIntent(
+        context: Context,
+        intent: Intent,
+        requestCode: Int = 0,
+    ): PendingIntent {
         return PendingIntent.getForegroundService(
             context,
-            0,
+            requestCode,
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
