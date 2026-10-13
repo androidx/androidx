@@ -17,8 +17,12 @@
 package androidx.test.backup.host
 
 import java.io.File
+import java.io.IOException
+import java.nio.file.Path
+import java.util.Properties
 import java.util.logging.Logger
 import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -28,8 +32,9 @@ import kotlinx.coroutines.withTimeoutOrNull
 /**
  * Backs up and restores [applicationId] through the device's local backup transport with `bmgr`.
  *
- * The backup data stays on the device, in the local transport's storage. The host only keeps a
- * placeholder archive, so that a backup produces a file like the other transport modes do.
+ * The backup data stays on the device, in the local transport's storage. The host only keeps an
+ * archive that marks the backup, so that a backup produces a file like the other transport modes
+ * do. The marker names the app and the device, since only that device can restore the data.
  */
 internal class BackupLocalTransport(
     private val shell: BackupDeviceShell,
@@ -38,7 +43,9 @@ internal class BackupLocalTransport(
 ) {
     private val logger = Logger.getLogger(BackupLocalTransport::class.java.name)
 
-    /** Backs up the package to the local transport and writes a placeholder to [archive]. */
+    /**
+     * Backs up the package to the local transport and writes a marker of the backup to [archive].
+     */
     suspend fun backup(archive: File) {
         logger.info("Executing robust local transport backup simulation...")
         shell.unstopPackage(applicationId)
@@ -53,20 +60,41 @@ internal class BackupLocalTransport(
             backUpNow(applicationId)
         }
         ZipOutputStream(archive.outputStream()).use { zip ->
-            zip.putNextEntry(ZipEntry("token.txt"))
-            zip.write("1".toByteArray())
+            zip.putNextEntry(ZipEntry(MARKER_ENTRY))
+            Properties()
+                .apply {
+                    setProperty(MARKER_PACKAGE, applicationId)
+                    setProperty(MARKER_SERIAL, shell.serialNumber)
+                }
+                .store(zip, "A LOCAL backup, whose data stays in the local transport of the device")
             zip.closeEntry()
         }
     }
 
     /**
-     * Restores the package from the local transport and waits for the restore pass to end.
+     * Restores the package from the local transport, as [backup], marked by [archive], and waits
+     * for the restore pass to end.
      *
      * [timeout] is the caller's budget for the whole restore. It limits how long to look for the
      * restore pass, so that a restore finishing before the first check still completes within it.
      * The wait for a pass that was seen has no bound of its own; the caller enforces [timeout].
+     *
+     * @throws IOException if [backup] is of another app, or was made on another device
      */
-    suspend fun restore(timeout: Duration) {
+    suspend fun restore(archive: Path, backup: LocalBackup, timeout: Duration) {
+        if (backup.packageName != null && backup.packageName != applicationId) {
+            throw IOException(
+                "${archive.fileName} is a LOCAL backup of ${backup.packageName}, not of " +
+                    applicationId
+            )
+        }
+        if (backup.serialNumber != null && backup.serialNumber != shell.serialNumber) {
+            throw IOException(
+                "${archive.fileName} is a LOCAL backup made on ${backup.serialNumber}. Its data " +
+                    "stays in the local transport of that device, so ${shell.serialNumber} " +
+                    "can't restore it."
+            )
+        }
         logger.info("Executing robust local transport restore simulation...")
         withLocalTransport {
             bmgr(
@@ -180,22 +208,77 @@ internal class BackupLocalTransport(
             RESTORE_IN_PROGRESS_REGEX.containsMatchIn(dumpsys)
     }
 
-    private companion object {
-        const val LOCAL_TRANSPORT = "com.android.localtransport/.LocalTransport"
+    /**
+     * A LOCAL backup of [packageName], made on the device [serialNumber]. Both are null for a
+     * marker written by a version of this library that didn't record them.
+     */
+    data class LocalBackup(val packageName: String?, val serialNumber: String?)
+
+    companion object {
+        /**
+         * Returns the LOCAL backup that [archive] marks, or null if [archive] isn't the marker of a
+         * LOCAL backup, for example the archive of another transport mode.
+         *
+         * @throws IOException if [archive] has a LOCAL backup marker that can't be read, or that
+         *   doesn't name both the app and the device
+         */
+        fun localBackupOf(archive: Path): LocalBackup? {
+            val zipFile =
+                try {
+                    ZipFile(archive.toFile())
+                } catch (e: IOException) {
+                    // Not a readable zip file, so not a marker.
+                    return null
+                }
+            return zipFile.use { zip ->
+                val marker = zip.getEntry(MARKER_ENTRY)
+                when {
+                    marker != null -> {
+                        val properties = Properties()
+                        try {
+                            zip.getInputStream(marker).use { properties.load(it) }
+                        } catch (e: IllegalArgumentException) {
+                            throw IOException("$archive has a malformed LOCAL backup marker", e)
+                        }
+                        val packageName = properties.getProperty(MARKER_PACKAGE)
+                        val serialNumber = properties.getProperty(MARKER_SERIAL)
+                        if (packageName.isNullOrBlank() || serialNumber.isNullOrBlank()) {
+                            throw IOException("$archive has a malformed LOCAL backup marker")
+                        }
+                        LocalBackup(packageName, serialNumber)
+                    }
+                    zip.size() == 1 && zip.getEntry(LEGACY_MARKER_ENTRY) != null ->
+                        LocalBackup(packageName = null, serialNumber = null)
+                    else -> null
+                }
+            }
+        }
+
+        private const val LOCAL_TRANSPORT = "com.android.localtransport/.LocalTransport"
+
+        /** Zip entry of a LOCAL backup marker, as properties naming the app and the device. */
+        private const val MARKER_ENTRY = "androidx.test.backup.local.properties"
+        private const val MARKER_PACKAGE = "package"
+        private const val MARKER_SERIAL = "serial"
+
+        /** The only zip entry of the markers that earlier versions of this library wrote. */
+        private const val LEGACY_MARKER_ENTRY = "token.txt"
 
         /** Pseudo-package for the package metadata that a restore checks the app against. */
-        const val PACKAGE_MANAGER_SENTINEL = "@pm@"
+        private const val PACKAGE_MANAGER_SENTINEL = "@pm@"
 
         /** Assumed to be the selected transport when `bmgr` does not mark one. */
-        const val DEFAULT_TRANSPORT = "com.google.android.gms/.backup.BackupTransportService"
+        private const val DEFAULT_TRANSPORT =
+            "com.google.android.gms/.backup.BackupTransportService"
 
         /** Upper bound for detecting the restore pass, whatever the caller's timeout. */
-        val RESTORE_DISPATCH_TIMEOUT = 7_500.milliseconds
-        const val RESTORE_DISPATCH_POLL_INTERVAL_MS = 250L
-        const val RESTORE_COMPLETION_POLL_INTERVAL_MS = 500L
+        private val RESTORE_DISPATCH_TIMEOUT = 7_500.milliseconds
+        private const val RESTORE_DISPATCH_POLL_INTERVAL_MS = 250L
+        private const val RESTORE_COMPLETION_POLL_INTERVAL_MS = 500L
 
-        val RESTORE_SESSION_REGEX =
+        private val RESTORE_SESSION_REGEX =
             Regex("""(?i)(?:Restore session|Active restore):\s*(?!null\b|none\b)\S+""")
-        val RESTORE_IN_PROGRESS_REGEX = Regex("""(?i)Restore (?:pass )?in progress:\s*true\b""")
+        private val RESTORE_IN_PROGRESS_REGEX =
+            Regex("""(?i)Restore (?:pass )?in progress:\s*true\b""")
     }
 }

@@ -40,8 +40,10 @@ import kotlinx.coroutines.withTimeoutOrNull
  * Every shell command of this library goes through this class. Each method builds one device
  * command, quotes the values it interpolates, runs it, and interprets its output, so callers never
  * assemble shell strings themselves.
+ *
+ * @property serialNumber the serial number of the device
  */
-internal class BackupDeviceShell(private val adbSession: AdbSession, serialNumber: String) {
+internal class BackupDeviceShell(private val adbSession: AdbSession, val serialNumber: String) {
 
     private val device = DeviceSelector.fromSerialNumber(serialNumber)
 

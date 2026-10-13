@@ -17,12 +17,19 @@
 package androidx.test.backup.host
 
 import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.Properties
+import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -65,9 +72,119 @@ class BackupLocalTransportTest {
             ),
             device.commands.dropWhile { !it.startsWith("bmgr") },
         )
-        ZipFile(archive).use { zip ->
-            assertEquals("1", zip.getInputStream(zip.getEntry("token.txt")).reader().readText())
+        assertEquals(
+            BackupLocalTransport.LocalBackup(PACKAGE, FAKE_SERIAL),
+            BackupLocalTransport.localBackupOf(archive.toPath()),
+        )
+    }
+
+    /** The marker is a zip file with one properties entry that names the app and the device. */
+    @Test
+    fun backupWritesAMarkerThatNamesTheAppAndTheDevice() = runBlocking {
+        device.onShell { command ->
+            if (command.contains("resolve-activity")) shellOutput("No activity found\n") else null
         }
+        val archive = archive()
+
+        transport.backup(archive)
+
+        ZipFile(archive).use { zip ->
+            assertEquals(
+                listOf("androidx.test.backup.local.properties"),
+                zip.entries().toList().map { it.name },
+            )
+            val properties = Properties()
+            zip.getInputStream(zip.entries().nextElement()).use { properties.load(it) }
+            assertEquals(PACKAGE, properties.getProperty("package"))
+            assertEquals(FAKE_SERIAL, properties.getProperty("serial"))
+        }
+    }
+
+    /** Earlier versions marked a LOCAL backup with a zip file holding only `token.txt`. */
+    @Test
+    fun localBackupOfReadsTheMarkerOfEarlierVersions() {
+        val archive = zip("token.txt" to "1")
+
+        assertEquals(
+            BackupLocalTransport.LocalBackup(packageName = null, serialNumber = null),
+            BackupLocalTransport.localBackupOf(archive),
+        )
+    }
+
+    @Test
+    fun localBackupOfRejectsOtherArchives() {
+        val notAZip = tempFolder.newFile("backup_local_device.zip").toPath()
+        val missing = tempFolder.root.toPath().resolve("missing.zip")
+        val otherZip = zip("token.txt" to "1", "metadata.json" to "{}")
+
+        assertNull(BackupLocalTransport.localBackupOf(notAZip))
+        assertNull(BackupLocalTransport.localBackupOf(missing))
+        assertNull(BackupLocalTransport.localBackupOf(otherZip))
+    }
+
+    @Test
+    fun localBackupOfThrowsAnIOExceptionForAMalformedMarker() {
+        val archive = zip("androidx.test.backup.local.properties" to "package=\\u00zz\n")
+
+        val e = assertFailsWith<IOException> { BackupLocalTransport.localBackupOf(archive) }
+
+        assertEquals("$archive has a malformed LOCAL backup marker", e.message)
+        assertIs<IllegalArgumentException>(e.cause)
+    }
+
+    /** This version always writes both, so a marker without one of them has been altered. */
+    @Test
+    fun localBackupOfThrowsAnIOExceptionForAMarkerWithoutTheAppOrTheDevice() {
+        for (content in
+            listOf("serial=$FAKE_SERIAL\n", "package=$PACKAGE\n", "package=$PACKAGE\nserial= \n")) {
+            val archive = zip("androidx.test.backup.local.properties" to content)
+
+            val e = assertFailsWith<IOException> { BackupLocalTransport.localBackupOf(archive) }
+
+            assertEquals("$archive has a malformed LOCAL backup marker", e.message, content)
+        }
+    }
+
+    @Test
+    fun restoreRejectsTheLocalBackupOfAnotherApp() {
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking {
+                    transport.restore(
+                        archive().toPath(),
+                        BackupLocalTransport.LocalBackup("com.example.other", FAKE_SERIAL),
+                        1.minutes,
+                    )
+                }
+            }
+
+        assertEquals(
+            "backup_local_device.zip is a LOCAL backup of com.example.other, not of $PACKAGE",
+            e.message,
+        )
+        assertTrue(device.commands.isEmpty(), "${device.commands}")
+    }
+
+    /** The data of a LOCAL backup stays on the device that made it. */
+    @Test
+    fun restoreRejectsALocalBackupMadeOnAnotherDevice() {
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking {
+                    transport.restore(
+                        archive().toPath(),
+                        BackupLocalTransport.LocalBackup(PACKAGE, "emulator-5556"),
+                        1.minutes,
+                    )
+                }
+            }
+
+        assertEquals(
+            "backup_local_device.zip is a LOCAL backup made on emulator-5556. Its data stays in " +
+                "the local transport of that device, so $FAKE_SERIAL can't restore it.",
+            e.message,
+        )
+        assertTrue(device.commands.isEmpty(), "${device.commands}")
     }
 
     /** Backup skips packages in the stopped state, so the package is woken up first. */
@@ -374,6 +491,23 @@ class BackupLocalTransportTest {
     }
 
     private fun archive() = tempFolder.root.resolve("backup_local_device.zip")
+
+    /** Returns a new zip file with the text [entries]. */
+    private fun zip(vararg entries: Pair<String, String>): Path {
+        val file = tempFolder.newFile().toPath()
+        ZipOutputStream(Files.newOutputStream(file)).use { zip ->
+            for ((name, text) in entries) {
+                zip.putNextEntry(ZipEntry(name))
+                zip.write(text.toByteArray())
+                zip.closeEntry()
+            }
+        }
+        return file
+    }
+
+    /** Restores the LOCAL backup of [PACKAGE] made on this test's device within [timeout]. */
+    private suspend fun BackupLocalTransport.restore(timeout: Duration) =
+        restore(archive().toPath(), BackupLocalTransport.LocalBackup(PACKAGE, FAKE_SERIAL), timeout)
 
     private companion object {
         const val PACKAGE = "com.example.app"
