@@ -118,8 +118,12 @@ applicable. Prioritize clarity and conciseness.
         - Are bitmaps recycled (`bitmap.recycle()`)?
         - Are use cases unbound (`cameraProvider.unbind(...)`) in `finally`
           blocks, and are analyzer callbacks cleared (`clearAnalyzer()`)?
-    *   **API Design & Deprecations:**
+    *   **API Design, Public Contracts & Deprecations:**
         - Are public and restricted (`@RestrictTo`) APIs designed properly?
+        - Does the implementation strictly honor the public Javadoc contracts of
+          all entry-point APIs (never silently overriding user-provided
+          configurations during normal operations, and never leaking parameters
+          that a query API documents as ignored)?
         - Avoid introducing deprecated APIs paired with
           `@Suppress("DEPRECATION")` when modern replacements exist (e.g. prefer
           `ResolutionSelector` over `setTargetResolution`).
@@ -141,9 +145,10 @@ applicable. Prioritize clarity and conciseness.
           boundary thresholds, and error states?
         - Are tests using fluent Google `Truth` assertions (`assertThat`) and
           fakes instead of mocks?
-4.  **Verify Locally:** Execute local compilation, unit tests, and repohooks
-    (`repo upload --dry-run .` / `runErrorProneRelease`) to validate build and
-    pre-submit stability.
+4.  **Verify Locally:** Execute local compilation, unit tests, and
+    non-interactive repohooks
+    (`timeout 300 repo upload --dry-run --verify -y --cbr . </dev/null` /
+    `runErrorProneRelease`) to validate build and pre-submit stability.
 5.  **Formulate Structured Feedback & Deliverable-Specific Audit Checklists:**
     Organize code review feedback into clear, prioritized sections, and apply
     the mode-specific audit criteria matching the active deliverable:
@@ -426,7 +431,14 @@ When directed to an index page, directory list, or guide linking to sub-guides
 
 ## Development Workflow & Refactoring:
 
-- **AOSP Feature Branch Creation (`repo start` vs. `git branch`)**:
+- **Pre-Flight Upstream Sync & AOSP Feature Branch Creation (`repo start` vs.
+  `git branch`)**:
+  - Before starting root-cause analysis or creating a feature branch, fetch the
+    latest upstream manifest branch (`git fetch aosp androidx-main`) and check
+    recent CameraX commits
+    (`git log --oneline HEAD..aosp/androidx-main -- camera/`). If upstream
+    commits recently touched the target files or bug, sync first
+    (`repo sync -c -j8 .`) to avoid duplicate fixes or rebase conflicts.
   - Prefer using `repo start <branch_name> .` when creating a new feature
     branch in the AOSP repository. `repo start` automatically establishes
     upstream tracking against the manifest remote (`aosp/androidx-main`),
@@ -479,6 +491,23 @@ When directed to an index page, directory list, or guide linking to sub-guides
   `@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)` and add a `TODO` comment right
   above it with the bug ID, e.g.,
   `// TODO: b/1234567 - Make this public in next alpha`.
+- **Public API Contract Fidelity (Honoring User Configs & Documented
+  Invariants)**:
+  - Before modifying internal plumbing, adapters, or simulators, always inspect
+    the public Javadoc of all entry-point APIs (`CameraInfo`, `CameraXConfig`,
+    `SessionConfig`, `UseCase` builders) that feed into that code path.
+  - **Never Violate Public Contracts as a Shortcut**: When fixing edge-case
+    configurations, never silently override, ignore, or repurpose user-provided
+    configurations (such as custom `Executor`s, `Handler`s, selectors, dynamic
+    ranges, or callbacks) during normal operations in a way that contradicts
+    their public Javadoc. Scope any internal workaround strictly to the specific
+    lifecycle phase that requires it (e.g., async teardown).
+  - **Enforce Documented Query & Simulation Isolation**: When a public
+    capability or query API documents that specific settings on an input config
+    are ignored (e.g., `CameraInfo.getSupportedFrameRateRanges(SessionConfig)`
+    ignoring a target frame rate already set on `SessionConfig`), ensure
+    internal simulators and calculators strip or bypass those settings so they
+    cannot leak into and constrain the query result.
 - **Linting & Correctness Checks**: Ensure code quality and adherence to
   AndroidX standards by running `./gradlew <project>:lintRelease` after
   completing a meaningful set of changes. Developers and reviewers **MUST**
@@ -583,10 +612,17 @@ When directed to an index page, directory list, or guide linking to sub-guides
        ```
     4. **Compilation & Relevant Tests**: Run host/device tests to confirm zero
        regressions.
-    5. **Pre-Upload Repohook Verification (`repo upload --dry-run .`)**:
-       Execute `repo upload --dry-run .` in the AndroidX workspace root to run
-       all pre-upload repohooks (Checkstyle, ktfmt formatting, release notes,
-       commit message format, API checks) confirming 100% readiness for upload.
+    5. **Non-Interactive Pre-Upload Repohook & Gerrit Upload Verification**:
+       Always pass `--verify -y --cbr . </dev/null` with a `timeout` wrapper so
+       `repo upload` never hangs waiting on interactive hook/branch prompts or
+       an editor in non-interactive shells:
+       ```bash
+       # Pre-upload repohook dry-run (Checkstyle, ktfmt, API, commit format):
+       timeout 300 repo upload --dry-run --verify -y --cbr . </dev/null
+
+       # Actual Gerrit upload (ONLY when explicitly requested by the user):
+       timeout 600 repo upload --verify -y --cbr . </dev/null
+       ```
 - **Defensive Programming & Code Reviewer Standards**:
   - **ContentResolver & Cursor Null/Empty Safety**: Always check if
     `cursor.moveToFirst()` returns `true` before attempting to access column
@@ -721,7 +757,11 @@ CameraX involves complex hardware interactions, making robust testing essential.
   structural design, each object's responsibility ("object job"), and proper
   code placement so your change is elegant and idiomatic. Check comments, KDoc,
   and sibling classes to determine whether any existing ordering, workaround, or
-  deprecation usage is intentional and must be preserved.
+  deprecation usage is intentional and must be preserved. When inspecting git
+  history in `frameworks/support`, prefer fast
+  `git blame -L <start>,<end> <file>` followed by `git show <sha> -- <path>`
+  over unbounded `git log -L` or `git log -S` scans, which traverse the full
+  commit graph and time out.
 - **API Change Check**: Verify if your change introduces public API
   modifications. Remember:
   - Do not introduce public API changes in a bug fix CL.
@@ -826,6 +866,10 @@ CameraX involves complex hardware interactions, making robust testing essential.
     `./gradlew <project>:tasks --all | grep ftl` (e.g.,
     `ftlpixel2api30debugAndroidTest` for apps, or `releaseAndroidTest` variants
     for libraries).
+  - Standard AndroidX presubmit FTL emulator tasks are
+    `ftlmediumphoneapi35debugAndroidTest` (API 35) and
+    `ftlnexus5xapi24debugAndroidTest` (API 24) for test apps (or the
+    corresponding `releaseAndroidTest` variants for library modules).
   - Run a specific test in FTL using `--className`:
     ```bash
     PROJECT_PREFIX=:camera:integration-tests:camera-testapp-core \
@@ -1172,7 +1216,29 @@ When inspecting or authoring quirks with OS version checks (e.g.,
   to check whether an existing quirk previously protected the device family
   but was turned off by an outdated OS version ceiling.
 
-##### F. Mandatory Clean-Context Verification Gate for Triage & Fix Plans
+##### F. Preserving Public API Contracts & Documented Invariants
+When fixing bugs, handling edge-case configurations, or refactoring internal
+plumbing across any CameraX module, treat public Javadoc contracts as strict
+behavioral invariants:
+- **Honor User-Provided Configurations During Normal Operations**: Never
+  silently replace, ignore, or fall back from user-configured parameters (such
+  as custom executors or handlers via `CameraXConfig.setCameraExecutor` or
+  `setSchedulerHandler`, `ResolutionSelector`s, or `UseCase` builder settings)
+  during normal initialization or runtime operations if doing so violates the
+  public Javadoc contract.
+- **Surgical Lifecycle Scoping for Edge Cases**: When an edge-case user
+  configuration is incompatible with a specific internal lifecycle step (e.g.,
+  blocking or asynchronous teardown on a direct executor), scope the fallback
+  strictly to that incompatible internal step while honoring the user's
+  configuration everywhere else.
+- **Enforce Documented Query & Precondition Isolation**: When a public query or
+  simulation API documents that certain parameters on an input object are
+  ignored (e.g., `CameraInfo.getSupportedFrameRateRanges(SessionConfig)`
+  ignoring `SessionConfig.getFrameRateRange()`), ensure internal simulators and
+  adapters (`UseCaseAdditionSimulator`, `StreamSpecsCalculator`) explicitly
+  omit or strip those parameters so they do not circularly constrain the query.
+
+##### G. Mandatory Clean-Context Verification Gate for Triage & Fix Plans
 Before delivering any root-cause diagnosis, triage classification (Step 1
 Core Fix vs. Step 2 Capability Check vs. Step 3 Device Quirk vs. Sub-case 3B
 Test-Only Scope), or proposed implementation plan, agents **MUST** write the
@@ -1412,6 +1478,7 @@ Test: <test instructions>
   warnings.
 
 **Additional Details (Optional):**
+- Keep commit messages simple, direct, and easy to scan.
 - Explain the problem the change solves and the approach taken.
 - Provide context for the change.
 - Prefer concise, clear, and readable messages without losing any required
@@ -1425,9 +1492,10 @@ Test: <test instructions>
 - This will be used to generate release notes.
 - **Requirement**: Should only be added for public API changes (e.g., changes
   in `camera/**/api/` directories) or bugs impacting public users.
-- **When to omit**: If a change is internal-only (e.g., refactoring, test
-  updates, or changes to restricted APIs marked with `@RestrictTo`), **do not
-  add the RelNote tag at all**.
+- **When to omit**: If a change is an internal bug fix, refactoring, test
+  update, or change to restricted APIs marked with `@RestrictTo` (without a
+  public API or user-facing behavior change), **do not add the RelNote tag at
+  all**.
 - **Edge cases**: `RelNote: N/A` can be used if a release note is explicitly
   not applicable despite a public API change, e.g. when reverting a CL that had
   a public API change meant for release.
