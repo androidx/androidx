@@ -16,29 +16,41 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.test.Test
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -53,6 +65,10 @@ class TransformingLazyColumnItemAnimationTest {
     private val itemSize = 80.dp
     private val frameDuration = 16L
     private val animationDuration = 160L // 10 frames for easy math
+    private val listTag = "list"
+    private val tolerancePx = 1.5f
+    private val tolerance: Dp
+        get() = maxOf(0.5.dp, with(rule.density) { tolerancePx.toDp() })
 
     private val animationSpec =
         tween<IntOffset>(durationMillis = animationDuration.toInt(), easing = LinearEasing)
@@ -335,7 +351,6 @@ class TransformingLazyColumnItemAnimationTest {
             }
         }
         // Ensure the tolerance is larger than 1px, 0.5px is too small at densities below 2.0f
-        val tolerance = maxOf(0.5.dp, with(rule.density) { 1.5f.toDp() })
         rule.onNodeWithTag("item_0").assertTopPositionInRootIsEqualTo(0.dp, tolerance)
         rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(50.dp, tolerance)
         rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(100.dp, tolerance)
@@ -384,6 +399,379 @@ class TransformingLazyColumnItemAnimationTest {
                 .onNodeWithTag("item_2")
                 .assertTopPositionInRootIsEqualTo(expectedY2, tolerance = 1.dp)
         }
+    }
+
+    @Test
+    fun dispatchRawDelta_doesNotAnimatePlacement() {
+        val state = TransformingLazyColumnState()
+        rule.setContent {
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(containerSize),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
+                items(5, key = { it }) { key ->
+                    Box(
+                        Modifier.requiredSize(itemSize)
+                            .animateItem(placementSpec = animationSpec)
+                            .testTag("item_$key")
+                    )
+                }
+            }
+        }
+        rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(80.dp, tolerance)
+
+        // Scroll without a scroll {} block, as done by nested scrolling (onPostScroll), so
+        // isScrollInProgress stays false.
+        rule.runOnUiThread {
+            assertThat(state.isScrollInProgress).isFalse()
+            val consumed = state.dispatchRawDelta(with(rule.density) { 40.dp.toPx() })
+            assertThat(consumed).isNonZero()
+        }
+
+        // The scroll offset change must be applied immediately and not be animated.
+        onAnimationFrame { _ ->
+            rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(40.dp, tolerance)
+            rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(120.dp, tolerance)
+        }
+    }
+
+    @Test
+    fun dispatchRawDelta_thenDeletion_animatesSmoothly() {
+        val state = TransformingLazyColumnState()
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
+        rule.setContent {
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(containerSize),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
+                items(list, key = { it }) { key ->
+                    Box(
+                        Modifier.requiredSize(itemSize)
+                            .animateItem(placementSpec = animationSpec)
+                            .testTag("item_$key")
+                    )
+                }
+            }
+        }
+        rule.runOnUiThread { state.dispatchRawDelta(with(rule.density) { 40.dp.toPx() }) }
+        rule.waitForIdle()
+        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(120.dp, tolerance)
+
+        // Delete Item 1, Item 2 should slide up into its place.
+        rule.runOnUiThread { list = listOf(0, 2, 3, 4) }
+
+        onAnimationFrame { fraction ->
+            val expectedY2 = 120.dp - (80.dp * fraction)
+            rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(expectedY2, tolerance)
+        }
+    }
+
+    @Test
+    fun dispatchRawDelta_duringPlacementAnimation_keepsAnimating() {
+        val state = TransformingLazyColumnState()
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
+        rule.setContent {
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(containerSize),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
+                items(list, key = { it }) { key ->
+                    Box(
+                        Modifier.requiredSize(itemSize)
+                            .animateItem(placementSpec = animationSpec)
+                            .testTag("item_$key")
+                    )
+                }
+            }
+        }
+        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(160.dp, tolerance)
+
+        // Delete Item 1, Item 2 starts sliding up from 160dp to 80dp.
+        rule.runOnUiThread { list = listOf(0, 2, 3, 4) }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(animationDuration / 2)
+        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(120.dp, tolerance)
+
+        // Scroll by 20dp in the middle of the animation. The scroll is applied immediately and the
+        // running animation continues towards the scrolled target (80dp - 20dp).
+        rule.runOnUiThread { state.dispatchRawDelta(with(rule.density) { 20.dp.toPx() }) }
+        rule.waitForIdle()
+        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(100.dp, tolerance)
+
+        rule.mainClock.advanceTimeBy(animationDuration / 2)
+        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(60.dp, tolerance)
+    }
+
+    @Test
+    fun dispatchRawDelta_revealedItem_isNotAnimated() {
+        val state = TransformingLazyColumnState()
+        rule.setContent {
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(containerSize),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
+                items(6, key = { it }) { key ->
+                    Box(
+                        Modifier.requiredSize(itemSize)
+                            .animateItem(placementSpec = animationSpec)
+                            .testTag("item_$key")
+                    )
+                }
+            }
+        }
+        rule.onNodeWithTag("item_3").assertDoesNotExist()
+
+        // Scroll Item 0 out and Item 3 in.
+        rule.runOnUiThread { state.dispatchRawDelta(with(rule.density) { 100.dp.toPx() }) }
+
+        onAnimationFrame { _ ->
+            rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo((-20).dp, tolerance)
+            rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(60.dp, tolerance)
+            rule.onNodeWithTag("item_3").assertTopPositionInRootIsEqualTo(140.dp, tolerance)
+        }
+    }
+
+    @Test
+    fun dispatchRawDelta_doesNotRedrawAnimatedItems() {
+        rule.mainClock.autoAdvance = true
+        val state = TransformingLazyColumnState()
+        var draws = 0
+        rule.setContent {
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(containerSize),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
+                items(10, key = { it }) { key ->
+                    Box(
+                        Modifier.requiredSize(itemSize)
+                            .animateItem(placementSpec = animationSpec)
+                            .drawBehind { if (key == 1) draws++ }
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+        draws = 0
+
+        // Nested scrolling dispatches a raw delta for every pointer move. Moving an item should
+        // only move its layer and not invalidate its content.
+        val step = with(rule.density) { 2.dp.toPx() }
+        repeat(10) {
+            rule.runOnUiThread { state.dispatchRawDelta(step) }
+            rule.waitForIdle()
+        }
+        assertThat(draws).isEqualTo(0)
+    }
+
+    @Test
+    fun dispatchRawDelta_reverse_revealedItem_isNotAnimated() {
+        val state = TransformingLazyColumnState()
+        rule.setContent {
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(containerSize),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
+                items(6, key = { it }) { key ->
+                    Box(
+                        Modifier.requiredSize(itemSize)
+                            .animateItem(placementSpec = animationSpec)
+                            .testTag("item_$key")
+                    )
+                }
+            }
+        }
+        // Scroll Item 0 out and let any animation settle.
+        rule.runOnUiThread { state.dispatchRawDelta(with(rule.density) { 100.dp.toPx() }) }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(animationDuration * 2)
+        rule.waitForIdle()
+        rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo((-20).dp, tolerance)
+
+        // Scroll back, revealing Item 0 at the top.
+        rule.runOnUiThread { state.dispatchRawDelta(with(rule.density) { -100.dp.toPx() }) }
+
+        onAnimationFrame { _ ->
+            rule.onNodeWithTag("item_0").assertTopPositionInRootIsEqualTo(0.dp, tolerance)
+            rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(80.dp, tolerance)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun dispatchRawDelta_scrolledOutItem_isNotAnimatedAway() {
+        val state = TransformingLazyColumnState()
+        rule.setContent {
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(containerSize).testTag(listTag),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
+                items(6, key = { it }) { key ->
+                    Box(
+                        Modifier.requiredSize(width = containerSize, height = itemSize)
+                            .animateItem(placementSpec = animationSpec)
+                            .background(if (key == 0) Color.Red else Color.Blue)
+                    )
+                }
+            }
+        }
+
+        // Scroll Item 0 (red) fully out. Item 1 (blue) is now at [-20dp, 60dp].
+        rule.runOnUiThread { state.dispatchRawDelta(with(rule.density) { 100.dp.toPx() }) }
+
+        // Item 0 must not be drawn sliding out on top of Item 1.
+        onAnimationFrame { _ -> assertThat(colorAt(10.dp)).isEqualTo(Color.Blue) }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun dispatchRawDelta_duringFadeOut_movesFadingItemWithContent() {
+        val state = TransformingLazyColumnState()
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4, 5))
+        val fadeOutDuration = 1000
+        rule.setContent {
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(containerSize).testTag(listTag),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
+                items(list, key = { it }) { key ->
+                    Box(
+                        Modifier.requiredSize(width = containerSize, height = itemSize)
+                            .animateItem(
+                                fadeInSpec = null,
+                                placementSpec = null,
+                                fadeOutSpec = tween(fadeOutDuration, easing = LinearEasing),
+                            )
+                            .background(if (key == 1) Color.Red else Color.Blue)
+                    )
+                }
+            }
+        }
+
+        // Delete Item 1 (red). It fades out at [80dp, 160dp] while the other items snap.
+        rule.runOnUiThread { list = listOf(0, 2, 3, 4, 5) }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(fadeOutDuration / 2L)
+        rule.waitForIdle()
+        assertThat(colorAt(140.dp)).isNotEqualTo(Color.Blue)
+
+        // Scroll by 40dp during the fade out. The fading item moves with the content to
+        // [40dp, 120dp].
+        rule.runOnUiThread { state.dispatchRawDelta(with(rule.density) { 40.dp.toPx() }) }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        assertThat(colorAt(140.dp)).isEqualTo(Color.Blue)
+        assertThat(colorAt(60.dp)).isNotEqualTo(Color.Blue)
+    }
+
+    @Test
+    fun deletion_firstItemAtTop_animatesSmoothly() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
+        rule.setContent {
+            TransformingLazyColumn(
+                modifier = Modifier.requiredSize(containerSize),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
+                items(list, key = { it }) { key ->
+                    Box(
+                        Modifier.requiredSize(itemSize)
+                            .animateItem(placementSpec = animationSpec)
+                            .testTag("item_$key")
+                    )
+                }
+            }
+        }
+        rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(80.dp, tolerance)
+
+        rule.runOnUiThread { list = listOf(1, 2, 3, 4) }
+
+        onAnimationFrame { fraction ->
+            val expectedY1 = 80.dp - (80.dp * fraction)
+            rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(expectedY1, tolerance)
+        }
+    }
+
+    @Test
+    fun dispatchRawDelta_withTransformedHeights_doesNotAnimate() {
+        val state = TransformingLazyColumnState()
+        rule.setContent { TransformedItemsList(state) }
+        rule.waitForIdle()
+
+        rule.runOnUiThread { state.dispatchRawDelta(with(rule.density) { 30.dp.toPx() }) }
+
+        assertPositionsDoNotChangeOverAnimation()
+    }
+
+    @Test
+    fun scrollBy_withTransformedHeights_doesNotAnimateAfterScrollEnds() {
+        val state = TransformingLazyColumnState()
+        rule.setContent { TransformedItemsList(state) }
+        rule.waitForIdle()
+
+        rule.runOnIdle { runBlocking { state.scrollBy(with(rule.density) { 30.dp.toPx() }) } }
+
+        assertPositionsDoNotChangeOverAnimation()
+    }
+
+    @Composable
+    private fun TransformedItemsList(state: TransformingLazyColumnState) {
+        val heightProvider: (Int, TransformingLazyColumnItemScrollProgress) -> Int =
+            { height, progress ->
+                val fraction = progress.topOffsetFraction
+                if (fraction.isNaN()) height
+                else {
+                    val scale = 0.6f + 0.4f * (1f - 2f * abs(fraction - 0.5f)).coerceIn(0f, 1f)
+                    (height * scale).roundToInt()
+                }
+            }
+        TransformingLazyColumn(
+            state = state,
+            modifier = Modifier.requiredSize(width = 100.dp, height = containerSize),
+            verticalArrangement = Arrangement.spacedBy(0.dp),
+        ) {
+            items(10, key = { it }) { key ->
+                Box(
+                    Modifier.transformedHeight(heightProvider)
+                        .requiredSize(width = 100.dp, height = 60.dp)
+                        .animateItem(placementSpec = animationSpec)
+                        .testTag("item_$key")
+                )
+            }
+        }
+    }
+
+    private fun assertPositionsDoNotChangeOverAnimation() {
+        val tags = (0 until 10).map { "item_$it" }
+        fun positions() = tags.map { tag ->
+            rule.onAllNodesWithTag(tag).fetchSemanticsNodes().firstOrNull()?.positionInRoot?.y
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        val initial = positions()
+        onAnimationFrame { fraction ->
+            positions().forEachIndexed { index, y ->
+                val expected = initial[index]
+                if (y != null && expected != null) {
+                    assertWithMessage("item_$index at fraction $fraction")
+                        .that(abs(y - expected))
+                        .isAtMost(tolerancePx)
+                }
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun colorAt(y: Dp): Color {
+        val pixels = rule.onNodeWithTag(listTag).captureToImage().toPixelMap()
+        return pixels[pixels.width / 2, with(rule.density) { y.roundToPx() }]
     }
 
     private fun onAnimationFrame(
