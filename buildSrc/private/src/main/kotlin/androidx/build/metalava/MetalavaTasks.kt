@@ -112,7 +112,6 @@ internal object MetalavaTasks {
                     task.version.set(version)
                     task.dependencyClasspath.from(compilationInputs.dependencyClasspath)
                     task.bootClasspath.from(compilationInputs.bootClasspath)
-                    task.kotlinSourceLevel.set(kotlinSourceLevel)
                     task.targetsJavaConsumers.set(targetsJavaConsumers)
                     task.cacheEvenIfNoOutputs()
                     task.dependsOn(generateApi)
@@ -128,7 +127,6 @@ internal object MetalavaTasks {
                     task.version.set(version)
                     task.dependencyClasspath.from(compilationInputs.dependencyClasspath)
                     task.bootClasspath.from(compilationInputs.bootClasspath)
-                    task.kotlinSourceLevel.set(kotlinSourceLevel)
                     task.targetsJavaConsumers.set(targetsJavaConsumers)
                     task.dependsOn(generateApi)
                 }
