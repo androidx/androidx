@@ -52,7 +52,18 @@ public class DisplayBlendMode private constructor(private val value: Int) {
         }
 }
 
-/** Contextual label describing the type of detected object. */
+/**
+ * Contextual label describing the type of detected object.
+ *
+ * Supported device types:
+ * - Immersive
+ *
+ * Supported runtimes:
+ * - OpenXR
+ *
+ * Required permissions:
+ * - [SCENE_UNDERSTANDING_COARSE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE]
+ */
 public class AugmentedObjectCategory private constructor(private val value: Int) {
     public companion object {
         /** Category value indicating the tracked object is of unknown type. */
@@ -217,6 +228,8 @@ public class DeviceTrackingMode private constructor(public val mode: Int) {
          *
          * Supported runtimes:
          * - Play Services
+         *
+         * Required permissions: None
          */
         @ExperimentalInertialTrackingApi
         @JvmField
@@ -439,12 +452,12 @@ public class GeospatialMode private constructor(public val mode: Int) {
          * On all devices:
          * - Request and be granted the
          *   [ACCESS_FINE_LOCATION permission](https://developer.android.com/training/location/permissions);
-         *   otherwise, [Session.configure] throws [SecurityException].
+         *   otherwise, [Session.configure] throws [SecurityException]. Please note that the
+         *   permission request must also include the `ACCESS_COARSE_LOCATION` permission starting
+         *   with [Android 12](
+         *   https://developer.android.com/develop/sensors-and-location/location/permissions/runtime#approximate-request).
          *
          * On mobile devices only:
-         * - Include the
-         *   [INTERNET](https://developer.android.com/training/basics/network-ops/connecting)
-         *   permission in the app's AndroidManifest
          * - Include the Google Play Services Location Library as a dependency for your app. See
          *   [dependencies for Google Play services](https://developers.google.com/android/guides/setup#declare-dependencies)
          *   for instructions on how to include this library in your app. If this library is not
@@ -572,7 +585,7 @@ public class EyeTrackingMode private constructor(public val mode: Int) {
 public class CameraFacingDirection private constructor(public val mode: Int) {
     public companion object {
         /**
-         * Use the world-facing camera. This is the default behavior across all devices.
+         * Use the world-facing camera.
          *
          * Supported device types:
          * - Mobile
