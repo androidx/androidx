@@ -22,19 +22,14 @@ import androidx.car.app.Screen
 import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
-import androidx.car.app.model.Banner
-import androidx.car.app.model.BannerSection
 import androidx.car.app.model.CarIconStyle
 import androidx.car.app.model.CarProgressBar
-import androidx.car.app.model.ChipSection
 import androidx.car.app.model.CondensedItem
 import androidx.car.app.model.CondensedSection
 import androidx.car.app.model.GridSection
 import androidx.car.app.model.Header
 import androidx.car.app.model.RowSection
-import androidx.car.app.model.SectionHeader
 import androidx.car.app.model.SectionedItemTemplate
-import androidx.car.app.model.SpotlightSection
 import androidx.car.app.model.Template
 import androidx.car.app.model.Toggle
 import androidx.car.app.navigation.model.MapController
@@ -44,14 +39,11 @@ import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutingDe
 import androidx.car.app.sample.showcase.common.utils.CarContextAware
 import androidx.car.app.sample.showcase.common.utils.createAction
 import androidx.car.app.sample.showcase.common.utils.createBadge
-import androidx.car.app.sample.showcase.common.utils.createChip
-import androidx.car.app.sample.showcase.common.utils.createChipSection
 import androidx.car.app.sample.showcase.common.utils.createCondensedItem
 import androidx.car.app.sample.showcase.common.utils.createCondensedSection
 import androidx.car.app.sample.showcase.common.utils.createGridItem
 import androidx.car.app.sample.showcase.common.utils.createGridSection
 import androidx.car.app.sample.showcase.common.utils.createRow
-import androidx.car.app.sample.showcase.common.utils.createSpotlightSection
 import androidx.car.app.sample.showcase.common.utils.withApiGuard
 import androidx.car.app.versioning.CarAppApiLevels
 
@@ -72,16 +64,11 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
     private val icInfo = getCarIcon(R.drawable.outline_info_24)
     private val icBug = getCarIcon(R.drawable.ic_bug_report_24px)
 
-    private var selectedChipIndex = 0
-
     override fun onGetTemplate(): Template {
         val sectionedTemplate =
             with(SectionedItemTemplate.Builder()) {
                 setHeader(makeHeader())
                 carContext.withApiGuard(CarAppApiLevels.LEVEL_9) {
-                    addSection(makeChipSection())
-                    addSection(makeSpotlightSection())
-                    addSection(makeBannerSection())
                     addSection(makeCondensedSection())
                 }
                 addSection(makeGridSection())
@@ -171,59 +158,6 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
                     ),
                 ),
         )
-    }
-
-    private fun makeChipSection(): ChipSection {
-        val filterTitles = listOf("All", "Filter 1", "Filter 2", "Filter 3")
-
-        val chips = filterTitles.mapIndexed { index, title ->
-            createChip(
-                title = title,
-                startIcon = if (index == 2) icPhotos else null,
-                isSelected = (index == selectedChipIndex),
-                clickListener = {
-                    selectedChipIndex = index
-                    invalidate()
-                },
-            )
-        }
-
-        return createChipSection(title = "Filters Section", items = chips)
-    }
-
-    private fun makeSpotlightSection(): SpotlightSection {
-        val spotlightIcons = listOf(icMenu, icAndroid, icPhotos)
-        val items = spotlightIcons.mapIndexed { i, icon ->
-            createCondensedItem(
-                title = "Condensed Item ${i + 1}",
-                text = "Spotlight item ${i + 1}",
-                image = icon,
-            )
-        }
-
-        return createSpotlightSection(image = icPhotos, title = "Spotlight Section", items = items)
-    }
-
-    private fun makeBannerSection(): BannerSection {
-        val banner =
-            Banner.Builder()
-                .apply {
-                    setTitle("Rich Banner")
-                    setSubtitle("Combined banner elements: images, actions, and details.")
-                    setLeadingImage(icAndroid)
-                    addTrailingImage(icNavigate, Banner.IMAGE_TYPE_SMALL)
-                    addBelowAction(createAction(title = "Primary"))
-                    addBelowAction(createAction(title = "Secondary"))
-                    addBelowAction(createAction(icon = icInfo))
-                }
-                .build()
-
-        return BannerSection.Builder()
-            .setSectionHeader(
-                SectionHeader.Builder("Rich Banner Section").setHeadline("FEATURED").build()
-            )
-            .addItem(banner)
-            .build()
     }
 
     private fun makeCondensedSection(): CondensedSection {
