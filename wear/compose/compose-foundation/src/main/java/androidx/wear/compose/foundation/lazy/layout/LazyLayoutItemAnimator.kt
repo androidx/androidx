@@ -66,9 +66,16 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
      * Should be called after the measuring so we can detect position changes and start animations.
      *
      * Note that this method can compose new item and add it into the [positionedItems] list.
+     *
+     * @param shouldReleaseAnimations if true, all animations are released and nothing is animated.
+     * @param appliedScrollDelta the scroll offset applied to the items in this pass, or 0 if none.
+     *   If non-zero, position changes of items are caused by the scroll, so they are applied
+     *   without animation, while running animations continue. Has no effect when
+     *   [shouldReleaseAnimations] is true.
      */
     fun onMeasured(
-        shouldAnimate: Boolean,
+        shouldReleaseAnimations: Boolean,
+        appliedScrollDelta: Int,
         positionedItems: List<T>,
         keyIndexMap: LazyLayoutKeyIndexMap,
         layoutMinOffset: Int,
@@ -86,9 +93,10 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 .fastFirstOrNull { it.mainAxisOffset + it.transformedHeight > layoutMinOffset }
                 ?.index ?: 0
 
-        // If `shouldAnimate` is false, a scroll is in progress. Prioritize performance by
-        // releasing all animation resources. They will be recreated when the scroll ends.
-        if (!shouldAnimate) {
+        // [shouldReleaseAnimations] stays true for a whole scroll session (from start to end of a
+        // scroll {} block), which ends with a pass where it is false again. Prioritize performance
+        // by releasing all animation resources until then. They will be recreated in that pass.
+        if (shouldReleaseAnimations) {
             releaseAnimations()
             return
         }
@@ -99,11 +107,23 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             return
         }
 
+        // Unlike [shouldReleaseAnimations], which stays true for a whole scroll session, a scroll
+        // delta is only known per pass. Raw deltas (dispatchRawDelta) have no session and no end
+        // pass, so animations can't be released and recreated around them. Instead, keep running
+        // animations and don't start new ones for position changes caused by the scroll.
+        val hasScrollDelta = appliedScrollDelta != 0
+
         positionedItems.fastForEach { item ->
             getAnimation(item.key)?.let {
                 it.transformedHeight = item.transformedHeight
                 it.measuredHeight = item.measuredHeight
                 it.measurementDirection = item.measurementDirection
+                // Snap to the scrolled position, so no new placement animation is started below.
+                // With position dependent transformed heights, items don't move by exactly
+                // [appliedScrollDelta], so the new offset is used instead of shifting by it.
+                if (hasScrollDelta && it.rawOffset != LazyLayoutItemAnimation.NotInitialized) {
+                    it.rawOffset = item.getOffset()
+                }
             }
         }
 
@@ -142,7 +162,10 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                         }
                     } else if (
                         // Since the list can move down, add the item to animate in from the start.
-                        item.index == previousIndex && item.index < previousFirstVisibleIndex
+                        // Items revealed by a scroll are placed directly at their position.
+                        !hasScrollDelta &&
+                            item.index == previousIndex &&
+                            item.index < previousFirstVisibleIndex
                     ) {
                         movingInFromStartBound.add(item)
                     } else {
@@ -237,7 +260,11 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 val animation = info.animation
                 if (animation != null) {
                     val isAlreadyMovingAway = disappearingItems.contains(animation)
-                    if (isAlreadyMovingAway && !animation.isPlacementAnimationInProgress) {
+                    // Items scrolled out of bounds don't animate away, unless already animating.
+                    if (
+                        (isAlreadyMovingAway || hasScrollDelta) &&
+                            !animation.isPlacementAnimationInProgress
+                    ) {
                         removeInfoForKey(key)
                         disappearingItems.remove(animation)
                         displayingNode?.invalidateDraw()
@@ -257,6 +284,13 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             // Truly removed (deleted) item case:
             var isProgress = false
             info.animation?.let { animation ->
+                // Move the fading out item with the scrolled content.
+                if (
+                    hasScrollDelta && animation.rawOffset != LazyLayoutItemAnimation.NotInitialized
+                ) {
+                    animation.rawOffset += IntOffset(0, appliedScrollDelta)
+                    displayingNode?.invalidateDraw()
+                }
                 if (animation.isDisappearanceAnimationInProgress) {
                     isProgress = true
                 } else if (animation.isDisappearanceAnimationFinished) {

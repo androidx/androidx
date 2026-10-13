@@ -614,8 +614,12 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                     }
             }
 
+        val appliedScroll = scrollDelta + scrollAdjustment
         itemAnimator.onMeasured(
-            shouldAnimate = shouldAnimate,
+            shouldReleaseAnimations = !shouldAnimate,
+            // Only passes with scroll input are scroll passes; pinning adjustments alone should
+            // animate.
+            appliedScrollDelta = if (scrollDelta == 0) 0 else appliedScroll,
             positionedItems = positionedItems,
             keyIndexMap = keyIndexMap,
             layoutMinOffset = 0,
@@ -635,7 +639,6 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
 
         positionedItems.fastForEach { it.markMeasured() }
 
-        val appliedScroll = scrollDelta + scrollAdjustment
         val consumedScroll =
             if (scrollDelta.sign == appliedScroll.sign && abs(scrollDelta) >= abs(appliedScroll)) {
                 appliedScroll.toFloat()
