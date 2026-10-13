@@ -45,6 +45,7 @@ android {
     sourceSets {
         test {
             kotlin.srcDirs += [file("src/sharedTest/java")]
+            resources.srcDirs += [file("../remote-player-compose-testutils/src/main/res")]
         }
         androidTest {
             kotlin.srcDirs += [file("src/sharedTest/java")]
