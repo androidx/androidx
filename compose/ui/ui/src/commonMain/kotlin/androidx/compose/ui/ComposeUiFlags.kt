@@ -183,5 +183,5 @@ public object ComposeUiFlags {
     // TODO: b/565962277 - Cleanup feature flag
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isClippedTouchBoundsOcclusionFixEnabled: Boolean = false
+    public var isClippedTouchBoundsOcclusionFixEnabled: Boolean = true
 }
