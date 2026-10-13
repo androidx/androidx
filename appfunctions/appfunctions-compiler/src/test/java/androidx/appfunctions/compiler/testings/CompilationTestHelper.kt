@@ -70,6 +70,7 @@ class CompilationTestHelper(
         sourceFileNames: List<String>,
         processorOptions: Map<String, String> = emptyMap<String, String>(),
         additionalClasspath: List<File> = emptyList(),
+        moduleName: String? = null,
     ): CompilationReport {
         val sources =
             sourceFileNames.map { sourceFileName ->
@@ -100,6 +101,14 @@ class CompilationTestHelper(
 
         val workingDir =
             Files.createTempDirectory("compile").toFile().also { file -> file.deleteOnExit() }
+        val kotlincArgs = buildList {
+            add("-jvm-target")
+            add("11")
+            add("-opt-in=androidx.appfunctions.ExperimentalAppFunctionsApi")
+            if (moduleName != null) {
+                add("-module-name=$moduleName")
+            }
+        }
         val result =
             compile(
                 workingDir,
@@ -108,12 +117,7 @@ class CompilationTestHelper(
                     symbolProcessorProviders = symbolProcessorProviders,
                     processorOptions = processorOptions,
                     classpath = additionalClasspath,
-                    kotlincArguments =
-                        listOf(
-                            "-jvm-target",
-                            "11",
-                            "-opt-in=androidx.appfunctions.ExperimentalAppFunctionsApi",
-                        ),
+                    kotlincArguments = kotlincArgs,
                 ),
             )
 
