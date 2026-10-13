@@ -204,17 +204,10 @@ class CameraStateRobolectricTest(private val config: TestConfig) {
 
         // Act: Bind a use case, which will trigger the camera open call that we've hijacked.
         mainThreadHandler.post {
-            val preview = Preview.Builder().build()
-            preview.surfaceProvider =
-                SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()
-            val camera =
-                cameraProvider!!.bindToLifecycle(
-                    fakeLifecycleOwner,
-                    CameraSelector.DEFAULT_BACK_CAMERA,
-                    preview,
-                )
-
-            camera.cameraInfo.cameraState.observe(fakeLifecycleOwner) { state ->
+            val provider = requireNotNull(cameraProvider)
+            provider.getCameraInfo(CameraSelector.DEFAULT_BACK_CAMERA).cameraState.observe(
+                fakeLifecycleOwner
+            ) { state ->
                 // We are interested in the state where an error is first reported.
                 if (state.error != null && !isErrorCaptured) {
                     capturedState = state
@@ -222,6 +215,14 @@ class CameraStateRobolectricTest(private val config: TestConfig) {
                     cameraErrorLatch.countDown()
                 }
             }
+
+            val preview = Preview.Builder().build()
+            preview.surfaceProvider = SurfaceTextureProvider.createSurfaceTextureProvider()
+            provider.bindToLifecycle(
+                fakeLifecycleOwner,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                preview,
+            )
         }
         flushLoopers()
 
