@@ -163,12 +163,6 @@ public object ComposeUiFlags {
     @JvmField
     public var isVectorDrawCacheSharingEnabled: Boolean = true
 
-    /** Guard for Hardware Navigation system default behavior in Compose. */
-    // TODO(b/520209822): Cleanup once proven stable.
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isHardwareNavigationHandlingEnabled: Boolean = false
-
     /**
      * Enables clipping `touchBoundsInRoot` when a child has at least `minimumTouchTargetSize`
      * visible inside a clipping container and when subtracting a child's touch bounds from
