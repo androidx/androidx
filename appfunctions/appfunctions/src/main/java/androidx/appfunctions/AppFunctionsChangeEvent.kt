@@ -16,7 +16,6 @@
 
 package androidx.appfunctions
 
-import androidx.appfunctions.metadata.AppFunctionName
 import java.util.Objects
 
 /**

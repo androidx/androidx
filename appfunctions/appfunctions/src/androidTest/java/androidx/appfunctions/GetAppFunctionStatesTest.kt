@@ -25,7 +25,6 @@ import androidx.appfunctions.core.AppFunctionMetadataTestHelper
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper.FunctionNames
 import androidx.appfunctions.internal.runWithActivityAppFunctionManager
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
-import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import androidx.test.filters.SdkSuppress

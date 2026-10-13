@@ -16,9 +16,9 @@
 
 package androidx.appfunctions.internal
 
+import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.internal.ChangeEventsFlowUtils.debounceAndMerge
-import androidx.appfunctions.metadata.AppFunctionName
 import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
