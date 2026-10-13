@@ -50,6 +50,7 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
+import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.lambdaAction
@@ -125,6 +126,7 @@ import androidx.compose.remote.creation.compose.state.sqrt
 import androidx.compose.remote.creation.compose.state.tan
 import androidx.compose.remote.creation.compose.state.toDeg
 import androidx.compose.remote.creation.compose.state.toRad
+import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -3549,5 +3551,23 @@ class RcPlayerInteractivityTest {
         rule.onNodeWithTag("host").performTouchInput { up() }
         rule.waitForIdle()
         assertThat(actionLog).containsExactly("down:1", "up:1").inOrder()
+    }
+
+    @Test
+    fun hostActionWithMetadataReportsItsIdAndMetadata() {
+        val actions = mutableListOf<Pair<Int, String?>>()
+        val document = buildDocument {
+            val metadata = writer.addText("metadata")
+            root { box(RecordingModifier().fillMaxSize().onClick(HostAction(7, metadata))) }
+        }
+
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp)) {
+                RcPlayer(document = document, onAction = { id, value -> actions += id to value })
+            }
+        }
+        rule.onNode(hasClickAction()).performClick()
+
+        assertThat(actions).containsExactly(7 to "metadata")
     }
 }
