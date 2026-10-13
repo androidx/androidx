@@ -96,6 +96,8 @@ public fun RemoteSwitchButton(
                 checked = checked,
                 progress = colorProgress,
             ),
+        iconColor =
+            colors.iconColor(enabled = enabled, checked = checked, progress = colorProgress),
         contentPadding = contentPadding,
         border = border,
         borderColor = borderColor,

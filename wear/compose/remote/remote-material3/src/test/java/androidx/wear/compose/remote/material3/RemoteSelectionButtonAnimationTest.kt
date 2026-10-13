@@ -39,6 +39,7 @@ import androidx.wear.compose.remote.material3.samples.RemoteSplitCheckboxButtonS
 import androidx.wear.compose.remote.material3.samples.RemoteSplitRadioButtonSample
 import androidx.wear.compose.remote.material3.samples.RemoteSplitSwitchButtonSample
 import androidx.wear.compose.remote.material3.samples.RemoteSwitchButtonSample
+import androidx.wear.compose.remote.material3.util.TestImageVectors
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertFalse
@@ -111,6 +112,24 @@ class RemoteSelectionButtonAnimationTest {
         assertThat(filledBoxPixels).isGreaterThan(0)
         assertThat(standardBoxPixels).isEqualTo(filledBoxPixels)
         assertThat(boxPixels).isLessThan(filledBoxPixels / 10)
+    }
+
+    @Test
+    fun selectionButtons_tintIconWithIconColor() {
+        for (button in ButtonsWithIcon) {
+            val painter = painterRule.paintDocument {
+                button(RemoteBoolean.createNamedRemoteBoolean(CheckedName, false))
+            }
+
+            assertThat(painter.pixelsWhere(::isUnselectedIconColor)).isNotEmpty()
+            assertThat(painter.pixelsWhere(::isSelectedIconColor)).isEmpty()
+
+            painter.setBoolean(CheckedName, true)
+            painter.advanceTimeBy(SettledMillis)
+
+            assertThat(painter.pixelsWhere(::isUnselectedIconColor)).isEmpty()
+            assertThat(painter.pixelsWhere(::isSelectedIconColor)).isNotEmpty()
+        }
     }
 
     @Test
@@ -212,6 +231,12 @@ class RemoteSelectionButtonAnimationTest {
     private fun isBoxColor(color: Color): Boolean =
         color.red > 0.9f && color.green < 0.1f && color.blue < 0.1f
 
+    private fun isUnselectedIconColor(color: Color): Boolean =
+        color.red > 0.9f && color.green < 0.1f && color.blue < 0.1f
+
+    private fun isSelectedIconColor(color: Color): Boolean =
+        color.blue > 0.9f && color.red < 0.1f && color.green < 0.1f
+
     private companion object {
         const val CheckedName = "checked"
         const val ProgressName = "progress"
@@ -221,6 +246,9 @@ class RemoteSelectionButtonAnimationTest {
 
         /** A moment into the selection animation, before it settles. */
         const val EarlyMillis = 50L
+
+        /** Long after the selection animation settles. */
+        const val SettledMillis = 3000L
 
         /** How long [LinearSpec] takes, in milliseconds. */
         const val LinearSpecMillis = 1000
@@ -274,6 +302,50 @@ class RemoteSelectionButtonAnimationTest {
                 { RemoteSplitCheckboxButtonSample() },
                 { RemoteSplitSwitchButtonSample() },
                 { RemoteSplitRadioButtonSample() },
+            )
+
+        /** Selection buttons whose icon is red when unselected, and blue when selected. */
+        val ButtonsWithIcon: List<@Composable @RemoteComposable (selected: RemoteBoolean) -> Unit> =
+            listOf(
+                { selected ->
+                    RemoteCheckboxButton(
+                        checked = selected,
+                        onCheckedChange = hostAction("toggle".rs),
+                        colors =
+                            RemoteCheckboxButtonDefaults.checkboxButtonColors(
+                                uncheckedIconColor = Color.Red.rc,
+                                checkedIconColor = Color.Blue.rc,
+                            ),
+                        icon = { RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null) },
+                        label = {},
+                    )
+                },
+                { selected ->
+                    RemoteSwitchButton(
+                        checked = selected,
+                        onCheckedChange = hostAction("toggle".rs),
+                        colors =
+                            RemoteSwitchButtonDefaults.switchButtonColors(
+                                uncheckedIconColor = Color.Red.rc,
+                                checkedIconColor = Color.Blue.rc,
+                            ),
+                        icon = { RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null) },
+                        label = {},
+                    )
+                },
+                { selected ->
+                    RemoteRadioButton(
+                        selected = selected,
+                        onSelect = hostAction("select".rs),
+                        colors =
+                            RemoteRadioButtonDefaults.radioButtonColors(
+                                unselectedIconColor = Color.Red.rc,
+                                selectedIconColor = Color.Blue.rc,
+                            ),
+                        icon = { RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null) },
+                        label = {},
+                    )
+                },
             )
     }
 }

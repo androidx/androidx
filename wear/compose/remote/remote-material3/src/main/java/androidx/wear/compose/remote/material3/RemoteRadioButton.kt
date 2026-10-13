@@ -94,6 +94,8 @@ public fun RemoteRadioButton(
                 selected = selected,
                 progress = colorProgress,
             ),
+        iconColor =
+            colors.iconColor(enabled = enabled, selected = selected, progress = colorProgress),
         contentPadding = contentPadding,
         border = border,
         borderColor = borderColor,
