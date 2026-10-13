@@ -145,7 +145,7 @@ public constructor(
     /**
      * Return the maximum size of the cache before adding new elements causes existing elements to
      * be evicted. The unit of [maxSize] is defined by the implementation of [sizeOf]. Using the
-     * default implementation of [sizeOf], [maxSize] indicates the a maximum number of elements.
+     * default implementation of [sizeOf], [maxSize] indicates the maximum number of elements.
      *
      * @see size
      */
@@ -297,6 +297,8 @@ public constructor(
      * each input pair. See [put] for more details about the behavior of each insertion.
      */
     public fun putAll(@Suppress("ArrayReturn") pairs: Array<out Pair<K, V>>) {
+        val newCapacity = normalizeCapacity(unloadedCapacity(_size))
+        if (newCapacity < _capacity) resizeStorage(newCapacity)
         for ((key, value) in pairs) {
             this[key] = value
         }
@@ -330,6 +332,8 @@ public constructor(
      * behavior of each insertion.
      */
     public fun putAll(from: Map<K, V>) {
+        val newCapacity = normalizeCapacity(unloadedCapacity(_size))
+        if (newCapacity < _capacity) resizeStorage(newCapacity)
         from.forEach { (key, value) -> this[key] = value }
     }
 
@@ -339,6 +343,8 @@ public constructor(
      * behavior of each insertion.
      */
     public fun putAll(from: ScatterMap<K, V>) {
+        val newCapacity = normalizeCapacity(unloadedCapacity(_size))
+        if (newCapacity < _capacity) resizeStorage(newCapacity)
         from.forEach { key, value -> this[key] = value }
     }
 
@@ -348,6 +354,8 @@ public constructor(
      * behavior of each insertion.
      */
     public fun putAll(from: SieveCache<K, V>) {
+        val newCapacity = normalizeCapacity(unloadedCapacity(_size))
+        if (newCapacity < _capacity) resizeStorage(newCapacity)
         from.forEach { key, value -> this[key] = value }
     }
 
@@ -529,8 +537,8 @@ public constructor(
             if (candidate == NodeInvalidLink) return
 
             @Suppress("UNCHECKED_CAST") val key = keys[candidate] as K
-            // Better codegen compared to !!, and the continue can only happen if the data structure
-            // has become internally inconsistent
+            // Better codegen compared to !!, and the `continue` can only happen if the data
+            // structure has become internally inconsistent
             val value = removeValueAt(candidate) ?: continue
 
             _size -= sizeOf(key, value)
@@ -646,7 +654,19 @@ public constructor(
     private fun removeValueAt(index: Int): V? {
         _count -= 1
 
-        writeMetadata(metadata, _capacity, index, Deleted)
+        // If the group of size GroupWidth around the entry we are deleting is already empty,
+        // we can just mark the entry as empty instead of marking it Deleted. This will avoid
+        // unnecessary and expensive cleanup (dropDeletes()) and resize phases
+        val m = metadata
+        val groupEmptyAfter = group(m, index).maskEmpty()
+        val groupEmptyBefore = group(m, (index - GroupWidth) and _capacity).maskEmpty()
+        val trigger =
+            (groupEmptyAfter != 0L) and
+                (groupEmptyBefore != 0L) and
+                (((groupEmptyAfter.countTrailingZeroBits() +
+                    groupEmptyBefore.countLeadingZeroBits()) ushr 3) < GroupWidth)
+        writeMetadata(m, _capacity, index, if (trigger) Empty else Deleted)
+        growthLimit += if (trigger) 1 else 0
 
         keys[index] = null
         val previousValue = values[index]
@@ -803,12 +823,12 @@ public constructor(
         // to find the next/previous node. Since this method will move the values inside the
         // data structure, we need to patch the nodes array when we're done. We could skip the
         // mapping array but that would require scanning the entire nodes array every time we move
-        // a value inside the data structure which would be more expensive. Instead we traverse
+        // a value inside the data structure which would be more expensive. Instead, we traverse
         // the nodes array only once in [fixup].
         //
         // Each index mapping is a (src, dst) pair. The source index indicates which
         // index the current value came, and the destination index indicates where the
-        // value previously held was moved. For instance we want to swap the values
+        // value previously held was moved. For instance, we want to swap the values
         // at index 4 and 21:
         //
         // indexMapping[4] = (21, 21)
@@ -963,12 +983,11 @@ public constructor(
         val previousKeys = keys
         val previousValues = values
         val previousNodes = nodes
-        val previousCapacity = _capacity
 
         // src index -> dst index mapping
         // We only need the mapping to go one way since we are copying from
         // the existing array into a new one
-        val indexMapping = IntArray(previousCapacity)
+        val indexMapping = IntArray(_capacity)
 
         initializeStorage(newCapacity)
 
@@ -978,18 +997,24 @@ public constructor(
         val newNodes = nodes
         val capacity = _capacity
 
-        for (i in 0 until previousCapacity) {
-            if (isFull(previousMetadata, i)) {
-                val previousKey = previousKeys[i]
+        val lastIndex = previousMetadata.size - 2 // We always have 0 or at least 2 entries
+        for (i in 0..lastIndex) {
+            val slot = previousMetadata[i]
+            var mask = slot.inv() and BitmaskMsb
+            while (mask != 0L) {
+                val previousIndex = (i shl 3) + (mask.countTrailingZeroBits() ushr 3)
+                val previousKey = previousKeys[previousIndex]
                 val hash = hash(previousKey)
                 val index = findFirstAvailableSlot(h1(hash))
 
                 writeMetadata(newMetadata, capacity, index, h2(hash).toLong())
                 newKeys[index] = previousKey
-                newValues[index] = previousValues[i]
-                newNodes[index] = previousNodes[i]
+                newValues[index] = previousValues[previousIndex]
+                newNodes[index] = previousNodes[previousIndex]
 
-                indexMapping[i] = index
+                indexMapping[previousIndex] = index
+
+                mask = mask and (mask - 1L)
             }
         }
 
@@ -1031,7 +1056,7 @@ public constructor(
             val slot = m[i]
             // In metadata, Empty (0x80), Deleted (0xFE), and Sentinel (0xFF) all have bit 7
             // set; Full slots have bit 7 unset (< 0x80). Inverting the word and masking
-            // with BitmaskMsb sets bit (8j + 7) iff slot j is Full. Sentinel (0xFF) at
+            // with BitmaskMsb sets bit (8j + 7) if slot j is Full. Sentinel (0xFF) at
             // capacity index is naturally skipped since its bit 7 is set.
             var mask = slot.inv() and BitmaskMsb
             while (mask != 0L) {

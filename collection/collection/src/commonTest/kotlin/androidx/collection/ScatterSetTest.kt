@@ -828,6 +828,12 @@ class ScatterSetTest {
         set2 += "Hello"
         assertEquals(set.asSet(), set2.asSet())
         assertEquals(set.asMutableSet(), set2.asMutableSet())
+
+        val set3 = setOf("Hello", null, "Bonjour")
+        assertEquals(set3, set.asSet())
+
+        val set4 = mutableSetOf("Hello", null, "Bonjour")
+        assertEquals(set4, set.asMutableSet())
     }
 
     @Test
