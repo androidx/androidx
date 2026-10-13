@@ -44,6 +44,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
 
+import androidx.core.content.res.FontResourcesParserCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.provider.FontsContractCompat.FontInfo;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -361,6 +362,101 @@ public class FontsContractCompatTest {
                 FontProvider.getProvider(packageManager, requestRightCerts, null);
 
         assertEquals(info, result);
+    }
+
+    @Test
+    public void testGetProvider_systemCerts_systemApp()
+            throws PackageManager.NameNotFoundException {
+        PackageManager packageManager = mock(PackageManager.class);
+        ProviderInfo info = setupPackageManager(packageManager);
+        info.applicationInfo.flags |= ApplicationInfo.FLAG_SYSTEM;
+
+        List<byte[]> wrongCertList = Arrays.asList(new byte[] { 1, 2, 3 });
+        List<byte[]> systemCertList = Arrays.asList(BYTE_ARRAY);
+        FontRequest request = new FontRequest(AUTHORITY, PACKAGE, "query",
+                Arrays.asList(wrongCertList), Arrays.asList(systemCertList), null, null);
+
+        ProviderInfo result = FontProvider.getProvider(packageManager, request, null);
+        assertEquals(info, result);
+    }
+
+    @Test
+    public void testGetProvider_systemCerts_nonSystemApp()
+            throws PackageManager.NameNotFoundException {
+        PackageManager packageManager = mock(PackageManager.class);
+        ProviderInfo info = setupPackageManager(packageManager);
+        info.applicationInfo.flags = 0; // Not a system app
+
+        List<byte[]> wrongCertList = Arrays.asList(new byte[] { 1, 2, 3 });
+        List<byte[]> systemCertList = Arrays.asList(BYTE_ARRAY);
+        FontRequest request = new FontRequest(AUTHORITY, PACKAGE, "query",
+                Arrays.asList(wrongCertList), Arrays.asList(systemCertList), null, null);
+
+        ProviderInfo result = FontProvider.getProvider(packageManager, request, null);
+        assertNull(result);
+    }
+
+    @Test
+    public void testGetProvider_cacheHit_withDifferentByteInstances()
+            throws PackageManager.NameNotFoundException {
+        FontProvider.clearProviderCache();
+        PackageManager packageManager = mock(PackageManager.class);
+        ProviderInfo info = setupPackageManager(packageManager);
+
+        List<byte[]> certList1 = Arrays.asList(BYTE_ARRAY.clone());
+        FontRequest request1 = new FontRequest(AUTHORITY, PACKAGE, "query",
+                Arrays.asList(certList1));
+
+        ProviderInfo result1 = FontProvider.getProvider(packageManager, request1, null);
+        assertEquals(info, result1);
+
+        // Second request with newly allocated byte[] containing the same content
+        List<byte[]> certList2 = Arrays.asList(BYTE_ARRAY.clone());
+        FontRequest request2 = new FontRequest(AUTHORITY, PACKAGE, "query",
+                Arrays.asList(certList2));
+
+        // Reset mock packageManager to ensure getProvider hits the cache
+        PackageManager failPackageManager = mock(PackageManager.class);
+        ProviderInfo result2 = FontProvider.getProvider(failPackageManager, request2, null);
+        assertEquals(info, result2);
+    }
+
+    @Test
+    public void testGetProvider_cacheHit_withResourceId()
+            throws PackageManager.NameNotFoundException {
+        FontProvider.clearProviderCache();
+        PackageManager packageManager = mock(PackageManager.class);
+        ProviderInfo info = setupPackageManager(packageManager);
+        info.applicationInfo.flags |= ApplicationInfo.FLAG_SYSTEM;
+
+        // Mock signatures matching the resource array to verify signature matching and cache hit
+        List<List<byte[]>> certs = FontResourcesParserCompat.readCerts(
+                mContext.getResources(), androidx.core.test.R.array.certs1);
+        List<byte[]> certSet = certs.get(0);
+        Signature[] signatures = new Signature[certSet.size()];
+        for (int i = 0; i < certSet.size(); i++) {
+            signatures[i] = mock(Signature.class);
+            when(signatures[i].toByteArray()).thenReturn(certSet.get(i));
+        }
+        PackageInfo packageInfo = new PackageInfo();
+        packageInfo.packageName = PACKAGE;
+        packageInfo.signatures = signatures;
+        when(packageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo);
+
+        FontRequest request1 = new FontRequest.Builder(AUTHORITY, PACKAGE, "query",
+                androidx.core.test.R.array.certs1).build();
+
+        ProviderInfo result1 = FontProvider.getProvider(packageManager, request1,
+                mContext.getResources());
+        assertEquals(info, result1);
+
+        FontRequest request2 = new FontRequest.Builder(AUTHORITY, PACKAGE, "query",
+                androidx.core.test.R.array.certs1).build();
+
+        // Second lookup should hit cache even with null resources and failing packageManager
+        PackageManager failPackageManager = mock(PackageManager.class);
+        ProviderInfo result2 = FontProvider.getProvider(failPackageManager, request2, null);
+        assertEquals(info, result2);
     }
 
     @Test
