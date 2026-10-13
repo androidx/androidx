@@ -24,11 +24,17 @@ package androidx.tracing
  * @param T represents an object that be re-used.
  */
 internal class Pool<T>(
-    private val size: Int,
-    private val isDebug: Boolean,
-    private val factory: (owner: Pool<T>) -> T,
+    @JvmField internal val size: Int,
+    @JvmField internal val isDebug: Boolean,
+    @JvmField internal val factory: (owner: Pool<T>) -> T,
 ) {
-    private var counter: AtomicLong? = null
+    @JvmField internal var counter: AtomicLong? = null
+
+    // Using a dedicated lock on the Pool here. That is safer than holding on to the Track `lock`
+    // because `driver` offers a single flush() API which drains all the track packets. So if you
+    // end up re-using the track lock then you can potentially deadlock the `TraceSink` which holds
+    // a consumer control lock at its low watermark when it starts to drain packets.
+    @JvmField internal val lock = Any()
 
     init {
         if (isDebug) {
@@ -36,9 +42,6 @@ internal class Pool<T>(
         }
     }
 
-    // This class is intentionally lock free.
-    // This is because, the only place where we recycle objects in the pool is in the
-    // AbstractTraceSink and that effectively behaves as-if it were single threaded.
     private val scrapPool: ArrayDeque<T> = ArrayDeque(size)
 
     init {
@@ -48,22 +51,26 @@ internal class Pool<T>(
 
     /** Obtain an instance of the object from the pool if possible. */
     internal fun obtain(): T {
-        // Fallback to allocations when the scrap pool is empty.
-        // It's not safe to drop trace packets the way given we might drop the packet which
-        // represents ending the trace section. This will result in unmatched begin and ends.
-        val element = scrapPool.removeFirstOrNull() ?: factory(this)
-        if (isDebug && element != null) {
-            counter?.incrementAndGet()
+        return synchronized(lock) {
+            // Fallback to allocations when the scrap pool is empty.
+            // It's not safe to drop trace packets the way given we might drop the packet which
+            // represents ending the trace section. This will result in unmatched begin and ends.
+            val element = scrapPool.removeFirstOrNull() ?: factory(this)
+            if (isDebug && element != null) {
+                counter?.incrementAndGet()
+            }
+            element
         }
-        return element
     }
 
     internal fun release(element: T) {
-        if (isDebug) {
-            counter?.decrement()
-        }
-        if (scrapPool.size < size) {
-            scrapPool.addFirst(element)
+        synchronized(lock) {
+            if (isDebug) {
+                counter?.decrement()
+            }
+            if (scrapPool.size < size) {
+                scrapPool.addFirst(element)
+            }
         }
     }
 

@@ -32,7 +32,9 @@ import androidx.tracing.wire.protos.MutableTrackEvent
 import com.squareup.wire.ProtoReader
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.util.Collections
 import kotlin.concurrent.thread
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.BeforeTest
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -43,6 +45,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
@@ -726,5 +729,52 @@ class TracingTest {
             expected = firstInner.first.track_event?.track_uuid,
             actual = secondInner.first.track_event?.track_uuid,
         )
+    }
+
+    @Test
+    internal fun testConcurrentTraceAndFlush() {
+        val sink =
+            TraceSink(
+                sequenceId = 1,
+                sinkProvider = { blackholeSink().buffer() },
+                // Using an empty coroutine context intentionally to recreate the race condition
+                coroutineContext = EmptyCoroutineContext,
+            )
+        val driver = TraceDriver(sink = sink, isGloballyEnabled = true)
+        // Create the Tracer
+        val tracer = driver.tracer
+        val counter = tracer.counter("test", "counter")
+
+        val iterations = 500
+        val threads = mutableListOf<Thread>()
+        val errors = Collections.synchronizedList(mutableListOf<Throwable>())
+
+        // Worker threads doing tracing and counter updates
+        repeat(4) {
+            threads += Thread {
+                try {
+                    repeat(iterations) { i ->
+                        if (i > 0 && i % 5 == 0) {
+                            driver.context.flush()
+                        }
+                        tracer.trace(category = "test", name = "section") {
+                            counter.setValue(1L)
+                        }
+                    }
+                } catch (throwable: Throwable) {
+                    errors += throwable
+                }
+            }
+        }
+
+        threads.forEach { it.start() }
+        threads.forEach {
+            it.join(4.seconds.inWholeMilliseconds)
+            if (it.isAlive) {
+                errors += AssertionError("Thread $it did not finish within timeout.")
+            }
+        }
+        assertEquals(emptyList(), errors)
+        driver.close()
     }
 }

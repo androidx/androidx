@@ -33,7 +33,7 @@ public const val TRACE_PACKET_POOL_ARRAY_POOL_SIZE: Int = 256
 
 /** The uber proto pool that knows how to create all the necessary protos. */
 @PublishedApi
-internal class ProtoPool(internal val isDebug: Boolean) {
+internal class ProtoPool(@JvmField internal val isDebug: Boolean) {
     internal val tracePacketArrayPool: Pool<PooledTracePacketArray> =
         Pool(size = TRACE_PACKET_POOL_ARRAY_POOL_SIZE, isDebug = isDebug) { pool ->
             PooledTracePacketArray(
