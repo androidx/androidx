@@ -69,7 +69,7 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
     }
 
     fun runWithArgs(args: List<String>) {
-        val workQueue = workerExecutor.processIsolation()
+        val workQueue = workerExecutor.noIsolation()
         workQueue.submit(MetalavaWorkAction::class.java) { parameters ->
             parameters.args.set(args)
             parameters.metalavaClasspath.set(metalavaClasspath.files)
