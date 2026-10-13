@@ -24,72 +24,28 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 class FloatSetBenchmarkTest(size: Int) {
-    private val sourceSet = createFloatDataSet(size)
+    private val sourceSet = createFloatSetDataSet(size)
 
     @get:Rule val benchmark = BenchmarkRule()
 
     @Test
     fun insert() {
-        benchmark.runCollectionBenchmark(
-            object : CollectionBenchmark {
-                override fun measuredBlock() {
-                    val set = MutableFloatSet(sourceSet.size)
-                    for (testValue in sourceSet) {
-                        set += testValue
-                    }
-                }
-            }
-        )
+        benchmark.runCollectionBenchmark(FloatSetInsertBenchmark(sourceSet))
     }
 
     @Test
     fun remove() {
-        benchmark.runCollectionBenchmark(
-            object : CollectionBenchmark {
-                private val set = MutableFloatSet()
-
-                init {
-                    for (testValue in sourceSet) {
-                        set += testValue
-                    }
-                }
-
-                override fun measuredBlock() {
-                    for (testValue in sourceSet) {
-                        set.remove(testValue)
-                    }
-                }
-            }
-        )
+        benchmark.runCollectionBenchmark(FloatSetRemoveBenchmark(sourceSet))
     }
 
     @Test
     fun contains() {
-        benchmark.runCollectionBenchmark(
-            object : CollectionBenchmark {
-                private val set = MutableFloatSet()
-
-                init {
-                    for (testValue in sourceSet) {
-                        set += testValue
-                    }
-                }
-
-                override fun measuredBlock() {
-                    for (testValue in sourceSet) {
-                        set.contains(testValue)
-                    }
-                }
-            }
-        )
+        benchmark.runCollectionBenchmark(FloatSetContainsBenchmark(sourceSet))
     }
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")
         fun parameters() = buildParameters(listOf(1_000))
-
-        internal fun createFloatDataSet(size: Int): FloatArray =
-            FloatArray(size) { index -> (index + 1) * 8.0f }
     }
 }
