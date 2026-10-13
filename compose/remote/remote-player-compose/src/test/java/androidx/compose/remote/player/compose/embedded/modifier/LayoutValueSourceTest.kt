@@ -27,9 +27,9 @@ import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOp
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation
 import androidx.compose.remote.player.compose.embedded.dimensionInRawValues
-import androidx.compose.remote.player.compose.embedded.getValuesReflection
 import androidx.compose.remote.player.compose.embedded.offsetRawValues
 import androidx.compose.remote.player.compose.embedded.paddingRawValues
+import androidx.compose.remote.player.compose.embedded.readValues
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -61,7 +61,7 @@ class LayoutValueSourceTest {
         GraphicsLayerModifierOperation.read(buffer, operations)
         val operation = operations[0] as GraphicsLayerModifierOperation
 
-        val source = operation.getValuesReflection()[GraphicsLayerModifierOperation.ALPHA].source
+        val source = operation.readValues()[GraphicsLayerModifierOperation.ALPHA].source
 
         assertEquals(43, Utils.idFromNan(source))
     }

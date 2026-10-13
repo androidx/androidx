@@ -37,8 +37,6 @@ import androidx.compose.remote.core.operations.layout.managers.StateLayout
 import androidx.compose.remote.player.compose.embedded.LocalAnimatedVisibilityScope
 import androidx.compose.remote.player.compose.embedded.LocalSharedTransitionScope
 import androidx.compose.remote.player.compose.embedded.RcPlayerComponent
-import androidx.compose.remote.player.compose.embedded.animationSpecReflection
-import androidx.compose.remote.player.compose.embedded.indexIdReflection
 import androidx.compose.remote.player.compose.embedded.mapEasing
 import androidx.compose.remote.player.compose.embedded.rcComponentContentInspector
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAsState
@@ -54,7 +52,7 @@ import androidx.compose.ui.util.fastForEach
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 internal fun RcPlayerStateLayout(layout: StateLayout, modifier: Modifier) {
-    val index by rememberRemoteIntAsState(layout.indexIdReflection)
+    val index by rememberRemoteIntAsState(layout.indexId)
     val children = remember(layout) { ArrayList<Component>().apply { layout.getComponents(this) } }
 
     if (children.isEmpty()) {
@@ -143,8 +141,7 @@ internal fun rememberLayoutTransitionConfig(
     return remember(layout, children) {
         val layoutSpec =
             layout.componentModifiers?.list?.fastFirstOrNull { it is AnimationSpec }
-                as? AnimationSpec
-                ?: layout.animationSpecReflection?.takeIf { it != AnimationSpec.DEFAULT }
+                as? AnimationSpec ?: layout.animationSpec?.takeIf { it != AnimationSpec.DEFAULT }
 
         var childSpec: AnimationSpec? = null
         var hasSharedElements = false
@@ -156,8 +153,7 @@ internal fun rememberLayoutTransitionConfig(
             val s =
                 (comp as? LayoutComponent)?.componentModifiers?.list?.fastFirstOrNull {
                     it is AnimationSpec
-                } as? AnimationSpec
-                    ?: comp.animationSpecReflection?.takeIf { it != AnimationSpec.DEFAULT }
+                } as? AnimationSpec ?: comp.animationSpec?.takeIf { it != AnimationSpec.DEFAULT }
             if (
                 s != null &&
                     (childSpec == null ||

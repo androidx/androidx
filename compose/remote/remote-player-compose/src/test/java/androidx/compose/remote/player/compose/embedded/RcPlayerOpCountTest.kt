@@ -114,7 +114,7 @@ class RcPlayerOpCountTest {
 
         val ctx = AndroidRemoteContext(RemoteClock.SYSTEM)
         ctx.clearLastOpCount()
-        applyOperationsWithoutBitmaps(ctx, document.getOperationsReflection())
+        applyOperationsWithoutBitmaps(ctx, document.getOperationsList())
         val setupOpCount = ctx.getLastOpCount()
 
         // Only top-level operations (Header/Root, FloatConstant, FloatFunctionDefine,
@@ -224,7 +224,7 @@ class RcPlayerOpCountTest {
         val preprocessed = preprocessDocument(document)
         val remoteContext =
             initializePlayerRemoteContext(document, RemoteClock.SYSTEM, preprocessed)
-        val operations = document.getOperationsReflection()
+        val operations = document.getOperationsList()
 
         var caughtError: RuntimeException? = null
         rule.setContent {

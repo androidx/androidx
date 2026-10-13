@@ -65,7 +65,7 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
     val paintState = remember { ComposeLocalPaint() }.apply { reset() }
     updatePaintFromBundle(layout.mPaint, paintState, LocalRemoteContext.current)
 
-    val data = layout.readDataReflection()
+    val data = layout.readData()
 
     val color =
         resolveTextColor(
@@ -202,7 +202,7 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
     val paintState = remember { ComposeLocalPaint() }.apply { reset() }
     updatePaintFromBundle(layout.mPaint, paintState, LocalRemoteContext.current)
 
-    val data = layout.readDataReflection()
+    val data = layout.readData()
 
     val color =
         resolveTextColor(

@@ -49,7 +49,7 @@ class RcPlayerBitmapFailureTest {
 
         val boxLayout = BoxLayout(null, 1, 0, 0f, 0f, 100f, 100f, BoxLayout.START, BoxLayout.TOP)
         boxLayout.getList().add(bitmapData)
-        document.getOperationsReflection().add(boxLayout)
+        document.getOperationsList().add(boxLayout)
 
         document.initializeContext(context, null)
         document.applyDataOperationsWithoutBitmaps(context)

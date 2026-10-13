@@ -163,7 +163,7 @@ class RcColorThemePlayerTest {
                 0xFFFFFFFF.toInt(), // light color
                 0xFF000000.toInt(), // dark color
             )
-        document.getOperationsReflection().add(colorTheme)
+        document.getOperationsList().add(colorTheme)
 
         // Light mode
         remoteContext.paintTheme = Theme.LIGHT

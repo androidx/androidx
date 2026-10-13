@@ -204,7 +204,7 @@ class RcPlayerCustomComponentTest {
         rule.onNodeWithText("returned").assertExists()
 
         // The write-back landed in the document store, at the ids the Custom op declared.
-        val custom = requireNotNull(findCustom(document.getOperationsReflection()))
+        val custom = requireNotNull(findCustom(document.getOperationsList()))
         val props = custom.readData().properties as List<Custom.CustomProperty>
         val floatId =
             Utils.idFromNan(
