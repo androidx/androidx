@@ -92,7 +92,7 @@ class RcPlayerTextPropertiesTest {
                 -1,
             )
 
-        val data = coreText.readDataReflection()
+        val data = coreText.readData()
         assertThat(data.autosize).isTrue()
         assertThat(data.minFontSize).isEqualTo(12f)
         assertThat(data.maxFontSize).isEqualTo(36f)
@@ -147,7 +147,7 @@ class RcPlayerTextPropertiesTest {
                 -1,
             )
 
-        val data = coreText.readDataReflection()
+        val data = coreText.readData()
         assertThat(data.isDynamicColorEnabled).isTrue()
         assertThat(data.colorId).isEqualTo(42)
     }
@@ -176,7 +176,7 @@ class RcPlayerTextPropertiesTest {
                 1,
             )
 
-        val data = textLayout.readDataReflection()
+        val data = textLayout.readData()
         assertThat(data.isDynamicColorEnabled).isTrue()
         assertThat(data.colorId).isEqualTo(42)
     }
@@ -313,7 +313,7 @@ class RcPlayerTextPropertiesTest {
                 0,
                 -1,
             )
-        val coreTextData = coreText.readDataReflection()
+        val coreTextData = coreText.readData()
         assertThat(coreTextData.fontSize.toRawBits()).isEqualTo(dynamicFontSize.toRawBits())
 
         val textLayout =
@@ -335,7 +335,7 @@ class RcPlayerTextPropertiesTest {
                 TextLayout.OVERFLOW_CLIP,
                 1,
             )
-        val textLayoutData = textLayout.readDataReflection()
+        val textLayoutData = textLayout.readData()
         assertThat(textLayoutData.fontSize.toRawBits()).isEqualTo(dynamicFontSize.toRawBits())
     }
 

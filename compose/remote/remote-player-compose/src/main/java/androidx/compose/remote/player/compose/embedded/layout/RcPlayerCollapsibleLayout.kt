@@ -31,10 +31,10 @@ import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOp
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
-import androidx.compose.remote.player.compose.embedded.horizontalPositioningReflection
+import androidx.compose.remote.player.compose.embedded.horizontalPositioning
 import androidx.compose.remote.player.compose.embedded.rawDimensionDp
 import androidx.compose.remote.player.compose.embedded.sortWithPriorities
-import androidx.compose.remote.player.compose.embedded.verticalPositioningReflection
+import androidx.compose.remote.player.compose.embedded.verticalPositioning
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
@@ -58,14 +58,14 @@ internal fun RcPlayerCollapsible(
     val density = LocalDensity.current.density
     val horizontalPositioning =
         when (layout) {
-            is RowLayout -> layout.horizontalPositioningReflection
-            is ColumnLayout -> layout.horizontalPositioningReflection
+            is RowLayout -> layout.horizontalPositioning
+            is ColumnLayout -> layout.horizontalPositioning
             else -> RowLayout.START
         }
     val verticalPositioning =
         when (layout) {
-            is RowLayout -> layout.verticalPositioningReflection
-            is ColumnLayout -> layout.verticalPositioningReflection
+            is RowLayout -> layout.verticalPositioning
+            is ColumnLayout -> layout.verticalPositioning
             else -> ColumnLayout.TOP
         }
     val horizontalArrangement =

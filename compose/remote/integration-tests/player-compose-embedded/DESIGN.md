@@ -82,7 +82,7 @@ Common layouts and modifiers are mapped to their Compose counterparts, adapting 
 
 *   **Reused Core Logic:** The embedded player heavily reuses parser, decoder, and data structure elements from `remote-core` and `remote-player-compose` utilities (e.g. `CoreDocument`, `AnimatedFloatExpression`, `PathUtils.kt`).
 *   **Duplicated Concerns:** `RcPlayerPaint.kt` implements paint state handling (`ComposeLocalPaint` and `updatePaintFromBundle`) which overlaps with `ComposePaintContext` and `ComposePaintChanges` in the View-based player. This exists because the View-based player builds a low-level `Paint` object, whereas the embedded player uses a lightweight Kotlin paint state to interact with Compose `DrawScope` APIs.
-*   **Infrastructure Needs:** The embedded player relies on reflection (`CoreReflection.kt`) to extract package-private fields from core operations (e.g., `ClipPath.clipPathId`, `DrawTextOnPath.pathId`). Adding public read-only accessors or exposing these fields in the `remote-core` API would eliminate this reflection code and clean up the embedded player's codebase.
+*   **Infrastructure Needs:** Done: `remote-core` exposes read-only accessors for the operation state the embedded player needs (e.g., `ClipPath.clipPathId`, `DrawTextOnPath.pathId`), read through `CoreDataAccessors.kt` without reflection.
 
 ### 7. Deviations and Breaks from Compose UI Defaults
 

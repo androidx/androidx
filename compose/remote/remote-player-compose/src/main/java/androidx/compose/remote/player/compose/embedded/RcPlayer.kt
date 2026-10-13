@@ -540,7 +540,7 @@ public fun RcPlayer(
             val animatedExpressionIds =
                 remember(document) {
                     val ids = MutableIntList()
-                    document.getFloatExpressionsReflection().forEach { (id, expr) ->
+                    document.getFloatExpressions().forEach { (id, expr) ->
                         if (expr.hasAnimation) ids.add(id)
                     }
                     ids.sort()
@@ -675,7 +675,7 @@ internal fun RcPlayerRawDocument() {
                 scale(scale[0], scale[1], pivot = Offset.Zero)
             }) {
                 executeOperations(
-                    document.getOperationsReflection(),
+                    document.getOperationsList(),
                     remoteContext,
                     graph = graph,
                     textMeasurer = textMeasurer,
@@ -683,7 +683,7 @@ internal fun RcPlayerRawDocument() {
             }
         } else {
             executeOperations(
-                document.getOperationsReflection(),
+                document.getOperationsList(),
                 remoteContext,
                 graph = graph,
                 textMeasurer = textMeasurer,
@@ -701,7 +701,7 @@ internal fun CoreDocument.contentTranslation(
     height: Float,
     scale: FloatArray,
 ): Offset {
-    val alignment = contentAlignmentReflection
+    val alignment = contentAlignment
     val contentWidth = this.width * scale[0]
     val contentHeight = this.height * scale[1]
     // RootContentBehavior packs horizontal alignment in the upper nibble (0xF0) and vertical
@@ -834,7 +834,7 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                 .rcComponentOuterInspector(component)
                 .then(
                     component.componentModifiers.toModifier(
-                        component.getDrawContentOperationsListReflection(),
+                        component.getDrawContentOperationsList(),
                         ignoreVisibility = visibilityDelegatedToParent,
                         ignoreClicks = customClickHandlers != null,
                     )
@@ -1195,7 +1195,7 @@ internal class DocumentPreprocessResult(
 
 internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResult {
     val rootComponent = document.rootLayoutComponent
-    val ops = document.getOperationsReflection()
+    val ops = document.getOperationsList()
     val globalOps = ArrayList<Operation>()
     if (rootComponent != null) {
         for (i in 0 until ops.size) {
@@ -1256,7 +1256,7 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
             // and variable-reading operations so we know which clock loop (if any) needs to run.
             if (op is StateLayout) {
                 // StateLayout does not implement VariableSupport, so inspect its indexId directly.
-                val id = op.indexIdReflection
+                val id = op.indexId
                 if (isContinuousTimeVariable(id)) {
                     hasContinuousTime = true
                 } else if (isDiscreteTimeVariable(id)) {
@@ -1375,8 +1375,8 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
                         is BitmapTextMeasure -> op.mId
                         is TextLookup -> op.mTextId
                         is IdLookup -> op.mTextId
-                        is TextSubtext -> op.textIdReflection
-                        is TextTransform -> op.textIdReflection
+                        is TextSubtext -> op.textId
+                        is TextTransform -> op.textId
                         else -> -1
                     }
                 if (id > 0 && !computedOpIndex.containsKey(id)) {
@@ -1395,7 +1395,7 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
             }
 
             if (op is LayoutComponent) {
-                val content = op.getContentReflection()
+                val content = op.getLayoutContent()
                 if (content != null && content.componentId !in componentsById) {
                     componentsById[content.componentId] = content
                 }
@@ -1508,7 +1508,7 @@ internal inline fun forEachListenedVariableId(op: Operation, action: (Int) -> Un
             }
         }
         is IntegerExpression -> {
-            val mask = op.maskReflection
+            val mask = op.mask
             val srcValues = op.mSrcValue
             for (i in srcValues.indices) {
                 if (IntegerExpression.isId(mask, i, srcValues[i])) {
@@ -1525,7 +1525,7 @@ internal inline fun forEachListenedVariableId(op: Operation, action: (Int) -> Un
             action(op.mIndex)
             action(op.mDataSetId)
         }
-        is ComponentVisibilityOperation -> action(op.getVisibilityIdReflection())
+        is ComponentVisibilityOperation -> action(op.getVisibilityId())
     }
 }
 
@@ -1555,14 +1555,14 @@ internal fun initializePlayerRemoteContext(
     }
     ctx.withOpCountReset {
         document.initializeContext(ctx, null)
-        document.recollectCollectionsReflection()
+        document.recollectCollections()
         document.applyDataOperationsWithoutBitmaps(ctx)
         document.setLayoutCallback {}
-        document.applyOperationsReflection(ctx, preprocessed.globalOps)
-        document.applyOperationsReflection(ctx, preprocessed.constantOps)
+        document.applyOperations(ctx, preprocessed.globalOps)
+        document.applyOperations(ctx, preprocessed.constantOps)
         val dataOps = ArrayList<Operation>()
         document.rootLayoutComponent?.getData(dataOps, true)
-        document.applyOperationsReflection(ctx, dataOps)
+        document.applyOperations(ctx, dataOps)
         preprocessed.touchExpressions.fastForEach { te ->
             te.updateVariables(ctx)
             te.apply(ctx)

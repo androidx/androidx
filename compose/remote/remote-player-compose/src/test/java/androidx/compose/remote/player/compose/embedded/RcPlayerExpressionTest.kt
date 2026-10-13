@@ -730,7 +730,7 @@ class RcPlayerExpressionTest {
         val baseInstant = Instant.parse("2026-01-01T00:00:00Z")
         val clock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.UTC))
         val doc = CoreDocument(clock)
-        doc.getOperationsReflection().add(FloatConstant(RemoteContext.ID_OFFSET_TO_UTC, 123.456f))
+        doc.getOperationsList().add(FloatConstant(RemoteContext.ID_OFFSET_TO_UTC, 123.456f))
 
         val state = RcPlayerState(doc)
 
@@ -782,7 +782,7 @@ class RcPlayerExpressionTest {
     @Test
     fun preprocessDocument_integerExpressionWithTimeVariable_setsHasDiscreteTime() {
         val doc = CoreDocument()
-        doc.getOperationsReflection()
+        doc.getOperationsList()
             .add(
                 IntegerExpression(
                     100,
@@ -799,7 +799,7 @@ class RcPlayerExpressionTest {
     @Test
     fun preprocessDocument_floatExpressionWithContinuousTimeVariable_setsHasContinuousTime() {
         val doc = CoreDocument()
-        doc.getOperationsReflection()
+        doc.getOperationsList()
             .add(
                 FloatExpression(
                     100,
@@ -868,7 +868,7 @@ class RcPlayerExpressionTest {
     @Test
     fun preprocessDocument_textFromFloatWithTimeVariable_setsHasDiscreteTime() {
         val doc = CoreDocument()
-        doc.getOperationsReflection()
+        doc.getOperationsList()
             .add(TextFromFloat(100, Utils.asNan(RemoteContext.ID_TIME_IN_SEC), 2, 0, 0))
 
         val preprocessed = preprocessDocument(doc)
@@ -879,7 +879,7 @@ class RcPlayerExpressionTest {
     @Test
     fun preprocessDocument_textLookupIntWithTimeVariable_setsHasDiscreteTime() {
         val doc = CoreDocument()
-        doc.getOperationsReflection().add(TextLookupInt(100, 200, RemoteContext.ID_WEEK_DAY))
+        doc.getOperationsList().add(TextLookupInt(100, 200, RemoteContext.ID_WEEK_DAY))
 
         val preprocessed = preprocessDocument(doc)
         assertThat(preprocessed.hasDiscreteTime).isTrue()
@@ -889,8 +889,7 @@ class RcPlayerExpressionTest {
     @Test
     fun preprocessDocument_componentVisibilityWithContinuousTime_setsHasContinuousTime() {
         val doc = CoreDocument()
-        doc.getOperationsReflection()
-            .add(ComponentVisibilityOperation(RemoteContext.ID_CONTINUOUS_SEC))
+        doc.getOperationsList().add(ComponentVisibilityOperation(RemoteContext.ID_CONTINUOUS_SEC))
 
         val preprocessed = preprocessDocument(doc)
         assertThat(preprocessed.hasContinuousTime).isTrue()
@@ -899,7 +898,7 @@ class RcPlayerExpressionTest {
     @Test
     fun preprocessDocument_noTimeReferences_doesNotEnableClock() {
         val doc = CoreDocument()
-        doc.getOperationsReflection()
+        doc.getOperationsList()
             .addAll(
                 listOf(
                     FloatExpression(100, floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD), null),

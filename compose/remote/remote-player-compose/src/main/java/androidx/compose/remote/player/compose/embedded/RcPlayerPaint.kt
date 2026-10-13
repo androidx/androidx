@@ -440,9 +440,9 @@ public fun updatePaintFromBundle(
     read: RemoteContext = remoteContext,
 ) {
     paintState.sourceBundles.add(bundle)
-    val array = bundle.getArrayReflection()
+    val array = bundle.getArray()
     var i = 0
-    while (i < bundle.getPosReflection()) {
+    while (i < bundle.getPos()) {
         val cmd = array[i++]
         when (cmd and 0xFFFF) {
             PaintBundle.TEXT_SIZE -> {

@@ -25,7 +25,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOp
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.rawDimensionDp
-import androidx.compose.remote.player.compose.embedded.readDataReflection
+import androidx.compose.remote.player.compose.embedded.readData
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.LocalDensity
 @get:Composable
 private val BorderModifierOperation.color: Color
     get() {
-        val data = readDataReflection()
+        val data = readData()
         if (data.useColorId) {
             return rememberRemoteColorAsState(data.colorId).value
         }
@@ -54,7 +54,7 @@ internal fun Modifier.border(op: BorderModifierOperation): Modifier {
     // BorderModifierOperation.paint: a plain rectangle, a circle, or a rounded rectangle.
     val density = LocalDensity.current.density
     val behavior = LocalCoreDocument.current.densityBehavior
-    val data = op.readDataReflection()
+    val data = op.readData()
     val width = rememberRemoteFloatAsState(data.borderWidth).value
     val corner = rememberRemoteFloatAsState(data.roundedCorner).value
     val shape: Shape =

@@ -25,9 +25,9 @@ import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
 import androidx.compose.remote.player.compose.embedded.columnSpacedBy
-import androidx.compose.remote.player.compose.embedded.horizontalPositioningReflection
+import androidx.compose.remote.player.compose.embedded.horizontalPositioning
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
-import androidx.compose.remote.player.compose.embedded.verticalPositioningReflection
+import androidx.compose.remote.player.compose.embedded.verticalPositioning
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -48,12 +48,12 @@ internal fun RcPlayerColumn(layout: ColumnLayout, modifier: Modifier) {
             modifier = modifier,
             verticalArrangement =
                 columnVerticalArrangement(
-                    layout.verticalPositioningReflection,
+                    layout.verticalPositioning,
                     spacedBy,
                     behavior,
                     density,
                 ),
-            horizontalAlignment = columnHorizontalAlignment(layout.horizontalPositioningReflection),
+            horizontalAlignment = columnHorizontalAlignment(layout.horizontalPositioning),
         ) {
             RcPlayerChildren(layout) { child ->
                 val layoutChild = child as? LayoutComponent

@@ -30,7 +30,6 @@ import androidx.compose.remote.core.operations.utilities.easing.CubicEasing
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
-import androidx.compose.remote.player.compose.embedded.getFloatExpressionsReflection
 import androidx.compose.remote.player.compose.embedded.mapEasing
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -566,7 +565,7 @@ public fun parseRpn(
 public fun rememberRemoteExpression(id: Int): State<Float> {
     val document = LocalCoreDocument.current
     val expr =
-        document.getFloatExpressionsReflection()[id]
+        document.getFloatExpressions()[id]
             ?: throw IllegalArgumentException("Expression not found for id $id")
 
     // Find all variables in the expression
@@ -643,7 +642,7 @@ private sealed interface FloatAnimationSpec {
 internal fun rememberAnimatedRemoteFloat(id: Int): State<Float> {
     val document = LocalCoreDocument.current
     val expr =
-        document.getFloatExpressionsReflection()[id]
+        document.getFloatExpressions()[id]
             ?: throw IllegalArgumentException("Expression not found for id $id")
 
     // The value the animation moves toward: the expression's source, reactively.

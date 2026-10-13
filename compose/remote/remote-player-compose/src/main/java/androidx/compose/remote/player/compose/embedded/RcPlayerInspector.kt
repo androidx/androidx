@@ -443,7 +443,7 @@ internal object RcPlayerInspector {
                     it is ComponentVisibilityOperation
                 } as? ComponentVisibilityOperation
             if (visibilityOp != null) {
-                val visId = visibilityOp.getVisibilityIdReflection()
+                val visId = visibilityOp.getVisibilityId()
                 return remoteContext.getInteger(visId)
             }
         }
@@ -475,7 +475,7 @@ internal object RcPlayerInspector {
 
         for (i in candidates.indices) {
             val candidate = candidates[i]
-            val varId = state.remoteContext.getVariableIdReflection(candidate)
+            val varId = state.remoteContext.findVariableId(candidate)
             if (varId != -1) {
                 return varId
             }
@@ -560,7 +560,7 @@ internal object RcPlayerInspector {
                     walk(op.getList())
                 }
                 if (op is LayoutComponent) {
-                    val content = op.getContentReflection()
+                    val content = op.getLayoutContent()
                     if (content != null) {
                         walk(listOf(content))
                     }
@@ -575,7 +575,7 @@ internal object RcPlayerInspector {
                 }
             }
         }
-        walk(document.getOperationsReflection())
+        walk(document.getOperationsList())
         return result
     }
 
@@ -596,7 +596,7 @@ internal object RcPlayerInspector {
                 }
             }
         }
-        visit(document.getOperationsReflection())
+        visit(document.getOperationsList())
         return result
     }
 
@@ -795,7 +795,7 @@ internal fun Modifier.rcModifierInspector(operation: Operation): Modifier = remo
  * both the live Compose `LayoutNode` modifier chain and the document tree.
  *
  * Each subclass is a lightweight, disposable wrapper holding only [component] and [remoteContext]
- * references; all reflection and state lookups are performed lazily when property getters or
+ * references; all core reads and state lookups are performed lazily when property getters or
  * [inspectableProperties] are invoked.
  */
 internal sealed class RcComponentInspectable :
@@ -842,7 +842,7 @@ internal sealed class RcComponentInspectable :
 
     val drawContentOperations: List<RcOperationInspectable>
         get() =
-            (component as? LayoutComponent)?.getDrawContentOperationsListReflection()?.fastMap {
+            (component as? LayoutComponent)?.getDrawContentOperationsList()?.fastMap {
                 RcOperationInspectable.of(it, remoteContext)
             } ?: emptyList()
 
@@ -939,7 +939,7 @@ internal data class RcCoreTextInspectable(
         get() {
             val paint = resolvePaint()
             if (paint != null && paint.isColorSet) return paint.color
-            val data = component.readDataReflection()
+            val data = component.readData()
             return if (data.isDynamicColorEnabled) {
                 remoteContext.getColor(data.colorId)
             } else {
@@ -948,23 +948,23 @@ internal data class RcCoreTextInspectable(
         }
 
     val colorId: Int
-        get() = component.readDataReflection().colorId
+        get() = component.readData().colorId
 
     val isDynamicColorEnabled: Boolean
-        get() = component.readDataReflection().isDynamicColorEnabled
+        get() = component.readData().isDynamicColorEnabled
 
     val fontSize: Float
         get() {
             val paint = resolvePaint()
             if (paint != null && paint.isTextSizeSet) return paint.textSize
-            return component.readDataReflection().fontSizeValue
+            return component.readData().fontSizeValue
         }
 
     val fontWeight: Float
         get() {
             val paint = resolvePaint()
             if (paint != null && paint.isTypefaceSet) return paint.fontWeight.toFloat()
-            return component.readDataReflection().fontWeightValue
+            return component.readData().fontWeightValue
         }
 
     val fontStyle: Int
@@ -973,51 +973,51 @@ internal data class RcCoreTextInspectable(
             if (paint != null && paint.isTypefaceSet) {
                 return if (paint.fontStyle == FontStyle.Italic) 1 else 0
             }
-            return component.readDataReflection().fontStyle
+            return component.readData().fontStyle
         }
 
     val fontFamilyType: Int
         get() {
             val paint = resolvePaint()
             if (paint != null && paint.isTypefaceSet) return paint.fontFamily
-            return component.readDataReflection().type
+            return component.readData().type
         }
 
     val textAlign: Int
-        get() = component.readDataReflection().textAlignValue
+        get() = component.readData().textAlignValue
 
     val overflow: Int
-        get() = component.readDataReflection().overflow
+        get() = component.readData().overflow
 
     val maxLines: Int
-        get() = component.readDataReflection().maxLines
+        get() = component.readData().maxLines
 
     val letterSpacing: Float
-        get() = component.readDataReflection().letterSpacing
+        get() = component.readData().letterSpacing
 
     val lineHeightMultiplier: Float
-        get() = component.readDataReflection().lineHeightMultiplier
+        get() = component.readData().lineHeightMultiplier
 
     val lineHeightAdd: Float
-        get() = component.readDataReflection().lineHeightAdd
+        get() = component.readData().lineHeightAdd
 
     val underline: Boolean
-        get() = component.readDataReflection().underline
+        get() = component.readData().underline
 
     val strikethrough: Boolean
-        get() = component.readDataReflection().strikethrough
+        get() = component.readData().strikethrough
 
     val autosize: Boolean
-        get() = component.readDataReflection().autosize
+        get() = component.readData().autosize
 
     val minFontSize: Float
-        get() = component.readDataReflection().minFontSize
+        get() = component.readData().minFontSize
 
     val maxFontSize: Float
-        get() = component.readDataReflection().maxFontSize
+        get() = component.readData().maxFontSize
 
     override fun InspectorInfo.componentProperties() {
-        val data = component.readDataReflection()
+        val data = component.readData()
         val paint = resolvePaint()
         val resolvedColor =
             if (paint != null && paint.isColorSet) {
@@ -1086,7 +1086,7 @@ internal data class RcTextLayoutInspectable(
         get() {
             val paint = resolvePaint()
             if (paint != null && paint.isColorSet) return paint.color
-            val data = component.readDataReflection()
+            val data = component.readData()
             return if (data.isDynamicColorEnabled) {
                 remoteContext.getColor(data.colorId)
             } else {
@@ -1095,43 +1095,43 @@ internal data class RcTextLayoutInspectable(
         }
 
     val colorId: Int
-        get() = component.readDataReflection().colorId
+        get() = component.readData().colorId
 
     val isDynamicColorEnabled: Boolean
-        get() = component.readDataReflection().isDynamicColorEnabled
+        get() = component.readData().isDynamicColorEnabled
 
     val fontSize: Float
         get() {
             val paint = resolvePaint()
             if (paint != null && paint.isTextSizeSet) return paint.textSize
-            return component.readDataReflection().fontSizeValue
+            return component.readData().fontSizeValue
         }
 
     val fontWeight: Float
         get() {
             val paint = resolvePaint()
             if (paint != null && paint.isTypefaceSet) return paint.fontWeight.toFloat()
-            return component.readDataReflection().fontWeight
+            return component.readData().fontWeight
         }
 
     val fontFamilyType: Int
         get() {
             val paint = resolvePaint()
             if (paint != null && paint.isTypefaceSet) return paint.fontFamily
-            return component.readDataReflection().type
+            return component.readData().type
         }
 
     val textAlign: Int
-        get() = component.readDataReflection().textAlignValue
+        get() = component.readData().textAlignValue
 
     val overflow: Int
-        get() = component.readDataReflection().overflow
+        get() = component.readData().overflow
 
     val maxLines: Int
-        get() = component.readDataReflection().maxLines
+        get() = component.readData().maxLines
 
     override fun InspectorInfo.componentProperties() {
-        val data = component.readDataReflection()
+        val data = component.readData()
         val paint = resolvePaint()
         val resolvedColor =
             if (paint != null && paint.isColorSet) {
@@ -1171,10 +1171,10 @@ internal data class RcRowLayoutInspectable(
         get() = "rcRowLayout"
 
     val horizontalPositioning: Int
-        get() = component.horizontalPositioningReflection
+        get() = component.horizontalPositioning
 
     val verticalPositioning: Int
-        get() = component.verticalPositioningReflection
+        get() = component.verticalPositioning
 
     val spacedBy: Float
         get() = RcPlayerInspector.resolveFloatOrRaw(rowSpacedBy(component), remoteContext)
@@ -1198,10 +1198,10 @@ internal data class RcColumnLayoutInspectable(
         get() = "rcColumnLayout"
 
     val horizontalPositioning: Int
-        get() = component.horizontalPositioningReflection
+        get() = component.horizontalPositioning
 
     val verticalPositioning: Int
-        get() = component.verticalPositioningReflection
+        get() = component.verticalPositioning
 
     val spacedBy: Float
         get() = RcPlayerInspector.resolveFloatOrRaw(columnSpacedBy(component), remoteContext)
@@ -1225,10 +1225,10 @@ internal data class RcBoxLayoutInspectable(
         get() = "rcBoxLayout"
 
     val horizontalPositioning: Int
-        get() = component.horizontalPositioningReflection
+        get() = component.horizontalPositioning
 
     val verticalPositioning: Int
-        get() = component.verticalPositioningReflection
+        get() = component.verticalPositioning
 
     override fun InspectorInfo.componentProperties() {
         properties["horizontalPositioning"] = horizontalPositioning
@@ -1244,10 +1244,10 @@ internal data class RcFlowLayoutInspectable(
         get() = "rcFlowLayout"
 
     val horizontalPositioning: Int
-        get() = component.horizontalPositioningReflection
+        get() = component.horizontalPositioning
 
     val verticalPositioning: Int
-        get() = component.verticalPositioningReflection
+        get() = component.verticalPositioning
 
     val spacedBy: Float
         get() = RcPlayerInspector.resolveFloatOrRaw(rowSpacedBy(component), remoteContext)
@@ -1275,10 +1275,10 @@ internal data class RcFitBoxLayoutInspectable(
         get() = "rcFitBoxLayout"
 
     val horizontalPositioning: Int
-        get() = component.horizontalPositioningReflection
+        get() = component.horizontalPositioning
 
     val verticalPositioning: Int
-        get() = component.verticalPositioningReflection
+        get() = component.verticalPositioning
 
     override fun InspectorInfo.componentProperties() {
         properties["horizontalPositioning"] = horizontalPositioning
@@ -1294,13 +1294,13 @@ internal data class RcStateLayoutInspectable(
         get() = "rcStateLayout"
 
     val indexId: Int
-        get() = component.indexIdReflection
+        get() = component.indexId
 
     val currentIndex: Int
-        get() = remoteContext.getInteger(component.indexIdReflection)
+        get() = remoteContext.getInteger(component.indexId)
 
     override fun InspectorInfo.componentProperties() {
-        val id = component.indexIdReflection
+        val id = component.indexId
         properties["indexId"] = id
         properties["currentIndex"] = remoteContext.getInteger(id)
     }
@@ -1426,7 +1426,7 @@ internal class RcComponentOuterInspectorNode(var componentId: Int) :
  * [Operation] on a component's `LayoutNode`.
  *
  * Each subclass is a lightweight, disposable wrapper holding only [operation] and [remoteContext]
- * references; all reflection and variable resolution are performed lazily when property getters or
+ * references; all core reads and variable resolution are performed lazily when property getters or
  * [inspectableProperties] are invoked.
  */
 internal sealed class RcModifierInspectable : ModifierNodeElement<RcModifierInspectorNode>() {
@@ -1661,16 +1661,16 @@ internal data class RcBackgroundModifierInspectable(
         get() = "rcBackground"
 
     val useColorId: Boolean
-        get() = operation.readDataReflection().useColorId
+        get() = operation.readData().useColorId
 
     val colorId: Int
-        get() = operation.readDataReflection().colorId
+        get() = operation.readData().colorId
 
     val shapeType: Int
-        get() = operation.readDataReflection().shapeType
+        get() = operation.readData().shapeType
 
     val color: Int
-        get() = resolveColor(operation.readDataReflection())
+        get() = resolveColor(operation.readData())
 
     private fun resolveColor(d: BackgroundModifierOperationData): Int {
         return if (d.useColorId) {
@@ -1697,7 +1697,7 @@ internal data class RcBackgroundModifierInspectable(
     }
 
     override fun InspectorInfo.modifierProperties() {
-        val d = operation.readDataReflection()
+        val d = operation.readData()
         properties["color"] = resolveColor(d)
         properties["colorId"] = d.colorId
         properties["useColorId"] = d.useColorId
@@ -1715,28 +1715,28 @@ internal data class RcBorderModifierInspectable(
     val borderWidth: Float
         get() =
             RcPlayerInspector.resolveFloatOrRaw(
-                operation.readDataReflection().borderWidth,
+                operation.readData().borderWidth,
                 remoteContext,
             )
 
     val roundedCorner: Float
         get() =
             RcPlayerInspector.resolveFloatOrRaw(
-                operation.readDataReflection().roundedCorner,
+                operation.readData().roundedCorner,
                 remoteContext,
             )
 
     val shapeType: Int
-        get() = operation.readDataReflection().shapeType
+        get() = operation.readData().shapeType
 
     val colorId: Int
-        get() = operation.readDataReflection().colorId
+        get() = operation.readData().colorId
 
     val useColorId: Boolean
-        get() = operation.readDataReflection().useColorId
+        get() = operation.readData().useColorId
 
     override fun InspectorInfo.modifierProperties() {
-        val d = operation.readDataReflection()
+        val d = operation.readData()
         properties["borderWidth"] =
             RcPlayerInspector.resolveFloatOrRaw(d.borderWidth, remoteContext)
         properties["roundedCorner"] =
@@ -1775,7 +1775,7 @@ internal data class RcZIndexModifierInspectable(
         get() = "rcZIndex"
 
     val zIndex: Float
-        get() = RcPlayerInspector.resolveFloatOrRaw(operation.valueReflection, remoteContext)
+        get() = RcPlayerInspector.resolveFloatOrRaw(operation.value, remoteContext)
 
     override fun InspectorInfo.modifierProperties() {
         properties["zIndex"] = zIndex
@@ -1792,7 +1792,7 @@ internal data class RcGraphicsLayerModifierInspectable(
     val attributes: Map<String, Float>
         get() =
             LinkedHashMap<String, Float>().also { map ->
-                operation.getValuesReflection().fastForEach {
+                operation.readValues().fastForEach {
                     map[it.name] = RcPlayerInspector.resolveFloatOrRaw(it.source, remoteContext)
                 }
             }
@@ -1829,25 +1829,25 @@ internal data class RcMarqueeModifierInspectable(
         get() = "rcMarquee"
 
     val iterations: Int
-        get() = operation.readDataReflection().iterations
+        get() = operation.readData().iterations
 
     val animationMode: Int
-        get() = operation.readDataReflection().animationMode
+        get() = operation.readData().animationMode
 
     val repeatDelayMillis: Float
-        get() = operation.readDataReflection().repeatDelayMillis
+        get() = operation.readData().repeatDelayMillis
 
     val initialDelayMillis: Float
-        get() = operation.readDataReflection().initialDelayMillis
+        get() = operation.readData().initialDelayMillis
 
     val spacing: Float
-        get() = operation.readDataReflection().spacing
+        get() = operation.readData().spacing
 
     val velocity: Float
-        get() = operation.readDataReflection().velocity
+        get() = operation.readData().velocity
 
     override fun InspectorInfo.modifierProperties() {
-        val d = operation.readDataReflection()
+        val d = operation.readData()
         properties["iterations"] = d.iterations
         properties["animationMode"] = d.animationMode
         properties["repeatDelayMillis"] = d.repeatDelayMillis
@@ -1865,10 +1865,10 @@ internal data class RcVisibilityModifierInspectable(
         get() = "rcVisibility"
 
     val visibilityId: Int
-        get() = operation.getVisibilityIdReflection()
+        get() = operation.getVisibilityId()
 
     val visibilityCode: Int
-        get() = remoteContext.getInteger(operation.getVisibilityIdReflection())
+        get() = remoteContext.getInteger(operation.getVisibilityId())
 
     val visibility: String
         get() =
@@ -1879,7 +1879,7 @@ internal data class RcVisibilityModifierInspectable(
             }
 
     override fun InspectorInfo.modifierProperties() {
-        val id = operation.getVisibilityIdReflection()
+        val id = operation.getVisibilityId()
         val code = remoteContext.getInteger(id)
         properties["visibilityId"] = id
         properties["visibilityCode"] = code
@@ -1976,13 +1976,13 @@ internal data class RcMultiClickModifierInspectable(
         get() = "rcMultiClick"
 
     val clickType: Int
-        get() = operation.clickTypeReflection
+        get() = operation.clickType
 
     val actions: List<RcOperationInspectable>
         get() = operation.list.fastMap { RcOperationInspectable.of(it, remoteContext) }
 
     override fun InspectorInfo.modifierProperties() {
-        properties["clickType"] = operation.clickTypeReflection
+        properties["clickType"] = operation.clickType
         properties["actions"] = actions
     }
 }
@@ -2058,7 +2058,7 @@ internal class RcModifierInspectorNode(var operation: Operation) : Modifier.Node
  * [FloatFunctionDefine], [FloatFunctionCall], or variable definition).
  *
  * Each subclass is a lightweight, disposable wrapper holding only [operation] and [remoteContext]
- * references; all reflection and state lookups are performed lazily when property getters or
+ * references; all core reads and state lookups are performed lazily when property getters or
  * [inspectableElements] are iterated.
  */
 internal sealed class RcOperationInspectable : InspectableValue {
@@ -2137,13 +2137,13 @@ internal data class RcLoopInspectable(
         get() = operation.readData().indexVariableId
 
     val from: Float
-        get() = RcPlayerInspector.resolveFloatOrRaw(operation.fromRawReflection, remoteContext)
+        get() = RcPlayerInspector.resolveFloatOrRaw(operation.fromRaw, remoteContext)
 
     val until: Float
-        get() = RcPlayerInspector.resolveFloatOrRaw(operation.untilRawReflection, remoteContext)
+        get() = RcPlayerInspector.resolveFloatOrRaw(operation.untilRaw, remoteContext)
 
     val step: Float
-        get() = RcPlayerInspector.resolveFloatOrRaw(operation.stepRawReflection, remoteContext)
+        get() = RcPlayerInspector.resolveFloatOrRaw(operation.stepRaw, remoteContext)
 
     val estimatedIterations: Int
         get() {
@@ -2183,7 +2183,7 @@ internal data class RcParticlesLoopInspectable(
         get() = "rcParticlesLoop"
 
     val source: ParticlesCreate?
-        get() = operation.particlesSourceReflection
+        get() = operation.particlesSource
 
     val particleCount: Int
         get() = source?.particles?.size ?: 0
@@ -2223,10 +2223,10 @@ internal data class RcConditionalInspectable(
             }
 
     val varA: Float
-        get() = RcPlayerInspector.resolveFloatOrRaw(operation.varARawReflection, remoteContext)
+        get() = RcPlayerInspector.resolveFloatOrRaw(operation.varARaw, remoteContext)
 
     val varB: Float
-        get() = RcPlayerInspector.resolveFloatOrRaw(operation.varBRawReflection, remoteContext)
+        get() = RcPlayerInspector.resolveFloatOrRaw(operation.varBRaw, remoteContext)
 
     val conditionMet: Boolean
         get() {
@@ -2268,10 +2268,10 @@ internal data class RcFunctionDefineInspectable(
         get() = "rcFunctionDefine"
 
     val functionId: Int
-        get() = operation.idReflection
+        get() = operation.id
 
     val argVarIds: List<Int>
-        get() = operation.floatVarIdsReflection.toList()
+        get() = operation.floatVarIds.toList()
 
     val operations: List<Operation>
         get() = operation.list
@@ -2296,14 +2296,14 @@ internal data class RcFunctionCallInspectable(
         get() = "rcFunctionCall"
 
     val functionId: Int
-        get() = operation.idReflection
+        get() = operation.id
 
     val rawArgs: List<Float>
-        get() = operation.argsReflection?.toList() ?: emptyList()
+        get() = operation.args?.toList() ?: emptyList()
 
     val resolvedArgs: List<Float>
         get() =
-            operation.argsReflection?.map {
+            operation.args?.map {
                 RcPlayerInspector.resolveFloatOrRaw(it, remoteContext)
             } ?: emptyList()
 
@@ -2387,10 +2387,10 @@ internal data class RcImpulseInspectable(
         get() = "rcImpulse"
 
     val duration: Float
-        get() = RcPlayerInspector.resolveFloatOrRaw(operation.durationReflection, remoteContext)
+        get() = RcPlayerInspector.resolveFloatOrRaw(operation.duration, remoteContext)
 
     val startAt: Float
-        get() = RcPlayerInspector.resolveFloatOrRaw(operation.startAtReflection, remoteContext)
+        get() = RcPlayerInspector.resolveFloatOrRaw(operation.startAt, remoteContext)
 
     val operationsInspectable: List<InspectableValue>
         get() = operation.list.fastMap { RcPlayerInspector.wrapOperation(it, remoteContext) }
@@ -2449,7 +2449,7 @@ internal data class RcPathOperationInspectable(
     val instanceId: Int?
         get() =
             when (val op = operation) {
-                is PathData -> op.instanceIdReflection
+                is PathData -> op.instanceId
                 is PathCreate -> op.id
                 else -> null
             }
@@ -2458,7 +2458,7 @@ internal data class RcPathOperationInspectable(
         get() = (operation as? PathTween)?.id
 
     val floatPath: FloatArray?
-        get() = (operation as? PathData)?.floatPathReflection
+        get() = (operation as? PathData)?.floatPath
 
     val floatPathLength: Int?
         get() = floatPath?.size
@@ -2531,7 +2531,7 @@ internal data class RcDrawOperationInspectable(
     val pathId: Int?
         get() =
             when (val op = operation) {
-                is DrawPath -> op.readDataReflection().id
+                is DrawPath -> op.readData().id
                 is DrawTextOnPath -> op.readData().pathId
                 is DrawBitmapFontTextOnPath -> op.readData().pathId
                 is ClipPath -> op.readData().id
@@ -2542,12 +2542,12 @@ internal data class RcDrawOperationInspectable(
         get() =
             when (val op = operation) {
                 is DrawTextAnchored ->
-                    if (Utils.isVariable(op.xRawReflection)) {
-                        remoteContext.getFloat(Utils.idFromNan(op.xRawReflection))
-                    } else if (op.xRawReflection.isNaN()) {
+                    if (Utils.isVariable(op.xRaw)) {
+                        remoteContext.getFloat(Utils.idFromNan(op.xRaw))
+                    } else if (op.xRaw.isNaN()) {
                         0f
                     } else {
-                        op.xRawReflection
+                        op.xRaw
                     }
                 else -> null
             }
@@ -2556,12 +2556,12 @@ internal data class RcDrawOperationInspectable(
         get() =
             when (val op = operation) {
                 is DrawTextAnchored ->
-                    if (Utils.isVariable(op.yRawReflection)) {
-                        remoteContext.getFloat(Utils.idFromNan(op.yRawReflection))
-                    } else if (op.yRawReflection.isNaN()) {
+                    if (Utils.isVariable(op.yRaw)) {
+                        remoteContext.getFloat(Utils.idFromNan(op.yRaw))
+                    } else if (op.yRaw.isNaN()) {
                         0f
                     } else {
-                        op.yRawReflection
+                        op.yRaw
                     }
                 else -> null
             }
@@ -2570,12 +2570,12 @@ internal data class RcDrawOperationInspectable(
         get() =
             when (val op = operation) {
                 is DrawTextAnchored ->
-                    if (Utils.isVariable(op.panXRawReflection)) {
-                        remoteContext.getFloat(Utils.idFromNan(op.panXRawReflection))
-                    } else if (op.panXRawReflection.isNaN()) {
+                    if (Utils.isVariable(op.panXRaw)) {
+                        remoteContext.getFloat(Utils.idFromNan(op.panXRaw))
+                    } else if (op.panXRaw.isNaN()) {
                         0f
                     } else {
-                        op.panXRawReflection
+                        op.panXRaw
                     }
                 else -> null
             }
@@ -2584,10 +2584,10 @@ internal data class RcDrawOperationInspectable(
         get() =
             when (val op = operation) {
                 is DrawTextAnchored ->
-                    if (Utils.isVariable(op.panYRawReflection)) {
-                        remoteContext.getFloat(Utils.idFromNan(op.panYRawReflection))
+                    if (Utils.isVariable(op.panYRaw)) {
+                        remoteContext.getFloat(Utils.idFromNan(op.panYRaw))
                     } else {
-                        op.panYRawReflection
+                        op.panYRaw
                     }
                 else -> null
             }
@@ -2598,7 +2598,7 @@ internal data class RcDrawOperationInspectable(
             yield(ValueElement("command", commandName))
             when (val op = operation) {
                 is DrawBase2 -> {
-                    val d = op.readDataReflection()
+                    val d = op.readData()
                     yield(
                         ValueElement(
                             "v1",
@@ -2613,7 +2613,7 @@ internal data class RcDrawOperationInspectable(
                     )
                 }
                 is DrawBase3 -> {
-                    val d = op.readDataReflection()
+                    val d = op.readData()
                     yield(
                         ValueElement(
                             "v1",
@@ -2634,7 +2634,7 @@ internal data class RcDrawOperationInspectable(
                     )
                 }
                 is DrawBase4 -> {
-                    val d = op.readDataReflection()
+                    val d = op.readData()
                     yield(
                         ValueElement(
                             "x1",
@@ -2661,7 +2661,7 @@ internal data class RcDrawOperationInspectable(
                     )
                 }
                 is DrawBase6 -> {
-                    val d = op.readDataReflection()
+                    val d = op.readData()
                     yield(
                         ValueElement(
                             "v1",
@@ -2700,7 +2700,7 @@ internal data class RcDrawOperationInspectable(
                     )
                 }
                 is DrawPath -> {
-                    val d = op.readDataReflection()
+                    val d = op.readData()
                     yield(ValueElement("pathId", d.id))
                     yield(ValueElement("start", d.start))
                     yield(ValueElement("end", d.end))
@@ -2712,7 +2712,7 @@ internal data class RcDrawOperationInspectable(
                     yield(ValueElement("tween", d.tween))
                 }
                 is DrawBitmap -> {
-                    val d = op.readDataReflection()
+                    val d = op.readData()
                     yield(ValueElement("imageId", d.id))
                     yield(
                         ValueElement(
@@ -2740,7 +2740,7 @@ internal data class RcDrawOperationInspectable(
                     )
                 }
                 is DrawBitmapScaled -> {
-                    val d = op.readDataReflection()
+                    val d = op.readData()
                     yield(ValueElement("imageId", d.imageId))
                     yield(ValueElement("scaleType", d.scaleType))
                 }
@@ -2763,7 +2763,7 @@ internal data class RcDrawOperationInspectable(
                         ValueElement(
                             "hOffset",
                             RcPlayerInspector.resolveFloatOrRaw(
-                                op.hOffsetRawReflection,
+                                op.hOffsetRaw,
                                 remoteContext,
                             ),
                         )
@@ -2772,7 +2772,7 @@ internal data class RcDrawOperationInspectable(
                         ValueElement(
                             "vOffset",
                             RcPlayerInspector.resolveFloatOrRaw(
-                                op.vOffsetRawReflection,
+                                op.vOffsetRaw,
                                 remoteContext,
                             ),
                         )

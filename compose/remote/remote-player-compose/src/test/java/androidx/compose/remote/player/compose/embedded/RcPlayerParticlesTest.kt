@@ -92,7 +92,7 @@ class RcPlayerParticlesTest {
         rule.mainClock.advanceTimeBy(32)
         rule.onRoot().captureToImage() // force a draw pass: seeds + first simulation step
 
-        val create = requireNotNull(findParticlesCreate(document.getOperationsReflection()))
+        val create = requireNotNull(findParticlesCreate(document.getOperationsList()))
         val afterFirstDraw = create.particles.map { it.clone() }
         // Seeded from the initial equations (10, 20) and stepped at least once by +1/+2 per draw:
         // x > 10, y > 20 for every particle, and y - 20 == 2 * (x - 10).
@@ -190,7 +190,7 @@ class RcPlayerParticlesTest {
         rule.mainClock.autoAdvance = false
         rule.setContent { Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) } }
 
-        val create = requireNotNull(findParticlesCreate(document.getOperationsReflection()))
+        val create = requireNotNull(findParticlesCreate(document.getOperationsList()))
         rule.onRoot().captureToImage() // first frame: seed + first step
         val x1 = create.particles[0][0]
         rule.mainClock.advanceTimeBy(32)
@@ -254,7 +254,7 @@ class RcPlayerParticlesTest {
         rule.setContent { Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) } }
         rule.onRoot().captureToImage() // one frame: seed + loop + compare
 
-        val create = requireNotNull(findParticlesCreate(document.getOperationsReflection()))
+        val create = requireNotNull(findParticlesCreate(document.getOperationsList()))
         assertThat(create.particles[0][0]).isEqualTo(100f)
         assertThat(create.particles[0][1]).isEqualTo(20f)
     }

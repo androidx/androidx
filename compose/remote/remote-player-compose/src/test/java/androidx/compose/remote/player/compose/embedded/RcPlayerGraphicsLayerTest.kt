@@ -164,7 +164,7 @@ class RcPlayerGraphicsLayerTest {
                 .isFalse()
             assertThat(zeroAttrs.containsKey(GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_Y))
                 .isFalse()
-            val values = zeroOp.getValuesReflection()
+            val values = zeroOp.readValues()
             assertThat(values[GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_X].source)
                 .isEqualTo(0f)
             assertThat(values[GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_Y].source)
