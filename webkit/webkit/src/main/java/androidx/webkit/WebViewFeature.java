@@ -1034,7 +1034,6 @@ public class WebViewFeature {
      * {@link NavigationRedirectParameters#getResponseHeaders()}
      * {@link NavigationRedirectParameters#getStatusCode()}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String NAVIGATION_GET_RESPONSE_HEADERS = "NAVIGATION_GET_RESPONSE_HEADERS";
 
     /**
@@ -1042,7 +1041,6 @@ public class WebViewFeature {
      * This feature covers
      * {@link NavigationState#getNavigationStartUptimeMillis()}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS =
             "NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS";
 
@@ -1052,7 +1050,6 @@ public class WebViewFeature {
      * {@link Navigation#snapshotState()}
      * {@link Page#snapshotState()}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String NAVIGATION_LISTENER_NAVIGATION_STATE =
             "NAVIGATION_LISTENER_NAVIGATION_STATE";
 

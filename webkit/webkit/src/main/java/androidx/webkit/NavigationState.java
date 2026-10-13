@@ -41,10 +41,9 @@ import java.util.Map;
  * called.
  * <p>
  * Note: Do not use {@link NavigationState} as a key to connect callbacks, use {@link Navigation}
- * instead from {@link NavigationState#getNavigation()}
+ * instead from {@link NavigationState#getNavigation()}.
  */
 @AnyThread
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class NavigationState {
 
     private final @NonNull WebViewNavigationStateBoundaryInterface mBoundaryInterface;
@@ -247,7 +246,7 @@ public final class NavigationState {
      * <p>
      * The response headers are not available until the navigation has completed, so this method
      * will return {@code null} until
-     * {@link NavigationListener#onNavigationCompleted(Navigation)} has been called for this
+     * {@link NavigationListener#onNavigationCompleted(NavigationState)} has been called for this
      * navigation.
      * <p>
      * The returned map will be empty if the navigation did not receive an HTTP response, for
@@ -256,7 +255,9 @@ public final class NavigationState {
      * received.
      * <p>
      * The {@code Set-Cookie} header is never included. Only the headers of the final response
-     * are returned, the headers of any redirects that led to it are not available.
+     * are returned, the headers of any redirects are exposed via
+     * {@link NavigationRedirectParameters#getResponseHeaders()} in
+     * {@link NavigationListener#onNavigationRedirected(NavigationState, NavigationRedirectParameters)}
      *
      * @return An unmodifiable {@link Map} from header name to header value, or {@code null} if
      * the navigation has not completed yet.
@@ -264,12 +265,10 @@ public final class NavigationState {
      *     {@link WebViewFeature#NAVIGATION_GET_RESPONSE_HEADERS} feature is not supported.
      *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
-    // TODO(b/509940298): Update the documentation once an API for redirect response headers has
-    //  landed.
-    @Nullable
     @RequiresFeature(name = WebViewFeature.NAVIGATION_GET_RESPONSE_HEADERS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public Map<String, String> getResponseHeaders() {
+    @SuppressWarnings("NullableCollection")
+    public @Nullable Map<String, String> getResponseHeaders() {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.NAVIGATION_GET_RESPONSE_HEADERS;
         if (feature.isSupportedByWebView()) {
             Map<String, String> responseHeaders = mBoundaryInterface.getResponseHeaders();
