@@ -61,13 +61,31 @@ open class FakeCameraGraphSession : CameraGraph.Session {
     var startRepeatingSignal = CompletableDeferred(TOTAL_CAPTURE_DONE) // already completed
 
     val submittedRequests = mutableListOf<Request>()
+    var closeCount = 0
+        private set
+
+    var activeCount = 0
+        private set
+
+    var maxActiveCount = 0
+        private set
+
+    internal fun onAcquired() {
+        activeCount++
+        if (activeCount > maxActiveCount) {
+            maxActiveCount = activeCount
+        }
+    }
 
     override fun abort() {
         // No-op
     }
 
     override fun close() {
-        // No-op
+        closeCount++
+        if (activeCount > 0) {
+            activeCount--
+        }
     }
 
     override suspend fun lock3A(
@@ -108,11 +126,11 @@ open class FakeCameraGraphSession : CameraGraph.Session {
     }
 
     override fun setTorchOn(): Deferred<Result3A> {
-        throw NotImplementedError("Not used in testing")
+        return CompletableDeferred(Result3A(Result3A.Status.OK))
     }
 
     override fun setTorchOff(aeMode: AeMode?): Deferred<Result3A> {
-        throw NotImplementedError("Not used in testing")
+        return CompletableDeferred(Result3A(Result3A.Status.OK))
     }
 
     override fun startRepeating(request: Request) {

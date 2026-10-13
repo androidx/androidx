@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.compat.workaround.NoOpAutoFlashAEModeDisabler
+import androidx.camera.camera2.testing.FakeCameraGraphSession
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.core.CameraControl
@@ -28,11 +29,13 @@ import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ThreadContextElement
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -171,6 +174,50 @@ class State3AControlTest {
         // Run work just to clean up
         testDispatcher.scheduler.advanceUntilIdle()
     }
+
+    @Test
+    fun updateWithSession_completesImmediately_evenWhenConcurrentNonSessionUpdateInterleaves() =
+        testScope.runTest {
+            testDispatcher.scheduler.advanceUntilIdle()
+            fakeRequestControl.addParameterCalls.clear()
+
+            var triggerInterleavedUpdate = false
+            val interleavingElement =
+                object : ThreadContextElement<Unit> {
+                    override val key = object : CoroutineContext.Key<ThreadContextElement<Unit>> {}
+
+                    override fun updateThreadContext(context: CoroutineContext) {
+                        if (triggerInterleavedUpdate) {
+                            triggerInterleavedUpdate = false
+                            // Simulate another thread queueing a non-session update right after
+                            // the session-holding caller increments currentRevision, before
+                            // applyUpdate acquires the lock.
+                            state3AControl.setFlashModeAsync(ImageCapture.FLASH_MODE_ON)
+                        }
+                    }
+
+                    override fun restoreThreadContext(context: CoroutineContext, oldState: Unit) {}
+                }
+            fakeUseCaseThreads.sequentialScope =
+                CoroutineScope(
+                    fakeUseCaseThreads.sequentialScope.coroutineContext + interleavingElement
+                )
+
+            triggerInterleavedUpdate = true
+            val sessionSignal =
+                state3AControl.setTryExternalFlashAeModeAsync(
+                    value = true,
+                    session = FakeCameraGraphSession(),
+                )
+
+            // Without advancing the test scheduler, the session-bound update must still submit
+            // synchronously and complete its signal so a caller holding the CameraGraph.Session
+            // never deadlocks waiting for the queued non-session update.
+            assertThat(sessionSignal.isCompleted).isTrue()
+            assertThat(fakeRequestControl.addParameterCalls).hasSize(1)
+
+            testDispatcher.scheduler.advanceUntilIdle()
+        }
 
     private suspend fun <T> Deferred<T>.awaitWithTimeout(
         timeMillis: Long = TimeUnit.SECONDS.toMillis(1)

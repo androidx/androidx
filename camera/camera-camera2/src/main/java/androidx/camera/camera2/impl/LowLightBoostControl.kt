@@ -25,6 +25,7 @@ import android.os.Build
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.adapter.propagateTo
 import androidx.camera.camera2.config.CameraScope
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLowLightBoost
 import androidx.camera.camera2.pipe.FrameInfo
@@ -303,7 +304,7 @@ constructor(
      * [State3AControl] and freezes the public state so it does not flicker to
      * [LowLightBoostState.OFF].
      */
-    public fun disableForFlashCaptureAsync(): Deferred<Unit> {
+    public fun disableForFlashCaptureAsync(session: CameraGraph.Session? = null): Deferred<Unit> {
         val shouldDisable =
             synchronized(stateLock) {
                 if (!isLowLightBoostSupported || !isLowLightBoostOn) {
@@ -317,7 +318,7 @@ constructor(
                 }
             }
         if (shouldDisable) {
-            return state3AControl.setPreferredLowLightBoostAeModeAsync(null)
+            return state3AControl.setPreferredLowLightBoostAeModeAsync(null, session = session)
         }
         return CompletableDeferred(Unit)
     }
@@ -328,7 +329,7 @@ constructor(
      * Restores the [CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY] AE mode in
      * [State3AControl] and clears the temporary flash override flag.
      */
-    public fun restoreAfterFlashCaptureAsync(): Deferred<Unit> {
+    public fun restoreAfterFlashCaptureAsync(session: CameraGraph.Session? = null): Deferred<Unit> {
         if (!isLowLightBoostSupported) {
             return CompletableDeferred(Unit)
         }
@@ -345,7 +346,8 @@ constructor(
             }
         if (shouldRestore) {
             return state3AControl.setPreferredLowLightBoostAeModeAsync(
-                CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
+                CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY,
+                session = session,
             )
         }
         return CompletableDeferred(Unit)

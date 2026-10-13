@@ -21,6 +21,7 @@ import androidx.camera.camera2.adapter.propagateTo
 import androidx.camera.camera2.compat.workaround.UseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.config.CameraScope
 import androidx.camera.camera2.impl.TorchControl.TorchMode
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.ScreenFlash
@@ -141,7 +142,8 @@ constructor(
         _screenFlash = screenFlash
     }
 
-    public suspend fun startScreenFlashCaptureTasks() {
+    public suspend fun startScreenFlashCaptureTasks(session: CameraGraph.Session? = null) {
+        val initialRequestControl = requestControl
         val pendingTasks = mutableListOf<Deferred<Unit>>()
 
         // Invoke ScreenFlash#apply and wait later for its listener to be completed
@@ -151,11 +153,13 @@ constructor(
             )
         )
 
+        val activeSession = session.takeIf { requestControl === initialRequestControl }
+
         // Try to set external flash AE mode if possible
-        setExternalFlashAeModeAsync()?.let { pendingTasks.add(it) }
+        setExternalFlashAeModeAsync(activeSession)?.let { pendingTasks.add(it) }
 
         // Set FLASH_MODE_TORCH for quirks
-        setTorchForScreenFlash()?.let { pendingTasks.add(it) }
+        setTorchForScreenFlash(activeSession)?.let { pendingTasks.add(it) }
 
         pendingTasks.awaitAll()
     }
@@ -201,7 +205,7 @@ constructor(
      *
      * @return A [Deferred] that reports the completion of the operation, `null` if not supported.
      */
-    private fun setExternalFlashAeModeAsync(): Deferred<Unit>? {
+    private fun setExternalFlashAeModeAsync(session: CameraGraph.Session? = null): Deferred<Unit>? {
         val isExternalFlashAeModeSupported =
             cameraProperties.metadata.isExternalFlashAeModeSupported()
         Camera2Logger.debug {
@@ -213,7 +217,7 @@ constructor(
             return null
         }
 
-        return state3AControl.setTryExternalFlashAeModeAsync(true).also {
+        return state3AControl.setTryExternalFlashAeModeAsync(true, session = session).also {
             Camera2Logger.debug {
                 "setExternalFlashAeModeAsync: need to wait for state3AControl.updateSignal"
             }
@@ -234,7 +238,7 @@ constructor(
      *
      * @return A [Deferred] that reports the completion of the operation, `null` if not required.
      */
-    private fun setTorchForScreenFlash(): Deferred<Unit>? {
+    private fun setTorchForScreenFlash(session: CameraGraph.Session? = null): Deferred<Unit>? {
         val shouldUseFlashModeTorch = useFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()
         Camera2Logger.debug {
             "setTorchIfRequired: shouldUseFlashModeTorch = $shouldUseFlashModeTorch"
@@ -245,7 +249,11 @@ constructor(
         }
 
         return torchControl
-            .setTorchAsync(mode = TorchMode.USED_AS_FLASH, ignoreFlashUnitAvailability = true)
+            .setTorchAsync(
+                mode = TorchMode.USED_AS_FLASH,
+                ignoreFlashUnitAvailability = true,
+                session = session,
+            )
             .also {
                 Camera2Logger.debug {
                     "setTorchIfRequired: need to wait for torch control to be completed"
@@ -256,19 +264,26 @@ constructor(
             }
     }
 
-    public suspend fun stopScreenFlashCaptureTasks() {
+    public suspend fun stopScreenFlashCaptureTasks(session: CameraGraph.Session? = null) {
+        val initialRequestControl = requestControl
         withContext(Dispatchers.Main) {
             screenFlash?.clear()
             Camera2Logger.debug { "screenFlashPostCapture: ScreenFlash.clear() invoked" }
         }
 
+        val activeSession = session.takeIf { requestControl === initialRequestControl }
+
         if (cameraProperties.metadata.isExternalFlashAeModeSupported()) {
             // Disable external flash AE mode, ok to complete whenever
-            state3AControl.setTryExternalFlashAeModeAsync(false)
+            state3AControl.setTryExternalFlashAeModeAsync(false, session = activeSession)
         }
 
         if (useFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()) {
-            torchControl.setTorchAsync(mode = TorchMode.OFF, ignoreFlashUnitAvailability = true)
+            torchControl.setTorchAsync(
+                mode = TorchMode.OFF,
+                ignoreFlashUnitAvailability = true,
+                session = activeSession,
+            )
         }
     }
 
