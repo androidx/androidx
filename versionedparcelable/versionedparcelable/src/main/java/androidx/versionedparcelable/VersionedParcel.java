@@ -77,14 +77,14 @@ public abstract class VersionedParcel {
     private static final int TYPE_INTEGER = 7;
     private static final int TYPE_FLOAT = 8;
 
-    final @NonNull SimpleArrayMap<String, Method> mReadCache;
-    final @NonNull SimpleArrayMap<String, Method> mWriteCache;
-    final @NonNull SimpleArrayMap<String, Class<?>> mParcelizerCache;
+    final SimpleArrayMap<String, Method> mReadCache;
+    final SimpleArrayMap<String, Method> mWriteCache;
+    final SimpleArrayMap<String, Class<?>> mParcelizerCache;
 
     VersionedParcel(
-            @NonNull SimpleArrayMap<String, Method> readCache,
-            @NonNull SimpleArrayMap<String, Method> writeCache,
-            @NonNull SimpleArrayMap<String, Class<?>> parcelizerCache
+            SimpleArrayMap<String, Method> readCache,
+            SimpleArrayMap<String, Method> writeCache,
+            SimpleArrayMap<String, Class<?>> parcelizerCache
     ) {
         mReadCache = readCache;
         mWriteCache = writeCache;

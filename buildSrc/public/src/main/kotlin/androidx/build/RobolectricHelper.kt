@@ -125,5 +125,7 @@ private fun configureJvmTestTask(project: Project, task: Test) {
             "-XX:CompileCommand=quiet",
             "-XX:CompileCommand=exclude,android/icu/util/Calendar,${"$$"}robo${"$$"}android_icu_util_Calendar${"$"}createInstance",
             "-XX:CompileCommand=exclude,android/widget/FrameLayout,${"$$"}robo${"$$"}android_widget_FrameLayout${"$"}layoutChildren",
+            // https://github.com/robolectric/robolectric/issues/11470
+            "--enable-native-access=ALL-UNNAMED",
         )
 }

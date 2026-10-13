@@ -667,3 +667,39 @@ w: file://\$SUPPORT/wear/watchface/watchface\-complications\-data/src/test/java/
 w: The argument '\-Xannotation\-default\-target=param\-property' is redundant for the current language version 2\.4\.
 # > Task :kotlinNpmInstall
 \(node:[0-9]+\) \[DEP[0-9]+\] DeprecationWarning: `url\.parse\(\)` behavior is not standardized and prone to errors that have security implications\. Use the WHATWG URL API instead\. CVEs are not issued for `url\.parse\(\)` vulnerabilities\.
+# b/553121473
+WARNING: A terminally deprecated method in sun\.misc\.Unsafe has been called
+WARNING: sun\.misc\.Unsafe::objectFieldOffset has been called by com\.intellij\.util\.containers\.Unsafe.*
+WARNING: Please consider reporting this to the maintainers of class com\.intellij\.util\.containers\.Unsafe
+WARNING: sun\.misc\.Unsafe::objectFieldOffset will be removed in a future release
+# b/553487863
+WARNING: A restricted method in java\.lang\.System has been called
+WARNING: java\.lang\.System::load has been called by org\.sqlite\.SQLiteJDBCLoader in an unnamed module.*
+WARNING: java\.lang\.System::loadLibrary has been called by androidx\.sqlite\.driver\.bundled\.NativeLibraryLoader in an unnamed module.*
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+# TODO(aurimas): INVESTIGATE
+warning: unknown enum constant Level\.ERROR
+reason: class file for androidx\.annotation\.RequiresOptIn\$Level not found
+# TODO(aurimas): INVESTIGATE ./gradlew :compose:ui:ui-text:testAndroidHostTest
+# https://github.com/raphw/byte-buddy/issues/1803
+WARNING: sun\.misc\.Unsafe::objectFieldOffset has been called by net\.bytebuddy\.dynamic\.loading\.ClassInjector\$UsingUnsafe\$Dispatcher\$CreationAction.*
+WARNING: Please consider reporting this to the maintainers of class net\.bytebuddy\.dynamic\.loading\.ClassInjector\$UsingUnsafe\$Dispatcher\$CreationAction
+# https://github.com/google/ksp/issues/2753
+WARNING: sun\.misc\.Unsafe::objectFieldOffset has been called by ksp\.com\.intellij\.util\.containers\.Unsafe.*
+WARNING: Please consider reporting this to the maintainers of class ksp\.com\.intellij\.util\.containers\.Unsafe
+# https://github.com/protocolbuffers/protobuf/issues/20760
+WARNING: sun\.misc\.Unsafe::arrayBaseOffset has been called by .*\.UnsafeUtil\$MemoryAccessor.*
+WARNING: Please consider reporting this to the maintainers of class .*\.UnsafeUtil\$MemoryAccessor
+# https://github.com/google/guava/issues/7811
+WARNING: sun\.misc\.Unsafe::objectFieldOffset has been called by com\.google\.common\.util\.concurrent\.AbstractFuture\$UnsafeAtomicHelper.*
+WARNING: Please consider reporting this to the maintainers of class com\.google\.common\.util\.concurrent\.AbstractFuture\$UnsafeAtomicHelper
+# b/555311449
+WARNING: java\.lang\.System::load has been called by androidx.ink.nativeloader.NativeLoader in an unnamed module.*
+# TODO(aurimas): investigate
+WARNING: sun\.misc\.Unsafe::staticFieldBase has been called by org\.jetbrains\.kotlin\.kapt\.base\.util\.ModuleManipulationUtilsKt.*
+WARNING: Please consider reporting this to the maintainers of class org\.jetbrains\.kotlin\.kapt\.base\.util\.ModuleManipulationUtilsKt
+WARNING: sun\.misc\.Unsafe::staticFieldBase will be removed in a future release
+WARNING: java\.lang\.System::load has been called by org\.conscrypt\.NativeLibraryUtil in an unnamed module.*
+WARNING: sun\.misc\.Unsafe::objectFieldOffset has been called by org\.jetbrains\.kotlin\.com\.intellij\.util\.containers\.Unsafe.*
+WARNING: Please consider reporting this to the maintainers of class org\.jetbrains\.kotlin\.com\.intellij\.util\.containers\.Unsafe

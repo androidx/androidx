@@ -59,6 +59,13 @@ tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").c
     it.pluginClasspath.from(configurations.testPlugin)
 }
 
+tasks.withType(Test.class).configureEach { test ->
+    // Needed to support Gradle 8.14 used in the tests
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 gradlePlugin {
     plugins {
         safeargsJava {
