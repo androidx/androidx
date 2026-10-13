@@ -64,7 +64,6 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -90,11 +89,11 @@ import kotlinx.coroutines.launch
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * On devices that support the system status bar, the system status bar overlay replaces
  * application-rendered [TimeText]. On devices that do not support the system status bar, this
@@ -162,11 +161,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
  * this screen. For screens that do not require custom time text, use the overload without the
@@ -241,11 +240,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * On devices that support the system status bar, the system status bar overlay replaces
  * application-rendered [TimeText]. On devices that do not support the system status bar, this
@@ -296,11 +295,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
  * this screen. For screens that do not require custom time text, use the overload without the
@@ -358,11 +357,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * On devices that support the system status bar, the system status bar overlay replaces
  * application-rendered [TimeText]. On devices that do not support the system status bar, this
@@ -435,11 +434,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
  * this screen. For screens that do not require custom time text, use the overload without the
@@ -519,11 +518,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * On devices that support the system status bar, the system status bar overlay replaces
  * application-rendered [TimeText]. On devices that do not support the system status bar, this
@@ -582,11 +581,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
  * this screen. For screens that do not require custom time text, use the overload without the
@@ -652,11 +651,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * On devices that support the system status bar, the system status bar overlay replaces
  * application-rendered [TimeText]. On devices that do not support the system status bar, this
@@ -721,11 +720,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
  * this screen. For screens that do not require custom time text, use the overload without the
@@ -797,11 +796,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * On devices that support the system status bar, the system status bar overlay replaces
  * application-rendered [TimeText]. On devices that do not support the system status bar, this
@@ -853,11 +852,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
  * this screen. For screens that do not require custom time text, use the overload without the
@@ -916,11 +915,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * On devices that support the system status bar, the system status bar overlay replaces
  * application-rendered [TimeText]. On devices that do not support the system status bar, this
@@ -979,11 +978,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
  * this screen. For screens that do not require custom time text, use the overload without the
@@ -1049,11 +1048,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * On devices that support the system status bar, the system status bar overlay replaces
  * application-rendered [TimeText]. On devices that do not support the system status bar, this
@@ -1120,11 +1119,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
  * this screen. For screens that do not require custom time text, use the overload without the
@@ -1310,11 +1309,11 @@ private enum class SlotsEnum {
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * On devices that support the system status bar, the system status bar overlay replaces
  * application-rendered [TimeText]. On devices that do not support the system status bar, this
@@ -1373,11 +1372,11 @@ public fun ScreenScaffold(
  *
  * The scaffold components [AppScaffold] and [ScreenScaffold] lay out the structure of a screen and
  * coordinate transitions of the [ScrollIndicator] and [TimeText] components. [AppScaffold] should
- * be at the top of the composition (because it provides [ScaffoldState]) and [ScreenScaffold]
- * should be part of [AppScaffold]'s content. When used in conjunction with a navigation component
- * such as Navigation3's NavDisplay with SwipeDismissableSceneStrategy or Navigation's
- * SwipeDismissableNavHost, [AppScaffold] remains at the top of the composition, whilst
- * [ScreenScaffold] will be placed for each individual composable route.
+ * be at the top of the composition and [ScreenScaffold] should be part of [AppScaffold]'s content.
+ * When used in conjunction with a navigation component such as Navigation3's NavDisplay with
+ * SwipeDismissableSceneStrategy or Navigation's SwipeDismissableNavHost, [AppScaffold] remains at
+ * the top of the composition, whilst [ScreenScaffold] will be placed for each individual composable
+ * route.
  *
  * This overload supports passing a custom [timeText] or disabling the system status bar overlay for
  * this screen. For screens that do not require custom time text, use the overload without the
@@ -1427,15 +1426,14 @@ public fun ScreenScaffold(
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit {
-    val viewState = rememberUpdatedState(LocalView.current)
-    val scaffoldState =
-        LocalScaffoldState.current ?: remember { ScaffoldState(appWindowView = viewState) }
     val statusBarMode = if (timeText == null) StatusBarMode.Inherit else StatusBarMode.Disabled
     val showStatusBarState = rememberShowStatusBarState(statusBarMode)
     val timeTextState = rememberUpdatedState(timeText)
     val scrollInfoProviderState = rememberUpdatedState(scrollInfoProvider)
+    val scaffoldState =
+        LocalScaffoldState.current ?: remember { ScreenScaffoldState(scrollInfoProviderState) }
 
-    scaffoldState.screenContent.UpdateIdlingDetectorIfNeeded()
+    scaffoldState.UpdateIdlingDetectorIfNeeded()
 
     ScreenContentRegistration(
         timeText = timeTextState,
@@ -1492,7 +1490,7 @@ public fun ScreenScaffold(
                 scrollInfoProvider?.let {
                     AnimatedIndicator(
                         isVisible = {
-                            ((scaffoldState.screenContent.screenStage.value != ScreenStage.Idle) ||
+                            ((scaffoldState.screenStage.value != ScreenStage.Idle) ||
                                 scaffoldState.keepIndicatorVisible.value) &&
                                 scrollInfoProvider.isScrollable
                         },

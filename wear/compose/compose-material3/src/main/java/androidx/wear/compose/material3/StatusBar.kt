@@ -49,10 +49,9 @@ import com.google.wear.settings.WearSettings
  * suppressing the status bar from *within* an individual component or screen body, use the
  * zero-argument [StatusBarSuppression] overload instead.
  *
- * Inside an [AppScaffold], coordinates with [ScaffoldState.screenContent] to suppress the status
- * bar and coordinate with underlying screens. Outside an [AppScaffold], hides the status bar
- * directly on the current window and restores the initial visibility state when leaving
- * composition.
+ * Inside an [AppScaffold], suppresses the system status bar and coordinates with underlying
+ * screens. Outside an [AppScaffold], hides the status bar directly on the current window and
+ * restores the initial visibility state when leaving composition.
  *
  * An example of wrapping a screen with [StatusBarSuppression]:
  *
@@ -75,10 +74,9 @@ public fun StatusBarSuppression(content: @Composable () -> Unit) {
  * inside a component rendered on that screen. To wrap and suppress a [ScreenScaffold], use the
  * [StatusBarSuppression] overload that accepts a `content` lambda instead.
  *
- * Inside an [AppScaffold], coordinates with [ScaffoldState.screenContent] to suppress the status
- * bar and coordinate with underlying screens. Outside an [AppScaffold], hides the status bar
- * directly on the current window and restores the initial visibility state when leaving
- * composition.
+ * Inside an [AppScaffold], suppresses the system status bar and coordinates with underlying
+ * screens. Outside an [AppScaffold], hides the status bar directly on the current window and
+ * restores the initial visibility state when leaving composition.
  *
  * An example of suppressing the status bar from within a component:
  *
@@ -87,7 +85,7 @@ public fun StatusBarSuppression(content: @Composable () -> Unit) {
 @Composable
 public fun StatusBarSuppression() {
     if (!LocalStatusBarEnabled.current) return
-    val scaffoldState = LocalScaffoldState.current
+    val scaffoldState = LocalScaffoldState.current as? AppScaffoldState
 
     if (scaffoldState != null) {
         StatusBarRegistration(showStatusBar = rememberUpdatedState(false))

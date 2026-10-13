@@ -122,7 +122,7 @@ public fun AppScaffold(
     val appWindowViewState = rememberUpdatedState(LocalView.current)
 
     val scaffoldState = remember {
-        ScaffoldState(
+        AppScaffoldState(
             appTimeText = timeTextState,
             doesAppScaffoldWantStatusBar = doesAppScaffoldWantStatusBarState,
             appWindowView = appWindowViewState,

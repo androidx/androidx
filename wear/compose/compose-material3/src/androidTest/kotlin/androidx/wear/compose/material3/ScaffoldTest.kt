@@ -426,6 +426,52 @@ class ScaffoldTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
+    fun shows_scroll_indicator_on_scroll_without_app_scaffold() {
+        val scrollIndicatorColor = Color.Red
+
+        rule.setContentWithTheme {
+            val scrollState = rememberScalingLazyListState()
+            ScreenScaffold(
+                modifier = Modifier.testTag(TEST_TAG),
+                scrollState = scrollState,
+                scrollIndicator = {
+                    Box(
+                        modifier =
+                            Modifier.size(20.dp)
+                                .align(Alignment.CenterEnd)
+                                .background(scrollIndicatorColor)
+                    )
+                },
+            ) {
+                ScalingLazyColumn(
+                    state = scrollState,
+                    modifier = Modifier.fillMaxSize().background(Color.Black).testTag(SCROLL_TAG),
+                ) {
+                    items(DEFAULT_ITEMS_COUNT) {
+                        Button(onClick = {}, label = { Text("Item ${it + 1}") })
+                    }
+                }
+            }
+        }
+
+        // Wait for 5 seconds and verify the scroll indicator is not shown.
+        rule.mainClock.autoAdvance = false
+        rule.mainClock.advanceTimeBy(5000)
+
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertDoesNotContainColor(scrollIndicatorColor)
+
+        // Perform a scroll and verify the scroll indicator appears again.
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { swipeUp() }
+        rule.mainClock.advanceTimeBy(500)
+
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(scrollIndicatorColor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
     fun hides_scroll_indicator_after_delay_lazycolumn() {
         val scrollIndicatorColor = Color.Red
 
@@ -1524,3 +1570,6 @@ private const val SMALL_SCREEN_WIDTH = 190
 @Suppress("UNCHECKED_CAST")
 private val LocalStatusBarEnabledForTest: ProvidableCompositionLocal<Boolean>
     get() = LocalStatusBarEnabled as ProvidableCompositionLocal<Boolean>
+
+private val ScaffoldState.screenContent: ScreenContent
+    get() = (this as AppScaffoldState).screenContent
