@@ -29,6 +29,7 @@ import com.android.adblib.AdbSessionHost
 import com.android.adblib.CoroutineScopeCache
 import com.android.adblib.DeviceCacheProvider
 import com.android.adblib.DeviceSelector
+import com.android.adblib.RemoteFileMode
 import com.android.adblib.ShellCollector
 import com.android.adblib.ShellCommandOutput
 import com.android.adblib.TextShellCollector
@@ -66,6 +67,22 @@ internal fun shellOutput(stdout: String = "", stderr: String = "", exitCode: Int
 /** Returns what `am instrument` prints for a run in which the runner reported [resultJson]. */
 internal fun instrumentOutput(resultJson: String): String =
     "INSTRUMENTATION_RESULT: resultJson=$resultJson\nINSTRUMENTATION_CODE: -1\n"
+
+/**
+ * Returns what `am instrument` prints for a run in which the runner sent [resultJson] in parts of
+ * [partLength] characters, each in a status, and then named them in its result.
+ */
+internal fun partedInstrumentOutput(resultJson: String, partLength: Int): String = buildString {
+    val parts = resultJson.chunked(partLength)
+    for (part in parts) {
+        append("INSTRUMENTATION_STATUS: resultPart=").append(part).append('\n')
+        append("INSTRUMENTATION_STATUS_CODE: 1\n")
+    }
+    // `am instrument` prints the keys of a result in sorted order.
+    append("INSTRUMENTATION_RESULT: resultLength=${resultJson.length}\n")
+    append("INSTRUMENTATION_RESULT: resultParts=${parts.size}\n")
+    append("INSTRUMENTATION_CODE: -1\n")
+}
 
 /** Returns what `am instrument` prints for a run of an action that returned [payloadJson]. */
 internal fun runnerStdout(payloadJson: String): String =
@@ -142,14 +159,25 @@ internal class FakeAdbDevice {
     val pushedPaths: List<String>
         get() = _pushedPaths
 
+    /** Content of each file pushed to the device, by device path. */
+    val pushedContents: Map<String, String>
+        get() = _pushedContents
+
+    /** Permission bits of each file pushed to the device, by device path. */
+    val pushedModes: Map<String, RemoteFileMode>
+        get() = _pushedModes
+
     private val _commands = mutableListOf<String>()
     private val _pulledPaths = mutableListOf<String>()
     private val _pushedPaths = mutableListOf<String>()
+    private val _pushedContents = mutableMapOf<String, String>()
+    private val _pushedModes = mutableMapOf<String, RemoteFileMode>()
 
     private var shellHandler: (String) -> ShellCommandOutput? = { null }
     private var pullHandler: (String) -> String = { "" }
     private var hangPredicate: (String) -> Boolean = { false }
     private var lastCreatedHostFile: Path? = null
+    private var lastOpenedHostFile: Path? = null
 
     /**
      * Answers every later shell command with [handler]; an exception it throws is propagated. A
@@ -185,7 +213,16 @@ internal class FakeAdbDevice {
                         Unit
                     }
                     "send" -> {
-                        _pushedPaths += invocation.arguments[1] as String
+                        val devicePath = invocation.arguments[1] as String
+                        _pushedPaths += devicePath
+                        // Tests may push host files that don't exist, such as fake APKs.
+                        lastOpenedHostFile
+                            ?.toFile()
+                            ?.takeIf { it.isFile }
+                            ?.let {
+                                _pushedContents[devicePath] = it.readText()
+                            }
+                        _pushedModes[devicePath] = invocation.arguments[2] as RemoteFileMode
                         Unit
                     }
                     else -> RETURNS_DEFAULTS.answer(invocation)
@@ -207,7 +244,10 @@ internal class FakeAdbDevice {
                         lastCreatedHostFile = invocation.arguments[0] as Path
                         mock(AdbOutputChannel::class.java)
                     }
-                    "openFile" -> mock(AdbInputChannel::class.java)
+                    "openFile" -> {
+                        lastOpenedHostFile = invocation.arguments[0] as Path
+                        mock(AdbInputChannel::class.java)
+                    }
                     else -> RETURNS_DEFAULTS.answer(invocation)
                 }
             }
