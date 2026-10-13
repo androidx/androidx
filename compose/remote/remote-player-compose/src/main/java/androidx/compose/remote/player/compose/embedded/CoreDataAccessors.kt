@@ -18,257 +18,25 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.BitmapData
-import androidx.compose.remote.core.operations.ClipPath
 import androidx.compose.remote.core.operations.ComponentData
-import androidx.compose.remote.core.operations.ConditionalOperations
-import androidx.compose.remote.core.operations.DrawBase2
-import androidx.compose.remote.core.operations.DrawBase3
-import androidx.compose.remote.core.operations.DrawBase4
-import androidx.compose.remote.core.operations.DrawBase6
-import androidx.compose.remote.core.operations.DrawBitmap
-import androidx.compose.remote.core.operations.DrawBitmapFontText
-import androidx.compose.remote.core.operations.DrawBitmapFontTextOnPath
-import androidx.compose.remote.core.operations.DrawBitmapInt
-import androidx.compose.remote.core.operations.DrawBitmapScaled
-import androidx.compose.remote.core.operations.DrawBitmapTextAnchored
-import androidx.compose.remote.core.operations.DrawPath
-import androidx.compose.remote.core.operations.DrawTextAnchored
-import androidx.compose.remote.core.operations.DrawTextOnCircle
-import androidx.compose.remote.core.operations.DrawTextOnPath
-import androidx.compose.remote.core.operations.DrawToBitmap
-import androidx.compose.remote.core.operations.DrawTweenPath
-import androidx.compose.remote.core.operations.FloatFunctionCall
 import androidx.compose.remote.core.operations.FloatFunctionDefine
 import androidx.compose.remote.core.operations.PathData
-import androidx.compose.remote.core.operations.TouchExpression
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.LoopOperation
-import androidx.compose.remote.core.operations.layout.managers.BoxLayout
-import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority
-import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
-import androidx.compose.remote.core.operations.layout.managers.CoreText
-import androidx.compose.remote.core.operations.layout.managers.Custom
-import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
-import androidx.compose.remote.core.operations.layout.managers.LayoutManager
-import androidx.compose.remote.core.operations.layout.managers.RowLayout
-import androidx.compose.remote.core.operations.layout.managers.TextLayout
-import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
-import androidx.compose.remote.core.operations.layout.modifiers.MarqueeModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation
-import androidx.compose.remote.core.semantics.CoreSemantics
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import java.util.ArrayList
 
-/*
- * Centralized accessors for the remote-core operation state the embedded player needs to read,
- * encapsulated via Kotlin data classes and extension methods over the core getters.
- */
-
-internal fun ClipPath.readData(): ClipPathData {
-    return ClipPathData(id = getId(), regionOp = getRegionOp())
-}
-
-internal fun DrawTextOnPath.readData(): DrawTextOnPathData {
-    return DrawTextOnPathData(
-        pathId = getPathId(),
-        hOffset = getOutHOffset(),
-        vOffset = getOutVOffset(),
-    )
-}
-
-internal fun DrawTextAnchored.readData(): DrawTextAnchoredData {
-    return DrawTextAnchoredData(
-        textId = getTextID(),
-        x = getOutX(),
-        y = getOutY(),
-        panX = getOutPanX(),
-        panY = getOutPanY(),
-        flags = getFlags(),
-    )
-}
-
-internal fun DrawBitmapInt.readData(): DrawBitmapIntData {
-    return DrawBitmapIntData(
-        imageId = getImageId(),
-        srcLeft = getSrcLeft(),
-        srcTop = getSrcTop(),
-        srcRight = getSrcRight(),
-        srcBottom = getSrcBottom(),
-        dstLeft = getDstLeft(),
-        dstTop = getDstTop(),
-        dstRight = getDstRight(),
-        dstBottom = getDstBottom(),
-    )
-}
-
-internal fun DrawTextOnCircle.readData(): DrawTextOnCircleData {
-    return DrawTextOnCircleData(
-        centerX = getCenterX(),
-        centerY = getCenterY(),
-        radius = getRadius(),
-        startAngle = getStartAngle(),
-        warpRadiusOffset = getWarpRadiusOffset(),
-        alignment = getAlignment() as DrawTextOnCircle.Alignment,
-        placement = getPlacement() as DrawTextOnCircle.Placement,
-    )
-}
-
-internal fun DrawBitmapFontText.readData(): DrawBitmapFontTextData {
-    return DrawBitmapFontTextData(
-        textId = getTextID(),
-        fontId = getBitmapFontID(),
-        start = getStart(),
-        end = getEnd(),
-        x = getOutX(),
-        y = getOutY(),
-        glyphSpacing = getOutGlyphSpacing(),
-    )
-}
-
-internal fun DrawBitmapFontTextOnPath.readData(): DrawBitmapFontTextOnPathData {
-    return DrawBitmapFontTextOnPathData(
-        textId = getTextID(),
-        fontId = getBitmapFontID(),
-        pathId = getPathID(),
-        start = getStart(),
-        end = getEnd(),
-        yAdj = getOutYAdj(),
-        glyphSpacing = getOutGlyphSpacing(),
-    )
-}
-
-internal fun DrawBitmapTextAnchored.readData(): DrawBitmapTextAnchoredData {
-    return DrawBitmapTextAnchoredData(
-        textId = getTextID(),
-        fontId = getBitmapFontID(),
-        start = getOutStart().toInt(),
-        end = getOutEnd().toInt(),
-        x = getOutX(),
-        y = getOutY(),
-        panX = getOutPanX(),
-        panY = getOutPanY(),
-        glyphSpacing = getOutGlyphSpacing(),
-    )
-}
-
-internal fun DrawToBitmap.readData(): DrawToBitmapData {
-    return DrawToBitmapData(
-        bitmapId = getBitmapId(),
-        mode = getMode(),
-        color = getColor(),
-    )
-}
-
-internal fun DrawTweenPath.readData(): DrawTweenPathData {
-    return DrawTweenPathData(
-        path1Id = getPath1Id(),
-        path2Id = getPath2Id(),
-        tween = getOutTween(),
-        start = getOutStart(),
-        stop = getOutStop(),
-    )
-}
-
-internal fun ConditionalOperations.readData(
-    context: RemoteContext? = null
-): ConditionalOperationsData {
-    val a =
-        if (context != null) {
-            val rawA = getVarA()
-            if (rawA.isNaN()) context.getFloat(Utils.idFromNan(rawA)) else rawA
-        } else {
-            getVarAOut()
-        }
-    val b =
-        if (context != null) {
-            val rawB = getVarB()
-            if (rawB.isNaN()) context.getFloat(Utils.idFromNan(rawB)) else rawB
-        } else {
-            getVarBOut()
-        }
-    return ConditionalOperationsData(
-        varAOut = a,
-        varBOut = b,
-        type = getType(),
-    )
-}
-
-internal fun LoopOperation.readData(context: RemoteContext? = null): LoopOperationData {
-    val from =
-        if (context != null) {
-            val rawFrom = getFrom()
-            if (rawFrom.isNaN()) context.getFloat(Utils.idFromNan(rawFrom)) else rawFrom
-        } else {
-            getFromOut()
-        }
-    val until =
-        if (context != null) {
-            val rawUntil = getUntil()
-            if (rawUntil.isNaN()) context.getFloat(Utils.idFromNan(rawUntil)) else rawUntil
-        } else {
-            getUntilOut()
-        }
-    val step =
-        if (context != null) {
-            val rawStep = getStep()
-            if (rawStep.isNaN()) context.getFloat(Utils.idFromNan(rawStep)) else rawStep
-        } else {
-            getStepOut()
-        }
-    return LoopOperationData(
-        fromOut = from,
-        untilOut = until,
-        stepOut = step,
-        indexVariableId = getIndexVariableId(),
-    )
-}
-
-internal fun FloatFunctionCall.readData(): FloatFunctionCallData {
-    return FloatFunctionCallData(
-        function = getFunction(),
-        outArgs = getOutArgs(),
-    )
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Custom.readData(): CustomData {
-    return CustomData(
-        config = getConfig(),
-        configId = getConfigId(),
-        properties = getProperties(),
-    )
-}
-
-// 1. CoreDocument Helpers
 @Suppress("UNCHECKED_CAST")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun CoreDocument.getOperationsList(): ArrayList<Operation> {
-    return getOperations() as ArrayList<Operation>
-}
-
-internal fun CoreDocument.registerVariables(
-    context: RemoteContext,
-    operations: ArrayList<Operation>,
-) {
-    registerVariables(context, operations)
+internal fun CoreDocument.getOperationsList(): ArrayList<Operation> {
+    return operations as ArrayList<Operation>
 }
 
 internal inline fun <R> RemoteContext.withOpCountReset(block: () -> R): R {
@@ -294,13 +62,6 @@ internal inline fun <R> RemoteContext.withOpCountReset(block: () -> R): R {
             }
         }
     }
-}
-
-internal fun CoreDocument.applyOperations(
-    context: RemoteContext,
-    operations: ArrayList<Operation>,
-) {
-    context.withOpCountReset { applyOperationsWithoutBitmaps(context, operations) }
 }
 
 internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Operation>) {
@@ -337,7 +98,7 @@ internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Op
             }
             applyOperationsWithoutBitmaps(context, (op as Container).list)
             if (op is LayoutComponent) {
-                op.getDrawContentOperationsList()?.let { canvasOps ->
+                op.drawContentOperations?.list?.let { canvasOps ->
                     applyOperationsWithoutBitmaps(context, canvasOps)
                 }
             }
@@ -355,7 +116,7 @@ private fun registerNestedBitmapMetadata(context: RemoteContext, list: List<Oper
         } else if (op is Container) {
             registerNestedBitmapMetadata(context, op.list)
             if (op is LayoutComponent) {
-                op.getDrawContentOperationsList()?.let { canvasOps ->
+                op.drawContentOperations?.list?.let { canvasOps ->
                     registerNestedBitmapMetadata(context, canvasOps)
                 }
             }
@@ -373,206 +134,16 @@ internal fun CoreDocument.applyDataOperationsWithoutBitmaps(context: RemoteConte
         try {
             updateTime(context)
             registerVariables(context, getOperationsList())
-            applyOperationsWithoutBitmaps(context, getOperationsList())
+            applyOperationsWithoutBitmaps(context, operations)
         } finally {
             context.mode = RemoteContext.ContextMode.UNSET
         }
     }
 }
 
-// 2. RemoteComposeState Helpers
-internal fun RemoteComposeState.remoteContextOrNull(): RemoteContext? {
-    return getRemoteContext() as? RemoteContext
-}
-
-// 3. Layout Component / Manager Helpers
-internal fun LayoutComponent.getDrawContentOperationsList(): ArrayList<Operation>? {
-    return getDrawContentOperations()?.list
-}
-
-internal val LayoutManager.horizontalPositioning: Int
-    get() =
-        when (this) {
-            is RowLayout -> getHorizontalPositioning()
-            is ColumnLayout -> getHorizontalPositioning()
-            is FitBoxLayout -> getHorizontalPositioning()
-            is BoxLayout -> getHorizontalPositioning()
-            else -> throw NoSuchFieldException("mHorizontalPositioning not found in $javaClass")
-        }
-
-internal val LayoutManager.verticalPositioning: Int
-    get() =
-        when (this) {
-            is RowLayout -> getVerticalPositioning()
-            is ColumnLayout -> getVerticalPositioning()
-            is FitBoxLayout -> getVerticalPositioning()
-            is BoxLayout -> getVerticalPositioning()
-            else -> throw NoSuchFieldException("mVerticalPositioning not found in $javaClass")
-        }
-
-// 4. Modifier Operations Helpers
-// --- MarqueeModifierOperation Helper ---
-
-internal fun MarqueeModifierOperation.readData(): MarqueeModifierOperationData {
-    return MarqueeModifierOperationData(
-        iterations = getIterations(),
-        animationMode = getAnimationMode(),
-        repeatDelayMillis = getRepeatDelayMillis(),
-        initialDelayMillis = getInitialDelayMillis(),
-        spacing = getSpacing(),
-        velocity = getVelocity(),
-    )
-}
-
-// --- GraphicsLayerModifierOperation Helper ---
-
-internal fun GraphicsLayerModifierOperation.readValues(): List<GraphicsLayerAttributeValueData> {
-    return values.map { item ->
-        GraphicsLayerAttributeValueData(
-            name = item.name,
-            id = item.id,
-            source = item.source,
-        )
-    }
-}
-
-// --- HostNamedActionOperation Helper ---
-
-internal fun HostNamedActionOperation.readData(): HostNamedActionOperationData {
-    return HostNamedActionOperationData(
-        textId = getTextId(),
-        type = getType(),
-        valueId = getValueId(),
-    )
-}
-
-// --- DrawBase Helpers ---
-
-internal fun DrawBase2.readData(): DrawBase2Data {
-    return DrawBase2Data(
-        v1 = getV1(),
-        v2 = getV2(),
-        value1 = getValue1(),
-        value2 = getValue2(),
-    )
-}
-
-internal fun DrawBase3.readData(): DrawBase3Data {
-    return DrawBase3Data(
-        v1 = getV1(),
-        v2 = getV2(),
-        v3 = getV3(),
-        value1 = getValue1(),
-        value2 = getValue2(),
-        value3 = getValue3(),
-    )
-}
-
-internal fun DrawBase4.readData(): DrawBase4Data {
-    return DrawBase4Data(
-        x1 = getRawX1(),
-        y1 = getRawY1(),
-        x2 = getRawX2(),
-        y2 = getRawY2(),
-        x1Value = getX1Value(),
-        y1Value = getY1Value(),
-        x2Value = getX2Value(),
-        y2Value = getY2Value(),
-    )
-}
-
-internal fun DrawBase6.readData(): DrawBase6Data {
-    return DrawBase6Data(
-        v1 = getV1(),
-        v2 = getV2(),
-        v3 = getV3(),
-        v4 = getV4(),
-        v5 = getV5(),
-        v6 = getV6(),
-        value1 = getValue1(),
-        value2 = getValue2(),
-        value3 = getValue3(),
-        value4 = getValue4(),
-        value5 = getValue5(),
-        value6 = getValue6(),
-    )
-}
-
-// --- DrawBitmap Helper ---
-
-internal fun DrawBitmap.readData(): DrawBitmapData {
-    return DrawBitmapData(
-        left = getLeft(),
-        top = getTop(),
-        right = getRight(),
-        bottom = getBottom(),
-        outputLeft = getOutputLeft(),
-        outputTop = getOutputTop(),
-        outputRight = getOutputRight(),
-        outputBottom = getOutputBottom(),
-        id = getImageId(),
-        descriptionId = getDescriptionId(),
-    )
-}
-
-// --- DrawBitmapScaled Helper ---
-
-internal fun DrawBitmapScaled.readData(): DrawBitmapScaledData {
-    return DrawBitmapScaledData(
-        imageId = getImageId(),
-        srcLeft = getSrcLeft(),
-        outSrcLeft = getOutSrcLeft(),
-        srcTop = getSrcTop(),
-        outSrcTop = getOutSrcTop(),
-        srcRight = getSrcRight(),
-        outSrcRight = getOutSrcRight(),
-        srcBottom = getSrcBottom(),
-        outSrcBottom = getOutSrcBottom(),
-        dstLeft = getDstLeft(),
-        outDstLeft = getOutDstLeft(),
-        dstTop = getDstTop(),
-        outDstTop = getOutDstTop(),
-        dstRight = getDstRight(),
-        outDstRight = getOutDstRight(),
-        dstBottom = getDstBottom(),
-        outDstBottom = getOutDstBottom(),
-        contentDescId = getContentDescId(),
-        scaleFactor = getScaleFactor(),
-        outScaleFactor = getOutScaleFactor(),
-        scaleType = getScaleType(),
-    )
-}
-
-// --- DrawPath Helper ---
-
-internal fun DrawPath.readData(): DrawPathData {
-    return DrawPathData(id = getPathId(), start = getStart(), end = getEnd())
-}
-
-// --- BitmapData Helper ---
-
-internal fun BitmapData.readData(): BitmapDataData {
-    return BitmapDataData(
-        imageId = mImageId,
-        imageWidth = getImageWidth(),
-        imageHeight = getImageHeight(),
-        type = getType().toShort(),
-        encoding = getEncoding(),
-        bitmap = getBitmap(),
-    )
-}
-
-// 5. PaintBundle Helper
-// CoreSemantics
-internal fun CoreSemantics.contentDescriptionIdOrNull(): Int? {
-    val id = mContentDescriptionId
-    return if (id != 0) id else null
-}
-
-// Recollect collections
 internal fun CoreDocument.recollectCollections() {
-    val operations = this.getOperationsList()
-    val state = this.remoteComposeState
+    val operations = getOperationsList()
+    val state = remoteComposeState
     collectCollections(operations, state)
     recollectCanvasCollections(this, operations, state)
 }
@@ -585,7 +156,7 @@ private fun recollectCanvasCollections(
     for (i in operations.indices) {
         val op = operations[i]
         if (op is LayoutComponent) {
-            op.getDrawContentOperationsList()?.let { canvasOps ->
+            op.drawContentOperations?.list?.let { canvasOps ->
                 document.collectCollections(canvasOps, state)
                 recollectCanvasCollections(document, canvasOps, state)
             }
@@ -594,10 +165,6 @@ private fun recollectCanvasCollections(
             recollectCanvasCollections(document, op.list, state)
         }
     }
-}
-
-internal fun CoreDocument.updateTime(context: RemoteContext) {
-    updateTime(context)
 }
 
 internal fun RemoteContext.findVariableId(name: String): Int {
@@ -609,128 +176,6 @@ internal fun RemoteContext.findVariableId(name: String): Int {
     }
 }
 
-// --- BorderModifierOperation Helper ---
-
-internal fun BorderModifierOperation.readData(): BorderModifierOperationData {
-    return BorderModifierOperationData(
-        useColorId = getUseColorId(),
-        colorId = getColorId(),
-        r = getR(),
-        g = getG(),
-        b = getB(),
-        a = getA(),
-        borderWidth = getBorderWidth(),
-        roundedCorner = getRoundedCorner(),
-        shapeType = getShapeType(),
-    )
-}
-
-// --- BackgroundModifierOperation Helper ---
-
-internal fun BackgroundModifierOperation.readData(): BackgroundModifierOperationData {
-    return BackgroundModifierOperationData(
-        useColorId = getUseColorId(),
-        colorId = getColorId(),
-        rId = getRId(),
-        gId = getGId(),
-        bId = getBId(),
-        aId = getAId(),
-        shapeType = getShapeType(),
-    )
-}
-
-// --- CoreDocument updateVariables Helper ---
-internal fun CoreDocument.updateVariables(
-    context: RemoteContext,
-    theme: Int,
-    operations: List<Operation>,
-) {
-    updateVariables(context, theme, operations)
-}
-
-// --- CoreText Helper ---
-
-internal fun CoreText.readData(): CoreTextData {
-    return CoreTextData(
-        colorValue = getColorValue(),
-        fontSizeValue = getFontSizeValue(),
-        type = getType(),
-        fontWeightValue = getFontWeightValue(),
-        fontStyle = getFontStyle(),
-        textAlignValue = getTextAlignValue(),
-        overflow = getOverflow(),
-        maxLines = getMaxLines(),
-        letterSpacing = getLetterSpacing(),
-        lineHeightMultiplier = getLineHeightMultiplier(),
-        lineHeightAdd = getLineHeightAdd(),
-        underline = getUnderline(),
-        strikethrough = getStrikethrough(),
-        fontAxis = getFontAxis(),
-        fontAxisValues = getFontAxisValues(),
-        autosize = getAutosize(),
-        minFontSize = getMinFontSize(),
-        maxFontSize = getMaxFontSize(),
-        lineBreakStrategy = getLineBreakStrategy(),
-        hyphenationFrequency = getHyphenationFrequency(),
-        justificationMode = getJustificationMode(),
-        isDynamicColorEnabled = isDynamicColorEnabled(),
-        colorId = getColorId(),
-        fontSize = getFontSize(),
-    )
-}
-
-// --- TextLayout Helper ---
-
-internal fun TextLayout.readData(): TextLayoutData {
-    return TextLayoutData(
-        colorValue = getColorValue(),
-        fontSizeValue = getFontSizeValue(),
-        type = getType(),
-        fontWeight = getFontWeight(),
-        textAlignValue = getTextAlignValue(),
-        overflow = getOverflow(),
-        maxLines = getMaxLines(),
-        isDynamicColorEnabled = isDynamicColorEnabled(),
-        colorId = getColor(),
-        fontSize = getFontSize(),
-    )
-}
-
-// 6. Layout Spacing Helpers
-internal fun rowSpacedBy(layout: RowLayout): Float = layout.getSpacedBy()
-
-internal fun columnSpacedBy(layout: ColumnLayout): Float = layout.getSpacedBy()
-
-// 7. ScrollModifier
-internal fun scrollPosition(op: ScrollModifierOperation): Float = op.getPositionExpression()
-
-internal fun touchStopMode(touch: TouchExpression): Int = touch.getStopMode()
-
-internal fun touchStopSpec(touch: TouchExpression): FloatArray? = touch.getStopSpec()
-
-// 8. DimensionConstraints
-internal fun dimensionConstraintsType(op: DimensionConstraintsModifierOperation): Int = op.getType()
-
-// 9. DimensionModifier
-internal fun dimensionRawValue(op: DimensionModifierOperation): Float = op.getRawValue()
-
-// OffsetModifier
-internal fun offsetRawValues(op: OffsetModifierOperation): FloatArray =
-    floatArrayOf(op.rawX, op.rawY)
-
-// DimensionInModifier
-/** The raw min/max constraint sources, in dp or as NaN-encoded variable ids. */
-internal fun dimensionInRawValues(op: DimensionInModifierOperation): FloatArray =
-    floatArrayOf(op.rawMin, op.rawMax)
-
-// 10. CollapsiblePriority
-internal fun sortWithPriorities(children: ArrayList<Component>, orientation: Int): List<Component> =
-    CollapsiblePriority.sortWithPriorities(children, orientation)
-
-// 13. PaddingModifierOperation Raw Values
-internal fun paddingRawValues(op: PaddingModifierOperation): FloatArray =
-    floatArrayOf(op.rawLeft, op.rawTop, op.rawRight, op.rawBottom)
-
 internal fun PathData.applyTrackingPathChange(context: RemoteContext) {
     val outputPath = getOutputPath()
     if (context.getPathData(getId()) !== outputPath) {
@@ -738,44 +183,3 @@ internal fun PathData.applyTrackingPathChange(context: RemoteContext) {
     }
     apply(context)
 }
-
-internal val PathData.instanceId: Int
-    get() = getId()
-
-// 16. ConditionalOperations, LoopOperation, Function, Text, and Impulse raw values
-
-internal val ConditionalOperations.varARaw: Float
-    get() = getVarA()
-
-internal val ConditionalOperations.varBRaw: Float
-    get() = getVarB()
-
-internal val LoopOperation.fromRaw: Float
-    get() = getFrom()
-
-internal val LoopOperation.untilRaw: Float
-    get() = getUntil()
-
-internal val LoopOperation.stepRaw: Float
-    get() = getStep()
-
-internal val FloatFunctionDefine.floatVarIds: IntArray
-    get() = getArgs()
-
-internal val DrawTextOnPath.hOffsetRaw: Float
-    get() = getHOffset()
-
-internal val DrawTextOnPath.vOffsetRaw: Float
-    get() = getVOffset()
-
-internal val DrawTextAnchored.xRaw: Float
-    get() = getX()
-
-internal val DrawTextAnchored.yRaw: Float
-    get() = getY()
-
-internal val DrawTextAnchored.panXRaw: Float
-    get() = getPanX()
-
-internal val DrawTextAnchored.panYRaw: Float
-    get() = getPanY()

@@ -65,31 +65,29 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
     val paintState = remember { ComposeLocalPaint() }.apply { reset() }
     updatePaintFromBundle(layout.mPaint, paintState, LocalRemoteContext.current)
 
-    val data = layout.readData()
-
     val color =
         resolveTextColor(
             paintState = paintState,
-            isDynamicColorEnabled = data.isDynamicColorEnabled,
-            colorId = data.colorId,
-            colorValue = data.colorValue,
+            isDynamicColorEnabled = layout.isDynamicColorEnabled,
+            colorId = layout.colorId,
+            colorValue = layout.colorValue,
         )
     val density = LocalDensity.current
-    val fontSize = resolveTextFontSizePx(paintState, data.fontSize)
+    val fontSize = resolveTextFontSizePx(paintState, layout.fontSize)
     val fontSizeSp = with(density) { fontSize.toSp() }
 
     val remoteContext = LocalRemoteContext.current
 
     val fontWeight =
         if (paintState.isTypefaceSet) FontWeight(paintState.fontWeight)
-        else FontWeight(data.fontWeightValue.toInt())
+        else FontWeight(layout.fontWeightValue.toInt())
     val fontStyle =
         if (paintState.isTypefaceSet) paintState.fontStyle
         else {
-            if (data.fontStyle == 1) FontStyle.Italic else FontStyle.Normal
+            if (layout.fontStyle == 1) FontStyle.Italic else FontStyle.Normal
         }
 
-    val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else data.type
+    val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else layout.type
     val customFontNameState = rememberCustomFontName(fontFamilyType, remoteContext)
     val typefaceResolver = LocalTypefaceResolver.current
     val fontCertsResId = (typefaceResolver as? HasFontCerts)?.fontCertsResId ?: 0
@@ -99,8 +97,8 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
             customFontNameState.value,
             fontWeight,
             fontStyle,
-            data.fontAxis,
-            data.fontAxisValues,
+            layout.fontAxis,
+            layout.fontAxisValues,
             LocalRemoteContext.current,
             fontCertsResId,
             typefaceResolver,
@@ -108,42 +106,43 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
 
     val textDecoration =
         when {
-            data.underline && data.strikethrough ->
+            layout.underline && layout.strikethrough ->
                 TextDecoration.combine(listOf(TextDecoration.Underline, TextDecoration.LineThrough))
-            data.underline -> TextDecoration.Underline
-            data.strikethrough -> TextDecoration.LineThrough
+            layout.underline -> TextDecoration.Underline
+            layout.strikethrough -> TextDecoration.LineThrough
             else -> TextDecoration.None
         }
 
     val autoSize =
-        if (data.autosize) {
+        if (layout.autosize) {
             val min =
-                if (data.minFontSize <= 0f) 4.sp else with(density) { data.minFontSize.toSp() }
+                if (layout.minFontSize <= 0f) 4.sp else with(density) { layout.minFontSize.toSp() }
             val max =
-                if (data.maxFontSize <= 0f) 400.sp else with(density) { data.maxFontSize.toSp() }
+                if (layout.maxFontSize <= 0f) 400.sp
+                else with(density) { layout.maxFontSize.toSp() }
             TextAutoSize.StepBased(minFontSize = min, maxFontSize = max, stepSize = 0.5.sp)
         } else {
             null
         }
 
-    val textAlign = resolveTextAlign(data.textAlignValue, data.justificationMode)
+    val textAlign = resolveTextAlign(layout.textAlignValue, layout.justificationMode)
 
     val lineBreak =
-        when (data.lineBreakStrategy) {
+        when (layout.lineBreakStrategy) {
             CoreText.BREAK_STRATEGY_HIGH_QUALITY -> LineBreak.Paragraph
             CoreText.BREAK_STRATEGY_BALANCED -> LineBreak.Heading
             else -> LineBreak.Unspecified
         }
 
     val hyphens =
-        if (data.hyphenationFrequency != 0) {
+        if (layout.hyphenationFrequency != 0) {
             Hyphens.Auto
         } else {
             Hyphens.Unspecified
         }
 
     val overflow =
-        when (data.overflow) {
+        when (layout.overflow) {
             CoreText.OVERFLOW_CLIP -> TextOverflow.Clip
             CoreText.OVERFLOW_ELLIPSIS -> TextOverflow.Ellipsis
             CoreText.OVERFLOW_VISIBLE -> TextOverflow.Visible
@@ -166,19 +165,19 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
                 textAlign = textAlign,
                 lineBreak = lineBreak,
                 hyphens = hyphens,
-                letterSpacing = data.letterSpacing.em,
+                letterSpacing = layout.letterSpacing.em,
                 lineHeight =
                     resolveCoreTextLineHeight(
                         fontSize = fontSize,
-                        lineHeightMultiplier = data.lineHeightMultiplier,
-                        lineHeightAdd = data.lineHeightAdd,
-                        autosize = data.autosize,
+                        lineHeightMultiplier = layout.lineHeightMultiplier,
+                        lineHeightAdd = layout.lineHeightAdd,
+                        autosize = layout.autosize,
                         density = density,
                     ),
                 textDecoration = textDecoration,
             ),
         overflow = overflow,
-        maxLines = resolveEffectiveMaxLines(data.maxLines, data.overflow),
+        maxLines = resolveEffectiveMaxLines(layout.maxLines, layout.overflow),
     )
 }
 
@@ -202,25 +201,23 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
     val paintState = remember { ComposeLocalPaint() }.apply { reset() }
     updatePaintFromBundle(layout.mPaint, paintState, LocalRemoteContext.current)
 
-    val data = layout.readData()
-
     val color =
         resolveTextColor(
             paintState = paintState,
-            isDynamicColorEnabled = data.isDynamicColorEnabled,
-            colorId = data.colorId,
-            colorValue = data.colorValue,
+            isDynamicColorEnabled = layout.isDynamicColorEnabled,
+            colorId = layout.color,
+            colorValue = layout.colorValue,
         )
     val density = LocalDensity.current
-    val fontSize = resolveTextFontSizePx(paintState, data.fontSize)
+    val fontSize = resolveTextFontSizePx(paintState, layout.fontSize)
     val fontSizeSp = with(density) { fontSize.toSp() }
 
     val fontWeight =
         if (paintState.isTypefaceSet) FontWeight(paintState.fontWeight)
-        else FontWeight(data.fontWeight.toInt())
+        else FontWeight(layout.fontWeight.toInt())
     val fontStyle = if (paintState.isTypefaceSet) paintState.fontStyle else FontStyle.Normal
 
-    val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else data.type
+    val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else layout.type
     val customFontNameState = rememberCustomFontName(fontFamilyType, LocalRemoteContext.current)
     val typefaceResolver = LocalTypefaceResolver.current
     val fontCertsResId = (typefaceResolver as? HasFontCerts)?.fontCertsResId ?: 0
@@ -238,7 +235,7 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
         )
 
     val overflow =
-        when (data.overflow) {
+        when (layout.overflow) {
             TextLayout.OVERFLOW_CLIP -> TextOverflow.Clip
             TextLayout.OVERFLOW_ELLIPSIS -> TextOverflow.Ellipsis
             TextLayout.OVERFLOW_VISIBLE -> TextOverflow.Visible
@@ -257,10 +254,10 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
                 fontWeight = fontWeight,
                 fontFamily = fontFamily,
                 fontStyle = fontStyle,
-                textAlign = resolveTextAlign(data.textAlignValue, 0),
+                textAlign = resolveTextAlign(layout.textAlignValue, 0),
             ),
         overflow = overflow,
-        maxLines = resolveEffectiveMaxLines(data.maxLines, data.overflow),
+        maxLines = resolveEffectiveMaxLines(layout.maxLines, layout.overflow),
     )
 }
 

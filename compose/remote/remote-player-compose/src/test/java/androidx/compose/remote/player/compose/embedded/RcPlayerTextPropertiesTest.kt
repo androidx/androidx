@@ -92,21 +92,20 @@ class RcPlayerTextPropertiesTest {
                 -1,
             )
 
-        val data = coreText.readData()
-        assertThat(data.autosize).isTrue()
-        assertThat(data.minFontSize).isEqualTo(12f)
-        assertThat(data.maxFontSize).isEqualTo(36f)
-        assertThat(data.lineBreakStrategy).isEqualTo(CoreText.BREAK_STRATEGY_HIGH_QUALITY)
-        assertThat(data.hyphenationFrequency).isEqualTo(1)
-        assertThat(data.justificationMode).isEqualTo(CoreText.JUSTIFICATION_MODE_INTER_WORD)
-        assertThat(data.overflow).isEqualTo(CoreText.OVERFLOW_START_ELLIPSIS)
-        assertThat(data.letterSpacing).isEqualTo(0.5f)
-        assertThat(data.lineHeightAdd).isEqualTo(2f)
-        assertThat(data.lineHeightMultiplier).isEqualTo(1.2f)
-        assertThat(data.underline).isTrue()
-        assertThat(data.strikethrough).isFalse()
-        assertThat(data.isDynamicColorEnabled).isFalse()
-        assertThat(data.colorId).isEqualTo(-1)
+        assertThat(coreText.autosize).isTrue()
+        assertThat(coreText.minFontSize).isEqualTo(12f)
+        assertThat(coreText.maxFontSize).isEqualTo(36f)
+        assertThat(coreText.lineBreakStrategy).isEqualTo(CoreText.BREAK_STRATEGY_HIGH_QUALITY)
+        assertThat(coreText.hyphenationFrequency).isEqualTo(1)
+        assertThat(coreText.justificationMode).isEqualTo(CoreText.JUSTIFICATION_MODE_INTER_WORD)
+        assertThat(coreText.overflow).isEqualTo(CoreText.OVERFLOW_START_ELLIPSIS)
+        assertThat(coreText.letterSpacing).isEqualTo(0.5f)
+        assertThat(coreText.lineHeightAdd).isEqualTo(2f)
+        assertThat(coreText.lineHeightMultiplier).isEqualTo(1.2f)
+        assertThat(coreText.underline).isTrue()
+        assertThat(coreText.strikethrough).isFalse()
+        assertThat(coreText.isDynamicColorEnabled).isFalse()
+        assertThat(coreText.colorId).isEqualTo(-1)
     }
 
     @Test
@@ -147,9 +146,8 @@ class RcPlayerTextPropertiesTest {
                 -1,
             )
 
-        val data = coreText.readData()
-        assertThat(data.isDynamicColorEnabled).isTrue()
-        assertThat(data.colorId).isEqualTo(42)
+        assertThat(coreText.isDynamicColorEnabled).isTrue()
+        assertThat(coreText.colorId).isEqualTo(42)
     }
 
     @Test
@@ -176,9 +174,8 @@ class RcPlayerTextPropertiesTest {
                 1,
             )
 
-        val data = textLayout.readData()
-        assertThat(data.isDynamicColorEnabled).isTrue()
-        assertThat(data.colorId).isEqualTo(42)
+        assertThat(textLayout.isDynamicColorEnabled).isTrue()
+        assertThat(textLayout.color).isEqualTo(42)
     }
 
     @Test
@@ -313,8 +310,7 @@ class RcPlayerTextPropertiesTest {
                 0,
                 -1,
             )
-        val coreTextData = coreText.readData()
-        assertThat(coreTextData.fontSize.toRawBits()).isEqualTo(dynamicFontSize.toRawBits())
+        assertThat(coreText.fontSize.toRawBits()).isEqualTo(dynamicFontSize.toRawBits())
 
         val textLayout =
             TextLayout(
@@ -335,8 +331,7 @@ class RcPlayerTextPropertiesTest {
                 TextLayout.OVERFLOW_CLIP,
                 1,
             )
-        val textLayoutData = textLayout.readData()
-        assertThat(textLayoutData.fontSize.toRawBits()).isEqualTo(dynamicFontSize.toRawBits())
+        assertThat(textLayout.fontSize.toRawBits()).isEqualTo(dynamicFontSize.toRawBits())
     }
 
     @Test

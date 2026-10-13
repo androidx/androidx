@@ -27,9 +27,6 @@ import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
-import androidx.compose.remote.player.compose.embedded.scrollPosition
-import androidx.compose.remote.player.compose.embedded.touchStopMode
-import androidx.compose.remote.player.compose.embedded.touchStopSpec
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -51,8 +48,8 @@ import kotlin.math.roundToInt
  */
 private fun evenNotchCount(op: ScrollModifierOperation): Int {
     val touch = op.list.fastFirstOrNull { it is TouchExpression } as? TouchExpression ?: return 0
-    if (touchStopMode(touch) != TouchExpression.STOP_NOTCHES_EVEN) return 0
-    val spec = touchStopSpec(touch) ?: return 0
+    if (touch.stopMode != TouchExpression.STOP_NOTCHES_EVEN) return 0
+    val spec = touch.stopSpec ?: return 0
     return spec.firstOrNull()?.toInt()?.coerceAtLeast(0) ?: 0
 }
 
@@ -72,7 +69,7 @@ internal fun Modifier.scroll(op: ScrollModifierOperation): Modifier {
     // directly.
     val positionId =
         remember(op) {
-            val raw = scrollPosition(op)
+            val raw = op.positionExpression
             if (Utils.isVariable(raw)) Utils.idFromNan(raw) else -1
         }
     if (positionId > 0) {

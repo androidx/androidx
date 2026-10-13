@@ -26,8 +26,6 @@ import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifie
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
-import androidx.compose.remote.player.compose.embedded.dimensionInRawValues
-import androidx.compose.remote.player.compose.embedded.dimensionRawValue
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -44,7 +42,7 @@ internal fun Modifier.height(op: HeightModifierOperation): Modifier {
             // dynamic dimensions) reactively rather than the core-flattened `getValue()`, so
             // time-/animation-/host-driven heights update like normal Compose.
             val behavior = LocalCoreDocument.current.densityBehavior
-            val resolved = rememberRemoteFloatAsState(dimensionRawValue(op)).value
+            val resolved = rememberRemoteFloatAsState(op.rawValue).value
             val heightDp =
                 if (
                     op.type == DimensionModifierOperation.Type.EXACT &&
@@ -68,10 +66,9 @@ internal fun Modifier.height(op: HeightModifierOperation): Modifier {
 internal fun Modifier.heightIn(op: HeightInModifierOperation): Modifier {
     val density = LocalDensity.current.density
     val behavior = LocalCoreDocument.current.densityBehavior
-    val (minDimension, maxDimension) = dimensionInRawValues(op)
     val heightMinDp =
-        rememberRemoteFloatAsState(minDimension).value.constraintDimensionToDp(behavior, density)
+        rememberRemoteFloatAsState(op.rawMin).value.constraintDimensionToDp(behavior, density)
     val heightMaxDp =
-        rememberRemoteFloatAsState(maxDimension).value.constraintDimensionToDp(behavior, density)
+        rememberRemoteFloatAsState(op.rawMax).value.constraintDimensionToDp(behavior, density)
     return this.heightIn(heightMinDp, heightMaxDp)
 }

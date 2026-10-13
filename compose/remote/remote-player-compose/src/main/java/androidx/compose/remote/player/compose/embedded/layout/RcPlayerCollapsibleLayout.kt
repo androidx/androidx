@@ -31,10 +31,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOp
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
-import androidx.compose.remote.player.compose.embedded.horizontalPositioning
 import androidx.compose.remote.player.compose.embedded.rawDimensionDp
-import androidx.compose.remote.player.compose.embedded.sortWithPriorities
-import androidx.compose.remote.player.compose.embedded.verticalPositioning
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
@@ -147,7 +144,9 @@ internal fun RcPlayerCollapsible(
 
         // Only sort by CollapsiblePriority when at least one child defines a priority modifier;
         // otherwise collapse in document order, matching CollapsibleRowLayout.java.
-        val visitOrder = if (hasPriorities) sortWithPriorities(children, orientation) else children
+        val visitOrder =
+            if (hasPriorities) CollapsiblePriority.sortWithPriorities(children, orientation)
+            else children
         val kept = BooleanArray(n)
         var usedUnweighted = 0
         var keptCount = 0

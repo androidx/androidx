@@ -25,7 +25,6 @@ import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOp
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.rawDimensionDp
-import androidx.compose.remote.player.compose.embedded.readData
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -38,11 +37,10 @@ import androidx.compose.ui.platform.LocalDensity
 @get:Composable
 private val BorderModifierOperation.color: Color
     get() {
-        val data = readData()
-        if (data.useColorId) {
-            return rememberRemoteColorAsState(data.colorId).value
+        if (useColorId) {
+            return rememberRemoteColorAsState(colorId).value
         }
-        return Color(data.r, data.g, data.b, data.a)
+        return Color(r, g, b, a)
     }
 
 @Composable
@@ -54,11 +52,10 @@ internal fun Modifier.border(op: BorderModifierOperation): Modifier {
     // BorderModifierOperation.paint: a plain rectangle, a circle, or a rounded rectangle.
     val density = LocalDensity.current.density
     val behavior = LocalCoreDocument.current.densityBehavior
-    val data = op.readData()
-    val width = rememberRemoteFloatAsState(data.borderWidth).value
-    val corner = rememberRemoteFloatAsState(data.roundedCorner).value
+    val width = rememberRemoteFloatAsState(op.borderWidth).value
+    val corner = rememberRemoteFloatAsState(op.roundedCorner).value
     val shape: Shape =
-        when (data.shapeType) {
+        when (op.shapeType) {
             ShapeType.RECTANGLE -> RectangleShape
             ShapeType.CIRCLE -> CircleShape
             else -> RoundedCornerShape(rawDimensionDp(corner, behavior, density))
