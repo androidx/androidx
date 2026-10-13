@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
@@ -114,6 +115,17 @@ class DocumentPainterRule(val canvasSize: Float = DefaultCanvasSize) : TestRule 
     fun captureBytes(content: @Composable @RemoteComposable () -> Unit): ByteArray = runBlocking {
         captureSingleRemoteDocument(context = context, content = content).bytes
     }
+
+    /** Captures [content] into a Remote Compose document, without rendering it. */
+    fun captureDocument(content: @Composable @RemoteComposable () -> Unit): CoreDocument =
+        runBlocking {
+            captureRule.captureDocument(
+                context = context,
+                creationDisplayInfo =
+                    createCreationDisplayInfo(context, Size(canvasSize, canvasSize)),
+                content = content,
+            )
+        }
 
     /**
      * Drives the embedded [RcPlayer] rendering [state], advancing the Compose test clock and
