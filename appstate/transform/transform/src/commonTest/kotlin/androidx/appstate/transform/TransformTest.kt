@@ -16,6 +16,7 @@
 
 package androidx.appstate.transform
 
+import androidx.appstate.transform.testing.transformTest
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,24 +24,20 @@ import androidx.compose.runtime.setValue
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.runTest
 
-@IgnoreAndroidHostTest // Runs on all targets EXCEPT AndroidHost; still runs on AndroidDevice.
-@OptIn(ExperimentalCoroutinesApi::class)
 class TransformTest {
 
     @Test
-    fun testBasicTransform() = runTest {
+    fun testBasicTransform() = transformTest {
         val state = transform(initialValue = 0, backgroundScope, dispatcher = testDispatcher) { 1 }
         assertThat(state.value).isEqualTo(1)
     }
 
     @Test
-    fun testStateUpdate() = runTest {
+    fun testStateUpdate() = transformTest {
         var sourceState by mutableStateOf(0)
         val state =
             transform(initialValue = 0, scope = backgroundScope, dispatcher = testDispatcher) {
@@ -50,13 +47,13 @@ class TransformTest {
         assertThat(state.value).isEqualTo(0)
 
         sourceState = 1
-        runRecomposition()
+        advance()
 
         assertThat(state.value).isEqualTo(1)
     }
 
     @Test
-    fun testCancellation() = runTest {
+    fun testCancellation() = transformTest {
         val childScope =
             CoroutineScope(
                 backgroundScope.coroutineContext +
@@ -69,19 +66,19 @@ class TransformTest {
         assertThat(state.value).isEqualTo(0)
 
         sourceState = 1
-        runRecomposition()
+        advance()
         assertThat(state.value).isEqualTo(1)
 
         childScope.cancel()
 
         sourceState = 2
-        runRecomposition()
+        advance()
         // Should still be 1 because the scope was cancelled.
         assertThat(state.value).isEqualTo(1)
     }
 
     @Test
-    fun testSingleStateFlowToState() = runTest {
+    fun testSingleStateFlowToState() = transformTest {
         val flow = MutableStateFlow(0)
         val state =
             transform(initialValue = -1, scope = backgroundScope, dispatcher = testDispatcher) {
@@ -91,12 +88,12 @@ class TransformTest {
         assertThat(state.value).isEqualTo(0)
 
         flow.value = 1
-        runRecomposition()
+        advance()
         assertThat(state.value).isEqualTo(1)
     }
 
     @Test
-    fun testMultipleStateFlowsToState() = runTest {
+    fun testMultipleStateFlowsToState() = transformTest {
         val flow1 = MutableStateFlow(1)
         val flow2 = MutableStateFlow(2)
         val flow3 = MutableStateFlow(3)
@@ -112,12 +109,12 @@ class TransformTest {
         assertThat(state.value).isEqualTo(6)
 
         flow1.value = 10
-        runRecomposition()
+        advance()
         assertThat(state.value).isEqualTo(15)
 
         flow2.value = 20
         flow3.value = 30
-        runRecomposition()
+        advance()
         assertThat(state.value).isEqualTo(60)
     }
 }
