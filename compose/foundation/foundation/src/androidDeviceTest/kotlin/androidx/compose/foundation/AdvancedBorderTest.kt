@@ -64,6 +64,7 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -395,16 +396,9 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
         }
     }
 
-    /**
-     * b/546074983 - for [Outline.Rectangle] the current behavior of border ignores the outline
-     * bounds and always draws within the layout bounds of the border. This is a bug, but it's a
-     * pre-existing behavior that will be a very destructive breaking change for existing callers.
-     *
-     * This test exists to ensure we don't accidentally change the current behavior. We may want to
-     * consider changing this in the future, if we can do so safely.
-     */
     @Test
-    fun border_rectangleOutline_ignoresOutlineBounds() {
+    fun border_rectangleOutline_respectsOutlineBounds() {
+        Assume.assumeTrue(ComposeFoundationFlags.isNewBorderImplementationEnabled)
         val fixedRectOutlineShape =
             object : Shape {
                 override fun createOutline(
@@ -424,25 +418,19 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
             }
         }
 
-        // The outline bounds are ignored, so this should just render a 4px border around the full
-        // 40x40 layout bounds.
-        val inset = IntRect(4, 4, 36, 36)
+        // This should draw a 4px rectangle starting at (10,10)
+        val outlineBounds = IntRect(10, 10, 30, 30)
+        val inset = IntRect(14, 14, 26, 26)
         rule.onNodeWithTag(testTag).captureToImage().assertPixels(IntSize(40, 40)) { pos ->
-            if (inset.contains(pos)) Color.Blue else Color.Red
+            // Inside the border, and outside the bounds of the border should be blue. The border
+            // should be red.
+            if (outlineBounds.contains(pos) && !inset.contains(pos)) Color.Red else Color.Blue
         }
     }
 
-    /**
-     * b/546074983 - for simple (all corner radii equal) [Outline.Rounded] the current behavior of
-     * border ignores the outline bounds and always draws within the layout bounds of the border.
-     * This is a bug, but it's a pre-existing behavior that will be a very destructive breaking
-     * change for existing callers.
-     *
-     * This test exists to ensure we don't accidentally change the current behavior. We may want to
-     * consider changing this in the future, if we can do so safely.
-     */
     @Test
-    fun border_simpleRoundedOutline_ignoresOutlineBounds() {
+    fun border_simpleRoundedOutline_respectsOutlineBounds() {
+        Assume.assumeTrue(ComposeFoundationFlags.isNewBorderImplementationEnabled)
         val fixedSimpleRoundedOutlineShape =
             object : Shape {
                 override fun createOutline(
@@ -466,15 +454,17 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
             }
         }
 
-        // The outline bounds are ignored, so this should just render a 4px border around the full
-        // 40x40 layout bounds.
-        val inset = IntRect(4, 4, 36, 36)
+        // This should draw a 4px rounded rectangle starting at (10,10)
+        val outlineBounds = IntRect(10, 10, 30, 30)
+        val inset = IntRect(14, 14, 26, 26)
         rule.onNodeWithTag(testTag).captureToImage().assertPixels(IntSize(40, 40)) { pos ->
-            val inCornerSquare = (pos.x !in 8..<32) && (pos.y !in 8..<32)
-            val inExtremeCorner = (pos.x !in 2..<38) && (pos.y !in 2..<38)
+            val inCornerSquare = (pos.x !in 18..<22) && (pos.y !in 18..<22)
+            val inExtremeCorner = (pos.x !in 12..<28) && (pos.y !in 12..<28)
             when {
-                // The extreme corner pixels of the layout lie outside the rounded corners of the
-                // ring, so they show the background
+                // Outside the bounds of the border should be blue
+                !outlineBounds.contains(pos) -> Color.Blue
+                // The extreme corner pixels of the outline lie outside the rounded corners of
+                // the ring, so they show the background
                 inExtremeCorner -> Color.Blue
                 // Ignore the corner due to antialiasing
                 inCornerSquare -> null
@@ -488,8 +478,7 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
 
     /**
      * Border should respect the outline bounds when using [Outline.Rounded], with a non-simple
-     * (different corner radii) outline that starts at (0,0). This is in contrast to the behavior
-     * for some other outlines, but this behavior is correct.
+     * (different corner radii) outline that starts at (0,0).
      *
      * This test case is separate from
      * [border_nonSimpleRoundedOutline_nonZeroOffsetOriginOutline_respectsOutlineBounds], which is
@@ -537,8 +526,7 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
 
     /**
      * Border should respect the outline bounds when using [Outline.Rounded], with a non-simple
-     * (different corner radii) outline that does _not_ start at (0,0). This is in contrast to the
-     * behavior for some other outlines, but this behavior is correct.
+     * (different corner radii) outline that does _not_ start at (0,0).
      *
      * This test case is separate from
      * [border_nonSimpleRoundedOutline_zeroOffsetOriginOutline_respectsOutlineBounds], which is the
@@ -590,10 +578,6 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
         }
     }
 
-    /**
-     * Border should respect the outline size when using [Outline.Generic]. This is in contrast to
-     * the behavior for some other outlines, but this behavior is correct.
-     */
     @Test
     fun border_outlineGeneric_respectsOutlineSize() {
         val fixedGenericOutlineShape =

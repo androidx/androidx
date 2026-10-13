@@ -163,6 +163,7 @@ package androidx.compose.foundation {
     property public boolean isBasicTextFieldMinSizeOptimizationEnabled;
     property public boolean isBasicTextFieldSizeOptimizationEnabled;
     property public boolean isBasicTextFieldStyledTextEnabled;
+    property public boolean isBorderMatchesOutlineBoundsFixEnabled;
     property public boolean isCacheWindowForPagerEnabled;
     property public boolean isCacheWindowLookaheadCheckEnabled;
     property public boolean isDragNodeOffsetDoubleCountingFixEnabled;
@@ -196,6 +197,7 @@ package androidx.compose.foundation {
     field public static boolean isBasicTextFieldMinSizeOptimizationEnabled;
     field public static boolean isBasicTextFieldSizeOptimizationEnabled;
     field public static boolean isBasicTextFieldStyledTextEnabled;
+    field public static boolean isBorderMatchesOutlineBoundsFixEnabled;
     field public static boolean isCacheWindowForPagerEnabled;
     field public static boolean isCacheWindowLookaheadCheckEnabled;
     field public static boolean isDragNodeOffsetDoubleCountingFixEnabled;
