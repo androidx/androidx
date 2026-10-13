@@ -70,7 +70,8 @@ Write a clear commit message, placing all tags in a contiguous block at the end:
 - **Subject**: Concise imperative summary (<100 characters).
 - **Body**: Explain *why* changes were made (rationale/background).
 - **`Test:` tag (REQUIRED)**: State exact test command (e.g. `Test: ./gradlew :compose:ui:ui:connectedAndroidTest -P...`) or `Test: markdown file change only`. **NEVER** use `none` or `N/A`.
-- **`Bug:` / `Fixes:` tag**: Buganizer integer ID (e.g. `Fixes: 484057256`).
+- **`Bug:` / `Fixes:` tag (Optional)**: Numeric Buganizer issue ID (e.g. `Bug: <BUG_ID>` or `Fixes: <BUG_ID>`). If there is no associated bug, ask the developer if there is one, offer to create one, but don't force the issue.
+  - **Verify Relevance**: Always look up any `Bug:` or `Fixes:` ID in Buganizer to confirm the issue exists and is relevant to the current change, removing stale tags from unrelated commits. Never invent, guess, or hallucinate bug numbers.
 - **`Relnote:` tag**: Required for release artifact changes under `src/main/` or `src/commonMain/`. Use `Relnote: "Description"` or `Relnote: N/A`.
 - **`Change-Id:` tag**: Generated automatically on first commit in standard Git checkouts via `commit-msg` hook. In CoG workspaces `Change-Id` is also added automatically. **NEVER modify or remove `Change-Id` when amending.**
 
@@ -84,7 +85,7 @@ when item animations are playing.
 
 Test: ./gradlew :compose:foundation:foundation:connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=androidx.compose.foundation.lazy.LazyColumnAnimationTest
 Relnote: Improved performance of LazyColumn animations by reducing redundant recompositions.
-Fixes: 298765432
+Fixes: <BUG_ID>
 Change-Id: Iabcdef1234567890abcdef1234567890abcdef12345
 ```
 
@@ -97,6 +98,7 @@ Change-Id: Iabcdef1234567890abcdef1234567890abcdef12345
   - **One Logical Change Per Commit**: Keep each Gerrit change focused on a single logical change.
   - **Addressing Review Feedback**: Use `git commit --amend` (in git). Do not create new commits for feedback or presubmit fixes.
   - **Preserve `Change-Id`**: Always keep the exact `Change-Id` line when amending.
+  - **Check Bugs on All CLs Being Uploaded**: Before uploading or publishing any CL (or stack of CLs), inspect the commit message of each CL being uploaded and check any `Bug:` or `Fixes:` tag in Buganizer to ensure the bug exists, is relevant to that specific CL's changes, and is not a hallucinated or leftover number.
 
 - **Workflow A: Standard Git Checkout**
   - **New Commit**: `git commit -m "{commit_message}"`
