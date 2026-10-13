@@ -20,8 +20,13 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Typeface
 import android.text.SpannableString
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -29,8 +34,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -81,6 +90,196 @@ class VerticalTextTest {
         assertThat(semanticsText.getStringAnnotations(0, semanticsText.length))
             .isEqualTo(annotated.getStringAnnotations(0, annotated.length))
     }
+
+    @Test
+    fun heightInMax_wrapsToContentHeight() {
+        val style = VerticalTextStyle(fontSize = 20.sp)
+        var measuredSize = IntSize.Zero
+        var maxHeightPx = 0
+        var expectedContentHeight = 0f
+
+        rule.setContent {
+            val density = LocalDensity.current
+            maxHeightPx = with(density) { 400.dp.roundToPx() }
+            expectedContentHeight =
+                VerticalTextLayoutCache()
+                    .getLayout(
+                        text = "あいう",
+                        height = maxHeightPx,
+                        orientation = TextOrientation.Mixed,
+                        style = style,
+                        typeface = Typeface.DEFAULT,
+                        density = density,
+                    )
+                    .contentHeight
+            VerticalText(
+                text = "あいう",
+                modifier = Modifier.maxHeight(maxHeightPx).onSizeChanged { measuredSize = it },
+                style = style,
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(measuredSize.height).isGreaterThan(0)
+            assertThat(measuredSize.height).isEqualTo(ceil(expectedContentHeight).toInt())
+            assertThat(measuredSize.height).isLessThan(maxHeightPx)
+        }
+    }
+
+    @Test
+    fun heightInMin_coercesToMinHeight() {
+        val style = VerticalTextStyle(fontSize = 20.sp)
+        var measuredSize = IntSize.Zero
+        var minHeightPx = 0
+        var expectedContentHeight = 0f
+
+        rule.setContent {
+            val density = LocalDensity.current
+            minHeightPx = with(density) { 200.dp.roundToPx() }
+            val maxHeightPx = with(density) { 400.dp.roundToPx() }
+            expectedContentHeight =
+                VerticalTextLayoutCache()
+                    .getLayout(
+                        text = "あ",
+                        height = maxHeightPx,
+                        orientation = TextOrientation.Mixed,
+                        style = style,
+                        typeface = Typeface.DEFAULT,
+                        density = density,
+                    )
+                    .contentHeight
+            VerticalText(
+                text = "あ",
+                modifier =
+                    Modifier.minMaxHeight(minHeightPx, maxHeightPx).onSizeChanged {
+                        measuredSize = it
+                    },
+                style = style,
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(ceil(expectedContentHeight).toInt()).isLessThan(minHeightPx)
+            assertThat(measuredSize.height).isEqualTo(minHeightPx)
+        }
+    }
+
+    @Test
+    fun unboundedHeight_doesNotCrash() {
+        val style = VerticalTextStyle(fontSize = 20.sp)
+        var childSize = IntSize.Zero
+        var expectedHeight = 0
+
+        rule.setContent {
+            val density = LocalDensity.current
+            expectedHeight =
+                ceil(
+                        VerticalTextLayoutCache()
+                            .getLayout(
+                                text = "あいう",
+                                height = Constraints.Infinity,
+                                orientation = TextOrientation.Mixed,
+                                style = style,
+                                typeface = Typeface.DEFAULT,
+                                density = density,
+                            )
+                            .contentHeight
+                    )
+                    .toInt()
+            Layout(content = { VerticalText(text = "あいう", style = style) }) {
+                measurables,
+                constraints ->
+                val placeable =
+                    measurables
+                        .single()
+                        .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
+                childSize = IntSize(placeable.width, placeable.height)
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(childSize.height).isGreaterThan(0)
+            assertThat(childSize.height).isEqualTo(expectedHeight)
+        }
+    }
+
+    @Test
+    fun fixedHeight_keepsMaxHeight() {
+        val style = VerticalTextStyle(fontSize = 20.sp)
+        var measuredSize = IntSize.Zero
+        var fixedHeightPx = 0
+
+        rule.setContent {
+            val density = LocalDensity.current
+            fixedHeightPx = with(density) { 200.dp.roundToPx() }
+            VerticalText(
+                text = "あいう",
+                modifier = Modifier.fixedHeight(fixedHeightPx).onSizeChanged { measuredSize = it },
+                style = style,
+            )
+        }
+
+        rule.runOnIdle { assertThat(measuredSize.height).isEqualTo(fixedHeightPx) }
+    }
+
+    @Test
+    fun clip_doesNotCutLastGlyph() {
+        val style = VerticalTextStyle(color = Color.Black, fontSize = 20.sp)
+        var measuredSize = IntSize.Zero
+        var maxHeightPx = 0
+        var expectedLayout: VerticalTextLayout? = null
+
+        rule.setContent {
+            val density = LocalDensity.current
+            maxHeightPx = with(density) { 400.dp.roundToPx() }
+            expectedLayout =
+                VerticalTextLayoutCache()
+                    .getLayout(
+                        text = "あいう",
+                        height = maxHeightPx,
+                        orientation = TextOrientation.Mixed,
+                        style = style,
+                        typeface = Typeface.DEFAULT,
+                        density = density,
+                    )
+            VerticalText(
+                text = "あいう",
+                modifier = Modifier.maxHeight(maxHeightPx).onSizeChanged { measuredSize = it },
+                style = style,
+                overflow = TextOverflow.Clip,
+            )
+        }
+
+        rule.runOnIdle {
+            val layout = checkNotNull(expectedLayout)
+            val expectedContentHeight = layout.contentHeight
+            assertThat(measuredSize.height).isEqualTo(ceil(expectedContentHeight).toInt())
+            assertThat(measuredSize.height.toFloat()).isAtLeast(expectedContentHeight)
+            assertThat(measuredSize.height).isLessThan(maxHeightPx)
+            val fullPixels = layout.countColorPixels(Color.Black.toArgb(), maxHeightPx)
+            val wrappedPixels = layout.countColorPixels(Color.Black.toArgb(), measuredSize.height)
+            assertThat(wrappedPixels).isGreaterThan(0)
+            assertThat(wrappedPixels).isEqualTo(fullPixels)
+        }
+    }
+}
+
+private fun Modifier.maxHeight(maxHeightPx: Int): Modifier = layout { measurable, constraints ->
+    val placeable = measurable.measure(constraints.copy(minHeight = 0, maxHeight = maxHeightPx))
+    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+}
+
+private fun Modifier.minMaxHeight(minHeightPx: Int, maxHeightPx: Int): Modifier =
+    layout { measurable, constraints ->
+        val placeable =
+            measurable.measure(constraints.copy(minHeight = minHeightPx, maxHeight = maxHeightPx))
+        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+    }
+
+private fun Modifier.fixedHeight(heightPx: Int): Modifier = layout { measurable, constraints ->
+    val placeable = measurable.measure(constraints.copy(minHeight = heightPx, maxHeight = heightPx))
+    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
 }
 
 @MediumTest

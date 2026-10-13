@@ -19,10 +19,38 @@ package androidx.text.vertical.compose
 import android.graphics.Typeface
 import android.os.LocaleList
 import android.text.TextPaint
+import androidx.annotation.RestrictTo
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
+
+/**
+ * Converts this [TextStyle] into a [VerticalTextStyle].
+ *
+ * Copies [TextStyle.color], [TextStyle.fontSize], [TextStyle.fontWeight], [TextStyle.fontStyle],
+ * [TextStyle.fontSynthesis], [TextStyle.fontFamily], [TextStyle.fontFeatureSettings],
+ * [TextStyle.background], and [TextStyle.localeList]. Ignores unsupported properties such as
+ * [TextStyle.brush], [TextStyle.textDecoration], [TextStyle.shadow], [TextStyle.letterSpacing], and
+ * paragraph styles.
+ *
+ * @return a [VerticalTextStyle] with the supported properties from this [TextStyle]
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+// TODO(b/571750156): Remove @RestrictTo in 1.1.0-alpha01
+public fun TextStyle.toVerticalTextStyle(): VerticalTextStyle =
+    VerticalTextStyle(
+        color = color,
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        fontStyle = fontStyle,
+        fontSynthesis = fontSynthesis,
+        fontFamily = fontFamily,
+        fontFeatureSettings = fontFeatureSettings,
+        background = background,
+        localeList = localeList,
+    )
 
 /**
  * Resets [out] and applies [style] and [typeface] to it using [density].
