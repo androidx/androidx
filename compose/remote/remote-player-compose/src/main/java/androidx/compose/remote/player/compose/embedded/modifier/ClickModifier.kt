@@ -312,9 +312,9 @@ private fun applyClickAction(
         }
         // Host callback (id only; HostActionOperation carries no value).
         is HostActionOperation -> onAction(action.actionId, null)
-        // Host callback with metadata, resolved to the current value of its text.
+        // Host callback with a metadata text, as the View player's IdActionCallback receives.
         is HostActionMetadataOperation ->
-            onAction(action.actionId, remoteContext.getText(action.metadataId))
+            onAction(action.actionId, remoteContext.getText(action.metadataId) ?: "")
         // Named host action (what the public hostAction(name, value) authors): resolve the name
         // and the typed value, then notify the host.
         is HostNamedActionOperation -> {
