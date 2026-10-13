@@ -427,13 +427,24 @@ internal class BackupRestoreControllerImpl(
     }
 
     /**
-     * Returns the installed APK paths of the app and of the other packages whose name contains its
-     * application ID, such as its test APK, or null if none of them is installed.
+     * Returns the installed APK paths of the app, of the other packages whose name contains its
+     * application ID, such as its test APK, and of the other packages with an instrumentation that
+     * targets the app, or null if none of them is installed.
      *
      * The paths change whenever one of these packages is installed again.
      */
-    suspend fun installedApkPaths(): List<String>? =
-        shell.listPackagePaths(applicationId).ifEmpty { null }
+    suspend fun installedApkPaths(): List<String>? {
+        val otherTestPackages =
+            shell
+                .listInstrumentations(applicationId)
+                .map { it.substringBefore('/') }
+                .filterNot { it.contains(applicationId) }
+                .distinct()
+        val paths =
+            shell.listPackagePaths(applicationId) +
+                otherTestPackages.flatMap { shell.listPackagePaths(it) }
+        return paths.distinct().sorted().ifEmpty { null }
+    }
 
     /** Turns the screen on and dismisses the keyguard. */
     suspend fun wakeAndDismissKeyguard() {

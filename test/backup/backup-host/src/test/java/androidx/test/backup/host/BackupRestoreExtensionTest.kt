@@ -16,6 +16,8 @@
 
 package androidx.test.backup.host
 
+import androidx.test.backup.host.BackupRestoreExtension.DeviceRequest
+import androidx.test.backup.host.BackupRestoreExtension.OnlineDevice
 import com.android.adblib.AdbSession
 import java.io.File
 import java.lang.reflect.Method
@@ -27,6 +29,7 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -59,6 +62,13 @@ class BackupRestoreExtensionTest {
 
     @Suppress("UNUSED_PARAMETER")
     private fun deviceAfterDirMethod(dir: Path, device: BackupRestoreController) {}
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun rolesMethod(
+        @Device(role = "source") source: BackupRestoreController,
+        dir: Path,
+        @Device(role = "target") target: BackupRestoreController,
+    ) {}
 
     @Isolation(IsolationPolicy.MANUAL) private fun manuallyIsolatedMethod() {}
 
@@ -312,6 +322,213 @@ class BackupRestoreExtensionTest {
         verify(session, never()).close()
     }
 
+    /** JUnit 5.13 and later close a stored [AutoCloseable], and warn about other resources. */
+    @Test
+    fun aStandaloneSessionCanBeClosedAsAnAutoCloseable() {
+        val session = mock(AdbSession::class.java)
+        BackupRestoreExtension(isStandalone = true) { session }.sessionFor(context)
+
+        val stored = rootStore.storedValues.single()
+        assertIs<CloseableResource>(stored)
+        assertIs<AutoCloseable>(stored).close()
+
+        verify(session).close()
+    }
+
+    @Test
+    fun aRoleIsBoundToTheDeviceThatItsPropertyNames() =
+        withDeviceProperties(
+            "$SERIAL_PROPERTY.source" to "emulator-5556",
+            "$SERIAL_PROPERTY.target" to "emulator-5554",
+            "${SERIAL_PROPERTY}s" to "emulator-5554,emulator-5556",
+        ) {
+            val extension = BackupRestoreExtension()
+
+            // The binding takes precedence over the order of the parameters.
+            assertEquals("emulator-5556", extension.requestedSerial(Device(role = "source"), 0))
+            assertEquals("emulator-5554", extension.requestedSerial(Device(role = "target"), 1))
+        }
+
+    @Test
+    fun aRoleWithoutABindingKeepsTheOrderOfTheParameters() =
+        withDeviceProperties("${SERIAL_PROPERTY}s" to "emulator-5554,emulator-5556") {
+            val extension = BackupRestoreExtension()
+
+            assertEquals("emulator-5554", extension.requestedSerial(Device(role = "source"), 0))
+            assertEquals("emulator-5556", extension.requestedSerial(Device(role = "target"), 1))
+            assertEquals("", extension.requestedSerial(Device(role = "other"), 2))
+        }
+
+    @Test
+    fun theBindingOfTheRoleTakesPrecedenceOverThatOfTheSerial() =
+        withDeviceProperties(
+            "$SERIAL_PROPERTY.source" to "emulator-5556",
+            "$SERIAL_PROPERTY.primary" to "emulator-5554",
+        ) {
+            assertEquals(
+                "emulator-5556",
+                BackupRestoreExtension()
+                    .requestedSerial(Device(role = "source", serial = "primary"), 0),
+            )
+        }
+
+    /** A serial can also be a name that a property binds, or else it is a literal serial. */
+    @Test
+    fun aSerialIsBoundToTheDeviceThatItsPropertyNames() =
+        withDeviceProperties("$SERIAL_PROPERTY.target" to "emulator-5556") {
+            val extension = BackupRestoreExtension()
+
+            assertEquals("emulator-5556", extension.requestedSerial(Device(serial = "target"), 0))
+            assertEquals(
+                "emulator-5554",
+                extension.requestedSerial(Device(serial = "emulator-5554"), 0),
+            )
+        }
+
+    @Test
+    fun theGlobalSerialAppliesToEveryParameterWithoutABinding() =
+        withDeviceProperties(SERIAL_PROPERTY to "emulator-5556") {
+            val extension = BackupRestoreExtension()
+
+            assertEquals("emulator-5556", extension.requestedSerial(null, 0))
+            assertEquals("emulator-5556", extension.requestedSerial(Device(role = "target"), 1))
+        }
+
+    @Test
+    fun theApiLevelsAreAssignedInTheOrderOfTheParameters() =
+        withDeviceProperties("$DEVICE_PROPERTY.apis" to "34,35") {
+            val extension = BackupRestoreExtension()
+
+            assertEquals(34, extension.requestedApi(null, 0))
+            assertEquals(35, extension.requestedApi(Device(api = 31), 1))
+            assertEquals(31, extension.requestedApi(Device(api = 31), 2))
+        }
+
+    @Test
+    fun theControllerParametersGetTheOnlineDevicesInTheOrderOfTheirSerialNumbers() {
+        assertEquals(
+            listOf(SERIAL_1, SERIAL_2),
+            BackupRestoreExtension()
+                .assignDevices(
+                    listOf(DeviceRequest("", 0), DeviceRequest("", 0)),
+                    listOf(OnlineDevice(SERIAL_2, 34), OnlineDevice(SERIAL_1, 34)),
+                ),
+        )
+    }
+
+    @Test
+    fun aDeviceThatAParameterAsksForIsNotAssignedToAnotherParameter() {
+        val extension = BackupRestoreExtension()
+        val devices = listOf(OnlineDevice(SERIAL_1, 34), OnlineDevice(SERIAL_2, 34))
+
+        assertEquals(
+            listOf(SERIAL_2, SERIAL_1),
+            extension.assignDevices(
+                listOf(DeviceRequest(SERIAL_2, 0), DeviceRequest("", 0)),
+                devices,
+            ),
+        )
+        assertEquals(
+            listOf(SERIAL_2, SERIAL_1),
+            extension.assignDevices(
+                listOf(DeviceRequest("", 0), DeviceRequest(SERIAL_1, 0)),
+                devices,
+            ),
+        )
+    }
+
+    @Test
+    fun aParameterDoesNotGetTheDeviceOfAnEarlierParameterWithAnApiLevel() {
+        assertEquals(
+            listOf(SERIAL_2, SERIAL_1),
+            BackupRestoreExtension()
+                .assignDevices(
+                    listOf(DeviceRequest("", 34), DeviceRequest("", 0)),
+                    listOf(OnlineDevice(SERIAL_1, 33), OnlineDevice(SERIAL_2, 34)),
+                ),
+        )
+    }
+
+    @Test
+    fun parametersShareTheFirstDeviceThatMatchesThemWhenTooFewDevicesMatch() {
+        val extension = BackupRestoreExtension()
+        val devices = listOf(OnlineDevice(SERIAL_1, 34))
+
+        assertEquals(
+            listOf(SERIAL_1, SERIAL_1),
+            extension.assignDevices(listOf(DeviceRequest("", 0), DeviceRequest("", 0)), devices),
+        )
+        assertEquals(
+            listOf(SERIAL_1, SERIAL_1),
+            extension.assignDevices(
+                listOf(DeviceRequest(SERIAL_1, 0), DeviceRequest("", 0)),
+                devices,
+            ),
+        )
+    }
+
+    @Test
+    fun aParameterThatNoOnlineDeviceMatchesGetsNoDevice() {
+        assertEquals(
+            listOf(null, null, null, SERIAL_1),
+            BackupRestoreExtension()
+                .assignDevices(
+                    listOf(
+                        DeviceRequest(SERIAL_2, 0),
+                        DeviceRequest("", 35),
+                        DeviceRequest(SERIAL_1, 35),
+                        DeviceRequest("", 0),
+                    ),
+                    listOf(OnlineDevice(SERIAL_1, 34)),
+                ),
+        )
+    }
+
+    @Test
+    fun theMessageForAParameterThatNoDeviceMatchesNamesItsRequestAndRole() {
+        val extension = BackupRestoreExtension()
+        val devices = listOf(OnlineDevice(SERIAL_1, 34), OnlineDevice(SERIAL_2, 33))
+
+        assertEquals(
+            "Could not find any online devices matching requirements: API=0, " +
+                "Serial='emulator-5558' (role 'target'). " +
+                "Available devices: [emulator-5554 (API 34), emulator-5556 (API 33)]",
+            extension.noMatchingDeviceMessage(DeviceRequest("emulator-5558", 0), "target", devices),
+        )
+        assertEquals(
+            "Could not find any online devices matching requirements: API=35, Serial=''. " +
+                "Available devices: [emulator-5554 (API 34), emulator-5556 (API 33)]",
+            extension.noMatchingDeviceMessage(DeviceRequest("", 35), "", devices),
+        )
+    }
+
+    /** Binding one role must not give the device of that role to the other one as well. */
+    @Test
+    fun aRoleWithoutABindingGetsAnotherDeviceThanABoundRole() =
+        withDeviceProperties("$SERIAL_PROPERTY.source" to SERIAL_2) {
+            val extension = BackupRestoreExtension()
+            val method =
+                BackupRestoreExtensionTest::class
+                    .java
+                    .getDeclaredMethod(
+                        "rolesMethod",
+                        BackupRestoreController::class.java,
+                        Path::class.java,
+                        BackupRestoreController::class.java,
+                    )
+
+            val requests = extension.deviceRequestsOf(method)
+
+            assertEquals(listOf(DeviceRequest(SERIAL_2, 0), DeviceRequest("", 0)), requests)
+            assertEquals(
+                listOf(SERIAL_2, SERIAL_1),
+                extension.assignDevices(
+                    requests,
+                    listOf(OnlineDevice(SERIAL_1, 34), OnlineDevice(SERIAL_2, 34)),
+                ),
+            )
+        }
+
     @Test
     fun installOnceInstallsTheApksOnTheFirstResolution() = runBlocking {
         simulatePackageManager()
@@ -480,6 +697,10 @@ class BackupRestoreExtensionTest {
     private class FakeStore : ExtensionContext.Store {
         private val values = LinkedHashMap<Any, Any?>()
 
+        /** The values in this store, in order of insertion. */
+        val storedValues: Collection<Any?>
+            get() = values.values
+
         /** Closes the stored resources in reverse order of insertion, like JUnit. */
         fun closeAll() {
             values.values.reversed().filterIsInstance<CloseableResource>().forEach { it.close() }
@@ -510,6 +731,36 @@ class BackupRestoreExtensionTest {
 
     private companion object {
         const val PACKAGE = "com.example.app"
+
+        /** Serial numbers of online devices, in sorted order. */
+        const val SERIAL_1 = "emulator-5554"
+        const val SERIAL_2 = "emulator-5556"
+
+        /** Prefix of the system properties that select devices. */
+        const val DEVICE_PROPERTY = "androidx.test.backup.device"
+
+        /** System property with the serial number of every device, or prefix of a binding. */
+        const val SERIAL_PROPERTY = "$DEVICE_PROPERTY.serial"
+
+        /**
+         * Runs [block] with only the device selection system [properties], and then restores the
+         * device selection properties that were set before, such as from the command line.
+         */
+        fun withDeviceProperties(vararg properties: Pair<String, String>, block: () -> Unit) {
+            val previous =
+                System.getProperties()
+                    .stringPropertyNames()
+                    .filter { it.startsWith(DEVICE_PROPERTY) }
+                    .associateWith { System.getProperty(it) }
+            try {
+                previous.keys.forEach { System.clearProperty(it) }
+                properties.forEach { (name, value) -> System.setProperty(name, value) }
+                block()
+            } finally {
+                properties.forEach { (name, _) -> System.clearProperty(name) }
+                previous.forEach { (name, value) -> System.setProperty(name, value) }
+            }
+        }
 
         /** The package of the test APK, which AGP names after the app. */
         const val TEST_PACKAGE = "$PACKAGE.test"
