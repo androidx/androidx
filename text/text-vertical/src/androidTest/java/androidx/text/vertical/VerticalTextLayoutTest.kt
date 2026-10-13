@@ -19,8 +19,11 @@ package androidx.text.vertical
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Build
+import android.text.SpannableString
+import android.text.Spanned
 import android.text.TextPaint
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -75,6 +78,77 @@ class VerticalTextLayoutTest {
         val layout = VerticalTextLayout(text, 0, text.length, PAINT, 30f)
         assertThat(layout.lineCount).isGreaterThan(0)
         assertThat(layout.width).isGreaterThan(0f)
+    }
+
+    @Test
+    fun getLineHeight_singleColumn_equalsSumOfAdvances() {
+        val text = "吾輩は猫である。"
+        val layout = VerticalTextLayout(text, 0, text.length, PAINT, 1000f)
+        assertThat(layout.lineCount).isEqualTo(1)
+        val expectedAdvance = PAINT.measureTextVertical(text, 0, text.length)
+        assertThat(layout.getLineHeight(0)).isWithin(1e-3f).of(expectedAdvance)
+        assertThat(layout.contentHeight).isWithin(1e-3f).of(layout.getLineHeight(0))
+    }
+
+    @Test
+    fun getLineHeight_multiColumn_maxEqualsContentHeight() {
+        val text = "吾輩は猫である。名前はまだ無い。"
+        val layout = VerticalTextLayout(text, 0, text.length, PAINT, 30f)
+        assertThat(layout.lineCount).isGreaterThan(1)
+        for (i in 0 until layout.lineCount) {
+            assertThat(layout.getLineHeight(i)).isGreaterThan(0f)
+            assertThat(layout.getLineHeight(i)).isAtMost(30f)
+        }
+        assertThat(layout.getLineHeight(0))
+            .isGreaterThan(layout.getLineHeight(layout.lineCount - 1))
+        val maxLineHeight = (0 until layout.lineCount).maxOf { layout.getLineHeight(it) }
+        assertThat(layout.contentHeight).isWithin(1e-3f).of(maxLineHeight)
+    }
+
+    @Test
+    fun columnWidth_matchesUniformLineWidth() {
+        val text =
+            SpannableString("吾輩は猫である。名前はまだ無い。").apply {
+                setSpan(RubySpan("わがはい"), 0, 2, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
+        val layout = VerticalTextLayout(text, 0, text.length, PAINT, 30f)
+        assertThat(layout.lineCount).isGreaterThan(1)
+        assertThat(layout.columnWidth).isWithin(1e-3f).of(1.5f * PAINT.textSize)
+        assertThat(layout.width).isWithin(1e-3f).of(layout.columnWidth * layout.lineCount)
+    }
+
+    @Test
+    fun getLineStart_and_getLineEnd_matchColumnBoundaries() {
+        val prefix = "PREFIX_"
+        val body = "吾輩は猫である。名前はまだ無い。"
+        val suffix = "_SUFFIX"
+        val fullText = prefix + body + suffix
+        val start = prefix.length
+        val end = start + body.length
+        val layout = VerticalTextLayout(fullText, start, end, PAINT, 30f)
+        assertThat(layout.lineCount).isGreaterThan(1)
+        assertThat(layout.getLineStart(0)).isEqualTo(start)
+        assertThat(layout.getLineEnd(layout.lineCount - 1)).isEqualTo(end)
+        for (i in 0 until layout.lineCount - 1) {
+            assertThat(layout.getLineEnd(i)).isGreaterThan(layout.getLineStart(i))
+            assertThat(layout.getLineEnd(i)).isEqualTo(layout.getLineStart(i + 1))
+        }
+    }
+
+    @Test
+    fun lineMetrics_outOfBounds_throwsIndexOutOfBoundsException() {
+        val text = "吾輩は猫である。"
+        val layout = VerticalTextLayout(text, 0, text.length, PAINT, 1000f)
+        assertThrows(IndexOutOfBoundsException::class.java) { layout.getLineHeight(-1) }
+        assertThrows(IndexOutOfBoundsException::class.java) {
+            layout.getLineHeight(layout.lineCount)
+        }
+        assertThrows(IndexOutOfBoundsException::class.java) { layout.getLineStart(-1) }
+        assertThrows(IndexOutOfBoundsException::class.java) {
+            layout.getLineStart(layout.lineCount)
+        }
+        assertThrows(IndexOutOfBoundsException::class.java) { layout.getLineEnd(-1) }
+        assertThrows(IndexOutOfBoundsException::class.java) { layout.getLineEnd(layout.lineCount) }
     }
 
     @Test
