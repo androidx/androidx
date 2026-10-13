@@ -112,7 +112,6 @@ import kotlinx.coroutines.launch
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -7356,9 +7355,7 @@ class AndroidPointerInputTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPan_relayoutDuringPan_doesNotDispatchDuplicatePanMove() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
         var showChild by mutableStateOf(true)
         val parentEvents = mutableListOf<Pair<PointerEventType, Offset>>()
         val latch = CountDownLatch(1)

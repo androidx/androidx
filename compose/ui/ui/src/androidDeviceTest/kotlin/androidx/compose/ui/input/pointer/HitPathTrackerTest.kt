@@ -88,7 +88,6 @@ import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertEquals
 import kotlinx.coroutines.asCoroutineDispatcher
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -3433,9 +3432,7 @@ class HitPathTrackerTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPan_hoverExitAndPruned_childScrolledOffScreen() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
         val log = mutableListOf<LogEntry>()
         val parentLayoutNode = LayoutNode(0, 0, 100, 100).also { it.attach(MockOwner()) }
 
@@ -3570,9 +3567,7 @@ class HitPathTrackerTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPan_hoverTransitionToHoverAndMove() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
         val log = mutableListOf<LogEntry>()
         val parentLayoutNode = LayoutNode(0, 0, 100, 100).also { it.attach(MockOwner()) }
 
@@ -3781,9 +3776,7 @@ class HitPathTrackerTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPan_preservesPanEvents_whenNodeInBounds() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
         val log = mutableListOf<LogEntry>()
         val parentLayoutNode = LayoutNode(0, 0, 100, 100).also { it.attach(MockOwner()) }
 
@@ -4047,9 +4040,7 @@ class HitPathTrackerTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPan_preservesPanEvents_whenNodeExitsBounds() {
-        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
         val log = mutableListOf<LogEntry>()
         val parentLayoutNode = LayoutNode(0, 0, 100, 100).also { it.attach(MockOwner()) }
 
@@ -4176,186 +4167,92 @@ class HitPathTrackerTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class)
-    fun trackpadPan_doesNotDispatchEnter_whenFlagDisabled() {
-        val originalFlag = ComposeUiFlags.isTrackpadPanHoverFixEnabled
-        try {
-            ComposeUiFlags.isTrackpadPanHoverFixEnabled = false
-            val log = mutableListOf<LogEntry>()
-            val parentLayoutNode = LayoutNode(0, 0, 100, 100).also { it.attach(MockOwner()) }
-
-            val childCoordinates = LayoutCoordinatesStub(true, IntSize(100, 100))
-            childCoordinates.setPosition(0, 0)
-            childCoordinates.layoutNode.measurePolicy =
-                object : LayoutNode.NoIntrinsicsMeasurePolicy("stub") {
-                    override fun androidx.compose.ui.layout.MeasureScope.measure(
-                        measurables: List<androidx.compose.ui.layout.Measurable>,
-                        constraints: Constraints,
-                    ): androidx.compose.ui.layout.MeasureResult =
-                        layout(100, 100) {
-                            measurables.forEach { it.measure(constraints).place(0, 0) }
-                        }
-                }
-            childCoordinates.layoutNode.attach(parentLayoutNode.owner!!)
-            parentLayoutNode.owner!!.measureAndLayout(
-                childCoordinates.layoutNode,
-                Constraints.fixed(100, 100),
-            )
-
-            val childNode = PointerInputNodeMock(log = log, coordinator = childCoordinates)
-            val pointerId = PointerId(0)
-
-            // 1. Initial hit path setup
-            hitPathTracker.addHitPath(pointerId, listOf(childNode))
-
-            // 2. Dispatch PanStart event (pointer at 10, 10)
-            val panStartEvent =
-                PointerInputEvent(
-                    uptime = 10L,
-                    pointers =
-                        listOf(
-                            PointerInputEventData(
-                                id = pointerId,
-                                uptime = 10L,
-                                positionOnScreen = Offset(10f, 10f),
-                                position = Offset(10f, 10f),
-                                down = false,
-                                pressure = 0f,
-                                type = PointerType.Mouse,
-                                activeHover = false,
-                                historical = emptyList(),
-                                scaleGestureFactor = 0f,
-                                panGestureOffset = Offset.Zero,
-                            )
-                        ),
-                    motionEvent =
-                        createPanMotionEvent(android.view.MotionEvent.ACTION_DOWN, 10f, 10f),
-                    activeGesture = PointerClassification.Pan,
-                )
-            val startChanges =
-                androidx.collection.LongSparseArray<PointerInputChange>(1).apply {
-                    put(
-                        pointerId.value,
-                        PointerInputChange(
-                            id = pointerId,
-                            uptimeMillis = 10L,
-                            position = Offset(10f, 10f),
-                            pressed = false,
-                            previousUptimeMillis = 0L,
-                            previousPosition = Offset(10f, 10f),
-                            previousPressed = false,
-                            isInitiallyConsumed = false,
-                            type = PointerType.Mouse,
-                            scrollDelta = Offset.Zero,
-                        ),
-                    )
-                }
-            val internalPanStartEvent = InternalPointerEvent(startChanges, panStartEvent)
-            hitPathTracker.dispatchChanges(internalPanStartEvent)
-
-            // Assert child node received only Press event (no synthetic Enter)
-            assertHoverEvent(log, childNode to PointerEventType.Press)
-        } finally {
-            ComposeUiFlags.isTrackpadPanHoverFixEnabled = originalFlag
-        }
-    }
-
-    @Test
-    @OptIn(ExperimentalComposeUiApi::class)
     fun trackpadPan_syntheticHoverConsumption_doesNotMutatePanChanges() {
-        val originalFlag = ComposeUiFlags.isTrackpadPanHoverFixEnabled
-        try {
-            ComposeUiFlags.isTrackpadPanHoverFixEnabled = true
+        val log = mutableListOf<LogEntry>()
+        val parentLayoutNode = LayoutNode(0, 0, 100, 100).also { it.attach(MockOwner()) }
+        val rootCoordinates = parentLayoutNode.nodes.innerCoordinator
+        val hitPathTracker = HitPathTracker(rootCoordinates)
 
-            val log = mutableListOf<LogEntry>()
-            val parentLayoutNode = LayoutNode(0, 0, 100, 100).also { it.attach(MockOwner()) }
-            val rootCoordinates = parentLayoutNode.nodes.innerCoordinator
-            val hitPathTracker = HitPathTracker(rootCoordinates)
+        val childCoordinates = LayoutCoordinatesStub(true, IntSize(100, 100))
+        childCoordinates.setPosition(0, 0)
+        childCoordinates.layoutNode.measurePolicy =
+            object : LayoutNode.NoIntrinsicsMeasurePolicy("stub") {
+                override fun androidx.compose.ui.layout.MeasureScope.measure(
+                    measurables: List<androidx.compose.ui.layout.Measurable>,
+                    constraints: Constraints,
+                ): androidx.compose.ui.layout.MeasureResult =
+                    layout(100, 100) {
+                        measurables.forEach { it.measure(constraints).place(0, 0) }
+                    }
+            }
+        childCoordinates.layoutNode.attach(parentLayoutNode.owner!!)
+        parentLayoutNode.owner!!.measureAndLayout(
+            childCoordinates.layoutNode,
+            Constraints.fixed(100, 100),
+        )
 
-            val childCoordinates = LayoutCoordinatesStub(true, IntSize(100, 100))
-            childCoordinates.setPosition(0, 0)
-            childCoordinates.layoutNode.measurePolicy =
-                object : LayoutNode.NoIntrinsicsMeasurePolicy("stub") {
-                    override fun androidx.compose.ui.layout.MeasureScope.measure(
-                        measurables: List<androidx.compose.ui.layout.Measurable>,
-                        constraints: Constraints,
-                    ): androidx.compose.ui.layout.MeasureResult =
-                        layout(100, 100) {
-                            measurables.forEach { it.measure(constraints).place(0, 0) }
-                        }
-                }
-            childCoordinates.layoutNode.attach(parentLayoutNode.owner!!)
-            parentLayoutNode.owner!!.measureAndLayout(
-                childCoordinates.layoutNode,
-                Constraints.fixed(100, 100),
+        // A child node that consumes on synthetic Enter events
+        val childNode =
+            PointerInputNodeMock(
+                log = log,
+                coordinator = childCoordinates,
+                pointerEventHandler = { pointerEvent, pass, _ ->
+                    if (
+                        pointerEvent.type == PointerEventType.Enter &&
+                            pass == PointerEventPass.Final
+                    ) {
+                        pointerEvent.changes.forEach { it.consume() }
+                    }
+                },
             )
+        val pointerId = PointerId(0)
 
-            // A child node that consumes on synthetic Enter events
-            val childNode =
-                PointerInputNodeMock(
-                    log = log,
-                    coordinator = childCoordinates,
-                    pointerEventHandler = { pointerEvent, pass, _ ->
-                        if (
-                            pointerEvent.type == PointerEventType.Enter &&
-                                pass == PointerEventPass.Final
-                        ) {
-                            pointerEvent.changes.forEach { it.consume() }
-                        }
-                    },
-                )
-            val pointerId = PointerId(0)
+        hitPathTracker.addHitPath(pointerId, listOf(childNode))
 
-            hitPathTracker.addHitPath(pointerId, listOf(childNode))
+        val panStartEvent =
+            PointerInputEvent(
+                uptime = 10L,
+                pointers =
+                    listOf(
+                        PointerInputEventData(
+                            id = pointerId,
+                            uptime = 10L,
+                            positionOnScreen = Offset(10f, 10f),
+                            position = Offset(10f, 10f),
+                            down = false,
+                            pressure = 0f,
+                            type = PointerType.Mouse,
+                            activeHover = false,
+                            historical = emptyList(),
+                            scaleGestureFactor = 0f,
+                            panGestureOffset = Offset.Zero,
+                        )
+                    ),
+                motionEvent = createPanMotionEvent(android.view.MotionEvent.ACTION_DOWN, 10f, 10f),
+                activeGesture = PointerClassification.Pan,
+            )
+        val originalChange =
+            PointerInputChange(
+                id = pointerId,
+                uptimeMillis = 10L,
+                position = Offset(10f, 10f),
+                pressed = false,
+                previousUptimeMillis = 0L,
+                previousPosition = Offset(10f, 10f),
+                previousPressed = false,
+                isInitiallyConsumed = false,
+                type = PointerType.Mouse,
+                scrollDelta = Offset.Zero,
+            )
+        val startChanges =
+            androidx.collection.LongSparseArray<PointerInputChange>(1).apply {
+                put(pointerId.value, originalChange)
+            }
+        val internalPanStartEvent = InternalPointerEvent(startChanges, panStartEvent)
+        hitPathTracker.dispatchChanges(internalPanStartEvent)
 
-            val panStartEvent =
-                PointerInputEvent(
-                    uptime = 10L,
-                    pointers =
-                        listOf(
-                            PointerInputEventData(
-                                id = pointerId,
-                                uptime = 10L,
-                                positionOnScreen = Offset(10f, 10f),
-                                position = Offset(10f, 10f),
-                                down = false,
-                                pressure = 0f,
-                                type = PointerType.Mouse,
-                                activeHover = false,
-                                historical = emptyList(),
-                                scaleGestureFactor = 0f,
-                                panGestureOffset = Offset.Zero,
-                            )
-                        ),
-                    motionEvent =
-                        createPanMotionEvent(android.view.MotionEvent.ACTION_DOWN, 10f, 10f),
-                    activeGesture = PointerClassification.Pan,
-                )
-            val originalChange =
-                PointerInputChange(
-                    id = pointerId,
-                    uptimeMillis = 10L,
-                    position = Offset(10f, 10f),
-                    pressed = false,
-                    previousUptimeMillis = 0L,
-                    previousPosition = Offset(10f, 10f),
-                    previousPressed = false,
-                    isInitiallyConsumed = false,
-                    type = PointerType.Mouse,
-                    scrollDelta = Offset.Zero,
-                )
-            val startChanges =
-                androidx.collection.LongSparseArray<PointerInputChange>(1).apply {
-                    put(pointerId.value, originalChange)
-                }
-            val internalPanStartEvent = InternalPointerEvent(startChanges, panStartEvent)
-            hitPathTracker.dispatchChanges(internalPanStartEvent)
-
-            // Assert that consuming the synthetic Enter event did not mutate the primary change
-            assertThat(originalChange.isConsumed).isFalse()
-        } finally {
-            ComposeUiFlags.isTrackpadPanHoverFixEnabled = originalFlag
-        }
+        // Assert that consuming the synthetic Enter event did not mutate the primary change
+        assertThat(originalChange.isConsumed).isFalse()
     }
 }
 

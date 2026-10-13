@@ -218,10 +218,9 @@ internal class MotionEventAdapter {
         // enter/exit events will still always reset the state to ensure transitions are
         // handled correctly.
         val shouldResetHover =
-            ComposeUiFlags.isTrackpadPanHoverFixEnabled &&
-                (action == ACTION_HOVER_ENTER ||
-                    action == ACTION_HOVER_EXIT ||
-                    (action == ACTION_HOVER_MOVE && !isAnyPointerDown)) &&
+            (action == ACTION_HOVER_ENTER ||
+                action == ACTION_HOVER_EXIT ||
+                (action == ACTION_HOVER_MOVE && !isAnyPointerDown)) &&
                 (Build.VERSION.SDK_INT < 34 ||
                     (motionEvent.classification != MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE &&
                         motionEvent.classification != MotionEvent.CLASSIFICATION_PINCH))
@@ -230,7 +229,7 @@ internal class MotionEventAdapter {
             resetFakeFingerGesture()
         }
 
-        if (ComposeUiFlags.isTrackpadPanHoverFixEnabled && Build.VERSION.SDK_INT >= 34) {
+        if (Build.VERSION.SDK_INT >= 34) {
             if (motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE) {
                 isTrackpadPanOngoing = true
             } else if (motionEvent.classification == MotionEvent.CLASSIFICATION_PINCH) {
@@ -283,12 +282,8 @@ internal class MotionEventAdapter {
         // events where the OS does not report the classification.
         val isSwipe =
             Build.VERSION.SDK_INT >= 34 &&
-                if (ComposeUiFlags.isTrackpadPanHoverFixEnabled) {
-                    motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE ||
-                        isTrackpadPanOngoing
-                } else {
-                    motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                }
+                (motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE ||
+                    isTrackpadPanOngoing)
         val isPinch =
             Build.VERSION.SDK_INT >= 34 &&
                 motionEvent.classification == MotionEvent.CLASSIFICATION_PINCH
@@ -358,17 +353,11 @@ internal class MotionEventAdapter {
         }
 
         val activeGesture =
-            if (ComposeUiFlags.isTrackpadPanHoverFixEnabled && isTrackpadPanOngoing) {
+            if (isTrackpadPanOngoing) {
                 PointerClassification.Pan
             } else if (Build.VERSION.SDK_INT >= 34) {
                 when (motionEvent.classification) {
-                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE -> {
-                        if (ComposeUiFlags.isTrackpadPanHoverFixEnabled) {
-                            PointerClassification.Pan
-                        } else {
-                            PointerClassification.None
-                        }
-                    }
+                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE -> PointerClassification.Pan
                     MotionEvent.CLASSIFICATION_PINCH -> PointerClassification.Pinch
                     MotionEvent.CLASSIFICATION_AMBIGUOUS_GESTURE -> PointerClassification.Ambiguous
                     MotionEvent.CLASSIFICATION_DEEP_PRESS -> PointerClassification.DeepPress
@@ -379,8 +368,7 @@ internal class MotionEventAdapter {
             }
         val isHoverExit = motionEvent.actionMasked == ACTION_HOVER_EXIT
         val isTrackpadPanExit =
-            ComposeUiFlags.isTrackpadPanHoverFixEnabled &&
-                isHoverExit &&
+            isHoverExit &&
                 (Build.VERSION.SDK_INT < 34 ||
                     motionEvent.classification != MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
 
@@ -632,7 +620,6 @@ internal class MotionEventAdapter {
      *   [rawPositionOverride] has no effect. Currently we have no usages of a non-null
      *   `rawPositionOverride` on Android P and below, so that case can't be reached.
      */
-    @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
     private fun createPointerInputEventData(
         positionCalculator: PositionCalculator,
         motionEvent: MotionEvent,
@@ -691,14 +678,8 @@ internal class MotionEventAdapter {
                     val originalEventPosition = Offset(x, y) // hit path will convert to local
                     val isPan =
                         Build.VERSION.SDK_INT >= 34 &&
-                            if (ComposeUiFlags.isTrackpadPanHoverFixEnabled) {
-                                motionEvent.classification ==
-                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE ||
-                                    isTrackpadPanOngoing
-                            } else {
-                                motionEvent.classification ==
-                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                            }
+                            (motionEvent.classification ==
+                                MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE || isTrackpadPanOngoing)
 
                     val historicalChange =
                         HistoricalChange(
@@ -780,12 +761,8 @@ internal class MotionEventAdapter {
         /** The offset for scrolling, expressed as a delta in pixel coordinates. */
         val isPan =
             Build.VERSION.SDK_INT >= 34 &&
-                if (ComposeUiFlags.isTrackpadPanHoverFixEnabled) {
-                    motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE ||
-                        isTrackpadPanOngoing
-                } else {
-                    motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                }
+                (motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE ||
+                    isTrackpadPanOngoing)
         val gesturePanOffset =
             if (Build.VERSION.SDK_INT >= 29 && isPan) {
                 Offset(
