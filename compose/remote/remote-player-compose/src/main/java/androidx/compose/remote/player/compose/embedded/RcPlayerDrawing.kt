@@ -234,7 +234,12 @@ private fun DrawScope.executeOperationsInPass(
     var mainCanvas: Canvas? = null
     operations.fastForEach { op ->
         remoteContext.incrementOpCount()
-        if (op is VariableSupport && op !is TouchExpression) {
+        if (
+            op is VariableSupport &&
+                op !is TouchExpression &&
+                op !is LoopOperation &&
+                op !is ConditionalOperations
+        ) {
             op.updateVariables(read)
         }
         when (op) {
@@ -319,8 +324,7 @@ private fun DrawScope.executeOperationsInPass(
             is ConditionalOperations -> {
                 // Conditional draw: resolve the two operands, compare per type, and draw the child
                 // ops only when the condition holds. Mirrors ConditionalOperations.paint.
-                op.updateVariables(read)
-                val data = op.readData()
+                val data = op.readData(read)
                 val a = data.varAOut
                 val b = data.varBOut
                 val run =
@@ -347,8 +351,7 @@ private fun DrawScope.executeOperationsInPass(
                 // list
                 // once per iteration, loading the index variable each pass. Mirrors
                 // LoopOperation.paint, with a hard iteration cap as an infinite-loop backstop.
-                op.updateVariables(read)
-                val data = op.readData()
+                val data = op.readData(read)
                 val from = data.fromOut
                 val until = data.untilOut
                 val step = data.stepOut
