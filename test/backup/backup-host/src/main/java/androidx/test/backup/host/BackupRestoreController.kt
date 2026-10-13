@@ -132,7 +132,8 @@ public interface BackupRestoreController : AutoCloseable {
      * @param outputDir directory where the backup archive is saved
      * @param timeout maximum duration to wait for the backup to complete. When it expires, the app
      *   is force-stopped and the backup fails with an [IOException]. Must be positive.
-     * @return path to the generated backup archive
+     * @return path to the generated backup archive. A [BackupTransportMode.LOCAL] archive only
+     *   marks the backup, whose data stays on the device.
      * @throws IOException if the backup operation fails, or the app does not allow backups
      * @throws IllegalArgumentException if [timeout] is not positive
      */
@@ -150,7 +151,8 @@ public interface BackupRestoreController : AutoCloseable {
      * @param timeout maximum duration to wait for the restore to complete. When it expires, the app
      *   is force-stopped and the restore fails with an [IOException]. Must be positive.
      * @return this controller instance
-     * @throws IOException if the restore operation fails
+     * @throws IOException if the restore operation fails, or [backupFile] is a
+     *   [BackupTransportMode.LOCAL] archive of another app or of another device
      * @throws IllegalArgumentException if [timeout] is not positive
      */
     @Throws(IOException::class)
