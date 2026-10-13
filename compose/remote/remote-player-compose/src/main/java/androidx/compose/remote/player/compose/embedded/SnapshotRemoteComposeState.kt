@@ -20,7 +20,10 @@ package androidx.compose.remote.player.compose.embedded
 
 import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 
 /**
@@ -42,6 +45,12 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
     private val overriddenIntegers: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
     private val overriddenColors: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
     private val overriddenData: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
+
+    /**
+     * Whether trusted document content such as embedded `FontData` and AGSL `ShaderData` is
+     * permitted to load.
+     */
+    internal var trustedContent: Boolean by mutableStateOf(false)
 
     /**
      * Re-entrancy depth for [withOpCountReset], matching the lifecycle of `RemoteContext.mOpCount`.
