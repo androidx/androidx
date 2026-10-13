@@ -2795,7 +2795,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                     handleRotaryEvent(motionEvent)
                 } else if (
                     motionEvent.source == InputDevice.SOURCE_UNKNOWN &&
-                        ComposeUiFlags.isHardwareNavigationHandlingEnabled
+                        AndroidComposeUiFlags.isHardwareNavigationHandlingEnabled
                 ) {
                     // TODO(b/520330616): Move this block to proper dispatching callback.
                     handleRotaryFocusNavigationEvent(motionEvent)
