@@ -24,10 +24,13 @@ import com.android.adblib.isOnline
 import com.android.adblib.serialNumber
 import com.android.adblib.tools.createStandaloneSession
 import java.io.File
+import java.lang.reflect.Executable
 import java.lang.reflect.Modifier
 import java.lang.reflect.Parameter
 import java.util.Properties
 import java.util.logging.Logger
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
@@ -140,54 +143,26 @@ internal constructor(
         val applicationId = applicationIdFor(requiredClass, suiteProperties)
         val adbSession = sessionFor(extensionContext)
         val deviceIndex = parameterContext?.let { deviceIndexOf(it) } ?: 0
-
-        val deviceAnnotation = parameterContext?.parameter?.getAnnotation(Device::class.java)
-        val requestedSerial = run {
-            val annotationSerial = deviceAnnotation?.serial ?: ""
-            if (annotationSerial.isNotEmpty()) {
-                val keyed = System.getProperty("$PROP_DEVICE_SERIAL_PREFIX$annotationSerial")
-                if (!keyed.isNullOrEmpty()) return@run keyed
-            }
-            val serialsProp = System.getProperty(PROP_DEVICE_SERIALS)
-            if (!serialsProp.isNullOrEmpty()) {
-                val list = serialsProp.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                if (deviceIndex < list.size) {
-                    return@run list[deviceIndex]
-                }
-            }
-            val global = System.getProperty(PROP_DEVICE_SERIAL)
-            if (!global.isNullOrEmpty()) return@run global
-            annotationSerial
-        }
-        val requestedApi = run {
-            val apisProp = System.getProperty(PROP_DEVICE_APIS)
-            if (!apisProp.isNullOrEmpty()) {
-                val list =
-                    apisProp
-                        .split(",")
-                        .map { it.trim() }
-                        .filter { it.isNotEmpty() }
-                        .mapNotNull { it.toIntOrNull() }
-                if (deviceIndex < list.size) {
-                    return@run list[deviceIndex]
-                }
-            }
-            val globalApiProp = System.getProperty(PROP_DEVICE_API)
-            if (!globalApiProp.isNullOrEmpty()) {
-                val globalApi = globalApiProp.toIntOrNull()
-                if (globalApi != null) return@run globalApi
-            }
-            deviceAnnotation?.api ?: 0
-        }
+        val requests =
+            parameterContext?.let { deviceRequestsOf(it.parameter.declaringExecutable) }
+                ?: listOf(DeviceRequest(requestedSerial(null, 0), requestedApi(null, 0)))
+        val request = requests[deviceIndex]
+        val role = parameterContext?.parameter?.getAnnotation(Device::class.java)?.role.orEmpty()
 
         val devices = runBlocking {
-            withTimeoutOrNull(ADB_TIMEOUT_MS) {
-                adbSession.connectedDevicesTracker.connectedDevices.first { list ->
-                    list.any { it.isOnline }
+            val connected =
+                withTimeoutOrNull(ADB_TIMEOUT_MS) {
+                    adbSession.connectedDevicesTracker.connectedDevices.first { list ->
+                        list.any { it.isOnline }
+                    }
+                } ?: emptyList()
+            connected
+                .filter { it.isOnline }
+                .map { device ->
+                    async { OnlineDevice(device.serialNumber, device.deviceProperties().api(0)) }
                 }
-            } ?: emptyList()
+                .awaitAll()
         }
-            .filter { it.isOnline }
 
         if (devices.isEmpty()) {
             val errorMsg = "No online Android devices or emulators were detected via ADB."
@@ -195,44 +170,28 @@ internal constructor(
             throw IllegalStateException(errorMsg)
         }
 
-        // Filter devices based on annotation qualifiers
-        val matchingDevices =
-            devices
-                .filter { device ->
-                    val serialMatches =
-                        requestedSerial.isEmpty() || device.serialNumber == requestedSerial
-                    val apiMatches =
-                        requestedApi == 0 ||
-                            runBlocking { device.deviceProperties().api(0) } == requestedApi
-                    serialMatches && apiMatches
-                }
-                .sortedBy { it.serialNumber } // Deterministic sorting alphanumerically by serial
-
-        if (matchingDevices.isEmpty()) {
-            val available =
-                devices
-                    .map { d ->
-                        val api = runBlocking { d.deviceProperties().api(0) }
-                        "${d.serialNumber} (API $api)"
-                    }
-                    .joinToString(", ")
-            val errorMsg =
-                "Could not find any online devices matching requirements: API=$requestedApi, Serial='$requestedSerial'. " +
-                    "Available devices: [$available]"
+        val assignedSerials = assignDevices(requests, devices)
+        val serial = assignedSerials[deviceIndex]
+        if (serial == null) {
+            val errorMsg = noMatchingDeviceMessage(request, role, devices)
             extensionContext.reportPreconditionFailure(BackupErrorCode.NO_MATCHING_DEVICE, errorMsg)
             throw IllegalStateException(errorMsg)
         }
-
-        // Resolve the matching device (default to distributing them over the controller parameters
-        // if multiple devices match)
-        val selectedDevice =
-            if (requestedSerial.isEmpty() && deviceIndex < matchingDevices.size) {
-                matchingDevices[deviceIndex]
-            } else {
-                matchingDevices.first()
-            }
-        val serial = selectedDevice.serialNumber
-        val api = runBlocking { selectedDevice.deviceProperties().api(0) }
+        // A parameter without a serial number shares a device only when every device that
+        // matches it is bound to, or already taken by, another parameter.
+        if (
+            request.serialNumber.isEmpty() &&
+                (requests.any { it.serialNumber == serial } ||
+                    serial in assignedSerials.take(deviceIndex))
+        ) {
+            logger.warning(
+                "Controller parameter $deviceIndex" +
+                    (if (role.isNotEmpty()) " (role '$role')" else "") +
+                    " shares device $serial with another controller parameter, since no other " +
+                    "online device matches it."
+            )
+        }
+        val api = devices.first { it.serialNumber == serial }.api
 
         if (api < MIN_REQUIRED_API) {
             val errorMsg =
@@ -280,6 +239,105 @@ internal constructor(
     }
 
     /**
+     * Returns the devices that the [BackupRestoreController] parameters of [executable] ask for, in
+     * the order of the parameters.
+     */
+    internal fun deviceRequestsOf(executable: Executable): List<DeviceRequest> =
+        executable.parameters
+            .filter { isController(it) }
+            .mapIndexed { index, parameter ->
+                val device = parameter.getAnnotation(Device::class.java)
+                DeviceRequest(requestedSerial(device, index), requestedApi(device, index))
+            }
+
+    /**
+     * Returns the serial numbers of the [devices] assigned to [requests], in the order of
+     * [requests], or null for a request that no device matches.
+     *
+     * A request for a serial number gets the device with that serial number. Each other request, in
+     * order, gets the first device by serial number that matches it and that no other request asks
+     * for or got before it. When every device that matches a request is taken, it gets the first
+     * one, which it then shares.
+     */
+    internal fun assignDevices(
+        requests: List<DeviceRequest>,
+        devices: List<OnlineDevice>,
+    ): List<String?> {
+        val sortedDevices = devices.sortedBy { it.serialNumber }
+        val taken = requests.map { it.serialNumber }.filterTo(HashSet()) { it.isNotEmpty() }
+        return requests.map { request ->
+            val matching = sortedDevices.filter { request.matches(it) }
+            val device =
+                if (request.serialNumber.isNotEmpty()) {
+                    matching.firstOrNull()
+                } else {
+                    matching.firstOrNull { it.serialNumber !in taken } ?: matching.firstOrNull()
+                }
+            device?.serialNumber?.also { taken += it }
+        }
+    }
+
+    /**
+     * Returns the failure message for a controller parameter with the role [role] whose [request]
+     * no online device of [devices] matches.
+     */
+    internal fun noMatchingDeviceMessage(
+        request: DeviceRequest,
+        role: String,
+        devices: List<OnlineDevice>,
+    ): String {
+        val available = devices.joinToString(", ") { "${it.serialNumber} (API ${it.api})" }
+        return "Could not find any online devices matching requirements: " +
+            "API=${request.api}, Serial='${request.serialNumber}'" +
+            (if (role.isNotEmpty()) " (role '$role')" else "") +
+            ". Available devices: [$available]"
+    }
+
+    /**
+     * Returns the serial number of the device that the controller parameter at [deviceIndex] with
+     * the annotation [device] asks for, or "" for any device.
+     *
+     * In order of precedence, that is the serial number that `androidx.test.backup.device.serial.`
+     * followed by the role of [device], or by its [Device.serial], binds it to; the one at
+     * [deviceIndex] in `androidx.test.backup.device.serials`; the one in
+     * `androidx.test.backup.device.serial`; and the [Device.serial] of [device].
+     */
+    internal fun requestedSerial(device: Device?, deviceIndex: Int): String {
+        val annotationSerial = device?.serial.orEmpty()
+        for (name in listOf(device?.role.orEmpty(), annotationSerial)) {
+            if (name.isEmpty()) continue
+            val bound = System.getProperty("$PROP_DEVICE_SERIAL_PREFIX$name")
+            if (!bound.isNullOrEmpty()) return bound
+        }
+        val serials = listProperty(PROP_DEVICE_SERIALS)
+        if (deviceIndex < serials.size) return serials[deviceIndex]
+        val global = System.getProperty(PROP_DEVICE_SERIAL)
+        if (!global.isNullOrEmpty()) return global
+        return annotationSerial
+    }
+
+    /**
+     * Returns the API level of the device that the controller parameter at [deviceIndex] with the
+     * annotation [device] asks for, or 0 for any API level.
+     *
+     * In order of precedence, that is the one at [deviceIndex] in
+     * `androidx.test.backup.device.apis`; the one in `androidx.test.backup.device.api`; and the
+     * [Device.api] of [device].
+     */
+    internal fun requestedApi(device: Device?, deviceIndex: Int): Int {
+        val apis = listProperty(PROP_DEVICE_APIS).mapNotNull { it.toIntOrNull() }
+        if (deviceIndex < apis.size) return apis[deviceIndex]
+        System.getProperty(PROP_DEVICE_API)?.toIntOrNull()?.let {
+            return it
+        }
+        return device?.api ?: 0
+    }
+
+    /** Returns the trimmed, non-empty entries of the comma-separated system property [name]. */
+    private fun listProperty(name: String): List<String> =
+        System.getProperty(name).orEmpty().split(",").map { it.trim() }.filter { it.isNotEmpty() }
+
+    /**
      * Returns the isolation policy of a controller provided in [context]: the one that the
      * [Isolation] annotation of its test method names, or else that of its test class.
      *
@@ -295,11 +353,11 @@ internal constructor(
 
     /**
      * Installs [apks] on the device of [controller], unless this test run already installed them
-     * there and neither the app nor its test APK has been installed again or uninstalled since.
+     * there and neither the app nor its test APKs have been installed again or uninstalled since.
      *
      * The installed APK paths identify an installation, since they change on every install. A test
-     * that installs another version of the app or of its test APK, or uninstalls one of them, thus
-     * gets [apks] installed again for the next test.
+     * that installs another version of the app or of one of its test APKs, or uninstalls one of
+     * them, thus gets [apks] installed again for the next test.
      */
     internal suspend fun installOnce(
         context: ExtensionContext,
@@ -392,8 +450,13 @@ internal constructor(
         context.publishReportEntry(BackupReportKeys.ERROR_MESSAGE, errorMessage)
     }
 
-    /** A standalone ADB session, which JUnit closes when the context it is stored in ends. */
-    private class StandaloneSession(val session: AdbSession) : CloseableResource {
+    /**
+     * A standalone ADB session, which JUnit closes when the context it is stored in ends.
+     *
+     * It is [AutoCloseable] as well as a [CloseableResource]: JUnit 5.13 and later close stored
+     * [AutoCloseable] values, and warn about a value that is only a [CloseableResource].
+     */
+    private class StandaloneSession(val session: AdbSession) : CloseableResource, AutoCloseable {
         override fun close() {
             try {
                 session.close()
@@ -410,6 +473,20 @@ internal constructor(
         val applicationId: String,
         val apks: List<File>,
     )
+
+    /**
+     * The device that a [BackupRestoreController] parameter asks for: the one with [serialNumber],
+     * or any device for "", which runs API level [api], or any API level for 0.
+     */
+    internal data class DeviceRequest(val serialNumber: String, val api: Int) {
+        /** Returns whether [device] is a device that this request asks for. */
+        fun matches(device: OnlineDevice): Boolean =
+            (serialNumber.isEmpty() || device.serialNumber == serialNumber) &&
+                (api == 0 || device.api == api)
+    }
+
+    /** An online device with [serialNumber], which runs API level [api]. */
+    internal data class OnlineDevice(val serialNumber: String, val api: Int)
 
     /** Configuration constants and system property keys for device resolution and setup. */
     private companion object {

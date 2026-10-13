@@ -282,6 +282,38 @@ class BackupRestoreControllerImplTest {
         assertTrue(instrumentCommand().endsWith(" $PACKAGE.test/$RUNNER"), instrumentCommand())
     }
 
+    /** The installed paths identify an installation of the app and of its test APKs. */
+    @Test
+    fun installedApkPathsCoverATestApkOutsideThePackagesOfTheApp() = runBlocking {
+        device.onShell { command ->
+            when (command) {
+                "pm list instrumentation $PACKAGE" ->
+                    shellOutput(
+                        "instrumentation:com.example.tests/$RUNNER (target=$PACKAGE)\n" +
+                            "instrumentation:$PACKAGE.test/$RUNNER (target=$PACKAGE)\n"
+                    )
+                "pm list packages -f $PACKAGE" ->
+                    shellOutput(
+                        "package:/data/app/b/base.apk=$PACKAGE.test\n" +
+                            "package:/data/app/a/base.apk=$PACKAGE\n"
+                    )
+                "pm list packages -f com.example.tests" ->
+                    shellOutput("package:/data/app/t/base.apk=com.example.tests\n")
+                else -> null
+            }
+        }
+        val paths =
+            listOf(
+                "package:/data/app/a/base.apk=$PACKAGE",
+                "package:/data/app/b/base.apk=$PACKAGE.test",
+                "package:/data/app/t/base.apk=com.example.tests",
+            )
+
+        assertEquals(paths, controller.installedApkPaths())
+        // The packages of the app already include its test APK.
+        assertTrue(device.commands.none { it == "pm list packages -f $PACKAGE.test" })
+    }
+
     /**
      * Without a runner, the default one is run, so that `am instrument` reports it missing. Every
      * action looks the runner up, so it runs the one installed at that time.
