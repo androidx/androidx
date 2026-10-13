@@ -185,12 +185,12 @@ WINDOW_EXTENSIONS = "1.6.0-alpha01"
 WINDOW_EXTENSIONS_CORE = "1.1.0-alpha01"
 WINDOW_SIDECAR = "1.0.0-rc01"
 WORK = "2.13.0-alpha01"
-XR_ARCORE = "1.1.0-alpha01"
-XR_COMPOSE = "1.0.0-beta02"
+XR_ARCORE = "1.1.0-alpha02"
+XR_COMPOSE = "1.0.0-beta03"
 XR_GLIMMER = "1.0.0-alpha22"
-XR_PROJECTED = "1.0.0-alpha14"
-XR_RUNTIME = "1.1.0-alpha02"
-XR_SCENECORE = "1.1.0-alpha01"
+XR_PROJECTED = "1.0.0-alpha15"
+XR_RUNTIME = "1.1.0-alpha03"
+XR_SCENECORE = "1.1.0-alpha02"
 
 [groups]
 A2UI = { group = "androidx.a2ui", atomicGroupVersion = "versions.A2UI" }
