@@ -726,6 +726,14 @@ class SpatialGltfModelTest {
         assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
             .isWithin(0.001f)
             .of(0.3f)
+
+        // Remove the scale modifier dynamically across recomposition
+        dynamicScale = null
+        composeTestRule.waitForIdle()
+
+        // Verify scale resets back to gltfUniformScale (0.1f)
+        assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
+            .isEqualTo(0.1f)
     }
 
     private fun configureFakeSessionWithModelBoundingBox(
