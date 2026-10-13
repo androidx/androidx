@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input.pointer.util
 
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -29,9 +30,6 @@ import kotlin.math.sqrt
 
 private const val AssumePointerMoveStoppedMilliseconds: Int = 40
 private const val HistorySize: Int = 20
-
-// Minimum number of samples needed to calculate a velocity, for all strategies.
-private const val MinSampleSize: Int = 2
 
 // TODO(b/204895043): Keep value in sync with VelocityPathFinder.HorizonMilliSeconds
 private const val HorizonMilliseconds: Int = 100
@@ -178,6 +176,15 @@ internal constructor(
      */
     public constructor(isDataDifferential: Boolean) : this(isDataDifferential, Strategy.Impulse)
 
+    private val minSampleSize: Int =
+        when (strategy) {
+            Strategy.Impulse -> 2
+            Strategy.Lsq2 -> {
+                @OptIn(ExperimentalComposeUiApi::class)
+                if (ComposeUiFlags.isVelocityTrackerMinSampleSizeFixEnabled) 2 else 3
+            }
+        }
+
     /**
      * A strategy used for velocity calculation. Each strategy has a different philosophy that could
      * result in notably different velocities than the others, so make careful choice or change of
@@ -267,7 +274,7 @@ internal constructor(
             sampleCount += 1
         } while (sampleCount < HistorySize)
 
-        if (sampleCount >= MinSampleSize) {
+        if (sampleCount >= minSampleSize) {
             // Choose computation logic based on strategy.
             return when (strategy) {
                 Strategy.Impulse -> {
