@@ -56,15 +56,6 @@
     </issue>
 
     <issue
-        id="Range"
-        message="Value must be ≥ 0 but `lastIndex` can be -1"
-        errorLine1="                        previousEnds.removeAt(previousEnds.lastIndex)"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/text/AnnotatedString.kt"/>
-    </issue>
-
-    <issue
         id="KotlinRunTestResultUnused"
         message="Result of runTest is ignored."
         errorLine1="        runTest(UnconfinedTestDispatcher()) {"
