@@ -513,4 +513,37 @@ class LineBreakerTest {
             assertThat(it.getLineEnd(6)).isEqualTo(jpStart + 8)
         }
     }
+
+    @Test
+    fun lineBreaker_resultMetrics_heightLineWidthAndLineHeight() {
+        val jpText = "吾輩は猫である。"
+        val text = PREFIX + jpText + SUFFIX
+        val jpStart = PREFIX.length
+        val jpEnd = jpStart + jpText.length
+        val breakText: (Float) -> LineBreaker.Result = { heightConstraint ->
+            LineBreaker.breakTextIntoLines(
+                text,
+                jpStart,
+                jpEnd,
+                PAINT,
+                heightConstraint,
+                TextOrientation.Mixed,
+            )
+        }
+
+        breakText(getVerticalAdvance(jpText)).also {
+            assertThat(it.lineCount).isEqualTo(1)
+            assertThat(it.lineWidth).isWithin(1e-3f).of(EM)
+            assertThat(it.getLineHeight(0)).isWithin(1e-3f).of(getVerticalAdvance(jpText))
+            assertThat(it.height).isWithin(1e-3f).of(it.getLineHeight(0))
+        }
+
+        breakText(getVerticalAdvance(jpText) * 0.9f).also {
+            assertThat(it.lineCount).isEqualTo(2)
+            assertThat(it.lineWidth).isWithin(1e-3f).of(EM)
+            assertThat(it.getLineHeight(0)).isWithin(1e-3f).of(getVerticalAdvance("吾輩は猫であ"))
+            assertThat(it.getLineHeight(1)).isWithin(1e-3f).of(getVerticalAdvance("る。"))
+            assertThat(it.height).isWithin(1e-3f).of(it.getLineHeight(0))
+        }
+    }
 }

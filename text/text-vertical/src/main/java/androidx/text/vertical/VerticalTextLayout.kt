@@ -19,6 +19,7 @@ package androidx.text.vertical
 import android.graphics.Canvas
 import android.text.TextPaint
 import androidx.annotation.Px
+import androidx.annotation.RestrictTo
 
 /**
  * Represents the result of laying out text vertically.
@@ -49,9 +50,61 @@ constructor(
     public val width: Float
         get() = result.width
 
+    /**
+     * Vertical content height in pixels.
+     *
+     * Equals the maximum [getLineHeight] across all [lineCount] lines (columns).
+     */
+    @get:Px
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // TODO(b/571750156): Remove @RestrictTo in 1.1.0-alpha01
+    public val contentHeight: Float
+        get() = result.height
+
+    /** Uniform width in pixels of a single vertical line (column). */
+    @get:Px
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // TODO(b/571750156): Remove @RestrictTo in 1.1.0-alpha01
+    public val columnWidth: Float
+        get() = result.lineWidth
+
     /** The number of lines (columns) in this vertical text layout. */
     public val lineCount: Int
         get() = result.lineCount
+
+    /**
+     * Returns the laid-out height in pixels of the vertical line (column) at [line].
+     *
+     * @param line 0-based line (column) index (`0 <= line <` [lineCount])
+     * @return line (column) height in pixels
+     * @throws IndexOutOfBoundsException if [line] is outside `0 until` [lineCount]
+     */
+    @Px
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // TODO(b/571750156): Remove @RestrictTo in 1.1.0-alpha01
+    public fun getLineHeight(line: Int): Float = result.getLineHeight(line)
+
+    /**
+     * Returns the inclusive start character offset of the vertical line (column) at [line].
+     *
+     * @param line 0-based line (column) index (`0 <= line <` [lineCount])
+     * @return inclusive start character offset in [text]
+     * @throws IndexOutOfBoundsException if [line] is outside `0 until` [lineCount]
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // TODO(b/571750156): Remove @RestrictTo in 1.1.0-alpha01
+    public fun getLineStart(line: Int): Int = result.getLineStart(line)
+
+    /**
+     * Returns the exclusive end character offset of the vertical line (column) at [line].
+     *
+     * @param line 0-based line (column) index (`0 <= line <` [lineCount])
+     * @return exclusive end character offset in [text]
+     * @throws IndexOutOfBoundsException if [line] is outside `0 until` [lineCount]
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // TODO(b/571750156): Remove @RestrictTo in 1.1.0-alpha01
+    public fun getLineEnd(line: Int): Int = result.getLineEnd(line)
 
     private val result: LineBreaker.Result
 
