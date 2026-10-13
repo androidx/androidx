@@ -127,7 +127,20 @@ class PreviewTransformationTest {
         getSensorToViewTransform_returnConcatenatedTransform(FRONT_CAMERA)
     }
 
-    private fun getSensorToViewTransform_returnConcatenatedTransform(isFrontCamera: Boolean) {
+    @Test
+    fun getSensorToViewTransformWithBackCameraMirrored_returnMirroredTransform() {
+        getSensorToViewTransform_returnConcatenatedTransform(BACK_CAMERA, /* mirroring= */ true)
+    }
+
+    @Test
+    fun getSensorToViewTransformWithFrontCameraNotMirrored_returnNonMirroredTransform() {
+        getSensorToViewTransform_returnConcatenatedTransform(FRONT_CAMERA, /* mirroring= */ false)
+    }
+
+    private fun getSensorToViewTransform_returnConcatenatedTransform(
+        useFrontCameraRotation: Boolean,
+        mirroring: Boolean = useFrontCameraRotation,
+    ) {
         // Arrange: set up a SurfaceRequest sensor -> surface transform
         val surfaceSize = Size(640, 480)
         val sensorSize = Size(320, 240)
@@ -145,10 +158,10 @@ class PreviewTransformationTest {
                 ROTATION_0,
                 /*hasCameraTransform=*/ true,
                 sensorToBuffer,
-                /*mirroring=*/ false,
+                /*mirroring=*/ mirroring,
             ),
             surfaceSize,
-            isFrontCamera,
+            useFrontCameraRotation,
         )
 
         // Act: apply the PreviewView size
@@ -158,13 +171,14 @@ class PreviewTransformationTest {
                 LayoutDirection.LTR,
             )
 
-        // Assert: the overall transformation is sensor -> view
+        // Assert: the overall transformation is sensor -> view, mirrored only if the stream is
+        // mirrored regardless of the lens facing.
         val expected =
             getRectToRect(
                 RectF(0f, 0f, sensorSize.width.toFloat(), sensorSize.height.toFloat()),
                 RectF(0f, 0f, viewSize.width.toFloat(), viewSize.height.toFloat()),
                 /*rotationDegrees=*/ 0,
-                /*mirroring=*/ isFrontCamera,
+                /*mirroring=*/ mirroring,
             )
         assertThat(sensorToView).isEqualTo(expected)
     }
@@ -184,7 +198,7 @@ class PreviewTransformationTest {
                 /*mirroring=*/ false,
             ),
             croppedSize,
-            /*isFrontCamera=*/ false,
+            /*useFrontCameraRotation=*/ false,
         )
 
         // Act.
@@ -271,6 +285,54 @@ class PreviewTransformationTest {
             )
     }
 
+    @Test
+    fun correctTextureViewWithNonDefaultMirroring_adds180Degrees() {
+        // With non-default mirroring, the remaining rotation is negated (equivalent to +180
+        // degrees for 90/270), which swaps the ROTATION_90 and ROTATION_270 vertices.
+        val expected90Vertices = getTextureViewCorrection(Surface.ROTATION_270)
+        val expected270Vertices = getTextureViewCorrection(Surface.ROTATION_90)
+        // Back camera with mirroring on.
+        assertThat(
+                getTextureViewCorrection(Surface.ROTATION_90, BACK_CAMERA, /* mirroring= */ true)
+            )
+            .isEqualTo(expected90Vertices)
+        assertThat(
+                getTextureViewCorrection(Surface.ROTATION_270, BACK_CAMERA, /* mirroring= */ true)
+            )
+            .isEqualTo(expected270Vertices)
+        // Front camera with mirroring off.
+        assertThat(
+                getTextureViewCorrection(Surface.ROTATION_90, FRONT_CAMERA, /* mirroring= */ false)
+            )
+            .isEqualTo(expected90Vertices)
+        assertThat(
+                getTextureViewCorrection(Surface.ROTATION_270, FRONT_CAMERA, /* mirroring= */ false)
+            )
+            .isEqualTo(expected270Vertices)
+    }
+
+    @Test
+    fun correctTextureViewWithExternalCamera_usesFrontCameraRotation() {
+        // External cameras use the front camera rotation convention (same as CameraX core) but
+        // are not mirrored by default, so the remaining rotation is negated at 90/270 degrees.
+        assertThat(
+                getTextureViewCorrection(
+                    Surface.ROTATION_90,
+                    /* useFrontCameraRotation= */ true,
+                    /* mirroring= */ false,
+                )
+            )
+            .isEqualTo(getTextureViewCorrection(Surface.ROTATION_270))
+        assertThat(
+                getTextureViewCorrection(
+                    Surface.ROTATION_270,
+                    /* useFrontCameraRotation= */ true,
+                    /* mirroring= */ false,
+                )
+            )
+            .isEqualTo(getTextureViewCorrection(Surface.ROTATION_90))
+    }
+
     private fun getTextureViewCorrection(@RotationValue rotation: Int): IntArray {
         return getTextureViewCorrection(rotation, BACK_CAMERA)
     }
@@ -278,7 +340,8 @@ class PreviewTransformationTest {
     /** Corrects TextureView based on target rotation and return the corrected vertices. */
     private fun getTextureViewCorrection(
         @RotationValue rotation: Int,
-        isFrontCamera: Boolean,
+        useFrontCameraRotation: Boolean,
+        mirroring: Boolean = useFrontCameraRotation,
     ): IntArray {
         // Arrange.
         mPreviewTransform.setTransformationInfo(
@@ -288,10 +351,10 @@ class PreviewTransformationTest {
                 rotation,
                 /*hasCameraTransform=*/ true,
                 /*sensorToBufferTransform=*/ Matrix(),
-                /*mirroring=*/ false,
+                /*mirroring=*/ mirroring,
             ),
             SURFACE_SIZE,
-            isFrontCamera,
+            useFrontCameraRotation,
         )
 
         // Act.
@@ -456,7 +519,7 @@ class PreviewTransformationTest {
                 ARBITRARY_ROTATION,
                 /*hasCameraTransform=*/ true,
                 /*sensorToBufferTransform=*/ Matrix(),
-                /*mirroring=*/ false,
+                /*mirroring=*/ isFrontCamera,
             ),
             FIT_SURFACE_SIZE,
             isFrontCamera,
@@ -528,11 +591,46 @@ class PreviewTransformationTest {
         assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(-100F)
     }
 
+    @Test
+    fun backCameraRotated90Mirrored_transformationIsMirrored() {
+        testOffCenterCropRectMirroring(
+            BACK_CAMERA,
+            CROP_RECT_90,
+            PIVOTED_PREVIEW_VIEW_SIZE,
+            90,
+            /* mirroring= */ true,
+        )
+
+        // Assert:
+        assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(6.666F)
+        assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(15F)
+        assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(0F)
+        assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(-100F)
+    }
+
+    @Test
+    fun frontCameraRotated90NotMirrored_transformationIsNotMirrored() {
+        testOffCenterCropRectMirroring(
+            FRONT_CAMERA,
+            CROP_RECT_90,
+            PIVOTED_PREVIEW_VIEW_SIZE,
+            90,
+            /* mirroring= */ false,
+        )
+
+        // Assert:
+        assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(6.666F)
+        assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(15F)
+        assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(-200F)
+        assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(-100F)
+    }
+
     private fun testOffCenterCropRectMirroring(
-        isFrontCamera: Boolean,
+        useFrontCameraRotation: Boolean,
         cropRect: Rect,
         previewViewSize: Size,
         rotationDegrees: Int,
+        mirroring: Boolean = useFrontCameraRotation,
     ) {
         mPreviewTransform.setTransformationInfo(
             SurfaceRequest.TransformationInfo.of(
@@ -541,10 +639,10 @@ class PreviewTransformationTest {
                 ARBITRARY_ROTATION,
                 /*hasCameraTransform=*/ true,
                 /*sensorToBufferTransform=*/ Matrix(),
-                /*mirroring=*/ false,
+                /*mirroring=*/ mirroring,
             ),
             SURFACE_SIZE,
-            isFrontCamera,
+            useFrontCameraRotation,
         )
         mPreviewTransform.transformView(previewViewSize, LayoutDirection.LTR, mView)
     }
