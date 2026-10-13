@@ -35,20 +35,8 @@ reason = "b/TODO - <reason>"
 
 [[tipOfTreeExemptions]]
 library = ":camera:camera-camera2-pipe-testing"
-dependsOn = ":camera:camera-camera2-pipe"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":camera:camera-camera2-pipe-testing"
-dependsOn = ":camera:camera-common-testing"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[tipOfTreeExemptions]]
-library = ":camera:camera-camera2-pipe-testing"
 dependsOn = ":camera:featurecombinationquery:featurecombinationquery"
-validThroughLibraryVersion = "1.0.0-beta01"
+validThroughLibraryVersion = "1.7.0"
 reason = "b/TODO - <reason>"
 
 [[tipOfTreeExemptions]]
