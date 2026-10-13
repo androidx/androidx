@@ -40,6 +40,9 @@ import androidx.compose.ui.window.DialogProperties
  * dims the background to focus attention on the prompt and displays actions directly below the
  * message.
  *
+ * The dialog container is the surface that holds the [icon], [title], and [text]. The
+ * [confirmButton] and [dismissButton] sit outside the container.
+ *
  * An alert dialog with confirm and dismiss actions:
  *
  * @sample androidx.xr.glimmer.samples.AlertDialogSample
@@ -52,8 +55,6 @@ import androidx.compose.ui.window.DialogProperties
  *   shown and takes focus upon the dialog being opened. This button is placed outside the dialog
  *   container, below it, so [containerShape], [containerColor], [containerContentColor], and
  *   [containerContentPadding] do not apply to it
- * @param text body text providing additional details or explanation for the dialog, placed below
- *   the [title]
  * @param modifier the [Modifier] to be applied to the outer layout containing the dialog container,
  *   [confirmButton], and [dismissButton]
  * @param dismissButton optional button used to dismiss or cancel the alert dialog. This button is
@@ -62,6 +63,8 @@ import androidx.compose.ui.window.DialogProperties
  * @param icon optional icon displayed at the top of the dialog, above the [title]
  * @param title optional title displaying the primary headline of the dialog, placed below the
  *   [icon] and above the [text]
+ * @param text optional body text providing additional details or explanation for the dialog, placed
+ *   below the [title]
  * @param containerShape the [Shape] of the dialog container
  * @param containerColor the background [Color] of the dialog container
  * @param containerContentColor the default [Color] for the [icon], [title], and [text] inside the
@@ -73,11 +76,11 @@ import androidx.compose.ui.window.DialogProperties
 public fun AlertDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
-    text: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     dismissButton: @Composable (() -> Unit)? = null,
     icon: @Composable (() -> Unit)? = null,
     title: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
     containerShape: Shape = AlertDialogDefaults.containerShape,
     containerColor: Color = AlertDialogDefaults.containerColor,
     containerContentColor: Color = AlertDialogDefaults.containerContentColor(containerColor),
@@ -85,7 +88,6 @@ public fun AlertDialog(
 ) {
     Dialog(onDismissRequest = onDismissRequest, properties = AlertDialogProperties) {
         val typography = GlimmerTheme.typography
-        val textStyle = typography.bodySmall.copy(textAlign = TextAlign.Start)
         val componentSpacingValues = GlimmerTheme.componentSpacingValues
         val innerPadding = componentSpacingValues.small
         val buttonSpacing = componentSpacingValues.large
@@ -122,7 +124,10 @@ public fun AlertDialog(
                         )
                     }
 
-                    CompositionLocalProvider(LocalTextStyle provides textStyle, content = text)
+                    if (text != null) {
+                        val textStyle = typography.bodySmall.copy(textAlign = TextAlign.Start)
+                        CompositionLocalProvider(LocalTextStyle provides textStyle, content = text)
+                    }
                 }
             }
 
