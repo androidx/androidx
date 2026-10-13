@@ -43,4 +43,7 @@ androidx {
     mavenVersion = LibraryVersions.VECTORDRAWABLE_SEEKABLE
     inceptionYear = "2020"
     description = "Android SeekableAnimatedVectorDrawable"
+    deviceTests {
+        maxShardCount = 1
+    }
 }
