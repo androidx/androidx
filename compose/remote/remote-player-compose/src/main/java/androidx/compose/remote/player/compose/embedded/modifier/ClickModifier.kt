@@ -46,15 +46,10 @@ import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalRemoteActionHandler
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteNamedActionHandler
-import androidx.compose.remote.player.compose.embedded.clickTypeReflection
-import androidx.compose.remote.player.compose.embedded.getOperationsReflection
+import androidx.compose.remote.player.compose.embedded.getOperationsList
 import androidx.compose.remote.player.compose.embedded.readData
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
-import androidx.compose.remote.player.compose.embedded.targetValueIdReflection
-import androidx.compose.remote.player.compose.embedded.updateVariablesReflection
-import androidx.compose.remote.player.compose.embedded.valueExpressionIdReflection
-import androidx.compose.remote.player.compose.embedded.valueIdReflection
-import androidx.compose.remote.player.compose.embedded.valueReflection
+import androidx.compose.remote.player.compose.embedded.updateVariables
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -96,7 +91,7 @@ internal fun rememberClickActionHandlers(ops: List<Operation>): ClickActionHandl
         when (op) {
             is ClickModifierOperation -> singleActions.addAll(op.mList)
             is MultiClickModifier ->
-                when (op.clickTypeReflection) {
+                when (op.clickType) {
                     MultiClickModifier.CLICK_TYPE_SINGLE -> singleActions.addAll(op.mList)
                     MultiClickModifier.CLICK_TYPE_DOUBLE -> doubleActions.addAll(op.mList)
                     MultiClickModifier.CLICK_TYPE_LONG -> longActions.addAll(op.mList)
@@ -110,10 +105,10 @@ internal fun rememberClickActionHandlers(ops: List<Operation>): ClickActionHandl
             actions.fastForEach {
                 applyClickAction(it, coreDocument, remoteContext, onAction, onNamedAction)
             }
-            coreDocument.updateVariablesReflection(
+            coreDocument.updateVariables(
                 remoteContext,
                 Theme.SYSTEM,
-                coreDocument.getOperationsReflection(),
+                coreDocument.getOperationsList(),
             )
         }
     }
@@ -147,18 +142,18 @@ internal fun Modifier.combinedClick(
         ArrayList<List<Operation>>().apply {
             clickOps.fastForEach { add(it.mList) }
             multiClickOps.fastForEach {
-                if (it.clickTypeReflection == MultiClickModifier.CLICK_TYPE_SINGLE) {
+                if (it.clickType == MultiClickModifier.CLICK_TYPE_SINGLE) {
                     add(it.mList)
                 }
             }
         }
     val doubleActionLists =
         multiClickOps
-            .fastFilter { it.clickTypeReflection == MultiClickModifier.CLICK_TYPE_DOUBLE }
+            .fastFilter { it.clickType == MultiClickModifier.CLICK_TYPE_DOUBLE }
             .fastMap { it.mList }
     val longActionLists =
         multiClickOps
-            .fastFilter { it.clickTypeReflection == MultiClickModifier.CLICK_TYPE_LONG }
+            .fastFilter { it.clickType == MultiClickModifier.CLICK_TYPE_LONG }
             .fastMap { it.mList }
 
     fun dispatchActionLists(actionLists: List<List<Operation>>) {
@@ -167,10 +162,10 @@ internal fun Modifier.combinedClick(
                 applyClickAction(action, coreDocument, remoteContext, onAction, onNamedAction)
             }
         }
-        coreDocument.updateVariablesReflection(
+        coreDocument.updateVariables(
             remoteContext,
             Theme.SYSTEM,
-            coreDocument.getOperationsReflection(),
+            coreDocument.getOperationsList(),
         )
     }
 
@@ -231,10 +226,10 @@ internal fun Modifier.touchActions(
                     applyClickAction(action, coreDocument, remoteContext, onAction, onNamedAction)
                 }
             }
-            coreDocument.updateVariablesReflection(
+            coreDocument.updateVariables(
                 remoteContext,
                 Theme.SYSTEM,
-                coreDocument.getOperationsReflection(),
+                coreDocument.getOperationsList(),
             )
         }
     }
@@ -295,19 +290,19 @@ private fun applyClickAction(
 ) {
     when (action) {
         is ValueIntegerChangeActionOperation ->
-            remoteContext.overrideInteger(action.targetValueIdReflection, action.valueReflection)
+            remoteContext.overrideInteger(action.targetValueId, action.value)
         is ValueFloatChangeActionOperation ->
-            remoteContext.overrideFloat(action.targetValueIdReflection, action.valueReflection)
+            remoteContext.overrideFloat(action.targetValueId, action.value)
         is ValueStringChangeActionOperation ->
-            remoteContext.overrideText(action.targetValueIdReflection, action.valueIdReflection)
+            remoteContext.overrideText(action.targetValueId, action.valueId)
         is ValueIntegerExpressionChangeActionOperation -> {
-            val targetId = Utils.idFromLong(action.targetValueIdReflection).toInt()
-            val expressionId = Utils.idFromLong(action.valueExpressionIdReflection)
+            val targetId = Utils.idFromLong(action.targetValueId).toInt()
+            val expressionId = Utils.idFromLong(action.valueExpressionId)
             coreDocument.evaluateIntExpression(expressionId, targetId, remoteContext)
         }
         is ValueFloatExpressionChangeActionOperation -> {
-            val targetId = action.targetValueIdReflection
-            val expressionId = action.valueExpressionIdReflection
+            val targetId = action.targetValueId
+            val expressionId = action.valueExpressionId
             coreDocument.evaluateFloatExpression(expressionId, targetId, remoteContext)
         }
         // Host callback (id only; HostActionOperation carries no value).

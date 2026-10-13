@@ -22,7 +22,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
-import androidx.compose.remote.player.compose.embedded.readDataReflection
+import androidx.compose.remote.player.compose.embedded.readData
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -33,7 +33,7 @@ import androidx.compose.ui.graphics.Shape
 
 @Composable
 internal fun Modifier.background(op: BackgroundModifierOperation): Modifier {
-    val data = op.readDataReflection()
+    val data = op.readData()
     val color =
         if (data.useColorId) {
             rememberRemoteColorAsState(data.colorId).value

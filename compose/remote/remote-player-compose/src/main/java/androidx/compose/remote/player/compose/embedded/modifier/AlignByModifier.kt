@@ -21,13 +21,12 @@ package androidx.compose.remote.player.compose.embedded.modifier
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation
-import androidx.compose.remote.player.compose.embedded.lineReflection
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
 internal fun Modifier.alignBy(op: AlignByModifierOperation, rowScope: RowScope? = null): Modifier {
-    val line = op.lineReflection
+    val line = op.line
     return if (Utils.isVariable(line)) {
         when (Utils.idFromNan(line)) {
             AlignByModifierOperation.ID_FIRST_BASELINE -> with(rowScope!!) { alignByBaseline() }

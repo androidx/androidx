@@ -24,7 +24,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifier
 import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.rawDimensionPx
-import androidx.compose.remote.player.compose.embedded.readDataReflection
+import androidx.compose.remote.player.compose.embedded.readData
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -52,7 +52,7 @@ internal fun Modifier.roundedClipRect(
     hoistBeforeDraw: Boolean = false,
 ): Modifier {
     val behavior = LocalCoreDocument.current.densityBehavior
-    val data = op.readDataReflection()
+    val data = op.readData()
 
     val shape =
         RemoteRoundedClipShape(

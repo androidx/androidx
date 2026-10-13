@@ -24,7 +24,7 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.remote.core.operations.layout.modifiers.MarqueeModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.rawDimensionDp
-import androidx.compose.remote.player.compose.embedded.readDataReflection
+import androidx.compose.remote.player.compose.embedded.readData
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -38,7 +38,7 @@ internal fun Modifier.marquee(op: MarqueeModifierOperation): Modifier {
     // variable/expression (e.g. a dp recorded against the density variable), so resolve it before
     // scaling; remote-core scales it by density only under DP (rawDimensionDp). Velocity is not
     // density-scaled.
-    val data = op.readDataReflection()
+    val data = op.readData()
     val density = LocalDensity.current.density
     val behavior = LocalCoreDocument.current.densityBehavior
     val spacing = rememberRemoteFloatAsState(data.spacing).value

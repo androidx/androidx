@@ -44,26 +44,15 @@ import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.DrawTextOnPath
 import androidx.compose.remote.core.operations.DrawToBitmap
 import androidx.compose.remote.core.operations.DrawTweenPath
-import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.FloatFunctionCall
 import androidx.compose.remote.core.operations.FloatFunctionDefine
-import androidx.compose.remote.core.operations.IntegerExpression
-import androidx.compose.remote.core.operations.ParticlesCreate
-import androidx.compose.remote.core.operations.ParticlesLoop
-import androidx.compose.remote.core.operations.PathCombine
 import androidx.compose.remote.core.operations.PathData
-import androidx.compose.remote.core.operations.TextSubtext
-import androidx.compose.remote.core.operations.TextTransform
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.Container
-import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.LayoutComponent
-import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.LoopOperation
-import androidx.compose.remote.core.operations.layout.MultiClickModifier
-import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
@@ -72,12 +61,9 @@ import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
 import androidx.compose.remote.core.operations.layout.managers.LayoutManager
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
-import androidx.compose.remote.core.operations.layout.managers.StateLayout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
-import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation
@@ -87,23 +73,13 @@ import androidx.compose.remote.core.operations.layout.modifiers.MarqueeModifierO
 import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatChangeActionOperation
-import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatExpressionChangeActionOperation
-import androidx.compose.remote.core.operations.layout.modifiers.ValueIntegerChangeActionOperation
-import androidx.compose.remote.core.operations.layout.modifiers.ValueIntegerExpressionChangeActionOperation
-import androidx.compose.remote.core.operations.layout.modifiers.ValueStringChangeActionOperation
-import androidx.compose.remote.core.operations.layout.modifiers.ZIndexModifierOperation
-import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.semantics.CoreSemantics
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import java.util.ArrayList
-import java.util.HashMap
 
 /*
  * Centralized accessors for the remote-core operation state the embedded player needs to read,
- * encapsulated via Kotlin data classes and extension methods over the core getters
- * (the "*Reflection" names are historical: these used to read package-private fields
- * reflectively before remote-core exposed accessors).
+ * encapsulated via Kotlin data classes and extension methods over the core getters.
  */
 
 internal fun ClipPath.readData(): ClipPathData {
@@ -211,14 +187,6 @@ internal fun DrawTweenPath.readData(): DrawTweenPathData {
     )
 }
 
-/**
- * The [ParticlesCreate] op a [ParticlesLoop] draws from. Particle *rendering* is bridged to the
- * core implementation (see RcPlayerParticles); the player only needs the source to run the core
- * seeding path once per document.
- */
-internal val ParticlesLoop.particlesSourceReflection: ParticlesCreate?
-    get() = getParticlesSource()
-
 internal fun ConditionalOperations.readData(
     context: RemoteContext? = null
 ): ConditionalOperationsData {
@@ -289,21 +257,14 @@ public fun Custom.readData(): CustomData {
     )
 }
 
-internal val Custom.CustomProperty.typeNameReflection: String
-    get() = getTypeName()
-
 // 1. CoreDocument Helpers
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun CoreDocument.getOperationsReflection(): ArrayList<Operation> {
+public fun CoreDocument.getOperationsList(): ArrayList<Operation> {
     return getOperations() as ArrayList<Operation>
 }
 
-internal fun CoreDocument.getFloatExpressionsReflection(): HashMap<Int, FloatExpression> {
-    return getFloatExpressions()
-}
-
-internal fun CoreDocument.registerVariablesReflection(
+internal fun CoreDocument.registerVariables(
     context: RemoteContext,
     operations: ArrayList<Operation>,
 ) {
@@ -335,7 +296,7 @@ internal inline fun <R> RemoteContext.withOpCountReset(block: () -> R): R {
     }
 }
 
-internal fun CoreDocument.applyOperationsReflection(
+internal fun CoreDocument.applyOperations(
     context: RemoteContext,
     operations: ArrayList<Operation>,
 ) {
@@ -376,7 +337,7 @@ internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Op
             }
             applyOperationsWithoutBitmaps(context, (op as Container).list)
             if (op is LayoutComponent) {
-                op.getDrawContentOperationsListReflection()?.let { canvasOps ->
+                op.getDrawContentOperationsList()?.let { canvasOps ->
                     applyOperationsWithoutBitmaps(context, canvasOps)
                 }
             }
@@ -394,7 +355,7 @@ private fun registerNestedBitmapMetadata(context: RemoteContext, list: List<Oper
         } else if (op is Container) {
             registerNestedBitmapMetadata(context, op.list)
             if (op is LayoutComponent) {
-                op.getDrawContentOperationsListReflection()?.let { canvasOps ->
+                op.getDrawContentOperationsList()?.let { canvasOps ->
                     registerNestedBitmapMetadata(context, canvasOps)
                 }
             }
@@ -410,9 +371,9 @@ internal fun CoreDocument.applyDataOperationsWithoutBitmaps(context: RemoteConte
     context.withOpCountReset {
         context.mode = RemoteContext.ContextMode.DATA
         try {
-            updateTimeReflection(context)
-            registerVariablesReflection(context, getOperationsReflection())
-            applyOperationsWithoutBitmaps(context, getOperationsReflection())
+            updateTime(context)
+            registerVariables(context, getOperationsList())
+            applyOperationsWithoutBitmaps(context, getOperationsList())
         } finally {
             context.mode = RemoteContext.ContextMode.UNSET
         }
@@ -420,16 +381,16 @@ internal fun CoreDocument.applyDataOperationsWithoutBitmaps(context: RemoteConte
 }
 
 // 2. RemoteComposeState Helpers
-internal fun RemoteComposeState.getRemoteContextReflection(): RemoteContext? {
+internal fun RemoteComposeState.remoteContextOrNull(): RemoteContext? {
     return getRemoteContext() as? RemoteContext
 }
 
 // 3. Layout Component / Manager Helpers
-internal fun LayoutComponent.getDrawContentOperationsListReflection(): ArrayList<Operation>? {
+internal fun LayoutComponent.getDrawContentOperationsList(): ArrayList<Operation>? {
     return getDrawContentOperations()?.list
 }
 
-internal val LayoutManager.horizontalPositioningReflection: Int
+internal val LayoutManager.horizontalPositioning: Int
     get() =
         when (this) {
             is RowLayout -> getHorizontalPositioning()
@@ -439,7 +400,7 @@ internal val LayoutManager.horizontalPositioningReflection: Int
             else -> throw NoSuchFieldException("mHorizontalPositioning not found in $javaClass")
         }
 
-internal val LayoutManager.verticalPositioningReflection: Int
+internal val LayoutManager.verticalPositioning: Int
     get() =
         when (this) {
             is RowLayout -> getVerticalPositioning()
@@ -450,16 +411,9 @@ internal val LayoutManager.verticalPositioningReflection: Int
         }
 
 // 4. Modifier Operations Helpers
-internal fun ComponentVisibilityOperation.getVisibilityIdReflection(): Int {
-    return getVisibilityId()
-}
-
-internal val ZIndexModifierOperation.valueReflection: Float
-    get() = getRawValue()
-
 // --- MarqueeModifierOperation Helper ---
 
-internal fun MarqueeModifierOperation.readDataReflection(): MarqueeModifierOperationData {
+internal fun MarqueeModifierOperation.readData(): MarqueeModifierOperationData {
     return MarqueeModifierOperationData(
         iterations = getIterations(),
         animationMode = getAnimationMode(),
@@ -472,8 +426,7 @@ internal fun MarqueeModifierOperation.readDataReflection(): MarqueeModifierOpera
 
 // --- GraphicsLayerModifierOperation Helper ---
 
-internal fun GraphicsLayerModifierOperation.getValuesReflection():
-    List<GraphicsLayerAttributeValueData> {
+internal fun GraphicsLayerModifierOperation.readValues(): List<GraphicsLayerAttributeValueData> {
     return values.map { item ->
         GraphicsLayerAttributeValueData(
             name = item.name,
@@ -493,23 +446,9 @@ internal fun HostNamedActionOperation.readData(): HostNamedActionOperationData {
     )
 }
 
-// TextSubtext, TextTransform
-
-/** The id of the text this operation produces. */
-internal val TextSubtext.textIdReflection: Int
-    get() = getTextId()
-
-/** The id of the text this operation produces. */
-internal val TextTransform.textIdReflection: Int
-    get() = getTextId()
-
-/** The document's RootContentBehavior alignment (`mContentAlignment`). */
-internal val CoreDocument.contentAlignmentReflection: Int
-    get() = getContentAlignment()
-
 // --- DrawBase Helpers ---
 
-internal fun DrawBase2.readDataReflection(): DrawBase2Data {
+internal fun DrawBase2.readData(): DrawBase2Data {
     return DrawBase2Data(
         v1 = getV1(),
         v2 = getV2(),
@@ -518,7 +457,7 @@ internal fun DrawBase2.readDataReflection(): DrawBase2Data {
     )
 }
 
-internal fun DrawBase3.readDataReflection(): DrawBase3Data {
+internal fun DrawBase3.readData(): DrawBase3Data {
     return DrawBase3Data(
         v1 = getV1(),
         v2 = getV2(),
@@ -529,7 +468,7 @@ internal fun DrawBase3.readDataReflection(): DrawBase3Data {
     )
 }
 
-internal fun DrawBase4.readDataReflection(): DrawBase4Data {
+internal fun DrawBase4.readData(): DrawBase4Data {
     return DrawBase4Data(
         x1 = getRawX1(),
         y1 = getRawY1(),
@@ -542,7 +481,7 @@ internal fun DrawBase4.readDataReflection(): DrawBase4Data {
     )
 }
 
-internal fun DrawBase6.readDataReflection(): DrawBase6Data {
+internal fun DrawBase6.readData(): DrawBase6Data {
     return DrawBase6Data(
         v1 = getV1(),
         v2 = getV2(),
@@ -561,7 +500,7 @@ internal fun DrawBase6.readDataReflection(): DrawBase6Data {
 
 // --- DrawBitmap Helper ---
 
-internal fun DrawBitmap.readDataReflection(): DrawBitmapData {
+internal fun DrawBitmap.readData(): DrawBitmapData {
     return DrawBitmapData(
         left = getLeft(),
         top = getTop(),
@@ -578,7 +517,7 @@ internal fun DrawBitmap.readDataReflection(): DrawBitmapData {
 
 // --- DrawBitmapScaled Helper ---
 
-internal fun DrawBitmapScaled.readDataReflection(): DrawBitmapScaledData {
+internal fun DrawBitmapScaled.readData(): DrawBitmapScaledData {
     return DrawBitmapScaledData(
         imageId = getImageId(),
         srcLeft = getSrcLeft(),
@@ -606,13 +545,13 @@ internal fun DrawBitmapScaled.readDataReflection(): DrawBitmapScaledData {
 
 // --- DrawPath Helper ---
 
-internal fun DrawPath.readDataReflection(): DrawPathData {
+internal fun DrawPath.readData(): DrawPathData {
     return DrawPathData(id = getPathId(), start = getStart(), end = getEnd())
 }
 
 // --- BitmapData Helper ---
 
-internal fun BitmapData.readDataReflection(): BitmapDataData {
+internal fun BitmapData.readData(): BitmapDataData {
     return BitmapDataData(
         imageId = mImageId,
         imageWidth = getImageWidth(),
@@ -623,24 +562,16 @@ internal fun BitmapData.readDataReflection(): BitmapDataData {
     )
 }
 
-// 5. PaintBundle Reflection Helper
-internal fun PaintBundle.getArrayReflection(): IntArray {
-    return getArray()
-}
-
-internal fun PaintBundle.getPosReflection(): Int {
-    return getPos()
-}
-
+// 5. PaintBundle Helper
 // CoreSemantics
-internal fun CoreSemantics.getContentDescriptionIdReflection(): Int? {
+internal fun CoreSemantics.contentDescriptionIdOrNull(): Int? {
     val id = mContentDescriptionId
     return if (id != 0) id else null
 }
 
 // Recollect collections
-internal fun CoreDocument.recollectCollectionsReflection() {
-    val operations = this.getOperationsReflection()
+internal fun CoreDocument.recollectCollections() {
+    val operations = this.getOperationsList()
     val state = this.remoteComposeState
     collectCollections(operations, state)
     recollectCanvasCollections(this, operations, state)
@@ -654,7 +585,7 @@ private fun recollectCanvasCollections(
     for (i in operations.indices) {
         val op = operations[i]
         if (op is LayoutComponent) {
-            op.getDrawContentOperationsListReflection()?.let { canvasOps ->
+            op.getDrawContentOperationsList()?.let { canvasOps ->
                 document.collectCollections(canvasOps, state)
                 recollectCanvasCollections(document, canvasOps, state)
             }
@@ -665,11 +596,11 @@ private fun recollectCanvasCollections(
     }
 }
 
-internal fun CoreDocument.updateTimeReflection(context: RemoteContext) {
+internal fun CoreDocument.updateTime(context: RemoteContext) {
     updateTime(context)
 }
 
-internal fun RemoteContext.getVariableIdReflection(name: String): Int {
+internal fun RemoteContext.findVariableId(name: String): Int {
     val context = this as? AndroidRemoteContext ?: return -1
     return try {
         context.getVariableId(name)
@@ -678,44 +609,9 @@ internal fun RemoteContext.getVariableIdReflection(name: String): Int {
     }
 }
 
-// ValueIntegerChangeActionOperation
-internal val ValueIntegerChangeActionOperation.targetValueIdReflection: Int
-    get() = getTargetValueId()
-
-internal val ValueIntegerChangeActionOperation.valueReflection: Int
-    get() = getValue()
-
-// ValueFloatChangeActionOperation
-internal val ValueFloatChangeActionOperation.targetValueIdReflection: Int
-    get() = getTargetValueId()
-
-internal val ValueFloatChangeActionOperation.valueReflection: Float
-    get() = getValue()
-
-// ValueStringChangeActionOperation
-internal val ValueStringChangeActionOperation.targetValueIdReflection: Int
-    get() = getTargetValueId()
-
-internal val ValueStringChangeActionOperation.valueIdReflection: Int
-    get() = getValueId()
-
-// ValueIntegerExpressionChangeActionOperation
-internal val ValueIntegerExpressionChangeActionOperation.targetValueIdReflection: Long
-    get() = getTargetValueId()
-
-internal val ValueIntegerExpressionChangeActionOperation.valueExpressionIdReflection: Long
-    get() = getValueExpressionId()
-
-// ValueFloatExpressionChangeActionOperation
-internal val ValueFloatExpressionChangeActionOperation.targetValueIdReflection: Int
-    get() = getTargetValueId()
-
-internal val ValueFloatExpressionChangeActionOperation.valueExpressionIdReflection: Int
-    get() = getValueExpressionId()
-
 // --- BorderModifierOperation Helper ---
 
-internal fun BorderModifierOperation.readDataReflection(): BorderModifierOperationData {
+internal fun BorderModifierOperation.readData(): BorderModifierOperationData {
     return BorderModifierOperationData(
         useColorId = getUseColorId(),
         colorId = getColorId(),
@@ -731,7 +627,7 @@ internal fun BorderModifierOperation.readDataReflection(): BorderModifierOperati
 
 // --- BackgroundModifierOperation Helper ---
 
-internal fun BackgroundModifierOperation.readDataReflection(): BackgroundModifierOperationData {
+internal fun BackgroundModifierOperation.readData(): BackgroundModifierOperationData {
     return BackgroundModifierOperationData(
         useColorId = getUseColorId(),
         colorId = getColorId(),
@@ -743,24 +639,8 @@ internal fun BackgroundModifierOperation.readDataReflection(): BackgroundModifie
     )
 }
 
-// --- StateLayout Helper ---
-internal val StateLayout.indexIdReflection: Int
-    get() = getIndexId()
-
-// --- IntegerExpression Helper ---
-/** The bit mask marking which [IntegerExpression.mSrcValue] entries are variable IDs. */
-internal val IntegerExpression.maskReflection: Int
-    get() = getMask()
-
-// --- FitBoxLayout Helpers ---
-internal val FitBoxLayout.horizontalPositioningReflection: Int
-    get() = getHorizontalPositioning()
-
-internal val FitBoxLayout.verticalPositioningReflection: Int
-    get() = getVerticalPositioning()
-
 // --- CoreDocument updateVariables Helper ---
-internal fun CoreDocument.updateVariablesReflection(
+internal fun CoreDocument.updateVariables(
     context: RemoteContext,
     theme: Int,
     operations: List<Operation>,
@@ -768,13 +648,9 @@ internal fun CoreDocument.updateVariablesReflection(
     updateVariables(context, theme, operations)
 }
 
-// AlignByModifierOperation
-internal val AlignByModifierOperation.lineReflection: Float
-    get() = getLine()
+// --- CoreText Helper ---
 
-// --- CoreText Reflection Helper ---
-
-internal fun CoreText.readDataReflection(): CoreTextData {
+internal fun CoreText.readData(): CoreTextData {
     return CoreTextData(
         colorValue = getColorValue(),
         fontSizeValue = getFontSizeValue(),
@@ -803,9 +679,9 @@ internal fun CoreText.readDataReflection(): CoreTextData {
     )
 }
 
-// --- TextLayout Reflection Helper ---
+// --- TextLayout Helper ---
 
-internal fun TextLayout.readDataReflection(): TextLayoutData {
+internal fun TextLayout.readData(): TextLayoutData {
     return TextLayoutData(
         colorValue = getColorValue(),
         fontSizeValue = getFontSizeValue(),
@@ -825,17 +701,17 @@ internal fun rowSpacedBy(layout: RowLayout): Float = layout.getSpacedBy()
 
 internal fun columnSpacedBy(layout: ColumnLayout): Float = layout.getSpacedBy()
 
-// 7. ScrollModifier Reflection
+// 7. ScrollModifier
 internal fun scrollPosition(op: ScrollModifierOperation): Float = op.getPositionExpression()
 
 internal fun touchStopMode(touch: TouchExpression): Int = touch.getStopMode()
 
 internal fun touchStopSpec(touch: TouchExpression): FloatArray? = touch.getStopSpec()
 
-// 8. DimensionConstraints Reflection
+// 8. DimensionConstraints
 internal fun dimensionConstraintsType(op: DimensionConstraintsModifierOperation): Int = op.getType()
 
-// 9. DimensionModifier Reflection
+// 9. DimensionModifier
 internal fun dimensionRawValue(op: DimensionModifierOperation): Float = op.getRawValue()
 
 // OffsetModifier
@@ -847,30 +723,15 @@ internal fun offsetRawValues(op: OffsetModifierOperation): FloatArray =
 internal fun dimensionInRawValues(op: DimensionInModifierOperation): FloatArray =
     floatArrayOf(op.rawMin, op.rawMax)
 
-// 10. CollapsiblePriority Reflection
+// 10. CollapsiblePriority
 internal fun sortWithPriorities(children: ArrayList<Component>, orientation: Int): List<Component> =
     CollapsiblePriority.sortWithPriorities(children, orientation)
-
-// 11. LayoutComponent Content Reflection
-internal fun LayoutComponent.getContentReflection(): LayoutComponentContent? = getLayoutContent()
-
-// 12. Component AnimationSpec Reflection
-internal val Component.animationSpecReflection: AnimationSpec?
-    get() = getAnimationSpec()
 
 // 13. PaddingModifierOperation Raw Values
 internal fun paddingRawValues(op: PaddingModifierOperation): FloatArray =
     floatArrayOf(op.rawLeft, op.rawTop, op.rawRight, op.rawBottom)
 
-// 14. MultiClickModifier clickType
-internal val MultiClickModifier.clickTypeReflection: Int
-    get() = getClickType()
-
-// 15. PathCombine and PathData
-internal val PathCombine.operationReflection: Byte
-    get() = getOperation()
-
-internal fun PathData.applyReflection(context: RemoteContext) {
+internal fun PathData.applyTrackingPathChange(context: RemoteContext) {
     val outputPath = getOutputPath()
     if (context.getPathData(getId()) !== outputPath) {
         markPathChanged()
@@ -878,61 +739,43 @@ internal fun PathData.applyReflection(context: RemoteContext) {
     apply(context)
 }
 
-internal val PathData.instanceIdReflection: Int
+internal val PathData.instanceId: Int
     get() = getId()
-
-internal val PathData.floatPathReflection: FloatArray
-    get() = getFloatPath()
 
 // 16. ConditionalOperations, LoopOperation, Function, Text, and Impulse raw values
 
-internal val ConditionalOperations.varARawReflection: Float
+internal val ConditionalOperations.varARaw: Float
     get() = getVarA()
 
-internal val ConditionalOperations.varBRawReflection: Float
+internal val ConditionalOperations.varBRaw: Float
     get() = getVarB()
 
-internal val LoopOperation.fromRawReflection: Float
+internal val LoopOperation.fromRaw: Float
     get() = getFrom()
 
-internal val LoopOperation.untilRawReflection: Float
+internal val LoopOperation.untilRaw: Float
     get() = getUntil()
 
-internal val LoopOperation.stepRawReflection: Float
+internal val LoopOperation.stepRaw: Float
     get() = getStep()
 
-internal val FloatFunctionDefine.idReflection: Int
-    get() = getId()
-
-internal val FloatFunctionDefine.floatVarIdsReflection: IntArray
+internal val FloatFunctionDefine.floatVarIds: IntArray
     get() = getArgs()
 
-internal val FloatFunctionCall.idReflection: Int
-    get() = getId()
-
-internal val FloatFunctionCall.argsReflection: FloatArray?
-    get() = getArgs()
-
-internal val DrawTextOnPath.hOffsetRawReflection: Float
+internal val DrawTextOnPath.hOffsetRaw: Float
     get() = getHOffset()
 
-internal val DrawTextOnPath.vOffsetRawReflection: Float
+internal val DrawTextOnPath.vOffsetRaw: Float
     get() = getVOffset()
 
-internal val DrawTextAnchored.xRawReflection: Float
+internal val DrawTextAnchored.xRaw: Float
     get() = getX()
 
-internal val DrawTextAnchored.yRawReflection: Float
+internal val DrawTextAnchored.yRaw: Float
     get() = getY()
 
-internal val DrawTextAnchored.panXRawReflection: Float
+internal val DrawTextAnchored.panXRaw: Float
     get() = getPanX()
 
-internal val DrawTextAnchored.panYRawReflection: Float
+internal val DrawTextAnchored.panYRaw: Float
     get() = getPanY()
-
-internal val ImpulseOperation.durationReflection: Float
-    get() = getDuration()
-
-internal val ImpulseOperation.startAtReflection: Float
-    get() = getStartAt()

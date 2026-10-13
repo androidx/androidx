@@ -395,7 +395,7 @@ private fun DrawScope.executeOperationsInPass(
             }
             is DrawCircle -> {
                 val style = paintState.toDrawStyle()
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val v1 = resolveFloat(data.value1, data.v1, read)
                 val v2 = resolveFloat(data.value2, data.v2, read)
                 val v3 = resolveFloat(data.value3, data.v3, read)
@@ -423,7 +423,7 @@ private fun DrawScope.executeOperationsInPass(
             }
             is DrawRect -> {
                 val style = paintState.toDrawStyle()
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val x1 = resolveFloat(data.x1Value, data.x1, read)
                 val y1 = resolveFloat(data.y1Value, data.y1, read)
                 val x2 = resolveFloat(data.x2Value, data.x2, read)
@@ -452,7 +452,7 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is DrawLine -> {
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val x1 = resolveFloat(data.x1Value, data.x1, read)
                 val y1 = resolveFloat(data.y1Value, data.y1, read)
                 val x2 = resolveFloat(data.x2Value, data.x2, read)
@@ -486,7 +486,7 @@ private fun DrawScope.executeOperationsInPass(
             }
             is DrawOval -> {
                 val style = paintState.toDrawStyle()
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val x1 = resolveFloat(data.x1Value, data.x1, read)
                 val y1 = resolveFloat(data.y1Value, data.y1, read)
                 val x2 = resolveFloat(data.x2Value, data.x2, read)
@@ -515,7 +515,7 @@ private fun DrawScope.executeOperationsInPass(
             }
             is DrawRoundRect -> {
                 val style = paintState.toDrawStyle()
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val v1 = resolveFloat(data.value1, data.v1, read)
                 val v2 = resolveFloat(data.value2, data.v2, read)
                 val v3 = resolveFloat(data.value3, data.v3, read)
@@ -549,7 +549,7 @@ private fun DrawScope.executeOperationsInPass(
             }
             is DrawSector -> {
                 val style = paintState.toDrawStyle()
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val v1 = resolveFloat(data.value1, data.v1, read)
                 val v2 = resolveFloat(data.value2, data.v2, read)
                 val v3 = resolveFloat(data.value3, data.v3, read)
@@ -587,7 +587,7 @@ private fun DrawScope.executeOperationsInPass(
             }
             is DrawArc -> {
                 val style = paintState.toDrawStyle()
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val v1 = resolveFloat(data.value1, data.v1, read)
                 val v2 = resolveFloat(data.value2, data.v2, read)
                 val v3 = resolveFloat(data.value3, data.v3, read)
@@ -624,7 +624,7 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is DrawBitmap -> {
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val left = resolveFloat(data.left, data.outputLeft, read)
                 val top = resolveFloat(data.top, data.outputTop, read)
                 val right = resolveFloat(data.right, data.outputRight, read)
@@ -663,7 +663,7 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is DrawPath -> {
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val pathId = derefId(data.id, read)
                 val path = remoteContext.mRemoteComposeState.getPath(pathId, data.start, data.end)
                 val style = paintState.toDrawStyle()
@@ -694,13 +694,13 @@ private fun DrawScope.executeOperationsInPass(
                 drawContext.canvas.restore()
             }
             is MatrixTranslate -> {
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val v1 = resolveFloat(data.value1, data.v1, read)
                 val v2 = resolveFloat(data.value2, data.v2, read)
                 drawContext.transform.translate(v1, v2)
             }
             is MatrixScale -> {
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val x1 = resolveFloat(data.x1Value, data.x1, read)
                 val y1 = resolveFloat(data.y1Value, data.y1, read)
                 val x2 = resolveFloat(data.x2Value, data.x2, read)
@@ -708,14 +708,14 @@ private fun DrawScope.executeOperationsInPass(
                 drawContext.transform.scale(x1, y1, Offset(x2, y2))
             }
             is MatrixRotate -> {
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val v1 = resolveFloat(data.value1, data.v1, read)
                 val v2 = resolveFloat(data.value2, data.v2, read)
                 val v3 = resolveFloat(data.value3, data.v3, read)
                 drawContext.transform.rotate(v1, Offset(v2, v3))
             }
             is MatrixSkew -> {
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val sx = resolveFloat(data.value1, data.v1, read)
                 val sy = resolveFloat(data.value2, data.v2, read)
                 val skewMatrix =
@@ -728,7 +728,7 @@ private fun DrawScope.executeOperationsInPass(
             is ClipRect -> {
                 // Imperative clip on the underlying canvas (bounded by the surrounding
                 // MATRIX_SAVE/RESTORE the document emits, like the other canvas-state ops here).
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val x1 = resolveFloat(data.x1Value, data.x1, read)
                 val y1 = resolveFloat(data.y1Value, data.y1, read)
                 val x2 = resolveFloat(data.x2Value, data.x2, read)
@@ -840,7 +840,7 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is DrawBitmapScaled -> {
-                val data = op.readDataReflection()
+                val data = op.readData()
                 val imageId =
                     if ((data.imageId and PaintOperation.PTR_DEREFERENCE) != 0) {
                         remoteContext.mRemoteComposeState.getInteger(
@@ -1363,7 +1363,7 @@ private fun DrawScope.executeOperationsInPass(
                 onDrawContent()
             }
             is PathData -> {
-                op.applyReflection(remoteContext)
+                op.applyTrackingPathChange(remoteContext)
             }
             is PathCreate -> {
                 op.apply(remoteContext)
@@ -1404,7 +1404,7 @@ private fun DrawScope.executeOperationsInPass(
                 val p1 = state.getPath(path1Id, 0f, 1f)
                 val p2 = state.getPath(path2Id, 0f, 1f)
                 val pathOp =
-                    when (op.operationReflection) {
+                    when (op.operation) {
                         PathCombine.OP_DIFFERENCE -> PathOperation.Difference
                         PathCombine.OP_INTERSECT -> PathOperation.Intersect
                         PathCombine.OP_REVERSE_DIFFERENCE -> PathOperation.ReverseDifference

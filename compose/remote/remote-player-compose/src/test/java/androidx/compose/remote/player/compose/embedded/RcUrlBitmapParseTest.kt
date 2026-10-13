@@ -71,6 +71,6 @@ class RcUrlBitmapParseTest {
             doc.initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
         }
 
-        assertThat(doc.getOperationsReflection()).isNotEmpty()
+        assertThat(doc.getOperationsList()).isNotEmpty()
     }
 }

@@ -111,7 +111,7 @@ public class RcPlayerState(
 
     internal val operationsInspectable: List<InspectableValue>
         get() =
-            document.getOperationsReflection().fastMap {
+            document.getOperationsList().fastMap {
                 RcPlayerInspector.wrapOperation(it, graphContext)
             }
 
@@ -218,10 +218,10 @@ public class RcPlayerState(
             return name
         }
         val prefixed = "$prefix:$name"
-        if (remoteContext.getVariableIdReflection(prefixed) != -1) {
+        if (remoteContext.findVariableId(prefixed) != -1) {
             return prefixed
         }
-        if (remoteContext.getVariableIdReflection(name) != -1) {
+        if (remoteContext.findVariableId(name) != -1) {
             return name
         }
         return prefixed
@@ -234,7 +234,7 @@ public class RcPlayerState(
         get: (Int) -> T,
     ): T {
         val resolved = resolveName(name, prefix)
-        val id = remoteContext.getVariableIdReflection(resolved)
+        val id = remoteContext.findVariableId(resolved)
         return if (id != -1) get(id) else default
     }
 
@@ -259,7 +259,7 @@ public class RcPlayerState(
     ) {
         val resolved = resolveName(name, prefix)
         clearContext(resolved)
-        val id = remoteContext.getVariableIdReflection(resolved)
+        val id = remoteContext.findVariableId(resolved)
         if (id != -1) {
             (remoteContext.mRemoteComposeState as? SnapshotRemoteComposeState)?.let {
                 restore(it, id)
@@ -405,7 +405,7 @@ public class RcPlayerState(
 
     private fun setFloatArray(name: String, value: FloatArray, prefix: String?) {
         val resolved = resolveName(name, prefix)
-        val id = remoteContext.getVariableIdReflection(resolved)
+        val id = remoteContext.findVariableId(resolved)
         if (id != -1) {
             remoteContext.mRemoteComposeState.addCollection(id, DataListFloat(id, value))
             remoteContext.mRemoteComposeState.markVariableDirty(id)

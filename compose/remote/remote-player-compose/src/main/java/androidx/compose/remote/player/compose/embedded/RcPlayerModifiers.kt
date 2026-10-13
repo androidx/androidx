@@ -258,7 +258,7 @@ internal fun ComponentModifiers.toModifier(
 
 @Composable
 internal fun rememberComponentVisibility(op: ComponentVisibilityOperation): Int {
-    val rawInt by rememberRemoteIntAsState(op.getVisibilityIdReflection())
+    val rawInt by rememberRemoteIntAsState(op.getVisibilityId())
     return when {
         Component.Visibility.isVisible(rawInt) -> Component.Visibility.VISIBLE
         Component.Visibility.isGone(rawInt) -> Component.Visibility.GONE
@@ -283,7 +283,7 @@ private fun Modifier.visible(op: ComponentVisibilityOperation): Modifier {
 
 @Composable
 private fun Modifier.semantics(op: CoreSemantics): Modifier {
-    val contentDescriptionId = op.getContentDescriptionIdReflection()
+    val contentDescriptionId = op.contentDescriptionIdOrNull()
     val contentDescription = contentDescriptionId?.let { rememberRemoteStringAsState(it).value }
     val text = op.mTextId.takeIf { it != 0 }?.let { rememberRemoteStringAsState(it).value }
 
@@ -336,7 +336,7 @@ internal fun Modifier.sharedElementTransition(component: Component): Modifier {
     val layout = component as? LayoutComponent
     val spec =
         layout?.componentModifiers?.list?.fastFirstOrNull { it is AnimationSpec } as? AnimationSpec
-            ?: component.animationSpecReflection
+            ?: component.animationSpec
             ?: AnimationSpec.DEFAULT
 
     val motionDuration = spec.motionDuration.toInt()
