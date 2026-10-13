@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
@@ -272,5 +273,69 @@ class RcPlayerTextPropertiesTest {
 
         rule.onNodeWithText("Custom Typeface Test").assertIsDisplayed()
         assertThat(resolveCount).isGreaterThan(0)
+    }
+
+    @Test
+    fun testDynamicFontSizeReflectiveReadingAndEvaluation() {
+        val dynamicFontSize = Utils.asNan(77)
+        val coreText =
+            CoreText(
+                null,
+                1,
+                -1,
+                0f,
+                0f,
+                100f,
+                50f,
+                10,
+                0xFF0000FF.toInt(),
+                -1,
+                dynamicFontSize,
+                -1f,
+                -1f,
+                0,
+                400f,
+                -1,
+                CoreText.TEXT_ALIGN_START,
+                CoreText.OVERFLOW_CLIP,
+                1,
+                0f,
+                0f,
+                1f,
+                0,
+                0,
+                0,
+                false,
+                false,
+                null,
+                null,
+                false,
+                0,
+                -1,
+            )
+        val coreTextData = coreText.readDataReflection()
+        assertThat(coreTextData.fontSize.toRawBits()).isEqualTo(dynamicFontSize.toRawBits())
+
+        val textLayout =
+            TextLayout(
+                null,
+                1,
+                -1,
+                0f,
+                0f,
+                100f,
+                50f,
+                10,
+                0xFF0000FF.toInt(),
+                dynamicFontSize,
+                0,
+                400f,
+                -1,
+                TextLayout.TEXT_ALIGN_START,
+                TextLayout.OVERFLOW_CLIP,
+                1,
+            )
+        val textLayoutData = textLayout.readDataReflection()
+        assertThat(textLayoutData.fontSize.toRawBits()).isEqualTo(dynamicFontSize.toRawBits())
     }
 }
