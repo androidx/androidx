@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.text.vertical.TextOrientation
 import androidx.text.vertical.VerticalTextLayout
@@ -91,7 +92,11 @@ internal class VerticalTextLayoutCache {
     private var lastDensity: Density? = null
     private var cachedPaint: TextPaint? = null
 
-    /** Returns the cached layout if the inputs are unchanged, otherwise creates a new one. */
+    /**
+     * Returns the cached layout if the inputs are unchanged, otherwise creates a new one.
+     *
+     * @param height maximum height in pixels, or [Constraints.Infinity] for unbounded height
+     */
     fun getLayout(
         text: CharSequence,
         height: Int,
@@ -115,13 +120,15 @@ internal class VerticalTextLayoutCache {
         val paint = cachedPaint ?: TextPaint().also { cachedPaint = it }
         setStyleToPaint(style, typeface, density, paint)
         val layoutText = if (text is AnnotatedString) text.toSpanned(density) else text
+        val heightConstraint =
+            if (height == Constraints.Infinity) Float.POSITIVE_INFINITY else height.toFloat()
         val newLayout =
             VerticalTextLayout(
                 text = layoutText,
                 start = 0,
                 end = layoutText.length,
                 paint = paint,
-                height = height.toFloat(),
+                height = heightConstraint,
                 orientation = orientation,
             )
         layout = newLayout
@@ -182,7 +189,7 @@ private fun VerticalTextImpl(
             )
         textLayout = vtl
 
-        val columnWidth = if (vtl.lineCount > 0) vtl.width / vtl.lineCount else 0f
+        val columnWidth = vtl.columnWidth
         val effectiveColumns = min(vtl.lineCount, maxColumns)
         val desiredWidth = if (effectiveColumns > 0) columnWidth * effectiveColumns else 0f
         val minWidth = columnWidth * minColumns
@@ -191,7 +198,9 @@ private fun VerticalTextImpl(
             ceil(maxOf(desiredWidth, minWidth))
                 .toInt()
                 .coerceIn(constraints.minWidth, constraints.maxWidth)
+        val layoutHeight =
+            ceil(vtl.contentHeight).toInt().coerceIn(constraints.minHeight, constraints.maxHeight)
 
-        layout(layoutWidth, constraints.maxHeight) {}
+        layout(layoutWidth, layoutHeight) {}
     }
 }
