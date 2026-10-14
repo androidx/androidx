@@ -435,6 +435,9 @@ internal class MovableNode(var enabled: Boolean, var movePolicy: MovePolicy) :
         component?.removeMoveListener(this)
         component?.let { coreEntity.removeComponent(it) }
         component = null
+        layoutNode?.markSystemMoveOngoing(false)
+        previousPose = Pose.Identity
+        previousScale = 1.0F
     }
 
     /**

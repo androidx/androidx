@@ -712,6 +712,184 @@ class MovableModifierTest {
         assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(expectedPose)
     }
 
+    @Test
+    fun policySystem_disabledMidDrag_updatesEntityPoseAndAllowsLayoutUpdates() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var movableEnabled by mutableStateOf(true)
+        var offsetX by mutableStateOf(0.dp)
+        var lastMoveEvent: SpatialMoveEvent? = null
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .offset(x = offsetX)
+                            .movable(
+                                enabled = movableEnabled,
+                                movePolicy = MovePolicy.system { event -> lastMoveEvent = event },
+                            )
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+
+        rtMovableComponent.onMoveEvent(
+            MoveEvent(
+                moveState = MoveEvent.MOVE_STATE_START,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = draggedPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(2f, 2f, 2f),
+                initialParent = activitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        )
+        rtMovableComponent.onMoveEvent(
+            MoveEvent(
+                moveState = MoveEvent.MOVE_STATE_ONGOING,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = Pose.Identity,
+                currentPose = draggedPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(2f, 2f, 2f),
+                initialParent = activitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        )
+        composeTestRule.waitForIdle()
+
+        // Disable movable mid-drag before MOVE_STATE_END is dispatched.
+        movableEnabled = false
+        composeTestRule.waitForIdle()
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+
+        // Subsequent layout pose updates should also not be blocked by isSystemMoveOngoing.
+        offsetX = 100.dp
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isNotEqualTo(draggedPose)
+
+        // Re-enabling movable after a mid-drag disable should start with reset previousPose and
+        // previousScale.
+        movableEnabled = true
+        composeTestRule.waitForIdle()
+        val newRtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        newRtMovableComponent.onMoveEvent(
+            MoveEvent(
+                moveState = MoveEvent.MOVE_STATE_ONGOING,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = draggedPose,
+                currentPose = draggedPose,
+                previousScale = Vector3(2f, 2f, 2f),
+                currentScale = Vector3(2f, 2f, 2f),
+                initialParent = activitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        )
+        composeTestRule.waitForIdle()
+        val recordedEvent = assertNotNull(lastMoveEvent)
+        assertThat(recordedEvent.previousPose).isEqualTo(Pose.Identity)
+        assertThat(recordedEvent.previousScale).isEqualTo(1.0f)
+    }
+
+    @Test
+    fun policySystem_modifierRemovedMidDrag_resetsEntityPoseToIdentity() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var hasMovable by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .then(
+                                if (hasMovable) {
+                                    SubspaceModifier.movable(
+                                        enabled = true,
+                                        movePolicy = MovePolicy.system(),
+                                    )
+                                } else {
+                                    SubspaceModifier
+                                }
+                            )
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val firstPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        initiateMoveEvents(rtMovableComponent, activitySpace, firstPose)
+        composeTestRule.waitForIdle()
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(firstPose)
+
+        val secondPose =
+            Pose(Vector3(4f, 5f, 6f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 90f))
+        rtMovableComponent.onMoveEvent(
+            MoveEvent(
+                moveState = MoveEvent.MOVE_STATE_START,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = firstPose,
+                currentPose = secondPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        )
+        rtMovableComponent.onMoveEvent(
+            MoveEvent(
+                moveState = MoveEvent.MOVE_STATE_ONGOING,
+                initialInputRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                currentInputRay = Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                previousPose = firstPose,
+                currentPose = secondPose,
+                previousScale = Vector3(1f, 1f, 1f),
+                currentScale = Vector3(1f, 1f, 1f),
+                initialParent = activitySpace,
+                updatedParent = null,
+                disposedEntity = null,
+            )
+        )
+        composeTestRule.waitForIdle()
+
+        // Remove the movable modifier mid-drag before MOVE_STATE_END is dispatched.
+        hasMovable = false
+        composeTestRule.waitForIdle()
+
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun policySystem_optionalCallbackIsInvoked() {
