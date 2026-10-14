@@ -37,12 +37,6 @@ actual internal object BrushCoatNative {
     /** Release the underlying memory allocated in [create]. */
     @UsedByNative actual external fun free(nativePointer: Long)
 
-    @UsedByNative
-    actual external fun isCompatibleWithMeshFormat(
-        nativePointer: Long,
-        meshFormatNativePointer: Long,
-    ): Boolean
-
     /**
      * Returns a new, unowned native pointer to a copy of the `BrushTip` in the pointed-at
      * `BrushCoat`.

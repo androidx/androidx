@@ -60,6 +60,9 @@ internal actual object StrokeNative {
         strokeE: Float,
         strokeF: Float,
     ): Long
+
+    @UsedByNative
+    actual external fun shapeSupportsBrush(nativePointer: Long, brushNativePointer: Long): Boolean
 }
 
 @UsedByNative

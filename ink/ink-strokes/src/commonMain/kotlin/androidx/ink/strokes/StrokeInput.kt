@@ -130,6 +130,10 @@ public class StrokeInput {
      * the stylus from its top towards its tip). The value should be normalized to fall between 0
      * and 2π in radians.
      *
+     * Different stylus hardware may vary, but typically, if the stylus has one flat side along the
+     * barrel, then [getBarrelTwistRadians] will equal zero whenever the flat side is pointing
+     * directly away from the drawing surface.
+     *
      * [NO_BARREL_TWIST] indicates that barrel twist is not reported, which can be checked with
      * [hasBarrelTwist].
      */
