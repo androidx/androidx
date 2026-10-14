@@ -189,12 +189,6 @@ package androidx.compose.ui.test {
     property public kotlin.time.Duration testTimeout;
   }
 
-  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public final class ComposeUiTestFlags {
-    property public boolean isMainThreadTestSynchronizationEnabledForDeviceTests;
-    field public static final androidx.compose.ui.test.ComposeUiTestFlags INSTANCE;
-    field public static boolean isMainThreadTestSynchronizationEnabledForDeviceTests;
-  }
-
   public final class ComposeUiTestKt {
     method public static boolean isIdlingResourceSupported(androidx.compose.ui.test.ComposeUiTest);
     method public static boolean registerIdlingResource(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.IdlingResource idlingResource);
