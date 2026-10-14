@@ -302,7 +302,7 @@ public sealed class OrderedScatterSet<E> {
             val slot = m[i]
             // In metadata, Empty (0x80), Deleted (0xFE), and Sentinel (0xFF) all have bit 7
             // set; Full slots have bit 7 unset (< 0x80). Inverting the word and masking
-            // with BitmaskMsb sets bit (8j + 7) iff slot j is Full. Sentinel (0xFF) at
+            // with BitmaskMsb sets bit (8j + 7) if slot j is Full. Sentinel (0xFF) at
             // capacity index is naturally skipped since its bit 7 is set.
             var mask = slot.inv() and BitmaskMsb
             while (mask != 0L) {
@@ -378,8 +378,8 @@ public sealed class OrderedScatterSet<E> {
      * set, `true` is returned. The order in which the predicate is called over the elements is
      * arbitrary.
      *
-     * @param predicate called for elements in the set to determine if it returns return `true` for
-     *   all elements.
+     * @param predicate called for elements in the set to determine if it returns `true` for all
+     *   elements.
      */
     public inline fun all(predicate: (element: E) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
@@ -439,7 +439,7 @@ public sealed class OrderedScatterSet<E> {
     public fun joinToString(
         separator: CharSequence = ", ",
         prefix: CharSequence = "",
-        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        postfix: CharSequence = "", // I know this should be "suffix", but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
         transform: ((E) -> CharSequence)? = null,
@@ -859,7 +859,7 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
     /**
      * Removes the specified [elements] from the set, if present.
      *
-     * @param elements A Iterable of elements to be removed from the set.
+     * @param elements An Iterable of elements to be removed from the set.
      * @return `true` if the set was changed or `false` if none of the elements were present.
      */
     public fun removeAll(elements: Iterable<E>): Boolean {
@@ -925,7 +925,7 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
     /**
      * Removes the specified [elements] from the set, if present.
      *
-     * @param elements A Iterable of elements to be removed from the set.
+     * @param elements An Iterable of elements to be removed from the set.
      */
     public operator fun minusAssign(elements: Iterable<E>) {
         elements.forEach { element -> minusAssign(element) }
@@ -1235,12 +1235,12 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
         // to find the next/previous node. Since this method will move the values inside the
         // data structure, we need to patch the nodes array when we're done. We could skip the
         // mapping array but that would require scanning the entire nodes array every time we move
-        // a value inside the data structure which would be more expensive. Instead we traverse
+        // a value inside the data structure which would be more expensive. Instead, we traverse
         // the nodes array only once in [fixup].
         //
         // Each index mapping is a (src, dst) pair. The source index indicates which
         // index the current value came, and the destination index indicates where the
-        // value previously held was moved. For instance we want to swap the values
+        // value previously held was moved. For instance, we want to swap the values
         // at index 4 and 21:
         //
         // indexMapping[4] = (21, 21)
@@ -1387,9 +1387,8 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
         val previousMetadata = metadata
         val previousElements = elements
         val previousNodes = nodes
-        val previousCapacity = _capacity
 
-        val indexMapping = IntArray(previousCapacity)
+        val indexMapping = IntArray(_capacity)
 
         initializeStorage(newCapacity)
 
@@ -1398,17 +1397,23 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
         val newNodes = nodes
         val capacity = _capacity
 
-        for (i in 0 until previousCapacity) {
-            if (isFull(previousMetadata, i)) {
-                val previousKey = previousElements[i]
-                val hash = hash(previousKey)
+        val lastIndex = previousMetadata.size - 2 // We always have 0 or at least 2 entries
+        for (i in 0..lastIndex) {
+            val slot = previousMetadata[i]
+            var mask = slot.inv() and BitmaskMsb
+            while (mask != 0L) {
+                val previousIndex = (i shl 3) + (mask.countTrailingZeroBits() ushr 3)
+                val previousElement = previousElements[previousIndex]
+                val hash = hash(previousElement)
                 val index = findFirstAvailableSlot(h1(hash))
 
                 writeMetadata(newMetadata, capacity, index, h2(hash).toLong())
-                newElements[index] = previousKey
-                newNodes[index] = previousNodes[i]
+                newElements[index] = previousElement
+                newNodes[index] = previousNodes[previousIndex]
 
-                indexMapping[i] = index
+                indexMapping[previousIndex] = index
+
+                mask = mask and (mask - 1L)
             }
         }
 
@@ -1442,7 +1447,7 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
     /**
      * Wraps this [OrderedScatterSet] with a [MutableSet] interface. The [MutableSet] is backed by
      * the [OrderedScatterSet], so changes to the [OrderedScatterSet] are reflected in the
-     * [MutableSet] and vice-versa. If the [OrderedScatterSet] is modified while an iteration over
+     * [MutableSet] and vice versa. If the [OrderedScatterSet] is modified while an iteration over
      * the [MutableSet] is in progress (and vice- versa), the results of the iteration are
      * undefined.
      *
@@ -1481,11 +1486,17 @@ private open class OrderedSetWrapper<E>(private val parent: OrderedScatterSet<E>
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || this::class != other::class) return false
 
-        other as OrderedSetWrapper<*>
+        if (other is OrderedSetWrapper<*>) return parent == other.parent
+        if (other is Set<*>) {
+            if (parent._size != other.size) return false
+            parent.forEach { value ->
+                if (value !in other) return false
+            }
+            return true
+        }
 
-        return parent == other.parent
+        return false
     }
 
     override fun hashCode(): Int {

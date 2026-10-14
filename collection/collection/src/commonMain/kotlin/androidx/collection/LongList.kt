@@ -34,7 +34,7 @@ import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// DO NOT MAKE CHANGES to the kotlin source file.
+// DO NOT MAKE CHANGES to the Kotlin source file.
 //
 // This file was generated from a template in the template directory.
 // Make a change to the original template and run the generateCollections.sh script
@@ -555,7 +555,7 @@ public sealed class LongList(initialCapacity: Int) {
     public fun joinToString(
         separator: CharSequence = ", ",
         prefix: CharSequence = "",
-        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        postfix: CharSequence = "", // I know this should be "suffix", but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
     ): String = buildString {
@@ -587,7 +587,7 @@ public sealed class LongList(initialCapacity: Int) {
     public inline fun joinToString(
         separator: CharSequence = ", ",
         prefix: CharSequence = "",
-        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        postfix: CharSequence = "", // I know this should be "suffix", but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
         crossinline transform: (Long) -> CharSequence,
@@ -1065,7 +1065,7 @@ public inline fun mutableLongListOf(vararg elements: Long): MutableLongList =
  * Builds a new [LongList] by populating a [MutableLongList] using the given [builderAction].
  *
  * The instance passed as a receiver to the [builderAction] is valid only inside that function.
- * Using it outside of the function produces an unspecified behavior.
+ * Using it outside the function produces an unspecified behavior.
  *
  * @param builderAction Lambda in which the [MutableLongList] can be populated.
  */
@@ -1078,7 +1078,7 @@ public inline fun buildLongList(builderAction: MutableLongList.() -> Unit): Long
  * Builds a new [LongList] by populating a [MutableLongList] using the given [builderAction].
  *
  * The instance passed as a receiver to the [builderAction] is valid only inside that function.
- * Using it outside of the function produces an unspecified behavior.
+ * Using it outside the function produces an unspecified behavior.
  *
  * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
  * @param builderAction Lambda in which the [MutableLongList] can be populated.

@@ -1520,6 +1520,10 @@ class ScatterMapTest {
         map2["Hello"] = "World"
         assertEquals(map.asMap(), map2.asMap())
         assertEquals(map.asMutableMap(), map2.asMutableMap())
+
+        val map3 = mapOf("Hello" to "World", null to "Monde", "Bonjour" to null)
+        assertEquals(map.asMap(), map3)
+        assertEquals(map.asMutableMap(), map3)
     }
 
     @Test
@@ -1684,6 +1688,88 @@ class ScatterMapTest {
         }
         for (i in 0..100) {
             assertTrue(map.contains(i), "Map should contain element $i")
+        }
+    }
+
+    private class CollidingKey(val id: Int, val hash: Int = 0) {
+        override fun hashCode(): Int = hash
+
+        override fun equals(other: Any?): Boolean =
+            other is CollidingKey && other.id == id && other.hash == hash
+    }
+
+    @Test
+    fun successivePutDelete() {
+        val map = MutableScatterMap<String, String>()
+        // "0".."7" only lands on 6 of the 7 slots due to hash collisions ("26" is the first
+        // string to land on the 7th slot, slot 2). Looping to 32 ensures all 7 slots are hit.
+        for (i in 0..32) {
+            val s = i.toString()
+            map[s] = s
+            map.remove(s)
+        }
+
+        assertEquals(0, map.size)
+        if (!isJs()) {
+            assertEquals(7, map.capacity)
+        }
+    }
+
+    @Test
+    fun removeMarksEmptyWhenWindowUnderGroupWidth() {
+        val map = MutableScatterMap<CollidingKey, Int>(10)
+        if (!isJs()) {
+            assertEquals(15, map.capacity)
+        }
+
+        // hash = 11 has h1(hash(11)) and 15 == 1, so 7 colliding keys occupy slots 1..7
+        // (GroupWidth - 1 contiguous Full slots, with Empty at slots 0 and 8).
+        for (i in 0 until 7) {
+            map[CollidingKey(i, hash = 11)] = i
+        }
+
+        // Remove slot 7 first (CollidingKey(6)) while 7 contiguous slots (1..7) are Full.
+        // Because the non-empty run length is 7 (< GroupWidth), slot 7 must be marked Empty
+        // and growthLimit incremented, followed by slots 6 downTo 1.
+        for (i in 6 downTo 0) {
+            assertEquals(i, map.remove(CollidingKey(i, hash = 11)))
+        }
+        assertEquals(0, map.size)
+
+        // hash = 6 has h1(hash(6)) and 15 == 8, so 14 colliding keys fill slots 8..14 and
+        // then wrap to fill slots 0..6, never touching slot 7. If slot 7 had been marked
+        // Deleted instead of Empty (leaving growthLimit at 13), inserting the 14th key at
+        // Empty slot 6 would hit growthLimit == 0 at size 13 (> 15 * 25 / 32) and resize to 31.
+        for (i in 0 until 14) {
+            map[CollidingKey(i, hash = 6)] = i
+        }
+        assertEquals(14, map.size)
+        if (!isJs()) {
+            assertEquals(15, map.capacity)
+        }
+    }
+
+    @Test
+    fun removeInFullGroupPreservesProbeChain() {
+        val map = MutableScatterMap<CollidingKey, Int>(16)
+        // Insert GroupWidth (8) colliding keys to completely fill the first probe group (0..7),
+        // plus a 9th colliding key that must probe to the next group (index 8).
+        for (i in 0..8) {
+            map[CollidingKey(i)] = i
+        }
+
+        // Remove from the middle of the full group first (index 4), where both groupEmptyAfter and
+        // groupEmptyBefore are non-zero, but their combined distance is >= GroupWidth, so the slot
+        // must be marked Deleted (not Empty) to keep CollidingKey(8) reachable.
+        assertEquals(4, map.remove(CollidingKey(4)))
+        assertEquals(8, map[CollidingKey(8)])
+
+        // Removing the remaining keys in the first group must also keep CollidingKey(8) reachable.
+        for (i in 0..7) {
+            if (i != 4) {
+                assertEquals(i, map.remove(CollidingKey(i)))
+                assertEquals(8, map[CollidingKey(8)])
+            }
         }
     }
 }

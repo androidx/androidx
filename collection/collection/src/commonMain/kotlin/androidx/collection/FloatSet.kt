@@ -38,7 +38,7 @@ import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// DO NOT MAKE CHANGES to the kotlin source file.
+// DO NOT MAKE CHANGES to the Kotlin source file.
 //
 // This file was generated from a template in the template directory.
 // Make a change to the original template and run the generateCollections.sh script
@@ -110,7 +110,7 @@ public fun mutableFloatSetOf(vararg elements: Float): MutableFloatSet =
  * Builds a new [FloatSet] by populating a [MutableFloatSet] using the given [builderAction].
  *
  * The set passed as a receiver to the [builderAction] is valid only inside that function. Using it
- * outside of the function produces an unspecified behavior.
+ * outside the function produces an unspecified behavior.
  *
  * @param builderAction Lambda in which the [MutableFloatSet] can be populated.
  */
@@ -123,7 +123,7 @@ public inline fun buildFloatSet(builderAction: MutableFloatSet.() -> Unit): Floa
  * Builds a new [FloatSet] by populating a [MutableFloatSet] using the given [builderAction].
  *
  * The set passed as a receiver to the [builderAction] is valid only inside that function. Using it
- * outside of the function produces an unspecified behavior.
+ * outside the function produces an unspecified behavior.
  *
  * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
  * @param builderAction Lambda in which the [MutableFloatSet] can be populated.
@@ -234,7 +234,7 @@ public sealed class FloatSet {
             val slot = m[i]
             // In metadata, Empty (0x80), Deleted (0xFE), and Sentinel (0xFF) all have bit 7
             // set; Full slots have bit 7 unset (< 0x80). Inverting the word and masking
-            // with BitmaskMsb sets bit (8j + 7) iff slot j is Full. Sentinel (0xFF) at
+            // with BitmaskMsb sets bit (8j + 7) if slot j is Full. Sentinel (0xFF) at
             // capacity index is naturally skipped since its bit 7 is set.
             var mask = slot.inv() and BitmaskMsb
             while (mask != 0L) {
@@ -262,8 +262,8 @@ public sealed class FloatSet {
     /**
      * Returns true if all elements match the given [predicate].
      *
-     * @param predicate called for elements in the set to determine if it returns return `true` for
-     *   all elements.
+     * @param predicate called for elements in the set to determine if it returns `true` for all
+     *   elements.
      */
     public inline fun all(predicate: (element: Float) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
@@ -325,7 +325,7 @@ public sealed class FloatSet {
     public fun joinToString(
         separator: CharSequence = ", ",
         prefix: CharSequence = "",
-        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        postfix: CharSequence = "", // I know this should be "suffix", but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
     ): String = buildString {
@@ -359,7 +359,7 @@ public sealed class FloatSet {
     public inline fun joinToString(
         separator: CharSequence = ", ",
         prefix: CharSequence = "",
-        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        postfix: CharSequence = "", // I know this should be "suffix", but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
         crossinline transform: (Float) -> CharSequence,
@@ -873,7 +873,6 @@ public class MutableFloatSet(initialCapacity: Int = DefaultScatterCapacity) : Fl
     internal fun resizeStorage(newCapacity: Int) {
         val previousMetadata = metadata
         val previousElements = elements
-        val previousCapacity = _capacity
 
         initializeStorage(newCapacity)
 
@@ -881,14 +880,20 @@ public class MutableFloatSet(initialCapacity: Int = DefaultScatterCapacity) : Fl
         val newElements = elements
         val capacity = _capacity
 
-        for (i in 0 until previousCapacity) {
-            if (isFull(previousMetadata, i)) {
-                val previousElement = previousElements[i]
+        val lastIndex = previousMetadata.size - 2 // We always have 0 or at least 2 entries
+        for (i in 0..lastIndex) {
+            val slot = previousMetadata[i]
+            var mask = slot.inv() and BitmaskMsb
+            while (mask != 0L) {
+                val previousIndex = (i shl 3) + (mask.countTrailingZeroBits() ushr 3)
+                val previousElement = previousElements[previousIndex]
                 val hash = hash(previousElement)
                 val index = findFirstAvailableSlot(h1(hash))
 
                 writeMetadata(newMetadata, capacity, index, h2(hash).toLong())
                 newElements[index] = previousElement
+
+                mask = mask and (mask - 1L)
             }
         }
     }
