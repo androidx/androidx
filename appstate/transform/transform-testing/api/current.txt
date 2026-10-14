@@ -1,0 +1,24 @@
+// Signature format: 5.0
+// - surface=public
+package androidx.appstate.transform.testing {
+
+  public final class TransformTestKt {
+    method public static void transformTest(optional kotlin.coroutines.CoroutineContext context, kotlin.jvm.functions.Function2<? super androidx.appstate.transform.testing.TransformTestScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
+    method @BytecodeOnly public static void transformTest$default(kotlin.coroutines.CoroutineContext!, kotlin.jvm.functions.Function2!, int, Object!);
+  }
+
+  public sealed nonexhaustive interface TransformTestScope extends kotlinx.coroutines.CoroutineScope {
+    method public void advance();
+    method @KotlinOnly public void advanceTimeBy(kotlin.time.Duration duration);
+    method @BytecodeOnly public void advanceTimeBy-LRDsOJo(long);
+    method public void advanceUntilIdle();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.CoroutineScope getBackgroundScope();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.test.TestCoroutineScheduler getTestCoroutineScheduler();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.test.TestDispatcher getTestDispatcher();
+    property public abstract kotlinx.coroutines.CoroutineScope backgroundScope;
+    property public abstract kotlinx.coroutines.test.TestCoroutineScheduler testCoroutineScheduler;
+    property public abstract kotlinx.coroutines.test.TestDispatcher testDispatcher;
+  }
+
+}
+

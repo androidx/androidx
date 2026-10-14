@@ -1,0 +1,22 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.appstate.transform:transform-testing>
+sealed interface androidx.appstate.transform.testing/TransformTestScope : kotlinx.coroutines/CoroutineScope { // androidx.appstate.transform.testing/TransformTestScope|null[0]
+    abstract val backgroundScope // androidx.appstate.transform.testing/TransformTestScope.backgroundScope|{}backgroundScope[0]
+        abstract fun <get-backgroundScope>(): kotlinx.coroutines/CoroutineScope // androidx.appstate.transform.testing/TransformTestScope.backgroundScope.<get-backgroundScope>|<get-backgroundScope>(){}[0]
+    abstract val testCoroutineScheduler // androidx.appstate.transform.testing/TransformTestScope.testCoroutineScheduler|{}testCoroutineScheduler[0]
+        abstract fun <get-testCoroutineScheduler>(): kotlinx.coroutines.test/TestCoroutineScheduler // androidx.appstate.transform.testing/TransformTestScope.testCoroutineScheduler.<get-testCoroutineScheduler>|<get-testCoroutineScheduler>(){}[0]
+    abstract val testDispatcher // androidx.appstate.transform.testing/TransformTestScope.testDispatcher|{}testDispatcher[0]
+        abstract fun <get-testDispatcher>(): kotlinx.coroutines.test/TestDispatcher // androidx.appstate.transform.testing/TransformTestScope.testDispatcher.<get-testDispatcher>|<get-testDispatcher>(){}[0]
+
+    abstract fun advance() // androidx.appstate.transform.testing/TransformTestScope.advance|advance(){}[0]
+    abstract fun advanceTimeBy(kotlin.time/Duration) // androidx.appstate.transform.testing/TransformTestScope.advanceTimeBy|advanceTimeBy(kotlin.time.Duration){}[0]
+    abstract fun advanceUntilIdle() // androidx.appstate.transform.testing/TransformTestScope.advanceUntilIdle|advanceUntilIdle(){}[0]
+}
+
+final fun androidx.appstate.transform.testing/transformTest(kotlin.coroutines/CoroutineContext = ..., kotlin.coroutines/SuspendFunction1<androidx.appstate.transform.testing/TransformTestScope, kotlin/Unit>) // androidx.appstate.transform.testing/transformTest|transformTest(kotlin.coroutines.CoroutineContext;kotlin.coroutines.SuspendFunction1<androidx.appstate.transform.testing.TransformTestScope,kotlin.Unit>){}[0]
