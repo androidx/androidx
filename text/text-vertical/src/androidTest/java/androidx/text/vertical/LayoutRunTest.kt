@@ -405,6 +405,51 @@ class LayoutRunTest {
             .inOrder()
     }
 
+    @Test
+    fun uprightLayoutRun_mixedEmphasisPositions_drawsBackgroundOnlyOnEmphasisSide() {
+        val text =
+            SpannableString("あい").apply {
+                setSpan(
+                    EmphasisSpan(EmphasisStyle.Dot, isFilled = true, AnnotationPosition.After),
+                    0,
+                    1,
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE,
+                )
+                setSpan(
+                    EmphasisSpan(EmphasisStyle.Dot, isFilled = true, AnnotationPosition.Before),
+                    1,
+                    2,
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE,
+                )
+            }
+        val bgPaint = bgTextPaint()
+        val run = createLayoutRun(text, 0, text.length, bgPaint, Upright)
+        val canvas = MockCanvas()
+        run.draw(canvas, ORIGIN_X, ORIGIN_Y, bgPaint)
+
+        val run1Height = bgPaint.measureTextVertical("あ")
+        val run2Height = bgPaint.measureTextVertical("い")
+        val em = bgPaint.textSize
+        assertThat(canvas.drawnRects)
+            .containsExactly(
+                DrawRectCall(
+                    left = ORIGIN_X - em,
+                    top = ORIGIN_Y,
+                    right = ORIGIN_X + em * 0.5f,
+                    bottom = ORIGIN_Y + run1Height,
+                    color = Color.YELLOW,
+                ),
+                DrawRectCall(
+                    left = ORIGIN_X - em * 0.5f,
+                    top = ORIGIN_Y + run1Height,
+                    right = ORIGIN_X + em,
+                    bottom = ORIGIN_Y + run1Height + run2Height,
+                    color = Color.YELLOW,
+                ),
+            )
+            .inOrder()
+    }
+
     private fun assertRunDrawsBackground(run: LayoutRun, bgPaint: TextPaint) {
         val bitmap =
             Bitmap.createBitmap(120, ceil(run.height).toInt() + 40, Bitmap.Config.ARGB_8888)

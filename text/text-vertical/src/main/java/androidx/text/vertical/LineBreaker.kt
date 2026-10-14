@@ -64,7 +64,7 @@ internal object LineBreaker {
     /**
      * Represents lines of text that have been laid out.
      *
-     * @property width The total width of the line.
+     * @property width sum of all laid-out line (column) widths in pixels
      * @property lineLeftSide The distance from each line left to each line baseline.
      * @property lineRightSide The distance from each line baseline to each line right.
      */
@@ -81,9 +81,20 @@ internal object LineBreaker {
         /** Maximum height in pixels among all laid-out lines, or `0f` when empty. */
         val height: Float = lineLayouts.maxOfOrNull { it.height } ?: 0f
 
-        /** Uniform width in pixels of a single vertical line (column). */
+        /**
+         * Bounding width in pixels across the maximum left and right extents of all vertical lines
+         * (columns).
+         */
         val lineWidth: Float
             get() = lineRightSide - lineLeftSide
+
+        /**
+         * Returns the laid-out width in pixels of the line at [lineNo].
+         *
+         * @param lineNo 0-based line (column) index
+         * @return width in pixels of the line at [lineNo]
+         */
+        fun getLineWidth(lineNo: Int): Float = lineLayouts[lineNo].width
 
         /**
          * Returns the laid-out height in pixels of the line at [lineNo].
@@ -118,10 +129,10 @@ internal object LineBreaker {
          * @param paint The TextPaint object to use for text rendering.
          */
         fun draw(canvas: Canvas, x: Float, y: Float, paint: TextPaint) {
-            lineLayouts.forEachIndexed { i, line ->
-                // Baseline offset of the i-th line.
-                val baselineOffset = -lineWidth * i - lineRightSide
-                line.draw(canvas, x + baselineOffset, y, paint)
+            var currentX = x
+            lineLayouts.forEach { line ->
+                line.draw(canvas, currentX - line.rightSide, y, paint)
+                currentX -= line.width
             }
         }
     }
@@ -454,15 +465,16 @@ private data class Context(
     fun finish(): Result {
         breakLine()
 
-        // To use the same line width, iterate over all lines and use the maximum of it.
         var leftSide = 0f
         var rightSide = 0f
+        var width = 0f
 
         brokenLines.forEach {
             leftSide = min(leftSide, it.leftSide)
             rightSide = max(rightSide, it.rightSide)
+            width += it.width
         }
 
-        return Result(brokenLines, (rightSide - leftSide) * brokenLines.size, leftSide, rightSide)
+        return Result(brokenLines, width, leftSide, rightSide)
     }
 }
