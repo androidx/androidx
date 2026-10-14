@@ -43,6 +43,18 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.TARGET_SDK])
 class RemoteTextStyleTest {
 
+    /** A variable font whose axes match its declared [weight] and [style]. */
+    private fun flexFont(weight: FontWeight, style: FontStyle = FontStyle.Normal) =
+        Font(
+            DeviceFontFamilyName("roboto-flex"),
+            weight = weight,
+            style = style,
+            variationSettings = FontVariation.Settings(weight, style),
+        )
+
+    private fun FontVariation.Settings?.toAxisMap(): Map<String, Float> =
+        this?.settings?.associate { it.axisName to it.toVariationValue(null) } ?: emptyMap()
+
     @Test
     fun fromTextStyle_createsCorrectly() {
         // Unspecified values map to null
@@ -152,6 +164,77 @@ class RemoteTextStyleTest {
         assertThat(remoteStyle.fontVariationSettings.settings[0].axisName).isEqualTo("ROND")
         assertThat(remoteStyle.fontVariationSettings.settings[0].toVariationValue(null))
             .isEqualTo(100f)
+    }
+
+    @Test
+    fun fromTextStyle_variableFontWithFontFeatureSettings_keepsFontAxes() {
+        // Repro from b/568283088: a variable font with axes plus fontFeatureSettings.
+        val textStyle =
+            TextStyle(
+                fontFamily =
+                    FontFamily(
+                        Font(
+                            DeviceFontFamilyName("google-sans-flex"),
+                            variationSettings =
+                                FontVariation.Settings(FontVariation.Setting("ROND", 100f)),
+                        )
+                    ),
+                fontFeatureSettings = "pnum",
+            )
+
+        val remoteStyle = RemoteTextStyle.fromTextStyle(textStyle)
+
+        assertThat(remoteStyle.fontVariationSettings.toAxisMap()).containsExactly("ROND", 100f)
+        assertThat(remoteStyle.fontFeatureSettings).isEqualTo("pnum")
+    }
+
+    @Test
+    fun fromTextStyle_multiWeightFamily_usesVariationSettingsOfMatchingWeight() {
+        val fontFamily = FontFamily(flexFont(FontWeight.Normal), flexFont(FontWeight.Bold))
+
+        val bold =
+            RemoteTextStyle.fromTextStyle(
+                TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Bold)
+            )
+        val normal = RemoteTextStyle.fromTextStyle(TextStyle(fontFamily = fontFamily))
+
+        assertThat(bold.fontVariationSettings.toAxisMap()).containsEntry("wght", 700f)
+        assertThat(normal.fontVariationSettings.toAxisMap()).containsEntry("wght", 400f)
+    }
+
+    @Test
+    fun fromTextStyle_multiStyleFamily_usesVariationSettingsOfMatchingStyle() {
+        val fontFamily =
+            FontFamily(
+                flexFont(FontWeight.Normal, FontStyle.Normal),
+                flexFont(FontWeight.Normal, FontStyle.Italic),
+            )
+
+        val italic =
+            RemoteTextStyle.fromTextStyle(
+                TextStyle(fontFamily = fontFamily, fontStyle = FontStyle.Italic)
+            )
+
+        assertThat(italic.fontVariationSettings.toAxisMap()).containsEntry("ital", 1f)
+    }
+
+    @Test
+    fun fromTextStyle_noExactWeight_followsCssFontMatching() {
+        val fontFamily = FontFamily(flexFont(FontWeight.W300), flexFont(FontWeight.W700))
+
+        fun wghtFor(weight: FontWeight) =
+            RemoteTextStyle.fromTextStyle(TextStyle(fontFamily = fontFamily, fontWeight = weight))
+                .fontVariationSettings
+                .toAxisMap()["wght"]
+
+        // < 400: prefer lighter, then heavier.
+        assertThat(wghtFor(FontWeight.W200)).isEqualTo(300f)
+        assertThat(wghtFor(FontWeight(350))).isEqualTo(300f)
+        // 400..500: heavier up to 500, then lighter, then heavier than 500.
+        assertThat(wghtFor(FontWeight(450))).isEqualTo(300f)
+        // > 500: prefer heavier, then lighter.
+        assertThat(wghtFor(FontWeight.W600)).isEqualTo(700f)
+        assertThat(wghtFor(FontWeight.W900)).isEqualTo(700f)
     }
 
     @Test
