@@ -2504,7 +2504,15 @@ public class RemoteComposeJsonParser {
                 for (int i = 0; i < idsArr.length(); i++) {
                     ids[i] = resolveTextId(idsArr.get(i));
                 }
-                mWriter.addList(ids);
+                float listId = mWriter.addList(ids);
+                String name =
+                        command.optString(
+                                "id",
+                                command.optString("varName", command.optString("name", null)));
+                if (name != null) {
+                    mVariables.put(
+                            isVariableRef(name) ? getVariableNameFromRef(name) : name, listId);
+                }
                 break;
             }
         }
