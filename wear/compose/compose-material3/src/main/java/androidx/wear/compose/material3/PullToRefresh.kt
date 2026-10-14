@@ -19,8 +19,6 @@ package androidx.wear.compose.material3
 import androidx.annotation.FloatRange
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -149,7 +147,7 @@ public fun PullToRefreshBox(
 /** Contains the default values for [PullToRefreshBox] */
 public object PullToRefreshDefaults {
     /** The default shape for [Indicator] */
-    public val indicatorShape: Shape = CircleShape
+    public val IndicatorShape: Shape = CircleShape
 
     /** The default container color for [Indicator] */
     public val indicatorContainerColor: Color
@@ -174,8 +172,8 @@ public object PullToRefreshDefaults {
      * pull-to-refresh indicator, useful when implementing custom indicators.
      * [PullToRefreshDefaults.Indicator] uses this as the container.
      *
-     * @param state the state of this modifier, will use `state.distanceFraction` and [maxDistance]
-     *   to calculate the offset
+     * @param state the state that keeps track of distance pulled, will use `state.distanceFraction`
+     *   and [maxDistance] to calculate the offset
      * @param isRefreshing whether a refresh is occurring
      * @param modifier the modifier applied to this layout
      * @param maxDistance the max distance the indicator can be pulled down before a refresh is
@@ -190,7 +188,7 @@ public object PullToRefreshDefaults {
         isRefreshing: Boolean,
         modifier: Modifier = Modifier,
         maxDistance: Dp = IndicatorMaxDistance,
-        shape: Shape = indicatorShape,
+        shape: Shape = IndicatorShape,
         containerColor: Color = indicatorContainerColor,
         content: @Composable BoxScope.() -> Unit,
     ) {
@@ -277,8 +275,8 @@ public object PullToRefreshDefaults {
      * [PullToRefreshState.distanceFraction], and crossfades into a
      * [androidx.wear.compose.material3.CircularProgressIndicator] when the refresh triggers.
      *
-     * @param state the state of this modifier, will use `state.distanceFraction` and [maxDistance]
-     *   to calculate the offset
+     * @param state the state that keeps track of distance pulled, will use `state.distanceFraction`
+     *   and [maxDistance] to calculate the offset
      * @param isRefreshing whether a refresh is occurring
      * @param modifier the modifier applied to this layout
      * @param containerColor the container color of this indicator
@@ -341,43 +339,28 @@ public object PullToRefreshDefaults {
  * @sample androidx.wear.compose.material3.samples.PullToRefreshCustomIndicatorSample
  */
 @Stable
-public class PullToRefreshState
-internal constructor(private val anim: Animatable<Float, AnimationVector1D>) {
-    @RememberInComposition public constructor() : this(Animatable(0f, Float.VectorConverter))
+public interface PullToRefreshState {
 
     /**
      * Distance percentage towards the refresh threshold. 0.0 indicates no distance, 1.0 indicates
      * being at the threshold offset, > 1.0 indicates overshoot beyond the provided threshold.
      */
-    @get:FloatRange(from = 0.0)
-    public val distanceFraction: Float
-        get() = anim.value
+    @get:FloatRange(from = 0.0) public val distanceFraction: Float
 
     /**
      * Whether the state is currently animating the indicator to the threshold offset, or back to
      * the hidden offset.
      */
     public val isAnimating: Boolean
-        get() = anim.isRunning
 
     /**
      * Animate the distance towards the anchor or threshold position, where the indicator will be
      * shown when refreshing.
-     *
-     * @param animationSpec The [AnimationSpec] used for animating the distance.
      */
-    public suspend fun animateToThreshold(animationSpec: AnimationSpec<Float> = spring()) {
-        anim.animateTo(1f, animationSpec = animationSpec)
-    }
+    public suspend fun animateToThreshold()
 
-    /**
-     * Animate the distance towards the position where the indicator will be hidden when idle.
-     *
-     * @param animationSpec The [AnimationSpec] used for animating the distance.
-     */
-    public suspend fun animateToHidden(animationSpec: AnimationSpec<Float> = spring()) {
-        anim.animateTo(0f, animationSpec = animationSpec)
-    }
+    /** Animate the distance towards the position where the indicator will be hidden when idle. */
+    public suspend fun animateToHidden()
 
     /**
      * Snap the indicator to the desired threshold fraction.
@@ -385,10 +368,33 @@ internal constructor(private val anim: Animatable<Float, AnimationVector1D>) {
      * @param targetValue The target fraction to snap to, where 0.0 represents the hidden state and
      *   1.0 represents the threshold position.
      */
-    public suspend fun snapTo(@FloatRange(from = 0.0) targetValue: Float) {
-        anim.snapTo(targetValue)
-    }
+    public suspend fun snapTo(@FloatRange(from = 0.0) targetValue: Float)
 }
+
+/** Creates a [PullToRefreshState]. */
+@RememberInComposition
+public fun PullToRefreshState(): PullToRefreshState =
+    object : PullToRefreshState {
+        private val anim = Animatable(0f, Float.VectorConverter)
+
+        override val distanceFraction: Float
+            get() = anim.value
+
+        override val isAnimating: Boolean
+            get() = anim.isRunning
+
+        override suspend fun animateToThreshold() {
+            anim.animateTo(1f, animationSpec = SettleAnimationSpec)
+        }
+
+        override suspend fun animateToHidden() {
+            anim.animateTo(0f, animationSpec = AbortAnimationSpec)
+        }
+
+        override suspend fun snapTo(targetValue: Float) {
+            anim.snapTo(targetValue)
+        }
+    }
 
 /**
  * A Modifier that adds nested scroll to a container to support a pull-to-refresh gesture. When the
@@ -625,7 +631,7 @@ internal class PullToRefreshModifierNode(
 
     private suspend fun animateToThreshold() {
         try {
-            state.animateToThreshold(animationSpec = SettleAnimationSpec)
+            state.animateToThreshold()
         } finally {
             if (isAttached) {
                 distancePulled = thresholdPx.toFloat()
@@ -636,7 +642,7 @@ internal class PullToRefreshModifierNode(
 
     private suspend fun animateToHidden() {
         try {
-            state.animateToHidden(animationSpec = AbortAnimationSpec)
+            state.animateToHidden()
         } finally {
             distancePulled = 0f
             verticalOffset = 0f
