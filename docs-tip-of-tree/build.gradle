@@ -75,6 +75,7 @@ dependencies {
     stubs(project(":compose:animation:animation-tooling-internal"))
     kmpDocs(project(":compose:foundation:foundation"))
     kmpDocs(project(":compose:foundation:foundation-layout"))
+    docs(project(":compose:markuptext:markuptext"))
     kmpDocs(project(":compose:material3:adaptive:adaptive"))
     kmpDocs(project(":compose:material3:adaptive:adaptive-layout"))
     kmpDocs(project(":compose:material3:adaptive:adaptive-navigation"))
