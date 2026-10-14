@@ -168,9 +168,10 @@ constructor(public val payload: Map<String, String> = emptyMap()) {
 }
 
 /**
- * Denotes that the annotated [Int] is a backup and restore lifecycle phase.
+ * Denotes that the annotated [Int] is the phase of a backup and restore test that a
+ * [BackupDeviceAction] runs in, as [BackupDeviceAction.phase] reports it.
  *
- * Unlike [BackupActionStatus] this set is closed: the host dispatches on exactly these two phases.
+ * Unlike [BackupActionStatus], this set is closed: a phase is one of these values.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Retention(AnnotationRetention.SOURCE)
@@ -184,10 +185,12 @@ constructor(public val payload: Map<String, String> = emptyMap()) {
 )
 public annotation class BackupActionPhase {
     public companion object {
-        /** Seeds data inside the application sandbox before a backup. */
+        /** The phase of an action that seeds data in the app's storage before a backup. */
         public const val POPULATE: Int = BackupDeviceAction.PHASE_POPULATE
 
-        /** Verifies restored data inside the application sandbox after a restore. */
+        /**
+         * The phase of an action that checks restored data in the app's storage after a restore.
+         */
         public const val VERIFY: Int = BackupDeviceAction.PHASE_VERIFY
     }
 }
@@ -205,14 +208,23 @@ public annotation class BackupActionPhase {
  */
 public interface BackupDeviceAction {
     public companion object {
-        /** Seeds data inside the application sandbox before a backup. */
+        /** The [phase] of an action that seeds data in the app's storage before a backup. */
         public const val PHASE_POPULATE: Int = 1
 
-        /** Verifies restored data inside the application sandbox after a restore. */
+        /**
+         * The [phase] of an action that checks restored data in the app's storage after a restore.
+         */
         public const val PHASE_VERIFY: Int = 2
     }
 
-    /** Lifecycle phase when this action runs. */
+    /**
+     * The phase of a backup and restore test in which this action runs: [PHASE_POPULATE] for an
+     * action that seeds data before a backup, or [PHASE_VERIFY] for an action that checks restored
+     * data after a restore.
+     *
+     * The phase only describes the action. This library doesn't read it, so it doesn't change when
+     * or how the action runs.
+     */
     @get:BackupActionPhase public val phase: Int
 
     /**
