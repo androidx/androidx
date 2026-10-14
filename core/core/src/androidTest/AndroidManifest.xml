@@ -200,6 +200,11 @@
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
+        <service
+            android:name="androidx.core.os.MemorySnapshotTestService"
+            android:process=":secondary"
+            android:exported="false" />
+
     </application>
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
