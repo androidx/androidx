@@ -60,7 +60,10 @@ internal fun rememberLazyStaggeredGridSemanticState(
                         state.layoutInfo.viewportSize.width
                     }
 
-            override val contentPadding: Int
-                get() = state.layoutInfo.beforeContentPadding + state.layoutInfo.afterContentPadding
+            override val beforeContentPadding: Int
+                get() = state.layoutInfo.beforeContentPadding
+
+            override val afterContentPadding: Int
+                get() = state.layoutInfo.afterContentPadding
         }
     }

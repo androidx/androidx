@@ -137,4 +137,14 @@ public object AndroidComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     internal var isInteropHoverZOrderEnabled: Boolean = true
+
+    /**
+     * If enabled, [android.R.id.accessibilityActionShowOnScreen] accounts for the scrollable
+     * container's content padding (such as `LazyColumn(contentPadding = ...)`) when calculating the
+     * scroll delta required to make a target node fully visible.
+     */
+    // TODO: b/568388723
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isShowOnScreenContentPaddingEnabled: Boolean = true
 }

@@ -71,6 +71,19 @@ internal fun getTextLayoutResult(configuration: SemanticsConfiguration): TextLay
     }
 }
 
+/**
+ * Indices in the [MutableList] populated by [SemanticsActions.GetScrollViewportLength]:
+ * - [ScrollViewportLengthIndex] (0): active viewport length (`viewport - contentPadding`),
+ *   populated by [androidx.compose.ui.semantics.getScrollViewportLength] and `LazyLayoutSemantics`.
+ * - [ScrollViewportBeforePaddingIndex] (1): `beforeContentPadding` in pixels along the scroll axis,
+ *   populated by `LazyLayoutSemantics`.
+ * - [ScrollViewportAfterPaddingIndex] (2): `afterContentPadding` in pixels along the scroll axis,
+ *   populated by `LazyLayoutSemantics`.
+ */
+private const val ScrollViewportLengthIndex = 0
+private const val ScrollViewportBeforePaddingIndex = 1
+private const val ScrollViewportAfterPaddingIndex = 2
+
 @SuppressLint("PrimitiveInCollection")
 internal fun getScrollViewportLength(configuration: SemanticsConfiguration): Float? {
     val viewPortCalculationsResult = mutableListOf<Float>()
@@ -79,8 +92,33 @@ internal fun getScrollViewportLength(configuration: SemanticsConfiguration): Flo
             .getOrNull(SemanticsActions.GetScrollViewportLength)
             ?.action
             ?.invoke(viewPortCalculationsResult) ?: return null
-    return if (actionResult) {
-        viewPortCalculationsResult.firstOrNull()
+    return if (actionResult && viewPortCalculationsResult.size > ScrollViewportLengthIndex) {
+        viewPortCalculationsResult[ScrollViewportLengthIndex]
+    } else {
+        null
+    }
+}
+
+internal class ScrollViewportPadding(
+    val beforeContentPadding: Float,
+    val afterContentPadding: Float,
+)
+
+@SuppressLint("PrimitiveInCollection")
+internal fun getScrollViewportPadding(
+    configuration: SemanticsConfiguration
+): ScrollViewportPadding? {
+    val viewPortCalculationsResult = mutableListOf<Float>()
+    val actionResult =
+        configuration
+            .getOrNull(SemanticsActions.GetScrollViewportLength)
+            ?.action
+            ?.invoke(viewPortCalculationsResult) ?: return null
+    return if (actionResult && viewPortCalculationsResult.size > ScrollViewportAfterPaddingIndex) {
+        ScrollViewportPadding(
+            beforeContentPadding = viewPortCalculationsResult[ScrollViewportBeforePaddingIndex],
+            afterContentPadding = viewPortCalculationsResult[ScrollViewportAfterPaddingIndex],
+        )
     } else {
         null
     }
