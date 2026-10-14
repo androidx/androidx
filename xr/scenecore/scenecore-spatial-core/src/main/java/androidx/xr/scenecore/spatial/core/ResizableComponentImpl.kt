@@ -346,6 +346,12 @@ internal class ResizableComponentImpl(
 
         val reformOptions = (entity as AndroidXrEntity).getReformOptions()
         reformOptions.enabledReform = reformOptions.enabledReform or ReformOptions.ALLOW_RESIZE
+        // The compositor rejects reform on a descendant of a head-following node unless the reform
+        // reports parent-relative poses, since task-space poses there would reveal the user's head
+        // pose. Resize start events carry a pose too, so always request parent-relative poses, as
+        // MovableComponentImpl does. The flag is not cleared on detach: nothing this component
+        // reads depends on it, and a co-attached MovableComponent relies on it being set.
+        reformOptions.flags = reformOptions.flags or ReformOptions.FLAG_POSE_RELATIVE_TO_PARENT
 
         if (entitySize != null) {
             updateAndSanitizeCurrentSize(entitySize)
