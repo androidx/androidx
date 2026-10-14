@@ -2151,6 +2151,10 @@ final class androidx.compose.ui.semantics/CollectionItemInfo { // androidx.compo
         final fun <get-rowIndex>(): kotlin/Int // androidx.compose.ui.semantics/CollectionItemInfo.rowIndex.<get-rowIndex>|<get-rowIndex>(){}[0]
     final val rowSpan // androidx.compose.ui.semantics/CollectionItemInfo.rowSpan|{}rowSpan[0]
         final fun <get-rowSpan>(): kotlin/Int // androidx.compose.ui.semantics/CollectionItemInfo.rowSpan.<get-rowSpan>|<get-rowSpan>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.semantics/CollectionItemInfo.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.ui.semantics/CollectionItemInfo.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.ui.semantics/CollectionItemInfo.toString|toString(){}[0]
 }
 
 final class androidx.compose.ui.semantics/CustomAccessibilityAction { // androidx.compose.ui.semantics/CustomAccessibilityAction|null[0]

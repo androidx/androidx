@@ -765,7 +765,31 @@ public class CollectionItemInfo(
     public val rowSpan: Int,
     public val columnIndex: Int,
     public val columnSpan: Int,
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CollectionItemInfo) return false
+
+        if (rowIndex != other.rowIndex) return false
+        if (rowSpan != other.rowSpan) return false
+        if (columnIndex != other.columnIndex) return false
+        if (columnSpan != other.columnSpan) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = rowIndex.hashCode()
+        result = 31 * result + rowSpan.hashCode()
+        result = 31 * result + columnIndex.hashCode()
+        result = 31 * result + columnSpan.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "CollectionItemInfo(rowIndex=$rowIndex, rowSpan=$rowSpan, columnIndex=$columnIndex, columnSpan=$columnSpan)"
+    }
+}
 
 /**
  * The scroll state of one axis if this node is scrollable.
