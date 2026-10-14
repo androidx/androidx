@@ -268,6 +268,14 @@ validThroughLibraryVersion = "3.1.0-beta01"
 reason = "b/TODO - <reason>"
 
 [[tipOfTreeExemptions]]
+library = ":compose:runtime:runtime-saveable"
+dependsOn = ":savedstate:savedstate"
+# :compose:runtime:runtime-saveable's own version, not :savedstate:savedstate's.
+# Its version is 1.14.0-alpha01 today
+validThroughLibraryVersion = "1.14.0-beta01"
+reason = "b/559638907 - We to use the SavedStateContainer API."
+
+[[tipOfTreeExemptions]]
 library = ":security:security-app-authenticator-testing"
 dependsOn = ":security:security-app-authenticator"
 validThroughLibraryVersion = "1.0.0"

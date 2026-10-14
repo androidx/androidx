@@ -19,9 +19,11 @@ package androidx.compose.runtime.saveable
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-@RunWith(JUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [Config.TARGET_SDK])
 class SaveableStateRegistryTest {
 
     @Test
