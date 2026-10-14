@@ -38,6 +38,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
+import androidx.compose.runtime.retain.RetainedValuesStore
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.LocalDensity
@@ -52,6 +56,12 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.savedstate.SavedState
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.compose.LocalSavedStateRegistryOwner
+import androidx.savedstate.write
 import androidx.tracing.traceAsync
 import java.util.Collections
 import java.util.IdentityHashMap
@@ -104,6 +114,8 @@ public suspend fun captureSingleRemoteDocument(
     profile: Profile,
     writerCallback: Any? = null,
     platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
+    savedState: SavedState? = null,
+    retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ): ByteArray {
     val rootNode = RemoteRootNode()
@@ -116,7 +128,10 @@ public suspend fun captureSingleRemoteDocument(
     val recomposer =
         Recomposer(currentCoroutineContext() + recomposerDispatcher + writeTracker.contextElement)
     val composition = Composition(applier, recomposer)
-    val lifecycleOwner = HeadlessLifecycleOwner()
+    val lifecycleOwner = HeadlessLifecycleOwner(savedState)
+    val saveableStateRegistry = savedState?.let {
+        SaveableStateRegistry(it.toSaveableStateMap(), ::canBeSavedToBundle)
+    }
 
     try {
         val creationState =
@@ -144,8 +159,15 @@ public suspend fun captureSingleRemoteDocument(
                     LocalRemoteDensity provides remoteDensity,
                     LocalLayoutDirection provides layoutDirection,
                     LocalLifecycleOwner provides lifecycleOwner,
-                    content = content,
-                )
+                    LocalSavedStateRegistryOwner provides lifecycleOwner,
+                    LocalSaveableStateRegistry provides saveableStateRegistry,
+                ) {
+                    if (retainedValuesStore != null) {
+                        LocalRetainedValuesStoreProvider(retainedValuesStore, content)
+                    } else {
+                        content()
+                    }
+                }
             }
         }
 
@@ -156,7 +178,7 @@ public suspend fun captureSingleRemoteDocument(
         // call. writeTracker only records this capture's own writes, see CaptureWriteTracker.
         coroutineScope {
             lateinit var frameClock: BroadcastFrameClock
-            val frameCounter = FrameCounter()
+            val frameCounter = FrameCounter(recomposer, recomposerDispatcher)
             frameClock = BroadcastFrameClock {
                 launch(recomposerDispatcher) { frameCounter.sendFrame(frameClock, clock) }
             }
@@ -242,6 +264,18 @@ public suspend fun captureSingleRemoteDocument(
     } finally {
         withContext(recomposerDispatcher + NonCancellable) {
             recomposer.cancel()
+            // Clear savedState before writing back so that if all registered providers were
+            // unregistered during recomposition, stale entries from a previous capture are not left
+            // behind in the reused SavedState bundle (SavedStateRegistryController.performSave is a
+            // no-op when its saved state is empty).
+            savedState?.write { clear() }
+            // Perform save before lifecycleOwner.destroy() and composition.dispose() because
+            // teardown dispatches ON_DESTROY / RememberObserver.onForgotten(), which unregisters
+            // providers from SavedStateRegistry and SaveableStateRegistry.
+            if (savedState != null && saveableStateRegistry != null) {
+                savedState.saveSaveableState(saveableStateRegistry.performSave())
+            }
+            lifecycleOwner.performSave()
             lifecycleOwner.destroy()
             composition.dispose()
         }
@@ -263,6 +297,8 @@ public fun captureRemoteDocument(
     writerCallback: Any? = null,
     platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
     coroutineContext: CoroutineContext = Dispatchers.Default,
+    savedState: SavedState? = null,
+    retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> = flow {
     require(RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled) {
@@ -280,7 +316,10 @@ public fun captureRemoteDocument(
     val recomposer =
         Recomposer(currentCoroutineContext() + recomposerDispatcher + writeTracker.contextElement)
     val composition = Composition(applier, recomposer)
-    val lifecycleOwner = HeadlessLifecycleOwner()
+    val lifecycleOwner = HeadlessLifecycleOwner(savedState)
+    val saveableStateRegistry = savedState?.let {
+        SaveableStateRegistry(it.toSaveableStateMap(), ::canBeSavedToBundle)
+    }
 
     try {
         val creationState =
@@ -308,14 +347,21 @@ public fun captureRemoteDocument(
                     LocalRemoteDensity provides remoteDensity,
                     LocalLayoutDirection provides layoutDirection,
                     LocalLifecycleOwner provides lifecycleOwner,
-                    content = content,
-                )
+                    LocalSavedStateRegistryOwner provides lifecycleOwner,
+                    LocalSaveableStateRegistry provides saveableStateRegistry,
+                ) {
+                    if (retainedValuesStore != null) {
+                        LocalRetainedValuesStoreProvider(retainedValuesStore, content)
+                    } else {
+                        content()
+                    }
+                }
             }
         }
 
         coroutineScope {
             lateinit var frameClock: BroadcastFrameClock
-            val frameCounter = FrameCounter()
+            val frameCounter = FrameCounter(recomposer, recomposerDispatcher)
             // Frames are sent as soon as an awaiter appears. The Recomposer itself awaits frames on
             // this clock (runRecomposeAndApplyChanges below), so pacing here with a time-based
             // delay would add latency to every recomposition and stall entirely on hosts whose
@@ -435,6 +481,18 @@ public fun captureRemoteDocument(
     } finally {
         withContext(recomposerDispatcher + NonCancellable) {
             recomposer.cancel()
+            // Clear savedState before writing back so that if all registered providers were
+            // unregistered during recomposition, stale entries from a previous capture are not left
+            // behind in the reused SavedState bundle (SavedStateRegistryController.performSave is a
+            // no-op when its saved state is empty).
+            savedState?.write { clear() }
+            // Perform save before lifecycleOwner.destroy() and composition.dispose() because
+            // teardown dispatches ON_DESTROY / RememberObserver.onForgotten(), which unregisters
+            // providers from SavedStateRegistry and SaveableStateRegistry.
+            if (savedState != null && saveableStateRegistry != null) {
+                savedState.saveSaveableState(saveableStateRegistry.performSave())
+            }
+            lifecycleOwner.performSave()
             lifecycleOwner.destroy()
             composition.dispose()
         }
@@ -448,7 +506,10 @@ private const val MAX_IDLE_ITERATIONS = 100
  * that never stops requesting frames. Every frame for a capture must be sent through [sendFrame],
  * including those from the [BroadcastFrameClock]'s `onNewAwaiters` callback.
  */
-private class FrameCounter {
+private class FrameCounter(
+    private val recomposer: Recomposer,
+    private val recomposerDispatcher: CoroutineContext,
+) {
     private val sent = AtomicLong()
     @Volatile private var budget: Budget? = null
 
@@ -469,6 +530,33 @@ private class FrameCounter {
             }
         }
         frameClock.sendFrame(clock.nanoTime())
+        refreshRecomposerStateIfIdle()
+        if (recomposer.currentState.value == Recomposer.State.PendingWork) {
+            val dispatcher = recomposerDispatcher[ContinuationInterceptor] as? CoroutineDispatcher
+            if (dispatcher != null && dispatcher.isDispatchNeeded(recomposerDispatcher)) {
+                dispatcher.dispatch(
+                    recomposerDispatcher,
+                    Runnable { refreshRecomposerStateIfIdle() },
+                )
+            }
+        }
+    }
+
+    /**
+     * `Recomposer.runRecomposeAndApplyChanges` updates `currentState` inside `withFrameNanos`
+     * before `NextFrameEndCallbackQueue.markFrameComplete()` drains frame-end callbacks (such as
+     * `LocalRetainedValuesStoreProvider`), leaving `currentState` at `PendingWork` even after
+     * `hasPendingWork` becomes `false`. Toggling `pauseCompositionFrameClock` /
+     * `resumeCompositionFrameClock` re-runs `deriveStateLocked()` once `hasPendingWork` is `false`.
+     */
+    fun refreshRecomposerStateIfIdle() {
+        if (
+            recomposer.currentState.value == Recomposer.State.PendingWork &&
+                !recomposer.hasPendingWork
+        ) {
+            recomposer.pauseCompositionFrameClock()
+            recomposer.resumeCompositionFrameClock()
+        }
     }
 
     /**
@@ -615,6 +703,7 @@ private suspend fun awaitRecomposerQuiescence(
         frameCounter.withFrameBudget(MAX_FRAMES) {
             var idleIterations = 0
             while (idleIterations < maxIterations) {
+                frameCounter.refreshRecomposerStateIfIdle()
                 recomposer.currentState.first { it == Recomposer.State.Idle }
                 if (shouldYield) yield()
                 while (frameClock.hasAwaiters) {
@@ -628,6 +717,7 @@ private suspend fun awaitRecomposerQuiescence(
                     return@withFrameBudget QuiescenceResult.ApplyNotificationsTimedOut
                 }
                 writeTracker.awaitDelivery(canYield = shouldYield)
+                frameCounter.refreshRecomposerStateIfIdle()
                 val isQuiescent =
                     recomposer.currentState.value == Recomposer.State.Idle &&
                         !recomposer.hasPendingWork &&
@@ -1016,7 +1106,8 @@ internal object SnapshotWriteMonitor {
  * thread that is itself adding or removing an observer on this owner. As with `LifecycleRegistry`,
  * downward events (`ON_PAUSE` .. `ON_DESTROY`) are delivered in reverse registration order.
  */
-private class HeadlessLifecycleOwner : LifecycleOwner {
+private class HeadlessLifecycleOwner(private val savedState: SavedState? = null) :
+    LifecycleOwner, SavedStateRegistryOwner {
     private class Registration(val observer: LifecycleObserver) {
         @Volatile var active = true
 
@@ -1040,7 +1131,7 @@ private class HeadlessLifecycleOwner : LifecycleOwner {
     }
 
     private val lock = Any()
-    @Volatile private var state = Lifecycle.State.RESUMED
+    @Volatile private var state = Lifecycle.State.INITIALIZED
     private val registrations = CopyOnWriteArrayList<Registration>()
 
     override val lifecycle: Lifecycle =
@@ -1076,6 +1167,33 @@ private class HeadlessLifecycleOwner : LifecycleOwner {
                 }
             }
         }
+
+    private val savedStateRegistryController = SavedStateRegistryController.create(this)
+
+    override val savedStateRegistry: SavedStateRegistry
+        get() = savedStateRegistryController.savedStateRegistry
+
+    init {
+        savedStateRegistryController.performRestore(savedState)
+        synchronized(lock) {
+            for (event in
+                arrayOf(
+                    Lifecycle.Event.ON_CREATE,
+                    Lifecycle.Event.ON_START,
+                    Lifecycle.Event.ON_RESUME,
+                )) {
+                state = event.targetState
+                for (registration in registrations.toTypedArray()) {
+                    if (registration.active) registration.dispatch(this, event)
+                }
+            }
+        }
+    }
+
+    fun performSave() {
+        val outState = savedState ?: return
+        savedStateRegistryController.performSave(outState)
+    }
 
     /**
      * Moves to [Lifecycle.State.DESTROYED] one event at a time. For each of `ON_PAUSE`, `ON_STOP`
