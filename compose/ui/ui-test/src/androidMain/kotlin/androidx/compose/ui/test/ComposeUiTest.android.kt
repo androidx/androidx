@@ -1059,13 +1059,7 @@ internal constructor(
 
             runOnUiThread { currentActivity.setContent(recomposer, composable) }
 
-            // Synchronizing from the UI thread when we can't leads to a dead lock
-            if (
-                HasRobolectricFingerprint ||
-                    ComposeUiTestFlags.isMainThreadTestSynchronizationEnabledForDeviceTests
-            ) {
-                waitForIdle()
-            }
+            waitForIdle()
         }
 
         override fun hasPendingWork(): Boolean {
