@@ -20,30 +20,18 @@ import android.app.backup.BackupManager
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
-import androidx.test.backup.BackupActionInputKeys.DB_NAME
+import android.util.Base64
 import androidx.test.backup.BackupActionInputKeys.EXPECT_NULL
-import androidx.test.backup.BackupActionInputKeys.IS_BINARY
-import androidx.test.backup.BackupActionInputKeys.IS_DEVICE_PROTECTED
 import androidx.test.backup.BackupActionInputKeys.KEY_COL
 import androidx.test.backup.BackupActionInputKeys.KEY_VAL
-import androidx.test.backup.BackupActionInputKeys.PATH
-import androidx.test.backup.BackupActionInputKeys.PREF_KEY
-import androidx.test.backup.BackupActionInputKeys.PREF_NAME
-import androidx.test.backup.BackupActionInputKeys.STORAGE_TYPE
-import androidx.test.backup.BackupActionInputKeys.TABLE
 import androidx.test.backup.BackupActionInputKeys.VALUE
 import androidx.test.backup.BackupActionInputKeys.VALUES
 import androidx.test.backup.BackupActionInputKeys.VALUE_TYPE
 import androidx.test.backup.BackupActionPhase
-import androidx.test.backup.BackupActionValues.DEFAULT_PREF_NAME
-import androidx.test.backup.BackupActionValues.STORAGE_TYPE_DATABASE
-import androidx.test.backup.BackupActionValues.STORAGE_TYPE_FILES
-import androidx.test.backup.BackupActionValues.STORAGE_TYPE_PREFS
 import androidx.test.backup.BackupActionValues.VALUE_TYPE_STRING
 import androidx.test.backup.BackupDeviceAction
 import androidx.test.backup.BackupDeviceActionArgs
 import androidx.test.backup.BackupDeviceActionResult
-import java.io.File
 
 /**
  * Populates test data inside the application sandbox before a backup.
@@ -60,155 +48,129 @@ public class PopulateStorageAction : BackupDeviceAction {
     @get:BackupActionPhase override val phase: Int = BackupDeviceAction.PHASE_POPULATE
 
     override fun execute(context: Context, args: BackupDeviceActionArgs): BackupDeviceActionResult {
-        val isDeviceProtected = args[IS_DEVICE_PROTECTED]?.toBoolean() ?: false
-        val targetContext =
-            if (isDeviceProtected) {
-                context.createDeviceProtectedStorageContext()
-            } else {
-                context
+        val target =
+            try {
+                storageTargetOf(context, args, operation = "populate")
+            } catch (e: StorageArgumentException) {
+                return failure(e.message.orEmpty())
             }
-        val storageType = args[STORAGE_TYPE]?.uppercase() ?: STORAGE_TYPE_PREFS
-
         return try {
-            when (storageType) {
-                STORAGE_TYPE_PREFS -> {
-                    val prefName = args[PREF_NAME] ?: DEFAULT_PREF_NAME
-                    val key =
-                        args[PREF_KEY]
-                            ?: return failure("Missing '$PREF_KEY' argument for PREFS populate.")
-                    val expectNull = args[EXPECT_NULL]?.toBoolean() ?: false
-                    val editor =
-                        targetContext.getSharedPreferences(prefName, Context.MODE_PRIVATE).edit()
-
-                    if (expectNull) {
-                        editor.remove(key)
-                    } else {
-                        val value =
-                            args[VALUE]
-                                ?: return failure("Missing '$VALUE' argument for PREFS populate.")
-                        val valueType = args[VALUE_TYPE] ?: VALUE_TYPE_STRING
-
-                        val parsedValue =
-                            try {
-                                parsePreferenceValue(value, valueType)
-                            } catch (e: IllegalArgumentException) {
-                                return failure(e.message ?: "Invalid preference value.")
-                            }
-
-                        when (parsedValue) {
-                            is Int -> editor.putInt(key, parsedValue)
-                            is Long -> editor.putLong(key, parsedValue)
-                            is Float -> editor.putFloat(key, parsedValue)
-                            is Boolean -> editor.putBoolean(key, parsedValue)
-                            is String -> editor.putString(key, parsedValue)
-                            else -> error("Unexpected parsed preference value: $parsedValue")
-                        }
-                    }
-                    if (!editor.commit()) {
-                        return failure(
-                            "Failed to commit SharedPreferences changes for '$prefName'."
-                        )
-                    }
+            val result =
+                when (target) {
+                    is StorageTarget.Preference -> populate(target, args)
+                    is StorageTarget.Database -> populate(target, args)
+                    is StorageTarget.FileContent -> populate(target, args)
                 }
-
-                STORAGE_TYPE_DATABASE -> {
-                    val dbName =
-                        args[DB_NAME]
-                            ?: return failure("Missing '$DB_NAME' argument for DATABASE populate.")
-                    val table =
-                        args[TABLE]
-                            ?: return failure("Missing '$TABLE' argument for DATABASE populate.")
-                    val valuesStr =
-                        args[VALUES]
-                            ?: return failure("Missing '$VALUES' argument for DATABASE populate.")
-                    val columns =
-                        try {
-                            decodeColumnValues(valuesStr)
-                        } catch (e: IllegalArgumentException) {
-                            return failure(e.message ?: "Malformed '$VALUES' argument.")
-                        }
-                    val keyCol = args[KEY_COL]
-                    val keyVal = args[KEY_VAL]
-
-                    targetContext.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null).use { db
-                        ->
-                        // Ensure the table exists
-                        val cv = ContentValues()
-                        val colDefs = mutableListOf<String>()
-                        for ((columnName, columnValue) in columns) {
-                            colDefs.add("`$columnName` TEXT")
-                            cv.put(columnName, columnValue)
-                        }
-                        db.execSQL(
-                            "CREATE TABLE IF NOT EXISTS `$table` (${colDefs.joinToString(", ")})"
-                        )
-                        db.beginTransaction()
-                        try {
-                            if (keyCol != null && keyVal != null) {
-                                db.delete(table, "`$keyCol` = ?", arrayOf(keyVal))
-                            }
-                            // SQLite errors (unknown column, constraint violation) propagate out
-                            // of insertWithOnConflict as SQLException and are turned into a
-                            // failure by the catch below. A -1 return means the statement ran but
-                            // inserted no row, which CONFLICT_REPLACE should never produce; check
-                            // it anyway so a future change to the conflict algorithm cannot seed
-                            // nothing silently.
-                            val rowId =
-                                db.insertWithOnConflict(
-                                    table,
-                                    null,
-                                    cv,
-                                    SQLiteDatabase.CONFLICT_REPLACE,
-                                )
-                            if (rowId == -1L) {
-                                return failure(
-                                    "Insert into table '$table' did not add a row " +
-                                        "(insertWithOnConflict returned -1)."
-                                )
-                            }
-                            db.setTransactionSuccessful()
-                        } finally {
-                            db.endTransaction()
-                        }
-                    }
-                }
-
-                STORAGE_TYPE_FILES -> {
-                    val path =
-                        args[PATH] ?: return failure("Missing '$PATH' argument for FILES populate.")
-                    val value =
-                        args[VALUE]
-                            ?: return failure("Missing '$VALUE' argument for FILES populate.")
-
-                    val file =
-                        File(path).let {
-                            if (it.isAbsolute) {
-                                it
-                            } else {
-                                File(targetContext.filesDir, path)
-                            }
-                        }
-                    file.parentFile?.mkdirs()
-
-                    val isBinary = args[IS_BINARY]?.toBoolean() ?: false
-                    if (isBinary) {
-                        val bytes = android.util.Base64.decode(value, android.util.Base64.DEFAULT)
-                        file.writeBytes(bytes)
-                    } else {
-                        file.writeText(value)
-                    }
-                }
-
-                else -> return failure("Unsupported $STORAGE_TYPE: ${args[STORAGE_TYPE]}")
+            if (result.isSuccess) {
+                // Tells the platform that the app has data to back up.
+                BackupManager(target.context).dataChanged()
             }
-
-            // Automatically notify BackupManager that data has changed
-            BackupManager(targetContext).dataChanged()
-
-            BackupDeviceActionResult.success()
+            result
         } catch (e: Exception) {
             failure("PopulateStorageAction exception: ${e.message}")
         }
+    }
+
+    private fun populate(
+        target: StorageTarget.Preference,
+        args: BackupDeviceActionArgs,
+    ): BackupDeviceActionResult {
+        val editor =
+            target.context.getSharedPreferences(target.prefName, Context.MODE_PRIVATE).edit()
+        if (args[EXPECT_NULL].toBoolean()) {
+            editor.remove(target.key)
+        } else {
+            val value =
+                args[VALUE] ?: return failure("Missing '$VALUE' argument for PREFS populate.")
+            val parsedValue =
+                try {
+                    parsePreferenceValue(value, args[VALUE_TYPE] ?: VALUE_TYPE_STRING)
+                } catch (e: IllegalArgumentException) {
+                    return failure(e.message ?: "Invalid preference value.")
+                }
+            when (parsedValue) {
+                is Int -> editor.putInt(target.key, parsedValue)
+                is Long -> editor.putLong(target.key, parsedValue)
+                is Float -> editor.putFloat(target.key, parsedValue)
+                is Boolean -> editor.putBoolean(target.key, parsedValue)
+                is String -> editor.putString(target.key, parsedValue)
+                else -> error("Unexpected parsed preference value: $parsedValue")
+            }
+        }
+        if (!editor.commit()) {
+            return failure("Failed to commit SharedPreferences changes for '${target.prefName}'.")
+        }
+        return BackupDeviceActionResult.success()
+    }
+
+    private fun populate(
+        target: StorageTarget.Database,
+        args: BackupDeviceActionArgs,
+    ): BackupDeviceActionResult {
+        val valuesStr =
+            args[VALUES] ?: return failure("Missing '$VALUES' argument for DATABASE populate.")
+        val columns =
+            try {
+                decodeColumnValues(valuesStr)
+            } catch (e: IllegalArgumentException) {
+                return failure(e.message ?: "Malformed '$VALUES' argument.")
+            }
+        val table = target.table
+        val keyCol = args[KEY_COL]
+        val keyVal = args[KEY_VAL]
+
+        target.context.openOrCreateDatabase(target.dbName, Context.MODE_PRIVATE, null).use { db ->
+            // Ensure the table exists
+            val cv = ContentValues()
+            val colDefs = mutableListOf<String>()
+            for ((columnName, columnValue) in columns) {
+                colDefs.add("`$columnName` TEXT")
+                if (columnValue == null) {
+                    cv.putNull(columnName)
+                } else {
+                    cv.put(columnName, columnValue)
+                }
+            }
+            db.execSQL("CREATE TABLE IF NOT EXISTS `$table` (${colDefs.joinToString(", ")})")
+            db.beginTransaction()
+            try {
+                if (keyCol != null && keyVal != null) {
+                    db.delete(table, "`$keyCol` = ?", arrayOf(keyVal))
+                }
+                // SQLite errors (unknown column, constraint violation) propagate out of
+                // insertWithOnConflict as SQLException and are turned into a failure by the catch
+                // in execute. A -1 return means the statement ran but inserted no row, which
+                // CONFLICT_REPLACE should never produce; check it anyway so a future change to the
+                // conflict algorithm cannot seed nothing silently.
+                val rowId =
+                    db.insertWithOnConflict(table, null, cv, SQLiteDatabase.CONFLICT_REPLACE)
+                if (rowId == -1L) {
+                    return failure(
+                        "Insert into table '$table' did not add a row " +
+                            "(insertWithOnConflict returned -1)."
+                    )
+                }
+                db.setTransactionSuccessful()
+            } finally {
+                db.endTransaction()
+            }
+        }
+        return BackupDeviceActionResult.success()
+    }
+
+    private fun populate(
+        target: StorageTarget.FileContent,
+        args: BackupDeviceActionArgs,
+    ): BackupDeviceActionResult {
+        val value = args[VALUE] ?: return failure("Missing '$VALUE' argument for FILES populate.")
+        val file = target.file
+        file.parentFile?.mkdirs()
+        if (target.isBinary) {
+            file.writeBytes(Base64.decode(value, Base64.DEFAULT))
+        } else {
+            file.writeText(value)
+        }
+        return BackupDeviceActionResult.success()
     }
 
     private fun failure(message: String): BackupDeviceActionResult =

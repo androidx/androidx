@@ -30,8 +30,8 @@ package androidx.test.backup.host
 public sealed class StorageDomain {
 
     internal companion object {
-        /** Number of characters of a [TextFile] that its string form shows. */
-        private const val MAX_SHOWN_CONTENT_LENGTH = 64
+        /** Number of characters of a value or of file content that a string form shows. */
+        private const val MAX_SHOWN_LENGTH = 64
 
         fun isValidPreferenceType(value: Any): Boolean {
             return value is String ||
@@ -48,6 +48,28 @@ public sealed class StorageDomain {
                 value is Float ||
                 value is Double ||
                 value is Boolean
+        }
+
+        /**
+         * Returns the string form of [value], or, if it is longer than [MAX_SHOWN_LENGTH]
+         * characters, its start followed by `...` and its length.
+         */
+        private fun shownValue(value: Any?): String {
+            val text = value.toString()
+            return if (text.length <= MAX_SHOWN_LENGTH) text
+            else "${shownStart(text)}... (${text.length} chars)"
+        }
+
+        /**
+         * Returns the first [MAX_SHOWN_LENGTH] characters of [text], without the first half of a
+         * surrogate pair at the end, or [text] itself if it isn't longer than that.
+         */
+        private fun shownStart(text: String): String {
+            if (text.length <= MAX_SHOWN_LENGTH) return text
+            val end =
+                if (text[MAX_SHOWN_LENGTH - 1].isHighSurrogate()) MAX_SHOWN_LENGTH - 1
+                else MAX_SHOWN_LENGTH
+            return text.substring(0, end)
         }
     }
 
@@ -98,7 +120,7 @@ public sealed class StorageDomain {
         }
 
         override fun toString(): String {
-            return "Preference(prefName='$prefName', key='$key', value=$value)"
+            return "Preference(prefName='$prefName', key='$key', value=${shownValue(value)})"
         }
     }
 
@@ -112,10 +134,11 @@ public sealed class StorageDomain {
      * @property primaryKeyVal The value of the primary key used to identify the target record.
      *   Supported types are: String, Int, Long, Float, Double, Boolean.
      * @property columnValues A non-empty Map of column names to their values to populate or verify.
-     *   Supported types are: String, Int, Long, Float, Double, Boolean, or null. It may include
-     *   [primaryKeyCol], matched case-insensitively like SQLite column names, but only with a value
-     *   whose string form equals that of [primaryKeyVal]; otherwise construction fails with an
-     *   [IllegalArgumentException]. When it is omitted, [primaryKeyVal] is written to that column.
+     *   Supported types are: String, Int, Long, Float, Double, Boolean, or null, which stands for
+     *   SQL `NULL`. It may include [primaryKeyCol], matched case-insensitively like SQLite column
+     *   names, but only with a value whose string form equals that of [primaryKeyVal]; otherwise
+     *   construction fails with an [IllegalArgumentException]. When it is omitted, [primaryKeyVal]
+     *   is written to that column.
      */
     public class Database(
         public val dbName: String,
@@ -172,7 +195,8 @@ public sealed class StorageDomain {
 
         override fun toString(): String {
             return "Database(dbName='$dbName', table='$table', primaryKeyCol='$primaryKeyCol', " +
-                "primaryKeyVal=$primaryKeyVal, columnValues=$columnValues)"
+                "primaryKeyVal=${shownValue(primaryKeyVal)}, " +
+                "columnValues=${columnValues.mapValues { shownValue(it.value) }})"
         }
     }
 
@@ -198,10 +222,10 @@ public sealed class StorageDomain {
 
         override fun toString(): String {
             val shownContent =
-                if (content.length <= MAX_SHOWN_CONTENT_LENGTH) {
+                if (content.length <= MAX_SHOWN_LENGTH) {
                     "'$content'"
                 } else {
-                    "'${content.take(MAX_SHOWN_CONTENT_LENGTH)}...' (${content.length} chars)"
+                    "'${shownStart(content)}...' (${content.length} chars)"
                 }
             return "TextFile(path='$path', content=$shownContent)"
         }

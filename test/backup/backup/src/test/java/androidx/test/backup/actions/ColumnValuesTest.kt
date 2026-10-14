@@ -74,19 +74,32 @@ class ColumnValuesTest {
         assertThrows(IllegalArgumentException::class.java) { decodeColumnValues("") }
     }
 
-    /** A malformed segment used to be dropped silently, hiding a column from the assertion. */
     @Test
-    fun rejectsASegmentWithoutASeparator() {
-        val failure =
-            assertThrows(IllegalArgumentException::class.java) {
-                decodeColumnValues("col1=val1&orphan")
-            }
-        assertEquals(true, failure.message?.contains("orphan"))
+    fun decodesANameWithoutAValueAsNull() {
+        assertEquals(
+            listOf("col1" to "val1", "note" to null, "empty" to ""),
+            decodeColumnValues("col1=val1&note&empty="),
+        )
+    }
+
+    @Test
+    fun decodesAnEncodedNameWithoutAValue() {
+        assertEquals(listOf("a&b" to null), decodeColumnValues("a%26b"))
     }
 
     @Test
     fun rejectsAnEmptyColumnName() {
         assertThrows(IllegalArgumentException::class.java) { decodeColumnValues("=val") }
+    }
+
+    /** An empty segment, as between two separators, has no column name to stand for. */
+    @Test
+    fun rejectsAnEmptySegment() {
+        val failure =
+            assertThrows(IllegalArgumentException::class.java) {
+                decodeColumnValues("col1=val1&&col2=val2")
+            }
+        assertEquals(true, failure.message?.contains("empty column name"))
     }
 
     @Test
