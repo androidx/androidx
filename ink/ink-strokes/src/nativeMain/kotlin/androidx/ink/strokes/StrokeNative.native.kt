@@ -27,6 +27,7 @@ import androidx.ink.nativeloader.cinterop.StrokeNative_createWithSubtract
 import androidx.ink.nativeloader.cinterop.StrokeNative_free
 import androidx.ink.nativeloader.cinterop.StrokeNative_newShallowCopyOfInputs
 import androidx.ink.nativeloader.cinterop.StrokeNative_newShallowCopyOfShape
+import androidx.ink.nativeloader.cinterop.StrokeNative_shapeSupportsBrush
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
@@ -81,6 +82,9 @@ internal actual object StrokeNative {
             strokeE,
             strokeF,
         )
+
+    actual fun shapeSupportsBrush(nativePointer: Long, brushNativePointer: Long): Boolean =
+        StrokeNative_shapeSupportsBrush(nativePointer, brushNativePointer)
 }
 
 @OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
