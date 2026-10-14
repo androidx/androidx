@@ -17,10 +17,10 @@
 package androidx.compose.runtime.saveable
 
 import androidx.collection.MutableScatterMap
-import androidx.collection.mutableScatterMapOf
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.saveable.SaveableStateRegistry.Entry
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.savedstate.SavedStateContainer
 
 /** Allows components to save and restore their state using the saved instance state mechanism. */
 public interface SaveableStateRegistry {
@@ -82,112 +82,45 @@ public fun SaveableStateRegistry(
     canBeSaved: (Any) -> Boolean,
 ): SaveableStateRegistry = SaveableStateRegistryImpl(restoredValues, canBeSaved)
 
+/**
+ * Creates [SaveableStateRegistry] backed by the given [SavedStateContainer].
+ *
+ * @param container The [SavedStateContainer] to back this [SaveableStateRegistry]
+ * @param canBeSaved Function which returns true if the given value can be saved by the registry
+ */
+public fun SaveableStateRegistry(
+    container: SavedStateContainer,
+    canBeSaved: (Any) -> Boolean,
+): SaveableStateRegistry = SaveableStateRegistryImpl(container = container, canBeSaved = canBeSaved)
+
 /** CompositionLocal with a current [SaveableStateRegistry] instance. */
 public val LocalSaveableStateRegistry: ProvidableCompositionLocal<SaveableStateRegistry?> =
     staticCompositionLocalOf<SaveableStateRegistry?> { null }
 
-// CharSequence.isBlank() allocates an iterator because it calls indices.all{}
-private fun CharSequence.fastIsBlank(): Boolean {
-    var blank = true
-    for (i in 0 until length) {
-        if (!this[i].isWhitespace()) {
-            blank = false
-            break
-        }
-    }
-    return blank
-}
-
-private fun <K, V> Map<K, V>.toMutableScatterMap(): MutableScatterMap<K, V> {
-    return MutableScatterMap<K, V>(size).also { it += this }
-}
-
 private class SaveableStateRegistryImpl(
-    restored: Map<String, List<Any?>>?,
+    private val container: SavedStateContainer,
+    restored: Map<String, List<Any?>>? = null,
     private val canBeSaved: (Any) -> Boolean,
 ) : SaveableStateRegistry {
 
-    private val restored: MutableScatterMap<String, List<Any?>>? =
-        if (!restored.isNullOrEmpty()) restored.toMutableScatterMap() else null
+    constructor(
+        restored: Map<String, List<Any?>>?,
+        canBeSaved: (Any) -> Boolean,
+    ) : this(SavedStateContainer(), restored, canBeSaved)
 
-    private var valueProviders: MutableScatterMap<String, MutableList<() -> Any?>>? = null
+    private val saveableStateValue: SaveableStateValue =
+        container.getOrPutSavedStateValue(SAVEABLE_STATE_VALUE_KEY) {
+            SaveableStateValue(restored = restored, canBeSaved = canBeSaved)
+        }
 
     override fun canBeSaved(value: Any): Boolean = canBeSaved.invoke(value)
 
-    override fun consumeRestored(key: String): Any? {
-        val list = restored?.remove(key)
-        return if (!list.isNullOrEmpty()) {
-            if (list.size > 1) {
-                restored?.put(key, list.subList(1, list.size))
-            }
-            list[0]
-        } else {
-            null
-        }
-    }
+    override fun consumeRestored(key: String): Any? = saveableStateValue.consumeRestored(key)
 
-    override fun registerProvider(key: String, valueProvider: () -> Any?): Entry {
-        require(!key.fastIsBlank()) { "Registered key is empty or blank" }
-        val valueProviders =
-            valueProviders
-                ?: mutableScatterMapOf<String, MutableList<() -> Any?>>().also {
-                    valueProviders = it
-                }
-        valueProviders.getOrPut(key) { mutableListOf() }.add(valueProvider)
-        return object : Entry {
-            override fun unregister() {
-                val list = valueProviders.remove(key)
-                list?.remove(valueProvider)
-                if (!list.isNullOrEmpty()) {
-                    // if there are other providers for this key return list back to the map
-                    valueProviders[key] = list
-                }
-            }
-        }
-    }
+    override fun registerProvider(key: String, valueProvider: () -> Any?): Entry =
+        saveableStateValue.registerProvider(key, valueProvider)
 
-    override fun performSave(): Map<String, List<Any?>> {
-        // Return early if no restored state and no providers exist.
-        if (restored == null && valueProviders == null) {
-            return emptyMap()
-        }
-
-        // Set initial capacity to prevent map resizing.
-        val size = (restored?.size ?: 0) + (valueProviders?.size ?: 0)
-        val map = MutableScatterMap<String, List<Any?>>(initialCapacity = size)
-
-        // Keep restored state for composables not composed in this cycle.
-        restored?.let { map.putAll(restored) }
-
-        // Evaluate all registered providers to collect current state.
-        valueProviders?.forEach { key, list ->
-            // Optimize single-provider case (most common). Prevents list creation
-            // if the single provider returns null.
-            if (list.size == 1) {
-                val value = list[0].invoke()
-                if (value != null) {
-                    check(canBeSaved(value)) { generateCannotBeSavedErrorMessage(value) }
-                    // On JVM, listOf(value) calls Collections.singletonList to
-                    // prevent backing array allocation.
-                    map[key] = listOf(value)
-                }
-            } else {
-                // Keep nulls for multiple providers to preserve order.
-                // Example: First returns null, second returns "1". On restore,
-                // first restores null and second restores "1".
-                map[key] =
-                    List(list.size) { index ->
-                        val value = list[index].invoke()
-                        if (value != null) {
-                            check(canBeSaved(value)) { generateCannotBeSavedErrorMessage(value) }
-                        }
-                        value
-                    }
-            }
-        }
-
-        return ScatterMapWrapper(map)
-    }
+    override fun performSave(): Map<String, List<Any?>> = saveableStateValue.value
 }
 
 /**
