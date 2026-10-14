@@ -373,6 +373,7 @@ internal class BackupRestoreControllerImpl(
         }
         // Moves any foreground activity to the background so the restore agent can bind.
         shell.pressHome()
+        val restoreStart = deviceTimeOrNull()
 
         logger.info(
             "Attempting full-fidelity production restore via BackupService for file: " +
@@ -385,14 +386,47 @@ internal class BackupRestoreControllerImpl(
                 listener = null,
             )
         when (result) {
-            is BackupResult.Success ->
+            is BackupResult.Success -> {
+                restoreStart?.let { checkRestoreNotSkipped(backupFile, it) }
                 logger.info("BackupService successfully executed production restore.")
+            }
             is BackupResult.WithoutAppData ->
                 throw IOException(
                     "Restore of $applicationId from ${backupFile.fileName} restored no app data"
                 )
             is BackupResult.Error -> throw serviceFailure(result, BackupErrorCode.RESTORE_FAILED)
         }
+    }
+
+    /** Returns the time since the epoch on the device clock, or null if it cannot be read. */
+    private suspend fun deviceTimeOrNull(): Duration? =
+        try {
+            shell.timeSinceEpoch()
+        } catch (e: IOException) {
+            logger.warning("Failed to read the device clock: ${e.message}")
+            null
+        }
+
+    /**
+     * Throws if Google Play services logged since [start] that it skipped the restore of the app.
+     *
+     * It reports a restore that skipped the app as successful, so only its log tells. When logcat
+     * cannot be read, the restore is taken as successful.
+     *
+     * @throws IOException that tells why the app was skipped
+     */
+    private suspend fun checkRestoreNotSkipped(backupFile: Path, start: Duration) {
+        val logcat =
+            try {
+                shell.dumpLogcatSince(start)
+            } catch (e: IOException) {
+                logger.warning("Failed to read logcat to check the restore: ${e.message}")
+                return
+            }
+        val reason = restoreSkipReason(logcat, applicationId) ?: return
+        throw IOException(
+            "Restore of $applicationId from ${backupFile.fileName} restored no app data: $reason"
+        )
     }
 
     override suspend fun fetchDeviceLogs(
