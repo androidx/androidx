@@ -65,9 +65,6 @@ class PokedexScrollBenchmark(
             setupBlock = {
                 device.waitForIdle()
                 device.waitOrThrow(Until.hasObject(By.res("Ablazeon_card")), 3_000)
-                val content = device.findObjectOrThrow(By.res("PokedexList"))
-                // Set gesture margin to avoid triggering gesture navigation
-                content.setGestureMargin(device.displayWidth / 5)
             },
             measureBlock = { scrollActions(device.findObjectOrThrow(By.res("PokedexList"))) },
         )
@@ -83,10 +80,6 @@ class PokedexScrollBenchmark(
                     Until.hasObject(By.res(POKEDEX_TARGET_PACKAGE_NAME, "name")),
                     3_000,
                 )
-                val content =
-                    device.findObjectOrThrow(By.res(POKEDEX_TARGET_PACKAGE_NAME, "PokedexList"))
-                // Set gesture margin to avoid triggering gesture navigation
-                content.setGestureMargin(device.displayWidth / 5)
             },
             measureBlock = {
                 scrollActions(
@@ -143,6 +136,9 @@ class PokedexScrollBenchmark(
     }
 
     private fun MacrobenchmarkScope.scrollActions(content: UiObject2) {
+        // Set gesture margin on the UiObject2 used for flinging (findObject returns a new
+        // UiObject2 instance with default 10% margins on each call).
+        content.setGestureMargin(device.displayWidth / 5)
         // Perform down flings (scrolling toward the bottom of the list) with the default fling
         // speed, and up flings (scrolling back toward the top) with a lower speed. Injected input
         // event velocity varies across gestures, so a lower up-fling speed prevents the return
