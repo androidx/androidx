@@ -1228,6 +1228,50 @@ public class RemoteComposeJsonParserTest {
         doc.initFromBuffer(writer.getBuffer());
     }
 
+    @Test
+    public void testAddDataListAndTextLookup() throws JSONException {
+        for (String key : new String[] {"id", "varName", "name"}) {
+            String json =
+                    "{\n"
+                            + "  \"root\": {\n"
+                            + "    \"type\": \"canvas\",\n"
+                            + "    \"commands\": [\n"
+                            + "      {\"addDataList\": {\""
+                            + key
+                            + "\": \"names\", \"list\": [\"Alpha\", \"Beta\"]}},\n"
+                            + "      {\"textLookup\": {\"array\": \"@names\", \"index\": 0,"
+                            + " \"varName\": \"lbl\"}},\n"
+                            + "      {\"drawTextAnchored\": {\"text\": \"@lbl\", \"x\": 100,"
+                            + " \"y\": 50, \"panX\": 0, \"panY\": 0}}\n"
+                            + "    ]\n"
+                            + "  }\n"
+                            + "}";
+            MockPlatform platform = new MockPlatform();
+            RemoteComposeWriter expectedWriter =
+                    new RemoteComposeWriter(400, 800, "Test", platform);
+            expectedWriter.root(
+                    () -> {
+                        expectedWriter.startCanvas(
+                                new androidx.compose.remote.creation.modifiers.RecordingModifier());
+                        int alphaId = expectedWriter.textCreateId("Alpha");
+                        int betaId = expectedWriter.textCreateId("Beta");
+                        float listId = expectedWriter.addList(new int[] {alphaId, betaId});
+                        int lblId = expectedWriter.textLookup(listId, 0f);
+                        expectedWriter.drawTextAnchored(lblId, 100f, 50f, 0f, 0f, 0);
+                        expectedWriter.endCanvas();
+                    });
+
+            RemoteComposeWriter actualWriter = new RemoteComposeWriter(400, 800, "Test", platform);
+            RemoteComposeJsonParser parser = new RemoteComposeJsonParser(actualWriter);
+            parser.parse(json);
+
+            assertArrayEquals(
+                    "Mismatch for key=" + key,
+                    expectedWriter.encodeToByteArray(),
+                    actualWriter.encodeToByteArray());
+        }
+    }
+
     private static class MockPlatform implements RcPlatformServices {
         @Override
         public float[] pathToFloatArray(Object path) {
