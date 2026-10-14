@@ -66,8 +66,10 @@ import androidx.camera.core.impl.StreamUseCase
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize
+import androidx.camera.core.impl.SurfaceConfig.ConfigSource
 import androidx.camera.core.impl.SurfaceConfig.ConfigSource.CAPTURE_SESSION_TABLES
 import androidx.camera.core.impl.SurfaceConfig.ConfigSource.FEATURE_COMBINATION_TABLE
+import androidx.camera.core.impl.SurfaceConfig.ConfigSource.PREVIEW_STABILIZATION_TABLE
 import androidx.camera.core.impl.SurfaceSizeDefinition
 import androidx.camera.core.impl.SurfaceStreamSpecQueryResult
 import androidx.camera.core.impl.UseCaseConfig
@@ -117,8 +119,8 @@ public class SupportedSurfaceCombination(
     private val previewStabilizationSurfaceCombinations: MutableList<SurfaceCombination> =
         mutableListOf()
     private val highSpeedSurfaceCombinations = mutableListOf<SurfaceCombination>()
-    private val featureSettingsToSupportedCombinationsMap:
-        MutableMap<FeatureSettings, List<SurfaceCombination>> =
+    private val featureSettingsToSurfaceCombinationTableMap:
+        MutableMap<FeatureSettings, SurfaceCombinationTable> =
         mutableMapOf()
     private val surfaceCombinations10Bit: MutableList<SurfaceCombination> = mutableListOf()
     private val surfaceCombinationsUltraHdr: MutableList<SurfaceCombination> = mutableListOf()
@@ -186,7 +188,7 @@ public class SupportedSurfaceCombination(
         useCasesPriorityOrder: List<Int> = emptyList(),
     ): Boolean {
         val isSupported =
-            getSurfaceCombinationsByFeatureSettings(featureSettings).any {
+            getSurfaceCombinationTable(featureSettings).combinations.any {
                 it.getOrderedSupportedSurfaceConfigList(surfaceConfigList) != null
             }
 
@@ -296,18 +298,23 @@ public class SupportedSurfaceCombination(
         return null
     }
 
-    /** Returns the supported surface combinations according to the specified feature settings. */
-    private fun getSurfaceCombinationsByFeatureSettings(
+    /**
+     * Returns the surface combination table, and the [ConfigSource] that its config sizes are
+     * defined by, according to the specified feature settings.
+     */
+    private fun getSurfaceCombinationTable(
         featureSettings: FeatureSettings
-    ): List<SurfaceCombination> {
-        if (featureSettingsToSupportedCombinationsMap.containsKey(featureSettings)) {
-            return featureSettingsToSupportedCombinationsMap[featureSettings]!!
+    ): SurfaceCombinationTable {
+        featureSettingsToSurfaceCombinationTableMap[featureSettings]?.let {
+            return it
         }
         var supportedSurfaceCombinations: MutableList<SurfaceCombination> = mutableListOf()
+        var configSource = CAPTURE_SESSION_TABLES
         if (featureSettings.requiresFeatureComboQuery) {
             supportedSurfaceCombinations.addAll(
                 getQueryableFcqCombinations(cameraMetadata, featureSettings.videoStabilization)
             )
+            configSource = FEATURE_COMBINATION_TABLE
         } else if (featureSettings.isUltraHdrOn) {
             if (surfaceCombinationsUltraHdr.isEmpty()) {
                 generateUltraHdrSupportedCombinationList()
@@ -335,6 +342,9 @@ public class SupportedSurfaceCombination(
                             previewStabilizationSurfaceCombinations
                         else surfaceCombinations
                     )
+                    if (featureSettings.videoStabilization == VideoStabilization.PREVIEW) {
+                        configSource = PREVIEW_STABILIZATION_TABLE
+                    }
                 }
             }
         } else if (featureSettings.requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
@@ -343,8 +353,9 @@ public class SupportedSurfaceCombination(
                 supportedSurfaceCombinations.addAll(surfaceCombinations10Bit)
             }
         }
-        featureSettingsToSupportedCombinationsMap[featureSettings] = supportedSurfaceCombinations
-        return supportedSurfaceCombinations
+        return SurfaceCombinationTable(configSource, supportedSurfaceCombinations).also {
+            featureSettingsToSurfaceCombinationTableMap[featureSettings] = it
+        }
     }
 
     /**
@@ -922,8 +933,7 @@ public class SupportedSurfaceCombination(
                     size = minSize,
                     surfaceSizeDefinition = getUpdatedSurfaceSizeDefinitionByFormat(imageFormat),
                     cameraMode = featureSettings.cameraMode,
-                    // FEATURE_COMBINATION_TABLE not needed for the code flows leading to this call
-                    configSource = CAPTURE_SESSION_TABLES,
+                    configSource = getSurfaceCombinationTable(featureSettings).configSource,
                     streamUseCase = streamUseCase,
                 )
             )
@@ -961,7 +971,7 @@ public class SupportedSurfaceCombination(
                     useCasesPriorityOrder,
                     surfaceConfigIndexAttachedSurfaceInfoMap,
                     surfaceConfigIndexUseCaseConfigMap,
-                    false,
+                    CAPTURE_SESSION_TABLES,
                 )
             orderedSurfaceConfigListForStreamUseCase =
                 getOrderedSupportedStreamUseCaseSurfaceConfigList(
@@ -1181,12 +1191,7 @@ public class SupportedSurfaceCombination(
                     size = size,
                     surfaceSizeDefinition = getUpdatedSurfaceSizeDefinitionByFormat(imageFormat),
                     cameraMode = featureSettings.cameraMode,
-                    configSource =
-                        if (featureSettings.requiresFeatureComboQuery) {
-                            FEATURE_COMBINATION_TABLE
-                        } else {
-                            CAPTURE_SESSION_TABLES
-                        },
+                    configSource = getSurfaceCombinationTable(featureSettings).configSource,
                     streamUseCase = streamUseCase,
                 )
                 .configSize
@@ -1271,6 +1276,7 @@ public class SupportedSurfaceCombination(
         var supportedSizesFound = false
         var supportedSizesForStreamUseCaseFound = false
         val supportedFrameRateRanges = mutableSetOf<Range<Int>>()
+        val configSource = getSurfaceCombinationTable(featureSettings).configSource
 
         // Transform use cases to SurfaceConfig list and find the first (best) workable combination
         for (possibleSizeList in allPossibleSizeArrangements) {
@@ -1288,7 +1294,7 @@ public class SupportedSurfaceCombination(
                     useCasesPriorityOrder,
                     surfaceConfigIndexToAttachedSurfaceInfoMap,
                     surfaceConfigIndexToUseCaseConfigMap,
-                    featureSettings.requiresFeatureComboQuery,
+                    configSource,
                 )
             val currentConfigFrameRateCeiling =
                 getCurrentConfigFrameRateCeiling(
@@ -1580,7 +1586,7 @@ public class SupportedSurfaceCombination(
         useCasesPriorityOrder: List<Int>,
         surfaceConfigIndexAttachedSurfaceInfoMap: MutableMap<Int, AttachedSurfaceInfo>?,
         surfaceConfigIndexUseCaseConfigMap: MutableMap<Int, UseCaseConfig<*>>?,
-        checkViaFeatureComboQuery: Boolean,
+        configSource: ConfigSource,
     ): List<SurfaceConfig> {
         val surfaceConfigList: MutableList<SurfaceConfig> = mutableListOf()
         for (attachedSurfaceInfo in attachedSurfaces) {
@@ -1603,12 +1609,7 @@ public class SupportedSurfaceCombination(
                     size = size,
                     surfaceSizeDefinition = getUpdatedSurfaceSizeDefinitionByFormat(imageFormat),
                     cameraMode = cameraMode,
-                    configSource =
-                        if (checkViaFeatureComboQuery) {
-                            FEATURE_COMBINATION_TABLE
-                        } else {
-                            CAPTURE_SESSION_TABLES
-                        },
+                    configSource = configSource,
                     streamUseCase = streamUseCase,
                 )
             surfaceConfigList.add(surfaceConfig)
@@ -2175,7 +2176,7 @@ public class SupportedSurfaceCombination(
         targetSize: Size,
         format: Int,
     ) {
-        if (!isConcurrentCameraModeSupported) {
+        if (!isConcurrentCameraModeSupported && !isPreviewStabilizationSupported) {
             return
         }
 
@@ -2473,6 +2474,11 @@ public class SupportedSurfaceCombination(
         val maxFpsForBestSizes: Int,
         val maxFpsForStreamUseCase: Int,
         val supportedFrameRateRanges: Set<Range<Int>>?,
+    )
+
+    private data class SurfaceCombinationTable(
+        val configSource: ConfigSource,
+        val combinations: List<SurfaceCombination>,
     )
 
     internal enum class CheckingMethod {
