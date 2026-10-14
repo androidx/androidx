@@ -695,6 +695,7 @@ includeProject(":core:core-pip:integration-tests:pip-on-app-switch", [BuildType.
 includeProject(":people:people", [BuildType.MAIN])
 includeProject(":people:people-client", [BuildType.MAIN])
 includeProject(":test:accessibility:accessibility-core", [BuildType.MAIN])
+includeProject(":test:accessibility:accessibility-core-testing", [BuildType.MAIN])
 includeProject(":wear:compose:remote:integration-tests:demos", [BuildType.MAIN])
 includeProject(":wear:compose:remote:remote-material3", [BuildType.MAIN])
 includeProject(":wear:compose:remote:remote-material3-samples", "wear/compose/remote/remote-material3/samples", [BuildType.MAIN])
