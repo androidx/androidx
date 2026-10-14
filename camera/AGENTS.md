@@ -834,6 +834,28 @@ CameraX involves complex hardware interactions, making robust testing essential.
   - For `Preview` headless tests, use
     `SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()` to
     simulate a UI surface and prevent frame buffer stalls.
+- **Activity-Based Tests (Deterministic Setup & Window Readiness)**:
+  - *Principle*: Any precondition a test depends on must be established
+    before the code that depends on it runs, and the test `Activity` must be
+    able to reach `RESUMED` regardless of device state (keyguard, screen off,
+    OEM launch policies, or system overlays).
+  - *Rule ordering*: When a class has multiple `@Rule`s with side-effect
+    dependencies (lab gating, foreground cleanup, `Assume` checks, permission
+    grants, Activity launch), declare `@get:Rule(order = N)` on **every**
+    rule. Without explicit `order`, JUnit's reflection-based rule order is
+    unspecified. Lower `order` values run outermost, so preconditions
+    (`LabTestRule`, `RequireForegroundRule` and its `withAssumptions { ... }`,
+    `GrantPermissionRule`) must have lower `order` than `ActivityScenarioRule`
+    or `AndroidComposeTestRule`.
+  - *Window readiness*: Test-only Activities must configure lockscreen
+    visibility in `onCreate()` (`setShowWhenLocked(true)` and
+    `setTurnScreenOn(true)` on API 27+, or matching
+    `WindowManager.LayoutParams` flags on older APIs, plus
+    `FLAG_KEEP_SCREEN_ON`).
+  - *Signal*: `NoActivityResumedException` with the Activity stuck in
+    `STARTED` or `CREATED` typically indicates a violated rule/window
+    precondition or an environment overlay rather than a camera bug. Fix the
+    test setup instead of adding retries or sleeps.
 - **Main Thread Requirements**:
   - Ensure lifecycle binding (`bindToLifecycle`, `unbindAll`) and surface
     provider interactions are executed on the Main thread (using
@@ -1481,6 +1503,9 @@ Evaluate every prospective rule against this long-term criterion:
 > *"Will this guideline save time and prevent regressions for an engineer
 > working on an unrelated CameraX feature 1–2 years from now?"*
 * If **Yes**: Distill into a generalized principle with a concise case study.
+  Diagnostic signatures (exception names, log strings) may accompany a
+  general principle as compact examples; keep OEM- or lab-specific signatures
+  in `AGENTS_INTERNAL.md`.
 * If **No**: Preserve it in the issue tracker.
 
 #### 3. Consolidate & Refine (Prevent Unbounded Growth)
