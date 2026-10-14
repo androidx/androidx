@@ -35,7 +35,10 @@ public interface ErrorHandler {
      * error
      */
     enum ActionType {
-        /** Redirect the user to the "vending application" (e.g.: Google Play Store) */
+        /**
+         * Redirect the user to an app store (e.g.: the one that installed the host) where the
+         * host can be installed or updated
+         */
         UPDATE_HOST(R.string.error_action_update_host),
         /** Finish the application */
         FINISH(R.string.error_action_finish),

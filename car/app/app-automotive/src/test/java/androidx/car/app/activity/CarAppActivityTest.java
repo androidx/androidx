@@ -54,6 +54,8 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.car.app.CarAppService;
 import androidx.car.app.HandshakeInfo;
@@ -66,6 +68,7 @@ import androidx.car.app.activity.renderer.IRendererCallback;
 import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.activity.renderer.surface.LegacySurfacePackage;
 import androidx.car.app.activity.renderer.surface.SurfaceControlCallback;
+import androidx.car.app.automotive.R;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.Insets;
@@ -90,6 +93,12 @@ import org.robolectric.shadows.ShadowPackageManager;
 @DoNotInstrument
 public class CarAppActivityTest {
     public static final String INTENT_IDENTIFIER = "CarAppActivityTest";
+    private static final String STORE_PACKAGE = "com.fake.store";
+    private static final String OTHER_STORE_PACKAGE = "com.fake.otherstore";
+    private static final String VENDING_PACKAGE = "com.android.vending";
+    private static final String MARKET_DETAILS_URI = "market://details?id=";
+    private static final String GAS_HOST_PACKAGE =
+            "com.google.android.apps.automotive.templates.host";
     private final ComponentName mRendererComponent = new ComponentName(getApplicationContext(),
             getClass().getName());
     private final String mFakeCarAppServiceClass = "com.fake.FakeCarAppService";
@@ -649,6 +658,220 @@ public class CarAppActivityTest {
             assertThat(activity.mLocalContentContainerView.getPaddingRight()).isEqualTo(15);
             assertThat(activity.mLocalContentContainerView.getPaddingBottom()).isEqualTo(imeBottom);
         });
+    }
+
+    @Test
+    public void updateHost_installerHandlesShowAppInfo_launchesInstallerAppInfo() {
+        runOnActivity((scenario, activity) -> {
+            String hostPackage = mRendererComponent.getPackageName();
+            ComponentName store = registerStoreActivity(STORE_PACKAGE,
+                    filter(Intent.ACTION_SHOW_APP_INFO, /* withDefaultCategory= */ true));
+            shadowOf(activity.getPackageManager()).setInstallSourceInfo(hostPackage,
+                    STORE_PACKAGE, STORE_PACKAGE);
+
+            Intent launched = setErrorAndClickAction(activity,
+                    ErrorHandler.ErrorType.HOST_INCOMPATIBLE);
+
+            assertThat(launched.getAction()).isEqualTo(Intent.ACTION_SHOW_APP_INFO);
+            assertThat(launched.getComponent()).isEqualTo(store);
+            assertThat(launched.getStringExtra(Intent.EXTRA_PACKAGE_NAME)).isEqualTo(hostPackage);
+            assertThat(activity.isFinishing()).isTrue();
+        });
+    }
+
+    @Test
+    public void updateHost_installerShowAppInfoWithoutDefaultCategory_launchesExplicitly() {
+        runOnActivity((scenario, activity) -> {
+            String hostPackage = mRendererComponent.getPackageName();
+            ComponentName store = registerStoreActivity(STORE_PACKAGE,
+                    filter(Intent.ACTION_SHOW_APP_INFO, /* withDefaultCategory= */ false));
+            shadowOf(activity.getPackageManager()).setInstallSourceInfo(hostPackage,
+                    STORE_PACKAGE, STORE_PACKAGE);
+
+            Intent launched = setErrorAndClickAction(activity,
+                    ErrorHandler.ErrorType.HOST_INCOMPATIBLE);
+
+            assertThat(launched.getAction()).isEqualTo(Intent.ACTION_SHOW_APP_INFO);
+            assertThat(launched.getComponent()).isEqualTo(store);
+        });
+    }
+
+    @Test
+    public void updateHost_installerOnlyHandlesMarketScheme_launchesInstallerMarketDetails() {
+        runOnActivity((scenario, activity) -> {
+            String hostPackage = mRendererComponent.getPackageName();
+            ComponentName store = registerStoreActivity(STORE_PACKAGE, marketFilter());
+            shadowOf(activity.getPackageManager()).setInstallSourceInfo(hostPackage,
+                    STORE_PACKAGE, STORE_PACKAGE);
+
+            Intent launched = setErrorAndClickAction(activity,
+                    ErrorHandler.ErrorType.HOST_INCOMPATIBLE);
+
+            assertThat(launched.getAction()).isEqualTo(Intent.ACTION_VIEW);
+            assertThat(launched.getData().toString())
+                    .isEqualTo(MARKET_DETAILS_URI + hostPackage);
+            assertThat(launched.getComponent()).isEqualTo(store);
+        });
+    }
+
+    @Test
+    public void updateHost_unknownInstaller_launchesAnyMarketDetails() {
+        runOnActivity((scenario, activity) -> {
+            String hostPackage = mRendererComponent.getPackageName();
+            ComponentName store = registerStoreActivity(STORE_PACKAGE, marketFilter());
+
+            Intent launched = setErrorAndClickAction(activity,
+                    ErrorHandler.ErrorType.HOST_INCOMPATIBLE);
+
+            assertThat(launched.getData().toString())
+                    .isEqualTo(MARKET_DETAILS_URI + hostPackage);
+            assertThat(launched.getComponent()).isEqualTo(store);
+        });
+    }
+
+    @Test
+    public void updateHost_noHostInstalled_launchesGasHostPageOnPlayStore() {
+        runOnActivity((scenario, activity) -> {
+            shadowOf(activity.getPackageManager()).removeService(mRendererComponent);
+            ComponentName playStore = registerStoreActivity(VENDING_PACKAGE,
+                    marketFilter());
+
+            Intent launched = setErrorAndClickAction(activity,
+                    ErrorHandler.ErrorType.HOST_NOT_FOUND);
+
+            assertThat(launched.getData().toString()).isEqualTo(
+                    MARKET_DETAILS_URI + GAS_HOST_PACKAGE);
+            assertThat(launched.getComponent()).isEqualTo(playStore);
+        });
+    }
+
+    @Test
+    public void updateHost_noHostInstalledAndNoPlayStore_launchesAppMarket() {
+        runOnActivity((scenario, activity) -> {
+            shadowOf(activity.getPackageManager()).removeService(mRendererComponent);
+            IntentFilter appMarketFilter = filter(Intent.ACTION_MAIN,
+                    /* withDefaultCategory= */ false);
+            appMarketFilter.addCategory(Intent.CATEGORY_APP_MARKET);
+            ComponentName store = registerStoreActivity(STORE_PACKAGE, appMarketFilter);
+            // A store which can only show app details is not used, as no host package is known.
+            registerStoreActivity(OTHER_STORE_PACKAGE, marketFilter());
+
+            Intent launched = setErrorAndClickAction(activity,
+                    ErrorHandler.ErrorType.HOST_NOT_FOUND);
+
+            assertThat(launched.getAction()).isEqualTo(Intent.ACTION_MAIN);
+            assertThat(launched.getComponent()).isEqualTo(store);
+        });
+    }
+
+    @Test
+    public void updateHost_multipleStoresWithoutDefaultCategory_launchesExplicitly() {
+        runOnActivity((scenario, activity) -> {
+            shadowOf(activity.getPackageManager()).removeService(mRendererComponent);
+            IntentFilter appMarketFilter = filter(Intent.ACTION_MAIN,
+                    /* withDefaultCategory= */ false);
+            appMarketFilter.addCategory(Intent.CATEGORY_APP_MARKET);
+            ComponentName store = registerStoreActivity(STORE_PACKAGE, appMarketFilter);
+            ComponentName otherStore = registerStoreActivity(OTHER_STORE_PACKAGE,
+                    appMarketFilter);
+
+            Intent launched = setErrorAndClickAction(activity,
+                    ErrorHandler.ErrorType.HOST_NOT_FOUND);
+
+            assertThat(launched.getComponent()).isAnyOf(store, otherStore);
+        });
+    }
+
+    @Test
+    public void updateHost_multipleStoresWithDefaultCategory_letsSystemResolve() {
+        runOnActivity((scenario, activity) -> {
+            String hostPackage = mRendererComponent.getPackageName();
+            registerStoreActivity(STORE_PACKAGE, marketFilter());
+            registerStoreActivity(OTHER_STORE_PACKAGE, marketFilter());
+
+            Intent launched = setErrorAndClickAction(activity,
+                    ErrorHandler.ErrorType.HOST_INCOMPATIBLE);
+
+            assertThat(launched.getComponent()).isNull();
+            assertThat(launched.getData().toString())
+                    .isEqualTo(MARKET_DETAILS_URI + hostPackage);
+        });
+    }
+
+    @Test
+    public void updateHost_vendingInstalledButUnableToHandleIntents_hidesAction() {
+        runOnActivity((scenario, activity) -> {
+            // Play Store installed, but not handling any of the store intents.
+            shadowOf(activity.getPackageManager()).addActivityIfNotPresent(
+                    new ComponentName(VENDING_PACKAGE, "Unrelated"));
+
+            activity.mErrorMessageView.setError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE);
+
+            assertNoStoreAvailable(activity);
+        });
+    }
+
+    @Test
+    public void updateHost_storeRemovedBeforeClick_doesNotCrash() {
+        runOnActivity((scenario, activity) -> {
+            ComponentName store = registerStoreActivity(STORE_PACKAGE, marketFilter());
+            activity.mErrorMessageView.setError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE);
+            assertThat(getActionButton(activity).getVisibility()).isEqualTo(View.VISIBLE);
+
+            shadowOf(activity.getPackageManager()).removeActivity(store);
+            shadowOf((Application) getApplicationContext()).checkActivities(true);
+            getActionButton(activity).performClick();
+
+            assertNoStoreAvailable(activity);
+            assertThat(activity.isFinishing()).isFalse();
+        });
+    }
+
+    private Intent setErrorAndClickAction(CarAppActivity activity,
+            ErrorHandler.ErrorType errorType) {
+        activity.mErrorMessageView.setError(errorType);
+        Button actionButton = getActionButton(activity);
+        assertThat(actionButton.getVisibility()).isEqualTo(View.VISIBLE);
+        actionButton.performClick();
+        Intent launched = shadowOf(activity).getNextStartedActivity();
+        assertThat(launched).isNotNull();
+        return launched;
+    }
+
+    private static void assertNoStoreAvailable(CarAppActivity activity) {
+        assertThat(getActionButton(activity).getVisibility()).isEqualTo(View.INVISIBLE);
+        TextView message = activity.mErrorMessageView.findViewById(R.id.error_message);
+        assertThat(message.getText().toString())
+                .isEqualTo(activity.getString(R.string.error_message_no_vending));
+    }
+
+    private static Button getActionButton(CarAppActivity activity) {
+        return activity.mErrorMessageView.findViewById(R.id.action_button);
+    }
+
+    private static ComponentName registerStoreActivity(String packageName, IntentFilter filter) {
+        ComponentName component = new ComponentName(packageName, packageName + ".StoreActivity");
+        ShadowPackageManager spm = shadowOf(
+                ((Application) getApplicationContext()).getPackageManager());
+        spm.addActivityIfNotPresent(component);
+        spm.addIntentFilterForActivity(component, filter);
+        return component;
+    }
+
+    private static IntentFilter filter(String action, boolean withDefaultCategory) {
+        IntentFilter filter = new IntentFilter(action);
+        if (withDefaultCategory) {
+            filter.addCategory(Intent.CATEGORY_DEFAULT);
+        }
+        return filter;
+    }
+
+    private static IntentFilter marketFilter() {
+        IntentFilter filter = filter(Intent.ACTION_VIEW, /* withDefaultCategory= */ true);
+        filter.addCategory(Intent.CATEGORY_BROWSABLE);
+        filter.addDataScheme("market");
+        filter.addDataAuthority("details", null);
+        return filter;
     }
 
     interface CarActivityAction {
