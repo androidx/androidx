@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.creation.compose.state
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import java.lang.ref.WeakReference
 
 /**
  * Represents a key used for caching [BaseRemoteState] instances or expressions in
@@ -29,24 +33,37 @@ import androidx.compose.ui.graphics.Color
  * expression or state is encountered multiple times during document creation.
  */
 @Immutable
-internal interface RemoteStateCacheKey {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface RemoteStateCacheKey {
     /** The child argument cache keys of this node in the AST DAG. Empty for leaf nodes. */
-    val args: List<RemoteStateCacheKey>
+    public val args: List<RemoteStateCacheKey>
         get() = emptyList()
 
-    fun toDebugString(): String
+    public fun toDebugString(): String
+}
 
-    /**
-     * Traverses this [RemoteStateCacheKey] DAG using the provided [visitor].
-     *
-     * @param visitor The visitor that inspects each node.
-     * @param memo A memoization map to ensure shared DAG nodes are visited once.
-     * @return The result of visiting this node.
-     */
-    fun <R> accept(
-        visitor: RemoteStateVisitor<R>,
-        memo: MutableMap<RemoteStateCacheKey, R> = mutableMapOf(),
-    ): R
+/**
+ * Traverses this [RemoteStateCacheKey] DAG using the provided [visitor].
+ *
+ * @param visitor The visitor that inspects each node.
+ * @param memo A memoization map to ensure shared DAG nodes are visited once.
+ * @return The result of visiting this node.
+ */
+internal fun <R> RemoteStateCacheKey.accept(
+    visitor: RemoteStateVisitor<R>,
+    memo: MutableMap<RemoteStateCacheKey, R> = mutableMapOf(),
+): R {
+    memo[this]?.let {
+        return it
+    }
+    val visitedArgs = ArrayList<R>(args.size)
+    for (i in 0 until args.size) {
+        visitedArgs.add(args[i].accept(visitor, memo))
+    }
+    val state = (this as? BaseRemoteStateCacheKey)?.getState()
+    val result = visitor.visit(this, state, visitedArgs)
+    memo[this] = result
+    return result
 }
 
 internal fun List<RemoteStateCacheKey>.joinToDebugString(
@@ -79,7 +96,7 @@ internal fun List<RemoteStateCacheKey>.formatSelect(opSymbol: String): String {
 }
 
 internal fun List<String>.fastJoinToString(separator: String = ", "): String = buildString {
-    for (i in this@fastJoinToString.indices) {
+    for (i in indices) {
         if (i > 0) {
             append(separator)
         }
@@ -94,12 +111,13 @@ internal fun Enum<*>.formatCamelCaseFunction(args: List<RemoteStateCacheKey>): S
  * Interface implemented by remote operation keys (e.g. `RemoteFloat.OperationKey`) to define
  * precedence, custom AST debug formatting (e.g. `user:a + user:b`), and AST node reconstruction.
  */
-internal interface RemoteOperation {
-    val precedence: Int
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface RemoteOperation {
+    public val precedence: Int
         get() = 100
 
     /** Formats this operation AST using its evaluated operand [args]. */
-    fun toDebugString(args: List<RemoteStateCacheKey>): String
+    public fun toDebugString(args: List<RemoteStateCacheKey>): String
 
     /**
      * Reconstructs the [BaseRemoteState] operation using the new [args].
@@ -107,7 +125,7 @@ internal interface RemoteOperation {
      * @param args The transformed argument list of [BaseRemoteState] instances.
      * @return The reconstructed [BaseRemoteState] instance.
      */
-    fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
+    public fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
         throw UnsupportedOperationException("Reconstruction is not supported for $this")
 }
 
@@ -139,7 +157,8 @@ internal fun RemoteStateCacheKey.toOperandString(
 }
 
 /** Base class for [RemoteStateCacheKey] implementations that provides a memoized [hashCode]. */
-internal abstract class BaseRemoteStateCacheKey : RemoteStateCacheKey {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public abstract class BaseRemoteStateCacheKey : RemoteStateCacheKey {
     private var _hashCode: Int = 0
 
     /**
@@ -147,29 +166,13 @@ internal abstract class BaseRemoteStateCacheKey : RemoteStateCacheKey {
      * traversal. Default implementation returns null. Note to save memory this deliberately doesn't
      * have a backing field because not all sub-classes need it.
      */
-    internal open fun getState(): BaseRemoteState<*>? = null
+    public open fun getState(): BaseRemoteState<*>? = null
 
     /**
      * Associates this key with a BaseRemoteState instance. Default implementation is a no-op to
      * avoid allocating backing fields on keys that do not retain state.
      */
-    internal open fun setState(state: BaseRemoteState<*>?) {}
-
-    override fun <R> accept(
-        visitor: RemoteStateVisitor<R>,
-        memo: MutableMap<RemoteStateCacheKey, R>,
-    ): R {
-        memo[this]?.let {
-            return it
-        }
-        val visitedArgs = ArrayList<R>(args.size)
-        for (i in args.indices) {
-            visitedArgs.add(args[i].accept(visitor, memo))
-        }
-        val result = visitor.visit(this, getState(), visitedArgs)
-        memo[this] = result
-        return result
-    }
+    public open fun setState(state: BaseRemoteState<*>?) {}
 
     final override fun hashCode(): Int {
         if (_hashCode == 0) {
@@ -218,7 +221,16 @@ internal class RemoteStateArrayKey(internal val size: Int) : BaseRemoteStateCach
 }
 
 /** A cache key for constant values (primitive types, strings, etc.). */
-internal class RemoteConstantCacheKey(internal val value: Any?) : BaseRemoteStateCacheKey() {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteConstantCacheKey(public val value: Any?) : BaseRemoteStateCacheKey() {
+    private var stateRef: WeakReference<BaseRemoteState<*>>? = null
+
+    override fun getState(): BaseRemoteState<*>? = stateRef?.get()
+
+    override fun setState(state: BaseRemoteState<*>?) {
+        stateRef = if (state != null) WeakReference(state) else null
+    }
+
     init {
         if (value is Float) {
             check(!value.isNaN()) { "Float constant value cannot be NaN" }
@@ -256,9 +268,10 @@ internal class RemoteConstantCacheKey(internal val value: Any?) : BaseRemoteStat
 }
 
 /** A cache key for named variables, identified by their [name] and [domain]. */
-internal class RemoteNamedCacheKey(
-    internal val domain: RemoteState.Domain,
-    internal val name: String,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteNamedCacheKey(
+    public val domain: RemoteState.Domain,
+    public val name: String,
 ) : BaseRemoteStateCacheKey() {
     private var state: BaseRemoteState<*>? = null
 
@@ -334,7 +347,8 @@ internal class RemoteStateThemeColorKey(
 }
 
 /** A cache key for variable by id. */
-internal class RemoteStateIdKey(internal val id: Int) : BaseRemoteStateCacheKey() {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteStateIdKey(public val id: Int) : BaseRemoteStateCacheKey() {
     private var state: BaseRemoteState<*>? = null
 
     override fun getState(): BaseRemoteState<*>? = state
@@ -429,8 +443,11 @@ internal class FloatArrayCacheKey(internal val floatArray: FloatArray) : BaseRem
  * A cache key for component-specific values (like width/height/center), identified by the
  * [componentId] and the [type] of value.
  */
-internal class RemoteComponentCacheKey(internal val componentId: Int, internal val type: String) :
-    BaseRemoteStateCacheKey() {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComponentCacheKey(
+    public val componentId: Int,
+    public val type: String,
+) : BaseRemoteStateCacheKey() {
     private var state: BaseRemoteState<*>? = null
 
     override fun getState(): BaseRemoteState<*>? = state
@@ -463,8 +480,9 @@ internal class RemoteComponentCacheKey(internal val componentId: Int, internal v
  * A cache key for operations performed on other remote states, identified by the operation [op]
  * (usually an [Enum]) and its [args].
  */
-internal class RemoteOperationCacheKey(
-    internal val op: Enum<*>,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteOperationCacheKey(
+    public val op: Enum<*>,
     override val args: List<RemoteStateCacheKey>,
 ) : BaseRemoteStateCacheKey() {
     private var state: BaseRemoteState<*>? = null
@@ -502,7 +520,7 @@ internal class RemoteOperationCacheKey(
         }
     }
 
-    companion object {
+    public companion object {
         /** Creates a [RemoteOperationCacheKey] by converting [args] to a list of cache keys. */
         public fun create(op: Enum<*>, vararg args: Any?): RemoteOperationCacheKey =
             RemoteOperationCacheKey(op, toCacheKeyList(args))

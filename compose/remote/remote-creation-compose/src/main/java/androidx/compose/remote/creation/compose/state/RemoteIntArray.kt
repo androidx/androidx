@@ -27,7 +27,7 @@ import androidx.compose.ui.util.fastMap
 public class RemoteIntArray
 internal constructor(
     public override val constantValueOrNull: List<RemoteInt>?,
-    internal override val cacheKey: RemoteStateCacheKey,
+    cacheKey: RemoteStateCacheKey,
 ) : BaseRemoteState<List<RemoteInt>>(cacheKey) {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

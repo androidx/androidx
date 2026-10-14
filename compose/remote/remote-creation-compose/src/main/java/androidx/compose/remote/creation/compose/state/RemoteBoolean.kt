@@ -40,7 +40,8 @@ internal constructor(
     internal val floatComparison: SelectFloatCondition.FloatComparison? = null,
     internal val intComparison: SelectIntCondition.IntComparison? = null,
 ) : BaseRemoteState<Boolean>(RemoteStateInstanceKey()) {
-    internal override val cacheKey: RemoteStateCacheKey
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public override val cacheKey: RemoteStateCacheKey
         get() = intValue.cacheKey
 
     internal enum class OperationKey : RemoteOperation {

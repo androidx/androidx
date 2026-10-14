@@ -41,7 +41,8 @@ import kotlin.enums.enumEntries
 public open class RemoteEnum<T : Enum<T>>
 public constructor(internal val intValue: RemoteInt, internal val enumEntries: EnumEntries<T>) :
     BaseRemoteState<T>(RemoteStateInstanceKey()) {
-    override val cacheKey: RemoteStateCacheKey
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public override val cacheKey: RemoteStateCacheKey
         get() = constantValueOrNull?.let { RemoteConstantCacheKey(it) } ?: intValue.cacheKey
 
     @get:Suppress("AutoBoxing")
