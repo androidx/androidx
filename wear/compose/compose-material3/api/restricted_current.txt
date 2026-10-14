@@ -2576,6 +2576,7 @@ package androidx.wear.compose.material3.onehandedgesture {
     method @BytecodeOnly public static Object! scrollDownToNextItem$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, boolean, kotlin.coroutines.Continuation!, int, Object!);
     method public suspend Object? scrollToNextPage(androidx.wear.compose.foundation.pager.PagerState pagerState, optional boolean wrapAround, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollToNextPage$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.pager.PagerState!, boolean, kotlin.coroutines.Continuation!, int, Object!);
+    property public static long ShowIndicatorDelayMillis;
     property public androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorSize indicatorSize;
     property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color indicatorTint;
     property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color pageIndicatorBackgroundColor;
@@ -2583,6 +2584,7 @@ package androidx.wear.compose.material3.onehandedgesture {
     property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color scrollIndicatorBackgroundColor;
     property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color scrollIndicatorTint;
     field public static final androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults INSTANCE;
+    field public static final long ShowIndicatorDelayMillis = 1000L; // 0x3e8L
   }
 
   @kotlin.jvm.JvmInline public final value class OneHandedGestureIndicatorSize {
@@ -2600,7 +2602,9 @@ package androidx.wear.compose.material3.onehandedgesture {
 
   public final class OneHandedGestureModifierKt {
     method public static androidx.compose.ui.Modifier oneHandedGesture(androidx.compose.ui.Modifier, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, String? onGestureLabel, optional boolean enabledInAmbient, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> onGestureAvailable, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onGesture);
+    method public static androidx.compose.ui.Modifier oneHandedGesture(androidx.compose.ui.Modifier, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration gestureConfiguration, String? onGestureLabel, @IntRange(from=0L) long showIndicatorDelayMillis, optional boolean enabledInAmbient, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> onGestureAvailable, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onGesture);
     method @BytecodeOnly public static androidx.compose.ui.Modifier! oneHandedGesture$default(androidx.compose.ui.Modifier!, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration!, String!, boolean, androidx.compose.foundation.interaction.MutableInteractionSource!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! oneHandedGesture$default(androidx.compose.ui.Modifier!, androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration!, String!, long, boolean, androidx.compose.foundation.interaction.MutableInteractionSource!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public final class OneHandedGesturePageIndicatorKt {

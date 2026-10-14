@@ -17,6 +17,7 @@
 package androidx.wear.compose.material3.onehandedgesture
 
 import android.view.View
+import androidx.annotation.IntRange
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.ui.Modifier
@@ -111,15 +112,18 @@ import androidx.wear.compose.foundation.LocalScreenIsActive
  *
  * @param gestureConfiguration The [OneHandedGestureConfiguration] containing the configuration for
  *   this gesture.
+ * @param onGestureLabel Semantic label used by accessibility services to describe the purpose of
+ *   this gesture. This is highly recommended for ensuring that users with screen readers understand
+ *   what action will be performed.
+ * @param showIndicatorDelayMillis The delay, in milliseconds, before the gesture indicator is
+ *   shown - i.e. between the gesture becoming the highest-priority gesture for its action and
+ *   [onGestureAvailable] being invoked. Must be non-negative.
  * @param enabledInAmbient Whether the gesture should remain active in ambient mode.
  * @param interactionSource [MutableInteractionSource] that will be used to dispatch
  *   [androidx.compose.foundation.interaction.PressInteraction.Press] and an immediate
  *   [androidx.compose.foundation.interaction.PressInteraction.Release] when this gesture is
  *   triggered. This allows UI components to visually react (such as triggering a touch ripple or
  *   pressed state animation) upon gesture activation.
- * @param onGestureLabel Semantic label used by accessibility services to describe the purpose of
- *   this gesture. This is highly recommended for ensuring that users with screen readers understand
- *   what action will be performed.
  * @param onGestureAvailable A callback invoked by the system to signal that this gesture is
  *   currently available as a high-priority action. Developers should use this callback to call
  *   showIndicator on the indicator state to trigger the associated visual feedback.
@@ -131,6 +135,7 @@ import androidx.wear.compose.foundation.LocalScreenIsActive
 public fun Modifier.oneHandedGesture(
     gestureConfiguration: OneHandedGestureConfiguration,
     onGestureLabel: String?,
+    @IntRange(from = 0L) showIndicatorDelayMillis: Long,
     enabledInAmbient: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
     onGestureAvailable: () -> Unit = {},
@@ -150,9 +155,123 @@ public fun Modifier.oneHandedGesture(
                 }
                 onGesture()
             },
+            showIndicatorDelayMillis = showIndicatorDelayMillis,
         )
     )
 }
+
+/**
+ * Registers a gesture handler.
+ *
+ * Note: Gesture recognition can be explicitly disabled across a component hierarchy by providing
+ * false` to [LocalOneHandedGestureEnabled].
+ *
+ * **Visibility Management:** This gesture handler is active as long as the Modifier is part of the
+ * composition. On its own, it does not track whether the composable is visible or clipped (e.g., in
+ * a Lazy layout).
+ *
+ * To prevent accidental triggers from off-screen items, developers should apply this modifier
+ * conditionally. For many cases, [androidx.compose.ui.layout.onVisibilityChanged] Modifier can be
+ * used to determine the visibility of a composable.
+ *
+ * Example usage in a list:
+ * ```kotlin
+ * var isVisible by remember { mutableStateOf(false) }
+ * val gestureModifier = remember(isVisible) {
+ *   if (isVisible) Modifier.oneHandedGesture() else Modifier
+ * }
+ *
+ * Box(
+ *   modifier = Modifier
+ *     .onVisibilityChanged { isVisible = it }
+ *     .then(gestureModifier)
+ * ) {
+ *   ...
+ * }
+ * ```
+ *
+ * **Haptics:** When a gesture is successfully triggered, the system automatically performs haptic
+ * feedback to acknowledge the interaction; developers do not need to trigger haptics manually
+ * within [onGesture].
+ *
+ * Example of adding one-handed gesture handler to a [androidx.wear.compose.material3.Button]:
+ *
+ * @sample androidx.wear.compose.material3.samples.OneHandedGestureButtonSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureButtonSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
+ * Example of adding one-handed gesture handler that is enabled in ambient mode to a
+ * [androidx.wear.compose.material3.Button]:
+ *
+ * @sample androidx.wear.compose.material3.samples.OneHandedGestureButtonInAmbientSample
+ *
+ * Example of adding one-handed gesture handler to a
+ * [androidx.wear.compose.foundation.lazy.TransformingLazyColumn]:
+ *
+ * @sample androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureTransformingLazyColumnSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
+ * Example of adding one-handed gesture handler to a
+ * [androidx.wear.compose.foundation.pager.HorizontalPager]:
+ *
+ * @sample androidx.wear.compose.material3.samples.OneHandedGestureHorizontalPagerSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureHorizontalPagerSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
+ * Example of adding one-handed gesture handler to a
+ * [androidx.wear.compose.foundation.pager.VerticalPager]:
+ *
+ * @sample androidx.wear.compose.material3.samples.OneHandedGestureVerticalPagerSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureVerticalPagerSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
+ * @param gestureConfiguration The [OneHandedGestureConfiguration] containing the configuration for
+ *   this gesture.
+ * @param enabledInAmbient Whether the gesture should remain active in ambient mode.
+ * @param interactionSource [MutableInteractionSource] that will be used to dispatch
+ *   [androidx.compose.foundation.interaction.PressInteraction.Press] and an immediate
+ *   [androidx.compose.foundation.interaction.PressInteraction.Release] when this gesture is
+ *   triggered. This allows UI components to visually react (such as triggering a touch ripple or
+ *   pressed state animation) upon gesture activation.
+ * @param onGestureLabel Semantic label used by accessibility services to describe the purpose of
+ *   this gesture. This is highly recommended for ensuring that users with screen readers understand
+ *   what action will be performed.
+ * @param onGestureAvailable A callback invoked by the system to signal that this gesture is
+ *   currently available as a high-priority action. Developers should use this callback to call
+ *   showIndicator on the indicator state to trigger the associated visual feedback. It is invoked
+ *   after a delay of [OneHandedGestureDefaults.ShowIndicatorDelayMillis], use the overload with
+ *   `showIndicatorDelayMillis` parameter to customize this delay.
+ * @param onGesture The callback invoked when the gesture is triggered.
+ *
+ * See also the
+ * [UI Design Guides for One-Handed Gestures](https://developer.android.com/design/ui/wear/guides/patterns/gestures)
+ */
+public fun Modifier.oneHandedGesture(
+    gestureConfiguration: OneHandedGestureConfiguration,
+    onGestureLabel: String?,
+    enabledInAmbient: Boolean = false,
+    interactionSource: MutableInteractionSource? = null,
+    onGestureAvailable: () -> Unit = {},
+    onGesture: suspend () -> Unit,
+): Modifier =
+    oneHandedGesture(
+        gestureConfiguration = gestureConfiguration,
+        onGestureLabel = onGestureLabel,
+        enabledInAmbient = enabledInAmbient,
+        interactionSource = interactionSource,
+        onGestureAvailable = onGestureAvailable,
+        showIndicatorDelayMillis = OneHandedGestureDefaults.ShowIndicatorDelayMillis,
+        onGesture = onGesture,
+    )
 
 private class GestureElement(
     val gestureConfiguration: OneHandedGestureConfiguration,
@@ -160,6 +279,7 @@ private class GestureElement(
     val onGestureLabel: String?,
     val onGestureAvailable: () -> Unit,
     val onGesture: suspend (centerOffset: Offset) -> Unit,
+    val showIndicatorDelayMillis: Long,
 ) : ModifierNodeElement<GestureNode>() {
 
     override fun create() =
@@ -169,6 +289,7 @@ private class GestureElement(
             onGestureLabel,
             onGestureAvailable,
             onGesture,
+            showIndicatorDelayMillis,
         )
 
     override fun update(node: GestureNode) {
@@ -178,6 +299,7 @@ private class GestureElement(
             onGestureLabel,
             onGestureAvailable,
             onGesture,
+            showIndicatorDelayMillis,
         )
     }
 
@@ -187,23 +309,28 @@ private class GestureElement(
         properties["priority"] = gestureConfiguration.priority
         properties["gestureId"] = gestureConfiguration.gestureId
         properties["enabledInAmbient"] = enabledInAmbient
+        properties["onGestureLabel"] = onGestureLabel
+        properties["showIndicatorDelayMillis"] = showIndicatorDelayMillis
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is GestureElement) return false
         return gestureConfiguration == other.gestureConfiguration &&
+            enabledInAmbient == other.enabledInAmbient &&
             onGestureLabel == other.onGestureLabel &&
             onGesture === other.onGesture &&
-            onGestureAvailable === other.onGestureAvailable
+            onGestureAvailable === other.onGestureAvailable &&
+            showIndicatorDelayMillis == other.showIndicatorDelayMillis
     }
 
     override fun hashCode(): Int {
         var result = gestureConfiguration.hashCode()
         result = 31 * result + enabledInAmbient.hashCode()
-        result = 31 * result + onGestureLabel.hashCode()
+        result = 31 * result + (onGestureLabel?.hashCode() ?: 0)
         result = 31 * result + onGesture.hashCode()
         result = 31 * result + onGestureAvailable.hashCode()
+        result = 31 * result + showIndicatorDelayMillis.hashCode()
         return result
     }
 }
@@ -214,6 +341,7 @@ private class GestureNode(
     private var onGestureLabel: String?,
     private var onGestureAvailable: () -> Unit,
     private var onGesture: suspend (centerOffset: Offset) -> Unit,
+    private var showIndicatorDelayMillis: Long,
 ) :
     Modifier.Node(),
     CompositionLocalConsumerModifierNode,
@@ -251,6 +379,7 @@ private class GestureNode(
         newOnGestureLabel: String?,
         newOnGestureAvailable: () -> Unit,
         newOnGesture: suspend (centerOffset: Offset) -> Unit,
+        newShowIndicatorDelayMillis: Long,
     ) {
         val oldConfig = gestureConfiguration
         val oldGestureManager = gestureManager
@@ -276,6 +405,7 @@ private class GestureNode(
                     onGestureLabel,
                     onGestureAvailable,
                     onGesture,
+                    newShowIndicatorDelayMillis,
                 )
             } else {
                 currentView?.let { view ->
@@ -287,6 +417,7 @@ private class GestureNode(
                         newOnGestureLabel,
                         newOnGestureAvailable,
                         newOnGesture,
+                        newShowIndicatorDelayMillis,
                     )
                 }
             }
@@ -295,6 +426,7 @@ private class GestureNode(
         gestureConfiguration = newConfig
         onGestureLabel = newOnGestureLabel
         onGesture = newOnGesture
+        showIndicatorDelayMillis = newShowIndicatorDelayMillis
     }
 
     private fun updateCompositionLocals(reregister: Boolean) {
@@ -317,6 +449,7 @@ private class GestureNode(
                     onGestureLabel,
                     onGestureAvailable,
                     onGesture,
+                    showIndicatorDelayMillis,
                 )
             }
             gestureManager = newGestureManager
@@ -332,6 +465,7 @@ private class GestureNode(
         onGestureLabel: String?,
         onGestureAvailable: () -> Unit,
         onGesture: suspend (centerOffset: Offset) -> Unit,
+        showIndicatorDelayMillis: Long,
     ) {
         if (!isEnabled || view == null || haptic == null) return
 
@@ -345,6 +479,7 @@ private class GestureNode(
             onGesture = onGesture,
             isActive = { localScreenIsActive },
             size = { size },
+            showIndicatorDelayMillis = showIndicatorDelayMillis,
         )
     }
 
