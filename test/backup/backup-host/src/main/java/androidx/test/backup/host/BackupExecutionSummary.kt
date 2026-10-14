@@ -132,7 +132,6 @@ internal data class BackupExecutionSummary(
 
     /** Reports this summary, keyed by [BackupReportKeys], to [publish]. */
     fun publishTo(publish: (key: String, value: String) -> Unit) {
-        publish(BackupReportKeys.LIBRARY_VERSION, LIBRARY_VERSION)
         publish(BackupReportKeys.TRANSPORT_MODE, transportMode.toString())
         publish(BackupReportKeys.STORAGE_DOMAIN_COUNT, storageDomainCount.toString())
         publish(BackupReportKeys.SEEDING_DURATION, seedingDuration.toMillis().toString())
@@ -218,29 +217,3 @@ internal class BackupExecutionTracker(
 
     private fun elapsedSince(startNanos: Long): Duration = Duration.ofNanos(nanoTime() - startNanos)
 }
-
-/**
- * Version of this library, read from the version resource packaged into the artifact.
- *
- * Falls back to [BackupReportKeys.UNKNOWN_LIBRARY_VERSION] when the resource is absent, for example
- * when running against locally built classes rather than a published artifact. Reporting a
- * placeholder here keeps the telemetry honest instead of attributing runs to a release that may not
- * be the one under test.
- */
-private val LIBRARY_VERSION: String by lazy {
-    try {
-        readVersionResource("/META-INF/androidx.test.backup_backup-host.version")
-            ?: readVersionResource("/META-INF/androidx.test.backup_backup.version")
-            ?: BackupReportKeys.UNKNOWN_LIBRARY_VERSION
-    } catch (_: Throwable) {
-        BackupReportKeys.UNKNOWN_LIBRARY_VERSION
-    }
-}
-
-private fun readVersionResource(resourcePath: String): String? =
-    BackupExecutionSummary::class
-        .java
-        .getResourceAsStream(resourcePath)
-        ?.bufferedReader()
-        ?.use { it.readLine()?.trim() }
-        ?.takeIf { it.isNotEmpty() }
