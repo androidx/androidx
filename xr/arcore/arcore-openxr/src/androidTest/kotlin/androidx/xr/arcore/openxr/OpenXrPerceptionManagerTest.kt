@@ -37,6 +37,7 @@ import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.QrCodeTrackingMode
+import androidx.xr.runtime.SpatialAnnotationTrackingMode
 import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
@@ -50,6 +51,8 @@ import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 import java.util.UUID
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertThrows
@@ -595,6 +598,62 @@ class OpenXrPerceptionManagerTest {
                 .isEqualTo(SpatialAnnotationQuadAlignment.OBJECT)
             assertThat(underTest.xrResources.annotationConfigs[id2]?.alignment)
                 .isEqualTo(SpatialAnnotationQuadAlignment.OBJECT)
+        }
+
+    /**
+     * Covers the start completion callback firing after [OpenXrPerceptionManager.clear]:
+     * [OpenXrRuntime.destroy] clears the perception manager first, then `nativeDeInit()` cancels
+     * the pending native start and invokes the callback, which must fail the waiting caller with
+     * [IllegalStateException] rather than leave it suspended.
+     *
+     * The callback only comes from `nativeStartSpatialAnnotationTracking`, which is not linked in
+     * host tests, so this path can only be exercised here. It requires the stub to leave the start
+     * pending rather than completing it synchronously.
+     */
+    @Ignore(
+        "Requires updated libandroidx.xr.arcore.openxr.test.so prebuilt with spatial annotation stub support"
+    )
+    @Test
+    fun startSpatialAnnotationTracking_destroyedBeforeCompletion_failsWithIllegalStateException() =
+        initOpenXrRuntimeAndRunTest {
+            openXrRuntime.configure(
+                Config.Builder()
+                    .setSpatialAnnotationTracking(SpatialAnnotationTrackingMode.QUAD)
+                    .build()
+            )
+
+            runBlocking {
+                // UNDISPATCHED runs until the call suspends, so the native start is pending before
+                // destroy() is called on this same thread.
+                val result =
+                    async(start = CoroutineStart.UNDISPATCHED) {
+                        runCatching {
+                            underTest.startSpatialAnnotationTracking(
+                                imageBuffer = ByteBuffer.allocateDirect(100),
+                                imageSize = IntSize2d(10, 10),
+                                rowStride = 10,
+                                format = SpatialAnnotationImageFormat.GRAYSCALE,
+                                alignment = SpatialAnnotationQuadAlignment.SCREEN,
+                                quads =
+                                    mapOf(
+                                        SpatialAnnotationId.fromString("test_annotation") to
+                                            Quad.fromMinMax(Vector2(-1f, -1f), Vector2(1f, 1f))
+                                    ),
+                                timestampNanos = 1000L,
+                            )
+                        }
+                    }
+
+                openXrRuntime.destroy()
+
+                val error = result.await().exceptionOrNull()
+                assertThat(error).isInstanceOf(IllegalStateException::class.java)
+                assertThat(error)
+                    .hasMessageThat()
+                    .isEqualTo(
+                        "Spatial annotation tracking was stopped because the session was destroyed."
+                    )
+            }
         }
 
     @Test
