@@ -163,4 +163,55 @@ class StorageDomainTest {
             StorageDomain.TextFile("big.txt", content).toString(),
         )
     }
+
+    @Test
+    fun testTextFile_toStringDoesNotCutASurrogatePair() {
+        val content = "a".repeat(63) + "\uD83D\uDE00" + "b".repeat(36)
+
+        assertEquals(
+            "TextFile(path='big.txt', content='${"a".repeat(63)}...' (101 chars))",
+            StorageDomain.TextFile("big.txt", content).toString(),
+        )
+    }
+
+    @Test
+    fun testPreference_toStringShowsAShortValue() {
+        assertEquals(
+            "Preference(prefName='name', key='key', value=hello)",
+            StorageDomain.Preference("name", "key", "hello").toString(),
+        )
+        assertEquals(
+            "Preference(prefName='name', key='key', value=null)",
+            StorageDomain.Preference("name", "key").toString(),
+        )
+    }
+
+    @Test
+    fun testPreference_toStringCutsALongValue() {
+        val value = "a".repeat(64) + "b".repeat(100_000)
+
+        assertEquals(
+            "Preference(prefName='name', key='key', value=${"a".repeat(64)}... (100064 chars))",
+            StorageDomain.Preference("name", "key", value).toString(),
+        )
+    }
+
+    @Test
+    fun testDatabase_toStringCutsEachLongValue() {
+        val long = "a".repeat(64) + "b".repeat(100_000)
+
+        assertEquals(
+            "Database(dbName='db', table='notes', primaryKeyCol='id', " +
+                "primaryKeyVal=${"a".repeat(64)}... (100064 chars), " +
+                "columnValues={note=${"a".repeat(64)}... (100064 chars), count=1, tag=null})",
+            StorageDomain.Database(
+                    "db",
+                    "notes",
+                    "id",
+                    long,
+                    linkedMapOf("note" to long, "count" to 1, "tag" to null),
+                )
+                .toString(),
+        )
+    }
 }

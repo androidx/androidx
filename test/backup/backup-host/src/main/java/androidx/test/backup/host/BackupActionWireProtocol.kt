@@ -163,7 +163,8 @@ internal object BackupActionWireProtocol {
                     }
                 }
             is StorageDomain.Database -> {
-                val columns = storage.columnValues.map { (name, value) -> name to value.orEmpty() }
+                val columns =
+                    storage.columnValues.map { (name, value) -> name to value?.toString() }
                 // The primary key is written too, so that verification can find the row again.
                 val hasKeyColumn =
                     storage.columnValues.keys.any {
@@ -217,7 +218,7 @@ internal object BackupActionWireProtocol {
                     val (expectedCol, expectedVal) = storage.columnValues.entries.first()
                     mapOf(
                         BackupActionInputKeys.EXPECTED_COL to expectedCol,
-                        BackupActionInputKeys.EXPECTED_VAL to expectedVal.orEmpty(),
+                        BackupActionInputKeys.EXPECTED_VAL to expectedVal?.toString().orEmpty(),
                     )
                 }
                 else -> emptyMap()
@@ -227,12 +228,14 @@ internal object BackupActionWireProtocol {
      * Encodes column name/value pairs into the [BackupActionInputKeys.VALUES] wire format.
      *
      * Both halves of every pair are percent-encoded in UTF-8, which is what lets a column value
-     * contain `&`, `=`, `%` or `+`. The device decodes this with `java.net.URLDecoder`, so the two
-     * sides must stay symmetric: writing the pairs unencoded corrupts any value containing a
-     * separator.
+     * contain `&`, `=`, `%` or `+`. A null value, which stands for SQL `NULL`, is sent as the name
+     * alone, without `=`. The device decodes this with `java.net.URLDecoder`, so the two sides must
+     * stay symmetric: writing the pairs unencoded corrupts any value containing a separator.
      */
-    fun encodeColumnValues(pairs: List<Pair<String, String>>): String =
-        pairs.joinToString("&") { (name, value) -> "${encode(name)}=${encode(value)}" }
+    fun encodeColumnValues(pairs: List<Pair<String, String?>>): String =
+        pairs.joinToString("&") { (name, value) ->
+            if (value == null) encode(name) else "${encode(name)}=${encode(value)}"
+        }
 
     private fun encode(value: String): String =
         URLEncoder.encode(value, StandardCharsets.UTF_8.name())
@@ -245,9 +248,6 @@ internal object BackupActionWireProtocol {
             is Boolean -> BackupActionValues.VALUE_TYPE_BOOLEAN
             else -> BackupActionValues.VALUE_TYPE_STRING
         }
-
-    /** A database cell value as the device reads it; null is sent as an empty string. */
-    private fun Any?.orEmpty(): String = this?.toString() ?: ""
 
     private fun base64(bytes: ByteArray): String = Base64.getEncoder().encodeToString(bytes)
 
