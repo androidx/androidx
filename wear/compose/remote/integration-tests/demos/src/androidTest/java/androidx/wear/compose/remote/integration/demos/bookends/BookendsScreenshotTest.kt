@@ -305,13 +305,14 @@ abstract class BookendsScreenshotTest(private val implementation: BookendsImplem
 
 // Note: Converting Wear Material3's Typography (`DeviceFontFamilyName("roboto-flex")` with
 // variable font axes `wdth=110` and `wght=500`, plus `fontFeatureSettings = "pnum"`) via
-// `RemoteTextStyle.fromTextStyle` currently drops two things:
-// 1. `AndroidFont.variationSettings` is dropped whenever `TextStyle.fontFeatureSettings` is
-//    non-empty instead of combining both.
+// `RemoteTextStyle.fromTextStyle` has had two problems:
+// 1. (Fixed, b/568283088) `AndroidFont.variationSettings` used to be dropped whenever
+//    `TextStyle.fontFeatureSettings` was non-empty. Clearing `fontFeatureSettings` is no longer
+//    needed to keep the axes, but it keeps this document's font axes unchanged.
 // 2. `RemoteFontFamily.fromComposeFontFamily` returns `null` for `FontListFontFamily`
 //    (`DeviceFontFamilyName("roboto-flex")`), falling back to `"sans-serif"` on the player.
-// Clearing `fontFeatureSettings` and explicitly preserving `RemoteFontFamily.Named("roboto-flex")`
-// keeps the variable font family and axes aligned between WearMaterial3 and RemoteMaterial3.
+// Explicitly preserving `RemoteFontFamily.Named("roboto-flex")` keeps the variable font family
+// aligned between WearMaterial3 and RemoteMaterial3.
 private val BookendsRemoteTypography: RemoteTypography =
     RemoteTypography(Typography().withoutFontFeatureSettings())
         .withFontFamily(RemoteFontFamily.Named("roboto-flex"))
