@@ -68,25 +68,25 @@ class CameraDisconnectTest(
     private val cameraConfig: CameraXConfig,
 ) {
 
-    @get:Rule
+    @get:Rule(order = 0) val labTestRule = LabTestRule()
+
+    @get:Rule(order = 1)
     val requireForegroundRule = RequireForegroundRule {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
         CoreAppTestUtil.assumeCompatibleDevice()
         CoreAppTestUtil.assumeCanTestCameraDisconnect()
     }
 
-    @get:Rule
+    @get:Rule(order = 2)
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
-    @get:Rule
+    @get:Rule(order = 3)
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO,
         )
-
-    @get:Rule val labTestRule = LabTestRule()
 
     companion object {
         @JvmStatic
