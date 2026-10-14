@@ -108,27 +108,26 @@ private val PlaceholderBadgeOutline = ColorProvider(Color(0xFFFFE347))
 /**
  * Glance renderer for [TrackTemplate] on platform AppWidget surfaces.
  *
- * Implements [GlanceTemplateRenderer]: [renderGlance] resolves the slot plan eagerly — outside
- * composition, so it stays unit testable — and returns the Glance content to emit for it.
+ * Implements [GlanceTemplateRenderer]: [renderGlance] draws the [TrackSlots] plan resolved by
+ * [TrackSizeSelector] and handed in by the registry, returning the Glance content to emit for it
+ * without composing, so it stays unit testable.
  */
 internal object TrackTemplateRenderer :
-    GlanceTemplateRenderer<TrackTemplate, AppWidgetGlanceSurface> {
+    GlanceTemplateRenderer<TrackTemplate, AppWidgetGlanceSurface, TrackSlots> {
 
     /**
-     * Resolves the slot plan for [template] under [constraints] and returns the Glance content
-     * rendering it.
+     * Returns the Glance content rendering [template] with the slot plan [archetype].
      *
      * @param template The template data payload.
+     * @param archetype The [TrackSlots] plan resolved by [TrackSizeSelector] for [constraints].
      * @param constraints Container size in DP plus the target AppWidget surface.
-     * @return Glance content for the resolved [TrackSlots].
+     * @return Glance content for [archetype].
      */
     override fun renderGlance(
         template: TrackTemplate,
+        archetype: TrackSlots,
         constraints: HostConstraints<AppWidgetGlanceSurface>,
-    ): @Composable () -> Unit {
-        val slots = TrackSizeSelector.select(template, constraints)
-        return { TrackLayout(template, slots) }
-    }
+    ): @Composable () -> Unit = { TrackLayout(template, archetype) }
 }
 
 /**

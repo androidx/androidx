@@ -80,7 +80,7 @@ internal class BaseWidgetDelegate(
 
                 for ((target, appWidgetIds) in targetToInstances) {
                     try {
-                        val remoteViews = composer.compose(currentData, target)
+                        val remoteViews = composer.compose(currentData, target, widgetName)
                         appWidgetManager.updateAppWidget(appWidgetIds.toIntArray(), remoteViews)
                     } catch (e: CancellationException) {
                         throw e
@@ -184,7 +184,7 @@ internal class BaseWidgetDelegate(
                 for ((target, previews) in targetToPreviews) {
                     val remoteViews =
                         try {
-                            composer.compose(previewData, target)
+                            composer.compose(previewData, target, widgetName)
                         } catch (e: CancellationException) {
                             throw e
                         } catch (e: Exception) {
@@ -285,6 +285,7 @@ internal class BaseWidgetDelegate(
                             composer.compose(
                                 initialData,
                                 composer.pinPreviewRenderTarget(providerInfo),
+                                widgetName,
                             )
                         putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, preview)
                     }

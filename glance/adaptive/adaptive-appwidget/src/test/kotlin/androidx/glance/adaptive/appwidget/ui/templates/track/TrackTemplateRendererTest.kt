@@ -19,12 +19,8 @@ package androidx.glance.adaptive.appwidget.ui.templates.track
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.GlanceRenderOutput
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
-import androidx.glance.adaptive.appwidget.ui.selection.from
 import androidx.glance.adaptive.core.ui.selection.Dimensions
-import androidx.glance.adaptive.core.ui.selection.HeightTier
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
-import androidx.glance.adaptive.core.ui.selection.SizeTiers
-import androidx.glance.adaptive.core.ui.selection.WidthTier
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -37,8 +33,8 @@ import org.robolectric.annotation.Config
  * Covers [TrackTemplateRenderer] as an implementation of the core rendering contract, and its
  * default wiring into [AppWidgetTemplateRegistry].
  *
- * The emitted hierarchy is covered by [TrackLayoutTest]; what matters here is that content is
- * produced without composing, and that the slot plan handed to it matches the container.
+ * The emitted hierarchy is covered by [TrackLayoutTest] and slot resolution by
+ * [TrackSizeSelectorTest]; what matters here is that content is produced without composing.
  */
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
@@ -54,28 +50,29 @@ class TrackTemplateRendererTest {
     @Test
     fun render_returnsGlanceOutputWithoutComposing() {
         // The contract is value-returning, so producing content needs no composer at all.
-        val output = TrackTemplateRenderer.render(template, constraints(widthDp = 120))
+        val constraints = constraints(widthDp = 120)
+        val output =
+            TrackTemplateRenderer.render(
+                template,
+                TrackSizeSelector.select(template, constraints),
+                constraints,
+            )
 
         assertThat(output).isInstanceOf(GlanceRenderOutput::class.java)
     }
 
     @Test
-    fun render_resolvesSlotsFromContainer() {
-        // 348x176 dp is the design's widest column and second tallest row.
-        val tiers = SizeTiers.from(Dimensions(348, 176), AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
-
-        assertThat(tiers).isEqualTo(SizeTiers(WidthTier.W4, HeightTier.H3))
-
-        val slots = TrackSizeSelector.select(template, constraints(widthDp = 348, heightDp = 176))
-        assertThat(slots).isEqualTo(TrackSlots.from(tiers, Dimensions(348, 176)))
-        assertThat(slots.supportingCount).isEqualTo(3)
-    }
-
-    @Test
     fun defaultTemplates_includeTrackTemplate() {
-        assertThat(AppWidgetTemplateRegistry.registryMap).containsKey(TrackTemplate::class.java)
-        assertThat(AppWidgetTemplateRegistry.registryMap[TrackTemplate::class.java])
-            .isSameInstanceAs(TrackTemplateRenderer)
+        val surfaces = AppWidgetGlanceSurface.entries
+        for (i in surfaces.indices) {
+            val output =
+                AppWidgetTemplateRegistry.render(
+                    template,
+                    HostConstraints(Dimensions(120, 200), surfaces[i]),
+                )
+
+            assertThat(output).isInstanceOf(GlanceRenderOutput::class.java)
+        }
     }
 
     private fun constraints(widthDp: Int, heightDp: Int = 200) =
