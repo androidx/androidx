@@ -44,7 +44,13 @@ internal class OpenXrAnchor(
 
     private val lock = ReentrantLock()
 
+    /** Whether [detach] was called, which destroys the `XrSpace` behind [nativePointer]. */
+    @Volatile private var isDetached = false
+
     override val anchorToken: IBinder by lazy { nativeGetAnchorToken(nativePointer) }
+
+    override val nativeSpaceHandle: Long?
+        get() = if (isDetached) null else nativePointer
 
     override var pose: Pose = Pose()
         private set
@@ -82,6 +88,9 @@ internal class OpenXrAnchor(
     }
 
     override fun detach() {
+        // Stop handing out the XrSpace before destroying it, and keep doing so even if destroying
+        // it fails, since the space may be gone either way.
+        isDetached = true
         check(nativeDestroyAnchor(nativePointer)) { "Failed to destroy anchor." }
         xrResources.removeUpdatable(this)
     }

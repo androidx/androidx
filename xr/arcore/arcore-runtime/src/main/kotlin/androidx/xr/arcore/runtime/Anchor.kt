@@ -56,6 +56,16 @@ public interface Anchor {
         get() = null
 
     /**
+     * The native `XrSpace` handle that backs this anchor on OpenXR runtimes, or null on runtimes
+     * that don't use OpenXR.
+     *
+     * [detach] destroys the `XrSpace`, so the handle is only valid until [detach] is called, and
+     * this returns null from then on. Callers must not destroy the handle.
+     */
+    public val nativeSpaceHandle: Long?
+        get() = null
+
+    /**
      * Detaches this anchor from its [Trackable]. After detaching, the anchor will not be updated
      * anymore and cannot be reattached to another trackable.
      */

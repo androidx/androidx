@@ -139,6 +139,20 @@ class OpenXrAnchorTest {
     }
 
     @Test
+    fun nativeSpaceHandle_returnsNativePointer() {
+        assertThat(underTest.nativeSpaceHandle).isEqualTo(1L)
+    }
+
+    @Test
+    fun nativeSpaceHandle_afterDetach_returnsNull() = initOpenXrRuntimeAndRunTest {
+        check(underTest.nativeSpaceHandle == 1L)
+
+        underTest.detach()
+
+        assertThat(underTest.nativeSpaceHandle).isNull()
+    }
+
+    @Test
     fun fromOpenXrPersistenceState_returnsCorrectPersistenceStateValues() {
         // XR_ANCHOR_PERSIST_STATE_PERSIST_NOT_REQUESTED_ANDROID
         assertThat(Anchor.PersistenceState.fromOpenXrPersistenceState(0))
