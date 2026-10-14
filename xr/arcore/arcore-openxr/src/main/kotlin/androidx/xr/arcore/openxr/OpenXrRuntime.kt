@@ -401,15 +401,17 @@ internal class OpenXrRuntime(
 
     override fun destroy() {
         // TODO: b/422830134 - Remove this check once there are multiple OpenXrManagers.
-        // TODO(b/560287112): Invoke perceptionManager.clear() before nativeDeInit()
         contextList.remove(context)
         if (contextList.isEmpty()) {
-            nativeDeInit()
-            nativePointer = INVALID_HANDLE
-            sessionPointer = INVALID_HANDLE
-            instancePointer = INVALID_HANDLE
-            isSessionProvidedByRuntime = false
-            perceptionManager.clear()
+            try {
+                perceptionManager.clear()
+            } finally {
+                nativeDeInit()
+                nativePointer = INVALID_HANDLE
+                sessionPointer = INVALID_HANDLE
+                instancePointer = INVALID_HANDLE
+                isSessionProvidedByRuntime = false
+            }
         }
     }
 

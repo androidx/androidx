@@ -356,7 +356,18 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
             quadsExtents,
             timestampNanos,
         ) { handles ->
-            if (continuation.isActive && !isPerceptionManagerCleared) {
+            // Once cleared, native teardown owns every spatial annotation context: handles are
+            // registered natively before this callback runs, and nativeDeInit() frees all of them.
+            // So handles passed here after clear(), or added by a callback that raced with
+            // clear(), are intentionally not stopped from Kotlin.
+            if (isPerceptionManagerCleared && continuation.isActive) {
+                continuation.resumeWithException(
+                    IllegalStateException(
+                        "Spatial annotation tracking was stopped because the session was " +
+                            "destroyed."
+                    )
+                )
+            } else if (continuation.isActive) {
                 if (handles?.size == keys.size) {
                     // Re-tracking an already-tracked ID replaces its handle; stop the old one so
                     // it isn't leaked natively.

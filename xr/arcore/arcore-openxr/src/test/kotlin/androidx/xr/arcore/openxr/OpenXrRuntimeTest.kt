@@ -133,4 +133,17 @@ class OpenXrRuntimeTest {
         advanceTimeBy(2)
         assertThat(secondIterationComplete).isTrue()
     }
+
+    @Test
+    fun destroy_clearsPerceptionManagerBeforeNativeDeInit() {
+        perceptionManager.xrResources.addUpdatable(perceptionManager.xrResources.leftHand)
+        check(!perceptionManager.isPerceptionManagerCleared)
+        check(perceptionManager.xrResources.updatables.isNotEmpty())
+
+        // nativeDeInit() is not linked in host tests, so reaching it throws UnsatisfiedLinkError.
+        // Asserting the throw confirms native teardown was reached after clear() had already run.
+        assertFailsWith<UnsatisfiedLinkError> { underTest.destroy() }
+        assertThat(perceptionManager.isPerceptionManagerCleared).isTrue()
+        assertThat(perceptionManager.xrResources.updatables).isEmpty()
+    }
 }
