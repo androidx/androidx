@@ -17,6 +17,7 @@
 package androidx.compose.integration.hero.pokedex.macrobenchmark.internal
 
 import android.os.Environment
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.mockserver.PokedexMockDispatcher
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.mockserver.generateAndStoreImages
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.mockserver.pokedexMockWebServer
 import androidx.test.platform.app.InstrumentationRegistry
@@ -33,10 +34,20 @@ class PokedexMockServerRule : TestWatcher() {
             .getExternalFilesDir(Environment.DIRECTORY_PICTURES)
             ?: error("Failed to get images folder")
 
-    private val mockServer = pokedexMockWebServer(json, imagesDir)
+    private val dispatcher = PokedexMockDispatcher(json, imagesDir)
+    private val mockServer = pokedexMockWebServer(dispatcher)
 
     val url
         get() = mockServer.url("/api/v2/")
+
+    /**
+     * Blocks until all in-flight requests to the mock server have completed.
+     *
+     * @param timeoutMillis Maximum duration to wait in milliseconds.
+     */
+    fun awaitPendingRequests(timeoutMillis: Long = DEFAULT_AWAIT_TIMEOUT_MILLIS) {
+        dispatcher.awaitPendingRequests(timeoutMillis)
+    }
 
     override fun starting(description: Description?) {
         generateAndStoreImages(imagesDir, amount = 200)
@@ -47,5 +58,9 @@ class PokedexMockServerRule : TestWatcher() {
     override fun finished(description: Description?) {
         super.finished(description)
         mockServer.shutdown()
+    }
+
+    private companion object {
+        const val DEFAULT_AWAIT_TIMEOUT_MILLIS = 5_000L
     }
 }
