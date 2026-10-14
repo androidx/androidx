@@ -25,9 +25,6 @@ package androidx.test.backup.host
  * so that downstream consumers can rely on a single, stable vocabulary.
  */
 internal object BackupReportKeys {
-    /** Version of the backup testing library that produced the report entries. */
-    const val LIBRARY_VERSION = "BackupRestore.libraryVersion"
-
     /** Backup transport the execution ran against, as a [BackupTransportMode] name. */
     const val TRANSPORT_MODE = "BackupRestore.transportMode"
 
@@ -63,9 +60,6 @@ internal object BackupReportKeys {
 
     /** Human-readable description of the failure. */
     const val ERROR_MESSAGE = "BackupRestore.errorMessage"
-
-    /** Reported for [LIBRARY_VERSION] when the packaged version resource cannot be read. */
-    const val UNKNOWN_LIBRARY_VERSION = "unknown"
 
     /**
      * Value reported for [STATUS] when the execution completed without failures.
