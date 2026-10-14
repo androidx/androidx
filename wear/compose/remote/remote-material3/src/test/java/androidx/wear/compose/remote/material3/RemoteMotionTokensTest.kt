@@ -17,7 +17,6 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.state.RemoteEasing
-import androidx.compose.remote.creation.compose.state.remoteSpring
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,54 +75,6 @@ class RemoteMotionTokensTest {
         assertEquals(
             RemoteEasing.Cubic(0.0f, 0.0f, 0.0f, 1.0f),
             RemoteMotionTokens.EasingStandardDecelerate,
-        )
-    }
-
-    @Test
-    fun effects_spring_specs_match_wear_motion_scheme() {
-        assertEquals(
-            remoteSpring(stiffness = 500f, dampingRatio = 1.0f),
-            RemoteMotionTokens.defaultEffectsSpec(),
-        )
-        assertEquals(
-            remoteSpring(stiffness = 1400f, dampingRatio = 1.0f),
-            RemoteMotionTokens.fastEffectsSpec(),
-        )
-        assertEquals(
-            remoteSpring(stiffness = 260f, dampingRatio = 1.0f),
-            RemoteMotionTokens.slowEffectsSpec(),
-        )
-    }
-
-    @Test
-    fun standard_spatial_spring_specs_match_wear_motion_scheme() {
-        assertEquals(
-            remoteSpring(stiffness = 500f, dampingRatio = 1.0f),
-            RemoteMotionTokens.defaultSpatialSpec(),
-        )
-        assertEquals(
-            remoteSpring(stiffness = 1400f, dampingRatio = 1.0f),
-            RemoteMotionTokens.fastSpatialSpec(),
-        )
-        assertEquals(
-            remoteSpring(stiffness = 260f, dampingRatio = 1.0f),
-            RemoteMotionTokens.slowSpatialSpec(),
-        )
-    }
-
-    @Test
-    fun expressive_spatial_spring_specs_match_wear_motion_scheme() {
-        assertEquals(
-            remoteSpring(stiffness = 350f, dampingRatio = 0.75f),
-            RemoteMotionTokens.expressiveDefaultSpatialSpec(),
-        )
-        assertEquals(
-            remoteSpring(stiffness = 800f, dampingRatio = 0.7f),
-            RemoteMotionTokens.expressiveFastSpatialSpec(),
-        )
-        assertEquals(
-            remoteSpring(stiffness = 200f, dampingRatio = 0.8f),
-            RemoteMotionTokens.expressiveSlowSpatialSpec(),
         )
     }
 }

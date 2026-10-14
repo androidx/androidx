@@ -112,7 +112,7 @@ public fun RemoteSplitSwitchButton(
     val progress =
         animateRemoteFloatAsState(
             targetValue = checked.select(1f.rf, 0f.rf),
-            animationSpec = RemoteMotionTokens.fastEffectsSpec(),
+            animationSpec = RemoteMaterialTheme.motionScheme.fastEffectsSpec(),
         )
     val (startSectionShape, endSectionShape) =
         splitSectionShapes(shape, RemoteSplitSwitchButtonDefaults.splitSectionsShape)

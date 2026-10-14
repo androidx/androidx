@@ -16,14 +16,15 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteEasing
-import androidx.compose.remote.creation.compose.state.remoteSpring
 import androidx.wear.compose.material3.MotionScheme
 
 /**
- * Shared motion tokens and [RemoteAnimationSpec]s for Wear Remote Material 3 components, matching
- * Wear Compose Material 3 `MotionTokens` and [MotionScheme].
+ * Shared motion tokens for Wear Remote Material 3 components, matching Wear Compose Material 3
+ * `MotionTokens` and the spring constants of [MotionScheme].
+ *
+ * Components read spring animation specs from [RemoteMaterialTheme.motionScheme], see
+ * [RemoteMotionScheme].
  */
 internal object RemoteMotionTokens {
     // Durations (in milliseconds), matching androidx.wear.compose.material3.tokens.MotionTokens
@@ -72,79 +73,4 @@ internal object RemoteMotionTokens {
     const val ExpressiveDefaultDamping: Float = 0.75f
     const val ExpressiveFastDamping: Float = 0.7f
     const val ExpressiveSlowDamping: Float = 0.8f
-
-    // Effects spring specs (shared across Standard and Expressive schemes)
-    val DefaultEffectsSpec: RemoteAnimationSpec =
-        remoteSpring(stiffness = EffectsDefaultStiffness, dampingRatio = EffectsDampingRatio)
-    val FastEffectsSpec: RemoteAnimationSpec =
-        remoteSpring(stiffness = EffectsFastStiffness, dampingRatio = EffectsDampingRatio)
-    val SlowEffectsSpec: RemoteAnimationSpec =
-        remoteSpring(stiffness = EffectsSlowStiffness, dampingRatio = EffectsDampingRatio)
-
-    // Standard spatial spring specs, matching MotionScheme.standard()
-    val StandardDefaultSpatialSpec: RemoteAnimationSpec =
-        remoteSpring(
-            stiffness = StandardDefaultStiffness,
-            dampingRatio = StandardSpatialDampingRatio,
-        )
-    val StandardFastSpatialSpec: RemoteAnimationSpec =
-        remoteSpring(stiffness = StandardFastStiffness, dampingRatio = StandardSpatialDampingRatio)
-    val StandardSlowSpatialSpec: RemoteAnimationSpec =
-        remoteSpring(stiffness = StandardSlowStiffness, dampingRatio = StandardSpatialDampingRatio)
-
-    // Expressive spatial spring specs, matching MotionScheme.expressive()
-    val ExpressiveDefaultSpatialSpec: RemoteAnimationSpec =
-        remoteSpring(
-            stiffness = ExpressiveDefaultStiffness,
-            dampingRatio = ExpressiveDefaultDamping,
-        )
-    val ExpressiveFastSpatialSpec: RemoteAnimationSpec =
-        remoteSpring(stiffness = ExpressiveFastStiffness, dampingRatio = ExpressiveFastDamping)
-    val ExpressiveSlowSpatialSpec: RemoteAnimationSpec =
-        remoteSpring(stiffness = ExpressiveSlowStiffness, dampingRatio = ExpressiveSlowDamping)
-
-    /** Returns the default effects [RemoteAnimationSpec], matching `defaultEffectsSpec()`. */
-    fun defaultEffectsSpec(): RemoteAnimationSpec = DefaultEffectsSpec
-
-    /** Returns the fast effects [RemoteAnimationSpec], matching `fastEffectsSpec()`. */
-    fun fastEffectsSpec(): RemoteAnimationSpec = FastEffectsSpec
-
-    /** Returns the slow effects [RemoteAnimationSpec], matching `slowEffectsSpec()`. */
-    fun slowEffectsSpec(): RemoteAnimationSpec = SlowEffectsSpec
-
-    /**
-     * Returns the default spatial [RemoteAnimationSpec], matching
-     * `MotionScheme.standard().defaultSpatialSpec()`.
-     */
-    fun defaultSpatialSpec(): RemoteAnimationSpec = StandardDefaultSpatialSpec
-
-    /**
-     * Returns the fast spatial [RemoteAnimationSpec], matching
-     * `MotionScheme.standard().fastSpatialSpec()`.
-     */
-    fun fastSpatialSpec(): RemoteAnimationSpec = StandardFastSpatialSpec
-
-    /**
-     * Returns the slow spatial [RemoteAnimationSpec], matching
-     * `MotionScheme.standard().slowSpatialSpec()`.
-     */
-    fun slowSpatialSpec(): RemoteAnimationSpec = StandardSlowSpatialSpec
-
-    /**
-     * Returns the expressive default spatial [RemoteAnimationSpec], matching
-     * `MotionScheme.expressive().defaultSpatialSpec()`.
-     */
-    fun expressiveDefaultSpatialSpec(): RemoteAnimationSpec = ExpressiveDefaultSpatialSpec
-
-    /**
-     * Returns the expressive fast spatial [RemoteAnimationSpec], matching
-     * `MotionScheme.expressive().fastSpatialSpec()`.
-     */
-    fun expressiveFastSpatialSpec(): RemoteAnimationSpec = ExpressiveFastSpatialSpec
-
-    /**
-     * Returns the expressive slow spatial [RemoteAnimationSpec], matching
-     * `MotionScheme.expressive().slowSpatialSpec()`.
-     */
-    fun expressiveSlowSpatialSpec(): RemoteAnimationSpec = ExpressiveSlowSpatialSpec
 }

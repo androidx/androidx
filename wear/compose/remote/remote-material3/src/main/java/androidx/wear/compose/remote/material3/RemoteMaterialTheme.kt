@@ -31,8 +31,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * retrieving default values.
  *
  * All values may be set by providing this component with the [RemoteColorScheme], [RemoteShapes],
- * and [RemoteTypography] attributes. Use this to configure the overall theme of elements within
- * this [RemoteMaterialTheme].
+ * [RemoteTypography] and [RemoteMotionScheme] attributes. Use this to configure the overall theme
+ * of elements within this [RemoteMaterialTheme].
  *
  * Any values that are not set will inherit the current value from the theme, falling back to the
  * defaults if there is no parent [RemoteMaterialTheme]. This allows using a [RemoteMaterialTheme]
@@ -42,6 +42,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param shapes A set of shapes to be used as this hierarchy's shape system
  * @param typography A set of text styles to be used as this hierarchy's typography system
+ * @param motionScheme A set of motion specs used to animate content for this hierarchy
  * @param content The content inheriting this theme
  */
 @Composable
@@ -50,9 +51,10 @@ public fun RemoteMaterialTheme(
     colorScheme: RemoteColorScheme = RemoteMaterialTheme.colorScheme,
     typography: RemoteTypography = RemoteMaterialTheme.typography,
     shapes: RemoteShapes = RemoteMaterialTheme.shapes,
+    motionScheme: RemoteMotionScheme = RemoteMaterialTheme.motionScheme,
     content: @RemoteComposable @Composable () -> Unit,
 ) {
-    val theme = RemoteMaterialTheme.Values(colorScheme, typography, shapes)
+    val theme = RemoteMaterialTheme.Values(colorScheme, typography, shapes, motionScheme)
 
     CompositionLocalProvider(LocalRemoteMaterialTheme provides theme) {
         ProvideRemoteTextStyle(value = typography.bodyLarge, content = content)
@@ -73,6 +75,10 @@ public object RemoteMaterialTheme {
     public val shapes: RemoteShapes
         @Composable @RemoteComposable get() = LocalRemoteMaterialTheme.current.shapes
 
+    /** Retrieves the current [RemoteMotionScheme] at the call site's position in the hierarchy. */
+    public val motionScheme: RemoteMotionScheme
+        @Composable @RemoteComposable get() = LocalRemoteMaterialTheme.current.motionScheme
+
     /**
      * Material 3 contains different theme subsystems to allow visual customization across a UI
      * hierarchy.
@@ -82,12 +88,14 @@ public object RemoteMaterialTheme {
      * @property colorScheme [RemoteColorScheme] used by material components
      * @property typography [RemoteTypography] used by material components
      * @property shapes [RemoteShapes] used by material components
+     * @property motionScheme [RemoteMotionScheme] used by material components
      */
     @Immutable
     internal class Values(
         val colorScheme: RemoteColorScheme = RemoteColorScheme(),
         val typography: RemoteTypography = RemoteTypography(),
         val shapes: RemoteShapes = RemoteShapes(),
+        val motionScheme: RemoteMotionScheme = RemoteMotionScheme.standard(),
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -98,6 +106,7 @@ public object RemoteMaterialTheme {
             if (colorScheme != other.colorScheme) return false
             if (typography != other.typography) return false
             if (shapes != other.shapes) return false
+            if (motionScheme != other.motionScheme) return false
 
             return true
         }
@@ -106,11 +115,13 @@ public object RemoteMaterialTheme {
             var result = colorScheme.hashCode()
             result = 31 * result + typography.hashCode()
             result = 31 * result + shapes.hashCode()
+            result = 31 * result + motionScheme.hashCode()
             return result
         }
 
         override fun toString(): String {
-            return "Values(colorScheme=$colorScheme, typography=$typography, shapes=$shapes)"
+            return "Values(colorScheme=$colorScheme, typography=$typography, shapes=$shapes, " +
+                "motionScheme=$motionScheme)"
         }
     }
 }
