@@ -493,17 +493,25 @@ private class AnimateAsState<T, V : AnimationVector>(
     }
 
     private fun restartAnimation(newTarget: T, animSpec: AnimationSpec<T>) {
+        val isInterrupted = animatable.isRunning
         if (job != null) {
             job?.cancel()
         }
         if (animatable.targetValue == newTarget) return
+
+        val specToUse =
+            if (animSpec is InterruptionAwareAnimationSpec<T>) {
+                if (isInterrupted) animSpec.interruptionSpec else animSpec.animationSpec
+            } else {
+                animSpec
+            }
 
         job =
             coroutineScope.launch(
                 // undispatched to allow for continuous progress when target changes every frame
                 start = CoroutineStart.UNDISPATCHED
             ) {
-                animatable.animateTo(newTarget, animSpec)
+                animatable.animateTo(newTarget, specToUse)
                 finishedListener?.invoke(animatable.value)
             }
     }

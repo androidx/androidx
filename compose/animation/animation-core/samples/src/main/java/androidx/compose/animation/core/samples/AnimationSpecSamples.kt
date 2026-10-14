@@ -17,13 +17,16 @@
 package androidx.compose.animation.core.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.animation.core.InterruptionAwareAnimationSpec
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.StartOffset
 import androidx.compose.animation.core.StartOffsetType
+import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -32,6 +35,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -91,4 +95,25 @@ fun InfiniteProgressIndicator() {
         Dot(scale2)
         Dot(scale3)
     }
+}
+
+@Sampled
+@Composable
+fun InterruptionAwareAnimationSpecSample(expanded: Boolean) {
+    // Use a 300ms tween for regular transitions, and a shorter 100ms tween when the transition
+    // is interrupted mid-flight instead of falling back to a default spring.
+    val transition = updateTransition(targetState = expanded, label = "BoxExpansion")
+    val size by
+        transition.animateDp(
+            transitionSpec = {
+                InterruptionAwareAnimationSpec(
+                    animationSpec = tween(durationMillis = 300),
+                    interruptionSpec = tween(durationMillis = 100),
+                )
+            },
+            label = "Size",
+        ) { isExpanded ->
+            if (isExpanded) 120.dp else 48.dp
+        }
+    Box(Modifier.size(size).background(Color.Blue))
 }

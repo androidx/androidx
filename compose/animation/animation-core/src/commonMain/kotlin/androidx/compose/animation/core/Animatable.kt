@@ -230,9 +230,15 @@ constructor(
         initialVelocity: T = velocity,
         block: (Animatable<T, V>.() -> Unit)? = null,
     ): AnimationResult<T, V> {
+        val specToUse =
+            if (animationSpec is InterruptionAwareAnimationSpec<T>) {
+                if (isRunning) animationSpec.interruptionSpec else animationSpec.animationSpec
+            } else {
+                animationSpec
+            }
         val anim =
             TargetBasedAnimation(
-                animationSpec = animationSpec,
+                animationSpec = specToUse,
                 initialValue = value,
                 targetValue = targetValue,
                 typeConverter = typeConverter,
