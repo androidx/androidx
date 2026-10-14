@@ -4,4 +4,5 @@ Androidx.Fragment Fragment-Compose
 
 # Package androidx.fragment.compose
 
-Insert package level documentation here
+Provides integration between AndroidX Fragments and Jetpack Compose, allowing you to host Compose UI inside of a Fragment.
+
