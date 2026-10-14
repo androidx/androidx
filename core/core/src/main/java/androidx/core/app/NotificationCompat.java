@@ -10656,8 +10656,10 @@ public class NotificationCompat {
             if (mContentIntent != null) {
                 projectedBundle.putParcelable(KEY_CONTENT_INTENT, mContentIntent);
             }
-            projectedBundle.putBoolean(
-                    KEY_SHOULD_USE_EXTENDER_ACTIONS, mShouldUseExtenderActions);
+            if (mShouldUseExtenderActions) {
+                projectedBundle.putBoolean(
+                        KEY_SHOULD_USE_EXTENDER_ACTIONS, mShouldUseExtenderActions);
+            }
             if (!mActions.isEmpty()) {
                 ArrayList<Parcelable> parcelables = new ArrayList<>(mActions.size());
                 for (Action action : mActions) {
