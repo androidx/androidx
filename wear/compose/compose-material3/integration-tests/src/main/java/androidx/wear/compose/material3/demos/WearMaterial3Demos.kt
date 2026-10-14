@@ -30,16 +30,18 @@ import androidx.wear.compose.material3.samples.AnimatedTextSampleSharedFontRegis
 import androidx.wear.compose.material3.samples.ButtonGroupSample
 import androidx.wear.compose.material3.samples.ButtonGroupThreeButtonsSample
 import androidx.wear.compose.material3.samples.ButtonWithImageSample
-import androidx.wear.compose.material3.samples.CurveToEdgeSample
 import androidx.wear.compose.material3.samples.CustomCompositingStrategyTransformationSpecSample
+import androidx.wear.compose.material3.samples.DrawCurvedToEdgeSample
 import androidx.wear.compose.material3.samples.DynamicColorSchemeSample
 import androidx.wear.compose.material3.samples.EdgeButtonSample
 import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FadingExpandingLabelButtonSample
+import androidx.wear.compose.material3.samples.IconsDrawCurvedToEdgeSample
 import androidx.wear.compose.material3.samples.ImageCardSample
+import androidx.wear.compose.material3.samples.InsetDrawCurvedToEdgeSample
 import androidx.wear.compose.material3.samples.LevelIndicatorSample
 import androidx.wear.compose.material3.samples.ListHeaderSample
-import androidx.wear.compose.material3.samples.LongCurveToEdgeSample
+import androidx.wear.compose.material3.samples.MixedContentDrawCurvedToEdgeSample
 import androidx.wear.compose.material3.samples.NonClickableImageCardSample
 import androidx.wear.compose.material3.samples.NonClickableTitleCardWithImageWithTimeAndTitleSample
 import androidx.wear.compose.material3.samples.PullToRefreshCustomIndicatorSample
@@ -98,29 +100,33 @@ val WearMaterial3Demos =
                         ComposableDemo("Exhaustive") { DynamicColorSchemeDemos() },
                     ),
                 ),
-                if (Build.VERSION.SDK_INT >= 33)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     Material3DemoCategory(
-                        "CurveToEdge Modifier",
+                        "DrawCurvedToEdge",
                         listOf(
-                            ComposableDemo("Curved Text") { CurveToEdgeSample() },
-                            ComposableDemo("Long Curved Text") { LongCurveToEdgeSample() },
-                            ComposableDemo("CurveToEdge Text with anchor") {
-                                CurveToEdgeTextAnchorDemo()
+                            ComposableDemo("Curved Text") { DrawCurvedToEdgeSample() },
+                            ComposableDemo("Inset Curved Text") { InsetDrawCurvedToEdgeSample() },
+                            ComposableDemo("Curved Icons") { IconsDrawCurvedToEdgeSample() },
+                            ComposableDemo("Mixed Content") {
+                                MixedContentDrawCurvedToEdgeSample()
                             },
-                            ComposableDemo("CurveToEdge Text with sweep angle") {
-                                CurveToEdgeTextAngleDemo()
+                            ComposableDemo("Small Arc") { SmallArcDrawCurvedToEdgeDemo() },
+                            ComposableDemo("Large Arc") { LargeArcDrawCurvedToEdgeDemo() },
+                            ComposableDemo("Counter Clockwise") {
+                                CounterClockwiseDrawCurvedToEdgeTextDemo()
                             },
-                            ComposableDemo("Counter Clockwise CurveToEdge Text") {
-                                CounterClockwiseCurveToEdgeTextDemo()
+                            ComposableDemo("Cursive") { CursiveDrawCurvedToEdgeTextDemo() },
+                            ComposableDemo("Cursive RTL") { CursiveRTLDrawCurvedToEdgeTextDemo() },
+                            ComposableDemo("DrawCurvedToEdge Text with anchor") {
+                                DrawCurvedToEdgeTextAnchorDemo()
                             },
-                            ComposableDemo("Cursive CurveToEdge Text") {
-                                CursiveCurveToEdgeTextDemo()
+                            ComposableDemo("DrawCurvedToEdge Text with sweep angle") {
+                                DrawCurvedToEdgeTextSweepAngleDemo()
                             },
-                            ComposableDemo("Cursive RTL CurveToEdge Text") {
-                                CursiveRTLCurveToEdgeTextDemo()
+                            ComposableDemo("DrawCurvedToEdge Image") {
+                                DrawCurvedToEdgeImageDemo()
                             },
-                            ComposableDemo("CurveToEdge Image") { CurveToEdgeImageDemo() },
-                            ComposableDemo("CurveToEdge Row") { CurveToEdgeRowDemo() },
+                            ComposableDemo("DrawCurvedToEdge Row") { DrawCurvedToEdgeRowDemo() },
                             ComposableDemo("Four Circles") { FourCirclesDemo() },
                             ComposableDemo("Dual Curves") { DualCurvesDemo() },
                         ),

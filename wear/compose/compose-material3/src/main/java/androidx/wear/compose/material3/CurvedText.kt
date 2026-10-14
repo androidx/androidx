@@ -62,6 +62,10 @@ import androidx.wear.compose.foundation.sizeIn
  * Additionally, for [color], if [color] is not set, and [style] does not have a color, then
  * [LocalContentColor] will be used.
  *
+ * There is also Modifier.[drawCurvedToEdge] as an alternative, which is more performant and does
+ * warping at no extra cost. See Modifier.[drawCurvedToEdge] documentation for full details,
+ * including recommendations on when to use it.
+ *
  * For samples using curved text in a [CurvedLayout] see:
  *
  * @sample androidx.wear.compose.material3.samples.CurvedTextTop

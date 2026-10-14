@@ -48,14 +48,14 @@ import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.curveToEdge
+import androidx.wear.compose.material3.drawCurvedToEdge
 
 // These are approximations of the Curved Layout Activities
 //
 // It is not possible to perfectly recreate how CurvedLayout lays out content using
-// Modifier.curveToEdge
+// Modifier.drawCurvedToEdge
 
-class SimpleCurveToEdgeActivity : ComponentActivity() {
+class SimpleDrawCurvedToEdgeActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +64,7 @@ class SimpleCurveToEdgeActivity : ComponentActivity() {
             MaterialTheme {
                 var showCurvedText by remember { mutableStateOf(true) }
                 if (showCurvedText) {
-                    Text("Curved Text", Modifier.curveToEdge())
+                    Text("Curved Text", Modifier.drawCurvedToEdge())
                 }
                 Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
                     Button(
@@ -79,7 +79,7 @@ class SimpleCurveToEdgeActivity : ComponentActivity() {
     }
 }
 
-class ComplexCurveToEdgeActivity : ComponentActivity() {
+class ComplexDrawCurvedToEdgeActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,7 +90,7 @@ class ComplexCurveToEdgeActivity : ComponentActivity() {
                 val style = MaterialTheme.typography.titleMedium
                 if (showCurvedText) {
                     val height = 35.dp
-                    Box(Modifier.curveToEdge(360f)) {
+                    Box(Modifier.drawCurvedToEdge(360f)) {
                         Row(
                             Modifier.padding(PaddingValues(2.dp))
                                 .background(Color(0xff0077ff), RoundedCornerShape(50))
