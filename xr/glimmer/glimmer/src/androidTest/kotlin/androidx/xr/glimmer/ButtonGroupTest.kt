@@ -476,6 +476,35 @@ class ButtonGroupTest(private val layoutDirection: LayoutDirection) {
     }
 
     @Test
+    fun singleChildWiderThanViewport_scrollsWithinChild() {
+        val state = ButtonGroupState()
+        setContent {
+            ButtonGroup(
+                modifier = Modifier.width(300.dp),
+                state = state,
+                contentPadding = PaddingValues.Zero,
+            ) {
+                Button(onClick = {}, modifier = Modifier.width(500.dp).testTag("button-0")) {
+                    Text("Wide Button")
+                }
+            }
+        }
+
+        // x=250 initially, as this is the center of the only item
+        indirectPointerDown()
+        state.assertState(scroll = 250.dp, currentItem = 0, focusedNodeTag = "button-0")
+
+        // There are no neighbors to clamp to, so the scroll moves freely within the item
+        indirectScrollForwardBy(40.dp)
+        state.assertState(scroll = 290.dp, currentItem = 0, focusedNodeTag = "button-0")
+        rule.onNodeWithTag("button-0").assertIsDisplayed()
+
+        // The scroll snaps back to the center of the item
+        indirectPointerUp()
+        state.assertState(scroll = 250.dp, currentItem = 0, focusedNodeTag = "button-0")
+    }
+
+    @Test
     fun scrollIndirect() {
         val numButtons = 10
         val state = ButtonGroupState()
