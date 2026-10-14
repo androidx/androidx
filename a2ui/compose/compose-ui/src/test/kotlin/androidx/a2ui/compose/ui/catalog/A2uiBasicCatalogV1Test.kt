@@ -18,8 +18,9 @@ package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentReference
 import androidx.a2ui.compose.runtime.A2uiComponentScope
-import androidx.a2ui.model.catalog.A2uiFunction
-import androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction
+import androidx.a2ui.model.catalog.A2uiFunctionDefinition
+import androidx.a2ui.model.protocol.A2uiDataPath
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
@@ -190,6 +191,7 @@ class A2uiBasicCatalogV1Test {
         val choicePicker = TestChoicePickerComponent()
         val slider = TestSliderComponent()
         val dateTimeInput = TestDateTimeInputComponent()
+        val functions = TestOpenUrlFunctions()
         val catalog =
             createTestBasicCatalog(
                 text = text,
@@ -210,7 +212,7 @@ class A2uiBasicCatalogV1Test {
                 choicePicker = choicePicker,
                 slider = slider,
                 dateTimeInput = dateTimeInput,
-                functions = listOf(A2uiFormatStringFunction.INSTANCE),
+                functions = functions,
             )
 
         assertThat(catalog.text).isSameInstanceAs(text)
@@ -252,7 +254,7 @@ class A2uiBasicCatalogV1Test {
                 slider,
                 dateTimeInput,
             )
-        assertThat(catalog.functions).containsExactly(A2uiFormatStringFunction.INSTANCE)
+        assertThat(catalog.functions).isSameInstanceAs(functions)
     }
 
     @Test
@@ -402,13 +404,13 @@ class A2uiBasicCatalogV1Test {
                     "*Tabs.*Modal.*Divider.*Button.*TextField.*CheckBox.*ChoicePicker.*Slider" +
                     ".*DateTimeInput"
             )
-        assertThat(catalog.toString()).contains("functions=[]")
+        assertThat(catalog.toString()).contains("functions=${TestFunctions}")
     }
 
     @Test
     fun toA2uiCatalog_createsCatalogSuccessfully() {
-        val testFunction = A2uiFormatStringFunction.INSTANCE
-        val basicCatalog = createTestBasicCatalog(functions = listOf(testFunction))
+        val functions = TestOpenUrlFunctions()
+        val basicCatalog = createTestBasicCatalog(functions = functions)
 
         val catalog = basicCatalog.toA2uiCatalog()
 
@@ -432,7 +434,12 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.components["ChoicePicker"]).isSameInstanceAs(basicCatalog.choicePicker)
         assertThat(catalog.components["Slider"]).isSameInstanceAs(basicCatalog.slider)
         assertThat(catalog.components["DateTimeInput"]).isSameInstanceAs(basicCatalog.dateTimeInput)
-        assertThat(catalog.functions[testFunction.definition.name]).isSameInstanceAs(testFunction)
+        assertThat(catalog.functions)
+            .containsExactlyElementsIn(functions.toA2uiFunctions())
+            .inOrder()
+        checkNotNull(catalog.functions["openUrl"])
+            .execute(mapOf("url" to "https://example.com"), NoOpExecutionContext)
+        assertThat(functions.openedUrls).containsExactly("https://example.com")
         assertThat(catalog.isInline).isFalse()
     }
 
@@ -466,7 +473,7 @@ internal fun createTestBasicCatalog(
     choicePicker: A2uiBasicCatalogV1.ChoicePicker = TestChoicePickerComponent(),
     slider: A2uiBasicCatalogV1.Slider = TestSliderComponent(),
     dateTimeInput: A2uiBasicCatalogV1.DateTimeInput = TestDateTimeInputComponent(),
-    functions: List<A2uiFunction> = emptyList(),
+    functions: A2uiBasicCatalogV1.Functions = TestFunctions,
 ) =
     A2uiBasicCatalogV1(
         text = text,
@@ -489,6 +496,18 @@ internal fun createTestBasicCatalog(
         dateTimeInput = dateTimeInput,
         functions = functions,
     )
+
+/** Shared [A2uiBasicCatalogV1.Functions] so that catalogs created with the defaults are equal. */
+internal val TestFunctions: A2uiBasicCatalogV1.Functions = TestOpenUrlFunctions()
+
+/** [A2uiBasicCatalogV1.Functions] that record opened URLs and use the default implementations. */
+internal class TestOpenUrlFunctions : A2uiBasicCatalogV1.Functions {
+    val openedUrls = mutableListOf<String>()
+
+    override fun openUrl(url: String, executionContext: A2uiExecutionContext) {
+        openedUrls += url
+    }
+}
 
 internal class TestTextComponent : A2uiBasicCatalogV1.Text {
     @Composable
@@ -696,4 +715,21 @@ internal class TestDateTimeInputComponent : A2uiBasicCatalogV1.DateTimeInput {
         checks: List<A2uiBasicCatalogV1.CheckRule>,
         modifier: Modifier,
     ) {}
+}
+
+/** An [A2uiExecutionContext] for functions that don't access the data model or other functions. */
+private object NoOpExecutionContext : A2uiExecutionContext {
+    override val dataPath: A2uiDataPath = A2uiDataPath("/")
+
+    override fun evaluatePayload(payload: Any?): Any? = throw UnsupportedOperationException()
+
+    override fun executeFunction(name: String, args: Map<String, Any>): Any? =
+        throw UnsupportedOperationException()
+
+    override fun resolveValue(path: A2uiDataPath): Any? = throw UnsupportedOperationException()
+
+    override fun <T : Any> getOrCreateFunctionScopedCache(
+        functionDefinition: A2uiFunctionDefinition,
+        factory: () -> T,
+    ): T = factory()
 }
