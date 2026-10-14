@@ -56,7 +56,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.compose.remote.core.CoreDocument.ShaderControl;
-import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 import androidx.compose.remote.integration.view.demos.customviews.AndroidCustomSupport;
@@ -94,10 +93,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -106,15 +103,15 @@ import java.util.zip.ZipOutputStream;
 
 @SuppressLint("RestrictedApiAndroidX")
 public class DemoActivity extends Activity {
-    static RemoteComposeBuffer sCurrentBuffer = new RemoteComposeBuffer();
+    static byte @NonNull [] sCurrentDoc = new byte[0];
     private FrameMetrics mMetrics;
     static final String CHANNEL_ID = "custom_notification_channel";
     static int sNotificationId = 1;
     public static final boolean BACKGROUND = false;
     private static final boolean NO_COMPOSE = false;
 
-    public static @NonNull RemoteComposeBuffer getCurrentDoc() {
-        return sCurrentBuffer;
+    public static byte @NonNull [] getCurrentDoc() {
+        return sCurrentDoc;
     }
 
     @Override
@@ -290,10 +287,7 @@ public class DemoActivity extends Activity {
 
         byte[] byteData = docToBytes(mDisplayedDoc);
         if (byteData != null && byteData.length > 0) {
-            RemoteDocument rDoc = mDisplayedDoc.getDoc();
-            if (rDoc != null) {
-                sCurrentBuffer = rDoc.getDocument().getBuffer();
-            }
+            sCurrentDoc = byteData;
             mCard.mPlayer.setDocument(byteData);
         }
 
@@ -398,18 +392,11 @@ public class DemoActivity extends Activity {
     }
 
     private void sendDoc(RCDoc doc) {
-        sCurrentBuffer = Objects.requireNonNull(doc.getDoc()).getDocument().getBuffer();
-        byte[] buffer = Arrays.copyOf(sCurrentBuffer.getBuffer().getBuffer(),
-                sCurrentBuffer.getBuffer().getSize());
-        int bufferSize = buffer.length;
-        byte[] bytes = new byte[bufferSize];
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer, 0,
-                bufferSize)) {
-            int read = byteArrayInputStream.read(bytes);
-            Log.v("MAIN", "save   " + read + " bytes");
+        byte[] bytes = docToBytes(doc);
+        if (bytes.length > 0) {
+            sCurrentDoc = bytes;
+            Log.v("MAIN", "save   " + bytes.length + " bytes");
             saveDoc(doc.toString(), bytes, getApplicationContext(), false);
-        } catch (IOException e) {
-            Log.e("MAIN", "Error reading bytes");
         }
     }
 
@@ -420,19 +407,9 @@ public class DemoActivity extends Activity {
         if (docs.size() <= 6) return;
         RCDoc doc = docs.get(6); // 7th document (index 6)
 
-        sCurrentBuffer = Objects.requireNonNull(doc.getDoc()).getDocument().getBuffer();
-        byte[] buffer = Arrays.copyOf(sCurrentBuffer.getBuffer().getBuffer(),
-                sCurrentBuffer.getBuffer().getSize());
-        int bufferSize = buffer.length;
-        byte[] bytes = new byte[bufferSize];
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer, 0,
-                bufferSize)) {
-            int read = byteArrayInputStream.read(bytes);
-            System.out.println("read " + read);
-            saveDoc(doc.toString(), bytes, getApplicationContext(), false);
-        } catch (IOException e) {
-            Log.e("MAIN", "Error reading bytes");
-        }
+        byte[] bytes = docToBytes(doc);
+        sCurrentDoc = bytes;
+        saveDoc(doc.toString(), bytes, getApplicationContext(), false);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             RemoteViews.DrawInstructions drawInstruction = new RemoteViews.DrawInstructions.Builder(
@@ -548,23 +525,11 @@ public class DemoActivity extends Activity {
 
     static byte[] docToBytes(RCDoc doc) {
         if (doc == null) return new byte[0];
-        RemoteDocument rcdoc = doc.getDoc();
-        if (rcdoc == null) {
+        byte[] bytes = doc.getBytes();
+        if (bytes == null) {
             return new byte[0];
         }
-        sCurrentBuffer = rcdoc.getDocument().getBuffer();
-
-        byte[] buffer = Arrays.copyOf(sCurrentBuffer.getBuffer().getBuffer(),
-                sCurrentBuffer.getBuffer().getSize());
-        int bufferSize = buffer.length;
-        byte[] bytes = new byte[bufferSize];
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer, 0,
-                bufferSize)) {
-            int read = byteArrayInputStream.read(bytes);
-            Log.v("MAIN", "read " + read);
-        } catch (IOException e) {
-            Log.d("MAIN", "Unable to read doc ");
-        }
+        sCurrentDoc = bytes;
         return bytes;
     }
 
@@ -839,6 +804,11 @@ public class DemoActivity extends Activity {
                 return name;
             }
 
+            @Override
+            public byte @NonNull [] getBytes() {
+                return doc();
+            }
+
             /**
              * get the doc
              * @return the doc
@@ -913,6 +883,11 @@ public class DemoActivity extends Activity {
             @NonNull
             public String toString() {
                 return name;
+            }
+
+            @Override
+            public byte @NonNull [] getBytes() {
+                return writer().encodeToByteArray();
             }
 
             /**
@@ -1016,6 +991,11 @@ public class DemoActivity extends Activity {
                 if (w == null) return null;
                 return new RemoteDocument(
                         new ByteArrayInputStream(w.buffer(), 0, w.bufferSize()));
+            }
+
+            @Override
+            public byte @NonNull [] getBytes() {
+                return writer().encodeToByteArray();
             }
 
             /**

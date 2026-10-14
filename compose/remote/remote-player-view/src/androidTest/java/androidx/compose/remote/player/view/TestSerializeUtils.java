@@ -15,8 +15,6 @@
  */
 package androidx.compose.remote.player.view;
 
-import static androidx.compose.remote.player.view.TestUtils.createDocument;
-
 import android.content.Context;
 
 import androidx.compose.remote.core.operations.Theme;
@@ -32,33 +30,20 @@ public class TestSerializeUtils {
 
     /**
      * Create a byte buffer from a doc
-     *
-     * @param run
-     * @return
      */
     public static byte[] createDoc(TestUtils.Callback run) {
-        DebugPlayerContext debugContext = new DebugPlayerContext();
-        RemoteDocument doc = createDocument(debugContext, run);
-        return doc.getDocument().getBuffer().getBuffer().cloneBytes();
+        return TestUtils.createDoc(run);
     }
 
     /**
      * Create a byte buffer from a doc
-     *
-     * @param run
-     * @return
      */
     public static byte[] createDoc(Profile profile, TestUtils.Callback run) {
-        DebugPlayerContext debugContext = new DebugPlayerContext();
-        RemoteDocument doc = createDocument(debugContext, profile, run);
-        return doc.getDocument().getBuffer().getBuffer().cloneBytes();
+        return TestUtils.createDoc(profile, run);
     }
 
     /**
      * Convert to YAML
-     *
-     * @param rawDoc
-     * @return
      */
     public static String toYamlString(byte[] rawDoc) {
         return toYamlString(rawDoc, null);
@@ -66,10 +51,6 @@ public class TestSerializeUtils {
 
     /**
      * Convert to YAML
-     *
-     * @param rawDoc
-     * @param sub
-     * @return
      */
     public static String toYamlString(byte[] rawDoc, String sub) {
         RemoteDocument doc = new RemoteDocument(rawDoc);
@@ -88,9 +69,6 @@ public class TestSerializeUtils {
 
     /**
      * Convert to YAML (flat string)
-     *
-     * @param rawDoc
-     * @return
      */
     public static String toYamlFlatString(byte[] rawDoc) {
         RemoteDocument doc = new RemoteDocument(rawDoc);
