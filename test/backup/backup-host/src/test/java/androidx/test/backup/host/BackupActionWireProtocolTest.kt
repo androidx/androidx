@@ -109,15 +109,38 @@ class BackupActionWireProtocolTest {
         assertEquals("col=", BackupActionWireProtocol.encodeColumnValues(listOf("col" to "")))
     }
 
+    /** SQL NULL and the empty string stay distinct on the wire. */
+    @Test
+    fun encodesANullValueAsTheNameAlone() {
+        assertEquals(
+            "a=1&note&b=",
+            BackupActionWireProtocol.encodeColumnValues(
+                listOf("a" to "1", "note" to null, "b" to "")
+            ),
+        )
+    }
+
     /** What the host writes has to survive the decoder the device applies to it. */
     @Test
     fun roundTripsThroughTheDeviceDecoder() {
-        val pairs = listOf("a&b" to "c=d", "e%f" to "g+h", "unicode" to "café", "empty" to "")
+        val pairs =
+            listOf(
+                "a&b" to "c=d",
+                "e%f" to "g+h",
+                "unicode" to "café",
+                "empty" to "",
+                "null" to null,
+            )
 
         val decoded =
             BackupActionWireProtocol.encodeColumnValues(pairs).split("&").map { segment ->
                 val separator = segment.indexOf('=')
-                decode(segment.substring(0, separator)) to decode(segment.substring(separator + 1))
+                if (separator < 0) {
+                    decode(segment) to null
+                } else {
+                    decode(segment.substring(0, separator)) to
+                        decode(segment.substring(separator + 1))
+                }
             }
 
         assertEquals(pairs, decoded)
@@ -277,7 +300,7 @@ class BackupActionWireProtocolTest {
                 )
             )
 
-        assertEquals("ID=42&note=", args["values"])
+        assertEquals("ID=42&note", args["values"])
         assertEquals("id", args["key_col"])
         assertEquals("42", args["key_val"])
     }

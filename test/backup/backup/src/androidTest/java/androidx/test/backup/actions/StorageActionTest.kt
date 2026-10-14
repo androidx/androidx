@@ -24,6 +24,7 @@ import androidx.test.backup.BackupActionInputKeys
 import androidx.test.backup.BackupActionOutputKeys
 import androidx.test.backup.BackupActionValues
 import androidx.test.backup.BackupDeviceActionArgs
+import androidx.test.backup.BackupDeviceActionResult
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
@@ -480,6 +481,54 @@ public class StorageActionTest {
         )
     }
 
+    /** A column name without a value in VALUES stands for SQL NULL in both phases. */
+    @Test
+    public fun testDatabaseNullColumnIsSeededAndVerifiedAsNull() {
+        val dbName = "test_null_column_db.db"
+        val table = "test_null_column_table"
+        context.deleteDatabase(dbName)
+
+        val populateResult = populateDatabase(dbName, table, "id=row1&note")
+
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            populateResult.payload[BackupActionOutputKeys.STATUS],
+        )
+        context.openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null).use { db ->
+            db.rawQuery("SELECT note FROM `$table` WHERE id = ?", arrayOf("row1")).use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertTrue("note must be SQL NULL", cursor.isNull(0))
+            }
+        }
+        val verifyResult = assertDatabase(dbName, table, "row1", "id=row1&note")
+        assertEquals(
+            BackupActionValues.STATUS_SUCCESS,
+            verifyResult.payload[BackupActionOutputKeys.STATUS],
+        )
+    }
+
+    /** A restore that turns NULL into an empty string, or the reverse, must fail verification. */
+    @Test
+    public fun testDatabaseVerifyTellsNullFromAnEmptyString() {
+        val dbName = "test_null_vs_empty_db.db"
+        val table = "test_null_vs_empty_table"
+        context.deleteDatabase(dbName)
+        populateDatabase(dbName, table, "id=empty&note=")
+        populateDatabase(dbName, table, "id=null&note")
+
+        val expectedNull = assertDatabase(dbName, table, "empty", "id=empty&note")
+        val expectedEmpty = assertDatabase(dbName, table, "null", "id=null&note=")
+
+        assertEquals(
+            "Expected column 'note' to be NULL but was ''",
+            expectedNull.payload[BackupActionOutputKeys.ERROR],
+        )
+        assertEquals(
+            "Expected column 'note' to be '' but was NULL",
+            expectedEmpty.payload[BackupActionOutputKeys.ERROR],
+        )
+    }
+
     /**
      * Verifies that [PopulateStorageAction] writes binary files when KEY_IS_BINARY is true, and
      * [AssertStorageAction] validates their content correctly.
@@ -639,7 +688,7 @@ public class StorageActionTest {
                                 BackupActionValues.STORAGE_TYPE_DATABASE,
                             BackupActionInputKeys.DB_NAME to "test_malformed_db.db",
                             BackupActionInputKeys.TABLE to "t",
-                            BackupActionInputKeys.VALUES to "col1=val1&orphan",
+                            BackupActionInputKeys.VALUES to "col1=val1&=orphan",
                         )
                     ),
                 )
@@ -785,7 +834,7 @@ public class StorageActionTest {
                             BackupActionInputKeys.TABLE to "t",
                             BackupActionInputKeys.KEY_COL to "k",
                             BackupActionInputKeys.KEY_VAL to "v",
-                            BackupActionInputKeys.VALUES to "orphan",
+                            BackupActionInputKeys.VALUES to "=orphan",
                         )
                     ),
                 )
@@ -797,7 +846,9 @@ public class StorageActionTest {
         val error = result.payload[BackupActionOutputKeys.ERROR]
         assertTrue(
             "Expected a malformed-argument error but was '$error'",
-            error != null && !error.contains(BackupActionInputKeys.EXPECTED_COL),
+            error != null &&
+                error.contains(BackupActionInputKeys.VALUES) &&
+                !error.contains(BackupActionInputKeys.EXPECTED_COL),
         )
     }
 
@@ -1483,4 +1534,169 @@ public class StorageActionTest {
             verifyResult.payload[BackupActionOutputKeys.ERROR],
         )
     }
+
+    /** The argument selects device-protected storage whatever the context of the action. */
+    @Test
+    public fun testDeviceProtectedArgumentSelectsDeviceProtectedStorage() {
+        val credentialEncrypted = InstrumentationRegistry.getInstrumentation().targetContext
+        val deviceProtected = credentialEncrypted.createDeviceProtectedStorageContext()
+        val fileName = "device_protected_${System.nanoTime()}.txt"
+        val args =
+            arrayOf(
+                BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_FILES,
+                BackupActionInputKeys.PATH to fileName,
+                BackupActionInputKeys.VALUE to "direct boot",
+            )
+
+        assertSucceeds(
+            populate(
+                *args,
+                BackupActionInputKeys.IS_DEVICE_PROTECTED to "true",
+                context = credentialEncrypted,
+            )
+        )
+
+        try {
+            assertEquals("direct boot", File(deviceProtected.filesDir, fileName).readText())
+            assertFalse(File(credentialEncrypted.filesDir, fileName).exists())
+            assertSucceeds(
+                verify(
+                    *args,
+                    BackupActionInputKeys.IS_DEVICE_PROTECTED to "true",
+                    context = credentialEncrypted,
+                )
+            )
+            assertTrue(
+                verify(*args, context = credentialEncrypted)
+                    .errorMessage!!
+                    .startsWith("File not found at path: ")
+            )
+        } finally {
+            File(deviceProtected.filesDir, fileName).delete()
+        }
+    }
+
+    /** A mismatch of long content shows where the content differs rather than all of it. */
+    @Test
+    public fun testFilesVerifyShowsWhereALongTextDiffers() {
+        val fileName = "long_text_${System.nanoTime()}.txt"
+        val content = "a".repeat(5_000) + "b" + "c".repeat(5_000)
+        assertSucceeds(populate(*filesArgs(fileName, content)))
+
+        try {
+            val error = verify(*filesArgs(fileName, content.replace('b', 'B'))).errorMessage!!
+
+            assertTrue(
+                error,
+                error.startsWith(
+                    "Expected file content of 10001 chars but was 10001 chars, first differing " +
+                        "at index 5000: expected '...aaaaaaaaaaaaaaaaBccc"
+                ),
+            )
+            assertTrue(error, error.length < 300)
+        } finally {
+            File(context.filesDir, fileName).delete()
+        }
+    }
+
+    @Test
+    public fun testBinaryFilesVerifyGivesTheFirstDifferingByte() {
+        val fileName = "blob_${System.nanoTime()}.bin"
+        assertSucceeds(populate(*filesArgs(fileName, base64(byteArrayOf(1, 2, 3)), binary = true)))
+
+        try {
+            val error =
+                verify(*filesArgs(fileName, base64(byteArrayOf(1, 9, 3, 4)), binary = true))
+                    .errorMessage
+
+            assertEquals(
+                "Expected binary file content of 4 bytes but was 3 bytes, first differing at byte 1",
+                error,
+            )
+        } finally {
+            File(context.filesDir, fileName).delete()
+        }
+    }
+
+    /** Both actions name what they were doing when an argument is missing. */
+    @Test
+    public fun testMissingArgumentsAreReportedForTheOperation() {
+        val noPath =
+            arrayOf(
+                BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_FILES,
+                BackupActionInputKeys.VALUE to "content",
+            )
+
+        assertEquals("Missing 'path' argument for FILES populate.", populate(*noPath).errorMessage)
+        assertEquals(
+            "Missing 'path' argument for FILES verification.",
+            verify(*noPath).errorMessage,
+        )
+        assertEquals(
+            "Unsupported storage_type: TAPE",
+            verify(BackupActionInputKeys.STORAGE_TYPE to "TAPE").errorMessage,
+        )
+    }
+
+    private fun populate(vararg args: Pair<String, String>, context: Context = this.context) =
+        PopulateStorageAction().execute(context, BackupDeviceActionArgs(mapOf(*args)))
+
+    private fun verify(vararg args: Pair<String, String>, context: Context = this.context) =
+        AssertStorageAction().execute(context, BackupDeviceActionArgs(mapOf(*args)))
+
+    private fun assertSucceeds(result: BackupDeviceActionResult) {
+        assertTrue(result.errorMessage, result.isSuccess)
+    }
+
+    private fun prefsArgs(prefName: String, key: String, value: String, valueType: String) =
+        arrayOf(
+            BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_PREFS,
+            BackupActionInputKeys.PREF_NAME to prefName,
+            BackupActionInputKeys.PREF_KEY to key,
+            BackupActionInputKeys.VALUE to value,
+            BackupActionInputKeys.VALUE_TYPE to valueType,
+        )
+
+    private fun filesArgs(path: String, value: String, binary: Boolean = false) =
+        arrayOf(
+            BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_FILES,
+            BackupActionInputKeys.PATH to path,
+            BackupActionInputKeys.VALUE to value,
+            BackupActionInputKeys.IS_BINARY to binary.toString(),
+        )
+
+    private fun base64(bytes: ByteArray): String =
+        android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+
+    private fun populateDatabase(dbName: String, table: String, values: String) =
+        PopulateStorageAction()
+            .execute(
+                context,
+                BackupDeviceActionArgs(
+                    mapOf(
+                        BackupActionInputKeys.STORAGE_TYPE to
+                            BackupActionValues.STORAGE_TYPE_DATABASE,
+                        BackupActionInputKeys.DB_NAME to dbName,
+                        BackupActionInputKeys.TABLE to table,
+                        BackupActionInputKeys.VALUES to values,
+                    )
+                ),
+            )
+
+    private fun assertDatabase(dbName: String, table: String, id: String, values: String) =
+        AssertStorageAction()
+            .execute(
+                context,
+                BackupDeviceActionArgs(
+                    mapOf(
+                        BackupActionInputKeys.STORAGE_TYPE to
+                            BackupActionValues.STORAGE_TYPE_DATABASE,
+                        BackupActionInputKeys.DB_NAME to dbName,
+                        BackupActionInputKeys.TABLE to table,
+                        BackupActionInputKeys.KEY_COL to "id",
+                        BackupActionInputKeys.KEY_VAL to id,
+                        BackupActionInputKeys.VALUES to values,
+                    )
+                ),
+            )
 }
