@@ -1191,10 +1191,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // `beforeId` refers to the semanticsId that should be read before this `virtualViewId`.
         val beforeId = idToBeforeMap.getOrDefault(virtualViewId, -1)
         if (beforeId != -1) {
-            val beforeView = view.androidViewsHandler?.semanticsIdToView(beforeId)
+            val beforeView = view.semanticsIdToView(beforeId)
             if (beforeView != null) {
                 // If the node that should come before this one is a view, we want to pass in the
-                // "before" view itself, which is retrieved from our `idToViewMap`.
+                // "before" view itself, resolved via `semanticsIdToView`.
                 info.setTraversalBefore(beforeView)
             } else {
                 // Otherwise, we'll set the "before" value by passing in the semanticsId.
@@ -1210,7 +1210,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         val afterId = idToAfterMap.getOrDefault(virtualViewId, -1)
         if (afterId != -1) {
-            val afterView = view.androidViewsHandler?.semanticsIdToView(afterId)
+            val afterView = view.semanticsIdToView(afterId)
             // Specially use `traversalAfter` value if the node after is a View,
             // as expressing the order using traversalBefore in this case would require mutating the
             // View itself, which is not under Compose's full control.

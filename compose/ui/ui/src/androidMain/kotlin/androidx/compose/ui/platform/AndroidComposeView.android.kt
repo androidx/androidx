@@ -869,6 +869,16 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             }
         }
 
+    /**
+     * Retrieves the [View] corresponding to a [semanticsId] in O(1) time via [layoutNodes] and
+     * [androidViewsHandler].
+     */
+    internal fun semanticsIdToView(semanticsId: Int): View? {
+        val layoutNode = layoutNodes[semanticsId] ?: return null
+        if (layoutNode.isDeactivated) return null
+        return androidViewsHandler?.layoutNodeToHolder?.get(layoutNode)
+    }
+
     private var viewLayersContainer: DrawChildContainer? = null
 
     // The constraints being used by the last onMeasure. It is set to null in onLayout. It allows
@@ -1973,11 +1983,10 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                     val beforeId =
                         composeAccessibilityDelegate.idToBeforeMap.getOrDefault(semanticsId, -1)
                     if (beforeId != -1) {
-                        val beforeView = androidViewsHandler?.semanticsIdToView(beforeId)
+                        val beforeView = semanticsIdToView(beforeId)
                         if (beforeView != null) {
                             // If the node that should come before this one is a view, we want to
-                            // pass in the "before" view itself, which is retrieved
-                            // from `androidViewsHandler.idToViewMap`.
+                            // pass in the "before" view itself, resolved via `semanticsIdToView`.
                             info.setTraversalBefore(beforeView)
                         } else {
                             // Otherwise, we'll just set the "before" value by passing in
@@ -1994,7 +2003,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                     val afterId =
                         composeAccessibilityDelegate.idToAfterMap.getOrDefault(semanticsId, -1)
                     if (afterId != -1) {
-                        val afterView = androidViewsHandler?.semanticsIdToView(afterId)
+                        val afterView = semanticsIdToView(afterId)
                         if (afterView != null) {
                             info.setTraversalAfter(afterView)
                         } else {
