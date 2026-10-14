@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.text
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
@@ -128,6 +129,31 @@ class RemoteTextStyleTest {
             .isEqualTo(110f)
     }
 
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun fromTextStyle_withResourceFontAndFontFeatureSettings_extractsFontVariationSettings() {
+        val style =
+            TextStyle(
+                fontFamily =
+                    FontFamily(
+                        Font(
+                            resId = 1,
+                            variationSettings =
+                                FontVariation.Settings(FontVariation.Setting("ROND", 100f)),
+                        )
+                    ),
+                fontFeatureSettings = "pnum",
+            )
+        val remoteStyle = RemoteTextStyle.fromTextStyle(style)
+
+        assertThat(remoteStyle.fontFeatureSettings).isEqualTo("pnum")
+        assertThat(remoteStyle.fontVariationSettings).isNotNull()
+        assertThat(remoteStyle.fontVariationSettings!!.settings).hasSize(1)
+        assertThat(remoteStyle.fontVariationSettings.settings[0].axisName).isEqualTo("ROND")
+        assertThat(remoteStyle.fontVariationSettings.settings[0].toVariationValue(null))
+            .isEqualTo(100f)
+    }
+
     @Test
     fun fromTextStyle_withFontListFontFamily_extractsFirstFontVariationSettings() {
         val fontWithoutSettings = Font(DeviceFontFamilyName("google-sans"))
@@ -149,11 +175,11 @@ class RemoteTextStyleTest {
         assertThat(remoteStyle.fontFamily).isNull()
         assertThat(remoteStyle.fontVariationSettings).isNotNull()
         assertThat(remoteStyle.fontVariationSettings!!.settings).hasSize(2)
-        assertThat(remoteStyle.fontVariationSettings!!.settings[0].axisName).isEqualTo("wdth")
-        assertThat(remoteStyle.fontVariationSettings!!.settings[0].toVariationValue(null))
+        assertThat(remoteStyle.fontVariationSettings.settings[0].axisName).isEqualTo("wdth")
+        assertThat(remoteStyle.fontVariationSettings.settings[0].toVariationValue(null))
             .isEqualTo(110f)
-        assertThat(remoteStyle.fontVariationSettings!!.settings[1].axisName).isEqualTo("wght")
-        assertThat(remoteStyle.fontVariationSettings!!.settings[1].toVariationValue(null))
+        assertThat(remoteStyle.fontVariationSettings.settings[1].axisName).isEqualTo("wght")
+        assertThat(remoteStyle.fontVariationSettings.settings[1].toVariationValue(null))
             .isEqualTo(450f)
     }
 
@@ -269,7 +295,7 @@ class RemoteTextStyleTest {
         assertThat(style.fontFeatureSettings).isEqualTo("tnum")
         assertThat(style.fontVariationSettings).isNotNull()
         assertThat(style.fontVariationSettings!!.settings).hasSize(1)
-        assertThat(style.fontVariationSettings!!.settings[0].axisName).isEqualTo("wght")
+        assertThat(style.fontVariationSettings.settings[0].axisName).isEqualTo("wght")
     }
 
     @Test
