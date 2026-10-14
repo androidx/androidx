@@ -80,6 +80,7 @@ package androidx.compose.ui {
     property public boolean isHardwareNavigationHandlingEnabled;
     property public boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
     property public boolean isScrollAccessibilityFocusEventEnabled;
+    property public boolean isShowOnScreenContentPaddingEnabled;
     property public boolean isViewBasedSemanticsHandlerEnabled;
     field public static final androidx.compose.ui.AndroidComposeUiFlags INSTANCE;
     field public static boolean isAccessibilityPerformanceEnabled;
@@ -90,6 +91,7 @@ package androidx.compose.ui {
     field public static boolean isHardwareNavigationHandlingEnabled;
     field public static boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
     field public static boolean isScrollAccessibilityFocusEventEnabled;
+    field public static boolean isShowOnScreenContentPaddingEnabled;
     field public static boolean isViewBasedSemanticsHandlerEnabled;
   }
 
