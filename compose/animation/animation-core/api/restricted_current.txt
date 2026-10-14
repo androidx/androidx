@@ -548,6 +548,16 @@ package androidx.compose.animation.core {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is internal to library.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface InternalAnimationApi {
   }
 
+  @androidx.compose.runtime.Immutable public final class InterruptionAwareAnimationSpec<T> implements androidx.compose.animation.core.FiniteAnimationSpec<T> {
+    ctor @BytecodeOnly public InterruptionAwareAnimationSpec(androidx.compose.animation.core.FiniteAnimationSpec!, androidx.compose.animation.core.FiniteAnimationSpec!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public InterruptionAwareAnimationSpec(androidx.compose.animation.core.FiniteAnimationSpec<T> animationSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<T> interruptionSpec);
+    method @InaccessibleFromKotlin public androidx.compose.animation.core.FiniteAnimationSpec<T> getAnimationSpec();
+    method @InaccessibleFromKotlin public androidx.compose.animation.core.FiniteAnimationSpec<T> getInterruptionSpec();
+    method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedFiniteAnimationSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
+    property public androidx.compose.animation.core.FiniteAnimationSpec<T> animationSpec;
+    property public androidx.compose.animation.core.FiniteAnimationSpec<T> interruptionSpec;
+  }
+
   public abstract sealed exhaustive class KeyframeBaseEntity<T> {
   }
 

@@ -684,4 +684,56 @@ class SingleValueAnimationTest {
         // Animation is finished at this point
         assertEquals(50.dp, expected)
     }
+
+    @Test
+    fun interruptionAwareAnimationSpec_usesInterruptionSpecOnInterruption() {
+        var targetState by mutableStateOf(false)
+        var currentValue = 0f
+
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            currentValue =
+                animateFloatAsState(
+                        targetValue = if (targetState) 100f else 0f,
+                        animationSpec =
+                            InterruptionAwareAnimationSpec(
+                                animationSpec = tween(durationMillis = 200, easing = LinearEasing),
+                                interruptionSpec =
+                                    tween(durationMillis = 100, easing = LinearEasing),
+                            ),
+                        label = "InterruptibleAsState",
+                    )
+                    .value
+        }
+
+        // 1. Start initial animation from rest (false -> true): uses 200ms animationSpec
+        targetState = true
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        // 64ms into 200ms tween -> 32f (100ms tween would be 64f)
+        rule.mainClock.advanceTimeBy(64L)
+        assertEquals(32f, currentValue, 0.1f)
+
+        // 2. Interrupt mid-flight (true -> false): switches to 100ms interruptionSpec
+        targetState = false
+        rule.mainClock.advanceTimeByFrame()
+        val valueAtInterruption = currentValue
+        assertEquals(40f, valueAtInterruption, 0.1f)
+
+        // 64ms into 100ms tween -> 36% of valueAtInterruption
+        rule.mainClock.advanceTimeBy(64L)
+        assertEquals(valueAtInterruption * 0.36f, currentValue, 0.1f)
+
+        // >100ms total -> finished at 0f (200ms tween would still be running)
+        rule.mainClock.advanceTimeBy(48L)
+        assertEquals(0f, currentValue, 0.1f)
+
+        // 3. Start again from rest (false -> true): switches back to 200ms animationSpec
+        targetState = true
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        // 64ms into 200ms tween -> 32f (100ms tween would be 64f)
+        rule.mainClock.advanceTimeBy(64L)
+        assertEquals(32f, currentValue, 0.1f)
+    }
 }

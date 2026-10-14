@@ -28,6 +28,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -341,6 +342,54 @@ class AnimatableTest {
         assertThat(string).contains("lastFrameTimeNanos=4000")
         assertThat(string).contains("finishedTimeNanos=3000")
         assertThat(string).contains("isRunning=true")
+    }
+
+    @Test
+    fun animateTo_interruptionAwareAnimationSpec() = runTest {
+        val spec =
+            InterruptionAwareAnimationSpec<Float>(
+                animationSpec = tween(durationMillis = 200, easing = LinearEasing),
+                interruptionSpec = tween(durationMillis = 100, easing = LinearEasing),
+            )
+        val clock = MyTestFrameClock()
+        val animatable = Animatable(0f)
+
+        suspend fun advanceFrame(frameTimeNanos: Long) {
+            clock.frame(frameTimeNanos)
+            testScheduler.runCurrent()
+        }
+
+        withContext(clock) {
+            coroutineScope {
+                // 1. Start from rest (0f -> 100f) -> uses 200ms animationSpec
+                launch(start = CoroutineStart.UNDISPATCHED) { animatable.animateTo(100f, spec) }
+                advanceFrame(0L)
+                advanceFrame(50_000_000L) // 50ms into 200ms tween -> 25f (100ms tween would be 50f)
+                assertThat(animatable.value).isWithin(0.1f).of(25f)
+                assertThat(animatable.isRunning).isTrue()
+
+                // 2. Interrupt mid-flight (25f -> 0f) -> switches to 100ms interruptionSpec
+                val interruptedJob =
+                    launch(start = CoroutineStart.UNDISPATCHED) { animatable.animateTo(0f, spec) }
+                advanceFrame(100_000_000L) // +50ms into 100ms tween -> halfway (12.5f)
+                assertThat(animatable.value).isWithin(0.1f).of(12.5f)
+                advanceFrame(150_000_000L) // +100ms -> finished at 0f (200ms tween would be 6.25f)
+                interruptedJob.join()
+                assertThat(animatable.value).isEqualTo(0f)
+                assertThat(animatable.isRunning).isFalse()
+
+                // 3. Start again from rest (0f -> 100f) -> switches back to 200ms animationSpec
+                val recoveryJob =
+                    launch(start = CoroutineStart.UNDISPATCHED) { animatable.animateTo(100f, spec) }
+                advanceFrame(200_000_000L) // start frame
+                advanceFrame(300_000_000L) // +100ms -> halfway at 50f (100ms tween would be 100f)
+                assertThat(animatable.value).isWithin(0.1f).of(50f)
+                assertThat(animatable.isRunning).isTrue()
+                advanceFrame(400_000_000L) // +200ms -> finished
+                recoveryJob.join()
+                assertThat(animatable.value).isEqualTo(100f)
+            }
+        }
     }
 
     private class MyTestFrameClock : MonotonicFrameClock {

@@ -339,4 +339,22 @@ class PhysicsAnimationTest {
             it.dampingRatio = dampingRatio
             it.stiffness = stiffness
         }
+
+    @Test
+    fun testInterruptionAwareAnimationSpec() {
+        val forwardSpec = tween<Float>(300)
+        val customInterruptionSpec = spring<Float>(stiffness = Spring.StiffnessLow)
+
+        val combinedSpec = InterruptionAwareAnimationSpec(forwardSpec, customInterruptionSpec)
+        assertEquals(forwardSpec, combinedSpec.animationSpec)
+        assertEquals(customInterruptionSpec, combinedSpec.interruptionSpec)
+        assertEquals(
+            InterruptionAwareAnimationSpec(forwardSpec, customInterruptionSpec),
+            combinedSpec,
+        )
+
+        val selfInterruptibleSpec = InterruptionAwareAnimationSpec(forwardSpec)
+        assertEquals(forwardSpec, selfInterruptibleSpec.animationSpec)
+        assertEquals(forwardSpec, selfInterruptibleSpec.interruptionSpec)
+    }
 }
