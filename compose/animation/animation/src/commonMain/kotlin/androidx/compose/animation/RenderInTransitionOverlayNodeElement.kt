@@ -125,18 +125,35 @@ internal class RenderInTransitionOverlayNode(
             }
         }
 
-    private inner class LayerWithRenderer(val layer: GraphicsLayer) : LayerRenderer {
+    private inner class LayerWithRenderer : LayerRenderer {
+        // Created when rendering in overlay. Released when rendering in place.
+        override var layer: GraphicsLayer? = null
+            private set
+
         override val parentState: SharedElementEntry?
             get() = this@RenderInTransitionOverlayNode.parentState
 
         override val zIndex: Float
             get() = this@RenderInTransitionOverlayNode.zIndexInOverlay
 
+        fun obtainLayer(graphicsContext: GraphicsContext): GraphicsLayer =
+            layer ?: graphicsContext.createGraphicsLayer().also { layer = it }
+
+        fun releaseLayer(graphicsContext: GraphicsContext) {
+            layer?.let {
+                graphicsContext.releaseGraphicsLayer(it)
+                layer = null
+            }
+        }
+
         override fun drawInOverlay(drawScope: DrawScope, graphicsContext: GraphicsContext) {
-            if (enabled) {
-                with(drawScope) {
-                    translate(positionInOverlay.x, positionInOverlay.y) { drawLayer(layer) }
-                }
+            if (!enabled) return
+            // A parent may record its DisplayList before this node draws, so the overlay may
+            // draw first. Create the layer here so the overlay records a valid layer. draw()
+            // fills it in the same frame.
+            val layer = obtainLayer(graphicsContext)
+            with(drawScope) {
+                translate(positionInOverlay.x, positionInOverlay.y) { drawLayer(layer) }
             }
         }
     }
@@ -172,29 +189,29 @@ internal class RenderInTransitionOverlayNode(
     // Render in-place logic. Depending on the result of `renderInOverlay()`, the content will
     // either render in-place or in the overlay, but never in both places.
     override fun ContentDrawScope.draw() {
-        val layer = requireNotNull(layer) { "Error: layer never initialized" }
-        layer.record { this@draw.drawContent() }
-        if (!enabled) {
-            drawLayer(layer)
+        if (enabled) {
+            // Render in overlay: record the content into the layer.
+            layerWithRenderer.obtainLayer(requireGraphicsContext()).record {
+                this@draw.drawContent()
+            }
+        } else {
+            // Render in place: release the layer and draw the content directly.
+            layerWithRenderer.releaseLayer(requireGraphicsContext())
+            drawContent()
         }
     }
 
     val layer: GraphicsLayer?
-        get() = layerWithRenderer?.layer
+        get() = layerWithRenderer.layer
 
-    private var layerWithRenderer: LayerWithRenderer? = null
+    private val layerWithRenderer = LayerWithRenderer()
 
     override fun onAttach() {
-        LayerWithRenderer(requireGraphicsContext().createGraphicsLayer()).let {
-            sharedScope.onLayerRendererCreated(it)
-            layerWithRenderer = it
-        }
+        sharedScope.onLayerRendererCreated(layerWithRenderer)
     }
 
     override fun onDetach() {
-        layerWithRenderer?.let {
-            sharedScope.onLayerRendererRemoved(it)
-            requireGraphicsContext().releaseGraphicsLayer(it.layer)
-        }
+        sharedScope.onLayerRendererRemoved(layerWithRenderer)
+        layerWithRenderer.releaseLayer(requireGraphicsContext())
     }
 }
