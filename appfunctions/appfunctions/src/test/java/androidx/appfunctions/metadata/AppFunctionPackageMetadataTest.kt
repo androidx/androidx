@@ -51,7 +51,6 @@ class AppFunctionPackageMetadataTest {
         val toString = pkg.toString()
 
         assertThat(toString).contains("packageName='pkg'")
-        assertThat(toString).contains("appFunctions=[]")
         assertThat(toString).contains("components=$components")
     }
 }

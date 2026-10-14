@@ -79,7 +79,7 @@ import org.robolectric.shadows.ShadowSystemProperties
  *                 functionIdentifier = addFunctionMetadata.id,
  *                 functionParameters = AppFunctionData.Builder(
  *                     addFunctionMetadata.parameters,
- *                     addFunctionMetadata.components
+ *                     addFunctionMetadata.packageMetadata.components
  *                 )
  *                     .setLong("a", 2)
  *                     .setLong("b", 3)

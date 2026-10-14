@@ -22,7 +22,6 @@ import android.content.res.XmlResourceParser
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
 import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
@@ -36,30 +35,12 @@ import org.xmlpull.v1.XmlPullParser
 
 /** Contains metadata about a package providing app functions. */
 public class AppFunctionPackageMetadata
-// TODO(b/500667251): Replace this constructor with the secondary one once migrated all usages.
-@JvmOverloads
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-constructor(
+public constructor(
     /** The name of the package providing app functions. */
     public val packageName: String,
-    /** The list of [AppFunctionMetadata] for each app function provided by the app. */
-    // TODO(b/500667251): remove this property after migrating to the new constructor.
-    //  This is a circular reference since we now reverse the relationship between package
-    //  and function metadata.
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val appFunctions: List<AppFunctionMetadata>,
     /** Reusable components that could be shared within the package's functions' specifications. */
-    public val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
+    public val components: AppFunctionComponentsMetadata,
 ) {
-    public constructor(
-        /** The name of the package providing app functions. */
-        packageName: String,
-        /**
-         * Reusable components that could be shared within the package's functions' specifications.
-         */
-        components: AppFunctionComponentsMetadata,
-    ) : this(packageName = packageName, appFunctions = listOf(), components = components)
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -67,7 +48,6 @@ constructor(
         other as AppFunctionPackageMetadata
 
         if (packageName != other.packageName) return false
-        if (appFunctions != other.appFunctions) return false
         if (components != other.components) return false
 
         return true
@@ -75,14 +55,12 @@ constructor(
 
     override fun hashCode(): Int {
         var result = packageName.hashCode()
-        result = 31 * result + appFunctions.hashCode()
         result = 31 * result + components.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "AppFunctionPackageMetadata(packageName='$packageName', " +
-            "appFunctions=$appFunctions, components=$components)"
+        return "AppFunctionPackageMetadata(packageName='$packageName', components=$components)"
     }
 
     /**

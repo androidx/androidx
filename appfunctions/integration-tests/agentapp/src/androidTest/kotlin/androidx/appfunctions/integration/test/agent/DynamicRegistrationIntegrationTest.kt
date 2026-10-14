@@ -107,7 +107,10 @@ class DynamicRegistrationIntegrationTest {
                         ExecuteAppFunctionRequest(
                             TARGET_APP_PACKAGE,
                             GLOBAL_SIGNATURE_FORMAT_MESSAGE,
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            AppFunctionData.Builder(
+                                    metadata.parameters,
+                                    metadata.packageMetadata.components,
+                                )
                                 .setInt("a", 42)
                                 .setString("b", "hello")
                                 .build(),
@@ -159,7 +162,10 @@ class DynamicRegistrationIntegrationTest {
                         ExecuteAppFunctionRequest(
                             TARGET_APP_PACKAGE,
                             ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID,
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            AppFunctionData.Builder(
+                                    metadata.parameters,
+                                    metadata.packageMetadata.components,
+                                )
                                 .setString("message", "hello")
                                 .build(),
                             attribution =
@@ -191,7 +197,10 @@ class DynamicRegistrationIntegrationTest {
                         ExecuteAppFunctionRequest(
                             TARGET_APP_PACKAGE,
                             GLOBAL_SIGNATURE_FORMAT_MESSAGE,
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            AppFunctionData.Builder(
+                                    metadata.parameters,
+                                    metadata.packageMetadata.components,
+                                )
                                 .setInt("a", 42)
                                 .setString("b", "hello")
                                 .build(),
@@ -218,7 +227,10 @@ class DynamicRegistrationIntegrationTest {
                         ExecuteAppFunctionRequest(
                             TARGET_APP_PACKAGE,
                             GLOBAL_SIGNATURE_FORMAT_MESSAGE,
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            AppFunctionData.Builder(
+                                    metadata.parameters,
+                                    metadata.packageMetadata.components,
+                                )
                                 .setInt("a", 42)
                                 .setString("b", "hello")
                                 .build(),
@@ -245,7 +257,10 @@ class DynamicRegistrationIntegrationTest {
                         ExecuteAppFunctionRequest(
                             TARGET_APP_PACKAGE,
                             GLOBAL_SIGNATURE_FORMAT_MESSAGE,
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            AppFunctionData.Builder(
+                                    metadata.parameters,
+                                    metadata.packageMetadata.components,
+                                )
                                 .setInt("a", 42)
                                 .setString("b", "hello")
                                 .build(),
@@ -276,7 +291,10 @@ class DynamicRegistrationIntegrationTest {
                         ExecuteAppFunctionRequest(
                             TARGET_APP_PACKAGE,
                             DYNAMIC_ALL_PRIMITIVES_INPUTS_SIGNATURE_ID,
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            AppFunctionData.Builder(
+                                    metadata.parameters,
+                                    metadata.packageMetadata.components,
+                                )
                                 .setInt("intValue", 42)
                                 .setLong("longValue", 100L)
                                 .setFloat("floatValue", 3.14f)
@@ -314,32 +332,32 @@ class DynamicRegistrationIntegrationTest {
 
             val innerObjectType =
                 checkNotNull(
-                    metadata.components.dataTypes[
+                    metadata.packageMetadata.components.dataTypes[
                             "androidx.appfunctions.integration.testapp.InnerComplexData"]
                         as? androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
                 )
             val outerObjectType =
                 checkNotNull(
-                    metadata.components.dataTypes[
+                    metadata.packageMetadata.components.dataTypes[
                             "androidx.appfunctions.integration.testapp.OuterComplexData"]
                         as? androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
                 )
 
             val innerData =
-                AppFunctionData.Builder(innerObjectType, metadata.components)
+                AppFunctionData.Builder(innerObjectType, metadata.packageMetadata.components)
                     .setString("id", "inner1")
                     .setIntArray("scores", intArrayOf(10, 20))
                     .setString("optionalTag", "tag1")
                     .build()
 
             val innerData2 =
-                AppFunctionData.Builder(innerObjectType, metadata.components)
+                AppFunctionData.Builder(innerObjectType, metadata.packageMetadata.components)
                     .setString("id", "inner2")
                     .setIntArray("scores", intArrayOf(30, 40))
                     .build()
 
             val outerData =
-                AppFunctionData.Builder(outerObjectType, metadata.components)
+                AppFunctionData.Builder(outerObjectType, metadata.packageMetadata.components)
                     .setString("title", "outerTitle")
                     .setAppFunctionData("primaryInner", innerData)
                     .setAppFunctionDataList("innerList", listOf(innerData, innerData2))
@@ -352,7 +370,10 @@ class DynamicRegistrationIntegrationTest {
                         ExecuteAppFunctionRequest(
                             TARGET_APP_PACKAGE,
                             DYNAMIC_COMPLEX_SERIALIZABLE_SIGNATURE_ID,
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            AppFunctionData.Builder(
+                                    metadata.parameters,
+                                    metadata.packageMetadata.components,
+                                )
                                 .setAppFunctionData("input", outerData)
                                 .build(),
                         )
@@ -393,7 +414,10 @@ class DynamicRegistrationIntegrationTest {
                         ExecuteAppFunctionRequest(
                             TARGET_APP_PACKAGE,
                             DYNAMIC_VOID_RETURN_SIGNATURE_ID,
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            AppFunctionData.Builder(
+                                    metadata.parameters,
+                                    metadata.packageMetadata.components,
+                                )
                                 .setString("message", "hello")
                                 .build(),
                         )
@@ -417,7 +441,10 @@ class DynamicRegistrationIntegrationTest {
                         ExecuteAppFunctionRequest(
                             TARGET_APP_PACKAGE,
                             DYNAMIC_THROWING_SIGNATURE_ID,
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            AppFunctionData.Builder(
+                                    metadata.parameters,
+                                    metadata.packageMetadata.components,
+                                )
                                 .setString("exceptionType", "invalid_arg")
                                 .build(),
                         )
@@ -472,7 +499,10 @@ class DynamicRegistrationIntegrationTest {
                 ExecuteAppFunctionRequest(
                     TARGET_APP_PACKAGE,
                     GLOBAL_SIGNATURE_FORMAT_MESSAGE,
-                    AppFunctionData.Builder(metadata.parameters, metadata.components)
+                    AppFunctionData.Builder(
+                            metadata.parameters,
+                            metadata.packageMetadata.components,
+                        )
                         .setInt("a", 42)
                         .setString("b", "hello")
                         .build(),

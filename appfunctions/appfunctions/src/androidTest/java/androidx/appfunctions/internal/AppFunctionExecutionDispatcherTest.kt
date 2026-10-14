@@ -205,7 +205,6 @@ class AppFunctionExecutionDispatcherTest {
                     AppFunctionMetadata(
                         id = AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
                         packageName = "test_target_package",
-                        isEnabled = true,
                         schema = null,
                         parameters =
                             listOf(
@@ -224,7 +223,6 @@ class AppFunctionExecutionDispatcherTest {
                     AppFunctionMetadata(
                         id = AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_SUCCEED,
                         packageName = "test_target_package",
-                        isEnabled = true,
                         schema = null,
                         parameters = listOf(),
                         response =

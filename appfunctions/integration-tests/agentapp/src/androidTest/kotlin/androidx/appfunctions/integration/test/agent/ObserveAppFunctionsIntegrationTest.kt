@@ -252,7 +252,7 @@ class ObserveAppFunctionsIntegrationTest {
                             disabledByDefaultFunctionMetadata.id,
                             AppFunctionData.Builder(
                                     disabledByDefaultFunctionMetadata.parameters,
-                                    disabledByDefaultFunctionMetadata.components,
+                                    disabledByDefaultFunctionMetadata.packageMetadata.components,
                                 )
                                 .build(),
                         )
@@ -317,7 +317,7 @@ class ObserveAppFunctionsIntegrationTest {
                             disabledByDefaultFunctionMetadata.id,
                             AppFunctionData.Builder(
                                     disabledByDefaultFunctionMetadata.parameters,
-                                    disabledByDefaultFunctionMetadata.components,
+                                    disabledByDefaultFunctionMetadata.packageMetadata.components,
                                 )
                                 .build(),
                         )

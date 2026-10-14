@@ -43,7 +43,7 @@ class CustomAppFunctionService : AppFunctionService() {
                     ExecuteAppFunctionResponse.Success(
                         AppFunctionData.Builder(
                                 metadata.response,
-                                metadata.components,
+                                metadata.packageMetadata.components,
                             )
                             .setInt(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE, a + b)
                             .build()

@@ -56,10 +56,8 @@ internal const val PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED: String = "androi
  * runtime state of the app functions.
  */
 public class AppFunctionMetadata
-// TODO(b/508188326): Replace this constructor with the secondary one once migrated all usages.
 @JvmOverloads
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-constructor(
+internal constructor(
     /**
      * The ID used in an [androidx.appfunctions.ExecuteAppFunctionRequest] to refer to this app
      * function.
@@ -67,21 +65,12 @@ constructor(
     public val id: String,
     /** The package name of the Android app called to execute the app function. */
     public val packageName: String,
-    // TODO(b/501067320): remove isEnabled property. AppFunctionMetadata should now contain
-    //  static info only, in line with platform class, hence using a default false value until
-    //  we migrate.
-    /** Indicates whether the function is enabled currently or not. */
-    private val isEnabled: Boolean,
     /** The identifying metadata for a pre-defined schema which this app function implements. */
     public val schema: AppFunctionSchemaMetadata?,
     /** The parameters of the app function. */
     public val parameters: List<AppFunctionParameterMetadata>,
     /** The response of the app function. */
     public val response: AppFunctionResponseMetadata,
-    /** Reusable components that could be shared within the function specification. */
-    // TODO(b/508188326): remove property once legacy observeAppFunction is removed
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
     /** A description of the app function and its intended use. */
     public val description: String = "",
     /**
@@ -93,7 +82,10 @@ constructor(
     public val name: AppFunctionName = AppFunctionName(packageName, id),
     /** The [AppFunctionPackageMetadata] of the enclosing package. */
     public val packageMetadata: AppFunctionPackageMetadata =
-        AppFunctionPackageMetadata(packageName = packageName, components = components),
+        AppFunctionPackageMetadata(
+            packageName = packageName,
+            components = AppFunctionComponentsMetadata(),
+        ),
     /**
      * The scope of the app function.
      *
@@ -196,14 +188,9 @@ constructor(
     ) : this(
         id = name.functionIdentifier,
         packageName = name.packageName,
-        // TODO(b/500667251): remove isEnabled property. AppFunctionMetadata should now contain
-        //  static info only, in line with platform class, hence using a default false value until
-        //  we migrate.
-        isEnabled = false,
         schema = schema,
         parameters = parameters,
         response = response,
-        components = packageMetadata.components,
         description = description,
         deprecation = deprecation,
         packageMetadata = packageMetadata,
@@ -220,12 +207,10 @@ constructor(
         other as AppFunctionMetadata
 
         if (id != other.id) return false
-        if (isEnabled != other.isEnabled) return false
         if (packageName != other.packageName) return false
         if (schema != other.schema) return false
         if (parameters != other.parameters) return false
         if (response != other.response) return false
-        if (components != other.components) return false
         if (description != other.description) return false
         if (deprecation != other.deprecation) return false
         if (name != other.name) return false
@@ -239,13 +224,11 @@ constructor(
 
     override fun hashCode(): Int {
         return Objects.hash(
-            isEnabled,
             id,
             packageName,
             schema,
             parameters,
             response,
-            components,
             description,
             deprecation,
             name,
@@ -260,11 +243,9 @@ constructor(
         append("AppFunctionMetadata(")
         append("id='$id', ")
         append("packageName='$packageName', ")
-        append("isEnabled=$isEnabled, ")
         append("schema=$schema, ")
         append("parameters=$parameters, ")
         append("response=$response, ")
-        append("components=$components, ")
         append("description='$description', ")
         append("deprecation=$deprecation, ")
         append("packageMetadata=$packageMetadata, ")
@@ -278,11 +259,9 @@ constructor(
     internal fun copy(
         id: String = this.id,
         packageName: String = this.packageName,
-        isEnabled: Boolean = this.isEnabled,
         schema: AppFunctionSchemaMetadata? = this.schema,
         parameters: List<AppFunctionParameterMetadata> = this.parameters,
         response: AppFunctionResponseMetadata = this.response,
-        components: AppFunctionComponentsMetadata = this.components,
         description: String = this.description,
         deprecation: AppFunctionDeprecationMetadata? = this.deprecation,
         name: AppFunctionName = this.name,
@@ -294,11 +273,9 @@ constructor(
         return AppFunctionMetadata(
             id = id,
             packageName = packageName,
-            isEnabled = isEnabled,
             schema = schema,
             parameters = parameters,
             response = response,
-            components = components,
             description = description,
             deprecation = deprecation,
             name = name,
@@ -448,7 +425,6 @@ constructor(
                 appFunctionName =
                     AppFunctionName.fromPlatformAppFunctionName(platformMetadata.name),
                 staticMetadataDocument = staticMetadataDocument,
-                isEnabled = staticMetadataDocument.isEnabledByDefault,
                 packageMetadata = packageMetadata,
                 schemaAppFunctionInventory = schemaAppFunctionInventory,
             )
@@ -458,7 +434,6 @@ constructor(
         internal fun create(
             appFunctionName: AppFunctionName,
             staticMetadataDocument: AppFunctionMetadataDocument,
-            isEnabled: Boolean,
             packageMetadata: AppFunctionPackageMetadata,
             schemaAppFunctionInventory: SchemaAppFunctionInventory? = null,
         ): AppFunctionMetadata? {

@@ -210,7 +210,7 @@ public constructor(
             ExecuteAppFunctionResponse.Success(
                 response.returnValue.replaceSpecWith(
                     functionMetadata.response,
-                    functionMetadata.components,
+                    functionMetadata.packageMetadata.components,
                 )
             )
         }

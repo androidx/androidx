@@ -108,7 +108,7 @@ class MultiServiceIntegrationTest {
                         targetFunction.id,
                         AppFunctionData.Builder(
                                 targetFunction.parameters,
-                                targetFunction.components,
+                                targetFunction.packageMetadata.components,
                             )
                             .setInt("a", 1)
                             .setInt("b", 2)
@@ -148,7 +148,7 @@ class MultiServiceIntegrationTest {
                         targetFunction.id,
                         AppFunctionData.Builder(
                                 targetFunction.parameters,
-                                targetFunction.components,
+                                targetFunction.packageMetadata.components,
                             )
                             .setAppFunctionData(
                                 "value",
@@ -195,7 +195,7 @@ class MultiServiceIntegrationTest {
                         targetFunction.id,
                         AppFunctionData.Builder(
                                 targetFunction.parameters,
-                                targetFunction.components,
+                                targetFunction.packageMetadata.components,
                             )
                             .build(),
                     )
@@ -225,7 +225,7 @@ class MultiServiceIntegrationTest {
                         targetFunction.id,
                         AppFunctionData.Builder(
                                 targetFunction.parameters,
-                                targetFunction.components,
+                                targetFunction.packageMetadata.components,
                             )
                             .setInt("intEnum", 0)
                             .setString("stringEnum", "A")
@@ -254,7 +254,7 @@ class MultiServiceIntegrationTest {
                         targetFunction.id,
                         AppFunctionData.Builder(
                                 targetFunction.parameters,
-                                targetFunction.components,
+                                targetFunction.packageMetadata.components,
                             )
                             .build(),
                     )
@@ -293,7 +293,7 @@ class MultiServiceIntegrationTest {
                         targetFunction.id,
                         AppFunctionData.Builder(
                                 targetFunction.parameters,
-                                targetFunction.components,
+                                targetFunction.packageMetadata.components,
                             )
                             .setAppFunctionData(
                                 "createNoteParams",
@@ -336,7 +336,7 @@ class MultiServiceIntegrationTest {
         assertThat(targetFunction.parameters.single { it.name == "createNoteParams" }.description)
             .isEqualTo("Multi-service's createNoteParams.")
         val multiServiceCreateNoteParamDataType =
-            targetFunction.components.dataTypes[
+            targetFunction.packageMetadata.components.dataTypes[
                     "androidx.appfunction.integration.test.sharedschema.MultiServiceCreateNoteParams"]
                 as? AppFunctionObjectTypeMetadata
         assertThat(multiServiceCreateNoteParamDataType!!.description)
@@ -346,7 +346,7 @@ class MultiServiceIntegrationTest {
         assertThat(multiServiceCreateNoteParamDataType.properties["content"]?.description)
             .isEqualTo("The multiservice note content.")
         val multiServiceCreateNote =
-            targetFunction.components.dataTypes[
+            targetFunction.packageMetadata.components.dataTypes[
                     "androidx.appfunction.integration.test.sharedschema.MultiServiceNote"]
                 as? AppFunctionObjectTypeMetadata
         assertThat(multiServiceCreateNote!!.description).isEqualTo("The MultiServiceNote.")

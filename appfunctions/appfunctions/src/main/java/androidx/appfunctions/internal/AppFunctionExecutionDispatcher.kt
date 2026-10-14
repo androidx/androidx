@@ -99,7 +99,7 @@ public object AppFunctionExecutionDispatcher {
             val returnValue =
                 metadata.response.unsafeBuildReturnValue(
                     result,
-                    metadata.components,
+                    metadata.packageMetadata.components,
                 )
             return ExecuteAppFunctionResponse.Success(returnValue)
         } catch (e: CancellationException) {
