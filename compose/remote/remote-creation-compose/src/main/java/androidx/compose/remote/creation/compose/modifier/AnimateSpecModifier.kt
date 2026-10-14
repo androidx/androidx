@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec.ANIMATION
+import androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE
 import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteTweenSpec
@@ -130,12 +131,8 @@ internal class AnimateSpecModifier(
     val exitAnimation: ANIMATION,
     val enterFunctionId: Int = -1,
     val exitFunctionId: Int = -1,
-    val enterSequence:
-        androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE =
-        androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE.CONCURRENT,
-    val exitSequence:
-        androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE =
-        androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE.CONCURRENT,
+    val enterSequence: SEQUENCE = SEQUENCE.CONCURRENT,
+    val exitSequence: SEQUENCE = SEQUENCE.CONCURRENT,
 ) : RemoteModifier.Element {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
@@ -162,7 +159,7 @@ private fun extractDurationAndEasing(spec: RemoteTweenSpec): Pair<Float, Int> =
  * Marks this component as a shared element that smoothly transitions its bounds, position, and
  * styling between states in a state layout.
  *
- * @param key unique integer identifier matching this element across states
+ * @param key unique non-zero integer identifier matching this element across states
  * @param spec animation specification for bounds and transforms (e.g. [remoteTween])
  * @param enter transition effect when component enters the layout
  * @param exit transition effect when component exits the layout
@@ -173,6 +170,7 @@ public fun RemoteModifier.sharedElement(
     enter: RemoteEnterTransition = RemoteEnterTransition.FadeIn,
     exit: RemoteExitTransition = RemoteExitTransition.FadeOut,
 ): RemoteModifier {
+    require(key != 0) { "Shared element key cannot be 0 (reserved for disabled animations)" }
     val (duration, easing) = extractDurationAndEasing(spec)
     return then(
         AnimateSpecModifier(
@@ -193,7 +191,7 @@ public fun RemoteModifier.sharedElement(
  * Marks this component as a shared bounds container that smoothly transitions its bounds, position,
  * and styling between states in a state layout.
  *
- * @param key unique integer identifier matching this container across states
+ * @param key unique non-zero integer identifier matching this container across states
  * @param spec animation specification for bounds and transforms (e.g. [remoteTween])
  * @param enter transition effect when component enters the layout
  * @param exit transition effect when component exits the layout
@@ -211,16 +209,19 @@ public fun RemoteModifier.sharedBounds(
  * @param enter transition effect when component enters the layout
  * @param exit transition effect when component exits the layout
  * @param spec animation specification for visibility transitions (e.g. [remoteTween])
+ * @param animationId non-zero identifier for the animation (-1 for default non-shared transition)
  */
 public fun RemoteModifier.animateEnterExit(
     enter: RemoteEnterTransition = RemoteEnterTransition.FadeIn,
     exit: RemoteExitTransition = RemoteExitTransition.FadeOut,
     spec: RemoteTweenSpec = remoteTween(),
+    animationId: Int = -1,
 ): RemoteModifier {
+    require(animationId != 0) { "Animation ID cannot be 0 (reserved for disabled animations)" }
     val (duration, easing) = extractDurationAndEasing(spec)
     return then(
         AnimateSpecModifier(
-            animationId = 0,
+            animationId = animationId,
             motionDuration = duration,
             motionEasingType = easing,
             visibilityDuration = duration,
@@ -331,10 +332,8 @@ public fun RemoteModifier.animationSpec(
     exitAnimation: ANIMATION = ANIMATION.FADE_OUT,
     enterFunctionId: Int = -1,
     exitFunctionId: Int = -1,
-    enterSequence: androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE =
-        androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE.CONCURRENT,
-    exitSequence: androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE =
-        androidx.compose.remote.core.operations.layout.animation.AnimationSpec.SEQUENCE.CONCURRENT,
+    enterSequence: SEQUENCE = SEQUENCE.CONCURRENT,
+    exitSequence: SEQUENCE = SEQUENCE.CONCURRENT,
     enabled: Boolean = true,
 ): RemoteModifier {
     val id = if (enabled) animationId else 0

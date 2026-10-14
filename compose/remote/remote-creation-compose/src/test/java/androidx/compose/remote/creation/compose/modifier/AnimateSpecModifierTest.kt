@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.modifiers.AnimateSpecModifier as Creatio
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -132,9 +133,46 @@ class AnimateSpecModifierTest {
         val element = recordingModifier.list[0] as CreationAnimateSpecModifier
         element.write(creationState.document)
 
-        // animateEnterExit uses animationId = 0 (pure enter/exit visibility transition)
+        // animateEnterExit defaults to animationId = -1 (DEFAULT_ANIMATION_ID, non-shared enabled)
         assertThat(fakeBuffer.calls)
-            .containsExactly("addAnimationSpecModifier(0, 400.0, 1, 400.0, 1, 2, 3)")
+            .containsExactly("addAnimationSpecModifier(-1, 400.0, 1, 400.0, 1, 2, 3)")
+    }
+
+    @Test
+    fun testAnimateEnterExitCustomAnimationId() {
+        val modifier =
+            RemoteModifier.animateEnterExit(
+                enter = RemoteEnterTransition.FadeIn,
+                exit = RemoteExitTransition.FadeOut,
+                spec = remoteTween(durationMillis = 500),
+                animationId = 1001,
+            )
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        assertThat(recordingModifier.list).hasSize(1)
+        val element = recordingModifier.list[0] as CreationAnimateSpecModifier
+        element.write(creationState.document)
+
+        assertThat(fakeBuffer.calls)
+            .containsExactly("addAnimationSpecModifier(1001, 500.0, 1, 500.0, 1, 0, 1)")
+    }
+
+    @Test
+    fun testZeroAnimationIdRejectedUnlessAnimationSpecDirectly() {
+        assertThrows(IllegalArgumentException::class.java) { RemoteModifier.sharedElement(key = 0) }
+        assertThrows(IllegalArgumentException::class.java) { RemoteModifier.sharedBounds(key = 0) }
+        assertThrows(IllegalArgumentException::class.java) {
+            RemoteModifier.animateEnterExit(animationId = 0)
+        }
+
+        // Calling animationSpec(animationId = 0) directly is allowed to disable animations
+        val modifier = RemoteModifier.animationSpec(animationId = 0)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+        assertThat(recordingModifier.list).hasSize(1)
+        val element = recordingModifier.list[0] as CreationAnimateSpecModifier
+        element.write(creationState.document)
+        assertThat(fakeBuffer.calls)
+            .containsExactly("addAnimationSpecModifier(0, 300.0, 1, 300.0, 1, 0, 1)")
     }
 
     @Test
