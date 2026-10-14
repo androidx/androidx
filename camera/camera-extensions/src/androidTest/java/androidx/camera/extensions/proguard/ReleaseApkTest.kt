@@ -65,16 +65,16 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
 
-    @get:Rule
+    @get:Rule(order = 0) val labTestRule = LabTestRule()
+
+    @get:Rule(order = 1)
     val requireForegroundRule = RequireForegroundRule { assumeTrue(CameraUtil.deviceHasCamera()) }
 
-    @get:Rule
+    @get:Rule(order = 2)
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             PreTestCameraIdList(Camera2Config.defaultConfig())
         )
-
-    @get:Rule val labTestRule = LabTestRule()
 
     private lateinit var requestResultActivityScenario: ActivityScenario<RequestResultTestActivity>
 
