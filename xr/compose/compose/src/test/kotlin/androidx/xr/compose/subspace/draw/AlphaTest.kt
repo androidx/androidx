@@ -169,4 +169,89 @@ class AlphaTest {
             )
             .isEqualTo(0.1f)
     }
+
+    @Test
+    fun alpha_resetsToOneWhenModifierRemoved() {
+        var applyAlpha by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Subspace {
+                val modifier =
+                    if (applyAlpha) {
+                        SubspaceModifier.testTag("panel").alpha(0.5f)
+                    } else {
+                        SubspaceModifier.testTag("panel")
+                    }
+                SpatialPanel(modifier) { Text(text = "Panel") }
+            }
+        }
+
+        assertThat(
+                composeTestRule
+                    .onSubspaceNodeWithTag("panel")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+                    ?.getAlpha()
+            )
+            .isEqualTo(0.5f)
+
+        applyAlpha = false
+
+        assertThat(
+                composeTestRule
+                    .onSubspaceNodeWithTag("panel")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+                    ?.getAlpha()
+            )
+            .isEqualTo(1.0f)
+    }
+
+    @Test
+    fun alpha_multiple_updatesAndResetsWhenModifiersRemoved() {
+        var alphaCount by mutableStateOf(2)
+
+        composeTestRule.setContent {
+            Subspace {
+                val modifier =
+                    when (alphaCount) {
+                        2 -> SubspaceModifier.testTag("panel").alpha(0.5f).alpha(0.5f)
+                        1 -> SubspaceModifier.testTag("panel").alpha(0.5f)
+                        else -> SubspaceModifier.testTag("panel")
+                    }
+                SpatialPanel(modifier) { Text(text = "Panel") }
+            }
+        }
+
+        assertThat(
+                composeTestRule
+                    .onSubspaceNodeWithTag("panel")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+                    ?.getAlpha()
+            )
+            .isEqualTo(0.25f)
+
+        alphaCount = 1
+
+        assertThat(
+                composeTestRule
+                    .onSubspaceNodeWithTag("panel")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+                    ?.getAlpha()
+            )
+            .isEqualTo(0.5f)
+
+        alphaCount = 0
+
+        assertThat(
+                composeTestRule
+                    .onSubspaceNodeWithTag("panel")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+                    ?.getAlpha()
+            )
+            .isEqualTo(1.0f)
+    }
 }
