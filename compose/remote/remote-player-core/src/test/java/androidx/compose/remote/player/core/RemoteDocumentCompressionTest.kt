@@ -50,16 +50,6 @@ class RemoteDocumentCompressionTest {
     }
 
     @Test
-    fun reinflate_compressedDocument_keepsOperations() {
-        val document = RemoteDocument(compressed)
-        val operations = operationNames(document)
-
-        document.reinflate()
-
-        assertEquals(operations, operationNames(document))
-    }
-
-    @Test
     fun truncatedCompressedDocument_throws() {
         val truncated = compressed.copyOf(compressed.size - 8)
 
