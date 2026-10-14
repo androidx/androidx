@@ -32,6 +32,8 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteCustomPropertiesScope
+import androidx.compose.remote.creation.compose.layout.drawRoundedPolygon
+import androidx.compose.remote.creation.compose.layout.drawRoundedPolygonMorph
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.BaseRemoteState
