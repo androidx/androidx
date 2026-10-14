@@ -131,8 +131,7 @@ Players need no changes. Every loading path goes through
 `RemoteComposePlayer.setDocument` and `updateDocument`, `RcPlayerState`,
 `CoreDocument.initFromBuffer` and `RemoteCaptureTestRule`. It reads the
 header, and if `COMPRESS` is set to anything but `0`, it replaces the buffer
-with the decompressed document before parsing the operations. The replacement
-happens once, so `CoreDocument.reinflate()` doesn't decompress again.
+with the decompressed document before parsing the operations.
 
 Loading a compressed document briefly holds both the compressed and the
 decompressed bytes.
@@ -215,8 +214,7 @@ Together, the documents go from 994 KB to 577 KB (58%).
   property and the zlib framing. Only one document, of 61 bytes, came out
   larger (66 bytes).
 - Creators pay for compression once per document. Players pay for
-  decompression once per load: `CoreDocument.reinflate()` doesn't decompress
-  again.
+  decompression once per load.
 - If the transport already compresses, for example HTTP with gzip, document
   compression adds little.
 

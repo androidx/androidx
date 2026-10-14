@@ -260,11 +260,6 @@ public class CoreDocument implements Serializable {
         mReferencedOperations.put(referencedOps.getId(), referencedOps);
     }
 
-    /** Re-inflate the document from the original buffer */
-    public void reinflate() {
-        initFromBuffer(mBuffer);
-    }
-
     private @Nullable LayoutCallback mLayoutCallback;
 
     /** Set a layout callback for integration in the host platform measure/layout cycle */

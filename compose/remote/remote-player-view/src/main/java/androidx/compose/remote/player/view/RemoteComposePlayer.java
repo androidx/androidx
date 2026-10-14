@@ -147,7 +147,6 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
         mLoadedMacros.put(name, buffer);
         if (mInner.getDocument() != null) {
             // mInner.getDocument().getDocument().addMacro(name, buffer);
-            // mInner.getDocument().reinflate();
         }
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(buffer.getBuffer().cloneBytes());
@@ -195,9 +194,6 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
             }
         } catch (Exception e) {
             Log.e("RemoteComposePlayer", "Error loading macros", e);
-        }
-        if (mInner.getDocument() != null) {
-            mInner.getDocument().reinflate();
         }
     }
 
@@ -506,7 +502,6 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
                             .addMacroFromBuffer(entry.getKey(), entry.getValue());
                 }
 
-                value.reinflate();
                 if (value.canBeDisplayed(
                         MAX_SUPPORTED_MAJOR_VERSION, MAX_SUPPORTED_MINOR_VERSION, 0L)) {
                     if (value.isUpdateDoc()) {

@@ -264,9 +264,4 @@ public class RemoteDocument {
     public boolean useFeature(short featureId) {
         return mDocument.useFeature(featureId);
     }
-
-    /** Re-inflate the document */
-    public void reinflate() {
-        mDocument.reinflate();
-    }
 }

@@ -84,21 +84,21 @@ class DocumentCompressionTest {
         assertThat(operations.map { it.javaClass })
             .containsExactlyElementsIn(inflate(plain).map { it.javaClass })
             .inOrder()
-        // The buffer now holds the decompressed document, so reinflating won't decompress again.
+        // The buffer now holds the decompressed document, so inflating again won't decompress.
         assertThat(buffer.buffer.cloneBytes()).isEqualTo(plain)
     }
 
     @Test
-    fun initFromBuffer_compressedDocument_canBeReinflated() {
+    fun initFromBuffer_compressedDocument_loadsOperationsAndHeader() {
+        val plainDoc = CoreDocument()
+        plainDoc.initFromBuffer(RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(plain)))
+
         val document = CoreDocument()
         document.initFromBuffer(
             RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(compressed))
         )
-        val operationCount = document.operations.size
 
-        document.reinflate()
-
-        assertThat(document.operations).hasSize(operationCount)
+        assertThat(document.operations).hasSize(plainDoc.operations.size)
         assertThat(document.profileMask).isEqualTo(profiles)
         assertThat(document.mHeader!!.get(Header.COMPRESS)).isNull()
     }
