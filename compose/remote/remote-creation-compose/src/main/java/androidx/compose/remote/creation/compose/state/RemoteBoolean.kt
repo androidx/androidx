@@ -266,6 +266,22 @@ internal constructor(
      * @return A new [RemoteBoolean] representing the conditionally selected integer value.
      */
     public fun select(ifTrue: RemoteBoolean, ifFalse: RemoteBoolean): RemoteBoolean {
+        if (ifTrue.cacheKey == ifFalse.cacheKey) {
+            return ifTrue
+        }
+
+        // Peephole: both branches are constants
+        val ifTrueConst = ifTrue.constantValueOrNull
+        val ifFalseConst = ifFalse.constantValueOrNull
+        if (ifTrueConst != null && ifFalseConst != null) {
+            if (ifTrueConst == ifFalseConst) {
+                return ifTrue
+            }
+            // flag ? true : false  =>  flag
+            // flag ? false : true  =>  !flag
+            return if (ifTrueConst) this else !this
+        }
+
         intValue.constantValueOrNull?.let {
             return if (it != 0) {
                 ifTrue
@@ -274,8 +290,20 @@ internal constructor(
             }
         }
 
-        if (ifTrue.cacheKey == ifFalse.cacheKey) {
-            return ifTrue
+        // Peephole: flag ? flag : ifFalse
+        if (cacheKey == ifTrue.cacheKey) {
+            // flag ? flag : false  =>  flag
+            if (ifFalseConst == false) return this
+            // flag ? flag : true   =>  true
+            if (ifFalseConst == true) return ifFalse
+        }
+
+        // Peephole: flag ? ifTrue : flag
+        if (cacheKey == ifFalse.cacheKey) {
+            // flag ? true : flag   =>  flag
+            if (ifTrueConst == true) return this
+            // flag ? false : flag  =>  false
+            if (ifTrueConst == false) return ifTrue
         }
 
         return RemoteBoolean(

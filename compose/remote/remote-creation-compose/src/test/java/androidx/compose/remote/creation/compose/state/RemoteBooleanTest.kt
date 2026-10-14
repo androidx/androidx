@@ -131,6 +131,75 @@ class RemoteBooleanTest {
     }
 
     @Test
+    fun peepholeOptimization_selectTrueFalse() {
+        val flag = createNamedRemoteBoolean("flag", false)
+        val result = flag.select(true.rb, false.rb)
+
+        assertThat(result).isSameInstanceAs(flag)
+
+        val resultId = result.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+        assertThat(context.getInteger(resultId)).isEqualTo(0)
+
+        makeAndUpdateCoreDocument { context.setNamedIntegerOverride("USER:flag", 1) }
+        assertThat(context.getInteger(resultId)).isEqualTo(1)
+    }
+
+    @Test
+    fun peepholeOptimization_selectFalseTrue() {
+        val flag = createNamedRemoteBoolean("flag", false)
+        val result = flag.select(false.rb, true.rb)
+
+        assertThat(result.cacheKey).isEqualTo((!flag).cacheKey)
+
+        val resultId = result.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+        assertThat(context.getInteger(resultId)).isEqualTo(1)
+
+        makeAndUpdateCoreDocument { context.setNamedIntegerOverride("USER:flag", 1) }
+        assertThat(context.getInteger(resultId)).isEqualTo(0)
+    }
+
+    @Test
+    fun peepholeOptimization_constantSelect() {
+        val trueFlag = true.rb
+        val falseFlag = false.rb
+
+        assertThat(trueFlag.select(true.rb, false.rb)).isSameInstanceAs(trueFlag)
+        assertThat(falseFlag.select(true.rb, false.rb)).isSameInstanceAs(falseFlag)
+
+        val notTrue = trueFlag.select(false.rb, true.rb)
+        val notFalse = falseFlag.select(false.rb, true.rb)
+        assertThat(notTrue.constantValueOrNull).isFalse()
+        assertThat(notFalse.constantValueOrNull).isTrue()
+    }
+
+    @Test
+    fun peepholeOptimization_sameBranch() {
+        val flag = createNamedRemoteBoolean("flag", false)
+        val trueConst = true.rb
+        val falseConst = false.rb
+
+        assertThat(flag.select(trueConst, trueConst)).isSameInstanceAs(trueConst)
+        assertThat(flag.select(falseConst, falseConst)).isSameInstanceAs(falseConst)
+
+        val other = createNamedRemoteBoolean("other", true)
+        assertThat(flag.select(other, other)).isSameInstanceAs(other)
+    }
+
+    @Test
+    fun peepholeOptimization_selfSelect() {
+        val flag = createNamedRemoteBoolean("flag", false)
+        val trueConst = true.rb
+        val falseConst = false.rb
+
+        assertThat(flag.select(flag, falseConst)).isSameInstanceAs(flag)
+        assertThat(flag.select(trueConst, flag)).isSameInstanceAs(flag)
+        assertThat(flag.select(flag, trueConst)).isSameInstanceAs(trueConst)
+        assertThat(flag.select(falseConst, flag)).isSameInstanceAs(falseConst)
+    }
+
+    @Test
     fun intEqual_true() {
         val v1 = RemoteInt(10)
         val v2 = RemoteInt(10)
