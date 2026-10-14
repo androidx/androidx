@@ -17,7 +17,6 @@
 package androidx.compose.remote.a11y
 
 import androidx.compose.remote.creation.compose.action.valueChange
-import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -50,7 +49,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Emulator-based screenshot test of [RecordingCanvas]. */
+/** Accessibility integration tests for remote composables. */
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
