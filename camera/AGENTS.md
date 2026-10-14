@@ -212,19 +212,31 @@ applicable. Prioritize clarity and conciseness.
           updates are accurate, wrapped at 80 characters, and 100% public-safe.
 6.  **Universal Clean-Context Multi-Model Verification Loop (Default, Max 3
     Rounds):**
-    Before delivering any finalized review, code change, root-cause
+    During investigation and solution design (before modifying code) and again
+    before delivering any finalized review, code change, root-cause
     investigation, implementation plan, test verification report, or complex
     technical recommendation, run both an in-context completeness check and, by
     default, a clean-context multi-model verification-and-correction loop
     (capped at **3 rounds max**):
     *   **Smart & Flexible Trigger Scope (When to Auto-Invoke vs. Skip):**
-        - **Auto-Trigger (Mandatory by Default)**: Automatically trigger for
-          (1) Code Review / Pre-Upload Self-Review, (2) Issue Investigation /
-          Root-Cause Triage, (3) Implementation & Architectural Planning,
-          (4) Test / Verification Reports & Data Summaries, and (5) Open-Ended
-          Design Trade-Offs, Quirk Scoping, Complex Test Synthesis, or any task
-          where high quality or multiple independent perspectives can uncover a
-          better solution before final delivery.
+        - **Auto-Trigger at Both Investigation/Design Time AND Pre-Delivery Time
+          (Mandatory by Default)**: Automatically trigger for (1) Code Review /
+          Pre-Upload Self-Review, (2) Issue Investigation / Root-Cause Triage,
+          (3) Implementation & Architectural Planning, (4) Test / Verification
+          Reports & Data Summaries, and (5) Open-Ended Design Trade-Offs, Quirk
+          Scoping, Complex Test Synthesis, or any task where high quality or
+          multiple independent perspectives can uncover a better solution.
+          - *Checkpoint 1 — Upfront During Investigation & Solution Finding
+            (Before Writing Code):* When investigating a non-trivial bug, race
+            condition, HAL failure, or multi-class change, do **not** wait until
+            after code is written to invoke multi-model review. Use independent
+            cross-family models during root-cause triage and solution selection
+            (Modes 2, 3, and 5) to converge on the true root cause and most
+            idiomatic architectural placement ("object job") **before** making
+            code edits.
+          - *Checkpoint 2 — Post-Implementation / Pre-Delivery Audit:* Once the
+            code change or deliverable is drafted, run the clean-context
+            verification loop (Modes 1–5) before final delivery or upload.
         - **Skip (Lightweight Direct Execution)**: Skip for simple, single-step
           operational commands or status checks (e.g., listing devices, checking
           device status, initializing a workspace, or answering a trivial
@@ -232,24 +244,37 @@ applicable. Prioritize clarity and conciseness.
           conclusion, or code diff is being delivered.
     *   **Runtime Capability Detection, Live Model Query & Notification:** Check
         whether the agent console/harness supports spawning independent
-        sub-agents across distinct model families/tiers (see
-        `AGENTS_INTERNAL.md` when configured). When the harness provides a
-        lightweight model-catalog query (zero token cost), always query the live
-        catalog before Round 1 to dynamically select the latest available
-        quota-sustainable model in each model family. For daily quota-limited
-        model families, match the reasoning tier to task complexity: select a
-        high-reasoning tier for complex code changes, concurrency/lifecycle
-        audits, deep root-cause investigations, or architectural plans, and
-        select a medium/standard tier for routine or lightweight tasks (e.g.,
-        documentation edits, simple test/quirk updates, or numeric test report
-        fact-checking), while avoiding quota-heavy maximum tiers unless
-        explicitly requested. Automatically inform the user of the active
-        verification mode:
-        - `MULTI_MODEL`: Spawning independent verifier sub-agents across
-          distinct model families or tiers.
-        - `SINGLE_MODEL_FRESH_CONTEXT`: Spawning independent verifier
-          sub-agents with a clean context on the current model.
-        - `UNSUPPORTED`: Falling back to single-agent in-context verification.
+        sub-agents across distinct model families or tiers (see
+        `AGENTS_INTERNAL.md` when configured).
+        - **Prefer Cross-Family Multi-Model Verification Over Same-Family
+          Tiers:** Do **not** default to different reasoning tiers of the same
+          model family if the harness (or `AGENTS_INTERNAL.md` when configured)
+          supports dispatching or dynamically registering verifier sub-agents
+          across genuinely distinct model families. Fall back to same-family
+          reasoning tiers only when cross-family model selection is unavailable
+          in the current environment.
+        - **Zero-Cost Live Catalog & Quota Query:** When the harness provides a
+          lightweight model-catalog or quota query (zero token cost), always
+          query the live catalog before Round 1 to dynamically select the latest
+          available quota-sustainable model in each model family. For daily
+          quota-limited model families, match the reasoning tier to task
+          complexity: select a high-reasoning tier for complex code changes,
+          concurrency/lifecycle audits, deep root-cause investigations, or
+          architectural plans, and select a medium/standard tier for routine or
+          lightweight tasks (e.g., documentation edits, simple test/quirk
+          updates, or numeric test report fact-checking), while avoiding
+          quota-heavy maximum tiers unless explicitly requested.
+        - **Automatic User Notification:** Inform the user of the active
+          verification mode and the models/tiers selected:
+          - `CROSS_FAMILY_MULTI_MODEL` (`MULTI_MODEL`): Spawning independent
+            verifier sub-agents across distinct model families.
+          - `TIER_MULTI_MODEL`: Spawning independent verifier sub-agents across
+            distinct reasoning tiers within a single model family (used only
+            when cross-family model selection is unavailable).
+          - `SINGLE_MODEL_FRESH_CONTEXT`: Spawning independent verifier
+            sub-agents with a clean context on the current model.
+          - `IN_CONTEXT_FALLBACK` (`UNSUPPORTED`): Falling back to single-agent
+            in-context verification.
     *   **Evidence & Draft Handoff Mechanism for Non-Diff Tasks:**
         Because clean-context verifiers start with zero conversation history:
         - For **Code Review (Mode 1)**, verifiers inspect `git status` / `git
@@ -569,6 +594,19 @@ When directed to an index page, directory list, or guide linking to sub-guides
   [Android Camera2 API reference](https://developer.android.com/reference/android/hardware/camera2/package-summary)
   to check the API usage guidelines and contracts before finalizing the code
   change, ensuring all usage aligns with the framework's design.
+- **Upfront Multi-Model Root-Cause & Solution Exploration (Before Writing
+  Code)**:
+  When investigating a non-trivial bug, concurrency race, HAL/codec failure, or
+  architectural change, do **not** rely on a single model's first hypothesis and
+  jump straight to editing code:
+  - First use cross-family multi-model exploration (Step 5 & Step 6, Modes 2, 3,
+    and 5) on the raw failure logs and surrounding CameraX classes to
+    independently verify the root cause and compare candidate solutions.
+  - Converge on the proper architectural solution—confirming single
+    responsibility ("object job"), right layer placement, and Section 6 rubric
+    classification (Core Fix vs. Capability Check vs. Device Quirk)—**before**
+    implementing the code change, and then run Stage 1 & Stage 2 verification on
+    the resulting diff.
 - **Mandatory Two-Stage Verification & Pre-Upload Quality Gate**:
   Never skip verification or declare a task complete without executing both
   stages:
@@ -594,11 +632,12 @@ When directed to an index page, directory list, or guide linking to sub-guides
        100 chars for Kotlin.
     6. *Default Multi-Model Verification & Completeness Check (Max 3 Rounds):*
        Detect whether the agent harness supports multi-model sub-agents, inform
-       the user of the active verification mode (`MULTI_MODEL`,
-       `SINGLE_MODEL_FRESH_CONTEXT`, or `UNSUPPORTED`), stage draft deliverables
-       and raw evidence for non-diff tasks, and run up to 3 sequential
-       verification-and-fix rounds across independent verifier models before
-       moving to Stage 2 or delivering the final output.
+       the user of the active verification mode (`CROSS_FAMILY_MULTI_MODEL`,
+       `TIER_MULTI_MODEL`, `SINGLE_MODEL_FRESH_CONTEXT`, or
+       `IN_CONTEXT_FALLBACK`), preferring cross-family verifiers (Step 6), stage
+       draft deliverables and raw evidence for non-diff tasks, and run up to 3
+       sequential verification-and-fix rounds across independent verifier models
+       before moving to Stage 2 or delivering the final output.
   - **Stage 2: Pre-Upload Full Verification & Tooling Gate**:
     Before committing or uploading a CL (`repo upload`), you **MUST** execute:
     1. **Kotlin Formatting**:
@@ -775,6 +814,15 @@ CameraX involves complex hardware interactions, making robust testing essential.
   - `camera/camera-core/src/androidTest/`
   - `camera/camera-camera2/src/androidTest/`
   - `camera/camera-video/src/androidTest/`
+- **Multi-Model Root-Cause & Solution Finding (Before Modifying Code)**:
+  For any non-trivial bug investigation, subtle concurrency/HAL issue, or
+  architectural design decision, **MUST** (by default) consult independent
+  cross-family verifier models (Step 5 & Step 6, Modes 2, 3, and 5) **during
+  investigation and before writing code**. Stage the raw failure evidence,
+  surrounding class context, and candidate fix approaches so independent models
+  can validate the true causal failure and identify the cleanest architectural
+  solution ("object job" and Section 6 / Section 8 rubrics) before you implement
+  edits.
 
 #### 2. Verification Plan (Writing Tests)
 - **Headless Execution**:
@@ -941,7 +989,7 @@ CameraX involves complex hardware interactions, making robust testing essential.
   2. **Analyze Failure Point & AI Diagnostic Insights**:
      - Identify the exact failure line and preceding events in the logs.
      - Inspect pre-triaged AI diagnostic verdicts stored in CI test artifacts
-       or build metadata (when operating in Google-internal environments, see
+       or build metadata (when internal tooling is configured, see
        `AGENTS_INTERNAL.md`) or inspect raw logcat traces and bugreports.
   3. **Compare Logs Across Hardware**: Compare the failing log with a passing
      log from a healthy device to identify differences in HAL behavior or
@@ -1252,11 +1300,11 @@ rubric classification is backed by actual source code and hardware evidence.
 
 > [!NOTE]
 > **Internal Lab Automation & Fleet Query Tooling**:
-> When operating in Google-internal environments with access to automated
-> physical device testing labs and continuous test history, refer to
-> `AGENTS_INTERNAL.md` (Phase 4 and Section 5.14) for instructions on using
-> fleet-wide blast radius analysis, CI diagnostic properties, and multi-model
-> verification to operationalize this decision hierarchy.
+> When operating in environments where internal lab tooling is configured with
+> access to automated physical device testing labs and continuous test history,
+> refer to `AGENTS_INTERNAL.md` (Phase 4 and Section 5.14) for instructions on
+> using fleet-wide blast radius analysis, CI diagnostic properties, and
+> multi-model verification to operationalize this decision hierarchy.
 
 #### 7. Safety & Code Path Auditing Protocol
 Before finalizing changes to shared infrastructure (e.g. `UseCase`,
@@ -1398,10 +1446,9 @@ engineer robust, maintainable solutions while preserving hardware testability:
    - Maintain lifecycle awareness across repository boundaries. When migrating,
      renaming, or deleting test classes in `androidTest/`, downstream continuous
      testing suites may depend on these target mappings.
-   - When operating in Google-internal environments, refer to
-     `AGENTS_INTERNAL.md` (Section 4.5) to audit and synchronize downstream
-     test target definitions simultaneously to prevent broken references in
-     daily CI pipelines.
+   - When internal tooling is configured, refer to `AGENTS_INTERNAL.md`
+     (Section 4.5) to audit and synchronize downstream test target definitions
+     simultaneously to prevent broken references in daily CI pipelines.
 
 ---
 
@@ -1419,8 +1466,8 @@ engineer robust, maintainable solutions while preserving hardware testability:
 Before proposing documentation updates, filter session findings through three
 levels of abstraction:
 * **Tier 1 (Transient Noise — DO NOT ADD)**: Temporary workarounds, specific
-  bug IDs, daily flake reports, or raw log traces belong in Buganizer comments
-  and CL descriptions, not in long-term guidelines.
+  bug IDs, daily flake reports, or raw log traces belong in issue tracker
+  comments and CL descriptions, not in long-term guidelines.
 * **Tier 2 (Implementation Details — Code/KDoc)**: Specific device model
   strings, OEM build identifiers, or quirk class implementation details belong
   in source code KDoc and Quirk classes.
@@ -1449,8 +1496,8 @@ Route documentation updates according to repository scope:
   Public architecture, Kotlin/Java style, Checkstyle, ErrorProne release
   checks, pre-upload quality gates, commit hygiene, and general troubleshooting.
 * **Internal Extension Guidelines (`AGENTS_INTERNAL.md`)**:
-  Internal test tooling (`run_camerax_g3_tests.sh`), host memory concurrency
-  estimation, physical lab device health triage, and environment protocols.
+  Internal lab test runners, host memory concurrency estimation, physical lab
+  device health triage, and environment protocols.
 
 ---
 
