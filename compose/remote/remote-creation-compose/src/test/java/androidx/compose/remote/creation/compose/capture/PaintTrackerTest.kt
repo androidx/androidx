@@ -25,6 +25,7 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintChanges
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
@@ -60,7 +61,6 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class PaintTrackerTest {
     private lateinit var creationState: RemoteComposeCreationState
-    private lateinit var recordingCanvas: RecordingCanvas
     private lateinit var tracker: PaintTracker
     private lateinit var remoteContext: AndroidRemoteContext
     private lateinit var paintContext: PaintContext
@@ -73,8 +73,6 @@ class PaintTrackerTest {
                 androidx.compose.remote.creation.platform.AndroidxRcPlatformServices(),
                 size,
             )
-        val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        recordingCanvas = RecordingCanvas(bitmap, creationState)
         tracker = PaintTracker()
         remoteContext = AndroidRemoteContext()
         remoteContext.useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
@@ -505,14 +503,15 @@ class PaintTrackerTest {
 
     @Test
     fun paintSnapshotTest() {
-        val paint = CompatAndroidRemotePaint().apply { remoteColor = Color.Red.rc }
-        recordingCanvas.drawRect(0f, 0f, 100f, 100f, paint)
+        val paint = RemotePaint { color = Color.Red.rc }
+        val remoteCanvas = RemoteCanvas(creationState)
+        remoteCanvas.drawRect(0f.rf, 0f.rf, 100f.rf, 100f.rf, paint)
 
         // Modify the input paint immediately after capturing the draw operation
-        paint.setColor(android.graphics.Color.BLUE)
+        paint.color = Color.Blue.rc
 
         // Verify that modifying the input paint does not alter the emitted UsePaint operations
-        recordingCanvas.flush()
+        remoteCanvas.flush()
         val buffer = creationState.document.buffer
         val operations = ArrayList<Operation>()
         buffer.buffer.index = 0

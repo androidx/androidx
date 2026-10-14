@@ -16,8 +16,6 @@
 
 package androidx.compose.remote.creation.compose.capture
 
-import android.graphics.Bitmap
-import android.graphics.Paint
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
@@ -88,21 +86,21 @@ class CanvasOperationBufferTest {
 
     @Test
     fun testConditionalSpanSaveScopeElisionPreservation() {
-        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-        val creationState = RemoteComposeCreationState(RcPlatformServices.None, Size(100f, 100f))
-        // Enable optimizations to test elisionPass behavior
-        val canvas = RecordingCanvas(bitmap, creationState, enableOptimizations = true)
+        val buffer = CanvasOperationBuffer(enableOptimizations = true)
 
-        canvas.save()
-        canvas.translate(50f, 50f)
+        buffer.save()
+        buffer.recordRenderingOp(CanvasOp.Transform(PendingOp.Translate(50f.rf, 50f.rf)))
 
         val condition = RemoteBoolean(true)
-        canvas.drawConditionally(condition) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
-        canvas.restore()
+        val childSpan = buffer.recordInChildSpan {
+            buffer.recordRenderingOp(CanvasOp.Draw {})
+        }
+        buffer.recordRenderingOp(CanvasOp.DrawConditionally(condition, childSpan) { _, _ -> })
+        buffer.restore()
 
         // Manually invoke the optimizations (including elision pass) before flush clears the tree
-        canvas.buffer.optimizeSpan(canvas.buffer.spanTreeRoot)
-        val serializedTreeAfterOptimization = canvas.buffer.toString()
+        buffer.optimizeSpan(buffer.spanTreeRoot)
+        val serializedTreeAfterOptimization = buffer.toString()
         // Verify enclosing Save/Translate is preserved across elision on the root span around
         // conditional block
         assertThat(serializedTreeAfterOptimization)
@@ -110,8 +108,9 @@ class CanvasOperationBufferTest {
                 "Span(depth=0, ops=[SaveRestore(children=[Transform(Translate), DrawConditionally(true)])], child=Span(depth=1, ops=[Draw]))"
             )
 
-        canvas.flush()
-        assertThat(canvas.buffer.toString()).isEqualTo("CanvasOperationBuffer(empty)")
+        val creationState = RemoteComposeCreationState(RcPlatformServices.None, Size(100f, 100f))
+        buffer.flush(creationState)
+        assertThat(buffer.toString()).isEqualTo("CanvasOperationBuffer(empty)")
     }
 
     @Test
@@ -142,17 +141,16 @@ class CanvasOperationBufferTest {
 
     @Test
     fun testPendingOpSkewWithVariables() {
-        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-        val creationState = RemoteComposeCreationState(RcPlatformServices.None, Size(100f, 100f))
-        val canvas = RecordingCanvas(bitmap, creationState, enableOptimizations = true)
+        val buffer = CanvasOperationBuffer(enableOptimizations = true)
 
         val sx = RemoteFloat(0.5f)
         val sy = RemoteFloat(0.2f)
-        canvas.skew(sx, sy)
-        canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+        val op = buffer.recordRenderingOp(CanvasOp.Transform(PendingOp.Skew(sx, sy)))
+        buffer.addRoots(op, sx, sy)
+        buffer.recordRenderingOp(CanvasOp.Draw {})
 
         // Verify buffer string before flush shows Skew transform
-        assertThat(canvas.buffer.toString()).contains("Transform(Skew)")
+        assertThat(buffer.toString()).contains("Transform(Skew)")
     }
 
     /**

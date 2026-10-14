@@ -32,7 +32,6 @@ import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
@@ -62,7 +61,7 @@ import org.junit.runner.RunWith
 private const val WIDTH = 800
 private const val HEIGHT = 800
 
-/** Emulator-based screenshot test of [RecordingCanvas]. */
+/** Emulator-based screenshot test of [RemoteBitmapFont]. */
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -89,9 +88,6 @@ class RemoteBitmapFontTest {
     private val creationState =
         RemoteComposeCreationState(Size(WIDTH.toFloat(), HEIGHT.toFloat()), profile)
 
-    private val recordingCanvas =
-        RecordingCanvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888), creationState)
-
     private val font = ResourcesCompat.getFont(context, R.font.karla_regular)!!
 
     private val remoteContext = AndroidRemoteContext()
@@ -107,18 +103,16 @@ class RemoteBitmapFontTest {
         val text = RemoteString("Lorem Ipsum")
         val bitmapFont =
             createBitmapFont(text.computeRequiredCodePointSet(creationState)!!, font, 80.0f)
-        val paint = Paint()
 
         for (i in -4 until 5) {
-            recordingCanvas.drawBitmapFontTextRun(
-                text,
-                bitmapFont,
-                start = 0,
-                end = -1,
-                x = RemoteFloat(10f),
-                y = RemoteFloat(420f + 90f * i.toFloat()),
-                glyphSpacing = RemoteFloat(i.toFloat() * 5f),
-                paint,
+            creationState.document.drawBitmapFontTextRun(
+                text.getIdForCreationState(creationState),
+                bitmapFont.getIdForCreationState(creationState),
+                0,
+                -1,
+                10f,
+                420f + 90f * i.toFloat(),
+                i.toFloat() * 5f,
             )
         }
 
@@ -132,50 +126,45 @@ class RemoteBitmapFontTest {
         val text = RemoteString("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
         val bitmapFont =
             createBitmapFont(text.computeRequiredCodePointSet(creationState)!!, font, 40.0f)
-        val paint = Paint()
 
-        recordingCanvas.drawBitmapFontTextRunOnPath(
-            text,
-            bitmapFont,
+        creationState.document.drawBitmapFontTextRunOnPath(
+            text.getIdForCreationState(creationState),
+            bitmapFont.getIdForCreationState(creationState),
             createSpiralPath(200f, 200f, 160f, 20f, 3f),
-            start = 0,
-            end = -1,
-            yAdj = 0f,
-            glyphSpacing = -10f,
-            paint,
+            0,
+            -1,
+            0f,
+            -10f,
         )
 
-        recordingCanvas.drawBitmapFontTextRunOnPath(
-            text,
-            bitmapFont,
+        creationState.document.drawBitmapFontTextRunOnPath(
+            text.getIdForCreationState(creationState),
+            bitmapFont.getIdForCreationState(creationState),
             createSpiralPath(600f, 200f, 160f, 20f, 3f),
-            start = 0,
-            end = -1,
-            yAdj = 0f,
-            glyphSpacing = -7f,
-            paint,
+            0,
+            -1,
+            0f,
+            -7f,
         )
 
-        recordingCanvas.drawBitmapFontTextRunOnPath(
-            text,
-            bitmapFont,
+        creationState.document.drawBitmapFontTextRunOnPath(
+            text.getIdForCreationState(creationState),
+            bitmapFont.getIdForCreationState(creationState),
             createSpiralPath(200f, 600f, 180f, 20f, 3f),
-            start = 0,
-            end = -1,
-            yAdj = 0f,
-            glyphSpacing = -3f,
-            paint,
+            0,
+            -1,
+            0f,
+            -3f,
         )
 
-        recordingCanvas.drawBitmapFontTextRunOnPath(
-            text,
-            bitmapFont,
+        creationState.document.drawBitmapFontTextRunOnPath(
+            text.getIdForCreationState(creationState),
+            bitmapFont.getIdForCreationState(creationState),
             createSpiralPath(600f, 600f, 180f, 20f, 3f),
-            start = 0,
-            end = -1,
-            yAdj = 0f,
-            glyphSpacing = 0f,
-            paint,
+            0,
+            -1,
+            0f,
+            0f,
         )
 
         val document = constructDocument()
@@ -185,7 +174,6 @@ class RemoteBitmapFontTest {
 
     private fun constructDocument() =
         CoreDocument(SystemClock(clock)).apply {
-            recordingCanvas.flush()
             recordingBuffer.writeToBuffer()
             val buffer = creationState.document.buffer
             buffer.buffer.index = 0
