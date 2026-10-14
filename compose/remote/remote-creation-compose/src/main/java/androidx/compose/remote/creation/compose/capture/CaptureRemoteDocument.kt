@@ -55,6 +55,11 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.savedstate.SavedState
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.compose.LocalSavedStateRegistryOwner
+import androidx.savedstate.write
 import androidx.tracing.traceAsync
 import java.util.Collections
 import java.util.IdentityHashMap
@@ -120,7 +125,7 @@ public suspend fun captureSingleRemoteDocument(
     val recomposer =
         Recomposer(currentCoroutineContext() + recomposerDispatcher + writeTracker.contextElement)
     val composition = Composition(applier, recomposer)
-    val lifecycleOwner = HeadlessLifecycleOwner()
+    val lifecycleOwner = HeadlessLifecycleOwner(savedState)
     val saveableStateRegistry = savedState?.let {
         SaveableStateRegistry(it.toSaveableStateMap(), ::canBeSavedToBundle)
     }
@@ -151,6 +156,7 @@ public suspend fun captureSingleRemoteDocument(
                     LocalRemoteDensity provides remoteDensity,
                     LocalLayoutDirection provides layoutDirection,
                     LocalLifecycleOwner provides lifecycleOwner,
+                    LocalSavedStateRegistryOwner provides lifecycleOwner,
                     LocalSaveableStateRegistry provides saveableStateRegistry,
                     content = content,
                 )
@@ -250,12 +256,18 @@ public suspend fun captureSingleRemoteDocument(
     } finally {
         withContext(recomposerDispatcher + NonCancellable) {
             recomposer.cancel()
-            // Perform save before composition.dispose() because dispose() dispatches
-            // RememberObserver.onForgotten() to every rememberSaveable holder, which unregisters
-            // its provider from saveableStateRegistry.
+            // Clear savedState before writing back so that if all registered providers were
+            // unregistered during recomposition, stale entries from a previous capture are not left
+            // behind in the reused SavedState bundle (SavedStateRegistryController.performSave is a
+            // no-op when its saved state is empty).
+            savedState?.write { clear() }
+            // Perform save before lifecycleOwner.destroy() and composition.dispose() because
+            // teardown dispatches ON_DESTROY / RememberObserver.onForgotten(), which unregisters
+            // providers from SavedStateRegistry and SaveableStateRegistry.
             if (savedState != null && saveableStateRegistry != null) {
                 savedState.saveSaveableState(saveableStateRegistry.performSave())
             }
+            lifecycleOwner.performSave()
             lifecycleOwner.destroy()
             composition.dispose()
         }
@@ -295,7 +307,7 @@ public fun captureRemoteDocument(
     val recomposer =
         Recomposer(currentCoroutineContext() + recomposerDispatcher + writeTracker.contextElement)
     val composition = Composition(applier, recomposer)
-    val lifecycleOwner = HeadlessLifecycleOwner()
+    val lifecycleOwner = HeadlessLifecycleOwner(savedState)
     val saveableStateRegistry = savedState?.let {
         SaveableStateRegistry(it.toSaveableStateMap(), ::canBeSavedToBundle)
     }
@@ -326,6 +338,7 @@ public fun captureRemoteDocument(
                     LocalRemoteDensity provides remoteDensity,
                     LocalLayoutDirection provides layoutDirection,
                     LocalLifecycleOwner provides lifecycleOwner,
+                    LocalSavedStateRegistryOwner provides lifecycleOwner,
                     LocalSaveableStateRegistry provides saveableStateRegistry,
                     content = content,
                 )
@@ -454,12 +467,18 @@ public fun captureRemoteDocument(
     } finally {
         withContext(recomposerDispatcher + NonCancellable) {
             recomposer.cancel()
-            // Perform save before composition.dispose() because dispose() dispatches
-            // RememberObserver.onForgotten() to every rememberSaveable holder, which unregisters
-            // its provider from saveableStateRegistry.
+            // Clear savedState before writing back so that if all registered providers were
+            // unregistered during recomposition, stale entries from a previous capture are not left
+            // behind in the reused SavedState bundle (SavedStateRegistryController.performSave is a
+            // no-op when its saved state is empty).
+            savedState?.write { clear() }
+            // Perform save before lifecycleOwner.destroy() and composition.dispose() because
+            // teardown dispatches ON_DESTROY / RememberObserver.onForgotten(), which unregisters
+            // providers from SavedStateRegistry and SaveableStateRegistry.
             if (savedState != null && saveableStateRegistry != null) {
                 savedState.saveSaveableState(saveableStateRegistry.performSave())
             }
+            lifecycleOwner.performSave()
             lifecycleOwner.destroy()
             composition.dispose()
         }
@@ -1041,7 +1060,8 @@ internal object SnapshotWriteMonitor {
  * thread that is itself adding or removing an observer on this owner. As with `LifecycleRegistry`,
  * downward events (`ON_PAUSE` .. `ON_DESTROY`) are delivered in reverse registration order.
  */
-private class HeadlessLifecycleOwner : LifecycleOwner {
+private class HeadlessLifecycleOwner(private val savedState: SavedState? = null) :
+    LifecycleOwner, SavedStateRegistryOwner {
     private class Registration(val observer: LifecycleObserver) {
         @Volatile var active = true
 
@@ -1065,7 +1085,7 @@ private class HeadlessLifecycleOwner : LifecycleOwner {
     }
 
     private val lock = Any()
-    @Volatile private var state = Lifecycle.State.RESUMED
+    @Volatile private var state = Lifecycle.State.INITIALIZED
     private val registrations = CopyOnWriteArrayList<Registration>()
 
     override val lifecycle: Lifecycle =
@@ -1101,6 +1121,33 @@ private class HeadlessLifecycleOwner : LifecycleOwner {
                 }
             }
         }
+
+    private val savedStateRegistryController = SavedStateRegistryController.create(this)
+
+    override val savedStateRegistry: SavedStateRegistry
+        get() = savedStateRegistryController.savedStateRegistry
+
+    init {
+        savedStateRegistryController.performRestore(savedState)
+        synchronized(lock) {
+            for (event in
+                arrayOf(
+                    Lifecycle.Event.ON_CREATE,
+                    Lifecycle.Event.ON_START,
+                    Lifecycle.Event.ON_RESUME,
+                )) {
+                state = event.targetState
+                for (registration in registrations.toTypedArray()) {
+                    if (registration.active) registration.dispatch(this, event)
+                }
+            }
+        }
+    }
+
+    fun performSave() {
+        val outState = savedState ?: return
+        savedStateRegistryController.performSave(outState)
+    }
 
     /**
      * Moves to [Lifecycle.State.DESTROYED] one event at a time. For each of `ON_PAUSE`, `ON_STOP`

@@ -42,6 +42,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -59,6 +60,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
+import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 import androidx.savedstate.read
 import androidx.savedstate.savedState
 import androidx.test.core.app.ApplicationProvider
@@ -1420,6 +1422,118 @@ class CaptureRemoteDocumentTest {
 
             assertDocumentContainsText(firstCollection, "Flow 5")
             assertDocumentContainsText(secondCollection, "Flow 5")
+        }
+
+    @Test
+    fun captureSingleRemoteDocument_providesLocalSavedStateRegistryOwner_withoutSavedState() =
+        runTest {
+            val doc =
+                withContext(Dispatchers.Default) {
+                    captureSingleRemoteDocument(context) {
+                        val owner = LocalSavedStateRegistryOwner.current
+                        val restored =
+                            remember(owner) {
+                                val state =
+                                    owner.savedStateRegistry.consumeRestoredStateForKey("key")
+                                owner.savedStateRegistry.registerSavedStateProvider("key") {
+                                    savedState { putInt("count", 1) }
+                                }
+                                state
+                            }
+                        RemoteText(
+                            "Restored:${owner.savedStateRegistry.isRestored}:${restored == null}".rs
+                        )
+                    }
+                }
+
+            assertDocumentContainsText(doc.toCoreDocument(), "Restored:true:true")
+        }
+
+    @Test
+    fun captureSingleRemoteDocument_withSavedState_persistsSavedStateRegistryOwnerAcrossCaptures() =
+        runTest(UnconfinedTestDispatcher()) {
+            val savedState = savedState()
+            var nextValue = 10
+            val content: @Composable @RemoteComposable () -> Unit = {
+                val savedStateRegistry = LocalSavedStateRegistryOwner.current.savedStateRegistry
+                val disposableValue =
+                    remember(savedStateRegistry) {
+                        savedStateRegistry.consumeRestoredStateForKey("disposable")?.read {
+                            getIntOrNull("value")
+                        } ?: 1
+                    }
+                // Callers that register a SavedStateProvider inside a DisposableEffect and
+                // unregister it in onDispose rely on performSave() running before
+                // composition.dispose() tears down the composition.
+                DisposableEffect(savedStateRegistry) {
+                    savedStateRegistry.registerSavedStateProvider("disposable") {
+                        savedState { putInt("value", disposableValue + 1) }
+                    }
+                    onDispose { savedStateRegistry.unregisterSavedStateProvider("disposable") }
+                }
+                val mutableValue =
+                    remember(savedStateRegistry) {
+                        val initial =
+                            savedStateRegistry.consumeRestoredStateForKey("provider")?.read {
+                                getIntOrNull("value")
+                            } ?: nextValue
+                        savedStateRegistry.registerSavedStateProvider("provider") {
+                            savedState { putInt("value", nextValue) }
+                        }
+                        initial
+                    }
+                LaunchedEffect(Unit) { nextValue = 42 }
+                RemoteText("Saved:$disposableValue:$mutableValue".rs)
+            }
+
+            val first =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+            val second =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+
+            assertDocumentContainsText(first.toCoreDocument(), "Saved:1:10")
+            assertDocumentContainsText(second.toCoreDocument(), "Saved:2:42")
+        }
+
+    @Test
+    fun captureRemoteDocument_withSavedState_persistsSavedStateRegistryOwnerAcrossFlowCollections() =
+        runTest(UnconfinedTestDispatcher()) {
+            val savedState = savedState()
+            val displayInfo = createCreationDisplayInfo(context)
+            val flow =
+                captureRemoteDocument(
+                    context = context,
+                    creationDisplayInfo = displayInfo,
+                    savedState = savedState,
+                ) {
+                    val savedStateRegistry = LocalSavedStateRegistryOwner.current.savedStateRegistry
+                    val count =
+                        remember(savedStateRegistry) {
+                            val restored =
+                                savedStateRegistry.consumeRestoredStateForKey("flowCounter")?.read {
+                                    getIntOrNull("count")
+                                } ?: 0
+                            savedStateRegistry.registerSavedStateProvider("flowCounter") {
+                                savedState { putInt("count", restored + 1) }
+                            }
+                            restored
+                        }
+                    RemoteText("FlowSaved $count".rs)
+                }
+
+            val firstCollection = flow.first().toCoreDocument()
+            val secondCollection = flow.first().toCoreDocument()
+
+            assertDocumentContainsText(firstCollection, "FlowSaved 0")
+            assertDocumentContainsText(secondCollection, "FlowSaved 1")
         }
 }
 
