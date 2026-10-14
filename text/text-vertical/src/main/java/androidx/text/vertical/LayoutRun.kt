@@ -372,28 +372,37 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
     override val height: Float
     override val leftSideOffset: Float
     override val rightSideOffset: Float
+    private val baseLeftSideOffset: Float
+    private val baseRightSideOffset: Float
 
     init {
         var height = 0f
         var left = 0f
         var right = 0f
+        var baseLeft = 0f
+        var baseRight = 0f
 
         text.forStyleRuns(start, end, paint) { rStart, rEnd, rPaint, _, _, emphasis ->
+            val halfCharWidth = rPaint.textSize * 0.5f
             val emphasisWidth = rPaint.textSize * (emphasis?.scale ?: 0f)
 
             height += rPaint.measureTextVertical(text, rStart, rEnd)
+            baseLeft = min(baseLeft, -halfCharWidth)
+            baseRight = max(baseRight, halfCharWidth)
             // `Unknown` and `Before` both put the mark on the right side, as ruby does.
             if (emphasis?.position != AnnotationPosition.After) {
-                left = min(left, -rPaint.textSize * 0.5f)
-                right = max(right, rPaint.textSize * 0.5f + emphasisWidth)
+                left = min(left, -halfCharWidth)
+                right = max(right, halfCharWidth + emphasisWidth)
             } else {
-                left = min(left, -rPaint.textSize * 0.5f - emphasisWidth)
-                right = max(right, rPaint.textSize * 0.5f)
+                left = min(left, -halfCharWidth - emphasisWidth)
+                right = max(right, halfCharWidth)
             }
         }
         this.height = height
         this.leftSideOffset = left
         this.rightSideOffset = right
+        this.baseLeftSideOffset = baseLeft
+        this.baseRightSideOffset = baseRight
     }
 
     override fun draw(canvas: Canvas, originX: Float, originY: Float, paint: TextPaint) {
@@ -408,10 +417,22 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
                 rPaint.isStrikeThruText = false
             }
             try {
-                // Use `width` (`leftSideOffset..rightSideOffset`) so mixed font sizes share a
-                // uniform column width and emphasis marks stay inside the background.
-                // Use `runHeight` so each style run covers only its own vertical advance.
-                canvas.drawBackground(originX + leftSideOffset, y, width, runHeight, bgColor)
+                // Share `baseLeftSideOffset..baseRightSideOffset` across mixed font sizes in the
+                // column, and expand only on the side where this style run draws emphasis marks.
+                val emphasisWidth = rPaint.textSize * (emphasis?.scale ?: 0f)
+                val bgLeft =
+                    if (emphasis?.position == AnnotationPosition.After) {
+                        min(baseLeftSideOffset, -rPaint.textSize * 0.5f - emphasisWidth)
+                    } else {
+                        baseLeftSideOffset
+                    }
+                val bgRight =
+                    if (emphasis != null && emphasis.position != AnnotationPosition.After) {
+                        max(baseRightSideOffset, rPaint.textSize * 0.5f + emphasisWidth)
+                    } else {
+                        baseRightSideOffset
+                    }
+                canvas.drawBackground(originX + bgLeft, y, bgRight - bgLeft, runHeight, bgColor)
 
                 if (fontShear == 0f) {
                     canvas.drawTextVertical(text, rStart, rEnd, originX, y, rPaint)
