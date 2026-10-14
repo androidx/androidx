@@ -1642,12 +1642,18 @@ protected constructor(
                 durationNanos = animation.durationNanos
                 return
             }
+            val currentSpec = animationSpec
             val specWithoutDelay =
                 if (isInterrupted && !isSeeking) {
-                    // When interrupted, use the default spring, unless the spec is also a spring.
-                    if (animationSpec is SpringSpec<*>) animationSpec else interruptionSpec
+                    // When interrupted, use the default spring, unless the spec is also a spring
+                    // or specifies its own interruption spec.
+                    when (currentSpec) {
+                        is SpringSpec<*> -> currentSpec
+                        is InterruptionAwareAnimationSpec<T> -> currentSpec.interruptionSpec
+                        else -> interruptionSpec
+                    }
                 } else {
-                    animationSpec
+                    currentSpec
                 }
             val spec =
                 if (playTimeNanos <= 0L) {
