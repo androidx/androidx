@@ -607,11 +607,10 @@ class SpatialGltfModelTest {
     }
 
     @Test
-    fun spatialModel_withExplicitSizeAndScaleModifier_usesUserScale() {
+    fun spatialModel_withExplicitSizeAndScaleModifier_combinesScaleToFitAndUserScale() {
         // Apply both `SubspaceModifier.size(200.dp)` and `.scale(2f)` to `SpatialGltfModel`.
         // Verify that the entity's final scale (`super.scale`) is the product of the uniform fit
-        // scale
-        // (`0.1f`) and the explicit user scale (`2f`), resulting in `0.2f`.
+        // scale (`0.1f`) and the explicit user scale (`2f`), resulting in `0.2f`.
         configureFakeSessionWithModelBoundingBox()
 
         composeTestRule.setContent {
@@ -641,14 +640,13 @@ class SpatialGltfModelTest {
 
         // gltfUniformScale = 0.1f, userScale = 2f, so uses scale = 0.2f
         assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
-            .isEqualTo(2f)
+            .isEqualTo(0.2f)
     }
 
     @Test
     fun spatialModel_withExplicitSizeModifier_maintainsScaleOnRecomposition() {
         // Verify that when a `SpatialGltfModel` undergoes recomposition, the computed fit scale
-        // (`0.1f`)
-        // is preserved and does not reset or blow up when modifiers are re-applied.
+        // (`0.1f`) is preserved and does not reset or blow up when modifiers are re-applied.
         var recomposeTrigger by mutableStateOf(0)
 
         configureFakeSessionWithModelBoundingBox()
@@ -724,9 +722,10 @@ class SpatialGltfModelTest {
         dynamicScale = 3f
         composeTestRule.waitForIdle()
 
-        // Verify scale updates to 3f
+        // Verify scale updates to 0.3f (gltfUniformScale 0.1f * userScale 3f)
         assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
-            .isEqualTo(3f)
+            .isWithin(0.001f)
+            .of(0.3f)
     }
 
     private fun configureFakeSessionWithModelBoundingBox(

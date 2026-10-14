@@ -298,3 +298,38 @@ fun ColumnWithCenterText(padding: PaddingValues = PaddingValues(0.dp, 0.dp, 0.dp
         )
     }
 }
+
+@Composable
+fun ColumnWithTextAndButton(
+    padding: PaddingValues = PaddingValues(0.dp, 0.dp, 0.dp),
+    text: String,
+    buttonText: String,
+    onClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.background(color = Purple80).fillMaxSize().padding(padding),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = text,
+            textAlign = TextAlign.Center,
+            color = Color.Black,
+            style = TextStyle(fontSize = 20.sp),
+        )
+        Button(
+            onClick = onClick,
+            modifier = Modifier.padding(2.dp).fillMaxWidth(fraction = 0.8f),
+            shape = RoundedCornerShape(3.dp),
+            colors =
+                ButtonColors(
+                    containerColor = PurpleGrey80,
+                    contentColor = Color.Black,
+                    disabledContentColor = Color.Gray,
+                    disabledContainerColor = Color.DarkGray,
+                ),
+        ) {
+            Text(buttonText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+}
