@@ -24,6 +24,7 @@ import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiStringSchema
+import androidx.annotation.RestrictTo
 
 /**
  * Interface to open a URL.
@@ -47,25 +48,8 @@ public fun interface A2uiUrlOpener {
  */
 public class A2uiOpenUrlFunction(private val urlOpener: A2uiUrlOpener) : A2uiFunction {
 
-    override val definition: A2uiFunctionDefinition =
-        object : A2uiFunctionDefinition {
-            override val name: String = "openUrl"
-
-            override val description: String =
-                """Opens the specified URL in a browser or handler. This function has no return value."""
-
-            override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.VOID
-
-            override val argumentSchema: A2uiSchema =
-                A2uiObjectSchema(
-                    properties =
-                        mapOf(
-                            ARG_URL_KEY to A2uiStringSchema(description = """The URL to open.""")
-                        ),
-                    required = setOf(ARG_URL_KEY),
-                    isAdditionalPropertiesAllowed = false,
-                )
-        }
+    override val definition: A2uiFunctionDefinition
+        get() = DEFINITION
 
     /**
      * Hands over the URL to open in [args] to the platform-specific URL opener.
@@ -76,17 +60,50 @@ public class A2uiOpenUrlFunction(private val urlOpener: A2uiUrlOpener) : A2uiFun
      * @return null as this operation does not produce a return value
      */
     override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val url = A2uiFunctionArgParser.getStringArg(args, ARG_URL_KEY)
+        typedExecute(url = A2uiFunctionArgParser.getStringArg(args, ARG_URL_KEY))
+        return Unit
+    }
+
+    /**
+     * Hands over [url] to the platform-specific URL opener.
+     *
+     * @param url the URL to open
+     * @throws A2uiException.A2uiRuntimeException if [url] is empty
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun typedExecute(url: String) {
         if (url.isEmpty()) {
             throw A2uiException.A2uiRuntimeException(
                 "Function ${definition.name} was invoked with an empty URL"
             )
         }
         urlOpener.openUrl(url)
-        return Unit
     }
 
     public companion object {
+        /** The definition of the `openUrl` function in the A2UI basic catalog. */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public val DEFINITION: A2uiFunctionDefinition =
+            object : A2uiFunctionDefinition {
+                override val name: String = "openUrl"
+
+                override val description: String =
+                    """Opens the specified URL in a browser or handler. This function has no return value."""
+
+                override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.VOID
+
+                override val argumentSchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties =
+                            mapOf(
+                                ARG_URL_KEY to
+                                    A2uiStringSchema(description = """The URL to open.""")
+                            ),
+                        required = setOf(ARG_URL_KEY),
+                        isAdditionalPropertiesAllowed = false,
+                    )
+            }
+
         private const val ARG_URL_KEY: String = "url"
     }
 }

@@ -23,6 +23,7 @@ import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
+import androidx.annotation.RestrictTo
 import androidx.core.util.PatternsCompat
 
 /**
@@ -32,21 +33,8 @@ import androidx.core.util.PatternsCompat
  */
 public class A2uiEmailFunction private constructor() : A2uiFunction {
 
-    override val definition: A2uiFunctionDefinition =
-        object : A2uiFunctionDefinition {
-            override val name: String = "email"
-
-            override val description: String = """Checks that the value is a valid email address."""
-
-            override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.BOOLEAN
-
-            override val argumentSchema: A2uiSchema =
-                A2uiObjectSchema(
-                    properties = mapOf(ARG_VALUE_KEY to A2uiDynamicStringSchema.DEFAULT_INSTANCE),
-                    required = setOf(ARG_VALUE_KEY),
-                    isAdditionalPropertiesAllowed = false,
-                )
-        }
+    override val definition: A2uiFunctionDefinition
+        get() = DEFINITION
 
     /**
      * Runs email format validation on the given [args].
@@ -56,13 +44,40 @@ public class A2uiEmailFunction private constructor() : A2uiFunction {
      *   payloads and resolving data bindings
      * @return true if the value matches the email regex, false otherwise
      */
-    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val value = A2uiFunctionArgParser.getStringArg(args, ARG_VALUE_KEY)
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? =
+        typedExecute(value = A2uiFunctionArgParser.getStringArg(args, ARG_VALUE_KEY))
 
-        return PatternsCompat.EMAIL_ADDRESS.matcher(value).matches()
-    }
+    /**
+     * Checks that [value] is a valid email address.
+     *
+     * @param value the string to check
+     * @return true if [value] is a valid email address, false otherwise
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun typedExecute(value: String): Boolean =
+        PatternsCompat.EMAIL_ADDRESS.matcher(value).matches()
 
     public companion object {
+        /** The definition of the `email` function in the A2UI basic catalog. */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public val DEFINITION: A2uiFunctionDefinition =
+            object : A2uiFunctionDefinition {
+                override val name: String = "email"
+
+                override val description: String =
+                    """Checks that the value is a valid email address."""
+
+                override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.BOOLEAN
+
+                override val argumentSchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties =
+                            mapOf(ARG_VALUE_KEY to A2uiDynamicStringSchema.DEFAULT_INSTANCE),
+                        required = setOf(ARG_VALUE_KEY),
+                        isAdditionalPropertiesAllowed = false,
+                    )
+            }
+
         @JvmField public val INSTANCE: A2uiEmailFunction = A2uiEmailFunction()
 
         private const val ARG_VALUE_KEY: String = "value"
