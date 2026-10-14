@@ -20,6 +20,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 import java.util.UUID
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -76,6 +77,7 @@ internal object BackupActionValues {
     const val VALUE_TYPE_FLOAT = "FLOAT"
     const val VALUE_TYPE_BOOLEAN = "BOOLEAN"
     const val VALUE_TYPE_STRING = "STRING"
+    const val VALUE_TYPE_STRING_SET = "STRING_SET"
     const val STATUS_SUCCESS = "success"
     const val STATUS_FAILURE = "failure"
 }
@@ -156,44 +158,52 @@ internal object BackupActionWireProtocol {
                     put(BackupActionInputKeys.PREF_KEY, storage.key)
                     val value = storage.value
                     if (value != null) {
-                        put(BackupActionInputKeys.VALUE, value.toString())
+                        put(BackupActionInputKeys.VALUE, preferenceValueString(value))
                         put(BackupActionInputKeys.VALUE_TYPE, valueTypeOf(value))
                     } else {
                         put(BackupActionInputKeys.EXPECT_NULL, "true")
                     }
+                    putDeviceProtected(storage.isDeviceProtectedStorage)
                 }
-            is StorageDomain.Database -> {
-                val columns =
-                    storage.columnValues.map { (name, value) -> name to value?.toString() }
-                // The primary key is written too, so that verification can find the row again.
-                val hasKeyColumn =
-                    storage.columnValues.keys.any {
-                        it.equals(storage.primaryKeyCol, ignoreCase = true)
-                    }
-                val keyColumn = storage.primaryKeyCol to storage.primaryKeyVal.toString()
-                mapOf(
-                    BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_DATABASE,
-                    BackupActionInputKeys.DB_NAME to storage.dbName,
-                    BackupActionInputKeys.TABLE to storage.table,
-                    BackupActionInputKeys.VALUES to
+            is StorageDomain.Database ->
+                buildMap {
+                    val columns =
+                        storage.columnValues.map { (name, value) -> name to value?.toString() }
+                    // The primary key is written too, so that verification can find the row again.
+                    val hasKeyColumn =
+                        storage.columnValues.keys.any {
+                            it.equals(storage.primaryKeyCol, ignoreCase = true)
+                        }
+                    val keyColumn = storage.primaryKeyCol to storage.primaryKeyVal.toString()
+                    put(
+                        BackupActionInputKeys.STORAGE_TYPE,
+                        BackupActionValues.STORAGE_TYPE_DATABASE,
+                    )
+                    put(BackupActionInputKeys.DB_NAME, storage.dbName)
+                    put(BackupActionInputKeys.TABLE, storage.table)
+                    put(
+                        BackupActionInputKeys.VALUES,
                         encodeColumnValues(if (hasKeyColumn) columns else columns + keyColumn),
-                    BackupActionInputKeys.KEY_COL to storage.primaryKeyCol,
-                    BackupActionInputKeys.KEY_VAL to storage.primaryKeyVal.toString(),
-                )
-            }
+                    )
+                    put(BackupActionInputKeys.KEY_COL, storage.primaryKeyCol)
+                    put(BackupActionInputKeys.KEY_VAL, storage.primaryKeyVal.toString())
+                    putDeviceProtected(storage.isDeviceProtectedStorage)
+                }
             is StorageDomain.TextFile ->
-                mapOf(
-                    BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_FILES,
-                    BackupActionInputKeys.PATH to storage.path,
-                    BackupActionInputKeys.VALUE to storage.content,
-                )
+                buildMap {
+                    put(BackupActionInputKeys.STORAGE_TYPE, BackupActionValues.STORAGE_TYPE_FILES)
+                    put(BackupActionInputKeys.PATH, storage.path)
+                    put(BackupActionInputKeys.VALUE, storage.content)
+                    putDeviceProtected(storage.isDeviceProtectedStorage)
+                }
             is StorageDomain.BinaryFile ->
-                mapOf(
-                    BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_FILES,
-                    BackupActionInputKeys.PATH to storage.path,
-                    BackupActionInputKeys.VALUE to base64(storage.content),
-                    BackupActionInputKeys.IS_BINARY to "true",
-                )
+                buildMap {
+                    put(BackupActionInputKeys.STORAGE_TYPE, BackupActionValues.STORAGE_TYPE_FILES)
+                    put(BackupActionInputKeys.PATH, storage.path)
+                    put(BackupActionInputKeys.VALUE, base64(storage.content))
+                    put(BackupActionInputKeys.IS_BINARY, "true")
+                    putDeviceProtected(storage.isDeviceProtectedStorage)
+                }
             else -> throw IllegalArgumentException("Unsupported storage domain type: $storage")
         }
 
@@ -246,8 +256,24 @@ internal object BackupActionWireProtocol {
             is Long -> BackupActionValues.VALUE_TYPE_LONG
             is Float -> BackupActionValues.VALUE_TYPE_FLOAT
             is Boolean -> BackupActionValues.VALUE_TYPE_BOOLEAN
+            is Set<*> -> BackupActionValues.VALUE_TYPE_STRING_SET
             else -> BackupActionValues.VALUE_TYPE_STRING
         }
+
+    /** Returns [value] as [BackupActionInputKeys.VALUE]: a set as a JSON array of strings. */
+    private fun preferenceValueString(value: Any): String =
+        if (value is Set<*>) {
+            JsonArray(value.map { JsonPrimitive(it as String) }).toString()
+        } else {
+            value.toString()
+        }
+
+    /**
+     * Adds [BackupActionInputKeys.IS_DEVICE_PROTECTED] for a domain in device-protected storage.
+     */
+    private fun MutableMap<String, String>.putDeviceProtected(isDeviceProtectedStorage: Boolean) {
+        if (isDeviceProtectedStorage) put(BackupActionInputKeys.IS_DEVICE_PROTECTED, "true")
+    }
 
     private fun base64(bytes: ByteArray): String = Base64.getEncoder().encodeToString(bytes)
 

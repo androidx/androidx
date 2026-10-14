@@ -125,11 +125,21 @@ internal constructor(
     internal fun <A : Annotation> findClassAnnotation(
         testClass: Class<*>,
         annotationClass: Class<A>,
-    ): A? =
+    ): A? = classAnnotations(testClass, annotationClass).firstOrNull()
+
+    /**
+     * Returns the [annotationClass] annotations of [testClass] and of the classes that enclose it,
+     * from innermost to outermost. Only inner classes, such as `@Nested` test classes, take the
+     * annotations of the classes that enclose them.
+     */
+    private fun <A : Annotation> classAnnotations(
+        testClass: Class<*>,
+        annotationClass: Class<A>,
+    ): Sequence<A> =
         generateSequence(testClass) { cls ->
                 cls.enclosingClass.takeIf { cls.isMemberClass && !Modifier.isStatic(cls.modifiers) }
             }
-            .firstNotNullOfOrNull { it.getAnnotation(annotationClass) }
+            .mapNotNull { it.getAnnotation(annotationClass) }
 
     override fun resolveParameter(
         parameterContext: ParameterContext?,
@@ -141,6 +151,7 @@ internal constructor(
                 ?: throw IllegalStateException("Required test class is missing")
         val suiteProperties = suiteProperties()
         val applicationId = applicationIdFor(requiredClass, suiteProperties)
+        val testApplicationId = testApplicationIdFor(requiredClass)
         val adbSession = sessionFor(extensionContext)
         val deviceIndex = parameterContext?.let { deviceIndexOf(it) } ?: 0
         val requests =
@@ -210,6 +221,7 @@ internal constructor(
                 serialNumber = serial,
                 apiLevel = api,
                 applicationId = applicationId,
+                testApplicationId = testApplicationId,
                 telemetryPublisher = { key, value ->
                     extensionContext.publishReportEntry(key, value)
                 },
@@ -409,17 +421,34 @@ internal constructor(
     }
 
     /**
-     * Returns the ID of the app that the tests of [testClass] target: the one that its
-     * [BackupRestoreConfig] names, or else the one of the app that the test suite of
-     * [suiteProperties] tests.
+     * Returns the ID of the app that the tests of [testClass] target: the
+     * [BackupRestoreConfig.applicationId] of [testClass] or of an enclosing class, or else the one
+     * of the app that the test suite of [suiteProperties] tests.
      */
     internal fun applicationIdFor(testClass: Class<*>, suiteProperties: Properties): String =
-        findClassAnnotation(testClass, BackupRestoreConfig::class.java)?.applicationId
+        classAnnotations(testClass, BackupRestoreConfig::class.java)
+            .map { it.applicationId }
+            .firstOrNull { it.isNotEmpty() }
             ?: suiteProperty(suiteProperties, PROP_TESTED_APPLICATION_ID)
             ?: throw IllegalStateException(
                 "No application ID for ${testClass.name}: annotate it with @BackupRestoreConfig, " +
                     "or run it in an Android Gradle Plugin backup test suite."
             )
+
+    /**
+     * Returns the package of the test APK whose runner runs the device actions of the tests of
+     * [testClass]: the [BackupRestoreConfig.testApplicationId] of [testClass] or of the nearest
+     * enclosing class that sets one, or null if none is set. The test APK of an enclosing class
+     * doesn't apply when [testClass] or a class in between sets
+     * [BackupRestoreConfig.applicationId], because it was chosen for another app.
+     */
+    internal fun testApplicationIdFor(testClass: Class<*>): String? {
+        for (config in classAnnotations(testClass, BackupRestoreConfig::class.java)) {
+            if (config.testApplicationId.isNotEmpty()) return config.testApplicationId
+            if (config.applicationId.isNotEmpty()) return null
+        }
+        return null
+    }
 
     /** Returns the APK files of the tested app, then of the test app, of [suiteProperties]. */
     internal fun suiteApks(suiteProperties: Properties): List<File> =

@@ -22,6 +22,9 @@ import androidx.test.backup.BackupActionValues.VALUE_TYPE_FLOAT
 import androidx.test.backup.BackupActionValues.VALUE_TYPE_INT
 import androidx.test.backup.BackupActionValues.VALUE_TYPE_LONG
 import androidx.test.backup.BackupActionValues.VALUE_TYPE_STRING
+import androidx.test.backup.BackupActionValues.VALUE_TYPE_STRING_SET
+import org.json.JSONArray
+import org.json.JSONException
 
 /**
  * Parses a string into a typed preference value according to [valueType].
@@ -29,7 +32,8 @@ import androidx.test.backup.BackupActionValues.VALUE_TYPE_STRING
  * Both actions in this package share this function so that the format cannot drift between the
  * populate and the verify phase.
  *
- * Boolean parsing is strict: only `"true"` and `"false"` (case-insensitively) are accepted.
+ * Boolean parsing is strict: only `"true"` and `"false"` (case-insensitively) are accepted. A
+ * string set is a JSON array of strings, and parses to a `Set<String>`.
  *
  * @throws IllegalArgumentException if [valueType] is unsupported or [value] cannot be parsed
  */
@@ -53,6 +57,33 @@ internal fun parsePreferenceValue(value: String, valueType: String): Any =
                         "Invalid boolean preference value '$value': expected 'true' or 'false'"
                     )
             }
+        VALUE_TYPE_STRING_SET -> parseStringSet(value)
         VALUE_TYPE_STRING -> value
         else -> throw IllegalArgumentException("Unsupported $VALUE_TYPE: $valueType")
     }
+
+/**
+ * Parses [value], a JSON array of strings, into the set of those strings.
+ *
+ * @throws IllegalArgumentException if [value] is not a JSON array, or has an element that is not a
+ *   string
+ */
+private fun parseStringSet(value: String): Set<String> {
+    val array =
+        try {
+            JSONArray(value)
+        } catch (e: JSONException) {
+            throw IllegalArgumentException(
+                "Invalid string set preference value ${shown(value)}: expected a JSON array of " +
+                    "strings",
+                e,
+            )
+        }
+    return (0 until array.length()).mapTo(LinkedHashSet()) { index ->
+        array.get(index) as? String
+            ?: throw IllegalArgumentException(
+                "Invalid string set preference value ${shown(value)}: element $index is not a " +
+                    "string"
+            )
+    }
+}

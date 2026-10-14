@@ -1535,6 +1535,113 @@ public class StorageActionTest {
         )
     }
 
+    @Test
+    public fun testPrefsStringSetPopulateAndVerify() {
+        val prefs =
+            prefsArgs(
+                "string_set_prefs",
+                "tags",
+                """["b","a",""]""",
+                BackupActionValues.VALUE_TYPE_STRING_SET,
+            )
+
+        assertSucceeds(populate(*prefs))
+
+        assertEquals(
+            setOf("a", "b", ""),
+            context
+                .getSharedPreferences("string_set_prefs", Context.MODE_PRIVATE)
+                .getStringSet("tags", null),
+        )
+        // A set is the same whatever the order of its elements.
+        assertSucceeds(
+            verify(
+                *prefsArgs(
+                    "string_set_prefs",
+                    "tags",
+                    """["", "a","b"]""",
+                    BackupActionValues.VALUE_TYPE_STRING_SET,
+                )
+            )
+        )
+    }
+
+    @Test
+    public fun testPrefsStringSetVerifyReportsADifferentSet() {
+        assertSucceeds(
+            populate(
+                *prefsArgs(
+                    "string_set_prefs",
+                    "tags",
+                    """["a","b"]""",
+                    BackupActionValues.VALUE_TYPE_STRING_SET,
+                )
+            )
+        )
+
+        val error =
+            verify(
+                    *prefsArgs(
+                        "string_set_prefs",
+                        "tags",
+                        """["c","a"]""",
+                        BackupActionValues.VALUE_TYPE_STRING_SET,
+                    )
+                )
+                .errorMessage
+
+        assertEquals(
+            "Preference 'tags' in 'string_set_prefs': expected '[a, c]' but found '[a, b]'.",
+            error,
+        )
+    }
+
+    @Test
+    public fun testPrefsStringSetRejectsAValueThatIsNotAJsonArrayOfStrings() {
+        for ((value, problem) in
+            listOf(
+                "a,b" to "expected a JSON array of strings",
+                """["a",1]""" to "element 1 is not a string",
+                """["a",null]""" to "element 1 is not a string",
+            )) {
+            val error =
+                populate(
+                        *prefsArgs(
+                            "string_set_prefs",
+                            "bad",
+                            value,
+                            BackupActionValues.VALUE_TYPE_STRING_SET,
+                        )
+                    )
+                    .errorMessage
+
+            assertEquals("Invalid string set preference value '$value': $problem", error)
+        }
+    }
+
+    @Test
+    public fun testPrefsStringSetVerifyReportsAPreferenceOfAnotherType() {
+        assertSucceeds(populate(*prefsArgs("string_set_prefs", "name", "Ann", "STRING")))
+
+        val error =
+            verify(
+                    *prefsArgs(
+                        "string_set_prefs",
+                        "name",
+                        """["Ann"]""",
+                        BackupActionValues.VALUE_TYPE_STRING_SET,
+                    )
+                )
+                .errorMessage
+
+        assertTrue(
+            error,
+            error!!.startsWith(
+                "Preference 'name' in 'string_set_prefs' is not of expected type STRING_SET"
+            ),
+        )
+    }
+
     /** The argument selects device-protected storage whatever the context of the action. */
     @Test
     public fun testDeviceProtectedArgumentSelectsDeviceProtectedStorage() {

@@ -60,6 +60,7 @@ package androidx.test.backup {
     property public static String VALUE_TYPE_INT;
     property public static String VALUE_TYPE_LONG;
     property public static String VALUE_TYPE_STRING;
+    property public static String VALUE_TYPE_STRING_SET;
     field public static final String DEFAULT_PREF_NAME = "default_prefs";
     field public static final androidx.test.backup.BackupActionValues INSTANCE;
     field public static final String STATUS_FAILURE = "failure";
@@ -72,22 +73,11 @@ package androidx.test.backup {
     field public static final String VALUE_TYPE_INT = "INT";
     field public static final String VALUE_TYPE_LONG = "LONG";
     field public static final String VALUE_TYPE_STRING = "STRING";
+    field public static final String VALUE_TYPE_STRING_SET = "STRING_SET";
   }
 
   public interface BackupDeviceAction {
     method public androidx.test.backup.BackupDeviceActionResult execute(android.content.Context context, androidx.test.backup.BackupDeviceActionArgs args);
-    method @InaccessibleFromKotlin public int getPhase();
-    property public abstract int phase;
-    field public static final androidx.test.backup.BackupDeviceAction.Companion Companion;
-    field public static final int PHASE_POPULATE = 1; // 0x1
-    field public static final int PHASE_VERIFY = 2; // 0x2
-  }
-
-  public static final class BackupDeviceAction.Companion {
-    property public static int PHASE_POPULATE;
-    property public static int PHASE_VERIFY;
-    field public static final int PHASE_POPULATE = 1; // 0x1
-    field public static final int PHASE_VERIFY = 2; // 0x2
   }
 
   public final class BackupDeviceActionArgs {
@@ -139,15 +129,11 @@ package androidx.test.backup.actions {
   public final class AssertStorageAction implements androidx.test.backup.BackupDeviceAction {
     ctor public AssertStorageAction();
     method public androidx.test.backup.BackupDeviceActionResult execute(android.content.Context context, androidx.test.backup.BackupDeviceActionArgs args);
-    method @InaccessibleFromKotlin public int getPhase();
-    property public int phase;
   }
 
   public final class PopulateStorageAction implements androidx.test.backup.BackupDeviceAction {
     ctor public PopulateStorageAction();
     method public androidx.test.backup.BackupDeviceActionResult execute(android.content.Context context, androidx.test.backup.BackupDeviceActionArgs args);
-    method @InaccessibleFromKotlin public int getPhase();
-    property public int phase;
   }
 
 }

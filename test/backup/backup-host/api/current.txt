@@ -26,9 +26,11 @@ package androidx.test.backup.host {
   }
 
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface BackupRestoreConfig {
-    ctor @KotlinOnly public BackupRestoreConfig(String applicationId);
-    method @InaccessibleFromKotlin public abstract String applicationId();
+    ctor @KotlinOnly public BackupRestoreConfig(optional String applicationId, optional String testApplicationId);
+    method @InaccessibleFromKotlin public abstract String applicationId() default "";
+    method @InaccessibleFromKotlin public abstract String testApplicationId() default "";
     property public abstract String applicationId;
+    property public abstract String testApplicationId;
   }
 
   public interface BackupRestoreController extends java.lang.AutoCloseable {
@@ -139,21 +141,29 @@ package androidx.test.backup.host {
 
   public static final class StorageDomain.BinaryFile extends androidx.test.backup.host.StorageDomain {
     ctor public StorageDomain.BinaryFile(String path, byte[] content);
+    ctor public StorageDomain.BinaryFile(String path, byte[] content, optional boolean isDeviceProtectedStorage);
+    ctor @BytecodeOnly public StorageDomain.BinaryFile(String!, byte[]!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public byte[] getContent();
     method @InaccessibleFromKotlin public String getPath();
+    method @InaccessibleFromKotlin public boolean isDeviceProtectedStorage();
     property public byte[] content;
+    property public boolean isDeviceProtectedStorage;
     property public String path;
   }
 
   public static final class StorageDomain.Database extends androidx.test.backup.host.StorageDomain {
+    ctor @BytecodeOnly public StorageDomain.Database(String!, String!, String!, Object!, java.util.Map!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public StorageDomain.Database(String dbName, String table, String primaryKeyCol, Object primaryKeyVal, java.util.Map<java.lang.String,? extends java.lang.Object?> columnValues);
+    ctor public StorageDomain.Database(String dbName, String table, String primaryKeyCol, Object primaryKeyVal, java.util.Map<java.lang.String,? extends java.lang.Object?> columnValues, optional boolean isDeviceProtectedStorage);
     method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Object?> getColumnValues();
     method @InaccessibleFromKotlin public String getDbName();
     method @InaccessibleFromKotlin public String getPrimaryKeyCol();
     method @InaccessibleFromKotlin public Object getPrimaryKeyVal();
     method @InaccessibleFromKotlin public String getTable();
+    method @InaccessibleFromKotlin public boolean isDeviceProtectedStorage();
     property public java.util.Map<java.lang.String,java.lang.Object?> columnValues;
     property public String dbName;
+    property public boolean isDeviceProtectedStorage;
     property public String primaryKeyCol;
     property public Object primaryKeyVal;
     property public String table;
@@ -162,10 +172,13 @@ package androidx.test.backup.host {
   public static final class StorageDomain.Preference extends androidx.test.backup.host.StorageDomain {
     ctor public StorageDomain.Preference(String prefName, String key);
     ctor public StorageDomain.Preference(String prefName, String key, optional Object? value);
-    ctor @BytecodeOnly public StorageDomain.Preference(String!, String!, Object!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public StorageDomain.Preference(String prefName, String key, optional Object? value, optional boolean isDeviceProtectedStorage);
+    ctor @BytecodeOnly public StorageDomain.Preference(String!, String!, Object!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String getKey();
     method @InaccessibleFromKotlin public String getPrefName();
     method @InaccessibleFromKotlin public Object? getValue();
+    method @InaccessibleFromKotlin public boolean isDeviceProtectedStorage();
+    property public boolean isDeviceProtectedStorage;
     property public String key;
     property public String prefName;
     property public Object? value;
@@ -173,9 +186,13 @@ package androidx.test.backup.host {
 
   public static final class StorageDomain.TextFile extends androidx.test.backup.host.StorageDomain {
     ctor public StorageDomain.TextFile(String path, String content);
+    ctor public StorageDomain.TextFile(String path, String content, optional boolean isDeviceProtectedStorage);
+    ctor @BytecodeOnly public StorageDomain.TextFile(String!, String!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String getContent();
     method @InaccessibleFromKotlin public String getPath();
+    method @InaccessibleFromKotlin public boolean isDeviceProtectedStorage();
     property public String content;
+    property public boolean isDeviceProtectedStorage;
     property public String path;
   }
 

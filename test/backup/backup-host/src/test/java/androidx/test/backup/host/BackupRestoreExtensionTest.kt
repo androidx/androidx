@@ -82,10 +82,31 @@ class BackupRestoreExtensionTest {
         @BackupRestoreConfig(applicationId = "com.example.nested")
         inner class ConfiguredNestedTestClass
 
+        @BackupRestoreConfig(testApplicationId = "com.example.nested.tests")
+        inner class TestApkOnlyNestedTestClass
+
         class StaticNestedClass
     }
 
     class UnconfiguredTestClass
+
+    @BackupRestoreConfig class DefaultConfiguredTestClass
+
+    @BackupRestoreConfig(applicationId = "com.example.app", testApplicationId = "com.example.tests")
+    class TestApkConfiguredTestClass {
+        inner class NestedTestClass
+
+        @BackupRestoreConfig(applicationId = "com.example.nested")
+        inner class AppOnlyNestedTestClass {
+            inner class DeeperTestClass
+        }
+
+        @BackupRestoreConfig(
+            applicationId = "com.example.nested",
+            testApplicationId = "com.example.nested.tests",
+        )
+        inner class FullyConfiguredNestedTestClass
+    }
 
     @get:Rule val tempFolder = TemporaryFolder()
 
@@ -221,13 +242,15 @@ class BackupRestoreExtensionTest {
     fun aTestClassWithoutConfigurationTargetsTheTestedApp() {
         val extension = BackupRestoreExtension()
         val suiteFile = suitePropertiesFile(TESTED_APPLICATION_ID to "com.example.tested")
+        val suiteProperties = extension.suiteProperties(suiteFile.path)
 
         assertEquals(
             "com.example.tested",
-            extension.applicationIdFor(
-                UnconfiguredTestClass::class.java,
-                extension.suiteProperties(suiteFile.path),
-            ),
+            extension.applicationIdFor(UnconfiguredTestClass::class.java, suiteProperties),
+        )
+        assertEquals(
+            "com.example.tested",
+            extension.applicationIdFor(DefaultConfiguredTestClass::class.java, suiteProperties),
         )
     }
 
@@ -245,6 +268,13 @@ class BackupRestoreExtensionTest {
             "com.example.outer",
             extension.applicationIdFor(
                 ConfiguredTestClass.NestedTestClass::class.java,
+                suiteProperties,
+            ),
+        )
+        assertEquals(
+            "com.example.outer",
+            extension.applicationIdFor(
+                ConfiguredTestClass.TestApkOnlyNestedTestClass::class.java,
                 suiteProperties,
             ),
         )
@@ -270,13 +300,16 @@ class BackupRestoreExtensionTest {
 
     @Test
     fun aTestClassWithoutConfigurationOutsideOfATestSuiteFails() {
-        val error =
-            assertFailsWith<IllegalStateException> {
-                BackupRestoreExtension()
-                    .applicationIdFor(UnconfiguredTestClass::class.java, Properties())
-            }
+        val extension = BackupRestoreExtension()
+        for (testClass in
+            listOf(UnconfiguredTestClass::class.java, DefaultConfiguredTestClass::class.java)) {
+            val error =
+                assertFailsWith<IllegalStateException> {
+                    extension.applicationIdFor(testClass, Properties())
+                }
 
-        assertContains(error.message.orEmpty(), UnconfiguredTestClass::class.java.name)
+            assertContains(error.message.orEmpty(), testClass.name)
+        }
     }
 
     /** Each test class gets its own extension instance, but they all share one session. */
@@ -528,6 +561,52 @@ class BackupRestoreExtensionTest {
                 ),
             )
         }
+
+    @Test
+    fun theTestApplicationIdComesFromTheConfigurationOfTheTestClass() {
+        val extension = BackupRestoreExtension()
+
+        assertEquals(
+            "com.example.tests",
+            extension.testApplicationIdFor(TestApkConfiguredTestClass::class.java),
+        )
+        assertEquals(
+            "com.example.tests",
+            extension.testApplicationIdFor(TestApkConfiguredTestClass.NestedTestClass::class.java),
+        )
+        assertEquals(
+            "com.example.nested.tests",
+            extension.testApplicationIdFor(
+                TestApkConfiguredTestClass.FullyConfiguredNestedTestClass::class.java
+            ),
+        )
+        assertEquals(
+            "com.example.nested.tests",
+            extension.testApplicationIdFor(
+                ConfiguredTestClass.TestApkOnlyNestedTestClass::class.java
+            ),
+        )
+        assertNull(extension.testApplicationIdFor(ConfiguredTestClass::class.java))
+        assertNull(extension.testApplicationIdFor(UnconfiguredTestClass::class.java))
+        assertNull(extension.testApplicationIdFor(DefaultConfiguredTestClass::class.java))
+    }
+
+    /** The test APK of an enclosing class was chosen for its app, so it isn't used for another. */
+    @Test
+    fun theTestApplicationIdOfAnEnclosingClassDoesNotApplyToAnotherApp() {
+        val extension = BackupRestoreExtension()
+
+        assertNull(
+            extension.testApplicationIdFor(
+                TestApkConfiguredTestClass.AppOnlyNestedTestClass::class.java
+            )
+        )
+        assertNull(
+            extension.testApplicationIdFor(
+                TestApkConfiguredTestClass.AppOnlyNestedTestClass.DeeperTestClass::class.java
+            )
+        )
+    }
 
     @Test
     fun installOnceInstallsTheApksOnTheFirstResolution() = runBlocking {

@@ -29,7 +29,6 @@ import androidx.test.backup.BackupActionInputKeys.KEY_VAL
 import androidx.test.backup.BackupActionInputKeys.VALUE
 import androidx.test.backup.BackupActionInputKeys.VALUES
 import androidx.test.backup.BackupActionInputKeys.VALUE_TYPE
-import androidx.test.backup.BackupActionPhase
 import androidx.test.backup.BackupActionValues.VALUE_TYPE_STRING
 import androidx.test.backup.BackupDeviceAction
 import androidx.test.backup.BackupDeviceActionArgs
@@ -47,8 +46,6 @@ import androidx.test.backup.BackupDeviceActionResult
  * value, not as a thrown exception. Long values are shortened to the part where they differ.
  */
 public class AssertStorageAction : BackupDeviceAction {
-    @get:BackupActionPhase override val phase: Int = BackupDeviceAction.PHASE_VERIFY
-
     override fun execute(context: Context, args: BackupDeviceActionArgs): BackupDeviceActionResult {
         val target =
             try {
@@ -113,6 +110,7 @@ public class AssertStorageAction : BackupDeviceAction {
                     is Float -> sharedPrefs.getFloat(key, 0.0f)
                     is Boolean -> sharedPrefs.getBoolean(key, false)
                     is String -> sharedPrefs.getString(key, null)
+                    is Set<*> -> sharedPrefs.getStringSet(key, null)
                     else -> error("Unexpected parsed preference value: $expected")
                 }
             } catch (e: ClassCastException) {
@@ -121,6 +119,7 @@ public class AssertStorageAction : BackupDeviceAction {
                         "${valueType.uppercase()}: ${e.message}"
                 )
             }
+        // Sets are equal whatever the order of their elements.
         return if (actual == expected) {
             BackupDeviceActionResult.success()
         } else {

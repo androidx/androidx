@@ -54,19 +54,6 @@ package androidx.test.backup {
     field public static final String STATUS = "status";
   }
 
-  @IntDef({androidx.test.backup.BackupDeviceAction.Companion.PHASE_POPULATE, androidx.test.backup.BackupDeviceAction.Companion.PHASE_VERIFY}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface BackupActionPhase {
-    field public static final androidx.test.backup.BackupActionPhase.Companion Companion;
-    field public static final int POPULATE = 1; // 0x1
-    field public static final int VERIFY = 2; // 0x2
-  }
-
-  public static final class BackupActionPhase.Companion {
-    property public static int POPULATE;
-    property public static int VERIFY;
-    field public static final int POPULATE = 1; // 0x1
-    field public static final int VERIFY = 2; // 0x2
-  }
-
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @StringDef(value={androidx.test.backup.BackupActionValues.STATUS_SUCCESS, androidx.test.backup.BackupActionValues.STATUS_FAILURE}, open=true) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface BackupActionStatus {
   }
 
@@ -82,6 +69,7 @@ package androidx.test.backup {
     property public static String VALUE_TYPE_INT;
     property public static String VALUE_TYPE_LONG;
     property public static String VALUE_TYPE_STRING;
+    property public static String VALUE_TYPE_STRING_SET;
     field public static final String DEFAULT_PREF_NAME = "default_prefs";
     field public static final androidx.test.backup.BackupActionValues INSTANCE;
     field public static final String STATUS_FAILURE = "failure";
@@ -94,22 +82,11 @@ package androidx.test.backup {
     field public static final String VALUE_TYPE_INT = "INT";
     field public static final String VALUE_TYPE_LONG = "LONG";
     field public static final String VALUE_TYPE_STRING = "STRING";
+    field public static final String VALUE_TYPE_STRING_SET = "STRING_SET";
   }
 
   public interface BackupDeviceAction {
     method public androidx.test.backup.BackupDeviceActionResult execute(android.content.Context context, androidx.test.backup.BackupDeviceActionArgs args);
-    method @InaccessibleFromKotlin @androidx.test.backup.BackupActionPhase public int getPhase();
-    property @androidx.test.backup.BackupActionPhase public abstract int phase;
-    field public static final androidx.test.backup.BackupDeviceAction.Companion Companion;
-    field public static final int PHASE_POPULATE = 1; // 0x1
-    field public static final int PHASE_VERIFY = 2; // 0x2
-  }
-
-  public static final class BackupDeviceAction.Companion {
-    property public static int PHASE_POPULATE;
-    property public static int PHASE_VERIFY;
-    field public static final int PHASE_POPULATE = 1; // 0x1
-    field public static final int PHASE_VERIFY = 2; // 0x2
   }
 
   public final class BackupDeviceActionArgs {
@@ -161,15 +138,11 @@ package androidx.test.backup.actions {
   public final class AssertStorageAction implements androidx.test.backup.BackupDeviceAction {
     ctor public AssertStorageAction();
     method public androidx.test.backup.BackupDeviceActionResult execute(android.content.Context context, androidx.test.backup.BackupDeviceActionArgs args);
-    method @InaccessibleFromKotlin @androidx.test.backup.BackupActionPhase public int getPhase();
-    property @androidx.test.backup.BackupActionPhase public int phase;
   }
 
   public final class PopulateStorageAction implements androidx.test.backup.BackupDeviceAction {
     ctor public PopulateStorageAction();
     method public androidx.test.backup.BackupDeviceActionResult execute(android.content.Context context, androidx.test.backup.BackupDeviceActionArgs args);
-    method @InaccessibleFromKotlin @androidx.test.backup.BackupActionPhase public int getPhase();
-    property @androidx.test.backup.BackupActionPhase public int phase;
   }
 
 }
