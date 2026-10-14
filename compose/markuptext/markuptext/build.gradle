@@ -33,6 +33,7 @@ plugins {
 
 dependencies {
     api("androidx.compose.runtime:runtime:1.12.0")
+    implementation("androidx.annotation:annotation:1.8.1")
 
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinTestJunit)
