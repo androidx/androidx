@@ -397,6 +397,21 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isNewBorderImplementationEnabled: Boolean = true
+
+    /**
+     * Controls whether the new [border] implementation renders using the bounds of the
+     * [androidx.compose.ui.graphics.Outline] created by the provided shape. Previously, this
+     * behavior was inconsistent and sometimes used the outline bounds, and sometimes used the
+     * Modifier bounds. For most cases, when using high level shapes such as
+     * [androidx.compose.ui.graphics.RectangleShape] and
+     * [androidx.compose.foundation.shape.RoundedCornerShape] this has no effect.
+     *
+     * This flag only takes effect when [isNewBorderImplementationEnabled] is enabled.
+     */
+    // TODO: Remove this flag once it has soaked (b/546074983)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isBorderMatchesOutlineBoundsFixEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
