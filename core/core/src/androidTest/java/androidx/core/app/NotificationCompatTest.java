@@ -3630,6 +3630,10 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertTrue(projectedExtender.getActions().isEmpty());
         Notification notification = new NotificationCompat.Builder(mContext, "test channel")
                 .extend(projectedExtender).build();
+        Bundle projectedExtensions =
+                notification.extras.getBundle(
+                        NotificationCompat.ProjectedExtender.EXTRA_PROJECTED_EXTENDER);
+        assertTrue(projectedExtensions.isEmpty());
         NotificationCompat.ProjectedExtender recoveredExtender =
                 new NotificationCompat.ProjectedExtender(notification);
         assertFalse(recoveredExtender.shouldUseExtenderActions());
@@ -3713,6 +3717,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 resetNotification.extras.getBundle(
                         NotificationCompat.ProjectedExtender.EXTRA_PROJECTED_EXTENDER);
         assertNotNull(resetExtensions);
+        assertTrue(resetExtensions.isEmpty());
         assertFalse(
                 resetExtensions.getBoolean(
                         NotificationCompat.ProjectedExtender.KEY_SHOULD_USE_EXTENDER_ACTIONS));
@@ -3741,6 +3746,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 addThenResetNotification.extras.getBundle(
                         NotificationCompat.ProjectedExtender.EXTRA_PROJECTED_EXTENDER);
         assertNotNull(addThenResetExtensions);
+        assertTrue(addThenResetExtensions.isEmpty());
         assertFalse(
                 addThenResetExtensions.getBoolean(
                         NotificationCompat.ProjectedExtender.KEY_SHOULD_USE_EXTENDER_ACTIONS));
