@@ -22,9 +22,16 @@ package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
 import android.content.res.Configuration
+import android.os.Binder
 import android.os.Build
+import android.os.Parcel
+import android.os.Parcelable
 import android.text.format.DateFormat
+import android.util.Size
+import android.util.SizeF
+import android.util.SparseArray
 import androidx.annotation.RestrictTo
+import androidx.collection.MutableScatterMap
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -33,9 +40,22 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.neverEqualPolicy
+import androidx.compose.runtime.referentialEqualityPolicy
+import androidx.compose.runtime.retain.LocalRetainedValuesStore
+import androidx.compose.runtime.retain.RetainedValuesStore
+import androidx.compose.runtime.retain.retain
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshots.SnapshotMutableState
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.savedstate.SavedState
+import androidx.savedstate.read
+import androidx.savedstate.write
+import java.io.Serializable
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -77,6 +97,44 @@ public suspend fun captureSingleRemoteDocument(
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     writerEvents: WriterEvents = WriterEvents(),
     content: @Composable @RemoteComposable () -> Unit,
+): CapturedDocument =
+    captureSingleRemoteDocument(
+        context = context,
+        creationDisplayInfo = creationDisplayInfo,
+        remoteDensity = remoteDensity,
+        layoutDirection = layoutDirection,
+        clock = clock,
+        profile = profile,
+        writerEvents = writerEvents,
+        savedState = null,
+        retainedValuesStore = null,
+        content = content,
+    )
+
+/**
+ * Like the public [captureSingleRemoteDocument], but with an optional [savedState] used to
+ * initialize and save [LocalSaveableStateRegistry] during the capture so values held with
+ * [rememberSaveable] can be saved and restored across captures, and an optional
+ * [retainedValuesStore] provided as [LocalRetainedValuesStore] so values held with [retain] are
+ * preserved across captures.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public suspend fun captureSingleRemoteDocument(
+    context: Context,
+    creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
+    remoteDensity: RemoteDensity =
+        RemoteDensity(
+            creationDisplayInfo.density.density.rf,
+            creationDisplayInfo.density.fontScale.rf,
+        ),
+    layoutDirection: LayoutDirection =
+        toLayoutDirection(context.resources.configuration.layoutDirection),
+    clock: RemoteClock = RemoteClock.SYSTEM,
+    profile: Profile = RcPlatformProfiles.ANDROIDX,
+    writerEvents: WriterEvents = WriterEvents(),
+    savedState: SavedState? = null,
+    retainedValuesStore: RetainedValuesStore? = null,
+    content: @Composable @RemoteComposable () -> Unit,
 ): CapturedDocument {
     val configuration = context.resources.configuration
     val document =
@@ -88,6 +146,8 @@ public suspend fun captureSingleRemoteDocument(
             profile = profile,
             writerCallback = writerEvents,
             platformImageProvider = AndroidPlatformImageProvider,
+            savedState = savedState,
+            retainedValuesStore = retainedValuesStore,
         ) {
             CompositionLocalProvider(
                 LocalContext provides context,
@@ -160,12 +220,15 @@ public fun captureRemoteDocument(
         clock = clock,
         profile = profile,
         coroutineContext = coroutineContext,
+        savedState = null,
+        retainedValuesStore = null,
         content = content,
     )
 
 /**
  * Like the public [captureRemoteDocument], but with [updateThrottle] deciding how often documents
- * are emitted instead of [CaptureUpdateThrottle.Default].
+ * are emitted instead of [CaptureUpdateThrottle.Default], an optional [savedState], and an optional
+ * [retainedValuesStore].
  *
  * TODO(b/567847315): Make the update strategy public together with [CaptureUpdateThrottle].
  */
@@ -173,7 +236,7 @@ public fun captureRemoteDocument(
 public fun captureRemoteDocument(
     context: Context,
     creationDisplayInfo: RemoteCreationDisplayInfo,
-    updateThrottle: CaptureUpdateThrottle,
+    updateThrottle: CaptureUpdateThrottle = CaptureUpdateThrottle.Default,
     remoteDensity: RemoteDensity =
         RemoteDensity(
             creationDisplayInfo.density.density.rf,
@@ -184,6 +247,8 @@ public fun captureRemoteDocument(
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     coroutineContext: CoroutineContext = Dispatchers.Default,
+    savedState: SavedState? = null,
+    retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> {
     val configuration = context.resources.configuration
@@ -199,6 +264,8 @@ public fun captureRemoteDocument(
         writerCallback = writerEvents,
         platformImageProvider = AndroidPlatformImageProvider,
         coroutineContext = coroutineContext,
+        savedState = savedState,
+        retainedValuesStore = retainedValuesStore,
     ) {
         CompositionLocalProvider(
             LocalContext provides context,
@@ -220,3 +287,99 @@ internal fun platformFontWeightAdjustment(configuration: Configuration): Int =
     } else {
         0
     }
+
+private const val SAVEABLE_STATE_KEY =
+    "androidx.compose.remote.creation.compose.capture.SaveableStateRegistry"
+
+@Suppress("DEPRECATION")
+internal fun SavedState.toSaveableStateMap(): Map<String, List<Any?>>? = read {
+    getParcelableOrNull<ParcelableMapHolder>(SAVEABLE_STATE_KEY)?.map
+}
+
+internal fun SavedState.saveSaveableState(map: Map<String, List<Any?>>) {
+    write {
+        if (map.isEmpty()) {
+            remove(SAVEABLE_STATE_KEY)
+        } else {
+            putParcelable(SAVEABLE_STATE_KEY, ParcelableMapHolder(map))
+        }
+    }
+}
+
+/**
+ * Checks whether [value] can be stored in an Android `Bundle`, matching Compose UI's
+ * `DisposableSaveableStateRegistry`.
+ */
+internal fun canBeSavedToBundle(value: Any): Boolean {
+    if (value is SnapshotMutableState<*>) {
+        val policy = value.policy
+        if (
+            policy !== neverEqualPolicy<Any?>() &&
+                policy !== structuralEqualityPolicy<Any?>() &&
+                policy !== referentialEqualityPolicy<Any?>()
+        ) {
+            return false
+        }
+        val stateValue = value.value
+        return stateValue == null || canBeSavedToBundle(stateValue)
+    }
+    // Kotlin lambdas implement Serializable on the JVM but cannot be saved to a Bundle.
+    if (value is Function<*> && value is Serializable) {
+        return false
+    }
+    if (value is Parcelable || value is Serializable) {
+        return true
+    }
+    @Suppress("USELESS_IS_CHECK") // SizeF is not Parcelable before API 31.
+    if (value is Binder || value is Size || value is SizeF || value is SparseArray<*>) {
+        return true
+    }
+    return false
+}
+
+/**
+ * Holder wrapping a `SaveableStateRegistry` state [Map], matching Compose UI's
+ * `DisposableSaveableStateRegistry.ParcelableMapHolder`.
+ *
+ * Across captures in the same process, [ParcelableMapHolder] is kept by reference in memory inside
+ * the `Bundle`. Across process death, it serializes entries via `Parcel.writeValue`.
+ */
+@Suppress("AsCollectionCall", "BanParcelableUsage", "UNCHECKED_CAST")
+private class ParcelableMapHolder(val map: Map<String, List<Any?>>) : Parcelable {
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(map.size)
+        map.forEach { (key, value) ->
+            parcel.writeString(key)
+            parcel.writeValue(value)
+        }
+    }
+
+    override fun describeContents(): Int = 0
+
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<ParcelableMapHolder> =
+            object : Parcelable.ClassLoaderCreator<ParcelableMapHolder> {
+                override fun createFromParcel(
+                    parcel: Parcel,
+                    loader: ClassLoader?,
+                ): ParcelableMapHolder {
+                    val classLoader = loader ?: ParcelableMapHolder::class.java.classLoader
+                    val size = parcel.readInt()
+                    val map = MutableScatterMap<String, List<Any?>>(initialCapacity = size)
+                    for (i in 0 until size) {
+                        val key = parcel.readString() ?: continue
+                        val value = parcel.readValue(classLoader) as List<Any?>
+                        map[key] = value
+                    }
+                    return ParcelableMapHolder(map.asMap())
+                }
+
+                override fun createFromParcel(parcel: Parcel): ParcelableMapHolder =
+                    createFromParcel(parcel, loader = null)
+
+                override fun newArray(size: Int): Array<ParcelableMapHolder?> = arrayOfNulls(size)
+            }
+    }
+}
