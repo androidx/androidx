@@ -222,6 +222,9 @@ internal constructor(
 
     private val persistContinuationRef = AtomicReference<CancellableContinuation<UUID>?>(null)
 
+    /** Whether [detach] was called. */
+    @Volatile private var isDetached = false
+
     /**
      * Stores this [Anchor] in local storage for cross-session use.
      *
@@ -252,6 +255,7 @@ internal constructor(
 
     /** Detaches this anchor. This anchor will no longer be updated or tracked. */
     public fun detach() {
+        isDetached = true
         xrResourceManager.removeUpdatable(this)
         xrResourceManager.queueAnchorToDetach(this)
     }
@@ -293,7 +297,24 @@ internal constructor(
 
     /**
      * An [IBinder] reference that represents the anchor, or null if the anchor is not exportable.
+     *
+     * The token is requested from the runtime when this is read, not when the anchor is created.
+     * Getting a token exports the anchor, which not every caller needs and which can fail on
+     * runtimes that don't support exporting anchors.
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val anchorToken: IBinder? = runtimeAnchor.anchorToken
+    public val anchorToken: IBinder?
+        get() = runtimeAnchor.anchorToken
+
+    /**
+     * The native `XrSpace` handle that backs this anchor on OpenXR runtimes, or null on other
+     * runtimes.
+     *
+     * Detaching the anchor destroys the `XrSpace`, so the handle is only valid until [detach] is
+     * called, and this returns null from then on. Don't destroy the handle.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public val nativeSpaceHandle: Long?
+        // detach() only queues the runtime anchor's detach for the next update, so check here too.
+        get() = if (isDetached) null else runtimeAnchor.nativeSpaceHandle
 }

@@ -17,8 +17,12 @@
 
 package androidx.xr.arcore
 
+import android.os.Binder
+import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
+import androidx.xr.arcore.runtime.TrackingState as RuntimeTrackingState
 import androidx.xr.arcore.testing.ArCoreTestRule
 import androidx.xr.arcore.testing.TestPlane
 import androidx.xr.runtime.AnchorPersistenceMode
@@ -393,5 +397,94 @@ class AnchorTest {
         val underTest2 = secondAnchorResult.anchor
 
         assertThat(underTest1.hashCode()).isNotEqualTo(underTest2.hashCode())
+    }
+
+    @Test
+    fun constructor_doesNotReadRuntimeAnchorToken() {
+        val runtimeAnchor = TokenCountingRuntimeAnchor(Binder())
+
+        Anchor(runtimeAnchor, xrResourcesManager)
+
+        assertThat(runtimeAnchor.anchorTokenReadCount).isEqualTo(0)
+    }
+
+    @Test
+    fun anchorToken_returnsRuntimeAnchorToken() {
+        val token = Binder()
+        val runtimeAnchor = TokenCountingRuntimeAnchor(token)
+        val underTest = Anchor(runtimeAnchor, xrResourcesManager)
+
+        assertThat(underTest.anchorToken).isSameInstanceAs(token)
+        assertThat(runtimeAnchor.anchorTokenReadCount).isEqualTo(1)
+    }
+
+    @Test
+    fun anchorToken_runtimeAnchorHasNoToken_returnsNull() {
+        val underTest = Anchor(TokenCountingRuntimeAnchor(token = null), xrResourcesManager)
+
+        assertThat(underTest.anchorToken).isNull()
+    }
+
+    @Test
+    fun nativeSpaceHandle_returnsRuntimeAnchorHandle() {
+        val underTest =
+            Anchor(SpaceHandleRuntimeAnchor(nativeSpaceHandle = 42L), xrResourcesManager)
+
+        assertThat(underTest.nativeSpaceHandle).isEqualTo(42L)
+    }
+
+    @Test
+    fun nativeSpaceHandle_runtimeAnchorHasNoHandle_returnsNull() {
+        // TokenCountingRuntimeAnchor doesn't override nativeSpaceHandle, like non-OpenXR runtimes.
+        val underTest = Anchor(TokenCountingRuntimeAnchor(token = null), xrResourcesManager)
+
+        assertThat(underTest.nativeSpaceHandle).isNull()
+    }
+
+    @Test
+    fun nativeSpaceHandle_afterDetach_returnsNull() {
+        val underTest =
+            Anchor(SpaceHandleRuntimeAnchor(nativeSpaceHandle = 42L), xrResourcesManager)
+
+        underTest.detach()
+
+        // The runtime anchor still has its handle until the next update detaches it.
+        assertThat(underTest.runtimeAnchor.nativeSpaceHandle).isEqualTo(42L)
+        assertThat(underTest.nativeSpaceHandle).isNull()
+    }
+
+    /** A [RuntimeAnchor] that counts how many times its [anchorToken] is read. */
+    private class TokenCountingRuntimeAnchor(private val token: IBinder?) : RuntimeAnchor {
+        var anchorTokenReadCount = 0
+            private set
+
+        override val pose: Pose = Pose()
+        override val trackingState: RuntimeTrackingState = RuntimeTrackingState.TRACKING
+        override val persistenceState: RuntimeAnchor.PersistenceState =
+            RuntimeAnchor.PersistenceState.NOT_PERSISTED
+        override val uuid: UUID? = null
+
+        override val anchorToken: IBinder?
+            get() {
+                anchorTokenReadCount++
+                return token
+            }
+
+        override fun detach() {}
+
+        override fun persist() {}
+    }
+
+    /** A [RuntimeAnchor] backed by the given native `XrSpace` handle. */
+    private class SpaceHandleRuntimeAnchor(override val nativeSpaceHandle: Long) : RuntimeAnchor {
+        override val pose: Pose = Pose()
+        override val trackingState: RuntimeTrackingState = RuntimeTrackingState.TRACKING
+        override val persistenceState: RuntimeAnchor.PersistenceState =
+            RuntimeAnchor.PersistenceState.NOT_PERSISTED
+        override val uuid: UUID? = null
+
+        override fun detach() {}
+
+        override fun persist() {}
     }
 }
