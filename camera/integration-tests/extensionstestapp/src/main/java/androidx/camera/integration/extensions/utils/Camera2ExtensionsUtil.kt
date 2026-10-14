@@ -27,6 +27,7 @@ import android.os.Build
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
+import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.integration.extensions.EXTENSION_MODE_NONE
 import java.util.stream.Collectors
@@ -35,6 +36,18 @@ private const val TAG = "Camera2ExtensionsUtil"
 
 /** Util functions for Camera2 Extensions implementation */
 object Camera2ExtensionsUtil {
+
+    private val lock = Any()
+
+    /**
+     * Caches the supported extension modes per camera id.
+     *
+     * Every call to [CameraExtensionCharacteristics.getSupportedExtensions] binds to and unbinds
+     * from the extensions service. Querying it right after a previous extension session is closed
+     * may race with the asynchronous service unbinding and throw "Service not registered" on some
+     * devices (b/570911697), so the result is queried only once per camera id.
+     */
+    @GuardedBy("lock") private val cachedSupportedExtensions = mutableMapOf<String, List<Int>>()
 
     /** Camera2 extension modes */
     @Suppress("DEPRECATION") // EXTENSION_BEAUTY
@@ -99,6 +112,46 @@ object Camera2ExtensionsUtil {
         throw IllegalArgumentException("Can't find camera of lens facing $lensFacing")
     }
 
+    /**
+     * Returns the supported Camera2 extension modes of the camera, excluding the modes that are
+     * known to be broken on the device. The result is cached per camera id.
+     */
+    @RequiresApi(31)
+    @JvmStatic
+    fun getSupportedExtensions(cameraManager: CameraManager, cameraId: String): List<Int> =
+        synchronized(lock) {
+            cachedSupportedExtensions.getOrPut(cameraId) {
+                cameraManager
+                    .getCameraExtensionCharacteristics(cameraId)
+                    .supportedExtensions
+                    .filterNot { isExtensionDisabledByQuirk(cameraId, it) }
+            }
+        }
+
+    /** Returns true if the device is a Samsung Galaxy A52s (SM-A528B). */
+    @JvmStatic
+    fun isSamsungGalaxyA52s(): Boolean =
+        "Samsung".equals(Build.BRAND, ignoreCase = true) &&
+            "SM-A528B".equals(Build.MODEL, ignoreCase = true)
+
+    /**
+     * Returns true if the extension mode is known to be broken on the device.
+     *
+     * This mirrors the Camera2 extension part of CameraX's `ExtensionDisabledQuirk` (which is
+     * internal to camera-extensions and can't be reused here) and must be kept in sync with it.
+     */
+    @Suppress("DEPRECATION") // EXTENSION_BEAUTY
+    @RequiresApi(31)
+    private fun isExtensionDisabledByQuirk(cameraId: String, extensionMode: Int): Boolean {
+        // Extension modes Bokeh and Face Retouch fail on Camera 0 for Samsung Galaxy A52s
+        // (SM-A528B) due to HAL requesting 0 max buffers (b/532825627, b/570911697).
+        if (isSamsungGalaxyA52s() && cameraId == "0") {
+            return extensionMode == CameraExtensionCharacteristics.EXTENSION_BOKEH ||
+                extensionMode == CameraExtensionCharacteristics.EXTENSION_BEAUTY
+        }
+        return false
+    }
+
     @RequiresApi(31)
     @JvmStatic
     fun isCamera2ExtensionModeSupported(
@@ -107,8 +160,7 @@ object Camera2ExtensionsUtil {
         extensionMode: Int,
     ): Boolean {
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        val extensionCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
-        return extensionCharacteristics.supportedExtensions.contains(extensionMode)
+        return getSupportedExtensions(cameraManager, cameraId).contains(extensionMode)
     }
 
     /**

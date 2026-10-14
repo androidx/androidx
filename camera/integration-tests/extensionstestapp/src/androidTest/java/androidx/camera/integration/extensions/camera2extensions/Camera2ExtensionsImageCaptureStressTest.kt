@@ -86,7 +86,7 @@ class Camera2ExtensionsImageCaptureStressTest(private val config: CameraIdExtens
         val (cameraId, extensionMode) = config
 
         val extensionsCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
-        assumeCameraExtensionSupported(extensionMode, extensionsCharacteristics)
+        assumeCameraExtensionSupported(cameraManager, cameraId, extensionMode)
 
         cameraDevice = openCameraDevice(cameraManager, cameraId)
         imageReader = createCaptureImageReader(extensionsCharacteristics, extensionMode)

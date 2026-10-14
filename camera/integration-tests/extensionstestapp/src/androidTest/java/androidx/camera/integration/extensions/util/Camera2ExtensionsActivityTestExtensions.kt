@@ -70,3 +70,39 @@ internal fun ActivityScenario<Camera2ExtensionsActivity>.waitForImageSavedIdle()
         withActivity { deleteSessionImages() }
     }
 }
+
+/**
+ * Executes [block] on the [ActivityScenario], closes it, and waits until the camera has been closed
+ * and its idling resource has become idle.
+ *
+ * Waiting for the camera to be closed ensures that the asynchronous extension session teardown has
+ * completed before the next test starts querying the extensions service. If [block] fails, the
+ * original failure is rethrown and any failure that happens while waiting for the camera to be
+ * closed is attached to it as a suppressed exception.
+ */
+@RequiresApi(31)
+internal inline fun ActivityScenario<Camera2ExtensionsActivity>.useAndWaitForCameraClosed(
+    block: ActivityScenario<Camera2ExtensionsActivity>.() -> Unit
+) {
+    val cameraClosedIdlingResource = withActivity { getCameraClosedIdlingResource() }
+    var blockFailure: Throwable? = null
+    try {
+        use(block)
+    } catch (t: Throwable) {
+        blockFailure = t
+        throw t
+    } finally {
+        try {
+            IdlingRegistry.getInstance().register(cameraClosedIdlingResource)
+            Espresso.onIdle()
+        } catch (t: Throwable) {
+            if (blockFailure != null) {
+                blockFailure.addSuppressed(t)
+            } else {
+                throw t
+            }
+        } finally {
+            IdlingRegistry.getInstance().unregister(cameraClosedIdlingResource)
+        }
+    }
+}
