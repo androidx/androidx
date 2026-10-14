@@ -69,6 +69,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
@@ -1070,6 +1071,11 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
     @VisibleForTesting
     internal fun sharedElementForKey(key: Any): SharedElement? = sharedElements[key]
 
+    // True if any `renderInSharedTransitionScopeOverlay` renderer has a layer.
+    @VisibleForTesting
+    internal val hasRenderInOverlayLayer: Boolean
+        get() = renderers.any { it !is SharedElementEntry && it.layer != null }
+
     override fun Modifier.skipToLookaheadSize(enabled: () -> Boolean): Modifier =
         this.then(SkipToLookaheadSizeElement(isEnabled = enabled))
 
@@ -1555,6 +1561,9 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
 
 internal interface LayerRenderer {
     val parentState: SharedElementEntry?
+
+    // Layer for rendering in overlay. Null when not rendering in overlay.
+    val layer: GraphicsLayer?
 
     fun drawInOverlay(drawScope: DrawScope, graphicsContext: GraphicsContext)
 

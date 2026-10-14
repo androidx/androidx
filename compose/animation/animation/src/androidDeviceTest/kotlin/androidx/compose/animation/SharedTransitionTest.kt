@@ -5054,6 +5054,95 @@ class SharedTransitionTest {
         }
     }
 
+    // Verify the layer is created only when rendering in overlay, and released when rendering
+    // in place.
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testLayerLazilyCreatedForRenderInSharedTransitionScopeOverlay() {
+        var renderInOverlay by mutableStateOf(false)
+        var scope: SharedTransitionScopeImpl? = null
+        val parentTag = "STL"
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                SharedTransitionLayout(
+                    Modifier.size(20.dp).testTag(parentTag).background(Color.White)
+                ) {
+                    scope = this@SharedTransitionLayout as SharedTransitionScopeImpl
+                    Box(
+                        Modifier.renderInSharedTransitionScopeOverlay { renderInOverlay }
+                            .size(10.dp)
+                            .background(Color.Red)
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        assertFalse(scope!!.hasRenderInOverlayLayer)
+
+        // Render in place: no layer.
+        rule.onNodeWithTag(parentTag).captureToImage().assertPixels {
+            if (it.x < 10 && it.y < 10) Color.Red else Color.White
+        }
+        assertFalse(scope!!.hasRenderInOverlayLayer)
+
+        // Render in overlay: layer created.
+        renderInOverlay = true
+        rule.waitForIdle()
+        rule.onNodeWithTag(parentTag).captureToImage().assertPixels {
+            if (it.x < 10 && it.y < 10) Color.Red else Color.White
+        }
+        assertTrue(scope!!.hasRenderInOverlayLayer)
+
+        // Back to rendering in place: layer released.
+        renderInOverlay = false
+        rule.waitForIdle()
+        rule.onNodeWithTag(parentTag).captureToImage().assertPixels {
+            if (it.x < 10 && it.y < 10) Color.Red else Color.White
+        }
+        assertFalse(scope!!.hasRenderInOverlayLayer)
+    }
+
+    // Verify the overlay creates the layer if it draws before the content. Content draw is
+    // skipped, so only the overlay can create the layer.
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testLayerCreatedByOverlayWhenContentDrawIsSkipped() {
+        var renderInOverlay by mutableStateOf(false)
+        var scope: SharedTransitionScopeImpl? = null
+        val parentTag = "STL"
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                SharedTransitionLayout(
+                    Modifier.size(20.dp).testTag(parentTag).background(Color.White)
+                ) {
+                    scope = this@SharedTransitionLayout as SharedTransitionScopeImpl
+                    Box(
+                        Modifier.drawWithContent {
+                                // Skip drawing the content.
+                            }
+                            .renderInSharedTransitionScopeOverlay { renderInOverlay }
+                            .size(10.dp)
+                            .background(Color.Red)
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(parentTag).captureToImage()
+        assertFalse(scope!!.hasRenderInOverlayLayer)
+
+        renderInOverlay = true
+        rule.waitForIdle()
+        rule.onNodeWithTag(parentTag).captureToImage()
+
+        // Layer created by the overlay.
+        assertTrue(scope!!.hasRenderInOverlayLayer)
+    }
+
     @Test
     fun testIsTransitionActiveWithoutRemovingSharedElementEntriesInLazy() {
         // Intentionally set up a scenario where the shared element entry is first added
