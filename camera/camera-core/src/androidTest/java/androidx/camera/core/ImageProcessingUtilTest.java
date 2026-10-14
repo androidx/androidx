@@ -209,7 +209,14 @@ public class ImageProcessingUtilTest {
 
     @Test
     public void convertYuvToJpegBytesIntoSurface_sizeAndRotationAreCorrect() throws IOException {
+        // Arrange: use 32x16 so that YuvImage.compressToJpeg() (which calls libjpeg's
+        // jpeg_write_raw_data() with 16-row vertical iMCUs for YUV 4:2:0) has a full 16-row
+        // vertical iMCU and does not leave trailing row pointers as NULL on MediaTek/OPPO devices.
+        final int width = 32;
+        final int height = 16;
         final int expectedRotation = 270;
+        closeTestResources();
+        createTestResources(width, height, expectedRotation);
 
         // Act: convert it into JPEG and write into the surface.
         ImageProcessingUtil.convertYuvToJpegBytesIntoSurface(mYUVImageProxy,
@@ -226,8 +233,8 @@ public class ImageProcessingUtilTest {
         // is correct.
         assertThat(imageProxy.getFormat()).isEqualTo(ImageFormat.JPEG);
         Bitmap bitmap = BitmapFactory.decodeByteArray(outputBytes, 0, outputBytes.length);
-        assertThat(bitmap.getWidth()).isEqualTo(WIDTH);
-        assertThat(bitmap.getHeight()).isEqualTo(HEIGHT);
+        assertThat(bitmap.getWidth()).isEqualTo(width);
+        assertThat(bitmap.getHeight()).isEqualTo(height);
         Exif exif = Exif.createFromImageProxy(imageProxy);
         assertThat(exif.getRotation()).isEqualTo(expectedRotation);
         imageProxy.close();
