@@ -568,7 +568,7 @@ public class RemoteCanvas(
                     dstBottom.floatId,
                     scaleType,
                     scaleFactor.floatId,
-                    contentDescription ?: "",
+                    contentDescription,
                 )
             }
         buffer.addRoots(
