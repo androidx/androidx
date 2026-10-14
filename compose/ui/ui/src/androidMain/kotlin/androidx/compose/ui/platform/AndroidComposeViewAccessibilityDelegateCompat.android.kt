@@ -1893,7 +1893,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val parentInRoot =
             scrollableAncestor.layoutInfo.coordinates.parentLayoutCoordinates?.positionInRoot()
                 ?: Offset.Zero
-        val viewport = viewportInParent.translate(parentInRoot)
+        val outerViewport = viewportInParent.translate(parentInRoot)
+        val viewport =
+            if (AndroidComposeUiFlags.isShowOnScreenContentPaddingEnabled) {
+                insetViewportByContentPadding(scrollableAncestor, outerViewport)
+            } else {
+                outerViewport
+            }
         val target = Rect(positionInRoot + offsetAdjustment, size.toSize())
 
         // Given the desired scroll value to align either side of the target with the
@@ -1907,6 +1913,66 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val dy = scrollDelta(target.top - viewport.top, target.bottom - viewport.bottom)
 
         return Offset(dx, dy)
+    }
+
+    /**
+     * Insets the [viewport] of [scrollableAncestor] by its `beforeContentPadding` and
+     * `afterContentPadding` (if provided via [getScrollViewportPadding]), accounting for
+     * `reverseScrolling` and layout direction (RTL/LTR).
+     */
+    private fun insetViewportByContentPadding(
+        scrollableAncestor: SemanticsNode,
+        viewport: Rect,
+    ): Rect {
+        val viewportPadding =
+            getScrollViewportPadding(scrollableAncestor.unmergedConfig) ?: return viewport
+        val xScrollState =
+            scrollableAncestor.unmergedConfig.getOrNull(
+                SemanticsProperties.HorizontalScrollAxisRange
+            )
+        val yScrollState =
+            scrollableAncestor.unmergedConfig.getOrNull(SemanticsProperties.VerticalScrollAxisRange)
+        var leftPadding = 0f
+        var rightPadding = 0f
+        var topPadding = 0f
+        var bottomPadding = 0f
+        if (xScrollState != null) {
+            val reverse = xScrollState.reverseScrolling != scrollableAncestor.isRtl
+            leftPadding =
+                if (reverse) {
+                    viewportPadding.afterContentPadding
+                } else {
+                    viewportPadding.beforeContentPadding
+                }
+            rightPadding =
+                if (reverse) {
+                    viewportPadding.beforeContentPadding
+                } else {
+                    viewportPadding.afterContentPadding
+                }
+        }
+        if (yScrollState != null) {
+            topPadding =
+                if (yScrollState.reverseScrolling) {
+                    viewportPadding.afterContentPadding
+                } else {
+                    viewportPadding.beforeContentPadding
+                }
+            bottomPadding =
+                if (yScrollState.reverseScrolling) {
+                    viewportPadding.beforeContentPadding
+                } else {
+                    viewportPadding.afterContentPadding
+                }
+        }
+        val hasHorizontalRoom = viewport.width > leftPadding + rightPadding
+        val hasVerticalRoom = viewport.height > topPadding + bottomPadding
+        return Rect(
+            left = if (hasHorizontalRoom) viewport.left + leftPadding else viewport.left,
+            top = if (hasVerticalRoom) viewport.top + topPadding else viewport.top,
+            right = if (hasHorizontalRoom) viewport.right - rightPadding else viewport.right,
+            bottom = if (hasVerticalRoom) viewport.bottom - bottomPadding else viewport.bottom,
+        )
     }
 
     private fun addExtraDataToAccessibilityNodeInfoHelper(

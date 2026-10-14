@@ -25,11 +25,12 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.collectionInfo
-import androidx.compose.ui.semantics.getScrollViewportLength
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.indexForKey
 import androidx.compose.ui.semantics.isTraversalGroup
@@ -189,7 +190,24 @@ private class LazyLayoutSemanticsModifierNode(
 
         scrollToIndexAction?.let { scrollToIndex(action = it) }
 
-        getScrollViewportLength { (state.viewport - state.contentPadding).toFloat() }
+        // SemanticsActions.GetScrollViewportLength uses a MutableList<Float> out-parameter
+        // because AccessibilityAction<T : Function<Boolean>> requires action lambdas to return
+        // Boolean.
+        // - Index 0: active viewport length (viewport - beforeContentPadding - afterContentPadding)
+        //   for page-scroll actions, matching SemanticsPropertyReceiver.getScrollViewportLength.
+        // - Index 1: beforeContentPadding in pixels along the scroll axis.
+        // - Index 2: afterContentPadding in pixels along the scroll axis.
+        // Indices 1 and 2 are read by getScrollViewportPadding in SemanticsUtils.android.kt so
+        // ACTION_SHOW_ON_SCREEN can inset the scrollable viewport bounds.
+        this[SemanticsActions.GetScrollViewportLength] =
+            AccessibilityAction(null) { result ->
+                val beforePadding = state.beforeContentPadding.toFloat()
+                val afterPadding = state.afterContentPadding.toFloat()
+                result.add(state.viewport.toFloat() - beforePadding - afterPadding)
+                result.add(beforePadding)
+                result.add(afterPadding)
+                true
+            }
 
         collectionInfo = this@LazyLayoutSemanticsModifierNode.collectionInfo
     }
@@ -221,7 +239,8 @@ private class LazyLayoutSemanticsModifierNode(
 
 internal interface LazyLayoutSemanticState {
     val viewport: Int
-    val contentPadding: Int
+    val beforeContentPadding: Int
+    val afterContentPadding: Int
     val scrollOffset: Float
     val maxScrollOffset: Float
 
