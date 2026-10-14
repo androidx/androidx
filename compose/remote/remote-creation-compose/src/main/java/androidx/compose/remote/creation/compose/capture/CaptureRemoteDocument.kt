@@ -38,6 +38,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.snapshots.ObserverHandle
@@ -113,6 +115,7 @@ public suspend fun captureSingleRemoteDocument(
     writerCallback: Any? = null,
     platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
     savedState: SavedState? = null,
+    retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ): ByteArray {
     val rootNode = RemoteRootNode()
@@ -158,8 +161,13 @@ public suspend fun captureSingleRemoteDocument(
                     LocalLifecycleOwner provides lifecycleOwner,
                     LocalSavedStateRegistryOwner provides lifecycleOwner,
                     LocalSaveableStateRegistry provides saveableStateRegistry,
-                    content = content,
-                )
+                ) {
+                    if (retainedValuesStore != null) {
+                        LocalRetainedValuesStoreProvider(retainedValuesStore, content)
+                    } else {
+                        content()
+                    }
+                }
             }
         }
 
@@ -170,7 +178,7 @@ public suspend fun captureSingleRemoteDocument(
         // call. writeTracker only records this capture's own writes, see CaptureWriteTracker.
         coroutineScope {
             lateinit var frameClock: BroadcastFrameClock
-            val frameCounter = FrameCounter()
+            val frameCounter = FrameCounter(recomposer, recomposerDispatcher)
             frameClock = BroadcastFrameClock {
                 launch(recomposerDispatcher) { frameCounter.sendFrame(frameClock, clock) }
             }
@@ -290,6 +298,7 @@ public fun captureRemoteDocument(
     platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
     coroutineContext: CoroutineContext = Dispatchers.Default,
     savedState: SavedState? = null,
+    retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> = flow {
     require(RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled) {
@@ -340,14 +349,19 @@ public fun captureRemoteDocument(
                     LocalLifecycleOwner provides lifecycleOwner,
                     LocalSavedStateRegistryOwner provides lifecycleOwner,
                     LocalSaveableStateRegistry provides saveableStateRegistry,
-                    content = content,
-                )
+                ) {
+                    if (retainedValuesStore != null) {
+                        LocalRetainedValuesStoreProvider(retainedValuesStore, content)
+                    } else {
+                        content()
+                    }
+                }
             }
         }
 
         coroutineScope {
             lateinit var frameClock: BroadcastFrameClock
-            val frameCounter = FrameCounter()
+            val frameCounter = FrameCounter(recomposer, recomposerDispatcher)
             // Frames are sent as soon as an awaiter appears. The Recomposer itself awaits frames on
             // this clock (runRecomposeAndApplyChanges below), so pacing here with a time-based
             // delay would add latency to every recomposition and stall entirely on hosts whose
@@ -492,7 +506,10 @@ private const val MAX_IDLE_ITERATIONS = 100
  * that never stops requesting frames. Every frame for a capture must be sent through [sendFrame],
  * including those from the [BroadcastFrameClock]'s `onNewAwaiters` callback.
  */
-private class FrameCounter {
+private class FrameCounter(
+    private val recomposer: Recomposer,
+    private val recomposerDispatcher: CoroutineContext,
+) {
     private val sent = AtomicLong()
     @Volatile private var budget: Budget? = null
 
@@ -513,6 +530,33 @@ private class FrameCounter {
             }
         }
         frameClock.sendFrame(clock.nanoTime())
+        refreshRecomposerStateIfIdle()
+        if (recomposer.currentState.value == Recomposer.State.PendingWork) {
+            val dispatcher = recomposerDispatcher[ContinuationInterceptor] as? CoroutineDispatcher
+            if (dispatcher != null && dispatcher.isDispatchNeeded(recomposerDispatcher)) {
+                dispatcher.dispatch(
+                    recomposerDispatcher,
+                    Runnable { refreshRecomposerStateIfIdle() },
+                )
+            }
+        }
+    }
+
+    /**
+     * `Recomposer.runRecomposeAndApplyChanges` updates `currentState` inside `withFrameNanos`
+     * before `NextFrameEndCallbackQueue.markFrameComplete()` drains frame-end callbacks (such as
+     * `LocalRetainedValuesStoreProvider`), leaving `currentState` at `PendingWork` even after
+     * `hasPendingWork` becomes `false`. Toggling `pauseCompositionFrameClock` /
+     * `resumeCompositionFrameClock` re-runs `deriveStateLocked()` once `hasPendingWork` is `false`.
+     */
+    fun refreshRecomposerStateIfIdle() {
+        if (
+            recomposer.currentState.value == Recomposer.State.PendingWork &&
+                !recomposer.hasPendingWork
+        ) {
+            recomposer.pauseCompositionFrameClock()
+            recomposer.resumeCompositionFrameClock()
+        }
     }
 
     /**
@@ -659,6 +703,7 @@ private suspend fun awaitRecomposerQuiescence(
         frameCounter.withFrameBudget(MAX_FRAMES) {
             var idleIterations = 0
             while (idleIterations < maxIterations) {
+                frameCounter.refreshRecomposerStateIfIdle()
                 recomposer.currentState.first { it == Recomposer.State.Idle }
                 if (shouldYield) yield()
                 while (frameClock.hasAwaiters) {
@@ -672,6 +717,7 @@ private suspend fun awaitRecomposerQuiescence(
                     return@withFrameBudget QuiescenceResult.ApplyNotificationsTimedOut
                 }
                 writeTracker.awaitDelivery(canYield = shouldYield)
+                frameCounter.refreshRecomposerStateIfIdle()
                 val isQuiescent =
                     recomposer.currentState.value == Recomposer.State.Idle &&
                         !recomposer.hasPendingWork &&

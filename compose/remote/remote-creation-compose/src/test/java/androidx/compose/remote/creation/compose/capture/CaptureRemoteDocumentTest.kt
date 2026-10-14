@@ -48,6 +48,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.ManagedRetainedValuesStore
+import androidx.compose.runtime.retain.RetainedEffect
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
@@ -1534,6 +1537,133 @@ class CaptureRemoteDocumentTest {
 
             assertDocumentContainsText(firstCollection, "FlowSaved 0")
             assertDocumentContainsText(secondCollection, "FlowSaved 1")
+        }
+
+    @Test
+    fun captureSingleRemoteDocument_withRetainedValuesStore_persistsRetainedValueAndEffectAcrossCaptures() =
+        runTest(UnconfinedTestDispatcher()) {
+            val store = ManagedRetainedValuesStore()
+            var instantiateCount = 0
+            var effectStartCount = 0
+            var effectRetireCount = 0
+            val content: @Composable @RemoteComposable () -> Unit = {
+                val retained = retain {
+                    instantiateCount++
+                    object {
+                        var count by mutableIntStateOf(0)
+                    }
+                }
+                RetainedEffect(Unit) {
+                    effectStartCount++
+                    onRetire { effectRetireCount++ }
+                }
+                LaunchedEffect(Unit) { retained.count++ }
+                RemoteText("Retained ${retained.count}".rs)
+            }
+
+            val first =
+                captureSingleRemoteDocument(
+                    context = context,
+                    retainedValuesStore = store,
+                    content = content,
+                )
+            val second =
+                captureSingleRemoteDocument(
+                    context = context,
+                    retainedValuesStore = store,
+                    content = content,
+                )
+
+            assertDocumentContainsText(first.toCoreDocument(), "Retained 1")
+            assertDocumentContainsText(second.toCoreDocument(), "Retained 2")
+            assertEquals(1, instantiateCount)
+            assertEquals(1, effectStartCount)
+            assertEquals(0, effectRetireCount)
+
+            store.dispose()
+            assertEquals(1, effectRetireCount)
+        }
+
+    @Test
+    fun captureSingleRemoteDocument_withRetainedValuesStore_recompositionRetiresRemovedValue() =
+        runTest(UnconfinedTestDispatcher()) {
+            val store = ManagedRetainedValuesStore()
+            var retiredCount = 0
+
+            captureSingleRemoteDocument(context, retainedValuesStore = store) {
+                var showChild by remember { mutableStateOf(true) }
+                LaunchedEffect(Unit) { showChild = false }
+                if (showChild) {
+                    RetainedEffect(Unit) { onRetire { retiredCount++ } }
+                    RemoteText("Child".rs)
+                }
+            }
+
+            assertEquals(1, retiredCount)
+            store.dispose()
+            assertEquals(1, retiredCount)
+        }
+
+    @Test
+    fun captureSingleRemoteDocument_withRetainedValuesStore_unconsumedExitedValueRetiredOnNextCapture() =
+        runTest(UnconfinedTestDispatcher()) {
+            val store = ManagedRetainedValuesStore()
+            var retiredCount = 0
+            var showBranch = true
+            val content: @Composable @RemoteComposable () -> Unit = {
+                if (showBranch) {
+                    RetainedEffect(Unit) { onRetire { retiredCount++ } }
+                }
+                RemoteText("Branch:$showBranch".rs)
+            }
+
+            captureSingleRemoteDocument(
+                context = context,
+                retainedValuesStore = store,
+                content = content,
+            )
+            assertEquals(0, retiredCount)
+
+            showBranch = false
+            captureSingleRemoteDocument(
+                context = context,
+                retainedValuesStore = store,
+                content = content,
+            )
+            assertEquals(1, retiredCount)
+        }
+
+    @Test
+    fun captureRemoteDocument_withRetainedValuesStore_persistsAcrossFlowCollections() =
+        runTest(UnconfinedTestDispatcher()) {
+            val store = ManagedRetainedValuesStore()
+            val displayInfo = createCreationDisplayInfo(context)
+            var retiredCount = 0
+            val flow =
+                captureRemoteDocument(
+                    context = context,
+                    creationDisplayInfo = displayInfo,
+                    retainedValuesStore = store,
+                ) {
+                    val holder = retain {
+                        object {
+                            var visits = 0
+                        }
+                    }
+                    RetainedEffect(Unit) { onRetire { retiredCount++ } }
+                    val visit = remember { ++holder.visits }
+                    RemoteText("Visit $visit".rs)
+                }
+
+            val firstCollection = flow.first().toCoreDocument()
+            val secondCollection = flow.first().toCoreDocument()
+
+            assertDocumentContainsText(firstCollection, "Visit 1")
+            assertDocumentContainsText(secondCollection, "Visit 2")
+            assertEquals(0, retiredCount)
+
+            store.dispose()
+            assertEquals(1, retiredCount)
         }
 }
 

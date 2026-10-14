@@ -42,6 +42,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.referentialEqualityPolicy
+import androidx.compose.runtime.retain.LocalRetainedValuesStore
+import androidx.compose.runtime.retain.RetainedValuesStore
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotMutableState
@@ -104,13 +107,16 @@ public suspend fun captureSingleRemoteDocument(
         profile = profile,
         writerEvents = writerEvents,
         savedState = null,
+        retainedValuesStore = null,
         content = content,
     )
 
 /**
  * Like the public [captureSingleRemoteDocument], but with an optional [savedState] used to
  * initialize and save [LocalSaveableStateRegistry] during the capture so values held with
- * [rememberSaveable] can be saved and restored across captures.
+ * [rememberSaveable] can be saved and restored across captures, and an optional
+ * [retainedValuesStore] provided as [LocalRetainedValuesStore] so values held with [retain] are
+ * preserved across captures.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend fun captureSingleRemoteDocument(
@@ -127,6 +133,7 @@ public suspend fun captureSingleRemoteDocument(
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     writerEvents: WriterEvents = WriterEvents(),
     savedState: SavedState? = null,
+    retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ): CapturedDocument {
     val configuration = context.resources.configuration
@@ -140,6 +147,7 @@ public suspend fun captureSingleRemoteDocument(
             writerCallback = writerEvents,
             platformImageProvider = AndroidPlatformImageProvider,
             savedState = savedState,
+            retainedValuesStore = retainedValuesStore,
         ) {
             CompositionLocalProvider(
                 LocalContext provides context,
@@ -213,12 +221,14 @@ public fun captureRemoteDocument(
         profile = profile,
         coroutineContext = coroutineContext,
         savedState = null,
+        retainedValuesStore = null,
         content = content,
     )
 
 /**
  * Like the public [captureRemoteDocument], but with [updateThrottle] deciding how often documents
- * are emitted instead of [CaptureUpdateThrottle.Default] and an optional [savedState].
+ * are emitted instead of [CaptureUpdateThrottle.Default], an optional [savedState], and an optional
+ * [retainedValuesStore].
  *
  * TODO(b/567847315): Make the update strategy public together with [CaptureUpdateThrottle].
  */
@@ -238,6 +248,7 @@ public fun captureRemoteDocument(
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     coroutineContext: CoroutineContext = Dispatchers.Default,
     savedState: SavedState? = null,
+    retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> {
     val configuration = context.resources.configuration
@@ -254,6 +265,7 @@ public fun captureRemoteDocument(
         platformImageProvider = AndroidPlatformImageProvider,
         coroutineContext = coroutineContext,
         savedState = savedState,
+        retainedValuesStore = retainedValuesStore,
     ) {
         CompositionLocalProvider(
             LocalContext provides context,
