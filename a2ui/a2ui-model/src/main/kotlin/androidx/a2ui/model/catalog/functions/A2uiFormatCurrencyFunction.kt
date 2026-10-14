@@ -26,6 +26,7 @@ import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicBooleanSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicNumberSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
+import androidx.annotation.RestrictTo
 import java.text.NumberFormat
 import java.util.Currency
 
@@ -39,40 +40,8 @@ public class A2uiFormatCurrencyFunction
 public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocaleProvider.Default) :
     A2uiFunction {
 
-    override val definition: A2uiFunctionDefinition =
-        object : A2uiFunctionDefinition {
-            override val name: String = "formatCurrency"
-
-            override val description: String = """Formats a number as a currency string."""
-
-            override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
-
-            override val argumentSchema: A2uiSchema =
-                A2uiObjectSchema(
-                    properties =
-                        mapOf(
-                            ARG_VALUE_KEY to
-                                A2uiDynamicNumberSchema(description = """The monetary amount."""),
-                            ARG_CURRENCY_KEY to
-                                A2uiDynamicStringSchema(
-                                    description =
-                                        """The ISO 4217 currency code (e.g., 'USD', 'EUR')."""
-                                ),
-                            ARG_DECIMALS_KEY to
-                                A2uiDynamicNumberSchema(
-                                    description =
-                                        """Optional. The number of decimal places to show. Defaults to 0 or 2 depending on locale."""
-                                ),
-                            ARG_GROUPING_KEY to
-                                A2uiDynamicBooleanSchema(
-                                    description =
-                                        """Optional. If true, uses locale-specific grouping separators (e.g. '1,000'). If false, returns raw digits (e.g. '1000'). Defaults to true."""
-                                ),
-                        ),
-                    required = setOf(ARG_CURRENCY_KEY, ARG_VALUE_KEY),
-                    isAdditionalPropertiesAllowed = false,
-                )
-        }
+    override val definition: A2uiFunctionDefinition
+        get() = DEFINITION
 
     /**
      * Formats the monetary number into a currency string based on [args].
@@ -82,35 +51,53 @@ public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocalePr
      *   payloads and resolving data bindings
      * @return the formatted currency string, or null if required values are missing
      */
-    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val value = A2uiFunctionArgParser.getDoubleArg(args, ARG_VALUE_KEY)
-        val currencyCode = A2uiFunctionArgParser.getStringArg(args, ARG_CURRENCY_KEY)
-        val decimals =
-            if (args.containsKey(ARG_DECIMALS_KEY)) {
-                A2uiFunctionArgParser.getDoubleArg(args, ARG_DECIMALS_KEY).toInt()
-            } else {
-                null
-            }
-        val grouping =
-            if (args.containsKey(ARG_GROUPING_KEY)) {
-                A2uiFunctionArgParser.getBooleanArg(args, ARG_GROUPING_KEY)
-            } else {
-                true
-            }
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? =
+        typedExecute(
+            value = A2uiFunctionArgParser.getDoubleArg(args, ARG_VALUE_KEY),
+            currency = A2uiFunctionArgParser.getStringArg(args, ARG_CURRENCY_KEY),
+            decimals =
+                if (args.containsKey(ARG_DECIMALS_KEY)) {
+                    A2uiFunctionArgParser.getDoubleArg(args, ARG_DECIMALS_KEY).toInt()
+                } else {
+                    null
+                },
+            grouping =
+                if (args.containsKey(ARG_GROUPING_KEY)) {
+                    A2uiFunctionArgParser.getBooleanArg(args, ARG_GROUPING_KEY)
+                } else {
+                    true
+                },
+        )
 
+    /**
+     * Formats [value] as an amount of [currency] in the current locale.
+     *
+     * @param value the amount to format
+     * @param currency the ISO 4217 currency code, case-insensitive
+     * @param decimals the number of decimal places to show, or null for the locale default
+     * @param grouping whether to use locale-specific grouping separators
+     * @return the formatted currency string
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun typedExecute(
+        value: Double,
+        currency: String,
+        decimals: Int?,
+        grouping: Boolean,
+    ): String {
         val locale = localeProvider.getLocale()
-        val currency =
+        val currencyInstance =
             try {
-                Currency.getInstance(currencyCode.uppercase())
+                Currency.getInstance(currency.uppercase())
             } catch (e: Exception) {
                 throw A2uiException.A2uiRuntimeException(
-                    "Function ${definition.name} was invoked with an invalid currency code: '$currencyCode'"
+                    "Function ${definition.name} was invoked with an invalid currency code: '$currency'"
                 )
             }
         val formatter =
             NumberFormat.getCurrencyInstance(locale).apply {
                 isGroupingUsed = grouping
-                this.currency = currency
+                this.currency = currencyInstance
                 if (decimals != null) {
                     minimumFractionDigits = decimals
                     maximumFractionDigits = decimals
@@ -120,6 +107,45 @@ public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocalePr
     }
 
     public companion object {
+        /** The definition of the `formatCurrency` function in the A2UI basic catalog. */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public val DEFINITION: A2uiFunctionDefinition =
+            object : A2uiFunctionDefinition {
+                override val name: String = "formatCurrency"
+
+                override val description: String = """Formats a number as a currency string."""
+
+                override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
+
+                override val argumentSchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties =
+                            mapOf(
+                                ARG_VALUE_KEY to
+                                    A2uiDynamicNumberSchema(
+                                        description = """The monetary amount."""
+                                    ),
+                                ARG_CURRENCY_KEY to
+                                    A2uiDynamicStringSchema(
+                                        description =
+                                            """The ISO 4217 currency code (e.g., 'USD', 'EUR')."""
+                                    ),
+                                ARG_DECIMALS_KEY to
+                                    A2uiDynamicNumberSchema(
+                                        description =
+                                            """Optional. The number of decimal places to show. Defaults to 0 or 2 depending on locale."""
+                                    ),
+                                ARG_GROUPING_KEY to
+                                    A2uiDynamicBooleanSchema(
+                                        description =
+                                            """Optional. If true, uses locale-specific grouping separators (e.g. '1,000'). If false, returns raw digits (e.g. '1000'). Defaults to true."""
+                                    ),
+                            ),
+                        required = setOf(ARG_CURRENCY_KEY, ARG_VALUE_KEY),
+                        isAdditionalPropertiesAllowed = false,
+                    )
+            }
+
         @JvmField public val INSTANCE: A2uiFormatCurrencyFunction = A2uiFormatCurrencyFunction()
 
         private const val ARG_VALUE_KEY: String = "value"

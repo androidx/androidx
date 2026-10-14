@@ -61,6 +61,23 @@ class A2uiLengthFunctionTest {
         }
     }
 
+    @Test
+    fun definition_returnsCompanionDefinition() {
+        assertThat(A2uiLengthFunction.INSTANCE.definition)
+            .isSameInstanceAs(A2uiLengthFunction.DEFINITION)
+        assertThat(A2uiLengthFunction.DEFINITION.name).isEqualTo("length")
+    }
+
+    @Test
+    fun typedExecute_checksBoundsInclusively() {
+        val function = A2uiLengthFunction.INSTANCE
+
+        assertThat(function.typedExecute(value = "hello", min = 0, max = Int.MAX_VALUE)).isTrue()
+        assertThat(function.typedExecute(value = "hello", min = 5, max = 5)).isTrue()
+        assertThat(function.typedExecute(value = "hello", min = 6, max = Int.MAX_VALUE)).isFalse()
+        assertThat(function.typedExecute(value = "hello", min = 0, max = 4)).isFalse()
+    }
+
     private companion object {
         private const val ARG_VALUE = "value"
         private const val ARG_MIN = "min"

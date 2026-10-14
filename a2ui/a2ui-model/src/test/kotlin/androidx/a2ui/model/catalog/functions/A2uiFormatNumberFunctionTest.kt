@@ -117,6 +117,23 @@ class A2uiFormatNumberFunctionTest {
         }
     }
 
+    @Test
+    fun definition_returnsCompanionDefinition() {
+        assertThat(A2uiFormatNumberFunction { Locale.US }.definition)
+            .isSameInstanceAs(A2uiFormatNumberFunction.DEFINITION)
+        assertThat(A2uiFormatNumberFunction.DEFINITION.name).isEqualTo("formatNumber")
+    }
+
+    @Test
+    fun typedExecute_evaluatesCorrectly() {
+        val function = A2uiFormatNumberFunction(localeProvider = { Locale.US })
+
+        assertThat(function.typedExecute(value = 1234.5, decimals = 2, grouping = true))
+            .isEqualTo("1,234.50")
+        assertThat(function.typedExecute(value = 1234.5, decimals = null, grouping = false))
+            .isEqualTo("1234.5")
+    }
+
     private companion object {
         private const val ARG_VALUE = "value"
         private const val ARG_GROUPING = "grouping"

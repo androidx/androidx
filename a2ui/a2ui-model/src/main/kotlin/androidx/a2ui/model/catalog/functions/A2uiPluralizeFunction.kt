@@ -24,6 +24,7 @@ import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicNumberSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
+import androidx.annotation.RestrictTo
 import java.util.Locale
 
 /**
@@ -60,59 +61,8 @@ public constructor(
     private val localeProvider: A2uiLocaleProvider = A2uiLocaleProvider.Default,
 ) : A2uiFunction {
 
-    override val definition: A2uiFunctionDefinition =
-        object : A2uiFunctionDefinition {
-            override val name: String = "pluralize"
-
-            override val description: String =
-                """Returns a localized string based on the Common Locale Data Repository (CLDR) plural category of the count (zero, one, two, few, many, other). Requires an 'other' fallback. For English, just use 'one' and 'other'."""
-
-            override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
-
-            override val argumentSchema: A2uiSchema =
-                A2uiObjectSchema(
-                    properties =
-                        mapOf(
-                            ARG_VALUE_KEY to
-                                A2uiDynamicNumberSchema(
-                                    description =
-                                        """The numeric value used to determine the plural category."""
-                                ),
-                            ARG_ZERO_KEY to
-                                A2uiDynamicStringSchema(
-                                    description =
-                                        """String for the 'zero' category (e.g., 0 items)."""
-                                ),
-                            ARG_ONE_KEY to
-                                A2uiDynamicStringSchema(
-                                    description =
-                                        """String for the 'one' category (e.g., 1 item)."""
-                                ),
-                            ARG_TWO_KEY to
-                                A2uiDynamicStringSchema(
-                                    description =
-                                        """String for the 'two' category (used in Arabic, Welsh, etc.)."""
-                                ),
-                            ARG_FEW_KEY to
-                                A2uiDynamicStringSchema(
-                                    description =
-                                        """String for the 'few' category (e.g., small groups in Slavic languages)."""
-                                ),
-                            ARG_MANY_KEY to
-                                A2uiDynamicStringSchema(
-                                    description =
-                                        """String for the 'many' category (e.g., large groups in various languages)."""
-                                ),
-                            ARG_OTHER_KEY to
-                                A2uiDynamicStringSchema(
-                                    description =
-                                        """The default/fallback string (used for general plural cases)."""
-                                ),
-                        ),
-                    required = setOf(ARG_VALUE_KEY, ARG_OTHER_KEY),
-                    isAdditionalPropertiesAllowed = false,
-                )
-        }
+    override val definition: A2uiFunctionDefinition
+        get() = DEFINITION
 
     /**
      * Returns the matching plural form based on count in [args].
@@ -122,28 +72,39 @@ public constructor(
      *   payloads and resolving data bindings
      * @return the selected plural form, or null if count or default fallback is missing
      */
-    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val value = A2uiFunctionArgParser.getDoubleArg(args, ARG_VALUE_KEY)
-        val other = A2uiFunctionArgParser.getStringArg(args, ARG_OTHER_KEY)
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? =
+        typedExecute(
+            value = A2uiFunctionArgParser.getDoubleArg(args, ARG_VALUE_KEY),
+            other = A2uiFunctionArgParser.getStringArg(args, ARG_OTHER_KEY),
+            zero = getOptionalStringArg(args, ARG_ZERO_KEY),
+            one = getOptionalStringArg(args, ARG_ONE_KEY),
+            two = getOptionalStringArg(args, ARG_TWO_KEY),
+            few = getOptionalStringArg(args, ARG_FEW_KEY),
+            many = getOptionalStringArg(args, ARG_MANY_KEY),
+        )
 
-        val zero =
-            if (args.containsKey(ARG_ZERO_KEY))
-                A2uiFunctionArgParser.getStringArg(args, ARG_ZERO_KEY)
-            else null
-        val one =
-            if (args.containsKey(ARG_ONE_KEY)) A2uiFunctionArgParser.getStringArg(args, ARG_ONE_KEY)
-            else null
-        val two =
-            if (args.containsKey(ARG_TWO_KEY)) A2uiFunctionArgParser.getStringArg(args, ARG_TWO_KEY)
-            else null
-        val few =
-            if (args.containsKey(ARG_FEW_KEY)) A2uiFunctionArgParser.getStringArg(args, ARG_FEW_KEY)
-            else null
-        val many =
-            if (args.containsKey(ARG_MANY_KEY))
-                A2uiFunctionArgParser.getStringArg(args, ARG_MANY_KEY)
-            else null
-
+    /**
+     * Returns the plural form that matches the plural category of [value] in the current locale.
+     *
+     * @param value the count that determines the plural category
+     * @param zero the string for the `zero` category, if any
+     * @param one the string for the `one` category, if any
+     * @param two the string for the `two` category, if any
+     * @param few the string for the `few` category, if any
+     * @param many the string for the `many` category, if any
+     * @param other the string for the `other` category, used as the fallback
+     * @return the selected plural form
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun typedExecute(
+        value: Double,
+        zero: String?,
+        one: String?,
+        two: String?,
+        few: String?,
+        many: String?,
+        other: String,
+    ): String {
         val locale = localeProvider.getLocale()
 
         val pattern = buildString {
@@ -166,7 +127,67 @@ public constructor(
 
     private fun String.escapeIcu(): String = replace("'", "''")
 
-    private companion object {
+    private fun getOptionalStringArg(args: Map<String, Any>, key: String): String? =
+        if (args.containsKey(key)) A2uiFunctionArgParser.getStringArg(args, key) else null
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public companion object {
+        /** The definition of the `pluralize` function in the A2UI basic catalog. */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public val DEFINITION: A2uiFunctionDefinition =
+            object : A2uiFunctionDefinition {
+                override val name: String = "pluralize"
+
+                override val description: String =
+                    """Returns a localized string based on the Common Locale Data Repository (CLDR) plural category of the count (zero, one, two, few, many, other). Requires an 'other' fallback. For English, just use 'one' and 'other'."""
+
+                override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
+
+                override val argumentSchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties =
+                            mapOf(
+                                ARG_VALUE_KEY to
+                                    A2uiDynamicNumberSchema(
+                                        description =
+                                            """The numeric value used to determine the plural category."""
+                                    ),
+                                ARG_ZERO_KEY to
+                                    A2uiDynamicStringSchema(
+                                        description =
+                                            """String for the 'zero' category (e.g., 0 items)."""
+                                    ),
+                                ARG_ONE_KEY to
+                                    A2uiDynamicStringSchema(
+                                        description =
+                                            """String for the 'one' category (e.g., 1 item)."""
+                                    ),
+                                ARG_TWO_KEY to
+                                    A2uiDynamicStringSchema(
+                                        description =
+                                            """String for the 'two' category (used in Arabic, Welsh, etc.)."""
+                                    ),
+                                ARG_FEW_KEY to
+                                    A2uiDynamicStringSchema(
+                                        description =
+                                            """String for the 'few' category (e.g., small groups in Slavic languages)."""
+                                    ),
+                                ARG_MANY_KEY to
+                                    A2uiDynamicStringSchema(
+                                        description =
+                                            """String for the 'many' category (e.g., large groups in various languages)."""
+                                    ),
+                                ARG_OTHER_KEY to
+                                    A2uiDynamicStringSchema(
+                                        description =
+                                            """The default/fallback string (used for general plural cases)."""
+                                    ),
+                            ),
+                        required = setOf(ARG_VALUE_KEY, ARG_OTHER_KEY),
+                        isAdditionalPropertiesAllowed = false,
+                    )
+            }
+
         private const val ARG_VALUE_KEY: String = "value"
         private const val ARG_ZERO_KEY: String = "zero"
         private const val ARG_ONE_KEY: String = "one"

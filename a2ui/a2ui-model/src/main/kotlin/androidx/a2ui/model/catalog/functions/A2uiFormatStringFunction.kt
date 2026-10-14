@@ -27,6 +27,7 @@ import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
+import androidx.annotation.RestrictTo
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -36,22 +37,8 @@ import java.util.concurrent.ConcurrentHashMap
  */
 public class A2uiFormatStringFunction private constructor() : A2uiFunction {
 
-    override val definition: A2uiFunctionDefinition =
-        object : A2uiFunctionDefinition {
-            override val name: String = "formatString"
-
-            override val description: String =
-                """Performs string interpolation of data model values and other functions in the catalog functions list and returns the resulting string. The value string can contain interpolated expressions in the ${'$'}{expression} format. Supported expression types include: JSON Pointer paths to the data model (e.g., ${'$'}{/absolute/path} or ${'$'}{relative/path}), and client-side function calls (e.g., ${'$'}{now()}). Function arguments must be named (e.g., ${'$'}{formatDate(value:${'$'}{/currentDate}, format:'MM-dd')}). To include a literal ${'$'}{ sequence, escape it as \${'$'}{."""
-
-            override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
-
-            override val argumentSchema: A2uiSchema =
-                A2uiObjectSchema(
-                    properties = mapOf(ARG_VALUE_KEY to A2uiDynamicStringSchema.DEFAULT_INSTANCE),
-                    required = setOf(ARG_VALUE_KEY),
-                    isAdditionalPropertiesAllowed = false,
-                )
-        }
+    override val definition: A2uiFunctionDefinition
+        get() = DEFINITION
 
     /**
      * Interpolates the given string with bindings.
@@ -61,10 +48,23 @@ public class A2uiFormatStringFunction private constructor() : A2uiFunction {
      *   payloads and resolving data bindings
      * @return the formatted string
      */
-    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val value = A2uiFunctionArgParser.getStringArg(args, ARG_VALUE_KEY)
-        return parseAndResolve(value, executionContext)
-    }
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? =
+        typedExecute(
+            value = A2uiFunctionArgParser.getStringArg(args, ARG_VALUE_KEY),
+            executionContext = executionContext,
+        )
+
+    /**
+     * Interpolates the `${expression}` placeholders in [value].
+     *
+     * @param value the string to interpolate
+     * @param executionContext context allowing to execute other functions, evaluate dynamic
+     *   payloads and resolving data bindings
+     * @return the interpolated string
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun typedExecute(value: String, executionContext: A2uiExecutionContext): String =
+        parseAndResolve(value, executionContext)
 
     private sealed interface TemplatePart {
         data class Literal(val text: String) : TemplatePart
@@ -473,6 +473,26 @@ public class A2uiFormatStringFunction private constructor() : A2uiFunction {
     }
 
     public companion object {
+        /** The definition of the `formatString` function in the A2UI basic catalog. */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public val DEFINITION: A2uiFunctionDefinition =
+            object : A2uiFunctionDefinition {
+                override val name: String = "formatString"
+
+                override val description: String =
+                    """Performs string interpolation of data model values and other functions in the catalog functions list and returns the resulting string. The value string can contain interpolated expressions in the ${'$'}{expression} format. Supported expression types include: JSON Pointer paths to the data model (e.g., ${'$'}{/absolute/path} or ${'$'}{relative/path}), and client-side function calls (e.g., ${'$'}{now()}). Function arguments must be named (e.g., ${'$'}{formatDate(value:${'$'}{/currentDate}, format:'MM-dd')}). To include a literal ${'$'}{ sequence, escape it as \${'$'}{."""
+
+                override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
+
+                override val argumentSchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties =
+                            mapOf(ARG_VALUE_KEY to A2uiDynamicStringSchema.DEFAULT_INSTANCE),
+                        required = setOf(ARG_VALUE_KEY),
+                        isAdditionalPropertiesAllowed = false,
+                    )
+            }
+
         @JvmField public val INSTANCE: A2uiFormatStringFunction = A2uiFormatStringFunction()
 
         private const val ARG_VALUE_KEY: String = "value"
