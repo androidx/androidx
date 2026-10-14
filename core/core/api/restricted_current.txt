@@ -5791,8 +5791,11 @@ package androidx.core.view.autofill {
 package androidx.core.view.contentcapture {
 
   public class ContentCaptureSessionCompat {
+    method public void flush();
     method public android.view.autofill.AutofillId? newAutofillId(long);
     method public androidx.core.view.ViewStructureCompat? newVirtualViewStructure(android.view.autofill.AutofillId, long);
+    method public void notifyViewAppeared(android.view.ViewStructure);
+    method public void notifyViewDisappeared(android.view.autofill.AutofillId);
     method public void notifyViewTextChanged(android.view.autofill.AutofillId, CharSequence?);
     method public void notifyViewsAppeared(java.util.List<android.view.ViewStructure!>);
     method public void notifyViewsDisappeared(long[]);

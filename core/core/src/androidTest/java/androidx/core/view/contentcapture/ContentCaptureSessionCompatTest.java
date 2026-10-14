@@ -18,16 +18,15 @@ package androidx.core.view.contentcapture;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.Activity;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.View;
-import android.view.ViewStructure;
 import android.view.autofill.AutofillId;
 import android.view.contentcapture.ContentCaptureSession;
 
@@ -40,14 +39,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 29)
-public class ContentCaptureSessionCompatTest extends
-        BaseInstrumentationTestCase<ViewCompatActivity> {
+public class ContentCaptureSessionCompatTest
+        extends BaseInstrumentationTestCase<ViewCompatActivity> {
 
     private View mView;
 
@@ -96,5 +92,17 @@ public class ContentCaptureSessionCompatTest extends
         Object result = contentCaptureSessionCompat.newVirtualViewStructure(mockAutofillId, 1L);
 
         assertNotNull(result);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 36)
+    public void testFlush_delegatesToPlatformAboveSDK36() {
+        ContentCaptureSession mockSession = mock(ContentCaptureSession.class);
+        ContentCaptureSessionCompat compat =
+                ContentCaptureSessionCompat.toContentCaptureSessionCompat(mockSession, mView);
+
+        compat.flush();
+
+        verify(mockSession).flush();
     }
 }
