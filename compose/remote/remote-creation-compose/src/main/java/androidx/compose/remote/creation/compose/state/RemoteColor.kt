@@ -41,7 +41,7 @@ import androidx.compose.ui.graphics.toArgb
 public open class RemoteColor
 internal constructor(
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: Color?,
-    internal override val cacheKey: RemoteStateCacheKey,
+    cacheKey: RemoteStateCacheKey,
     alpha: RemoteFloat?,
     red: RemoteFloat?,
     green: RemoteFloat?,

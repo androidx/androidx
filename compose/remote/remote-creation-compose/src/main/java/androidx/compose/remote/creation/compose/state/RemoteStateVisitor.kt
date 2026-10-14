@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.unit.Dp
 
 /**
  * Traverses a [BaseRemoteState] expression DAG to inspect, collect, or rewrite nodes.
@@ -128,7 +127,7 @@ private fun hasArgsChanged(
     original: List<RemoteStateCacheKey>,
     visited: List<BaseRemoteState<*>>,
 ): Boolean {
-    for (i in original.indices) {
+    for (i in 0 until original.size) {
         if (visited[i].cacheKey != original[i]) return true
     }
     return false
@@ -142,7 +141,6 @@ internal fun resolveConstantState(key: RemoteConstantCacheKey): BaseRemoteState<
         is Boolean -> RemoteBoolean(v)
         is String -> RemoteString(v)
         is Color -> RemoteColor(v)
-        is Dp -> RemoteDp(RemoteFloat(v.value))
         is ImageBitmap -> RemoteImageBitmap(v)
         is Double -> RemoteFloat(v.toFloat())
         is Long -> RemoteLong(v)
