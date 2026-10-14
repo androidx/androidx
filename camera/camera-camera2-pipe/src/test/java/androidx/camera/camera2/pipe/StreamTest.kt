@@ -133,4 +133,27 @@ internal class StreamTest {
             )
         assertThat(externalConfig.useReadoutTimestamp).isNull()
     }
+
+    @Test
+    fun outputType_isLazilyConfigurable() {
+        assertThat(OutputStream.OutputType.SURFACE_TEXTURE.isLazilyConfigurable()).isTrue()
+        assertThat(OutputStream.OutputType.SURFACE_VIEW.isLazilyConfigurable()).isTrue()
+        assertThat(OutputStream.OutputType.SURFACE.isLazilyConfigurable()).isFalse()
+        assertThat(OutputStream.OutputType.SURFACE_DEFERRED_FOR_QUERY_ONLY.isLazilyConfigurable())
+            .isFalse()
+    }
+
+    @Test
+    @Config(maxSdk = 34)
+    fun outputType_mediaOutputsBeforeApi35_isNotLazilyConfigurable() {
+        assertThat(OutputStream.OutputType.MEDIA_CODEC.isLazilyConfigurable()).isFalse()
+        assertThat(OutputStream.OutputType.MEDIA_RECORDER.isLazilyConfigurable()).isFalse()
+    }
+
+    @Test
+    @Config(minSdk = 35)
+    fun outputType_mediaOutputsApi35AndAbove_isLazilyConfigurable() {
+        assertThat(OutputStream.OutputType.MEDIA_CODEC.isLazilyConfigurable()).isTrue()
+        assertThat(OutputStream.OutputType.MEDIA_RECORDER.isLazilyConfigurable()).isTrue()
+    }
 }
