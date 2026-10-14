@@ -18,6 +18,8 @@
 
 package androidx.xr.compose.subspace.layout
 
+import android.annotation.TargetApi
+import android.os.Build
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
@@ -35,11 +37,18 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import androidx.xr.arcore.runtime.Plane
 import androidx.xr.arcore.runtime.TrackingState
+import androidx.xr.compose.spatial.LocalSubspaceRootNode
 import androidx.xr.compose.spatial.Subspace
+import androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi
+import androidx.xr.compose.subspace.SpatialGltfModel
+import androidx.xr.compose.subspace.SpatialGltfModelSource
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
+import androidx.xr.compose.subspace.draw.scale
+import androidx.xr.compose.subspace.rememberSpatialGltfModelState
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.runtime.Config
@@ -54,6 +63,7 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.math.assertPose
+import androidx.xr.scenecore.ActivitySpace
 import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.Space
@@ -65,6 +75,7 @@ import androidx.xr.scenecore.testing.FakeMovableComponent
 import androidx.xr.scenecore.testing.FakeSceneRuntime
 import com.google.common.truth.Truth.assertThat
 import com.google.errorprone.annotations.CanIgnoreReturnValue
+import java.nio.file.Paths
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -788,6 +799,677 @@ class MovableModifierTest {
         assertThat(moveEvent!!.type).isEqualTo(SpatialMoveEventType.End)
     }
 
+    @Test
+    fun policySystemToCustom_resetsSystemDraggedPoseAndScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var useCustom by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .movable(
+                                enabled = true,
+                                movePolicy =
+                                    if (useCustom) MovePolicy.custom {} else MovePolicy.system(),
+                            )
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(2f, 2f, 2f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isEqualTo(2f)
+
+        useCustom = true
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        assertThat(entity.getScale()).isEqualTo(1f)
+    }
+
+    @Test
+    fun policySystem_whenModifierRemoved_resetsDraggedPoseAndScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var isMovable by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        if (isMovable) {
+                            SubspaceModifier.testTag("panel")
+                                .movable(enabled = true, movePolicy = MovePolicy.system())
+                        } else {
+                            SubspaceModifier.testTag("panel")
+                        }
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(2f, 2f, 2f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isEqualTo(2f)
+
+        isMovable = false
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        assertThat(entity.getScale()).isEqualTo(1f)
+    }
+
+    @Test
+    fun policySystemToCustom_withInitialOffset_resetsToInitialLayoutOffset() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var useCustom by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .offset(x = 10.dp, y = 20.dp, z = 30.dp)
+                            .movable(
+                                enabled = true,
+                                movePolicy =
+                                    if (useCustom) MovePolicy.custom {} else MovePolicy.system(),
+                            )
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+        composeTestRule
+            .onSubspaceNodeWithTag("panel")
+            .assertPositionInRootIsEqualTo(10.dp, 20.dp, 30.dp)
+        val initialPose = entity.getPose(Space.ACTIVITY)
+        assertThat(initialPose).isNotEqualTo(Pose.Identity)
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(2f, 2f, 2f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isEqualTo(2f)
+
+        useCustom = true
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onSubspaceNodeWithTag("panel")
+            .assertPositionInRootIsEqualTo(10.dp, 20.dp, 30.dp)
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(initialPose)
+        assertThat(entity.getScale()).isEqualTo(1f)
+    }
+
+    @Test
+    fun policySystem_whenParameterUpdated_preservesDraggedPoseAndScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var scaleWithDistance by mutableStateOf(true)
+        var onMoveCallback by mutableStateOf<((SpatialMoveEvent) -> Unit)?>(null)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .movable(
+                                enabled = true,
+                                movePolicy =
+                                    MovePolicy.system(
+                                        scaleWithDistance = scaleWithDistance,
+                                        onMove = onMoveCallback,
+                                    ),
+                            )
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(2f, 2f, 2f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isEqualTo(2f)
+
+        // Updating parameters within the same policy type (scaleWithDistance and onMove) has
+        // policyTypeChanged == false and must preserve the dragged pose and scale.
+        scaleWithDistance = false
+        onMoveCallback = {}
+        composeTestRule.waitForIdle()
+
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isEqualTo(2f)
+    }
+
+    @Test
+    fun policySystemToCustomToSystem_roundTrip_reenablesSystemMovementAndResetsAgain() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var useCustom by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    modifier =
+                        SubspaceModifier.testTag("panel")
+                            .movable(
+                                enabled = true,
+                                movePolicy =
+                                    if (useCustom) MovePolicy.custom {} else MovePolicy.system(),
+                            )
+                ) {
+                    Text(text = "Spatial Panel")
+                }
+            }
+        }
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+
+        // 1. Drag under initial MovePolicy.system()
+        val firstMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val firstDraggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val firstDraggedScale = Vector3(2f, 2f, 2f)
+        initiateMoveEvents(
+            firstMovableComponent,
+            activitySpace,
+            firstDraggedPose,
+            firstDraggedScale,
+        )
+        composeTestRule.waitForIdle()
+
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(firstDraggedPose)
+        assertThat(entity.getScale()).isEqualTo(2f)
+
+        // 2. Switch to MovePolicy.custom {} -> resets pose and scale
+        useCustom = true
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        assertThat(entity.getScale()).isEqualTo(1f)
+
+        // 3. Switch back to MovePolicy.system() -> re-enables system movement
+        useCustom = false
+        composeTestRule.waitForIdle()
+
+        val secondMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val secondDraggedPose =
+            Pose(Vector3(4f, 5f, 6f), Quaternion.fromAxisAngle(axis = Vector3.Up, 90f))
+        val secondDraggedScale = Vector3(3f, 3f, 3f)
+        initiateMoveEvents(
+            secondMovableComponent,
+            activitySpace,
+            secondDraggedPose,
+            secondDraggedScale,
+        )
+        composeTestRule.waitForIdle()
+
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(secondDraggedPose)
+        assertThat(entity.getScale()).isEqualTo(3f)
+
+        // 4. Switch to MovePolicy.custom {} again -> resets pose and scale again
+        useCustom = true
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        assertThat(entity.getScale()).isEqualTo(1f)
+    }
+
+    @OptIn(ExperimentalSpatialGltfModelApi::class)
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    @Test
+    fun policySystemToCustom_onSpatialGltfModel_resetsSystemDraggedPoseAndRestoresFitScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var useCustom by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier =
+                        SubspaceModifier.testTag("model")
+                            .size(400.dp)
+                            .movable(
+                                enabled = true,
+                                movePolicy =
+                                    if (useCustom) MovePolicy.custom {} else MovePolicy.system(),
+                            ),
+                )
+            }
+        }
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().semanticsEntity
+            )
+        // Intrinsic model size is 2000x2000x2000px, so at 400.dp the uniform fit scale is 0.2f.
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(0.6f, 0.6f, 0.6f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        // The scale is 0.6f because it gets divided by the entity's gltfUniformScale scale but then
+        // re-multiplied.
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.6f)
+
+        useCustom = true
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
+    }
+
+    @OptIn(ExperimentalSpatialGltfModelApi::class)
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    @Test
+    fun policySystemOnSpatialGltfModel_whenMoved_updatesPoseAndScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier =
+                        SubspaceModifier.testTag("model")
+                            .size(400.dp)
+                            .movable(
+                                enabled = true,
+                                movePolicy = MovePolicy.system(),
+                            ),
+                )
+            }
+        }
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().semanticsEntity
+            )
+        // Intrinsic model size is 2000x2000x2000px, so at 400.dp the uniform fit scale is 0.2f.
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(0.6f, 0.6f, 0.6f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        // The scale is 0.6f because it gets divided by the entity's gltfUniformScale scale but then
+        // re-multiplied.
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.6f)
+    }
+
+    @OptIn(ExperimentalSpatialGltfModelApi::class)
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    @Test
+    fun policySystemOnSpatialGltfModel_whenMovedWithScale_updatesPoseAndScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier =
+                        SubspaceModifier.testTag("model")
+                            .size(400.dp)
+                            .movable(
+                                enabled = true,
+                                movePolicy = MovePolicy.system(),
+                            )
+                            .scale(2f),
+                )
+            }
+        }
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().semanticsEntity
+            )
+        // Intrinsic model size is 2000x2000x2000px, so at 400.dp the uniform fit scale is 0.2f,
+        // this is then multiplied by 2 due to the scale applier.
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.4f)
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(0.6f, 0.6f, 0.6f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        // The scale is 1.2f because it gets divided by the entity's gltfUniformScale scale but then
+        // re-multiplied by the scale applier and system scale.
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.6f)
+    }
+
+    @OptIn(ExperimentalSpatialGltfModelApi::class)
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    @Test
+    fun policySystemOnSpatialGltfModel_whenModifierRemoved_resetsDraggedPoseAndScale() {
+        val session = composeTestRule.configureFakeSession()
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        var useModifier by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier =
+                        if (useModifier) {
+                            SubspaceModifier.testTag("model").size(400.dp)
+                        } else {
+                            SubspaceModifier.testTag("model")
+                                .size(400.dp)
+                                .movable(
+                                    enabled = true,
+                                    movePolicy = MovePolicy.system(),
+                                )
+                        },
+                )
+            }
+        }
+
+        val entity =
+            assertNotNull(
+                composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().semanticsEntity
+            )
+        // Intrinsic model size is 2000x2000x2000px, so at 400.dp the uniform fit scale is 0.2f.
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
+
+        val rtMovableComponent = assertNotNull(sceneRuntime.lastMovableComponent)
+        val draggedPose =
+            Pose(Vector3(1f, 2f, 3f), Quaternion.fromAxisAngle(axis = Vector3.Forward, 45f))
+        val draggedScale = Vector3(0.6f, 0.6f, 0.6f)
+        initiateMoveEvents(rtMovableComponent, activitySpace, draggedPose, draggedScale)
+        composeTestRule.waitForIdle()
+
+        // The scale is 0.6f because it gets divided by the entity's gltfUniformScale scale but then
+        // re-multiplied.
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(draggedPose)
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.6f)
+
+        useModifier = true
+        composeTestRule.waitForIdle()
+        assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMoveAnchorPolicy::class)
+    @Test
+    fun policyAnchorToSystem_restoresParentAndResetsPose() =
+        runTest(testDispatcher) {
+            val anchorTestSession = setupAnchorTestSession()
+            var useSystem by mutableStateOf(false)
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialRow(modifier = SubspaceModifier.testTag("row")) {
+                        SpatialPanel(
+                            modifier =
+                                SubspaceModifier.testTag("panel")
+                                    .size(200.dp)
+                                    .movable(
+                                        enabled = true,
+                                        movePolicy =
+                                            if (useSystem) {
+                                                MovePolicy.system()
+                                            } else {
+                                                MovePolicy.anchor(
+                                                    anchorPlaneSemantics = setOf(PlaneSemantic.Any),
+                                                    anchorPlaneOrientations =
+                                                        setOf(PlaneOrientation.Any),
+                                                )
+                                            },
+                                    )
+                        ) {
+                            Text(text = "Spatial Panel")
+                        }
+                    }
+                }
+            }
+
+            val entity =
+                assertNotNull(
+                    composeTestRule
+                        .onSubspaceNodeWithTag("panel")
+                        .fetchSemanticsNode()
+                        .semanticsEntity
+                )
+            val originalParent = entity.parent
+
+            addFloorPlaneToRuntime(
+                anchorTestSession.perceptionRuntime,
+                anchorTestSession.perceptionManager,
+            )
+
+            assertSingleMovableComponentExist()
+            val rtMovableComponent =
+                assertNotNull(anchorTestSession.sceneRuntime.lastMovableComponent)
+            val movePose = Pose(Vector3(2f, 0.01f, 3f), Quaternion.fromEulerAngles(20f, 30f, 45f))
+            initiateMoveEvents(rtMovableComponent, anchorTestSession.activitySpace, movePose)
+
+            assertIs<AnchorSpace>(entity.parent)
+            assertThat(entity.getPose(Space.ACTIVITY)).isNotEqualTo(Pose.Identity)
+
+            useSystem = true
+            composeTestRule.waitForIdle()
+
+            assertThat(entity.parent).isNotInstanceOf(AnchorSpace::class.java)
+            assertThat(entity.parent).isEqualTo(originalParent)
+            assertThat(entity.getPose(Space.ACTIVITY)).isEqualTo(Pose.Identity)
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMoveAnchorPolicy::class)
+    @Test
+    fun policyAnchor_whenModifierRemoved_restoresParent() =
+        runTest(testDispatcher) {
+            val anchorTestSession = setupAnchorTestSession()
+            var isMovable by mutableStateOf(true)
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialRow(modifier = SubspaceModifier.testTag("row")) {
+                        SpatialPanel(
+                            modifier =
+                                if (isMovable) {
+                                    SubspaceModifier.testTag("panel")
+                                        .size(200.dp)
+                                        .movable(
+                                            enabled = true,
+                                            movePolicy =
+                                                MovePolicy.anchor(
+                                                    anchorPlaneSemantics = setOf(PlaneSemantic.Any),
+                                                    anchorPlaneOrientations =
+                                                        setOf(PlaneOrientation.Any),
+                                                ),
+                                        )
+                                } else {
+                                    SubspaceModifier.testTag("panel").size(200.dp)
+                                }
+                        ) {
+                            Text(text = "Spatial Panel")
+                        }
+                    }
+                }
+            }
+
+            val entity =
+                assertNotNull(
+                    composeTestRule
+                        .onSubspaceNodeWithTag("panel")
+                        .fetchSemanticsNode()
+                        .semanticsEntity
+                )
+            val originalParent = entity.parent
+
+            addFloorPlaneToRuntime(
+                anchorTestSession.perceptionRuntime,
+                anchorTestSession.perceptionManager,
+            )
+
+            assertSingleMovableComponentExist()
+            val rtMovableComponent =
+                assertNotNull(anchorTestSession.sceneRuntime.lastMovableComponent)
+            val movePose = Pose(Vector3(2f, 0.01f, 3f), Quaternion.fromEulerAngles(20f, 30f, 45f))
+            initiateMoveEvents(rtMovableComponent, anchorTestSession.activitySpace, movePose)
+
+            assertIs<AnchorSpace>(entity.parent)
+
+            isMovable = false
+            composeTestRule.waitForIdle()
+
+            assertThat(entity.parent).isNotInstanceOf(AnchorSpace::class.java)
+            assertThat(entity.parent).isEqualTo(originalParent)
+        }
+
+    @OptIn(
+        ExperimentalCoroutinesApi::class,
+        ExperimentalMoveAnchorPolicy::class,
+        ExperimentalSpatialGltfModelApi::class,
+    )
+    @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
+    @Test
+    fun policyAnchor_onSpatialGltfModel_maintainsScaleWhenAnchoredAndUnanchored() =
+        runTest(testDispatcher) {
+            val anchorTestSession = setupAnchorTestSession()
+
+            composeTestRule.setContent {
+                anchorTestSession.session.scene.keyEntity = LocalSubspaceRootNode.current
+                anchorTestSession.session.scene.keyEntity?.setScale(2f)
+                Subspace {
+                    SpatialGltfModel(
+                        state =
+                            rememberSpatialGltfModelState(
+                                source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                            ),
+                        modifier =
+                            SubspaceModifier.testTag("model")
+                                .size(400.dp)
+                                .movable(
+                                    enabled = true,
+                                    movePolicy =
+                                        MovePolicy.anchor(
+                                            anchorPlaneSemantics = setOf(PlaneSemantic.Any),
+                                            anchorPlaneOrientations = setOf(PlaneOrientation.Any),
+                                        ),
+                                ),
+                    )
+                }
+            }
+
+            val entity =
+                assertNotNull(
+                    composeTestRule
+                        .onSubspaceNodeWithTag("model")
+                        .fetchSemanticsNode()
+                        .semanticsEntity
+                )
+            val keyRtEntity = assertNotNull(anchorTestSession.sceneRuntime.keyEntity)
+            // Intrinsic model size is 2000x2000x2000px, so at 400.dp the uniform fit scale is 0.2f.
+            assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
+
+            addFloorPlaneToRuntime(
+                anchorTestSession.perceptionRuntime,
+                anchorTestSession.perceptionManager,
+            )
+
+            assertSingleMovableComponentExist("model")
+            val rtMovableComponent =
+                assertNotNull(anchorTestSession.sceneRuntime.lastMovableComponent)
+            val movePose = Pose(Vector3(1f, 0.01f, 1f), Quaternion.fromEulerAngles(20f, 30f, 45f))
+            initiateMoveEvents(rtMovableComponent, keyRtEntity, movePose)
+            composeTestRule.waitForIdle()
+
+            // When anchored from the Subspace (scaled by 2f via keyEntity) to AnchorSpace (scale
+            // 1f), the relative scale (0.2f * 2f = 0.4f) is preserved via scaleFromAnchoring.
+            assertIs<AnchorSpace>(entity.parent)
+            assertThat(entity.getScale()).isWithin(0.001f).of(0.4f)
+
+            // Moving away from the plane unanchors the entity and exercises the non-null
+            // scaleFromAnchoring path while maintaining the scale because the parent is the
+            // unscaled activity space.
+            val unanchorPose = Pose(Vector3(10f, 10f, 10f))
+            initiateMoveEvents(rtMovableComponent, anchorTestSession.activitySpace, unanchorPose)
+            composeTestRule.waitForIdle()
+            assertThat(entity.parent).isInstanceOf(ActivitySpace::class.java)
+            assertThat(entity.getScale()).isWithin(0.001f).of(0.4f)
+        }
+
     // ========================================================================
     // HELPER FUNCTIONS
     // ========================================================================
@@ -863,8 +1545,9 @@ class MovableModifierTest {
 
     private fun initiateMoveEvents(
         rtMovableComponent: FakeMovableComponent,
-        activitySpace: FakeActivitySpace,
+        initialParent: androidx.xr.scenecore.runtime.Entity,
         movePose: Pose,
+        moveScale: Vector3 = Vector3(1f, 1f, 1f),
     ) {
         rtMovableComponent.onMoveEvent(
             MoveEvent(
@@ -874,8 +1557,8 @@ class MovableModifierTest {
                 Pose.Identity,
                 movePose,
                 Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
-                activitySpace,
+                moveScale,
+                initialParent,
                 updatedParent = null,
                 disposedEntity = null,
             )
@@ -889,8 +1572,8 @@ class MovableModifierTest {
                 Pose.Identity,
                 movePose,
                 Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
-                activitySpace,
+                moveScale,
+                initialParent,
                 updatedParent = null,
                 disposedEntity = null,
             )
@@ -904,8 +1587,8 @@ class MovableModifierTest {
                 Pose.Identity,
                 movePose,
                 Vector3(1f, 1f, 1f),
-                Vector3(1f, 1f, 1f),
-                activitySpace,
+                moveScale,
+                initialParent,
                 updatedParent = null,
                 disposedEntity = null,
             )

@@ -19,6 +19,7 @@ package androidx.xr.compose.subspace.layout
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
@@ -142,6 +143,7 @@ internal sealed class CoreEntity(val pixelDensity: PixelDensity, initialEntity: 
      */
     internal open var scale = 1f
         set(value) {
+            Log.i("JSALEH", "field = $field, value = $value")
             if (field != value) {
                 entityActionQueue.executeWhenAvailable { it.setScale(value) }
             }
@@ -617,7 +619,8 @@ internal class CoreModelEntity(pixelDensity: PixelDensity) : CoreEntity(pixelDen
         get() = (entity as? GltfModelEntity)?.nodes ?: emptyList()
 
     /** Scale factor calculated to uniformly fit the [GltfModelEntity] within container bounds. */
-    private var gltfUniformScale = 1f
+    internal var gltfUniformScale = 1f
+        private set
 
     /**
      * Explicit scale factor applied by modifiers such as [SubspaceModifier.movable]. This is null
@@ -675,7 +678,10 @@ internal class CoreModelEntity(pixelDensity: PixelDensity) : CoreEntity(pixelDen
      * [GltfModelEntity] scale in SceneCore.
      */
     private fun syncCoreEntityCombinedScale() {
-        super.scale = userScale ?: gltfUniformScale
+        super.scale =
+            userScale?.let {
+                it * gltfUniformScale
+            } ?: gltfUniformScale
     }
 
     private fun onEntity(action: GltfModelEntity.() -> Unit) {

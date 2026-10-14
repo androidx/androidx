@@ -104,6 +104,8 @@ class AnchorableActivity : ComponentActivity() {
                 .build()
         )
 
+        var hasModifier by remember { mutableStateOf(true) }
+        var isEnabled by remember { mutableStateOf(true) }
         var isAnchorableOn by remember { mutableStateOf(true) }
         var selectedOrientation by remember { mutableStateOf("Any") }
         var selectedSemantic by remember { mutableStateOf("Any") }
@@ -115,6 +117,10 @@ class AnchorableActivity : ComponentActivity() {
                     horizontalArrangement = SpatialArrangement.spacedBy(60.dp),
                 ) {
                     ControlPanel(
+                        hasModifier = hasModifier,
+                        onToggleHasModifier = { hasModifier = it },
+                        isEnabled = isEnabled,
+                        onToggleEnabled = { isEnabled = it },
                         isAnchorableOn = isAnchorableOn,
                         onToggleAnchorable = { isAnchorableOn = it },
                         selectedOrientation = selectedOrientation,
@@ -122,24 +128,26 @@ class AnchorableActivity : ComponentActivity() {
                         selectedSemantic = selectedSemantic,
                         onSemanticChange = { selectedSemantic = it },
                     )
-
+                    var spatialModifier = SubspaceModifier.width(360.dp).height(200.dp)
+                    if (hasModifier) {
+                        spatialModifier =
+                            spatialModifier.movable(
+                                enabled = isEnabled,
+                                movePolicy =
+                                    if (isAnchorableOn) {
+                                        MovePolicy.anchor(
+                                            anchorPlaneOrientations =
+                                                parseOrientations(selectedOrientation),
+                                            anchorPlaneSemantics = parseSemantics(selectedSemantic),
+                                        )
+                                    } else {
+                                        MovePolicy.system()
+                                    },
+                            )
+                    }
                     SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(150.dp)) {
                         // SpatialPanel
-                        SpatialPanel(
-                            modifier =
-                                SubspaceModifier.width(360.dp)
-                                    .height(200.dp)
-                                    .movable(
-                                        enabled = isAnchorableOn,
-                                        movePolicy =
-                                            MovePolicy.anchor(
-                                                anchorPlaneOrientations =
-                                                    parseOrientations(selectedOrientation),
-                                                anchorPlaneSemantics =
-                                                    parseSemantics(selectedSemantic),
-                                            ),
-                                    )
-                        ) {
+                        SpatialPanel(modifier = spatialModifier) {
                             Box(
                                 modifier =
                                     Modifier.fillMaxSize()
@@ -166,18 +174,7 @@ class AnchorableActivity : ComponentActivity() {
                                         Paths.get("models", "xyzArrows.glb")
                                     )
                             )
-                        val modelModifier =
-                            SubspaceModifier.width(200.dp)
-                                .height(200.dp)
-                                .movable(
-                                    enabled = isAnchorableOn,
-                                    movePolicy =
-                                        MovePolicy.anchor(
-                                            anchorPlaneOrientations =
-                                                parseOrientations(selectedOrientation),
-                                            anchorPlaneSemantics = parseSemantics(selectedSemantic),
-                                        ),
-                                )
+                        val modelModifier = spatialModifier
                         SpatialGltfModel(state = arrowsState, modifier = modelModifier)
                     }
                 }
@@ -188,6 +185,10 @@ class AnchorableActivity : ComponentActivity() {
     @SubspaceComposable
     @Composable
     private fun ControlPanel(
+        hasModifier: Boolean,
+        onToggleHasModifier: (Boolean) -> Unit,
+        isEnabled: Boolean,
+        onToggleEnabled: (Boolean) -> Unit,
         isAnchorableOn: Boolean,
         onToggleAnchorable: (Boolean) -> Unit,
         selectedOrientation: String,
@@ -195,8 +196,12 @@ class AnchorableActivity : ComponentActivity() {
         selectedSemantic: String,
         onSemanticChange: (String) -> Unit,
     ) {
-        SpatialPanel(modifier = SubspaceModifier.width(400.dp).height(780.dp).padding(15.dp)) {
+        SpatialPanel(modifier = SubspaceModifier.width(400.dp).height(800.dp).padding(15.dp)) {
             ControlPanelContent(
+                hasModifier = hasModifier,
+                onToggleHasModifier = onToggleHasModifier,
+                isEnabled = isEnabled,
+                onToggleEnabled = onToggleEnabled,
                 isAnchorableOn = isAnchorableOn,
                 onToggleAnchorable = onToggleAnchorable,
                 selectedOrientation = selectedOrientation,
@@ -246,6 +251,10 @@ class AnchorableActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun ControlPanelContent(
+        hasModifier: Boolean,
+        onToggleHasModifier: (Boolean) -> Unit,
+        isEnabled: Boolean,
+        onToggleEnabled: (Boolean) -> Unit,
         isAnchorableOn: Boolean,
         onToggleAnchorable: (Boolean) -> Unit,
         selectedOrientation: String,
@@ -273,17 +282,45 @@ class AnchorableActivity : ComponentActivity() {
             ) {
                 SettingCard(title = "Anchor Configuration") {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text(
-                            "Enable",
+                            "Has Movable Modifier",
                             fontSize = 14.sp,
                             color = Color.Black,
                             fontWeight = FontWeight.SemiBold,
                         )
-                        Switch(checked = isAnchorableOn, onCheckedChange = onToggleAnchorable)
+                        Switch(checked = hasModifier, onCheckedChange = onToggleHasModifier)
+                    }
+                    if (hasModifier) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Text(
+                                "Enable Component",
+                                fontSize = 14.sp,
+                                color = Color.Black,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Switch(checked = isEnabled, onCheckedChange = onToggleEnabled)
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Text(
+                                "Enable Anchoring",
+                                fontSize = 14.sp,
+                                color = Color.Black,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Switch(checked = isAnchorableOn, onCheckedChange = onToggleAnchorable)
+                        }
                     }
                 }
 
