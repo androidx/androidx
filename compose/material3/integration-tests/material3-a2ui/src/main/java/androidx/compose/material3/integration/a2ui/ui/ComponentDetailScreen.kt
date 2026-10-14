@@ -18,7 +18,7 @@ package androidx.compose.material3.integration.a2ui.ui
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.A2uiMessageProcessor
-import androidx.a2ui.model.catalog.functions.A2uiLocaleProvider
+import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.processor.A2uiMessageProcessor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
@@ -97,6 +97,7 @@ import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.derivedMediaQuery
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -351,47 +352,48 @@ private fun ControlsPane(
 }
 
 @Composable
-private fun rememberDemoCatalog() = remember {
-    materialA2uiBasicCatalogV1(
-        image =
-            MaterialA2uiBasicCatalogV1Defaults.image {
-                url,
-                contentDescription,
-                contentScale,
-                modifier,
-                _ ->
-                ImageRenderer(
-                    url = url,
-                    contentDescription = contentDescription,
-                    contentScale = contentScale,
-                    modifier = modifier,
-                )
-            },
-        video =
-            MaterialA2uiBasicCatalogV1Defaults.video { url, modifier, onError ->
-                VideoRenderer(
-                    url = url,
-                    modifier = modifier,
-                    onError = onError,
-                )
-            },
-        audioPlayer =
-            MaterialA2uiBasicCatalogV1Defaults.audioPlayer {
-                url,
-                contentDescription,
-                modifier,
-                onError ->
-                AudioPlayerRenderer(
-                    url = url,
-                    contentDescription = contentDescription,
-                    modifier = modifier,
-                    onError = onError,
-                )
-            },
-        urlOpener = {},
-        messageFormatter = { pattern, _, _ -> pattern },
-        localeProvider = A2uiLocaleProvider.Default,
-    )
+private fun rememberDemoCatalog(): A2uiCatalog {
+    val context = LocalContext.current
+    return remember(context) {
+        materialA2uiBasicCatalogV1(
+            image =
+                MaterialA2uiBasicCatalogV1Defaults.image {
+                    url,
+                    contentDescription,
+                    contentScale,
+                    modifier,
+                    _ ->
+                    ImageRenderer(
+                        url = url,
+                        contentDescription = contentDescription,
+                        contentScale = contentScale,
+                        modifier = modifier,
+                    )
+                },
+            video =
+                MaterialA2uiBasicCatalogV1Defaults.video { url, modifier, onError ->
+                    VideoRenderer(
+                        url = url,
+                        modifier = modifier,
+                        onError = onError,
+                    )
+                },
+            audioPlayer =
+                MaterialA2uiBasicCatalogV1Defaults.audioPlayer {
+                    url,
+                    contentDescription,
+                    modifier,
+                    onError ->
+                    AudioPlayerRenderer(
+                        url = url,
+                        contentDescription = contentDescription,
+                        modifier = modifier,
+                        onError = onError,
+                    )
+                },
+            functions = A2uiBasicCatalogV1.Functions(context),
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
