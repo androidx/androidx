@@ -52,5 +52,6 @@
     <string name="spatial_gltf_model_test">Spatial GLTF Model Test Case</string>
     <string name="spatial_audio_test">Spatial Audio Test Case</string>
     <string name="spatial_navigation_test">Spatial Navigation Transition Test Case</string>
+    <string name="modifier_chain_test">Modifier Chain Test</string>
 </resources>
 

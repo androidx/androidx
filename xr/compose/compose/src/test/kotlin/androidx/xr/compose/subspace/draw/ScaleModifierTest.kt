@@ -18,6 +18,9 @@ package androidx.xr.compose.subspace.draw
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -61,6 +64,46 @@ class ScaleModifierTest {
         assertFailsWith<IllegalArgumentException> {
             composeTestRule.setContent { Subspace { PanelContent("panel", -0.5f) } }
         }
+    }
+
+    @Test
+    fun scale_resetsToOneWhenModifierRemoved() {
+        var scale by mutableStateOf<Float?>(0.5f)
+
+        composeTestRule.setContent { Subspace { PanelContent("panel", scale) } }
+
+        assertEquals(0.5f, assertSingleNode("panel").scale)
+
+        scale = null
+
+        assertEquals(1.0f, assertSingleNode("panel").scale)
+    }
+
+    @Test
+    fun scale_multiple_updatesAndResetsWhenModifiersRemoved() {
+        var scaleCount by mutableStateOf(2)
+
+        composeTestRule.setContent {
+            Subspace {
+                val modifier =
+                    when (scaleCount) {
+                        2 -> SubspaceModifier.testTag("panel").size(100.dp).scale(0.5f).scale(0.5f)
+                        1 -> SubspaceModifier.testTag("panel").size(100.dp).scale(0.5f)
+                        else -> SubspaceModifier.testTag("panel").size(100.dp)
+                    }
+                SpatialPanel(modifier = modifier) { Text(text = "Panel") }
+            }
+        }
+
+        assertEquals(0.25f, assertSingleNode("panel").scale)
+
+        scaleCount = 1
+
+        assertEquals(0.5f, assertSingleNode("panel").scale)
+
+        scaleCount = 0
+
+        assertEquals(1.0f, assertSingleNode("panel").scale)
     }
 
     private fun assertSingleNode(testTag: String): SubspaceSemanticsInfo {
