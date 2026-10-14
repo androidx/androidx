@@ -17,7 +17,6 @@
 package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.ui.toJsonSchemaString
-import androidx.a2ui.model.catalog.basiccatalog.createBasicCatalogFunctions
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.serialization.json.Json
@@ -344,12 +343,7 @@ class A2uiBasicCatalogV1SchemaVerificationTest {
         val prettyJson = Json { prettyPrint = true }
 
         val actualCatalogJson = run {
-            val functions =
-                createBasicCatalogFunctions(
-                    urlOpener = { _ -> },
-                    messageFormatter = { template, _, _ -> template },
-                )
-            val catalog = createTestBasicCatalog(functions = functions).toA2uiCatalog()
+            val catalog = createTestBasicCatalog().toA2uiCatalog()
             Json.parseToJsonElement(catalog.toJsonSchemaString()).jsonObject
         }
         val actualComponents = actualCatalogJson.getValue("components").jsonObject

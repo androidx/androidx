@@ -16,6 +16,7 @@
 
 package androidx.a2ui.compose.ui.catalog
 
+import android.content.Context
 import androidx.a2ui.compose.runtime.A2uiComponentProperties
 import androidx.a2ui.compose.runtime.A2uiComponentReference
 import androidx.a2ui.compose.runtime.A2uiComponentScope
@@ -25,9 +26,19 @@ import androidx.a2ui.compose.runtime.DynamicA2uiProperty
 import androidx.a2ui.compose.runtime.StaticA2uiProperty
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.A2uiComponent
-import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.functions.A2uiEmailFunction
+import androidx.a2ui.model.catalog.functions.A2uiFormatCurrencyFunction
+import androidx.a2ui.model.catalog.functions.A2uiFormatDateFunction
+import androidx.a2ui.model.catalog.functions.A2uiFormatNumberFunction
+import androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction
+import androidx.a2ui.model.catalog.functions.A2uiLengthFunction
+import androidx.a2ui.model.catalog.functions.A2uiLocaleProvider
+import androidx.a2ui.model.catalog.functions.A2uiNumericFunction
+import androidx.a2ui.model.catalog.functions.A2uiRegexFunction
+import androidx.a2ui.model.catalog.functions.A2uiRequiredFunction
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
@@ -82,9 +93,7 @@ import java.util.TimeZone
  * @property choicePicker the [ChoicePicker] component implementation
  * @property slider the [Slider] component implementation
  * @property dateTimeInput the [DateTimeInput] component implementation
- * @property functions the list of [A2uiFunction]s supported by this catalog, recommended default is
- *   to create the function list using
- *   [androidx.a2ui.model.catalog.basiccatalog.createBasicCatalogFunctions]
+ * @property functions the [Functions] implementations
  */
 public class A2uiBasicCatalogV1(
     public val text: Text,
@@ -105,7 +114,7 @@ public class A2uiBasicCatalogV1(
     public val choicePicker: ChoicePicker,
     public val slider: Slider,
     public val dateTimeInput: DateTimeInput,
-    public val functions: kotlin.collections.List<A2uiFunction>,
+    public val functions: Functions,
 ) {
 
     /** The unique identifier for this catalog. */
@@ -193,6 +202,36 @@ public class A2uiBasicCatalogV1(
                         "Note: this may ONLY be set when the component is a direct descendant of a " +
                         "Row or Column.",
             )
+
+        /**
+         * Creates the default implementations of [A2uiBasicCatalogV1.Functions].
+         *
+         * The [Functions.openUrl] implementation opens URLs with an
+         * [android.content.Intent.ACTION_VIEW] intent that only resolves to
+         * [android.content.Intent.CATEGORY_BROWSABLE] activities, and holds the application context
+         * of [context]. The [Functions.formatNumber], [Functions.formatCurrency],
+         * [Functions.formatDate], and [Functions.pluralize] implementations use the locale of
+         * [localeProvider]. The other functions use the default implementations of
+         * [A2uiBasicCatalogV1.Functions].
+         *
+         * To customize individual functions, delegate to the returned implementation and override
+         * the methods of those functions, e.g., `object : A2uiBasicCatalogV1.Functions by
+         * A2uiBasicCatalogV1.Functions(context) { … }`. In such an object, `super` calls the
+         * default implementations of [A2uiBasicCatalogV1.Functions], not the returned
+         * implementations: the default implementations use the default locale instead of
+         * [localeProvider], and [Functions.openUrl] has no default implementation. To reuse a
+         * returned implementation, e.g., to open a URL after checking it, keep a reference to the
+         * returned [A2uiBasicCatalogV1.Functions] and call its method from the override.
+         *
+         * @param context [Context] whose application context opens URLs
+         * @param localeProvider [A2uiLocaleProvider] of the locale used to format numbers,
+         *   currencies, dates, and plurals, defaults to the default [java.util.Locale]
+         * @return the default implementations of [A2uiBasicCatalogV1.Functions]
+         */
+        public fun Functions(
+            context: Context,
+            localeProvider: A2uiLocaleProvider = A2uiLocaleProvider.Default,
+        ): Functions = DefaultFunctions(IntentUrlOpener(context), localeProvider)
 
         /**
          * Holds accessibility attributes for a component in the A2UI Basic Catalog V1.
@@ -3095,6 +3134,233 @@ public class A2uiBasicCatalogV1(
         )
     }
 
+    /**
+     * The functions of the A2UI Basic Catalog V1, with one method for each function in the
+     * specification except the logical functions `and`, `or`, and `not`, which the catalog
+     * implements itself.
+     *
+     * The catalog provides the definition of each function and parses the arguments of each call,
+     * so implementations only implement the behavior of the functions. Each method receives the
+     * parsed arguments and the [A2uiExecutionContext] of the call. Implementations can throw an
+     * [A2uiException] to report an error to the agent.
+     *
+     * Implement [openUrl], and override other methods to customize individual functions. Every
+     * method except [openUrl] has a default implementation, which an override can call with
+     * `super`, e.g., to add a check before it.
+     *
+     * The [A2uiBasicCatalogV1.Functions(context)][A2uiBasicCatalogV1.Companion.Functions] factory
+     * function creates implementations of all methods, including [openUrl]. To customize individual
+     * functions of an existing implementation, such as the one that this factory function creates,
+     * delegate to it and override the methods of those functions, e.g., `object :
+     * A2uiBasicCatalogV1.Functions by A2uiBasicCatalogV1.Functions(context) { … }`. In such an
+     * object, `super` calls the default implementations of this interface rather than the methods
+     * of the delegate. To reuse the implementations of the delegate, call its methods instead.
+     */
+    public interface Functions {
+
+        /**
+         * Implements the A2UI `"openUrl"` function, which opens a URL in a browser or another app.
+         *
+         * This method has no default implementation, because how to open a URL depends on the app.
+         * The [A2uiBasicCatalogV1.Functions(context)][A2uiBasicCatalogV1.Companion.Functions]
+         * factory function creates an implementation that opens URLs with an
+         * [android.content.Intent.ACTION_VIEW] intent.
+         *
+         * @param url the non-empty URL to open
+         * @param executionContext the [A2uiExecutionContext] of the call
+         */
+        public fun openUrl(url: String, executionContext: A2uiExecutionContext)
+
+        /**
+         * Implements the A2UI `"required"` function, which checks that a value is present and not
+         * empty.
+         *
+         * Unlike other functions, this function is called when its `value` argument can't be
+         * resolved, e.g., when it binds to a missing data model path. The default implementation
+         * treats `null` and empty strings, collections, maps, and arrays as missing.
+         *
+         * @param value the value to check, or `null` if it is missing or can't be resolved
+         * @param executionContext the [A2uiExecutionContext] of the call
+         * @return `true` if [value] is present and not empty
+         */
+        public fun required(value: Any?, executionContext: A2uiExecutionContext): Boolean =
+            A2uiRequiredFunction.INSTANCE.typedExecute(value)
+
+        /**
+         * Implements the A2UI `"regex"` function, which checks that a value matches a regular
+         * expression.
+         *
+         * The default implementation matches values with [kotlin.text.Regex].
+         *
+         * @param value the string to check
+         * @param pattern the regular expression that [value] must match entirely
+         * @param executionContext the [A2uiExecutionContext] of the call
+         * @return `true` if [value] matches [pattern]
+         */
+        public fun regex(
+            value: String,
+            pattern: String,
+            executionContext: A2uiExecutionContext,
+        ): Boolean = A2uiRegexFunction.INSTANCE.typedExecute(value, pattern)
+
+        /**
+         * Implements the A2UI `"length"` function, which checks the length of a string.
+         *
+         * The default implementation measures values with [String.length], including both bounds.
+         *
+         * @param value the string to check
+         * @param min the minimum allowed length, which is 0 if the call doesn't specify one
+         * @param max the maximum allowed length, which is [Int.MAX_VALUE] if the call doesn't
+         *   specify one
+         * @param executionContext the [A2uiExecutionContext] of the call
+         * @return `true` if the length of [value] is between [min] and [max]
+         */
+        public fun length(
+            value: String,
+            min: Int,
+            max: Int,
+            executionContext: A2uiExecutionContext,
+        ): Boolean = A2uiLengthFunction.INSTANCE.typedExecute(value, min, max)
+
+        /**
+         * Implements the A2UI `"numeric"` function, which checks that a number is within a range.
+         *
+         * The default implementation includes both bounds.
+         *
+         * @param value the number to check
+         * @param min the minimum allowed value, which is [Double.NEGATIVE_INFINITY] if the call
+         *   doesn't specify one
+         * @param max the maximum allowed value, which is [Double.POSITIVE_INFINITY] if the call
+         *   doesn't specify one
+         * @param executionContext the [A2uiExecutionContext] of the call
+         * @return `true` if [value] is between [min] and [max]
+         */
+        public fun numeric(
+            value: Double,
+            min: Double,
+            max: Double,
+            executionContext: A2uiExecutionContext,
+        ): Boolean = A2uiNumericFunction.INSTANCE.typedExecute(value, min, max)
+
+        /**
+         * Implements the A2UI `"email"` function, which checks that a string is a valid email
+         * address.
+         *
+         * The default implementation matches values against a common email address pattern.
+         *
+         * @param value the string to check
+         * @param executionContext the [A2uiExecutionContext] of the call
+         * @return `true` if [value] is a valid email address
+         */
+        public fun email(value: String, executionContext: A2uiExecutionContext): Boolean =
+            A2uiEmailFunction.INSTANCE.typedExecute(value)
+
+        /**
+         * Implements the A2UI `"formatString"` function, which interpolates expressions in a
+         * string.
+         *
+         * The default implementation replaces the `${expression}` placeholders in [value] with the
+         * results that [executionContext] evaluates, and handles escape sequences as the
+         * specification defines.
+         *
+         * @param value the string to format, which can contain data model paths and function calls
+         *   in `${expression}` placeholders
+         * @param executionContext the [A2uiExecutionContext] of the call, which evaluates the
+         *   expressions
+         * @return the formatted string
+         */
+        public fun formatString(value: String, executionContext: A2uiExecutionContext): String =
+            A2uiFormatStringFunction.INSTANCE.typedExecute(value, executionContext)
+
+        /**
+         * Implements the A2UI `"formatNumber"` function, which formats a number for display.
+         *
+         * The default implementation formats numbers with [java.text.NumberFormat] in the default
+         * locale.
+         *
+         * @param value the number to format
+         * @param decimals the number of decimal places to show, or `null` for the default precision
+         * @param grouping whether to use locale-specific grouping separators, e.g., `1,000`
+         * @param executionContext the [A2uiExecutionContext] of the call
+         * @return the formatted number
+         */
+        public fun formatNumber(
+            value: Double,
+            @Suppress("AutoBoxing") decimals: Int?,
+            grouping: Boolean,
+            executionContext: A2uiExecutionContext,
+        ): String = A2uiFormatNumberFunction.INSTANCE.typedExecute(value, decimals, grouping)
+
+        /**
+         * Implements the A2UI `"formatCurrency"` function, which formats an amount of money for
+         * display.
+         *
+         * The default implementation formats amounts with [java.text.NumberFormat] in the default
+         * locale.
+         *
+         * @param value the monetary amount to format
+         * @param currency the ISO 4217 currency code, e.g., `USD`
+         * @param decimals the number of decimal places to show, or `null` for the default precision
+         *   of [currency]
+         * @param grouping whether to use locale-specific grouping separators, e.g., `1,000`
+         * @param executionContext the [A2uiExecutionContext] of the call
+         * @return the formatted amount
+         */
+        public fun formatCurrency(
+            value: Double,
+            currency: String,
+            @Suppress("AutoBoxing") decimals: Int?,
+            grouping: Boolean,
+            executionContext: A2uiExecutionContext,
+        ): String =
+            A2uiFormatCurrencyFunction.INSTANCE.typedExecute(value, currency, decimals, grouping)
+
+        /**
+         * Implements the A2UI `"formatDate"` function, which formats a date for display.
+         *
+         * The default implementation formats dates in UTC with [java.text.SimpleDateFormat] in the
+         * default locale.
+         *
+         * @param epochMillis the date to format, in milliseconds since the Unix epoch
+         * @param format the Unicode TR35 date pattern, e.g., `MMM dd, yyyy`
+         * @param executionContext the [A2uiExecutionContext] of the call
+         * @return the formatted date
+         */
+        public fun formatDate(
+            epochMillis: Long,
+            format: String,
+            executionContext: A2uiExecutionContext,
+        ): String = A2uiFormatDateFunction.INSTANCE.typedExecute(epochMillis, format)
+
+        /**
+         * Implements the A2UI `"pluralize"` function, which selects a string by the plural category
+         * of a number.
+         *
+         * The default implementation selects strings with the ICU plural rules of the default
+         * locale.
+         *
+         * @param value the number that determines the plural category
+         * @param zero the string for the `zero` category, or `null` to use [other]
+         * @param one the string for the `one` category, or `null` to use [other]
+         * @param two the string for the `two` category, or `null` to use [other]
+         * @param few the string for the `few` category, or `null` to use [other]
+         * @param many the string for the `many` category, or `null` to use [other]
+         * @param other the string for all other categories
+         * @param executionContext the [A2uiExecutionContext] of the call
+         * @return the string for the plural category of [value]
+         */
+        public fun pluralize(
+            value: Double,
+            zero: String?,
+            one: String?,
+            two: String?,
+            few: String?,
+            many: String?,
+            other: String,
+            executionContext: A2uiExecutionContext,
+        ): String = DefaultPluralizeFunction.typedExecute(value, zero, one, two, few, many, other)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is A2uiBasicCatalogV1) return false
@@ -3133,7 +3399,7 @@ public fun A2uiBasicCatalogV1.toA2uiCatalog(isInline: Boolean = false): A2uiCata
     A2uiCatalog(
         catalogId = catalogId,
         components = components,
-        functions = functions,
+        functions = functions.toA2uiFunctions(),
         themeSchema = themeSchema,
         isInline = isInline,
     )

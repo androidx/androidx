@@ -61,7 +61,7 @@ package androidx.a2ui.compose.ui {
 package androidx.a2ui.compose.ui.catalog {
 
   public final class A2uiBasicCatalogV1 {
-    ctor public A2uiBasicCatalogV1(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon icon, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Video video, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AudioPlayer audioPlayer, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.List list, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Tabs tabs, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Modal modal, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Divider divider, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button button, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField textField, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckBox checkBox, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker choicePicker, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Slider slider, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput, java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions);
+    ctor public A2uiBasicCatalogV1(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon icon, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Video video, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AudioPlayer audioPlayer, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.List list, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Tabs tabs, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Modal modal, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Divider divider, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button button, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField textField, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckBox checkBox, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.ChoicePicker choicePicker, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Slider slider, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Functions functions);
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AudioPlayer getAudioPlayer();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button getButton();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card getCard();
@@ -72,7 +72,7 @@ package androidx.a2ui.compose.ui.catalog {
     method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.compose.ui.A2uiComponent> getComponents();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput getDateTimeInput();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Divider getDivider();
-    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.catalog.A2uiFunction> getFunctions();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Functions getFunctions();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon getIcon();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image getImage();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.List getList();
@@ -94,7 +94,7 @@ package androidx.a2ui.compose.ui.catalog {
     property public java.util.List<androidx.a2ui.compose.ui.A2uiComponent> components;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Divider divider;
-    property public java.util.List<androidx.a2ui.model.catalog.A2uiFunction> functions;
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Functions functions;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon icon;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.List list;
@@ -368,6 +368,8 @@ package androidx.a2ui.compose.ui.catalog {
   }
 
   public static final class A2uiBasicCatalogV1.Companion {
+    method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Functions Functions(android.content.Context context, optional androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider);
+    method @BytecodeOnly public static androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Functions! Functions$default(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Companion!, android.content.Context!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, int, Object!);
     method @InaccessibleFromKotlin public String getCatalogId();
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getThemeSchema();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Number> getWeightProperty();
@@ -442,6 +444,20 @@ package androidx.a2ui.compose.ui.catalog {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Divider.Axis> getAxisProperty();
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> AccessibilityProperty;
     property public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Divider.Axis> AxisProperty;
+  }
+
+  public static interface A2uiBasicCatalogV1.Functions {
+    method public default boolean email(String value, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
+    method public default String formatCurrency(double value, String currency, Integer? decimals, boolean grouping, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
+    method public default String formatDate(long epochMillis, String format, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
+    method public default String formatNumber(double value, Integer? decimals, boolean grouping, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
+    method public default String formatString(String value, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
+    method public default boolean length(String value, int min, int max, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
+    method public default boolean numeric(double value, double min, double max, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
+    method public void openUrl(String url, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
+    method public default String pluralize(double value, String? zero, String? one, String? two, String? few, String? many, String other, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
+    method public default boolean regex(String value, String pattern, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
+    method public default boolean required(Object? value, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
   }
 
   public static interface A2uiBasicCatalogV1.Icon extends androidx.a2ui.compose.ui.A2uiComponent {
