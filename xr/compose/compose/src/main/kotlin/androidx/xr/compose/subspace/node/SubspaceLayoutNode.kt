@@ -296,7 +296,7 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
      * relationships of the corresponding SubspaceLayoutNodes. This should be called any time the
      * `parent` or `coreEntity` fields are updated.
      */
-    private fun syncCoreEntityHierarchy() {
+    internal fun syncCoreEntityHierarchy() {
         coreEntity?.parent = findCoreEntityParent()
     }
 
