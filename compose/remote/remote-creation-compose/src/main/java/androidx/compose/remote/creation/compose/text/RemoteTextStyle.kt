@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 
 /**
@@ -180,7 +181,15 @@ constructor(
     }
 
     public companion object {
-        /** Creates a [RemoteTextStyle] from a [TextStyle]. */
+        /**
+         * Creates a [RemoteTextStyle] from a [TextStyle].
+         *
+         * [TextStyle.fontFeatureSettings] is carried over as [RemoteTextStyle.fontFeatureSettings]
+         * and never affects [RemoteTextStyle.fontVariationSettings]. The variation settings are
+         * taken from the [Font] in the [FontListFontFamily] that best matches the style's
+         * [FontWeight] and [FontStyle], using the same CSS font matching rules as Compose, among
+         * the fonts that declare variation settings.
+         */
         public fun fromTextStyle(style: TextStyle): RemoteTextStyle {
             // Maps unspecified color into null as it's not supported in remote compose.
             val color = if (style.color == Color.Unspecified) null else style.color.rc
@@ -195,11 +204,11 @@ constructor(
             val lineHeight =
                 if (style.lineHeight == TextUnit.Unspecified) null
                 else style.lineHeight.asRemoteTextUnit()
-            val fontWithSettings =
-                (style.fontFamily as? FontListFontFamily)?.fonts?.fastFirstOrNull { font ->
-                    font.extractVariationSettings()?.settings?.isNotEmpty() == true
-                }
-            val fontVariationSettings = fontWithSettings?.extractVariationSettings()
+            val fontVariationSettings =
+                (style.fontFamily as? FontListFontFamily)?.matchFontVariationSettings(
+                    fontWeight = style.fontWeight ?: FontWeight.Normal,
+                    fontStyle = style.fontStyle ?: FontStyle.Normal,
+                )
             return RemoteTextStyle(
                 color = color,
                 fontSize = fontSize,
@@ -229,6 +238,82 @@ private fun Font.extractVariationSettings(): FontVariation.Settings? =
         is ResourceFont -> variationSettings
         else -> null
     }
+
+/**
+ * Returns the [FontVariation.Settings] of the [Font] that Compose would select for [fontWeight] and
+ * [fontStyle], considering only fonts that declare non-empty variation settings. Returns null if no
+ * font declares variation settings.
+ *
+ * Remote documents carry a single set of font axes rather than the whole font list, so fonts
+ * without variation settings are skipped instead of resolving to no axes.
+ */
+internal fun FontListFontFamily.matchFontVariationSettings(
+    fontWeight: FontWeight,
+    fontStyle: FontStyle,
+): FontVariation.Settings? {
+    val candidates = fonts.fastFilter {
+        it.extractVariationSettings()?.settings?.isNotEmpty() == true
+    }
+    if (candidates.isEmpty()) return null
+    return matchFont(candidates, fontWeight, fontStyle).extractVariationSettings()
+}
+
+/**
+ * Selects the best [Font] for [fontWeight] and [fontStyle] using the
+ * [CSS 4 font matching](https://www.w3.org/TR/css-fonts-4/#font-style-matching) rules, mirroring
+ * Compose's internal `FontMatcher`.
+ */
+private fun matchFont(fonts: List<Font>, fontWeight: FontWeight, fontStyle: FontStyle): Font {
+    fonts
+        .fastFirstOrNull { it.weight == fontWeight && it.style == fontStyle }
+        ?.let {
+            return it
+        }
+    val fontsToSearch = fonts.fastFilter { it.style == fontStyle }.ifEmpty { fonts }
+    val bestWeight =
+        when {
+            fontWeight < FontWeight.W400 ->
+                fontsToSearch.closestWeight(fontWeight, preferBelow = true)
+            fontWeight > FontWeight.W500 ->
+                fontsToSearch.closestWeight(fontWeight, preferBelow = false)
+            else ->
+                fontsToSearch.closestWeight(
+                    fontWeight,
+                    preferBelow = false,
+                    maxSearchRange = FontWeight.W500,
+                )
+                    ?: fontsToSearch.closestWeight(
+                        fontWeight,
+                        preferBelow = false,
+                        minSearchRange = FontWeight.W500,
+                    )
+        }
+    return fontsToSearch.fastFirstOrNull { it.weight == bestWeight } ?: fontsToSearch.first()
+}
+
+private fun List<Font>.closestWeight(
+    fontWeight: FontWeight,
+    preferBelow: Boolean,
+    minSearchRange: FontWeight? = null,
+    maxSearchRange: FontWeight? = null,
+): FontWeight? {
+    var bestWeightAbove: FontWeight? = null
+    var bestWeightBelow: FontWeight? = null
+    for (index in indices) {
+        val weight = get(index).weight
+        if (minSearchRange != null && weight < minSearchRange) continue
+        if (maxSearchRange != null && weight > maxSearchRange) continue
+        if (weight < fontWeight) {
+            if (bestWeightBelow == null || weight > bestWeightBelow) bestWeightBelow = weight
+        } else if (weight > fontWeight) {
+            if (bestWeightAbove == null || weight < bestWeightAbove) bestWeightAbove = weight
+        } else {
+            return weight
+        }
+    }
+    return if (preferBelow) bestWeightBelow ?: bestWeightAbove
+    else bestWeightAbove ?: bestWeightBelow
+}
 
 /**
  * Parses a CSS-style fontFeatureSettings string (e.g., "tnum", "tnum, zero", "'tnum' 1, 'smcp' 1")
