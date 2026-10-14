@@ -19,7 +19,6 @@ package androidx.xr.compose.subspace.layout
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
@@ -143,7 +142,6 @@ internal sealed class CoreEntity(val pixelDensity: PixelDensity, initialEntity: 
      */
     internal open var scale = 1f
         set(value) {
-            Log.i("JSALEH", "field = $field, value = $value")
             if (field != value) {
                 entityActionQueue.executeWhenAvailable { it.setScale(value) }
             }
