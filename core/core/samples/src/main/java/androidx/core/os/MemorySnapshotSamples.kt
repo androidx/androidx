@@ -56,6 +56,42 @@ fun captureMemorySnapshotSample() {
     recordAppMemoryMetric(anonRssMb)
 }
 
+/**
+ * Sample demonstrating how to capture a [MemorySnapshot] for a specific process ID within the same
+ * application process group (such as a secondary or background service process).
+ */
+@Sampled
+fun captureProcessMemorySnapshotSample(pid: Int) {
+    // Capture snapshot for the target process. Returns null if capture fails (e.g., if the
+    // target process has already terminated).
+    val snapshot = MemorySnapshot.capture(pid) ?: return
+
+    // Resident memory metrics for the target process (in bytes)
+    val rssBytes = snapshot.rssBytes
+    val anonRssBytes = snapshot.anonRssBytes
+    val fileRssBytes = snapshot.fileRssBytes
+    val shmemRssBytes = snapshot.shmemRssBytes
+    val swapBytes = snapshot.swapBytes
+
+    // Total anonymous memory including swap for the secondary process
+    if (anonRssBytes >= 0 && swapBytes >= 0) {
+        val totalAnonBytes = anonRssBytes + swapBytes
+        recordProcessMemory(pid, totalAnonBytes)
+    }
+
+    // Process-specific cgroup memory usage (in bytes)
+    val processCgroupBytes = snapshot.processMemoryUsageBytes
+    // Package-wide cgroup memory usage across all processes under this UID (in bytes)
+    val packageCgroupBytes = snapshot.packageMemoryUsageBytes
+
+    // When both process and package cgroup metrics are available (Android 17+),
+    // calculate this process's contribution to total application memory footprint
+    if (processCgroupBytes >= 0 && packageCgroupBytes > 0) {
+        val memoryShare = (processCgroupBytes * 100.0) / packageCgroupBytes
+        recordProcessMemoryShare(pid, memoryShare)
+    }
+}
+
 /** Sample demonstrating how to measure the memory impact of an operation. */
 @Sampled
 fun trackMemoryUsageDeltaSample() {
@@ -94,3 +130,7 @@ fun trackMemoryUsageDeltaSample() {
 @Suppress("UNUSED_PARAMETER") private fun recordMemoryDelta(deltaBytes: Long) {}
 
 private fun performMemoryIntensiveOperation() {}
+
+@Suppress("UNUSED_PARAMETER") private fun recordProcessMemory(pid: Int, bytes: Long) {}
+
+@Suppress("UNUSED_PARAMETER") private fun recordProcessMemoryShare(pid: Int, percentage: Double) {}

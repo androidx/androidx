@@ -17,7 +17,9 @@
 package androidx.core.os
 
 import android.os.Process
+import android.system.ErrnoException
 import android.system.Os
+import android.system.OsConstants
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import java.io.BufferedReader
@@ -25,7 +27,7 @@ import java.io.File
 import java.io.FileReader
 
 /**
- * A lightweight, point-in-time snapshot of memory metrics for the calling process.
+ * A lightweight, point-in-time snapshot of memory metrics for processes in an application.
  *
  * [MemorySnapshot] provides low-overhead memory statistics designed for routine telemetry,
  * performance monitoring, and regression tracking. Unlike heavyweight diagnostic tools such as
@@ -43,6 +45,7 @@ import java.io.FileReader
  * and can be called concurrently from any thread.
  *
  * @sample androidx.core.os.captureMemorySnapshotSample
+ * @sample androidx.core.os.captureProcessMemorySnapshotSample
  * @sample androidx.core.os.trackMemoryUsageDeltaSample
  * @see MemorySnapshot.capture
  */
@@ -64,7 +67,27 @@ public class MemorySnapshot private constructor(private val procStatus: ProcStat
          */
         @JvmStatic
         public fun capture(): MemorySnapshot? {
-            val status = ProcStatus.read()
+            return capture(0)
+        }
+
+        /**
+         * Captures a point-in-time [MemorySnapshot] for the specified process id. The target
+         * process must belong to the calling application.
+         *
+         * Note: When the target process is not the calling process, [vssBytes] may not be
+         * available, and its value in the returned [MemorySnapshot] may be `-1L`.
+         *
+         * @sample androidx.core.os.captureProcessMemorySnapshotSample
+         * @param pid the process ID to capture, or `0` for the calling process.
+         * @return an immutable [MemorySnapshot] instance reflecting current memory state, or `null`
+         *   if capture fails (for example, if the target process has already terminated or kernel
+         *   memory statistics cannot be read).
+         * @throws IllegalArgumentException if [pid] is negative or does not belong to the calling
+         *   application.
+         */
+        @JvmStatic
+        public fun capture(pid: Int): MemorySnapshot? {
+            val status = ProcStatus.read(pid)
             return if (status != null) {
                 MemorySnapshot(status)
             } else {
@@ -151,7 +174,7 @@ public class MemorySnapshot private constructor(private val procStatus: ProcStat
     /**
      * Total Resident Set Size (RSS) in bytes, or `-1L` if unavailable.
      *
-     * Represents the total amount of physical RAM currently occupied by the calling process,
+     * Represents the total amount of physical RAM currently occupied by the target process,
      * including anonymous allocations, memory-mapped files, and shared memory mappings. This is
      * equal to the sum of [anonRssBytes], [fileRssBytes] and [shmemRssBytes].
      *
@@ -235,7 +258,7 @@ public class MemorySnapshot private constructor(private val procStatus: ProcStat
     /**
      * Process-specific cgroup memory usage in bytes, or `-1L` if unavailable.
      *
-     * Represents memory usage attributed directly to the calling process by the memory controller
+     * Represents memory usage attributed directly to the process by the memory controller
      * (`memory.current` in the process cgroup).
      *
      * NOTE: [processMemoryUsageBytes] and [packageMemoryUsageBytes] requires Android 17 or higher,
@@ -268,10 +291,93 @@ public class MemorySnapshot private constructor(private val procStatus: ProcStat
         var packageMemoryUsageBytes: Long = -1L
 
         companion object {
-            fun read(): ProcStatus? {
+            private val myPid: Int by lazy { Process.myPid() }
+            private var procRoot: String = "/proc"
+
+            fun isSelf(pid: Int): Boolean {
+                return (pid == 0 || pid == myPid)
+            }
+
+            fun isValidPid(pid: Int): Boolean {
+                require(pid >= 0) { "pid ($pid) must be non-negative" }
+                if (!isSelf(pid)) {
+                    // Os.kill(pid, 0) succeeds if pid exists and belongs to the same UID.
+                    try {
+                        Os.kill(pid, 0)
+                    } catch (e: ErrnoException) {
+                        if (e.errno == OsConstants.EPERM) {
+                            throw IllegalArgumentException(
+                                "Process $pid does not belong to the calling application",
+                                e,
+                            )
+                        }
+                        return false
+                    }
+                }
+                return true
+            }
+
+            fun read(pid: Int): ProcStatus? {
+                if (!isValidPid(pid)) {
+                    return null
+                }
+
+                val targetPid = if (pid == 0) myPid else pid
+                val isSelf = isSelf(pid)
+                val procStatusPath =
+                    if (isSelf) "$procRoot/self/status" else "$procRoot/$targetPid/status"
                 val status = ProcStatus()
+                val procRead = readProcStatus(procStatusPath, status)
+
+                if (CgroupFdHolder.FD != INVALID_C_GROUP_FD) {
+                    status.processMemoryUsageBytes =
+                        readLongFromFile(CgroupFdHolder.getPath(targetPid, "memory.current"))
+                    status.packageMemoryUsageBytes =
+                        readLongFromFile(CgroupFdHolder.getPath("memory.current"))
+
+                    if (!procRead && !isSelf) {
+                        // Secondary process fallback: read memory metrics directly from UID-scoped
+                        // cgroup v2 when /proc/<pid>/status is inaccessible
+                        parseCgroupMemoryStat(
+                            CgroupFdHolder.getPath(targetPid, "memory.stat"),
+                            status,
+                        )
+                        status.swapBytes =
+                            readLongFromFile(
+                                CgroupFdHolder.getPath(targetPid, "memory.swap.current")
+                            )
+                        val peak =
+                            readLongFromFile(CgroupFdHolder.getPath(targetPid, "memory.peak"))
+                        val rssSum =
+                            (if (status.anonRssBytes > 0) status.anonRssBytes else 0L) +
+                                (if (status.fileRssBytes > 0) status.fileRssBytes else 0L) +
+                                (if (status.shmemRssBytes > 0) status.shmemRssBytes else 0L)
+                        status.rssBytes =
+                            if (status.processMemoryUsageBytes > 0) {
+                                maxOf(status.processMemoryUsageBytes, rssSum)
+                            } else if (rssSum > 0) {
+                                rssSum
+                            } else {
+                                -1L
+                            }
+                        status.rssHwmBytes =
+                            if (peak >= 0) {
+                                maxOf(peak, status.rssBytes)
+                            } else {
+                                status.rssBytes
+                            }
+                    }
+                }
+
+                if (status.rssBytes == -1L || (isSelf && status.vssBytes == -1L)) {
+                    return null
+                }
+                return status
+            }
+
+            private fun readProcStatus(path: String, status: ProcStatus): Boolean {
                 try {
-                    BufferedReader(FileReader("/proc/self/status"), 1024).use { reader ->
+                    BufferedReader(FileReader(path), 1024).use { reader ->
                         var line: String?
                         var nlines = 0
                         while (reader.readLine().also { line = it } != null && nlines < 7) {
@@ -300,30 +406,57 @@ public class MemorySnapshot private constructor(private val procStatus: ProcStat
                             }
                         }
                     }
+                } catch (e: Exception) {
+                    // Ignore, procfs read failed
+                }
+                return status.rssBytes != -1L && status.vssBytes != -1L
+            }
 
-                    val cgroupFdNum = CgroupFdHolder.FD
-                    if (cgroupFdNum != INVALID_C_GROUP_FD) {
-                        val prefix = "/proc/self/fd/$cgroupFdNum"
-                        status.processMemoryUsageBytes =
-                            readLongFromFile("$prefix/pid_${Process.myPid()}/memory.current")
-                        status.packageMemoryUsageBytes = readLongFromFile("$prefix/memory.current")
+            private fun parseCgroupMemoryStat(path: String, status: ProcStatus) {
+                try {
+                    BufferedReader(FileReader(path), 512).use { reader ->
+                        var line: String?
+                        var nlines = 0
+                        while (reader.readLine().also { line = it } != null && nlines < 3) {
+                            val l = line!!
+                            if (
+                                l.startsWith("anon") &&
+                                    (l.length > 4 && Character.isWhitespace(l[4]))
+                            ) {
+                                status.anonRssBytes = parseUnsignedLong(l, 5, Long.MAX_VALUE)
+                                nlines++
+                            } else if (
+                                l.startsWith("file") &&
+                                    (l.length > 4 && Character.isWhitespace(l[4]))
+                            ) {
+                                status.fileRssBytes = parseUnsignedLong(l, 5, Long.MAX_VALUE)
+                                nlines++
+                            } else if (
+                                l.startsWith("shmem") &&
+                                    (l.length > 5 && Character.isWhitespace(l[5]))
+                            ) {
+                                status.shmemRssBytes = parseUnsignedLong(l, 6, Long.MAX_VALUE)
+                                nlines++
+                            }
+                        }
+                    }
+                    // In cgroup v2 memory.stat, `file` includes `shmem` pages. Subtract `shmem`
+                    // so `fileRssBytes` reflects pure file-backed pages matching procfs.
+                    if (status.fileRssBytes >= 0 && status.shmemRssBytes > 0) {
+                        status.fileRssBytes = maxOf(0L, status.fileRssBytes - status.shmemRssBytes)
                     }
                 } catch (e: Exception) {
                     // Ignore
                 }
-
-                // only return status when both VmRss and VmSize are valid, other fields
-                // can be missing or invalid (-1)
-                if (status.rssBytes == -1L || status.vssBytes == -1L) {
-                    return null
-                }
-                return status
             }
 
             private fun readLongFromFile(path: String): Long {
                 try {
                     BufferedReader(FileReader(path), 128).use { reader ->
-                        val line = reader.readLine()!!
+                        val line = reader.readLine() ?: return -1L
+                        if (line.trim() == "max") {
+                            return Long.MAX_VALUE
+                        }
                         return parseUnsignedLong(line, 0, Long.MAX_VALUE)
                     }
                 } catch (e: Exception) {
@@ -335,10 +468,25 @@ public class MemorySnapshot private constructor(private val procStatus: ProcStat
     }
 
     private object CgroupFdHolder {
-        val FD: Int = findCgroupFd()
+        @Volatile private var cachedFd: Int = INVALID_C_GROUP_FD
 
-        private fun findCgroupFd(): Int {
-            val fdDir = File("/proc/self/fd")
+        val FD: Int
+            get() =
+                if (cachedFd == INVALID_C_GROUP_FD) {
+                    findCgroupFd(File("/proc/self/fd")).also { cachedFd = it }
+                } else {
+                    cachedFd
+                }
+
+        fun getPath(attribute: String): String {
+            return "/proc/self/fd/$FD/$attribute"
+        }
+
+        fun getPath(pid: Int, attribute: String): String {
+            return "/proc/self/fd/$FD/pid_$pid/$attribute"
+        }
+
+        fun findCgroupFd(fdDir: File): Int {
             val fds = fdDir.listFiles() ?: return INVALID_C_GROUP_FD
 
             for (fdFile in fds) {
@@ -346,7 +494,8 @@ public class MemorySnapshot private constructor(private val procStatus: ProcStat
                     val target = Os.readlink(fdFile.absolutePath)
                     if (
                         target.startsWith("/sys/fs/cgroup/apps/uid_") ||
-                            target.startsWith("/sys/fs/cgroup/system/uid_")
+                            target.startsWith("/sys/fs/cgroup/system/uid_") ||
+                            target.startsWith("/sys/fs/cgroup/uid_")
                     ) {
                         return fdFile.name.toInt()
                     }
