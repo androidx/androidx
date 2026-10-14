@@ -117,14 +117,9 @@ private object ResourceHelper {
  * @param newLuminance 0 <= newLuminance <= 100; invalid values are corrected.
  */
 internal fun Color.setLuminance(@FloatRange(from = 0.0, to = 100.0) newLuminance: Float): Color {
-    if ((newLuminance < 0.0001) or (newLuminance > 99.9999)) {
-        return Color(CamUtils.argbFromLstar(newLuminance.toDouble()))
-    }
-
-    val baseCam: Cam = Cam.fromInt(this.toArgb())
-    val baseColor = Cam.getInt(baseCam.hue, baseCam.chroma, newLuminance)
-
-    return Color(baseColor)
+    // Equivalent to libmonet's Hct.setTone. HctSolver returns a gray for tones close to 0 or 100.
+    val hct = Hct.fromInt(this.toArgb())
+    return Color(Hct.from(hct.hue, hct.chroma, newLuminance.toDouble()).toInt())
 }
 
 private const val DYNAMIC_THEMING_SETTING_NAME = "dynamic_color_theme_enabled"
