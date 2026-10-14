@@ -281,7 +281,15 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
      */
     suspend fun dumpLogcat(duration: Duration): String {
         val now = timeSinceEpoch()
-        val start = now - duration.coerceIn(Duration.ZERO, now)
+        return dumpLogcatSince(now - duration.coerceIn(Duration.ZERO, now))
+    }
+
+    /**
+     * Returns the logcat entries logged since [start], a time since the epoch on the device clock.
+     *
+     * @throws IOException if logcat fails
+     */
+    suspend fun dumpLogcatSince(start: Duration): String {
         // logcat takes no relative window, only a start time, here as `<epoch seconds>.<millis>`.
         val startArg = String.format(Locale.ROOT, "%d.%03d", start.seconds, start.nano / 1_000_000)
         val output = exec("logcat -d -t $startArg")
@@ -297,7 +305,7 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
      *
      * @throws IOException unless `date` prints the number of seconds since the epoch
      */
-    private suspend fun timeSinceEpoch(): Duration {
+    suspend fun timeSinceEpoch(): Duration {
         val output = exec("date +%s")
         val seconds =
             output.stdout.trim().toLongOrNull()?.takeIf { it >= 0 }
