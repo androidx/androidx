@@ -186,6 +186,27 @@ internal class SavedStateContainerTest : RobolectricTest() {
     }
 
     @Test
+    fun nestedContainers_restoreStateBeforeGetOrCreateContainer() {
+        val parent = SavedStateContainer()
+        val child = parent.getOrCreateContainer("child")
+        val childValue = TestSavedStateValue("childState")
+        child.putSavedStateValue("leafKey", childValue)
+
+        val savedState = parent.saveState()
+
+        // Restore into a fresh parent BEFORE getOrCreateContainer is called
+        val restoredParent = SavedStateContainer()
+        restoredParent.restoreState(savedState)
+
+        val restoredChild = restoredParent.getOrCreateContainer("child")
+        val restoredChildValue = TestSavedStateValue()
+        restoredChild.putSavedStateValue("leafKey", restoredChildValue)
+
+        assertThat(restoredChildValue.restoredState).isNotNull()
+        assertThat(restoredChildValue.value).isEqualTo("childState")
+    }
+
+    @Test
     fun savedState_collectsStateFromAllProviders() {
         val container = SavedStateContainer()
         val value1 = TestSavedStateValue("val1")
