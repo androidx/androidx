@@ -218,6 +218,7 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
             "cmd sensor_privacy disable 0 camera"
         private const val ADB_SHELL_DISABLE_MICROPHONE_SENSOR_PRIVACY_API31_AND_ABOVE =
             "cmd sensor_privacy disable 0 microphone"
+        private const val XIAOMI_OP_BACKGROUND_START_ACTIVITY = 10021
 
         /** The display foreground of the device is occupied that cannot execute UI related test. */
         public class ForegroundOccupiedError(message: String) : Exception(message)
@@ -328,6 +329,22 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
                 device.executeShellCommand(ADB_SHELL_SCREEN_ALWAYS_ON)
             } catch (_: IOException) {}
 
+            // MIUI/HyperOS custom op OP_BACKGROUND_START_ACTIVITY (10021): allow background
+            // activity starts.
+            if (isXiaomiDevice()) {
+                for (pkg in
+                    setOf(
+                        instrumentation.context.packageName,
+                        instrumentation.targetContext.packageName,
+                    )) {
+                    try {
+                        device.executeShellCommand(
+                            "appops set $pkg $XIAOMI_OP_BACKGROUND_START_ACTIVITY allow"
+                        )
+                    } catch (_: IOException) {}
+                }
+            }
+
             backToHome(instrumentation)
 
             try {
@@ -380,5 +397,11 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
             }
             throw IllegalStateException("Failed to get UiDevice after retries", lastException)
         }
+
+        private fun isXiaomiDevice(): Boolean =
+            Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true) ||
+                Build.BRAND.equals("Xiaomi", ignoreCase = true) ||
+                Build.BRAND.equals("Redmi", ignoreCase = true) ||
+                Build.BRAND.equals("Poco", ignoreCase = true)
     }
 }

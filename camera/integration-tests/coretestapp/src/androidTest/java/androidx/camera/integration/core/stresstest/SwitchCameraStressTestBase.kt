@@ -62,29 +62,29 @@ abstract class SwitchCameraStressTestBase(
     val cameraConfig: CameraXConfig,
     val cameraId: String,
 ) {
-    @get:Rule
+    @get:Rule(order = 0) val labTest: LabTestRule = LabTestRule()
+
+    @get:Rule(order = 1) val repeatRule = RepeatRule()
+
+    @get:Rule(order = 2)
     val requireForegroundRule = RequireForegroundRule {
         assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
         CoreAppTestUtil.assumeCanTestFrontCamera()
     }
 
-    @get:Rule
+    @get:Rule(order = 3)
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(cameraConfig)
         )
 
-    @get:Rule
+    @get:Rule(order = 4)
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO,
         )
-
-    @get:Rule val labTest: LabTestRule = LabTestRule()
-
-    @get:Rule val repeatRule = RepeatRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 

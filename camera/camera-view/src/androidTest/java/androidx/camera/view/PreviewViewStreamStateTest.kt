@@ -42,7 +42,6 @@ import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,11 +60,17 @@ class PreviewViewStreamStateTest(
     private lateinit var lifecycle: FakeLifecycleOwner
     private lateinit var cameraProvider: ProcessCameraProvider
 
-    @get:Rule
+    @get:Rule(order = 0)
+    val requireForegroundRule = RequireForegroundRule {
+        defaultCameraSelector = CameraUtil.assumeFirstAvailableCameraSelector()
+        CoreAppTestUtil.assumeCompatibleDevice()
+    }
+
+    @get:Rule(order = 1)
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
-    @get:Rule
+    @get:Rule(order = 2)
     val activityRule: CameraTestActivityScenarioRule<FakeActivity> =
         CameraTestActivityScenarioRule(FakeActivity::class.java)
 
@@ -73,10 +78,6 @@ class PreviewViewStreamStateTest(
 
     @Before
     fun setUp() {
-        defaultCameraSelector = CameraUtil.assumeFirstAvailableCameraSelector()
-
-        CoreAppTestUtil.assumeCompatibleDevice()
-
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         instrumentation.runOnMainSync {
@@ -211,12 +212,6 @@ class PreviewViewStreamStateTest(
                 ),
                 inLabTestRequired = true,
             )
-
-        @BeforeClass
-        @JvmStatic
-        fun classSetUp() {
-            RequireForegroundRule.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-        }
 
         const val TIMEOUT_SECONDS = 10L
     }
