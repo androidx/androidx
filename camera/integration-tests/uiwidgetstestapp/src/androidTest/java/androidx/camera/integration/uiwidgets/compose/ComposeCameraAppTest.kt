@@ -22,6 +22,7 @@ import androidx.camera.integration.uiwidgets.compose.ui.screen.imagecapture.DEFA
 import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.view.PreviewView
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -40,19 +41,15 @@ import org.junit.Test
 
 @LargeTest
 class ComposeCameraAppTest {
-    // Provide permissions to app via ComposeCameraActivity
-    @get:Rule
-    val permissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(*ComposeCameraActivity.REQUIRED_PERMISSIONS)
+    // Explicit rule ordering is required because createAndroidComposeRule launches
+    // ComposeCameraActivity during rule evaluation: LabTestRule and RequireForegroundRule must
+    // evaluate assumptions and prepare the device UI/foreground (including disabling sensor
+    // privacy) and GrantPermissionRule must grant CAMERA/RECORD_AUDIO permissions before the
+    // activity is launched.
+    @get:Rule(order = 0) val labTest: LabTestRule = LabTestRule()
 
-    @get:Rule val androidComposeTestRule = createAndroidComposeRule<ComposeCameraActivity>()
-
-    @get:Rule val labTest: LabTestRule = LabTestRule()
-
-    @get:Rule val repeatRule = RepeatRule()
-
-    @Before
-    fun setup() {
+    @get:Rule(order = 1)
+    val requireForegroundRule = RequireForegroundRule {
         // Skip test for b/539514196
         Assume.assumeFalse(
             "API 24 emulators crash due to SwiftShader driver defects. Unable to test.",
@@ -64,7 +61,20 @@ class ComposeCameraAppTest {
             Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29,
         )
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(DEFAULT_LENS_FACING))
+    }
 
+    // Provide permissions to app via ComposeCameraActivity
+    @get:Rule(order = 2)
+    val permissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(*ComposeCameraActivity.REQUIRED_PERMISSIONS)
+
+    @get:Rule(order = 3)
+    val androidComposeTestRule = createAndroidComposeRule<ComposeCameraActivity>()
+
+    @get:Rule(order = 4) val repeatRule = RepeatRule()
+
+    @Before
+    fun setup() {
         // Recreate the activity as it might terminate in other tests
         androidComposeTestRule.activityRule.scenario.recreate()
     }
