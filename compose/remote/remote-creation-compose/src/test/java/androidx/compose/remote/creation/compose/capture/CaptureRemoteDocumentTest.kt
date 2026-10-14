@@ -44,8 +44,10 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
@@ -57,6 +59,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
+import androidx.savedstate.read
+import androidx.savedstate.savedState
 import androidx.test.core.app.ApplicationProvider
 import java.io.ByteArrayInputStream
 import java.lang.ref.WeakReference
@@ -1226,6 +1230,197 @@ class CaptureRemoteDocumentTest {
             doc.textValues().contains(expected),
         )
     }
+
+    @Test
+    fun captureSingleRemoteDocument_withSavedState_persistsRememberSaveableAcrossCaptures() =
+        runTest(UnconfinedTestDispatcher()) {
+            val savedState = savedState()
+            var nextDefault = 10
+            val content: @Composable @RemoteComposable () -> Unit = {
+                val saved = rememberSaveable { nextDefault++ }
+                RemoteText("Saved $saved".rs)
+            }
+
+            val first =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+            val second =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+
+            assertDocumentContainsText(first.toCoreDocument(), "Saved 10")
+            assertDocumentContainsText(second.toCoreDocument(), "Saved 10")
+        }
+
+    // Host actions (e.g. WriterEvents.lambdas or Wear widget lambdaActions) registered during a
+    // one-shot capture are invoked after the capture has finished and disposed its composition,
+    // and then trigger a new capture. Because ParcelableMapHolder keeps the saved MutableState
+    // reference in memory inside SavedState (matching Compose UI's
+    // DisposableSaveableStateRegistry), mutating a rememberSaveable MutableState inside such an
+    // action updates the value restored by the next capture.
+    @Test
+    fun captureSingleRemoteDocument_withSavedState_postCaptureMutationPersistsToNextCapture() =
+        runTest(UnconfinedTestDispatcher()) {
+            val savedState = savedState()
+            var increment: (() -> Unit)? = null
+            val content: @Composable @RemoteComposable () -> Unit = {
+                var count by rememberSaveable { mutableIntStateOf(0) }
+                increment = { count++ }
+                RemoteText("Count $count".rs)
+            }
+
+            val first =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+            increment!!.invoke()
+            val second =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+
+            assertDocumentContainsText(first.toCoreDocument(), "Count 0")
+            assertDocumentContainsText(second.toCoreDocument(), "Count 1")
+        }
+
+    // When a rememberSaveable call leaves the composition during recomposition before the capture
+    // settles, its RememberObserver.onForgotten() unregisters the provider from
+    // SaveableStateRegistry, so performSave() at the end of the capture must not save it.
+    @Test
+    fun captureSingleRemoteDocument_withSavedState_recompositionUnregistersRemovedProvider() =
+        runTest(UnconfinedTestDispatcher()) {
+            val savedState = savedState()
+            var nextDefault = 1
+
+            captureSingleRemoteDocument(context, savedState = savedState) {
+                var showChild by remember { mutableStateOf(true) }
+                LaunchedEffect(Unit) { showChild = false }
+                if (showChild) {
+                    val saved = rememberSaveable { nextDefault++ }
+                    RemoteText("Child $saved".rs)
+                }
+            }
+
+            assertTrue(savedState.read { isEmpty() })
+        }
+
+    // SaveableStateRegistry.performSave() retains any restored entries that were not consumed
+    // during the capture, so state for a conditional branch survives across a capture that
+    // temporarily skips that branch.
+    @Test
+    fun captureSingleRemoteDocument_withSavedState_preservesUnconsumedRestoredValues() =
+        runTest(UnconfinedTestDispatcher()) {
+            val savedState = savedState()
+            var nextDefault = 100
+            var showBranch = true
+            val content: @Composable @RemoteComposable () -> Unit = {
+                if (showBranch) {
+                    val saved = rememberSaveable { nextDefault++ }
+                    RemoteText("Conditional $saved".rs)
+                }
+            }
+
+            val first =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+            // Second capture skips the branch so its restored value is not consumed.
+            showBranch = false
+            val second =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+            // Third capture enters the branch again and restores the original value.
+            showBranch = true
+            val third =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+
+            assertDocumentContainsText(first.toCoreDocument(), "Conditional 100")
+            assertFalse(second.toCoreDocument().displayHierarchy().contains("Conditional"))
+            assertDocumentContainsText(third.toCoreDocument(), "Conditional 100")
+        }
+
+    // Multiple rememberSaveable calls in a loop without key(...) share a composite key hash and
+    // register multiple providers under the same key in SaveableStateRegistry; their values must
+    // be saved and restored in registration order.
+    @Test
+    fun captureSingleRemoteDocument_withSavedState_multipleProvidersForSameKeyInLoop() =
+        runTest(UnconfinedTestDispatcher()) {
+            val savedState = savedState()
+            var nextDefault = 10
+            val content: @Composable @RemoteComposable () -> Unit = {
+                for (i in 0 until 2) {
+                    val saved = rememberSaveable { nextDefault++ }
+                    RemoteText("Item $i=$saved".rs)
+                }
+            }
+
+            val first =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+            val second =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+
+            assertDocumentContainsText(first.toCoreDocument(), "Item 0=10")
+            assertDocumentContainsText(first.toCoreDocument(), "Item 1=11")
+            assertDocumentContainsText(second.toCoreDocument(), "Item 0=10")
+            assertDocumentContainsText(second.toCoreDocument(), "Item 1=11")
+        }
+
+    @Test
+    fun captureRemoteDocument_withSavedState_persistsStateAcrossFlowCollections() =
+        runTest(UnconfinedTestDispatcher()) {
+            val savedState = savedState()
+            val displayInfo = createCreationDisplayInfo(context)
+            val advance = CompletableDeferred<Unit>()
+            val flow =
+                captureRemoteDocument(
+                    context = context,
+                    creationDisplayInfo = displayInfo,
+                    savedState = savedState,
+                ) {
+                    var count by rememberSaveable { mutableIntStateOf(0) }
+                    LaunchedEffect(Unit) {
+                        if (count == 0) {
+                            advance.await()
+                            count = 5
+                        }
+                    }
+                    RemoteText("Flow $count".rs)
+                }
+
+            advance.complete(Unit)
+            val firstCollection = flow.first().toCoreDocument()
+            val secondCollection = flow.first().toCoreDocument()
+
+            assertDocumentContainsText(firstCollection, "Flow 5")
+            assertDocumentContainsText(secondCollection, "Flow 5")
+        }
 }
 
 private const val CLAIMING_THREAD = "CaptureRemoteDocumentTest-claimer"

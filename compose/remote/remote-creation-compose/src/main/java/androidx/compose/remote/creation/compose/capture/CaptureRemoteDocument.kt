@@ -38,6 +38,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.LocalDensity
@@ -52,6 +54,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.savedstate.SavedState
 import androidx.tracing.traceAsync
 import java.util.Collections
 import java.util.IdentityHashMap
@@ -104,6 +107,7 @@ public suspend fun captureSingleRemoteDocument(
     profile: Profile,
     writerCallback: Any? = null,
     platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
+    savedState: SavedState? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ): ByteArray {
     val rootNode = RemoteRootNode()
@@ -117,6 +121,9 @@ public suspend fun captureSingleRemoteDocument(
         Recomposer(currentCoroutineContext() + recomposerDispatcher + writeTracker.contextElement)
     val composition = Composition(applier, recomposer)
     val lifecycleOwner = HeadlessLifecycleOwner()
+    val saveableStateRegistry = savedState?.let {
+        SaveableStateRegistry(it.toSaveableStateMap(), ::canBeSavedToBundle)
+    }
 
     try {
         val creationState =
@@ -144,6 +151,7 @@ public suspend fun captureSingleRemoteDocument(
                     LocalRemoteDensity provides remoteDensity,
                     LocalLayoutDirection provides layoutDirection,
                     LocalLifecycleOwner provides lifecycleOwner,
+                    LocalSaveableStateRegistry provides saveableStateRegistry,
                     content = content,
                 )
             }
@@ -242,6 +250,12 @@ public suspend fun captureSingleRemoteDocument(
     } finally {
         withContext(recomposerDispatcher + NonCancellable) {
             recomposer.cancel()
+            // Perform save before composition.dispose() because dispose() dispatches
+            // RememberObserver.onForgotten() to every rememberSaveable holder, which unregisters
+            // its provider from saveableStateRegistry.
+            if (savedState != null && saveableStateRegistry != null) {
+                savedState.saveSaveableState(saveableStateRegistry.performSave())
+            }
             lifecycleOwner.destroy()
             composition.dispose()
         }
@@ -263,6 +277,7 @@ public fun captureRemoteDocument(
     writerCallback: Any? = null,
     platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
     coroutineContext: CoroutineContext = Dispatchers.Default,
+    savedState: SavedState? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> = flow {
     require(RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled) {
@@ -281,6 +296,9 @@ public fun captureRemoteDocument(
         Recomposer(currentCoroutineContext() + recomposerDispatcher + writeTracker.contextElement)
     val composition = Composition(applier, recomposer)
     val lifecycleOwner = HeadlessLifecycleOwner()
+    val saveableStateRegistry = savedState?.let {
+        SaveableStateRegistry(it.toSaveableStateMap(), ::canBeSavedToBundle)
+    }
 
     try {
         val creationState =
@@ -308,6 +326,7 @@ public fun captureRemoteDocument(
                     LocalRemoteDensity provides remoteDensity,
                     LocalLayoutDirection provides layoutDirection,
                     LocalLifecycleOwner provides lifecycleOwner,
+                    LocalSaveableStateRegistry provides saveableStateRegistry,
                     content = content,
                 )
             }
@@ -435,6 +454,12 @@ public fun captureRemoteDocument(
     } finally {
         withContext(recomposerDispatcher + NonCancellable) {
             recomposer.cancel()
+            // Perform save before composition.dispose() because dispose() dispatches
+            // RememberObserver.onForgotten() to every rememberSaveable holder, which unregisters
+            // its provider from saveableStateRegistry.
+            if (savedState != null && saveableStateRegistry != null) {
+                savedState.saveSaveableState(saveableStateRegistry.performSave())
+            }
             lifecycleOwner.destroy()
             composition.dispose()
         }
