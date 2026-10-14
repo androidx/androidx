@@ -20,7 +20,6 @@ import androidx.ink.nativeloader.cinterop.BrushCoatNative_calculateMinimumRequir
 import androidx.ink.nativeloader.cinterop.BrushCoatNative_create
 import androidx.ink.nativeloader.cinterop.BrushCoatNative_free
 import androidx.ink.nativeloader.cinterop.BrushCoatNative_getBrushPaintPreferencesCount
-import androidx.ink.nativeloader.cinterop.BrushCoatNative_isCompatibleWithMeshFormat
 import androidx.ink.nativeloader.cinterop.BrushCoatNative_newCopyOfBrushPaintPreference
 import androidx.ink.nativeloader.cinterop.BrushCoatNative_newCopyOfBrushTip
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -40,11 +39,6 @@ actual internal object BrushCoatNative {
         }
 
     actual fun free(nativePointer: Long) = BrushCoatNative_free(nativePointer)
-
-    actual fun isCompatibleWithMeshFormat(
-        nativePointer: Long,
-        meshFormatNativePointer: Long,
-    ): Boolean = BrushCoatNative_isCompatibleWithMeshFormat(nativePointer, meshFormatNativePointer)
 
     actual fun newCopyOfBrushTip(nativePointer: Long): Long =
         BrushCoatNative_newCopyOfBrushTip(nativePointer)

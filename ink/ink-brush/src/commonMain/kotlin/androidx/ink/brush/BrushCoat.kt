@@ -19,7 +19,6 @@ package androidx.ink.brush
 import androidx.annotation.RestrictTo
 import androidx.annotation.Size
 import androidx.ink.brush.ImmutableCollections.unmodifiableList
-import androidx.ink.geometry.MeshFormat
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 import kotlin.jvm.JvmOverloads
@@ -135,16 +134,6 @@ private constructor(
     }
 
     /**
-     * Whether the brush can be supported by the attributes in the given [MeshFormat]. For use in
-     * Stroke.copy to determine if mesh regeneration is needed when the brush is changed.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @InkInternalOnlyApi
-    public fun isCompatibleWithMeshFormat(meshFormat: MeshFormat): Boolean {
-        return BrushCoatNative.isCompatibleWithMeshFormat(nativePointer, meshFormat.nativePointer)
-    }
-
-    /**
      * Returns a [Builder] with values set equivalent to `this`. Java developers, use the returned
      * builder to build a copy of a BrushCoat.
      */
@@ -226,8 +215,6 @@ internal expect object BrushCoatNative {
 
     /** Release the underlying memory allocated in [create]. */
     fun free(nativePointer: Long)
-
-    fun isCompatibleWithMeshFormat(nativePointer: Long, meshFormatNativePointer: Long): Boolean
 
     /**
      * Returns a new, unowned native pointer to a copy of the `BrushTip` in the pointed-at

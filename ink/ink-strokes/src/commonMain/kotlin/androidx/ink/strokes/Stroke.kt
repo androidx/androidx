@@ -134,7 +134,8 @@ private constructor(
         when {
             // For a pure copy, return the same object because it is immutable.
             brush == this.brush -> this
-            otherBrushRequiresDifferentMesh(brush) -> Stroke(brush, this.inputs)
+            !StrokeNative.shapeSupportsBrush(nativePointer, brush.nativePointer) ->
+                Stroke(brush, this.inputs)
             // Rendering caches use instance comparisons to identify re-usable shapes in the cache.
             // If a
             // new stroke has an unchanged shape, use the same instance of [PartitionedMesh] in the
@@ -142,32 +143,6 @@ private constructor(
             // [Stroke].
             else -> Stroke(brush, this.inputs, this.shape)
         }
-
-    /**
-     * Returns true if using the given [brush] instead of the current one would result in a
-     * different [PartitionedMesh].
-     */
-    private fun otherBrushRequiresDifferentMesh(otherBrush: Brush): Boolean {
-        if (
-            brush.size != otherBrush.size ||
-                brush.epsilon != otherBrush.epsilon ||
-                brush.family.coats.size != otherBrush.family.coats.size ||
-                brush.family.inputModel != otherBrush.family.inputModel
-        ) {
-            return true
-        }
-        for (i in 0 until brush.family.coats.size) {
-            if (brush.family.coats[i].tip != otherBrush.family.coats[i].tip) {
-                return true
-            }
-            if (
-                !otherBrush.family.coats[i].isCompatibleWithMeshFormat(shape.renderGroupFormat(i))
-            ) {
-                return true
-            }
-        }
-        return false
-    }
 
     public override fun toString(): String {
         return "Stroke(brush=$brush, inputs=$inputs, shape=$shape)"
@@ -292,6 +267,8 @@ internal expect object StrokeNative {
     ): Long
 
     fun free(nativePointer: Long)
+
+    fun shapeSupportsBrush(nativePointer: Long, brushNativePointer: Long): Boolean
 }
 
 @OptIn(InkInternalOnlyApi::class)
