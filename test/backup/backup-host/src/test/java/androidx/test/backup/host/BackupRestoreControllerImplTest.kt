@@ -72,6 +72,9 @@ class BackupRestoreControllerImplTest {
 
     /** What every restore through the fake backup service ends with. */
     private var restoreServiceResult: BackupResult = BackupResult.Success
+
+    /** Runs when a restore through the fake backup service starts. */
+    private var onServiceRestore: () -> Unit = {}
     private val controller =
         BackupRestoreControllerImpl(
             device.session,
@@ -678,6 +681,93 @@ class BackupRestoreControllerImplTest {
         )
     }
 
+    /** Google Play services reports the restore of an app that it skips as successful. */
+    @Test
+    fun performRestoreThrowsWhenGooglePlayServicesLogsThatItSkippedTheApp() {
+        val events = mutableListOf<String>()
+        onServiceRestore = { events += "restore" }
+        device.onShell { command ->
+            events += command
+            when {
+                command == "date +%s" -> shellOutput("1700000000\n")
+                command.startsWith("logcat") ->
+                    shellOutput(
+                        "10-14 07:21:50.666 18335 18694 I Backup  : [CacheRestoreHelper] " +
+                            "Package $PACKAGE is not eligible for D2D restore: " +
+                            "INELIGIBLE_DENYLISTED\n"
+                    )
+                else -> null
+            }
+        }
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        val e = assertFailsWith<IOException> { runBlocking { controller.performRestore(archive) } }
+
+        assertEquals(
+            "Restore of $PACKAGE from backup_cloud_encrypted_device.zip restored no app data: " +
+                "Google Play services skipped the app as not eligible for restore " +
+                "(INELIGIBLE_DENYLISTED)",
+            e.message,
+        )
+        // Only the entries logged since the restore started are read.
+        assertEquals(
+            listOf(
+                "input keyevent KEYCODE_HOME",
+                "date +%s",
+                "restore",
+                "logcat -d -t 1700000000.000",
+            ),
+            events,
+        )
+    }
+
+    @Test
+    fun performRestoreSucceedsWhenGooglePlayServicesLogsNoSkipOfTheApp() = runBlocking {
+        device.onShell { command ->
+            when {
+                command == "date +%s" -> shellOutput("1700000000\n")
+                command.startsWith("logcat") ->
+                    shellOutput(
+                        "10-14 07:29:35.360   686  1708 D BackupManagerService: restoreFinished " +
+                            "packageName=$PACKAGE\n"
+                    )
+                else -> null
+            }
+        }
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        assertSame(controller, controller.performRestore(archive))
+        assertEquals("logcat -d -t 1700000000.000", device.commands.last())
+    }
+
+    /** The log only explains a skip, so a log that cannot be read leaves the restore successful. */
+    @Test
+    fun performRestoreSucceedsWhenLogcatCannotBeRead() = runBlocking {
+        device.onShell { command ->
+            when {
+                command == "date +%s" -> shellOutput("1700000000\n")
+                command.startsWith("logcat") ->
+                    shellOutput(stderr = "logcat: Unexpected EOF!\n", exitCode = 1)
+                else -> null
+            }
+        }
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        assertSame(controller, controller.performRestore(archive))
+    }
+
+    @Test
+    fun performRestoreDoesNotReadLogcatWhenTheDeviceClockCannotBeRead() = runBlocking {
+        device.onShell { command ->
+            if (command == "date +%s") shellOutput(stderr = "date: not found\n", exitCode = 127)
+            else null
+        }
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        assertSame(controller, controller.performRestore(archive))
+        assertTrue(device.commands.none { it.startsWith("logcat") }, "${device.commands}")
+    }
+
     /** Studio's backup service returns its own cancellation, such as by a timeout, as an error. */
     @Test
     fun performBackupTimesOutWhenTheBackupServiceReturnsItsCancellation() {
@@ -1267,7 +1357,10 @@ class BackupRestoreControllerImplTest {
                     }
                     result
                 }
-                "restore" -> restoreServiceResult
+                "restore" -> {
+                    onServiceRestore()
+                    restoreServiceResult
+                }
                 else -> RETURNS_DEFAULTS.answer(invocation)
             }
         }
