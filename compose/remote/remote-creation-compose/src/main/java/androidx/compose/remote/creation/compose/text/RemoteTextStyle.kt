@@ -22,12 +22,15 @@ import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.AndroidFont
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontListFontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.ResourceFont
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
@@ -194,9 +197,9 @@ constructor(
                 else style.lineHeight.asRemoteTextUnit()
             val fontWithSettings =
                 (style.fontFamily as? FontListFontFamily)?.fonts?.fastFirstOrNull { font ->
-                    (font as? AndroidFont)?.variationSettings?.settings?.isNotEmpty() == true
+                    font.extractVariationSettings()?.settings?.isNotEmpty() == true
                 }
-            val fontVariationSettings = (fontWithSettings as? AndroidFont)?.variationSettings
+            val fontVariationSettings = fontWithSettings?.extractVariationSettings()
             return RemoteTextStyle(
                 color = color,
                 fontSize = fontSize,
@@ -218,6 +221,14 @@ constructor(
         public val Default: RemoteTextStyle = RemoteTextStyle()
     }
 }
+
+@OptIn(ExperimentalTextApi::class)
+private fun Font.extractVariationSettings(): FontVariation.Settings? =
+    when (this) {
+        is AndroidFont -> variationSettings
+        is ResourceFont -> variationSettings
+        else -> null
+    }
 
 /**
  * Parses a CSS-style fontFeatureSettings string (e.g., "tnum", "tnum, zero", "'tnum' 1, 'smcp' 1")
