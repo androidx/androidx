@@ -723,6 +723,22 @@ class BackupDeviceShellTest {
     }
 
     @Test
+    fun dumpLogcatSinceReadsTheEntriesSinceTheStart() = runBlocking {
+        onDeviceClock(logcat = shellOutput("log line\n"))
+
+        assertEquals("log line\n", shell.dumpLogcatSince(Duration.ofMillis(1_699_999_998_500)))
+        assertEquals(listOf("logcat -d -t 1699999998.500"), device.commands)
+    }
+
+    @Test
+    fun timeSinceEpochReadsTheDeviceClock() = runBlocking {
+        onDeviceClock()
+
+        assertEquals(Duration.ofSeconds(DEVICE_EPOCH_SECONDS), shell.timeSinceEpoch())
+        assertEquals(listOf("date +%s"), device.commands)
+    }
+
+    @Test
     fun clearLogcatClearsTheBuffer() = runBlocking {
         shell.clearLogcat()
 
