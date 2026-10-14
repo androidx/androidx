@@ -986,6 +986,10 @@ class OrderedScatterSetTest {
         set2 += "Hello"
         assertEquals(set.asSet(), set2.asSet())
         assertEquals(set.asMutableSet(), set2.asMutableSet())
+
+        val set3 = setOf("Hello", null, "Bonjour")
+        assertEquals(set3, set.asSet())
+        assertEquals(set3, set.asMutableSet())
     }
 
     @Test
@@ -1383,7 +1387,7 @@ class OrderedScatterSetTest {
             val i = x % 128
             val key = BadHashKey(i.toString())
             set.add(key)
-            for (j in i downTo max(0, i - 24)) {
+            (i downTo max(0, i - 24)).forEach { _ ->
                 assertTrue(set.contains(BadHashKey(i.toString())))
             }
         }
@@ -1393,11 +1397,11 @@ class OrderedScatterSetTest {
     fun randomizedHashCollisions() {
         val set = MutableOrderedScatterSet<BadHashKey>()
 
-        for (x in 0..1024) {
+        (0..1024).forEach { _ ->
             val i = abs(Random(6789).nextInt()) % 128
             val key = BadHashKey(i.toString())
             set.add(key)
-            for (j in i downTo max(0, i - 24)) {
+            (i downTo max(0, i - 24)).forEach { _ ->
                 assertTrue(set.contains(BadHashKey(i.toString())))
             }
         }

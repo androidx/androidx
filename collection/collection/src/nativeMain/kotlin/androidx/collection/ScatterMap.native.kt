@@ -28,6 +28,7 @@
 package androidx.collection
 
 import androidx.collection.internal.EMPTY_OBJECTS
+import androidx.collection.internal.checkPrecondition
 import androidx.collection.internal.requirePrecondition
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -225,7 +226,7 @@ public actual sealed class ScatterMap<K, V> {
             val slot = m[i]
             // In metadata, Empty (0x80), Deleted (0xFE), and Sentinel (0xFF) all have bit 7
             // set; Full slots have bit 7 unset (< 0x80). Inverting the word and masking
-            // with BitmaskMsb sets bit (8j + 7) iff slot j is Full. Sentinel (0xFF) at
+            // with BitmaskMsb sets bit (8j + 7) if slot j is Full. Sentinel (0xFF) at
             // capacity index is naturally skipped since its bit 7 is set.
             var mask = slot.inv() and BitmaskMsb
             while (mask != 0L) {
@@ -338,11 +339,8 @@ public actual sealed class ScatterMap<K, V> {
         @Suppress("UNCHECKED_CAST") val o = other as ScatterMap<Any?, Any?>
 
         forEach { key, value ->
-            if (value == null) {
-                if (o[key] != null || !o.containsKey(key)) {
-                    return false
-                }
-            } else if (value != o[key]) {
+            val index = o.findKeyIndex(key)
+            if (index < 0 || value != o.values[index]) {
                 return false
             }
         }
@@ -359,7 +357,7 @@ public actual sealed class ScatterMap<K, V> {
         var i = 0
         forEach { key, value ->
             s.append(if (key === this) "(this)" else key)
-            s.append("=")
+            s.append('=')
             s.append(if (value === this) "(this)" else value)
             i++
             if (i < _size) {
@@ -492,7 +490,7 @@ public actual class MutableScatterMap<K, V> @JvmOverloads actual constructor(ini
             @Suppress("UNCHECKED_CAST")
             values[index] as V?
                 ?: defaultValue().also {
-                    keys[index] = key
+                    // No need to write the key, in this case we know it's already there
                     values[index] = it
                 }
     }
@@ -532,6 +530,8 @@ public actual class MutableScatterMap<K, V> @JvmOverloads actual constructor(ini
     }
 
     public actual fun putAll(@Suppress("ArrayReturn") pairs: Array<out Pair<K, V>>) {
+        val newCapacity = normalizeCapacity(unloadedCapacity(_size))
+        if (newCapacity < _capacity) resizeStorage(newCapacity)
         for ((key, value) in pairs) {
             this[key] = value
         }
@@ -550,10 +550,14 @@ public actual class MutableScatterMap<K, V> @JvmOverloads actual constructor(ini
     }
 
     public actual fun putAll(from: Map<K, V>) {
+        val newCapacity = normalizeCapacity(unloadedCapacity(_size))
+        if (newCapacity < _capacity) resizeStorage(newCapacity)
         from.forEach { (key, value) -> this[key] = value }
     }
 
     public actual fun putAll(from: ScatterMap<K, V>) {
+        val newCapacity = normalizeCapacity(unloadedCapacity(_size))
+        if (newCapacity < _capacity) resizeStorage(newCapacity)
         from.forEach { key, value -> this[key] = value }
     }
 
@@ -635,9 +639,20 @@ public actual class MutableScatterMap<K, V> @JvmOverloads actual constructor(ini
     internal fun removeValueAt(index: Int): V? {
         _size -= 1
 
-        // TODO: We could just mark the entry as empty if there's a group
-        //       window around this entry that was already empty
-        writeMetadata(metadata, _capacity, index, Deleted)
+        // If the group of size GroupWidth around the entry we are deleting is already empty,
+        // we can just mark the entry as empty instead of marking it Deleted. This will avoid
+        // unnecessary and expensive cleanup (dropDeletes()) and resize phases
+        val m = metadata
+        val groupEmptyAfter = group(m, index).maskEmpty()
+        val groupEmptyBefore = group(m, (index - GroupWidth) and _capacity).maskEmpty()
+        val trigger =
+            (groupEmptyAfter != 0L) and
+                (groupEmptyBefore != 0L) and
+                (((groupEmptyAfter.countTrailingZeroBits() +
+                    groupEmptyBefore.countLeadingZeroBits()) ushr 3) < GroupWidth)
+        writeMetadata(m, _capacity, index, if (trigger) Empty else Deleted)
+        growthLimit += if (trigger) 1 else 0
+
         keys[index] = null
         val oldValue = values[index]
         values[index] = null
@@ -844,7 +859,6 @@ public actual class MutableScatterMap<K, V> @JvmOverloads actual constructor(ini
         val previousMetadata = metadata
         val previousKeys = keys
         val previousValues = values
-        val previousCapacity = _capacity
 
         initializeStorage(newCapacity)
 
@@ -853,15 +867,21 @@ public actual class MutableScatterMap<K, V> @JvmOverloads actual constructor(ini
         val newValues = values
         val capacity = _capacity
 
-        for (i in 0 until previousCapacity) {
-            if (isFull(previousMetadata, i)) {
-                val previousKey = previousKeys[i]
+        val lastIndex = previousMetadata.size - 2 // We always have 0 or at least 2 entries
+        for (i in 0..lastIndex) {
+            val slot = previousMetadata[i]
+            var mask = slot.inv() and BitmaskMsb
+            while (mask != 0L) {
+                val previousIndex = (i shl 3) + (mask.countTrailingZeroBits() ushr 3)
+                val previousKey = previousKeys[previousIndex]
                 val hash = hash(previousKey)
                 val index = findFirstAvailableSlot(h1(hash))
 
                 writeMetadata(newMetadata, capacity, index, h2(hash).toLong())
                 newKeys[index] = previousKey
-                newValues[index] = previousValues[i]
+                newValues[index] = previousValues[previousIndex]
+
+                mask = mask and (mask - 1L)
             }
         }
     }
@@ -966,11 +986,19 @@ private open class MapWrapper<K, V>(private val parent: ScatterMap<K, V>) : Map<
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || this::class != other::class) return false
 
-        other as MapWrapper<*, *>
+        if (other is MapWrapper<*, *>) return parent == other.parent
+        if (other is Map<*, *>) {
+            if (parent._size != other.size) return false
+            parent.forEach { key, value ->
+                if (value == null) {
+                    if (!(other[key] == null && other.containsKey(key))) return false
+                } else if (value != other[key]) return false
+            }
+            return true
+        }
 
-        return parent == other.parent
+        return false
     }
 
     override fun hashCode(): Int = parent.hashCode()
@@ -1027,7 +1055,9 @@ private class MutableEntries<K, V>(private val parent: MutableScatterMap<K, V>) 
             override fun next(): MutableMap.MutableEntry<K, V> = iterator.next()
 
             override fun remove() {
-                check(current != -1) { "Call next() before removing element from the iterator." }
+                checkPrecondition(current != -1) {
+                    "Call next() before removing element from the iterator."
+                }
                 parent.removeValueAt(current)
                 current = -1
             }
@@ -1112,7 +1142,9 @@ private class MutableKeys<K, V>(private val parent: MutableScatterMap<K, V>) : M
             }
 
             override fun remove() {
-                check(current != -1) { "Call next() before removing element from the iterator." }
+                checkPrecondition(current != -1) {
+                    "Call next() before removing element from the iterator."
+                }
                 parent.removeValueAt(current)
                 current = -1
             }
@@ -1187,7 +1219,9 @@ private class MutableValues<K, V>(private val parent: MutableScatterMap<K, V>) :
             }
 
             override fun remove() {
-                check(current != -1) { "Call next() before removing element from the iterator." }
+                checkPrecondition(current != -1) {
+                    "Call next() before removing element from the iterator."
+                }
                 parent.removeValueAt(current)
                 current = -1
             }

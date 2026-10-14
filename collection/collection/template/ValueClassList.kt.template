@@ -940,7 +940,7 @@ VISIBILITY inline fun mutableVALUE_CLASSListOf(
  * [builderAction].
  *
  * The list passed as a receiver to the [builderAction] is valid only inside that function.
- * Using it outside of the function produces an unspecified behavior.
+ * Using it outside the function produces an unspecified behavior.
  *
  * @param builderAction Lambda in which the [MutableVALUE_CLASSList] can be populated.
  */
@@ -956,7 +956,7 @@ VISIBILITY inline fun buildVALUE_CLASSList(
  * [builderAction].
  *
  * The list passed as a receiver to the [builderAction] is valid only inside that function.
- * Using it outside of the function produces an unspecified behavior.
+ * Using it outside the function produces an unspecified behavior.
  *
  * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
  * @param builderAction Lambda in which the [MutableVALUE_CLASSList] can be populated.
