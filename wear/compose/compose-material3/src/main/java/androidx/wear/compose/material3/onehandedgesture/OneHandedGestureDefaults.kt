@@ -31,6 +31,12 @@ public object OneHandedGestureDefaults {
     /** The default size constraints for the gesture indicator icon. */
     public val indicatorSize: OneHandedGestureIndicatorSize = OneHandedGestureIndicatorSize.Medium
 
+    /**
+     * The default delay, in milliseconds, before the gesture indicator is shown, i.e. before the
+     * `onGestureAvailable` callback is invoked.
+     */
+    public const val ShowIndicatorDelayMillis: Long = 1000L
+
     /** The tint color used for the gesture animation. */
     public val indicatorTint: Color
         @Composable get() = LocalContentColor.current
