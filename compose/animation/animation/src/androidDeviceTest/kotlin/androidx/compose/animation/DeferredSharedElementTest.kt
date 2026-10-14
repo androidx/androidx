@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -1397,5 +1399,171 @@ class DeferredSharedElementTest {
             "Detail bounds left after cancellation should be 0, but was ${detailBoundsAfterCancel.left}",
             detailBoundsAfterCancel.left == 0,
         )
+    }
+
+    @Test
+    fun testSharedElementNestedUnderAnimateEnterExit_preservesDeferredTransformAtHandoff() {
+        val state = DeferredTransitionState("A")
+        val scale = mutableFloatStateOf(1f)
+
+        rule.setContent {
+            val px20 = with(LocalDensity.current) { 20.toDp() }
+            val px40 = with(LocalDensity.current) { 40.toDp() }
+            val px60 = with(LocalDensity.current) { 60.toDp() }
+            val px100 = with(LocalDensity.current) { 100.toDp() }
+            val px200 = with(LocalDensity.current) { 200.toDp() }
+
+            val transition = rememberDeferredTransition(state)
+            SharedTransitionLayout(Modifier.size(px200)) {
+                transition.DeferredAnimatedContent(
+                    transitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
+                    mutableTransformSpec = {
+                        MutableContentTransform {
+                            initialContentTransform { this.scale = scale.floatValue }
+                        }
+                    },
+                ) { target ->
+                    Box(
+                        Modifier.fillMaxSize()
+                            .animateEnterExit(fadeIn(tween(300)), fadeOut(tween(300)))
+                    ) {
+                        Box(
+                            Modifier.offset(
+                                    x = if (target == "A") px20 else px60,
+                                    y = if (target == "A") px60 else px100,
+                                )
+                                .sharedElement(
+                                    sharedContentState = rememberSharedContentState("shared"),
+                                    animatedVisibilityScope = this@DeferredAnimatedContent,
+                                    boundsTransform = { _, _ -> tween(300) },
+                                )
+                                .size(px40)
+                                .testTag("shared-$target")
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // 1. Enter deferred phase and scale outgoing content to 0.5x around center (100, 100).
+        // Untransformed A is at (20, 60) with size 40x40:
+        //   left = (20 - 100) * 0.5 + 100 = 60
+        //   top = (60 - 100) * 0.5 + 100 = 80
+        //   width = 40 * 0.5 = 20
+        rule.runOnIdle {
+            state.defer("B")
+            scale.floatValue = 0.5f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        val deferredBoundsA = rule.onNodeWithTag("shared-A").fetchSemanticsNode().boundsInRoot
+        assertEquals(60f, deferredBoundsA.left, 1f)
+        assertEquals(80f, deferredBoundsA.top, 1f)
+        assertEquals(20f, deferredBoundsA.width, 1f)
+
+        // 2. Commit transition to B and verify handoff starts from the transformed bounds (60, 80)
+        // with width 20, rather than snapping back to untransformed (20, 60) with width 40.
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        val commitBoundsA = rule.onNodeWithTag("shared-A").fetchSemanticsNode().boundsInRoot
+        val commitBoundsB = rule.onNodeWithTag("shared-B").fetchSemanticsNode().boundsInRoot
+        assertEquals(60f, commitBoundsA.left, 1f)
+        assertEquals(80f, commitBoundsA.top, 1f)
+        assertEquals(20f, commitBoundsA.width, 1f)
+        assertEquals(60f, commitBoundsB.left, 1f)
+        assertEquals(80f, commitBoundsB.top, 1f)
+        assertEquals(20f, commitBoundsB.width, 1f)
+    }
+
+    @Test
+    fun testSharedElementNestedUnderSharedBounds_preservesDeferredTransformAtHandoff() {
+        val state = DeferredTransitionState("A")
+        val scale = mutableFloatStateOf(1f)
+
+        rule.setContent {
+            val px20 = with(LocalDensity.current) { 20.toDp() }
+            val px40 = with(LocalDensity.current) { 40.toDp() }
+            val px60 = with(LocalDensity.current) { 60.toDp() }
+            val px100 = with(LocalDensity.current) { 100.toDp() }
+            val px200 = with(LocalDensity.current) { 200.toDp() }
+
+            val transition = rememberDeferredTransition(state)
+            SharedTransitionLayout(Modifier.size(px200)) {
+                transition.DeferredAnimatedContent(
+                    transitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
+                    mutableTransformSpec = {
+                        MutableContentTransform {
+                            initialContentTransform { this.scale = scale.floatValue }
+                        }
+                    },
+                ) { target ->
+                    Box(
+                        Modifier.fillMaxSize()
+                            .sharedBounds(
+                                sharedContentState = rememberSharedContentState("bounds"),
+                                animatedVisibilityScope = this@DeferredAnimatedContent,
+                                enter = fadeIn(tween(300)),
+                                exit = fadeOut(tween(300)),
+                                resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                            )
+                    ) {
+                        Box(
+                            Modifier.offset(
+                                    x = if (target == "A") px20 else px60,
+                                    y = if (target == "A") px60 else px100,
+                                )
+                                .sharedElement(
+                                    sharedContentState = rememberSharedContentState("shared"),
+                                    animatedVisibilityScope = this@DeferredAnimatedContent,
+                                    boundsTransform = { _, _ -> tween(300) },
+                                )
+                                .size(px40)
+                                .testTag("shared-$target")
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        // 1. Enter deferred phase and scale outgoing content to 0.5x around center (100, 100).
+        // Untransformed A is at (20, 60) with size 40x40:
+        //   left = (20 - 100) * 0.5 + 100 = 60
+        //   top = (60 - 100) * 0.5 + 100 = 80
+        //   width = 40 * 0.5 = 20
+        rule.runOnIdle {
+            state.defer("B")
+            scale.floatValue = 0.5f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        val deferredBoundsA = rule.onNodeWithTag("shared-A").fetchSemanticsNode().boundsInRoot
+        assertEquals(60f, deferredBoundsA.left, 1f)
+        assertEquals(80f, deferredBoundsA.top, 1f)
+        assertEquals(20f, deferredBoundsA.width, 1f)
+
+        // 2. Commit transition to B and verify handoff starts from the transformed bounds (60, 80)
+        // with width 20, rather than snapping back to untransformed (20, 60) with width 40.
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        val commitBoundsA = rule.onNodeWithTag("shared-A").fetchSemanticsNode().boundsInRoot
+        val commitBoundsB = rule.onNodeWithTag("shared-B").fetchSemanticsNode().boundsInRoot
+        assertEquals(60f, commitBoundsA.left, 1f)
+        assertEquals(80f, commitBoundsA.top, 1f)
+        assertEquals(20f, commitBoundsA.width, 1f)
+        assertEquals(60f, commitBoundsB.left, 1f)
+        assertEquals(80f, commitBoundsB.top, 1f)
+        assertEquals(20f, commitBoundsB.width, 1f)
     }
 }
