@@ -16,87 +16,33 @@
 
 package androidx.text.vertical.testapp
 
-import android.graphics.Paint
-import android.graphics.RectF
 import android.graphics.Typeface
-import android.os.Build
 import android.os.Bundle
-import android.text.Layout
-import android.text.NoCopySpan
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.StaticLayout
-import android.text.TextPaint
-import android.text.style.BackgroundColorSpan
-import android.text.style.CharacterStyle
-import android.text.style.ForegroundColorSpan
-import android.text.style.MetricAffectingSpan
-import android.text.style.ReplacementSpan
-import android.text.style.StrikethroughSpan
-import android.text.style.UnderlineSpan
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.isSpecified
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontSynthesis
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.intl.LocaleList
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
-import androidx.compose.ui.unit.isSpecified
-import androidx.compose.ui.unit.sp
-import androidx.text.vertical.AnnotationPosition
-import androidx.text.vertical.EmphasisStyle
-import androidx.text.vertical.FontShearSpan
-import androidx.text.vertical.RubySpan
-import androidx.text.vertical.compose.VerticalText
-import androidx.text.vertical.compose.VerticalTextStyle
-import androidx.text.vertical.compose.buildVerticalText
 import java.io.File
-import kotlin.math.roundToInt
 
 /**
  * One tab in the sample app.
@@ -115,597 +61,101 @@ class VerticalTextSampleActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
-            val tabs = remember {
-                // Load the system CJK font as the primary typeface. Its top and bottom bounds are
-                // much larger than its ascent and descent, unlike the Latin default font when it
-                // falls back to CJK per glyph. Fall back to sans-serif when the file is absent.
-                val cjkFontFamily =
-                    File("/system/fonts/NotoSansCJK-Regular.ttc")
-                        .takeIf { it.exists() }
-                        ?.let { FontFamily(Typeface.createFromFile(it)) } ?: FontFamily.SansSerif
-                arrayOf(
-                    DemoTab("Vertical Text") { enabled ->
-                        ZoomableVerticalText(styleColorsEnabled = enabled) { LongText(it) }
-                    },
-                    DemoTab("Vertical Multi-style Text") { enabled ->
-                        ZoomableVerticalText(styleColorsEnabled = enabled) { ComplexText(it) }
-                    },
-                    DemoTab("Horizontal Text") { enabled ->
-                        ZoomableVerticalText(isVertical = false, styleColorsEnabled = enabled) {
-                            LongHorizontalText(it)
-                        }
-                    },
-                    DemoTab("Horizontal Multi-style Text") { enabled ->
-                        ZoomableVerticalText(isVertical = false, styleColorsEnabled = enabled) {
-                            ComplexHorizontalText(it)
-                        }
-                    },
-                    DemoTab("Horizontal CJK Font") { enabled ->
-                        ZoomableVerticalText(
-                            isVertical = false,
-                            styleColorsEnabled = enabled,
-                            fontFamily = cjkFontFamily,
-                        ) {
-                            ComplexHorizontalText(it)
-                        }
-                    },
-                    DemoTab("Style Colors", styleColorsInitiallyEnabled = true) { enabled ->
-                        ZoomableVerticalText(styleColorsEnabled = enabled) { StyleColorsText(it) }
-                    },
-                )
-            }
-            var selectedTabIndex by remember {
-                mutableIntStateOf(intent.getIntExtra("tab", 0).coerceIn(tabs.indices))
-            }
-            val styleColorsEnabled = remember {
-                tabs.map { it.styleColorsInitiallyEnabled }.toMutableStateList()
-            }
-
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                floatingActionButton = {
-                    val enabled = styleColorsEnabled[selectedTabIndex]
-                    ExtendedFloatingActionButton(
-                        text = { Text("Style Colors") },
-                        icon = {
-                            Icon(
-                                painter =
-                                    painterResource(
-                                        if (enabled) R.drawable.checkbox
-                                        else R.drawable.checkbox_outline_blank
-                                    ),
-                                contentDescription = null,
-                            )
-                        },
-                        onClick = { styleColorsEnabled[selectedTabIndex] = !enabled },
-                        modifier =
-                            Modifier.semantics { stateDescription = if (enabled) "On" else "Off" },
-                    )
-                },
-            ) { innerPadding ->
-                Column(modifier = Modifier.padding(innerPadding)) {
-                    PrimaryTabRow(
-                        selectedTabIndex = selectedTabIndex,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        tabs.forEachIndexed { index, tab ->
-                            Tab(
-                                selected = selectedTabIndex == index,
-                                onClick = { selectedTabIndex = index },
-                                text = { Text(tab.title) },
-                            )
-                        }
-                    }
-                    key(selectedTabIndex) {
-                        tabs[selectedTabIndex].content(styleColorsEnabled[selectedTabIndex])
-                    }
-                }
-            }
-        }
+        val initialTabIndex = intent.getIntExtra("tab", 0)
+        setContent { VerticalTextSampleApp(initialTabIndex = initialTabIndex) }
     }
 }
 
 /**
- * The limits of the pan offset of [ZoomableVerticalText], in pixels.
+ * Displays the vertical text sample tabs inside a [Scaffold].
  *
- * The measure policy writes these values and the gesture handler reads them.
- *
- * This is a plain holder and not snapshot state. Compose records each snapshot read that occurs
- * during measure, and a write to one of those values asks for a new measure pass. A measure policy
- * that writes the state it reads therefore measures its content two times for each change.
+ * @param initialTabIndex the 0-based tab index selected when the composable first enters
+ *   composition
  */
-private class PanLimits {
-    var minX: Float = 0f
-    var maxX: Float = 0f
-    var minY: Float = 0f
-    var maxY: Float = 0f
-}
-
 @Composable
-fun ZoomableVerticalText(
-    isVertical: Boolean = true,
-    styleColorsEnabled: Boolean = false,
-    fontFamily: FontFamily = FontFamily.Serif,
-    content: @Composable (VerticalTextStyle) -> Unit,
-) {
-    val fontSize = 32f
-    var zoom by remember { mutableFloatStateOf(1f) }
-    var offsetX by remember { mutableFloatStateOf(0f) }
-    var offsetY by remember { mutableFloatStateOf(0f) }
-    val panLimits = remember { PanLimits() }
-    val style =
-        remember(zoom, styleColorsEnabled, fontFamily) {
-            VerticalTextStyle(
-                fontSize = (fontSize * zoom).sp,
-                fontFamily = fontFamily,
-                color = if (styleColorsEnabled) Color(0xFF1A237E) else Color.Unspecified,
-                background = if (styleColorsEnabled) Color(0xFFFFF59D) else Color.Unspecified,
-                localeList =
-                    LocaleList(
-                        Locale(
-                            java.util.Locale.Builder()
-                                .setLocale(java.util.Locale.JAPANESE)
-                                .setUnicodeLocaleKeyword("lb", "strict")
-                                .build()
-                        )
-                    ),
-            )
-        }
-
-    Layout(
-        modifier =
-            Modifier.fillMaxSize()
-                .clipToBounds()
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onDoubleTap = {
-                            zoom = 1f
-                            offsetX = 0f
-                            offsetY = 0f
-                        }
-                    )
-                }
-                .pointerInput(Unit) {
-                    detectTransformGestures { _, offsetChange, gestureZoom, _ ->
-                        zoom = (zoom * gestureZoom).coerceIn(0.25f, 10f)
-                        offsetX =
-                            (offsetX + offsetChange.x).coerceIn(panLimits.minX, panLimits.maxX)
-                        offsetY =
-                            (offsetY + offsetChange.y).coerceIn(panLimits.minY, panLimits.maxY)
-                    }
-                },
-        content = { content(style) },
-    ) { measurables, constraints ->
-        val childConstraints =
-            if (isVertical) {
-                constraints.copy(minWidth = 0, maxWidth = Constraints.Infinity)
-            } else {
-                constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
-            }
-        val placeable = measurables.first().measure(childConstraints)
-
-        val overflowX = maxOf(0f, (placeable.width - constraints.maxWidth).toFloat())
-        if (isVertical) {
-            panLimits.minX = 0f
-            panLimits.maxX = overflowX
-        } else {
-            panLimits.minX = -overflowX
-            panLimits.maxX = 0f
-        }
-        panLimits.minY = -maxOf(0f, (placeable.height - constraints.maxHeight).toFloat())
-        panLimits.maxY = 0f
-
-        // The gesture handler keeps the offset inside the limits. Clamp again here, because a
-        // change of the zoom can shrink the limits after the last gesture event.
-        val clampedX = offsetX.coerceIn(panLimits.minX, panLimits.maxX)
-        val clampedY = offsetY.coerceIn(panLimits.minY, panLimits.maxY)
-
-        val x =
-            if (isVertical) {
-                constraints.maxWidth - placeable.width + clampedX.roundToInt()
-            } else {
-                clampedX.roundToInt()
-            }
-        val y = clampedY.roundToInt()
-
-        layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(x, y) }
-    }
-}
-
-/**
- * Sets [TextPaint.bgColor] to 0 for the text that it covers.
- *
- * The platform fills the background of plain text from the line top to the line bottom. This span
- * stops that fill. [LegacyHorizontalText] fills each plain text run from the font ascent to the
- * font descent instead, so the background does not go into the ruby or emphasis band. The platform
- * applies only [MetricAffectingSpan]s to the paint of a [ReplacementSpan]. Thus,
- * [androidx.text.vertical.RubySpan] and [androidx.text.vertical.EmphasisSpan] still get the
- * background color from the paint.
- *
- * This span implements [NoCopySpan] so that inner layouts cloned by [ReplacementSpan] helpers do
- * not copy it. Attach this span with a priority above 0 in the [Spanned.SPAN_PRIORITY] bits. The
- * platform then applies it before inline background spans, so these spans can still set the color.
- */
-private object NoTextBackgroundSpan : CharacterStyle(), NoCopySpan {
-    override fun updateDrawState(tp: TextPaint) {
-        tp.bgColor = 0
-    }
-}
-
-/**
- * Returns the background boxes of the text runs that are not in a [ReplacementSpan].
- *
- * Each box goes from the start to the end of the run, and from the font ascent to the font descent
- * of the run. The base text of [androidx.text.vertical.RubySpan] and
- * [androidx.text.vertical.EmphasisSpan] uses the same edges, so the fills meet. This function
- * supports only left-to-right text. [LegacyHorizontalText] uses it to fill the style-level
- * [TextPaint.bgColor].
- *
- * @param layout the layout of [text].
- * @param text the text to find the runs in.
- * @param paint the paint that [layout] uses.
- */
-@VisibleForTesting
-internal fun plainTextBackgroundRects(
-    layout: Layout,
-    text: Spanned,
-    paint: TextPaint,
-): List<RectF> {
-    val rects = mutableListOf<RectF>()
-    val workPaint = TextPaint()
-    val fm = Paint.FontMetricsInt()
-    for (line in 0 until layout.lineCount) {
-        val lineStart = layout.getLineStart(line)
-        val lineEnd = layout.getLineVisibleEnd(line)
-        val baseline = layout.getLineBaseline(line).toFloat()
-        var start = lineStart
-        while (start < lineEnd) {
-            val end = text.nextSpanTransition(start, lineEnd, MetricAffectingSpan::class.java)
-            val spans = text.getSpans(start, end, MetricAffectingSpan::class.java)
-            if (spans.none { it is ReplacementSpan }) {
-                workPaint.set(paint)
-                spans.forEach { it.updateMeasureState(workPaint) }
-                // RubySpan and EmphasisSpan lay out their base text with includePad = false. Thus,
-                // their base text goes from the font ascent to the font descent. Use the same edges
-                // so that the fills meet.
-                workPaint.getFontMetricsInt(fm)
-                val left = layout.getPrimaryHorizontal(start)
-                val right =
-                    if (end < layout.getLineEnd(line)) {
-                        layout.getPrimaryHorizontal(end)
-                    } else {
-                        layout.getLineRight(line)
-                    }
-                rects += RectF(left, baseline + fm.ascent, right, baseline + fm.descent)
-            }
-            start = end
-        }
-    }
-    return rects
-}
-
-@Composable
-fun LegacyHorizontalText(text: Spanned, style: VerticalTextStyle, modifier: Modifier = Modifier) {
-    var hTextLayout by remember { mutableStateOf<Layout?>(null) }
-    var plainBackgroundRects by remember { mutableStateOf(emptyList<RectF>()) }
-    val drawText =
-        remember(text) {
-            SpannableString(text).apply {
-                setSpan(
-                    NoTextBackgroundSpan,
-                    0,
-                    length,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE or (1 shl Spanned.SPAN_PRIORITY_SHIFT),
-                )
-            }
-        }
-    val density = LocalDensity.current
-    val resolver = LocalFontFamilyResolver.current
-    val paint = remember(density, resolver) { TextPaint() }
-    val backgroundPaint = remember { Paint() }
-    val typeface =
-        remember(resolver, style) {
-            resolver
-                .resolve(
-                    fontFamily = style.fontFamily,
-                    fontWeight = style.fontWeight ?: FontWeight.Normal,
-                    fontStyle = style.fontStyle ?: FontStyle.Normal,
-                    fontSynthesis = style.fontSynthesis ?: FontSynthesis.All,
-                )
-                .value as Typeface
-        }
-    Layout(
-        modifier =
-            modifier.drawWithContent {
-                drawIntoCanvas { c ->
-                    val canvas = c.nativeCanvas
-                    if (plainBackgroundRects.isNotEmpty() && style.background.isSpecified) {
-                        backgroundPaint.color = style.background.toArgb()
-                        plainBackgroundRects.forEach { canvas.drawRect(it, backgroundPaint) }
-                    }
-                    hTextLayout?.draw(canvas)
+internal fun VerticalTextSampleApp(initialTabIndex: Int = 0) {
+    val tabs = remember {
+        // Load the system CJK font as the primary typeface. Its top and bottom bounds are
+        // much larger than its ascent and descent, unlike the Latin default font when it
+        // falls back to CJK per glyph. Fall back to sans-serif when the file is absent.
+        val cjkFontFamily =
+            File("/system/fonts/NotoSansCJK-Regular.ttc")
+                .takeIf { it.exists() }
+                ?.let { FontFamily(Typeface.createFromFile(it)) } ?: FontFamily.SansSerif
+        arrayOf(
+            DemoTab("Vertical Text") { enabled ->
+                ZoomableVerticalText(styleColorsEnabled = enabled) { LongText(it) }
+            },
+            DemoTab("Vertical Multi-style Text") { enabled ->
+                ZoomableVerticalText(styleColorsEnabled = enabled) { ComplexText(it) }
+            },
+            DemoTab("Horizontal Text") { enabled ->
+                ZoomableVerticalText(isVertical = false, styleColorsEnabled = enabled) {
+                    LongHorizontalText(it)
                 }
             },
-        content = {},
-    ) { _, constraints ->
-        // Set up the paint here and not in composition. This block captures the style, so a
-        // change of the style gives a new measure policy, a new measure pass, and a new
-        // StaticLayout to draw.
-        paint.reset()
-        setStyleToPaint(style, typeface, density, paint)
-        val bgColor = paint.bgColor
-        val layout =
-            StaticLayout.Builder.obtain(drawText, 0, drawText.length, paint, constraints.maxWidth)
-                .build()
-        // The Layout constructor sets paint.bgColor to 0. Set it again, so that the RubySpan and
-        // the EmphasisSpan get the background color.
-        paint.bgColor = bgColor
-        hTextLayout = layout
-        plainBackgroundRects =
-            if (bgColor != 0) plainTextBackgroundRects(layout, drawText, paint) else emptyList()
-        layout(constraints.maxWidth, layout.height) {}
-    }
-}
-
-@Composable
-fun LongText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
-    val density = LocalDensity.current
-    val text = remember(density) { makeSampleText(density) }
-    VerticalText(text, modifier, style, overflow = TextOverflow.Visible)
-}
-
-@Composable
-fun LongHorizontalText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
-    val density = LocalDensity.current
-    val text = remember(density) { makeSampleText(density) }
-    LegacyHorizontalText(text, style, modifier)
-}
-
-@Composable
-fun ComplexHorizontalText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
-    val density = LocalDensity.current
-    val text =
-        remember(density) {
-            buildVerticalText(density) {
-                // Ruby annotation position. In horizontal writing mode, Before places the ruby
-                // above the base text and After places it below.
-                text("ルビ位置：")
-                withRuby("うえ", position = AnnotationPosition.Before) { text("上") }
-                text("と")
-                withRuby("した", position = AnnotationPosition.After) { text("下") }
-                text("。\n")
-                // Emphasis annotation position. In horizontal writing mode, Before places the
-                // emphasis mark above the base text and After places it below.
-                text("傍点位置：")
-                withEmphasis(density, position = AnnotationPosition.Before) { text("上") }
-                text("と")
-                withEmphasis(density, position = AnnotationPosition.After) { text("下") }
-                text("。\n")
-                withEmphasis(EmphasisStyle.Circle) { text("圏点") }
-                text("も")
-                withEmphasis(EmphasisStyle.DoubleCircle) { text("二重丸") }
-                text("もSupport")
-                withEmphasis(EmphasisStyle.Sesame) { text("されて") }
-                withEmphasis(
-                    density,
-                    style = EmphasisStyle.Triangle,
-                    position = AnnotationPosition.After,
+            DemoTab("Horizontal Multi-style Text") { enabled ->
+                ZoomableVerticalText(isVertical = false, styleColorsEnabled = enabled) {
+                    ComplexHorizontalText(it)
+                }
+            },
+            DemoTab("Horizontal CJK Font") { enabled ->
+                ZoomableVerticalText(
+                    isVertical = false,
+                    styleColorsEnabled = enabled,
+                    fontFamily = cjkFontFamily,
                 ) {
-                    text("います。")
+                    ComplexHorizontalText(it)
                 }
-            }
-        }
-    LegacyHorizontalText(text, style, modifier)
-}
-
-fun makeSampleText(density: Density) =
-    buildVerticalText(density) {
-        text("吾輩は猫である。", mapOf("吾輩" to "わがはい", "猫" to "ねこ"))
-        text("名前はまだ無い。", mapOf("名前" to "なまえ", "無" to "な"))
-        text("\n")
-        text("どこで生まれたかとんと見当がつかぬ。", mapOf("見当" to "けんとう"))
-        text("何でも薄暗いじめじめしたところでニャーニャー泣いていた事だけは記憶している。")
-        text("吾輩はここで始めて人間というものを見た。")
-        text("しかもあとで聞くとそれは書生という人間中で一番獰悪な種族であったそうだ。", mapOf("獰悪" to "どうあく"))
-        text("この書生というのは時々我々を捕えて煮て食うという話である。", mapOf("捕" to "つかま", "煮" to "に"))
-        text("しかしその当時は何という考もなかったから別段恐しいとも思わなかった。")
-        text("ただ彼の掌に載せられてスーと持ち上げられた時何だかフワフワした感じがあったばかりである。", mapOf("掌" to "てのひら"))
-        text("掌の上で少し落ちついて書生の顔を見たのがいわゆる人間というものの見始であろう。", mapOf("見始" to "みはじめ"))
-        text("この時妙なものだと思った感じが今でも残っている。")
-        text("第一毛をもって装飾されべきはずの顔がつるつるしてまるで薬缶だ。", mapOf("薬缶" to "やかん"))
-        text("その後猫にもだいぶ逢ったがこんな片輪には一度も出会わした事がない。", mapOf("片輪" to "かたわ", "出会" to "であ"))
-        text("のみならず顔の真中があまりに突起している。")
-        text("そうしてその穴の中から時々ぷうぷうと煙を吹く。", mapOf("煙" to "けむり"))
-        text("どうも咽せぽくて実に弱った。", mapOf("咽" to "む"))
-        text("これが人間の飲む煙草というものである事はようやくこの頃知った。", mapOf("煙草" to "たばこ"))
-        text("\n")
+            },
+            DemoTab("Style Colors", styleColorsInitiallyEnabled = true) { enabled ->
+                ZoomableVerticalText(styleColorsEnabled = enabled) { StyleColorsText(it) }
+            },
+            DemoTab("Subtitle Cue") { enabled -> SubtitleCueDemo(styleColorsEnabled = enabled) },
+        )
+    }
+    var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex.coerceIn(tabs.indices)) }
+    val styleColorsEnabled = remember {
+        tabs.map { it.styleColorsInitiallyEnabled }.toMutableStateList()
     }
 
-@Composable
-fun ComplexText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
-    val density = LocalDensity.current
-    val text = remember(density) { buildComplexText(density) }
-    VerticalText(text, modifier, style, overflow = TextOverflow.Visible)
-}
-
-private fun buildComplexText(density: Density) =
-    buildVerticalText(density) {
-        // Ruby annotation position. In vertical writing, Before puts the ruby on the right of the
-        // base text and After puts it on the left.
-        text("ルビ位置：")
-        withRuby("みぎ", position = AnnotationPosition.Before) { text("右") }
-        text("と")
-        withRuby("ひだり", position = AnnotationPosition.After) { text("左") }
-        text("。")
-
-        // Emphasis annotation position. In vertical writing, Before puts the emphasis mark on the
-        // right of the base text and After puts it on the left.
-        text("傍点位置：")
-        withEmphasis(density, position = AnnotationPosition.Before) { text("右") }
-        text("と")
-        withEmphasis(density, position = AnnotationPosition.After) { text("左") }
-        text("。\n")
-
-        upright("2024")
-        text("年の")
-        withRuby("クリスマス") {
-            combineUpright("12")
-            text("月")
-            combineUpright("25")
-            text("日")
-        }
-        text("に")
-        sideways("Google Pixel")
-        text("を買う。\n")
-
-        upright("2024")
-        text("年は")
-        combineUpright("2024")
-        text("年ともかけるし")
-        sideways("2024年")
-        text("ともかけるよ。\n")
-
-        text("もちろん")
-        withStyle(textColor = Color.Red) {
-            withRuby(
-                buildVerticalText(density) {
-                    text("インライン")
-                    withStyle(fontSize = 1.5.em) { text("スタイリング") }
-                }
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        floatingActionButton = {
+            val enabled = styleColorsEnabled[selectedTabIndex]
+            ExtendedFloatingActionButton(
+                text = { Text("Style Colors") },
+                icon = {
+                    Icon(
+                        painter =
+                            painterResource(
+                                if (enabled) R.drawable.checkbox
+                                else R.drawable.checkbox_outline_blank
+                            ),
+                        contentDescription = null,
+                    )
+                },
+                onClick = { styleColorsEnabled[selectedTabIndex] = !enabled },
+                modifier = Modifier.semantics { stateDescription = if (enabled) "On" else "Off" },
+            )
+        },
+    ) { innerPadding ->
+        Column(modifier = Modifier.padding(innerPadding)) {
+            PrimaryScrollableTabRow(
+                selectedTabIndex = selectedTabIndex,
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                withStyle(fontSize = 0.8.em) { sideways("inline ") }
-                withStyle(backgroundColor = Color.Green) { sideways("styling") }
-            }
-            withStyle(backgroundColor = Color.LightGray) {
-                text("も")
-                withStyle(fontSize = 2.em) { text("可能") }
-                text("です。\n")
-            }
-        }
-
-        combineUpright(
-            buildVerticalText(density) { // Tate Chu Yoko only respect styling.
-                text("2")
-                withStyle(backgroundColor = Color.Red) { text("0") }
-                withStyle(backgroundColor = Color.Green) { text("2") }
-                text("5")
-            }
-        )
-        text("年もよろしくお願いいたします。")
-
-        withStyle(fontShear = FontShearSpan.DEFAULT_FONT_SHEAR) {
-            text("日本語の斜体はEnglishのItalicとは少し違います。\n")
-        }
-        withEmphasis(style = EmphasisStyle.Sesame) { text("傍点") }
-        text("も")
-        text(
-            SpannableString("傍線").apply {
-                setSpan(UnderlineSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-        )
-        text("も")
-        text(
-            SpannableString("取消線").apply {
-                setSpan(StrikethroughSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-        )
-        text("もSupportされてます。")
-    }
-
-@Composable
-fun StyleColorsText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
-    val density = LocalDensity.current
-    val text =
-        remember(density) {
-            buildVerticalText(density) {
-                withStyle(textColor = Color(0xFFB71C1C), backgroundColor = Color(0xFFC8E6C9)) {
-                    withRuby(
-                        SpannableString("わがはい").apply {
-                            setSpan(
-                                ForegroundColorSpan(android.graphics.Color.BLUE),
-                                0,
-                                2,
-                                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE or
-                                    (1 shl Spanned.SPAN_PRIORITY_SHIFT),
-                            )
-                        }
-                    ) {
-                        text("吾輩")
-                    }
+                tabs.forEachIndexed { index, tab ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        text = { Text(tab.title) },
+                    )
                 }
-                text("は猫である。")
-                withRuby("なまえ") { text("名前") }
-                text("はまだ無い。")
+            }
+            key(selectedTabIndex) {
+                tabs[selectedTabIndex].content(styleColorsEnabled[selectedTabIndex])
             }
         }
-    val strokeText = remember { makeStrokeText() }
-    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        VerticalText(text, style = style, overflow = TextOverflow.Visible)
-        // Keep the plain string after strokeText. This shows that StrokeSpan does not change the
-        // background of the next text.
-        VerticalText(strokeText, style = style, overflow = TextOverflow.Visible)
-        VerticalText("プレーン文字列", style = style, overflow = TextOverflow.Visible)
     }
 }
-
-/**
- * Makes a text with platform spans. [StrokeSpan] covers all of the text. A [BackgroundColorSpan]
- * and a [RubySpan] cover the first word.
- *
- * The ruby text is shorter than its base text. This leaves space above and below the ruby text,
- * which gets the background color of the base text.
- */
-private fun makeStrokeText(): CharSequence =
-    SpannableString("名前はまだ無い。").apply {
-        setSpan(StrokeSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        setSpan(
-            BackgroundColorSpan(Color(0xFFBBDEFB).toArgb()),
-            0,
-            2,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-        )
-        setSpan(RubySpan("なまえ"), 0, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-    }
-
-/** Draws the text as an outline. */
-private class StrokeSpan : CharacterStyle() {
-    override fun updateDrawState(tp: TextPaint) {
-        tp.style = Paint.Style.STROKE
-        tp.strokeWidth = tp.textSize / 24
-    }
-}
-
-private fun setStyleToPaint(
-    style: VerticalTextStyle,
-    typeface: Typeface,
-    density: Density,
-    out: TextPaint,
-) {
-    with(density) {
-        out.textSize =
-            if (style.fontSize.isSpecified) style.fontSize.toPx() else DefaultFontSize.toPx()
-        out.typeface = typeface
-        out.fontFeatureSettings = style.fontFeatureSettings
-        if (style.color.isSpecified) {
-            out.color = style.color.toArgb()
-        }
-        // The caller reuses the TextPaint, and Paint.reset() does not reset the fields that
-        // TextPaint adds, such as bgColor. Assign each TextPaint field that this function sets
-        // every time, also when the style does not specify a value.
-        out.bgColor =
-            if (style.background.isSpecified) {
-                style.background.toArgb()
-            } else {
-                android.graphics.Color.TRANSPARENT
-            }
-        if (Build.VERSION.SDK_INT >= 25) {
-            style.localeList
-                ?.map { it.platformLocale }
-                ?.toTypedArray()
-                ?.let { out.textLocales = android.os.LocaleList(*it) }
-        }
-    }
-}
-
-private val DefaultFontSize = 16.sp

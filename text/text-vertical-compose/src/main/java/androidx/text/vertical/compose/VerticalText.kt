@@ -191,11 +191,14 @@ private fun VerticalTextImpl(
 
         val columnWidth = vtl.columnWidth
         val effectiveColumns = min(vtl.lineCount, maxColumns)
-        val desiredWidth = if (effectiveColumns > 0) columnWidth * effectiveColumns else 0f
-        val minWidth = columnWidth * minColumns
+        var desiredWidth = 0f
+        for (i in 0 until effectiveColumns) {
+            desiredWidth += vtl.getLineWidth(i)
+        }
+        val extraMinColumns = (minColumns - effectiveColumns).coerceAtLeast(0)
 
         val layoutWidth =
-            ceil(maxOf(desiredWidth, minWidth))
+            ceil(desiredWidth + columnWidth * extraMinColumns)
                 .toInt()
                 .coerceIn(constraints.minWidth, constraints.maxWidth)
         val layoutHeight =
