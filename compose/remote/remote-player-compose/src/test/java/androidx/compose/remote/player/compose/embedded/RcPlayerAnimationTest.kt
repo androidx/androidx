@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
 import androidx.compose.remote.creation.compose.action.valueChange
@@ -33,7 +34,10 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteFitBox
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
+import androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition
+import androidx.compose.remote.creation.compose.modifier.RemoteExitTransition
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.animateEnterExit
 import androidx.compose.remote.creation.compose.modifier.animationSpec
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -1297,6 +1301,116 @@ class RcPlayerAnimationTest {
             rule.mainClock.advanceTimeByFrame()
             rule.mainClock.advanceTimeBy(300)
             assertThat(width()).isWithin(2f).of(100f)
+        }
+    }
+
+    @Test
+    fun stateLayout_animateEnterExit_enablesAnimationAndTransitionsBetweenStates() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val bytes =
+                captureSingleRemoteDocument(
+                        context = context,
+                        content = {
+                            val checked = remember { MutableRemoteBoolean(false) }
+                            RemoteColumn {
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.semantics {
+                                                contentDescription = "enterExitToggle".rs
+                                            }
+                                            .size(20.rdp)
+                                            .clickable(action = valueChange(checked, !checked))
+                                )
+                                RemoteStateLayout(currentState = checked) { state ->
+                                    if (!state) {
+                                        RemoteBox(
+                                            modifier =
+                                                RemoteModifier.semantics {
+                                                        contentDescription = "enterExit_state0".rs
+                                                    }
+                                                    .animateEnterExit(
+                                                        enter = RemoteEnterTransition.FadeIn,
+                                                        exit = RemoteExitTransition.FadeOut,
+                                                        spec =
+                                                            remoteTween(
+                                                                durationMillis = 600,
+                                                                easing = RemoteEasing.Linear,
+                                                            ),
+                                                    )
+                                                    .size(50.rdp)
+                                                    .background(Color.Red.rc)
+                                        )
+                                    } else {
+                                        RemoteBox(
+                                            modifier =
+                                                RemoteModifier.semantics {
+                                                        contentDescription = "enterExit_state1".rs
+                                                    }
+                                                    .animateEnterExit(
+                                                        enter = RemoteEnterTransition.SlideInLeft,
+                                                        exit = RemoteExitTransition.SlideOutRight,
+                                                        spec =
+                                                            remoteTween(
+                                                                durationMillis = 600,
+                                                                easing = RemoteEasing.Linear,
+                                                            ),
+                                                        animationId = 1001,
+                                                    )
+                                                    .size(50.rdp)
+                                                    .background(Color.Blue.rc)
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                    )
+                    .bytes
+
+            val document = loadDocument(bytes)
+
+            // Verify that both default animateEnterExit (-1) and explicit animationId (1001)
+            // produce enabled AnimationSpecs in the runtime document.
+            val animatedSpecs = mutableListOf<AnimationSpec>()
+            fun collectSpecs(component: Component) {
+                if (component.mAnimationSpec !== AnimationSpec.DEFAULT) {
+                    animatedSpecs.add(component.mAnimationSpec)
+                }
+                for (op in component.list) {
+                    if (op is Component) {
+                        collectSpecs(op)
+                    }
+                }
+            }
+            document.rootLayoutComponent?.let { collectSpecs(it) }
+            assertThat(animatedSpecs).hasSize(2)
+            assertThat(animatedSpecs[0].animationId).isEqualTo(-1)
+            assertThat(animatedSpecs[0].isAnimationEnabled).isTrue()
+            assertThat(animatedSpecs[1].animationId).isEqualTo(1001)
+            assertThat(animatedSpecs[1].isAnimationEnabled).isTrue()
+
+            rule.mainClock.autoAdvance = false
+            rule.setContent {
+                Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) }
+            }
+
+            rule.mainClock.advanceTimeBy(0)
+            rule.onNodeWithContentDescription("enterExit_state0").assertIsDisplayed()
+            rule.onNodeWithContentDescription("enterExit_state1").assertDoesNotExist()
+
+            // Trigger transition from state 0 to state 1
+            rule.onNodeWithContentDescription("enterExitToggle").performClick()
+            rule.mainClock.advanceTimeByFrame()
+
+            // Mid-transition (t=300ms of 600ms): both exiting state0 and entering state1 exist
+            rule.mainClock.advanceTimeBy(300)
+            rule.onNodeWithContentDescription("enterExit_state0").assertIsDisplayed()
+            rule.onNodeWithContentDescription("enterExit_state1").assertIsDisplayed()
+
+            // After completion (t=600ms+): state0 has exited, state1 remains displayed
+            rule.mainClock.advanceTimeBy(400)
+            rule.onNodeWithContentDescription("enterExit_state0").assertDoesNotExist()
+            rule.onNodeWithContentDescription("enterExit_state1").assertIsDisplayed()
         }
     }
 }
