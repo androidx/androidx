@@ -68,8 +68,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.AbstractLongTimeSource
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -263,14 +265,18 @@ private fun captureRemoteDocumentImpl(
         }
 
         coroutineScope {
-            // Frames are sent as soon as an awaiter appears. The Recomposer itself awaits frames on
-            // this clock (runRecomposeAndApplyChanges below), so pacing here with a time-based
-            // delay would add latency to every recomposition and stall entirely on hosts whose
-            // clock only advances explicitly (virtual-time test dispatchers, a paused Robolectric
-            // looper). Emitted documents are rate limited separately by updateThrottle, between
-            // renders rather than between frames.
+            // Frames are normally sent as soon as an awaiter appears. The Recomposer itself awaits
+            // frames on this clock (runRecomposeAndApplyChanges below), so pacing them with a
+            // time-based delay would add latency to every recomposition and stall entirely on
+            // hosts whose clock only advances explicitly (virtual-time test dispatchers, a paused
+            // Robolectric looper). Emitted documents are rate limited separately by
+            // updateThrottle, between renders rather than between frames; only while that
+            // throttle is holding documents back are the pump's frames paced too (see the loop).
+            // One time source for pacing frames and throttling documents, so a test clock
+            // drives both.
+            val timeSource = RemoteClockTimeSource(clock)
             val frameClock =
-                HeadlessFrameClock(nanoTime = clock::nanoTime) {
+                HeadlessFrameClock(nanoTime = clock::nanoTime, timeSource = timeSource) {
                     recomposer.refreshStateIfIdle(recomposerDispatcher)
                 }
             if (!isSingleDocument) SnapshotWriteMonitor.acquire()
@@ -327,13 +333,27 @@ private fun captureRemoteDocumentImpl(
                     var previousBytes: ByteArray? = null
                     var emittedDocuments = 0
                     var renderedDocuments = 0
-                    val rateLimiter = updateThrottle.newLimiter()
+                    val rateLimiter = updateThrottle.newLimiter(timeSource)
                     for (invalidation in invalidations) {
                         // Wait for the throttle before settling and rendering, so writes made
                         // meanwhile are conflated into the invalidation channel and the document
                         // rendered afterwards reflects the latest state. Only emitted documents
                         // count towards the limit.
-                        rateLimiter?.awaitPermit()
+                        //
+                        // While waiting for a permit, also pace the frames the clock's pump sends,
+                        // so that content animating through recomposition does not keep the
+                        // recomposer spinning at full speed for documents that cannot be emitted
+                        // yet. Pacing is lifted before settling: awaitRecomposerQuiescence waits
+                        // for the recomposer to go Idle, which needs the pump's frame, and bounds
+                        // its own frames by MAX_FRAMES.
+                        if (rateLimiter != null && !rateLimiter.hasPermit()) {
+                            frameClock.minFramePeriod = rateLimiter.interval
+                            try {
+                                rateLimiter.awaitPermit()
+                            } finally {
+                                frameClock.minFramePeriod = Duration.ZERO
+                            }
+                        }
                         // Let the recomposer observe and apply the invalidation before rendering.
                         // A streaming capture renders an unsettled composition (e.g. continuously
                         // animating content) once the iteration or frame bound is hit, so it keeps
@@ -458,6 +478,15 @@ private fun captureRemoteDocumentImpl(
             composition.dispose()
         }
     }
+}
+
+/**
+ * Measures throttle intervals and frame pacing with the capture's [RemoteClock], the clock that
+ * also stamps its frames, so that a test clock drives frames, pacing and throttling alike.
+ */
+private class RemoteClockTimeSource(private val clock: RemoteClock) :
+    AbstractLongTimeSource(DurationUnit.NANOSECONDS) {
+    override fun read(): Long = clock.nanoTime()
 }
 
 /**
