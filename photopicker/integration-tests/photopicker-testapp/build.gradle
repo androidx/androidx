@@ -23,8 +23,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":photopicker:photopicker"))
-    implementation(project(":photopicker:photopicker-compose"))
+    implementation(project(":photopicker:photopicker-embedded"))
+    implementation(project(":photopicker:photopicker-embedded-compose"))
 
     // Compose dependencies
     def compose_version = "1.11.4"
