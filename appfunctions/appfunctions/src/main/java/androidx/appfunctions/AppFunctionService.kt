@@ -128,10 +128,12 @@ public abstract class AppFunctionService :
                 ) { response ->
                     when (response) {
                         is ExecuteAppFunctionResponse.Success -> {
-                            response.grantUriAccess(
-                                context = this@AppFunctionService,
-                                callingPackageName = callingPackage,
-                            )
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN) {
+                                response.grantUriAccess(
+                                    context = this@AppFunctionService,
+                                    callingPackageName = callingPackage,
+                                )
+                            }
                             callback.onResult(response.toPlatformExecuteAppFunctionResponse())
                         }
                         is ExecuteAppFunctionResponse.Error ->
