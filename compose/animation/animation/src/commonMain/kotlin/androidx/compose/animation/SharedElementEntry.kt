@@ -238,7 +238,7 @@ internal class SharedElementEntry(
 
     // Delegate the property to a mutable state, so that when layer is updated, the rendering
     // gets invalidated.
-    var layer: GraphicsLayer? by mutableStateOf(null)
+    override var layer: GraphicsLayer? by mutableStateOf(null)
 
     // Do not need to render the content of an outgoing `sharedElement`.
     private val shouldRenderAtAll: Boolean
