@@ -1343,10 +1343,6 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             val allProjectsExist = buildContainsAllStandardProjects()
             for (otherProject in otherProjectsInSameGroup) {
                 val otherGradlePath = otherProject.gradlePath
-                if (otherGradlePath == ":compose:ui:ui-android-stubs") {
-                    // exemption for library that doesn't truly get published: b/168127161
-                    continue
-                }
                 // We only enable constraints for builds that we intend to be able to publish from.
                 //   If a project isn't included in a build we intend to be able to publish from,
                 //   the project isn't going to be published.
@@ -1374,8 +1370,11 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                 if (!parsed.shouldRelease()) {
                     continue
                 }
-                if (parsed.softwareType == SoftwareType.SAMPLES) {
-                    // a SAMPLES project knows how to publish, but we don't intend to actually
+                if (
+                    parsed.softwareType == SoftwareType.SAMPLES ||
+                        parsed.softwareType == SoftwareType.STUBS
+                ) {
+                    // SAMPLES/STUBS project knows how to publish, but we don't intend to actually
                     // publish it
                     continue
                 }
