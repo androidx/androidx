@@ -59,6 +59,39 @@ class A2uiOpenUrlFunctionTest {
         assertThat(callCount).isEqualTo(0)
     }
 
+    @Test
+    fun definition_returnsCompanionDefinition() {
+        assertThat(A2uiOpenUrlFunction {}.definition)
+            .isSameInstanceAs(A2uiOpenUrlFunction.DEFINITION)
+        assertThat(A2uiOpenUrlFunction.DEFINITION.name).isEqualTo("openUrl")
+    }
+
+    @Test
+    fun typedExecute_validUrl_opensUrl() {
+        var callCount = 0
+        var openedUrl: String? = null
+        val openUrlMock = A2uiOpenUrlFunction { url ->
+            callCount++
+            openedUrl = url
+        }
+
+        openUrlMock.typedExecute(url = "https://example.com")
+
+        assertThat(openedUrl).isEqualTo("https://example.com")
+        assertThat(callCount).isEqualTo(1)
+    }
+
+    @Test
+    fun typedExecute_emptyUrl_throwsRuntimeException() {
+        var callCount = 0
+        val openUrlMock = A2uiOpenUrlFunction { _ -> callCount++ }
+
+        assertThrows(A2uiException.A2uiRuntimeException::class.java) {
+            openUrlMock.typedExecute(url = "")
+        }
+        assertThat(callCount).isEqualTo(0)
+    }
+
     private companion object {
         private const val ARG_URL = "url"
     }

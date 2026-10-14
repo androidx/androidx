@@ -59,6 +59,28 @@ class A2uiRegexFunctionTest {
         }
     }
 
+    @Test
+    fun definition_returnsCompanionDefinition() {
+        assertThat(A2uiRegexFunction.INSTANCE.definition)
+            .isSameInstanceAs(A2uiRegexFunction.DEFINITION)
+        assertThat(A2uiRegexFunction.DEFINITION.name).isEqualTo("regex")
+    }
+
+    @Test
+    fun typedExecute_matchesWholeValue() {
+        val function = A2uiRegexFunction.INSTANCE
+
+        assertThat(function.typedExecute(value = "abc", pattern = "a.c")).isTrue()
+        assertThat(function.typedExecute(value = "abcd", pattern = "a.c")).isFalse()
+    }
+
+    @Test
+    fun typedExecute_invalidRegexPattern_throwsRuntimeException() {
+        assertThrows(A2uiException.A2uiRuntimeException::class.java) {
+            A2uiRegexFunction.INSTANCE.typedExecute(value = "abc", pattern = "[")
+        }
+    }
+
     private companion object {
         private const val ARG_VALUE = "value"
         private const val ARG_PATTERN = "pattern"

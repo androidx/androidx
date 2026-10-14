@@ -59,6 +59,25 @@ class A2uiNumericFunctionTest {
         }
     }
 
+    @Test
+    fun definition_returnsCompanionDefinition() {
+        assertThat(A2uiNumericFunction.INSTANCE.definition)
+            .isSameInstanceAs(A2uiNumericFunction.DEFINITION)
+        assertThat(A2uiNumericFunction.DEFINITION.name).isEqualTo("numeric")
+    }
+
+    @Test
+    fun typedExecute_checksBoundsInclusively() {
+        val function = A2uiNumericFunction.INSTANCE
+        val noMin = Double.NEGATIVE_INFINITY
+        val noMax = Double.POSITIVE_INFINITY
+
+        assertThat(function.typedExecute(value = -1e300, min = noMin, max = noMax)).isTrue()
+        assertThat(function.typedExecute(value = 5.0, min = 5.0, max = 5.0)).isTrue()
+        assertThat(function.typedExecute(value = 5.0, min = 5.5, max = noMax)).isFalse()
+        assertThat(function.typedExecute(value = 5.0, min = noMin, max = 4.5)).isFalse()
+    }
+
     private companion object {
         private const val ARG_VALUE = "value"
         private const val ARG_MIN = "min"

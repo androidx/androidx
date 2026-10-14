@@ -359,6 +359,32 @@ class A2uiFormatStringFunctionTest {
         assertThat(capturedPayloads).containsExactly(mapOf("path" to "relative/path"))
     }
 
+    @Test
+    fun definition_returnsCompanionDefinition() {
+        assertThat(A2uiFormatStringFunction.INSTANCE.definition)
+            .isSameInstanceAs(A2uiFormatStringFunction.DEFINITION)
+        assertThat(A2uiFormatStringFunction.DEFINITION.name).isEqualTo("formatString")
+    }
+
+    @Test
+    fun typedExecute_resolvesBindingsAndEscapes() {
+        val capturedPayloads = mutableListOf<Any?>()
+        val context =
+            createSpyContext(
+                capturedPayloads = capturedPayloads,
+                resolveMap = mapOf(mapOf("path" to "foo") to "world"),
+            )
+
+        val result =
+            A2uiFormatStringFunction.INSTANCE.typedExecute(
+                value = "hello ${"$"}{foo} (\\\${literal})",
+                executionContext = context,
+            )
+
+        assertThat(result).isEqualTo("hello world (\${literal})")
+        assertThat(capturedPayloads).containsExactly(mapOf("path" to "foo"))
+    }
+
     private fun createSpyContext(
         capturedPayloads: MutableList<Any?>,
         resolveMap: Map<Any?, Any?> = emptyMap(),

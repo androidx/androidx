@@ -24,6 +24,7 @@ import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
+import androidx.annotation.RestrictTo
 
 /**
  * Validates string length limits.
@@ -32,28 +33,8 @@ import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
  */
 public class A2uiLengthFunction private constructor() : A2uiFunction {
 
-    override val definition: A2uiFunctionDefinition =
-        object : A2uiFunctionDefinition {
-            override val name: String = "length"
-
-            override val description: String = """Checks string length constraints."""
-
-            override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.BOOLEAN
-
-            override val argumentSchema: A2uiSchema =
-                A2uiObjectSchema(
-                    properties =
-                        mapOf(
-                            ARG_VALUE_KEY to A2uiDynamicStringSchema.DEFAULT_INSTANCE,
-                            ARG_MIN_KEY to
-                                A2uiNumberSchema(description = """The minimum allowed length."""),
-                            ARG_MAX_KEY to
-                                A2uiNumberSchema(description = """The maximum allowed length."""),
-                        ),
-                    required = setOf(ARG_VALUE_KEY),
-                    isAdditionalPropertiesAllowed = false,
-                )
-        }
+    override val definition: A2uiFunctionDefinition
+        get() = DEFINITION
 
     /**
      * Validates that the string length in [args] meets the required bounds.
@@ -63,25 +44,64 @@ public class A2uiLengthFunction private constructor() : A2uiFunction {
      *   payloads and resolving data bindings
      * @return true if the string length is within bounds, false otherwise
      */
-    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val value = A2uiFunctionArgParser.getStringArg(args, ARG_VALUE_KEY)
-        val min =
-            if (args.containsKey(ARG_MIN_KEY)) {
-                A2uiFunctionArgParser.getIntArg(args, ARG_MIN_KEY)
-            } else {
-                0
-            }
-        val max =
-            if (args.containsKey(ARG_MAX_KEY)) {
-                A2uiFunctionArgParser.getIntArg(args, ARG_MAX_KEY)
-            } else {
-                Int.MAX_VALUE
-            }
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? =
+        typedExecute(
+            value = A2uiFunctionArgParser.getStringArg(args, ARG_VALUE_KEY),
+            min =
+                if (args.containsKey(ARG_MIN_KEY)) {
+                    A2uiFunctionArgParser.getIntArg(args, ARG_MIN_KEY)
+                } else {
+                    0
+                },
+            max =
+                if (args.containsKey(ARG_MAX_KEY)) {
+                    A2uiFunctionArgParser.getIntArg(args, ARG_MAX_KEY)
+                } else {
+                    Int.MAX_VALUE
+                },
+        )
 
-        return value.length in min..max
-    }
+    /**
+     * Checks that the length of [value] is within [min] and [max], inclusive.
+     *
+     * @param value the string to check
+     * @param min the minimum length, or 0 for no minimum
+     * @param max the maximum length, or [Int.MAX_VALUE] for no maximum
+     * @return true if the length of [value] is within the bounds, false otherwise
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun typedExecute(value: String, min: Int, max: Int): Boolean = value.length in min..max
 
     public companion object {
+        /** The definition of the `length` function in the A2UI basic catalog. */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public val DEFINITION: A2uiFunctionDefinition =
+            object : A2uiFunctionDefinition {
+                override val name: String = "length"
+
+                override val description: String = """Checks string length constraints."""
+
+                override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.BOOLEAN
+
+                override val argumentSchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties =
+                            mapOf(
+                                ARG_VALUE_KEY to A2uiDynamicStringSchema.DEFAULT_INSTANCE,
+                                ARG_MIN_KEY to
+                                    A2uiNumberSchema(
+                                        description = """The minimum allowed length."""
+                                    ),
+                                ARG_MAX_KEY to
+                                    A2uiNumberSchema(
+                                        description = """The maximum allowed length."""
+                                    ),
+                            ),
+                        required = setOf(ARG_VALUE_KEY),
+                        isAdditionalPropertiesAllowed = false,
+                    )
+            }
+
         @JvmField public val INSTANCE: A2uiLengthFunction = A2uiLengthFunction()
 
         private const val ARG_VALUE_KEY: String = "value"

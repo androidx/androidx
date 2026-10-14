@@ -76,12 +76,15 @@ package androidx.a2ui.model.catalog.functions {
   public final class A2uiEmailFunction implements androidx.a2ui.model.catalog.A2uiFunction {
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean typedExecute(String value);
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiEmailFunction.Companion Companion;
     field public static final androidx.a2ui.model.catalog.functions.A2uiEmailFunction INSTANCE;
   }
 
   public static final class A2uiEmailFunction.Companion {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDEFINITION();
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.a2ui.model.catalog.A2uiFunctionDefinition DEFINITION;
     property public androidx.a2ui.model.catalog.functions.A2uiEmailFunction INSTANCE;
   }
 
@@ -91,12 +94,15 @@ package androidx.a2ui.model.catalog.functions {
     ctor @BytecodeOnly public A2uiFormatCurrencyFunction(androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String typedExecute(double value, String currency, Integer? decimals, boolean grouping);
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiFormatCurrencyFunction.Companion Companion;
     field public static final androidx.a2ui.model.catalog.functions.A2uiFormatCurrencyFunction INSTANCE;
   }
 
   public static final class A2uiFormatCurrencyFunction.Companion {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDEFINITION();
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.a2ui.model.catalog.A2uiFunctionDefinition DEFINITION;
     property public androidx.a2ui.model.catalog.functions.A2uiFormatCurrencyFunction INSTANCE;
   }
 
@@ -106,12 +112,15 @@ package androidx.a2ui.model.catalog.functions {
     ctor @BytecodeOnly public A2uiFormatDateFunction(androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String typedExecute(long epochMillis, String format);
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiFormatDateFunction.Companion Companion;
     field public static final androidx.a2ui.model.catalog.functions.A2uiFormatDateFunction INSTANCE;
   }
 
   public static final class A2uiFormatDateFunction.Companion {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDEFINITION();
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.a2ui.model.catalog.A2uiFunctionDefinition DEFINITION;
     property public androidx.a2ui.model.catalog.functions.A2uiFormatDateFunction INSTANCE;
   }
 
@@ -121,24 +130,30 @@ package androidx.a2ui.model.catalog.functions {
     ctor @BytecodeOnly public A2uiFormatNumberFunction(androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String typedExecute(double value, Integer? decimals, boolean grouping);
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiFormatNumberFunction.Companion Companion;
     field public static final androidx.a2ui.model.catalog.functions.A2uiFormatNumberFunction INSTANCE;
   }
 
   public static final class A2uiFormatNumberFunction.Companion {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDEFINITION();
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.a2ui.model.catalog.A2uiFunctionDefinition DEFINITION;
     property public androidx.a2ui.model.catalog.functions.A2uiFormatNumberFunction INSTANCE;
   }
 
   public final class A2uiFormatStringFunction implements androidx.a2ui.model.catalog.A2uiFunction {
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String typedExecute(String value, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction.Companion Companion;
     field public static final androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction INSTANCE;
   }
 
   public static final class A2uiFormatStringFunction.Companion {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDEFINITION();
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.a2ui.model.catalog.A2uiFunctionDefinition DEFINITION;
     property public androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction INSTANCE;
   }
 
@@ -185,12 +200,15 @@ package androidx.a2ui.model.catalog.functions {
   public final class A2uiLengthFunction implements androidx.a2ui.model.catalog.A2uiFunction {
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean typedExecute(String value, int min, int max);
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiLengthFunction.Companion Companion;
     field public static final androidx.a2ui.model.catalog.functions.A2uiLengthFunction INSTANCE;
   }
 
   public static final class A2uiLengthFunction.Companion {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDEFINITION();
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.a2ui.model.catalog.A2uiFunctionDefinition DEFINITION;
     property public androidx.a2ui.model.catalog.functions.A2uiLengthFunction INSTANCE;
   }
 
@@ -223,12 +241,15 @@ package androidx.a2ui.model.catalog.functions {
   public final class A2uiNumericFunction implements androidx.a2ui.model.catalog.A2uiFunction {
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean typedExecute(double value, double min, double max);
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiNumericFunction.Companion Companion;
     field public static final androidx.a2ui.model.catalog.functions.A2uiNumericFunction INSTANCE;
   }
 
   public static final class A2uiNumericFunction.Companion {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDEFINITION();
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.a2ui.model.catalog.A2uiFunctionDefinition DEFINITION;
     property public androidx.a2ui.model.catalog.functions.A2uiNumericFunction INSTANCE;
   }
 
@@ -236,11 +257,14 @@ package androidx.a2ui.model.catalog.functions {
     ctor public A2uiOpenUrlFunction(androidx.a2ui.model.catalog.functions.A2uiUrlOpener urlOpener);
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void typedExecute(String url);
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiOpenUrlFunction.Companion Companion;
   }
 
   public static final class A2uiOpenUrlFunction.Companion {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDEFINITION();
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.a2ui.model.catalog.A2uiFunctionDefinition DEFINITION;
   }
 
   public final class A2uiOrFunction implements androidx.a2ui.model.catalog.A2uiFunction {
@@ -261,30 +285,43 @@ package androidx.a2ui.model.catalog.functions {
     ctor @BytecodeOnly public A2uiPluralizeFunction(androidx.a2ui.model.catalog.functions.A2uiMessageFormatter!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String typedExecute(double value, String? zero, String? one, String? two, String? few, String? many, String other);
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.a2ui.model.catalog.functions.A2uiPluralizeFunction.Companion Companion;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class A2uiPluralizeFunction.Companion {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDEFINITION();
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.a2ui.model.catalog.A2uiFunctionDefinition DEFINITION;
   }
 
   public final class A2uiRegexFunction implements androidx.a2ui.model.catalog.A2uiFunction {
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean typedExecute(String value, String pattern);
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiRegexFunction.Companion Companion;
     field public static final androidx.a2ui.model.catalog.functions.A2uiRegexFunction INSTANCE;
   }
 
   public static final class A2uiRegexFunction.Companion {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDEFINITION();
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.a2ui.model.catalog.A2uiFunctionDefinition DEFINITION;
     property public androidx.a2ui.model.catalog.functions.A2uiRegexFunction INSTANCE;
   }
 
   public final class A2uiRequiredFunction implements androidx.a2ui.model.catalog.A2uiFunction {
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean typedExecute(Object? value);
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiRequiredFunction.Companion Companion;
     field public static final androidx.a2ui.model.catalog.functions.A2uiRequiredFunction INSTANCE;
   }
 
   public static final class A2uiRequiredFunction.Companion {
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDEFINITION();
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.a2ui.model.catalog.A2uiFunctionDefinition DEFINITION;
     property public androidx.a2ui.model.catalog.functions.A2uiRequiredFunction INSTANCE;
   }
 

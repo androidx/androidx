@@ -24,6 +24,7 @@ import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicBooleanSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicNumberSchema
+import androidx.annotation.RestrictTo
 import java.text.NumberFormat
 
 /**
@@ -36,36 +37,8 @@ public class A2uiFormatNumberFunction
 public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocaleProvider.Default) :
     A2uiFunction {
 
-    override val definition: A2uiFunctionDefinition =
-        object : A2uiFunctionDefinition {
-            override val name: String = "formatNumber"
-
-            override val description: String =
-                """Formats a number with the specified grouping and decimal precision."""
-
-            override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
-
-            override val argumentSchema: A2uiSchema =
-                A2uiObjectSchema(
-                    properties =
-                        mapOf(
-                            ARG_VALUE_KEY to
-                                A2uiDynamicNumberSchema(description = """The number to format."""),
-                            ARG_DECIMALS_KEY to
-                                A2uiDynamicNumberSchema(
-                                    description =
-                                        """Optional. The number of decimal places to show. Defaults to 0 or 2 depending on locale."""
-                                ),
-                            ARG_GROUPING_KEY to
-                                A2uiDynamicBooleanSchema(
-                                    description =
-                                        """Optional. If true, uses locale-specific grouping separators (e.g. '1,000'). If false, returns raw digits (e.g. '1000'). Defaults to true."""
-                                ),
-                        ),
-                    required = setOf(ARG_VALUE_KEY),
-                    isAdditionalPropertiesAllowed = false,
-                )
-        }
+    override val definition: A2uiFunctionDefinition
+        get() = DEFINITION
 
     /**
      * Formats the given number using precision options in [args].
@@ -75,21 +48,33 @@ public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocalePr
      *   payloads and resolving data bindings
      * @return the formatted number string, or null if required values are missing
      */
-    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
-        val value = A2uiFunctionArgParser.getDoubleArg(args, ARG_VALUE_KEY)
-        val decimals =
-            if (args.containsKey(ARG_DECIMALS_KEY)) {
-                A2uiFunctionArgParser.getIntArg(args, ARG_DECIMALS_KEY)
-            } else {
-                null
-            }
-        val grouping =
-            if (args.containsKey(ARG_GROUPING_KEY)) {
-                A2uiFunctionArgParser.getBooleanArg(args, ARG_GROUPING_KEY)
-            } else {
-                true
-            }
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? =
+        typedExecute(
+            value = A2uiFunctionArgParser.getDoubleArg(args, ARG_VALUE_KEY),
+            decimals =
+                if (args.containsKey(ARG_DECIMALS_KEY)) {
+                    A2uiFunctionArgParser.getIntArg(args, ARG_DECIMALS_KEY)
+                } else {
+                    null
+                },
+            grouping =
+                if (args.containsKey(ARG_GROUPING_KEY)) {
+                    A2uiFunctionArgParser.getBooleanArg(args, ARG_GROUPING_KEY)
+                } else {
+                    true
+                },
+        )
 
+    /**
+     * Formats [value] as a number in the current locale.
+     *
+     * @param value the number to format
+     * @param decimals the number of decimal places to show, or null for the locale default
+     * @param grouping whether to use locale-specific grouping separators
+     * @return the formatted number
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun typedExecute(value: Double, decimals: Int?, grouping: Boolean): String {
         val locale = localeProvider.getLocale()
         val formatter =
             NumberFormat.getNumberInstance(locale).apply {
@@ -103,6 +88,41 @@ public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocalePr
     }
 
     public companion object {
+        /** The definition of the `formatNumber` function in the A2UI basic catalog. */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public val DEFINITION: A2uiFunctionDefinition =
+            object : A2uiFunctionDefinition {
+                override val name: String = "formatNumber"
+
+                override val description: String =
+                    """Formats a number with the specified grouping and decimal precision."""
+
+                override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
+
+                override val argumentSchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties =
+                            mapOf(
+                                ARG_VALUE_KEY to
+                                    A2uiDynamicNumberSchema(
+                                        description = """The number to format."""
+                                    ),
+                                ARG_DECIMALS_KEY to
+                                    A2uiDynamicNumberSchema(
+                                        description =
+                                            """Optional. The number of decimal places to show. Defaults to 0 or 2 depending on locale."""
+                                    ),
+                                ARG_GROUPING_KEY to
+                                    A2uiDynamicBooleanSchema(
+                                        description =
+                                            """Optional. If true, uses locale-specific grouping separators (e.g. '1,000'). If false, returns raw digits (e.g. '1000'). Defaults to true."""
+                                    ),
+                            ),
+                        required = setOf(ARG_VALUE_KEY),
+                        isAdditionalPropertiesAllowed = false,
+                    )
+            }
+
         @JvmField public val INSTANCE: A2uiFormatNumberFunction = A2uiFormatNumberFunction()
 
         private const val ARG_VALUE_KEY: String = "value"

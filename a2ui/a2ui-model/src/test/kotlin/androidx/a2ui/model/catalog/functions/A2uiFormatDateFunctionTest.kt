@@ -280,6 +280,33 @@ class A2uiFormatDateFunctionTest {
         }
     }
 
+    @Test
+    fun definition_returnsCompanionDefinition() {
+        assertThat(A2uiFormatDateFunction { Locale.US }.definition)
+            .isSameInstanceAs(A2uiFormatDateFunction.DEFINITION)
+        assertThat(A2uiFormatDateFunction.DEFINITION.name).isEqualTo("formatDate")
+    }
+
+    @Test
+    fun typedExecute_takesEpochMillisVerbatim() {
+        val originalTz = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+        try {
+            val function = A2uiFormatDateFunction(localeProvider = { Locale.US })
+
+            assertThat(function.typedExecute(epochMillis = 0L, format = "yyyy-MM-dd HH:mm"))
+                .isEqualTo("1970-01-01 00:00")
+            // Unlike `execute`, which interprets small numbers as seconds, the typed entry point
+            // always treats its argument as milliseconds.
+            assertThat(function.typedExecute(epochMillis = 1_000L, format = "HH:mm:ss"))
+                .isEqualTo("00:00:01")
+            assertThat(function.typedExecute(epochMillis = 0L, format = "ISO"))
+                .isEqualTo(function.execute(mapOf(ARG_VALUE to 0L, ARG_FORMAT to "ISO")))
+        } finally {
+            TimeZone.setDefault(originalTz)
+        }
+    }
+
     private companion object {
         private const val ARG_VALUE = "value"
         private const val ARG_FORMAT = "format"
