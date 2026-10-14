@@ -145,6 +145,7 @@ private class ScrollAwayModifierNode(
 ) : LayoutModifierNode, Modifier.Node() {
     private val progressAnimatable: Animatable<Float, AnimationVector1D> = Animatable(0f)
     private val alphaAnimatable = Animatable(1f)
+    private var isFirstFrame = true
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -183,36 +184,47 @@ private class ScrollAwayModifierNode(
                     targetAlpha = 1f
                 }
 
+                // Update alpha animation state. Hide is always instant.
                 if (targetAlpha != alphaAnimatable.targetValue) {
-                    if (targetAlpha == 0f) {
-                        // Hide is instant.
-                        coroutineScope.launch { alphaAnimatable.snapTo(0f) }
+                    if (isFirstFrame || targetAlpha == 0f) {
+                        coroutineScope.launch { alphaAnimatable.snapTo(targetAlpha) }
                     } else {
                         animateAlpha(targetAlpha, coroutineScope, alphaAnimatable)
                     }
                 }
 
+                // Update progress animation state.
                 if (targetProgress != progressAnimatable.targetValue) {
                     val scrollingAtTheTop =
                         targetProgress != 0f &&
                             progressAnimatable.targetValue != 0f &&
-                            screenStage() != ScreenStage.New
-                    if (scrollingAtTheTop || (showAfterTimeout && screenStage != ScreenStage.New)) {
-                        // If we are scrolling at the top, keep in sync.
-                        // Also, when we show after a timeout, there is no progress animation.
+                            screenStage != ScreenStage.New
+                    val shouldSnapProgress =
+                        isFirstFrame ||
+                            scrollingAtTheTop ||
+                            (showAfterTimeout && screenStage != ScreenStage.New)
+
+                    if (shouldSnapProgress) {
                         coroutineScope.launch { progressAnimatable.snapTo(targetProgress) }
                     } else {
                         animateProgress(targetProgress, coroutineScope, progressAnimatable)
                     }
                 }
 
-                val motionFraction = lerp(minMotionOut, maxMotionOut, progressAnimatable.value)
-                val offsetY = -(maxOffset.toPx() * progressAnimatable.value)
-                alpha = motionFraction * alphaAnimatable.value
+                // Use the target values immediately on the first frame or when hiding to avoid
+                // 1-frame visual glitches (b/570028738).
+                val currentAlpha = if (targetAlpha == 0f) 0f else alphaAnimatable.value
+                val currentProgress = if (isFirstFrame) targetProgress else progressAnimatable.value
+
+                val motionFraction = lerp(minMotionOut, maxMotionOut, currentProgress)
+                val offsetY = -(maxOffset.toPx() * currentProgress)
+                alpha = motionFraction * currentAlpha
                 scaleX = motionFraction
                 scaleY = motionFraction
                 translationY = offsetY
                 transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0.0f)
+
+                isFirstFrame = false
             }
         }
     }
