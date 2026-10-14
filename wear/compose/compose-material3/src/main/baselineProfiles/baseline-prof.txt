@@ -137,7 +137,7 @@ PLandroidx/wear/compose/material3/PullToRefreshDefaults;->**(**)**
 PLandroidx/wear/compose/material3/PullToRefreshElement;->**(**)**
 PLandroidx/wear/compose/material3/PullToRefreshKt**->**(**)**
 PLandroidx/wear/compose/material3/PullToRefreshModifierNode;->**(**)**
-PLandroidx/wear/compose/material3/PullToRefreshState;->**(**)**
+Landroidx/wear/compose/material3/PullToRefreshState;
 Landroidx/wear/compose/material3/R;
 PLandroidx/wear/compose/material3/RadioButtonColors;->**(**)**
 PLandroidx/wear/compose/material3/RadioButtonDefaults;->**(**)**
