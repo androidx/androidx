@@ -68,6 +68,18 @@ class MetadataTestHelperTest {
     }
 
     @Test
+    fun populatedWithTestValues_deviceWithDisplayName_keepsDisplayName() {
+        val metadata =
+            Metadata.autoRecorded(
+                device = Device(type = Device.TYPE_WATCH, displayName = "Pixel Watch 3")
+            )
+
+        val updatedMetadata = metadata.populatedWithTestValues(id = testId)
+
+        assertThat(updatedMetadata.device?.displayName).isEqualTo("Pixel Watch 3")
+    }
+
+    @Test
     fun populatedWithTestValues_noMetadataFieldsSet_copiesExistingValues() = runTest {
         val metadata =
             Metadata.unknownRecordingMethod()

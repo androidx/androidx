@@ -40,6 +40,7 @@ message Device {
   optional string manufacturer = 2;
   optional string model = 3;
   optional string type = 4;
+  optional string display_name = 5;
 }
 
 message DataOrigin {

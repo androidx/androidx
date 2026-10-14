@@ -106,7 +106,12 @@ private val TEST_METADATA =
     Metadata.manualEntry(
         clientRecordId = "clientId",
         clientRecordVersion = 10,
-        device = Device(type = Device.Companion.TYPE_PHONE, manufacturer = "manufacturer"),
+        device =
+            Device(
+                type = Device.Companion.TYPE_PHONE,
+                manufacturer = "manufacturer",
+                displayName = "displayName",
+            ),
     )
 
 // TODO(b/228314623): add tests which set optional fields
