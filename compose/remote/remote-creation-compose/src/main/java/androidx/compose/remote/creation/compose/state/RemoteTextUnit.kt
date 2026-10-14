@@ -37,7 +37,8 @@ import androidx.compose.ui.unit.sp
 public class RemoteTextUnit
 internal constructor(public val value: RemoteFloat, public val type: TextUnitType) :
     BaseRemoteState<TextUnit>(RemoteStateInstanceKey()) {
-    internal override val cacheKey: RemoteStateCacheKey
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public override val cacheKey: RemoteStateCacheKey
         get() = toPx().cacheKey
 
     internal enum class OperationKey {

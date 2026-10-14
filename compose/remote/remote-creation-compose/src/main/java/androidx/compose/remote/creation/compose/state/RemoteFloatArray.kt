@@ -29,7 +29,7 @@ import androidx.compose.ui.util.fastMap
 public class RemoteFloatArray
 internal constructor(
     public override val constantValueOrNull: List<RemoteFloat>?,
-    internal override val cacheKey: RemoteStateCacheKey,
+    cacheKey: RemoteStateCacheKey,
     internal val idProvider: ((creationState: RemoteComposeCreationState) -> Int)? = null,
 ) : BaseRemoteState<List<RemoteFloat>>(cacheKey) {
 

@@ -19,16 +19,10 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.isSpecified
 
 /**
  * Represents a Density-independent pixel (Dp) value.
@@ -40,9 +34,10 @@ import androidx.compose.ui.unit.isSpecified
 public class RemoteDp
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val value: RemoteFloat
-) : BaseRemoteState<Dp>(RemoteStateInstanceKey()) {
-    internal override val cacheKey: RemoteStateCacheKey
-        get() = toPx().cacheKey
+) : BaseRemoteState<Float>(RemoteStateInstanceKey()) {
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public override val cacheKey: RemoteStateCacheKey
+        get() = RemoteOperationCacheKey.create(OperationKey.ToPx, value)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toDebugString(): String {
@@ -72,17 +67,20 @@ internal constructor(
         }
     }
 
-    override val constantValueOrNull: Dp?
-        get() = value.constantValueOrNull?.dp
+    // AutoBoxing is acceptable here because constantValueOrNull is not expected to be on a
+    // hot path, and it follows the pattern for all RemoteState subclasses.
+    @get:Suppress("AutoBoxing")
+    override val constantValueOrNull: Float?
+        get() = value.constantValueOrNull
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
-        return toPx().writeToDocument(creationState)
+        return toPx(creationState.remoteDensity).writeToDocument(creationState)
     }
 
     /**
      * Function to convert this [RemoteDp] to a density-independent pixel value. It multiplies the
-     * current float value by the screen\'s density.
+     * current float value by the screen's density.
      */
     public fun toPx(density: RemoteDensity): RemoteFloat {
         return density.density * value
@@ -101,7 +99,7 @@ internal constructor(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun getFloatIdForCreationState(creationState: RemoteComposeCreationState): Float {
-        return toPx().getFloatIdForCreationState(creationState)
+        return toPx(creationState.remoteDensity).getFloatIdForCreationState(creationState)
     }
 
     /** Add two [RemoteDp]s together. */
@@ -164,12 +162,20 @@ internal constructor(
 
     public companion object {
         /**
-         * Creates a [RemoteDp] from a literal [Dp] value.
+         * Creates a [RemoteDp] from a [RemoteFloat].
          *
-         * @param value The [Dp] value.
+         * @param value The [RemoteFloat] value.
+         * @return A [RemoteDp] representing the Dp.
+         */
+        public operator fun invoke(value: RemoteFloat): RemoteDp = RemoteDp(value)
+
+        /**
+         * Creates a [RemoteDp] from a literal [Float] value.
+         *
+         * @param value The [Float] value.
          * @return A [RemoteDp] representing the constant Dp.
          */
-        public operator fun invoke(value: Dp): RemoteDp = value.asRdp()
+        public operator fun invoke(value: Float): RemoteDp = RemoteDp(value.rf)
 
         /**
          * Creates a [RemoteDp] referencing a remote ID.
@@ -177,7 +183,8 @@ internal constructor(
          * @param id The remote ID (stored as a [RemoteFloat]).
          * @return A [RemoteDp] referencing the ID.
          */
-        internal fun createForId(id: RemoteFloat): RemoteDp = RemoteDp(id)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun createForId(id: RemoteFloat): RemoteDp = RemoteDp(id)
 
         /**
          * Creates a named [RemoteDp] with an initial value.
@@ -185,26 +192,24 @@ internal constructor(
          * Named remote Dps can be set via AndroidRemoteContext.setNamedFloat.
          *
          * @param name A unique name to identify this state within its [domain].
-         * @param defaultValue The initial [Dp] value for the named remote Dp.
+         * @param defaultValue The initial [Float] value for the named remote Dp.
          * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
          * @return A [RemoteDp] representing the named Dp.
          */
-        @JvmStatic
         public fun createNamedRemoteDp(
             name: String,
-            defaultValue: Dp,
+            defaultValue: Float,
             domain: RemoteState.Domain = RemoteState.Domain.User,
         ): RemoteDp {
             return RemoteDp(
                 createNamedRemoteFloat(
                     name = name,
-                    defaultValue = defaultValue.value,
+                    defaultValue = defaultValue,
                     domain = domain,
                 )
             )
         }
 
-        @JvmStatic
         public fun createNamedRemoteDp(
             name: String,
             domain: RemoteState.Domain = RemoteState.Domain.User,
@@ -215,6 +220,36 @@ internal constructor(
         }
     }
 }
+
+/**
+ * Creates a named [RemoteDp] with an initial value.
+ *
+ * Named remote Dps can be set via AndroidRemoteContext.setNamedFloat.
+ *
+ * @param name A unique name to identify this state within its [domain].
+ * @param defaultValue The initial [Float] value for the named remote Dp.
+ * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+ * @return A [RemoteDp] representing the named Dp.
+ */
+public fun createNamedRemoteDp(
+    name: String,
+    defaultValue: Float,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
+): RemoteDp = RemoteDp.createNamedRemoteDp(name, defaultValue, domain)
+
+/**
+ * Creates a named [RemoteDp] expression.
+ *
+ * @param name A unique name to identify this state within its [domain].
+ * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+ * @param value A lambda that provides the [RemoteDp] expression.
+ * @return A [RemoteDp] representing the named Dp expression.
+ */
+public fun createNamedRemoteDp(
+    name: String,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
+    value: () -> RemoteDp,
+): RemoteDp = RemoteDp.createNamedRemoteDp(name, domain, value)
 
 /** Extension property to convert an [Int] to a [RemoteDp]. */
 public val Int.rdp: RemoteDp
@@ -227,12 +262,6 @@ public val Float.rdp: RemoteDp
     get() {
         return RemoteDp(this.rf)
     }
-
-/** Extension property to convert a [Dp] to a [RemoteDp]. */
-public fun Dp.asRdp(): RemoteDp {
-    check(isSpecified) { "Dp conversion not possible for unspecified Dp" }
-    return RemoteDp(this.value.rf)
-}
 
 /** Converts this [RemoteFloat] to a [RemoteDp] directly (1:1) */
 public fun RemoteFloat.asRemoteDp(): RemoteDp {
@@ -251,24 +280,6 @@ public fun RemoteFloat.toRemoteDp(): RemoteDp {
             (this / density.density).arrayForCreationState(creationState)
         }
     )
-}
-
-/**
- * Remembers a named remote Dp expression.
- *
- * @param name The unique name for this remote Dp.
- * @param domain The domain of the named Dp (defaults to [RemoteState.Domain.User]).
- * @param value A lambda that provides the [RemoteDp] expression.
- * @return A [RemoteDp] representing the named remote Dp expression.
- */
-@Composable
-@RemoteComposable
-public fun rememberNamedRemoteDp(
-    name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-    value: () -> RemoteDp,
-): RemoteDp {
-    return remember(name, domain) { createNamedRemoteDp(name, domain, value) }
 }
 
 /** Returns the smaller of two [RemoteDp] values. */
