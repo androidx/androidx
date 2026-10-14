@@ -10574,12 +10574,10 @@ public class NotificationCompat {
          * <p>Calling this method sets the projected actions to an empty list and marks
          * {@link #shouldUseExtenderActions()} as {@code true}, which prevents the projected device
          * from using the main notification actions so that no actions are displayed on a projected
-         * device. To undo defining projected actions and revert to the default behavior of using
-         * compatible actions from the main notification, call {@link #resetActions()}.
+         * device.
          *
          * @return This {@code ProjectedExtender} object for chaining.
          * @see #addAction
-         * @see #resetActions
          * @see #shouldUseExtenderActions
          */
         public @NonNull ProjectedExtender clearActions() {
@@ -10589,34 +10587,16 @@ public class NotificationCompat {
         }
 
         /**
-         * Reset projected actions on this extender to the default unset state.
-         *
-         * <p>Calling this method clears any projected actions and marks
-         * {@link #shouldUseExtenderActions()} as {@code false}, allowing the projected device to
-         * display compatible actions from the main notification by default.
-         *
-         * @return This {@code ProjectedExtender} object for chaining.
-         * @see #addAction
-         * @see #clearActions
-         * @see #shouldUseExtenderActions
-         */
-        public @NonNull ProjectedExtender resetActions() {
-            mShouldUseExtenderActions = false;
-            mActions.clear();
-            return this;
-        }
-
-        /**
          * Returns whether the projected device should use the actions from this extender
          * (configured via {@link #addAction}, {@link #addActions}, or {@link #clearActions})
          * instead of the main notification actions.
          *
-         * <p>If this returns {@code false} (the default, or after calling {@link #resetActions()}),
-         * no projected actions have been configured and the projected device may display compatible
-         * actions from the main notification by default. If this returns {@code true}, the
-         * projected device should display the actions returned by {@link #getActions()} instead of
-         * the main notification actions (or display no actions if {@link #getActions()} is empty,
-         * such as after calling {@link #clearActions()}).
+         * <p>If this returns {@code false} (the default), no projected actions have been configured
+         * and the projected device may display compatible actions from the main notification by
+         * default. If this returns {@code true}, the projected device should display the actions
+         * returned by {@link #getActions()} instead of the main notification actions (or display no
+         * actions if {@link #getActions()} is empty, such as after calling
+         * {@link #clearActions()}).
          *
          * @return {@code true} if the extender's actions should be used instead of the main
          *         notification actions, {@code false} otherwise.
