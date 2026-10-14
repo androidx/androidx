@@ -16,14 +16,10 @@
 package androidx.camera.view
 
 import android.content.Context
-import android.os.Build
-import android.view.WindowManager
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.Api27Impl.setShowWhenLocked
-import androidx.camera.testing.impl.Api27Impl.setTurnScreenOn
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ParameterizedTestConfigUtil
@@ -41,7 +37,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 import org.junit.After
 import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,18 +45,22 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class PreviewViewBitmapTest(private val implName: String, private val cameraConfig: CameraXConfig) {
-    @get:Rule val activityRule = CameraTestActivityScenarioRule(FakeActivity::class.java)
+    @get:Rule(order = 0)
+    val requireForegroundRule = RequireForegroundRule {
+        cameraSelector = CameraUtil.assumeFirstAvailableCameraSelector()
+    }
 
-    @get:Rule
+    @get:Rule(order = 1)
     var useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
+
+    @get:Rule(order = 2) val activityRule = CameraTestActivityScenarioRule(FakeActivity::class.java)
 
     private var cameraProvider: ProcessCameraProvider? = null
     private lateinit var cameraSelector: CameraSelector
 
     @Before
     fun setUp() {
-        cameraSelector = CameraUtil.assumeFirstAvailableCameraSelector()
         val context = ApplicationProvider.getApplicationContext<Context>()
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context).get()
@@ -292,18 +291,6 @@ class PreviewViewBitmapTest(private val implName: String, private val cameraConf
             previewView.implementationMode = mode
             previewView.scaleType = scaleType
             activityRule.scenario.onActivity { activity: FakeActivity ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                    activity.setShowWhenLocked()
-                    activity.setTurnScreenOn()
-                    activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                } else {
-                    @Suppress("DEPRECATION")
-                    activity.window.addFlags(
-                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                    )
-                }
                 activity.setContentView(previewView)
             }
             previewViewAtomicReference.set(previewView)
@@ -341,13 +328,6 @@ class PreviewViewBitmapTest(private val implName: String, private val cameraConf
     }
 
     companion object {
-
-        @BeforeClass
-        @JvmStatic
-        fun classSetUp() {
-            RequireForegroundRule.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-        }
-
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data() =

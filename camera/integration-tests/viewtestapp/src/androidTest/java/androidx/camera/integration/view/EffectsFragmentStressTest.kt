@@ -48,23 +48,23 @@ class EffectsFragmentStressTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig,
 ) {
-    @get:Rule val requireForegroundRule = RequireForegroundRule()
+    @get:Rule(order = 0) val labTest: LabTestRule = LabTestRule()
 
-    @get:Rule
+    @get:Rule(order = 1) val requireForegroundRule = RequireForegroundRule()
+
+    @get:Rule(order = 2)
     val useCameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraControllerFragmentTest.testCameraRule,
             CameraUtil.PreTestCameraIdList(cameraConfig),
         )
 
-    @get:Rule
+    @get:Rule(order = 3)
     val grantPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO,
         )
-
-    @get:Rule val labTest: LabTestRule = LabTestRule()
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private lateinit var cameraProvider: ProcessCameraProvider
