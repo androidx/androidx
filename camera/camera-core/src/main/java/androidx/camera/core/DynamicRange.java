@@ -81,12 +81,6 @@ public final class DynamicRange {
     /** HDR10 dynamic range encoding with SMPTE ST 2094-50 metadata. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final int ENCODING_HDR10_SMPTE_2094_50 = ENCODING_HDR_UNSPECIFIED + 6;
-    /** HDR10+ dynamic range encoding with SMPTE ST 2094-50 metadata. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int ENCODING_HDR10_PLUS_SMPTE_2094_50 = ENCODING_HDR_UNSPECIFIED + 7;
-    /** Dolby Vision dynamic range encoding with SMPTE ST 2094-50 metadata. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int ENCODING_DOLBY_VISION_SMPTE_2094_50 = ENCODING_HDR_UNSPECIFIED + 8;
     //------------------------------------------------------------------------------//
 
     /** Bit depth is unspecified and may be determined automatically by the device. */
@@ -100,8 +94,7 @@ public final class DynamicRange {
     @IntDef({ENCODING_UNSPECIFIED, ENCODING_SDR, ENCODING_SDR_SMPTE_2094_50,
             ENCODING_HDR_UNSPECIFIED, ENCODING_HLG,
             ENCODING_HLG_SMPTE_2094_50, ENCODING_HDR10, ENCODING_HDR10_SMPTE_2094_50,
-            ENCODING_HDR10_PLUS, ENCODING_HDR10_PLUS_SMPTE_2094_50, ENCODING_DOLBY_VISION,
-            ENCODING_DOLBY_VISION_SMPTE_2094_50})
+            ENCODING_HDR10_PLUS, ENCODING_DOLBY_VISION})
     @Retention(RetentionPolicy.SOURCE)
     public @interface DynamicRangeEncoding {
     }
@@ -256,48 +249,6 @@ public final class DynamicRange {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final @NonNull DynamicRange HDR10_10_BIT_SMPTE_2094_50 =
             new DynamicRange(ENCODING_HDR10_SMPTE_2094_50, BIT_DEPTH_10_BIT);
-
-    /**
-     * A 10-bit high-dynamic range with HDR10+ encoding and SMPTE ST 2094-50 (Eclipsa Video)
-     * metadata.
-     *
-     * <p>This dynamic range is composed of:
-     * <pre>
-     *   Encoding: ENCODING_HDR10_PLUS_SMPTE_2094_50
-     *   Bit Depth: BIT_DEPTH_10_BIT
-     * </pre>
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final @NonNull DynamicRange HDR10_PLUS_10_BIT_SMPTE_2094_50 =
-            new DynamicRange(ENCODING_HDR10_PLUS_SMPTE_2094_50, BIT_DEPTH_10_BIT);
-
-    /**
-     * A 10-bit high-dynamic range with Dolby Vision encoding and SMPTE ST 2094-50 (Eclipsa Video)
-     * metadata.
-     *
-     * <p>This dynamic range is composed of:
-     * <pre>
-     *   Encoding: ENCODING_DOLBY_VISION_SMPTE_2094_50
-     *   Bit Depth: BIT_DEPTH_10_BIT
-     * </pre>
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final @NonNull DynamicRange DOLBY_VISION_10_BIT_SMPTE_2094_50 =
-            new DynamicRange(ENCODING_DOLBY_VISION_SMPTE_2094_50, BIT_DEPTH_10_BIT);
-
-    /**
-     * An 8-bit high-dynamic range with Dolby Vision encoding and SMPTE ST 2094-50 (Eclipsa Video)
-     * metadata.
-     *
-     * <p>This dynamic range is composed of:
-     * <pre>
-     *   Encoding: ENCODING_DOLBY_VISION_SMPTE_2094_50
-     *   Bit Depth: BIT_DEPTH_8_BIT
-     * </pre>
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final @NonNull DynamicRange DOLBY_VISION_8_BIT_SMPTE_2094_50 =
-            new DynamicRange(ENCODING_DOLBY_VISION_SMPTE_2094_50, BIT_DEPTH_8_BIT);
     //------------------------------------------------------------------------------//
 
     private final @DynamicRangeEncoding int mEncoding;
@@ -410,9 +361,7 @@ public final class DynamicRange {
             case ENCODING_HDR10: return "HDR10";
             case ENCODING_HDR10_SMPTE_2094_50: return "HDR10_SMPTE_2094_50";
             case ENCODING_HDR10_PLUS: return "HDR10_PLUS";
-            case ENCODING_HDR10_PLUS_SMPTE_2094_50: return "HDR10_PLUS_SMPTE_2094_50";
             case ENCODING_DOLBY_VISION: return "DOLBY_VISION";
-            case ENCODING_DOLBY_VISION_SMPTE_2094_50: return "DOLBY_VISION_SMPTE_2094_50";
         }
 
         return "<Unknown>";
