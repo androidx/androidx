@@ -435,7 +435,9 @@ class OneHandedGestureTest {
                             gestureConfiguration = scrollGestureConfig,
                             onGestureLabel = "scroll",
                             onGestureAvailable = {
-                                coroutineScope.launch { scrollIndicatorState.showIndicator() }
+                                coroutineScope.launch {
+                                    scrollIndicatorState.showIndicator()
+                                }
                             },
                         ) {
                             tlcGestured = true
@@ -484,6 +486,117 @@ class OneHandedGestureTest {
             assertEquals(true, textGestured.all { it })
             assertEquals(true, textIndicatorShown.all { it })
         }
+    }
+
+    /** Verifies that onGestureAvailable is invoked after the default delay */
+    @Test
+    fun show_indicator_default_delay() {
+        verifyShowIndicatorDelay(
+            showIndicatorDelayMillis = null,
+            expectedDelayMillis = OneHandedGestureDefaults.ShowIndicatorDelayMillis,
+        )
+    }
+
+    /** Verifies that onGestureAvailable is invoked after a custom delay */
+    @Test
+    fun show_indicator_custom_delay() {
+        verifyShowIndicatorDelay(showIndicatorDelayMillis = 2500, expectedDelayMillis = 2500)
+    }
+
+    /** Verifies that onGestureAvailable is invoked immediately when the delay is zero */
+    @Test
+    fun show_indicator_zero_delay() {
+        verifyShowIndicatorDelay(showIndicatorDelayMillis = 0, expectedDelayMillis = 0)
+    }
+
+    /** Verifies that gestures with different delays are each made available after their delay */
+    @Test
+    fun show_indicator_with_different_delays() {
+        var primaryAvailable = false
+        var dismissAvailable = false
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                val primaryConfig =
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
+                val dismissConfig =
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Dismiss)
+                Column {
+                    Box(
+                        Modifier.size(50.dp).oneHandedGesture(
+                            gestureConfiguration = primaryConfig,
+                            onGestureLabel = "primary",
+                            showIndicatorDelayMillis = 500,
+                            onGestureAvailable = { primaryAvailable = true },
+                        ) {}
+                    )
+                    Box(
+                        Modifier.size(50.dp).oneHandedGesture(
+                            gestureConfiguration = dismissConfig,
+                            onGestureLabel = "dismiss",
+                            showIndicatorDelayMillis = 2000,
+                            onGestureAvailable = { dismissAvailable = true },
+                        ) {}
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        rule.mainClock.advanceTimeBy(1000)
+        rule.runOnIdle {
+            assertEquals(true, primaryAvailable)
+            assertEquals(false, dismissAvailable)
+        }
+
+        rule.mainClock.advanceTimeBy(1500)
+        rule.runOnIdle {
+            assertEquals(true, primaryAvailable)
+            assertEquals(true, dismissAvailable)
+        }
+    }
+
+    @Test
+    fun show_indicator_same_priority_different_delays() {
+        val availableOrder = mutableListOf<String>()
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Column {
+                    listOf("slow" to 2000L, "fast" to 1000L).forEach { (name, delayMillis) ->
+                        key(name) {
+                            val gestureConfig =
+                                rememberOneHandedGestureConfiguration(
+                                    action = OneHandedGestureAction.Primary,
+                                    priority = OneHandedGesturePriority.Clickable,
+                                )
+                            Box(
+                                Modifier.size(50.dp).oneHandedGesture(
+                                    gestureConfiguration = gestureConfig,
+                                    onGestureLabel = name,
+                                    showIndicatorDelayMillis = delayMillis,
+                                    onGestureAvailable = { availableOrder.add(name) },
+                                ) {}
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        rule.mainClock.advanceTimeBy(900)
+        rule.runOnIdle { assertThat(availableOrder).isEmpty() }
+
+        rule.mainClock.advanceTimeBy(200)
+        rule.runOnIdle { assertThat(availableOrder).containsExactly("fast") }
+
+        rule.mainClock.advanceTimeBy(1000)
+        rule.runOnIdle { assertThat(availableOrder).containsExactly("fast", "slow").inOrder() }
     }
 
     /**
@@ -2027,6 +2140,51 @@ class OneHandedGestureTest {
         }
 
         private val gestureConsumers = mutableMapOf<Int, (Int) -> Unit>()
+    }
+
+    private fun verifyShowIndicatorDelay(
+        showIndicatorDelayMillis: Long?,
+        expectedDelayMillis: Long,
+    ) {
+        var gestureAvailable = false
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                val gestureConfig =
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
+                val onGestureAvailable = { gestureAvailable = true }
+                Box(
+                    Modifier.size(50.dp)
+                        .then(
+                            if (showIndicatorDelayMillis == null) {
+                                Modifier.oneHandedGesture(
+                                    gestureConfiguration = gestureConfig,
+                                    onGestureLabel = "click",
+                                    onGestureAvailable = onGestureAvailable,
+                                ) {}
+                            } else {
+                                Modifier.oneHandedGesture(
+                                    gestureConfiguration = gestureConfig,
+                                    onGestureLabel = "click",
+                                    showIndicatorDelayMillis = showIndicatorDelayMillis,
+                                    onGestureAvailable = onGestureAvailable,
+                                ) {}
+                            }
+                        )
+                )
+            }
+        }
+        rule.waitForIdle()
+
+        if (expectedDelayMillis > 0) {
+            rule.mainClock.advanceTimeBy(expectedDelayMillis - 100)
+            rule.runOnIdle { assertEquals(false, gestureAvailable) }
+        }
+
+        rule.mainClock.advanceTimeBy(200)
+        rule.runOnIdle { assertEquals(true, gestureAvailable) }
     }
 
     private fun ViewInteraction.checkExists(): ViewInteraction =
