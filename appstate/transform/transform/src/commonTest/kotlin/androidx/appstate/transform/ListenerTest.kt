@@ -16,34 +16,31 @@
 
 package androidx.appstate.transform
 
+import androidx.appstate.transform.testing.transformTest
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runTest
 
-@IgnoreAndroidHostTest // Runs on all targets EXCEPT AndroidHost; still runs on AndroidDevice.
-@OptIn(ExperimentalCoroutinesApi::class)
 class ListenerTest {
 
     @Test
-    fun testListenerUpdated() = runTest {
+    fun testListenerUpdated() = transformTest {
         var sourceState by mutableStateOf(0)
         val state = mutableStateOf(0)
         backgroundScope.launch { listener(testDispatcher) { state.value = sourceState } }
 
         sourceState = 1
-        runRecomposition()
+        advance()
         assertThat(state.value).isEqualTo(1)
     }
 
     @Test
-    fun testListenerCancellation() = runTest {
+    fun testListenerCancellation() = transformTest {
         val scope = CoroutineScope(testDispatcher + SupervisorJob())
         var sourceState by mutableStateOf(0)
         val state = mutableStateOf(0)
@@ -52,13 +49,13 @@ class ListenerTest {
         assertThat(state.value).isEqualTo(0)
 
         sourceState = 1
-        runRecomposition()
+        advance()
         assertThat(state.value).isEqualTo(1)
 
         job.cancel()
 
         sourceState = 2
-        runRecomposition()
+        advance()
         // Should still be 1 because the scope was cancelled.
         assertThat(state.value).isEqualTo(1)
     }

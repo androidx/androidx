@@ -30,6 +30,7 @@ dependencies {
     kmpDocs(project(":appstate:statestore:statestore"))
     kmpDocs(project(":appstate:statestore:statestore-datastore"))
     kmpDocs(project(":appstate:transform:transform"))
+    kmpDocs(project(":appstate:transform:transform-testing"))
     docs(project(":arch:core:core-common"))
     docs(project(":arch:core:core-runtime"))
     docs(project(":arch:core:core-testing"))

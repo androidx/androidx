@@ -63,6 +63,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
+                implementation(project(":appstate:transform:transform-testing"))
                 implementation(project(":kruth:kruth"))
             }
         }
