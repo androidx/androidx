@@ -88,6 +88,7 @@ import androidx.xr.compose.testapp.lifecycle.OpenCloseActivity
 import androidx.xr.compose.testapp.lifecycle.ResizeActivity
 import androidx.xr.compose.testapp.lifecycle.RuntimeSessionActivity
 import androidx.xr.compose.testapp.modechange.ModeChange
+import androidx.xr.compose.testapp.modifierchain.ModifierChainActivity
 import androidx.xr.compose.testapp.movable.MovableActivity
 import androidx.xr.compose.testapp.movablescalable.MovableScalable
 import androidx.xr.compose.testapp.navigation.SpatialNavigationActivity
@@ -418,6 +419,9 @@ class MainActivity : ComponentActivity() {
                             },
                             TestCase(getString(R.string.layout_performance)) {
                                 startTest<LayoutPerformance>()
+                            },
+                            TestCase(getString(R.string.modifier_chain_test)) {
+                                startTest<ModifierChainActivity>()
                             },
                         ),
                 )
