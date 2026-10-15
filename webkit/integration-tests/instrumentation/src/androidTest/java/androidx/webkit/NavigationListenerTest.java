@@ -33,10 +33,11 @@ import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
@@ -359,16 +360,25 @@ public class NavigationListenerTest {
         Assert.assertTrue(navigation.didCommitErrorPage());
     }
 
-    @Ignore("http://b/546448944")
     @Test
     public void didCommitErrorPage_webResourceErrorReturned() {
         WebkitUtils.checkFeature(WebViewFeature.NAVIGATION_GET_WEB_RESOURCE_ERROR);
-        mWebViewOnUiThread.loadUrl("malformed-url");
+        // Find an unused ephemeral port that is not in Chromium's restricted port list, then
+        // immediately close it. Connecting to localhost on this port avoids DNS resolution
+        // (which can be flaky in test environments) and reliably triggers an immediate
+        // connection refused error (WebViewClient.ERROR_CONNECT).
+        int closedPort;
+        try (ServerSocket socket = new ServerSocket(0)) {
+            closedPort = socket.getLocalPort();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        mWebViewOnUiThread.loadUrl("http://127.0.0.1:" + closedPort + "/");
         Navigation navigation = waitForNextQueueElement(mListener.mOnNavigationCompletedQueue);
         Assert.assertTrue(navigation.didCommitErrorPage());
         Assert.assertNotNull(navigation.getWebResourceError());
-        Assert.assertEquals(WebViewClient.ERROR_HOST_LOOKUP,
-                navigation.getWebResourceError().getErrorCode());
+        Assert.assertEquals(
+                WebViewClient.ERROR_CONNECT, navigation.getWebResourceError().getErrorCode());
     }
 
     @Test
