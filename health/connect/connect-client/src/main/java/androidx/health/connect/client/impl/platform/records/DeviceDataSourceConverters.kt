@@ -48,12 +48,7 @@ internal fun PlatformDeviceDataTypeSource.toSdkDeviceDataTypeSource(): DeviceDat
 internal fun PlatformDeviceDataSource.toSdkDeviceDataSource(): DeviceDataSource {
     return DeviceDataSource(
         deviceDataOrigin = deviceDataOrigin.toSdkDataOrigin(),
-        device =
-            Device(
-                type = device.type.toSdkDevice(),
-                manufacturer = device.manufacturer,
-                model = device.model,
-            ),
+        device = device.toSdkDevice() ?: Device(type = Device.TYPE_UNKNOWN),
         deviceDataTypeSources =
             deviceDataTypeSources.mapNotNull { it.toSdkDeviceDataTypeSource() }.toSet(),
     )
