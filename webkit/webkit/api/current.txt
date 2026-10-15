@@ -57,6 +57,7 @@ package androidx.webkit {
   }
 
   public final class Navigation {
+    method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.NavigationState captureState();
     method public boolean didCommit();
     method public boolean didCommitErrorPage();
     method public androidx.webkit.Page? getPage();
@@ -69,7 +70,6 @@ package androidx.webkit {
     method public boolean isReload();
     method public boolean isRestore();
     method public boolean isSameDocument();
-    method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.NavigationState snapshotState();
     method public boolean wasInitiatedByPage();
   }
 
@@ -145,8 +145,8 @@ package androidx.webkit {
   }
 
   public final class Page {
+    method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.PageState captureState();
     method public String getUrl();
-    method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.PageState snapshotState();
   }
 
   @AnyThread public final class PageState {

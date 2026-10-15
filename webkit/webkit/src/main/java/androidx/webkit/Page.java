@@ -84,7 +84,7 @@ public final class Page {
     @AnyThread
     @RequiresFeature(name = WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public @NonNull PageState snapshotState() {
+    public @NonNull PageState captureState() {
         ApiFeature.NoFramework feature =
                 WebViewFeatureInternal.NAVIGATION_LISTENER_NAVIGATION_STATE;
         if (feature.isSupportedByWebView()) {
