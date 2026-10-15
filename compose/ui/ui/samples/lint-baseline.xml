@@ -110,15 +110,6 @@
     </issue>
 
     <issue
-        id="ExceptionMessage"
-        message="Please specify a lazyMessage param for requireNotNull"
-        errorLine1="                        val target = requireNotNull(lookaheadSize)"
-        errorLine2="                                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/samples/LookaheadScopeSample.kt"/>
-    </issue>
-
-    <issue
         id="AutoboxingStateCreation"
         message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
         errorLine1="    var size by remember { mutableStateOf(20) }"
