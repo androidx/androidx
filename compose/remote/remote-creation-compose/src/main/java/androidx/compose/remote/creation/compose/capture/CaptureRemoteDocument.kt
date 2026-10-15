@@ -539,7 +539,7 @@ private const val MAX_IDLE_ITERATIONS = 100
  * `hasPendingWork` becomes `false`. Toggling `pauseCompositionFrameClock` /
  * `resumeCompositionFrameClock` re-runs `deriveStateLocked()` once `hasPendingWork` is `false`.
  *
- * TODO(b/567847315): Remove once Compose Runtime re-derives the state after frame-end callbacks.
+ * TODO(b/573873845): Remove once Compose Runtime re-derives the state after frame-end callbacks.
  */
 private fun Recomposer.refreshStateIfIdle() {
     if (currentState.value == Recomposer.State.PendingWork && !hasPendingWork) {
@@ -631,11 +631,11 @@ private enum class QuiescenceResult {
  *
  * Limitation of (3): a `MutableSnapshot.apply()` on another thread also claims pending global
  * writes and notifies observers after releasing the global lock, but the runtime does not count
- * those notifications in [Snapshot.isApplyObserverNotificationPending]. This capture's own writes
- * claimed that way are also waited for via [writeTracker] (see [CaptureWriteTracker]); writes from
- * elsewhere in the process are not covered. This session's own render snapshots do not widen the
- * window, as they are never applied unless writes during render are explicitly allowed (see
- * [withRenderSnapshot]).
+ * those notifications in [Snapshot.isApplyObserverNotificationPending] (b/573872754). This
+ * capture's own writes claimed that way are also waited for via [writeTracker] (see
+ * [CaptureWriteTracker]); writes from elsewhere in the process are not covered. This session's own
+ * render snapshots do not widen the window, as they are never applied unless writes during render
+ * are explicitly allowed (see [withRenderSnapshot]).
  *
  * Note that [Recomposer.currentState] is only ever sampled by value here, never used to detect a
  * transition, so conflation of the underlying [StateFlow] cannot cause a missed wake-up.
@@ -792,6 +792,10 @@ private suspend inline fun pollUntil(canYield: Boolean, isDone: () -> Boolean): 
  * send and [Recomposer.hasPendingWork] stays `false` until the other thread delivers it, so the
  * capture could sample itself as quiescent and render stale state (b/571028326).
  *
+ * TODO(b/573872754): Remove once [Snapshot.isApplyObserverNotificationPending] also covers global
+ *   writes delivered by `MutableSnapshot.apply()`; [awaitRecomposerQuiescence] then only needs its
+ *   existing wait on that flag.
+ *
  * Writes are attributed to the capture through [contextElement], a thread-local marker installed
  * while the capture's coroutines run (the Recomposer's effect context inherits it), so writes from
  * elsewhere in the process are ignored. Its apply observer must run after the Recomposer's, so that
@@ -886,9 +890,9 @@ private class CaptureWriteTracker {
  *
  * Not applying is also what keeps this snapshot out of the way of concurrent sessions:
  * `MutableSnapshot.apply()` claims any pending global snapshot writes and delivers their apply
- * notifications without being tracked by [Snapshot.isApplyObserverNotificationPending], so an apply
- * here could take writes made by another session's effects, which could then sample itself as
- * quiescent before its recomposer has seen them.
+ * notifications without being tracked by [Snapshot.isApplyObserverNotificationPending]
+ * (b/573872754), so an apply here could take writes made by another session's effects, which could
+ * then sample itself as quiescent before its recomposer has seen them.
  */
 private fun <T> withRenderSnapshot(applyWrites: Boolean, block: () -> T): T {
     val snapshot = Snapshot.takeMutableSnapshot()
