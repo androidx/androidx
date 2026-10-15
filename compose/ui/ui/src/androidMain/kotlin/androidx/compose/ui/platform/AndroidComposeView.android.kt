@@ -1972,9 +1972,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                         layoutNode
                             .findClosestParentNode { it.nodes.has(Nodes.Semantics) }
                             ?.semanticsId
-                    if (
-                        parentId == null || parentId == semanticsOwner.unmergedRootSemanticsNode.id
-                    ) {
+                    if (parentId == null || parentId == semanticsOwner.rootInfo.semanticsId) {
                         parentId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
                     }
                     info.setParent(thisView, parentId)
