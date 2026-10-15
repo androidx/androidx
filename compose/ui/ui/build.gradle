@@ -153,6 +153,7 @@ androidXMultiplatform {
             implementation(project(":compose:test-utils"))
             implementation(project(":internal-testutils-fonts"))
             implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":internal-testutils-lifecycle"))
             implementation(project(":internal-testutils-runtime"))
             implementation(project(":test:screenshot:screenshot"))
             implementation("androidx.lifecycle:lifecycle-runtime-testing:2.10.0")
