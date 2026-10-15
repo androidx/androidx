@@ -16,14 +16,14 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.mutableObjectListOf
 
 /**
  * Tracks the nodes being positioned and dispatches OnPositioned callbacks when we finished the
  * measure/layout pass.
  */
 internal class OnPositionedDispatcher {
-    private val layoutNodes = mutableVectorOf<LayoutNode>()
+    private val layoutNodes = mutableObjectListOf<LayoutNode>()
     private var cachedNodes: Array<LayoutNode?>? = null
 
     fun isNotEmpty() = layoutNodes.isNotEmpty()
