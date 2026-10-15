@@ -32,6 +32,13 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteCustomPropertiesScope
+import androidx.compose.remote.creation.compose.layout.drawArc
+import androidx.compose.remote.creation.compose.layout.drawCircle
+import androidx.compose.remote.creation.compose.layout.drawColor
+import androidx.compose.remote.creation.compose.layout.drawLine
+import androidx.compose.remote.creation.compose.layout.drawOval
+import androidx.compose.remote.creation.compose.layout.drawRect
+import androidx.compose.remote.creation.compose.layout.drawRoundRect
 import androidx.compose.remote.creation.compose.layout.drawRoundedPolygon
 import androidx.compose.remote.creation.compose.layout.drawRoundedPolygonMorph
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -210,16 +217,7 @@ public open class RecordingCanvas(
     }
 
     override fun drawColor(drawColor: Int) {
-        drawRect(
-            0f.rf,
-            0f.rf,
-            creationState.creationDisplayInfo.size.width.toInt().rf,
-            creationState.creationDisplayInfo.size.height.toInt().rf,
-            Paint().apply {
-                color = drawColor
-                style = Paint.Style.FILL
-            },
-        )
+        remoteCanvas.drawColor(drawColor)
     }
 
     override fun drawText(text: String, x: Float, y: Float, paint: Paint) {
@@ -263,7 +261,7 @@ public open class RecordingCanvas(
     }
 
     override fun drawRect(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
-        drawRect(left.rf, top.rf, right.rf, bottom.rf, paint)
+        remoteCanvas.drawRect(left, top, right, bottom, paint)
     }
 
     public fun drawRect(
@@ -273,35 +271,20 @@ public open class RecordingCanvas(
         bottom: RemoteFloat,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawRect(
-                    left.getFloatIdForCreationState(creationState),
-                    top.getFloatIdForCreationState(creationState),
-                    right.getFloatIdForCreationState(creationState),
-                    bottom.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, left, top, right, bottom)
+        remoteCanvas.drawRect(left, top, right, bottom, paint)
     }
 
     override fun drawRect(rect: Rect, paint: Paint) {
-        drawRect(
-            rect.left.toFloat(),
-            rect.top.toFloat(),
-            rect.right.toFloat(),
-            rect.bottom.toFloat(),
-            paint,
-        )
+        remoteCanvas.drawRect(rect, paint)
     }
 
     override fun drawRect(rect: RectF, paint: Paint) {
-        drawRect(rect.left, rect.top, rect.right, rect.bottom, paint)
+        remoteCanvas.drawRect(rect, paint)
     }
 
     /** For V1 compatibility. */
     override fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
-        drawOval(left.rf, top.rf, right.rf, bottom.rf, paint)
+        remoteCanvas.drawOval(left, top, right, bottom, paint)
     }
 
     public fun drawOval(
@@ -311,16 +294,7 @@ public open class RecordingCanvas(
         bottom: RemoteFloat,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawOval(
-                    left.getFloatIdForCreationState(creationState),
-                    top.getFloatIdForCreationState(creationState),
-                    right.getFloatIdForCreationState(creationState),
-                    bottom.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, left, top, right, bottom)
+        remoteCanvas.drawOval(left, top, right, bottom, paint)
     }
 
     override fun drawRoundRect(
@@ -332,7 +306,7 @@ public open class RecordingCanvas(
         ry: Float,
         paint: Paint,
     ) {
-        drawRoundRect(left.rf, top.rf, right.rf, bottom.rf, rx.rf, ry.rf, paint)
+        remoteCanvas.drawRoundRect(left, top, right, bottom, rx, ry, paint)
     }
 
     public fun drawRoundRect(
@@ -344,22 +318,11 @@ public open class RecordingCanvas(
         ry: RemoteFloat,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawRoundRect(
-                    left.getFloatIdForCreationState(creationState),
-                    top.getFloatIdForCreationState(creationState),
-                    right.getFloatIdForCreationState(creationState),
-                    bottom.getFloatIdForCreationState(creationState),
-                    rx.getFloatIdForCreationState(creationState),
-                    ry.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, left, top, right, bottom, rx, ry)
+        remoteCanvas.drawRoundRect(left, top, right, bottom, rx, ry, paint)
     }
 
     override fun drawLine(startX: Float, startY: Float, stopX: Float, stopY: Float, paint: Paint) {
-        drawLine(startX.rf, startY.rf, stopX.rf, stopY.rf, paint)
+        remoteCanvas.drawLine(startX, startY, stopX, stopY, paint)
     }
 
     public fun drawLine(
@@ -369,16 +332,7 @@ public open class RecordingCanvas(
         stopY: RemoteFloat,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawLine(
-                    startX.getFloatIdForCreationState(creationState),
-                    startY.getFloatIdForCreationState(creationState),
-                    stopX.getFloatIdForCreationState(creationState),
-                    stopY.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, startX, startY, stopX, stopY)
+        remoteCanvas.drawLine(startX, startY, stopX, stopY, paint)
     }
 
     override fun translate(dx: Float, dy: Float) {
@@ -897,16 +851,7 @@ public open class RecordingCanvas(
         useCenter: Boolean,
         paint: Paint,
     ) {
-        drawArc(
-            left.rf,
-            top.rf,
-            right.rf,
-            bottom.rf,
-            startAngle.rf,
-            sweepAngle.rf,
-            useCenter,
-            paint,
-        )
+        remoteCanvas.drawArc(left, top, right, bottom, startAngle, sweepAngle, useCenter, paint)
     }
 
     public fun drawArc(
@@ -919,33 +864,11 @@ public open class RecordingCanvas(
         useCenter: Boolean,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                if (useCenter) {
-                    document.drawSector(
-                        left.getFloatIdForCreationState(creationState),
-                        top.getFloatIdForCreationState(creationState),
-                        right.getFloatIdForCreationState(creationState),
-                        bottom.getFloatIdForCreationState(creationState),
-                        startAngle.getFloatIdForCreationState(creationState),
-                        sweepAngle.getFloatIdForCreationState(creationState),
-                    )
-                } else {
-                    document.drawArc(
-                        left.getFloatIdForCreationState(creationState),
-                        top.getFloatIdForCreationState(creationState),
-                        right.getFloatIdForCreationState(creationState),
-                        bottom.getFloatIdForCreationState(creationState),
-                        startAngle.getFloatIdForCreationState(creationState),
-                        sweepAngle.getFloatIdForCreationState(creationState),
-                    )
-                }
-            }
-        buffer.addRoots(op, left, top, right, bottom, startAngle, sweepAngle)
+        remoteCanvas.drawArc(left, top, right, bottom, startAngle, sweepAngle, useCenter, paint)
     }
 
     override fun drawCircle(cx: Float, cy: Float, radius: Float, paint: Paint) {
-        drawCircle(cx.rf, cy.rf, radius.rf, paint)
+        remoteCanvas.drawCircle(cx, cy, radius, paint)
     }
 
     /**
@@ -957,15 +880,7 @@ public open class RecordingCanvas(
      * @param paint The [Paint] object for styling.
      */
     public fun drawCircle(cx: RemoteFloat, cy: RemoteFloat, radius: RemoteFloat, paint: Paint) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawCircle(
-                    cx.getFloatIdForCreationState(creationState),
-                    cy.getFloatIdForCreationState(creationState),
-                    radius.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, cx, cy, radius)
+        remoteCanvas.drawCircle(cx, cy, radius, paint)
     }
 
     /**

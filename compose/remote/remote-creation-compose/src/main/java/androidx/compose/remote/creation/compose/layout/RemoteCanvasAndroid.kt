@@ -18,15 +18,212 @@
 
 package androidx.compose.remote.creation.compose.layout
 
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.RectF
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices.RcPathArrayCreator
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.shapes.MorphTweenUtility
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.asRemotePaint
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.PathFillType
 import androidx.graphics.shapes.RoundedPolygon
+
+/** Fills the canvas with the specified [drawColor]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawColor(drawColor: Int) {
+    drawRect(
+        0f.rf,
+        0f.rf,
+        creationState.creationDisplayInfo.size.width.toInt().rf,
+        creationState.creationDisplayInfo.size.height.toInt().rf,
+        Paint().apply {
+            color = drawColor
+            style = Paint.Style.FILL
+        },
+    )
+}
+
+/** Draws a rectangle from ([left], [top]) to ([right], [bottom]) using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawRect(
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+    paint: Paint,
+) {
+    drawRect(left.rf, top.rf, right.rf, bottom.rf, paint)
+}
+
+/** Draws a rectangle from ([left], [top]) to ([right], [bottom]) using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawRect(
+    left: RemoteFloat,
+    top: RemoteFloat,
+    right: RemoteFloat,
+    bottom: RemoteFloat,
+    paint: Paint,
+) {
+    drawRect(left, top, right, bottom, paint.asRemotePaint())
+}
+
+/** Draws a [rect] using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawRect(rect: Rect, paint: Paint) {
+    drawRect(
+        rect.left.toFloat(),
+        rect.top.toFloat(),
+        rect.right.toFloat(),
+        rect.bottom.toFloat(),
+        paint,
+    )
+}
+
+/** Draws a [rect] using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawRect(rect: RectF, paint: Paint) {
+    drawRect(rect.left, rect.top, rect.right, rect.bottom, paint)
+}
+
+/** Draws an oval from ([left], [top]) to ([right], [bottom]) using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawOval(
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+    paint: Paint,
+) {
+    drawOval(left.rf, top.rf, right.rf, bottom.rf, paint)
+}
+
+/** Draws an oval from ([left], [top]) to ([right], [bottom]) using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawOval(
+    left: RemoteFloat,
+    top: RemoteFloat,
+    right: RemoteFloat,
+    bottom: RemoteFloat,
+    paint: Paint,
+) {
+    drawOval(left, top, right, bottom, paint.asRemotePaint())
+}
+
+/**
+ * Draws a rounded rectangle from ([left], [top]) to ([right], [bottom]) with the specified [rx],
+ * [ry], and [paint].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawRoundRect(
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+    rx: Float,
+    ry: Float,
+    paint: Paint,
+) {
+    drawRoundRect(left.rf, top.rf, right.rf, bottom.rf, rx.rf, ry.rf, paint)
+}
+
+/**
+ * Draws a rounded rectangle from ([left], [top]) to ([right], [bottom]) with the specified [rx],
+ * [ry], and [paint].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawRoundRect(
+    left: RemoteFloat,
+    top: RemoteFloat,
+    right: RemoteFloat,
+    bottom: RemoteFloat,
+    rx: RemoteFloat,
+    ry: RemoteFloat,
+    paint: Paint,
+) {
+    drawRoundRect(left, top, right, bottom, rx, ry, paint.asRemotePaint())
+}
+
+/** Draws a line from ([startX], [startY]) to ([stopX], [stopY]) using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawLine(
+    startX: Float,
+    startY: Float,
+    stopX: Float,
+    stopY: Float,
+    paint: Paint,
+) {
+    drawLine(startX.rf, startY.rf, stopX.rf, stopY.rf, paint)
+}
+
+/** Draws a line from ([startX], [startY]) to ([stopX], [stopY]) using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawLine(
+    startX: RemoteFloat,
+    startY: RemoteFloat,
+    stopX: RemoteFloat,
+    stopY: RemoteFloat,
+    paint: Paint,
+) {
+    drawLine(startX, startY, stopX, stopY, paint.asRemotePaint())
+}
+
+/**
+ * Draws an arc from ([left], [top]) to ([right], [bottom]) starting at [startAngle] and sweeping by
+ * [sweepAngle] using the specified [paint].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawArc(
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+    startAngle: Float,
+    sweepAngle: Float,
+    useCenter: Boolean,
+    paint: Paint,
+) {
+    drawArc(left.rf, top.rf, right.rf, bottom.rf, startAngle.rf, sweepAngle.rf, useCenter, paint)
+}
+
+/**
+ * Draws an arc from ([left], [top]) to ([right], [bottom]) starting at [startAngle] and sweeping by
+ * [sweepAngle] using the specified [paint].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawArc(
+    left: RemoteFloat,
+    top: RemoteFloat,
+    right: RemoteFloat,
+    bottom: RemoteFloat,
+    startAngle: RemoteFloat,
+    sweepAngle: RemoteFloat,
+    useCenter: Boolean,
+    paint: Paint,
+) {
+    drawArc(left, top, right, bottom, startAngle, sweepAngle, useCenter, paint.asRemotePaint())
+}
+
+/** Draws a circle at ([cx], [cy]) with the specified [radius] and [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawCircle(cx: Float, cy: Float, radius: Float, paint: Paint) {
+    drawCircle(cx.rf, cy.rf, radius.rf, paint)
+}
+
+/** Draws a circle at ([cx], [cy]) with the specified [radius] and [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawCircle(
+    cx: RemoteFloat,
+    cy: RemoteFloat,
+    radius: RemoteFloat,
+    paint: Paint,
+) {
+    drawCircle(cx, cy, radius, paint.asRemotePaint())
+}
 
 /** Draws a path using the specified [pathFillType] and [paint]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
