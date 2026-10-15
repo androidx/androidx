@@ -41,6 +41,11 @@ internal class HeadlessViewHolder(context: Context) : FrameLayout(context) {
             }
         }
 
+    // Chromium positions anchor views for in-page popups (e.g. <datalist>, tablet <select>) via
+    // layout params, so lay the holder subtree out locally instead of propagating the request to
+    // the Compose host. Deferred to the next frame to coalesce requests and avoid re-entrancy.
+    private val layoutLocally = Runnable { updateSize(width, height) }
+
     fun updateSize(width: Int, height: Int) {
         forceLayout()
         measure(
@@ -63,5 +68,10 @@ internal class HeadlessViewHolder(context: Context) : FrameLayout(context) {
     @SuppressLint("MissingSuperCall")
     override fun requestLayout() {
         cleanupLayoutState(this)
+        // Nothing to lay out before the first updateSize(). This also runs from the superclass
+        // constructor, before layoutLocally is initialized.
+        if (width == 0 || height == 0) return
+        removeCallbacks(layoutLocally)
+        postOnAnimation(layoutLocally)
     }
 }
