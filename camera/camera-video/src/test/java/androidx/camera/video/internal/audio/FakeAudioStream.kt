@@ -22,6 +22,7 @@ import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.video.internal.audio.AudioStream.PacketInfo
 import androidx.core.util.Preconditions.checkArgument
 import java.nio.ByteBuffer
+import java.util.Collections
 import java.util.concurrent.Executor
 import kotlin.math.min
 
@@ -31,6 +32,7 @@ class FakeAudioStream(
     private val exceptionOnStart: AudioStream.AudioStreamException? = null,
     private val exceptionOnStartMaxTimes: Int = Int.MAX_VALUE,
     private val readDelayMs: Long = 0,
+    private val onRead: () -> Unit = {},
 ) : AudioStream {
     var isSilenced: Boolean = isSilenced
         set(value) {
@@ -41,6 +43,7 @@ class FakeAudioStream(
         }
 
     private val _audioDataList = mutableListOf<AudioData>()
+    private val readByteBuffers = Collections.synchronizedList(mutableListOf<ByteBuffer>())
     private val startCalls = MockConsumer<Unit>()
     private val stopCalls = MockConsumer<Unit>()
     private val releaseCalls = MockConsumer<Unit>()
@@ -96,8 +99,10 @@ class FakeAudioStream(
         if (readDelayMs > 0) {
             Thread.sleep(readDelayMs)
         }
+        onRead()
         val audioData = audioDataProvider.invoke(bufferIndex++)
         _audioDataList.add(audioData)
+        readByteBuffers.add(byteBuffer)
         val readSizeInByte = min(audioData.byteBuffer.remaining(), byteBuffer.remaining())
         val packet = PacketInfo.of(readSizeInByte, audioData.timestampNs)
         if (packet.sizeInBytes > 0) {
@@ -126,6 +131,13 @@ class FakeAudioStream(
 
     fun getAudioDataList(): List<AudioData> {
         return _audioDataList
+    }
+
+    /** Returns the destination buffers passed to [read], in call order. */
+    fun getReadByteBuffers(): List<ByteBuffer> {
+        synchronized(readByteBuffers) {
+            return readByteBuffers.toList()
+        }
     }
 
     fun verifyStartCall(

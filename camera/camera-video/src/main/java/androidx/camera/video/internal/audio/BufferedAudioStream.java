@@ -30,6 +30,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -56,10 +58,18 @@ public class BufferedAudioStream implements AudioStream {
     private static final int DEFAULT_BUFFER_SIZE_IN_FRAME = 1024;
     private static final int DEFAULT_QUEUE_SIZE = 500;
     private static final int DATA_WAITING_TIME_MILLIS = 100;
+    // Only 2-3 buffers are in flight in steady state, and the pool never preallocates. After a
+    // consumer stall, up to 16 drained buffers are kept until stop(), so later stalls of ~160 ms
+    // with ~10 ms chunks (~340 ms with 4 KB chunks at 48 kHz stereo) need no new allocations.
+    private static final int MAX_POOLED_BUFFER_COUNT = 16;
 
     private final AtomicBoolean mIsStarted = new AtomicBoolean(false);
     private final AtomicBoolean mIsReleased = new AtomicBoolean(false);
     private final BlockingQueue<AudioData> mAudioDataQueue = new LinkedBlockingQueue<>();
+    // Buffers that have been fully consumed and can be reused by the producer. It is accessed by
+    // both the producer and the consumer threads.
+    private final Queue<ByteBuffer> mBufferPool =
+            new ArrayBlockingQueue<>(MAX_POOLED_BUFFER_COUNT);
     private final Executor mProducerExecutor = CameraXExecutors.newSequentialExecutor(
             CameraXExecutors.audioExecutor());
     private final Object mLock = new Object();
@@ -131,6 +141,7 @@ public class BufferedAudioStream implements AudioStream {
             synchronized (mLock) {
                 mAudioDataNotFullyRead = null;
             }
+            mBufferPool.clear();
         });
     }
 
@@ -147,6 +158,7 @@ public class BufferedAudioStream implements AudioStream {
             synchronized (mLock) {
                 mAudioDataNotFullyRead = null;
             }
+            mBufferPool.clear();
         });
     }
 
@@ -189,6 +201,9 @@ public class BufferedAudioStream implements AudioStream {
             synchronized (mLock) {
                 mAudioDataNotFullyRead = audioData;
             }
+        } else {
+            // The data has been fully copied to the destination, so the buffer can be reused.
+            recycleBuffer(audioData);
         }
 
         return packetInfo;
@@ -246,7 +261,7 @@ public class BufferedAudioStream implements AudioStream {
         }
 
         // Read audio data.
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(mBufferSize);
+        ByteBuffer byteBuffer = acquireBuffer();
         PacketInfo packetInfo = mAudioStream.read(byteBuffer);
         AudioData audioData = new AudioData(byteBuffer, packetInfo, mBytesPerFrame, mSampleRate);
 
@@ -257,13 +272,47 @@ public class BufferedAudioStream implements AudioStream {
 
         // Pop audio data when the queue size exceeds the limit.
         while (mAudioDataQueue.size() > mQueueMaxSize) {
-            mAudioDataQueue.poll();
+            recycleBuffer(mAudioDataQueue.poll());
             Logger.w(TAG, "Drop audio data due to full of queue.");
         }
 
         // Start next data collection.
         if (mIsCollectingAudioData.get()) {
             mProducerExecutor.execute(this::collectAudioData);
+        }
+    }
+
+    /**
+     * Returns a buffer with a capacity of exactly {@link #mBufferSize}, reusing a pooled buffer
+     * when possible.
+     *
+     * <p>The capacity must match exactly because the underlying {@link AudioStream} may write up
+     * to the buffer's capacity regardless of its position and limit.
+     */
+    @ExecutedBy("mProducerExecutor")
+    private @NonNull ByteBuffer acquireBuffer() {
+        ByteBuffer byteBuffer;
+        // Buffers of the previous size can still be recycled into the pool after mBufferSize
+        // changes. Drop them instead of reusing them, since the capacity must match exactly. Fall
+        // back to allocating a new buffer if the pool is empty or has no buffer of the right size.
+        while ((byteBuffer = mBufferPool.poll()) != null) {
+            if (byteBuffer.capacity() == mBufferSize) {
+                byteBuffer.clear();
+                return byteBuffer;
+            }
+        }
+        return ByteBuffer.allocateDirect(mBufferSize);
+    }
+
+    /**
+     * Returns the buffer of the given audio data to the pool. The buffer is dropped if the pool is
+     * full.
+     *
+     * <p>The caller must guarantee that the audio data is no longer referenced or read.
+     */
+    private void recycleBuffer(@Nullable AudioData audioData) {
+        if (audioData != null) {
+            mBufferPool.offer(audioData.mByteBuffer);
         }
     }
 
