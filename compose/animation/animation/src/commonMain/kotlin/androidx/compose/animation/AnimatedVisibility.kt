@@ -737,10 +737,8 @@ public interface AnimatedVisibilityScope {
 }
 
 internal class AnimatedVisibilityScopeImpl
-internal constructor(
-    override var transition: Transition<EnterExitState>,
-    internal val sharedMutableTransformState: SharedMutableTransformState,
-) : AnimatedVisibilityScope {
+internal constructor(override var transition: Transition<EnterExitState>) :
+    AnimatedVisibilityScope {
     internal val targetSize = mutableStateOf(IntSize.Zero)
 }
 
@@ -822,12 +820,7 @@ internal fun <T> AnimatedEnterExitImpl(
         // re-initialize with the new parameters (which could be ExitTransition.None in
         // AnimatedContent), causing the animation to lose its start/end values and snap.
         val modifierState =
-            updateEnterExitModifierState(
-                childTransition,
-                enter,
-                exit,
-                mutableTransformData,
-            )
+            updateEnterExitModifierState(childTransition, enter, exit, mutableTransformData)
 
         val shouldDisposeAfterExit by
             remember(childTransition, shouldDisposeBlock) {
@@ -844,10 +837,7 @@ internal fun <T> AnimatedEnterExitImpl(
             }
 
         if (!childTransition.exitFinished || !shouldDisposeAfterExit) {
-            val scope =
-                remember(childTransition) {
-                    AnimatedVisibilityScopeImpl(childTransition, modifierState.transformState)
-                }
+            val scope = remember(childTransition) { AnimatedVisibilityScopeImpl(childTransition) }
             Layout(
                 content = { scope.content() },
                 modifier =
@@ -855,6 +845,7 @@ internal fun <T> AnimatedEnterExitImpl(
                         childTransition
                             .createEnterExitModifier(
                                 modifierState,
+                                provideTransformState = transition is DeferredTransition<*>,
                                 label = "Built-in",
                             )
                             .then(
