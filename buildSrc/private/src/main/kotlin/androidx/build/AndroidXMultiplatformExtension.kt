@@ -779,6 +779,8 @@ private fun Project.configureDefaultIncrementalSyncTask() {
             "jsProductionLibraryCompileSync" to "/js/prod",
             "jsTestTestDevelopmentExecutableCompileSync" to "-test/js/dev",
             "jsTestTestProductionExecutableCompileSync" to "-test/js/prod",
+            "jsJsBenchmarkJsBenchmarkDevelopmentExecutableCompileSync" to "-benchmark/js/dev",
+            "jsJsBenchmarkJsBenchmarkProductionExecutableCompileSync" to "-benchmark/js/prod",
             "wasmJsDevelopmentLibraryCompileSync" to "/wasm-js/dev",
             "wasmJsProductionLibraryCompileSync" to "/wasm-js/prod",
             "wasmJsTestTestDevelopmentExecutableCompileSync" to "-test/wasm-js/dev",
