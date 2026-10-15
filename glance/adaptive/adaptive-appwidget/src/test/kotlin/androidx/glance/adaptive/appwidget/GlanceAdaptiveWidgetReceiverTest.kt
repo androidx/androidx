@@ -65,13 +65,11 @@ class GlanceAdaptiveWidgetReceiverTest {
         }
     }
 
-    private class DefaultReceiver : GlanceAdaptiveWidgetReceiver() {
-        override val widgetName: String = "default_widget"
-    }
-
     private class TestCountingReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "test_widget"
         var updateCallCount: Int = 0
+
+        override suspend fun onUpdate(context: Context) {}
 
         override fun onUpdate(
             context: Context,
@@ -103,13 +101,6 @@ class GlanceAdaptiveWidgetReceiverTest {
 
         val called = receiver.onUpdateCalled.await()
         assertThat(called).isTrue()
-    }
-
-    @Test
-    fun defaultReceiver_onUpdateDoesNotThrow() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val receiver = DefaultReceiver()
-        receiver.onUpdate(context)
     }
 
     @Test
@@ -287,6 +278,8 @@ class GlanceAdaptiveWidgetReceiverTest {
             object : GlanceAdaptiveWidgetReceiver() {
                 override val widgetName: String = "test_widget"
                 override val coroutineContext = Dispatchers.Unconfined
+
+                override suspend fun onUpdate(context: Context) {}
 
                 override fun onUpdate(
                     context: Context,
@@ -626,6 +619,8 @@ class GlanceAdaptiveWidgetReceiverTest {
     private class SyncExceptionReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "sync_exception_widget"
 
+        override suspend fun onUpdate(context: Context) {}
+
         override fun onUpdate(
             context: Context,
             appWidgetManager: AppWidgetManager,
@@ -637,6 +632,8 @@ class GlanceAdaptiveWidgetReceiverTest {
 
     private class CancellationReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "cancellation_widget"
+
+        override suspend fun onUpdate(context: Context) {}
 
         override fun onUpdate(
             context: Context,

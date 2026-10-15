@@ -42,10 +42,14 @@ class WidgetInstanceRepositoryTest {
 
     private class MatchingReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "matching_widget"
+
+        override suspend fun onUpdate(context: Context) {}
     }
 
     private class OtherReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "other_widget"
+
+        override suspend fun onUpdate(context: Context) {}
     }
 
     private lateinit var context: Context

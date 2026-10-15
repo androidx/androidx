@@ -81,15 +81,21 @@ class BaseWidgetDelegateTest {
 
     private class TestReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "test_widget"
+
+        override suspend fun onUpdate(context: Context) {}
     }
 
     private class OtherReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "other_widget"
+
+        override suspend fun onUpdate(context: Context) {}
     }
 
     /** A second receiver for the widget definition of [TestReceiver], which apps should avoid. */
     private class DuplicateTestReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "test_widget"
+
+        override suspend fun onUpdate(context: Context) {}
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
