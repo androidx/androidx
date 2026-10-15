@@ -458,9 +458,16 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
 
     private fun createAnchorWithNullToken(): Anchor {
         val anchor = (Anchor.create(session, Pose.Identity) as AnchorCreateSuccess).anchor
-        val field = Anchor::class.java.getDeclaredField("anchorToken")
-        field.isAccessible = true
-        field.set(anchor, null)
+        // Anchor.anchorToken reads the token from the runtime anchor, so clear it there.
+        val runtimeAnchorField = Anchor::class.java.getDeclaredField("runtimeAnchor")
+        runtimeAnchorField.isAccessible = true
+        val runtimeAnchor = checkNotNull(runtimeAnchorField.get(anchor))
+        val tokenField =
+            generateSequence<Class<*>>(runtimeAnchor.javaClass) { it.superclass }
+                .flatMap { it.declaredFields.asSequence() }
+                .first { it.name == "anchorToken" }
+        tokenField.isAccessible = true
+        tokenField.set(runtimeAnchor, null)
         return anchor
     }
 
