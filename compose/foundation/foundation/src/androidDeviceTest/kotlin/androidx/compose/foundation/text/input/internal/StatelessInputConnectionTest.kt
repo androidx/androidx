@@ -39,13 +39,13 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
 import android.view.inputmethod.PreviewableHandwritingGesture
 import android.view.inputmethod.TextAttribute
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.insert
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.firstUriOrNull
@@ -161,7 +161,7 @@ class StatelessInputConnectionTest {
             }
         }
 
-    private var edits = mutableVectorOf<TextFieldBuffer.() -> Unit>()
+    private var edits = mutableObjectListOf<TextFieldBuffer.() -> Unit>()
     private var state: TransformedTextFieldState = TransformedTextFieldState(TextFieldState())
     private var value: TextFieldCharSequence = TextFieldCharSequence()
         set(value) {

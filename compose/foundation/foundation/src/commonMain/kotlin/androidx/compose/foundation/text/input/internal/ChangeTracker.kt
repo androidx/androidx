@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.TextRange
 
 /**
@@ -28,8 +28,8 @@ import androidx.compose.ui.text.TextRange
  */
 internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList {
 
-    private var _changes = mutableVectorOf<Change>()
-    private var _changesTemp = mutableVectorOf<Change>()
+    private var _changes = mutableObjectListOf<Change>()
+    private var _changesTemp = mutableObjectListOf<Change>()
 
     init {
         initialChanges?._changes?.forEach {

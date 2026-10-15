@@ -17,7 +17,7 @@
 package androidx.compose.foundation
 
 import android.view.View
-import androidx.compose.runtime.collection.MutableVector
+import androidx.collection.MutableObjectList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -55,9 +55,9 @@ internal abstract class RectListNode(open var rect: ((LayoutCoordinates) -> Rect
         replaceRect(null) // On Node detach, reset
     }
 
-    abstract fun currentRects(): MutableVector<android.graphics.Rect>
+    abstract fun currentRects(): MutableObjectList<android.graphics.Rect>
 
-    abstract fun updateRects(rects: MutableVector<android.graphics.Rect>)
+    abstract fun updateRects(rects: MutableObjectList<android.graphics.Rect>)
 
     private fun replaceRect(newRect: android.graphics.Rect?) {
         val rects = currentRects()
