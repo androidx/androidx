@@ -481,13 +481,12 @@ public class RemoteCanvas(
     ) {
         val op =
             recordRenderingOp(paint) {
-                val pathId =
-                    if (pathFillType == PathFillType.EvenOdd) {
-                        document.addPathData(path, 1)
-                    } else {
-                        document.addPathData(path)
-                    }
-                document.drawPath(pathId)
+                if (pathFillType == PathFillType.EvenOdd) {
+                    val pathId = document.addPathData(path, 1)
+                    document.drawPath(pathId)
+                } else {
+                    document.drawPath(path)
+                }
             }
         buffer.addRoots(op, path)
     }
