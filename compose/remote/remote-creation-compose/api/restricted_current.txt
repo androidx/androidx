@@ -153,6 +153,15 @@ package androidx.compose.remote.creation.compose.capture {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.capture.RemoteImageVector vectorResource(androidx.compose.remote.creation.compose.capture.RemoteImageVector.Companion, @DrawableRes int, androidx.compose.runtime.Composer?, int);
   }
 
+  public final class RemoteProfileCapabilitiesKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupports(int... operations);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupports(int[], androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupportsThemedColors();
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupportsThemedColors(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupportsTouchModifiers();
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupportsTouchModifiers(androidx.compose.runtime.Composer?, int);
+  }
+
   public final class WriterEvents {
     ctor public WriterEvents();
     method @InaccessibleFromKotlin public androidx.collection.IntObjectMap<android.app.PendingIntent> getPendingIntents();
