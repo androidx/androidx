@@ -3535,7 +3535,7 @@ class AndroidAccessibilityTest {
     @Test
     fun sendTextEvents_whenSetText() {
         // Arrange.
-        val locale = Locale("en_US")
+        val locale = Locale("en-US")
         val initialText = "h"
         val finalText = "hello"
         setContent {
