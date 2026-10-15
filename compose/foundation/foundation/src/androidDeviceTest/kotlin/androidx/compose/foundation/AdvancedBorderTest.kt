@@ -74,6 +74,9 @@ import org.junit.runners.Parameterized
 /**
  * Tests for [border] covering specific use cases. Tests that should run against every outline type
  * should go in [BorderTest] instead.
+ *
+ * See also [AdvancedBorderRendererTest], which covers tests for the [BorderRenderer] used
+ * internally by [border]. New tests that are not specific to [border] should be added there.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @MediumTest
@@ -105,7 +108,6 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
 
     @Test
     fun border_triangle_shape() {
-        val testTag = "testTag"
         val triangle = GenericShape { size, _ ->
             lineTo(size.width, 0f)
             lineTo(size.width, size.height)
@@ -195,7 +197,10 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
             assertEquals(Color.Red, map[width - 1 - topRightOffset, topRightOffset])
 
             val bottomRightOffset = (bottomRight / 2).roundToInt()
-            assertEquals(Color.Red, map[width - 1 - bottomRightOffset, bottomRightOffset])
+            assertEquals(
+                Color.Red,
+                map[width - 1 - bottomRightOffset, height - 1 - bottomRightOffset],
+            )
 
             val bottomLeftOffset = (bottomLeft / 2).roundToInt()
             assertEquals(Color.Red, map[bottomLeftOffset, height - 1 - bottomLeftOffset])
@@ -204,7 +209,6 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
 
     @Test
     fun border_color_with_alpha_tinted_properly() {
-        val testTag = "testTag"
         val background = Color.Red
         val borderColor = Color.Blue.copy(alpha = 0.5f)
         rule.setContent {
@@ -254,7 +258,6 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
                 0.5f to Color.Blue,
                 1.0f to Color.Blue,
             )
-        val testTag = "testTag"
         val borderStrokeDp = 5.dp
         var borderStrokePx = 0f
         val toggle = mutableStateOf(false)
@@ -307,7 +310,6 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
 
     @Test
     fun border_test_with_fixed_size_generic_shape() {
-        val testTag = "testTag"
         val bubbleWidthDp = 80.dp
         val bubbleHeightDp = 40.dp
         val borderWidthDp = 10.dp
@@ -511,10 +513,15 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
         val inset = IntRect(4, 4, 16, 16)
         // The bottom right corner is rounded and so will be antialiased, so we want to ignore it
         val outlineCorner = IntRect(12, 12, 20, 20)
+        // The extreme corner pixels lie fully outside the rounded corner
+        val outlineCornerTip = IntRect(18, 18, 20, 20)
         // This should draw a 4px rectangle, with the bottom right corner rounded, starting at (0,0)
         rule.onNodeWithTag(testTag).captureToImage().assertPixels(IntSize(40, 40)) { pos ->
             when {
-                // Ignore the corner due to antialiasing
+                // The extreme corner pixels of the outline lie outside the rounded corner of
+                // the ring, so they show the background
+                outlineCornerTip.contains(pos) -> Color.Blue
+                // Ignore the rest of the corner due to antialiasing
                 outlineCorner.contains(pos) -> null
                 // Border should be red
                 outlineBounds.contains(pos) && !inset.contains(pos) -> Color.Red
@@ -564,11 +571,16 @@ class AdvancedBorderTest(val isNewBorderImplementationEnabled: Boolean) {
         val inset = IntRect(14, 14, 26, 26)
         // The bottom right corner is rounded and so will be antialiased, so we want to ignore it
         val outlineCorner = IntRect(22, 22, 30, 30)
+        // The extreme corner pixels lie fully outside the rounded corner
+        val outlineCornerTip = IntRect(28, 28, 30, 30)
         // This should draw a 4px rectangle, with the bottom right corner rounded, starting at
         // (10,10)
         rule.onNodeWithTag(testTag).captureToImage().assertPixels(IntSize(40, 40)) { pos ->
             when {
-                // Ignore the corner due to antialiasing
+                // The extreme corner pixels of the outline lie outside the rounded corner of
+                // the ring, so they show the background
+                outlineCornerTip.contains(pos) -> Color.Blue
+                // Ignore the rest of the corner due to antialiasing
                 outlineCorner.contains(pos) -> null
                 // Border should be red
                 outlineBounds.contains(pos) && !inset.contains(pos) -> Color.Red

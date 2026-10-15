@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.border
+package androidx.compose.foundation
 
-import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -59,17 +57,44 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Border drawing and caching logic based on androidx.compose.foundation.border, moved out of a draw
- * node. To draw multiple different borders concurrently, create a new instance of this class for
- * each border. Each instance must be remembered across recompositions and cached across draw
- * phases.
+ * BorderRenderer provides rendering and caching logic for drawing borders inside a [DrawScope].
  *
- * This draws an 'inner' border, so the outer edge of the border lines up with the component's
- * boundary.
+ * BorderRenderer provides the same border drawing that [androidx.compose.foundation.border] uses so
+ * you can draw borders from any drawing context, such as a
+ * [androidx.compose.ui.node.DrawModifierNode]. This can be useful when you need to render multiple
+ * inset borders at once, or efficiently animate borders. For simple cases you can continue to use
+ * [androidx.compose.foundation.border].
+ *
+ * Borders drawn with BorderRenderer are internal borders - they grow inwards as the border width
+ * increases.
+ *
+ * BorderRenderer contains caches to efficiently draw borders over time. As a result, make sure to:
+ * - Reuse the same BorderRenderer instance each time you draw the border
+ * - Use a separate instance for each border that is drawn at the same time. For example, if you
+ *   want to draw two borders, inset from each other, each border should have its own
+ *   BorderRenderer. See the samples for more information.
+ *
+ * Drawing a border from inside a [androidx.compose.ui.node.DrawModifierNode]:
+ *
+ * @sample androidx.compose.foundation.samples.BorderRendererSample
+ *
+ * Drawing two borders inset from each other (using separate BorderRenderers):
+ *
+ * @sample androidx.compose.foundation.samples.BorderRendererMultipleBordersSample
+ * @param onProvideGraphicsLayer Provides a [GraphicsLayer] needed for rendering certain borders.
+ *   This lambda will be invoked when needed, and may be invoked multiple times. As a result make
+ *   sure to cache / return the same valid [GraphicsLayer] to avoid creating many layers. This
+ *   [GraphicsLayer] should not be used by any other [BorderRenderer] instances or drawing code at
+ *   the same time. The caller is responsible for its lifecycle - make sure to call
+ *   [androidx.compose.ui.graphics.GraphicsContext.releaseGraphicsLayer] when you no longer need it
+ *   (such as when a Modifier.Node using this is detached). If you release the layer, make sure to
+ *   return a new valid [GraphicsLayer] when this is called again (if the node is re-attached
+ *   later). See the samples for example usage.
  */
-// TODO(b/487676841): Unify border forks for Glimmer / Style & Modifier.Border
 @Suppress("NOTHING_TO_INLINE")
-internal class BorderLogic @RememberInComposition constructor() {
+public class BorderRenderer
+@RememberInComposition
+constructor(private val onProvideGraphicsLayer: () -> GraphicsLayer) {
     // BorderPath object that is lazily allocated depending on the type of shape
     // This object is only used for generic shapes and rounded rectangles with different corner
     // radius sizes.
@@ -88,24 +113,28 @@ internal class BorderLogic @RememberInComposition constructor() {
     private var drawBorder: (DrawScope.(widthPx: Float) -> Unit)? = null
 
     /**
-     * Draws a border with the given parameters. If the provided parameters are the same, previous
-     * drawing logic can be re-used for successive draws. As a result drawing multiple borders
-     * concurrently should use multiple instances of [BorderLogic], to allow each individual border
-     * to be cached through draw invalidations if the parameters are the same.
+     * Draws a border defined by [outline], with [width] and [brush], into [drawScope]. The border
+     * will be drawn using the size defined by [outline], not [DrawScope.size]. Borders drawn are
+     * internal borders (drawn within the bounding box, not outside), and grow inwards as [width]
+     * increases.
      *
-     * @param drawScope the [DrawScope]
+     * To modify the drawn border you can use [DrawScope] transformation APIs such as [translate],
+     * just as for any other drawing commands.
+     *
+     * To draw several different borders at the same time, use a separate [BorderRenderer] for each
+     * one.
+     *
+     * @sample androidx.compose.foundation.samples.BorderRendererSample
+     * @param drawScope The [DrawScope] to draw the border into.
      * @param width The width of the border in [Dp].
      * @param brush The [Brush] to paint the border with.
-     * @param graphicsLayerProvider Provides a [GraphicsLayer] that will sometimes be created for
-     *   caching if necessary. The caller is responsible for its lifecycle.
      * @param outline The [Outline] of the border.
      */
     @OptIn(ExperimentalFoundationApi::class)
-    internal fun drawBorder(
+    public fun drawBorder(
         drawScope: DrawScope,
         width: Dp,
         brush: Brush,
-        graphicsLayerProvider: () -> GraphicsLayer,
         outline: Outline,
     ): Unit =
         with(drawScope) {
@@ -131,7 +160,7 @@ internal class BorderLogic @RememberInComposition constructor() {
             // since shapes can be observable and create different outlines over time. This also
             // means we can avoid creating multiple outlines for cases where we want to draw
             // multiple borders for the same shape - the caller can create one outline and provide
-            // it to different BorderLogic instances. The alternative would be to `observeReads {
+            // it to different BorderRenderer instances. The alternative would be to `observeReads {
             // shape.createOutline(...) }` but it is harder to encapsulate the logic for that inside
             // this class, and `observeReads` adds notable cost.
             if (brush != lastBrush || outline != lastOutline || drawBorder == null) {
@@ -140,8 +169,7 @@ internal class BorderLogic @RememberInComposition constructor() {
 
                 drawBorder =
                     when (outline) {
-                        is Outline.Generic ->
-                            createDrawGenericBorder(brush, graphicsLayerProvider, outline)
+                        is Outline.Generic -> createDrawGenericBorder(brush, outline)
 
                         is Outline.Rounded -> createDrawRoundRectBorder(brush, outline)
 
@@ -208,7 +236,6 @@ internal class BorderLogic @RememberInComposition constructor() {
      */
     private fun createDrawGenericBorder(
         brush: Brush,
-        graphicsLayerProvider: () -> GraphicsLayer,
         outline: Outline.Generic,
     ): DrawScope.(widthPx: Float) -> Unit {
         val pathBounds = outline.path.getBounds()
@@ -238,7 +265,6 @@ internal class BorderLogic @RememberInComposition constructor() {
         return if (shouldUseGraphicsLayerForGenericBorder() || !brushCanDrawInSoftware) {
             createDrawGenericBorderWithGraphicsLayer(
                 brush = brush,
-                graphicsLayerProvider = graphicsLayerProvider,
                 outline = outline,
                 pathBounds = pathBounds,
                 maskPath = maskPath,
@@ -257,7 +283,6 @@ internal class BorderLogic @RememberInComposition constructor() {
 
     private fun createDrawGenericBorderWithGraphicsLayer(
         brush: Brush,
-        graphicsLayerProvider: () -> GraphicsLayer,
         outline: Outline.Generic,
         pathBounds: Rect,
         maskPath: Path,
@@ -271,7 +296,7 @@ internal class BorderLogic @RememberInComposition constructor() {
             if (fillArea) {
                 drawPath(outline.path, brush = brush)
             } else {
-                val layer = graphicsLayerProvider()
+                val layer = onProvideGraphicsLayer()
                 layer.compositingStrategy = Offscreen
                 translate(pathBounds.left, pathBounds.top) {
                     layer.record(pathBoundsSize) {

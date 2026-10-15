@@ -100,6 +100,12 @@ package androidx.compose.foundation {
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier border-ziNgDLE(androidx.compose.ui.Modifier, float, androidx.compose.ui.graphics.Brush, androidx.compose.ui.graphics.Shape);
   }
 
+  public final class BorderRenderer {
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public BorderRenderer(kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.layer.GraphicsLayer> onProvideGraphicsLayer);
+    method @KotlinOnly public void drawBorder(androidx.compose.ui.graphics.drawscope.DrawScope drawScope, androidx.compose.ui.unit.Dp width, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Outline outline);
+    method @BytecodeOnly public void drawBorder-ziNgDLE(androidx.compose.ui.graphics.drawscope.DrawScope, float, androidx.compose.ui.graphics.Brush, androidx.compose.ui.graphics.Outline);
+  }
+
   @androidx.compose.runtime.Immutable public final class BorderStroke {
     ctor @KotlinOnly public BorderStroke(androidx.compose.ui.unit.Dp width, androidx.compose.ui.graphics.Brush brush);
     ctor @BytecodeOnly public BorderStroke(float, androidx.compose.ui.graphics.Brush!, kotlin.jvm.internal.DefaultConstructorMarker!);

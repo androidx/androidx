@@ -58,6 +58,9 @@ import org.junit.runners.Parameterized
 /**
  * Common tests for [border] that are run against every type of [Outline]. Non-parameterized tests
  * for specific use cases should go in [AdvancedBorderTest] instead.
+ *
+ * See also [BorderRendererTest], which covers tests for the [BorderRenderer] used internally by
+ * [border]. New tests that are not specific to [border] should be added there.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @MediumTest
