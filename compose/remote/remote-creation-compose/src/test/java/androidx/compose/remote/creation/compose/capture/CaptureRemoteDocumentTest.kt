@@ -136,6 +136,46 @@ class CaptureRemoteDocumentTest {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
     }
 
+    /**
+     * Without enforced clean recomposition, a single-shot capture still applies writes made by a
+     * draw lambda, as it always has.
+     */
+    @Test
+    fun captureSingleRemoteDocument_withoutEnforceClean_appliesRenderWrites() = runTest {
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
+        val drawCount = mutableStateOf(0)
+
+        captureSingleRemoteDocument(context) {
+            RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                drawCount.value = drawCount.value + 1
+                drawRect(paint = RemotePaint { color = Color.Red.rc })
+            }
+        }
+
+        assertEquals(1, drawCount.value)
+    }
+
+    /** With enforced clean recomposition, a write made by a draw lambda fails the capture. */
+    @Test
+    fun captureSingleRemoteDocument_withEnforceClean_rejectsRenderWrites() = runTest {
+        val drawCount = mutableStateOf(0)
+
+        val failure =
+            assertThrows(IllegalStateException::class.java) {
+                runBlocking {
+                    captureSingleRemoteDocument(context) {
+                        RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                            drawCount.value = drawCount.value + 1
+                            drawRect(paint = RemotePaint { color = Color.Red.rc })
+                        }
+                    }
+                }
+            }
+
+        assertTrue(failure.message!!.contains("written while rendering"))
+        assertEquals(0, drawCount.value)
+    }
+
     @Test
     fun captureDocument() =
         runTest(UnconfinedTestDispatcher()) {

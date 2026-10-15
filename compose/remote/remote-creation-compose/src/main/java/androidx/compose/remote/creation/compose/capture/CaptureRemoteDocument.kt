@@ -322,7 +322,8 @@ private fun captureRemoteDocumentImpl(
                 val renderReadObserver =
                     if (isSingleDocument) null else SnapshotStateObserver { it() }
                 val onRenderReadChanged: (RenderInvalidationTracker) -> Unit = { tracker ->
-                    if (tracker.onRenderReadChanged()) invalidations.trySend(Unit)
+                    tracker.onRenderReadChanged()
+                    invalidations.trySend(Unit)
                 }
                 // Registered before the apply observer below, so that when onApplied wakes the loop
                 // the read observer has already recorded the same notification.
@@ -330,10 +331,9 @@ private fun captureRemoteDocumentImpl(
                 val applyObserverHandle =
                     if (isSingleDocument) null
                     else
-                        Snapshot.registerApplyObserver { changed, _ ->
-                            if (renderTracker.onApplied(changed)) {
-                                invalidations.trySend(Unit)
-                            }
+                        Snapshot.registerApplyObserver { _, _ ->
+                            renderTracker.onApplied()
+                            invalidations.trySend(Unit)
                         }
 
                 try {
@@ -386,10 +386,13 @@ private fun captureRemoteDocumentImpl(
                                     return@withContext null
                                 }
                                 try {
+                                    // Writes during render fail under enforced clean
+                                    // recomposition (required for streaming); a legacy
+                                    // single-shot capture still applies them.
                                     withRenderSnapshot(
-                                        writeObserver = { written ->
-                                            renderTracker.onRenderWrite(written)
-                                        }
+                                        applyWrites =
+                                            !RemoteComposeCreationComposeFlags
+                                                .isEnforceCleanRecompositionEnabled
                                     ) {
                                         // The first render writes into the document created with
                                         // creationState, which composition left untouched (checked
@@ -630,8 +633,9 @@ private enum class QuiescenceResult {
  * writes and notifies observers after releasing the global lock, but the runtime does not count
  * those notifications in [Snapshot.isApplyObserverNotificationPending]. This capture's own writes
  * claimed that way are also waited for via [writeTracker] (see [CaptureWriteTracker]); writes from
- * elsewhere in the process are not covered. This session's own render snapshots avoid widening the
- * window by only applying when they wrote state (see [withRenderSnapshot]).
+ * elsewhere in the process are not covered. This session's own render snapshots do not widen the
+ * window, as they are never applied unless writes during render are explicitly allowed (see
+ * [withRenderSnapshot]).
  *
  * Note that [Recomposer.currentState] is only ever sampled by value here, never used to detect a
  * transition, so conflation of the underlying [StateFlow] cannot cause a missed wake-up.
@@ -872,19 +876,29 @@ private class CaptureWriteTracker {
 }
 
 /**
- * Runs [block] inside a new mutable snapshot, applying it only if [block] wrote state.
+ * Runs [block], a render, inside a new mutable snapshot so that it sees a consistent view of state
+ * while other threads keep writing.
  *
- * `MutableSnapshot.apply()` also claims any pending global snapshot writes, and delivers their
- * apply notifications without being tracked by [Snapshot.isApplyObserverNotificationPending]. An
- * unconditional apply after every render would therefore let this session take writes made by
- * another concurrent session's effects, which could then sample itself as quiescent before its
- * recomposer has seen them. Disposing a snapshot that wrote nothing avoids that.
+ * A render must only read state. Writes made while rendering are rejected with an
+ * [IllegalStateException] unless [applyWrites] is `true`, in which case they are applied when the
+ * block completes (kept for single-shot captures that do not enforce clean recomposition; a
+ * streaming capture would re-render forever if a render wrote a state it also read).
+ *
+ * Not applying is also what keeps this snapshot out of the way of concurrent sessions:
+ * `MutableSnapshot.apply()` claims any pending global snapshot writes and delivers their apply
+ * notifications without being tracked by [Snapshot.isApplyObserverNotificationPending], so an apply
+ * here could take writes made by another session's effects, which could then sample itself as
+ * quiescent before its recomposer has seen them.
  */
-private fun <T> withRenderSnapshot(writeObserver: ((Any) -> Unit)? = null, block: () -> T): T {
-    val snapshot = Snapshot.takeMutableSnapshot(writeObserver = writeObserver)
+private fun <T> withRenderSnapshot(applyWrites: Boolean, block: () -> T): T {
+    val snapshot = Snapshot.takeMutableSnapshot()
     try {
         val result = snapshot.enter(block)
         if (snapshot.hasPendingChanges()) {
+            check(applyWrites) {
+                "Snapshot state was written while rendering. Rendering must only read state; " +
+                    "move the write into composition or an effect."
+            }
             snapshot.apply().check()
         }
         return result
@@ -894,71 +908,47 @@ private fun <T> withRenderSnapshot(writeObserver: ((Any) -> Unit)? = null, block
 }
 
 /**
- * Decides when the [captureRemoteDocument] loop must wake up, and when it must actually re-render
- * and re-encode the document.
- * - Apply notifications consisting only of states written by this session's own render are ignored,
- *   otherwise regeneration would spin. Tracking the exact state objects mutated inside the render
- *   snapshot avoids swallowing global snapshot changes from other threads that happen to be
- *   coalesced during `apply()`.
- * - Any other apply notification wakes the loop so the recomposer is driven to quiescence.
- * - A render is only performed if composition applied changes to the node tree since the previous
- *   render ([RemoteComposeApplier.changeCount] moved), a state read by the previous render changed
- *   (e.g. inside a `RemoteCanvas` draw lambda, which runs at render time), or an external change
- *   landed while a render was in progress. Unrelated global snapshot writes elsewhere in the
- *   process therefore do not cost a full render and encode.
+ * Decides when the [captureRemoteDocument] loop must actually re-render and re-encode the document.
+ * Every apply notification wakes the loop so the recomposer is driven to quiescence, but a render
+ * is only performed if:
+ * - composition applied changes to the node tree since the previous render
+ *   ([RemoteComposeApplier.changeCount] moved),
+ * - a state read by the previous render changed (e.g. inside a `RemoteCanvas` draw lambda, which
+ *   runs at render time), or
+ * - any change landed while a render was in progress.
+ *
+ * Unrelated global snapshot writes elsewhere in the process therefore do not cost a full render and
+ * encode.
  *
  * The states read by a render are tracked by a [SnapshotStateObserver], the same mechanism Compose
  * UI uses for reads during layout and draw (`OwnerSnapshotObserver`): the render runs inside
  * [SnapshotStateObserver.observeReads] with this tracker as the scope, and the observer calls
- * [onRenderReadChanged] when any of those states is later changed. This tracker only keeps what the
- * observer cannot know: whether a render is in progress, and which states that render wrote.
+ * [onRenderReadChanged] when any of those states is later changed. Renders do not write state (see
+ * [withRenderSnapshot]), so a notification can never be caused by the render itself.
  *
  * Limits: render inputs that are not snapshot state (e.g. plain fields mutated from an effect) are
- * not observed. Previously any unrelated snapshot write forced a re-render and would incidentally
- * pick such changes up; now they are only rendered alongside the next tree change or render-read
- * state change.
+ * not observed; they are only rendered alongside the next tree change or render-read state change.
  *
  * Thread-safe: [onApplied] and [onRenderReadChanged] run on whichever thread sends apply
  * notifications.
  */
 private class RenderInvalidationTracker {
     private val lock = Any()
-    private val renderWrites = newIdentitySet()
     private var isRendering = false
     private var renderInputsChanged = true
     private var lastRenderChangeCount = 0L
 
-    /** Apply observer hook. Returns `true` if the capture loop should wake up. */
-    fun onApplied(changed: Set<Any>): Boolean =
-        synchronized(lock) {
-            val hasExternalModification =
-                renderWrites.isEmpty() || changed.any { it !in renderWrites }
-            // A change that lands while a render is in progress may have been missed by both that
-            // render's snapshot and the observer's (just cleared) read set, so render again.
-            if (hasExternalModification && isRendering) renderInputsChanged = true
-            hasExternalModification
-        }
-
     /**
-     * [SnapshotStateObserver] hook: a state read by the previous render changed. Returns `true` if
-     * the capture loop should wake up.
-     *
-     * Ignored while rendering: the notification is then either for the render's own writes to a
-     * state it also read (which must not trigger another render, or regeneration would spin) or for
-     * an external change, which [onApplied] accounts for. Both hooks are apply observers invoked
-     * for the same notification, in registration order, and each wakes the loop when it detects a
-     * change, so their relative order cannot lose a change: at worst the later one causes a
-     * redundant render.
+     * Apply observer hook. A change that lands while a render is in progress may have been missed
+     * by both that render's snapshot and the observer's (just cleared) read set, so render again.
      */
-    fun onRenderReadChanged(): Boolean =
-        synchronized(lock) {
-            if (isRendering) return false
-            renderInputsChanged = true
-            true
-        }
+    fun onApplied() {
+        synchronized(lock) { if (isRendering) renderInputsChanged = true }
+    }
 
-    fun onRenderWrite(state: Any) {
-        synchronized(lock) { renderWrites.add(state) }
+    /** [SnapshotStateObserver] hook: a state read by the previous render changed. */
+    fun onRenderReadChanged() {
+        synchronized(lock) { renderInputsChanged = true }
     }
 
     /**
@@ -978,10 +968,7 @@ private class RenderInvalidationTracker {
 
     /** Ends a render started by [beginRender]. */
     fun endRender() {
-        synchronized(lock) {
-            renderWrites.clear()
-            isRendering = false
-        }
+        synchronized(lock) { isRendering = false }
     }
 }
 
