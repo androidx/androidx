@@ -23,14 +23,39 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 
 @IgnoreWebTarget
-internal class SavedStateTest : RobolectricTest() {
+internal open class SavedStateTest : RobolectricTest() {
+
+    /**
+     * Post-processes a [SavedState] under test right after it is created. The default
+     * implementation returns the state unchanged. Platform-specific subclasses can override this to
+     * simulate real-world behavior, e.g. routing the state through parceling on Android.
+     */
+    protected open fun postProcessCreated(savedState: SavedState): SavedState = savedState
+
+    /**
+     * Shadows the top-level [androidx.savedstate.savedState] factory inside this class so that
+     * every state under test is routed through [postProcessCreated].
+     */
+    protected fun savedState(
+        initialState: Map<String, Any?> = emptyMap(),
+        builderAction: SavedStateWriter.() -> Unit = {},
+    ): SavedState = postProcessCreated(androidx.savedstate.savedState(initialState, builderAction))
+
+    /**
+     * Shadows the top-level [androidx.savedstate.savedState] factory inside this class so that
+     * every state under test is routed through [postProcessCreated].
+     */
+    protected fun savedState(
+        initialState: SavedState,
+        builderAction: SavedStateWriter.() -> Unit = {},
+    ): SavedState = postProcessCreated(androidx.savedstate.savedState(initialState, builderAction))
 
     @Test
     fun factory_withMap_hasInitialState() {
-        val oldState = createDefaultSavedState().read { toMap() }
-        val newState = savedState(oldState).read { toMap() }
+        val oldState = createDefaultSavedState()
+        val newState = savedState(oldState.read { toMap() })
 
-        assertThat(newState).isEqualTo(oldState)
+        assertThat(newState.read { contentDeepEquals(oldState) }).isTrue()
     }
 
     @Test
@@ -318,8 +343,11 @@ internal class SavedStateTest : RobolectricTest() {
 
         val actual = parentState.read { toMap() }
 
-        val expected = mapOf(KEY_1 to Int.MAX_VALUE, KEY_2 to null, KEY_3 to sharedState)
-        assertThat(actual).containsExactlyEntriesIn(expected)
+        assertThat(actual.keys).containsExactly(KEY_1, KEY_2, KEY_3)
+        assertThat(actual[KEY_1]).isEqualTo(Int.MAX_VALUE)
+        assertThat(actual[KEY_2]).isNull()
+        val actualSharedState = actual[KEY_3] as SavedState
+        assertThat(actualSharedState.read { contentDeepEquals(sharedState) }).isTrue()
     }
 
     // region getters and setters
@@ -818,7 +846,10 @@ internal class SavedStateTest : RobolectricTest() {
         val underTest = savedState { putSavedStateList(KEY_1, expected) }
         val actual = underTest.read { getSavedStateList(KEY_1) }
 
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.size).isEqualTo(expected.size)
+        for (index in expected.indices) {
+            assertThat(actual[index].read { contentDeepEquals(expected[index]) }).isTrue()
+        }
     }
 
     @Test
@@ -840,7 +871,11 @@ internal class SavedStateTest : RobolectricTest() {
         val underTest = savedState { putSavedStateList(KEY_1, expected) }
         val actual = underTest.read { getSavedStateListOrNull(KEY_1) }
 
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual).isNotNull()
+        assertThat(actual!!.size).isEqualTo(expected.size)
+        for (index in expected.indices) {
+            assertThat(actual[index].read { contentDeepEquals(expected[index]) }).isTrue()
+        }
     }
 
     @Test
@@ -1286,7 +1321,10 @@ internal class SavedStateTest : RobolectricTest() {
         val underTest = savedState { putSavedStateArray(KEY_1, expected) }
         val actual = underTest.read { getSavedStateArray(KEY_1) }
 
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual.size).isEqualTo(expected.size)
+        for (index in expected.indices) {
+            assertThat(actual[index].read { contentDeepEquals(expected[index]) }).isTrue()
+        }
     }
 
     @Test
@@ -1308,7 +1346,11 @@ internal class SavedStateTest : RobolectricTest() {
         val underTest = savedState { putSavedStateArray(KEY_1, expected) }
         val actual = underTest.read { getSavedStateArrayOrNull(KEY_1) }
 
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual).isNotNull()
+        assertThat(actual!!.size).isEqualTo(expected.size)
+        for (index in expected.indices) {
+            assertThat(actual[index].read { contentDeepEquals(expected[index]) }).isTrue()
+        }
     }
 
     @Test
@@ -1386,7 +1428,7 @@ internal class SavedStateTest : RobolectricTest() {
         val underTest = savedState { putSavedState(KEY_1, SAVED_STATE_VALUE) }
         val actual = underTest.read { getSavedState(KEY_1) }
 
-        assertThat(actual).isEqualTo(SAVED_STATE_VALUE)
+        assertThat(actual.read { contentDeepEquals(SAVED_STATE_VALUE) }).isTrue()
     }
 
     @Test
@@ -1406,7 +1448,8 @@ internal class SavedStateTest : RobolectricTest() {
         val underTest = savedState { putSavedState(KEY_1, SAVED_STATE_VALUE) }
         val actual = underTest.read { getSavedStateOrNull(KEY_1) }
 
-        assertThat(actual).isEqualTo(SAVED_STATE_VALUE)
+        assertThat(actual).isNotNull()
+        assertThat(actual!!.read { contentDeepEquals(SAVED_STATE_VALUE) }).isTrue()
     }
 
     @Test
