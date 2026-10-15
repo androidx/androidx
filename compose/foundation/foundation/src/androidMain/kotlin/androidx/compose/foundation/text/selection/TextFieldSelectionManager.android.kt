@@ -17,6 +17,9 @@
 package androidx.compose.foundation.text.selection
 
 import android.os.Build
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.MagnifierNode
 import androidx.compose.foundation.PlatformMagnifierFactory
 import androidx.compose.foundation.internal.ClipboardUtils
 import androidx.compose.foundation.isPlatformMagnifierSupported
@@ -36,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.IntSize
@@ -43,33 +47,56 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 
-// We use composed{} to read a local, but don't provide inspector info because the underlying
-// magnifier modifier provides more meaningful inspector info.
+@OptIn(ExperimentalFoundationApi::class)
 internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier {
     // Avoid tracking animation state on older Android versions that don't support magnifiers.
     if (!isPlatformMagnifierSupported()) {
         return this
     }
 
-    return composed {
-        val density = LocalDensity.current
-        var magnifierSize by remember { mutableStateOf(IntSize.Zero) }
-        animatedSelectionMagnifier(
-            magnifierCenter = { calculateSelectionMagnifierCenterAndroid(manager, magnifierSize) },
-            platformMagnifier = { center ->
-                Modifier.magnifier(
+    if (ComposeFoundationFlags.isNewTextFieldModifierImplementationEnabled) {
+        return animatedSelectionMagnifier(
+            magnifierCenter = { magnifierSize ->
+                calculateSelectionMagnifierCenterAndroid(manager, magnifierSize)
+            },
+            platformMagnifier = { center, onSizeChanged ->
+                MagnifierNode(
                     sourceCenter = { center() },
                     onSizeChanged = { size ->
-                        magnifierSize =
-                            with(density) {
+                        onSizeChanged(
+                            with(requireDensity()) {
                                 IntSize(size.width.roundToPx(), size.height.roundToPx())
                             }
+                        )
                     },
                     useTextDefault = true,
                     platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform(),
                 )
             },
         )
+    } else {
+        return composed {
+            val density = LocalDensity.current
+            var magnifierSize by remember { mutableStateOf(IntSize.Zero) }
+            animatedSelectionMagnifierLegacy(
+                magnifierCenter = {
+                    calculateSelectionMagnifierCenterAndroid(manager, magnifierSize)
+                },
+                platformMagnifier = { center ->
+                    Modifier.magnifier(
+                        sourceCenter = { center() },
+                        onSizeChanged = { size ->
+                            magnifierSize =
+                                with(density) {
+                                    IntSize(size.width.roundToPx(), size.height.roundToPx())
+                                }
+                        },
+                        useTextDefault = true,
+                        platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform(),
+                    )
+                },
+            )
+        }
     }
 }
 

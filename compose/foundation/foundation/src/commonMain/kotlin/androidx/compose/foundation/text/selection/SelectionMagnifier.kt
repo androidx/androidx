@@ -26,12 +26,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.unit.IntSize
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 private val UnspecifiedAnimationVector2D = AnimationVector2D(Float.NaN, Float.NaN)
@@ -59,6 +67,20 @@ internal val MagnifierSpringSpec = SpringSpec(visibilityThreshold = OffsetDispla
  * line, so when it changes lines we animate it.
  */
 internal fun Modifier.animatedSelectionMagnifier(
+    magnifierCenter: (magnifierSize: IntSize) -> Offset,
+    platformMagnifier:
+        DelegatableNode.(
+            animatedCenter: () -> Offset,
+            onSizeChanged: (IntSize) -> Unit,
+        ) -> DelegatableNode,
+): Modifier =
+    this then
+        AnimatedSelectionMagnifierElement(
+            magnifierCenter = magnifierCenter,
+            platformMagnifier = platformMagnifier,
+        )
+
+internal fun Modifier.animatedSelectionMagnifierLegacy(
     magnifierCenter: () -> Offset,
     platformMagnifier: (animatedCenter: () -> Offset) -> Modifier,
 ): Modifier = composed {
@@ -66,10 +88,6 @@ internal fun Modifier.animatedSelectionMagnifier(
     return@composed platformMagnifier { animatedCenter }
 }
 
-/**
- * Remembers and returns a [State] that will smoothly animate to the result of [targetCalculation]
- * any time the result of [targetCalculation] changes due to any state values it reads change.
- */
 @Composable
 private fun rememberAnimatedMagnifierPosition(targetCalculation: () -> Offset): State<Offset> {
     val targetValue by remember { derivedStateOf(targetCalculation) }
@@ -100,4 +118,116 @@ private fun rememberAnimatedMagnifierPosition(targetCalculation: () -> Offset): 
             }
     }
     return animatable.asState()
+}
+
+private class AnimatedSelectionMagnifierElement(
+    private val magnifierCenter: (magnifierSize: IntSize) -> Offset,
+    private val platformMagnifier:
+        DelegatableNode.(
+            animatedCenter: () -> Offset,
+            onSizeChanged: (IntSize) -> Unit,
+        ) -> DelegatableNode,
+) : ModifierNodeElement<AnimatedSelectionMagnifierNode>() {
+    override fun create(): AnimatedSelectionMagnifierNode =
+        AnimatedSelectionMagnifierNode(
+            magnifierCenter = magnifierCenter,
+            platformMagnifier = platformMagnifier,
+        )
+
+    override fun update(node: AnimatedSelectionMagnifierNode) {
+        node.update(magnifierCenter = magnifierCenter, platformMagnifier = platformMagnifier)
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        // The underlying magnifier modifier provides more meaningful inspector info.
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AnimatedSelectionMagnifierElement) return false
+        if (magnifierCenter !== other.magnifierCenter) return false
+        if (platformMagnifier !== other.platformMagnifier) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = magnifierCenter.hashCode()
+        result = 31 * result + platformMagnifier.hashCode()
+        return result
+    }
+}
+
+private class AnimatedSelectionMagnifierNode(
+    magnifierCenter: (magnifierSize: IntSize) -> Offset,
+    private var platformMagnifier:
+        DelegatableNode.(
+            animatedCenter: () -> Offset,
+            onSizeChanged: (IntSize) -> Unit,
+        ) -> DelegatableNode,
+) : DelegatingNode() {
+    private var magnifierSize: IntSize by mutableStateOf(IntSize.Zero)
+    private var magnifierCenter by mutableStateOf(magnifierCenter)
+    private val targetValue by derivedStateOf { this.magnifierCenter(magnifierSize) }
+
+    // Can't use Offset.VectorConverter because we need to handle Unspecified specially.
+    private val animatable =
+        Animatable(targetValue, UnspecifiedSafeOffsetVectorConverter, OffsetDisplacementThreshold)
+
+    private var magnifierNode: DelegatableNode =
+        delegate(platformMagnifier({ animatable.value }, { size -> magnifierSize = size }))
+
+    private var animationJob: Job? = null
+
+    override fun onAttach() {
+        startAnimationJob()
+    }
+
+    fun update(
+        magnifierCenter: (magnifierSize: IntSize) -> Offset,
+        platformMagnifier:
+            DelegatableNode.(
+                animatedCenter: () -> Offset,
+                onSizeChanged: (IntSize) -> Unit,
+            ) -> DelegatableNode,
+    ) {
+        this.magnifierCenter = magnifierCenter
+        if (this.platformMagnifier !== platformMagnifier) {
+            this.platformMagnifier = platformMagnifier
+            undelegate(magnifierNode)
+            magnifierNode =
+                delegate(platformMagnifier({ animatable.value }, { size -> magnifierSize = size }))
+        }
+    }
+
+    private fun startAnimationJob() {
+        animationJob?.cancel()
+        animationJob = coroutineScope.launch {
+            val animationScope = this
+            snapshotFlow { targetValue }
+                .collect { targetValue ->
+                    // Only animate the position when moving vertically (i.e. jumping between
+                    // lines),
+                    // since horizontal movement in a single line should stay as close to the
+                    // gesture as
+                    // possible and animation would only add unnecessary lag.
+                    if (
+                        animatable.value.isSpecified &&
+                            targetValue.isSpecified &&
+                            animatable.value.y != targetValue.y
+                    ) {
+                        // Launch the animation, instead of cancelling and re-starting manually via
+                        // collectLatest, so if another animation is started before this one
+                        // finishes,
+                        // the new one will use the correct velocity, e.g. in order to propagate
+                        // spring
+                        // inertia.
+                        animationScope.launch {
+                            animatable.animateTo(targetValue, MagnifierSpringSpec)
+                        }
+                    } else {
+                        animatable.snapTo(targetValue)
+                    }
+                }
+        }
+    }
 }

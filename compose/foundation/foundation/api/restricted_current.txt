@@ -186,6 +186,7 @@ package androidx.compose.foundation {
     property public boolean isMultiLaneCacheWindowEnabled;
     property public boolean isNewBorderImplementationEnabled;
     property public boolean isNewContextMenuEnabled;
+    property public boolean isNewTextFieldModifierImplementationEnabled;
     property public boolean isPreferDefaultCacheWindowOverPrefetchStrategyLazyGrid;
     property public boolean isPreferDefaultCacheWindowOverPrefetchStrategyLazyList;
     property public boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
@@ -221,6 +222,7 @@ package androidx.compose.foundation {
     field public static boolean isMultiLaneCacheWindowEnabled;
     field public static boolean isNewBorderImplementationEnabled;
     field public static boolean isNewContextMenuEnabled;
+    field public static boolean isNewTextFieldModifierImplementationEnabled;
     field public static boolean isPreferDefaultCacheWindowOverPrefetchStrategyLazyGrid;
     field public static boolean isPreferDefaultCacheWindowOverPrefetchStrategyLazyList;
     field public static boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
