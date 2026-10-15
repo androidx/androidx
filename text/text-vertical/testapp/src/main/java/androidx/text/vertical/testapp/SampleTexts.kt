@@ -25,12 +25,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
 import androidx.text.vertical.AnnotationPosition
 import androidx.text.vertical.EmphasisStyle
 import androidx.text.vertical.FontShearSpan
+import androidx.text.vertical.compose.HorizontalText
 import androidx.text.vertical.compose.VerticalText
 import androidx.text.vertical.compose.VerticalTextStyle
 import androidx.text.vertical.compose.buildVerticalText
@@ -43,14 +45,14 @@ fun LongText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LongHorizontalText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
+fun LongHorizontalText(style: TextStyle, modifier: Modifier = Modifier) {
     val density = LocalDensity.current
     val text = remember(density) { makeSampleText(density) }
-    LegacyHorizontalText(text, style, modifier)
+    HorizontalText(text, modifier, style, overflow = TextOverflow.Visible)
 }
 
 @Composable
-fun ComplexHorizontalText(style: VerticalTextStyle, modifier: Modifier = Modifier) {
+fun ComplexHorizontalText(style: TextStyle, modifier: Modifier = Modifier) {
     val density = LocalDensity.current
     val text =
         remember(density) {
@@ -83,7 +85,7 @@ fun ComplexHorizontalText(style: VerticalTextStyle, modifier: Modifier = Modifie
                 }
             }
         }
-    LegacyHorizontalText(text, style, modifier)
+    HorizontalText(text, modifier, style, overflow = TextOverflow.Visible)
 }
 
 fun makeSampleText(density: Density) =
