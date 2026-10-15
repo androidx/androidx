@@ -256,7 +256,10 @@ fun animateContentSizeAfterLookaheadPass() {
                         // Since we are in an explicit lookaheadScope, we know the lookahead pass
                         // is guaranteed to happen, therefore the lookahead size that we recorded is
                         // not null.
-                        val target = requireNotNull(lookaheadSize)
+                        val target =
+                            requireNotNull(lookaheadSize) {
+                                "lookaheadSize should be recorded in lookahead pass before main pass"
+                            }
                         val anim =
                             sizeAnim?.also { coroutineScope.launch { it.animateTo(target) } }
                                 ?: Animatable(target, IntSize.VectorConverter)
