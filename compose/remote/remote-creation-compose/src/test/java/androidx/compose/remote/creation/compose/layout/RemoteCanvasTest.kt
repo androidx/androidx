@@ -27,6 +27,7 @@ import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.PaintTrackerTest.TestPaintChanges
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
@@ -438,6 +439,31 @@ class RemoteCanvasTest {
         assertThat(containerEndIndex).isNotEqualTo(-1)
         assertThat(contentStartIndex).isLessThan(drawRectIndex)
         assertThat(drawRectIndex).isLessThan(containerEndIndex)
+    }
+
+    @Test
+    fun testDrawPath_defaultWinding_deduplicatesRepeatedDraws() {
+        setupRemoteCanvas()
+
+        val path =
+            RemotePath().apply {
+                moveTo(0f, 0f)
+                lineTo(10f, 10f)
+                close()
+            }
+
+        remoteCanvas.drawPath(path)
+        remoteCanvas.drawPath(path)
+
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addPathData(42)",
+                "addDrawPath(42)",
+                "addDrawPath(42)",
+            )
+            .inOrder()
     }
 
     private fun captureDrawCalls(): List<String> {
