@@ -892,6 +892,7 @@ package androidx.compose.material3 {
     property public boolean isModalBottomSheetStateRestorationFixEnabled;
     property public boolean isPrecisionPointerComponentSizingEnabled;
     property public boolean isSnackbarStylingFixEnabled;
+    property public boolean isTabIndicatorOffsetNodeEnabled;
     property public boolean isUpdatedTimepickerToggleEnabled;
     field public static final androidx.compose.material3.ComposeMaterial3Flags INSTANCE;
     field public static boolean isAnchoredDraggableComponentsInvalidationFixEnabled;
@@ -902,6 +903,7 @@ package androidx.compose.material3 {
     field public static boolean isModalBottomSheetStateRestorationFixEnabled;
     field public static boolean isPrecisionPointerComponentSizingEnabled;
     field public static boolean isSnackbarStylingFixEnabled;
+    field public static boolean isTabIndicatorOffsetNodeEnabled;
     field public static boolean isUpdatedTimepickerToggleEnabled;
   }
 
