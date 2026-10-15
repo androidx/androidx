@@ -23,6 +23,7 @@ import android.content.Context
 import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.annotation.VisibleForTesting
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,7 @@ import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurfaceDetector
 import androidx.glance.adaptive.appwidget.ui.selection.LocalContainerDimensions
 import androidx.glance.adaptive.core.ui.selection.Dimensions
+import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
@@ -56,10 +58,10 @@ internal data class PreviewTarget(
  *
  * Owns every decision about *how* a composition is produced: which host surface and container
  * dimensions it targets, what can share a single composition, and how that context reaches
- * templates through [LocalContainerDimensions] and [androidx.glance.LocalSize]. Placed instances
- * and picker previews differ only in where their [RenderTarget] comes from, so both funnel through
- * the same [compose] call. Callers retain the orchestration concerns of resolving what to render
- * and handing the resulting [RemoteViews] to [AppWidgetManager].
+ * templates through [HostConstraints], [LocalContainerDimensions], and [androidx.glance.LocalSize].
+ * Placed instances and picker previews differ only in where their [RenderTarget] comes from, so
+ * both funnel through the same [compose] call. Callers retain the orchestration concerns of
+ * resolving what to render and handing the resulting [RemoteViews] to [AppWidgetManager].
  */
 internal class GlanceRemoteViewsComposer(
     private val context: Context,
@@ -133,26 +135,15 @@ internal class GlanceRemoteViewsComposer(
         )
 
     /**
-     * Renders [data] for [target], keeping [androidx.glance.LocalSize] and
-     * [LocalContainerDimensions] consistent so templates and the Glance layout pass agree on the
-     * space available.
+     * Renders [data] for [target], dispatching the resulting
+     * [androidx.glance.adaptive.appwidget.ui.AppWidgetRenderOutput] into a platform [RemoteViews].
      */
-    @OptIn(ExperimentalGlanceRemoteViewsApi::class)
     suspend fun compose(data: AdaptiveGlanceTemplate, target: RenderTarget): RemoteViews {
+        val appContext = context.applicationContext ?: context
         val dimensions = target.dimensions
-        val compositionSize =
-            if (dimensions == UNSPECIFIED_DIMENSIONS) {
-                DpSize.Unspecified
-            } else {
-                DpSize(dimensions.widthDp.dp, dimensions.heightDp.dp)
-            }
-        return glanceRemoteViews
-            .compose(context = context.applicationContext ?: context, size = compositionSize) {
-                CompositionLocalProvider(LocalContainerDimensions provides dimensions) {
-                    AppWidgetTemplateRegistry.render(data, target.surface)
-                }
-            }
-            .remoteViews
+        val constraints = HostConstraints(dimensions = dimensions, surface = target.surface)
+        return AppWidgetTemplateRegistry.render(data, constraints)
+            .toRemoteViews(appContext, dimensions)
     }
 
     /** Reads the guaranteed minimum size the host reports for a placed instance, in dp. */
@@ -194,6 +185,31 @@ internal class GlanceRemoteViewsComposer(
         @OptIn(ExperimentalGlanceRemoteViewsApi::class)
         @Volatile
         private var glanceRemoteViews = GlanceRemoteViews()
+
+        /** Composes [content] into a [RemoteViews] representation using [glanceRemoteViews]. */
+        // TODO(b/569862874): Remove composeGlance and glanceRemoteViews once TrackTemplateRenderer
+        //  is migrated to RemoteViews / RemoteCompose.
+        @OptIn(ExperimentalGlanceRemoteViewsApi::class)
+        internal suspend fun composeGlance(
+            appContext: Context,
+            dimensions: Dimensions,
+            content: @Composable () -> Unit,
+        ): RemoteViews {
+            val compositionSize =
+                if (dimensions == UNSPECIFIED_DIMENSIONS) {
+                    DpSize.Unspecified
+                } else {
+                    DpSize(dimensions.widthDp.dp, dimensions.heightDp.dp)
+                }
+            return glanceRemoteViews
+                .compose(context = appContext, size = compositionSize) {
+                    CompositionLocalProvider(
+                        LocalContainerDimensions provides dimensions,
+                        content = content,
+                    )
+                }
+                .remoteViews
+        }
 
         @OptIn(ExperimentalGlanceRemoteViewsApi::class)
         @VisibleForTesting
