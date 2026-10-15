@@ -36,8 +36,6 @@ per-file *docs-public/build.gradle = juanrdz@google.com, diegovela@google.com
 per-file *libraryversions.toml = juanrdz@google.com
 # Credentials *
 per-file *libraryversions.toml = helenqin@google.com, leecam@google.com, reemabajwa@google.com
-# Glance
-per-file *libraryversions.toml = zakcohen@google.com
 # Android BTS (Build Test Suite)
 per-file *libraryversions.toml = joeyong@google.com
 # AppSearch
