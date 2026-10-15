@@ -33,6 +33,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
+import androidx.compose.remote.creation.compose.state.rb
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -44,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -180,6 +183,131 @@ class HostActionTest {
         assertThat(ops).hasSize(1)
         assertThat(ops.first().actionId).isEqualTo(PendingIntentAction.FIRST_ACTION_ID)
         assertThat(captured.pendingIntents[0]).isSameInstanceAs(pendingIntent)
+    }
+
+    @Test
+    fun hostActionWithBooleanValue_actionTypeIsInt() = runTest {
+        val doc =
+            captureRule.captureDocument(context) {
+                RemoteBox(modifier = RemoteModifier.clickable(hostAction("foobar".rs, true.rb)))
+            }
+        val ops = doc.findOperations<HostNamedActionOperation>()
+        assertThat(ops).hasSize(1)
+        assertThat(ops.first().getActionType()).isEqualTo("INT_TYPE")
+    }
+
+    @Test
+    fun hostActionWithId_createsHostActionOperationWithStableId() = runTest {
+        val doc =
+            captureRule.captureDocument(context) {
+                RemoteBox(modifier = RemoteModifier.clickable(hostAction(id = 42)))
+            }
+        val ops = doc.findOperations<HostActionOperation>()
+        assertThat(ops).hasSize(1)
+        assertThat(ops.first().actionId).isEqualTo(42)
+    }
+
+    @Test
+    fun hostActionWithIdAndMetadata_createsHostActionMetadataOperation() = runTest {
+        val doc =
+            captureRule.captureDocument(context) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.clickable(
+                            hostAction(id = 42, metadata = "a=1&b=".rs + 2.ri.toRemoteString())
+                        )
+                )
+            }
+        val ops = doc.findOperations<HostActionMetadataOperation>()
+        assertThat(ops).hasSize(1)
+        assertThat(ops.first().actionId).isEqualTo(42)
+    }
+
+    @Test
+    fun hostActionWithDefaultComponentId_throws() {
+        assertThrows(IllegalArgumentException::class.java) { hostAction(id = -1) }
+    }
+
+    @Test
+    fun pendingIntentAction_withDynamicExtras_writesMetadata() = runTest {
+        val pendingIntent = testPendingIntent()
+        val captured =
+            captureSingleRemoteDocument(context = context) {
+                val taps = rememberMutableRemoteInt(3)
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.clickable(
+                            pendingIntentAction(
+                                "taps" to taps.toRemoteString(),
+                                "screen" to "home".rs,
+                            ) {
+                                pendingIntent
+                            }
+                        )
+                )
+            }
+        val ops = captured.toCoreDocument().findOperations<HostActionMetadataOperation>()
+        assertThat(ops).hasSize(1)
+        assertThat(ops.first().actionId).isEqualTo(PendingIntentAction.FIRST_ACTION_ID)
+    }
+
+    @Test
+    fun pendingIntentAction_withOnlyConstantExtras_writesNoMetadata() = runTest {
+        val pendingIntent = testPendingIntent()
+        val captured =
+            captureSingleRemoteDocument(context = context) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.clickable(
+                            pendingIntentAction("screen" to "home".rs) { pendingIntent }
+                        )
+                )
+            }
+        val doc = captured.toCoreDocument()
+        // Without dynamic extras, the default named action is written.
+        assertThat(doc.findOperations<HostActionMetadataOperation>()).isEmpty()
+        assertThat(doc.findOperations<HostNamedActionOperation>()).hasSize(1)
+    }
+
+    @Test
+    fun pendingIntentAction_wearWidgetsProfile_ignoresExtras() = runTest {
+        val pendingIntent = testPendingIntent()
+        val captured =
+            captureSingleRemoteDocument(
+                context = context,
+                profile = RcPlatformProfiles.WEAR_WIDGETS,
+            ) {
+                val taps = rememberMutableRemoteInt(3)
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.clickable(
+                            pendingIntentAction("taps" to taps.toRemoteString()) { pendingIntent }
+                        )
+                )
+            }
+        val doc = captured.toCoreDocument()
+        assertThat(doc.findOperations<HostActionMetadataOperation>()).isEmpty()
+        assertThat(doc.findOperations<HostNamedActionOperation>()).hasSize(1)
+    }
+
+    @Test
+    fun decodeExtras_keysOnlyComeFromTheHeader() {
+        val us = '\u001F'
+        val gs = '\u001D'
+        val rs = '\u001E'
+        assertThat(PendingIntentAction.decodeExtras("a${us}b${gs}1${rs}2"))
+            .containsExactly("a", "1", "b", "2")
+            .inOrder()
+        // A value containing separators cannot add a key; the last key takes the remainder.
+        assertThat(PendingIntentAction.decodeExtras("a${us}b${gs}1${rs}x${us}evil${rs}2"))
+            .containsExactly("a", "1", "b", "x${us}evil${rs}2")
+            .inOrder()
+        assertThat(PendingIntentAction.decodeExtras("a${gs}x${gs}evil"))
+            .containsExactly("a", "x${gs}evil")
+        // Malformed metadata decodes to fewer entries without throwing.
+        assertThat(PendingIntentAction.decodeExtras("a${us}b${gs}1")).containsExactly("a", "1")
+        assertThat(PendingIntentAction.decodeExtras("no header")).isEmpty()
+        assertThat(PendingIntentAction.decodeExtras(null)).isEmpty()
     }
 
     private fun testPendingIntent(): PendingIntent =

@@ -114,7 +114,7 @@ import androidx.compose.remote.core.types.BooleanConstant
 import androidx.compose.remote.core.types.IntegerConstant
 import androidx.compose.remote.core.types.LongConstant
 import androidx.compose.remote.creation.compose.action.LambdaAction
-import androidx.compose.remote.creation.compose.action.PendingIntentAction
+import androidx.compose.remote.creation.compose.action.PendingIntentActionHandler
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
@@ -485,6 +485,10 @@ public fun RcPlayer(
         graphContext.componentValues = componentValueStateMap
 
         val stateUpdater = remember(remoteContext) { StateUpdaterImpl(remoteContext) }
+        val pendingIntentHandler =
+            remember(androidContext, pendingIntents) {
+                PendingIntentActionHandler(androidContext, pendingIntents)
+            }
         // The image loader: the caller-supplied one, or the default that wraps embedded bitmaps.
         val resolvedImageLoader =
             remember(remoteContext, imageLoader) {
@@ -505,32 +509,21 @@ public fun RcPlayer(
             LocalCurrentTimeMillis provides currentTimeMillisState,
             LocalGraphContext provides graphContext,
             LocalRcImageLoader provides resolvedImageLoader,
+            // A host action either sends a PendingIntentAction's PendingIntent, whose id is
+            // allocated by the library, or is delivered to the host. Never both.
             LocalRemoteActionHandler provides
                 { id, metadata ->
-                    // A PendingIntentAction written as an id action. Its id is allocated by the
-                    // library, so the host is not also notified.
-                    val pendingIntent =
-                        PendingIntentAction.indexForActionId(id)?.let { pendingIntents[it] }
-                    if (pendingIntent != null) {
-                        sendPendingIntent(pendingIntent)
-                    } else {
+                    if (!pendingIntentHandler.onAction(id, metadata)) {
                         onAction(id, metadata)
                     }
                 },
             LocalRemoteNamedActionHandler provides
                 { name, value ->
                     val lambdaId = LambdaAction.parseId(name)
-                    // A PendingIntentAction written as a named action.
-                    val pendingIntent =
-                        PendingIntentAction.indexForNamedAction(name, value)?.let {
-                            pendingIntents[it]
-                        }
                     if (lambdaId != null) {
                         lambdas[lambdaId]?.invoke()
                         onNamedAction(name, value, stateUpdater)
-                    } else if (pendingIntent != null) {
-                        sendPendingIntent(pendingIntent)
-                    } else {
+                    } else if (!pendingIntentHandler.onNamedAction(name, value)) {
                         onNamedAction(name, value, stateUpdater)
                     }
                 },
@@ -1572,12 +1565,4 @@ internal fun initializePlayerRemoteContext(
         }
     }
     return ctx
-}
-
-private fun sendPendingIntent(pendingIntent: PendingIntent) {
-    try {
-        pendingIntent.send()
-    } catch (e: PendingIntent.CanceledException) {
-        Log.w("RcPlayer", "Failed to send PendingIntent", e)
-    }
 }

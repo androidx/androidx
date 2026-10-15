@@ -36,7 +36,9 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -185,6 +187,48 @@ class RcPlayerHostActionTest {
             }
         assertThat(fired).isNull()
         assertThat(sentTestBroadcasts()).isEqualTo(1)
+    }
+
+    @Test
+    fun namedAction_booleanValue_isDeliveredAsInt() {
+        assertThat(clickAndCapture { hostAction("toggle".rs, true.rb) })
+            .isEqualTo(Fired(name = "toggle", value = 1))
+    }
+
+    @Test
+    fun idAction_noMetadata() {
+        assertThat(clickAndCapture { hostAction(id = 42) }).isEqualTo(Fired(id = 42))
+    }
+
+    @Test
+    fun idAction_withDynamicMetadata() {
+        val fired = clickAndCapture {
+            val index = rememberMutableRemoteInt(2)
+            hostAction(id = 42, metadata = "screen=home&index=".rs + index.toRemoteString())
+        }
+        assertThat(fired).isEqualTo(Fired(id = 42, value = "screen=home&index=2"))
+    }
+
+    @Test
+    fun pendingIntentAction_fillsInDynamicExtras() {
+        val pendingIntent =
+            PendingIntent.getBroadcast(
+                context,
+                0,
+                Intent(TEST_ACTION).setPackage(context.packageName).putExtra("screen", "home"),
+                PendingIntent.FLAG_MUTABLE,
+            )
+        val fired = clickAndCapture {
+            val index = rememberMutableRemoteInt(2)
+            pendingIntentAction("index" to index.toRemoteString()) { pendingIntent }
+        }
+        assertThat(fired).isNull()
+
+        val sent =
+            shadowOf(context as Application).broadcastIntents.last { it.action == TEST_ACTION }
+        // The constant comes from the PendingIntent's Intent, the dynamic value is filled in.
+        assertThat(sent.getStringExtra("screen")).isEqualTo("home")
+        assertThat(sent.getStringExtra("index")).isEqualTo("2")
     }
 
     /**
