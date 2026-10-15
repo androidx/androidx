@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.ImageSourceConfig
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.ImageWrapper
 import androidx.camera.common.UnsafeWrapper
 import kotlinx.coroutines.flow.StateFlow
 

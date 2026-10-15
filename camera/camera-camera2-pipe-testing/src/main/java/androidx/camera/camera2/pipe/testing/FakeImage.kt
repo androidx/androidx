@@ -18,25 +18,22 @@ package androidx.camera.camera2.pipe.testing
 
 import android.graphics.Rect
 import android.hardware.HardwareBuffer
-import android.hardware.SyncFence
-import androidx.camera.camera2.pipe.media.ImageWrapper
-import androidx.camera.common.ImageDataSpace
-import androidx.camera.common.ImagePlane
+import androidx.camera.common.ImageWrapper
 import androidx.camera.common.MutableImageWrapper
 import androidx.camera.common.testing.FakeImage as CommonFakeImage
 import java.lang.Class
 
 /** FakeImage that can be used for testing classes that accept [ImageWrapper]. */
-public class FakeImage(
-    override val width: Int,
-    override val height: Int,
-    override val format: Int,
-    timestamp: Long,
-    cropRect: Rect = Rect(0, 0, width, height),
-    hardwareBuffer: HardwareBuffer? = null,
-) : ImageWrapper, MutableImageWrapper {
-
-    private val delegate =
+public class FakeImage private constructor(private val delegate: CommonFakeImage) :
+    MutableImageWrapper by delegate {
+    public constructor(
+        width: Int,
+        height: Int,
+        format: Int,
+        timestamp: Long,
+        cropRect: Rect = Rect(0, 0, width, height),
+        hardwareBuffer: HardwareBuffer? = null,
+    ) : this(
         CommonFakeImage(
             width = width,
             height = height,
@@ -45,35 +42,7 @@ public class FakeImage(
             hardwareBuffer = hardwareBuffer,
             cropRect = cropRect,
         )
-
-    override val hardwareBuffer: HardwareBuffer?
-        get() = delegate.hardwareBuffer
-
-    override var timestamp: Long
-        get() = delegate.timestamp
-        set(value) {
-            delegate.timestamp = value
-        }
-
-    override var cropRect: Rect
-        get() = delegate.cropRect
-        set(value) {
-            delegate.cropRect = value
-        }
-
-    override var syncFence: SyncFence?
-        get() = delegate.syncFence
-        set(value) {
-            delegate.syncFence = value
-        }
-
-    @get:ImageDataSpace
-    @setparam:ImageDataSpace
-    override var dataSpace: Int
-        get() = delegate.dataSpace
-        set(value) {
-            delegate.dataSpace = value
-        }
+    )
 
     public val numberOfTimesClosed: Int
         get() = delegate.closeCount
@@ -87,17 +56,6 @@ public class FakeImage(
             type.isInstance(this) -> this as T
             else -> delegate.unwrapAs(type)
         }
-
-    @get:Deprecated("Use imagePlanes instead", ReplaceWith("imagePlanes"))
-    override val planes: List<ImagePlane>
-        get() = imagePlanes
-
-    override val imagePlanes: List<ImagePlane>
-        get() = delegate.imagePlanes
-
-    override fun close() {
-        delegate.close()
-    }
 
     override fun toString(): String = delegate.toString()
 }

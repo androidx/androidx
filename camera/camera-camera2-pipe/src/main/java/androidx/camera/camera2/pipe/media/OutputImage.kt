@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.media
 
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.ImageWrapper
 import java.lang.Class
 
 /**

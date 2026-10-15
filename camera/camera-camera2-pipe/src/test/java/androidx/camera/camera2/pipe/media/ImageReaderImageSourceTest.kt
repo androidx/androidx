@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeImage
 import androidx.camera.camera2.pipe.testing.FakeImageReader
+import androidx.camera.common.ImageWrapper
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Test
