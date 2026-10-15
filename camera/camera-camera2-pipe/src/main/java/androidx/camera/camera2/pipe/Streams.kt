@@ -246,16 +246,6 @@ public interface OutputStream {
                     )
                 }
 
-            private fun OutputType.isLazilyConfigurable(): Boolean {
-                return when (this) {
-                    OutputType.SURFACE_TEXTURE,
-                    OutputType.SURFACE_VIEW -> true
-                    OutputType.MEDIA_CODEC,
-                    OutputType.MEDIA_RECORDER -> Build.VERSION.SDK_INT >= 35
-                    else -> false
-                }
-            }
-
             /** Create a stream configuration from an externally created [OutputConfiguration] */
             @RequiresApi(33)
             public fun external(
@@ -383,6 +373,25 @@ public interface OutputStream {
             internal val SURFACE_DEFERRED_FOR_QUERY_ONLY: OutputType = OutputType()
             public val MEDIA_CODEC: OutputType = OutputType()
             public val MEDIA_RECORDER: OutputType = OutputType()
+        }
+
+        /**
+         * Checks whether this [OutputType] supports lazy surface configuration on the current SDK.
+         *
+         * - [SURFACE_TEXTURE] and [SURFACE_VIEW] support lazy configuration.
+         * - [MEDIA_CODEC] and [MEDIA_RECORDER] support lazy configuration on API 35 and above.
+         *
+         * @return `true` if this [OutputType] can be configured before its [android.view.Surface]
+         *   is available
+         */
+        public fun isLazilyConfigurable(): Boolean {
+            return when (this) {
+                SURFACE_TEXTURE,
+                SURFACE_VIEW -> true
+                MEDIA_CODEC,
+                MEDIA_RECORDER -> Build.VERSION.SDK_INT >= 35
+                else -> false
+            }
         }
     }
 
