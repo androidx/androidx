@@ -17,6 +17,7 @@
 package androidx.compose.foundation.textfield
 
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.InputMethodInterceptor
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assertIsFocused
@@ -40,6 +41,8 @@ class TextFieldUndoTest {
 
     @get:Rule val rule = createComposeRule()
 
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
+
     @Test
     fun undo_redo_withCtrlShiftZ() {
         undoRedoTest(redoKeys = listOf(Key.CtrlLeft, Key.ShiftLeft, Key.Z))
@@ -52,7 +55,7 @@ class TextFieldUndoTest {
 
     private fun undoRedoTest(redoKeys: List<Key>) {
         val state = mutableStateOf("hi")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             @Suppress("DEPRECATION") // b/552879150
             BasicTextField(value = state.value, onValueChange = { state.value = it })
         }
