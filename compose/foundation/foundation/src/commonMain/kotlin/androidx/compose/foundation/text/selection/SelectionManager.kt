@@ -379,7 +379,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     )
 
                     focusRequester.requestFocus()
-                    showToolbar = false
+                    hideSelectionToolbar()
                     isLongPressOrClickSelection = true
                 }
             }
@@ -394,7 +394,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
             this.isInTouchMode = isInTouchMode
             focusRequester.requestFocus()
-            showToolbar = false
+            hideSelectionToolbar()
         }
 
         selectionRegistrar.onSelectionUpdateCallback =
@@ -420,7 +420,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             }
 
         selectionRegistrar.onSelectionUpdateEndCallback = {
-            showToolbar = true
+            showSelectionToolbar()
             // This property is set by updateSelection while dragging, so we need to clear it after
             // the original selection drag.
             draggingHandle = null
@@ -731,7 +731,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
         // Request focus to show selection handles
         focusRequester.requestFocus()
-        showToolbar = true
+        showSelectionToolbar()
     }
 
     /**
@@ -760,7 +760,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
         // Request focus to show selection handles
         focusRequester.requestFocus()
-        showToolbar = true
+        showSelectionToolbar()
     }
 
     /** Helper for setSelection function. */
@@ -824,7 +824,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
         // Request focus to show selection handles
         focusRequester.requestFocus()
-        showToolbar = true
+        showSelectionToolbar()
     }
 
     /**
@@ -867,7 +867,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
             // Request focus to show selection handles
             focusRequester.requestFocus()
-            showToolbar = true
+            showSelectionToolbar()
             return
         }
 
@@ -963,7 +963,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
         // Request focus to show selection handles
         focusRequester.requestFocus()
-        showToolbar = true
+        showSelectionToolbar()
     }
 
     /**
@@ -1146,10 +1146,24 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * selection. Hide it during selection. Hide it when no selection exists.
      */
     internal var showToolbar = false
-        set(value) {
-            field = value
+        private set
+
+    /**
+     * Shows the selection toolbar. The toolbar is refreshed even if it is already requested to be
+     * shown, so that its position and items reflect the current selection.
+     */
+    fun showSelectionToolbar() {
+        showToolbar = true
+        updateSelectionToolbar()
+    }
+
+    /** Hides the selection toolbar if it is currently requested to be shown. */
+    fun hideSelectionToolbar() {
+        if (showToolbar) {
+            showToolbar = false
             updateSelectionToolbar()
         }
+    }
 
     private fun toolbarCopy() {
         copy()
@@ -1232,7 +1246,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     // This is for PressGestureDetector to cancel the selection.
     fun onRelease() {
         selectionRegistrar.subselections = emptyLongObjectMap()
-        showToolbar = false
+        hideSelectionToolbar()
         previousSelectionLayout = null
         if (selection != null) {
             onSelectionChange(null)
@@ -1274,7 +1288,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     requireContainerCoordinates()
                         .localPositionOf(beginLayoutCoordinates, beginCoordinates)
                 draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
-                showToolbar = false
+                hideSelectionToolbar()
             }
 
             override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
@@ -1332,7 +1346,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             }
 
             private fun done() {
-                showToolbar = true
+                showSelectionToolbar()
                 draggingHandle = null
                 currentDragPosition = null
             }
