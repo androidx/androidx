@@ -20,10 +20,49 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices.RcPathArrayCreator
+import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.shapes.MorphTweenUtility
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.ui.graphics.ClipOp
+import androidx.compose.ui.graphics.PathFillType
 import androidx.graphics.shapes.RoundedPolygon
+
+/** Draws a path using the specified [pathFillType] and [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawPath(
+    path: RemotePath,
+    pathFillType: PathFillType,
+    paint: RemotePaint? = null,
+) {
+    drawPath(
+        path,
+        if (pathFillType == PathFillType.EvenOdd) RemoteCanvas.WINDING_EVEN_ODD
+        else RemoteCanvas.WINDING_NON_ZERO,
+        paint,
+    )
+}
+
+/** Clips the current canvas state to the specified rectangle. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.clipRect(
+    left: RemoteFloat,
+    top: RemoteFloat,
+    right: RemoteFloat,
+    bottom: RemoteFloat,
+    @Suppress("UNUSED_PARAMETER") clipOp: ClipOp,
+) {
+    clipRect(left, top, right, bottom)
+}
+
+/** Clips the current canvas state to the specified [path]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.clipPath(
+    path: RemotePath,
+    @Suppress("UNUSED_PARAMETER") clipOp: ClipOp,
+) {
+    clipPath(path)
+}
 
 /** Draws a [RoundedPolygon] using the specified [paint]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

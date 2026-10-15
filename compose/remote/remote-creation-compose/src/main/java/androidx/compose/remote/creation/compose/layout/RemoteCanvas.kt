@@ -35,8 +35,6 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.StandardRemotePaint
-import androidx.compose.ui.graphics.ClipOp
-import androidx.compose.ui.graphics.PathFillType
 
 /**
  * A remote canvas providing overloads for remote types and avoiding platform types in its public
@@ -473,16 +471,16 @@ public class RemoteCanvas(
     /** Draws a path using the specified [paint]. */
     public fun drawPath(
         path: RemotePath,
-        pathFillType: PathFillType = PathFillType.NonZero,
+        winding: Int = WINDING_NON_ZERO,
         paint: RemotePaint? = null,
     ) {
         val op =
             recordRenderingOp(paint) {
-                if (pathFillType == PathFillType.EvenOdd) {
-                    val pathId = document.addPathData(path, 1)
-                    document.drawPath(pathId)
-                } else {
+                if (winding == WINDING_NON_ZERO) {
                     document.drawPath(path)
+                } else {
+                    val pathId = document.addPathData(path, winding)
+                    document.drawPath(pathId)
                 }
             }
         buffer.addRoots(op, path)
@@ -583,7 +581,6 @@ public class RemoteCanvas(
         top: RemoteFloat,
         right: RemoteFloat,
         bottom: RemoteFloat,
-        clipOp: ClipOp = ClipOp.Intersect,
     ) {
         val op =
             buffer.recordRenderingOp(
@@ -600,7 +597,7 @@ public class RemoteCanvas(
     }
 
     /** Clips the current canvas state to the specified [path]. */
-    public fun clipPath(path: RemotePath, clipOp: ClipOp = ClipOp.Intersect) {
+    public fun clipPath(path: RemotePath) {
         val op = recordRenderingOp {
             val pathId = document.addPathData(path)
             document.addClipPath(pathId)
@@ -725,5 +722,19 @@ public class RemoteCanvas(
     /** Ends a state layout. */
     public fun endStateLayout() {
         recordRenderingOp { document.endStateLayout() }
+    }
+
+    public companion object {
+        /** Non-zero winding rule (default). */
+        public const val WINDING_NON_ZERO: Int = 0
+
+        /** Even-odd winding rule. */
+        public const val WINDING_EVEN_ODD: Int = 1
+
+        /** Inverse even-odd winding rule. */
+        public const val WINDING_INVERSE_EVEN_ODD: Int = 2
+
+        /** Inverse non-zero winding rule. */
+        public const val WINDING_INVERSE_NON_ZERO: Int = 3
     }
 }
