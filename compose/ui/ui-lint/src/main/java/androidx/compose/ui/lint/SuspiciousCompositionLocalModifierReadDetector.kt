@@ -35,6 +35,7 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.getContainingUClass
 
 @Suppress("UnstableApiUsage")
 class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeScanner {
@@ -58,7 +59,7 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
         if (node == null) {
             return
         } else if (node is UMethod) {
-            if (node.containingClass.isClConsumerNode()) {
+            if (node.getContainingUClass().isClConsumerNode()) {
                 if (node.name in NodeLifecycleCallbacks) {
                     report(context, usage) { localBeingRead ->
                         val action =
