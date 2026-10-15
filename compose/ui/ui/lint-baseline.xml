@@ -146,24 +146,6 @@
     </issue>
 
     <issue
-        id="CompositionLocalNaming"
-        message="CompositionLocal properties should be prefixed with `Local`"
-        errorLine1="        private val staticLocalInt = staticCompositionLocalOf { 0 }"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/CompositionLocalConsumerModifierNodeTest.kt"/>
-    </issue>
-
-    <issue
-        id="CompositionLocalNaming"
-        message="CompositionLocal properties should be prefixed with `Local`"
-        errorLine1="val SomeLocal = compositionLocalOf&lt;Int> { error(&quot;unprovided value&quot;) }"
-        errorLine2="    ~~~~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
-    </issue>
-
-    <issue
         id="CoroutineCreationDuringComposition"
         message="Calls to launch should happen inside a LaunchedEffect and not composition"
         errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
