@@ -1016,6 +1016,33 @@ public class LifecycleCameraTest {
     }
 
     @Test
+    public void onDestroy_clearsRotationProvider() throws CameraUseCaseAdapter.CameraException {
+        mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, mCameraUseCaseAdapter,
+                mRotationProvider);
+        mLifecycleOwner.start();
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder(Arrays.asList(mFakeUseCase))
+                        .setAutoRotationEnabled(true)
+                        .build();
+        mLifecycleCamera.bind(sessionConfig);
+
+        assertThat(mFakeUseCase.getRotationProvider()).isEqualTo(mRotationProvider);
+
+        // Act: destroy lifecycle without calling unbindAll() explicitly
+        mLifecycleOwner.stop();
+        mLifecycleOwner.destroy();
+
+        // Assert: UseCase.mRotationProvider are cleared
+        assertThat(mFakeUseCase.getRotationProvider()).isNull();
+
+        // Verify rotation listener is removed
+        mFakeUseCase.clearLastRotation();
+        mRotationProvider.updateOrientationForTesting(90);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertThat(mFakeUseCase.getLastRotation()).isEqualTo(INVALID_ROTATION);
+    }
+
+    @Test
     public void bindSessionConfigFailure_clearsBoundSessionConfigAndSessionInteropConfig() {
         FakeCameraDeviceSurfaceManager restrictiveSurfaceManager =
                 new FakeCameraDeviceSurfaceManager();
