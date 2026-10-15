@@ -79,15 +79,19 @@ internal fun DataOrigin.toPlatformDataOrigin(): PlatformDataOrigin {
 @SuppressLint("NewApi") // Guarded by sdk extension check
 internal fun Device.toPlatformDevice(): PlatformDevice {
     val platformDeviceBuilder =
-        PlatformDeviceBuilder().apply {
-            setManufacturer(manufacturer)
-            setModel(model)
-            if (isAtLeastSdkExtension22()) setDisplayName(displayName)
-        }
+        PlatformDeviceBuilder()
+            .setManufacturer(manufacturer)
+            .setModel(model)
+            .setType(type.toPlatformDevice())
+    if (isAtLeastSdkExtension22()) {
+        @Suppress("CheckReturnValue") platformDeviceBuilder.setDisplayName(displayName)
+    }
 
     return try {
-        platformDeviceBuilder.setType(type.toPlatformDevice()).build()
+        platformDeviceBuilder.build()
     } catch (_: IllegalArgumentException) {
+        // build() validates the type and throws if the module version doesn't support an
+        // extended device type yet.
         platformDeviceBuilder.setType(Device.TYPE_UNKNOWN.toPlatformDevice()).build()
     }
 }
