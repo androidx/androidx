@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createOffscreenRemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
@@ -464,6 +465,31 @@ class RemoteCanvasTest {
                 "addDrawPath(42)",
             )
             .inOrder()
+    }
+
+    @Test
+    fun testDrawScaledBitmap_nullContentDescription_doesNotEmitEmptyTextData() {
+        setupRemoteCanvas()
+
+        val bitmap = RemoteImageBitmap.createForId(42)
+        remoteCanvas.drawScaledBitmap(
+            bitmap = bitmap,
+            srcLeft = 0f.rf,
+            srcTop = 0f.rf,
+            srcRight = 10f.rf,
+            srcBottom = 10f.rf,
+            dstLeft = 0f.rf,
+            dstTop = 0f.rf,
+            dstRight = 20f.rf,
+            dstBottom = 20f.rf,
+            scaleType = RemoteComposeWriter.IMAGE_SCALE_FIT,
+            scaleFactor = 1f.rf,
+            contentDescription = null,
+        )
+
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls).containsExactly("drawScaledBitmap(42)")
     }
 
     private fun captureDrawCalls(): List<String> {
