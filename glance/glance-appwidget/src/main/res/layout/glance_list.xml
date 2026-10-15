@@ -19,7 +19,8 @@
     app:glance_isTopLevelLayout="true"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:listSelector="@android:color/transparent"
+    android:drawSelectorOnTop="true"
+    android:listSelector="@drawable/glance_list_keyboard_focus_selector"
     android:divider="@null"
     android:theme="@style/Glance.AppWidget.Theme.ListChildren"
     style="@style/Glance.AppWidget.List"/>

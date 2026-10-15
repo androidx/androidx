@@ -16,17 +16,29 @@
 
 package androidx.glance.appwidget.layout
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.glance.ExperimentalGlanceApi
+import androidx.glance.GlanceModifier
+import androidx.glance.action.ActionModifier
+import androidx.glance.action.LambdaAction
+import androidx.glance.action.actionStartActivity
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.lazy.EmittableLazyColumn
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.lazy.itemsIndexed
+import androidx.glance.appwidget.normalizeCompositionTree
 import androidx.glance.appwidget.runTestingComposition
+import androidx.glance.appwidget.updateLambdaActionKeys
+import androidx.glance.findModifier
+import androidx.glance.layout.Box
+import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
 import androidx.glance.text.EmittableText
 import androidx.glance.text.Text
 import com.google.common.truth.Truth.assertThat
@@ -245,6 +257,127 @@ class LazyColumnTest {
         val column = assertIs<EmittableLazyColumn>(root.children.single())
         assertThat(column.activityOptions).isSameInstanceAs(options)
     }
+
+    @Test
+    fun normalizeLazyListItem_singleAction_hoistsActionToListItem() = fakeCoroutineScope.runTest {
+        val root = runTestingComposition {
+            LazyColumn {
+                item {
+                    Row(modifier = GlanceModifier.clickable(actionStartActivity<Activity>())) {
+                        Text("Row item")
+                    }
+                }
+            }
+        }
+        normalizeCompositionTree(root, backendOverrideRequest = null)
+
+        val column = assertIs<EmittableLazyColumn>(root.children.single())
+        val listItem = assertIs<EmittableLazyListItem>(column.children.single())
+
+        // ActionModifier should be hoisted to the EmittableLazyListItem
+        assertThat(listItem.modifier.findModifier<ActionModifier>()).isNotNull()
+
+        // Inner wrapper EmittableBox and child Row should have ActionModifier removed
+        val innerBox = assertIs<EmittableBox>(listItem.children.single())
+        assertThat(innerBox.modifier.findModifier<ActionModifier>()).isNull()
+        val innerRow = assertIs<EmittableRow>(innerBox.children.single())
+        assertThat(innerRow.modifier.findModifier<ActionModifier>()).isNull()
+    }
+
+    @Test
+    fun normalizeLazyListItem_singleActionWithSpacers_hoistsActionToListItem() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                LazyColumn {
+                    item {
+                        Spacer()
+                        Row(modifier = GlanceModifier.clickable(actionStartActivity<Activity>())) {
+                            Text("Row item")
+                        }
+                        Spacer()
+                    }
+                }
+            }
+            normalizeCompositionTree(root, backendOverrideRequest = null)
+
+            val column = assertIs<EmittableLazyColumn>(root.children.single())
+            val listItem = assertIs<EmittableLazyListItem>(column.children.single())
+
+            assertThat(listItem.modifier.findModifier<ActionModifier>()).isNotNull()
+            val innerBox = assertIs<EmittableBox>(listItem.children.single())
+            assertThat(innerBox.modifier.findModifier<ActionModifier>()).isNull()
+            assertThat(innerBox.children).hasSize(3)
+            val innerRow = assertIs<EmittableRow>(innerBox.children[1])
+            assertThat(innerRow.modifier.findModifier<ActionModifier>()).isNull()
+        }
+
+    @Test
+    fun normalizeLazyListItem_nestedBoxesWithRow_hoistsActionToListItem() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                LazyColumn {
+                    item {
+                        Box {
+                            Box {
+                                Row(
+                                    modifier =
+                                        GlanceModifier.clickable(actionStartActivity<Activity>())
+                                ) {
+                                    Text("Row item")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            normalizeCompositionTree(root, backendOverrideRequest = null)
+
+            val column = assertIs<EmittableLazyColumn>(root.children.single())
+            val listItem = assertIs<EmittableLazyListItem>(column.children.single())
+
+            // 1. ActionModifier should be hoisted to the EmittableLazyListItem
+            assertThat(listItem.modifier.findModifier<ActionModifier>()).isNotNull()
+
+            // 2. Verify all wrapper and nested boxes, and Row have ActionModifier removed
+            val wrapperBox = assertIs<EmittableBox>(listItem.children.single())
+            assertThat(wrapperBox.modifier.findModifier<ActionModifier>()).isNull()
+            val outerBox = assertIs<EmittableBox>(wrapperBox.children.single())
+            assertThat(outerBox.modifier.findModifier<ActionModifier>()).isNull()
+            val innerBox = assertIs<EmittableBox>(outerBox.children.single())
+            assertThat(innerBox.modifier.findModifier<ActionModifier>()).isNull()
+            val innerRow = assertIs<EmittableRow>(innerBox.children.single())
+            assertThat(innerRow.modifier.findModifier<ActionModifier>()).isNull()
+        }
+
+    @Test
+    fun normalizeLazyListItem_lambdaAction_updatesActionKeysWithIndex() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                LazyColumn {
+                    items(2) { index ->
+                        Row(modifier = GlanceModifier.clickable { /* action */ }) {
+                            Text("Item $index")
+                        }
+                    }
+                }
+            }
+            normalizeCompositionTree(root, backendOverrideRequest = null)
+            val actions = root.updateLambdaActionKeys()
+
+            val column = assertIs<EmittableLazyColumn>(root.children.single())
+            val item0 = assertIs<EmittableLazyListItem>(column.children[0])
+            val item1 = assertIs<EmittableLazyListItem>(column.children[1])
+
+            val action0 = item0.modifier.findModifier<ActionModifier>()?.action as? LambdaAction
+            val action1 = item1.modifier.findModifier<ActionModifier>()?.action as? LambdaAction
+
+            assertThat(action0).isNotNull()
+            assertThat(action1).isNotNull()
+            assertThat(action0!!.key).endsWith("+0")
+            assertThat(action1!!.key).endsWith("+1")
+            assertThat(action0.key).isNotEqualTo(action1.key)
+            assertThat(actions).hasSize(2)
+        }
 
     private fun EmittableLazyColumn.getTextAtChild(index: Int): String =
         assertIs<EmittableText>((children[index] as EmittableLazyListItem).children.first()).text

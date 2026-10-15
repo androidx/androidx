@@ -122,6 +122,15 @@ internal fun RemoteViews.translateEmittableLazyListItem(
         "Lazy list items can only have a single child align at the center start of the view. " +
             "The normalization of the composition tree failed."
     }
+
+    applyModifiers(
+        translationContext,
+        rv = this,
+        modifiers = element.modifier,
+        viewDef = translationContext.parentContext,
+        shouldOptimizeVisibility = true,
+    )
+
     translateChild(translationContext, element.children.first())
 }
 

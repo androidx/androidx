@@ -240,7 +240,11 @@ internal fun createRootView(
     val layoutId = FirstRootAlias + RootAliasTypeCount * aliasIndex + layoutIdShift
     return RemoteViewsInfo(
         remoteViews = remoteViews(translationContext, layoutId),
-        view = InsertedViewInfo(children = mapOf(0 to mapOf(sizeSelector to R.id.rootStubId))),
+        view =
+            InsertedViewInfo(
+                mainViewId = R.id.rootView,
+                children = mapOf(0 to mapOf(sizeSelector to R.id.rootStubId)),
+            ),
     )
 }
 
