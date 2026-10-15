@@ -47,9 +47,7 @@ import androidx.compose.remote.player.compose.embedded.LocalRemoteActionHandler
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteNamedActionHandler
 import androidx.compose.remote.player.compose.embedded.getOperationsList
-import androidx.compose.remote.player.compose.embedded.readData
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
-import androidx.compose.remote.player.compose.embedded.updateVariables
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -313,14 +311,13 @@ private fun applyClickAction(
         // Named host action (what the public hostAction(name, value) authors): resolve the name
         // and the typed value, then notify the host.
         is HostNamedActionOperation -> {
-            val data = action.readData()
-            val name = remoteContext.getText(data.textId) ?: ""
-            val valueId = data.valueId
+            val name = remoteContext.getText(action.textId) ?: ""
+            val valueId = action.valueId
             val value: Any? =
                 if (valueId == -1) {
                     null
                 } else {
-                    when (data.type) {
+                    when (action.type) {
                         HostNamedActionOperation.FLOAT_TYPE -> remoteContext.getFloat(valueId)
                         HostNamedActionOperation.INT_TYPE -> remoteContext.getInteger(valueId)
                         HostNamedActionOperation.STRING_TYPE -> remoteContext.getText(valueId)

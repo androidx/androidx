@@ -38,8 +38,6 @@ import androidx.compose.remote.player.compose.embedded.LocalAnimatedVisibilitySc
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.LocalSharedTransitionScope
 import androidx.compose.remote.player.compose.embedded.RcPlayerComponent
-import androidx.compose.remote.player.compose.embedded.horizontalPositioning
-import androidx.compose.remote.player.compose.embedded.verticalPositioning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember

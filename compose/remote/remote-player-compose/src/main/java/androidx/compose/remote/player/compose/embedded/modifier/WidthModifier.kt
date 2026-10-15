@@ -31,9 +31,6 @@ import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifie
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
-import androidx.compose.remote.player.compose.embedded.dimensionConstraintsType
-import androidx.compose.remote.player.compose.embedded.dimensionInRawValues
-import androidx.compose.remote.player.compose.embedded.dimensionRawValue
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -59,7 +56,7 @@ internal fun Modifier.width(op: WidthModifierOperation): Modifier {
             // we
             // leave unchanged, so read it reflectively — same approach as RcPlayerColumnLayout.)
             val behavior = LocalCoreDocument.current.densityBehavior
-            val resolved = rememberRemoteFloatAsState(dimensionRawValue(op)).value
+            val resolved = rememberRemoteFloatAsState(op.rawValue).value
             // EXACT stores px unless DENSITY_BEHAVIOR_DP is set on the document; EXACT_DP always
             // stores dp.
             val widthDp =
@@ -85,11 +82,10 @@ internal fun Modifier.width(op: WidthModifierOperation): Modifier {
 internal fun Modifier.widthIn(op: WidthInModifierOperation): Modifier {
     val density = LocalDensity.current.density
     val behavior = LocalCoreDocument.current.densityBehavior
-    val (minDimension, maxDimension) = dimensionInRawValues(op)
     val widthMinDp =
-        rememberRemoteFloatAsState(minDimension).value.constraintDimensionToDp(behavior, density)
+        rememberRemoteFloatAsState(op.rawMin).value.constraintDimensionToDp(behavior, density)
     val widthMaxDp =
-        rememberRemoteFloatAsState(maxDimension).value.constraintDimensionToDp(behavior, density)
+        rememberRemoteFloatAsState(op.rawMax).value.constraintDimensionToDp(behavior, density)
     return this.widthIn(widthMinDp, widthMaxDp)
 }
 
@@ -113,12 +109,11 @@ internal fun Float.constraintDimensionToDp(behavior: Int, density: Float): Dp =
 internal fun Modifier.dimensionConstraints(op: DimensionConstraintsModifierOperation): Modifier {
     val density = LocalDensity.current.density
     val behavior = LocalCoreDocument.current.densityBehavior
-    val (minDimension, maxDimension) = dimensionInRawValues(op)
     val minDp =
-        rememberRemoteFloatAsState(minDimension).value.constraintDimensionToDp(behavior, density)
+        rememberRemoteFloatAsState(op.rawMin).value.constraintDimensionToDp(behavior, density)
     val maxDp =
-        rememberRemoteFloatAsState(maxDimension).value.constraintDimensionToDp(behavior, density)
-    return when (dimensionConstraintsType(op)) {
+        rememberRemoteFloatAsState(op.rawMax).value.constraintDimensionToDp(behavior, density)
+    return when (op.type) {
         DimensionConstraintsModifierOperation.HORIZONTAL_CONSTRAINTS -> this.widthIn(minDp, maxDp)
         DimensionConstraintsModifierOperation.REQUIRED_HORIZONTAL_CONSTRAINTS ->
             this.requiredWidthIn(minDp, maxDp)
@@ -131,7 +126,7 @@ internal fun Modifier.dimensionConstraints(op: DimensionConstraintsModifierOpera
 
 @Composable
 internal fun DimensionModifierOperation.fillFraction(): Float {
-    val source = dimensionRawValue(this)
+    val source = rawValue
     return if (source.isNaN() && !Utils.isVariable(source)) {
         1f
     } else {

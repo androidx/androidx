@@ -26,10 +26,6 @@ import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerMod
 import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation
-import androidx.compose.remote.player.compose.embedded.dimensionInRawValues
-import androidx.compose.remote.player.compose.embedded.offsetRawValues
-import androidx.compose.remote.player.compose.embedded.paddingRawValues
-import androidx.compose.remote.player.compose.embedded.readValues
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -41,10 +37,8 @@ class LayoutValueSourceTest {
         setFloat(op, "mXValue", 18f)
         setFloat(op, "mYValue", 24f)
 
-        val (x, y) = offsetRawValues(op)
-
-        assertEquals(41, Utils.idFromNan(x))
-        assertEquals(42, Utils.idFromNan(y))
+        assertEquals(41, Utils.idFromNan(op.rawX))
+        assertEquals(42, Utils.idFromNan(op.rawY))
         assertEquals(18f, op.x, 0f)
         assertEquals(24f, op.y, 0f)
     }
@@ -61,7 +55,7 @@ class LayoutValueSourceTest {
         GraphicsLayerModifierOperation.read(buffer, operations)
         val operation = operations[0] as GraphicsLayerModifierOperation
 
-        val source = operation.readValues()[GraphicsLayerModifierOperation.ALPHA].source
+        val source = operation.values[GraphicsLayerModifierOperation.ALPHA].source
 
         assertEquals(43, Utils.idFromNan(source))
     }
@@ -72,10 +66,8 @@ class LayoutValueSourceTest {
         val op = WidthInModifierOperation(12f, maxSource)
         setResolved(op, 24f, 0f)
 
-        val (min, max) = dimensionInRawValues(op)
-
-        assertEquals(12f, min, 0f)
-        assertEquals(42, Utils.idFromNan(max))
+        assertEquals(12f, op.rawMin, 0f)
+        assertEquals(42, Utils.idFromNan(op.rawMax))
         assertEquals(24f, op.min, 0f)
         assertEquals(0f, op.max, 0f)
     }
@@ -88,12 +80,10 @@ class LayoutValueSourceTest {
         setFloat(op, "mRightValue", 60f)
         setFloat(op, "mBottomValue", 45f)
 
-        val (left, top, right, bottom) = paddingRawValues(op)
-
-        assertEquals(10, Utils.idFromNan(left))
-        assertEquals(5f, top, 0f)
-        assertEquals(20, Utils.idFromNan(right))
-        assertEquals(15f, bottom, 0f)
+        assertEquals(10, Utils.idFromNan(op.rawLeft))
+        assertEquals(5f, op.rawTop, 0f)
+        assertEquals(20, Utils.idFromNan(op.rawRight))
+        assertEquals(15f, op.rawBottom, 0f)
         assertEquals(30f, op.left, 0f)
         assertEquals(15f, op.top, 0f)
         assertEquals(60f, op.right, 0f)
