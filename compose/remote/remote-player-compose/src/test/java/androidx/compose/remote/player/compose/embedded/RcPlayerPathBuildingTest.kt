@@ -16,17 +16,12 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteClock
-import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -42,7 +37,6 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
-import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,14 +44,10 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertWithMessage
-import java.io.ByteArrayInputStream
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,31 +59,19 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerPathBuildingTest {
 
-    @get:Rule val rule = createComposeRule()
-
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     private fun renderPlayerToBitmap(
         widthDp: Dp = 100.dp,
         heightDp: Dp = 100.dp,
         content: @Composable @RemoteComposable () -> Unit,
     ): Bitmap {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val bytes = runBlocking {
-            captureSingleRemoteDocument(context = context, content = content).bytes
-        }
-        val document =
-            CoreDocument(RemoteClock.SYSTEM).apply {
-                ByteArrayInputStream(bytes).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-        rule.setContent {
-            Box(modifier = Modifier.size(widthDp, heightDp).testTag("playerBox")) {
-                RcPlayer(document = document)
-            }
-        }
-        rule.waitForIdle()
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(widthDp, heightDp).testTag("playerBox")) { it() }
+            },
+            content = content,
+        )
         return rule.onNodeWithTag("playerBox").captureToImage().asAndroidBitmap()
     }
 
@@ -738,28 +716,14 @@ class RcPlayerPathBuildingTest {
         widthDp: Dp = 100.dp,
         heightDp: Dp = 100.dp,
         build: RemoteComposeWriterAndroid.() -> Unit,
-    ): Bitmap {
-        val writer = RemoteComposeWriterAndroid(100, 100, "test", AndroidxRcPlatformServices())
-        writer.root {
-            writer.getRcPaint().setColor(0xFFFFFFFF.toInt()).setStyle(0).commit()
-            writer.drawRect(0f, 0f, 100f, 100f)
-            writer.build()
-        }
-        val bytes = writer.buffer()
-        val document =
-            CoreDocument(RemoteClock.SYSTEM).apply {
-                ByteArrayInputStream(bytes, 0, writer.bufferSize()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+    ): Bitmap =
+        renderPlayerToBitmap(widthDp, heightDp) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.White.rc)) {
+                RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                    (document as RemoteComposeWriterAndroid).build()
                 }
             }
-        rule.setContent {
-            Box(modifier = Modifier.size(widthDp, heightDp).testTag("playerBox")) {
-                RcPlayer(document = document)
-            }
         }
-        rule.waitForIdle()
-        return rule.onNodeWithTag("playerBox").captureToImage().asAndroidBitmap()
-    }
 
     @Test
     fun drawPath_pathCreateAndPathAppend_rendersDynamicContour() {

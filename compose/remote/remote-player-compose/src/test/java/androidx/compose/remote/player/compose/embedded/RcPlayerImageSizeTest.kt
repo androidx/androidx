@@ -19,7 +19,6 @@ package androidx.compose.remote.player.compose.embedded
 import android.graphics.Bitmap
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -48,9 +47,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerImageSizeTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     private fun Throwable.chainMessages(): String =
         generateSequence(this) { it.cause }.joinToString("\n") { it.message ?: it.toString() }

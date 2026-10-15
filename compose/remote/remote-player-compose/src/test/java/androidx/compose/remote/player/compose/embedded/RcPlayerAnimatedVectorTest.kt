@@ -29,7 +29,6 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.vector.painterRemoteAnimatedVector
 import androidx.compose.remote.player.compose.test.R
-import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -39,7 +38,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,8 +53,6 @@ import org.robolectric.annotation.Config
 class RcPlayerAnimatedVectorTest {
 
     @get:Rule val playerRule = RcPlayerTestRule()
-
-    @get:Rule val captureRule = RemoteCaptureTestRule()
 
     private fun Bitmap.getPixelAt(xDp: Int, yDp: Int): Int {
         val d = playerRule.density.density
@@ -89,22 +85,18 @@ class RcPlayerAnimatedVectorTest {
     fun clockHandAvd_animatesRotationAndColor_withEmbeddedPlayer() {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
+        playerRule.mainClock.autoAdvance = false
         // Capture the document using painterRemoteAnimatedVector with default continuous time
         // progress
-        val document = runBlocking {
-            captureRule.captureDocument(context = context) {
-                val painter = painterRemoteAnimatedVector(context, R.drawable.clock_hand_animated)
-                RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                    with(painter) { onDraw() }
+        playerRule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(100.dp).background(Color.White).testTag("clockBox")) {
+                    it()
                 }
             }
-        }
-
-        playerRule.mainClock.autoAdvance = false
-        playerRule.setContent {
-            Box(modifier = Modifier.size(100.dp).background(Color.White).testTag("clockBox")) {
-                RcPlayer(document = document)
-            }
+        ) {
+            val painter = painterRemoteAnimatedVector(context, R.drawable.clock_hand_animated)
+            RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) { with(painter) { onDraw() } }
         }
 
         // 1. Initial state (t = 0ms):

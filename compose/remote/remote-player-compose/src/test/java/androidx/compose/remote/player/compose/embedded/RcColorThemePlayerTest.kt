@@ -19,7 +19,6 @@ package androidx.compose.remote.player.compose.embedded
 import android.R
 import android.content.Context
 import android.graphics.Bitmap
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
@@ -44,7 +43,6 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
@@ -60,9 +58,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcColorThemePlayerTest {
 
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
-
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @get:Rule val captureRule = RemoteCaptureTestRule()
 

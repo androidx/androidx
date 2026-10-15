@@ -16,12 +16,9 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -55,15 +52,14 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
-import androidx.compose.ui.Modifier as ComposeModifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -78,28 +74,23 @@ import org.junit.runner.RunWith
 @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
 class RcPlayerSwitchDemoTest {
 
-    @get:Rule val rule = createComposeRule()
-
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
 
     @Test
     fun switchWidgetDemo() {
         rule.mainClock.autoAdvance = false
-        rule.setContent {
-            val widthPx = with(LocalDensity.current) { 360.dp.toPx() }
-            val heightPx = with(LocalDensity.current) { 240.dp.toPx() }
-            val document =
-                rememberRemoteDocument(
-                    createCreationDisplayInfo(width = widthPx.toInt(), height = heightPx.toInt())
-                ) {
-                    SwitchWidgetDemo()
-                }
-
-            Box(modifier = ComposeModifier.size(360.dp, 240.dp)) {
-                document.value?.let { RcPlayer(document = it) }
-            }
+        val widthPx = with(rule.density) { 360.dp.toPx() }
+        val heightPx = with(rule.density) { 240.dp.toPx() }
+        rule.setRemoteContent(
+            remoteCreationDisplayInfo =
+                createCreationDisplayInfo(
+                    context = ApplicationProvider.getApplicationContext(),
+                    size = Size(widthPx, heightPx),
+                )
+        ) {
+            SwitchWidgetDemo()
         }
 
         rule.mainClock.advanceTimeBy(100)
@@ -113,19 +104,16 @@ class RcPlayerSwitchDemoTest {
     @Test
     fun switchWidgetDemo_toggledStateC() {
         rule.mainClock.autoAdvance = false
-        rule.setContent {
-            val widthPx = with(LocalDensity.current) { 360.dp.toPx() }
-            val heightPx = with(LocalDensity.current) { 240.dp.toPx() }
-            val document =
-                rememberRemoteDocument(
-                    createCreationDisplayInfo(width = widthPx.toInt(), height = heightPx.toInt())
-                ) {
-                    SwitchWidgetDemo()
-                }
-
-            Box(modifier = ComposeModifier.size(360.dp, 240.dp)) {
-                document.value?.let { RcPlayer(document = it) }
-            }
+        val widthPx = with(rule.density) { 360.dp.toPx() }
+        val heightPx = with(rule.density) { 240.dp.toPx() }
+        rule.setRemoteContent(
+            remoteCreationDisplayInfo =
+                createCreationDisplayInfo(
+                    context = ApplicationProvider.getApplicationContext(),
+                    size = Size(widthPx, heightPx),
+                )
+        ) {
+            SwitchWidgetDemo()
         }
         rule.mainClock.advanceTimeBy(100)
 

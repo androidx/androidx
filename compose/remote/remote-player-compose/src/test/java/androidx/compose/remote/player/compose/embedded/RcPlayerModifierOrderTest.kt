@@ -25,7 +25,6 @@ import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectM
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -39,9 +38,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerModifierOrderTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     private lateinit var remoteContext: AndroidRemoteContext
 

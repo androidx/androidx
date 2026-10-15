@@ -94,17 +94,14 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
                         Size(100f * density, 100f * density)
                     },
             ),
+        modifier: Modifier =
+            Modifier.size(
+                remoteCreationDisplayInfo.widthDp,
+                remoteCreationDisplayInfo.heightDp,
+            ),
         playComposableWrapper: @Composable (composable: @Composable () -> Unit) -> Unit =
             { content ->
-                Box(
-                    modifier =
-                        Modifier.size(
-                            remoteCreationDisplayInfo.widthDp,
-                            remoteCreationDisplayInfo.heightDp,
-                        )
-                ) {
-                    content()
-                }
+                Box(modifier = modifier) { content() }
             },
         content: @Composable @RemoteComposable () -> Unit,
     ): CoreDocument {
