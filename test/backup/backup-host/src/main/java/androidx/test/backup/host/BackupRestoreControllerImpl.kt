@@ -371,6 +371,7 @@ internal class BackupRestoreControllerImpl(
             localTransport.restore(backupFile, localBackup, timeout.toKotlinDuration())
             return
         }
+        requireGmsRestoreSupport()
         // Moves any foreground activity to the background so the restore agent can bind.
         shell.pressHome()
         val restoreStart = deviceTimeOrNull()
@@ -406,6 +407,41 @@ internal class BackupRestoreControllerImpl(
             logger.warning("Failed to read the device clock: ${e.message}")
             null
         }
+
+    /**
+     * Throws if Google Play services on the device is too old to restore cloud and device-to-device
+     * backups: on Android 16 QPR2 (API level 36.1) and higher, versions lower than 26.33.30 take
+     * them for cross-platform restores, so the restore fails. A device without Google Play services
+     * is left to the backup service, which reports it.
+     */
+    private suspend fun requireGmsRestoreSupport() {
+        // Reads the minor API level as Build.VERSION.SDK_INT_FULL does.
+        val isApi36Point1OrHigher =
+            apiLevel > 36 ||
+                (apiLevel == 36 &&
+                    (shell.getProperty("ro.build.version.sdk_minor")?.toIntOrNull() ?: 0) > 0)
+        if (!isApi36Point1OrHigher) return
+        val versionCode = shell.packageVersionCode("com.google.android.gms") ?: return
+        if (versionCode >= MIN_GMS_VERSION_CODE_API_36_1) return
+        // The version code is the version name, such as 26.33.30 for 263330038, and three digits.
+        val version = versionCode / 1000
+        val versionName =
+            String.format(
+                Locale.ROOT,
+                "%d.%02d.%02d",
+                version / 10000,
+                version / 100 % 100,
+                version % 100,
+            )
+        throw BackupRestoreException(
+            BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING,
+            "Can't restore the backup on $serialNumber: Google Play services $versionName is too " +
+                "old. On Android 16 QPR2 (API level 36.1) and higher, restoring cloud and " +
+                "device-to-device backups requires Google Play services 26.33.30 or higher. " +
+                "Update Google Play services through the Play Store on the device, or use a " +
+                "system image that comes with a newer version",
+        )
+    }
 
     /**
      * Throws if Google Play services logged since [start] that it skipped the restore of the app.
@@ -663,6 +699,12 @@ internal class BackupRestoreControllerImpl(
          * backup transport emulation service library.
          */
         const val MIN_GMS_VERSION = 240913000
+
+        /**
+         * The lowest version code of Google Play services, 26.33.30, that restores cloud and
+         * device-to-device backups on Android 16 QPR2 (API level 36.1) and higher.
+         */
+        const val MIN_GMS_VERSION_CODE_API_36_1 = 263330000L
 
         fun createBackupService(adbSession: AdbSession): Service =
             Service.getInstance(

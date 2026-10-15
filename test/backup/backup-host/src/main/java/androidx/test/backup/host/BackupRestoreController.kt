@@ -151,8 +151,9 @@ public interface BackupRestoreController : AutoCloseable {
      * @param timeout maximum duration to wait for the restore to complete. When it expires, the app
      *   is force-stopped and the restore fails with an [IOException]. Must be positive.
      * @return this controller instance
-     * @throws IOException if the restore operation fails or restores no app data, or [backupFile]
-     *   is a [BackupTransportMode.LOCAL] archive of another app or of another device
+     * @throws IOException if the restore operation fails or restores no app data, if Google Play
+     *   services on the device is too old to restore [backupFile], or if [backupFile] is a
+     *   [BackupTransportMode.LOCAL] archive of another app or of another device
      * @throws IllegalArgumentException if [timeout] is not positive
      */
     @Throws(IOException::class)

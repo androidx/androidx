@@ -371,6 +371,48 @@ class BackupDeviceShellTest {
         assertEquals(emptyList(), shell.listPackagePaths("com.example.app"))
     }
 
+    /** The package manager lists every package whose name contains the one asked for. */
+    @Test
+    fun packageVersionCodeReturnsTheVersionCodeOfTheExactPackage() = runBlocking {
+        device.onShell {
+            shellOutput(
+                "package:com.google.android.gms.supervision versionCode:106632\n" +
+                    "package:com.google.android.gms versionCode:263933038\n"
+            )
+        }
+
+        assertEquals(263933038L, shell.packageVersionCode("com.google.android.gms"))
+        assertEquals(
+            listOf("pm list packages --show-versioncode com.google.android.gms"),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun packageVersionCodeReturnsNullWhenThePackageIsNotInstalled() = runBlocking {
+        device.onShell {
+            shellOutput("package:com.google.android.gms.supervision versionCode:106632\n")
+        }
+
+        assertNull(shell.packageVersionCode("com.google.android.gms"))
+    }
+
+    @Test
+    fun getPropertyReturnsTheValueOfTheProperty() = runBlocking {
+        device.onShell { shellOutput("1\n") }
+
+        assertEquals("1", shell.getProperty("ro.build.version.sdk_minor"))
+        assertEquals(listOf("getprop ro.build.version.sdk_minor"), device.commands)
+    }
+
+    /** `getprop` prints an empty line for a property that is not set. */
+    @Test
+    fun getPropertyReturnsNullForAPropertyThatIsNotSet() = runBlocking {
+        device.onShell { shellOutput("\n") }
+
+        assertNull(shell.getProperty("ro.build.version.sdk_minor"))
+    }
+
     @Test
     fun unstopPackageStartsTheLauncherActivityThenGoesHome() = runBlocking {
         device.onShell { command ->
