@@ -41,7 +41,7 @@ per-file *libraryversions.toml = zakcohen@google.com
 # Android BTS (Build Test Suite)
 per-file *libraryversions.toml = joeyong@google.com
 # AppSearch
-per-file *libraryversions.toml = adorokhine@google.com, tjbarron@google.com, xyj@google.com
+per-file *libraryversions.toml =tjbarron@google.com, xyj@google.com
 # AppFunctions
 per-file *libraryversions.toml = tonymak@google.com, shikhamalhotra@google.com, utkarshnigam@google.com, mingweiliao@google.com
 # XR *
