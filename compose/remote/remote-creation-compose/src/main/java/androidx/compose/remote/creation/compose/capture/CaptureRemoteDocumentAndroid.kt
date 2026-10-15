@@ -136,7 +136,6 @@ public suspend fun captureSingleRemoteDocument(
     retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ): CapturedDocument {
-    val configuration = context.resources.configuration
     val document =
         captureSingleRemoteDocument(
             creationDisplayInfo = creationDisplayInfo,
@@ -148,15 +147,8 @@ public suspend fun captureSingleRemoteDocument(
             platformImageProvider = AndroidPlatformImageProvider,
             savedState = savedState,
             retainedValuesStore = retainedValuesStore,
-        ) {
-            CompositionLocalProvider(
-                LocalContext provides context,
-                LocalConfiguration provides configuration,
-                LocalFontWeightAdjustment provides platformFontWeightAdjustment(configuration),
-                LocalIs24HourFormat provides DateFormat.is24HourFormat(context),
-                content = content,
-            )
-        }
+            content = withAndroidLocals(context, content),
+        )
     return CapturedDocument(document, writerEvents.pendingIntents, writerEvents.lambdas)
 }
 
@@ -250,15 +242,13 @@ public fun captureRemoteDocument(
     savedState: SavedState? = null,
     retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
-): Flow<ByteArray> {
-    val configuration = context.resources.configuration
-    val resolvedLayoutDirection =
-        layoutDirection ?: toLayoutDirection(configuration.layoutDirection)
-    return captureRemoteDocument(
+): Flow<ByteArray> =
+    captureRemoteDocument(
         creationDisplayInfo = creationDisplayInfo,
         updateThrottle = updateThrottle,
         remoteDensity = remoteDensity,
-        layoutDirection = resolvedLayoutDirection,
+        layoutDirection =
+            layoutDirection ?: toLayoutDirection(context.resources.configuration.layoutDirection),
         clock = clock,
         profile = profile,
         writerCallback = writerEvents,
@@ -266,7 +256,20 @@ public fun captureRemoteDocument(
         coroutineContext = coroutineContext,
         savedState = savedState,
         retainedValuesStore = retainedValuesStore,
-    ) {
+        content = withAndroidLocals(context, content),
+    )
+
+/**
+ * Wraps [content] so that the Android-specific CompositionLocals a capture needs ([LocalContext],
+ * [LocalConfiguration], [LocalFontWeightAdjustment] and [LocalIs24HourFormat]) are provided from
+ * [context].
+ */
+private fun withAndroidLocals(
+    context: Context,
+    content: @Composable @RemoteComposable () -> Unit,
+): @Composable @RemoteComposable () -> Unit {
+    val configuration = context.resources.configuration
+    return {
         CompositionLocalProvider(
             LocalContext provides context,
             LocalConfiguration provides configuration,
