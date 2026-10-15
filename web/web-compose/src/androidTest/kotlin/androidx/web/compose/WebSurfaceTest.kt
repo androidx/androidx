@@ -17,6 +17,7 @@
 package androidx.web.compose
 
 import android.graphics.Color
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -40,6 +41,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThrows
@@ -241,6 +243,36 @@ class WebSurfaceTest {
 
         composeTestRule.waitUntil(TIMEOUT_MS) {
             bridge.evaluateJs("document.getElementById('input').value") == "\"hello\""
+        }
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun testAnchorViewsInBridgeAreLaidOut() {
+        lateinit var bridge: WebViewBridge
+        composeTestRule.setContent {
+            WebSurface(
+                content = webContent,
+                modifier = Modifier.size(150.dp),
+                bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+            )
+        }
+        bridge.loadHtml("<html><body></body></html>")
+
+        // Chromium positions <datalist> and tablet <select> popups by anchoring a native
+        // PopupWindow to a child View added to the WebView with AbsoluteLayout.LayoutParams.
+        // We mimic that child View insertion directly instead of testing <datalist>/<select>
+        // end-to-end in HTML because the resulting PopupWindow is a separate Android window whose
+        // bounds aren't observable from the DOM or Compose (and <select> uses a dialog on phones).
+        val anchor = View(bridge.context)
+        composeTestRule.runOnIdle {
+            bridge.addView(anchor, android.widget.AbsoluteLayout.LayoutParams(50, 40, 10, 20))
+        }
+
+        composeTestRule.waitUntil(TIMEOUT_MS) { anchor.width == 50 && anchor.height == 40 }
+        composeTestRule.runOnIdle {
+            assertEquals(10, anchor.left)
+            assertEquals(20, anchor.top)
         }
     }
 
