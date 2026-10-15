@@ -23,16 +23,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.util.SizeF
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
-import androidx.collection.MutableIntObjectMap
-import androidx.collection.mutableIntObjectMapOf
-import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -128,8 +122,7 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         appWidgetIds: IntArray,
     ) {
         for (id in appWidgetIds) {
-            val isCached = synchronized(lock) { lastOptionsCache.containsKey(id) }
-            if (!isCached) {
+            if (!WidgetOptionsCache.contains(id)) {
                 val rawOptions = appWidgetManager.getAppWidgetOptions(id)
                 val options =
                     ensureWidgetIdIsPresent(
@@ -138,7 +131,7 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
                         rawOptions ?: Bundle(),
                         checkManagerIfMissing = false,
                     )
-                cacheWidgetOptionsIfMissing(id, options)
+                WidgetOptionsCache.cacheWidgetOptionsIfMissing(id, options)
             }
         }
     }
@@ -157,14 +150,13 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
             return options
         }
         val widgetId =
-            synchronized(lock) { lastOptionsCache[appWidgetId]?.widgetId }
-                ?.takeUnless { it.isBlank() }
+            WidgetOptionsCache.getCachedWidgetId(appWidgetId)
                 ?: appWidgetManager
                     .takeIf { checkManagerIfMissing }
                     ?.getAppWidgetOptions(appWidgetId)
                     ?.getString(EXTRA_WIDGET_ID)
                     ?.takeUnless { it.isBlank() }
-                ?: generateWidgetId()
+                ?: WidgetOptionsCache.generateWidgetId()
         return Bundle(options)
             .apply { putString(EXTRA_WIDGET_ID, widgetId) }
             .also { appWidgetManager.updateAppWidgetOptions(appWidgetId, it) }
@@ -181,12 +173,7 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
             super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
             val options = ensureWidgetIdIsPresent(appWidgetManager, appWidgetId, newOptions)
             val newState = WidgetOptionsState.from(options)
-            val oldState =
-                synchronized(lock) {
-                    val prev = lastOptionsCache[appWidgetId]
-                    lastOptionsCache[appWidgetId] = newState
-                    prev
-                }
+            val oldState = WidgetOptionsCache.put(appWidgetId, newState)
             if (oldState != newState) {
                 onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
             }
@@ -204,11 +191,7 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         runAndLogExceptions {
             super.onDeleted(context, appWidgetIds)
-            synchronized(lock) {
-                for (id in appWidgetIds) {
-                    lastOptionsCache.remove(id)
-                }
-            }
+            WidgetOptionsCache.remove(appWidgetIds)
         }
     }
 
@@ -216,19 +199,7 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
     override fun onRestored(context: Context, oldWidgetIds: IntArray, newWidgetIds: IntArray) {
         runAndLogExceptions {
             super.onRestored(context, oldWidgetIds, newWidgetIds)
-            val count = minOf(oldWidgetIds.size, newWidgetIds.size)
-            synchronized(lock) {
-                val states = arrayOfNulls<WidgetOptionsState>(count)
-                for (i in 0 until count) {
-                    states[i] = lastOptionsCache.remove(oldWidgetIds[i])
-                }
-                for (i in 0 until count) {
-                    val cachedState = states[i]
-                    if (cachedState != null) {
-                        lastOptionsCache[newWidgetIds[i]] = cachedState
-                    }
-                }
-            }
+            WidgetOptionsCache.restore(oldWidgetIds, newWidgetIds)
         }
     }
 
@@ -260,49 +231,6 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
     }
 
     public companion object {
-        private val lock = Any()
-        private val lastOptionsCache: MutableIntObjectMap<WidgetOptionsState> =
-            mutableIntObjectMapOf()
-
-        @VisibleForTesting
-        internal fun clearOptionsCache() {
-            synchronized(lock) { lastOptionsCache.clear() }
-        }
-
-        // Generates a unique default string identifier for a widget instance when one is not
-        // explicitly provided or already configured.
-        internal fun generateWidgetId(): String = UUID.randomUUID().toString()
-
-        internal fun cacheWidgetOptionsIfMissing(appWidgetId: Int, options: Bundle): String {
-            // lastOptionsCache is a primitive-keyed MutableIntObjectMap (avoiding Int boxing)
-            // guarded by `lock`. Check presence under a brief lock, then parse the Bundle
-            // outside the lock so parcel unmarshalling and sorting do not hold the monitor.
-            val existingWidgetId =
-                synchronized(lock) { lastOptionsCache[appWidgetId]?.widgetId }
-                    ?.takeUnless { it.isBlank() }
-            if (existingWidgetId != null) {
-                return existingWidgetId
-            }
-            val parsed = WidgetOptionsState.from(options)
-            val resolvedWidgetId =
-                parsed.widgetId?.takeUnless { it.isBlank() } ?: generateWidgetId()
-            val state =
-                if (parsed.widgetId == resolvedWidgetId) {
-                    parsed
-                } else {
-                    parsed.copy(widgetId = resolvedWidgetId)
-                }
-            return synchronized(lock) {
-                val cached = lastOptionsCache[appWidgetId]
-                if (cached != null && !cached.widgetId.isNullOrBlank()) {
-                    cached.widgetId
-                } else {
-                    lastOptionsCache[appWidgetId] = state
-                    resolvedWidgetId
-                }
-            }
-        }
-
         /**
          * Broadcast action to force a debug update of the Glance Adaptive widget via adb: `adb
          * shell am broadcast -a androidx.glance.adaptive.action.DEBUG_UPDATE -n APP/COMPONENT`
@@ -360,52 +288,4 @@ private inline fun runAndLogExceptions(block: () -> Unit) {
     } catch (ex: Exception) {
         Log.e(TAG, "Error in Glance Adaptive Widget Receiver", ex)
     }
-}
-
-private data class WidgetOptionsState(
-    val widgetId: String?,
-    val minWidth: Int?,
-    val minHeight: Int?,
-    val maxWidth: Int?,
-    val maxHeight: Int?,
-    val sizes: List<SizeF>?,
-) {
-    companion object {
-        fun from(options: Bundle): WidgetOptionsState {
-            fun getIntOrNull(key: String): Int? =
-                if (options.containsKey(key)) options.getInt(key) else null
-
-            return WidgetOptionsState(
-                widgetId = options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID),
-                minWidth = getIntOrNull(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH),
-                minHeight = getIntOrNull(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT),
-                maxWidth = getIntOrNull(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH),
-                maxHeight = getIntOrNull(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT),
-                sizes = getWidgetSizes(options),
-            )
-        }
-    }
-}
-
-private fun getWidgetSizes(options: Bundle): List<SizeF>? {
-    val rawSizes =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            options.getParcelableArrayList(
-                AppWidgetManager.OPTION_APPWIDGET_SIZES,
-                SizeF::class.java,
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            options.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
-        } ?: return null
-
-    // Copy to a new ArrayList to avoid mutating the Bundle's internal list in-place.
-    // Note: ArrayList(Collection) + MutableList.sortWith is used instead of Iterable.sortedWith
-    // to avoid iterator allocations flagged by AndroidX's ListIterator lint check.
-    val sortedSizes = ArrayList(rawSizes)
-    sortedSizes.sortWith { a, b ->
-        val widthCompare = a.width.compareTo(b.width)
-        if (widthCompare != 0) widthCompare else a.height.compareTo(b.height)
-    }
-    return sortedSizes
 }

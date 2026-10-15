@@ -52,7 +52,7 @@ class GlanceAdaptiveWidgetReceiverTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         context.applicationInfo.flags =
             context.applicationInfo.flags or ApplicationInfo.FLAG_DEBUGGABLE
-        GlanceAdaptiveWidgetReceiver.clearOptionsCache()
+        WidgetOptionsCache.clear()
     }
 
     private class TestReceiver : GlanceAdaptiveWidgetReceiver() {
@@ -261,7 +261,7 @@ class GlanceAdaptiveWidgetReceiverTest {
             )
 
             // Ensure cache is cold (empty)
-            GlanceAdaptiveWidgetReceiver.clearOptionsCache()
+            WidgetOptionsCache.clear()
 
             // Host sends options changed (e.g. resize) on cold start without EXTRA_WIDGET_ID
             val resizeOptions =

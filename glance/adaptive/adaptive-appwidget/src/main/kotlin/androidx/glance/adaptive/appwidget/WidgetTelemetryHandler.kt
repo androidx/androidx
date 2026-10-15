@@ -96,8 +96,7 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
         // Pre-populate the receiver's options cache before calling updateAppWidgetOptions so that
         // the system's resulting ACTION_APPWIDGET_OPTIONS_CHANGED broadcast does not mistake a
         // cold cache for a dimension change and trigger a recursive onUpdate.
-        val widgetId =
-            GlanceAdaptiveWidgetReceiver.cacheWidgetOptionsIfMissing(appWidgetId, options)
+        val widgetId = WidgetOptionsCache.cacheWidgetOptionsIfMissing(appWidgetId, options)
 
         // Create a delta bundle containing only the telemetry keys (and EXTRA_WIDGET_ID if not yet
         // persisted). Since AppWidgetManager.updateAppWidgetOptions merges via Bundle.putAll(),
