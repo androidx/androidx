@@ -368,7 +368,7 @@ public expect sealed class ScatterMap<K, V> {
     ): String
 
     /**
-     * Returns the hash code value for this map. The hash code the sum of the hash codes of each
+     * Returns the hash code value for this map. The hash code is the sum of the hash codes of each
      * key/value pair.
      */
     public override fun hashCode(): Int
@@ -570,7 +570,7 @@ public expect class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatte
      * Trims this [MutableScatterMap]'s storage so it is sized appropriately to hold the current
      * mappings.
      *
-     * Returns the number of empty entries removed from this map's storage. Returns be 0 if no
+     * Returns the number of empty entries removed from this map's storage. Returns 0 if no
      * trimming is necessary or possible.
      */
     public fun trim(): Int
@@ -579,7 +579,7 @@ public expect class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatte
      * Wraps this [ScatterMap] with a [MutableMap] interface. The [MutableMap] is backed by the
      * [ScatterMap], so changes to the [ScatterMap] are reflected in the [MutableMap] and
      * vice-versa. If the [ScatterMap] is modified while an iteration over the [MutableMap] is in
-     * progress (and vice- versa), the results of the iteration are undefined.
+     * progress (and vice versa), the results of the iteration are undefined.
      *
      * **Note**: while this method is useful to use this [MutableScatterMap] with APIs accepting
      * [MutableMap] interfaces, it is less efficient to do so than to use [MutableScatterMap]'s APIs
