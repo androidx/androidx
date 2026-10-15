@@ -25,6 +25,7 @@ import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
 import androidx.annotation.MainThread
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.collection.intSetOf
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
@@ -221,7 +222,7 @@ internal constructor(
             }
         }
 
-        if (isAtLeastC()) {
+        if (Build.VERSION.SDK_INT >= 37) {
             try {
                 pushUpdate(context, instanceId)
                 return
@@ -264,7 +265,7 @@ internal constructor(
      * @throws [WearWidgetCache.WidgetCacheMissException] if any required cache entry cannot be
      *   found.
      */
-    // TODO: b/446828899 - Add RequiresApi(37) annotation.
+    @RequiresApi(37)
     private suspend fun pushUpdate(context: Context, instanceId: WidgetInstanceId) {
         val creationUptimeMillis = SystemClock.uptimeMillis()
         val cache = widgetCache ?: WearWidgetCache(context)
@@ -357,18 +358,5 @@ internal constructor(
                 Build.HARDWARE.contains("ranchu") ||
                 Build.HARDWARE.contains("cutf_cvm") ||
                 Build.HARDWARE.contains("starfish")
-
-        /**
-         * Robolectric does not support SDK 37 version, so we need to force the SDK version to 37 to
-         * test the logic that checks for 37 features.
-         */
-        // TODO: b/446828899 - Remove once we have 37 in robolectric.
-        @VisibleForTesting internal var forceIsAtLeast37ForTesting: Boolean? = null
-
-        internal fun isAtLeastC(): Boolean =
-            forceIsAtLeast37ForTesting
-                ?: (Build.VERSION.SDK_INT >= 37 ||
-                    (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&
-                        Build.VERSION.CODENAME.startsWith("C", ignoreCase = true)))
     }
 }
