@@ -381,9 +381,10 @@ class ProcessingNodeTest {
         processingNodeIn.edge.accept(input)
         shadowOf(getMainLooper()).idle()
 
-        // Assert: receives a process failure.
+        // Assert: receives a process failure and closes the input ImageProxy.
         assertThat(takePictureCallback.processFailure)
             .isInstanceOf(ImageCaptureException::class.java)
+        assertThat(image.isClosed).isTrue()
     }
 
     @Test
