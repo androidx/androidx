@@ -54,7 +54,6 @@ import androidx.compose.remote.creation.compose.layout.drawTweenPath
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.BaseRemoteState
-import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -925,18 +924,7 @@ public open class RecordingCanvas(
      * @param body Code that generates draw calls to run in a loop.
      */
     public fun loop(from: Int, until: RemoteInt, body: (index: RemoteInt) -> Unit) {
-        val loopVariable = MutableRemoteFloat()
-        val childSpan = recordInChildSpan { body(loopVariable.toRemoteInt()) }
-
-        val op =
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    writer.loop(loopVariable.id, from.toFloat(), 1f, until.floatId) {
-                        childSpan.record(writer, creationState)
-                    }
-                }
-            )
-        buffer.addRoots(op, until)
+        remoteCanvas.loop(from, until, body)
     }
 
     /**

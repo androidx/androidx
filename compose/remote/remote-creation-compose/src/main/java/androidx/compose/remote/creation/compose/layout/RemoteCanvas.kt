@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -831,6 +832,31 @@ public class RemoteCanvas(
                 }
             )
         buffer.addRoots(op, from, until, step)
+    }
+
+    /**
+     * Executes [body] commands in a loop, with the index in the range [from .. until).
+     *
+     * Note there is a maximum number of operations that will be executed, which may be less than
+     * the total number of iterations needed to fully realize this loop.
+     *
+     * @param from The initial value of index.
+     * @param until The loop will be executed until the index is >= this value.
+     * @param body Code that generates draw calls to run in a loop.
+     */
+    public fun loop(from: Int, until: RemoteInt, body: (index: RemoteInt) -> Unit) {
+        val loopVariable = MutableRemoteFloat()
+        val childSpan = buffer.recordInChildSpan { body(loopVariable.toRemoteInt()) }
+
+        val op =
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.loop(loopVariable.id, from.toFloat(), 1f, until.floatId) {
+                        childSpan.record(writer, creationState)
+                    }
+                }
+            )
+        buffer.addRoots(op, until)
     }
 
     /** Starts a state layout. */
