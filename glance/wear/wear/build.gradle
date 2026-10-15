@@ -30,7 +30,7 @@ plugins {
 }
 
 dependencies {
-    def composeVersion = "1.10.1"
+    def composeVersion = "1.12.0"
     def datastoreVersion = "1.2.0"
 
     api(libs.kotlinCoroutinesAndroid)
