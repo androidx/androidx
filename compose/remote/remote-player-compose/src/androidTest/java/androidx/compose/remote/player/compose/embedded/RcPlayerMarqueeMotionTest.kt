@@ -18,7 +18,7 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import android.content.Context
+import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -29,20 +29,16 @@ import androidx.compose.remote.creation.compose.modifier.basicMarquee
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -59,41 +55,27 @@ import org.junit.runner.RunWith
 @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
 class RcPlayerMarqueeMotionTest {
 
-    @get:Rule val rule = createComposeRule()
-
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val captureRule = RemoteCaptureTestRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @Test
     fun marqueeContentScrollsOverTime() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val document = runBlocking {
-            captureRule.captureDocument(
-                context = context,
-                content = {
-                    RemoteBox(modifier = RemoteModifier.size(60.rdp, 20.rdp).basicMarquee()) {
-                        RemoteRow {
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(60.rdp, 20.rdp)
-                                        .background(Color(0xFFCC0000).rc)
-                            )
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(60.rdp, 20.rdp)
-                                        .background(Color(0xFF0000CC).rc)
-                            )
-                        }
-                    }
-                },
-            )
-        }
-
         rule.mainClock.autoAdvance = false
-        rule.setContent {
-            Box(modifier = Modifier.size(80.dp).testTag("marquee")) {
-                RcPlayer(document = document)
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(80.dp).testTag("marquee")) { it() }
+            }
+        ) {
+            RemoteBox(modifier = RemoteModifier.size(60.rdp, 20.rdp).basicMarquee()) {
+                RemoteRow {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(60.rdp, 20.rdp).background(Color(0xFFCC0000).rc)
+                    )
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(60.rdp, 20.rdp).background(Color(0xFF0000CC).rc)
+                    )
+                }
             }
         }
         rule.mainClock.advanceTimeByFrame()
@@ -107,7 +89,7 @@ class RcPlayerMarqueeMotionTest {
         val before = band()
         assertTrue(
             "The red half must be visible before scrolling",
-            before.count { android.graphics.Color.red(it) > 150 } > 0,
+            before.count { AndroidColor.red(it) > 150 } > 0,
         )
         // 2s at the authored 20dp/s scrolls the blue half into the 60dp container.
         rule.mainClock.advanceTimeBy(2000)

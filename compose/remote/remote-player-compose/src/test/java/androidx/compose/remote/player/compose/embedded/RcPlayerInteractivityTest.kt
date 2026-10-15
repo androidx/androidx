@@ -189,79 +189,53 @@ class RcPlayerInteractivityTest {
 
     @Test
     fun testButtonClickTogglesVisibility() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-
-            // A clickable button that flips a state to GONE, and a target box (carrying an explicit
-            // semantics contentDescription so it is query-able) whose visibility is driven by that
-            // state. This verifies the full embedded click path end to end:
-            // performClick -> ClickModifier -> ValueChange -> visibility modifier -> re-render.
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            // RemoteCompose visibility constants are GONE=0, VISIBLE=1 (not the
-                            // Android View 0/4/8 values).
-                            val visibilityState = remember {
-                                MutableRemoteInt(Component.Visibility.VISIBLE)
-                            }
-
-                            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
-                                // Clickable "button": sets the target's visibility to GONE (8).
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(100.rdp, 40.rdp)
-                                            .background(Color(0xFF3F51B5).rc)
-                                            .clickable(
-                                                action =
-                                                    valueChange(
-                                                        visibilityState,
-                                                        Component.Visibility.GONE.ri,
-                                                    )
-                                            )
-                                )
-
-                                // Target: visible initially, hidden after the click.
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.semantics {
-                                                contentDescription = "target".rs
-                                            }
-                                            .visibility(visibilityState)
-                                            .size(100.rdp, 40.rdp)
-                                            .background(Color(0xFFFFC107).rc)
-                                )
-                            }
-                        },
-                    )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) {
-                    RcPlayer(document = document)
-                }
+        // A clickable button that flips a state to GONE, and a target box (carrying an explicit
+        // semantics contentDescription so it is query-able) whose visibility is driven by that
+        // state. This verifies the full embedded click path end to end:
+        // performClick -> ClickModifier -> ValueChange -> visibility modifier -> re-render.
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) { it() }
             }
+        ) {
+            // RemoteCompose visibility constants are GONE=0, VISIBLE=1 (not the
+            // Android View 0/4/8 values).
+            val visibilityState = remember { MutableRemoteInt(Component.Visibility.VISIBLE) }
 
-            rule.waitForIdle()
+            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
+                // Clickable "button": sets the target's visibility to GONE (8).
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp, 40.rdp)
+                            .background(Color(0xFF3F51B5).rc)
+                            .clickable(
+                                action = valueChange(visibilityState, Component.Visibility.GONE.ri)
+                            )
+                )
 
-            // Before: the target component is present.
-            rule.onNodeWithContentDescription("target").assertExists()
-
-            // Click the single clickable node (no reliance on text semantics).
-            rule.onNode(hasClickAction()).performClick()
-            rule.waitForIdle() // allow ValueChange + recomposition
-
-            // After: the click drove the state to GONE; the embedded player stops composing the
-            // component, so its node is gone — proving the click -> ValueChange -> visibility path.
-            rule.onNodeWithContentDescription("target").assertDoesNotExist()
+                // Target: visible initially, hidden after the click.
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.semantics { contentDescription = "target".rs }
+                            .visibility(visibilityState)
+                            .size(100.rdp, 40.rdp)
+                            .background(Color(0xFFFFC107).rc)
+                )
+            }
         }
+
+        rule.waitForIdle()
+
+        // Before: the target component is present.
+        rule.onNodeWithContentDescription("target").assertExists()
+
+        // Click the single clickable node (no reliance on text semantics).
+        rule.onNode(hasClickAction()).performClick()
+        rule.waitForIdle() // allow ValueChange + recomposition
+
+        // After: the click drove the state to GONE; the embedded player stops composing the
+        // component, so its node is gone — proving the click -> ValueChange -> visibility path.
+        rule.onNodeWithContentDescription("target").assertDoesNotExist()
     }
 
     // Like the visibility test above, but the target's visibility is driven by an *integer
@@ -273,70 +247,44 @@ class RcPlayerInteractivityTest {
     // evaluated only once at setup and would never have updated.
     @Test
     fun integerExpressionDrivesVisibilityReactively() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            val visibilityState = remember {
-                                MutableRemoteInt(Component.Visibility.VISIBLE)
-                            }
-                            // One operand is a (non-constant) variable, so this authors an
-                            // IntegerExpression rather than folding to a constant.
-                            val visibilityExpr = visibilityState * 1.ri
-
-                            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(100.rdp, 40.rdp)
-                                            .background(Color(0xFF3F51B5).rc)
-                                            .clickable(
-                                                action =
-                                                    valueChange(
-                                                        visibilityState,
-                                                        Component.Visibility.GONE.ri,
-                                                    )
-                                            )
-                                )
-
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.semantics {
-                                                contentDescription = "exprTarget".rs
-                                            }
-                                            .visibility(visibilityExpr)
-                                            .size(100.rdp, 40.rdp)
-                                            .background(Color(0xFFFFC107).rc)
-                                )
-                            }
-                        },
-                    )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) {
-                    RcPlayer(document = document)
-                }
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) { it() }
             }
+        ) {
+            val visibilityState = remember { MutableRemoteInt(Component.Visibility.VISIBLE) }
+            // One operand is a (non-constant) variable, so this authors an
+            // IntegerExpression rather than folding to a constant.
+            val visibilityExpr = visibilityState * 1.ri
 
-            rule.waitForIdle()
-            rule.onNodeWithContentDescription("exprTarget").assertExists()
+            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp, 40.rdp)
+                            .background(Color(0xFF3F51B5).rc)
+                            .clickable(
+                                action = valueChange(visibilityState, Component.Visibility.GONE.ri)
+                            )
+                )
 
-            rule.onNode(hasClickAction()).performClick()
-            rule.waitForIdle()
-
-            // The expression recomputed to 0 (GONE) reactively, so the target stops composing.
-            rule.onNodeWithContentDescription("exprTarget").assertDoesNotExist()
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.semantics { contentDescription = "exprTarget".rs }
+                            .visibility(visibilityExpr)
+                            .size(100.rdp, 40.rdp)
+                            .background(Color(0xFFFFC107).rc)
+                )
+            }
         }
+
+        rule.waitForIdle()
+        rule.onNodeWithContentDescription("exprTarget").assertExists()
+
+        rule.onNode(hasClickAction()).performClick()
+        rule.waitForIdle()
+
+        // The expression recomputed to 0 (GONE) reactively, so the target stops composing.
+        rule.onNodeWithContentDescription("exprTarget").assertDoesNotExist()
     }
 
     // A *derived value* (here derived text — `n.toRemoteString()`, a TextFromFloat op) must update
@@ -349,50 +297,32 @@ class RcPlayerInteractivityTest {
     // computed once at setup and never updated.
     @Test
     fun derivedTextUpdatesReactively() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            val n = remember { MutableRemoteInt(0) }
-                            val label = n.toRemoteString()
-                            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(100.rdp, 40.rdp)
-                                            .background(Color(0xFF3F51B5).rc)
-                                            .clickable(action = valueChange(n, 7.ri))
-                                )
-                                RemoteText(label)
-                            }
-                        },
-                    )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) {
-                    RcPlayer(document = document)
-                }
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) { it() }
             }
-
-            rule.waitForIdle()
-            rule.onNodeWithText("0").assertExists()
-
-            rule.onNode(hasClickAction()).performClick()
-            rule.waitForIdle()
-
-            rule.onNodeWithText("7").assertExists()
-            rule.onNodeWithText("0").assertDoesNotExist()
+        ) {
+            val n = remember { MutableRemoteInt(0) }
+            val label = n.toRemoteString()
+            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp, 40.rdp)
+                            .background(Color(0xFF3F51B5).rc)
+                            .clickable(action = valueChange(n, 7.ri))
+                )
+                RemoteText(label)
+            }
         }
+
+        rule.waitForIdle()
+        rule.onNodeWithText("0").assertExists()
+
+        rule.onNode(hasClickAction()).performClick()
+        rule.waitForIdle()
+
+        rule.onNodeWithText("7").assertExists()
+        rule.onNodeWithText("0").assertDoesNotExist()
     }
 
     // A *chained* derivation: text <- (n * 2) <- n. The displayed text depends on an integer
@@ -402,50 +332,32 @@ class RcPlayerInteractivityTest {
     // the intermediate directly.
     @Test
     fun chainedDerivedValueUpdatesReactively() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            val n = remember { MutableRemoteInt(0) }
-                            val doubled = n * 2.ri // intermediate IntegerExpression, not displayed
-                            val label = doubled.toRemoteString()
-                            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(100.rdp, 40.rdp)
-                                            .background(Color(0xFF3F51B5).rc)
-                                            .clickable(action = valueChange(n, 3.ri))
-                                )
-                                RemoteText(label)
-                            }
-                        },
-                    )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) {
-                    RcPlayer(document = document)
-                }
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) { it() }
             }
-
-            rule.waitForIdle()
-            rule.onNodeWithText("0").assertExists()
-
-            rule.onNode(hasClickAction()).performClick()
-            rule.waitForIdle()
-
-            rule.onNodeWithText("6").assertExists()
+        ) {
+            val n = remember { MutableRemoteInt(0) }
+            val doubled = n * 2.ri // intermediate IntegerExpression, not displayed
+            val label = doubled.toRemoteString()
+            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp, 40.rdp)
+                            .background(Color(0xFF3F51B5).rc)
+                            .clickable(action = valueChange(n, 3.ri))
+                )
+                RemoteText(label)
+            }
         }
+
+        rule.waitForIdle()
+        rule.onNodeWithText("0").assertExists()
+
+        rule.onNode(hasClickAction()).performClick()
+        rule.waitForIdle()
+
+        rule.onNodeWithText("6").assertExists()
     }
 
     // Authors a `mFloatAnimation`-backed size via `animateRemoteFloat` (animate-in from 0 to 123.45
@@ -461,71 +373,49 @@ class RcPlayerInteractivityTest {
     // an appearance animation's initial value with its target on first evaluation.
     @Test
     fun testAnimationSupport() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
+        rule.mainClock.autoAdvance = false
 
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            val target = remember { MutableRemoteFloat(123.45f) }
-                            // Animate from 0 to `target` over 1s, linearly.
-                            val animatedSize =
-                                animateRemoteFloatAsState(
-                                    targetValue = target,
-                                    animationSpec =
-                                        remoteTween(
-                                            durationMillis = 1000,
-                                            easing = RemoteEasing.Linear,
-                                        ),
-                                    initialValue = 0f,
-                                )
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.semantics { contentDescription = "animated".rs }
-                                        .width(animatedSize)
-                                        .height(animatedSize)
-                            )
-                        },
-                    )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.mainClock.autoAdvance = false
-
-            rule.setContent {
-                Box(modifier = Modifier.size(200.dp).testTag("playerParent")) {
-                    RcPlayer(document = document)
-                }
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(200.dp).testTag("playerParent")) { it() }
             }
-
-            // Target the animated RemoteBox directly via its contentDescription.
-            val boxNode = rule.onNodeWithContentDescription("animated")
-
-            fun widthOf() =
-                boxNode.getUnclippedBoundsInRoot().let { it.right.value - it.left.value }
-
-            rule.mainClock.advanceTimeBy(100)
-            val initialWidth = widthOf()
-
-            rule.mainClock.advanceTimeBy(400)
-            val midWidth = widthOf()
-
-            rule.mainClock.advanceTimeBy(400)
-            val endWidth = widthOf()
-
-            // The size animates 0 -> 123.45, so each later sample must be strictly larger.
-            assert(midWidth > initialWidth) {
-                "Expected mid width ($midWidth) > initial width ($initialWidth)"
-            }
-            assert(endWidth > midWidth) { "Expected end width ($endWidth) > mid width ($midWidth)" }
+        ) {
+            val target = remember { MutableRemoteFloat(123.45f) }
+            // Animate from 0 to `target` over 1s, linearly.
+            val animatedSize =
+                animateRemoteFloatAsState(
+                    targetValue = target,
+                    animationSpec =
+                        remoteTween(durationMillis = 1000, easing = RemoteEasing.Linear),
+                    initialValue = 0f,
+                )
+            RemoteBox(
+                modifier =
+                    RemoteModifier.semantics { contentDescription = "animated".rs }
+                        .width(animatedSize)
+                        .height(animatedSize)
+            )
         }
+
+        // Target the animated RemoteBox directly via its contentDescription.
+        val boxNode = rule.onNodeWithContentDescription("animated")
+
+        fun widthOf() = boxNode.getUnclippedBoundsInRoot().let { it.right.value - it.left.value }
+
+        rule.mainClock.advanceTimeBy(100)
+        val initialWidth = widthOf()
+
+        rule.mainClock.advanceTimeBy(400)
+        val midWidth = widthOf()
+
+        rule.mainClock.advanceTimeBy(400)
+        val endWidth = widthOf()
+
+        // The size animates 0 -> 123.45, so each later sample must be strictly larger.
+        assert(midWidth > initialWidth) {
+            "Expected mid width ($midWidth) > initial width ($initialWidth)"
+        }
+        assert(endWidth > midWidth) { "Expected end width ($endWidth) > mid width ($midWidth)" }
     }
 
     // A time-driven size — width/height keyed to `TIME_IN_SEC * scale` — must grow as the clock
@@ -541,62 +431,43 @@ class RcPlayerInteractivityTest {
     // its t=0 snapshot.)
     @Test
     fun testTimeDrivenSizeAnimates() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
+        rule.mainClock.autoAdvance = false
 
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            // width = height = ANIMATION_TIME * 100 (px). The embedded player
-                            // bridges ANIMATION_TIME to the frame loop's elapsed millis / 1000,
-                            // so this grows monotonically from 0 as the clock advances.
-                            val size = RemoteFloat(RemoteContext.FLOAT_ANIMATION_TIME) * 100f
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.semantics { contentDescription = "timed".rs }
-                                        .width(size)
-                                        .height(size)
-                            )
-                        },
-                    )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.mainClock.autoAdvance = false
-
-            rule.setContent {
-                Box(modifier = Modifier.size(300.dp).testTag("playerParent")) {
-                    RcPlayer(document = document)
-                }
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(300.dp).testTag("playerParent")) { it() }
             }
-
-            val boxNode = rule.onNodeWithContentDescription("timed")
-
-            fun widthOf() =
-                boxNode.getUnclippedBoundsInRoot().let { it.right.value - it.left.value }
-
-            rule.mainClock.advanceTimeBy(200)
-            val initialWidth = widthOf()
-
-            rule.mainClock.advanceTimeBy(400)
-            val midWidth = widthOf()
-
-            rule.mainClock.advanceTimeBy(400)
-            val endWidth = widthOf()
-
-            // Size scales with elapsed time, so each later sample must be strictly larger.
-            assert(midWidth > initialWidth) {
-                "Expected mid width ($midWidth) > initial width ($initialWidth)"
-            }
-            assert(endWidth > midWidth) { "Expected end width ($endWidth) > mid width ($midWidth)" }
+        ) {
+            // width = height = ANIMATION_TIME * 100 (px). The embedded player
+            // bridges ANIMATION_TIME to the frame loop's elapsed millis / 1000,
+            // so this grows monotonically from 0 as the clock advances.
+            val size = RemoteFloat(RemoteContext.FLOAT_ANIMATION_TIME) * 100f
+            RemoteBox(
+                modifier =
+                    RemoteModifier.semantics { contentDescription = "timed".rs }
+                        .width(size)
+                        .height(size)
+            )
         }
+
+        val boxNode = rule.onNodeWithContentDescription("timed")
+
+        fun widthOf() = boxNode.getUnclippedBoundsInRoot().let { it.right.value - it.left.value }
+
+        rule.mainClock.advanceTimeBy(200)
+        val initialWidth = widthOf()
+
+        rule.mainClock.advanceTimeBy(400)
+        val midWidth = widthOf()
+
+        rule.mainClock.advanceTimeBy(400)
+        val endWidth = widthOf()
+
+        // Size scales with elapsed time, so each later sample must be strictly larger.
+        assert(midWidth > initialWidth) {
+            "Expected mid width ($midWidth) > initial width ($initialWidth)"
+        }
+        assert(endWidth > midWidth) { "Expected end width ($endWidth) > mid width ($midWidth)" }
     }
 
     @Test
@@ -769,98 +640,81 @@ class RcPlayerInteractivityTest {
     // played.)
     @Test
     fun everyOperatorDrivesLayoutEndToEnd() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val renderedTags = mutableListOf<String>()
+        val renderedTags = mutableListOf<String>()
 
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            // Variable inputs (defeat constant folding); all resolve so each
-                            // expression equals 60.
-                            val v = remember { MutableRemoteFloat(60f) }
-                            val half = remember { MutableRemoteFloat(0.5f) }
-                            val one = remember { MutableRemoteFloat(1f) }
-                            val thousand = remember { MutableRemoteFloat(1000f) }
-                            val a = v * 0.6f // 36
-                            val b = v * 0.8f // 48
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(400.dp).testTag("playerParent")) { it() }
+            }
+        ) {
+            // Variable inputs (defeat constant folding); all resolve so each
+            // expression equals 60.
+            val v = remember { MutableRemoteFloat(60f) }
+            val half = remember { MutableRemoteFloat(0.5f) }
+            val one = remember { MutableRemoteFloat(1f) }
+            val thousand = remember { MutableRemoteFloat(1000f) }
+            val a = v * 0.6f // 36
+            val b = v * 0.8f // 48
 
-                            val cases: List<Pair<String, RemoteFloat>> =
-                                listOf(
-                                    "control" to v,
-                                    "add" to v + 0f,
-                                    "sub" to v - 0f,
-                                    "mul" to v * 1f,
-                                    "div" to v / 1f,
-                                    "mod" to v.rem(100f),
-                                    "neg" to -(-v),
-                                    "max" to max(v, 10f),
-                                    "min" to min(v, 100f),
-                                    "pow" to pow(v, 1f),
-                                    "sqrt" to sqrt(v * v),
-                                    "cbrt" to cbrt(v * v * v),
-                                    "abs" to abs(-v),
-                                    "sign" to sign(v) * v,
-                                    "copySign" to copySign(v, 1f),
-                                    "expLn" to exp(ln(v)),
-                                    "ceil" to ceil(v - 0.8f),
-                                    "floor" to floor(v + 0.8f),
-                                    "round" to round(v - 0.3f),
-                                    "sinAsin" to sin(asin(half)) * 120f,
-                                    "cosAcos" to cos(acos(half)) * 120f,
-                                    "tanAtan" to tan(atan(one)) * v,
-                                    "atan2" to atan2(one, 1f) * 76.39437f,
-                                    "degRad" to toDeg(toRad(v)),
-                                    "log" to log(thousand) * 20f,
-                                    "clamp" to clamp(v * 4f, 0f, 60f),
-                                    "lerp" to lerp(0f, 120f, half),
-                                    "mad" to mad(v, one, RemoteFloat(0f)),
-                                    // compound: sqrt(36^2 + 48^2) == 60
-                                    "compound" to sqrt(a * a + b * b),
-                                )
+            val cases: List<Pair<String, RemoteFloat>> =
+                listOf(
+                    "control" to v,
+                    "add" to v + 0f,
+                    "sub" to v - 0f,
+                    "mul" to v * 1f,
+                    "div" to v / 1f,
+                    "mod" to v.rem(100f),
+                    "neg" to -(-v),
+                    "max" to max(v, 10f),
+                    "min" to min(v, 100f),
+                    "pow" to pow(v, 1f),
+                    "sqrt" to sqrt(v * v),
+                    "cbrt" to cbrt(v * v * v),
+                    "abs" to abs(-v),
+                    "sign" to sign(v) * v,
+                    "copySign" to copySign(v, 1f),
+                    "expLn" to exp(ln(v)),
+                    "ceil" to ceil(v - 0.8f),
+                    "floor" to floor(v + 0.8f),
+                    "round" to round(v - 0.3f),
+                    "sinAsin" to sin(asin(half)) * 120f,
+                    "cosAcos" to cos(acos(half)) * 120f,
+                    "tanAtan" to tan(atan(one)) * v,
+                    "atan2" to atan2(one, 1f) * 76.39437f,
+                    "degRad" to toDeg(toRad(v)),
+                    "log" to log(thousand) * 20f,
+                    "clamp" to clamp(v * 4f, 0f, 60f),
+                    "lerp" to lerp(0f, 120f, half),
+                    "mad" to mad(v, one, RemoteFloat(0f)),
+                    // compound: sqrt(36^2 + 48^2) == 60
+                    "compound" to sqrt(a * a + b * b),
+                )
 
-                            RemoteColumn(modifier = RemoteModifier.size(400.rdp)) {
-                                cases.forEach { (tag, expr) ->
-                                    renderedTags.add(tag)
-                                    RemoteBox(
-                                        modifier =
-                                            RemoteModifier.semantics { contentDescription = tag.rs }
-                                                .width(expr)
-                                                .height(8.rdp)
-                                    )
-                                }
-                            }
-                        },
+            RemoteColumn(modifier = RemoteModifier.size(400.rdp)) {
+                cases.forEach { (tag, expr) ->
+                    renderedTags.add(tag)
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.semantics { contentDescription = tag.rs }
+                                .width(expr)
+                                .height(8.rdp)
                     )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(400.dp).testTag("playerParent")) {
-                    RcPlayer(document = document)
                 }
             }
-            rule.waitForIdle()
+        }
+        rule.waitForIdle()
 
-            fun widthOf(tag: String) =
-                rule.onNodeWithContentDescription(tag).getUnclippedBoundsInRoot().let {
-                    it.right.value - it.left.value
-                }
+        fun widthOf(tag: String) =
+            rule.onNodeWithContentDescription(tag).getUnclippedBoundsInRoot().let {
+                it.right.value - it.left.value
+            }
 
-            val control = widthOf("control")
-            assert(control > 0f) { "Control box has zero width — pipeline not rendering" }
-            renderedTags.forEach { tag ->
-                val w = widthOf(tag)
-                assert(mathAbs(w - control) < 1f) {
-                    "Operator '$tag' produced width $w but expected ~$control (all evaluate to 60px)"
-                }
+        val control = widthOf("control")
+        assert(control > 0f) { "Control box has zero width — pipeline not rendering" }
+        renderedTags.forEach { tag ->
+            val w = widthOf(tag)
+            assert(mathAbs(w - control) < 1f) {
+                "Operator '$tag' produced width $w but expected ~$control (all evaluate to 60px)"
             }
         }
     }
@@ -871,63 +725,41 @@ class RcPlayerInteractivityTest {
     // min-constrained box around a tiny child grows to ~min.
     @Test
     fun dimensionConstraintsClampMeasuredSize() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            RemoteColumn(modifier = RemoteModifier.size(400.rdp)) {
-                                // max: child wants 200 but the box is capped at 50.
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.semantics { contentDescription = "maxc".rs }
-                                            .widthIn(max = 50.rdp)
-                                ) {
-                                    RemoteBox(modifier = RemoteModifier.size(200.rdp))
-                                }
-                                // min: child wants 10 but the box floors at 80.
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.semantics { contentDescription = "minc".rs }
-                                            .widthIn(min = 80.rdp)
-                                ) {
-                                    RemoteBox(modifier = RemoteModifier.size(10.rdp))
-                                }
-                            }
-                        },
-                    )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(400.dp).testTag("playerParent")) {
-                    RcPlayer(document = document)
-                }
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(400.dp).testTag("playerParent")) { it() }
             }
-            rule.waitForIdle()
-
-            fun widthOf(tag: String) =
-                rule.onNodeWithContentDescription(tag).getUnclippedBoundsInRoot().let {
-                    it.right.value - it.left.value
+        ) {
+            RemoteColumn(modifier = RemoteModifier.size(400.rdp)) {
+                // max: child wants 200 but the box is capped at 50.
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.semantics { contentDescription = "maxc".rs }
+                            .widthIn(max = 50.rdp)
+                ) {
+                    RemoteBox(modifier = RemoteModifier.size(200.rdp))
                 }
-
-            val maxW = widthOf("maxc")
-            val minW = widthOf("minc")
-            assert(mathAbs(maxW - 50f) < 3f) {
-                "max-constrained width $maxW, expected ~50dp"
-            }
-            assert(mathAbs(minW - 80f) < 3f) {
-                "min-constrained width $minW, expected ~80dp"
+                // min: child wants 10 but the box floors at 80.
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.semantics { contentDescription = "minc".rs }
+                            .widthIn(min = 80.rdp)
+                ) {
+                    RemoteBox(modifier = RemoteModifier.size(10.rdp))
+                }
             }
         }
+        rule.waitForIdle()
+
+        fun widthOf(tag: String) =
+            rule.onNodeWithContentDescription(tag).getUnclippedBoundsInRoot().let {
+                it.right.value - it.left.value
+            }
+
+        val maxW = widthOf("maxc")
+        val minW = widthOf("minc")
+        assert(mathAbs(maxW - 50f) < 3f) { "max-constrained width $maxW, expected ~50dp" }
+        assert(mathAbs(minW - 80f) < 3f) { "min-constrained width $minW, expected ~80dp" }
     }
 
     // FlowLayout previously ignored maxItemsInEachRow (bare FlowRow). With it honored, 3 boxes at
@@ -936,61 +768,37 @@ class RcPlayerInteractivityTest {
     // on one row in the 300dp flow, so this discriminates the behavior.)
     @Test
     fun flowLayoutWrapsAtMaxItemsInEachRow() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        profile = experimentalProfile,
-                        content = {
-                            RemoteFlowRow(
-                                modifier = RemoteModifier.size(300.rdp),
-                                maxItemsInEachRow = 2,
-                            ) {
-                                repeat(3) { i ->
-                                    RemoteBox(
-                                        modifier =
-                                            RemoteModifier.semantics {
-                                                    contentDescription = "f$i".rs
-                                                }
-                                                .size(50.rdp)
-                                    )
-                                }
-                            }
-                        },
+        rule.setRemoteContent(
+            profile = experimentalProfile,
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(300.dp).testTag("playerParent")) { it() }
+            },
+        ) {
+            RemoteFlowRow(modifier = RemoteModifier.size(300.rdp), maxItemsInEachRow = 2) {
+                repeat(3) { i ->
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.semantics { contentDescription = "f$i".rs }.size(50.rdp)
                     )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(300.dp).testTag("playerParent")) {
-                    RcPlayer(document = document)
                 }
             }
-            rule.waitForIdle()
+        }
+        rule.waitForIdle()
 
-            fun boundsOf(tag: String) =
-                rule.onNodeWithContentDescription(tag).getUnclippedBoundsInRoot()
+        fun boundsOf(tag: String) =
+            rule.onNodeWithContentDescription(tag).getUnclippedBoundsInRoot()
 
-            val f0 = boundsOf("f0")
-            val f1 = boundsOf("f1")
-            val f2 = boundsOf("f2")
+        val f0 = boundsOf("f0")
+        val f1 = boundsOf("f1")
+        val f2 = boundsOf("f2")
 
-            // f0 and f1 share the first row.
-            assert(mathAbs(f0.top.value - f1.top.value) < 1f) {
-                "f0/f1 should share a row (tops ${f0.top.value} vs ${f1.top.value})"
-            }
-            // f2 wrapped to the next row (its top is at/below f0's bottom).
-            assert(f2.top.value >= f0.bottom.value - 1f) {
-                "f2 should wrap below row one (f2.top=${f2.top.value}, f0.bottom=${f0.bottom.value})"
-            }
+        // f0 and f1 share the first row.
+        assert(mathAbs(f0.top.value - f1.top.value) < 1f) {
+            "f0/f1 should share a row (tops ${f0.top.value} vs ${f1.top.value})"
+        }
+        // f2 wrapped to the next row (its top is at/below f0's bottom).
+        assert(f2.top.value >= f0.bottom.value - 1f) {
+            "f2 should wrap below row one (f2.top=${f2.top.value}, f0.bottom=${f0.bottom.value})"
         }
     }
 
@@ -999,47 +807,26 @@ class RcPlayerInteractivityTest {
     // callback).
     @Test
     fun hostNamedActionInvokesCallback() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(100.rdp)
-                                        .clickable(action = hostAction("nav".rs, 7.ri))
-                            )
-                        },
-                    )
-                    .bytes
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            var firedName: String? = null
-            var firedValue: Any? = null
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp)) {
-                    RcPlayer(
-                        document = document,
-                        onNamedAction = { name, value, _ ->
-                            firedName = name
-                            firedValue = value
-                        },
-                    )
-                }
-            }
-            rule.waitForIdle()
-            rule.onNode(hasClickAction()).performClick()
-            rule.waitForIdle()
-
-            assert(firedName == "nav") { "Expected named action 'nav', got $firedName" }
-            assert((firedValue as? Number)?.toInt() == 7) { "Expected value 7, got $firedValue" }
+        var firedName: String? = null
+        var firedValue: Any? = null
+        rule.setRemoteContent(
+            onNamedAction = { name, value, _ ->
+                firedName = name
+                firedValue = value
+            },
+            playComposableWrapper = { Box(modifier = Modifier.size(100.dp)) { it() } },
+        ) {
+            RemoteBox(
+                modifier =
+                    RemoteModifier.size(100.rdp).clickable(action = hostAction("nav".rs, 7.ri))
+            )
         }
+        rule.waitForIdle()
+        rule.onNode(hasClickAction()).performClick()
+        rule.waitForIdle()
+
+        assert(firedName == "nav") { "Expected named action 'nav', got $firedName" }
+        assert((firedValue as? Number)?.toInt() == 7) { "Expected value 7, got $firedValue" }
     }
 
     // A collapsible column shorter than its content drops the overflowing children: a 100dp-tall
@@ -1047,46 +834,26 @@ class RcPlayerInteractivityTest {
     // no priority modifiers every child defaults to Float.MAX_VALUE, so the tie drops the last one.
     @Test
     fun collapsibleColumnDropsOverflowingChildren() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            RemoteCollapsibleColumn(modifier = RemoteModifier.size(100.rdp)) {
-                                repeat(3) { i ->
-                                    RemoteBox(
-                                        modifier =
-                                            RemoteModifier.semantics {
-                                                    contentDescription = "c$i".rs
-                                                }
-                                                .size(40.rdp)
-                                    )
-                                }
-                            }
-                        },
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(200.dp).testTag("playerParent")) { it() }
+            }
+        ) {
+            RemoteCollapsibleColumn(modifier = RemoteModifier.size(100.rdp)) {
+                repeat(3) { i ->
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.semantics { contentDescription = "c$i".rs }.size(40.rdp)
                     )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(200.dp).testTag("playerParent")) {
-                    RcPlayer(document = document)
                 }
             }
-            rule.waitForIdle()
-
-            rule.onNodeWithContentDescription("c0").assertIsDisplayed()
-            rule.onNodeWithContentDescription("c1").assertIsDisplayed()
-            // The third child overflowed the 100dp budget and was collapsed (measured, not placed).
-            rule.onNodeWithContentDescription("c2").assertIsNotDisplayed()
         }
+        rule.waitForIdle()
+
+        rule.onNodeWithContentDescription("c0").assertIsDisplayed()
+        rule.onNodeWithContentDescription("c1").assertIsDisplayed()
+        // The third child overflowed the 100dp budget and was collapsed (measured, not placed).
+        rule.onNodeWithContentDescription("c2").assertIsNotDisplayed()
     }
 
     // A RemoteFitBox displays only the first child whose natural size fits the available space. In
@@ -1094,46 +861,27 @@ class RcPlayerInteractivityTest {
     // 100dp box, a 200dp child doesn't fit and a 50dp child does, so only the 50dp child is shown.
     @Test
     fun remoteFitBoxDisplaysTheChildThatFits() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            RemoteFitBox(modifier = RemoteModifier.size(100.rdp)) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.semantics { contentDescription = "big".rs }
-                                            .size(200.rdp)
-                                )
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.semantics { contentDescription = "small".rs }
-                                            .size(50.rdp)
-                                )
-                            }
-                        },
-                    )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(300.dp).testTag("playerParent")) {
-                    RcPlayer(document = document)
-                }
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(300.dp).testTag("playerParent")) { it() }
             }
-            rule.waitForIdle()
-
-            // The 200dp child doesn't fit the 100dp box; the 50dp one does and is the chosen child.
-            rule.onNodeWithContentDescription("big").assertIsNotDisplayed()
-            rule.onNodeWithContentDescription("small").assertIsDisplayed()
+        ) {
+            RemoteFitBox(modifier = RemoteModifier.size(100.rdp)) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.semantics { contentDescription = "big".rs }.size(200.rdp)
+                )
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.semantics { contentDescription = "small".rs }.size(50.rdp)
+                )
+            }
         }
+        rule.waitForIdle()
+
+        // The 200dp child doesn't fit the 100dp box; the 50dp one does and is the chosen child.
+        rule.onNodeWithContentDescription("big").assertIsNotDisplayed()
+        rule.onNodeWithContentDescription("small").assertIsDisplayed()
     }
 
     // The document's root content description (Header DOC_CONTENT_DESCRIPTION /
@@ -1176,65 +924,44 @@ class RcPlayerInteractivityTest {
     // scroll).
     @Test
     fun scrollPublishesPositionToBoundVariable() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            val scrollState = remember { RemoteScrollState() }
-                            RemoteColumn(modifier = RemoteModifier.size(200.rdp)) {
-                                // A 100dp viewport scrolling a 400dp-tall column.
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(100.rdp)
-                                            .verticalScroll(scrollState)
-                                            .semantics { contentDescription = "scroller".rs }
-                                ) {
-                                    RemoteColumn {
-                                        repeat(5) {
-                                            RemoteBox(modifier = RemoteModifier.size(80.rdp))
-                                        }
-                                    }
-                                }
-                                // Marker width is bound to the scroll-position variable.
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.width(scrollState.positionState)
-                                            .height(10.rdp)
-                                            .semantics { contentDescription = "marker".rs }
-                                )
-                            }
-                        },
-                    )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
+        rule.setRemoteContent(
+            playComposableWrapper = { Box(modifier = Modifier.size(300.dp)) { it() } }
+        ) {
+            val scrollState = remember { RemoteScrollState() }
+            RemoteColumn(modifier = RemoteModifier.size(200.rdp)) {
+                // A 100dp viewport scrolling a 400dp-tall column.
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp).verticalScroll(scrollState).semantics {
+                            contentDescription = "scroller".rs
+                        }
+                ) {
+                    RemoteColumn { repeat(5) { RemoteBox(modifier = RemoteModifier.size(80.rdp)) } }
                 }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(300.dp)) { RcPlayer(document = document) }
+                // Marker width is bound to the scroll-position variable.
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.width(scrollState.positionState).height(10.rdp).semantics {
+                            contentDescription = "marker".rs
+                        }
+                )
             }
-            rule.waitForIdle()
+        }
+        rule.waitForIdle()
 
-            fun markerWidth() =
-                rule.onNodeWithContentDescription("marker").getUnclippedBoundsInRoot().let {
-                    it.right.value - it.left.value
-                }
-
-            val before = markerWidth()
-            rule.onNodeWithContentDescription("scroller").performTouchInput { swipeUp() }
-            rule.waitForIdle()
-            val after = markerWidth()
-
-            assert(after > before + 1f) {
-                "Scrolling should publish the offset to the bound variable (marker width); " +
-                    "before=$before after=$after"
+        fun markerWidth() =
+            rule.onNodeWithContentDescription("marker").getUnclippedBoundsInRoot().let {
+                it.right.value - it.left.value
             }
+
+        val before = markerWidth()
+        rule.onNodeWithContentDescription("scroller").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+        val after = markerWidth()
+
+        assert(after > before + 1f) {
+            "Scrolling should publish the offset to the bound variable (marker width); " +
+                "before=$before after=$after"
         }
     }
 
@@ -1302,122 +1029,112 @@ class RcPlayerInteractivityTest {
 
     @Test
     fun testStateLayoutMultiPageScoring() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            var uploadedScore = -1
+        var uploadedScore = -1
 
-            val content: @Composable @RemoteComposable () -> Unit = {
-                val currentPage = remember { MutableRemoteInt(0) }
-                val choices = (0..2).map { remember { MutableRemoteInt(-1) } }
-                val answers = listOf(1, 2, 0)
-                val scores = (0..2).map { i -> choices[i].isEqualTo(answers[i].ri).toRemoteInt() }
-                val totalScore = remember { scores.reduce { acc, s -> acc + s } }
+        rule.setRemoteContent(
+            onNamedAction = { name, value, _ ->
+                if (name == "submit") {
+                    uploadedScore = (value as? Number)?.toInt() ?: -1
+                }
+            },
+            playComposableWrapper = { Box(modifier = Modifier.size(400.dp)) { it() } },
+        ) {
+            val currentPage = remember { MutableRemoteInt(0) }
+            val choices = (0..2).map { remember { MutableRemoteInt(-1) } }
+            val answers = listOf(1, 2, 0)
+            val scores = (0..2).map { i -> choices[i].isEqualTo(answers[i].ri).toRemoteInt() }
+            val totalScore = remember { scores.reduce { acc, s -> acc + s } }
 
-                RemoteBox(modifier = RemoteModifier.size(400.rdp)) {
-                    Hoist(totalScore)
-                    RemoteStateLayout(currentState = currentPage, 0, 1, 2, 3) { pageIndex: Int ->
-                        if (pageIndex < 3) {
-                            RemoteBox(modifier = RemoteModifier.size(400.rdp)) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(100.rdp)
-                                            .semantics {
-                                                contentDescription = "P${pageIndex}_Opt_Correct".rs
-                                            }
-                                            .clickable(
-                                                valueChange(
-                                                    choices[pageIndex],
-                                                    answers[pageIndex].ri,
-                                                )
+            RemoteBox(modifier = RemoteModifier.size(400.rdp)) {
+                Hoist(totalScore)
+                RemoteStateLayout(currentState = currentPage, 0, 1, 2, 3) { pageIndex: Int ->
+                    if (pageIndex < 3) {
+                        RemoteBox(modifier = RemoteModifier.size(400.rdp)) {
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.size(100.rdp)
+                                        .semantics {
+                                            contentDescription = "P${pageIndex}_Opt_Correct".rs
+                                        }
+                                        .clickable(
+                                            valueChange(
+                                                choices[pageIndex],
+                                                answers[pageIndex].ri,
                                             )
-                                )
-                                val nextAction =
-                                    if (pageIndex < 2) {
-                                        combinedAction(
-                                            valueChange(currentPage, (pageIndex + 1).ri),
-                                            valueChange(choices[pageIndex + 1], (-1).ri),
                                         )
-                                    } else {
-                                        valueChange(currentPage, (pageIndex + 1).ri)
-                                    }
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(50.rdp)
-                                            .semantics {
-                                                contentDescription = "P${pageIndex}_Next".rs
-                                            }
-                                            .clickable(nextAction)
-                                )
-                            }
-                        } else {
-                            val retakeAction =
-                                combinedAction(
-                                    valueChange(currentPage, 0.ri),
-                                    *choices.map { valueChange(it, (-1).ri) }.toTypedArray(),
-                                )
-                            RemoteBox(modifier = RemoteModifier.size(200.rdp)) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(100.rdp)
-                                            .semantics { contentDescription = "Submit".rs }
-                                            .clickable(hostAction("submit".rs, value = totalScore))
-                                )
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(100.rdp)
-                                            .padding(top = 100.rdp)
-                                            .semantics { contentDescription = "Retake".rs }
-                                            .clickable(retakeAction)
-                                )
-                            }
+                            )
+                            val nextAction =
+                                if (pageIndex < 2) {
+                                    combinedAction(
+                                        valueChange(currentPage, (pageIndex + 1).ri),
+                                        valueChange(choices[pageIndex + 1], (-1).ri),
+                                    )
+                                } else {
+                                    valueChange(currentPage, (pageIndex + 1).ri)
+                                }
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.size(50.rdp)
+                                        .semantics {
+                                            contentDescription = "P${pageIndex}_Next".rs
+                                        }
+                                        .clickable(nextAction)
+                            )
+                        }
+                    } else {
+                        val retakeAction =
+                            combinedAction(
+                                valueChange(currentPage, 0.ri),
+                                *choices.map { valueChange(it, (-1).ri) }.toTypedArray(),
+                            )
+                        RemoteBox(modifier = RemoteModifier.size(200.rdp)) {
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.size(100.rdp)
+                                        .semantics { contentDescription = "Submit".rs }
+                                        .clickable(hostAction("submit".rs, value = totalScore))
+                            )
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.size(100.rdp)
+                                        .padding(top = 100.rdp)
+                                        .semantics { contentDescription = "Retake".rs }
+                                        .clickable(retakeAction)
+                            )
                         }
                     }
                 }
             }
-
-            val capturedDocument = captureSingleRemoteDocument(context = context, content = content)
-            rule.setContent {
-                Box(modifier = Modifier.size(400.dp)) {
-                    RcPlayer(
-                        capturedDocument = capturedDocument,
-                        onNamedAction = { name, value, _ ->
-                            if (name == "submit") {
-                                uploadedScore = (value as? Number)?.toInt() ?: -1
-                            }
-                        },
-                    )
-                }
-            }
-            rule.waitForIdle()
-
-            // Page 0: click correct option then Next
-            rule.onNodeWithContentDescription("P0_Opt_Correct").performClick()
-            rule.waitForIdle()
-            rule.onNodeWithContentDescription("P0_Next").performClick()
-            rule.waitForIdle()
-
-            // Page 1: click correct option then Next
-            rule.onNodeWithContentDescription("P1_Opt_Correct").performClick()
-            rule.waitForIdle()
-            rule.onNodeWithContentDescription("P1_Next").performClick()
-            rule.waitForIdle()
-
-            // Page 2: click correct option then Next
-            rule.onNodeWithContentDescription("P2_Opt_Correct").performClick()
-            rule.waitForIdle()
-            rule.onNodeWithContentDescription("P2_Next").performClick()
-            rule.waitForIdle()
-
-            // Page 3: Submit
-            rule.onNodeWithContentDescription("Submit").performClick()
-            rule.waitForIdle()
-
-            assertThat(uploadedScore).isEqualTo(3)
-
-            // Click Retake
-            rule.onNodeWithContentDescription("Retake").performClick()
-            rule.waitForIdle()
         }
+        rule.waitForIdle()
+
+        // Page 0: click correct option then Next
+        rule.onNodeWithContentDescription("P0_Opt_Correct").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithContentDescription("P0_Next").performClick()
+        rule.waitForIdle()
+
+        // Page 1: click correct option then Next
+        rule.onNodeWithContentDescription("P1_Opt_Correct").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithContentDescription("P1_Next").performClick()
+        rule.waitForIdle()
+
+        // Page 2: click correct option then Next
+        rule.onNodeWithContentDescription("P2_Opt_Correct").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithContentDescription("P2_Next").performClick()
+        rule.waitForIdle()
+
+        // Page 3: Submit
+        rule.onNodeWithContentDescription("Submit").performClick()
+        rule.waitForIdle()
+
+        assertThat(uploadedScore).isEqualTo(3)
+
+        // Click Retake
+        rule.onNodeWithContentDescription("Retake").performClick()
+        rule.waitForIdle()
     }
 
     @Test
@@ -1472,38 +1189,31 @@ class RcPlayerInteractivityTest {
 
     @Test
     fun goneComponent_collapsesLayoutBoundsToZero() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val content: @Composable @RemoteComposable () -> Unit = {
-                RemoteRow {
-                    RemoteBox(
-                        modifier =
-                            RemoteModifier.size(80.rdp)
-                                .visibility(Component.Visibility.GONE.ri)
-                                .semantics { contentDescription = "GoneBox".rs }
-                    )
-                    RemoteBox(
-                        modifier =
-                            RemoteModifier.size(80.rdp).semantics {
-                                contentDescription = "VisibleSibling".rs
-                            }
-                    )
-                }
+        rule.setRemoteContent(
+            playComposableWrapper = { Box(modifier = Modifier.size(200.dp)) { it() } }
+        ) {
+            RemoteRow {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(80.rdp)
+                            .visibility(Component.Visibility.GONE.ri)
+                            .semantics { contentDescription = "GoneBox".rs }
+                )
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(80.rdp).semantics {
+                            contentDescription = "VisibleSibling".rs
+                        }
+                )
             }
-            val capturedDocument = captureSingleRemoteDocument(context = context, content = content)
-            rule.setContent {
-                Box(modifier = Modifier.size(200.dp)) {
-                    RcPlayer(capturedDocument = capturedDocument)
-                }
-            }
-            rule.waitForIdle()
-
-            // Because the preceding GONE box collapses to 0x0 in layout, VisibleSibling starts at
-            // left = 0dp.
-            val siblingBounds =
-                rule.onNodeWithContentDescription("VisibleSibling").getUnclippedBoundsInRoot()
-            assertThat(siblingBounds.left).isEqualTo(0.dp)
         }
+        rule.waitForIdle()
+
+        // Because the preceding GONE box collapses to 0x0 in layout, VisibleSibling starts at
+        // left = 0dp.
+        val siblingBounds =
+            rule.onNodeWithContentDescription("VisibleSibling").getUnclippedBoundsInRoot()
+        assertThat(siblingBounds.left).isEqualTo(0.dp)
     }
 
     @Test
@@ -1556,77 +1266,59 @@ class RcPlayerInteractivityTest {
 
     @Test
     fun rootPointerEvents_doNotInterfereWithComponentScroll() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val content: @Composable @RemoteComposable () -> Unit = {
-                val scrollState = remember { RemoteScrollState() }
-                RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
-                    RemoteColumn(
-                        modifier =
-                            RemoteModifier.size(100.rdp, 80.rdp)
-                                .verticalScroll(scrollState)
-                                .semantics { contentDescription = "TouchRoot".rs }
-                    ) {
-                        repeat(4) { index ->
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(100.rdp, 40.rdp).semantics {
-                                        contentDescription = "Item$index".rs
-                                    }
-                            )
+        rule.setRemoteContent {
+            val scrollState = remember { RemoteScrollState() }
+            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
+                RemoteColumn(
+                    modifier =
+                        RemoteModifier.size(100.rdp, 80.rdp).verticalScroll(scrollState).semantics {
+                            contentDescription = "TouchRoot".rs
                         }
-                    }
-                    RemoteBox(
-                        modifier =
-                            RemoteModifier.width(scrollState.positionState)
-                                .height(10.rdp)
-                                .semantics { contentDescription = "ScrollPosition".rs }
-                    )
-                }
-            }
-            val capturedDocument = captureSingleRemoteDocument(context = context, content = content)
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(capturedDocument.bytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                ) {
+                    repeat(4) { index ->
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(100.rdp, 40.rdp).semantics {
+                                    contentDescription = "Item$index".rs
+                                }
+                        )
                     }
                 }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) }
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.width(scrollState.positionState).height(10.rdp).semantics {
+                            contentDescription = "ScrollPosition".rs
+                        }
+                )
             }
-            rule.waitForIdle()
-
-            fun scrollOffset(): Float =
-                rule
-                    .onNodeWithContentDescription("ScrollPosition")
-                    .fetchSemanticsNode()
-                    .boundsInRoot
-                    .width
-
-            assertThat(scrollOffset()).isWithin(0.1f).of(0f)
-
-            rule.onNodeWithContentDescription("TouchRoot").performTouchInput { swipeUp() }
-            rule.waitForIdle()
-
-            val expectedMaxScroll = 80f
-            assertThat(scrollOffset()).isWithin(1f).of(expectedMaxScroll)
-            assertThat(
-                    rule.onNodeWithContentDescription("Item0").getUnclippedBoundsInRoot().top.value
-                )
-                .isWithin(1f)
-                .of(-expectedMaxScroll)
-
-            rule.onNodeWithContentDescription("TouchRoot").performTouchInput { swipeDown() }
-            rule.waitForIdle()
-
-            assertThat(scrollOffset()).isWithin(0.1f).of(0f)
-            assertThat(
-                    rule.onNodeWithContentDescription("Item0").getUnclippedBoundsInRoot().top.value
-                )
-                .isWithin(0.5f)
-                .of(0f)
         }
+        rule.waitForIdle()
+
+        fun scrollOffset(): Float =
+            rule
+                .onNodeWithContentDescription("ScrollPosition")
+                .fetchSemanticsNode()
+                .boundsInRoot
+                .width
+
+        assertThat(scrollOffset()).isWithin(0.1f).of(0f)
+
+        rule.onNodeWithContentDescription("TouchRoot").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+
+        val expectedMaxScroll = 80f
+        assertThat(scrollOffset()).isWithin(1f).of(expectedMaxScroll)
+        assertThat(rule.onNodeWithContentDescription("Item0").getUnclippedBoundsInRoot().top.value)
+            .isWithin(1f)
+            .of(-expectedMaxScroll)
+
+        rule.onNodeWithContentDescription("TouchRoot").performTouchInput { swipeDown() }
+        rule.waitForIdle()
+
+        assertThat(scrollOffset()).isWithin(0.1f).of(0f)
+        assertThat(rule.onNodeWithContentDescription("Item0").getUnclippedBoundsInRoot().top.value)
+            .isWithin(0.5f)
+            .of(0f)
     }
 
     /**
@@ -2778,181 +2470,153 @@ class RcPlayerInteractivityTest {
 
     @Test
     fun touchExpression_legacyTouchVersion_usesRootCoordinatesAndAncestorPositions() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val capturedDocument =
-                captureSingleRemoteDocument(context = context, profile = legacyTouchProfile()) {
-                    val touchFraction = remember { MutableRemoteFloat(-1f) }
-                    RemoteColumn(modifier = RemoteModifier.size(300.rdp)) {
-                        // 40dp top offset on the outer column
-                        RemoteBox(modifier = RemoteModifier.size(300.rdp, 40.rdp))
-                        RemoteRow(modifier = RemoteModifier.size(300.rdp, 100.rdp)) {
-                            // 60dp left offset on the inner row so LegacyCanvas is at root (60, 40)
-                            RemoteBox(modifier = RemoteModifier.size(60.rdp, 100.rdp))
-                            RemoteCanvas(
-                                modifier =
-                                    RemoteModifier.size(200.rdp, 100.rdp).semantics {
-                                        contentDescription = "LegacyCanvas".rs
-                                    }
-                            ) {
-                                val doc = remoteComposeCreationState.document
-                                val outputId =
-                                    Utils.idFromNan(
-                                        touchFraction.getFloatIdForCreationState(
-                                            remoteComposeCreationState
-                                        )
+        val document =
+            rule.setRemoteContent(
+                profile = legacyTouchProfile(),
+                playComposableWrapper = { Box(modifier = Modifier.size(300.dp)) { it() } },
+            ) {
+                val touchFraction = remember { MutableRemoteFloat(-1f) }
+                RemoteColumn(modifier = RemoteModifier.size(300.rdp)) {
+                    // 40dp top offset on the outer column
+                    RemoteBox(modifier = RemoteModifier.size(300.rdp, 40.rdp))
+                    RemoteRow(modifier = RemoteModifier.size(300.rdp, 100.rdp)) {
+                        // 60dp left offset on the inner row so LegacyCanvas is at root (60, 40)
+                        RemoteBox(modifier = RemoteModifier.size(60.rdp, 100.rdp))
+                        RemoteCanvas(
+                            modifier =
+                                RemoteModifier.size(200.rdp, 100.rdp).semantics {
+                                    contentDescription = "LegacyCanvas".rs
+                                }
+                        ) {
+                            val doc = remoteComposeCreationState.document
+                            val outputId =
+                                Utils.idFromNan(
+                                    touchFraction.getFloatIdForCreationState(
+                                        remoteComposeCreationState
                                     )
-                                val rootX = doc.addComponentRootXValue()
-                                val width = doc.addComponentWidthValue()
-                                doc.buffer.addTouchExpression(
-                                    outputId,
-                                    -1f,
-                                    0f,
-                                    1f,
-                                    0f,
-                                    0,
-                                    floatArrayOf(
-                                        RemoteContext.FLOAT_TOUCH_POS_X,
-                                        rootX,
-                                        AnimatedFloatExpression.SUB,
-                                        width,
-                                        AnimatedFloatExpression.DIV,
-                                    ),
-                                    TouchExpression.STOP_ABSOLUTE_POS,
-                                    null,
-                                    null,
                                 )
-                            }
+                            val rootX = doc.addComponentRootXValue()
+                            val width = doc.addComponentWidthValue()
+                            doc.buffer.addTouchExpression(
+                                outputId,
+                                -1f,
+                                0f,
+                                1f,
+                                0f,
+                                0,
+                                floatArrayOf(
+                                    RemoteContext.FLOAT_TOUCH_POS_X,
+                                    rootX,
+                                    AnimatedFloatExpression.SUB,
+                                    width,
+                                    AnimatedFloatExpression.DIV,
+                                ),
+                                TouchExpression.STOP_ABSOLUTE_POS,
+                                null,
+                                null,
+                            )
                         }
-                        val text =
-                            touchFraction
-                                .isLessThan(0f.rf)
-                                .select(
-                                    "Unset".rs,
-                                    (touchFraction * 100f).toRemoteInt().toRemoteString(),
-                                )
-                        RemoteText(text)
                     }
+                    val text =
+                        touchFraction
+                            .isLessThan(0f.rf)
+                            .select(
+                                "Unset".rs,
+                                (touchFraction * 100f).toRemoteInt().toRemoteString(),
+                            )
+                    RemoteText(text)
                 }
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(capturedDocument.bytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-            assertThat(document.featureIntValue(Header.FEATURE_TOUCH_VERSION)).isEqualTo(0)
-
-            rule.setContent {
-                Box(modifier = Modifier.size(300.dp)) { RcPlayer(document = document) }
             }
-            rule.waitForIdle()
+        assertThat(document.featureIntValue(Header.FEATURE_TOUCH_VERSION)).isEqualTo(0)
+        rule.waitForIdle()
 
-            val canvas = rule.onNodeWithContentDescription("LegacyCanvas")
-            rule.onNodeWithText("Unset").assertExists()
+        val canvas = rule.onNodeWithContentDescription("LegacyCanvas")
+        rule.onNodeWithText("Unset").assertExists()
 
-            // Click at center of LegacyCanvas (local x=100 -> root x=160 -> 50%)
-            canvas.performClick()
-            rule.waitForIdle()
-            rule.onNodeWithText("50").assertExists()
+        // Click at center of LegacyCanvas (local x=100 -> root x=160 -> 50%)
+        canvas.performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("50").assertExists()
 
-            // Drag from 20% to 80% inside LegacyCanvas
-            canvas.performTouchInput {
-                swipe(
-                    start = Offset(width * 0.2f, height / 2f),
-                    end = Offset(width * 0.8f, height / 2f),
-                    durationMillis = 100,
-                )
-            }
-            rule.waitForIdle()
-            rule.onNodeWithText("80").assertExists()
+        // Drag from 20% to 80% inside LegacyCanvas
+        canvas.performTouchInput {
+            swipe(
+                start = Offset(width * 0.2f, height / 2f),
+                end = Offset(width * 0.8f, height / 2f),
+                durationMillis = 100,
+            )
         }
+        rule.waitForIdle()
+        rule.onNodeWithText("80").assertExists()
     }
 
     @Test
     fun touchExpression_legacyTouchVersion_hitTestFollowsMovedComponent() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val capturedDocument =
-                captureSingleRemoteDocument(context = context, profile = legacyTouchProfile()) {
-                    val touchFraction = remember { MutableRemoteFloat(-1f) }
-                    RemoteColumn(modifier = RemoteModifier.fillMaxWidth().height(300.rdp)) {
-                        val text =
-                            touchFraction
-                                .isLessThan(0f.rf)
-                                .select(
-                                    "Unset".rs,
-                                    (touchFraction * 100f).toRemoteInt().toRemoteString(),
-                                )
-                        RemoteText(text)
-                        // The weighted spacer pushes LegacyCanvas to the right edge, so it moves
-                        // (without resizing) when the host width changes.
-                        RemoteRow(modifier = RemoteModifier.fillMaxWidth().height(100.rdp)) {
-                            RemoteBox(modifier = RemoteModifier.weight(1f).height(100.rdp))
-                            RemoteCanvas(
-                                modifier =
-                                    RemoteModifier.size(100.rdp, 100.rdp).semantics {
-                                        contentDescription = "LegacyCanvas".rs
-                                    }
-                            ) {
-                                val doc = remoteComposeCreationState.document
-                                val outputId =
-                                    Utils.idFromNan(
-                                        touchFraction.getFloatIdForCreationState(
-                                            remoteComposeCreationState
-                                        )
-                                    )
-                                val rootX = doc.addComponentRootXValue()
-                                val width = doc.addComponentWidthValue()
-                                doc.buffer.addTouchExpression(
-                                    outputId,
-                                    -1f,
-                                    0f,
-                                    1f,
-                                    0f,
-                                    0,
-                                    floatArrayOf(
-                                        RemoteContext.FLOAT_TOUCH_POS_X,
-                                        rootX,
-                                        AnimatedFloatExpression.SUB,
-                                        width,
-                                        AnimatedFloatExpression.DIV,
-                                    ),
-                                    TouchExpression.STOP_ABSOLUTE_POS,
-                                    null,
-                                    null,
-                                )
+        val hostWidth = mutableStateOf(300.dp)
+        rule.setRemoteContent(
+            profile = legacyTouchProfile(),
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(hostWidth.value, 300.dp)) { it() }
+            },
+        ) {
+            val touchFraction = remember { MutableRemoteFloat(-1f) }
+            RemoteColumn(modifier = RemoteModifier.fillMaxWidth().height(300.rdp)) {
+                val text =
+                    touchFraction
+                        .isLessThan(0f.rf)
+                        .select("Unset".rs, (touchFraction * 100f).toRemoteInt().toRemoteString())
+                RemoteText(text)
+                // The weighted spacer pushes LegacyCanvas to the right edge, so it moves
+                // (without resizing) when the host width changes.
+                RemoteRow(modifier = RemoteModifier.fillMaxWidth().height(100.rdp)) {
+                    RemoteBox(modifier = RemoteModifier.weight(1f).height(100.rdp))
+                    RemoteCanvas(
+                        modifier =
+                            RemoteModifier.size(100.rdp, 100.rdp).semantics {
+                                contentDescription = "LegacyCanvas".rs
                             }
-                        }
+                    ) {
+                        val doc = remoteComposeCreationState.document
+                        val outputId =
+                            Utils.idFromNan(
+                                touchFraction.getFloatIdForCreationState(remoteComposeCreationState)
+                            )
+                        val rootX = doc.addComponentRootXValue()
+                        val width = doc.addComponentWidthValue()
+                        doc.buffer.addTouchExpression(
+                            outputId,
+                            -1f,
+                            0f,
+                            1f,
+                            0f,
+                            0,
+                            floatArrayOf(
+                                RemoteContext.FLOAT_TOUCH_POS_X,
+                                rootX,
+                                AnimatedFloatExpression.SUB,
+                                width,
+                                AnimatedFloatExpression.DIV,
+                            ),
+                            TouchExpression.STOP_ABSOLUTE_POS,
+                            null,
+                            null,
+                        )
                     }
-                }
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(capturedDocument.bytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            val hostWidth = mutableStateOf(300.dp)
-            rule.setContent {
-                Box(modifier = Modifier.size(hostWidth.value, 300.dp)) {
-                    RcPlayer(document = document)
                 }
             }
-            rule.waitForIdle()
-            rule.onNodeWithText("Unset").assertExists()
-
-            // LegacyCanvas moves from root x=200 to x=100 without changing size.
-            hostWidth.value = 200.dp
-            rule.waitForIdle()
-
-            // Tap the center of the moved LegacyCanvas (root x=150). Bounds from before the move
-            // (x=200..300) would reject the touch and leave the value unset.
-            rule.onNodeWithContentDescription("LegacyCanvas").performClick()
-            rule.waitForIdle()
-            rule.onNodeWithText("50").assertExists()
         }
+        rule.waitForIdle()
+        rule.onNodeWithText("Unset").assertExists()
+
+        // LegacyCanvas moves from root x=200 to x=100 without changing size.
+        hostWidth.value = 200.dp
+        rule.waitForIdle()
+
+        // Tap the center of the moved LegacyCanvas (root x=150). Bounds from before the move
+        // (x=200..300) would reject the touch and leave the value unset.
+        rule.onNodeWithContentDescription("LegacyCanvas").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("50").assertExists()
     }
 
     @Test
@@ -3038,96 +2702,78 @@ class RcPlayerInteractivityTest {
 
     @Test
     fun touchExpression_andRootPointerEvents_multiTouch_ignoresSecondFingerAndHover() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val capturedDocument =
-                captureSingleRemoteDocument(context = context) {
-                    val touchFraction = remember { MutableRemoteFloat(-1f) }
-                    RemoteColumn(modifier = RemoteModifier.size(200.rdp)) {
-                        RemoteCanvas(
-                            modifier =
-                                RemoteModifier.size(200.rdp, 100.rdp).semantics {
-                                    contentDescription = "MultiTouchCanvas".rs
-                                }
-                        ) {
-                            val doc = remoteComposeCreationState.document
-                            val outputId =
-                                Utils.idFromNan(
-                                    touchFraction.getFloatIdForCreationState(
-                                        remoteComposeCreationState
-                                    )
-                                )
-                            val width = doc.addComponentWidthValue()
-                            doc.buffer.addTouchExpression(
-                                outputId,
-                                -1f,
-                                0f,
-                                1f,
-                                0f,
-                                0,
-                                floatArrayOf(
-                                    RemoteContext.FLOAT_TOUCH_POS_X,
-                                    width,
-                                    AnimatedFloatExpression.DIV,
-                                ),
-                                TouchExpression.STOP_ABSOLUTE_POS,
-                                null,
-                                null,
-                            )
+        rule.setRemoteContent(
+            playComposableWrapper = { Box(modifier = Modifier.size(200.dp)) { it() } }
+        ) {
+            val touchFraction = remember { MutableRemoteFloat(-1f) }
+            RemoteColumn(modifier = RemoteModifier.size(200.rdp)) {
+                RemoteCanvas(
+                    modifier =
+                        RemoteModifier.size(200.rdp, 100.rdp).semantics {
+                            contentDescription = "MultiTouchCanvas".rs
                         }
-                        val text =
-                            touchFraction
-                                .isLessThan(0f.rf)
-                                .select(
-                                    "Unset".rs,
-                                    (touchFraction * 100f).toRemoteInt().toRemoteString(),
-                                )
-                        RemoteText(text)
-                    }
+                ) {
+                    val doc = remoteComposeCreationState.document
+                    val outputId =
+                        Utils.idFromNan(
+                            touchFraction.getFloatIdForCreationState(remoteComposeCreationState)
+                        )
+                    val width = doc.addComponentWidthValue()
+                    doc.buffer.addTouchExpression(
+                        outputId,
+                        -1f,
+                        0f,
+                        1f,
+                        0f,
+                        0,
+                        floatArrayOf(
+                            RemoteContext.FLOAT_TOUCH_POS_X,
+                            width,
+                            AnimatedFloatExpression.DIV,
+                        ),
+                        TouchExpression.STOP_ABSOLUTE_POS,
+                        null,
+                        null,
+                    )
                 }
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(capturedDocument.bytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) }
+                val text =
+                    touchFraction
+                        .isLessThan(0f.rf)
+                        .select("Unset".rs, (touchFraction * 100f).toRemoteInt().toRemoteString())
+                RemoteText(text)
             }
-            rule.waitForIdle()
-
-            val canvas = rule.onNodeWithContentDescription("MultiTouchCanvas")
-
-            // 1. Mouse hover move with nothing pressed should not drive the TouchExpression.
-            canvas.performMouseInput {
-                enter(Offset(20f, 20f))
-                moveTo(Offset(80f, 20f))
-                exit(Offset(80f, 20f))
-            }
-            rule.waitForIdle()
-            rule.onNodeWithText("Unset").assertExists()
-
-            // 2. Multi-touch: first finger down at 20% (x=40), second finger down at 90% (x=180)
-            // and up, then first finger moves to 60% (x=120) and releases.
-            // The second finger must not hijack the tracked pointer.
-            canvas.performTouchInput {
-                down(pointerId = 0, position = Offset(width * 0.2f, height / 2f))
-                advanceEventTime(16L)
-                down(pointerId = 1, position = Offset(width * 0.9f, height / 2f))
-                advanceEventTime(16L)
-                moveTo(pointerId = 1, position = Offset(width * 0.95f, height / 2f))
-                up(pointerId = 1)
-                advanceEventTime(16L)
-                moveTo(pointerId = 0, position = Offset(width * 0.6f, height / 2f))
-                advanceEventTime(16L)
-                up(pointerId = 0)
-            }
-            rule.waitForIdle()
-
-            rule.onNodeWithText("60").assertExists()
         }
+        rule.waitForIdle()
+
+        val canvas = rule.onNodeWithContentDescription("MultiTouchCanvas")
+
+        // 1. Mouse hover move with nothing pressed should not drive the TouchExpression.
+        canvas.performMouseInput {
+            enter(Offset(20f, 20f))
+            moveTo(Offset(80f, 20f))
+            exit(Offset(80f, 20f))
+        }
+        rule.waitForIdle()
+        rule.onNodeWithText("Unset").assertExists()
+
+        // 2. Multi-touch: first finger down at 20% (x=40), second finger down at 90% (x=180)
+        // and up, then first finger moves to 60% (x=120) and releases.
+        // The second finger must not hijack the tracked pointer.
+        canvas.performTouchInput {
+            down(pointerId = 0, position = Offset(width * 0.2f, height / 2f))
+            advanceEventTime(16L)
+            down(pointerId = 1, position = Offset(width * 0.9f, height / 2f))
+            advanceEventTime(16L)
+            moveTo(pointerId = 1, position = Offset(width * 0.95f, height / 2f))
+            up(pointerId = 1)
+            advanceEventTime(16L)
+            moveTo(pointerId = 0, position = Offset(width * 0.6f, height / 2f))
+            advanceEventTime(16L)
+            up(pointerId = 0)
+        }
+        rule.waitForIdle()
+
+        rule.onNodeWithText("60").assertExists()
     }
 
     @Test

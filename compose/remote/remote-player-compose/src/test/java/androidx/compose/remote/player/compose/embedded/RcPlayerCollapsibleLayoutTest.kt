@@ -18,14 +18,12 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size as composeSize
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -50,9 +48,7 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.unit.dp
-import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -351,34 +347,25 @@ class RcPlayerCollapsibleLayoutTest {
 
     @Test
     fun flowRow_verticalArrangement_alignsWrappedRows() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val capturedDocument =
-                captureSingleRemoteDocument(
-                    context = context,
-                    profile = experimentalProfile,
-                ) {
-                    RemoteFlowRow(
-                        modifier = RemoteModifier.size(100.rdp, 200.rdp),
-                        verticalArrangement = RemoteArrangement.Bottom,
-                    ) {
-                        RemoteBox(
-                            modifier =
-                                RemoteModifier.semantics { contentDescription = "FlowItem".rs }
-                                    .size(60.rdp, 40.rdp)
-                        )
-                    }
-                }
-            playerRule.setContent {
-                Box(modifier = Modifier.composeSize(100.dp, 200.dp)) {
-                    RcPlayer(capturedDocument = capturedDocument)
-                }
+        playerRule.setRemoteContent(
+            profile = experimentalProfile,
+            playComposableWrapper = {
+                Box(modifier = Modifier.composeSize(100.dp, 200.dp)) { it() }
+            },
+        ) {
+            RemoteFlowRow(
+                modifier = RemoteModifier.size(100.rdp, 200.rdp),
+                verticalArrangement = RemoteArrangement.Bottom,
+            ) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.semantics { contentDescription = "FlowItem".rs }
+                            .size(60.rdp, 40.rdp)
+                )
             }
-            playerRule.waitForIdle()
-
-            val bounds =
-                playerRule.onNodeWithContentDescription("FlowItem").getUnclippedBoundsInRoot()
-            assertThat(bounds.top.value).isEqualTo(160f)
         }
+
+        val bounds = playerRule.onNodeWithContentDescription("FlowItem").getUnclippedBoundsInRoot()
+        assertThat(bounds.top.value).isEqualTo(160f)
     }
 }

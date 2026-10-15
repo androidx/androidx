@@ -16,32 +16,20 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import android.content.Context
 import android.graphics.Typeface
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteClock
-import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.player.core.platform.FontInstance
 import androidx.compose.remote.player.core.platform.TypefaceResolver
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import java.io.ByteArrayInputStream
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -180,33 +168,14 @@ class RcPlayerTextPropertiesTest {
 
     @Test
     fun testRemoteTextRendersThroughPlayer() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            RemoteText(
-                                text = "Hello Remote Properties".rs,
-                                style = RemoteTextStyle(fontSize = 18.rsp),
-                            )
-                        },
-                    )
-                    .bytes
-
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) }
-            }
-
-            rule.onNodeWithText("Hello Remote Properties").assertIsDisplayed()
+        rule.setRemoteContent {
+            RemoteText(
+                text = "Hello Remote Properties".rs,
+                style = RemoteTextStyle(fontSize = 18.rsp),
+            )
         }
+
+        rule.onNodeWithText("Hello Remote Properties").assertIsDisplayed()
     }
 
     @Test

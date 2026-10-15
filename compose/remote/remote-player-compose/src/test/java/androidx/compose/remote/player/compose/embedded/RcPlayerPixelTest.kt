@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.Box
@@ -27,6 +26,8 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.layout.Container
+import androidx.compose.remote.core.operations.layout.LoopOperation
+import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -83,13 +84,12 @@ class RcPlayerPixelTest {
 
     /** Renders [content] in a 100dp player box at top-start and rasterizes the content view. */
     private fun renderPlayerToBitmap(content: @Composable @RemoteComposable () -> Unit): Bitmap {
-        val ctx = ApplicationProvider.getApplicationContext<Context>()
-        val document = runBlocking { captureRule.captureDocument(context = ctx, content = content) }
-        rule.setContent {
-            Box(modifier = Modifier.size(100.dp).testTag("player")) {
-                RcPlayer(document = document)
-            }
-        }
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(100.dp).testTag("player")) { it() }
+            },
+            content = content,
+        )
         rule.waitForIdle()
         return rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
     }
@@ -99,7 +99,6 @@ class RcPlayerPixelTest {
     /** A solid red rect drawn by the embedded canvas path must read back red. */
     @Test
     fun solidRectRendersRed() {
-        val d = rule.density.density
         val bmp = renderPlayerToBitmap {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 drawRect(
@@ -122,7 +121,6 @@ class RcPlayerPixelTest {
      */
     @Test
     fun lazilyDecodedBitmapRendersWhenDrawn() {
-        val d = rule.density.density
         val red =
             Bitmap.createBitmap(20, 20, Bitmap.Config.ARGB_8888).apply {
                 eraseColor(AndroidColor.RED)
@@ -147,7 +145,6 @@ class RcPlayerPixelTest {
      */
     @Test
     fun drawToOffscreenBitmapRoundTripsToScreen() {
-        val d = rule.density.density
         val offscreen = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).asImageBitmap().rb
         val bmp = renderPlayerToBitmap {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
@@ -174,7 +171,6 @@ class RcPlayerPixelTest {
      */
     @Test
     fun clipRectActuallyClips() {
-        val d = rule.density.density
         val bmp = renderPlayerToBitmap {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 clipRect(0f.rf, 0f.rf, 50f.rf, 50f.rf) {
@@ -202,7 +198,6 @@ class RcPlayerPixelTest {
      */
     @Test
     fun linearGradientPixels() {
-        val d = rule.density.density
         val bmp = renderPlayerToBitmap {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 val paint =
@@ -242,7 +237,6 @@ class RcPlayerPixelTest {
      */
     @Test
     fun clipPathActuallyClips() {
-        val d = rule.density.density
         val clipSquare = RemotePath("M 0 0 L 50 0 L 50 50 L 0 50 Z")
         val bmp = renderPlayerToBitmap {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
@@ -268,15 +262,13 @@ class RcPlayerPixelTest {
     }
 
     /**
-     * Pixel-level proof that [androidx.compose.remote.core.operations.layout.LoopOperation] runs in
-     * the embedded draw stream AND loads its index variable each iteration: a 3-iteration loop
-     * draws a 20px-wide red stripe at `x = index * 30` (so stripes at 0, 30, 60). All three stripe
-     * centers must be red and the gap between them must not — which only holds if the loop ran
-     * three times with the index advancing.
+     * Pixel-level proof that [LoopOperation] runs in the embedded draw stream AND loads its index
+     * variable each iteration: a 3-iteration loop draws a 20px-wide red stripe at `x = index * 30`
+     * (so stripes at 0, 30, 60). All three stripe centers must be red and the gap between them must
+     * not — which only holds if the loop ran three times with the index advancing.
      */
     @Test
     fun loopDrawsAStripePerIterationAtTheIndexPosition() {
-        val d = rule.density.density
         val bmp = renderPlayerToBitmap {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 loop(from = 0f.rf, until = 3f.rf, step = 1f.rf) { index ->
@@ -300,13 +292,12 @@ class RcPlayerPixelTest {
 
     /**
      * Proves the `WriteToDocument` escape hatch round-trips: author a red paint + full-canvas
-     * `drawRect` directly against the raw [androidx.compose.remote.creation.RemoteComposeWriter]
-     * (no typed DSL), capture, and render through the player. The center must read back red — which
-     * only holds if the applied node emitted the raw ops at the right point in the document tree.
+     * `drawRect` directly against the raw [RemoteComposeWriter] (no typed DSL), capture, and render
+     * through the player. The center must read back red — which only holds if the applied node
+     * emitted the raw ops at the right point in the document tree.
      */
     @Test
     fun writeToDocumentEmitsRawWriterOps() {
-        val d = rule.density.density
         val bmp = renderPlayerToBitmap {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 document.rcPaint.setColor(AndroidColor.RED).commit()
@@ -345,7 +336,6 @@ class RcPlayerPixelTest {
     /** Verifies that drawing a rect with color validation works and renders red. */
     @Test
     fun testDrawRectWithColorValidation() {
-        val d = rule.density.density
         val bmp = renderPlayerToBitmap {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 drawRect(
@@ -364,11 +354,13 @@ class RcPlayerPixelTest {
     @Test
     fun roundedClipRectActuallyClipsAndUpdatesReactively() {
         val d = rule.density.density
-        val document = runBlocking {
-            captureRule.captureDocument(context = ApplicationProvider.getApplicationContext()) {
-                val radius = remember {
-                    createNamedRemoteFloatExpression("radius") { 0f.rf }
+        val document =
+            rule.setRemoteContent(
+                playComposableWrapper = {
+                    Box(modifier = Modifier.size(100.dp).testTag("player")) { it() }
                 }
+            ) {
+                val radius = remember { createNamedRemoteFloatExpression("radius") { 0f.rf } }
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)
@@ -376,13 +368,6 @@ class RcPlayerPixelTest {
                             .background(Color.Red.rc)
                 )
             }
-        }
-
-        rule.setContent {
-            Box(modifier = Modifier.size(100.dp).testTag("player")) {
-                RcPlayer(document = document)
-            }
-        }
         rule.waitForIdle()
 
         // 1. Initially radius is 0f, so the corner (3, 3) must be RED (not clipped).

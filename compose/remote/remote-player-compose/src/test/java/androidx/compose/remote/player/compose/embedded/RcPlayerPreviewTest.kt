@@ -21,17 +21,31 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteClock
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.previews.RemoteAppCardDefault
+import androidx.wear.compose.remote.material3.previews.RemoteButtonEnabled
+import androidx.wear.compose.remote.material3.previews.RemoteButtonGroupThreeButtons
+import androidx.wear.compose.remote.material3.previews.RemoteCardDefault
+import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressEnabled
+import androidx.wear.compose.remote.material3.previews.RemoteCompactButtonWithIcon
+import androidx.wear.compose.remote.material3.previews.RemoteIconButtonEnabled
+import androidx.wear.compose.remote.material3.previews.RemoteIconDefault
+import androidx.wear.compose.remote.material3.previews.RemoteTextButtonEnabled
+import androidx.wear.compose.remote.material3.previews.RemoteTitleCardDefault
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -46,9 +60,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 class RcPlayerPreviewTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @Test
     fun testRemoteAppCardPreview() {
@@ -60,22 +72,15 @@ class RcPlayerPreviewTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.mainClock.autoAdvance = true
             rule.setContent {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.ui.platform.LocalDensity provides
-                        androidx.compose.ui.unit.Density(1.0f)
-                ) {
+                CompositionLocalProvider(LocalDensity provides Density(1.0f)) {
                     Row(modifier = Modifier.size(640.dp, 200.dp)) {
                         Box(modifier = Modifier.weight(1f).testTag("composeParent")) {
                             RcPlayer(
@@ -119,30 +124,18 @@ class RcPlayerPreviewTest {
         runBlocking {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            androidx.wear.compose.remote.material3.previews.RemoteButtonEnabled()
-                        },
-                    )
+                captureSingleRemoteDocument(context = context, content = { RemoteButtonEnabled() })
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        java.io.ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.ui.platform.LocalDensity provides
-                        androidx.compose.ui.unit.Density(1.0f)
-                ) {
+                CompositionLocalProvider(LocalDensity provides Density(1.0f)) {
                     Row(modifier = Modifier.size(640.dp, 200.dp)) {
                         Box(modifier = Modifier.weight(1f).testTag("composeParent")) {
                             RcPlayer(
@@ -166,7 +159,6 @@ class RcPlayerPreviewTest {
 
             val composeBounds = rule.onNodeWithTag("composePlayer").getUnclippedBoundsInRoot()
             val javaBounds = rule.onNodeWithTag("javaPlayer").getUnclippedBoundsInRoot()
-
         }
     }
 
@@ -175,30 +167,18 @@ class RcPlayerPreviewTest {
         runBlocking {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            androidx.wear.compose.remote.material3.previews.RemoteCardDefault()
-                        },
-                    )
+                captureSingleRemoteDocument(context = context, content = { RemoteCardDefault() })
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        java.io.ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.ui.platform.LocalDensity provides
-                        androidx.compose.ui.unit.Density(1.0f)
-                ) {
+                CompositionLocalProvider(LocalDensity provides Density(1.0f)) {
                     Row(modifier = Modifier.size(640.dp, 200.dp)) {
                         Box(modifier = Modifier.weight(1f).testTag("composeParent")) {
                             RcPlayer(
@@ -231,29 +211,19 @@ class RcPlayerPreviewTest {
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
-                        content = {
-                            androidx.wear.compose.remote.material3.previews
-                                .RemoteCompactButtonWithIcon()
-                        },
+                        content = { RemoteCompactButtonWithIcon() },
                     )
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        java.io.ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.ui.platform.LocalDensity provides
-                        androidx.compose.ui.unit.Density(1.0f)
-                ) {
+                CompositionLocalProvider(LocalDensity provides Density(1.0f)) {
                     Row(modifier = Modifier.size(640.dp, 200.dp)) {
                         Box(modifier = Modifier.weight(1f).testTag("composeParent")) {
                             RcPlayer(
@@ -286,29 +256,19 @@ class RcPlayerPreviewTest {
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
-                        content = {
-                            androidx.wear.compose.remote.material3.previews
-                                .RemoteButtonGroupThreeButtons()
-                        },
+                        content = { RemoteButtonGroupThreeButtons() },
                     )
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        java.io.ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.ui.platform.LocalDensity provides
-                        androidx.compose.ui.unit.Density(1.0f)
-                ) {
+                CompositionLocalProvider(LocalDensity provides Density(1.0f)) {
                     Row(modifier = Modifier.size(640.dp, 200.dp)) {
                         Box(modifier = Modifier.weight(1f).testTag("composeParent")) {
                             RcPlayer(
@@ -341,28 +301,19 @@ class RcPlayerPreviewTest {
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
-                        content = {
-                            androidx.wear.compose.remote.material3.previews.RemoteTitleCardDefault()
-                        },
+                        content = { RemoteTitleCardDefault() },
                     )
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        java.io.ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.ui.platform.LocalDensity provides
-                        androidx.compose.ui.unit.Density(1.0f)
-                ) {
+                CompositionLocalProvider(LocalDensity provides Density(1.0f)) {
                     Row(modifier = Modifier.size(640.dp, 200.dp)) {
                         Box(modifier = Modifier.weight(1f).testTag("composeParent")) {
                             RcPlayer(
@@ -395,29 +346,19 @@ class RcPlayerPreviewTest {
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
-                        content = {
-                            androidx.wear.compose.remote.material3.previews
-                                .RemoteCircularProgressEnabled()
-                        },
+                        content = { RemoteCircularProgressEnabled() },
                     )
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        java.io.ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.ui.platform.LocalDensity provides
-                        androidx.compose.ui.unit.Density(1.0f)
-                ) {
+                CompositionLocalProvider(LocalDensity provides Density(1.0f)) {
                     Row(modifier = Modifier.size(640.dp, 200.dp)) {
                         Box(modifier = Modifier.weight(1f).testTag("composeParent")) {
                             RcPlayer(
@@ -450,29 +391,19 @@ class RcPlayerPreviewTest {
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
-                        content = {
-                            androidx.wear.compose.remote.material3.previews
-                                .RemoteTextButtonEnabled()
-                        },
+                        content = { RemoteTextButtonEnabled() },
                     )
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        java.io.ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.ui.platform.LocalDensity provides
-                        androidx.compose.ui.unit.Density(1.0f)
-                ) {
+                CompositionLocalProvider(LocalDensity provides Density(1.0f)) {
                     Row(modifier = Modifier.size(640.dp, 200.dp)) {
                         Box(modifier = Modifier.weight(1f).testTag("composeParent")) {
                             RcPlayer(
@@ -503,30 +434,18 @@ class RcPlayerPreviewTest {
         runBlocking {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            androidx.wear.compose.remote.material3.previews.RemoteIconDefault()
-                        },
-                    )
+                captureSingleRemoteDocument(context = context, content = { RemoteIconDefault() })
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        java.io.ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.ui.platform.LocalDensity provides
-                        androidx.compose.ui.unit.Density(1.0f)
-                ) {
+                CompositionLocalProvider(LocalDensity provides Density(1.0f)) {
                     Row(modifier = Modifier.size(640.dp, 200.dp)) {
                         Box(modifier = Modifier.weight(1f).testTag("composeParent")) {
                             RcPlayer(
@@ -559,29 +478,19 @@ class RcPlayerPreviewTest {
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
-                        content = {
-                            androidx.wear.compose.remote.material3.previews
-                                .RemoteIconButtonEnabled()
-                        },
+                        content = { RemoteIconButtonEnabled() },
                     )
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        java.io.ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.ui.platform.LocalDensity provides
-                        androidx.compose.ui.unit.Density(1.0f)
-                ) {
+                CompositionLocalProvider(LocalDensity provides Density(1.0f)) {
                     Row(modifier = Modifier.size(640.dp, 200.dp)) {
                         Box(modifier = Modifier.weight(1f).testTag("composeParent")) {
                             RcPlayer(

@@ -18,13 +18,7 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import android.content.Context
 import android.graphics.Color as AndroidColor
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -38,17 +32,11 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.unit.dp
-import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import java.io.ByteArrayInputStream
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,16 +52,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerFrameCorrectnessTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
-
-    private fun loadDocument(bytes: ByteArray): CoreDocument =
-        CoreDocument().apply {
-            ByteArrayInputStream(bytes).use {
-                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-            }
-        }
+    @get:Rule val rule = RcPlayerTestRule()
 
     /**
      * A canvas draw positioned by the canvas's own measured size (WIDTH/HEIGHT ComponentValues)
@@ -83,65 +62,36 @@ class RcPlayerFrameCorrectnessTest {
      */
     @Test
     fun sizeDrivenCanvasDrawIsCorrectOnTheFirstFrame() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val bytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            RemoteBox(modifier = RemoteModifier.fillMaxSize()) {
-                                RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                                    val paint = RemotePaint().apply { color = Color.Red.rc }
-                                    drawCircle(paint = paint, radius = width / 2f)
-                                }
-                            }
-                        },
-                    )
-                    .bytes
-
-            val document = loadDocument(bytes)
-            rule.mainClock.autoAdvance = false
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) }
+        rule.mainClock.autoAdvance = false
+        rule.setRemoteContent {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize()) {
+                RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                    val paint = RemotePaint().apply { color = Color.Red.rc }
+                    drawCircle(paint = paint, radius = width / 2f)
+                }
             }
-
-            // Exactly one frame: composition + layout + draw. No settle time allowed.
-            val d = rule.density.density
-            val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
-            val center = bitmap.getPixel((50 * d).toInt(), (50 * d).toInt())
-            assertThat(AndroidColor.red(center)).isGreaterThan(200)
-            assertThat(AndroidColor.green(center)).isLessThan(60)
         }
+
+        // Exactly one frame: composition + layout + draw. No settle time allowed.
+        val d = rule.density.density
+        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
+        val center = bitmap.getPixel((50 * d).toInt(), (50 * d).toInt())
+        assertThat(AndroidColor.red(center)).isGreaterThan(200)
+        assertThat(AndroidColor.green(center)).isLessThan(60)
     }
 
     /** A plain sized+colored box renders on the first frame (no clock advance at all). */
     @Test
     fun staticContentRendersOnTheFirstFrame() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val bytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(100.rdp).background(Color(0xFF0000FF).rc)
-                            )
-                        },
-                    )
-                    .bytes
-
-            val document = loadDocument(bytes)
-            rule.mainClock.autoAdvance = false
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) }
-            }
-
-            val d = rule.density.density
-            val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
-            val center = bitmap.getPixel((50 * d).toInt(), (50 * d).toInt())
-            assertThat(AndroidColor.blue(center)).isGreaterThan(200)
+        rule.mainClock.autoAdvance = false
+        rule.setRemoteContent {
+            RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color(0xFF0000FF).rc))
         }
+
+        val d = rule.density.density
+        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
+        val center = bitmap.getPixel((50 * d).toInt(), (50 * d).toInt())
+        assertThat(AndroidColor.blue(center)).isGreaterThan(200)
     }
 
     /**
@@ -151,36 +101,23 @@ class RcPlayerFrameCorrectnessTest {
      */
     @Test
     fun animatedDocumentReachesIdleWithDefaultAutoUpdate() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val bytes =
-                captureSingleRemoteDocument(
-                        context = context,
-                        content = {
-                            val animated =
-                                animateRemoteFloatAsState(
-                                    targetValue = 1.0f.rf,
-                                    animationSpec = remoteTween(durationMillis = 1000),
-                                )
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(100.rdp)
-                                        .background(Color.Red.rc)
-                                        .graphicsLayer(alpha = animated)
-                            )
-                        },
-                    )
-                    .bytes
-
-            val document = loadDocument(bytes)
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) }
-            }
-
-            // waitForIdle() and captureToImage() should complete successfully without timing out
-            rule.waitForIdle()
-            val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
-            assertThat(bitmap).isNotNull()
+        rule.setRemoteContent {
+            val animated =
+                animateRemoteFloatAsState(
+                    targetValue = 1.0f.rf,
+                    animationSpec = remoteTween(durationMillis = 1000),
+                )
+            RemoteBox(
+                modifier =
+                    RemoteModifier.size(100.rdp)
+                        .background(Color.Red.rc)
+                        .graphicsLayer(alpha = animated)
+            )
         }
+
+        // waitForIdle() and captureToImage() should complete successfully without timing out
+        rule.waitForIdle()
+        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
+        assertThat(bitmap).isNotNull()
     }
 }
