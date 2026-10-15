@@ -30,7 +30,6 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInput
@@ -271,14 +270,14 @@ private fun AutoCenteringRow(
  * A scrollable modifier which can be applied on a composable to propagate the scrollable events to
  * the specified [Picker] defined by the [PickerState].
  */
-private fun Modifier.scrollablePicker(pickerState: PickerState) = composed {
+@Composable
+private fun Modifier.scrollablePicker(pickerState: PickerState): Modifier =
     this.scrollable(
         state = pickerState,
         orientation = Orientation.Vertical,
         flingBehavior = PickerDefaults.flingBehavior(state = pickerState),
         reverseDirection = true,
     )
-}
 
 /**
  * Calculates the center for the list of [Placeable]. Returns the offset which can be applied on
