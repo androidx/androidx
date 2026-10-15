@@ -33,13 +33,10 @@ import android.media.MediaFormat.MIMETYPE_VIDEO_VP9
 import android.os.Build
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
-import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT_SMPTE_2094_50
 import androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT
-import androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT_SMPTE_2094_50
 import androidx.camera.core.DynamicRange.HDR10_10_BIT
 import androidx.camera.core.DynamicRange.HDR10_10_BIT_SMPTE_2094_50
 import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
-import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT_SMPTE_2094_50
 import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.HLG_10_BIT_SMPTE_2094_50
 import androidx.camera.core.DynamicRange.SDR
@@ -86,11 +83,8 @@ public object DynamicRangeFormatComboRegistry {
             HDR10_10_BIT to buildHdr10Registry(),
             HDR10_10_BIT_SMPTE_2094_50 to buildHdr10Registry(),
             HDR10_PLUS_10_BIT to buildHdr10PlusRegistry(),
-            HDR10_PLUS_10_BIT_SMPTE_2094_50 to buildHdr10PlusRegistry(),
             DOLBY_VISION_8_BIT to buildDolbyVisionRegistry(),
-            DOLBY_VISION_8_BIT_SMPTE_2094_50 to buildDolbyVisionRegistry(),
             DOLBY_VISION_10_BIT to buildDolbyVisionRegistry(),
-            DOLBY_VISION_10_BIT_SMPTE_2094_50 to buildDolbyVisionRegistry(),
         )
     }
 
