@@ -37,7 +37,7 @@
     <string name="abc_prepend_shortcut_label" msgid="5520303668377388990">"Menua +"</string>
     <string name="abc_menu_meta_shortcut_label" msgid="4192209724446364286">"Meta +"</string>
     <string name="abc_menu_ctrl_shortcut_label" msgid="2223301931652355242">"Ktrl +"</string>
-    <string name="abc_menu_alt_shortcut_label" msgid="8833365367933412986">"Alt +"</string>
+    <string name="abc_menu_alt_shortcut_label" msgid="8833365367933412986">"Alt+"</string>
     <string name="abc_menu_shift_shortcut_label" msgid="4741552369836443843">"Maius +"</string>
     <string name="abc_menu_sym_shortcut_label" msgid="6180552449598693998">"Sym +"</string>
     <string name="abc_menu_function_shortcut_label" msgid="375214403600139847">"Funtzioa +"</string>
