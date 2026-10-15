@@ -37,6 +37,7 @@ androidXMultiplatform {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":ink:ink-brush"))
+            implementation(project(":ink:ink-geometry"))
             implementation(project(":ink:ink-nativeloader"))
             implementation(project(":ink:ink-strokes"))
         }

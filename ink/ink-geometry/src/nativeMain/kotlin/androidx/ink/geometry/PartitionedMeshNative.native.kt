@@ -74,7 +74,7 @@ actual internal object PartitionedMeshNative {
         }
         val outPointers =
             LongArray(PartitionedMeshNative_getRenderGroupMeshCount(nativePointer, groupIndex))
-        check(outPointers.size > 0) { "Each render group must have at least one mesh." }
+        if (outPointers.isEmpty()) return outPointers
         outPointers.usePinned {
             // addressOf(0) is safe because outPointers is non-empty.
             PartitionedMeshNative_fillRenderGroupMeshPointers(
