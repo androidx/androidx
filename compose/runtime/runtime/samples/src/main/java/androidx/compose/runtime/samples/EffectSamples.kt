@@ -26,6 +26,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -56,16 +57,16 @@ fun TwoInputsKeySample() {
 @Sampled
 @Composable
 fun SimpleStateSample() {
-    val count = remember { mutableStateOf(0) }
+    val count = remember { mutableIntStateOf(0) }
 
-    Text(text = "You clicked ${count.value} times")
-    Button(onClick = { count.value++ }) { Text("Click me") }
+    Text(text = "You clicked ${count.intValue} times")
+    Button(onClick = { count.intValue++ }) { Text("Click me") }
 }
 
 @Sampled
 @Composable
 fun DestructuredStateSample() {
-    val (count, setCount) = remember { mutableStateOf(0) }
+    val (count, setCount) = remember { mutableIntStateOf(0) }
 
     Text(text = "You clicked $count times")
     Button(onClick = { setCount(count + 1) }) { Text("Click me") }
@@ -92,7 +93,7 @@ fun DelegatedReadOnlyStateSample() {
 @Sampled
 @Composable
 fun DelegatedStateSample() {
-    var count by remember { mutableStateOf(0) }
+    var count by remember { mutableIntStateOf(0) }
 
     Text(text = "You clicked $count times")
     Button(onClick = { count = count + 1 }) { Text("Click me") }
@@ -128,8 +129,8 @@ fun DerivedStateSample() {
 
     @Composable
     fun Example() {
-        var a by remember { mutableStateOf(0) }
-        var b by remember { mutableStateOf(0) }
+        var a by remember { mutableIntStateOf(0) }
+        var b by remember { mutableIntStateOf(0) }
         val sum = remember { derivedStateOf { a + b } }
         // Changing either a or b will cause CountDisplay to recompose but not trigger Example
         // to recompose.
