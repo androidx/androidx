@@ -187,7 +187,7 @@ class VectorTest {
         rule.setContent {
             composeCount++
             // Arbitrary read to force composition here and verify the subcomposition below skips
-            state.value
+            state.intValue
             val vectorPainter =
                 rememberVectorPainter(
                     defaultWidth = 10.dp,
