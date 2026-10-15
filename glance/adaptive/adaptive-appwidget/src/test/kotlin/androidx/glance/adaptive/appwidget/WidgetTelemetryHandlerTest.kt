@@ -74,7 +74,7 @@ class WidgetTelemetryHandlerTest {
     fun setUp() {
         appWidgetManager = spy(AppWidgetManager.getInstance(context))
         handler = WidgetTelemetryHandler(appWidgetManager)
-        GlanceAdaptiveWidgetReceiver.clearOptionsCache()
+        WidgetOptionsCache.clear()
         AppWidgetTemplateRegistry.resetForTesting()
         registerTestTemplate(ArchetypeSelector { _, constraints -> constraints.surface })
     }
