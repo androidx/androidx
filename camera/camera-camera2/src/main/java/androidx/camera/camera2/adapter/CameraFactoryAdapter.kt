@@ -41,7 +41,11 @@ import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.CameraUpdateException
 import androidx.camera.core.impl.Observable
+import androidx.camera.core.impl.utils.ContextUtil
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.StreamSpecsCalculator
+import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlinx.coroutines.CoroutineScope
@@ -55,13 +59,16 @@ internal class CameraFactoryAdapter(
     private val lazyCameraPipe: Lazy<CameraPipe>,
     context: Context,
     @get:VisibleForTesting internal val threadConfig: CameraThreadConfig,
-    camera2InteropCallbacks: CameraInteropStateCallbackRepository,
+    private val camera2InteropCallbacks: CameraInteropStateCallbackRepository,
     private val availableCamerasSelector: CameraSelector?,
     private val streamSpecsCalculator: StreamSpecsCalculator,
     private val cameraXConfig: CameraXConfig,
     /** Whether [threadConfig]'s camera executor runs tasks inline on the calling thread. */
     private val isDirectExecutor: Boolean = false,
+    private val interopCallbackExecutor: Executor =
+        CameraXExecutors.newSequentialExecutor(threadConfig.cameraExecutor),
 ) : CameraFactory, CameraFactory.Interrogator {
+    private val appContext: Context = ContextUtil.getPersistentApplicationContext(context)
     private val cameraCoordinator: CameraCoordinatorAdapter =
         CameraCoordinatorAdapter(lazyCameraPipe.value, lazyCameraPipe.value.cameras())
     private val pipeCameraPresenceObservable: PipeCameraPresenceSource
@@ -73,7 +80,7 @@ internal class CameraFactoryAdapter(
             DaggerCameraAppComponent.builder()
                 .config(
                     CameraAppConfig(
-                        context,
+                        appContext,
                         threadConfig,
                         lazyCameraPipe.value,
                         camera2InteropCallbacks,
@@ -101,7 +108,7 @@ internal class CameraFactoryAdapter(
                 coroutineScope =
                     CoroutineScope(threadConfig.cameraExecutor.asCoroutineDispatcher()),
                 initialCameraIds = initialIds,
-                context = context,
+                context = appContext,
             )
         onCameraIdsUpdated(initialIds)
     }
@@ -198,7 +205,9 @@ internal class CameraFactoryAdapter(
         }
         cameraCoordinator.shutdown()
         pipeCameraPresenceObservable.stopMonitoring()
+        camera2InteropCallbacks.clearWhenClosed()
         if (!lazyCameraPipe.isInitialized()) {
+            camera2InteropCallbacks.clearCallbacks()
             return
         }
         val cameraPipe = lazyCameraPipe.value
@@ -215,10 +224,28 @@ internal class CameraFactoryAdapter(
                     cameraPipe.shutdown()
                 } catch (e: Exception) {
                     Camera2Logger.error(e) { "Failed to shut down $cameraPipe" }
+                } finally {
+                    clearInteropCallbacksAfterShutdown()
                 }
             }
         } else {
-            cameraPipe.shutdown()
+            try {
+                cameraPipe.shutdown()
+            } finally {
+                clearInteropCallbacksAfterShutdown()
+            }
+        }
+    }
+
+    private fun clearInteropCallbacksAfterShutdown() {
+        if ((threadConfig.cameraExecutor as? ExecutorService)?.isShutdown == true) {
+            camera2InteropCallbacks.clearCallbacks()
+            return
+        }
+        try {
+            interopCallbackExecutor.execute { camera2InteropCallbacks.clearCallbacks() }
+        } catch (_: RuntimeException) {
+            camera2InteropCallbacks.clearCallbacks()
         }
     }
 }
