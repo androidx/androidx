@@ -20,17 +20,21 @@ package androidx.health.connect.client.impl.platform.records
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.os.ext.SdkExtensions
 import androidx.health.connect.client.ExperimentalDeviceDataSourceApi
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.Device
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.robolectric.annotation.Config
+import org.robolectric.util.ReflectionHelpers
 
 @OptIn(ExperimentalDeviceDataSourceApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -39,6 +43,23 @@ import org.robolectric.annotation.Config
     maxSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE,
 )
 class DeviceDataSourceConvertersTest {
+
+    private var originalUExtension: Any? = null
+
+    @Before
+    fun setUp() {
+        originalUExtension =
+            ReflectionHelpers.getStaticField(SdkExtensions::class.java, "U_EXTENSION_INT")
+    }
+
+    @After
+    fun tearDown() {
+        ReflectionHelpers.setStaticField(
+            SdkExtensions::class.java,
+            "U_EXTENSION_INT",
+            originalUExtension,
+        )
+    }
 
     @Test
     fun toSdkDeviceDataTypeSource_mappedRecord_convertsSuccessfully() {
@@ -116,12 +137,38 @@ class DeviceDataSourceConvertersTest {
         assertThat(sdkDataSource.device.type).isEqualTo(Device.TYPE_WATCH)
         assertThat(sdkDataSource.device.manufacturer).isEqualTo("Google")
         assertThat(sdkDataSource.device.model).isEqualTo("Pixel Watch")
+        // Display names need SDK extension 22, which this Robolectric Android U runtime lacks.
+        assertThat(sdkDataSource.device.displayName).isNull()
         assertThat(sdkDataSource.deviceDataTypeSources).hasSize(1)
 
         val recordSource = sdkDataSource.deviceDataTypeSources.first()
         assertThat(recordSource.dataType).isEqualTo(StepsRecord::class)
         assertThat(recordSource.isAvailable).isTrue()
         assertThat(recordSource.isUserEnabled).isTrue()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.CINNAMON_BUN]) // First runtime with Device#getDisplayName
+    fun toSdkDeviceDataSource_sdkExtension22_convertsDisplayName() {
+        ReflectionHelpers.setStaticField(SdkExtensions::class.java, "U_EXTENSION_INT", 22)
+        val platformDataOrigin =
+            android.health.connect.datatypes.DataOrigin.Builder()
+                .setPackageName("com.example.device")
+                .build()
+        val platformDevice =
+            android.health.connect.datatypes.Device.Builder()
+                .setType(android.health.connect.datatypes.Device.DEVICE_TYPE_WATCH)
+                .setDisplayName("Pixel Watch 3")
+                .build()
+        val platformDataSource = mock(PlatformDeviceDataSource::class.java)
+        `when`(platformDataSource.deviceDataOrigin).thenReturn(platformDataOrigin)
+        `when`(platformDataSource.device).thenReturn(platformDevice)
+        `when`(platformDataSource.deviceDataTypeSources).thenReturn(emptySet())
+
+        val sdkDataSource = platformDataSource.toSdkDeviceDataSource()
+
+        assertThat(sdkDataSource.device)
+            .isEqualTo(Device(type = Device.TYPE_WATCH, displayName = "Pixel Watch 3"))
     }
 
     @Test

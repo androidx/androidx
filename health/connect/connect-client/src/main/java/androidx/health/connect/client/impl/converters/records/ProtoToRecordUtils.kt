@@ -112,6 +112,7 @@ internal fun DataProto.Device.toDevice(): Device {
         manufacturer = if (hasManufacturer()) manufacturer else null,
         model = if (hasModel()) model else null,
         type = DEVICE_TYPE_STRING_TO_INT_MAP.getOrDefault(type, Device.TYPE_UNKNOWN),
+        displayName = if (hasDisplayName()) displayName else null,
     )
 }
 

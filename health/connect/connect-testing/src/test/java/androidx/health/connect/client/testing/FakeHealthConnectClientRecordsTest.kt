@@ -17,12 +17,16 @@
 package androidx.health.connect.client.testing
 
 import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.metadata.Device
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.testing.testdata.generateRunningRecords
 import androidx.health.connect.client.testing.testdata.runRecord1
 import androidx.health.connect.client.testing.testdata.runRecord1Updated
 import androidx.health.connect.client.time.TimeRangeFilter
 import com.google.common.truth.Truth.assertThat
+import java.time.Instant
 import java.time.Instant.EPOCH
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -52,6 +56,31 @@ class FakeHealthConnectClientRecordsTest {
             assertThat(response.records.first().metadata.clientRecordId)
                 .isEqualTo(runRecord1.metadata.clientRecordId)
         }
+    }
+
+    @Test
+    fun insertRecordWithDeviceDisplayName_readRecordHasDisplayName() = runTest {
+        val fake = FakeHealthConnectClient()
+        val startTime = Instant.parse("2025-01-01T10:00:00Z")
+        val record =
+            StepsRecord(
+                startTime = startTime,
+                startZoneOffset = null,
+                endTime = startTime.plusSeconds(60),
+                endZoneOffset = null,
+                count = 100,
+                metadata =
+                    Metadata.autoRecorded(
+                        Device(type = Device.TYPE_WATCH, displayName = "Pixel Watch 3")
+                    ),
+            )
+
+        fake.insertRecords(listOf(record))
+        val response =
+            fake.readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.after(EPOCH)))
+
+        assertThat(response.records.single().metadata.device?.displayName)
+            .isEqualTo("Pixel Watch 3")
     }
 
     @Test

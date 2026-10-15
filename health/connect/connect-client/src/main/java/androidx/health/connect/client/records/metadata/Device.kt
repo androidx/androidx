@@ -32,12 +32,26 @@ import androidx.annotation.RestrictTo
  * @property type a client supplied type of the device
  * @property manufacturer an optional client supplied manufacturer of the device
  * @property model an optional client supplied model of the device
+ * @property displayName an optional display name for the device. Requires SDK extension 22 or
+ *   higher; on earlier versions it is ignored when writing and `null` when reading.
  */
 public class Device(
     @property:DeviceType public val type: Int,
     public val manufacturer: String? = null,
     public val model: String? = null,
+    public val displayName: String? = null,
 ) {
+    /** Creates a [Device] without a [displayName]. */
+    // Keeps the 1.1 constructors: Device(int, String, String), and the synthetic one that Kotlin
+    // calls when arguments are omitted. Code compiled against 1.1 links to them, so don't remove
+    // this or fold it into the primary constructor. @JvmOverloads gives Java every arity.
+    @JvmOverloads
+    public constructor(
+        @DeviceType type: Int,
+        manufacturer: String? = null,
+        model: String? = null,
+    ) : this(type, manufacturer, model, displayName = null)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -47,6 +61,7 @@ public class Device(
         if (type != other.type) return false
         if (manufacturer != other.manufacturer) return false
         if (model != other.model) return false
+        if (displayName != other.displayName) return false
 
         return true
     }
@@ -55,11 +70,13 @@ public class Device(
         var result = type
         result = 31 * result + (manufacturer?.hashCode() ?: 0)
         result = 31 * result + (model?.hashCode() ?: 0)
+        result = 31 * result + (displayName?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
-        return "Device(type=$type, manufacturer=$manufacturer, model=$model)"
+        return "Device(type=$type, manufacturer=$manufacturer, model=$model, " +
+            "displayName=$displayName)"
     }
 
     public companion object {
