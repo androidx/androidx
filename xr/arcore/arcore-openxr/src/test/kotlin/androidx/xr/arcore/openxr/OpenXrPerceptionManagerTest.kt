@@ -18,23 +18,69 @@ package androidx.xr.arcore.openxr
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.runtime.SpatialAnnotationId
+import androidx.xr.arcore.runtime.SpatialAnnotationImageFormat
 import androidx.xr.arcore.runtime.SpatialAnnotationQuadAlignment
 import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
+import androidx.xr.runtime.math.IntSize2d
+import androidx.xr.runtime.math.Quad
+import androidx.xr.runtime.math.Vector2
 import com.google.common.truth.Truth.assertThat
+import java.nio.ByteBuffer
+import kotlin.test.assertFailsWith
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.Implementation
+import org.robolectric.annotation.Implements
 
-@OptIn(ExperimentalSpatialAnnotationsApi::class)
+@OptIn(ExperimentalSpatialAnnotationsApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
+@Config(shadows = [OpenXrPerceptionManagerTest.ShadowOpenXrPerceptionManager::class])
 // TODO(b/560290369): Failures yield clear assertion messages rather than IllegalStateException.
 class OpenXrPerceptionManagerTest {
+
+    @Implements(OpenXrPerceptionManager::class)
+    class ShadowOpenXrPerceptionManager {
+        companion object {
+            var mockedStartHandles: LongArray? = null
+            val stoppedHandleBatches = mutableListOf<LongArray>()
+
+            @Implementation
+            @JvmStatic
+            @JvmName("nativeStartSpatialAnnotationTracking")
+            internal fun nativeStartSpatialAnnotationTracking(
+                imageBuffer: ByteBuffer,
+                width: Int,
+                height: Int,
+                rowStride: Int,
+                format: Int,
+                alignment: Int,
+                quadsExtents: FloatArray,
+                timestampNanos: Long,
+                callback: (LongArray?) -> Unit,
+            ) {
+                callback(mockedStartHandles)
+            }
+
+            @Implementation
+            @JvmStatic
+            @JvmName("nativeStopSpatialAnnotationTracking")
+            internal fun nativeStopSpatialAnnotationTracking(handles: LongArray) {
+                stoppedHandleBatches.add(handles)
+            }
+        }
+    }
 
     private lateinit var underTest: OpenXrPerceptionManager
     private lateinit var timeSource: OpenXrTimeSource
 
     @Before
     fun setUp() {
+        ShadowOpenXrPerceptionManager.mockedStartHandles = null
+        ShadowOpenXrPerceptionManager.stoppedHandleBatches.clear()
         timeSource = OpenXrTimeSource()
         underTest = OpenXrPerceptionManager(timeSource)
     }
@@ -270,5 +316,86 @@ class OpenXrPerceptionManagerTest {
         underTest.updateSpatialAnnotations(2000L)
 
         assertThat(underTest.xrResources.trackablesMap).doesNotContainKey(101L)
+    }
+
+    @Test
+    fun startSpatialAnnotationTracking_partialFailure_stopsSucceededHandlesAndFails() = runTest {
+        val id1 = SpatialAnnotationId.fromString("annotation_1")
+        val id2 = SpatialAnnotationId.fromString("annotation_2")
+        val quad = Quad.fromMinMax(Vector2(-1f, -1f), Vector2(1f, 1f))
+        ShadowOpenXrPerceptionManager.mockedStartHandles = longArrayOf(101L)
+
+        val exception =
+            assertFailsWith<IllegalStateException> {
+                underTest.startSpatialAnnotationTracking(
+                    imageBuffer = ByteBuffer.allocateDirect(100),
+                    imageSize = IntSize2d(10, 10),
+                    rowStride = 10,
+                    format = SpatialAnnotationImageFormat.GRAYSCALE,
+                    alignment = SpatialAnnotationQuadAlignment.SCREEN,
+                    quads = mapOf(id1 to quad, id2 to quad),
+                    timestampNanos = 1000L,
+                )
+            }
+
+        assertThat(exception)
+            .hasMessageThat()
+            .isEqualTo("Failed to start spatial annotation tracking.")
+        assertThat(underTest.xrResources.annotationConfigs).isEmpty()
+        assertThat(ShadowOpenXrPerceptionManager.stoppedHandleBatches).hasSize(1)
+        assertThat(ShadowOpenXrPerceptionManager.stoppedHandleBatches.single().toList())
+            .containsExactly(101L)
+    }
+
+    @Test
+    fun startSpatialAnnotationTracking_nullHandles_failsWithoutStoppingHandles() = runTest {
+        val id1 = SpatialAnnotationId.fromString("annotation_1")
+        val quad = Quad.fromMinMax(Vector2(-1f, -1f), Vector2(1f, 1f))
+        ShadowOpenXrPerceptionManager.mockedStartHandles = null
+
+        val exception =
+            assertFailsWith<IllegalStateException> {
+                underTest.startSpatialAnnotationTracking(
+                    imageBuffer = ByteBuffer.allocateDirect(100),
+                    imageSize = IntSize2d(10, 10),
+                    rowStride = 10,
+                    format = SpatialAnnotationImageFormat.GRAYSCALE,
+                    alignment = SpatialAnnotationQuadAlignment.SCREEN,
+                    quads = mapOf(id1 to quad),
+                    timestampNanos = 1000L,
+                )
+            }
+
+        assertThat(exception)
+            .hasMessageThat()
+            .isEqualTo("Failed to start spatial annotation tracking.")
+        assertThat(underTest.xrResources.annotationConfigs).isEmpty()
+        assertThat(ShadowOpenXrPerceptionManager.stoppedHandleBatches).isEmpty()
+    }
+
+    @Test
+    fun startSpatialAnnotationTracking_emptyHandles_failsWithoutStoppingHandles() = runTest {
+        val id1 = SpatialAnnotationId.fromString("annotation_1")
+        val quad = Quad.fromMinMax(Vector2(-1f, -1f), Vector2(1f, 1f))
+        ShadowOpenXrPerceptionManager.mockedStartHandles = longArrayOf()
+
+        val exception =
+            assertFailsWith<IllegalStateException> {
+                underTest.startSpatialAnnotationTracking(
+                    imageBuffer = ByteBuffer.allocateDirect(100),
+                    imageSize = IntSize2d(10, 10),
+                    rowStride = 10,
+                    format = SpatialAnnotationImageFormat.GRAYSCALE,
+                    alignment = SpatialAnnotationQuadAlignment.SCREEN,
+                    quads = mapOf(id1 to quad),
+                    timestampNanos = 1000L,
+                )
+            }
+
+        assertThat(exception)
+            .hasMessageThat()
+            .isEqualTo("Failed to start spatial annotation tracking.")
+        assertThat(underTest.xrResources.annotationConfigs).isEmpty()
+        assertThat(ShadowOpenXrPerceptionManager.stoppedHandleBatches).isEmpty()
     }
 }
