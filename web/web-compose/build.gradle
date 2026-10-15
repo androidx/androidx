@@ -75,6 +75,9 @@ androidx {
     inceptionYear = "2026"
     description = "This package provides a composable that displays web pages."
     additionalDeviceTestApkKeys.add("chrome")
+    deviceTests {
+        maxShardCount = 1
+    }
 }
 
 tasks.withType(KotlinCompile).configureEach { task ->
