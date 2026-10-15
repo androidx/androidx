@@ -692,6 +692,9 @@ package androidx.xr.compose.subspace.layout {
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalRotateToLookAtUserApi {
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSpatialContinuityApi {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSpatialLayoutModifierApi {
   }
 
@@ -1156,6 +1159,22 @@ package androidx.xr.compose.subspace.layout {
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SpatialBiasAlignment.Vertical! copy$default(androidx.xr.compose.subspace.layout.SpatialBiasAlignment.Vertical!, float, int, Object!);
     method @InaccessibleFromKotlin public float getVerticalBias();
     property public float verticalBias;
+  }
+
+  @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalSpatialContinuityApi public final class SpatialContinuityCapturer {
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public SpatialContinuityCapturer();
+    method @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalSpatialContinuityApi public boolean captureContinuity(optional boolean keepInFocus);
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalSpatialContinuityApi public static boolean captureContinuity$default(androidx.xr.compose.subspace.layout.SpatialContinuityCapturer!, boolean, int, Object!);
+    method @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalSpatialContinuityApi public static void resetContinuity(androidx.xr.runtime.Session session);
+    field public static final androidx.xr.compose.subspace.layout.SpatialContinuityCapturer.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalSpatialContinuityApi public static final class SpatialContinuityCapturer.Companion {
+    method @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalSpatialContinuityApi public void resetContinuity(androidx.xr.runtime.Session session);
+  }
+
+  @SuppressCompatibility public final class SpatialContinuityKt {
+    method @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalSpatialContinuityApi public static androidx.xr.compose.subspace.layout.SubspaceModifier spatialContinuityTarget(androidx.xr.compose.subspace.layout.SubspaceModifier, androidx.xr.compose.subspace.layout.SpatialContinuityCapturer spatialContinuityCapturer);
   }
 
   public final class SpatialInputEvent {

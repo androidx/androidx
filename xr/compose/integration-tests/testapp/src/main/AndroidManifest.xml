@@ -148,6 +148,22 @@
             android:label="ResizablePanel"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
+            android:name=".spatialcontinuity.SpatialContinuityActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:label="@string/spatial_continuity"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".spatialcontinuity.ActivityB"
+            android:exported="true"
+            android:label="@string/spatial_continuity"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".spatialcontinuity.ActivityC"
+            android:exported="true"
+            android:label="@string/spatial_continuity"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
             android:name=".spacemodechange.SpaceModeActivity"
             android:exported="true"
             android:label="@string/lifecycle_resize_test"
