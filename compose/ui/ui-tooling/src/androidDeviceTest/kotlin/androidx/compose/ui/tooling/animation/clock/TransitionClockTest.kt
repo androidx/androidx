@@ -676,7 +676,7 @@ class TransitionClockTest {
     @Test
     fun animatedContentClockProperties() {
         val search = AnimationSearch.AnimatedContentSearch {}
-        rule.addAnimations(search) { AnimatedContent(1.dp) {} }
+        rule.addAnimations(search) { AnimatedContent(1.dp) { Text(it.toString()) } }
         val clock =
             TransitionClock(
                 AnimatedContentSearchInfo(search.animations.first().transition)
@@ -693,7 +693,7 @@ class TransitionClockTest {
     @Test
     fun animatedContentClockTransitions() {
         val search = AnimationSearch.AnimatedContentSearch {}
-        rule.addAnimations(search) { AnimatedContent(1.dp) {} }
+        rule.addAnimations(search) { AnimatedContent(1.dp) { Text(it.toString()) } }
         val clock =
             TransitionClock(
                 AnimatedContentSearchInfo(search.animations.first().transition)
@@ -728,7 +728,7 @@ class TransitionClockTest {
     @Test
     fun animatedContentClockDuration() {
         val search = AnimationSearch.AnimatedContentSearch {}
-        rule.addAnimations(search) { AnimatedContent(targetState = 1.dp) {} }
+        rule.addAnimations(search) { AnimatedContent(targetState = 1.dp) { Text(it.toString()) } }
         val clock =
             TransitionClock(
                 AnimatedContentSearchInfo(search.animations.first().transition)
