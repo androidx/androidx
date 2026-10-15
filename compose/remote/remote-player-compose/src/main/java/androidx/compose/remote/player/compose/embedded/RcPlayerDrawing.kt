@@ -122,6 +122,9 @@ internal fun derefId(rawId: Int, context: RemoteContext): Int =
         rawId and PaintOperation.VALUE_MASK
     }
 
+/** Sentinel cached in `RemoteComposeState` when decoding a [BitmapData] fails. */
+private object FailedBitmapDecode
+
 /**
  * Returns the decoded [Bitmap] for [id], decoding it on first use (lazy bitmap loading).
  *
@@ -134,15 +137,21 @@ internal fun derefId(rawId: Int, context: RemoteContext): Int =
 internal fun resolveBitmap(remoteContext: RemoteContext, id: Int): Bitmap? {
     val cached = remoteContext.mRemoteComposeState.getFromId(id)
     if (cached is Bitmap) return cached
+    if (cached === FailedBitmapDecode) return null
     // Not decoded yet: find the registered BitmapData and decode it now (apply = putObject +
     // loadBitmap, which caches the decoded Bitmap under the id).
     val data = remoteContext.mRemoteComposeState.getObject(id) as? BitmapData ?: return null
-    return try {
-        data.apply(remoteContext)
-        remoteContext.mRemoteComposeState.getFromId(id) as? Bitmap
-    } catch (_: Exception) {
-        null
+    val decoded =
+        try {
+            data.apply(remoteContext)
+            remoteContext.mRemoteComposeState.getFromId(id) as? Bitmap
+        } catch (_: Exception) {
+            null
+        }
+    if (decoded == null) {
+        remoteContext.mRemoteComposeState.cacheData(id, FailedBitmapDecode)
     }
+    return decoded
 }
 
 /**
