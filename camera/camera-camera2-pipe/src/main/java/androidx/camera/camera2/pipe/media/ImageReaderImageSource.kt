@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.common.ImageWrapper
 import java.lang.Class
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic

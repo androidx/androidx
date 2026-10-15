@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.media
 
 import android.media.Image
+import androidx.camera.common.ImageWrapper
 import androidx.camera.common.unwrapAs
 import java.lang.Class
 import kotlinx.atomicfu.atomic
