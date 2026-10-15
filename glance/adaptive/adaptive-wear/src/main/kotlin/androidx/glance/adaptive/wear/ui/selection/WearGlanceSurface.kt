@@ -24,17 +24,11 @@ import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 public enum class WearGlanceSurface(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override val tag: String
 ) : GlanceSurface {
-    /** Wear OS active Tile carousel. */
-    TILE("wear_tile"),
-
-    /** Wear OS watch face complication slot. */
-    COMPLICATION("wear_complication");
+    /** Wear OS active Widget carousel. */
+    WIDGET("wear_widget");
 
     public companion object {
-        /** Wear OS active Tile carousel alias. */
-        @JvmField public val WEAR_TILE: WearGlanceSurface = TILE
-
-        /** Wear OS watch face complication slot alias. */
-        @JvmField public val WEAR_COMPLICATION: WearGlanceSurface = COMPLICATION
+        /** Wear OS active Widget carousel alias. */
+        @JvmField public val WEAR_WIDGET: WearGlanceSurface = WIDGET
     }
 }

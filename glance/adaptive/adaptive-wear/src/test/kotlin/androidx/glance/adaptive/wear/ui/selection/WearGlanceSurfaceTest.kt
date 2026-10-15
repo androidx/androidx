@@ -23,10 +23,8 @@ class WearGlanceSurfaceTest {
 
     @Test
     fun wearGlanceSurface_aliasesAndTags_resolveCorrectly() {
-        assertThat(WearGlanceSurface.WEAR_TILE).isEqualTo(WearGlanceSurface.TILE)
-        assertThat(WearGlanceSurface.WEAR_COMPLICATION).isEqualTo(WearGlanceSurface.COMPLICATION)
+        assertThat(WearGlanceSurface.WEAR_WIDGET).isEqualTo(WearGlanceSurface.WIDGET)
 
-        assertThat(WearGlanceSurface.TILE.tag).isEqualTo("wear_tile")
-        assertThat(WearGlanceSurface.COMPLICATION.tag).isEqualTo("wear_complication")
+        assertThat(WearGlanceSurface.WIDGET.tag).isEqualTo("wear_widget")
     }
 }

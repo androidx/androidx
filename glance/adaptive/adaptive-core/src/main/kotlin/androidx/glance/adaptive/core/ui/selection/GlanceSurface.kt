@@ -26,7 +26,7 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GlanceSurface {
-    /** Unique canonical identifier for this surface (e.g. "home_screen", "wear_tile"). */
+    /** Unique canonical identifier for this surface (e.g. "home_screen", "wear_widget"). */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val tag: String
 
     public companion object {
