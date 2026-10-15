@@ -83,6 +83,7 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
         onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit =
             { _, _, _ ->
             },
+        onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo =
             createCreationDisplayInfo(
                 context = ApplicationProvider.getApplicationContext(),
@@ -132,6 +133,7 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
                             customPlugins = customPlugins,
                             typefaceResolver = typefaceResolver,
                             onNamedAction = onNamedAction,
+                            onAction = onAction,
                         )
                     }
                 },
