@@ -16,42 +16,30 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteClock
-import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.RemotePath
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
-import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
-import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import java.io.ByteArrayInputStream
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,9 +51,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerShaderTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @Test
     fun runtimeShaderDisabledByDefaultWhenTrustedContentIsFalse() {
@@ -124,49 +110,35 @@ class RcPlayerShaderTest {
      */
     @Test
     fun embeddedPlayerComposesGradientDocument() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val content: @Composable @RemoteComposable () -> Unit = {
-                RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-                    val paint =
-                        RemotePaint().apply {
-                            shader =
-                                RemoteLinearShader(
-                                    0f.rf,
-                                    0f.rf,
-                                    100f.rf,
-                                    0f.rf,
-                                    listOf(Color.Red.rc, Color.Blue.rc),
-                                    null,
-                                    TileMode.Clamp,
-                                )
-                        }
-                    drawRect(
-                        paint = paint,
-                        topLeft = RemoteOffset(0f.rf, 0f.rf),
-                        size = RemoteSize(100f.rf, 100f.rf),
-                    )
-                }
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(100.dp).testTag("gradient")) { content() }
             }
-            val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(bytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+        ) {
+            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                val paint =
+                    RemotePaint().apply {
+                        shader =
+                            RemoteLinearShader(
+                                0f.rf,
+                                0f.rf,
+                                100f.rf,
+                                0f.rf,
+                                listOf(Color.Red.rc, Color.Blue.rc),
+                                null,
+                                TileMode.Clamp,
+                            )
                     }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp).testTag("gradient")) {
-                    RcPlayer(document = document)
-                }
+                drawRect(
+                    paint = paint,
+                    topLeft = RemoteOffset(0f.rf, 0f.rf),
+                    size = RemoteSize(100f.rf, 100f.rf),
+                )
             }
-            rule.mainClock.advanceTimeBy(100)
-            rule.waitForIdle()
-
-            // Composed + laid out without throwing through the gradient draw path.
-            rule.onNodeWithTag("gradient").assertExists()
         }
+
+        // Composed + laid out without throwing through the gradient draw path.
+        rule.onNodeWithTag("gradient").assertExists()
     }
 
     /**
@@ -177,38 +149,24 @@ class RcPlayerShaderTest {
      */
     @Test
     fun embeddedPlayerComposesClippedCanvas() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val content: @Composable @RemoteComposable () -> Unit = {
-                RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-                    // Scoped clip (emits CLIP_RECT + save/restore around the block).
-                    clipRect(0f.rf, 0f.rf, 50f.rf, 50f.rf) {
-                        drawRect(
-                            paint = RemotePaint().apply { color = RemoteColor(Color.Red) },
-                            topLeft = RemoteOffset(0f.rf, 0f.rf),
-                            size = RemoteSize(100f.rf, 100f.rf),
-                        )
-                    }
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(100.dp).testTag("clipped")) { content() }
+            }
+        ) {
+            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                // Scoped clip (emits CLIP_RECT + save/restore around the block).
+                clipRect(0f.rf, 0f.rf, 50f.rf, 50f.rf) {
+                    drawRect(
+                        paint = RemotePaint().apply { color = Color.Red.rc },
+                        topLeft = RemoteOffset(0f.rf, 0f.rf),
+                        size = RemoteSize(100f.rf, 100f.rf),
+                    )
                 }
             }
-            val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(bytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp).testTag("clipped")) {
-                    RcPlayer(document = document)
-                }
-            }
-            rule.mainClock.advanceTimeBy(100)
-            rule.waitForIdle()
-
-            rule.onNodeWithTag("clipped").assertExists()
         }
+
+        rule.onNodeWithTag("clipped").assertExists()
     }
 
     /**
@@ -218,36 +176,17 @@ class RcPlayerShaderTest {
      */
     @Test
     fun embeddedPlayerComposesCanvasText() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val content: @Composable @RemoteComposable () -> Unit = {
-                RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-                    drawText(
-                        "Hi".rs,
-                        10f.rf,
-                        50f.rf,
-                        RemotePaint().apply { color = RemoteColor(Color.Black) },
-                    )
-                }
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(100.dp).testTag("canvastext")) { content() }
             }
-            val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(bytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp).testTag("canvastext")) {
-                    RcPlayer(document = document)
-                }
+        ) {
+            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                drawText("Hi".rs, 10f.rf, 50f.rf, RemotePaint().apply { color = Color.Black.rc })
             }
-            rule.mainClock.advanceTimeBy(100)
-            rule.waitForIdle()
-
-            rule.onNodeWithTag("canvastext").assertExists()
         }
+
+        rule.onNodeWithTag("canvastext").assertExists()
     }
 
     /**
@@ -257,38 +196,24 @@ class RcPlayerShaderTest {
      */
     @Test
     fun embeddedPlayerComposesTextOnPath() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val path = RemotePath("M 10 50 L 90 50")
-            val content: @Composable @RemoteComposable () -> Unit = {
-                RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-                    drawTextOnPath(
-                        "Hi".rs,
-                        path,
-                        0f.rf,
-                        0f.rf,
-                        RemotePaint().apply { color = RemoteColor(Color.Black) },
-                    )
-                }
+        val path = RemotePath("M 10 50 L 90 50")
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(100.dp).testTag("textonpath")) { content() }
             }
-            val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(bytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp).testTag("textonpath")) {
-                    RcPlayer(document = document)
-                }
+        ) {
+            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                drawTextOnPath(
+                    "Hi".rs,
+                    path,
+                    0f.rf,
+                    0f.rf,
+                    RemotePaint().apply { color = Color.Black.rc },
+                )
             }
-            rule.mainClock.advanceTimeBy(100)
-            rule.waitForIdle()
-
-            rule.onNodeWithTag("textonpath").assertExists()
         }
+
+        rule.onNodeWithTag("textonpath").assertExists()
     }
 
     /**
@@ -298,39 +223,25 @@ class RcPlayerShaderTest {
      */
     @Test
     fun embeddedPlayerComposesAnchoredText() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val content: @Composable @RemoteComposable () -> Unit = {
-                RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-                    drawAnchoredText(
-                        "Hi".rs,
-                        50f.rf,
-                        50f.rf,
-                        RemotePaint().apply { color = RemoteColor(Color.Black) },
-                        0f.rf,
-                        0f.rf,
-                        0,
-                    )
-                }
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(100.dp).testTag("anchoredtext")) { content() }
             }
-            val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(bytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp).testTag("anchoredtext")) {
-                    RcPlayer(document = document)
-                }
+        ) {
+            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                drawAnchoredText(
+                    "Hi".rs,
+                    50f.rf,
+                    50f.rf,
+                    RemotePaint().apply { color = Color.Black.rc },
+                    0f.rf,
+                    0f.rf,
+                    0,
+                )
             }
-            rule.mainClock.advanceTimeBy(100)
-            rule.waitForIdle()
-
-            rule.onNodeWithTag("anchoredtext").assertExists()
         }
+
+        rule.onNodeWithTag("anchoredtext").assertExists()
     }
 
     /**
@@ -340,40 +251,26 @@ class RcPlayerShaderTest {
      */
     @Test
     fun embeddedPlayerComposesTweenPath() {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val pathA = RemotePath("M 10 10 L 90 10 L 90 90 Z")
-            val pathB = RemotePath("M 10 10 L 90 50 L 50 90 Z")
-            val content: @Composable @RemoteComposable () -> Unit = {
-                RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-                    drawTweenPath(
-                        pathA,
-                        pathB,
-                        0.5f.rf,
-                        0f.rf,
-                        1f.rf,
-                        RemotePaint().apply { color = RemoteColor(Color.Red) },
-                    )
-                }
+        val pathA = RemotePath("M 10 10 L 90 10 L 90 90 Z")
+        val pathB = RemotePath("M 10 10 L 90 50 L 50 90 Z")
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(100.dp).testTag("tweenpath")) { content() }
             }
-            val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
-            val document =
-                CoreDocument(RemoteClock.SYSTEM).apply {
-                    ByteArrayInputStream(bytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-
-            rule.setContent {
-                Box(modifier = Modifier.size(100.dp).testTag("tweenpath")) {
-                    RcPlayer(document = document)
-                }
+        ) {
+            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                drawTweenPath(
+                    pathA,
+                    pathB,
+                    0.5f.rf,
+                    0f.rf,
+                    1f.rf,
+                    RemotePaint().apply { color = Color.Red.rc },
+                )
             }
-            rule.mainClock.advanceTimeBy(100)
-            rule.waitForIdle()
-
-            rule.onNodeWithTag("tweenpath").assertExists()
         }
+
+        rule.onNodeWithTag("tweenpath").assertExists()
     }
 
     private companion object {

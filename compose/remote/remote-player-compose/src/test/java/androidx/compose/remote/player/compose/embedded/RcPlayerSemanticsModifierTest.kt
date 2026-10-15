@@ -18,12 +18,6 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import android.content.Context
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -38,21 +32,14 @@ import androidx.compose.remote.creation.compose.modifier.text
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.unit.dp
-import androidx.test.core.app.ApplicationProvider
-import java.io.ByteArrayInputStream
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,31 +54,11 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerSemanticsModifierTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
-
-    private fun renderDocument(content: @Composable () -> Unit) {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val documentBytes =
-                captureSingleRemoteDocument(context = context, content = content).bytes
-            val document =
-                CoreDocument().apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-            rule.setContent {
-                Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) }
-            }
-            rule.mainClock.advanceTimeBy(100)
-        }
-    }
+    @get:Rule val rule = RcPlayerTestRule()
 
     @Test
     fun semanticsRoleSurfacesToTheAccessibilityTree() {
-        renderDocument {
+        rule.setRemoteContent {
             RemoteBox(
                 modifier =
                     RemoteModifier.semantics {
@@ -110,7 +77,7 @@ class RcPlayerSemanticsModifierTest {
 
     @Test
     fun semanticsTextSurfacesToTheAccessibilityTree() {
-        renderDocument {
+        rule.setRemoteContent {
             RemoteBox(
                 modifier =
                     RemoteModifier.semantics { text = "labelled box".rs }
@@ -124,7 +91,7 @@ class RcPlayerSemanticsModifierTest {
 
     @Test
     fun clearAndSetSemanticsReplacesDescendantSemantics() {
-        renderDocument {
+        rule.setRemoteContent {
             RemoteColumn(
                 modifier =
                     RemoteModifier.clearAndSetSemantics { contentDescription = "outer".rs }
@@ -146,7 +113,7 @@ class RcPlayerSemanticsModifierTest {
 
     @Test
     fun mergedSemanticsCombineDescendantsIntoOneNode() {
-        renderDocument {
+        rule.setRemoteContent {
             RemoteColumn(
                 modifier =
                     RemoteModifier.semantics(mergeDescendants = true) {

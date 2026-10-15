@@ -19,25 +19,22 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.graphics.Color as AndroidColor
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RcProfiles
-import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.creation.RemoteComposeContextAndroid
+import androidx.compose.remote.creation.RemoteComposeWriterAndroid
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
-import androidx.compose.ui.Modifier
+import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
-import java.io.ByteArrayInputStream
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,20 +51,33 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerParticlesTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
-    @get:Rule val rule = createComposeRule()
+    private val experimentalProfile =
+        Profile(
+            CoreDocument.DOCUMENT_API_LEVEL,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            AndroidxRcPlatformServices(),
+        ) { creationDisplayInfo, profile, callback ->
+            RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
+        }
 
     @Test
     fun particleSimulationSeedsAndAdvancesThroughCoreBridge() {
         // A raw draw-list document: 3 particles with dimensions (x, y) seeded at (10, 20), each
         // frame stepped by the RPN update equations x += 1, y += 2, drawing a circle per particle.
         val vars = FloatArray(2)
-        val docContext =
-            RemoteComposeContextAndroid(100, 100, "particles", AndroidxRcPlatformServices()) {
+        // The frame loop stays alive for particle documents, so drive the clock manually.
+        rule.mainClock.autoAdvance = false
+        val document = rule.setRemoteContent {
+            RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                 val particles =
-                    writer.createParticles(vars, arrayOf(floatArrayOf(10f), floatArrayOf(20f)), 3)
-                writer.particlesLoop(
+                    document.createParticles(
+                        vars,
+                        arrayOf(floatArrayOf(10f), floatArrayOf(20f)),
+                        3,
+                    )
+                document.particlesLoop(
                     particles,
                     null,
                     arrayOf(
@@ -75,20 +85,10 @@ class RcPlayerParticlesTest {
                         floatArrayOf(vars[1], 2f, AnimatedFloatExpression.ADD),
                     ),
                 ) {
-                    writer.drawCircle(vars[0], vars[1], 4f)
+                    document.drawCircle(vars[0], vars[1], 4f)
                 }
             }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
-        // The frame loop stays alive for particle documents, so drive the clock manually.
-        rule.mainClock.autoAdvance = false
-        rule.setContent { Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) } }
+        }
         rule.mainClock.advanceTimeBy(32)
         rule.onRoot().captureToImage() // force a draw pass: seeds + first simulation step
 
@@ -121,30 +121,25 @@ class RcPlayerParticlesTest {
     @Test
     fun particlesAreVisibleAtSeededPositionOnTheFirstFrame() {
         val vars = FloatArray(2)
-        val docContext =
-            RemoteComposeContextAndroid(100, 100, "particles", AndroidxRcPlatformServices()) {
-                painter.setColor(AndroidColor.RED).commit()
+        rule.mainClock.autoAdvance = false
+        rule.setRemoteContent {
+            RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                (document as RemoteComposeWriterAndroid)
+                    .getRcPaint()
+                    .setColor(AndroidColor.RED)
+                    .commit()
                 val particles =
-                    writer.createParticles(vars, arrayOf(floatArrayOf(30f), floatArrayOf(40f)), 1)
-                writer.particlesLoop(
+                    document.createParticles(vars, arrayOf(floatArrayOf(30f), floatArrayOf(40f)), 1)
+                document.particlesLoop(
                     particles,
                     null,
                     // Identity updates: the particle stays at its seeded position.
                     arrayOf(floatArrayOf(vars[0]), floatArrayOf(vars[1])),
                 ) {
-                    writer.drawCircle(vars[0], vars[1], 8f)
+                    document.drawCircle(vars[0], vars[1], 8f)
                 }
             }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
-        rule.mainClock.autoAdvance = false
-        rule.setContent { Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) } }
+        }
 
         // First rendered frame only.
         val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
@@ -163,12 +158,20 @@ class RcPlayerParticlesTest {
     @Test
     fun particleMotionRendersAtTheNewPositionEachFrame() {
         val vars = FloatArray(2)
-        val docContext =
-            RemoteComposeContextAndroid(100, 100, "particles", AndroidxRcPlatformServices()) {
-                painter.setColor(AndroidColor.RED).commit()
+        rule.mainClock.autoAdvance = false
+        val document = rule.setRemoteContent {
+            RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                (document as RemoteComposeWriterAndroid)
+                    .getRcPaint()
+                    .setColor(AndroidColor.RED)
+                    .commit()
                 val particles =
-                    writer.createParticles(vars, arrayOf(floatArrayOf(10f), floatArrayOf(50f)), 1)
-                writer.particlesLoop(
+                    document.createParticles(
+                        vars,
+                        arrayOf(floatArrayOf(10f), floatArrayOf(50f)),
+                        1,
+                    )
+                document.particlesLoop(
                     particles,
                     null,
                     arrayOf(
@@ -176,19 +179,10 @@ class RcPlayerParticlesTest {
                         floatArrayOf(vars[1]),
                     ),
                 ) {
-                    writer.drawCircle(vars[0], vars[1], 6f)
+                    document.drawCircle(vars[0], vars[1], 6f)
                 }
             }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
-        rule.mainClock.autoAdvance = false
-        rule.setContent { Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) } }
+        }
 
         val create = requireNotNull(findParticlesCreate(document.getOperationsList()))
         rule.onRoot().captureToImage() // first frame: seed + first step
@@ -212,46 +206,36 @@ class RcPlayerParticlesTest {
     @Test
     fun particlesCompareMutatesMatchingParticlesThroughCoreBridge() {
         val vars = FloatArray(2)
-        val docContext =
-            RemoteComposeContextAndroid(
-                100,
-                100,
-                "particles",
-                CoreDocument.DOCUMENT_API_LEVEL,
-                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
-                AndroidxRcPlatformServices(),
-            ) {
-                val particles =
-                    writer.createParticles(vars, arrayOf(floatArrayOf(60f), floatArrayOf(20f)), 1)
-                // Seeding happens through the loop (identity updates keep x at 60).
-                writer.particlesLoop(
-                    particles,
-                    null,
-                    arrayOf(floatArrayOf(vars[0]), floatArrayOf(vars[1])),
-                ) {
-                    writer.drawCircle(vars[0], vars[1], 4f)
-                }
-                // Conditional pass: x > 50 (x - 50 > 0) -> set x = 100, keep y.
-                writer.particlesComparison(
-                    particles,
-                    0.toShort(),
-                    -1f,
-                    -1f,
-                    floatArrayOf(vars[0], 50f, AnimatedFloatExpression.SUB),
-                    arrayOf(floatArrayOf(100f), floatArrayOf(vars[1])),
-                    null,
-                )
-            }
-
-        val document =
-            CoreDocument().apply {
-                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-
         rule.mainClock.autoAdvance = false
-        rule.setContent { Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) } }
+        val document =
+            rule.setRemoteContent(profile = experimentalProfile) {
+                RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                    val particles =
+                        document.createParticles(
+                            vars,
+                            arrayOf(floatArrayOf(60f), floatArrayOf(20f)),
+                            1,
+                        )
+                    // Seeding happens through the loop (identity updates keep x at 60).
+                    document.particlesLoop(
+                        particles,
+                        null,
+                        arrayOf(floatArrayOf(vars[0]), floatArrayOf(vars[1])),
+                    ) {
+                        document.drawCircle(vars[0], vars[1], 4f)
+                    }
+                    // Conditional pass: x > 50 (x - 50 > 0) -> set x = 100, keep y.
+                    document.particlesComparison(
+                        particles,
+                        0.toShort(),
+                        -1f,
+                        -1f,
+                        floatArrayOf(vars[0], 50f, AnimatedFloatExpression.SUB),
+                        arrayOf(floatArrayOf(100f), floatArrayOf(vars[1])),
+                        null,
+                    )
+                }
+            }
         rule.onRoot().captureToImage() // one frame: seed + loop + compare
 
         val create = requireNotNull(findParticlesCreate(document.getOperationsList()))
