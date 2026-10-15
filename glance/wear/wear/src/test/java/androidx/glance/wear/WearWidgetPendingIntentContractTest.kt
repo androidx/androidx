@@ -35,6 +35,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.runtime.Composable
 import androidx.glance.wear.core.ContainerInfo
 import androidx.glance.wear.core.WearWidgetParams
@@ -112,6 +113,26 @@ class WearWidgetPendingIntentContractTest {
 
         assertThat(actions.sentPendingIntents()).containsExactly(pendingIntent, pendingIntent)
         assertThat(actions.pendingIntents.keySet()).containsExactly("0")
+    }
+
+    // pendingIntentAction extras are restricted until the follow-up that makes them public.
+    @Suppress("RestrictedApiAndroidX")
+    @Test
+    fun pendingIntentActionWithExtras_keepsContract() = runTest {
+        val pendingIntent = testPendingIntent(requestCode = 1)
+
+        val actions = capture {
+            val taps = rememberMutableRemoteInt(3)
+            RemoteBox(
+                modifier =
+                    RemoteModifier.clickable(
+                        pendingIntentAction("taps" to taps.toRemoteString()) { pendingIntent }
+                    )
+            )
+        }
+
+        // Wear renderers don't support extras, so they are dropped and the contract is unchanged.
+        assertThat(actions.sentPendingIntents()).containsExactly(pendingIntent)
     }
 
     @Composable

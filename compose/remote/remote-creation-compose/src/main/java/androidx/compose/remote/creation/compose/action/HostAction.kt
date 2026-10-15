@@ -22,6 +22,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperat
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
@@ -34,6 +35,8 @@ import androidx.compose.remote.creation.compose.state.RemoteString
  * Named actions are delivered to the `onNamedAction` callback of the Compose players. [name] may be
  * a constant or a dynamic [RemoteString]; a dynamic name is resolved to its current value when the
  * action runs.
+ *
+ * Launcher widgets (`RemoteViews`) only dispatch id actions; use [hostAction] with an `id` there.
  *
  * @param name The name of the action.
  */
@@ -62,6 +65,45 @@ public fun hostAction(name: RemoteString, value: RemoteInt): Action = HostAction
  * @param value The string value to pass with the action, delivered to the host as a [String].
  */
 public fun hostAction(name: RemoteString, value: RemoteString): Action = HostAction(name, value)
+
+/**
+ * Creates an [Action] that triggers a named action on the host with a boolean value.
+ *
+ * The document format has no boolean payload, so the value is delivered to the host as an [Int]:
+ * `1` for `true` and `0` for `false`.
+ *
+ * @param name The name of the action.
+ * @param value The boolean value to pass with the action.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun hostAction(name: RemoteString, value: RemoteBoolean): Action =
+    HostAction(name, value.toRemoteInt())
+
+/**
+ * Creates an [Action] that triggers an id action on the host, with optional string [metadata].
+ *
+ * Id actions are delivered to the `onAction` callback of the Compose players, and are the only host
+ * actions that platform `RemoteViews` hosts (launcher widgets, notifications) dispatch: a click
+ * runs the `PendingIntent` registered with `RemoteViews.setOnClickPendingIntent(id, ...)`.
+ *
+ * [id] is written into the document as a literal, so it is stable across captures and can be used
+ * as a key on the host. Choose ids that do not collide with explicit component ids in the same
+ * document, because players also treat an id action as a programmatic click on a component with
+ * that id.
+ *
+ * To pass several values, combine them into [metadata] with [RemoteString] concatenation, for
+ * example `"x=".rs + x.toRemoteString() + "&y=".rs + y.toRemoteString()`, and decode them on the
+ * host.
+ *
+ * @param id The id of the action.
+ * @param metadata Optional metadata delivered with the action. May be dynamic, for example built
+ *   from touch positions or other remote state, and is resolved when the action runs.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun hostAction(id: Int, metadata: RemoteString? = null): Action {
+    require(id != -1) { "-1 is the default component id and cannot be used as a host action id" }
+    return HostIdAction(id, metadata)
+}
 
 /** Run the named host action when invoked. */
 internal class HostAction(
