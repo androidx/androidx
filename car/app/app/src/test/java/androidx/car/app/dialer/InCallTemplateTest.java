@@ -188,6 +188,10 @@ public class InCallTemplateTest {
                             .addAction(action)
                             .addAction(action)
                             .addAction(action)
+                            .addAction(action)
+                            .addAction(action)
+                            .addAction(action)
+                            .addAction(action)
                             .build();
                 });
     }
