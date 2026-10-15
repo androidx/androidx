@@ -201,8 +201,7 @@ public open class RecordingCanvas(
 
     @VisibleForTesting
     public fun usePaint(paint: Paint?) {
-        val paintSnapshot = snapshotPaint(paint)
-        recordRenderingOp { usePaintInternal(paintSnapshot) }
+        remoteCanvas.usePaint(paint?.asRemotePaint())
     }
 
     @VisibleForTesting
@@ -409,8 +408,7 @@ public open class RecordingCanvas(
     }
 
     public fun skew(sx: RemoteFloat, sy: RemoteFloat) {
-        val op = recordRenderingOp(CanvasOp.Transform(PendingOp.Skew(sx, sy)))
-        buffer.addRoots(op, sx, sy)
+        remoteCanvas.skew(sx, sy)
     }
 
     public fun drawBitmap(bitmap: ImageBitmap, left: Float, top: Float, paint: Paint?) {
@@ -558,11 +556,11 @@ public open class RecordingCanvas(
         remoteCanvas.drawRoundedPolygonMorph(from, to, progress, paint)
     }
 
-    override fun save(): Int = buffer.save()
+    override fun save(): Int = remoteCanvas.save()
 
-    override fun restore(): Unit = buffer.restore()
+    override fun restore(): Unit = remoteCanvas.restore()
 
-    override fun restoreToCount(saveCount: Int): Unit = buffer.restoreToCount(saveCount)
+    override fun restoreToCount(saveCount: Int): Unit = remoteCanvas.restoreToCount(saveCount)
 
     override fun getClipBounds(bounds: Rect): Boolean {
         bounds.set(0, 0, 2048, 2048)
@@ -771,7 +769,7 @@ public open class RecordingCanvas(
         remoteCanvas.rotate(degrees, px, py)
     }
 
-    override fun getSaveCount(): Int = buffer.saveCount
+    override fun getSaveCount(): Int = remoteCanvas.saveCount
 
     override fun drawTextOnPath(
         text: String,

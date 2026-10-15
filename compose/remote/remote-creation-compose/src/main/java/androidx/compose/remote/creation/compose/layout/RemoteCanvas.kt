@@ -158,10 +158,12 @@ public class RemoteCanvas(
         }
     }
 
+    /** The current number of saves on the canvas state stack. */
+    public val saveCount: Int
+        get() = buffer.saveCount
+
     /** Saves the current canvas state. */
-    public fun save() {
-        buffer.save()
-    }
+    public fun save(): Int = buffer.save()
 
     /** Restores the previous canvas state. */
     public fun restore() {
@@ -169,7 +171,7 @@ public class RemoteCanvas(
     }
 
     /** Restores canvas state to the given [saveCount]. */
-    internal fun restoreToCount(saveCount: Int) {
+    public fun restoreToCount(saveCount: Int) {
         buffer.restoreToCount(saveCount)
     }
 
@@ -237,6 +239,17 @@ public class RemoteCanvas(
     internal fun rotate(degrees: RemoteFloat, px: RemoteFloat, py: RemoteFloat) {
         val op = buffer.recordRenderingOp(CanvasOp.Transform(PendingOp.Rotate(degrees, px, py)))
         buffer.addRoots(op, degrees, px, py)
+    }
+
+    /**
+     * Skews the canvas by [sx] and [sy].
+     *
+     * @param sx The amount to skew in X.
+     * @param sy The amount to skew in Y.
+     */
+    public fun skew(sx: RemoteFloat, sy: RemoteFloat) {
+        val op = buffer.recordRenderingOp(CanvasOp.Transform(PendingOp.Skew(sx, sy)))
+        buffer.addRoots(op, sx, sy)
     }
 
     /**
