@@ -134,3 +134,9 @@ dependencies {
     debugImplementation(project(":compose:ui:ui-test-manifest"))
     androidTestImplementation(project(":window:window"))
 }
+
+androidx {
+    deviceTests {
+        maxShardCount = 1
+    }
+}
