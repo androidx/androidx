@@ -128,6 +128,7 @@ public class GlanceWearWidgetManager {
      * user has cleared app data. Conversely, widgets removed via an app update may incorrectly
      * persist as "active" for up to 60 days post-removal.
      */
+    @SuppressLint("ListIterator") // Not running inside Compose code.
     public suspend fun fetchActiveWidgets(
         widget: KClass<out GlanceWearWidget>
     ): List<ActiveWearWidgetHandle> {
@@ -167,6 +168,7 @@ public class GlanceWearWidgetManager {
         private class ContinuationOutcomeReceiver(
             private val continuation: CancellableContinuation<List<ActiveWearWidgetHandle>>
         ) : OutcomeReceiver<List<TileInstance>, Exception> {
+            @SuppressLint("ListIterator") // Not running inside Compose code.
             override fun onResult(result: List<TileInstance>) {
                 val widgets = result.map { instance ->
                     val provider = instance.tileProvider
