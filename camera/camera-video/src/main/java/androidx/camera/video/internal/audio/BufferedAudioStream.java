@@ -75,6 +75,9 @@ public class BufferedAudioStream implements AudioStream {
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private @Nullable AudioData mAudioDataNotFullyRead = null;
+    // The collection buffer size. It is written by the read() caller and read by the producer,
+    // so it is volatile. The producer reads it once per collection.
+    private volatile int mBufferSize;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //                      Members only accessed on mProducerExecutor                            //
@@ -84,7 +87,8 @@ public class BufferedAudioStream implements AudioStream {
     private final int mSampleRate;
     private final int mQueueMaxSize;
     private final AtomicBoolean mIsCollectingAudioData = new AtomicBoolean(false);
-    private int mBufferSize;
+    // Reused to avoid allocating a new method reference for every audio chunk.
+    private final Runnable mCollectAudioDataRunnable = this::collectAudioData;
 
     public BufferedAudioStream(@NonNull AudioStream audioStream,
             @NonNull AudioSettings audioSettings) {
@@ -168,7 +172,7 @@ public class BufferedAudioStream implements AudioStream {
         checkStartedOrThrow();
 
         // Match collection buffer size and read buffer size to improve read efficiency.
-        updateCollectionBufferSizeAsync(byteBuffer.remaining());
+        updateCollectionBufferSize(byteBuffer.remaining());
 
         AudioData audioData;
         synchronized (mLock) {
@@ -227,22 +231,15 @@ public class BufferedAudioStream implements AudioStream {
         checkState(mIsStarted.get(), "AudioStream has not been started.");
     }
 
-    private void updateCollectionBufferSizeAsync(int bufferSize) {
-        mProducerExecutor.execute(() -> updateCollectionBufferSize(bufferSize));
-    }
-
-    @ExecutedBy("mProducerExecutor")
     private void updateCollectionBufferSize(int bufferSize) {
-        if (mBufferSize == bufferSize) {
+        // Ensure buffer size is multiple of the frame size.
+        int newBufferSize = bufferSize / mBytesPerFrame * mBytesPerFrame;
+        int originalBufferSize = mBufferSize;
+        if (originalBufferSize == newBufferSize) {
             return;
         }
-
-        // Ensure buffer size is multiple of the frame size.
-        int originalBufferSize = mBufferSize;
-        int newFrameSize = bufferSize / mBytesPerFrame;
-        mBufferSize = newFrameSize * mBytesPerFrame;
-
-        Logger.d(TAG, "Update buffer size from " + originalBufferSize + " to " + mBufferSize);
+        mBufferSize = newBufferSize;
+        Logger.d(TAG, "Update buffer size from " + originalBufferSize + " to " + newBufferSize);
     }
 
     @ExecutedBy("mProducerExecutor")
@@ -278,30 +275,32 @@ public class BufferedAudioStream implements AudioStream {
 
         // Start next data collection.
         if (mIsCollectingAudioData.get()) {
-            mProducerExecutor.execute(this::collectAudioData);
+            mProducerExecutor.execute(mCollectAudioDataRunnable);
         }
     }
 
     /**
-     * Returns a buffer with a capacity of exactly {@link #mBufferSize}, reusing a pooled buffer
-     * when possible.
+     * Returns a buffer with a capacity of exactly the current {@link #mBufferSize}, reusing a
+     * pooled buffer when possible.
      *
      * <p>The capacity must match exactly because the underlying {@link AudioStream} may write up
      * to the buffer's capacity regardless of its position and limit.
      */
     @ExecutedBy("mProducerExecutor")
     private @NonNull ByteBuffer acquireBuffer() {
+        // Read the volatile once so the capacity check and the allocation use the same size.
+        int bufferSize = mBufferSize;
         ByteBuffer byteBuffer;
         // Buffers of the previous size can still be recycled into the pool after mBufferSize
         // changes. Drop them instead of reusing them, since the capacity must match exactly. Fall
         // back to allocating a new buffer if the pool is empty or has no buffer of the right size.
         while ((byteBuffer = mBufferPool.poll()) != null) {
-            if (byteBuffer.capacity() == mBufferSize) {
+            if (byteBuffer.capacity() == bufferSize) {
                 byteBuffer.clear();
                 return byteBuffer;
             }
         }
-        return ByteBuffer.allocateDirect(mBufferSize);
+        return ByteBuffer.allocateDirect(bufferSize);
     }
 
     /**
