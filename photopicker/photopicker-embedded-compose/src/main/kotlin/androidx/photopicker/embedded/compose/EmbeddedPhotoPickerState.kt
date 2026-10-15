@@ -363,40 +363,40 @@ internal class EmbeddedPhotoPickerStateImpl(
 
         // Modify the incoming featureInfo object to capture any state held by this object so that
         // sessions that are created with this state object reflect the state held here.
+        // For SDK Extension 21+, use the Builder copy constructor to update preSelectedUris and
+        // pickerLaunchedInExpandedState while preserving all other properties.
+        // For SDK Extension < 21, manually reconstruct the FeatureInfo.
         val featureInfoWithLocalState: EmbeddedPhotoPickerFeatureInfo =
-            EmbeddedPhotoPickerFeatureInfo.Builder()
-                .apply {
-                    // Copy properties from the client's provided FeatureInfo
-                    setAccentColor(featureInfo.accentColor)
-                    setMaxSelectionLimit(featureInfo.maxSelectionLimit)
-                    setMimeTypes(featureInfo.mimeTypes)
-                    setOrderedSelection(featureInfo.isOrderedSelection)
-                    setThemeNightMode(featureInfo.themeNightMode)
-                    if (
-                        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >=
-                            SDK_EXT_19
-                    ) {
-                        setHighlightSearchMediaTextQuery(featureInfo.highlightSearchMediaTextQuery)
-                        setHighlightAlbumId(featureInfo.highlightAlbumId)
+            if (
+                SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >=
+                    SDK_EXT_21
+            ) {
+                EmbeddedPhotoPickerFeatureInfo.Builder(featureInfo)
+                    .setPickerLaunchedInExpandedState(isExpanded)
+                    .setPreSelectedUris((selectedMedia + featureInfo.preSelectedUris).toList())
+                    .build()
+            } else {
+                EmbeddedPhotoPickerFeatureInfo.Builder()
+                    .apply {
+                        setAccentColor(featureInfo.accentColor)
+                        setMaxSelectionLimit(featureInfo.maxSelectionLimit)
+                        setMimeTypes(featureInfo.mimeTypes)
+                        setOrderedSelection(featureInfo.isOrderedSelection)
+                        setThemeNightMode(featureInfo.themeNightMode)
+                        if (
+                            SdkExtensions.getExtensionVersion(
+                                Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                            ) >= SDK_EXT_19
+                        ) {
+                            setHighlightSearchMediaTextQuery(
+                                featureInfo.highlightSearchMediaTextQuery
+                            )
+                            setHighlightAlbumId(featureInfo.highlightAlbumId)
+                        }
+                        setPreSelectedUris((selectedMedia + featureInfo.preSelectedUris).toList())
                     }
-
-                    if (
-                        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >=
-                            SDK_EXT_21
-                    ) {
-                        setPickerLaunchedInExpandedState(isExpanded)
-                    }
-
-                    // Restore any already selectedMedia that are being held in this state object,
-                    // plus copy in anything the client has asked to be preselected as well.
-                    setPreSelectedUris(
-                        listOf(
-                            *selectedMedia.toTypedArray(),
-                            *featureInfo.preSelectedUris.toTypedArray(),
-                        )
-                    )
-                }
-                .build()
+                    .build()
+            }
 
         try {
             provider.openSession(
@@ -455,6 +455,7 @@ internal class EmbeddedPhotoPickerStateImpl(
         private const val TAG = "EmbeddedPhotoPickerState"
         private const val SDK_EXT_19 = 19
         private const val SDK_EXT_21 = 21
+        private const val SDK_EXT_23 = 23
 
         /**
          * A [androidx.compose.runtime.saveable.Saver] for [EmbeddedPhotoPickerStateImpl] to enable

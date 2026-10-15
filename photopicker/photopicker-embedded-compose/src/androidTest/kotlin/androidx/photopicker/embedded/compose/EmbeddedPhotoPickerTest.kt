@@ -263,6 +263,17 @@ class EmbeddedPhotoPickerTest {
                     .setAccentColor(accentColor)
                     .setThemeNightMode(themeNightMode)
                     .setOrderedSelection(orderedSelection)
+                    .apply {
+                        if (
+                            android.os.ext.SdkExtensions.getExtensionVersion(
+                                Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                            ) >= 23
+                        ) {
+                            setRequestLocationMetadata(true)
+                            setCollapsedModeScrollingEnabled(true)
+                            setLaunchTab(EmbeddedPhotoPickerFeatureInfo.TAB_ALBUMS)
+                        }
+                    }
                     .build()
 
             composeTestRule.setContent {
@@ -284,6 +295,16 @@ class EmbeddedPhotoPickerTest {
             assertThat(featureInfo.accentColor).isEqualTo(accentColor)
             assertThat(featureInfo.themeNightMode).isEqualTo(themeNightMode)
             assertThat(featureInfo.isOrderedSelection).isEqualTo(orderedSelection)
+            if (
+                android.os.ext.SdkExtensions.getExtensionVersion(
+                    Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                ) >= 23
+            ) {
+                assertThat(featureInfo.isLocationMetadataRequested).isTrue()
+                assertThat(featureInfo.isCollapsedModeScrollingEnabled).isTrue()
+                assertThat(featureInfo.launchTab)
+                    .isEqualTo(EmbeddedPhotoPickerFeatureInfo.TAB_ALBUMS)
+            }
         }
 }
 
