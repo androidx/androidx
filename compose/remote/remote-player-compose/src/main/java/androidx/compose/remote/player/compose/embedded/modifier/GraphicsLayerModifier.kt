@@ -32,7 +32,6 @@ import androidx.compose.remote.player.compose.embedded.LocalComponentValueStateM
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.isTimeVariable
 import androidx.compose.remote.player.compose.embedded.mapEasing
-import androidx.compose.remote.player.compose.embedded.readValues
 import androidx.compose.remote.player.compose.embedded.state.expressionDependsOnAnimation
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -44,7 +43,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 
 @Composable
 internal fun Modifier.graphicsLayer(op: GraphicsLayerModifierOperation): Modifier {
-    val values = op.readValues()
+    val values = op.values
     val scaleX =
         rememberGraphicsLayerFloatAsState(values[GraphicsLayerModifierOperation.SCALE_X].source)
     val scaleY =

@@ -283,8 +283,8 @@ private fun Modifier.visible(op: ComponentVisibilityOperation): Modifier {
 
 @Composable
 private fun Modifier.semantics(op: CoreSemantics): Modifier {
-    val contentDescriptionId = op.contentDescriptionIdOrNull()
-    val contentDescription = contentDescriptionId?.let { rememberRemoteStringAsState(it).value }
+    val contentDescription =
+        op.mContentDescriptionId.takeIf { it != 0 }?.let { rememberRemoteStringAsState(it).value }
     val text = op.mTextId.takeIf { it != 0 }?.let { rememberRemoteStringAsState(it).value }
 
     if (contentDescription == null && text == null && op.mRole == null) return this

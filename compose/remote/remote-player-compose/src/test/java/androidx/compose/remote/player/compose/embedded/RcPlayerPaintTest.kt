@@ -149,11 +149,10 @@ class RcPlayerPaintTest {
         context.loadFloat(rId, 25f)
 
         val op = DrawCircle(Utils.asNan(cxId), Utils.asNan(cyId), Utils.asNan(rId))
-        val data = op.readData()
 
-        val resolvedV1 = resolveFloat(data.value1, data.v1, context)
-        val resolvedV2 = resolveFloat(data.value2, data.v2, context)
-        val resolvedV3 = resolveFloat(data.value3, data.v3, context)
+        val resolvedV1 = resolveFloat(op.value1, op.v1, context)
+        val resolvedV2 = resolveFloat(op.value2, op.v2, context)
+        val resolvedV3 = resolveFloat(op.value3, op.v3, context)
 
         assertThat(resolvedV1).isEqualTo(50f)
         assertThat(resolvedV2).isEqualTo(60f)
@@ -179,12 +178,11 @@ class RcPlayerPaintTest {
                 Utils.asNan(rightId),
                 Utils.asNan(bottomId),
             )
-        val data = op.readData()
 
-        val resolvedX1 = resolveFloat(data.x1Value, data.x1, context)
-        val resolvedY1 = resolveFloat(data.y1Value, data.y1, context)
-        val resolvedX2 = resolveFloat(data.x2Value, data.x2, context)
-        val resolvedY2 = resolveFloat(data.y2Value, data.y2, context)
+        val resolvedX1 = resolveFloat(op.x1Value, op.x1, context)
+        val resolvedY1 = resolveFloat(op.y1Value, op.y1, context)
+        val resolvedX2 = resolveFloat(op.x2Value, op.x2, context)
+        val resolvedY2 = resolveFloat(op.y2Value, op.y2, context)
 
         assertThat(resolvedX1).isEqualTo(10f)
         assertThat(resolvedY1).isEqualTo(20f)
@@ -203,9 +201,8 @@ class RcPlayerPaintTest {
         val dereferencedId =
             (pointerVarId and PaintOperation.VALUE_MASK) or PaintOperation.PTR_DEREFERENCE
         val op = DrawPath(dereferencedId)
-        val data = op.readData()
 
-        val actualId = derefId(data.id, context)
+        val actualId = derefId(op.pathId, context)
         assertThat(actualId).isEqualTo(targetPathId)
         assertThat(context.mRemoteComposeState.getPathData(actualId)).isNotNull()
     }
@@ -221,9 +218,8 @@ class RcPlayerPaintTest {
         val dereferencedId =
             (pointerVarId and PaintOperation.VALUE_MASK) or PaintOperation.PTR_DEREFERENCE
         val op = ClipPath(dereferencedId, ClipPath.PATH_CLIP_INTERSECT)
-        val data = op.readData()
 
-        val actualId = derefId(data.id, context)
+        val actualId = derefId(op.id, context)
         assertThat(actualId).isEqualTo(targetPathId)
         assertThat(context.mRemoteComposeState.getPathData(actualId)).isNotNull()
     }

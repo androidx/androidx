@@ -192,15 +192,13 @@ internal constructor(
      */
     public fun customChild(index: Int): RcCustomComponent? {
         val child = children.getOrNull(index) as? Custom ?: return null
-        val data = child.readData()
         val childConfig =
-            data.config ?: if (data.configId != -1) remoteContext.getText(data.configId) else null
-        @Suppress("UNCHECKED_CAST")
-        val properties = data.properties as? List<Custom.CustomProperty> ?: emptyList()
+            child.config
+                ?: if (child.configId != -1) remoteContext.getText(child.configId) else null
         return RcCustomComponent(
             config = childConfig ?: "",
             componentId = child.componentId,
-            rawProperties = properties,
+            rawProperties = child.properties,
             remoteContext = remoteContext,
             children = child.childrenComponents,
         )
@@ -427,11 +425,10 @@ public val LocalRcCustomPlugins: ProvidableCompositionLocal<CustomPluginRegistry
 /** Resolves the config name of a [Custom] component. */
 @Composable
 private fun rememberCustomConfig(layout: Custom): String {
-    val data = layout.readData()
-    return if (data.configId != -1) {
-        rememberRemoteStringAsState(data.configId).value
+    return if (layout.configId != -1) {
+        rememberRemoteStringAsState(layout.configId).value
     } else {
-        data.config ?: ""
+        layout.config ?: ""
     }
 }
 
@@ -463,18 +460,14 @@ internal fun RcPlayerCustom(
     val remoteContext = LocalRemoteContext.current
     val customPlugins = LocalRcCustomPlugins.current
 
-    val data = layout.readData()
     val config = rememberCustomConfig(layout)
-
-    @Suppress("UNCHECKED_CAST")
-    val properties = data.properties as? List<Custom.CustomProperty> ?: emptyList()
 
     Box(modifier = modifier) {
         val component =
             RcCustomComponent(
                 config = config,
                 componentId = layout.componentId,
-                rawProperties = properties,
+                rawProperties = layout.properties,
                 remoteContext = remoteContext,
                 children = layout.childrenComponents,
                 onClick = clickHandlers?.onClick,

@@ -58,7 +58,6 @@ import androidx.compose.remote.core.operations.DrawToBitmap
 import androidx.compose.remote.core.operations.DrawTweenPath
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.FloatFunctionCall
-import androidx.compose.remote.core.operations.FloatFunctionDefine
 import androidx.compose.remote.core.operations.HapticFeedback
 import androidx.compose.remote.core.operations.ImageAttribute
 import androidx.compose.remote.core.operations.MatrixRestore
@@ -324,11 +323,10 @@ private fun DrawScope.executeOperationsInPass(
             is ConditionalOperations -> {
                 // Conditional draw: resolve the two operands, compare per type, and draw the child
                 // ops only when the condition holds. Mirrors ConditionalOperations.paint.
-                val data = op.readData(read)
-                val a = data.varAOut
-                val b = data.varBOut
+                val a = resolveFloat(op.varA, op.varA, read)
+                val b = resolveFloat(op.varB, op.varB, read)
                 val run =
-                    when (data.type) {
+                    when (op.type) {
                         ConditionalOperations.TYPE_EQ -> a == b
                         ConditionalOperations.TYPE_NEQ -> a != b
                         ConditionalOperations.TYPE_LT -> a < b
@@ -351,11 +349,10 @@ private fun DrawScope.executeOperationsInPass(
                 // list
                 // once per iteration, loading the index variable each pass. Mirrors
                 // LoopOperation.paint, with a hard iteration cap as an infinite-loop backstop.
-                val data = op.readData(read)
-                val from = data.fromOut
-                val until = data.untilOut
-                val step = data.stepOut
-                val indexId = data.indexVariableId
+                val from = resolveFloat(op.from, op.from, read)
+                val until = resolveFloat(op.until, op.until, read)
+                val step = resolveFloat(op.step, op.step, read)
+                val indexId = op.indexVariableId
                 if (step != 0f && (step > 0f) == (from < until)) {
                     var i = from
                     var guard = 0
@@ -382,9 +379,8 @@ private fun DrawScope.executeOperationsInPass(
                 // writes
                 // its outputs to the context for downstream ops to read. Mirrors FloatFunctionCall
                 // .paint. FloatFunctionDefine itself has no draw effect, so it needs no case.
-                val data = op.readData()
-                val fn = data.function as? FloatFunctionDefine
-                val outArgs = data.outArgs
+                val fn = op.function
+                val outArgs = op.outArgs
                 if (fn != null && outArgs != null) {
                     val argIds = fn.args
                     for (j in outArgs.indices) {
@@ -395,10 +391,9 @@ private fun DrawScope.executeOperationsInPass(
             }
             is DrawCircle -> {
                 val style = paintState.toDrawStyle()
-                val data = op.readData()
-                val v1 = resolveFloat(data.value1, data.v1, read)
-                val v2 = resolveFloat(data.value2, data.v2, read)
-                val v3 = resolveFloat(data.value3, data.v3, read)
+                val v1 = resolveFloat(op.value1, op.v1, read)
+                val v2 = resolveFloat(op.value2, op.v2, read)
+                val v3 = resolveFloat(op.value3, op.v3, read)
                 val brush = paintState.brush
                 if (brush != null) {
                     drawCircle(
@@ -423,11 +418,10 @@ private fun DrawScope.executeOperationsInPass(
             }
             is DrawRect -> {
                 val style = paintState.toDrawStyle()
-                val data = op.readData()
-                val x1 = resolveFloat(data.x1Value, data.x1, read)
-                val y1 = resolveFloat(data.y1Value, data.y1, read)
-                val x2 = resolveFloat(data.x2Value, data.x2, read)
-                val y2 = resolveFloat(data.y2Value, data.y2, read)
+                val x1 = resolveFloat(op.x1Value, op.rawX1, read)
+                val y1 = resolveFloat(op.y1Value, op.rawY1, read)
+                val x2 = resolveFloat(op.x2Value, op.rawX2, read)
+                val y2 = resolveFloat(op.y2Value, op.rawY2, read)
 
                 val brush = paintState.brush
                 if (brush != null) {
@@ -452,11 +446,10 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is DrawLine -> {
-                val data = op.readData()
-                val x1 = resolveFloat(data.x1Value, data.x1, read)
-                val y1 = resolveFloat(data.y1Value, data.y1, read)
-                val x2 = resolveFloat(data.x2Value, data.x2, read)
-                val y2 = resolveFloat(data.y2Value, data.y2, read)
+                val x1 = resolveFloat(op.x1Value, op.rawX1, read)
+                val y1 = resolveFloat(op.y1Value, op.rawY1, read)
+                val x2 = resolveFloat(op.x2Value, op.rawX2, read)
+                val y2 = resolveFloat(op.y2Value, op.rawY2, read)
 
                 val brush = paintState.brush
                 if (brush != null) {
@@ -486,11 +479,10 @@ private fun DrawScope.executeOperationsInPass(
             }
             is DrawOval -> {
                 val style = paintState.toDrawStyle()
-                val data = op.readData()
-                val x1 = resolveFloat(data.x1Value, data.x1, read)
-                val y1 = resolveFloat(data.y1Value, data.y1, read)
-                val x2 = resolveFloat(data.x2Value, data.x2, read)
-                val y2 = resolveFloat(data.y2Value, data.y2, read)
+                val x1 = resolveFloat(op.x1Value, op.rawX1, read)
+                val y1 = resolveFloat(op.y1Value, op.rawY1, read)
+                val x2 = resolveFloat(op.x2Value, op.rawX2, read)
+                val y2 = resolveFloat(op.y2Value, op.rawY2, read)
                 val brush = paintState.brush
                 if (brush != null) {
                     drawOval(
@@ -515,13 +507,12 @@ private fun DrawScope.executeOperationsInPass(
             }
             is DrawRoundRect -> {
                 val style = paintState.toDrawStyle()
-                val data = op.readData()
-                val v1 = resolveFloat(data.value1, data.v1, read)
-                val v2 = resolveFloat(data.value2, data.v2, read)
-                val v3 = resolveFloat(data.value3, data.v3, read)
-                val v4 = resolveFloat(data.value4, data.v4, read)
-                val v5 = resolveFloat(data.value5, data.v5, read)
-                val v6 = resolveFloat(data.value6, data.v6, read)
+                val v1 = resolveFloat(op.value1, op.v1, read)
+                val v2 = resolveFloat(op.value2, op.v2, read)
+                val v3 = resolveFloat(op.value3, op.v3, read)
+                val v4 = resolveFloat(op.value4, op.v4, read)
+                val v5 = resolveFloat(op.value5, op.v5, read)
+                val v6 = resolveFloat(op.value6, op.v6, read)
 
                 val brush = paintState.brush
                 if (brush != null) {
@@ -549,13 +540,12 @@ private fun DrawScope.executeOperationsInPass(
             }
             is DrawSector -> {
                 val style = paintState.toDrawStyle()
-                val data = op.readData()
-                val v1 = resolveFloat(data.value1, data.v1, read)
-                val v2 = resolveFloat(data.value2, data.v2, read)
-                val v3 = resolveFloat(data.value3, data.v3, read)
-                val v4 = resolveFloat(data.value4, data.v4, read)
-                val v5 = resolveFloat(data.value5, data.v5, read)
-                val v6 = resolveFloat(data.value6, data.v6, read)
+                val v1 = resolveFloat(op.value1, op.v1, read)
+                val v2 = resolveFloat(op.value2, op.v2, read)
+                val v3 = resolveFloat(op.value3, op.v3, read)
+                val v4 = resolveFloat(op.value4, op.v4, read)
+                val v5 = resolveFloat(op.value5, op.v5, read)
+                val v6 = resolveFloat(op.value6, op.v6, read)
 
                 val brush = paintState.brush
                 if (brush != null) {
@@ -587,13 +577,12 @@ private fun DrawScope.executeOperationsInPass(
             }
             is DrawArc -> {
                 val style = paintState.toDrawStyle()
-                val data = op.readData()
-                val v1 = resolveFloat(data.value1, data.v1, read)
-                val v2 = resolveFloat(data.value2, data.v2, read)
-                val v3 = resolveFloat(data.value3, data.v3, read)
-                val v4 = resolveFloat(data.value4, data.v4, read)
-                val v5 = resolveFloat(data.value5, data.v5, read)
-                val v6 = resolveFloat(data.value6, data.v6, read)
+                val v1 = resolveFloat(op.value1, op.v1, read)
+                val v2 = resolveFloat(op.value2, op.v2, read)
+                val v3 = resolveFloat(op.value3, op.v3, read)
+                val v4 = resolveFloat(op.value4, op.v4, read)
+                val v5 = resolveFloat(op.value5, op.v5, read)
+                val v6 = resolveFloat(op.value6, op.v6, read)
 
                 val brush = paintState.brush
                 if (brush != null) {
@@ -624,13 +613,12 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is DrawBitmap -> {
-                val data = op.readData()
-                val left = resolveFloat(data.left, data.outputLeft, read)
-                val top = resolveFloat(data.top, data.outputTop, read)
-                val right = resolveFloat(data.right, data.outputRight, read)
-                val bottom = resolveFloat(data.bottom, data.outputBottom, read)
+                val left = resolveFloat(op.left, op.outputLeft, read)
+                val top = resolveFloat(op.top, op.outputTop, read)
+                val right = resolveFloat(op.right, op.outputRight, read)
+                val bottom = resolveFloat(op.bottom, op.outputBottom, read)
 
-                val bitmap = resolveCanvasBitmap(graph, remoteContext, data.id)
+                val bitmap = resolveCanvasBitmap(graph, remoteContext, op.imageId)
                 if (bitmap != null) {
                     val image = bitmap.asImageBitmap()
                     val dstW = right - left
@@ -663,9 +651,8 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is DrawPath -> {
-                val data = op.readData()
-                val pathId = derefId(data.id, read)
-                val path = remoteContext.mRemoteComposeState.getPath(pathId, data.start, data.end)
+                val pathId = derefId(op.pathId, read)
+                val path = remoteContext.mRemoteComposeState.getPath(pathId, op.start, op.end)
                 val style = paintState.toDrawStyle()
                 val brush = paintState.brush
                 if (brush != null) {
@@ -694,30 +681,26 @@ private fun DrawScope.executeOperationsInPass(
                 drawContext.canvas.restore()
             }
             is MatrixTranslate -> {
-                val data = op.readData()
-                val v1 = resolveFloat(data.value1, data.v1, read)
-                val v2 = resolveFloat(data.value2, data.v2, read)
+                val v1 = resolveFloat(op.value1, op.v1, read)
+                val v2 = resolveFloat(op.value2, op.v2, read)
                 drawContext.transform.translate(v1, v2)
             }
             is MatrixScale -> {
-                val data = op.readData()
-                val x1 = resolveFloat(data.x1Value, data.x1, read)
-                val y1 = resolveFloat(data.y1Value, data.y1, read)
-                val x2 = resolveFloat(data.x2Value, data.x2, read)
-                val y2 = resolveFloat(data.y2Value, data.y2, read)
+                val x1 = resolveFloat(op.x1Value, op.rawX1, read)
+                val y1 = resolveFloat(op.y1Value, op.rawY1, read)
+                val x2 = resolveFloat(op.x2Value, op.rawX2, read)
+                val y2 = resolveFloat(op.y2Value, op.rawY2, read)
                 drawContext.transform.scale(x1, y1, Offset(x2, y2))
             }
             is MatrixRotate -> {
-                val data = op.readData()
-                val v1 = resolveFloat(data.value1, data.v1, read)
-                val v2 = resolveFloat(data.value2, data.v2, read)
-                val v3 = resolveFloat(data.value3, data.v3, read)
+                val v1 = resolveFloat(op.value1, op.v1, read)
+                val v2 = resolveFloat(op.value2, op.v2, read)
+                val v3 = resolveFloat(op.value3, op.v3, read)
                 drawContext.transform.rotate(v1, Offset(v2, v3))
             }
             is MatrixSkew -> {
-                val data = op.readData()
-                val sx = resolveFloat(data.value1, data.v1, read)
-                val sy = resolveFloat(data.value2, data.v2, read)
+                val sx = resolveFloat(op.value1, op.v1, read)
+                val sy = resolveFloat(op.value2, op.v2, read)
                 val skewMatrix =
                     Matrix().apply {
                         this[1, 0] = sx // SkewX
@@ -728,22 +711,18 @@ private fun DrawScope.executeOperationsInPass(
             is ClipRect -> {
                 // Imperative clip on the underlying canvas (bounded by the surrounding
                 // MATRIX_SAVE/RESTORE the document emits, like the other canvas-state ops here).
-                val data = op.readData()
-                val x1 = resolveFloat(data.x1Value, data.x1, read)
-                val y1 = resolveFloat(data.y1Value, data.y1, read)
-                val x2 = resolveFloat(data.x2Value, data.x2, read)
-                val y2 = resolveFloat(data.y2Value, data.y2, read)
+                val x1 = resolveFloat(op.x1Value, op.rawX1, read)
+                val y1 = resolveFloat(op.y1Value, op.rawY1, read)
+                val x2 = resolveFloat(op.x2Value, op.rawX2, read)
+                val y2 = resolveFloat(op.y2Value, op.rawY2, read)
                 drawContext.canvas.clipRect(x1, y1, x2, y2)
             }
             is ClipPath -> {
-                // mId/mRegionOp are package-private in remote-core (left unchanged), so read
-                // reflectively. Map the region op to Compose's ClipOp (only Intersect/Difference).
-                val data = op.readData()
-                val pathId = derefId(data.id, read)
-                val regionOp = data.regionOp
+                // Map the region op to Compose's ClipOp (only Intersect/Difference).
+                val pathId = derefId(op.id, read)
                 val path = remoteContext.mRemoteComposeState.getPath(pathId, 0f, 1f)
                 val clipOp =
-                    if (regionOp == ClipPath.PATH_CLIP_DIFFERENCE) ClipOp.Difference
+                    if (op.regionOp == ClipPath.PATH_CLIP_DIFFERENCE) ClipOp.Difference
                     else ClipOp.Intersect
                 drawContext.canvas.clipPath(path, clipOp)
             }
@@ -772,39 +751,31 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is DrawTextOnPath -> {
-                // Lay text along a path. mTextId is public; mPathId/mOutHOffset/mOutVOffset are
-                // package-private (read reflectively). updateVariables (run above) has already
-                // resolved the offsets into mOut*. The path id may be a PTR_DEREFERENCE
-                // indirection,
-                // mirroring PaintOperation.getId.
+                // Lay text along a path. updateVariables (run above) has already resolved the
+                // offsets into mOut*. The path id may be a PTR_DEREFERENCE indirection, mirroring
+                // PaintOperation.getId.
                 val full = read.getText(op.mTextId)
                 if (full != null && !paintState.textSize.isNaN()) {
-                    val data = op.readData()
-                    val pathId = derefId(data.pathId, read)
-                    val hOffset = data.hOffset
-                    val vOffset = data.vOffset
+                    val pathId = derefId(op.pathId, read)
                     val path = remoteContext.mRemoteComposeState.getPath(pathId, 0f, 1f)
                     drawContext.canvas.nativeCanvas.drawTextOnPath(
                         full,
                         path.asAndroidPath(),
-                        hOffset,
-                        vOffset,
+                        op.outHOffset,
+                        op.outVOffset,
                         paintState.toNativeTextPaint(read),
                     )
                 }
             }
             is DrawTextAnchored -> {
-                // Draw text positioned about an anchor point (mX, mY) with pan in [-1, 1]. All
-                // fields
-                // are package-private (read reflectively); updateVariables (run above) resolved
-                // them
-                // into mOut*. Replicates DrawTextAnchored.getHorizontalOffset/getVerticalOffset
-                // using Compose TextMeasurer and drawText.
-                val data = op.readData()
-                val textId = data.textId
+                // Draw text positioned about an anchor point (mX, mY) with pan in [-1, 1];
+                // updateVariables (run above) resolved them into mOut*. Replicates
+                // DrawTextAnchored.getHorizontalOffset/getVerticalOffset using Compose TextMeasurer
+                // and drawText.
+                val textId = op.textID
                 val full = read.getText(textId)
                 if (full != null && !paintState.textSize.isNaN()) {
-                    val flags = data.flags
+                    val flags = op.flags
                     val baselineRelative = (flags and DrawTextAnchored.BASELINE_RELATIVE) != 0
                     val bounds = FloatArray(4)
                     evalPaintContext().getTextBounds(textId, 0, -1, flags, bounds)
@@ -816,10 +787,10 @@ private fun DrawScope.executeOperationsInPass(
                             softWrap = false,
                             maxLines = 1,
                         )
-                    val outX = data.x
-                    val outY = data.y
-                    val outPanX = data.panX
-                    val outPanY = data.panY
+                    val outX = op.outX
+                    val outY = op.outY
+                    val outPanX = op.outPanX
+                    val outPanY = op.outPanY
                     val textWidth = bounds[2] - bounds[0]
                     val textHeight = bounds[3] - bounds[1]
                     val hOffset = (0f - textWidth) * (1f + outPanX) / 2f - bounds[0]
@@ -840,26 +811,26 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is DrawBitmapScaled -> {
-                val data = op.readData()
+                val rawImageId = op.imageId
                 val imageId =
-                    if ((data.imageId and PaintOperation.PTR_DEREFERENCE) != 0) {
+                    if ((rawImageId and PaintOperation.PTR_DEREFERENCE) != 0) {
                         remoteContext.mRemoteComposeState.getInteger(
-                            data.imageId and PaintOperation.VALUE_MASK
+                            rawImageId and PaintOperation.VALUE_MASK
                         )
                     } else {
-                        data.imageId and PaintOperation.VALUE_MASK
+                        rawImageId and PaintOperation.VALUE_MASK
                     }
                 val bitmap = resolveCanvasBitmap(graph, remoteContext, imageId)
                 if (bitmap != null) {
-                    val srcLeft = resolveFloat(data.srcLeft, data.outSrcLeft, read)
-                    val srcTop = resolveFloat(data.srcTop, data.outSrcTop, read)
-                    val srcRight = resolveFloat(data.srcRight, data.outSrcRight, read)
-                    val srcBottom = resolveFloat(data.srcBottom, data.outSrcBottom, read)
-                    val dstLeft = resolveFloat(data.dstLeft, data.outDstLeft, read)
-                    val dstTop = resolveFloat(data.dstTop, data.outDstTop, read)
-                    val dstRight = resolveFloat(data.dstRight, data.outDstRight, read)
-                    val dstBottom = resolveFloat(data.dstBottom, data.outDstBottom, read)
-                    val scaleFactor = resolveFloat(data.scaleFactor, data.outScaleFactor, read)
+                    val srcLeft = resolveFloat(op.srcLeft, op.outSrcLeft, read)
+                    val srcTop = resolveFloat(op.srcTop, op.outSrcTop, read)
+                    val srcRight = resolveFloat(op.srcRight, op.outSrcRight, read)
+                    val srcBottom = resolveFloat(op.srcBottom, op.outSrcBottom, read)
+                    val dstLeft = resolveFloat(op.dstLeft, op.outDstLeft, read)
+                    val dstTop = resolveFloat(op.dstTop, op.outDstTop, read)
+                    val dstRight = resolveFloat(op.dstRight, op.outDstRight, read)
+                    val dstBottom = resolveFloat(op.dstBottom, op.outDstBottom, read)
+                    val scaleFactor = resolveFloat(op.scaleFactor, op.outScaleFactor, read)
 
                     val imageScaling = ImageScaling()
                     imageScaling.setup(
@@ -871,7 +842,7 @@ private fun DrawScope.executeOperationsInPass(
                         dstTop,
                         dstRight,
                         dstBottom,
-                        data.scaleType,
+                        op.scaleType,
                         scaleFactor,
                     )
                     drawContext.canvas.save()
@@ -900,21 +871,19 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is DrawBitmapInt -> {
-                // Integer-coordinate bitmap blit (src rect -> dst rect). All fields are
-                // package-private (read reflectively); the image id may be a PTR_DEREFERENCE
-                // indirection. Mirrors DrawBitmapInt.paint() (the int-coordinate bitmap blit).
-                val data = op.readData()
-                val imageId = derefId(data.imageId, read)
+                // Integer-coordinate bitmap blit (src rect -> dst rect); the image id may be a
+                // PTR_DEREFERENCE indirection. Mirrors DrawBitmapInt.paint().
+                val imageId = derefId(op.imageId, read)
                 val bitmap = resolveCanvasBitmap(graph, remoteContext, imageId)
                 if (bitmap != null) {
-                    val srcLeft = data.srcLeft
-                    val srcTop = data.srcTop
-                    val srcRight = data.srcRight
-                    val srcBottom = data.srcBottom
-                    val dstLeft = data.dstLeft
-                    val dstTop = data.dstTop
-                    val dstRight = data.dstRight
-                    val dstBottom = data.dstBottom
+                    val srcLeft = op.srcLeft
+                    val srcTop = op.srcTop
+                    val srcRight = op.srcRight
+                    val srcBottom = op.srcBottom
+                    val dstLeft = op.dstLeft
+                    val dstTop = op.dstTop
+                    val dstRight = op.dstRight
+                    val dstBottom = op.dstBottom
                     val dstW = dstRight - dstLeft
                     val dstH = dstBottom - dstTop
                     if (dstW > 0 && dstH > 0) {
@@ -933,23 +902,17 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is DrawTweenPath -> {
-                // Draw an interpolated path between two paths. mPath1Id/mPath2Id and the resolved
-                // mOut* (updateVariables ran above) are package-private (read reflectively). Path
-                // ids
+                // Draw an interpolated path between two paths (updateVariables ran above). Path ids
                 // may be PTR_DEREFERENCE indirections.
-                val data = op.readData()
-                val path1Id = derefId(data.path1Id, read)
-                val path2Id = derefId(data.path2Id, read)
-                val tween = data.tween
-                val start = data.start
-                val stop = data.stop
+                val path1Id = derefId(op.path1Id, read)
+                val path2Id = derefId(op.path2Id, read)
                 val path =
                     remoteContext.mRemoteComposeState.getTweenPath(
                         path1Id,
                         path2Id,
-                        tween,
-                        start,
-                        stop,
+                        op.outTween,
+                        op.outStart,
+                        op.outStop,
                     )
                 val style = paintState.toDrawStyle()
                 val brush = paintState.brush
@@ -979,10 +942,9 @@ private fun DrawScope.executeOperationsInPass(
                 // on-screen canvas (mirrors DrawToBitmap.paint()). MODE_NO_INITIALIZE
                 // skips the erase-to-color. Compose's DrawScope draws (incl. brushes) follow the
                 // swapped canvas because the framework draws target drawContext.canvas.
-                val data = op.readData()
-                val bitmapId = derefId(data.bitmapId, read)
-                val mode = data.mode
-                val color = data.color
+                val bitmapId = derefId(op.bitmapId, read)
+                val mode = op.mode
+                val color = op.color
                 if (mainCanvas == null) mainCanvas = drawContext.canvas
                 if (bitmapId == 0) {
                     drawContext.canvas = mainCanvas!!
@@ -1014,19 +976,15 @@ private fun DrawScope.executeOperationsInPass(
                 // native canvas. Mirrors DrawTextOnCircle.paint / the View player's
                 // drawTextOnCircle
                 // — build an arc Path sized to the measured text and drawTextOnPath onto it.
-                // mTextId is
-                // public; the geometry/alignment/placement fields are package-private (read
-                // reflectively).
                 val full = read.getText(op.mTextId)
                 if (full != null && !paintState.textSize.isNaN()) {
-                    val data = op.readData()
-                    val centerX = data.centerX
-                    val centerY = data.centerY
-                    val radius = data.radius
-                    val startAngle = data.startAngle
-                    val warpRadiusOffset = data.warpRadiusOffset
-                    val alignment = data.alignment
-                    val placement = data.placement
+                    val centerX = op.centerX
+                    val centerY = op.centerY
+                    val radius = op.radius
+                    val startAngle = op.startAngle
+                    val warpRadiusOffset = op.warpRadiusOffset
+                    val alignment = op.alignment
+                    val placement = op.placement
                     val textWidth =
                         textMeasurer
                             .measure(
@@ -1086,17 +1044,14 @@ private fun DrawScope.executeOperationsInPass(
                 // Bitmap-font text: walk the string glyph-by-glyph via BitmapFontData.lookupGlyph
                 // and
                 // blit each glyph's bitmap into its laid-out dst rect (with margins, kerning, and
-                // glyph spacing). Mirrors DrawBitmapFontText.paint. Fields are package-private
-                // (read
-                // reflectively); the font's kerning table likewise.
-                val data = op.readData()
-                val textId = data.textId
-                val fontId = data.fontId
+                // glyph spacing). Mirrors DrawBitmapFontText.paint.
+                val textId = op.textID
+                val fontId = op.bitmapFontID
                 val full = read.getText(textId)
                 val font = remoteContext.getObject(fontId) as? BitmapFontData
                 if (full != null && font != null) {
-                    val start = data.start
-                    val end = data.end
+                    val start = op.start
+                    val end = op.end
                     val text =
                         when {
                             end == -1 || end > full.length ->
@@ -1108,9 +1063,9 @@ private fun DrawScope.executeOperationsInPass(
                                 )
                         }
                     val kerning = font.getKerningTable()
-                    val y = data.y
-                    val glyphSpacing = data.glyphSpacing
-                    var xPos = data.x
+                    val y = op.outY
+                    val glyphSpacing = op.outGlyphSpacing
+                    var xPos = op.outX
                     var pos = 0
                     var prevGlyph = ""
                     while (pos < text.length) {
@@ -1156,21 +1111,20 @@ private fun DrawScope.executeOperationsInPass(
                 // run
                 // (xMax + tallest glyph) to derive the pan offsets, then blits each glyph. Mirrors
                 // DrawBitmapTextAnchored.measure/getHorizontalOffset/getVerticalOffset/paint.
-                val data = op.readData()
-                val textId = data.textId
-                val fontId = data.fontId
+                val textId = op.textID
+                val fontId = op.bitmapFontID
                 val full = read.getText(textId)
                 val font = remoteContext.getObject(fontId) as? BitmapFontData
                 if (full != null && font != null) {
-                    val start = data.start
-                    val end = data.end
+                    val start = op.outStart.toInt()
+                    val end = op.outEnd.toInt()
                     val text =
                         full.substring(
                             start.coerceAtLeast(0),
                             if (end < 0 || end > full.length) full.length else end,
                         )
                     val kerning = font.getKerningTable()
-                    val glyphSpacing = data.glyphSpacing
+                    val glyphSpacing = op.outGlyphSpacing
                     // measure(): xMax is the advance width; yMin/yMax bound the glyph heights.
                     var xMeasure = 0f
                     var yMin = 1000f
@@ -1196,14 +1150,14 @@ private fun DrawScope.executeOperationsInPass(
                             xMeasure += glyphSpacing
                         }
                     }
-                    val outPanX = data.panX
-                    val outPanY = data.panY
+                    val outPanX = op.outPanX
+                    val outPanY = op.outPanY
                     val textWidth = xMeasure
                     val textHeight = yMax - yMin
                     val hOffset = (0f - textWidth) * (1f + outPanX) / 2f
                     val vOffset = (0f - textHeight) * (1f - outPanY) / 2f - yMin
-                    var xPos = data.x + hOffset
-                    val yPos = data.y + vOffset
+                    var xPos = op.outX + hOffset
+                    val yPos = op.outY + vOffset
                     var pos = 0
                     var prevGlyph = ""
                     while (pos < text.length) {
@@ -1249,14 +1203,13 @@ private fun DrawScope.executeOperationsInPass(
                 // path
                 // matrix at its mid-run fraction (position + tangent). Mirrors
                 // DrawBitmapFontTextOnPath.measureWidth/paint. Path id may be a PTR_DEREFERENCE.
-                val data = op.readData()
-                val textId = data.textId
-                val fontId = data.fontId
+                val textId = op.textID
+                val fontId = op.bitmapFontID
                 val full = read.getText(textId)
                 val font = remoteContext.getObject(fontId) as? BitmapFontData
                 if (full != null && font != null) {
-                    val start = data.start
-                    val end = data.end
+                    val start = op.start
+                    val end = op.end
                     val text =
                         when {
                             end == -1 || end > full.length ->
@@ -1268,8 +1221,8 @@ private fun DrawScope.executeOperationsInPass(
                                 )
                         }
                     val kerning = font.getKerningTable()
-                    val yAdj = data.yAdj
-                    val glyphSpacing = data.glyphSpacing
+                    val yAdj = op.outYAdj
+                    val glyphSpacing = op.outGlyphSpacing
                     // measureWidth(): total advance (margins + kerning + glyph widths, no spacing).
                     var width = 0f
                     run {
@@ -1294,7 +1247,7 @@ private fun DrawScope.executeOperationsInPass(
                             prev = glyph.mChars!!
                         }
                     }
-                    val pathId = derefId(data.pathId, read)
+                    val pathId = derefId(op.pathID, read)
                     val composePath = remoteContext.mRemoteComposeState.getPath(pathId, 0f, 1f)
                     val pathMeasure = PathMeasure()
                     pathMeasure.setPath(composePath, false)

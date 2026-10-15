@@ -169,7 +169,6 @@ class RcPlayerCustomComponentTest {
      * returnFloat/returnText and the bound document variable/text holds the value — available to
      * the rest of the document on the same recomposition, not a later frame.
      */
-    @Suppress("UNCHECKED_CAST")
     @Test
     fun customReturnChannelsWriteBackIntoTheDocument() {
         val returnPlugin =
@@ -205,7 +204,7 @@ class RcPlayerCustomComponentTest {
 
         // The write-back landed in the document store, at the ids the Custom op declared.
         val custom = requireNotNull(findCustom(document.getOperationsList()))
-        val props = custom.readData().properties as List<Custom.CustomProperty>
+        val props = custom.properties
         val floatId =
             Utils.idFromNan(
                 props.first { it.mDataType == Custom.CustomProperty.FLOAT_RETURN }.mFloatValue

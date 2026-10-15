@@ -111,7 +111,7 @@ public class RcPlayerState(
 
     internal val operationsInspectable: List<InspectableValue>
         get() =
-            document.getOperationsList().fastMap {
+            document.operations.fastMap {
                 RcPlayerInspector.wrapOperation(it, graphContext)
             }
 
