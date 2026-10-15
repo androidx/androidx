@@ -48,4 +48,17 @@ package androidx.compose.foundation.layout
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
-@ExperimentalLayoutApi public object ComposeFoundationLayoutFlags {}
+import kotlin.jvm.JvmField
+
+@ExperimentalLayoutApi
+public object ComposeFoundationLayoutFlags {
+
+    /**
+     * Whether to use Modifier.Node for Modifier.imeNestedScroll. If false, the legacy
+     * Modifier.composed implementation will be used instead.
+     */
+    // TODO: b/573983357
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isNewImeNestedScrollNodeEnabled: Boolean = true
+}

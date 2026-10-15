@@ -149,7 +149,9 @@ package androidx.compose.foundation.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class ComposeFoundationLayoutFlags {
+    property public boolean isNewImeNestedScrollNodeEnabled;
     field public static final androidx.compose.foundation.layout.ComposeFoundationLayoutFlags INSTANCE;
+    field public static boolean isNewImeNestedScrollNodeEnabled;
   }
 
   @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class ContextualFlowColumnOverflow extends androidx.compose.foundation.layout.FlowLayoutOverflow {
