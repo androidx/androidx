@@ -1425,6 +1425,12 @@ final class androidx.compose.foundation.text/KeyboardOptions { // androidx.compo
     }
 }
 
+final class androidx.compose.foundation/BorderRenderer { // androidx.compose.foundation/BorderRenderer|null[0]
+    constructor <init>(kotlin/Function0<androidx.compose.ui.graphics.layer/GraphicsLayer>) // androidx.compose.foundation/BorderRenderer.<init>|<init>(kotlin.Function0<androidx.compose.ui.graphics.layer.GraphicsLayer>){}[0]
+
+    final fun drawBorder(androidx.compose.ui.graphics.drawscope/DrawScope, androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/Brush, androidx.compose.ui.graphics/Outline) // androidx.compose.foundation/BorderRenderer.drawBorder|drawBorder(androidx.compose.ui.graphics.drawscope.DrawScope;androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.Brush;androidx.compose.ui.graphics.Outline){}[0]
+}
+
 final class androidx.compose.foundation/BorderStroke { // androidx.compose.foundation/BorderStroke|null[0]
     constructor <init>(androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/Brush) // androidx.compose.foundation/BorderStroke.<init>|<init>(androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.Brush){}[0]
 
@@ -1773,6 +1779,7 @@ final val androidx.compose.foundation/LocalIndication // androidx.compose.founda
 final val androidx.compose.foundation/LocalOverscrollFactory // androidx.compose.foundation/LocalOverscrollFactory|{}LocalOverscrollFactory[0]
     final fun <get-LocalOverscrollFactory>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.foundation/OverscrollFactory?> // androidx.compose.foundation/LocalOverscrollFactory.<get-LocalOverscrollFactory>|<get-LocalOverscrollFactory>(){}[0]
 final val androidx.compose.foundation/androidx_compose_foundation_BasicTooltipDefaults$stableprop // androidx.compose.foundation/androidx_compose_foundation_BasicTooltipDefaults$stableprop|#static{}androidx_compose_foundation_BasicTooltipDefaults$stableprop[0]
+final val androidx.compose.foundation/androidx_compose_foundation_BorderRenderer$stableprop // androidx.compose.foundation/androidx_compose_foundation_BorderRenderer$stableprop|#static{}androidx_compose_foundation_BorderRenderer$stableprop[0]
 final val androidx.compose.foundation/androidx_compose_foundation_BorderStroke$stableprop // androidx.compose.foundation/androidx_compose_foundation_BorderStroke$stableprop|#static{}androidx_compose_foundation_BorderStroke$stableprop[0]
 final val androidx.compose.foundation/androidx_compose_foundation_CombinedClickableNode_DoubleKeyClickState$stableprop // androidx.compose.foundation/androidx_compose_foundation_CombinedClickableNode_DoubleKeyClickState$stableprop|#static{}androidx_compose_foundation_CombinedClickableNode_DoubleKeyClickState$stableprop[0]
 final val androidx.compose.foundation/androidx_compose_foundation_ComposeFoundationFlags$stableprop // androidx.compose.foundation/androidx_compose_foundation_ComposeFoundationFlags$stableprop|#static{}androidx_compose_foundation_ComposeFoundationFlags$stableprop[0]
@@ -2132,6 +2139,7 @@ final fun androidx.compose.foundation/Image(androidx.compose.ui.graphics/ImageBi
 final fun androidx.compose.foundation/Image(androidx.compose.ui.graphics/ImageBitmap, kotlin/String?, androidx.compose.ui/Modifier?, androidx.compose.ui/Alignment?, androidx.compose.ui.layout/ContentScale?, kotlin/Float, androidx.compose.ui.graphics/ColorFilter?, androidx.compose.ui.graphics/FilterQuality?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.foundation/Image|Image(androidx.compose.ui.graphics.ImageBitmap;kotlin.String?;androidx.compose.ui.Modifier?;androidx.compose.ui.Alignment?;androidx.compose.ui.layout.ContentScale?;kotlin.Float;androidx.compose.ui.graphics.ColorFilter?;androidx.compose.ui.graphics.FilterQuality?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
 final fun androidx.compose.foundation/MarqueeSpacing(androidx.compose.ui.unit/Dp): androidx.compose.foundation/MarqueeSpacing // androidx.compose.foundation/MarqueeSpacing|MarqueeSpacing(androidx.compose.ui.unit.Dp){}[0]
 final fun androidx.compose.foundation/androidx_compose_foundation_BasicTooltipDefaults$stableprop_getter(): kotlin/Int // androidx.compose.foundation/androidx_compose_foundation_BasicTooltipDefaults$stableprop_getter|androidx_compose_foundation_BasicTooltipDefaults$stableprop_getter(){}[0]
+final fun androidx.compose.foundation/androidx_compose_foundation_BorderRenderer$stableprop_getter(): kotlin/Int // androidx.compose.foundation/androidx_compose_foundation_BorderRenderer$stableprop_getter|androidx_compose_foundation_BorderRenderer$stableprop_getter(){}[0]
 final fun androidx.compose.foundation/androidx_compose_foundation_BorderStroke$stableprop_getter(): kotlin/Int // androidx.compose.foundation/androidx_compose_foundation_BorderStroke$stableprop_getter|androidx_compose_foundation_BorderStroke$stableprop_getter(){}[0]
 final fun androidx.compose.foundation/androidx_compose_foundation_CombinedClickableNode_DoubleKeyClickState$stableprop_getter(): kotlin/Int // androidx.compose.foundation/androidx_compose_foundation_CombinedClickableNode_DoubleKeyClickState$stableprop_getter|androidx_compose_foundation_CombinedClickableNode_DoubleKeyClickState$stableprop_getter(){}[0]
 final fun androidx.compose.foundation/androidx_compose_foundation_ComposeFoundationFlags$stableprop_getter(): kotlin/Int // androidx.compose.foundation/androidx_compose_foundation_ComposeFoundationFlags$stableprop_getter|androidx_compose_foundation_ComposeFoundationFlags$stableprop_getter(){}[0]

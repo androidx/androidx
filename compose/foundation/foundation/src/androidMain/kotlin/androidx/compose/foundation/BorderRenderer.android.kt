@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.border
+package androidx.compose.foundation
 
-// TODO: b/570069301 currently disabled due to Android also disabling this.
-//  Investigate making this enabled again.
+// TODO: b/570069301 currently disabled due to minor anti-aliasing differences on API 28+.
+//  Investigate making this enabled on 28+ again.
+/**
+ * On API 28+, we use a GraphicsLayer as it is more performant than allocating an offscreen bitmap.
+ * On API < 28, GraphicsLayer uses the legacy OpenGL ES pipeline which rasterizes generic paths and
+ * BlendMode.Clear differently from Skia, so we fall back to an offscreen ImageBitmap for consistent
+ * rendering.
+ */
 internal actual fun shouldUseGraphicsLayerForGenericBorder(): Boolean = false
