@@ -148,4 +148,13 @@ public object AndroidComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isNestedScrollInteropViewHolderFixEnabled: Boolean = true
+
+    /**
+     * Whether to use Modifier.Node for [androidx.compose.ui.input.pointer.pointerInteropFilter]. If
+     * false, the legacy Modifier.composed implementation will be used instead.
+     */
+    // TODO: b/573988321
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isPointerInteropFilterNodeEnabled: Boolean = true
 }

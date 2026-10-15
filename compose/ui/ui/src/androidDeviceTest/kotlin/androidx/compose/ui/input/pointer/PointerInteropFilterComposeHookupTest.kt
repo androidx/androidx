@@ -22,9 +22,12 @@ import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.TestActivity
@@ -53,6 +56,10 @@ class PointerInteropFilterComposeHookupTest {
         retVal
     }
     private val disallowInterceptRequester = RequestDisallowInterceptTouchEvent()
+    private var currentMotionEventCallback by mutableStateOf(motionEventCallback)
+    private var currentDisallowInterceptRequester by mutableStateOf(disallowInterceptRequester)
+    private var measureCount = 0
+    private var layoutCount = 0
 
     @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
@@ -63,15 +70,20 @@ class PointerInteropFilterComposeHookupTest {
                 ComposeView(activity).apply {
                     setContent {
                         with(LocalDensity.current) {
-                            Box(
+                            Layout(
                                 modifier =
                                     Modifier.spyGestureFilter { eventStringLog.add(it.name) }
                                         .pointerInteropFilter(
-                                            disallowInterceptRequester,
-                                            motionEventCallback,
+                                            currentDisallowInterceptRequester,
+                                            currentMotionEventCallback,
                                         )
                                         .requiredSize(100f.toDp(), 100f.toDp())
-                            )
+                            ) { _, constraints ->
+                                measureCount++
+                                layout(constraints.maxWidth, constraints.maxHeight) {
+                                    layoutCount++
+                                }
+                            }
                         }
                     }
                 }
@@ -441,5 +453,69 @@ class PointerInteropFilterComposeHookupTest {
         assertThat(eventStringLog[1]).isEqualTo("motionEvent")
         assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.Main.toString())
         assertThat(eventStringLog[3]).isEqualTo(PointerEventPass.Final.toString())
+    }
+
+    @Test
+    fun ui_updateOnRecomposition_usesUpdatedCallbacksWithoutRemeasureOrRelayout() {
+        rule.runOnIdle {
+            assertThat(measureCount).isEqualTo(1)
+            assertThat(layoutCount).isEqualTo(1)
+        }
+
+        val updatedMotionEventLog = mutableListOf<MotionEvent?>()
+        val updatedDisallowInterceptRequester = RequestDisallowInterceptTouchEvent()
+
+        rule.runOnIdle {
+            currentDisallowInterceptRequester = updatedDisallowInterceptRequester
+            currentMotionEventCallback = {
+                updatedMotionEventLog.add(it)
+                eventStringLog.add("updatedMotionEvent")
+                retVal
+            }
+        }
+
+        val down =
+            MotionEvent(
+                0,
+                ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(50f, 50f)),
+                root,
+            )
+        val move =
+            MotionEvent(
+                10,
+                ACTION_MOVE,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(100f, 50f)),
+                root,
+            )
+
+        rule.runOnIdle {
+            assertThat(measureCount).isEqualTo(1)
+            assertThat(layoutCount).isEqualTo(1)
+            assertThat(disallowInterceptRequester.pointerInteropFilter).isNull()
+            assertThat(updatedDisallowInterceptRequester.pointerInteropFilter).isNotNull()
+
+            root.dispatchTouchEvent(down)
+            eventStringLog.clear()
+            updatedDisallowInterceptRequester.invoke(true)
+            root.dispatchTouchEvent(move)
+        }
+
+        assertThat(motionEventLog).isEmpty()
+        assertThat(updatedMotionEventLog).containsExactly(down, move).inOrder()
+        assertThat(eventStringLog)
+            .containsExactly(
+                PointerEventPass.Initial.toString(),
+                "updatedMotionEvent",
+                PointerEventPass.Main.toString(),
+                PointerEventPass.Final.toString(),
+            )
+            .inOrder()
     }
 }
