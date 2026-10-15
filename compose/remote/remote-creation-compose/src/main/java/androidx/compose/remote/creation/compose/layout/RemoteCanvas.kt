@@ -1284,6 +1284,495 @@ public class RemoteCanvas(
         }
     }
 
+    /**
+     * Iterates over [items] and records [action] for each element.
+     *
+     * @param items list of items to iterate over
+     * @param action drawing commands to record for each element
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun <T : BaseRemoteState<*>> forEach(items: List<T>, action: (T) -> Unit) {
+        if (items.isEmpty()) return
+        val localItemId = document.nextId()
+        val formal = generateFormalArg(localItemId, items.first()) as T
+        val childSpan = buffer.recordInChildSpan { action(formal) }
+
+        val op =
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    val ids = IntArray(items.size)
+                    for (i in items.indices) {
+                        ids[i] = items[i].getIdForCreationState(creationState)
+                    }
+                    val collectionId = writer.addDataListIds(ids)
+                    writer.buffer.addPatternForEach(collectionId, localItemId)
+                    childSpan.record(writer, creationState)
+                    writer.buffer.endPatternForEach()
+                }
+            )
+        for (i in items.indices) {
+            buffer.addRoots(op, items[i])
+        }
+    }
+
+    /**
+     * Iterates over [array] and records [action] for each float element.
+     *
+     * @param array remote float array to iterate over
+     * @param action drawing commands to record for each element
+     */
+    public fun forEach(array: RemoteFloatArray, action: (RemoteFloat) -> Unit) {
+        val localItemId = document.nextId()
+        val formal = RemoteFloat(Utils.asNan(localItemId))
+        val childSpan = buffer.recordInChildSpan { action(formal) }
+
+        val op =
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    // RemoteFloatArray requires an ID list so PatternForEach can map elements.
+                    val collectionId = array.getIdListForCreationState(creationState)
+                    writer.buffer.addPatternForEach(collectionId, localItemId)
+                    childSpan.record(writer, creationState)
+                    writer.buffer.endPatternForEach()
+                }
+            )
+        buffer.addRoots(op, array)
+    }
+
+    /**
+     * Iterates over [array] and records [action] for each string element.
+     *
+     * @param array remote string array to iterate over
+     * @param action drawing commands to record for each element
+     */
+    public fun forEach(array: RemoteStringArray, action: (RemoteString) -> Unit) {
+        val localItemId = document.nextId()
+        val formal = RemoteString.createForId(localItemId)
+        val childSpan = buffer.recordInChildSpan { action(formal) }
+
+        val op =
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    val collectionId = array.getIdForCreationState(creationState)
+                    writer.buffer.addPatternForEach(collectionId, localItemId)
+                    childSpan.record(writer, creationState)
+                    writer.buffer.endPatternForEach()
+                }
+            )
+        buffer.addRoots(op, array)
+    }
+
+    /**
+     * Iterates over [array] and records [action] for each integer element.
+     *
+     * @param array remote integer array to iterate over
+     * @param action drawing commands to record for each element
+     */
+    public fun forEach(array: RemoteIntArray, action: (RemoteInt) -> Unit) {
+        val localItemId = document.nextId()
+        val formal = RemoteInt.createForId(localItemId.toLong() + 0x100000000L)
+        val childSpan = buffer.recordInChildSpan { action(formal) }
+
+        val op =
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    val collectionId = array.getIdForCreationState(creationState)
+                    writer.buffer.addPatternForEach(collectionId, localItemId)
+                    childSpan.record(writer, creationState)
+                    writer.buffer.endPatternForEach()
+                }
+            )
+        buffer.addRoots(op, array)
+    }
+
+    /**
+     * Iterates over [items1] and [items2] pairwise and records [action] for each pair.
+     *
+     * Iteration stops at the length of the shorter list.
+     *
+     * @param items1 first list of items to iterate over
+     * @param items2 second list of items to iterate over
+     * @param action drawing commands to record for each pair
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun <T1 : BaseRemoteState<*>, T2 : BaseRemoteState<*>> forEach(
+        items1: List<T1>,
+        items2: List<T2>,
+        action: (T1, T2) -> Unit,
+    ) {
+        val size = minOf(items1.size, items2.size)
+        if (size == 0) return
+
+        val localTupleId = document.nextId()
+        val localTupleFloat = Utils.asNan(localTupleId)
+        val id1 = document.nextId()
+        val id2 = document.nextId()
+        val formal1 = generateFormalArg(id1, items1.first()) as T1
+        val formal2 = generateFormalArg(id2, items2.first()) as T2
+
+        val childSpan = buffer.recordInChildSpan {
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.buffer.idLookup(id1, localTupleFloat, 0f)
+                    writer.buffer.idLookup(id2, localTupleFloat, 1f)
+                }
+            )
+            action(formal1, formal2)
+        }
+
+        val op =
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    val tupleIds = IntArray(size)
+                    for (i in 0 until size) {
+                        tupleIds[i] =
+                            writer.addDataListIds(
+                                intArrayOf(
+                                    items1[i].getIdForCreationState(creationState),
+                                    items2[i].getIdForCreationState(creationState),
+                                )
+                            )
+                    }
+                    val outerListId = writer.addDataListIds(tupleIds)
+                    writer.buffer.addPatternForEach(outerListId, localTupleId)
+                    childSpan.record(writer, creationState)
+                    writer.buffer.endPatternForEach()
+                }
+            )
+        for (i in items1.indices) buffer.addRoots(op, items1[i])
+        for (i in items2.indices) buffer.addRoots(op, items2[i])
+    }
+
+    /**
+     * Iterates over [items1], [items2], and [items3] and records [action] for each triple.
+     *
+     * Iteration stops at the length of the shortest list.
+     *
+     * @param items1 first list of items to iterate over
+     * @param items2 second list of items to iterate over
+     * @param items3 third list of items to iterate over
+     * @param action drawing commands to record for each triple
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun <
+        T1 : BaseRemoteState<*>,
+        T2 : BaseRemoteState<*>,
+        T3 : BaseRemoteState<*>,
+    > forEach(
+        items1: List<T1>,
+        items2: List<T2>,
+        items3: List<T3>,
+        action: (T1, T2, T3) -> Unit,
+    ) {
+        val size = minOf(items1.size, items2.size, items3.size)
+        if (size == 0) return
+
+        val localTupleId = document.nextId()
+        val localTupleFloat = Utils.asNan(localTupleId)
+        val id1 = document.nextId()
+        val id2 = document.nextId()
+        val id3 = document.nextId()
+        val formal1 = generateFormalArg(id1, items1.first()) as T1
+        val formal2 = generateFormalArg(id2, items2.first()) as T2
+        val formal3 = generateFormalArg(id3, items3.first()) as T3
+
+        val childSpan = buffer.recordInChildSpan {
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.buffer.idLookup(id1, localTupleFloat, 0f)
+                    writer.buffer.idLookup(id2, localTupleFloat, 1f)
+                    writer.buffer.idLookup(id3, localTupleFloat, 2f)
+                }
+            )
+            action(formal1, formal2, formal3)
+        }
+
+        val op =
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    val tupleIds = IntArray(size)
+                    for (i in 0 until size) {
+                        tupleIds[i] =
+                            writer.addDataListIds(
+                                intArrayOf(
+                                    items1[i].getIdForCreationState(creationState),
+                                    items2[i].getIdForCreationState(creationState),
+                                    items3[i].getIdForCreationState(creationState),
+                                )
+                            )
+                    }
+                    val outerListId = writer.addDataListIds(tupleIds)
+                    writer.buffer.addPatternForEach(outerListId, localTupleId)
+                    childSpan.record(writer, creationState)
+                    writer.buffer.endPatternForEach()
+                }
+            )
+        for (i in items1.indices) buffer.addRoots(op, items1[i])
+        for (i in items2.indices) buffer.addRoots(op, items2[i])
+        for (i in items3.indices) buffer.addRoots(op, items3[i])
+    }
+
+    /**
+     * Iterates over [items1], [items2], [items3], and [items4] and records [action] for each
+     * 4-tuple.
+     *
+     * Iteration stops at the length of the shortest list.
+     *
+     * @param items1 first list of items to iterate over
+     * @param items2 second list of items to iterate over
+     * @param items3 third list of items to iterate over
+     * @param items4 fourth list of items to iterate over
+     * @param action drawing commands to record for each 4-tuple
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun <
+        T1 : BaseRemoteState<*>,
+        T2 : BaseRemoteState<*>,
+        T3 : BaseRemoteState<*>,
+        T4 : BaseRemoteState<*>,
+    > forEach(
+        items1: List<T1>,
+        items2: List<T2>,
+        items3: List<T3>,
+        items4: List<T4>,
+        action: (T1, T2, T3, T4) -> Unit,
+    ) {
+        val size = minOf(items1.size, items2.size, items3.size, items4.size)
+        if (size == 0) return
+
+        val localTupleId = document.nextId()
+        val localTupleFloat = Utils.asNan(localTupleId)
+        val id1 = document.nextId()
+        val id2 = document.nextId()
+        val id3 = document.nextId()
+        val id4 = document.nextId()
+        val formal1 = generateFormalArg(id1, items1.first()) as T1
+        val formal2 = generateFormalArg(id2, items2.first()) as T2
+        val formal3 = generateFormalArg(id3, items3.first()) as T3
+        val formal4 = generateFormalArg(id4, items4.first()) as T4
+
+        val childSpan = buffer.recordInChildSpan {
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.buffer.idLookup(id1, localTupleFloat, 0f)
+                    writer.buffer.idLookup(id2, localTupleFloat, 1f)
+                    writer.buffer.idLookup(id3, localTupleFloat, 2f)
+                    writer.buffer.idLookup(id4, localTupleFloat, 3f)
+                }
+            )
+            action(formal1, formal2, formal3, formal4)
+        }
+
+        val op =
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    val tupleIds = IntArray(size)
+                    for (i in 0 until size) {
+                        tupleIds[i] =
+                            writer.addDataListIds(
+                                intArrayOf(
+                                    items1[i].getIdForCreationState(creationState),
+                                    items2[i].getIdForCreationState(creationState),
+                                    items3[i].getIdForCreationState(creationState),
+                                    items4[i].getIdForCreationState(creationState),
+                                )
+                            )
+                    }
+                    val outerListId = writer.addDataListIds(tupleIds)
+                    writer.buffer.addPatternForEach(outerListId, localTupleId)
+                    childSpan.record(writer, creationState)
+                    writer.buffer.endPatternForEach()
+                }
+            )
+        for (i in items1.indices) buffer.addRoots(op, items1[i])
+        for (i in items2.indices) buffer.addRoots(op, items2[i])
+        for (i in items3.indices) buffer.addRoots(op, items3[i])
+        for (i in items4.indices) buffer.addRoots(op, items4[i])
+    }
+
+    /**
+     * Iterates over [items1], [items2], [items3], [items4], and [items5] and records [action] for
+     * each 5-tuple.
+     *
+     * Iteration stops at the length of the shortest list.
+     *
+     * @param items1 first list of items to iterate over
+     * @param items2 second list of items to iterate over
+     * @param items3 third list of items to iterate over
+     * @param items4 fourth list of items to iterate over
+     * @param items5 fifth list of items to iterate over
+     * @param action drawing commands to record for each 5-tuple
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun <
+        T1 : BaseRemoteState<*>,
+        T2 : BaseRemoteState<*>,
+        T3 : BaseRemoteState<*>,
+        T4 : BaseRemoteState<*>,
+        T5 : BaseRemoteState<*>,
+    > forEach(
+        items1: List<T1>,
+        items2: List<T2>,
+        items3: List<T3>,
+        items4: List<T4>,
+        items5: List<T5>,
+        action: (T1, T2, T3, T4, T5) -> Unit,
+    ) {
+        val size = minOf(items1.size, items2.size, items3.size, items4.size, items5.size)
+        if (size == 0) return
+
+        val localTupleId = document.nextId()
+        val localTupleFloat = Utils.asNan(localTupleId)
+        val id1 = document.nextId()
+        val id2 = document.nextId()
+        val id3 = document.nextId()
+        val id4 = document.nextId()
+        val id5 = document.nextId()
+        val formal1 = generateFormalArg(id1, items1.first()) as T1
+        val formal2 = generateFormalArg(id2, items2.first()) as T2
+        val formal3 = generateFormalArg(id3, items3.first()) as T3
+        val formal4 = generateFormalArg(id4, items4.first()) as T4
+        val formal5 = generateFormalArg(id5, items5.first()) as T5
+
+        val childSpan = buffer.recordInChildSpan {
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.buffer.idLookup(id1, localTupleFloat, 0f)
+                    writer.buffer.idLookup(id2, localTupleFloat, 1f)
+                    writer.buffer.idLookup(id3, localTupleFloat, 2f)
+                    writer.buffer.idLookup(id4, localTupleFloat, 3f)
+                    writer.buffer.idLookup(id5, localTupleFloat, 4f)
+                }
+            )
+            action(formal1, formal2, formal3, formal4, formal5)
+        }
+
+        val op =
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    val tupleIds = IntArray(size)
+                    for (i in 0 until size) {
+                        tupleIds[i] =
+                            writer.addDataListIds(
+                                intArrayOf(
+                                    items1[i].getIdForCreationState(creationState),
+                                    items2[i].getIdForCreationState(creationState),
+                                    items3[i].getIdForCreationState(creationState),
+                                    items4[i].getIdForCreationState(creationState),
+                                    items5[i].getIdForCreationState(creationState),
+                                )
+                            )
+                    }
+                    val outerListId = writer.addDataListIds(tupleIds)
+                    writer.buffer.addPatternForEach(outerListId, localTupleId)
+                    childSpan.record(writer, creationState)
+                    writer.buffer.endPatternForEach()
+                }
+            )
+        for (i in items1.indices) buffer.addRoots(op, items1[i])
+        for (i in items2.indices) buffer.addRoots(op, items2[i])
+        for (i in items3.indices) buffer.addRoots(op, items3[i])
+        for (i in items4.indices) buffer.addRoots(op, items4[i])
+        for (i in items5.indices) buffer.addRoots(op, items5[i])
+    }
+
+    /**
+     * Iterates over [items1] through [items6] and records [action] for each 6-tuple.
+     *
+     * Iteration stops at the length of the shortest list.
+     *
+     * @param items1 first list of items to iterate over
+     * @param items2 second list of items to iterate over
+     * @param items3 third list of items to iterate over
+     * @param items4 fourth list of items to iterate over
+     * @param items5 fifth list of items to iterate over
+     * @param items6 sixth list of items to iterate over
+     * @param action drawing commands to record for each 6-tuple
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun <
+        T1 : BaseRemoteState<*>,
+        T2 : BaseRemoteState<*>,
+        T3 : BaseRemoteState<*>,
+        T4 : BaseRemoteState<*>,
+        T5 : BaseRemoteState<*>,
+        T6 : BaseRemoteState<*>,
+    > forEach(
+        items1: List<T1>,
+        items2: List<T2>,
+        items3: List<T3>,
+        items4: List<T4>,
+        items5: List<T5>,
+        items6: List<T6>,
+        action: (T1, T2, T3, T4, T5, T6) -> Unit,
+    ) {
+        val size =
+            minOf(items1.size, items2.size, items3.size, items4.size, items5.size, items6.size)
+        if (size == 0) return
+
+        val localTupleId = document.nextId()
+        val localTupleFloat = Utils.asNan(localTupleId)
+        val id1 = document.nextId()
+        val id2 = document.nextId()
+        val id3 = document.nextId()
+        val id4 = document.nextId()
+        val id5 = document.nextId()
+        val id6 = document.nextId()
+        val formal1 = generateFormalArg(id1, items1.first()) as T1
+        val formal2 = generateFormalArg(id2, items2.first()) as T2
+        val formal3 = generateFormalArg(id3, items3.first()) as T3
+        val formal4 = generateFormalArg(id4, items4.first()) as T4
+        val formal5 = generateFormalArg(id5, items5.first()) as T5
+        val formal6 = generateFormalArg(id6, items6.first()) as T6
+
+        val childSpan = buffer.recordInChildSpan {
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    writer.buffer.idLookup(id1, localTupleFloat, 0f)
+                    writer.buffer.idLookup(id2, localTupleFloat, 1f)
+                    writer.buffer.idLookup(id3, localTupleFloat, 2f)
+                    writer.buffer.idLookup(id4, localTupleFloat, 3f)
+                    writer.buffer.idLookup(id5, localTupleFloat, 4f)
+                    writer.buffer.idLookup(id6, localTupleFloat, 5f)
+                }
+            )
+            action(formal1, formal2, formal3, formal4, formal5, formal6)
+        }
+
+        val op =
+            buffer.recordRenderingOp(
+                CanvasOp.Draw { writer ->
+                    val tupleIds = IntArray(size)
+                    for (i in 0 until size) {
+                        tupleIds[i] =
+                            writer.addDataListIds(
+                                intArrayOf(
+                                    items1[i].getIdForCreationState(creationState),
+                                    items2[i].getIdForCreationState(creationState),
+                                    items3[i].getIdForCreationState(creationState),
+                                    items4[i].getIdForCreationState(creationState),
+                                    items5[i].getIdForCreationState(creationState),
+                                    items6[i].getIdForCreationState(creationState),
+                                )
+                            )
+                    }
+                    val outerListId = writer.addDataListIds(tupleIds)
+                    writer.buffer.addPatternForEach(outerListId, localTupleId)
+                    childSpan.record(writer, creationState)
+                    writer.buffer.endPatternForEach()
+                }
+            )
+        for (i in items1.indices) buffer.addRoots(op, items1[i])
+        for (i in items2.indices) buffer.addRoots(op, items2[i])
+        for (i in items3.indices) buffer.addRoots(op, items3[i])
+        for (i in items4.indices) buffer.addRoots(op, items4[i])
+        for (i in items5.indices) buffer.addRoots(op, items5[i])
+        for (i in items6.indices) buffer.addRoots(op, items6[i])
+    }
+
+    private fun RemoteComposeWriter.addDataListIds(ids: IntArray): Int =
+        Utils.idFromNan(addList(ids))
+
     /** Starts a state layout. */
     public fun startStateLayout(
         modifier: androidx.compose.remote.creation.modifiers.RecordingModifier,

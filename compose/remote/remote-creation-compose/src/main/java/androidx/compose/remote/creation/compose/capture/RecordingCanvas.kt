@@ -27,8 +27,6 @@ import android.graphics.Region
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteCustomPropertiesScope
@@ -62,15 +60,12 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.BaseRemoteState
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
-import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteIntArray
-import androidx.compose.remote.creation.compose.state.RemoteLong
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.RemoteStateIdKey
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteStringArray
@@ -112,92 +107,10 @@ public open class RecordingCanvas(
             enableOptimizations = enableOptimizations,
         )
 
-    internal val tracker: PaintTracker = remoteCanvas.tracker
-
     internal val buffer: CanvasOperationBuffer = remoteCanvas.buffer
 
     public val creationDisplayInfo: RemoteCreationDisplayInfo
         get() = remoteCanvas.creationDisplayInfo
-
-    /**
-     * Records a [CanvasOp] into the canvas operation buffer.
-     *
-     * @param op The [CanvasOp] to record.
-     * @return The [CanvasOperationBuffer.SpanOp] representing the recorded operation's span.
-     */
-    internal fun recordRenderingOp(op: CanvasOp): CanvasOperationBuffer.SpanOp =
-        buffer.recordRenderingOp(op)
-
-    /**
-     * Records a generic drawing action as a [CanvasOp.Draw] operation.
-     *
-     * @param action The block containing drawing commands to record.
-     * @return The [CanvasOperationBuffer.SpanOp] representing the recorded draw operation.
-     */
-    internal fun recordRenderingOp(action: () -> Unit): CanvasOperationBuffer.SpanOp =
-        remoteCanvas.recordRenderingOp(action)
-
-    /**
-     * Records a drawing action that uses a [RemotePaint].
-     *
-     * This method takes a snapshot of the paint state, records a command to use that paint, and
-     * then records the drawing action.
-     *
-     * @param paint The [RemotePaint] to apply for this drawing action.
-     * @param action The block containing drawing commands to record.
-     * @return The [CanvasOperationBuffer.SpanOp] representing the recorded operation.
-     */
-    internal fun recordRenderingOp(
-        paint: RemotePaint?,
-        action: () -> Unit,
-    ): CanvasOperationBuffer.SpanOp = remoteCanvas.recordRenderingOp(paint, action)
-
-    /**
-     * Records a drawing action that uses a platform [Paint].
-     *
-     * This method takes a snapshot of the paint state, records a command to use that paint, and
-     * then records the drawing action.
-     *
-     * @param paint The platform [Paint] to apply for this drawing action.
-     * @param action The block containing drawing commands to record.
-     * @return The [CanvasOperationBuffer.SpanOp] representing the recorded operation.
-     */
-    internal fun recordRenderingOp(
-        paint: Paint?,
-        action: () -> Unit,
-    ): CanvasOperationBuffer.SpanOp = remoteCanvas.recordRenderingOp(snapshotPaint(paint), action)
-
-    /**
-     * Records a drawing action that uses a Compose [androidx.compose.ui.graphics.Paint].
-     *
-     * This method takes a snapshot of the paint state, records a command to use that paint, and
-     * then records the drawing action.
-     *
-     * @param paint The Compose [androidx.compose.ui.graphics.Paint] to apply for this drawing
-     *   action.
-     * @param action The block containing drawing commands to record.
-     * @return The [CanvasOperationBuffer.SpanOp] representing the recorded operation.
-     */
-    internal fun recordRenderingOp(
-        paint: androidx.compose.ui.graphics.Paint,
-        action: () -> Unit,
-    ): CanvasOperationBuffer.SpanOp = remoteCanvas.recordRenderingOp(snapshotPaint(paint), action)
-
-    internal inline fun recordInChildSpan(action: () -> Unit): CanvasOperationBuffer.Span =
-        buffer.recordInChildSpan(action)
-
-    internal inline fun recordInOffscreenChildSpan(
-        bitmapId: Int,
-        action: () -> Unit,
-    ): CanvasOperationBuffer.Span = remoteCanvas.recordInOffscreenChildSpan(bitmapId, action)
-
-    internal fun snapshotPaint(paint: RemotePaint?): RemotePaint? =
-        remoteCanvas.snapshotPaint(paint)
-
-    internal fun snapshotPaint(paint: Paint?): RemotePaint? = paint?.asRemotePaint()
-
-    internal fun snapshotPaint(paint: androidx.compose.ui.graphics.Paint): RemotePaint =
-        paint.asRemotePaint()
 
     /**
      * Flushes all buffered operations to the document, applying optimizations like common
@@ -205,17 +118,6 @@ public open class RecordingCanvas(
      */
     public fun flush() {
         remoteCanvas.flush()
-    }
-
-    /**
-     * Synchronizes changed attributes of [paint] to the remote document via the underlying
-     * [RemoteCanvas].
-     *
-     * @param paint The [RemotePaint] object whose attributes need to be synchronized with the
-     *   remote side.
-     */
-    internal fun usePaintInternal(paint: RemotePaint?) {
-        remoteCanvas.usePaintInternal(paint)
     }
 
     @VisibleForTesting
@@ -972,22 +874,6 @@ public open class RecordingCanvas(
         remoteCanvas.drawToOffscreenBitmap(bitmap, clearColor, drawCommands)
     }
 
-    private fun generateFormalArg(id: Int, actualArg: Any?): BaseRemoteState<*> {
-        return when (actualArg) {
-            is RemoteFloat -> RemoteFloat(Utils.asNan(id))
-            is RemoteInt -> RemoteInt.createForId(id.toLong() + 0x100000000L)
-            is RemoteString -> RemoteString.createForId(id)
-            is RemoteColor -> RemoteColor.createForId(id)
-            is RemoteBoolean -> RemoteBoolean.createForId(id)
-            is RemoteImageBitmap -> RemoteImageBitmap.createForId(id)
-            is RemoteLong -> RemoteLong.createForId(id)
-            is RemoteFloatArray -> RemoteFloatArray(null, RemoteStateIdKey(id))
-            is RemoteStringArray -> RemoteStringArray(null, RemoteStateIdKey(id))
-            is RemoteIntArray -> RemoteIntArray(null, RemoteStateIdKey(id))
-            else -> throw IllegalArgumentException("Unsupported arg type: ${actualArg?.javaClass}")
-        }
-    }
-
     /**
      * Defines a reusable drawing pattern with no parameters.
      *
@@ -1102,29 +988,8 @@ public open class RecordingCanvas(
      * @param items list of items to iterate over
      * @param action drawing commands to record for each element
      */
-    @Suppress("UNCHECKED_CAST")
     public fun <T : BaseRemoteState<*>> forEach(items: List<T>, action: (T) -> Unit) {
-        if (items.isEmpty()) return
-        val localItemId = document.nextId()
-        val formal = generateFormalArg(localItemId, items.first()) as T
-        val childSpan = recordInChildSpan { action(formal) }
-
-        val op =
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    val ids = IntArray(items.size)
-                    for (i in items.indices) {
-                        ids[i] = items[i].getIdForCreationState(creationState)
-                    }
-                    val collectionId = writer.addDataListIds(ids)
-                    writer.buffer.addPatternForEach(collectionId, localItemId)
-                    childSpan.record(writer, creationState)
-                    writer.buffer.endPatternForEach()
-                }
-            )
-        for (i in items.indices) {
-            buffer.addRoots(op, items[i])
-        }
+        remoteCanvas.forEach(items, action)
     }
 
     /**
@@ -1134,21 +999,7 @@ public open class RecordingCanvas(
      * @param action drawing commands to record for each element
      */
     public fun forEach(array: RemoteFloatArray, action: (RemoteFloat) -> Unit) {
-        val localItemId = document.nextId()
-        val formal = RemoteFloat(Utils.asNan(localItemId))
-        val childSpan = recordInChildSpan { action(formal) }
-
-        val op =
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    // RemoteFloatArray requires an ID list so PatternForEach can map elements.
-                    val collectionId = array.getIdListForCreationState(creationState)
-                    writer.buffer.addPatternForEach(collectionId, localItemId)
-                    childSpan.record(writer, creationState)
-                    writer.buffer.endPatternForEach()
-                }
-            )
-        buffer.addRoots(op, array)
+        remoteCanvas.forEach(array, action)
     }
 
     /**
@@ -1158,20 +1009,7 @@ public open class RecordingCanvas(
      * @param action drawing commands to record for each element
      */
     public fun forEach(array: RemoteStringArray, action: (RemoteString) -> Unit) {
-        val localItemId = document.nextId()
-        val formal = RemoteString.createForId(localItemId)
-        val childSpan = recordInChildSpan { action(formal) }
-
-        val op =
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    val collectionId = array.getIdForCreationState(creationState)
-                    writer.buffer.addPatternForEach(collectionId, localItemId)
-                    childSpan.record(writer, creationState)
-                    writer.buffer.endPatternForEach()
-                }
-            )
-        buffer.addRoots(op, array)
+        remoteCanvas.forEach(array, action)
     }
 
     /**
@@ -1181,20 +1019,7 @@ public open class RecordingCanvas(
      * @param action drawing commands to record for each element
      */
     public fun forEach(array: RemoteIntArray, action: (RemoteInt) -> Unit) {
-        val localItemId = document.nextId()
-        val formal = RemoteInt.createForId(localItemId.toLong() + 0x100000000L)
-        val childSpan = recordInChildSpan { action(formal) }
-
-        val op =
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    val collectionId = array.getIdForCreationState(creationState)
-                    writer.buffer.addPatternForEach(collectionId, localItemId)
-                    childSpan.record(writer, creationState)
-                    writer.buffer.endPatternForEach()
-                }
-            )
-        buffer.addRoots(op, array)
+        remoteCanvas.forEach(array, action)
     }
 
     /**
@@ -1206,53 +1031,12 @@ public open class RecordingCanvas(
      * @param items2 second list of items to iterate over
      * @param action drawing commands to record for each pair
      */
-    @Suppress("UNCHECKED_CAST")
     public fun <T1 : BaseRemoteState<*>, T2 : BaseRemoteState<*>> forEach(
         items1: List<T1>,
         items2: List<T2>,
         action: (T1, T2) -> Unit,
     ) {
-        val size = minOf(items1.size, items2.size)
-        if (size == 0) return
-
-        val localTupleId = document.nextId()
-        val localTupleFloat = Utils.asNan(localTupleId)
-        val id1 = document.nextId()
-        val id2 = document.nextId()
-        val formal1 = generateFormalArg(id1, items1.first()) as T1
-        val formal2 = generateFormalArg(id2, items2.first()) as T2
-
-        val childSpan = recordInChildSpan {
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    writer.buffer.idLookup(id1, localTupleFloat, 0f)
-                    writer.buffer.idLookup(id2, localTupleFloat, 1f)
-                }
-            )
-            action(formal1, formal2)
-        }
-
-        val op =
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    val tupleIds = IntArray(size)
-                    for (i in 0 until size) {
-                        tupleIds[i] =
-                            writer.addDataListIds(
-                                intArrayOf(
-                                    items1[i].getIdForCreationState(creationState),
-                                    items2[i].getIdForCreationState(creationState),
-                                )
-                            )
-                    }
-                    val outerListId = writer.addDataListIds(tupleIds)
-                    writer.buffer.addPatternForEach(outerListId, localTupleId)
-                    childSpan.record(writer, creationState)
-                    writer.buffer.endPatternForEach()
-                }
-            )
-        for (i in items1.indices) buffer.addRoots(op, items1[i])
-        for (i in items2.indices) buffer.addRoots(op, items2[i])
+        remoteCanvas.forEach(items1, items2, action)
     }
 
     /**
@@ -1265,7 +1049,6 @@ public open class RecordingCanvas(
      * @param items3 third list of items to iterate over
      * @param action drawing commands to record for each triple
      */
-    @Suppress("UNCHECKED_CAST")
     public fun <
         T1 : BaseRemoteState<*>,
         T2 : BaseRemoteState<*>,
@@ -1276,52 +1059,7 @@ public open class RecordingCanvas(
         items3: List<T3>,
         action: (T1, T2, T3) -> Unit,
     ) {
-        val size = minOf(items1.size, items2.size, items3.size)
-        if (size == 0) return
-
-        val localTupleId = document.nextId()
-        val localTupleFloat = Utils.asNan(localTupleId)
-        val id1 = document.nextId()
-        val id2 = document.nextId()
-        val id3 = document.nextId()
-        val formal1 = generateFormalArg(id1, items1.first()) as T1
-        val formal2 = generateFormalArg(id2, items2.first()) as T2
-        val formal3 = generateFormalArg(id3, items3.first()) as T3
-
-        val childSpan = recordInChildSpan {
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    writer.buffer.idLookup(id1, localTupleFloat, 0f)
-                    writer.buffer.idLookup(id2, localTupleFloat, 1f)
-                    writer.buffer.idLookup(id3, localTupleFloat, 2f)
-                }
-            )
-            action(formal1, formal2, formal3)
-        }
-
-        val op =
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    val tupleIds = IntArray(size)
-                    for (i in 0 until size) {
-                        tupleIds[i] =
-                            writer.addDataListIds(
-                                intArrayOf(
-                                    items1[i].getIdForCreationState(creationState),
-                                    items2[i].getIdForCreationState(creationState),
-                                    items3[i].getIdForCreationState(creationState),
-                                )
-                            )
-                    }
-                    val outerListId = writer.addDataListIds(tupleIds)
-                    writer.buffer.addPatternForEach(outerListId, localTupleId)
-                    childSpan.record(writer, creationState)
-                    writer.buffer.endPatternForEach()
-                }
-            )
-        for (i in items1.indices) buffer.addRoots(op, items1[i])
-        for (i in items2.indices) buffer.addRoots(op, items2[i])
-        for (i in items3.indices) buffer.addRoots(op, items3[i])
+        remoteCanvas.forEach(items1, items2, items3, action)
     }
 
     /**
@@ -1336,7 +1074,6 @@ public open class RecordingCanvas(
      * @param items4 fourth list of items to iterate over
      * @param action drawing commands to record for each 4-tuple
      */
-    @Suppress("UNCHECKED_CAST")
     public fun <
         T1 : BaseRemoteState<*>,
         T2 : BaseRemoteState<*>,
@@ -1349,57 +1086,7 @@ public open class RecordingCanvas(
         items4: List<T4>,
         action: (T1, T2, T3, T4) -> Unit,
     ) {
-        val size = minOf(items1.size, items2.size, items3.size, items4.size)
-        if (size == 0) return
-
-        val localTupleId = document.nextId()
-        val localTupleFloat = Utils.asNan(localTupleId)
-        val id1 = document.nextId()
-        val id2 = document.nextId()
-        val id3 = document.nextId()
-        val id4 = document.nextId()
-        val formal1 = generateFormalArg(id1, items1.first()) as T1
-        val formal2 = generateFormalArg(id2, items2.first()) as T2
-        val formal3 = generateFormalArg(id3, items3.first()) as T3
-        val formal4 = generateFormalArg(id4, items4.first()) as T4
-
-        val childSpan = recordInChildSpan {
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    writer.buffer.idLookup(id1, localTupleFloat, 0f)
-                    writer.buffer.idLookup(id2, localTupleFloat, 1f)
-                    writer.buffer.idLookup(id3, localTupleFloat, 2f)
-                    writer.buffer.idLookup(id4, localTupleFloat, 3f)
-                }
-            )
-            action(formal1, formal2, formal3, formal4)
-        }
-
-        val op =
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    val tupleIds = IntArray(size)
-                    for (i in 0 until size) {
-                        tupleIds[i] =
-                            writer.addDataListIds(
-                                intArrayOf(
-                                    items1[i].getIdForCreationState(creationState),
-                                    items2[i].getIdForCreationState(creationState),
-                                    items3[i].getIdForCreationState(creationState),
-                                    items4[i].getIdForCreationState(creationState),
-                                )
-                            )
-                    }
-                    val outerListId = writer.addDataListIds(tupleIds)
-                    writer.buffer.addPatternForEach(outerListId, localTupleId)
-                    childSpan.record(writer, creationState)
-                    writer.buffer.endPatternForEach()
-                }
-            )
-        for (i in items1.indices) buffer.addRoots(op, items1[i])
-        for (i in items2.indices) buffer.addRoots(op, items2[i])
-        for (i in items3.indices) buffer.addRoots(op, items3[i])
-        for (i in items4.indices) buffer.addRoots(op, items4[i])
+        remoteCanvas.forEach(items1, items2, items3, items4, action)
     }
 
     /**
@@ -1415,7 +1102,6 @@ public open class RecordingCanvas(
      * @param items5 fifth list of items to iterate over
      * @param action drawing commands to record for each 5-tuple
      */
-    @Suppress("UNCHECKED_CAST")
     public fun <
         T1 : BaseRemoteState<*>,
         T2 : BaseRemoteState<*>,
@@ -1430,62 +1116,7 @@ public open class RecordingCanvas(
         items5: List<T5>,
         action: (T1, T2, T3, T4, T5) -> Unit,
     ) {
-        val size = minOf(items1.size, items2.size, items3.size, items4.size, items5.size)
-        if (size == 0) return
-
-        val localTupleId = document.nextId()
-        val localTupleFloat = Utils.asNan(localTupleId)
-        val id1 = document.nextId()
-        val id2 = document.nextId()
-        val id3 = document.nextId()
-        val id4 = document.nextId()
-        val id5 = document.nextId()
-        val formal1 = generateFormalArg(id1, items1.first()) as T1
-        val formal2 = generateFormalArg(id2, items2.first()) as T2
-        val formal3 = generateFormalArg(id3, items3.first()) as T3
-        val formal4 = generateFormalArg(id4, items4.first()) as T4
-        val formal5 = generateFormalArg(id5, items5.first()) as T5
-
-        val childSpan = recordInChildSpan {
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    writer.buffer.idLookup(id1, localTupleFloat, 0f)
-                    writer.buffer.idLookup(id2, localTupleFloat, 1f)
-                    writer.buffer.idLookup(id3, localTupleFloat, 2f)
-                    writer.buffer.idLookup(id4, localTupleFloat, 3f)
-                    writer.buffer.idLookup(id5, localTupleFloat, 4f)
-                }
-            )
-            action(formal1, formal2, formal3, formal4, formal5)
-        }
-
-        val op =
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    val tupleIds = IntArray(size)
-                    for (i in 0 until size) {
-                        tupleIds[i] =
-                            writer.addDataListIds(
-                                intArrayOf(
-                                    items1[i].getIdForCreationState(creationState),
-                                    items2[i].getIdForCreationState(creationState),
-                                    items3[i].getIdForCreationState(creationState),
-                                    items4[i].getIdForCreationState(creationState),
-                                    items5[i].getIdForCreationState(creationState),
-                                )
-                            )
-                    }
-                    val outerListId = writer.addDataListIds(tupleIds)
-                    writer.buffer.addPatternForEach(outerListId, localTupleId)
-                    childSpan.record(writer, creationState)
-                    writer.buffer.endPatternForEach()
-                }
-            )
-        for (i in items1.indices) buffer.addRoots(op, items1[i])
-        for (i in items2.indices) buffer.addRoots(op, items2[i])
-        for (i in items3.indices) buffer.addRoots(op, items3[i])
-        for (i in items4.indices) buffer.addRoots(op, items4[i])
-        for (i in items5.indices) buffer.addRoots(op, items5[i])
+        remoteCanvas.forEach(items1, items2, items3, items4, items5, action)
     }
 
     /**
@@ -1501,7 +1132,6 @@ public open class RecordingCanvas(
      * @param items6 sixth list of items to iterate over
      * @param action drawing commands to record for each 6-tuple
      */
-    @Suppress("UNCHECKED_CAST")
     public fun <
         T1 : BaseRemoteState<*>,
         T2 : BaseRemoteState<*>,
@@ -1518,72 +1148,8 @@ public open class RecordingCanvas(
         items6: List<T6>,
         action: (T1, T2, T3, T4, T5, T6) -> Unit,
     ) {
-        val size =
-            minOf(items1.size, items2.size, items3.size, items4.size, items5.size, items6.size)
-        if (size == 0) return
-
-        val localTupleId = document.nextId()
-        val localTupleFloat = Utils.asNan(localTupleId)
-        val id1 = document.nextId()
-        val id2 = document.nextId()
-        val id3 = document.nextId()
-        val id4 = document.nextId()
-        val id5 = document.nextId()
-        val id6 = document.nextId()
-        val formal1 = generateFormalArg(id1, items1.first()) as T1
-        val formal2 = generateFormalArg(id2, items2.first()) as T2
-        val formal3 = generateFormalArg(id3, items3.first()) as T3
-        val formal4 = generateFormalArg(id4, items4.first()) as T4
-        val formal5 = generateFormalArg(id5, items5.first()) as T5
-        val formal6 = generateFormalArg(id6, items6.first()) as T6
-
-        val childSpan = recordInChildSpan {
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    writer.buffer.idLookup(id1, localTupleFloat, 0f)
-                    writer.buffer.idLookup(id2, localTupleFloat, 1f)
-                    writer.buffer.idLookup(id3, localTupleFloat, 2f)
-                    writer.buffer.idLookup(id4, localTupleFloat, 3f)
-                    writer.buffer.idLookup(id5, localTupleFloat, 4f)
-                    writer.buffer.idLookup(id6, localTupleFloat, 5f)
-                }
-            )
-            action(formal1, formal2, formal3, formal4, formal5, formal6)
-        }
-
-        val op =
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    val tupleIds = IntArray(size)
-                    for (i in 0 until size) {
-                        tupleIds[i] =
-                            writer.addDataListIds(
-                                intArrayOf(
-                                    items1[i].getIdForCreationState(creationState),
-                                    items2[i].getIdForCreationState(creationState),
-                                    items3[i].getIdForCreationState(creationState),
-                                    items4[i].getIdForCreationState(creationState),
-                                    items5[i].getIdForCreationState(creationState),
-                                    items6[i].getIdForCreationState(creationState),
-                                )
-                            )
-                    }
-                    val outerListId = writer.addDataListIds(tupleIds)
-                    writer.buffer.addPatternForEach(outerListId, localTupleId)
-                    childSpan.record(writer, creationState)
-                    writer.buffer.endPatternForEach()
-                }
-            )
-        for (i in items1.indices) buffer.addRoots(op, items1[i])
-        for (i in items2.indices) buffer.addRoots(op, items2[i])
-        for (i in items3.indices) buffer.addRoots(op, items3[i])
-        for (i in items4.indices) buffer.addRoots(op, items4[i])
-        for (i in items5.indices) buffer.addRoots(op, items5[i])
-        for (i in items6.indices) buffer.addRoots(op, items6[i])
+        remoteCanvas.forEach(items1, items2, items3, items4, items5, items6, action)
     }
-
-    private fun RemoteComposeWriter.addDataListIds(ids: IntArray): Int =
-        Utils.idFromNan(addList(ids))
 
     /**
      * Records a custom component layout operation.
@@ -1600,10 +1166,5 @@ public open class RecordingCanvas(
         properties: RemoteCustomPropertiesScope.() -> Unit = {},
     ) {
         remoteCanvas.custom(config, modifier, content, properties)
-    }
-
-    public companion object {
-        // TODO replace this with a dedicated color space for RemoteCompose.
-        internal const val REMOTE_COMPOSE_EXPRESSION_COLOR_SPACE_ID = 5L
     }
 }
