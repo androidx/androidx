@@ -577,7 +577,9 @@ package androidx.wear.compose.foundation {
   }
 
   @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public final class WearComposeFoundationFlags {
+    property public boolean isNewEdgeSwipeToDismissNodeEnabled;
     field public static final androidx.wear.compose.foundation.WearComposeFoundationFlags INSTANCE;
+    field public static boolean isNewEdgeSwipeToDismissNodeEnabled;
   }
 
 }
