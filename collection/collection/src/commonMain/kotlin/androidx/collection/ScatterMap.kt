@@ -183,7 +183,7 @@ internal val EmptyGroup =
 // means we can only store up to 8 slots in a group. Ideally we could use
 // 128-bit data types to benefit from NEON/SSE instructions and manipulate
 // groups of 16 slots at a time.
-internal const val GroupWidth = 8
+internal const val GroupWidth: Int = 8
 
 // A group is made of 8 metadata, or 64 bits
 internal typealias Group = Long
@@ -626,11 +626,11 @@ internal const val MurmurHashC1: Int = 0xcc9e2d51.toInt()
 
 // Returns the "H1" part of the specified hash code. In our implementation,
 // it is simply the top-most 25 bits
-internal inline fun h1(hash: Int) = hash ushr 7
+internal inline fun h1(hash: Int): Int = hash ushr 7
 
 // Returns the "H2" part of the specified hash code. In our implementation,
 // this corresponds to the lower 7 bits
-internal inline fun h2(hash: Int) = hash and 0x7f
+internal inline fun h2(hash: Int): Int = hash and 0x7f
 
 // Assumes [capacity] was normalized with [normalizedCapacity].
 // Returns the next 2^m - 1
@@ -678,23 +678,22 @@ internal inline fun readRawMetadata(data: LongArray, offset: Int): Long {
  * Writes a single byte into the long array at the specified [offset] in *bytes* and copies it, if
  * necessary, into the cloned bytes section at the end of the array.
  *
+ * The clone word index is computed branchlessly via: `(((offset - ClonedMetadataCount) and
+ * capacity) + ClonedMetadataCount) shr 3` When `offset < ClonedMetadataCount` (first 7 slots),
+ * `(offset - 7) and capacity` wraps around to `capacity - 7 + offset`, mapping directly to the
+ * cloned tail word. When `offset >= ClonedMetadataCount`, the expression evaluates to `offset shr
+ * 3` (re-writing the same word as a harmless no-op). This eliminates a conditional branch on every
+ * metadata write.
+ *
  * NOTE: [value] must be a single byte, accepted here as a Long to avoid unnecessary conversions.
  */
 internal inline fun writeMetadata(data: LongArray, capacity: Int, offset: Int, value: Long) {
-    writeRawMetadata(data, offset, value)
-
-    // Mirroring
-    // We could/should write a single byte when cloning the metadata by calling
-    // writeRawMetadata(), but since our implementation uses Longs for storage,
-    // we always write a full Long. We can skip a bit of unnecessary work by just
-    // copying the whole group the index falls into.
-    // When index is in 0..7, we copy the group over the control bytes at the end of
-    // the array, otherwise the group is copied onto itself (cloneIndex shr 3 == index shr 3)
-    // TODO: We could further reduce the work we do by always copying index 0 to
-    //       lastIndex, but is it interesting in terms of data caches?
-    val cloneIndex =
-        ((offset - ClonedMetadataCount) and capacity) + (ClonedMetadataCount and capacity)
-    data[cloneIndex shr 3] = data[offset shr 3]
+    val i = offset ushr 3
+    val b = (offset and 0x7) shl 3
+    val updatedWord = (data[i] and (0xffL shl b).inv()) or (value shl b)
+    data[i] = updatedWord
+    val cloneWordIdx = (((offset - ClonedMetadataCount) and capacity) + ClonedMetadataCount) shr 3
+    data[cloneWordIdx] = updatedWord
 }
 
 /**
@@ -705,7 +704,7 @@ internal inline fun writeMetadata(data: LongArray, capacity: Int, offset: Int, v
 internal inline fun writeRawMetadata(data: LongArray, offset: Int, value: Long) {
     // See [group()] for details. First find the index i in the LongArray,
     // then find the number of bits we need to shift by
-    val i = offset shr 3
+    val i = offset ushr 3
     val b = (offset and 0x7) shl 3
     // Mask the source data with 0xFF in the right place, then and [value]
     // moved to the right spot
@@ -722,6 +721,25 @@ internal inline fun isFull(metadata: LongArray, index: Int): Boolean =
     readRawMetadata(metadata, index) < 0x80L
 
 @PublishedApi internal inline fun isFull(value: Long): Boolean = value < 0x80L
+
+/**
+ * Finds the first empty or deleted slot in the table in which we can store an entry without
+ * resizing the internal storage.
+ */
+internal inline fun findFirstAvailableSlot(metadata: LongArray, capacity: Int, hash1: Int): Int {
+    var probeOffset = hash1 and capacity
+    var probeIndex = 0
+
+    while (true) {
+        val g = group(metadata, probeOffset)
+        val m = g.maskEmptyOrDeleted()
+        if (m != 0L) {
+            return (probeOffset + m.lowestBitSet()) and capacity
+        }
+        probeIndex += GroupWidth
+        probeOffset = (probeOffset + probeIndex) and capacity
+    }
+}
 
 // Bitmasks in our context are abstract bitmasks. They represent a bitmask
 // for a Group. i.e. bit 1 is the second least significant byte in the group.
@@ -748,22 +766,24 @@ internal typealias StaticBitmask = Long
 // 0x80 (for set).
 internal typealias Bitmask = Long
 
-@PublishedApi internal inline fun StaticBitmask.lowestBitSet(): Int = countTrailingZeroBits() shr 3
+// Using `ushr 3` maps directly to an unsigned bitfield shift (`lsr`) on architectures
+// like ARM64 without requiring sign extension.
+@PublishedApi internal inline fun StaticBitmask.lowestBitSet(): Int = countTrailingZeroBits() ushr 3
 
 /**
  * Returns the index of the next set bit in this mask. If invoked before checking [hasNext], this
  * function returns an invalid index (8).
  */
-internal inline fun Bitmask.get() = lowestBitSet()
+internal inline fun Bitmask.get(): Int = lowestBitSet()
 
 /**
  * Moves to the next set bit and returns the modified bitmask, call [get] to get the actual index.
  * If this function is called before checking [hasNext], the result is invalid.
  */
-internal inline fun Bitmask.next() = this and (this - 1L)
+internal inline fun Bitmask.next(): Bitmask = this and (this - 1L)
 
 /** Returns true if this [Bitmask] contains more set bits. */
-internal inline fun Bitmask.hasNext() = this != 0L
+internal inline fun Bitmask.hasNext(): Boolean = this != 0L
 
 // Least significant bits in the bitmask, one for each metadata in the group
 @PublishedApi internal const val BitmaskLsb: Long = 0x01010101_01010101L
@@ -812,20 +832,33 @@ internal inline fun group(metadata: LongArray, offset: Int): Group {
     // LSBs == 0x0088776655443322
     // MSBs == 0x9900000000000000
     //
-    // However we can't just combine MSBs and LSBs with an OR when the offset
-    // is a multiple of 8, because we would be attempting to shift left by 64
-    // which is a no-op. This means we need to mask the MSBs with 0x0 when
-    // offset is 0, and with 0xFF…FF when offset is != 0. We do this by taking
-    // the negative value of `bitsToShift`, which will set the MSB when the value
-    // is not 0, and doing a signed shift to the right to duplicate it:
+    // In 64-bit integer shift, shift distances are masked with 63. When offset is a multiple of 8,
+    // bitsToShift is 0, and shifting left by 64 is masked to 0, which would erroneously preserve
+    // LongArray[index + 1] instead of zeroing it out.
     //
-    // Group = LSBs | (MSBs & (-b >> 63)
-    //
-    // Note: since b is only ever 0, 8, 16, 24, 32, 48, 56, or 64, we don't
-    // need to shift by 63, we could shift by only 5
-    val i = offset shr 3
+    // To achieve mask-free funnel shifting without branching, sign extension, or 64-bit mask
+    // constants, we shift (hi shl 1) left by b.inv():
+    // - When b == 0, b.inv() & 63 == 63. Since bit 0 of (hi shl 1) is guaranteed to be 0,
+    //   shifting left by 63 moves bit 0 to bit 63 and zeros all other bits, yielding 0L.
+    // - When b in {8, 16, 24, 32, 40, 48, 56}, b.inv() & 63 == 63 - b.
+    //   Shifting (hi shl 1) left by (63 - b) is mathematically identical to hi shl (64 - b).
+    // This maps directly to an `mvn` instruction on ARM64, eliminating register pressure from
+    // the shift-by-63 and mask constants.
+    val i = offset ushr 3
     val b = (offset and 0x7) shl 3
-    return (metadata[i] ushr b) or (metadata[i + 1] shl (64 - b) and (-(b.toLong()) shr 63))
+    return (metadata[i] ushr b) or ((metadata[i + 1] shl 1) shl b.inv())
+}
+
+/**
+ * Returns a [Bitmask] in which every abstract bit set means the corresponding metadata in that slot
+ * is equal to the H2 tag represented in [h2Pattern] (`BitmaskLsb * h2`).
+ *
+ * Precomputing `h2Pattern` outside the probe loop hoists the 64-bit replication multiplication out
+ * of repeated group checks.
+ */
+internal inline fun Group.matchWithPattern(h2Pattern: Long): Bitmask {
+    val x = this xor h2Pattern
+    return (x - BitmaskLsb) and x.inv() and BitmaskMsb
 }
 
 /**
@@ -838,7 +871,8 @@ internal inline fun Group.match(m: Int): Bitmask {
     // and XOR-ing with `this` will give us a Long in which every non-zero
     // byte indicates a match
     val x = this xor (BitmaskLsb * m)
-    // Turn every non-zero byte into 0x80
+    // Turn every non-zero byte into 0x80. (Self-contained rather than delegating to
+    // [matchWithPattern] so that [matchWithPattern] does not need to be @PublishedApi.)
     return (x - BitmaskLsb) and x.inv() and BitmaskMsb
 }
 

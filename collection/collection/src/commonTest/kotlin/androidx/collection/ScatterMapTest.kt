@@ -1772,4 +1772,32 @@ class ScatterMapTest {
             }
         }
     }
+
+    @Test
+    fun dropDeletesUpdatesCloneAreaOnLastRemainingEntry() {
+        for (probeHash in 0..31) {
+            val map = MutableScatterMap<CollidingKey, Int>(10)
+            // Fill all 13 growthLimit slots with colliding keys for probeHash:
+            // keys 0..6 (or 0..7) land in the first probe group, and the remaining keys
+            // land in the second probe group.
+            for (i in 0 until 13) {
+                map[CollidingKey(i, hash = probeHash)] = i
+            }
+            // Remove keys 0..11, leaving only key 12 (in the second probe group) alive.
+            for (i in 0 until 12) {
+                assertEquals(i, map.remove(CollidingKey(i, hash = probeHash)))
+            }
+            // Insert new keys until adjustStorage() -> dropDeletes() runs (capacity stays 15),
+            // moving key 12 into the first probe group (including cloned slots 0..6), and
+            // verify key 12 remains reachable after each insertion.
+            for (i in 100 until 113) {
+                map[CollidingKey(i, hash = probeHash)] = i
+                assertEquals(12, map[CollidingKey(12, hash = probeHash)])
+                assertEquals(i, map[CollidingKey(i, hash = probeHash)])
+            }
+            if (!isJs()) {
+                assertEquals(15, map.capacity)
+            }
+        }
+    }
 }

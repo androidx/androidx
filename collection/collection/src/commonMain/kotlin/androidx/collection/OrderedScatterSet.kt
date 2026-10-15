@@ -298,7 +298,8 @@ public sealed class OrderedScatterSet<E> {
         val m = metadata
         val lastIndex = m.size - 2 // We always have 0 or at least 2 elements
 
-        for (i in 0..lastIndex) {
+        var i = 0
+        while (i <= lastIndex) {
             val slot = m[i]
             // In metadata, Empty (0x80), Deleted (0xFE), and Sentinel (0xFF) all have bit 7
             // set; Full slots have bit 7 unset (< 0x80). Inverting the word and masking
@@ -306,10 +307,11 @@ public sealed class OrderedScatterSet<E> {
             // capacity index is naturally skipped since its bit 7 is set.
             var mask = slot.inv() and BitmaskMsb
             while (mask != 0L) {
-                val index = (i shl 3) + (mask.countTrailingZeroBits() ushr 3)
+                val index = (i shl 3) + mask.lowestBitSet()
                 block(index)
                 mask = mask and (mask - 1L)
             }
+            i++
         }
     }
 
@@ -538,17 +540,20 @@ public sealed class OrderedScatterSet<E> {
         val probeMask = _capacity
         var probeOffset = h1(hash) and probeMask
         var probeIndex = 0
+
         while (true) {
             val g = group(metadata, probeOffset)
-            var m = g.match(hash2)
-            while (m.hasNext()) {
-                val index = (probeOffset + m.get()) and probeMask
+            var match = g.match(hash2)
+
+            while (match.hasNext()) {
+                val index = (probeOffset + match.get()) and probeMask
                 if (elements[index] == element) {
                     return index
                 }
-                m = m.next()
+                match = match.next()
             }
 
+            // An Empty slot indicates the element cannot be present further along the probe chain.
             if (g.maskEmpty() != 0L) {
                 break
             }
@@ -1091,6 +1096,11 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
     /** Removes all elements from this set. */
     public fun clear() {
         _size = 0
+        // When the set was never allocated (or capacity is 0), avoid redundant array fill calls
+        if (_capacity == 0) {
+            growthLimit = 0
+            return
+        }
         if (metadata !== EmptyGroup) {
             metadata.fill(AllEmpty)
             writeRawMetadata(metadata, _capacity, Sentinel)
@@ -1107,65 +1117,88 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
      * already exists in the set, its index will be returned, otherwise the index of an empty slot
      * will be returned. Calling this function may cause the internal storage to be reallocated if
      * the set is full.
+     *
+     * This method executes a single-pass probe: as candidate slots matching H2 are checked for
+     * [element], the first available (Empty or Deleted) slot encountered along the probe sequence
+     * is tracked in `firstAvail`. Probing terminates as soon as a group containing an Empty slot is
+     * encountered (as guaranteed by quadratic probing invariants), avoiding a second probe pass to
+     * find a slot.
      */
     private fun findAbsoluteInsertIndex(element: E): Int {
         val hash = hash(element)
         val hash1 = h1(hash)
-        val hash2 = h2(hash)
+        val hash2 = h2(hash).toLong()
 
+        // There is no `probeMask == 0` early return: an unallocated table uses [EmptyGroup]
+        // (Sentinel, Empty x7) as metadata, so the probe below terminates in its first group and
+        // the insertion sees growthLimit == 0, routing to [insertSlowPath]. No hash value is live
+        // across the probe loop: insertion takes H2 from the low byte of h2Pattern, and only the
+        // cold [insertSlowPath] recomputes the hash, which avoids register spills around equals().
         val probeMask = _capacity
+
+        val h2Pattern = BitmaskLsb * hash2
         var probeOffset = hash1 and probeMask
         var probeIndex = 0
+        var firstAvail = -1
 
         while (true) {
             val g = group(metadata, probeOffset)
-            var m = g.match(hash2)
-            while (m.hasNext()) {
-                val index = (probeOffset + m.get()) and probeMask
+            var match = g.matchWithPattern(h2Pattern)
+            while (match.hasNext()) {
+                val index = (probeOffset + match.get()) and probeMask
                 if (elements[index] == element) {
                     return index
                 }
-                m = m.next()
+                match = match.next()
             }
 
-            if (g.maskEmpty() != 0L) {
-                break
+            // Test for empty or deleted slots in the current group
+            val emptyOrDeleted = g.maskEmptyOrDeleted()
+            if (emptyOrDeleted != 0L) {
+                if (firstAvail == -1) {
+                    firstAvail = (probeOffset + emptyOrDeleted.lowestBitSet()) and probeMask
+                }
+                if (g.maskEmpty() != 0L) {
+                    break
+                }
             }
 
             probeIndex += GroupWidth
             probeOffset = (probeOffset + probeIndex) and probeMask
         }
 
-        var index = findFirstAvailableSlot(hash1)
-        if (growthLimit == 0 && !isDeleted(metadata, index)) {
-            adjustStorage()
-            index = findFirstAvailableSlot(hash1)
+        val growthLimit = growthLimit
+        // `firstAvail` is guaranteed to be `Empty` or `Deleted` when `_capacity > 0`, and wraps to
+        // slot 0 (`Sentinel`) when `_capacity == 0` (`EmptyGroup`, where `growthLimit == 0`).
+        // In both cases `!isDeleted` is equivalent to `isEmpty` (or unallocated), allowing a single
+        // metadata read to serve both the `growthLimit == 0` check and the decrement below.
+        val isDeleted = isDeleted(metadata, firstAvail)
+        if (growthLimit == 0 && !isDeleted) {
+            return insertSlowPath(element)
         }
-
-        _size += 1
-        growthLimit -= if (isEmpty(metadata, index)) 1 else 0
-        writeMetadata(metadata, _capacity, index, hash2.toLong())
-
-        return index
+        // H2 is the low byte of h2Pattern (BitmaskLsb * h2, with h2 <= 0x7F)
+        writeMetadata(metadata, _capacity, firstAvail, h2Pattern and 0x7FL)
+        _size++
+        this.growthLimit = growthLimit - if (isDeleted) 0 else 1
+        return firstAvail
     }
 
-    /**
-     * Finds the first empty or deleted slot in the set in which we can store an element without
-     * resizing the internal storage.
-     */
-    private fun findFirstAvailableSlot(hash1: Int): Int {
-        val probeMask = _capacity
-        var probeOffset = hash1 and probeMask
-        var probeIndex = 0
-        while (true) {
-            val g = group(metadata, probeOffset)
-            val m = g.maskEmptyOrDeleted()
-            if (m != 0L) {
-                return (probeOffset + m.lowestBitSet()) and probeMask
-            }
-            probeIndex += GroupWidth
-            probeOffset = (probeOffset + probeIndex) and probeMask
-        }
+    private fun insertSlowPath(element: E): Int {
+        // Recomputing the hash here (only when storage must be adjusted) keeps it out of the
+        // probe loop's live set in the caller.
+        val hash = hash(element)
+        adjustStorage()
+        val m = metadata
+        val capacity = _capacity
+        val index = findFirstAvailableSlot(m, capacity, h1(hash))
+        // After `adjustStorage()`, `capacity > 0`, so `index` is guaranteed to be `Empty` (0x80) or
+        // `Deleted` (0xFE) (never `Full` or `Sentinel`), making `!isDeleted` equivalent to
+        // `isEmpty`.
+        val notDeleted = if (isDeleted(m, index)) 0 else 1
+        writeMetadata(m, capacity, index, h2(hash).toLong())
+        _size++
+        growthLimit -= notDeleted
+        return index
     }
 
     /**
@@ -1208,8 +1241,18 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
      * detailed in the implementation of abseil's `raw_hash_map`.
      */
     internal fun adjustStorage() { // Internal to prevent inlining
-        if (_capacity > GroupWidth && _size.toULong() * 32UL <= _capacity.toULong() * 25UL) {
-            dropDeletes()
+        if (_capacity > GroupWidth && _size.toLong() * 32L <= _capacity.toLong() * 25L) {
+            // Fast-path when size is 0: directly reset metadata to AllEmpty and restore Sentinel
+            // without slot-by-slot rehashing.
+            if (_size == 0) {
+                metadata.fill(AllEmpty)
+                writeRawMetadata(metadata, _capacity, Sentinel)
+                head = NodeInvalidLink
+                tail = NodeInvalidLink
+                initializeGrowth()
+            } else {
+                dropDeletes()
+            }
         } else {
             resizeStorage(nextCapacity(_capacity))
         }
@@ -1274,6 +1317,9 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
         // Converts Sentinel and Deleted to Empty, and Full to Deleted
         convertMetadataForCleanup(metadata, capacity)
 
+        // Track remaining live elements so iteration terminates early as soon as all active
+        // entries are placed, skipping remaining empty and deleted slots.
+        var remaining = _size
         var index = 0
 
         // Drop deleted items and re-hashes surviving entries
@@ -1294,7 +1340,7 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
 
             val hash = hash(elements[index])
             val hash1 = h1(hash)
-            val targetIndex = findFirstAvailableSlot(hash1)
+            val targetIndex = findFirstAvailableSlot(metadata, capacity, hash1)
 
             // Test if the current index (index) and the new index (targetIndex) fall
             // within the same group based on the hash. If the group doesn't change,
@@ -1313,8 +1359,10 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
                 }
 
                 // Copies the metadata into the clone area
-                metadata[metadata.size - 1] = metadata[0]
+                metadata[metadata.lastIndex] = metadata[0]
 
+                remaining--
+                if (remaining == 0) break
                 index++
                 continue
             }
@@ -1372,8 +1420,10 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
             }
 
             // Copies the metadata into the clone area
-            metadata[metadata.size - 1] = metadata[0]
+            metadata[metadata.lastIndex] = metadata[0]
 
+            remaining--
+            if (remaining == 0) break
             index++
         }
 
@@ -1398,23 +1448,25 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
         val capacity = _capacity
 
         val lastIndex = previousMetadata.size - 2 // We always have 0 or at least 2 entries
-        for (i in 0..lastIndex) {
+        var i = 0
+        while (i <= lastIndex) {
             val slot = previousMetadata[i]
             var mask = slot.inv() and BitmaskMsb
             while (mask != 0L) {
-                val previousIndex = (i shl 3) + (mask.countTrailingZeroBits() ushr 3)
-                val previousElement = previousElements[previousIndex]
-                val hash = hash(previousElement)
-                val index = findFirstAvailableSlot(h1(hash))
+                val previousIndex = (i shl 3) + mask.lowestBitSet()
+                val previousKey = previousElements[previousIndex]
+                val hash = hash(previousKey)
+                val index = findFirstAvailableSlot(newMetadata, capacity, h1(hash))
 
                 writeMetadata(newMetadata, capacity, index, h2(hash).toLong())
-                newElements[index] = previousElement
+
+                newElements[index] = previousKey
                 newNodes[index] = previousNodes[previousIndex]
 
                 indexMapping[previousIndex] = index
-
                 mask = mask and (mask - 1L)
             }
+            i++
         }
 
         fixupNodes(indexMapping)
