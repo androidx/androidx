@@ -16,6 +16,8 @@
 
 package androidx.compose.material3.adaptive.navigationsuite
 
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.VectorConverter
@@ -73,8 +75,6 @@ import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
@@ -1506,7 +1506,7 @@ private val NavigationSuiteType.isNavigationBar
 
 private interface NavigationSuiteItemProvider {
     val itemsCount: Int
-    val itemList: MutableVector<NavigationSuiteItem>
+    val itemList: MutableObjectList<NavigationSuiteItem>
 }
 
 private class NavigationSuiteItem(
@@ -1552,7 +1552,7 @@ private class NavigationSuiteScopeImpl : NavigationSuiteScope, NavigationSuiteIt
         )
     }
 
-    override val itemList: MutableVector<NavigationSuiteItem> = mutableVectorOf()
+    override val itemList: MutableObjectList<NavigationSuiteItem> = mutableObjectListOf()
 
     override val itemsCount: Int
         get() = itemList.size
