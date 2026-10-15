@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RcPlatformServices.RcPathArrayCreator
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.RemotePath
@@ -28,7 +27,6 @@ import androidx.compose.remote.creation.compose.capture.PendingOp
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.shapes.MorphTweenUtility
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -39,7 +37,6 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.StandardRemotePaint
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.PathFillType
-import androidx.graphics.shapes.RoundedPolygon
 
 /**
  * A remote canvas providing overloads for remote types and avoiding platform types in its public
@@ -491,39 +488,6 @@ public class RemoteCanvas(
         buffer.addRoots(op, path)
     }
 
-    /** Draws a [RoundedPolygon] using the specified [paint]. */
-    public fun drawRoundedPolygon(roundedPolygon: RoundedPolygon, paint: RemotePaint?) {
-        recordRenderingOp(paint) {
-            val pathData = MorphTweenUtility.cubicsToPathData(roundedPolygon.cubics)
-            val id =
-                document.addPathData(
-                    object : RcPathArrayCreator {
-                        override fun createFloatArray(): FloatArray = pathData
-                    }
-                )
-            document.buffer.addDrawPath(id)
-        }
-    }
-
-    /** Draws a morph between two [RoundedPolygon]s using the specified [paint]. */
-    public fun drawRoundedPolygonMorph(
-        from: RoundedPolygon,
-        to: RoundedPolygon,
-        progress: RemoteFloat,
-        paint: RemotePaint?,
-    ) {
-        val op =
-            recordRenderingOp(paint) {
-                MorphTweenUtility.emitMorphAsTweens(
-                    document,
-                    from,
-                    to,
-                    progress.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, progress)
-    }
-
     /** Draws a bitmap at ([left], [top]) using the specified [paint]. */
     public fun drawBitmap(
         bitmap: RemoteImageBitmap,
@@ -568,7 +532,7 @@ public class RemoteCanvas(
                     dstBottom.floatId,
                     scaleType,
                     scaleFactor.floatId,
-                    contentDescription ?: "",
+                    contentDescription,
                 )
             }
         buffer.addRoots(
