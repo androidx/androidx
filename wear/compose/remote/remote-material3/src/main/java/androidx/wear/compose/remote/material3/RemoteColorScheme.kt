@@ -17,17 +17,13 @@
 package androidx.wear.compose.remote.material3
 
 import android.R
-import androidx.annotation.ColorRes
-import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.Operations
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
-import androidx.compose.remote.creation.compose.state.createThemedRemoteColor
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.wear.compose.material3.ColorScheme
+import androidx.wear.compose.remote.material3.internal.RemoteColorRole
+import androidx.wear.compose.remote.material3.internal.RemoteColorSource
+import androidx.wear.compose.remote.material3.internal.dynamicRemoteColorSource
 
 /**
  * Represents the color scheme for the Wear Material 3 theme in a remote context.
@@ -129,231 +125,59 @@ public class RemoteColorScheme(
      */
     public constructor(
         colorScheme: ColorScheme = ColorScheme()
-    ) : this(colorScheme = colorScheme, useThemedColors = false)
+    ) : this(colorScheme = colorScheme, source = RemoteColorSource.Named)
 
     /**
-     * Creates a [RemoteColorScheme] from a standard [ColorScheme], explicitly specifying whether to
-     * use themed colors or named colors.
+     * Creates a [RemoteColorScheme] from a standard [ColorScheme], resolving each color role from
+     * [source].
      *
      * @param colorScheme The local [ColorScheme] to retrieve fallback/default colors from.
-     * @param useThemedColors When true, resolves colors using [RemoteColor.createThemedRemoteColor]
-     *   with Android system color tokens; when false, uses [RemoteColor.createNamedRemoteColor].
+     * @param source Whether colors are named colors or follow the Android system colors.
      */
     internal constructor(
         colorScheme: ColorScheme,
-        useThemedColors: Boolean,
+        source: RemoteColorSource,
     ) : this(
-        primary =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = PRIMARY,
-                colorRes = R.color.system_primary_dark,
-                defaultValue = colorScheme.primary,
-            ),
-        // Gap: Android framework lacks a dynamic system_primary_dim_dark token;
-        // system_primary_fixed_dim is the only primary dim token available.
-        primaryDim =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = PRIMARY_DIM,
-                colorRes = R.color.system_primary_fixed_dim,
-                defaultValue = colorScheme.primaryDim,
-            ),
+        primary = source.resolve(WearColorRoles.Primary, colorScheme.primary),
+        primaryDim = source.resolve(WearColorRoles.PrimaryDim, colorScheme.primaryDim),
         primaryContainer =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = PRIMARY_CONTAINER,
-                colorRes = R.color.system_primary_container_dark,
-                defaultValue = colorScheme.primaryContainer,
-            ),
-        onPrimary =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ON_PRIMARY,
-                colorRes = R.color.system_on_primary_dark,
-                defaultValue = colorScheme.onPrimary,
-            ),
+            source.resolve(WearColorRoles.PrimaryContainer, colorScheme.primaryContainer),
+        onPrimary = source.resolve(WearColorRoles.OnPrimary, colorScheme.onPrimary),
         onPrimaryContainer =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ON_PRIMARY_CONTAINER,
-                colorRes = R.color.system_on_primary_container_dark,
-                defaultValue = colorScheme.onPrimaryContainer,
-            ),
-        secondary =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = SECONDARY,
-                colorRes = R.color.system_secondary_dark,
-                defaultValue = colorScheme.secondary,
-            ),
-        // Gap: Android framework lacks a dynamic system_secondary_dim_dark token;
-        // system_secondary_fixed_dim is the only secondary dim token available.
-        secondaryDim =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = SECONDARY_DIM,
-                colorRes = R.color.system_secondary_fixed_dim,
-                defaultValue = colorScheme.secondaryDim,
-            ),
+            source.resolve(WearColorRoles.OnPrimaryContainer, colorScheme.onPrimaryContainer),
+        secondary = source.resolve(WearColorRoles.Secondary, colorScheme.secondary),
+        secondaryDim = source.resolve(WearColorRoles.SecondaryDim, colorScheme.secondaryDim),
         secondaryContainer =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = SECONDARY_CONTAINER,
-                colorRes = R.color.system_secondary_container_dark,
-                defaultValue = colorScheme.secondaryContainer,
-            ),
-        onSecondary =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ON_SECONDARY,
-                colorRes = R.color.system_on_secondary_dark,
-                defaultValue = colorScheme.onSecondary,
-            ),
+            source.resolve(WearColorRoles.SecondaryContainer, colorScheme.secondaryContainer),
+        onSecondary = source.resolve(WearColorRoles.OnSecondary, colorScheme.onSecondary),
         onSecondaryContainer =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ON_SECONDARY_CONTAINER,
-                colorRes = R.color.system_on_secondary_container_dark,
-                defaultValue = colorScheme.onSecondaryContainer,
-            ),
-        tertiary =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = TERTIARY,
-                colorRes = R.color.system_tertiary_dark,
-                defaultValue = colorScheme.tertiary,
-            ),
-        // Gap: Android framework lacks a dynamic system_tertiary_dim_dark token;
-        // system_tertiary_fixed_dim is the only tertiary dim token available.
-        tertiaryDim =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = TERTIARY_DIM,
-                colorRes = R.color.system_tertiary_fixed_dim,
-                defaultValue = colorScheme.tertiaryDim,
-            ),
+            source.resolve(WearColorRoles.OnSecondaryContainer, colorScheme.onSecondaryContainer),
+        tertiary = source.resolve(WearColorRoles.Tertiary, colorScheme.tertiary),
+        tertiaryDim = source.resolve(WearColorRoles.TertiaryDim, colorScheme.tertiaryDim),
         tertiaryContainer =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = TERTIARY_CONTAINER,
-                colorRes = R.color.system_tertiary_container_dark,
-                defaultValue = colorScheme.tertiaryContainer,
-            ),
-        onTertiary =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ON_TERTIARY,
-                colorRes = R.color.system_on_tertiary_dark,
-                defaultValue = colorScheme.onTertiary,
-            ),
+            source.resolve(WearColorRoles.TertiaryContainer, colorScheme.tertiaryContainer),
+        onTertiary = source.resolve(WearColorRoles.OnTertiary, colorScheme.onTertiary),
         onTertiaryContainer =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ON_TERTIARY_CONTAINER,
-                colorRes = R.color.system_on_tertiary_container_dark,
-                defaultValue = colorScheme.onTertiaryContainer,
-            ),
+            source.resolve(WearColorRoles.OnTertiaryContainer, colorScheme.onTertiaryContainer),
         surfaceContainerLow =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = SURFACE_CONTAINER_LOW,
-                colorRes = R.color.system_surface_container_low_dark,
-                defaultValue = colorScheme.surfaceContainerLow,
-            ),
+            source.resolve(WearColorRoles.SurfaceContainerLow, colorScheme.surfaceContainerLow),
         surfaceContainer =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = SURFACE_CONTAINER,
-                colorRes = R.color.system_surface_container_dark,
-                defaultValue = colorScheme.surfaceContainer,
-            ),
+            source.resolve(WearColorRoles.SurfaceContainer, colorScheme.surfaceContainer),
         surfaceContainerHigh =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = SURFACE_CONTAINER_HIGH,
-                colorRes = R.color.system_surface_container_high_dark,
-                defaultValue = colorScheme.surfaceContainerHigh,
-            ),
-        onSurface =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ON_SURFACE,
-                colorRes = R.color.system_on_surface_dark,
-                defaultValue = colorScheme.onSurface,
-            ),
+            source.resolve(WearColorRoles.SurfaceContainerHigh, colorScheme.surfaceContainerHigh),
+        onSurface = source.resolve(WearColorRoles.OnSurface, colorScheme.onSurface),
         onSurfaceVariant =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ON_SURFACE_VARIANT,
-                colorRes = R.color.system_on_surface_variant_dark,
-                defaultValue = colorScheme.onSurfaceVariant,
-            ),
-        outline =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = OUTLINE,
-                colorRes = R.color.system_outline_dark,
-                defaultValue = colorScheme.outline,
-            ),
-        outlineVariant =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = OUTLINE_VARIANT,
-                colorRes = R.color.system_outline_variant_dark,
-                defaultValue = colorScheme.outlineVariant,
-            ),
-        background =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = BACKGROUND,
-                colorRes = R.color.system_background_dark,
-                defaultValue = colorScheme.background,
-            ),
-        onBackground =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ON_BACKGROUND,
-                colorRes = R.color.system_on_background_dark,
-                defaultValue = colorScheme.onBackground,
-            ),
-        error =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ERROR,
-                colorRes = R.color.system_error_dark,
-                defaultValue = colorScheme.error,
-            ),
-        // Gap: Android framework has NO system_error_fixed_dim or system_error_dim semantic token.
-        // Uses tonal palette system_error_300 (tone 70, approximating Wear M3's tone 68 errorDim).
-        errorDim =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ERROR_DIM,
-                colorRes = R.color.system_error_300,
-                defaultValue = colorScheme.errorDim,
-            ),
-        errorContainer =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ERROR_CONTAINER,
-                colorRes = R.color.system_error_container_dark,
-                defaultValue = colorScheme.errorContainer,
-            ),
-        onError =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ON_ERROR,
-                colorRes = R.color.system_on_error_dark,
-                defaultValue = colorScheme.onError,
-            ),
+            source.resolve(WearColorRoles.OnSurfaceVariant, colorScheme.onSurfaceVariant),
+        outline = source.resolve(WearColorRoles.Outline, colorScheme.outline),
+        outlineVariant = source.resolve(WearColorRoles.OutlineVariant, colorScheme.outlineVariant),
+        background = source.resolve(WearColorRoles.Background, colorScheme.background),
+        onBackground = source.resolve(WearColorRoles.OnBackground, colorScheme.onBackground),
+        error = source.resolve(WearColorRoles.Error, colorScheme.error),
+        errorDim = source.resolve(WearColorRoles.ErrorDim, colorScheme.errorDim),
+        errorContainer = source.resolve(WearColorRoles.ErrorContainer, colorScheme.errorContainer),
+        onError = source.resolve(WearColorRoles.OnError, colorScheme.onError),
         onErrorContainer =
-            remoteSchemeColor(
-                useThemedColors = useThemedColors,
-                name = ON_ERROR_CONTAINER,
-                colorRes = R.color.system_on_error_container_dark,
-                defaultValue = colorScheme.onErrorContainer,
-            ),
+            source.resolve(WearColorRoles.OnErrorContainer, colorScheme.onErrorContainer),
     )
 
     /** Returns a copy of this RemoteColorScheme, optionally overriding some of the values. */
@@ -419,56 +243,63 @@ public class RemoteColorScheme(
             onError = onError,
             onErrorContainer = onErrorContainer,
         )
+}
 
-    private companion object {
-        private const val PRIMARY = "WearM3.primary"
-        private const val PRIMARY_DIM = "WearM3.primaryDim"
-        private const val PRIMARY_CONTAINER = "WearM3.primaryContainer"
-        private const val ON_PRIMARY = "WearM3.onPrimary"
-        private const val ON_PRIMARY_CONTAINER = "WearM3.onPrimaryContainer"
-        private const val SECONDARY = "WearM3.secondary"
-        private const val SECONDARY_DIM = "WearM3.secondaryDim"
-        private const val SECONDARY_CONTAINER = "WearM3.secondaryContainer"
-        private const val ON_SECONDARY = "WearM3.onSecondary"
-        private const val ON_SECONDARY_CONTAINER = "WearM3.onSecondaryContainer"
-        private const val TERTIARY = "WearM3.tertiary"
-        private const val TERTIARY_DIM = "WearM3.tertiaryDim"
-        private const val TERTIARY_CONTAINER = "WearM3.tertiaryContainer"
-        private const val ON_TERTIARY = "WearM3.onTertiary"
-        private const val ON_TERTIARY_CONTAINER = "WearM3.onTertiaryContainer"
-        private const val SURFACE_CONTAINER_LOW = "WearM3.surfaceContainerLow"
-        private const val SURFACE_CONTAINER = "WearM3.surfaceContainer"
-        private const val SURFACE_CONTAINER_HIGH = "WearM3.surfaceContainerHigh"
-        private const val ON_SURFACE = "WearM3.onSurface"
-        private const val ON_SURFACE_VARIANT = "WearM3.onSurfaceVariant"
-        private const val OUTLINE = "WearM3.outline"
-        private const val OUTLINE_VARIANT = "WearM3.outlineVariant"
-        private const val BACKGROUND = "WearM3.background"
-        private const val ON_BACKGROUND = "WearM3.onBackground"
-        private const val ERROR = "WearM3.error"
-        private const val ERROR_DIM = "WearM3.errorDim"
-        private const val ERROR_CONTAINER = "WearM3.errorContainer"
-        private const val ON_ERROR = "WearM3.onError"
-        private const val ON_ERROR_CONTAINER = "WearM3.onErrorContainer"
-
-        private fun remoteSchemeColor(
-            useThemedColors: Boolean,
-            name: String,
-            @ColorRes colorRes: Int,
-            defaultValue: Color,
-        ): RemoteColor =
-            if (useThemedColors) {
-                // Wear is always dark, so the dark system token is used for both theme modes.
-                RemoteColor.createThemedRemoteColor(
-                    lightMode = colorRes,
-                    darkMode = colorRes,
-                    lightFallback = defaultValue,
-                    darkFallback = defaultValue,
-                )
-            } else {
-                createNamedRemoteColor(name, defaultValue)
-            }
-    }
+/**
+ * The Wear Material 3 color roles, with their `"WearM3.*"` named color and the Android system color
+ * token used for dynamic colors. Wear is always dark, so each role uses its dark token.
+ */
+private object WearColorRoles {
+    val Primary = RemoteColorRole("WearM3.primary", R.color.system_primary_dark)
+    // Gap: Android framework lacks a dynamic system_primary_dim_dark token;
+    // system_primary_fixed_dim is the only primary dim token available.
+    val PrimaryDim = RemoteColorRole("WearM3.primaryDim", R.color.system_primary_fixed_dim)
+    val PrimaryContainer =
+        RemoteColorRole("WearM3.primaryContainer", R.color.system_primary_container_dark)
+    val OnPrimary = RemoteColorRole("WearM3.onPrimary", R.color.system_on_primary_dark)
+    val OnPrimaryContainer =
+        RemoteColorRole("WearM3.onPrimaryContainer", R.color.system_on_primary_container_dark)
+    val Secondary = RemoteColorRole("WearM3.secondary", R.color.system_secondary_dark)
+    // Gap: Android framework lacks a dynamic system_secondary_dim_dark token;
+    // system_secondary_fixed_dim is the only secondary dim token available.
+    val SecondaryDim = RemoteColorRole("WearM3.secondaryDim", R.color.system_secondary_fixed_dim)
+    val SecondaryContainer =
+        RemoteColorRole("WearM3.secondaryContainer", R.color.system_secondary_container_dark)
+    val OnSecondary = RemoteColorRole("WearM3.onSecondary", R.color.system_on_secondary_dark)
+    val OnSecondaryContainer =
+        RemoteColorRole("WearM3.onSecondaryContainer", R.color.system_on_secondary_container_dark)
+    val Tertiary = RemoteColorRole("WearM3.tertiary", R.color.system_tertiary_dark)
+    // Gap: Android framework lacks a dynamic system_tertiary_dim_dark token;
+    // system_tertiary_fixed_dim is the only tertiary dim token available.
+    val TertiaryDim = RemoteColorRole("WearM3.tertiaryDim", R.color.system_tertiary_fixed_dim)
+    val TertiaryContainer =
+        RemoteColorRole("WearM3.tertiaryContainer", R.color.system_tertiary_container_dark)
+    val OnTertiary = RemoteColorRole("WearM3.onTertiary", R.color.system_on_tertiary_dark)
+    val OnTertiaryContainer =
+        RemoteColorRole("WearM3.onTertiaryContainer", R.color.system_on_tertiary_container_dark)
+    val SurfaceContainerLow =
+        RemoteColorRole("WearM3.surfaceContainerLow", R.color.system_surface_container_low_dark)
+    val SurfaceContainer =
+        RemoteColorRole("WearM3.surfaceContainer", R.color.system_surface_container_dark)
+    val SurfaceContainerHigh =
+        RemoteColorRole("WearM3.surfaceContainerHigh", R.color.system_surface_container_high_dark)
+    val OnSurface = RemoteColorRole("WearM3.onSurface", R.color.system_on_surface_dark)
+    val OnSurfaceVariant =
+        RemoteColorRole("WearM3.onSurfaceVariant", R.color.system_on_surface_variant_dark)
+    val Outline = RemoteColorRole("WearM3.outline", R.color.system_outline_dark)
+    val OutlineVariant =
+        RemoteColorRole("WearM3.outlineVariant", R.color.system_outline_variant_dark)
+    val Background = RemoteColorRole("WearM3.background", R.color.system_background_dark)
+    val OnBackground = RemoteColorRole("WearM3.onBackground", R.color.system_on_background_dark)
+    val Error = RemoteColorRole("WearM3.error", R.color.system_error_dark)
+    // Gap: Android framework has NO system_error_fixed_dim or system_error_dim semantic token.
+    // Uses tonal palette system_error_300 (tone 70, approximating Wear M3's tone 68 errorDim).
+    val ErrorDim = RemoteColorRole("WearM3.errorDim", R.color.system_error_300)
+    val ErrorContainer =
+        RemoteColorRole("WearM3.errorContainer", R.color.system_error_container_dark)
+    val OnError = RemoteColorRole("WearM3.onError", R.color.system_on_error_dark)
+    val OnErrorContainer =
+        RemoteColorRole("WearM3.onErrorContainer", R.color.system_on_error_container_dark)
 }
 
 /**
@@ -487,19 +318,11 @@ public class RemoteColorScheme(
  * @param fallbackColorScheme The [ColorScheme] used for fallback values when a system color cannot
  *   be resolved, and for the named colors on profiles without themed color support.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
 public fun dynamicRemoteColorScheme(
     fallbackColorScheme: ColorScheme = ColorScheme()
 ): RemoteColorScheme =
-    RemoteColorScheme(colorScheme = fallbackColorScheme, useThemedColors = supportsThemedColors())
-
-/** Whether the current document profile supports themed (system) colors. */
-@Suppress("RestrictedApiAndroidX", "PrimitiveInCollection") // LocalRemoteComposeCreationState
-@Composable
-@RemoteComposable
-private fun supportsThemedColors(): Boolean =
-    Operations.COLOR_THEME in LocalRemoteComposeCreationState.current.profile.supportedOperations
+    RemoteColorScheme(colorScheme = fallbackColorScheme, source = dynamicRemoteColorSource())
 
 internal const val DisabledContentAlpha = 0.38f
