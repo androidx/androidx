@@ -25,6 +25,7 @@ import android.graphics.RectF
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices.RcPathArrayCreator
 import androidx.compose.remote.creation.RemotePath
+import androidx.compose.remote.creation.compose.capture.RemoteComposePath
 import androidx.compose.remote.creation.compose.shapes.MorphTweenUtility
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -34,6 +35,7 @@ import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.PathFillType
+import androidx.compose.ui.graphics.asAndroidPath
 import androidx.graphics.shapes.RoundedPolygon
 
 /** Fills the canvas with the specified [drawColor]. */
@@ -486,6 +488,24 @@ public fun RemoteCanvas.drawBitmapFontTextRunOnPath(
     buffer.addRoots(op, text, bitmapFont)
 }
 
+/** Draws a [Path] using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawPath(path: Path, paint: Paint) {
+    val pathSnapshot = Path(path)
+    recordRenderingOp(paint.asRemotePaint()) { document.drawPath(pathSnapshot) }
+}
+
+/**
+ * Draws a [RemotePath] onto the canvas using the specified [Paint].
+ *
+ * @param path The [RemotePath] to draw.
+ * @param paint The [Paint] object to use for drawing the path.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawRPath(path: RemotePath, paint: Paint) {
+    drawPath(path, paint = paint.asRemotePaint())
+}
+
 /** Draws a path using the specified [pathFillType] and [paint]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteCanvas.drawPath(
@@ -499,6 +519,76 @@ public fun RemoteCanvas.drawPath(
         else RemoteCanvas.WINDING_NON_ZERO,
         paint,
     )
+}
+
+/**
+ * Draws a path that is an interpolation (tween) between two Compose UI
+ * [androidx.compose.ui.graphics.Path] objects.
+ *
+ * This allows for smooth animation between different path shapes. If the input paths are
+ * [RemoteComposePath] instances, it optimizes by directly using their remote representations.
+ * Otherwise, it converts them to Android `Path` objects.
+ *
+ * @param path1 The starting Compose UI [androidx.compose.ui.graphics.Path].
+ * @param path2 The ending Compose UI [androidx.compose.ui.graphics.Path].
+ * @param tween The interpolation factor (0.0 for `path1`, 1.0 for `path2`).
+ * @param start The start value for internal tween calculations (often 0.0).
+ * @param stop The stop value for internal tween calculations (often 1.0).
+ * @param paint The Compose UI [androidx.compose.ui.graphics.Paint] object for styling.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawTweenPath(
+    path1: androidx.compose.ui.graphics.Path,
+    path2: androidx.compose.ui.graphics.Path,
+    tween: RemoteFloat,
+    start: RemoteFloat,
+    stop: RemoteFloat,
+    paint: androidx.compose.ui.graphics.Paint,
+) {
+    val op =
+        recordRenderingOp(paint.asRemotePaint()) {
+            if (path1 is RemoteComposePath && path2 is RemoteComposePath) {
+                document.drawTweenPath(
+                    path1.remote,
+                    path2.remote,
+                    tween.getFloatIdForCreationState(creationState),
+                    start.getFloatIdForCreationState(creationState),
+                    stop.getFloatIdForCreationState(creationState),
+                )
+            } else {
+                document.drawTweenPath(
+                    path1.asAndroidPath(),
+                    path2.asAndroidPath(),
+                    tween.getFloatIdForCreationState(creationState),
+                    start.getFloatIdForCreationState(creationState),
+                    stop.getFloatIdForCreationState(creationState),
+                )
+            }
+        }
+    buffer.addRoots(op, tween, start, stop)
+}
+
+/**
+ * Draws a path, interpolated using tween, between path1, & path2 [RemotePath] with the given
+ * [androidx.compose.ui.graphics.Paint].
+ *
+ * @param path1 The starting [RemotePath].
+ * @param path2 The ending [RemotePath].
+ * @param tween The interpolation factor (0.0 for `path1`, 1.0 for `path2`).
+ * @param start The start value for internal tween calculations (often 0.0).
+ * @param stop The stop value for internal tween calculations (often 1.0).
+ * @param paint The Compose UI [androidx.compose.ui.graphics.Paint] object for styling.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawTweenPath(
+    path1: RemotePath,
+    path2: RemotePath,
+    tween: RemoteFloat,
+    start: RemoteFloat,
+    stop: RemoteFloat,
+    paint: androidx.compose.ui.graphics.Paint,
+) {
+    drawTweenPath(path1, path2, tween, start, stop, paint.asRemotePaint())
 }
 
 /** Clips the current canvas state to the specified rectangle. */

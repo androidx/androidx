@@ -39,6 +39,8 @@ import androidx.compose.remote.creation.compose.layout.drawCircle
 import androidx.compose.remote.creation.compose.layout.drawColor
 import androidx.compose.remote.creation.compose.layout.drawLine
 import androidx.compose.remote.creation.compose.layout.drawOval
+import androidx.compose.remote.creation.compose.layout.drawPath
+import androidx.compose.remote.creation.compose.layout.drawRPath
 import androidx.compose.remote.creation.compose.layout.drawRect
 import androidx.compose.remote.creation.compose.layout.drawRoundRect
 import androidx.compose.remote.creation.compose.layout.drawRoundedPolygon
@@ -46,6 +48,7 @@ import androidx.compose.remote.creation.compose.layout.drawRoundedPolygonMorph
 import androidx.compose.remote.creation.compose.layout.drawText
 import androidx.compose.remote.creation.compose.layout.drawTextOnPath
 import androidx.compose.remote.creation.compose.layout.drawTextRun
+import androidx.compose.remote.creation.compose.layout.drawTweenPath
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.BaseRemoteState
@@ -68,7 +71,6 @@ import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.graphics.shapes.RoundedPolygon
 
@@ -471,8 +473,7 @@ public open class RecordingCanvas(
      * @param paint The [Paint] object to use for drawing the path.
      */
     public fun drawRPath(path: RemotePath, paint: Paint) {
-        val op = recordRenderingOp(paint) { document.drawPath(path) }
-        buffer.addRoots(op, path)
+        remoteCanvas.drawRPath(path, paint)
     }
 
     /**
@@ -655,8 +656,7 @@ public open class RecordingCanvas(
     }
 
     override fun drawPath(path: Path, paint: Paint) {
-        val pathSnapshot = Path(path)
-        recordRenderingOp(paint) { document.drawPath(pathSnapshot) }
+        remoteCanvas.drawPath(path, paint)
     }
 
     override fun rotate(degrees: Float) {
@@ -835,27 +835,7 @@ public open class RecordingCanvas(
         stop: RemoteFloat,
         paint: androidx.compose.ui.graphics.Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                if (path1 is RemoteComposePath && path2 is RemoteComposePath) {
-                    document.drawTweenPath(
-                        path1.remote,
-                        path2.remote,
-                        tween.getFloatIdForCreationState(creationState),
-                        start.getFloatIdForCreationState(creationState),
-                        stop.getFloatIdForCreationState(creationState),
-                    )
-                } else {
-                    document.drawTweenPath(
-                        path1.asAndroidPath(),
-                        path2.asAndroidPath(),
-                        tween.getFloatIdForCreationState(creationState),
-                        start.getFloatIdForCreationState(creationState),
-                        stop.getFloatIdForCreationState(creationState),
-                    )
-                }
-            }
-        buffer.addRoots(op, tween, start, stop)
+        remoteCanvas.drawTweenPath(path1, path2, tween, start, stop, paint)
     }
 
     /**
@@ -877,7 +857,7 @@ public open class RecordingCanvas(
         stop: RemoteFloat,
         paint: androidx.compose.ui.graphics.Paint,
     ) {
-        remoteCanvas.drawTweenPath(path1, path2, tween, start, stop, paint.asRemotePaint())
+        remoteCanvas.drawTweenPath(path1, path2, tween, start, stop, paint)
     }
 
     /**
