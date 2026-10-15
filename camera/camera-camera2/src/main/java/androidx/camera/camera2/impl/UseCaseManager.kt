@@ -131,6 +131,8 @@ constructor(
 
     @GuardedBy("lock") private var isPrimary = true
 
+    @GuardedBy("lock") private var isZslDisabledByDetach = false
+
     @GuardedBy("lock")
     private val pendingUseCasesToNotifyCameraControlReady = mutableSetOf<UseCase>()
 
@@ -341,7 +343,7 @@ constructor(
 
     @GuardedBy("lock")
     private fun refreshAttachedUseCases(newUseCases: Set<UseCase>) {
-        closeCurrentUseCases()
+        closeCurrentUseCases(hasAttachedUseCases = newUseCases.isNotEmpty())
 
         val useCases = newUseCases.toList()
 
@@ -414,7 +416,16 @@ constructor(
     }
 
     @GuardedBy("lock")
-    private fun closeCurrentUseCases() {
+    private fun closeCurrentUseCases(hasAttachedUseCases: Boolean = false) {
+        // Drain any buffered ZSL frames from the closing session so GraphicBuffers and
+        // TotalCaptureResults are not retained while idle or across session recreation.
+        isZslDisabledByDetach = !hasAttachedUseCases || attachedUseCases.isEmpty()
+        zslControl.setZslDisabledByDetach(isZslDisabledByDetach)
+        zslControl.clearRingBuffer()
+        if (!hasAttachedUseCases && attachedUseCases.isNotEmpty()) {
+            zslControl.clearZslConfig()
+        }
+
         // Close prior camera graph
         camera.let { useCaseCamera ->
             _activeComponent = null
@@ -422,7 +433,13 @@ constructor(
             useCaseCamera?.close()?.let { closingJob ->
                 closingCameraJobs.add(closingJob)
                 closingJob.invokeOnCompletion {
-                    synchronized(lock) { closingCameraJobs.remove(closingJob) }
+                    synchronized(lock) {
+                        closingCameraJobs.remove(closingJob)
+                        if (isZslDisabledByDetach || attachedUseCases.isEmpty()) {
+                            zslControl.setZslDisabledByDetach(true)
+                            zslControl.clearRingBuffer()
+                        }
+                    }
                 }
             }
         }
