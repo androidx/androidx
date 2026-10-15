@@ -24,6 +24,7 @@ import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.Pokedex
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_START_DESTINATION
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_TRACK_ACTIVE_GRID_ITEMS
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexDatabaseCleanupRule
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexMockServerRule
 import org.junit.Rule
@@ -47,6 +48,7 @@ abstract class PokedexBenchmarkBase {
         enableSharedTransitionScope: Boolean,
         enableSharedElementTransitions: Boolean,
         enableScrollbar: Boolean = true,
+        trackActiveGridItems: Boolean = true,
         startDestination: String? = null,
     ): Intent =
         this.apply {
@@ -54,6 +56,7 @@ abstract class PokedexBenchmarkBase {
             putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)
             putExtra(POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS, enableSharedElementTransitions)
             putExtra(POKEDEX_ENABLE_SCROLLBAR, enableScrollbar)
+            putExtra(POKEDEX_TRACK_ACTIVE_GRID_ITEMS, trackActiveGridItems)
             if (startDestination != null) {
                 putExtra(POKEDEX_START_DESTINATION, startDestination)
             }

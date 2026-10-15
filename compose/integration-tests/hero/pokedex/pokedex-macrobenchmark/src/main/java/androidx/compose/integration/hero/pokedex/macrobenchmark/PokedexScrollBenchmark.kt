@@ -31,6 +31,7 @@ import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
+import androidx.benchmark.macro.Metric
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.compose.integration.hero.common.macrobenchmark.HeroMacrobenchmarkDefaults
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
@@ -42,6 +43,7 @@ import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import androidx.testutils.CpuFrequencyChangeMetric
+import androidx.testutils.TraceCounterMetric
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
@@ -101,6 +103,7 @@ class PokedexScrollBenchmark(
                 defaultComposeScrollingMetrics() +
                     FrameTimingGfxInfoMetric() +
                     CpuFrequencyChangeMetric() +
+                    activeGridItemsMetrics() +
                     defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
@@ -205,3 +208,40 @@ internal fun <R> trace(sectionName: String, block: () -> R): R =
     } finally {
         Trace.endSection()
     }
+
+// Keep in sync with ACTIVE_GRID_ITEMS_COUNTER_NAME in:
+// -
+// external/compose-hero-benchmarks/pokedex-compose/app/src/main/kotlin/com/skydoves/pokedex/compose/feature/home/ActiveGridItemModifier.kt
+// -
+// external/compose-hero-benchmarks/pokedex-views/app/src/main/kotlin/com/skydoves/pokedex/ui/main/PokemonAdapter.kt
+private const val ACTIVE_GRID_ITEMS_COUNTER_NAME = "pokedex:grid:items:active"
+private const val ACTIVE_GRID_ITEMS_METRIC_LABEL = "activeGridItems"
+private const val FLING_WINDOW_SLICE_PATTERN = "PokedexScrollBenchmark#fling%"
+
+/**
+ * Tracks the `pokedex:grid:items:active` trace counter across the full benchmark and per fling
+ * window to verify that Compose and Views keep a comparable number of grid items active during
+ * scrolling.
+ */
+private fun activeGridItemsMetrics(): List<Metric> {
+    val modes =
+        listOf(
+            TraceCounterMetric.Mode.Min,
+            TraceCounterMetric.Mode.Median,
+            TraceCounterMetric.Mode.Max,
+            TraceCounterMetric.Mode.Last,
+        )
+    return listOf(
+        TraceCounterMetric(
+            counterName = ACTIVE_GRID_ITEMS_COUNTER_NAME,
+            label = ACTIVE_GRID_ITEMS_METRIC_LABEL,
+            modes = modes,
+        ),
+        TraceCounterMetric(
+            counterName = ACTIVE_GRID_ITEMS_COUNTER_NAME,
+            label = ACTIVE_GRID_ITEMS_METRIC_LABEL,
+            modes = modes,
+            windowSliceName = FLING_WINDOW_SLICE_PATTERN,
+        ),
+    )
+}
