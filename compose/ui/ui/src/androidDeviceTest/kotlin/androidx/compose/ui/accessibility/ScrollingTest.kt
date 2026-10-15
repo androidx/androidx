@@ -228,6 +228,80 @@ class ScrollingTest {
         }
     }
 
+    @Test
+    fun sendScrollEvent_byStateObservation_2d_deduplicatesObservationScope() {
+        // Arrange.
+        var scrollXValue by mutableStateOf(0f, structuralEqualityPolicy())
+        var scrollYValue by mutableStateOf(0f, structuralEqualityPolicy())
+        val scrollMaxValue = 100f
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).testTag(tag).semantics(mergeDescendants = false) {
+                    horizontalScrollAxisRange =
+                        ScrollAxisRange({ scrollXValue }, { scrollMaxValue })
+                    verticalScrollAxisRange = ScrollAxisRange({ scrollYValue }, { scrollMaxValue })
+                }
+            )
+        }
+
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        dispatchedAccessibilityEvents.clear()
+        val scrollerId = rule.onNodeWithTag(tag).semanticsId()
+
+        // Act: Trigger a semantics pass and simultaneous 2D scroll state change.
+        try {
+            androidComposeView.snapshotObserver.startObserving()
+            rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+            rule.runOnIdle {
+                Snapshot.notifyObjectsInitialized()
+                scrollXValue = 4f
+                scrollYValue = 7f
+                Snapshot.sendApplyNotifications()
+            }
+        } finally {
+            androidComposeView.snapshotObserver.stopObserving()
+        }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert: Single coalesced 2D scroll event with both axes AND exactly one scope registered.
+        rule.runOnIdle {
+            val scopesField =
+                androidComposeView.composeAccessibilityDelegate.javaClass
+                    .getDeclaredField("scrollObservationScopes")
+                    .apply { isAccessible = true }
+            val scopes = scopesField.get(androidComposeView.composeAccessibilityDelegate) as List<*>
+            val registeredIds = scopes.map { scope ->
+                checkNotNull(scope)
+                    .javaClass
+                    .getDeclaredField("semanticsNodeId")
+                    .apply { isAccessible = true }
+                    .getInt(scope)
+            }
+            assertThat(registeredIds.count { it == scrollerId }).isEqualTo(1)
+
+            assertThat(dispatchedAccessibilityEvents)
+                .comparingElementsUsing(AccessibilityEventComparator)
+                .containsExactly(
+                    AccessibilityEvent().apply {
+                        eventType = TYPE_WINDOW_CONTENT_CHANGED
+                        contentChangeTypes = CONTENT_CHANGE_TYPE_SUBTREE
+                    },
+                    AccessibilityEvent().apply {
+                        eventType = TYPE_VIEW_SCROLLED
+                        scrollX = 4
+                        maxScrollX = 100
+                        scrollY = 7
+                        maxScrollY = 100
+                        if (SDK_INT >= P) {
+                            scrollDeltaX = 0
+                            scrollDeltaY = 0
+                        }
+                    },
+                )
+        }
+    }
+
     @SdkSuppress(minSdkVersion = P)
     @Test
     fun scrollEvent_lazyRowWideItem_reportsConsumedPixelScrollDeltaX() {

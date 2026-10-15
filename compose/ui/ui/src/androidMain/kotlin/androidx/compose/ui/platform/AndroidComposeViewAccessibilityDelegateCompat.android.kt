@@ -3171,6 +3171,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         id: Int,
         oldScrollObservationScopes: List<ScrollObservationScope>,
     ): Boolean {
+        if (scrollObservationScopes.findById(id) != null) {
+            return false
+        }
         var newlyObservingScroll = false
         val oldScope = oldScrollObservationScopes.findById(id)
         val newScope =
