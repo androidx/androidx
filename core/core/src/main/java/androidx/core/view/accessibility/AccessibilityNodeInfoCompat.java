@@ -1699,9 +1699,13 @@ public class AccessibilityNodeInfoCompat {
      * @see AccessibilityNodeInfo.MathInfo
      */
     public static class MathInfoCompat extends StructuredDataInfoCompat {
+        @OptIn(markerClass = PreviewAccessibilityApi.class)
         @StringDef(
             value = {
                 MATH_TAG_MATH,
+                MATH_TAG_ANNOTATION,
+                MATH_TAG_ANNOTATION_XML,
+                MATH_TAG_ERROR,
                 MATH_TAG_FRACTION,
                 MATH_TAG_IDENTIFIER,
                 MATH_TAG_MULTISCRIPTS,
@@ -1709,9 +1713,12 @@ public class AccessibilityNodeInfoCompat {
                 MATH_TAG_NUMBER,
                 MATH_TAG_OPERATOR,
                 MATH_TAG_OVER,
+                MATH_TAG_PHANTOM,
                 MATH_TAG_PRESCRIPT_DELIMITER,
                 MATH_TAG_ROOT,
                 MATH_TAG_ROW,
+                MATH_TAG_SEMANTICS,
+                MATH_TAG_SPACE,
                 MATH_TAG_SQUARE_ROOT,
                 MATH_TAG_STRING_LITERAL,
                 MATH_TAG_SUB,
@@ -1730,6 +1737,24 @@ public class AccessibilityNodeInfoCompat {
 
         /** The top-level root element that encapsulates a MathML expression. */
         public static final String MATH_TAG_MATH = "math";
+        /**
+         * An element that holds a text annotation, such as TeX source, within a {@code semantics}
+         * element.
+         */
+        @PreviewAccessibilityApi
+        public static final String MATH_TAG_ANNOTATION = "annotation";
+        /**
+         * An element that holds a markup annotation, such as Content MathML, SVG or HTML, within a
+         * {@code semantics} element.
+         */
+        @PreviewAccessibilityApi
+        public static final String MATH_TAG_ANNOTATION_XML = "annotation-xml";
+        /**
+         * An element for an error message, typically from a program reporting a syntax error in the
+         * input it converted to MathML.
+         */
+        @PreviewAccessibilityApi
+        public static final String MATH_TAG_ERROR = "merror";
         /** An element for creating fractions. */
         public static final String MATH_TAG_FRACTION = "mfrac";
         /** An element for symbolic names or arbitrary text to be rendered as an identifier. */
@@ -1751,6 +1776,11 @@ public class AccessibilityNodeInfoCompat {
         /** An element that attaches an accent or a limit over a base expression. */
         public static final String MATH_TAG_OVER = "mover";
         /**
+         * An element whose contents take up space but aren't displayed, often used for alignment.
+         */
+        @PreviewAccessibilityApi
+        public static final String MATH_TAG_PHANTOM = "mphantom";
+        /**
          * An empty element used within {@code mmultiscripts} to separate postscripts from
          * prescripts.
          */
@@ -1759,6 +1789,18 @@ public class AccessibilityNodeInfoCompat {
         public static final String MATH_TAG_ROOT = "mroot";
         /** An element for grouping sub-expressions horizontally. */
         public static final String MATH_TAG_ROW = "mrow";
+        /**
+         * An element that associates annotations with an expression. Its first child is typically
+         * the expression, and the rest are annotations.
+         */
+        @PreviewAccessibilityApi
+        public static final String MATH_TAG_SEMANTICS = "semantics";
+        /**
+         * An empty element for blank space of a specified size, such as the blank in a
+         * fill-in-the-blank problem.
+         */
+        @PreviewAccessibilityApi
+        public static final String MATH_TAG_SPACE = "mspace";
         /** An element for a square root. */
         public static final String MATH_TAG_SQUARE_ROOT = "msqrt";
         /** An element for representing string literals, often for computer algebra systems. */

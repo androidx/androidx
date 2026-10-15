@@ -4948,6 +4948,9 @@ package androidx.core.view.accessibility {
     ctor public AccessibilityNodeInfoCompat.MathInfoCompat(String);
     field public static final String MATH_ATTRIBUTE_ARG = "arg";
     field public static final String MATH_ATTRIBUTE_INTENT = "intent";
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final String MATH_TAG_ANNOTATION = "annotation";
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final String MATH_TAG_ANNOTATION_XML = "annotation-xml";
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final String MATH_TAG_ERROR = "merror";
     field public static final String MATH_TAG_FRACTION = "mfrac";
     field public static final String MATH_TAG_IDENTIFIER = "mi";
     field public static final String MATH_TAG_MATH = "math";
@@ -4956,9 +4959,12 @@ package androidx.core.view.accessibility {
     field public static final String MATH_TAG_NUMBER = "mn";
     field public static final String MATH_TAG_OPERATOR = "mo";
     field public static final String MATH_TAG_OVER = "mover";
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final String MATH_TAG_PHANTOM = "mphantom";
     field public static final String MATH_TAG_PRESCRIPT_DELIMITER = "mprescripts";
     field public static final String MATH_TAG_ROOT = "mroot";
     field public static final String MATH_TAG_ROW = "mrow";
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final String MATH_TAG_SEMANTICS = "semantics";
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final String MATH_TAG_SPACE = "mspace";
     field public static final String MATH_TAG_SQUARE_ROOT = "msqrt";
     field public static final String MATH_TAG_STRING_LITERAL = "ms";
     field public static final String MATH_TAG_SUB = "msub";
