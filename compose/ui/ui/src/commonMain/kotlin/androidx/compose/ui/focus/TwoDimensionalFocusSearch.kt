@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.runtime.collection.MutableVector
+import androidx.collection.MutableObjectList
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
@@ -122,7 +122,7 @@ internal fun FocusTargetNode.findChildCorrespondingToFocusEnter(
     onFound: (FocusTargetNode) -> Boolean,
 ): Boolean {
 
-    val focusableChildren = MutableVector<FocusTargetNode>()
+    val focusableChildren = MutableObjectList<FocusTargetNode>()
     collectAccessibleChildren(focusableChildren)
 
     // If there are aren't multiple children to choose from, return the first child.
@@ -189,7 +189,7 @@ private fun FocusTargetNode.searchChildren(
     onFound: (FocusTargetNode) -> Boolean,
 ): Boolean {
     val children =
-        MutableVector<FocusTargetNode>().apply {
+        MutableObjectList<FocusTargetNode>().apply {
             visitChildren(Nodes.FocusTarget) {
                 // TODO(b/278765590): Find the root issue why visitChildren returns unattached
                 // nodes.
@@ -217,7 +217,7 @@ private fun FocusTargetNode.searchChildren(
  * will add activated children instead, unless the deactivated node has a custom Enter specified.
  */
 private fun DelegatableNode.collectAccessibleChildren(
-    accessibleChildren: MutableVector<FocusTargetNode>
+    accessibleChildren: MutableObjectList<FocusTargetNode>
 ) {
     visitChildren(Nodes.FocusTarget) {
         // TODO(b/278765590): Find the root issue why visitChildren returns unattached nodes.
@@ -236,7 +236,7 @@ private fun DelegatableNode.collectAccessibleChildren(
 //  and then only comparing candidates in the beam. If nothing is in the beam, then consider all
 //  valid candidates.
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
-private fun MutableVector<FocusTargetNode>.findBestCandidate(
+private fun MutableObjectList<FocusTargetNode>.findBestCandidate(
     focusRect: Rect,
     direction: FocusDirection,
 ): FocusTargetNode? {
