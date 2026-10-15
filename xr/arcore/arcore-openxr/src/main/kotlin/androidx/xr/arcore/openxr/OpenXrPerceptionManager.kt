@@ -381,8 +381,9 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
                     }
                     continuation.resume(Unit)
                 } else {
-                    // TODO(b/568088408): Stop the handles that did succeed on a partial failure
-                    //  so they aren't leaked natively.
+                    if (handles != null && handles.isNotEmpty()) {
+                        nativeStopSpatialAnnotationTracking(handles)
+                    }
                     continuation.resumeWithException(
                         IllegalStateException("Failed to start spatial annotation tracking.")
                     )
