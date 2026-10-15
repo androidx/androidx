@@ -21,12 +21,12 @@ import androidx.collection.MutableScatterSet
 import androidx.collection.ScatterSet
 import androidx.collection.emptyObjectList
 import androidx.collection.emptyScatterSet
+import androidx.collection.mutableObjectListOf
 import androidx.collection.mutableScatterMapOf
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.collection.MultiValueMap
 import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.collection.fastMap
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.collection.wrapIntoSet
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentSetOf
 import androidx.compose.runtime.internal.AtomicReference
@@ -255,7 +255,7 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
     private val _knownCompositions = mutableListOf<ControlledComposition>()
     private var _knownCompositionsCache: List<ControlledComposition>? = null
     private var snapshotInvalidations = MutableScatterSet<Any>()
-    private val compositionInvalidations = mutableVectorOf<ControlledComposition>()
+    private val compositionInvalidations = mutableObjectListOf<ControlledComposition>()
     private val compositionsAwaitingApply = mutableListOf<ControlledComposition>()
     private val movableContentAwaitingInsert = mutableListOf<MovableContentStateReference>()
     private val movableContentRemoved =
