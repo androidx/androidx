@@ -19,7 +19,6 @@ package androidx.compose.ui.benchmark.contentcapture
 import android.view.ViewStructure
 import android.view.autofill.AutofillId
 import androidx.compose.ui.contentcapture.ContentCaptureSessionWrapper
-import androidx.compose.ui.platform.coreshims.ViewStructureCompat
 
 /** A fake implementation of [ContentCaptureSession] for use in tests. */
 class FakeContentCaptureSession : ContentCaptureSessionWrapper {
@@ -36,10 +35,7 @@ class FakeContentCaptureSession : ContentCaptureSessionWrapper {
         return null
     }
 
-    override fun newVirtualViewStructure(
-        parentId: AutofillId,
-        virtualId: Long,
-    ): ViewStructureCompat? {
+    override fun newVirtualViewStructure(parentId: AutofillId, virtualId: Long): ViewStructure? {
         return null
     }
 
