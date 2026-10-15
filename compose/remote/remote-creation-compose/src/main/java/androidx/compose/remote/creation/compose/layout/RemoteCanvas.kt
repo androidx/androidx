@@ -406,6 +406,29 @@ public class RemoteCanvas(
 
     /** Draws text from [text] at ([x], [y]) using the specified [paint]. */
     public fun drawText(
+        text: String,
+        x: RemoteFloat,
+        y: RemoteFloat,
+        paint: RemotePaint? = null,
+    ) {
+        val op =
+            recordRenderingOp(paint) {
+                document.drawTextRun(
+                    text,
+                    0,
+                    text.length,
+                    0,
+                    text.length,
+                    x.floatId,
+                    y.floatId,
+                    false,
+                )
+            }
+        buffer.addRoots(op, x, y)
+    }
+
+    /** Draws text from [text] at ([x], [y]) using the specified [paint]. */
+    public fun drawText(
         text: RemoteString,
         x: RemoteFloat,
         y: RemoteFloat,
@@ -416,6 +439,23 @@ public class RemoteCanvas(
                 document.drawTextRun(text.id, 0, -1, 0, -1, x.floatId, y.floatId, false)
             }
         buffer.addRoots(op, text, x, y)
+    }
+
+    public fun drawTextRun(
+        text: CharSequence,
+        start: Int,
+        end: Int,
+        contextStart: Int,
+        contextEnd: Int,
+        x: Float,
+        y: Float,
+        isRtl: Boolean,
+        paint: RemotePaint? = null,
+    ) {
+        val textString = text.toString()
+        recordRenderingOp(paint) {
+            document.drawTextRun(textString, start, end, contextStart, contextEnd, x, y, isRtl)
+        }
     }
 
     public fun drawTextRun(
@@ -466,6 +506,20 @@ public class RemoteCanvas(
                 )
             }
         buffer.addRoots(op, text, anchorX, anchorY, panx, pany)
+    }
+
+    public fun drawTextOnPath(
+        text: String,
+        path: RemotePath,
+        hOffset: RemoteFloat,
+        vOffset: RemoteFloat,
+        paint: RemotePaint? = null,
+    ) {
+        val op =
+            recordRenderingOp(paint) {
+                document.drawTextOnPath(text, path, hOffset.floatId, vOffset.floatId)
+            }
+        buffer.addRoots(op, path, hOffset, vOffset)
     }
 
     public fun drawTextOnPath(

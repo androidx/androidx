@@ -43,6 +43,9 @@ import androidx.compose.remote.creation.compose.layout.drawRect
 import androidx.compose.remote.creation.compose.layout.drawRoundRect
 import androidx.compose.remote.creation.compose.layout.drawRoundedPolygon
 import androidx.compose.remote.creation.compose.layout.drawRoundedPolygonMorph
+import androidx.compose.remote.creation.compose.layout.drawText
+import androidx.compose.remote.creation.compose.layout.drawTextOnPath
+import androidx.compose.remote.creation.compose.layout.drawTextRun
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.BaseRemoteState
@@ -223,24 +226,11 @@ public open class RecordingCanvas(
     }
 
     override fun drawText(text: String, x: Float, y: Float, paint: Paint) {
-        drawTextRun(text, 0, text.length, 0, text.length, x, y, false, paint)
+        remoteCanvas.drawText(text, x, y, paint)
     }
 
     public fun drawText(text: String, x: RemoteFloat, y: RemoteFloat, paint: Paint) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawTextRun(
-                    text,
-                    0,
-                    text.length,
-                    0,
-                    text.length,
-                    x.getFloatIdForCreationState(creationState),
-                    y.getFloatIdForCreationState(creationState),
-                    false,
-                )
-            }
-        buffer.addRoots(op, x, y)
+        remoteCanvas.drawText(text, x, y, paint)
     }
 
     /**
@@ -259,7 +249,7 @@ public open class RecordingCanvas(
         y: RemoteFloat,
         paint: Paint,
     ) {
-        drawTextRun(text, 0, length, 0, length, x, y, false, paint)
+        remoteCanvas.drawText(text, length, x, y, paint)
     }
 
     override fun drawRect(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
@@ -573,10 +563,7 @@ public open class RecordingCanvas(
         isRtl: Boolean,
         paint: Paint,
     ) {
-        val textString = text.toString()
-        recordRenderingOp(paint) {
-            document.drawTextRun(textString, start, end, contextStart, contextEnd, x, y, isRtl)
-        }
+        remoteCanvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
     }
 
     /**
@@ -603,20 +590,7 @@ public open class RecordingCanvas(
         isRtl: Boolean,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawTextRun(
-                    text.getIdForCreationState(creationState),
-                    start,
-                    end,
-                    contextStart,
-                    contextEnd,
-                    x.getFloatIdForCreationState(creationState),
-                    y.getFloatIdForCreationState(creationState),
-                    isRtl,
-                )
-            }
-        buffer.addRoots(op, text, x, y)
+        remoteCanvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
     }
 
     /**
@@ -718,8 +692,7 @@ public open class RecordingCanvas(
         vOffset: Float,
         paint: Paint,
     ) {
-        val pathSnapshot = Path(path)
-        recordRenderingOp(paint) { document.drawTextOnPath(text, pathSnapshot, hOffset, vOffset) }
+        remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
 
     /**
@@ -738,17 +711,7 @@ public open class RecordingCanvas(
         vOffset: RemoteFloat,
         paint: Paint,
     ) {
-        val pathSnapshot = Path(path)
-        val op =
-            recordRenderingOp(paint) {
-                document.drawTextOnPath(
-                    text,
-                    pathSnapshot,
-                    hOffset.getFloatIdForCreationState(creationState),
-                    vOffset.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, hOffset, vOffset)
+        remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
 
     /**
@@ -767,16 +730,7 @@ public open class RecordingCanvas(
         vOffset: RemoteFloat,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawTextOnPath(
-                    text,
-                    path,
-                    hOffset.getFloatIdForCreationState(creationState),
-                    vOffset.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, path, hOffset, vOffset)
+        remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
 
     /**
@@ -795,17 +749,7 @@ public open class RecordingCanvas(
         vOffset: RemoteFloat,
         paint: Paint,
     ) {
-        val pathSnapshot = Path(path)
-        val op =
-            recordRenderingOp(paint) {
-                document.drawTextOnPath(
-                    text.getIdForCreationState(creationState),
-                    pathSnapshot,
-                    hOffset.getFloatIdForCreationState(creationState),
-                    vOffset.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, text, hOffset, vOffset)
+        remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
 
     /**
@@ -824,7 +768,7 @@ public open class RecordingCanvas(
         vOffset: RemoteFloat,
         paint: Paint,
     ) {
-        remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint.asRemotePaint())
+        remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
 
     override fun drawArc(

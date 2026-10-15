@@ -228,6 +228,197 @@ public fun RemoteCanvas.drawCircle(
     drawCircle(cx, cy, radius, paint.asRemotePaint())
 }
 
+/** Draws text from [text] at ([x], [y]) using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawText(text: String, x: Float, y: Float, paint: Paint) {
+    drawTextRun(text, 0, text.length, 0, text.length, x, y, false, paint)
+}
+
+/** Draws text from [text] at ([x], [y]) using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawText(text: String, x: RemoteFloat, y: RemoteFloat, paint: Paint) {
+    drawText(text, x, y, paint.asRemotePaint())
+}
+
+/**
+ * Draws text from a [RemoteString] at the specified position.
+ *
+ * @param text The [RemoteString] to draw.
+ * @param length The number of characters to draw from the [RemoteString].
+ * @param x The X coordinate of the text's origin.
+ * @param y The Y coordinate of the text's origin.
+ * @param paint The [Paint] object used for styling the text.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawText(
+    text: RemoteString,
+    length: Int,
+    x: RemoteFloat,
+    y: RemoteFloat,
+    paint: Paint,
+) {
+    drawTextRun(text, 0, length, 0, length, x, y, false, paint)
+}
+
+/** Draws a run of text from [text] at ([x], [y]) using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawTextRun(
+    text: CharSequence,
+    start: Int,
+    end: Int,
+    contextStart: Int,
+    contextEnd: Int,
+    x: Float,
+    y: Float,
+    isRtl: Boolean,
+    paint: Paint,
+) {
+    drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint.asRemotePaint())
+}
+
+/**
+ * Draws a run of text from a [RemoteString] at a specified position.
+ *
+ * @param text The [RemoteString] to draw.
+ * @param start The index of the first character to draw.
+ * @param end The index after the last character to draw.
+ * @param contextStart The index of the first character of the context for glyph shaping.
+ * @param contextEnd The index after the last character of the context for glyph shaping.
+ * @param x The X coordinate of the text's origin.
+ * @param y The Y coordinate of the text's origin.
+ * @param isRtl `true` if the text is right-to-left.
+ * @param paint The [Paint] object used for styling.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawTextRun(
+    text: RemoteString,
+    start: Int,
+    end: Int,
+    contextStart: Int,
+    contextEnd: Int,
+    x: RemoteFloat,
+    y: RemoteFloat,
+    isRtl: Boolean,
+    paint: Paint,
+) {
+    drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint.asRemotePaint())
+}
+
+/** Draws text along a given [Path] using the specified [paint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawTextOnPath(
+    text: String,
+    path: Path,
+    hOffset: Float,
+    vOffset: Float,
+    paint: Paint,
+) {
+    val pathSnapshot = Path(path)
+    recordRenderingOp(paint.asRemotePaint()) {
+        document.drawTextOnPath(text, pathSnapshot, hOffset, vOffset)
+    }
+}
+
+/**
+ * Draws text along a given [Path].
+ *
+ * @param text The text to draw.
+ * @param path The [Path] along which to draw the text.
+ * @param hOffset The horizontal offset along the path.
+ * @param vOffset The vertical offset from the path.
+ * @param paint The [Paint] object for styling the text.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawTextOnPath(
+    text: String,
+    path: Path,
+    hOffset: RemoteFloat,
+    vOffset: RemoteFloat,
+    paint: Paint,
+) {
+    val pathSnapshot = Path(path)
+    val op =
+        recordRenderingOp(paint.asRemotePaint()) {
+            document.drawTextOnPath(
+                text,
+                pathSnapshot,
+                hOffset.getFloatIdForCreationState(creationState),
+                vOffset.getFloatIdForCreationState(creationState),
+            )
+        }
+    buffer.addRoots(op, hOffset, vOffset)
+}
+
+/**
+ * Draws text along a given [RemotePath].
+ *
+ * @param text The text to draw.
+ * @param path The [RemotePath] along which to draw the text.
+ * @param hOffset The horizontal offset along the path.
+ * @param vOffset The vertical offset from the path.
+ * @param paint The [Paint] object for styling the text.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawTextOnPath(
+    text: String,
+    path: RemotePath,
+    hOffset: RemoteFloat,
+    vOffset: RemoteFloat,
+    paint: Paint,
+) {
+    drawTextOnPath(text, path, hOffset, vOffset, paint.asRemotePaint())
+}
+
+/**
+ * Draws text from a [RemoteString] along a given [Path].
+ *
+ * @param text The [RemoteString] to draw.
+ * @param path The [Path] along which to draw the text.
+ * @param hOffset The horizontal offset along the path.
+ * @param vOffset The vertical offset from the path.
+ * @param paint The [Paint] object for styling the text.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawTextOnPath(
+    text: RemoteString,
+    path: Path,
+    hOffset: RemoteFloat,
+    vOffset: RemoteFloat,
+    paint: Paint,
+) {
+    val pathSnapshot = Path(path)
+    val op =
+        recordRenderingOp(paint.asRemotePaint()) {
+            document.drawTextOnPath(
+                text.getIdForCreationState(creationState),
+                pathSnapshot,
+                hOffset.getFloatIdForCreationState(creationState),
+                vOffset.getFloatIdForCreationState(creationState),
+            )
+        }
+    buffer.addRoots(op, text, hOffset, vOffset)
+}
+
+/**
+ * Draws text from a [RemoteString] along a given [RemotePath].
+ *
+ * @param text The [RemoteString] to draw.
+ * @param path The [RemotePath] along which to draw the text.
+ * @param hOffset The horizontal offset along the path.
+ * @param vOffset The vertical offset from the path.
+ * @param paint The [Paint] object for styling the text.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawTextOnPath(
+    text: RemoteString,
+    path: RemotePath,
+    hOffset: RemoteFloat,
+    vOffset: RemoteFloat,
+    paint: Paint,
+) {
+    drawTextOnPath(text, path, hOffset, vOffset, paint.asRemotePaint())
+}
+
 /**
  * Draws a substring of [text] with [bitmapFont] at position ([x], [y]).
  *
