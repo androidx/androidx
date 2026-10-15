@@ -75,7 +75,6 @@ class PokedexScrollBenchmark(
             action = "$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_VIEWS_HOME_ACTIVITY",
             setupBlock = {
                 device.waitForIdle()
-                // Wait until we have content loaded
                 device.waitOrThrow(
                     Until.hasObject(By.res(POKEDEX_TARGET_PACKAGE_NAME, "name")),
                     3_000,
@@ -130,6 +129,8 @@ class PokedexScrollBenchmark(
                 )
                 startActivityAndWait(intent)
                 setupBlock()
+                mockServerRule.awaitPendingRequests()
+                device.waitForIdle()
             },
             measureBlock = measureBlock,
         )

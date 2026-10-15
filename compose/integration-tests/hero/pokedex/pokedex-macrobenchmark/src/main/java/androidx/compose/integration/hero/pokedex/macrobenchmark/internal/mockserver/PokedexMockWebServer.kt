@@ -18,6 +18,8 @@ package androidx.compose.integration.hero.pokedex.macrobenchmark.internal.mockse
 
 import androidx.compose.integration.hero.pokedex.macrobenchmark.trace
 import java.io.File
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.mockwebserver.Dispatcher
@@ -27,35 +29,66 @@ import okhttp3.mockwebserver.RecordedRequest
 import okio.Buffer
 import okio.source
 
-/** A [MockWebServer] with a [Dispatcher] that sends responses with fake data for our API. */
-fun pokedexMockWebServer(json: Json, imagesDir: File) =
-    MockWebServer().apply { dispatcher = PokedexMockDispatcher(json, imagesDir) }
+/**
+ * Creates and configures a [MockWebServer] with a [Dispatcher] that sends responses with fake data
+ * for our API.
+ *
+ * @param dispatcher The [PokedexMockDispatcher] providing fake API responses and request tracking.
+ */
+internal fun pokedexMockWebServer(dispatcher: PokedexMockDispatcher) =
+    MockWebServer().apply { this.dispatcher = dispatcher }
 
-/** This [Dispatcher] provides fake responses for our API. */
-private class PokedexMockDispatcher(private val json: Json, private val imagesDir: File) :
+/**
+ * This [Dispatcher] provides fake responses for our API and tracks request counts.
+ *
+ * @param json [Json] serializer configured for decoding and encoding Pokemon API responses.
+ * @param imagesDir [File] directory where pregenerated Pokemon images are stored.
+ */
+internal class PokedexMockDispatcher(private val json: Json, private val imagesDir: File) :
     Dispatcher() {
     private val pokemonEndpointRegex = Regex("/api/v2/pokemon(\\?(?<query>(.*)))")
     private val pokemonInfoEndpointRegex = Regex("/api/v2/pokemon/(?<name>\\w*)(/?)")
     private val pokemonImageEndpointRegex = Regex("/api/v2/pokemon/(?<name>.*)/image(/?)")
 
-    override fun dispatch(request: RecordedRequest): MockResponse {
-        val requestPath = request.path
-        if (requestPath == null) return MockResponse().setResponseCode(404)
-        val response =
-            try {
-                when {
-                    pokemonEndpointRegex.matches(requestPath) -> pokemonHandler(request)
-                    pokemonInfoEndpointRegex.matches(requestPath) -> pokemonInfoHandler(request)
-                    pokemonImageEndpointRegex.matches(requestPath) -> pokemonImageHandler(request)
-                    else -> MockResponse().setResponseCode(404)
-                }
-            } catch (exception: Exception) {
-                exception.printStackTrace()
-                MockResponse()
-                    .setResponseCode(500)
-                    .setBody(exception.message ?: "Unknown Error Occurred")
+    private val activeRequestCount = AtomicInteger(0)
+
+    /**
+     * Blocks the calling test thread until all in-flight requests have completed or [timeoutMillis]
+     * elapses.
+     *
+     * @param timeoutMillis Maximum time to wait in milliseconds.
+     */
+    fun awaitPendingRequests(timeoutMillis: Long) {
+        val deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis)
+        while (activeRequestCount.get() > 0) {
+            if (System.nanoTime() >= deadlineNanos) {
+                error(
+                    "Timed out after ${timeoutMillis}ms waiting for ${activeRequestCount.get()} " +
+                        "in-flight Pokedex requests"
+                )
             }
-        return response
+            Thread.sleep(10)
+        }
+    }
+
+    override fun dispatch(request: RecordedRequest): MockResponse {
+        val requestPath = request.path ?: return MockResponse().setResponseCode(404)
+        activeRequestCount.incrementAndGet()
+        return try {
+            when {
+                pokemonEndpointRegex.matches(requestPath) -> pokemonHandler(request)
+                pokemonInfoEndpointRegex.matches(requestPath) -> pokemonInfoHandler(request)
+                pokemonImageEndpointRegex.matches(requestPath) -> pokemonImageHandler(request)
+                else -> MockResponse().setResponseCode(404)
+            }
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+            MockResponse()
+                .setResponseCode(500)
+                .setBody(exception.message ?: "Unknown Error Occurred")
+        } finally {
+            activeRequestCount.decrementAndGet()
+        }
     }
 
     private fun pokemonHandler(request: RecordedRequest): MockResponse {
