@@ -52,6 +52,9 @@ androidx {
     type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2025"
     description = "Integration tests app that exercises the ARCore APIs."
+    deviceTests {
+        maxShardCount = 1
+    }
 }
 
 dependencies {
