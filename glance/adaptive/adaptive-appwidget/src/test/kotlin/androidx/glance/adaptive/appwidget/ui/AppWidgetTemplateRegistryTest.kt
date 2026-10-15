@@ -16,18 +16,18 @@
 
 package androidx.glance.adaptive.appwidget.ui
 
+import android.content.Context
+import android.widget.RemoteViews
 import androidx.compose.runtime.AbstractApplier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
-import androidx.glance.adaptive.appwidget.ui.selection.LocalContainerDimensions
-import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import org.junit.Before
@@ -63,7 +63,7 @@ class AppWidgetTemplateRegistryTest {
 
         AppWidgetTemplateRegistry.register(
             DummyTemplate::class.java,
-            TemplateRenderer { template, constraints ->
+            GlanceTemplateRenderer { template, constraints ->
                 observedTemplate = template
                 observedConstraints = constraints
                 { rendered = true }
@@ -72,11 +72,10 @@ class AppWidgetTemplateRegistryTest {
 
         val dummy = DummyTemplate("Test")
 
-        runComposition {
-            CompositionLocalProvider(LocalContainerDimensions provides Dimensions(200, 100)) {
-                AppWidgetTemplateRegistry.render(dummy, surface)
-            }
-        }
+        val output =
+            AppWidgetTemplateRegistry.render(dummy, HostConstraints(Dimensions(200, 100), surface))
+        assertThat(output).isInstanceOf(GlanceRenderOutput::class.java)
+        runComposition { (output as GlanceRenderOutput).content() }
 
         assertThat(observedTemplate).isSameInstanceAs(dummy)
         assertThat(observedConstraints).isEqualTo(HostConstraints(Dimensions(200, 100), surface))
@@ -84,24 +83,24 @@ class AppWidgetTemplateRegistryTest {
     }
 
     @Test
-    fun render_resolvesConstraintsFromLocalContainerDimensions() {
-        var observedWidth = -1
-
+    fun render_remoteViewsRenderer_returnsRemoteViewsOutput() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val expectedRemoteViews =
+            RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
         AppWidgetTemplateRegistry.register(
             DummyTemplate::class.java,
-            TemplateRenderer { _, constraints ->
-                observedWidth = constraints.dimensions.widthDp
-                {}
-            },
+            RemoteViewsTemplateRenderer { _, _, _ -> expectedRemoteViews },
         )
 
-        runComposition {
-            CompositionLocalProvider(LocalContainerDimensions provides Dimensions(321, 100)) {
-                AppWidgetTemplateRegistry.render(DummyTemplate("Test"), surface)
-            }
-        }
+        val output =
+            AppWidgetTemplateRegistry.render(
+                DummyTemplate("Test"),
+                HostConstraints(Dimensions(200, 100), surface),
+            )
 
-        assertThat(observedWidth).isEqualTo(321)
+        assertThat(output).isInstanceOf(RemoteViewsRenderOutput::class.java)
+        val rvOutput = output as RemoteViewsRenderOutput
+        assertThat(rvOutput.provider(context)).isSameInstanceAs(expectedRemoteViews)
     }
 
     @Test
@@ -111,24 +110,23 @@ class AppWidgetTemplateRegistryTest {
 
         AppWidgetTemplateRegistry.register(
             DummyTemplate::class.java,
-            TemplateRenderer { _, _ ->
+            GlanceTemplateRenderer { _, _ ->
                 firstCalls++
                 {}
             },
         )
         AppWidgetTemplateRegistry.register(
             DummyTemplate::class.java,
-            TemplateRenderer { _, _ ->
+            GlanceTemplateRenderer { _, _ ->
                 secondCalls++
                 {}
             },
         )
 
-        runComposition {
-            CompositionLocalProvider(LocalContainerDimensions provides Dimensions(200, 100)) {
-                AppWidgetTemplateRegistry.render(DummyTemplate("Test"), surface)
-            }
-        }
+        AppWidgetTemplateRegistry.render(
+            DummyTemplate("Test"),
+            HostConstraints(Dimensions(200, 100), surface),
+        )
 
         assertThat(firstCalls).isEqualTo(0)
         assertThat(secondCalls).isEqualTo(1)
@@ -136,14 +134,17 @@ class AppWidgetTemplateRegistryTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun render_unregistered_throwsException() {
-        runComposition { AppWidgetTemplateRegistry.render(DummyTemplate("Unregistered"), surface) }
+        AppWidgetTemplateRegistry.render(
+            DummyTemplate("Unregistered"),
+            HostConstraints(Dimensions(200, 100), surface),
+        )
     }
 
     @Test
     fun resolveArchetypeId_enumArchetype_returnsEnumName() {
         AppWidgetTemplateRegistry.register(
             DummyTemplate::class.java,
-            TemplateRenderer { _, _ -> {} },
+            GlanceTemplateRenderer { _, _ -> {} },
             ArchetypeSelector { _, _ -> DummyArchetype.CARD },
         )
 
@@ -165,7 +166,7 @@ class AppWidgetTemplateRegistryTest {
 
         AppWidgetTemplateRegistry.register(
             DummyTemplate::class.java,
-            TemplateRenderer { _, _ -> {} },
+            GlanceTemplateRenderer { _, _ -> {} },
             ArchetypeSelector { _, _ -> CustomArchetype("CUSTOM_SPLIT") },
         )
 

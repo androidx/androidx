@@ -30,8 +30,8 @@ import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
+import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
-import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
@@ -101,7 +101,7 @@ class BaseWidgetDelegateTest {
         AppWidgetTemplateRegistry.resetForTesting()
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
-            TemplateRenderer { template, constraints ->
+            GlanceTemplateRenderer { template, constraints ->
                 { mockRenderer(template, constraints.surface) }
             },
             ArchetypeSelector { _, constraints -> constraints.surface },
@@ -725,7 +725,7 @@ class BaseWidgetDelegateTest {
             }
         AppWidgetTemplateRegistry.register(
             DimensionAwareTemplate::class.java,
-            TemplateRenderer { template, constraints ->
+            GlanceTemplateRenderer { template, constraints ->
                 { onRender(selector.select(template, constraints)) }
             },
             selector,

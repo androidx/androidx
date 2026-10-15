@@ -22,8 +22,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
+import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
-import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
@@ -276,7 +276,7 @@ class WidgetTelemetryHandlerTest {
     ) {
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
-            TemplateRenderer { _, _ -> {} },
+            GlanceTemplateRenderer { _, _ -> {} },
             selector,
         )
     }
