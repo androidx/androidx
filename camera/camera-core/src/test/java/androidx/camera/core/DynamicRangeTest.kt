@@ -74,38 +74,6 @@ class DynamicRangeTest {
     }
 
     @Test
-    fun hdr10Plus10BitSmpte209450DynamicRange_propertiesAreCorrect() {
-        val dynamicRange = DynamicRange.HDR10_PLUS_10_BIT_SMPTE_2094_50
-        assertThat(dynamicRange.encoding).isEqualTo(DynamicRange.ENCODING_HDR10_PLUS_SMPTE_2094_50)
-        assertThat(dynamicRange.bitDepth).isEqualTo(DynamicRange.BIT_DEPTH_10_BIT)
-        assertThat(dynamicRange.isFullySpecified).isTrue()
-        assertThat(dynamicRange.is10BitHdr).isTrue()
-        assertThat(dynamicRange.toString()).contains("HDR10_PLUS_SMPTE_2094_50")
-    }
-
-    @Test
-    fun dolbyVision10BitSmpte209450DynamicRange_propertiesAreCorrect() {
-        val dynamicRange = DynamicRange.DOLBY_VISION_10_BIT_SMPTE_2094_50
-        assertThat(dynamicRange.encoding)
-            .isEqualTo(DynamicRange.ENCODING_DOLBY_VISION_SMPTE_2094_50)
-        assertThat(dynamicRange.bitDepth).isEqualTo(DynamicRange.BIT_DEPTH_10_BIT)
-        assertThat(dynamicRange.isFullySpecified).isTrue()
-        assertThat(dynamicRange.is10BitHdr).isTrue()
-        assertThat(dynamicRange.toString()).contains("DOLBY_VISION_SMPTE_2094_50")
-    }
-
-    @Test
-    fun dolbyVision8BitSmpte209450DynamicRange_propertiesAreCorrect() {
-        val dynamicRange = DynamicRange.DOLBY_VISION_8_BIT_SMPTE_2094_50
-        assertThat(dynamicRange.encoding)
-            .isEqualTo(DynamicRange.ENCODING_DOLBY_VISION_SMPTE_2094_50)
-        assertThat(dynamicRange.bitDepth).isEqualTo(DynamicRange.BIT_DEPTH_8_BIT)
-        assertThat(dynamicRange.isFullySpecified).isTrue()
-        assertThat(dynamicRange.is10BitHdr).isFalse()
-        assertThat(dynamicRange.toString()).contains("DOLBY_VISION_SMPTE_2094_50")
-    }
-
-    @Test
     fun hdrUnspecified_cannotResolveToSdrSmpte209450() {
         val fullySpecified = setOf(DynamicRange.SDR_SMPTE_2094_50)
         assertThat(DynamicRanges.canResolve(DynamicRange.HDR_UNSPECIFIED_10_BIT, fullySpecified))

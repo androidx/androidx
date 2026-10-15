@@ -180,16 +180,14 @@ public object VideoConfigUtil {
      */
     public fun getDynamicRangeDefaultMime(dynamicRange: DynamicRange): String? {
         return when (dynamicRange.encoding) {
-            DynamicRange.ENCODING_DOLBY_VISION,
-            DynamicRange.ENCODING_DOLBY_VISION_SMPTE_2094_50 ->
+            DynamicRange.ENCODING_DOLBY_VISION ->
                 // Dolby vision only supports dolby vision encoders
                 MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION
             DynamicRange.ENCODING_HLG,
             DynamicRange.ENCODING_HLG_SMPTE_2094_50,
             DynamicRange.ENCODING_HDR10,
             DynamicRange.ENCODING_HDR10_SMPTE_2094_50,
-            DynamicRange.ENCODING_HDR10_PLUS,
-            DynamicRange.ENCODING_HDR10_PLUS_SMPTE_2094_50 ->
+            DynamicRange.ENCODING_HDR10_PLUS ->
                 // For now most hdr formats default to h265 (HEVC), though VP9 or AV1 may also be
                 // supported.
                 MediaFormat.MIMETYPE_VIDEO_HEVC
