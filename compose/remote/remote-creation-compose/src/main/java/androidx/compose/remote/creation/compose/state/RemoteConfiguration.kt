@@ -16,11 +16,9 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
 
 /** Provides access to host display and window context variables evaluated by the host player. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteConfiguration {
     /** The logical screen density scaling factor of the host display as a [RemoteFloat]. */
     public val density: RemoteFloat
