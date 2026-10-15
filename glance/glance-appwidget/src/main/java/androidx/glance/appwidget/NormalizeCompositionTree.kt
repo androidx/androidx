@@ -44,6 +44,7 @@ import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.EmittableBox
+import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableSpacer
 import androidx.glance.layout.HeightModifier
@@ -191,9 +192,7 @@ internal fun EmittableWithChildren.updateLambdaActionKeys(): Map<String, List<La
         ->
         val (action: LambdaAction?, modifiers: GlanceModifier) =
             child.modifier.extractLambdaAction()
-        if (
-            action != null && child !is EmittableSizeBox && child !is EmittableLazyItemWithChildren
-        ) {
+        if (action != null && child !is EmittableSizeBox) {
             val newKey = action.key + "+$index"
             val newAction = LambdaAction(newKey, action.block)
             actions.getOrPut(newKey) { mutableListOf() }.add(newAction)
@@ -218,14 +217,62 @@ private fun GlanceModifier.extractLambdaAction(): Pair<LambdaAction?, GlanceModi
         }
     }
 
-private fun normalizeLazyListItem(view: EmittableLazyItemWithChildren) {
+/**
+ * Returns whether this [Emittable] is a container that can have its action hoisted.
+ *
+ * Inherently interactive UI components (such as buttons or checkboxes) retain their own actions and
+ * are not hoisted to the root level. Only non-inherently-interactive container components
+ * ([EmittableRow], [EmittableBox], and [EmittableColumn]) have their actions hoisted to the
+ * enclosing list item.
+ */
+private fun Emittable.isActionHoistableContainer(): Boolean =
+    this is EmittableRow || this is EmittableBox || this is EmittableColumn
+
+private fun normalizeLazyListItem(listItemRootView: EmittableLazyItemWithChildren) {
+    // When using keyboard click to trigger action, we need the click action to be on the root view
+    // of the list item.
+    // the actionHolder is the emittable under root level that holding action
+    // if there is no action, or the action is on the root level already, or it is not a single
+    // child chain, actionHolder will return null
+    val actionHolder: Emittable? =
+        if (listItemRootView.modifier.findModifier<ActionModifier>() == null) {
+            listItemRootView.findActionHolderInSingleChildChain()
+        } else {
+            null
+        }
+    if (actionHolder != null) {
+        // at this step, the ActionModifier is extracted from the child Emittable and hoisted
+        // to the root level Emittable
+        val (actionModifier: ActionModifier?, modifiersWithoutAction: GlanceModifier) =
+            actionHolder.modifier.extractModifier<ActionModifier>()
+        if (actionModifier != null) {
+            listItemRootView.modifier = listItemRootView.modifier.then(actionModifier)
+            actionHolder.modifier = modifiersWithoutAction
+        }
+    }
+
     val box = EmittableBox()
-    box.children += view.children
-    box.contentAlignment = view.alignment
-    box.modifier = view.modifier
-    view.children.clear()
-    view.children += box
-    view.alignment = Alignment.CenterStart
+    box.children += listItemRootView.children
+    box.contentAlignment = listItemRootView.alignment
+    box.modifier = listItemRootView.modifier.removeModifiersOfType<ActionModifier>()
+    listItemRootView.children.clear()
+    listItemRootView.children += box
+    listItemRootView.alignment = Alignment.CenterStart
+}
+
+/**
+ * Finds the single descendant container holding an [ActionModifier] in the child chain.
+ *
+ * Traverses down a single-child hierarchy to locate the action holder to hoist to the enclosing
+ * lazy list item. [EmittableSpacer] elements are ignored during traversal so that single-action
+ * layouts with spacing (e.g. `Spacer`, `Button`, `Spacer`) are supported. Returns null if any
+ * container has multiple non-spacer children, or if no hoistable action is found.
+ */
+private fun EmittableWithChildren.findActionHolderInSingleChildChain(): Emittable? {
+    val child = children.singleOrNull { it !is EmittableSpacer } ?: return null
+    if (!child.isActionHoistableContainer()) return null
+    if (child.modifier.findModifier<ActionModifier>() != null) return child
+    return (child as? EmittableWithChildren)?.findActionHolderInSingleChildChain()
 }
 
 /**
@@ -420,10 +467,16 @@ private fun GlanceModifier.warnIfMultipleClickableActions() {
     }
 }
 
-private fun MutableList<GlanceModifier?>.collect(): GlanceModifier =
-    fold(GlanceModifier) { acc: GlanceModifier, mod: GlanceModifier? ->
-        mod?.let { acc.then(mod) } ?: acc
+private fun MutableList<GlanceModifier?>.collect(): GlanceModifier {
+    var result: GlanceModifier = GlanceModifier
+    for (i in indices) {
+        val modifier = this[i]
+        if (modifier != null) {
+            result = result.then(modifier)
+        }
     }
+    return result
+}
 
 /**
  * Build up the ui tree for an M3 button. The material buttons are not xml views, so need special
