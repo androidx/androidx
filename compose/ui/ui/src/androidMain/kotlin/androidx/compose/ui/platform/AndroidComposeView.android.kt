@@ -3859,7 +3859,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
 
         @SuppressLint("PrivateApi")
-        @Suppress("BanHideTag")
+        @Suppress("BanHideTag", "BanUncheckedReflection")
         fun findViewByAccessibilityIdTraversal(accessibilityId: Int, view: View): View? {
             try {
                 // AccessibilityInteractionController#findViewByAccessibilityId doesn't call this
