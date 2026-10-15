@@ -355,6 +355,7 @@ public class NavigationListenerTest {
     public void didCommitErrorPage_isTrueForNotFoundError() {
         mWebViewOnUiThread.loadUrl(getErrorUrl(404));
         Navigation navigation = waitForNextQueueElement(mListener.mOnNavigationCompletedQueue);
+        Assert.assertTrue(navigation.didCommit()); // must be true if an error page has committed
         Assert.assertTrue(navigation.didCommitErrorPage());
     }
 
@@ -652,10 +653,10 @@ public class NavigationListenerTest {
 
         Navigation completedNavigation = waitForNextQueueElement(
                 mListener.mOnNavigationCompletedQueue);
-        NavigationState completedNavigationState = completedNavigation.snapshotState();
+        NavigationState completedNavigationState = completedNavigation.captureState();
 
         Page onLoadedPage = waitForNextQueueElement(mListener.mOnPageLoadEventFiredQueue);
-        PageState onLoadedPageState = onLoadedPage.snapshotState();
+        PageState onLoadedPageState = onLoadedPage.captureState();
 
         Assert.assertEquals(completedNavigation.getUrl(), completedNavigationState.getUrl());
         Assert.assertEquals(completedNavigationState.getUrl(), successUrl);
