@@ -233,7 +233,7 @@ public final class ActionsConstraints {
      * Constraints for the {@link androidx.car.app.dialer.InCallTemplate} content actions.
      *
      * <ul>
-     *     <li>Maximum of {@code 5}
+     *     <li>Maximum of {@code 9}
      *     <li>Must be of type {@link Action#TYPE_CUSTOM}
      *     <li>Must have an icon
      *     <li>Cannot have custom titles
@@ -245,7 +245,7 @@ public final class ActionsConstraints {
             new ActionsConstraints.Builder()
                     .addAllowedActionType(Action.TYPE_CUSTOM)
                     .setRequireActionIcons(true)
-                    .setMaxActions(5)
+                    .setMaxActions(9)
                     .setMaxCustomTitles(0)
                     .setMaxPrimaryActions(1)
                     .setOnClickListenerAllowed(true)
