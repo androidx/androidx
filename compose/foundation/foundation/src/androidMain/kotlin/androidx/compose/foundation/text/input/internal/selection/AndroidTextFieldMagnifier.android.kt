@@ -124,6 +124,7 @@ internal class TextFieldMagnifierNodeImpl28(
                     animatable.snapTo(Offset.Unspecified)
                 }
             }
+            return
         }
         animationJob = coroutineScope.launch {
             val animationScope = this
