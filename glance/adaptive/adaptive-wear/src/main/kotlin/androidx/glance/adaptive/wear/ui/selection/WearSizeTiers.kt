@@ -44,8 +44,7 @@ public object WearSizeTiers {
     /** Resolves the [HeightTier] for a given [heightDp] dimension and [surface]. */
     public fun resolveHeightTier(heightDp: Float, surface: WearGlanceSurface): HeightTier {
         return when (surface) {
-            WearGlanceSurface.COMPLICATION -> HeightTier.H0
-            WearGlanceSurface.TILE -> if (heightDp < 140f) HeightTier.H1 else HeightTier.H2
+            WearGlanceSurface.WIDGET -> if (heightDp < 140f) HeightTier.H1 else HeightTier.H2
         }
     }
 
