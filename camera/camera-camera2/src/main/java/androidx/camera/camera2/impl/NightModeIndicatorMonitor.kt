@@ -45,18 +45,33 @@ public class NightModeIndicatorMonitor
 constructor(cameraMetadata: CameraMetadata?, requestListener: ComboRequestListener) :
     Request.Listener, UseCaseCameraControl {
 
-    private var _requestControl: UseCaseCameraRequestControl? = null
+    private val stateLock = Any()
+
+    @Volatile private var _requestControl: UseCaseCameraRequestControl? = null
     override var requestControl: UseCaseCameraRequestControl?
         get() = _requestControl
         set(value) {
-            _requestControl = value
-            if (value == null) {
-                setLiveDataValue(NightModeIndicator.UNKNOWN)
+            val changed =
+                synchronized(stateLock) {
+                    _requestControl = value
+                    value == null &&
+                        nightModeIndicatorAtomic.getAndSet(NightModeIndicator.UNKNOWN) !=
+                            NightModeIndicator.UNKNOWN
+                }
+            if (changed) {
+                updateLiveData()
             }
         }
 
     override fun reset() {
-        setLiveDataValue(NightModeIndicator.UNKNOWN)
+        val changed =
+            synchronized(stateLock) {
+                nightModeIndicatorAtomic.getAndSet(NightModeIndicator.UNKNOWN) !=
+                    NightModeIndicator.UNKNOWN
+            }
+        if (changed) {
+            updateLiveData()
+        }
     }
 
     public val isSupported: Boolean =
@@ -72,7 +87,7 @@ constructor(cameraMetadata: CameraMetadata?, requestListener: ComboRequestListen
                     // Register listener only when something is watching
                     requestListener.addListener(
                         this@NightModeIndicatorMonitor,
-                        CameraXExecutors.mainThreadExecutor(),
+                        CameraXExecutors.directExecutor(),
                     )
                 }
             }
@@ -91,26 +106,34 @@ constructor(cameraMetadata: CameraMetadata?, requestListener: ComboRequestListen
         frameNumber: CameraFrameNumber,
         totalCaptureResult: FrameInfo,
     ) {
-        if (Build.VERSION.SDK_INT >= 36 && _requestControl != null) {
-            totalCaptureResult.metadata[EXTENSION_NIGHT_MODE_INDICATOR]?.let {
-                setLiveDataValue(
-                    when (it) {
-                        EXTENSION_NIGHT_MODE_INDICATOR_ON -> NightModeIndicator.RECOMMENDED
-                        EXTENSION_NIGHT_MODE_INDICATOR_OFF -> NightModeIndicator.NOT_RECOMMENDED
-                        EXTENSION_NIGHT_MODE_INDICATOR_UNKNOWN -> NightModeIndicator.UNKNOWN
-                        else -> NightModeIndicator.UNKNOWN
-                    }
-                )
+        if (Build.VERSION.SDK_INT < 36 || _requestControl == null) {
+            return
+        }
+        val indicator = totalCaptureResult.metadata[EXTENSION_NIGHT_MODE_INDICATOR] ?: return
+        val newState =
+            when (indicator) {
+                EXTENSION_NIGHT_MODE_INDICATOR_ON -> NightModeIndicator.RECOMMENDED
+                EXTENSION_NIGHT_MODE_INDICATOR_OFF -> NightModeIndicator.NOT_RECOMMENDED
+                EXTENSION_NIGHT_MODE_INDICATOR_UNKNOWN -> NightModeIndicator.UNKNOWN
+                else -> NightModeIndicator.UNKNOWN
             }
+        if (nightModeIndicatorAtomic.get() == newState) {
+            return
+        }
+        val changed =
+            synchronized(stateLock) {
+                _requestControl != null && nightModeIndicatorAtomic.getAndSet(newState) != newState
+            }
+        if (changed) {
+            updateLiveData()
         }
     }
 
-    private fun setLiveDataValue(@NightModeIndicator.State state: Int) {
-        if (nightModeIndicatorAtomic.getAndSet(state) != state) {
-            if (Threads.isMainThread()) {
-                _nightModeIndicator.value = state
-            } else {
-                _nightModeIndicator.postValue(state)
+    private fun updateLiveData() {
+        Threads.runOnMain {
+            val currentState = nightModeIndicatorAtomic.get()
+            if (_nightModeIndicator.value != currentState) {
+                _nightModeIndicator.value = currentState
             }
         }
     }

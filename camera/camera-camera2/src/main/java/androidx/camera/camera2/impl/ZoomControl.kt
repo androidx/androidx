@@ -35,6 +35,7 @@ import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.utils.Threads
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -77,30 +78,40 @@ constructor(
     private var isInitialized = false
     private val activePhysicalCameraId = AtomicReference<String?>(null)
 
+    @VisibleForTesting
+    @Volatile
+    internal var activePhysicalCameraIdProvider: (CameraCaptureResult) -> String? = { result ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Api29Compat.getActivePhysicalCameraId(result)
+        } else {
+            null
+        }
+    }
+
     init {
         // Register a callback to inspect frame metadata for active physical camera ID transitions
         // on multi-camera devices.
-        if (cameraCallbackMap != null && threads != null) {
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                cameraCallbackMap != null &&
+                threads != null
+        ) {
             cameraCallbackMap.addCaptureCallback(
                 object : CameraCaptureCallback() {
                     override fun onCaptureCompleted(
                         captureConfigId: Int,
                         captureResult: CameraCaptureResult,
                     ) {
-                        onFrameCaptured(captureResult)
+                        val activePhysicalId =
+                            activePhysicalCameraIdProvider(captureResult) ?: return
+                        if (activePhysicalId == activePhysicalCameraId.get()) {
+                            return
+                        }
+                        threads.sequentialExecutor.execute { onFrameCaptured(captureResult) }
                     }
                 },
-                threads.sequentialExecutor,
+                CameraXExecutors.directExecutor(),
             )
-        }
-    }
-
-    @VisibleForTesting
-    internal var activePhysicalCameraIdProvider: (CameraCaptureResult) -> String? = { result ->
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Api29Compat.getActivePhysicalCameraId(result)
-        } else {
-            null
         }
     }
 

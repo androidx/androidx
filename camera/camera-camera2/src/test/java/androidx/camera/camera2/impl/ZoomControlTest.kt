@@ -22,8 +22,11 @@ import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeFrameInfo
+import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.testing.FakeZoomCompat
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.CameraId
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraInfo
@@ -34,8 +37,10 @@ import com.google.common.truth.Truth.assertWithMessage
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -359,6 +364,66 @@ class ZoomControlTest {
 
         assertThat(control.zoomStateLiveData.value?.activeIntrinsicZoomRatio)
             .isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
+    }
+
+    @Test
+    @Config(minSdk = 29)
+    fun cameraCallbackMap_dispatchesToSequentialExecutorOnlyWhenPhysicalCameraIdChanges() {
+        val fakeMetadata = FakeCameraMetadata(cameraId = CameraId("tele_id"))
+        val fakeCameraDevices =
+            FakeCameraDevices(
+                defaultCameraBackendId = CameraBackendId("0"),
+                concurrentCameraBackendIds = emptySet(),
+                cameraMetadataMap = mapOf(CameraBackendId("0") to listOf(fakeMetadata)),
+            )
+        val fakeCalculator =
+            object : IntrinsicZoomCalculator {
+                override fun calculateIntrinsicZoomRatio(cameraMetadata: CameraMetadata): Float {
+                    return if (cameraMetadata.camera == CameraId("tele_id")) 2.5f else 1.0f
+                }
+            }
+        val dispatchCount = AtomicInteger(0)
+        val countingExecutor = Executor { runnable ->
+            dispatchCount.incrementAndGet()
+            runnable.run()
+        }
+        val countingDispatcher = countingExecutor.asCoroutineDispatcher()
+        val countingThreads =
+            UseCaseThreads(
+                CoroutineScope(Job() + countingDispatcher),
+                countingExecutor,
+                countingDispatcher,
+            )
+        val callbackMap = CameraCallbackMap()
+        var currentPhysicalId: String? = "tele_id"
+        val control =
+            ZoomControl(zoomCompat, fakeCameraDevices, fakeCalculator, callbackMap, countingThreads)
+        control.activePhysicalCameraIdProvider = { currentPhysicalId }
+
+        callbackMap.onComplete(
+            FakeRequestMetadata(),
+            CameraFrameNumber(1L),
+            FakeFrameInfo(),
+        )
+        assertThat(dispatchCount.get()).isEqualTo(1)
+        assertThat(control.zoomStateLiveData.value?.activeIntrinsicZoomRatio).isEqualTo(2.5f)
+
+        // Subsequent frames with the same physical camera ID must short-circuit without dispatching
+        callbackMap.onComplete(
+            FakeRequestMetadata(),
+            CameraFrameNumber(2L),
+            FakeFrameInfo(),
+        )
+        assertThat(dispatchCount.get()).isEqualTo(1)
+
+        // Switching to a new physical camera ID dispatches once more
+        currentPhysicalId = "wide_id"
+        callbackMap.onComplete(
+            FakeRequestMetadata(),
+            CameraFrameNumber(3L),
+            FakeFrameInfo(),
+        )
+        assertThat(dispatchCount.get()).isEqualTo(2)
     }
 
     // TODO: port tests from camera-camera2
