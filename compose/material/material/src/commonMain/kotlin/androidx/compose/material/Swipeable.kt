@@ -44,12 +44,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.requireDensity
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
@@ -570,42 +570,26 @@ public fun <T> Modifier.swipeable(
     thresholds: (from: T, to: T) -> ThresholdConfig = { _, _ -> FixedThreshold(56.dp) },
     resistance: ResistanceConfig? = resistanceConfig(anchors.keys),
     velocityThreshold: Dp = VelocityThreshold,
-): Modifier =
-    composed(
-        inspectorInfo =
-            debugInspectorInfo {
-                name = "swipeable"
-                properties["state"] = state
-                properties["anchors"] = anchors
-                properties["orientation"] = orientation
-                properties["enabled"] = enabled
-                properties["reverseDirection"] = reverseDirection
-                properties["interactionSource"] = interactionSource
-                properties["thresholds"] = thresholds
-                properties["resistance"] = resistance
-                properties["velocityThreshold"] = velocityThreshold
-            }
-    ) {
-        require(anchors.isNotEmpty()) { "You must have at least one anchor." }
-        require(anchors.values.distinct().count() == anchors.size) {
-            "You cannot have two anchors mapped to the same state."
-        }
-        val density = LocalDensity.current
-        state.ensureInit(anchors)
-        LaunchedEffect(anchors, state) {
-            val oldAnchors = state.anchors
-            state.anchors = anchors
-            state.resistance = resistance
-            state.thresholds = { a, b ->
-                val from = anchors.getValue(a)
-                val to = anchors.getValue(b)
-                with(thresholds(from, to)) { density.computeThreshold(a, b) }
-            }
-            with(density) { state.velocityThreshold = velocityThreshold.toPx() }
-            state.processNewAnchors(oldAnchors, anchors)
-        }
-
-        Modifier.draggable(
+): Modifier {
+    require(anchors.isNotEmpty()) { "You must have at least one anchor." }
+    require(anchors.values.distinct().count() == anchors.size) {
+        "You cannot have two anchors mapped to the same state."
+    }
+    state.ensureInit(anchors)
+    return this.then(
+            SwipeableElement(
+                state = state,
+                anchors = anchors,
+                orientation = orientation,
+                enabled = enabled,
+                reverseDirection = reverseDirection,
+                interactionSource = interactionSource,
+                thresholds = thresholds,
+                resistance = resistance,
+                velocityThreshold = velocityThreshold,
+            )
+        )
+        .draggable(
             orientation = orientation,
             enabled = enabled,
             reverseDirection = reverseDirection,
@@ -614,7 +598,134 @@ public fun <T> Modifier.swipeable(
             onDragStopped = { velocity -> launch { state.performFling(velocity) } },
             state = state.draggableState,
         )
+}
+
+@Suppress("PrimitiveInCollection")
+@OptIn(ExperimentalMaterialApi::class)
+private class SwipeableElement<T>(
+    private val state: SwipeableState<T>,
+    private val anchors: Map<Float, T>,
+    private val orientation: Orientation,
+    private val enabled: Boolean,
+    private val reverseDirection: Boolean,
+    private val interactionSource: MutableInteractionSource?,
+    private val thresholds: (from: T, to: T) -> ThresholdConfig,
+    private val resistance: ResistanceConfig?,
+    private val velocityThreshold: Dp,
+) : ModifierNodeElement<SwipeableNode<T>>() {
+    override fun create(): SwipeableNode<T> =
+        SwipeableNode(
+            state = state,
+            anchors = anchors,
+            thresholds = thresholds,
+            resistance = resistance,
+            velocityThreshold = velocityThreshold,
+        )
+
+    override fun update(node: SwipeableNode<T>) {
+        node.update(
+            state = state,
+            anchors = anchors,
+            thresholds = thresholds,
+            resistance = resistance,
+            velocityThreshold = velocityThreshold,
+        )
     }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "swipeable"
+        properties["state"] = state
+        properties["anchors"] = anchors
+        properties["orientation"] = orientation
+        properties["enabled"] = enabled
+        properties["reverseDirection"] = reverseDirection
+        properties["interactionSource"] = interactionSource
+        properties["thresholds"] = thresholds
+        properties["resistance"] = resistance
+        properties["velocityThreshold"] = velocityThreshold
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SwipeableElement<*>) return false
+        if (state != other.state) return false
+        if (anchors != other.anchors) return false
+        if (orientation != other.orientation) return false
+        if (enabled != other.enabled) return false
+        if (reverseDirection != other.reverseDirection) return false
+        if (interactionSource != other.interactionSource) return false
+        if (thresholds !== other.thresholds) return false
+        if (resistance != other.resistance) return false
+        if (velocityThreshold != other.velocityThreshold) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = state.hashCode()
+        result = 31 * result + anchors.hashCode()
+        result = 31 * result + orientation.hashCode()
+        result = 31 * result + enabled.hashCode()
+        result = 31 * result + reverseDirection.hashCode()
+        result = 31 * result + (interactionSource?.hashCode() ?: 0)
+        result = 31 * result + thresholds.hashCode()
+        result = 31 * result + (resistance?.hashCode() ?: 0)
+        result = 31 * result + velocityThreshold.hashCode()
+        return result
+    }
+}
+
+@Suppress("PrimitiveInCollection")
+@OptIn(ExperimentalMaterialApi::class)
+private class SwipeableNode<T>(
+    private var state: SwipeableState<T>,
+    private var anchors: Map<Float, T>,
+    private var thresholds: (from: T, to: T) -> ThresholdConfig,
+    private var resistance: ResistanceConfig?,
+    private var velocityThreshold: Dp,
+) : Modifier.Node() {
+    override fun onAttach() {
+        updateState()
+    }
+
+    fun update(
+        state: SwipeableState<T>,
+        anchors: Map<Float, T>,
+        thresholds: (from: T, to: T) -> ThresholdConfig,
+        resistance: ResistanceConfig?,
+        velocityThreshold: Dp,
+    ) {
+        val anchorsOrStateChanged = this.state != state || this.anchors != anchors
+        this.state = state
+        this.anchors = anchors
+        this.thresholds = thresholds
+        this.resistance = resistance
+        this.velocityThreshold = velocityThreshold
+        if (anchorsOrStateChanged) {
+            updateState()
+        }
+    }
+
+    private fun updateState() {
+        val currentState = state
+        val currentAnchors = anchors
+        val currentResistance = resistance
+        val currentThresholds = thresholds
+        val currentVelocityThreshold = velocityThreshold
+        coroutineScope.launch {
+            val density = requireDensity()
+            val oldAnchors = currentState.anchors
+            currentState.anchors = currentAnchors
+            currentState.resistance = currentResistance
+            currentState.thresholds = { a, b ->
+                val from = currentAnchors.getValue(a)
+                val to = currentAnchors.getValue(b)
+                with(currentThresholds(from, to)) { density.computeThreshold(a, b) }
+            }
+            with(density) { currentState.velocityThreshold = currentVelocityThreshold.toPx() }
+            currentState.processNewAnchors(oldAnchors, currentAnchors)
+        }
+    }
+}
 
 /**
  * Interface to compute a threshold between two anchors/states in a [swipeable].
