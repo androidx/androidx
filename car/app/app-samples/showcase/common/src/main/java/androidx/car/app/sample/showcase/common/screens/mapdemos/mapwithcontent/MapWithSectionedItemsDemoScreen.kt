@@ -24,8 +24,6 @@ import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.CarIconStyle
 import androidx.car.app.model.CarProgressBar
-import androidx.car.app.model.CondensedItem
-import androidx.car.app.model.CondensedSection
 import androidx.car.app.model.GridSection
 import androidx.car.app.model.Header
 import androidx.car.app.model.RowSection
@@ -39,13 +37,9 @@ import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutingDe
 import androidx.car.app.sample.showcase.common.utils.CarContextAware
 import androidx.car.app.sample.showcase.common.utils.createAction
 import androidx.car.app.sample.showcase.common.utils.createBadge
-import androidx.car.app.sample.showcase.common.utils.createCondensedItem
-import androidx.car.app.sample.showcase.common.utils.createCondensedSection
 import androidx.car.app.sample.showcase.common.utils.createGridItem
 import androidx.car.app.sample.showcase.common.utils.createGridSection
 import androidx.car.app.sample.showcase.common.utils.createRow
-import androidx.car.app.sample.showcase.common.utils.withApiGuard
-import androidx.car.app.versioning.CarAppApiLevels
 
 /** Demonstrates how to present a [MapWithContentTemplate] alongside a [SectionedItemTemplate]. */
 @OptIn(ExperimentalCarApi::class)
@@ -68,9 +62,6 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
         val sectionedTemplate =
             with(SectionedItemTemplate.Builder()) {
                 setHeader(makeHeader())
-                carContext.withApiGuard(CarAppApiLevels.LEVEL_9) {
-                    addSection(makeCondensedSection())
-                }
                 addSection(makeGridSection())
                 addSection(makeListSection())
                 build()
@@ -158,21 +149,6 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
                     ),
                 ),
         )
-    }
-
-    private fun makeCondensedSection(): CondensedSection {
-        val items =
-            List(3) { i ->
-                createCondensedItem(
-                    title = "Condensed Item #${i + 1}",
-                    text = "Playlist • Media",
-                    image = icAndroid,
-                    imageType = CondensedItem.IMAGE_TYPE_LARGE,
-                    trailingImage = icRoute,
-                )
-            }
-
-        return createCondensedSection(title = "Condensed Items Section", items = items)
     }
 
     private fun makeActionStrip(): ActionStrip {
