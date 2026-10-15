@@ -27,6 +27,11 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.clearInvocations
+import org.mockito.kotlin.never
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -48,6 +53,7 @@ class WidgetInstanceRepositoryTest {
 
     @Before
     fun setUp() {
+        WidgetOptionsCache.clear()
         context = ApplicationProvider.getApplicationContext()
         repository = WidgetInstanceRepository(context)
     }
@@ -121,6 +127,105 @@ class WidgetInstanceRepositoryTest {
         val componentName = ComponentName(context.packageName, MatchingReceiver::class.java.name)
         assertThat(result).containsKey(componentName)
         assertThat(result[componentName]?.toList()).containsExactly(312)
+    }
+
+    @Test
+    fun findAppWidgetIdsForWidgetName_withWarmCache_avoidsGetAppWidgetOptionsIpc() {
+        val spyManager = spy(AppWidgetManager.getInstance(context))
+        val spyRepository = WidgetInstanceRepository(context, spyManager)
+        setupBoundWidget(401, MatchingReceiver::class.java.name, widgetId = "cached_instance")
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+
+        WidgetOptionsCache.cacheWidgetOptionsIfMissing(
+            401,
+            Bundle().apply {
+                putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, "cached_instance")
+            },
+        )
+        clearInvocations(spyManager)
+
+        val result =
+            spyRepository.findAppWidgetIdsForWidgetName(
+                "matching_widget",
+                widgetIds = setOf("cached_instance"),
+            )
+
+        val componentName = ComponentName(context.packageName, MatchingReceiver::class.java.name)
+        assertThat(result[componentName]?.toList()).containsExactly(401)
+        verify(spyManager, never()).getAppWidgetOptions(401)
+    }
+
+    @Test
+    fun findAppWidgetIdsForWidgetName_onCacheMiss_fallsBackToManagerAndCachesForSubsequentLookups() {
+        val spyManager = spy(AppWidgetManager.getInstance(context))
+        val spyRepository = WidgetInstanceRepository(context, spyManager)
+        setupBoundWidget(402, MatchingReceiver::class.java.name, widgetId = "miss_instance")
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+        clearInvocations(spyManager)
+
+        // First lookup: cache miss falls back to AppWidgetManager.getAppWidgetOptions once
+        val firstResult =
+            spyRepository.findAppWidgetIdsForWidgetName(
+                "matching_widget",
+                widgetIds = setOf("miss_instance"),
+            )
+
+        val componentName = ComponentName(context.packageName, MatchingReceiver::class.java.name)
+        assertThat(firstResult[componentName]?.toList()).containsExactly(402)
+        assertThat(WidgetOptionsCache.getCachedWidgetId(402)).isEqualTo("miss_instance")
+        verify(spyManager, times(1)).getAppWidgetOptions(402)
+
+        // Second lookup: warm cache serves without calling getAppWidgetOptions again
+        val secondResult =
+            spyRepository.findAppWidgetIdsForWidgetName(
+                "matching_widget",
+                widgetIds = setOf("miss_instance"),
+            )
+
+        assertThat(secondResult[componentName]?.toList()).containsExactly(402)
+        verify(spyManager, times(1)).getAppWidgetOptions(402)
+    }
+
+    @Test
+    fun findAppWidgetIdsForWidgetName_afterClearAndOnDeleted_evictsCachedEntryCleanly() {
+        val spyManager = spy(AppWidgetManager.getInstance(context))
+        val spyRepository = WidgetInstanceRepository(context, spyManager)
+        setupBoundWidget(403, MatchingReceiver::class.java.name, widgetId = "evict_instance")
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+
+        // Populate cache via initial lookup
+        spyRepository.findAppWidgetIdsForWidgetName(
+            "matching_widget",
+            widgetIds = setOf("evict_instance"),
+        )
+        assertThat(WidgetOptionsCache.getCachedWidgetId(403)).isEqualTo("evict_instance")
+
+        // Verify WidgetOptionsCache.clear() evicts cached entry cleanly
+        WidgetOptionsCache.clear()
+        assertThat(WidgetOptionsCache.getCachedWidgetId(403)).isNull()
+
+        // Re-populate cache via lookup and verify receiver.onDeleted() evicts cached entry cleanly
+        clearInvocations(spyManager)
+        spyRepository.findAppWidgetIdsForWidgetName(
+            "matching_widget",
+            widgetIds = setOf("evict_instance"),
+        )
+        assertThat(WidgetOptionsCache.getCachedWidgetId(403)).isEqualTo("evict_instance")
+        verify(spyManager, times(1)).getAppWidgetOptions(403)
+
+        MatchingReceiver().onDeleted(context, intArrayOf(403))
+        assertThat(WidgetOptionsCache.getCachedWidgetId(403)).isNull()
+
+        // Subsequent lookup after onDeleted must query AppWidgetManager again
+        clearInvocations(spyManager)
+        val resultAfterDelete =
+            spyRepository.findAppWidgetIdsForWidgetName(
+                "matching_widget",
+                widgetIds = setOf("evict_instance"),
+            )
+        val componentName = ComponentName(context.packageName, MatchingReceiver::class.java.name)
+        assertThat(resultAfterDelete[componentName]?.toList()).containsExactly(403)
+        verify(spyManager, times(1)).getAppWidgetOptions(403)
     }
 
     @Test
