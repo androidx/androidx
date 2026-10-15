@@ -72,6 +72,25 @@ class ProjectedContextTest {
     }
 
     @Test
+    fun createProjectedDeviceContext_invalidDeviceId_throwsIllegalStateException() {
+        val cause = IllegalArgumentException("Invalid device ID")
+        val failingContext =
+            object : ContextWrapper(context) {
+                override fun createDeviceContext(deviceId: Int): Context {
+                    throw cause
+                }
+            }
+
+        val exception =
+            assertThrows(IllegalStateException::class.java) {
+                ProjectedContext.createProjectedDeviceContext(failingContext)
+            }
+
+        assertThat(exception).hasMessageThat().isEqualTo("Projected device not found.")
+        assertThat(exception).hasCauseThat().isSameInstanceAs(cause)
+    }
+
+    @Test
     fun createHostDeviceContext_returnsContext() {
         assertThat(ProjectedContext.createHostDeviceContext(context).deviceId)
             .isEqualTo(Context.DEVICE_ID_DEFAULT)
