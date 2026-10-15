@@ -24,6 +24,7 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.core.os.LocaleListCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.testutils.lifecycle.LifecycleOwnerUtils
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -45,8 +46,10 @@ class AppCompatActivityLocaleTest {
 
     @After
     fun teardown() {
-        composeTestRule.runOnUiThread {
-            AppCompatDelegate.setApplicationLocales(defaultLocaleListCompat)
+        if (AppCompatDelegate.getApplicationLocales() != defaultLocaleListCompat) {
+            LifecycleOwnerUtils.waitForRecreation(composeTestRule.activity) {
+                AppCompatDelegate.setApplicationLocales(defaultLocaleListCompat)
+            }
         }
     }
 
@@ -66,7 +69,7 @@ class AppCompatActivityLocaleTest {
 
     @Test
     fun localeIsCorrectWhenSetBeforeSetContent() {
-        composeTestRule.runOnUiThread {
+        LifecycleOwnerUtils.waitForRecreation(composeTestRule.activity) {
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("es-MX"))
         }
 
@@ -92,7 +95,7 @@ class AppCompatActivityLocaleTest {
             localeList = LocalLocaleList.current
         }
 
-        composeTestRule.runOnUiThread {
+        LifecycleOwnerUtils.waitForRecreation(composeTestRule.activity) {
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("es-MX"))
         }
         // Set content again, since the Activity was recreated
