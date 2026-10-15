@@ -51,7 +51,12 @@ public final class WebViewStartUpConfig {
     }
 
     /**
-     * Returns the {@link Executor} that will be used to run background startup tasks.
+     * Returns the {@link Executor} that will be used by WebView to run background startup tasks.
+     * <p>
+     * Note that this executor is not used to invoke the startup completion callback; to specify an
+     * executor for the callback, use
+     * {@link WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, Executor,
+     * WebViewOutcomeReceiver)}.
      */
     @NonNull
     public Executor getBackgroundExecutor() {
@@ -124,7 +129,10 @@ public final class WebViewStartUpConfig {
          *
          * @param executor The portions of WebView startup that can run on a background
          *                 thread are scheduled on this executor. Blocking tasks will be run on
-         *                 the executor.
+         *                 the executor. Note that this executor is not used to invoke the startup
+         *                 completion callback; to specify an executor for the callback, use
+         *                 {@link WebViewCompat#startUpWebView(Context, WebViewStartUpConfig,
+         *                 Executor, WebViewOutcomeReceiver)}.
          */
         public Builder(@NonNull Executor executor) {
             mExecutor = executor;

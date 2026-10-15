@@ -35,6 +35,8 @@ import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
 import org.jspecify.annotations.NonNull;
 
+import java.util.concurrent.Executor;
+
 /**
  * This is a stub class used when the WebView Support Library is invoked on a device incompatible
  * with the library (either a pre-L device or a device without a compatible WebView APK). The only
@@ -104,6 +106,7 @@ public class IncompatibleApkWebViewProviderFactory implements WebViewProviderFac
     @Override
     public void startUpWebView(
             @NonNull WebViewStartUpConfig config,
+            @NonNull Executor callbackExecutor,
             WebViewCompat.@NonNull WebViewStartUpCallback callback) {
         throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
     }
@@ -111,6 +114,7 @@ public class IncompatibleApkWebViewProviderFactory implements WebViewProviderFac
     @Override
     public void startUpWebView(
             @NonNull WebViewStartUpConfig config,
+            @NonNull Executor callbackExecutor,
             @NonNull WebViewOutcomeReceiver<WebViewStartUpResult,
                     WebViewStartupException> callback) {
         throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);

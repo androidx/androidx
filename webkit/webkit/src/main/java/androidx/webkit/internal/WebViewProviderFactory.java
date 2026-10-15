@@ -37,6 +37,8 @@ import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
 import org.jspecify.annotations.NonNull;
 
+import java.util.concurrent.Executor;
+
 /**
  * Interface representing {@code android.webkit.WebViewFactoryProvider}. On device with a compatible
  * WebView APK this interface is implemented by a class defined in the WebView APK itself. On
@@ -94,21 +96,25 @@ public interface WebViewProviderFactory {
     /**
      * @deprecated Use the {@link androidx.webkit.OutcomeReceiverCompat} version instead.
      * Fetch the boundary interface representing {@link
-     * WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}.
+     * WebViewCompat#startUpWebView(Context, WebViewStartUpConfig,
+     * WebViewCompat.WebViewStartUpCallback)}.
      */
     @SuppressWarnings("removal")
     @WebViewCompat.ExperimentalAsyncStartUp
     @Deprecated
     void startUpWebView(
             @NonNull WebViewStartUpConfig config,
+            @NonNull Executor callbackExecutor,
             WebViewCompat.@NonNull WebViewStartUpCallback callback);
 
     /**
      * Fetch the boundary interface representing {@link
-     * WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, WebViewOutcomeReceiver)}.
+     * WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, Executor,
+     * WebViewOutcomeReceiver)}.
      */
     void startUpWebView(
             @NonNull WebViewStartUpConfig config,
+            @NonNull Executor callbackExecutor,
             @NonNull WebViewOutcomeReceiver<WebViewStartUpResult,
                     WebViewStartupException> callback);
 }
