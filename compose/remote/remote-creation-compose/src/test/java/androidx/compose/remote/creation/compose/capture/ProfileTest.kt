@@ -16,22 +16,31 @@
 
 package androidx.compose.remote.creation.compose.capture
 
+import android.content.Context
+import androidx.collection.buildIntSet
 import androidx.collection.intSetOf
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalRemoteCreationComposeApi::class)
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
 class ProfileTest {
+    private val context: Context = ApplicationProvider.getApplicationContext()
     private val displayInfo = CreationDisplayInfo(100, 100, 160)
 
     @Test
@@ -64,5 +73,77 @@ class ProfileTest {
         val writer = profile.create(displayInfo, null)
         assertThat(writer).isInstanceOf(RemoteComposeWriterAndroid::class.java)
         assertThat(profile.supportedOperations).doesNotContain(Operations.DRAW_CIRCLE)
+    }
+
+    @Test
+    fun currentProfileSupportsThemedColorsAndTouchModifiers_androidxProfile_returnsTrue() =
+        runTest {
+            var themedColors: Boolean? = null
+            var touchModifiers: Boolean? = null
+
+            captureSingleRemoteDocument(context, profile = RcPlatformProfiles.ANDROIDX) {
+                themedColors = currentProfileSupportsThemedColors()
+                touchModifiers = currentProfileSupportsTouchModifiers()
+                RemoteBox()
+            }
+
+            assertThat(themedColors).isTrue()
+            assertThat(touchModifiers).isTrue()
+        }
+
+    @Test
+    fun currentProfileSupportsThemedColorsAndTouchModifiers_wearWidgetsProfile_returnsFalse() =
+        runTest {
+            var themedColors: Boolean? = null
+            var touchModifiers: Boolean? = null
+
+            captureSingleRemoteDocument(context, profile = RcPlatformProfiles.WEAR_WIDGETS) {
+                themedColors = currentProfileSupportsThemedColors()
+                touchModifiers = currentProfileSupportsTouchModifiers()
+                RemoteBox()
+            }
+
+            assertThat(themedColors).isFalse()
+            assertThat(touchModifiers).isFalse()
+        }
+
+    @Test
+    fun currentProfileSupportsTouchModifiers_requiresAllTouchOperations() = runTest {
+        val baseOps = RcPlatformProfiles.WEAR_WIDGETS.supportedOperations
+        val partialTouchProfile =
+            createProfile(
+                supportedOperations =
+                    buildIntSet {
+                        baseOps.forEach { op -> add(op) }
+                        add(Operations.MODIFIER_TOUCH_DOWN)
+                        add(Operations.MODIFIER_TOUCH_UP)
+                    }
+            )
+        var touchModifiers: Boolean? = null
+
+        captureSingleRemoteDocument(context, profile = partialTouchProfile) {
+            touchModifiers = currentProfileSupportsTouchModifiers()
+            RemoteBox()
+        }
+
+        assertThat(touchModifiers).isFalse()
+    }
+
+    @Test
+    fun currentProfileSupports_checksAllGivenOperations() = runTest {
+        var supportsDrawRect: Boolean? = null
+        var supportsColorTheme: Boolean? = null
+        var supportsBoth: Boolean? = null
+
+        captureSingleRemoteDocument(context, profile = RcPlatformProfiles.WEAR_WIDGETS) {
+            supportsDrawRect = currentProfileSupports(Operations.DRAW_RECT)
+            supportsColorTheme = currentProfileSupports(Operations.COLOR_THEME)
+            supportsBoth = currentProfileSupports(Operations.DRAW_RECT, Operations.COLOR_THEME)
+            RemoteBox()
+        }
+
+        assertThat(supportsDrawRect).isTrue()
+        assertThat(supportsColorTheme).isFalse()
+        assertThat(supportsBoth).isFalse()
     }
 }
