@@ -33,6 +33,8 @@ import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteCustomPropertiesScope
 import androidx.compose.remote.creation.compose.layout.drawArc
+import androidx.compose.remote.creation.compose.layout.drawBitmapFontTextRun
+import androidx.compose.remote.creation.compose.layout.drawBitmapFontTextRunOnPath
 import androidx.compose.remote.creation.compose.layout.drawCircle
 import androidx.compose.remote.creation.compose.layout.drawColor
 import androidx.compose.remote.creation.compose.layout.drawLine
@@ -640,19 +642,7 @@ public open class RecordingCanvas(
         glyphSpacing: RemoteFloat,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawBitmapFontTextRun(
-                    text.getIdForCreationState(creationState),
-                    bitmapFont.getIdForCreationState(creationState),
-                    start,
-                    end,
-                    x.getFloatIdForCreationState(creationState),
-                    y.getFloatIdForCreationState(creationState),
-                    glyphSpacing.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, text, bitmapFont, x, y, glyphSpacing)
+        remoteCanvas.drawBitmapFontTextRun(text, bitmapFont, start, end, x, y, glyphSpacing, paint)
     }
 
     /**
@@ -678,20 +668,16 @@ public open class RecordingCanvas(
         glyphSpacing: Float,
         paint: Paint,
     ) {
-        val pathSnapshot = Path(path)
-        val op =
-            recordRenderingOp(paint) {
-                document.drawBitmapFontTextRunOnPath(
-                    text.getIdForCreationState(creationState),
-                    bitmapFont.getIdForCreationState(creationState),
-                    pathSnapshot,
-                    start,
-                    end,
-                    yAdj,
-                    glyphSpacing,
-                )
-            }
-        buffer.addRoots(op, text, bitmapFont)
+        remoteCanvas.drawBitmapFontTextRunOnPath(
+            text,
+            bitmapFont,
+            path,
+            start,
+            end,
+            yAdj,
+            glyphSpacing,
+            paint,
+        )
     }
 
     override fun drawPath(path: Path, paint: Paint) {

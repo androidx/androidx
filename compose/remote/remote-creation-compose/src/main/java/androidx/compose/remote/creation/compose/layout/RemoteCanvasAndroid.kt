@@ -19,14 +19,17 @@
 package androidx.compose.remote.creation.compose.layout
 
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices.RcPathArrayCreator
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.shapes.MorphTweenUtility
+import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.ClipOp
@@ -223,6 +226,73 @@ public fun RemoteCanvas.drawCircle(
     paint: Paint,
 ) {
     drawCircle(cx, cy, radius, paint.asRemotePaint())
+}
+
+/**
+ * Draws a substring of [text] with [bitmapFont] at position ([x], [y]).
+ *
+ * @param text The [RemoteString] to draw.
+ * @param bitmapFont The [RemoteBitmapFont] to draw [text] with.
+ * @param start The character to start drawing from.
+ * @param end The character to stop drawing at. Note if this is -1 then all characters from [start]
+ *   until the last character of [text] are drawn.
+ * @param x The left x-coordinate to start rendering from.
+ * @param y The top y-coordinate to start rendering from.
+ * @param glyphSpacing Horizontal adjustment in pixels between glyphs.
+ * @param paint The [Paint] to render with.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawBitmapFontTextRun(
+    text: RemoteString,
+    bitmapFont: RemoteBitmapFont,
+    start: Int,
+    end: Int,
+    x: RemoteFloat,
+    y: RemoteFloat,
+    glyphSpacing: RemoteFloat,
+    paint: Paint,
+) {
+    drawBitmapFontTextRun(text, bitmapFont, start, end, x, y, glyphSpacing, paint.asRemotePaint())
+}
+
+/**
+ * Draws a substring of [text] with [bitmapFont] along [path].
+ *
+ * @param text The [RemoteString] to draw.
+ * @param bitmapFont The [RemoteBitmapFont] to draw [text] with.
+ * @param path The [Path] to draw along.
+ * @param start The character to start drawing from.
+ * @param end The character to stop drawing at. Note if this is -1 then all characters from [start]
+ *   until the last character of [text] are drawn.
+ * @param yAdj Adjustment away from the path along the normal at that point.
+ * @param glyphSpacing Horizontal adjustment in pixels between glyphs.
+ * @param paint The [Paint] to render with.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteCanvas.drawBitmapFontTextRunOnPath(
+    text: RemoteString,
+    bitmapFont: RemoteBitmapFont,
+    path: Path,
+    start: Int,
+    end: Int,
+    yAdj: Float,
+    glyphSpacing: Float,
+    paint: Paint,
+) {
+    val pathSnapshot = Path(path)
+    val op =
+        recordRenderingOp(paint.asRemotePaint()) {
+            document.drawBitmapFontTextRunOnPath(
+                text.getIdForCreationState(creationState),
+                bitmapFont.getIdForCreationState(creationState),
+                pathSnapshot,
+                start,
+                end,
+                yAdj,
+                glyphSpacing,
+            )
+        }
+    buffer.addRoots(op, text, bitmapFont)
 }
 
 /** Draws a path using the specified [pathFillType] and [paint]. */
