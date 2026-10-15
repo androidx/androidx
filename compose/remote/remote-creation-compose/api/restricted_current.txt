@@ -156,6 +156,8 @@ package androidx.compose.remote.creation.compose.capture {
   public final class RemoteProfileCapabilitiesKt {
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupports(int... operations);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupports(int[], androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupportsPathClip();
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupportsPathClip(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupportsThemedColors();
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupportsThemedColors(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static boolean currentProfileSupportsTouchModifiers();

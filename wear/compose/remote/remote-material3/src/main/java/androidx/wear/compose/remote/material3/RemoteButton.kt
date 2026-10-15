@@ -17,6 +17,7 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.capture.currentProfileSupportsPathClip
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -48,6 +49,7 @@ import androidx.compose.remote.creation.compose.shaders.linearGradient
 import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
+import androidx.compose.remote.creation.compose.shapes.clipOutline
 import androidx.compose.remote.creation.compose.shapes.drawOutline
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -503,21 +505,33 @@ private fun RemoteButtonImpl(
                 }
             }
 
+    // When supported, clip the background to the shape's path so that container painters (e.g.
+    // background images) and non-rounded shapes are clipped, rather than relying on the
+    // rectangle and rounded rectangle clips supported by RemoteModifier.clip.
+    val clipBackgroundToShape = currentProfileSupportsPathClip()
+
     RemoteRow(
         verticalAlignment = RemoteAlignment.CenterVertically,
         horizontalArrangement = horizontalArrangement,
         modifier =
             modifier
                 .drawWithContent {
-                    drawShapedBackground(
-                        shape = shape,
-                        color = colors.containerColor(enabled),
-                        enabled = enabled,
-                        containerPainter = containerPainter,
-                        disabledContainerPainter = disabledContainerPainter,
-                        borderColor = borderColor,
-                        borderStrokeWidth = border,
-                    )
+                    val drawBackground: RemoteDrawScope.() -> Unit = {
+                        drawShapedBackground(
+                            shape = shape,
+                            color = colors.containerColor(enabled),
+                            enabled = enabled,
+                            containerPainter = containerPainter,
+                            disabledContainerPainter = disabledContainerPainter,
+                            borderColor = borderColor,
+                            borderStrokeWidth = border,
+                        )
+                    }
+                    if (clipBackgroundToShape) {
+                        clipToShape(shape, drawBackground)
+                    } else {
+                        drawBackground()
+                    }
                     drawContent()
                 }
                 .then(containerModifier),
@@ -1272,6 +1286,17 @@ private fun RemoteDrawScope.drawBorder(
         },
     )
 }
+
+/**
+ * Clips [block] to the outline of [shape]. Callers must check [currentProfileSupportsPathClip]
+ * first.
+ */
+@Suppress("RestrictedApiAndroidX") // clipOutline
+internal fun RemoteDrawScope.clipToShape(shape: RemoteShape, block: RemoteDrawScope.() -> Unit) =
+    clipOutline(
+        shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection),
+        block,
+    )
 
 private fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: RemoteColor? = null) =
     drawOutline(

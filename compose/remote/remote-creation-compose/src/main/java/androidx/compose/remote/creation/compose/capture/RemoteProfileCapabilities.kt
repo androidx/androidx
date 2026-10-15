@@ -20,6 +20,7 @@ package androidx.compose.remote.creation.compose.capture
 
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.onTouchCancel
 import androidx.compose.remote.creation.compose.modifier.onTouchDown
 import androidx.compose.remote.creation.compose.modifier.onTouchUp
@@ -55,6 +56,19 @@ public fun currentProfileSupportsTouchModifiers(): Boolean =
         Operations.MODIFIER_TOUCH_UP,
         Operations.MODIFIER_TOUCH_CANCEL,
     )
+
+/**
+ * Whether the current creation [androidx.compose.remote.creation.profile.Profile] supports clipping
+ * to an arbitrary path, for example with
+ * [androidx.compose.remote.creation.compose.layout.RemoteDrawScope.clipPath].
+ *
+ * Without it, clipping is limited to the rectangle and rounded rectangle shapes supported by the
+ * [clip] modifier, so components can check this before clipping drawn content, such as a background
+ * image, to a custom shape.
+ */
+@Composable
+@RemoteComposable
+public fun currentProfileSupportsPathClip(): Boolean = currentProfileSupports(Operations.CLIP_PATH)
 
 /**
  * Whether the current creation [androidx.compose.remote.creation.profile.Profile] supports all of
