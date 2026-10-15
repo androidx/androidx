@@ -26,6 +26,7 @@ import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.buildCodeBlock
+import java.security.MessageDigest
 
 /** A helper class to generate AppFunction component registry. */
 class AppFunctionComponentRegistryGenerator(private val codeGenerator: CodeGenerator) {
@@ -52,7 +53,7 @@ class AppFunctionComponentRegistryGenerator(private val codeGenerator: CodeGener
      *   ]
      * )
      * @Generated
-     * public class `$Mylibrary_InventoryComponentRegistry`
+     * public class `$Mylibrary_InventoryComponentRegistry_<hash>`
      * ```
      */
     fun generateRegistry(
@@ -60,9 +61,11 @@ class AppFunctionComponentRegistryGenerator(private val codeGenerator: CodeGener
         category: String,
         components: List<AppFunctionComponent>,
     ) {
+        if (components.isEmpty()) return
+
         // Ensure the generated registry is stable
         val sortedComponents = components.sortedBy { it.qualifiedName }
-        val className = getRegistryClassName(moduleName, category)
+        val className = getRegistryClassName(moduleName, category, sortedComponents)
         val annotationBuilder =
             AnnotationSpec.builder(AppFunctionComponentRegistryAnnotation.CLASS_NAME)
                 .addMember(
@@ -118,10 +121,24 @@ class AppFunctionComponentRegistryGenerator(private val codeGenerator: CodeGener
             .use { fileSpec.writeTo(it) }
     }
 
-    private fun getRegistryClassName(moduleName: String, componentCategory: String): String {
+    private fun getRegistryClassName(
+        moduleName: String,
+        componentCategory: String,
+        sortedComponents: List<AppFunctionComponent>,
+    ): String {
         val prefix = moduleName.toPascalCase()
         val componentCategoryPascalCase = componentCategory.toPascalCase()
-        return "${'$'}${prefix}_${componentCategoryPascalCase}ComponentRegistry"
+        val componentsHash = computeComponentsHash(sortedComponents)
+        return "${'$'}${prefix}_${componentCategoryPascalCase}ComponentRegistry_$componentsHash"
+    }
+
+    private fun computeComponentsHash(sortedComponents: List<AppFunctionComponent>): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        for (component in sortedComponents) {
+            digest.update(component.qualifiedName.toByteArray(Charsets.UTF_8))
+            digest.update(0)
+        }
+        return digest.digest().take(8).joinToString("") { "%02x".format(it) }
     }
 
     /** Wrapper to hold AppFunction component data. */

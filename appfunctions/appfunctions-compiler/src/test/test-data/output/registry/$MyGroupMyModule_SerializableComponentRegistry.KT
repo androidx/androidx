@@ -15,4 +15,4 @@ import javax.`annotation`.processing.Generated
   ],
 )
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
-public class `$MyGroupMyModule_SerializableComponentRegistry`
+public class `$MyGroupMyModule_SerializableComponentRegistry_f94c6f7782c6925a`
