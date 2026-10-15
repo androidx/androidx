@@ -32,6 +32,13 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteCustomPropertiesScope
+import androidx.compose.remote.creation.compose.layout.RemotePattern0
+import androidx.compose.remote.creation.compose.layout.RemotePattern1
+import androidx.compose.remote.creation.compose.layout.RemotePattern2
+import androidx.compose.remote.creation.compose.layout.RemotePattern3
+import androidx.compose.remote.creation.compose.layout.RemotePattern4
+import androidx.compose.remote.creation.compose.layout.RemotePattern5
+import androidx.compose.remote.creation.compose.layout.RemotePattern6
 import androidx.compose.remote.creation.compose.layout.drawArc
 import androidx.compose.remote.creation.compose.layout.drawBitmap
 import androidx.compose.remote.creation.compose.layout.drawBitmapFontTextRun
@@ -52,7 +59,6 @@ import androidx.compose.remote.creation.compose.layout.drawTextOnPath
 import androidx.compose.remote.creation.compose.layout.drawTextRun
 import androidx.compose.remote.creation.compose.layout.drawTweenPath
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.BaseRemoteState
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
@@ -983,23 +989,6 @@ public open class RecordingCanvas(
     }
 
     /**
-     * Maps an actual argument value to its corresponding document variable ID for a pattern call.
-     *
-     * @param creationState creation state associated with the document being written
-     * @return document ID for the pattern argument
-     */
-    private fun BaseRemoteState<*>.getPatternArgId(creationState: RemoteComposeCreationState): Int {
-        // RemoteFloatArray defaults to a primitive float array (DataListFloat) for spline and
-        // dereference efficiency, but PatternForEach requires variable IDs (DataListIds) to remap
-        // elements during pattern expansion.
-        return if (this is RemoteFloatArray) {
-            getIdListForCreationState(creationState)
-        } else {
-            getIdForCreationState(creationState)
-        }
-    }
-
-    /**
      * Defines a reusable drawing pattern with no parameters.
      *
      * Records [action] as a macro template on first call. Subsequent invocations inflate the
@@ -1008,30 +997,8 @@ public open class RecordingCanvas(
      * @param action drawing commands to record into the pattern template
      * @return a [RemotePattern0] that inflates the recorded pattern
      */
-    public fun definePattern(action: () -> Unit): RemotePattern0 {
-        var patternId = -1
-        var patternBodySpan: CanvasOperationBuffer.Span? = null
-        return RemotePattern0 { modifier ->
-            if (patternId == -1) {
-                patternId = document.nextId()
-                patternBodySpan = recordInChildSpan(action)
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.definePattern(patternId, intArrayOf())
-                        patternBodySpan!!.record(writer, creationState)
-                        writer.buffer.endPatternDefine()
-                    }
-                )
-            }
-            recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    writer.buffer.inflatePattern(patternId, intArrayOf())
-                    modifier?.let { writeRemoteModifier(it, writer) }
-                    writer.buffer.endPatternInflation()
-                }
-            )
-        }
-    }
+    public fun definePattern(action: () -> Unit): RemotePattern0 =
+        remoteCanvas.definePattern(action)
 
     /**
      * Defines a reusable drawing pattern with 1 parameter.
@@ -1042,40 +1009,8 @@ public open class RecordingCanvas(
      * @param action drawing commands parameterized by [T1]
      * @return a [RemotePattern1] that inflates the recorded pattern
      */
-    @Suppress("UNCHECKED_CAST")
-    public fun <T1 : BaseRemoteState<*>> definePattern(action: (T1) -> Unit): RemotePattern1<T1> {
-        var patternId = -1
-        var patternBodySpan: CanvasOperationBuffer.Span? = null
-        var paramIds: IntArray? = null
-        return RemotePattern1 { arg1, modifier ->
-            if (patternId == -1) {
-                patternId = document.nextId()
-                val argId1 = document.nextId()
-                paramIds = intArrayOf(argId1)
-                val formal1 = generateFormalArg(argId1, arg1) as T1
-                patternBodySpan = recordInChildSpan { action(formal1) }
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.definePattern(patternId, paramIds!!)
-                        patternBodySpan!!.record(writer, creationState)
-                        writer.buffer.endPatternDefine()
-                    }
-                )
-            }
-            val opInflate =
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.inflatePattern(
-                            patternId,
-                            intArrayOf(arg1.getPatternArgId(creationState)),
-                        )
-                        modifier?.let { writeRemoteModifier(it, writer) }
-                        writer.buffer.endPatternInflation()
-                    }
-                )
-            buffer.addRoots(opInflate, arg1)
-        }
-    }
+    public fun <T1 : BaseRemoteState<*>> definePattern(action: (T1) -> Unit): RemotePattern1<T1> =
+        remoteCanvas.definePattern(action)
 
     /**
      * Defines a reusable drawing pattern with 2 parameters.
@@ -1086,47 +1021,9 @@ public open class RecordingCanvas(
      * @param action drawing commands parameterized by [T1] and [T2]
      * @return a [RemotePattern2] that inflates the recorded pattern
      */
-    @Suppress("UNCHECKED_CAST")
     public fun <T1 : BaseRemoteState<*>, T2 : BaseRemoteState<*>> definePattern(
         action: (T1, T2) -> Unit
-    ): RemotePattern2<T1, T2> {
-        var patternId = -1
-        var patternBodySpan: CanvasOperationBuffer.Span? = null
-        var paramIds: IntArray? = null
-        return RemotePattern2 { arg1, arg2, modifier ->
-            if (patternId == -1) {
-                patternId = document.nextId()
-                val argId1 = document.nextId()
-                val argId2 = document.nextId()
-                paramIds = intArrayOf(argId1, argId2)
-                val formal1 = generateFormalArg(argId1, arg1) as T1
-                val formal2 = generateFormalArg(argId2, arg2) as T2
-                patternBodySpan = recordInChildSpan { action(formal1, formal2) }
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.definePattern(patternId, paramIds!!)
-                        patternBodySpan!!.record(writer, creationState)
-                        writer.buffer.endPatternDefine()
-                    }
-                )
-            }
-            val opInflate =
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.inflatePattern(
-                            patternId,
-                            intArrayOf(
-                                arg1.getPatternArgId(creationState),
-                                arg2.getPatternArgId(creationState),
-                            ),
-                        )
-                        modifier?.let { writeRemoteModifier(it, writer) }
-                        writer.buffer.endPatternInflation()
-                    }
-                )
-            buffer.addRoots(opInflate, arg1, arg2)
-        }
-    }
+    ): RemotePattern2<T1, T2> = remoteCanvas.definePattern(action)
 
     /**
      * Defines a reusable drawing pattern with 3 parameters.
@@ -1137,52 +1034,12 @@ public open class RecordingCanvas(
      * @param action drawing commands parameterized by [T1], [T2], and [T3]
      * @return a [RemotePattern3] that inflates the recorded pattern
      */
-    @Suppress("UNCHECKED_CAST")
     public fun <
         T1 : BaseRemoteState<*>,
         T2 : BaseRemoteState<*>,
         T3 : BaseRemoteState<*>,
-    > definePattern(action: (T1, T2, T3) -> Unit): RemotePattern3<T1, T2, T3> {
-        var patternId = -1
-        var patternBodySpan: CanvasOperationBuffer.Span? = null
-        var paramIds: IntArray? = null
-        return RemotePattern3 { arg1, arg2, arg3, modifier ->
-            if (patternId == -1) {
-                patternId = document.nextId()
-                val argId1 = document.nextId()
-                val argId2 = document.nextId()
-                val argId3 = document.nextId()
-                paramIds = intArrayOf(argId1, argId2, argId3)
-                val formal1 = generateFormalArg(argId1, arg1) as T1
-                val formal2 = generateFormalArg(argId2, arg2) as T2
-                val formal3 = generateFormalArg(argId3, arg3) as T3
-                patternBodySpan = recordInChildSpan { action(formal1, formal2, formal3) }
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.definePattern(patternId, paramIds!!)
-                        patternBodySpan!!.record(writer, creationState)
-                        writer.buffer.endPatternDefine()
-                    }
-                )
-            }
-            val opInflate =
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.inflatePattern(
-                            patternId,
-                            intArrayOf(
-                                arg1.getPatternArgId(creationState),
-                                arg2.getPatternArgId(creationState),
-                                arg3.getPatternArgId(creationState),
-                            ),
-                        )
-                        modifier?.let { writeRemoteModifier(it, writer) }
-                        writer.buffer.endPatternInflation()
-                    }
-                )
-            buffer.addRoots(opInflate, arg1, arg2, arg3)
-        }
-    }
+    > definePattern(action: (T1, T2, T3) -> Unit): RemotePattern3<T1, T2, T3> =
+        remoteCanvas.definePattern(action)
 
     /**
      * Defines a reusable drawing pattern with 4 parameters.
@@ -1193,58 +1050,13 @@ public open class RecordingCanvas(
      * @param action drawing commands parameterized by [T1], [T2], [T3], and [T4]
      * @return a [RemotePattern4] that inflates the recorded pattern
      */
-    @Suppress("UNCHECKED_CAST")
     public fun <
         T1 : BaseRemoteState<*>,
         T2 : BaseRemoteState<*>,
         T3 : BaseRemoteState<*>,
         T4 : BaseRemoteState<*>,
-    > definePattern(action: (T1, T2, T3, T4) -> Unit): RemotePattern4<T1, T2, T3, T4> {
-        var patternId = -1
-        var patternBodySpan: CanvasOperationBuffer.Span? = null
-        var paramIds: IntArray? = null
-        return RemotePattern4 { arg1, arg2, arg3, arg4, modifier ->
-            if (patternId == -1) {
-                patternId = document.nextId()
-                val argId1 = document.nextId()
-                val argId2 = document.nextId()
-                val argId3 = document.nextId()
-                val argId4 = document.nextId()
-                paramIds = intArrayOf(argId1, argId2, argId3, argId4)
-                val formal1 = generateFormalArg(argId1, arg1) as T1
-                val formal2 = generateFormalArg(argId2, arg2) as T2
-                val formal3 = generateFormalArg(argId3, arg3) as T3
-                val formal4 = generateFormalArg(argId4, arg4) as T4
-                patternBodySpan = recordInChildSpan {
-                    action(formal1, formal2, formal3, formal4)
-                }
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.definePattern(patternId, paramIds!!)
-                        patternBodySpan!!.record(writer, creationState)
-                        writer.buffer.endPatternDefine()
-                    }
-                )
-            }
-            val opInflate =
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.inflatePattern(
-                            patternId,
-                            intArrayOf(
-                                arg1.getPatternArgId(creationState),
-                                arg2.getPatternArgId(creationState),
-                                arg3.getPatternArgId(creationState),
-                                arg4.getPatternArgId(creationState),
-                            ),
-                        )
-                        modifier?.let { writeRemoteModifier(it, writer) }
-                        writer.buffer.endPatternInflation()
-                    }
-                )
-            buffer.addRoots(opInflate, arg1, arg2, arg3, arg4)
-        }
-    }
+    > definePattern(action: (T1, T2, T3, T4) -> Unit): RemotePattern4<T1, T2, T3, T4> =
+        remoteCanvas.definePattern(action)
 
     /**
      * Defines a reusable drawing pattern with 5 parameters.
@@ -1255,62 +1067,14 @@ public open class RecordingCanvas(
      * @param action drawing commands parameterized by [T1], [T2], [T3], [T4], and [T5]
      * @return a [RemotePattern5] that inflates the recorded pattern
      */
-    @Suppress("UNCHECKED_CAST")
     public fun <
         T1 : BaseRemoteState<*>,
         T2 : BaseRemoteState<*>,
         T3 : BaseRemoteState<*>,
         T4 : BaseRemoteState<*>,
         T5 : BaseRemoteState<*>,
-    > definePattern(action: (T1, T2, T3, T4, T5) -> Unit): RemotePattern5<T1, T2, T3, T4, T5> {
-        var patternId = -1
-        var patternBodySpan: CanvasOperationBuffer.Span? = null
-        var paramIds: IntArray? = null
-        return RemotePattern5 { arg1, arg2, arg3, arg4, arg5, modifier ->
-            if (patternId == -1) {
-                patternId = document.nextId()
-                val argId1 = document.nextId()
-                val argId2 = document.nextId()
-                val argId3 = document.nextId()
-                val argId4 = document.nextId()
-                val argId5 = document.nextId()
-                paramIds = intArrayOf(argId1, argId2, argId3, argId4, argId5)
-                val formal1 = generateFormalArg(argId1, arg1) as T1
-                val formal2 = generateFormalArg(argId2, arg2) as T2
-                val formal3 = generateFormalArg(argId3, arg3) as T3
-                val formal4 = generateFormalArg(argId4, arg4) as T4
-                val formal5 = generateFormalArg(argId5, arg5) as T5
-                patternBodySpan = recordInChildSpan {
-                    action(formal1, formal2, formal3, formal4, formal5)
-                }
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.definePattern(patternId, paramIds!!)
-                        patternBodySpan!!.record(writer, creationState)
-                        writer.buffer.endPatternDefine()
-                    }
-                )
-            }
-            val opInflate =
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.inflatePattern(
-                            patternId,
-                            intArrayOf(
-                                arg1.getPatternArgId(creationState),
-                                arg2.getPatternArgId(creationState),
-                                arg3.getPatternArgId(creationState),
-                                arg4.getPatternArgId(creationState),
-                                arg5.getPatternArgId(creationState),
-                            ),
-                        )
-                        modifier?.let { writeRemoteModifier(it, writer) }
-                        writer.buffer.endPatternInflation()
-                    }
-                )
-            buffer.addRoots(opInflate, arg1, arg2, arg3, arg4, arg5)
-        }
-    }
+    > definePattern(action: (T1, T2, T3, T4, T5) -> Unit): RemotePattern5<T1, T2, T3, T4, T5> =
+        remoteCanvas.definePattern(action)
 
     /**
      * Defines a reusable drawing pattern with 6 parameters.
@@ -1321,7 +1085,6 @@ public open class RecordingCanvas(
      * @param action drawing commands parameterized by [T1] through [T6]
      * @return a [RemotePattern6] that inflates the recorded pattern
      */
-    @Suppress("UNCHECKED_CAST")
     public fun <
         T1 : BaseRemoteState<*>,
         T2 : BaseRemoteState<*>,
@@ -1331,58 +1094,7 @@ public open class RecordingCanvas(
         T6 : BaseRemoteState<*>,
     > definePattern(
         action: (T1, T2, T3, T4, T5, T6) -> Unit
-    ): RemotePattern6<T1, T2, T3, T4, T5, T6> {
-        var patternId = -1
-        var patternBodySpan: CanvasOperationBuffer.Span? = null
-        var paramIds: IntArray? = null
-        return RemotePattern6 { arg1, arg2, arg3, arg4, arg5, arg6, modifier ->
-            if (patternId == -1) {
-                patternId = document.nextId()
-                val argId1 = document.nextId()
-                val argId2 = document.nextId()
-                val argId3 = document.nextId()
-                val argId4 = document.nextId()
-                val argId5 = document.nextId()
-                val argId6 = document.nextId()
-                paramIds = intArrayOf(argId1, argId2, argId3, argId4, argId5, argId6)
-                val formal1 = generateFormalArg(argId1, arg1) as T1
-                val formal2 = generateFormalArg(argId2, arg2) as T2
-                val formal3 = generateFormalArg(argId3, arg3) as T3
-                val formal4 = generateFormalArg(argId4, arg4) as T4
-                val formal5 = generateFormalArg(argId5, arg5) as T5
-                val formal6 = generateFormalArg(argId6, arg6) as T6
-                patternBodySpan = recordInChildSpan {
-                    action(formal1, formal2, formal3, formal4, formal5, formal6)
-                }
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.definePattern(patternId, paramIds!!)
-                        patternBodySpan!!.record(writer, creationState)
-                        writer.buffer.endPatternDefine()
-                    }
-                )
-            }
-            val opInflate =
-                recordRenderingOp(
-                    CanvasOp.Draw { writer ->
-                        writer.buffer.inflatePattern(
-                            patternId,
-                            intArrayOf(
-                                arg1.getPatternArgId(creationState),
-                                arg2.getPatternArgId(creationState),
-                                arg3.getPatternArgId(creationState),
-                                arg4.getPatternArgId(creationState),
-                                arg5.getPatternArgId(creationState),
-                                arg6.getPatternArgId(creationState),
-                            ),
-                        )
-                        modifier?.let { writeRemoteModifier(it, writer) }
-                        writer.buffer.endPatternInflation()
-                    }
-                )
-            buffer.addRoots(opInflate, arg1, arg2, arg3, arg4, arg5, arg6)
-        }
-    }
+    ): RemotePattern6<T1, T2, T3, T4, T5, T6> = remoteCanvas.definePattern(action)
 
     /**
      * Iterates over [items] and records [action] for each element.
@@ -1873,16 +1585,6 @@ public open class RecordingCanvas(
     private fun RemoteComposeWriter.addDataListIds(ids: IntArray): Int =
         Utils.idFromNan(addList(ids))
 
-    private fun writeRemoteModifier(
-        modifier: RemoteModifier,
-        writer: RemoteComposeWriter = document,
-    ) {
-        val recordingModifier = toRecordingModifier(modifier)
-        for (i in 0 until recordingModifier.list.size) {
-            recordingModifier.list[i].write(writer)
-        }
-    }
-
     /**
      * Records a custom component layout operation.
      *
@@ -1904,135 +1606,4 @@ public open class RecordingCanvas(
         // TODO replace this with a dedicated color space for RemoteCompose.
         internal const val REMOTE_COMPOSE_EXPRESSION_COLOR_SPACE_ID = 5L
     }
-}
-
-/**
- * Reusable drawing pattern with no parameters.
- *
- * Call to inflate the recorded template into the canvas stream.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemotePattern0 : (RemoteModifier?) -> Unit {
-    public operator fun invoke(): Unit = invoke(null)
-
-    public override operator fun invoke(modifier: RemoteModifier?)
-}
-
-/**
- * Reusable drawing pattern with 1 parameter.
- *
- * Call to inflate the recorded template with the provided argument.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemotePattern1<T1 : BaseRemoteState<*>> : (T1, RemoteModifier?) -> Unit {
-    public operator fun invoke(arg1: T1): Unit = invoke(arg1, null)
-
-    public override operator fun invoke(arg1: T1, modifier: RemoteModifier?)
-}
-
-/**
- * Reusable drawing pattern with 2 parameters.
- *
- * Call to inflate the recorded template with the provided arguments.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemotePattern2<T1 : BaseRemoteState<*>, T2 : BaseRemoteState<*>> :
-    (T1, T2, RemoteModifier?) -> Unit {
-    public operator fun invoke(arg1: T1, arg2: T2): Unit = invoke(arg1, arg2, null)
-
-    public override operator fun invoke(arg1: T1, arg2: T2, modifier: RemoteModifier?)
-}
-
-/**
- * Reusable drawing pattern with 3 parameters.
- *
- * Call to inflate the recorded template with the provided arguments.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemotePattern3<
-    T1 : BaseRemoteState<*>,
-    T2 : BaseRemoteState<*>,
-    T3 : BaseRemoteState<*>,
-> : (T1, T2, T3, RemoteModifier?) -> Unit {
-    public operator fun invoke(arg1: T1, arg2: T2, arg3: T3): Unit = invoke(arg1, arg2, arg3, null)
-
-    public override operator fun invoke(arg1: T1, arg2: T2, arg3: T3, modifier: RemoteModifier?)
-}
-
-/**
- * Reusable drawing pattern with 4 parameters.
- *
- * Call to inflate the recorded template with the provided arguments.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemotePattern4<
-    T1 : BaseRemoteState<*>,
-    T2 : BaseRemoteState<*>,
-    T3 : BaseRemoteState<*>,
-    T4 : BaseRemoteState<*>,
-> : (T1, T2, T3, T4, RemoteModifier?) -> Unit {
-    public operator fun invoke(arg1: T1, arg2: T2, arg3: T3, arg4: T4): Unit =
-        invoke(arg1, arg2, arg3, arg4, null)
-
-    public override operator fun invoke(
-        arg1: T1,
-        arg2: T2,
-        arg3: T3,
-        arg4: T4,
-        modifier: RemoteModifier?,
-    )
-}
-
-/**
- * Reusable drawing pattern with 5 parameters.
- *
- * Call to inflate the recorded template with the provided arguments.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemotePattern5<
-    T1 : BaseRemoteState<*>,
-    T2 : BaseRemoteState<*>,
-    T3 : BaseRemoteState<*>,
-    T4 : BaseRemoteState<*>,
-    T5 : BaseRemoteState<*>,
-> : (T1, T2, T3, T4, T5, RemoteModifier?) -> Unit {
-    public operator fun invoke(arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5): Unit =
-        invoke(arg1, arg2, arg3, arg4, arg5, null)
-
-    public override operator fun invoke(
-        arg1: T1,
-        arg2: T2,
-        arg3: T3,
-        arg4: T4,
-        arg5: T5,
-        modifier: RemoteModifier?,
-    )
-}
-
-/**
- * Reusable drawing pattern with 6 parameters.
- *
- * Call to inflate the recorded template with the provided arguments.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemotePattern6<
-    T1 : BaseRemoteState<*>,
-    T2 : BaseRemoteState<*>,
-    T3 : BaseRemoteState<*>,
-    T4 : BaseRemoteState<*>,
-    T5 : BaseRemoteState<*>,
-    T6 : BaseRemoteState<*>,
-> : (T1, T2, T3, T4, T5, T6, RemoteModifier?) -> Unit {
-    public operator fun invoke(arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5, arg6: T6): Unit =
-        invoke(arg1, arg2, arg3, arg4, arg5, arg6, null)
-
-    public override operator fun invoke(
-        arg1: T1,
-        arg2: T2,
-        arg3: T3,
-        arg4: T4,
-        arg5: T5,
-        arg6: T6,
-        modifier: RemoteModifier?,
-    )
 }
