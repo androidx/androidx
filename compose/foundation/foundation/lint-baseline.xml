@@ -2,24 +2,6 @@
 <issues format="6" by="lint 9.5.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha05)" variant="all" version="9.5.0-alpha05">
 
     <issue
-        id="NewApi"
-        message="Call requires API level 34 (current min is 24): `setHandwritingGestures`"
-        errorLine1="        EditorInfoApi34.setHandwritingGestures(this)"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/text/input/internal/EditorInfo.android.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 34 (current min is 24): `EditorInfoApi34`"
-        errorLine1="        EditorInfoApi34.setHandwritingGestures(this)"
-        errorLine2="        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/text/input/internal/EditorInfo.android.kt"/>
-    </issue>
-
-    <issue
         id="IllegalExperimentalApiUsage"
         message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
         errorLine1="    @OptIn(ComposeToolingApi::class)"
