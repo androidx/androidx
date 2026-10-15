@@ -40,7 +40,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.computedStateOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -145,7 +145,7 @@ private class SplineKeyframesPlaygroundModel(private val scope: CoroutineScope) 
     private val pointCount = 6
     private val animatedOffset = Animatable(Offset.Zero, Offset.VectorConverter)
     private val anchors = mutableStateListOf<Offset>()
-    private val anchorCount by computedStateOf { anchors.size }
+    private val anchorCount by derivedStateOf { anchors.size }
 
     // Note that this is not the duration per keyframe, just an arbitrary number so that the total
     // duration scales with number of anchors
@@ -155,7 +155,7 @@ private class SplineKeyframesPlaygroundModel(private val scope: CoroutineScope) 
     private val samplePoints = mutableListOf<Offset>()
     private val sampleCount = 100
 
-    val totalDuration by computedStateOf { anchors.size * durationPerAnchor.floatValue }
+    val totalDuration by derivedStateOf { anchors.size * durationPerAnchor.floatValue }
 
     private var isInit = false
 
