@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.style
 
-import androidx.compose.foundation.border.BorderLogic
+import androidx.compose.foundation.BorderRenderer
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -190,8 +190,16 @@ internal class AppearanceNode(var block: AppearanceScope.() -> Unit) :
 
     // Border
     private var borderLayer: GraphicsLayer? = null
-    private var borderLayerProvider: (() -> GraphicsLayer)? = null
-    private val borderLogic = BorderLogic()
+    // Lazily allocated, since many appearances never draw a border
+    private var borderRenderer: BorderRenderer? = null
+
+    private fun obtainBorderRenderer(): BorderRenderer =
+        borderRenderer
+            ?: BorderRenderer {
+                borderLayer
+                    ?: requireGraphicsContext().createGraphicsLayer().also { borderLayer = it }
+            }
+                .also { borderRenderer = it }
 
     // Drop Shadow
     private var lastDropShadow: Array<Shadow?>? = null
@@ -302,20 +310,13 @@ internal class AppearanceNode(var block: AppearanceScope.() -> Unit) :
         // border
         if (hasBorder) {
             val brush = borderBrush ?: SolidColor(borderColor)
-            borderLogic.drawBorder(
-                drawScope = this,
-                width = borderWidth,
-                brush = brush,
-                borderLayerProvider
-                    ?: {
-                        borderLayer
-                            ?: requireGraphicsContext().createGraphicsLayer().also {
-                                borderLayer = it
-                            }
-                    }
-                        .also { borderLayerProvider = it },
-                outline = outline,
-            )
+            obtainBorderRenderer()
+                .drawBorder(
+                    drawScope = this,
+                    width = borderWidth,
+                    brush = brush,
+                    outline = outline,
+                )
         }
     }
 
@@ -430,6 +431,13 @@ internal class AppearanceNode(var block: AppearanceScope.() -> Unit) :
 
     override fun SemanticsPropertyReceiver.applySemantics() {
         lastShape?.let { shape = it }
+    }
+
+    override fun onDetach() {
+        borderLayer?.let {
+            requireGraphicsContext().releaseGraphicsLayer(it)
+            borderLayer = null
+        }
     }
 }
 

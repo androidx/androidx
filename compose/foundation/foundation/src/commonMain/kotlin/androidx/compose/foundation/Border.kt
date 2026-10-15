@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.foundation.border.BorderLogic
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawModifierNode
@@ -158,9 +157,10 @@ internal class BorderModifierNode(
     override val shouldAutoInvalidate: Boolean = false
     override val isImportantForBounds = false
 
-    private val borderLogic = BorderLogic()
     private var borderLayer: GraphicsLayer? = null
-    private var borderLayerProvider: (() -> GraphicsLayer)? = null
+    private val borderRenderer = BorderRenderer {
+        borderLayer ?: requireGraphicsContext().createGraphicsLayer().also { borderLayer = it }
+    }
 
     var width = widthParameter
         set(value) {
@@ -190,19 +190,10 @@ internal class BorderModifierNode(
     override fun ContentDrawScope.draw() {
         drawContent()
         val outline = shape.createOutline(size, layoutDirection, this)
-        borderLogic.drawBorder(
+        borderRenderer.drawBorder(
             drawScope = this,
             width = width,
             brush = brush,
-            graphicsLayerProvider =
-                borderLayerProvider
-                    ?: {
-                        borderLayer
-                            ?: requireGraphicsContext().createGraphicsLayer().also {
-                                borderLayer = it
-                            }
-                    }
-                        .also { borderLayerProvider = it },
             outline = outline,
         )
     }
@@ -216,7 +207,6 @@ internal class BorderModifierNode(
             requireGraphicsContext().releaseGraphicsLayer(it)
             borderLayer = null
         }
-        borderLayerProvider = null
     }
 }
 
