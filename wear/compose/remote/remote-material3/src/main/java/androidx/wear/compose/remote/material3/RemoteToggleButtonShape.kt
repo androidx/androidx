@@ -16,10 +16,9 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.core.Operations
 import androidx.compose.remote.creation.compose.action.valueChange
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
+import androidx.compose.remote.creation.compose.capture.currentProfileSupportsTouchModifiers
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.onTouchCancel
@@ -39,7 +38,6 @@ import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.tween
-import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -111,7 +109,6 @@ internal class AnimatedToggleButtonShape(val shape: RemoteShape, val modifier: R
  * those actions, for example [RcPlatformProfiles.WEAR_WIDGETS].
  */
 // TODO(b/571080867): Move press shape animation helper to androidx.compose.remote.foundation.
-@Suppress("RestrictedApiAndroidX") // LocalRemoteComposeCreationState
 @Composable
 internal fun animatedToggleButtonShape(
     checked: RemoteBoolean,
@@ -124,7 +121,7 @@ internal fun animatedToggleButtonShape(
     releaseAnimationSpec: RemoteAnimationSpec = ReleaseAnimationSpec,
 ): AnimatedToggleButtonShape {
     val shape = resolveToggleButtonShape(checked, uncheckedShape, checkedShape)
-    val touchSupported = LocalRemoteComposeCreationState.current.profile.supportsTouchOperations()
+    val touchSupported = currentProfileSupportsTouchModifiers()
     if (
         enabled.constantValueOrNull != true ||
             (uncheckedPressedShape == uncheckedShape && checkedPressedShape == checkedShape) ||
@@ -192,18 +189,6 @@ private data class FractionalCornerSize(val size: RemoteCornerSize, val fraction
     override fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat =
         size.toPx(shapeSize, density) * fraction.rf
 }
-
-/** Whether this profile supports the operations needed to drive the press animation. */
-// TODO(b/571080867): Move supportsTouchOperations() to androidx.compose.remote.foundation.
-@Suppress("RestrictedApiAndroidX", "PrimitiveInCollection") // Operations, supportedOperations
-private fun Profile.supportsTouchOperations(): Boolean =
-    supportedOperations.containsAll(
-        listOf(
-            Operations.MODIFIER_TOUCH_DOWN,
-            Operations.MODIFIER_TOUCH_UP,
-            Operations.MODIFIER_TOUCH_CANCEL,
-        )
-    )
 
 /**
  * Returns the progress of the animation between the unchecked (`0`) and checked (`1`) states of a
