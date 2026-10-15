@@ -20,14 +20,14 @@ package androidx.compose.foundation.layout
 
 import androidx.annotation.FloatRange
 import androidx.collection.IntIntPair
+import androidx.collection.MutableObjectList
 import androidx.collection.mutableIntListOf
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.layout.internal.requirePrecondition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -1212,7 +1212,7 @@ internal fun MeasureScope.breakDownItems(
     maxLines: Int,
     overflow: FlowLayoutOverflowState,
 ): MeasureResult {
-    val items = mutableVectorOf<MeasureResult>()
+    val items = mutableObjectListOf<MeasureResult>()
     val mainAxisMax = constraints.mainAxisMax
     val mainAxisMin = constraints.mainAxisMin
     val crossAxisMax = constraints.crossAxisMax
@@ -1551,7 +1551,7 @@ internal fun MeasureScope.placeHelper(
     mainAxisTotalSize: Int,
     crossAxisTotalSize: Int,
     crossAxisSizes: IntArray,
-    items: MutableVector<MeasureResult>,
+    items: MutableObjectList<MeasureResult>,
     measureHelper: FlowLineMeasurePolicy,
     outPosition: IntArray,
 ): MeasureResult {
