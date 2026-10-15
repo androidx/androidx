@@ -317,6 +317,11 @@ WARN: `ThreadSafeInvalidationObserver` is unresolved in file:\/\/\/\$OUT_DIR\/an
 WARN: `ThreadSafeInvalidationObserver` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/room\/paging\/rxjava3\/LimitOffsetRxPagingSource\.kt:[0-9]+:[0-9]+
 WARN: `V` is unresolved in androidx\.glance\.appwidget\/\/\/#\/PointingToDeclaration\/
 WARN: `V` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/glance\/appwidget\/LayoutSelection\.kt:[0-9]+:[0-9]+
+WARN: `ViewStructureCompat` is unresolved in androidx\.compose\.ui\.contentcapture\/ContentCaptureEvent\/\/#\/PointingToDeclaration\/
+WARN: `ViewStructureCompat` is unresolved in androidx\.compose\.ui\.contentcapture\/ContentCaptureEvent\/component4\/#\/PointingToDeclaration\/
+WARN: `ViewStructureCompat` is unresolved in androidx\.compose\.ui\.contentcapture\/ContentCaptureEvent\/copy\/#kotlin\.Int#kotlin\.Long#androidx\.compose\.ui\.contentcapture\.ContentCaptureEventType#<ERROR CLASS> ERROR CLASS: Symbol not found for ViewStructureCompat\?\?\/PointingToCallableParameters\(3\)\/
+WARN: `ViewStructureCompat` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/contentcapture\/AndroidContentCaptureManager\.android\.kt:[0-9]+:[0-9]+
+WARN: `ViewStructureCompat` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/contentcapture\/ContentCaptureSessionWrapper\.android\.kt:[0-9]+:[0-9]+
 WARN: Couldn't resolve link: \[activityOptions\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/glance\/action\/StartActivityAction\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
 WARN: Couldn't resolve link: \[AutoCloseable\.close\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/jvmAndAndroidMain\/androidx\/tracing\/Tracer\.kt:[0-9]+:[0-9]+ \(androidx\/jvmAndAndroidMain\)
 WARN: Couldn't resolve link: \[backgroundColor\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/glance\/Button\.kt:[0-9]+:[0-9]+ \(androidx\/main\)

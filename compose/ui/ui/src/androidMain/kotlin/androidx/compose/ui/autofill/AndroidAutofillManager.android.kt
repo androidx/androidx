@@ -30,7 +30,6 @@ import androidx.compose.ui.focus.FocusListener
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.node.requireSemanticsInfo
-import androidx.compose.ui.platform.coreshims.ViewCompatShims
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsInfo
@@ -44,6 +43,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.fastForEach
 import androidx.core.util.size
+import androidx.core.view.ViewCompat
 
 /**
  * Semantic autofill implementation for Android.
@@ -63,8 +63,7 @@ internal class AndroidAutofillManager(
 
     init {
         view.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_YES
-        rootAutofillId =
-            checkPreconditionNotNull(ViewCompatShims.getAutofillId(view)?.toAutofillId())
+        rootAutofillId = checkPreconditionNotNull(ViewCompat.getAutofillId(view)?.toAutofillId())
     }
 
     override fun commit() {
