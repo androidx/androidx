@@ -34,7 +34,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,7 +60,7 @@ fun NestedScrollConnectionSample() {
     val toolbarHeight = 48.dp
     val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
     // our offset to collapse toolbar
-    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
+    val toolbarOffsetHeightPx = remember { mutableFloatStateOf(0f) }
     // now, let's create connection to the nested scroll system and listen to the scroll
     // happening inside child LazyColumn
     val nestedScrollConnection = remember {
@@ -68,8 +68,8 @@ fun NestedScrollConnectionSample() {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 // try to consume before LazyColumn to collapse toolbar if needed, hence pre-scroll
                 val delta = available.y
-                val newOffset = toolbarOffsetHeightPx.value + delta
-                toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarHeightPx, 0f)
+                val newOffset = toolbarOffsetHeightPx.floatValue + delta
+                toolbarOffsetHeightPx.floatValue = newOffset.coerceIn(-toolbarHeightPx, 0f)
                 // here's the catch: let's pretend we consumed 0 in any case, since we want
                 // LazyColumn to scroll anyway for good UX
                 // We're basically watching scroll without taking it
@@ -91,9 +91,9 @@ fun NestedScrollConnectionSample() {
         TopAppBar(
             modifier =
                 Modifier.height(toolbarHeight).offset {
-                    IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt())
+                    IntOffset(x = 0, y = toolbarOffsetHeightPx.floatValue.roundToInt())
                 },
-            title = { Text("toolbar offset is ${toolbarOffsetHeightPx.value}") },
+            title = { Text("toolbar offset is ${toolbarOffsetHeightPx.floatValue}") },
         )
     }
 }
@@ -108,14 +108,14 @@ fun NestedScrollDispatcherSample() {
     // put it inside LazyColumn or / Modifier.verticalScroll to see how they will interact
 
     // first, state and it's bounds
-    val basicState = remember { mutableStateOf(0f) }
+    val basicState = remember { mutableFloatStateOf(0f) }
     val minBound = -100f
     val maxBound = 100f
     // lambda to update state and return amount consumed
     val onNewDelta: (Float) -> Float = { delta ->
-        val oldState = basicState.value
-        val newState = (basicState.value + delta).coerceIn(minBound, maxBound)
-        basicState.value = newState
+        val oldState = basicState.floatValue
+        val newState = (basicState.floatValue + delta).coerceIn(minBound, maxBound)
+        basicState.floatValue = newState
         newState - oldState
     }
     // create a dispatcher to dispatch nested scroll events (participate like a nested scroll child)
@@ -175,6 +175,9 @@ fun NestedScrollDispatcherSample() {
                     },
             )
     ) {
-        Text("State: ${basicState.value.roundToInt()}", modifier = Modifier.align(Alignment.Center))
+        Text(
+            "State: ${basicState.floatValue.roundToInt()}",
+            modifier = Modifier.align(Alignment.Center),
+        )
     }
 }

@@ -36,7 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -104,14 +104,14 @@ private val ToolbarHeight = 48.dp
 @Composable
 fun CollapsingToolbarComposeViewComposeNestedScrollInteropSample() {
     val toolbarHeightPx = with(LocalDensity.current) { ToolbarHeight.roundToPx().toFloat() }
-    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
+    val toolbarOffsetHeightPx = remember { mutableFloatStateOf(0f) }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
-                val newOffset = toolbarOffsetHeightPx.value + delta
-                toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarHeightPx, 0f)
+                val newOffset = toolbarOffsetHeightPx.floatValue + delta
+                toolbarOffsetHeightPx.floatValue = newOffset.coerceIn(-toolbarHeightPx, 0f)
                 return Offset.Zero
             }
         }
@@ -122,9 +122,9 @@ fun CollapsingToolbarComposeViewComposeNestedScrollInteropSample() {
         TopAppBar(
             modifier =
                 Modifier.height(ToolbarHeight).offset {
-                    IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt())
+                    IntOffset(x = 0, y = toolbarOffsetHeightPx.floatValue.roundToInt())
                 },
-            title = { Text("toolbar offset is ${toolbarOffsetHeightPx.value}") },
+            title = { Text("toolbar offset is ${toolbarOffsetHeightPx.floatValue}") },
         )
         // Android View
         AndroidView(
