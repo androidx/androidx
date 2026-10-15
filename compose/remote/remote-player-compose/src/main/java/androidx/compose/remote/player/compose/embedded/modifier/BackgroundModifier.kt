@@ -22,7 +22,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
-import androidx.compose.remote.player.compose.embedded.readData
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -33,20 +32,19 @@ import androidx.compose.ui.graphics.Shape
 
 @Composable
 internal fun Modifier.background(op: BackgroundModifierOperation): Modifier {
-    val data = op.readData()
     val color =
-        if (data.useColorId) {
-            rememberRemoteColorAsState(data.colorId).value
+        if (op.useColorId) {
+            rememberRemoteColorAsState(op.colorId).value
         } else {
-            val r = rememberRemoteFloatAsState(data.rId).value
-            val g = rememberRemoteFloatAsState(data.gId).value
-            val b = rememberRemoteFloatAsState(data.bId).value
-            val a = rememberRemoteFloatAsState(data.aId).value
+            val r = rememberRemoteFloatAsState(op.rId).value
+            val g = rememberRemoteFloatAsState(op.gId).value
+            val b = rememberRemoteFloatAsState(op.bId).value
+            val a = rememberRemoteFloatAsState(op.aId).value
             Color(r, g, b, a)
         }
 
     val shape: Shape =
-        when (data.shapeType) {
+        when (op.shapeType) {
             ShapeType.RECTANGLE -> RectangleShape
             ShapeType.CIRCLE -> CircleShape
             else -> RectangleShape // Default to rectangle for now

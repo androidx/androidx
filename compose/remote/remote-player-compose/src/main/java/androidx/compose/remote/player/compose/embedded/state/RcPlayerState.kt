@@ -31,7 +31,6 @@ import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.findVariableId
 import androidx.compose.remote.player.compose.embedded.isTimeVariable
-import androidx.compose.remote.player.compose.embedded.remoteContextOrNull
 import androidx.compose.remote.player.compose.embedded.resolveBitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -315,7 +314,7 @@ internal fun rememberMutableRemoteColorAsState(id: Int): MutableState<Color> {
 @Composable
 internal fun rememberNamedRemoteStringAsState(name: String): MutableState<String> {
     val document = LocalCoreDocument.current
-    val context = document.remoteComposeState.remoteContextOrNull()!!
+    val context = document.remoteComposeState.remoteContext!!
     val id = context.findVariableId(name)
     return rememberMutableRemoteStringAsState(id)
 }
@@ -323,7 +322,7 @@ internal fun rememberNamedRemoteStringAsState(name: String): MutableState<String
 @Composable
 internal fun rememberNamedRemoteIntAsState(name: String): MutableState<Int> {
     val document = LocalCoreDocument.current
-    val context = document.remoteComposeState.remoteContextOrNull()!!
+    val context = document.remoteComposeState.remoteContext!!
     val id = context.findVariableId(name)
     return rememberMutableRemoteIntAsState(id)
 }
@@ -331,7 +330,7 @@ internal fun rememberNamedRemoteIntAsState(name: String): MutableState<Int> {
 @Composable
 internal fun rememberNamedRemoteFloatAsState(name: String): MutableState<Float> {
     val document = LocalCoreDocument.current
-    val context = document.remoteComposeState.remoteContextOrNull()!!
+    val context = document.remoteComposeState.remoteContext!!
     val id = context.findVariableId(name)
     return rememberMutableRemoteFloatAsState(id)
 }
@@ -339,7 +338,7 @@ internal fun rememberNamedRemoteFloatAsState(name: String): MutableState<Float> 
 @Composable
 internal fun rememberNamedRemoteColorAsState(name: String): MutableState<Color> {
     val document = LocalCoreDocument.current
-    val context = document.remoteComposeState.remoteContextOrNull()!!
+    val context = document.remoteComposeState.remoteContext!!
     val id = context.findVariableId(name)
     return rememberMutableRemoteColorAsState(id)
 }

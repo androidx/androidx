@@ -675,7 +675,7 @@ internal fun RcPlayerRawDocument() {
                 scale(scale[0], scale[1], pivot = Offset.Zero)
             }) {
                 executeOperations(
-                    document.getOperationsList(),
+                    document.operations,
                     remoteContext,
                     graph = graph,
                     textMeasurer = textMeasurer,
@@ -683,7 +683,7 @@ internal fun RcPlayerRawDocument() {
             }
         } else {
             executeOperations(
-                document.getOperationsList(),
+                document.operations,
                 remoteContext,
                 graph = graph,
                 textMeasurer = textMeasurer,
@@ -834,7 +834,7 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                 .rcComponentOuterInspector(component)
                 .then(
                     component.componentModifiers.toModifier(
-                        component.getDrawContentOperationsList(),
+                        component.drawContentOperations?.list,
                         ignoreVisibility = visibilityDelegatedToParent,
                         ignoreClicks = customClickHandlers != null,
                     )
@@ -1195,7 +1195,7 @@ internal class DocumentPreprocessResult(
 
 internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResult {
     val rootComponent = document.rootLayoutComponent
-    val ops = document.getOperationsList()
+    val ops = document.operations
     val globalOps = ArrayList<Operation>()
     if (rootComponent != null) {
         for (i in 0 until ops.size) {
@@ -1558,11 +1558,11 @@ internal fun initializePlayerRemoteContext(
         document.recollectCollections()
         document.applyDataOperationsWithoutBitmaps(ctx)
         document.setLayoutCallback {}
-        document.applyOperations(ctx, preprocessed.globalOps)
-        document.applyOperations(ctx, preprocessed.constantOps)
+        applyOperationsWithoutBitmaps(ctx, preprocessed.globalOps)
+        applyOperationsWithoutBitmaps(ctx, preprocessed.constantOps)
         val dataOps = ArrayList<Operation>()
         document.rootLayoutComponent?.getData(dataOps, true)
-        document.applyOperations(ctx, dataOps)
+        applyOperationsWithoutBitmaps(ctx, dataOps)
         preprocessed.touchExpressions.fastForEach { te ->
             te.updateVariables(ctx)
             te.apply(ctx)

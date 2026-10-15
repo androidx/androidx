@@ -33,10 +33,7 @@ import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
-import androidx.compose.remote.player.compose.embedded.horizontalPositioning
-import androidx.compose.remote.player.compose.embedded.rowSpacedBy
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
-import androidx.compose.remote.player.compose.embedded.verticalPositioning
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -49,7 +46,7 @@ internal fun RcPlayerRow(layout: RowLayout, modifier: Modifier) {
     val behavior = LocalCoreDocument.current.densityBehavior
     val density = LocalDensity.current.density
     // Resolve spacedBy (may be a NaN-encoded variable/expression) before scaling.
-    val spacedBy = rememberRemoteFloatAsState(rowSpacedBy(layout)).value
+    val spacedBy = rememberRemoteFloatAsState(layout.spacedBy).value
     if (layout is CollapsibleRowLayout) {
         // Priority-aware collapsing: drop lowest-CollapsiblePriority children until the rest fit.
         RcPlayerCollapsible(layout, modifier, vertical = false, spacedBy = spacedBy)
@@ -106,7 +103,7 @@ internal fun RcPlayerFlowRow(layout: FlowLayout, modifier: Modifier) {
     val graph = LocalGraphContext.current
     val behavior = LocalCoreDocument.current.densityBehavior
     val density = LocalDensity.current.density
-    val spacedBy = rememberRemoteFloatAsState(rowSpacedBy(layout)).value
+    val spacedBy = rememberRemoteFloatAsState(layout.spacedBy).value
     FlowRow(
         modifier = modifier,
         horizontalArrangement =

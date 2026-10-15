@@ -24,10 +24,7 @@ import androidx.compose.remote.core.operations.layout.managers.CollapsibleColumn
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
-import androidx.compose.remote.player.compose.embedded.columnSpacedBy
-import androidx.compose.remote.player.compose.embedded.horizontalPositioning
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
-import androidx.compose.remote.player.compose.embedded.verticalPositioning
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -38,7 +35,7 @@ internal fun RcPlayerColumn(layout: ColumnLayout, modifier: Modifier) {
     val density = LocalDensity.current.density
     // spacedBy may be a NaN-encoded variable/expression (dp recorded against the density variable),
     // so resolve it before the arrangement helper applies the density behavior.
-    val spacedBy = rememberRemoteFloatAsState(columnSpacedBy(layout)).value
+    val spacedBy = rememberRemoteFloatAsState(layout.spacedBy).value
 
     if (layout is CollapsibleColumnLayout) {
         // Priority-aware collapsing: drop lowest-CollapsiblePriority children until the rest fit.
