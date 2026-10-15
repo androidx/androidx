@@ -2699,6 +2699,20 @@ internal fun <T : StateRecord> current(r: T, snapshot: Snapshot): T =
         }
         ?: readError()
 
+internal fun <T : StateRecord> current(r: T, state: StateObject, snapshot: Snapshot): T =
+    readable(r, snapshot.snapshotId, snapshot.invalid)
+        ?: sync {
+            // Global snapshot could have been advanced
+            // see StateRecord.readable for more details
+            @Suppress("UNCHECKED_CAST")
+            readable(
+                state.firstStateRecord as T,
+                snapshot.snapshotId,
+                snapshot.invalid,
+            )
+        }
+        ?: readError()
+
 @PublishedApi
 internal fun <T : StateRecord> current(r: T): T =
     Snapshot.current.let { snapshot ->
