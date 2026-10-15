@@ -26,9 +26,9 @@ import android.view.Surface
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.media.ImageWrapper
 import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.CaptureRequestWrapper
+import androidx.camera.common.ImageWrapper
 import androidx.camera.common.Metadata
 import androidx.camera.common.UnsafeWrapper
 
