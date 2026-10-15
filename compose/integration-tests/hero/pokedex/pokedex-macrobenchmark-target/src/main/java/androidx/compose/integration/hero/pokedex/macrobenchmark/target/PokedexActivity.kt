@@ -74,6 +74,9 @@ class PokedexActivity : ComponentActivity() {
 
         PokedexFeatureFlags.EnableScrollbar = intent.getBooleanExtra("enableScrollbar", true)
 
+        PokedexFeatureFlags.TrackActiveGridItems =
+            intent.getBooleanExtra("trackActiveGridItems", true)
+
         val startDestination =
             when (intent.getStringExtra("startDestination")) {
                 "home" -> PokedexScreen.Home
