@@ -75,15 +75,7 @@ class BackupRestoreControllerImplTest {
 
     /** Runs when a restore through the fake backup service starts. */
     private var onServiceRestore: () -> Unit = {}
-    private val controller =
-        BackupRestoreControllerImpl(
-            device.session,
-            FAKE_SERIAL,
-            34,
-            PACKAGE,
-            telemetryPublisher = { key, value -> publishedMetrics[key] = value },
-            backupServiceProvider = { fakeBackupService() },
-        )
+    private val controller = controllerOnApi(34)
 
     @Test
     fun propertiesAreExposed() {
@@ -768,6 +760,96 @@ class BackupRestoreControllerImplTest {
         assertTrue(device.commands.none { it.startsWith("logcat") }, "${device.commands}")
     }
 
+    @Test
+    fun performRestoreThrowsWhenGooglePlayServicesIsTooOldToRestoreOnApi37() {
+        val controller = controllerOnApi(37)
+        var serviceRestores = 0
+        onServiceRestore = { serviceRestores++ }
+        device.onShell(gmsAnswers(gmsVersionCode = 263238038))
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        val e =
+            assertFailsWith<BackupRestoreException> {
+                runBlocking { controller.performRestore(archive) }
+            }
+
+        assertEquals(BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING, e.errorCode)
+        assertEquals(
+            "Can't restore the backup on $FAKE_SERIAL: Google Play services 26.32.38 is too old. " +
+                "On Android 16 QPR2 (API level 36.1) and higher, restoring cloud and " +
+                "device-to-device backups requires Google Play services 26.33.30 or higher. " +
+                "Update Google Play services through the Play Store on the device, or use a " +
+                "system image that comes with a newer version",
+            e.message,
+        )
+        assertEquals(0, serviceRestores)
+        assertEquals(
+            listOf("pm list packages --show-versioncode com.google.android.gms"),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun performRestoreThrowsWhenGooglePlayServicesIsTooOldToRestoreOnApi36Point1() {
+        val controller = controllerOnApi(36)
+        device.onShell(gmsAnswers(gmsVersionCode = 263238038, sdkMinor = "1"))
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        val e =
+            assertFailsWith<BackupRestoreException> {
+                runBlocking { controller.performRestore(archive) }
+            }
+
+        assertEquals(BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING, e.errorCode)
+    }
+
+    /** Android 16 (API level 36.0) restores with any version of Google Play services. */
+    @Test
+    fun performRestoreDoesNotCheckTheGooglePlayServicesVersionOnApi36() = runBlocking {
+        val controller = controllerOnApi(36)
+        device.onShell(gmsAnswers(gmsVersionCode = 263238038))
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        assertSame(controller, controller.performRestore(archive))
+        assertTrue(device.commands.contains("getprop ro.build.version.sdk_minor"))
+        assertTrue(device.commands.none { it.startsWith("pm list packages") }, "${device.commands}")
+    }
+
+    @Test
+    fun performRestoreGoesAheadWhenGooglePlayServicesIsRecentEnoughOnApi37() = runBlocking {
+        val controller = controllerOnApi(37)
+        var serviceRestores = 0
+        onServiceRestore = { serviceRestores++ }
+        device.onShell(gmsAnswers(gmsVersionCode = 263330038))
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        assertSame(controller, controller.performRestore(archive))
+        assertEquals(1, serviceRestores)
+    }
+
+    /** The backup service reports a device without Google Play services itself. */
+    @Test
+    fun performRestoreGoesAheadWhenGooglePlayServicesIsNotInstalled() = runBlocking {
+        val controller = controllerOnApi(37)
+        var serviceRestores = 0
+        onServiceRestore = { serviceRestores++ }
+        device.onShell(gmsAnswers(gmsVersionCode = null))
+        val archive = tempFolder.newFile("backup_cloud_encrypted_device.zip").toPath()
+
+        assertSame(controller, controller.performRestore(archive))
+        assertEquals(1, serviceRestores)
+    }
+
+    @Test
+    fun performRestoreDoesNotCheckTheGooglePlayServicesVersionForALocalArchive() = runBlocking {
+        val controller = controllerOnApi(37)
+        onHealthyDevice(gmsAnswers(gmsVersionCode = 263238038))
+
+        controller.performRestore(localArchive())
+
+        assertTrue(device.commands.none { it.startsWith("pm list packages") }, "${device.commands}")
+    }
+
     /** Studio's backup service returns its own cancellation, such as by a timeout, as an error. */
     @Test
     fun performBackupTimesOutWhenTheBackupServiceReturnsItsCancellation() {
@@ -1179,6 +1261,22 @@ class BackupRestoreControllerImplTest {
         assertFailure(BackupExecutionStage.BACKUP, BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING)
     }
 
+    @Test
+    fun flowClassifiesGooglePlayServicesTooOldToRestoreAsAnOutdatedGmsCore() {
+        val controller = controllerOnApi(37)
+        onHealthyDevice(gmsAnswers(gmsVersionCode = 263238038))
+
+        assertFailsWith<IOException> {
+            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), CLOUD) }
+        }
+
+        assertFailure(
+            BackupExecutionStage.RESTORE,
+            BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING,
+            controller,
+        )
+    }
+
     /** The error code decides the cause, even though the message says "Timed out". */
     @Test
     fun flowClassifiesATransportFailureByTheErrorCodeOfTheBackupService() {
@@ -1341,6 +1439,39 @@ class BackupRestoreControllerImplTest {
     private fun instrumentCommand(): String =
         device.commands.single { it.startsWith("am instrument") }
 
+    /** Returns a controller of the app on the fake device, taken to run API level [apiLevel]. */
+    private fun controllerOnApi(apiLevel: Int) =
+        BackupRestoreControllerImpl(
+            device.session,
+            FAKE_SERIAL,
+            apiLevel,
+            PACKAGE,
+            telemetryPublisher = { key, value -> publishedMetrics[key] = value },
+            backupServiceProvider = { fakeBackupService() },
+        )
+
+    /**
+     * Returns a shell handler that reports the minor API level as [sdkMinor] and Google Play
+     * services as installed with [gmsVersionCode], or as not installed when it is null, and leaves
+     * other commands to the default output.
+     */
+    private fun gmsAnswers(
+        gmsVersionCode: Long?,
+        sdkMinor: String = "",
+    ): (String) -> ShellCommandOutput? = { command ->
+        when (command) {
+            "getprop ro.build.version.sdk_minor" -> shellOutput("$sdkMinor\n")
+            "pm list packages --show-versioncode com.google.android.gms" ->
+                shellOutput(
+                    "package:com.google.android.gms.supervision versionCode:106632\n" +
+                        gmsVersionCode
+                            ?.let { "package:com.google.android.gms versionCode:$it\n" }
+                            .orEmpty()
+                )
+            else -> null
+        }
+    }
+
     /**
      * Returns a backup service whose backups end with [backupServiceResult] and whose restores end
      * with [restoreServiceResult]. Unless the backup result is an error, a backup first writes the
@@ -1385,7 +1516,11 @@ class BackupRestoreControllerImplTest {
             }
     }
 
-    private fun assertFailure(stage: BackupExecutionStage, errorCode: BackupErrorCode) {
+    private fun assertFailure(
+        stage: BackupExecutionStage,
+        errorCode: BackupErrorCode,
+        controller: BackupRestoreControllerImpl = this.controller,
+    ) {
         val summary = assertNotNull(controller.lastExecutionSummary)
         assertFalse(summary.isSuccess)
         assertEquals(stage, summary.failureStage)

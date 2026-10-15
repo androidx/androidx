@@ -182,6 +182,24 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
             .sorted()
             .toList()
 
+    /** Returns the version code of the installed package [packageName], or null if it isn't. */
+    suspend fun packageVersionCode(packageName: String): Long? {
+        // pm lists every package whose name contains the filter, as `package:<name>
+        // versionCode:<code>`.
+        val prefix = "package:$packageName versionCode:"
+        return exec("pm list packages --show-versioncode ${quoteIfNeeded(packageName)}")
+            .stdout
+            .lineSequence()
+            .map { it.trim() }
+            .firstOrNull { it.startsWith(prefix) }
+            ?.removePrefix(prefix)
+            ?.toLongOrNull()
+    }
+
+    /** Returns the value of the system property [name], or null if it isn't set. */
+    suspend fun getProperty(name: String): String? =
+        exec("getprop ${quoteIfNeeded(name)}").stdout.trim().ifEmpty { null }
+
     /**
      * Takes [packageName] out of the stopped state (`FLAG_STOPPED`).
      *
