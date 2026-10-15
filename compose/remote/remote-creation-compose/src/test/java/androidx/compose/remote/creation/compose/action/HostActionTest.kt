@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
@@ -29,6 +30,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperat
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.capture.createProfile
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -140,7 +142,7 @@ class HostActionTest {
     @Test
     fun pendingIntentAction_wearWidgetsProfile_writesNamedAction() = runTest {
         // Wear hosts dispatch this named action, so its encoding must not change.
-        assertWritesNamedAction(RcPlatformProfiles.WEAR_WIDGETS)
+        assertWritesNamedAction(createProfile(profileFlags = RcProfiles.PROFILE_WEAR_WIDGETS))
     }
 
     @Test
@@ -275,7 +277,7 @@ class HostActionTest {
         val captured =
             captureSingleRemoteDocument(
                 context = context,
-                profile = RcPlatformProfiles.WEAR_WIDGETS,
+                profile = createProfile(profileFlags = RcProfiles.PROFILE_WEAR_WIDGETS),
             ) {
                 val taps = rememberMutableRemoteInt(3)
                 RemoteBox(

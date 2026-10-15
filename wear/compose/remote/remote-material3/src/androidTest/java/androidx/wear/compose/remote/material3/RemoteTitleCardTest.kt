@@ -18,7 +18,6 @@ package androidx.wear.compose.remote.material3
 
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
@@ -36,6 +35,7 @@ import androidx.wear.compose.remote.material3.previews.RemoteTitleCardWithTitleT
 import androidx.wear.compose.remote.material3.previews.RemoteTitleCardWithTwoLineTitle
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,7 +57,7 @@ class RemoteTitleCardTest {
     @Test
     fun title_card_default() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteTitleCardDefault()
@@ -68,7 +68,7 @@ class RemoteTitleCardTest {
     fun title_card_rtl() {
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             creationComposableWrapper = ComposableWrappers.rtl,
         ) {
             RemoteTitleCardWithTitleSubtitle()
@@ -78,7 +78,7 @@ class RemoteTitleCardTest {
     @Test
     fun title_card_with_title_subtitle() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteTitleCardWithTitleSubtitle()
@@ -88,7 +88,7 @@ class RemoteTitleCardTest {
     @Test
     fun title_card_with_title_time() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteTitleCardWithTitleTime()
@@ -98,7 +98,7 @@ class RemoteTitleCardTest {
     @Test
     fun title_card_with_two_line_title() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteTitleCardWithTwoLineTitle()
@@ -108,7 +108,7 @@ class RemoteTitleCardTest {
     @Test
     fun title_card_with_border() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             RemoteTitleCardWithBorder()
@@ -124,7 +124,7 @@ class RemoteTitleCardTest {
             put("WearM3.onSurface", Color(0xFFE2E3DC).toArgb())
         }
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
             update = { player ->
                 colorOverrides.forEach { name, colorInt ->
@@ -139,7 +139,7 @@ class RemoteTitleCardTest {
     @Test
     fun title_card_with_image() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteTitleCardWithImage() }
