@@ -2297,11 +2297,17 @@ package androidx.health.connect.client.records.metadata {
   }
 
   public final class Device {
+    ctor public Device(int type);
+    ctor public Device(int type, optional String? manufacturer);
     ctor public Device(int type, optional String? manufacturer, optional String? model);
     ctor @BytecodeOnly public Device(int, String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public Device(int type, optional String? manufacturer, optional String? model, optional String? displayName);
+    ctor @BytecodeOnly public Device(int, String!, String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String? getDisplayName();
     method @InaccessibleFromKotlin public String? getManufacturer();
     method @InaccessibleFromKotlin public String? getModel();
     method @InaccessibleFromKotlin public int getType();
+    property public String? displayName;
     property public String? manufacturer;
     property public String? model;
     property public int type;

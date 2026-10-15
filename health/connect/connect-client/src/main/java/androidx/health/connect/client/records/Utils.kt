@@ -55,6 +55,11 @@ internal fun isAtLeastSdkExtension21(): Boolean {
 }
 
 @RequiresApi(Build.VERSION_CODES.R)
+internal fun isAtLeastSdkExtension22(): Boolean {
+    return SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
 internal fun isAtLeastSdkExtension23(): Boolean {
     return SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 23
 }

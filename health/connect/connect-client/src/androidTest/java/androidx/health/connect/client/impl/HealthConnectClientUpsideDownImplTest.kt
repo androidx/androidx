@@ -50,6 +50,7 @@ import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
@@ -359,6 +360,28 @@ class HealthConnectClientUpsideDownImplTest {
                 )
             )
         assertThat(response.recordIdsList).hasSize(1)
+    }
+
+    @Test
+    fun insertRecords_deviceWithDisplayName_readRecordReturnsDisplayName() = runTest {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22)
+        val record =
+            StepsRecord(
+                count = 10,
+                startTime = START_TIME,
+                startZoneOffset = null,
+                endTime = START_TIME + 1.minutes,
+                endZoneOffset = null,
+                metadata =
+                    Metadata.autoRecorded(
+                        Device(type = Device.TYPE_WATCH, displayName = "Pixel Watch 3")
+                    ),
+            )
+
+        val recordId = healthConnectClient.insertRecords(listOf(record)).recordIdsList[0]
+        val readRecord = healthConnectClient.readRecord(StepsRecord::class, recordId).record
+
+        assertThat(readRecord.metadata.device?.displayName).isEqualTo("Pixel Watch 3")
     }
 
     @Test
