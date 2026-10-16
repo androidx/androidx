@@ -190,6 +190,46 @@ class GraphContextPaintOperationTest {
     }
 
     @Test
+    fun resolveBitmapThroughGraphContextDecodesIntoStore() {
+        val imageId = 11
+        fun graphWithBitmap(withStore: Boolean): Pair<GraphContext, SnapshotRemoteComposeState> {
+            val state = SnapshotRemoteComposeState()
+            val store = AndroidRemoteContext().apply { mRemoteComposeState = state }
+            store.putObject(
+                imageId,
+                BitmapData(
+                    imageId,
+                    BitmapData.TYPE_RAW8888,
+                    2,
+                    BitmapData.ENCODING_INLINE,
+                    2,
+                    ByteArray(16) { 0xFF.toByte() },
+                ),
+            )
+            val graphContext =
+                GraphContext(
+                    realState = state,
+                    computedOps = mutableIntObjectMapOf(),
+                    timeMillis = mutableFloatStateOf(0f),
+                    clock = RemoteClock.SYSTEM,
+                )
+            if (withStore) graphContext.store = store
+            return graphContext to state
+        }
+
+        // GraphContext drops the decode write on its own...
+        val (noStore, _) = graphWithBitmap(withStore = false)
+        assertThat(resolveBitmap(noStore, imageId)).isNull()
+
+        // ...and writes it through its store when one is set.
+        val (graphContext, state) = graphWithBitmap(withStore = true)
+        val resolved = resolveBitmap(graphContext, imageId)
+        assertThat(resolved).isNotNull()
+        assertThat(resolved!!.width).isEqualTo(2)
+        assertThat(state.getFromId(imageId)).isSameInstanceAs(resolved)
+    }
+
+    @Test
     fun canvasBitmapDataIsRegisteredDuringApplyOperationsWithoutBitmaps() {
         val buffer = RemoteComposeBuffer()
         val wire = buffer.buffer

@@ -432,12 +432,16 @@ private fun resolvePaintFloat(bits: Int, read: RemoteContext): Float {
     return resolveFloat(value, value, read)
 }
 
+/**
+ * Applies [bundle] to [paintState]. Variable references are resolved through [remoteContext]; pass
+ * the player's [GraphContext] so computed values are current and reads are observed. Writes that
+ * must persist (e.g. lazy bitmap decode) go through its [writeContext].
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun updatePaintFromBundle(
     bundle: PaintBundle,
     paintState: ComposeLocalPaint,
     remoteContext: RemoteContext,
-    read: RemoteContext = remoteContext,
 ) {
     paintState.sourceBundles.add(bundle)
     val array = bundle.getArray()
@@ -446,7 +450,7 @@ public fun updatePaintFromBundle(
         val cmd = array[i++]
         when (cmd and 0xFFFF) {
             PaintBundle.TEXT_SIZE -> {
-                paintState.textSize = resolvePaintFloat(array[i++], read)
+                paintState.textSize = resolvePaintFloat(array[i++], remoteContext)
                 paintState.isTextSizeSet = true
             }
             PaintBundle.TYPEFACE -> {
@@ -464,12 +468,13 @@ public fun updatePaintFromBundle(
             }
             PaintBundle.COLOR_ID -> {
                 val colorId = array[i++]
-                // Reactive read: an animated/variable color re-runs the draw when it changes.
-                paintState.color = read.getColor(colorId)
+                // Reactive remoteContext: an animated/variable color re-runs the draw when it
+                // changes.
+                paintState.color = remoteContext.getColor(colorId)
                 paintState.isColorSet = true
             }
             PaintBundle.STROKE_WIDTH -> {
-                paintState.strokeWidth = resolvePaintFloat(array[i++], read)
+                paintState.strokeWidth = resolvePaintFloat(array[i++], remoteContext)
                 paintState.isStrokeWidthSet = true
             }
             PaintBundle.STYLE -> {
@@ -491,7 +496,7 @@ public fun updatePaintFromBundle(
                     val values = FloatArray(count)
                     for (j in 0 until count) {
                         tags[j] = array[i++]
-                        values[j] = resolvePaintFloat(array[i++], read)
+                        values[j] = resolvePaintFloat(array[i++], remoteContext)
                     }
                     paintState.fontAxis = tags
                     paintState.fontAxisValues = values
@@ -513,7 +518,7 @@ public fun updatePaintFromBundle(
             PaintBundle.COLOR_FILTER_ID -> {
                 val mode = (cmd shr 16)
                 val colorId = array[i++]
-                val color = read.getColor(colorId)
+                val color = remoteContext.getColor(colorId)
                 paintState.colorFilter = ColorFilter.tint(Color(color), mapBlendMode(mode))
             }
             PaintBundle.CLEAR_COLOR_FILTER -> {
@@ -550,7 +555,7 @@ public fun updatePaintFromBundle(
             PaintBundle.ALPHA -> {
                 // 1 float word (see PaintBundle.resolveIds). Folded into the draw color via
                 // ComposeLocalPaint.effectiveColor().
-                paintState.alpha = resolvePaintFloat(array[i++], read).coerceIn(0f, 1f)
+                paintState.alpha = resolvePaintFloat(array[i++], remoteContext).coerceIn(0f, 1f)
             }
             PaintBundle.ANTI_ALIAS -> {
                 // Value is packed in the high bits of `cmd`; no extra words.
@@ -571,10 +576,10 @@ public fun updatePaintFromBundle(
             }
             PaintBundle.SHADER_MATRIX -> {
                 // Local matrix on the current shader (1 word: NaN-encoded MatrixAccess id).
-                applyShaderMatrix(paintState, array[i++], read)
+                applyShaderMatrix(paintState, array[i++], remoteContext)
             }
             PaintBundle.STROKE_MITER -> {
-                paintState.strokeMiter = resolvePaintFloat(array[i++], read)
+                paintState.strokeMiter = resolvePaintFloat(array[i++], remoteContext)
             }
             PaintBundle.FALLBACK_TYPEFACE -> {
                 i++ // 1 word (PaintBundle.resolveIds); not applied yet, consumed to stay in sync.
@@ -584,7 +589,7 @@ public fun updatePaintFromBundle(
                 if (pathEffectCount > 0) {
                     val pathEffectData = FloatArray(pathEffectCount)
                     for (j in 0 until pathEffectCount) {
-                        pathEffectData[j] = resolvePaintFloat(array[i++], read)
+                        pathEffectData[j] = resolvePaintFloat(array[i++], remoteContext)
                     }
                     val parsed = runCatching {
                         PaintPathEffects.parse(pathEffectData, 0)
@@ -603,12 +608,13 @@ public fun updatePaintFromBundle(
                 val colors = IntArray(len)
                 for (j in 0 until len) {
                     val word = array[i++]
-                    colors[j] = if ((register and (1 shl j)) != 0) read.getColor(word) else word
+                    colors[j] =
+                        if ((register and (1 shl j)) != 0) remoteContext.getColor(word) else word
                 }
                 len = array[i++] // stops count
                 val stops = FloatArray(len)
                 for (j in 0 until len) {
-                    stops[j] = resolvePaintFloat(array[i++], read)
+                    stops[j] = resolvePaintFloat(array[i++], remoteContext)
                 }
 
                 val colorsList = colors.map { Color(it) }
@@ -634,10 +640,10 @@ public fun updatePaintFromBundle(
 
                 when (gradientType) {
                     0 -> { // LINEAR_GRADIENT
-                        val startX = resolvePaintFloat(array[i++], read)
-                        val startY = resolvePaintFloat(array[i++], read)
-                        val endX = resolvePaintFloat(array[i++], read)
-                        val endY = resolvePaintFloat(array[i++], read)
+                        val startX = resolvePaintFloat(array[i++], remoteContext)
+                        val startY = resolvePaintFloat(array[i++], remoteContext)
+                        val endX = resolvePaintFloat(array[i++], remoteContext)
+                        val endY = resolvePaintFloat(array[i++], remoteContext)
                         val tileMode = array[i++]
                         val start = Offset(startX, startY)
                         val end = Offset(endX, endY)
@@ -670,9 +676,9 @@ public fun updatePaintFromBundle(
                         }
                     }
                     1 -> { // RADIAL_GRADIENT
-                        val centerX = resolvePaintFloat(array[i++], read)
-                        val centerY = resolvePaintFloat(array[i++], read)
-                        val radius = resolvePaintFloat(array[i++], read)
+                        val centerX = resolvePaintFloat(array[i++], remoteContext)
+                        val centerY = resolvePaintFloat(array[i++], remoteContext)
+                        val radius = resolvePaintFloat(array[i++], remoteContext)
                         val tileMode = array[i++]
                         val center = Offset(centerX, centerY)
                         val tm = mapTileMode(tileMode)
@@ -703,8 +709,8 @@ public fun updatePaintFromBundle(
                         }
                     }
                     2 -> { // SWEEP_GRADIENT
-                        val centerX = resolvePaintFloat(array[i++], read)
-                        val centerY = resolvePaintFloat(array[i++], read)
+                        val centerX = resolvePaintFloat(array[i++], remoteContext)
+                        val centerY = resolvePaintFloat(array[i++], remoteContext)
                         val center = Offset(centerX, centerY)
                         if (colorsList.size >= 2 && centerX.isFinite() && centerY.isFinite()) {
                             paintState.brush =

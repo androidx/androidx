@@ -115,7 +115,7 @@ internal class GraphPaintContext(
 
     override fun replacePaint(paintBundle: PaintBundle) {
         paintState = ComposeLocalPaint()
-        updatePaintFromBundle(paintBundle, paintState, mContext)
+        updatePaintFromBundle(paintBundle, paintState, readContext)
     }
 
     override fun drawRoundRect(
@@ -226,7 +226,7 @@ internal class GraphPaintContext(
     override fun combinePath(out: Int, path1: Int, path2: Int, operation: Byte) {}
 
     override fun applyPaint(mPaintData: PaintBundle) {
-        updatePaintFromBundle(mPaintData, paintState, mContext)
+        updatePaintFromBundle(mPaintData, paintState, readContext)
     }
 
     override fun matrixScale(scaleX: Float, scaleY: Float, centerX: Float, centerY: Float) {}
