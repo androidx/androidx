@@ -18,6 +18,7 @@ package androidx.compose.runtime.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -61,8 +62,8 @@ private suspend fun doSomethingSuspending(param: Any?): Any? = null
 
 @Suppress("ClassName")
 private object someObject {
-    var stateA by mutableStateOf(0)
-    var stateB by mutableStateOf(0)
+    var stateA by mutableIntStateOf(0)
+    var stateB by mutableIntStateOf(0)
 }
 
 @Suppress("unused")
