@@ -16,9 +16,9 @@
 
 package androidx.compose.runtime.snapshots
 
+import androidx.collection.MutableObjectList
 import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.internal.SnapshotThreadLocal
 
 /**
@@ -56,11 +56,11 @@ internal interface IndirectStateObserver {
     data object CalculationFailed
 }
 
-private val indirectStateObservers = SnapshotThreadLocal<MutableVector<IndirectStateObserver>>()
+private val indirectStateObservers = SnapshotThreadLocal<MutableObjectList<IndirectStateObserver>>()
 
-internal fun indirectStateObservers(): MutableVector<IndirectStateObserver> =
+internal fun indirectStateObservers(): MutableObjectList<IndirectStateObserver> =
     indirectStateObservers.get()
-        ?: MutableVector<IndirectStateObserver>(0).also { indirectStateObservers.set(it) }
+        ?: MutableObjectList<IndirectStateObserver>(0).also { indirectStateObservers.set(it) }
 
 internal inline fun <R> notifyObservers(state: IndirectState<*>, block: () -> R): R {
     val observers = indirectStateObservers()
@@ -90,7 +90,7 @@ internal inline fun <R> observeIndirectStateRecalculations(
         try {
             block()
         } finally {
-            observers.removeAt(observers.lastIndex)
+            observers.removeAt(observers.size - 1)
         }
     return result
 }
