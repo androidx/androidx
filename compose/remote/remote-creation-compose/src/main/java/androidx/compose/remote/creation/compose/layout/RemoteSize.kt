@@ -16,11 +16,8 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.geometry.Size
 
 /**
  * An immutable, 2D floating-point size with [width] and [height] represented as [RemoteFloat]s.
@@ -37,12 +34,6 @@ public class RemoteSize {
         this.height = height
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(size: Size) {
-        this.width = size.width.rf
-        this.height = size.height.rf
-    }
-
     /**
      * Returns a [RemoteSize] with the width and height decreased by the [offset]'s x and y
      * coordinates, respectively.
@@ -54,13 +45,6 @@ public class RemoteSize {
     /** The lesser of the magnitudes of the [width] and the [height]. */
     public val minDimension: RemoteFloat
         get() = width.min(height)
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun asSize(scope: RemoteStateScope): Size {
-        with(scope) {
-            return Size(width.floatId, height.floatId)
-        }
-    }
 
     /** The offset to the center of this [RemoteSize]. */
     public val center: RemoteOffset
