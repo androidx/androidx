@@ -74,6 +74,13 @@ internal class GraphContext(
 
     internal var typefaceResolver: TypefaceResolver? = null
 
+    /**
+     * The context that owns the shared store. This context drops non-scalar writes (see
+     * [loadBitmap], [putObject]) to keep evaluation pure, so writes that must persist, such as
+     * lazily decoding a bitmap, go here instead. See [writeContext].
+     */
+    internal var store: RemoteContext? = null
+
     fun setTypefaceResolver(resolver: TypefaceResolver?) {
         this.typefaceResolver = resolver
     }
@@ -282,3 +289,10 @@ internal class GraphContext(
 
     override fun needsRepaint() {}
 }
+
+/**
+ * The context to write through: the [GraphContext.store] behind a [GraphContext], otherwise this
+ * context itself. Lets helpers take a single (read) context and still persist writes.
+ */
+internal val RemoteContext.writeContext: RemoteContext
+    get() = (this as? GraphContext)?.store ?: this
