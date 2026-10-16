@@ -28,14 +28,22 @@ public interface AdaptiveGlanceTemplate {
      * Implementations must provide a stable constant string name that is unique across all
      * templates within the application to avoid collisions under R8/ProGuard class minification.
      */
+    // AdaptiveGlanceTemplate is only implemented by library-group templates, not by external
+    // callers. Keeping `templateName` and `templateId` restricted without default getters triggers
+    // Metalava's HiddenAbstractMethodInInterface check, which we suppress here.
+    @get:Suppress("HiddenAbstractMethodInInterface")
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val templateName: String
 
     /**
      * Stable integer identifier representing this template type for OS platform telemetry (e.g.,
      * `1` for [TrackTemplate], or [TEMPLATE_ID_UNKNOWN] (`0`) when unspecified).
      */
+    @get:Suppress("HiddenAbstractMethodInInterface")
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val templateId: Int
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /** Default unknown template identifier (`0`) when no template type is specified. */
         public const val TEMPLATE_ID_UNKNOWN: Int = 0

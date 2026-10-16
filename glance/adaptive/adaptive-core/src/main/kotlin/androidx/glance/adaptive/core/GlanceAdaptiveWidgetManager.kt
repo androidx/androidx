@@ -27,7 +27,9 @@ import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
  * functions by the corresponding surface artifact (for example `adaptive-appwidget`).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class GlanceAdaptiveWidgetManager(
+public class GlanceAdaptiveWidgetManager
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val delegate: GlanceAdaptiveWidgetDelegate
 ) {

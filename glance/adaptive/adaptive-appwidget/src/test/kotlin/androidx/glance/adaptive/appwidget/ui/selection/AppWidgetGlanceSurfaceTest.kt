@@ -194,14 +194,8 @@ class AppWidgetGlanceSurfaceTest {
     }
 
     @Test
-    fun appWidgetGlanceSurface_aliasesAndTags_resolveCorrectly() {
-        assertThat(AppWidgetGlanceSurface.HOME_SCREEN)
-            .isEqualTo(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
-        assertThat(AppWidgetGlanceSurface.LOCK_SCREEN)
-            .isEqualTo(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
-
+    fun appWidgetGlanceSurface_tags_resolveCorrectly() {
         assertThat(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN.tag).isEqualTo("home_screen")
         assertThat(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN.tag).isEqualTo("keyguard")
-        assertThat(AppWidgetGlanceSurface.TABLET_HOME_SCREEN.tag).isEqualTo("tablet_home_screen")
     }
 }

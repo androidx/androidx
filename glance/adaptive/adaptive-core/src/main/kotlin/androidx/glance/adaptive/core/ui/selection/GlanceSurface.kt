@@ -27,8 +27,14 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GlanceSurface {
     /** Unique canonical identifier for this surface (e.g. "home_screen", "wear_widget"). */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val tag: String
+    // GlanceSurface is only implemented by library-group modules (e.g. adaptive-appwidget,
+    // adaptive-wear), not by external callers. Keeping `tag` restricted without a default
+    // getter triggers Metalava's HiddenAbstractMethodInInterface check, which we suppress here.
+    @get:Suppress("HiddenAbstractMethodInInterface")
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val tag: String
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**
          * Creates a lightweight [GlanceSurface] instance for testing or dynamic host registration.
