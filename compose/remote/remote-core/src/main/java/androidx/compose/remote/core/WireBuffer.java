@@ -75,7 +75,7 @@ public class WireBuffer {
     }
 
     /**
-     * get the wire buffer's underlying byte array. Note the array will be bigger that the used
+     * get the wire buffer's underlying byte array. Note the array will be bigger than the used
      * portion
      *
      * @return byte array of the wire buffer
