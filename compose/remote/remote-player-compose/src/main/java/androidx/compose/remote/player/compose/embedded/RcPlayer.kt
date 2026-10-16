@@ -1380,6 +1380,13 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
                 }
             }
 
+            if (op is FloatExpression) {
+                // CoreDocument.collectExpressionsRecursive skips LayoutComponent
+                // canvasOperations, so expressions first defined in drawWithContent are
+                // missing from floatExpressions.
+                document.floatExpressions[op.mId] = op
+            }
+
             if (op is ComponentValue) {
                 rawComponentValues.add(op)
             }
