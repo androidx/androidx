@@ -128,7 +128,7 @@ internal constructor(
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
                 isAtLeastSdkExtension21()
         ) {
-            @Suppress("UNUSED_VARIABLE") val unused = this.toPlatformRecord()
+            @Suppress("CheckReturnValue") this.toPlatformRecord()
         } else {
             require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
             if (segments.isNotEmpty()) {
