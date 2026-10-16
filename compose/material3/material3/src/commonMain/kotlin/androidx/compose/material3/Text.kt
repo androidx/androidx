@@ -86,9 +86,9 @@ import androidx.compose.ui.unit.TextUnit
  * @param lineHeight line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM. See
  *   [TextStyle.lineHeight].
  * @param overflow how visual overflow should be handled.
- * @param softWrap whether the text should break at soft line breaks. If false, the glyphs in the
- *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- *   [overflow] and TextAlign may have unexpected effects.
+ * @param softWrap whether to wrap text at soft line breaks. When true, wraps text to the next line
+ *   when it exceeds layout bounds. When false, positions text as if there was unlimited horizontal
+ *   space, which may cause it to clip or overflow according to [overflow].
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
  *   If the text exceeds the given number of lines, it will be truncated according to [overflow] and
  *   [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
@@ -185,9 +185,9 @@ public fun Text(
  * @param lineHeight line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM. See
  *   [TextStyle.lineHeight].
  * @param overflow how visual overflow should be handled.
- * @param softWrap whether the text should break at soft line breaks. If false, the glyphs in the
- *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- *   [overflow] and TextAlign may have unexpected effects.
+ * @param softWrap whether to wrap text at soft line breaks. When true, wraps text to the next line
+ *   when it exceeds layout bounds. When false, positions text as if there was unlimited horizontal
+ *   space, which may cause it to clip or overflow according to [overflow].
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
  *   If the text exceeds the given number of lines, it will be truncated according to [overflow] and
  *   [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
@@ -288,9 +288,9 @@ public fun Text(
  * @param lineHeight line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM. See
  *   [TextStyle.lineHeight].
  * @param overflow how visual overflow should be handled.
- * @param softWrap whether the text should break at soft line breaks. If false, the glyphs in the
- *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- *   [overflow] and TextAlign may have unexpected effects.
+ * @param softWrap whether to wrap text at soft line breaks. When true, wraps text to the next line
+ *   when it exceeds layout bounds. When false, positions text as if there was unlimited horizontal
+ *   space, which may cause it to clip or overflow according to [overflow].
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
  *   If the text exceeds the given number of lines, it will be truncated according to [overflow] and
  *   [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
@@ -396,9 +396,9 @@ public fun Text(
  * @param lineHeight line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM. See
  *   [TextStyle.lineHeight].
  * @param overflow how visual overflow should be handled.
- * @param softWrap whether the text should break at soft line breaks. If false, the glyphs in the
- *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- *   [overflow] and TextAlign may have unexpected effects.
+ * @param softWrap whether to wrap text at soft line breaks. When true, wraps text to the next line
+ *   when it exceeds layout bounds. When false, positions text as if there was unlimited horizontal
+ *   space, which may cause it to clip or overflow according to [overflow].
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
  *   If the text exceeds the given number of lines, it will be truncated according to [overflow] and
  *   [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
