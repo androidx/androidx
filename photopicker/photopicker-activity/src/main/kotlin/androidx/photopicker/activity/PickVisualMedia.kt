@@ -161,6 +161,97 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
             "androidx.activity.result.contract.extra.PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS"
 
         /**
+         * Extra that will be sent by [PickVisualMedia] and [PickMultipleVisualMedia] to an Activity
+         * that handles [ACTION_SYSTEM_FALLBACK_PICK_IMAGES] that indicates the search results to
+         * highlight in the picker.
+         */
+        @field:Suppress("ActionValue")
+        public const val EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_SEARCH_RESULTS: String =
+            "androidx.activity.result.contract.extra.PICK_IMAGES_HIGHLIGHT_SEARCH_RESULTS"
+
+        /**
+         * Extra that will be sent by [PickVisualMedia] and [PickMultipleVisualMedia] to an Activity
+         * that handles [ACTION_SYSTEM_FALLBACK_PICK_IMAGES] to indicate the predefined album to
+         * highlight in the picker.
+         */
+        @field:Suppress("ActionValue")
+        public const val EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM: String =
+            "androidx.activity.result.contract.extra.PICK_IMAGES_HIGHLIGHT_ALBUM"
+
+        /**
+         * Bundle key used in system fallback highlight extras to specify the value of the highlight
+         * type.
+         */
+        public const val KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE: String =
+            "androidx.activity.result.contract.key.PICK_IMAGES_HIGHLIGHT_TYPE"
+
+        /**
+         * Value for [KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE] specifying a collapsed
+         * highlight section.
+         */
+        public const val SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE_COLLAPSED: Int = 0
+
+        /**
+         * Value for [KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE] specifying an expanded
+         * highlight grid.
+         */
+        public const val SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE_EXPANDED: Int = 1
+
+        /**
+         * Bundle key used in system fallback search results highlight extras to specify the text
+         * query.
+         */
+        public const val KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_SEARCH_TEXT_QUERY: String =
+            "androidx.activity.result.contract.key.PICK_IMAGES_HIGHLIGHT_SEARCH_TEXT_QUERY"
+
+        /**
+         * Bundle key used in system fallback album highlight extras to specify the highlight album.
+         */
+        public const val KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_ID: String =
+            "androidx.activity.result.contract.key.PICK_IMAGES_HIGHLIGHT_ALBUM_ID"
+
+        /**
+         * Value for [KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_ID] specifying the Favorites
+         * album.
+         */
+        public const val SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_FAVORITES: String =
+            "androidx.activity.result.contract.album.FAVORITES"
+
+        /**
+         * Value for [KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_ID] specifying the Camera
+         * album.
+         */
+        public const val SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_CAMERA: String =
+            "androidx.activity.result.contract.album.CAMERA"
+
+        /**
+         * Value for [KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_ID] specifying the Downloads
+         * album.
+         */
+        public const val SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_DOWNLOADS: String =
+            "androidx.activity.result.contract.album.DOWNLOADS"
+
+        /**
+         * Value for [KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_ID] specifying the Screenshots
+         * album.
+         */
+        public const val SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_SCREENSHOTS: String =
+            "androidx.activity.result.contract.album.SCREENSHOTS"
+
+        /**
+         * Value for [KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_ID] specifying the Videos
+         * album.
+         */
+        public const val SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_VIDEOS: String =
+            "androidx.activity.result.contract.album.VIDEOS"
+
+        @JvmStatic
+        internal fun areSystemHighlightParamsAvailable(): Boolean {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 19
+        }
+
+        /**
          * Check if the current device has support for the photo picker by checking the running
          * Android version, the SDK extension version or the picker provided by a system app
          * implementing [ACTION_SYSTEM_FALLBACK_PICK_IMAGES].
@@ -351,6 +442,22 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
                     putExtra(MediaStore.EXTRA_PICK_IMAGES_ACCENT_COLOR, input.accentColor)
                 }
 
+                if (areSystemHighlightParamsAvailable()) {
+                    input.highlightSearchResultsParams?.let {
+                        putExtra(
+                            MediaStore.EXTRA_PICK_IMAGES_HIGHLIGHT_SEARCH_RESULTS,
+                            it.createHighlightSearchResultsBundle(),
+                        )
+                    }
+
+                    input.highlightAlbumParams?.let {
+                        putExtra(
+                            MediaStore.EXTRA_PICK_IMAGES_HIGHLIGHT_ALBUM,
+                            it.createHighlightAlbumBundle(),
+                        )
+                    }
+                }
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     input.mediaCapabilitiesForTranscoding?.let { capabilities ->
                         putExtra(
@@ -381,6 +488,20 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
                     putExtra(
                         EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS,
                         true,
+                    )
+                }
+
+                input.highlightSearchResultsParams?.let {
+                    putExtra(
+                        EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_SEARCH_RESULTS,
+                        it.createHighlightSearchResultsFallbackBundle(),
+                    )
+                }
+
+                input.highlightAlbumParams?.let {
+                    putExtra(
+                        EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM,
+                        it.createHighlightAlbumFallbackBundle(),
                     )
                 }
             }
