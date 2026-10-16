@@ -253,7 +253,7 @@ public object RemoteCheckboxButtonDefaults {
                 checkedSecondaryContentColor = onPrimaryContainer.copy(alpha = 0.9f.rf),
                 checkedIconColor = primary,
                 checkedBoxColor = primary,
-                checkedCheckmarkColor = onPrimary,
+                checkedCheckmarkColor = primaryContainer,
                 uncheckedContainerColor = surfaceContainer,
                 uncheckedContentColor = onSurface,
                 uncheckedSecondaryContentColor = onSurfaceVariant,
@@ -265,7 +265,8 @@ public object RemoteCheckboxButtonDefaults {
                     onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
                 disabledCheckedIconColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
                 disabledCheckedBoxColor = onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
-                disabledCheckedCheckmarkColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+                disabledCheckedCheckmarkColor =
+                    background.toDisabledColor(disabledAlpha = 0.38f.rf),
                 disabledUncheckedContainerColor =
                     onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
                 disabledUncheckedContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),

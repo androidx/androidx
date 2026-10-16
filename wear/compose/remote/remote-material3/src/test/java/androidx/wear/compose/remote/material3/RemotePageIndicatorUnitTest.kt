@@ -191,4 +191,22 @@ class RemotePageIndicatorUnitTest {
         }
         assertThat(greenPixelsAtOffset80).isLessThan(greenPixelsWhenSettled)
     }
+
+    @Test
+    fun page_indicator_defaults_colors_match_onBackground() {
+        lateinit var selectedColor: androidx.compose.remote.creation.compose.state.RemoteColor
+        lateinit var unselectedColor: androidx.compose.remote.creation.compose.state.RemoteColor
+        val expectedOnBackground = Color.Cyan
+        composeRule.setContent {
+            RemoteMaterialTheme(
+                colorScheme = RemoteColorScheme().copy(onBackground = expectedOnBackground.rc)
+            ) {
+                selectedColor = RemotePageIndicatorDefaults.selectedColor
+                unselectedColor = RemotePageIndicatorDefaults.unselectedColor
+            }
+        }
+
+        assertThat(selectedColor.constantValue).isEqualTo(expectedOnBackground)
+        assertThat(unselectedColor.constantValue).isEqualTo(expectedOnBackground.copy(alpha = 0.3f))
+    }
 }
