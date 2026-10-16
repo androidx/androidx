@@ -38,8 +38,7 @@ public object AppWidgetSizeTiers {
      */
     public fun resolveWidthTier(widthDp: Float, surface: AppWidgetGlanceSurface): WidthTier {
         return when (surface) {
-            AppWidgetGlanceSurface.MOBILE_HOME_SCREEN,
-            AppWidgetGlanceSurface.TABLET_HOME_SCREEN -> WidthTier.fromDp(widthDp)
+            AppWidgetGlanceSurface.MOBILE_HOME_SCREEN -> WidthTier.fromDp(widthDp)
             AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN ->
                 when {
                     widthDp < 100f -> WidthTier.W1
@@ -63,8 +62,7 @@ public object AppWidgetSizeTiers {
     public fun resolveHeightTier(heightDp: Float, surface: AppWidgetGlanceSurface): HeightTier {
         return when (surface) {
             AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN -> HeightTier.H0
-            AppWidgetGlanceSurface.MOBILE_HOME_SCREEN,
-            AppWidgetGlanceSurface.TABLET_HOME_SCREEN -> HeightTier.fromDp(heightDp)
+            AppWidgetGlanceSurface.MOBILE_HOME_SCREEN -> HeightTier.fromDp(heightDp)
         }
     }
 

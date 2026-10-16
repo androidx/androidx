@@ -27,17 +27,6 @@ public enum class AppWidgetGlanceSurface(
     /** Mobile Phone home screen launcher surface. */
     MOBILE_HOME_SCREEN("home_screen"),
 
-    /** Mobile Phone lockscreen surface or Keyguard glanceable space. */
+    /** Mobile Phone lockscreen surface or Keyguard glanceable surface. */
     MOBILE_LOCK_SCREEN("keyguard"),
-
-    /** Large screen tablet home launcher. */
-    TABLET_HOME_SCREEN("tablet_home_screen");
-
-    public companion object {
-        /** Mobile Phone home screen launcher surface alias. */
-        @JvmField public val HOME_SCREEN: AppWidgetGlanceSurface = MOBILE_HOME_SCREEN
-
-        /** Mobile Phone lockscreen surface or Keyguard glanceable space alias. */
-        @JvmField public val LOCK_SCREEN: AppWidgetGlanceSurface = MOBILE_LOCK_SCREEN
-    }
 }
