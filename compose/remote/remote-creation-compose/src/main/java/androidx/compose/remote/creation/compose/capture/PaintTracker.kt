@@ -214,11 +214,11 @@ internal class PaintTracker {
                     if (constantColor != null) {
                         paintBundle.setColorFilter(
                             constantColor.toArgb(),
-                            targetColorFilter.blendMode.toInt(),
+                            targetColorFilter.blendMode.value,
                         )
                     } else {
                         val colorId = targetColorFilter.color.getIdForCreationState(creationState)
-                        paintBundle.setColorFilterId(colorId, targetColorFilter.blendMode.toInt())
+                        paintBundle.setColorFilterId(colorId, targetColorFilter.blendMode.value)
                     }
                 }
 

@@ -278,7 +278,7 @@ class RemotePaintTest {
         assertThat(remotePaint.color.constantValue).isEqualTo(Color.Green)
         val colorFilter = remotePaint.colorFilter as RemoteBlendModeColorFilter
         assertThat(colorFilter.color.constantValue).isEqualTo(Color.Red)
-        assertThat(colorFilter.blendMode).isEqualTo(BlendMode.SrcIn)
+        assertThat(colorFilter.blendMode).isEqualTo(RemoteBlendMode.SrcIn)
     }
 
     @Test

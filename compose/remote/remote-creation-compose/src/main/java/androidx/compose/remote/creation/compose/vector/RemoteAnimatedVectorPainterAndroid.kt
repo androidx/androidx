@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("RemoteAnimatedVectorPainterKt")
-@file:JvmMultifileClass
-
 package androidx.compose.remote.creation.compose.vector
 
 import android.content.Context
@@ -27,7 +24,14 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.unit.dp
 
 /**
  * Creates a [RemotePainter] to render an XML Animated Vector Drawable resource at [progress].
@@ -66,4 +70,87 @@ public fun rememberRemoteAnimatedVectorPainter(
         val avd = RemoteAnimatedVector.fromXml(resources, id)
         RemoteAnimatedVectorPainter(avd, progress)
     }
+}
+
+/**
+ * Converts a [RemoteVectorSnapshot] to a standard Compose [ImageVector].
+ *
+ * This allows rendering the evaluated state of an animated vector in standard Compose.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteVectorSnapshot.toImageVector(): ImageVector {
+    val builder =
+        ImageVector.Builder(
+            defaultWidth = width.dp,
+            defaultHeight = height.dp,
+            viewportWidth = viewportWidth,
+            viewportHeight = viewportHeight,
+        )
+
+    fun addPath(b: ImageVector.Builder, path: RemoteEvaluatedPath) {
+        b.addPath(
+            pathData =
+                if (path.pathData.isNotEmpty()) {
+                    PathParser().parsePathString(path.pathData).toNodes()
+                } else {
+                    emptyList()
+                },
+            name = path.name,
+            fill = path.fillColor?.let { SolidColor(Color(it)) },
+            fillAlpha = path.fillAlpha,
+            stroke = path.strokeColor?.let { SolidColor(Color(it)) },
+            strokeAlpha = path.strokeAlpha,
+            strokeLineWidth = path.strokeWidth,
+            strokeLineCap =
+                when (path.strokeLineCap) {
+                    1 -> StrokeCap.Round
+                    2 -> StrokeCap.Square
+                    else -> StrokeCap.Butt
+                },
+            strokeLineJoin =
+                when (path.strokeLineJoin) {
+                    1 -> StrokeJoin.Round
+                    2 -> StrokeJoin.Bevel
+                    else -> StrokeJoin.Miter
+                },
+            strokeLineMiter = path.strokeLineMiter,
+            trimPathStart = path.trimPathStart,
+            trimPathEnd = path.trimPathEnd,
+            trimPathOffset = path.trimPathOffset,
+        )
+    }
+
+    fun addGroup(b: ImageVector.Builder, group: RemoteEvaluatedGroup) {
+        b.addGroup(
+            name = group.name,
+            rotate = group.rotation,
+            pivotX = group.pivotX,
+            pivotY = group.pivotY,
+            scaleX = group.scaleX,
+            scaleY = group.scaleY,
+            translationX = group.translationX,
+            translationY = group.translationY,
+            clipPathData =
+                if (group.clipPathData.isNotEmpty()) {
+                    PathParser().parsePathString(group.clipPathData).toNodes()
+                } else {
+                    emptyList()
+                },
+        )
+        for (i in group.children.indices) {
+            when (val child = group.children[i]) {
+                is RemoteEvaluatedGroup -> addGroup(b, child)
+                is RemoteEvaluatedPath -> addPath(b, child)
+            }
+        }
+        b.clearGroup()
+    }
+
+    for (i in rootGroup.children.indices) {
+        when (val child = rootGroup.children[i]) {
+            is RemoteEvaluatedGroup -> addGroup(builder, child)
+            is RemoteEvaluatedPath -> addPath(builder, child)
+        }
+    }
+    return builder.build()
 }

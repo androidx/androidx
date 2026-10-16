@@ -17,11 +17,11 @@
 package androidx.compose.remote.creation.compose.painter
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.RemoteContentScale
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
-import androidx.compose.ui.layout.ContentScale
 
 /**
  * A [RemotePainter] that draws a [RemoteImageBitmap] into the provided RemoteCanvas.
@@ -41,7 +41,7 @@ public class RemoteImageBitmapPainter(
             image = image,
             srcOffset = srcOffset,
             srcSize = srcSize,
-            scaleType = ContentScale.FillBounds,
+            scaleType = RemoteContentScale.FillBounds,
         )
     }
 

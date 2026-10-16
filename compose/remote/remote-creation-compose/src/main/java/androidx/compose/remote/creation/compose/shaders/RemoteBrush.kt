@@ -13,27 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.compose.remote.creation.compose.shaders
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 
 /**
- * A remote representation of a [Brush] that can be serialized and reconstructed on a remote
- * surface.
+ * A remote representation of a [androidx.compose.ui.graphics.Brush] that can be serialized and
+ * reconstructed on a remote surface.
  *
- * This class provides a mechanism to intercept standard Compose [Brush] instances, such as linear
- * gradients or solid colors, and convert them into a format suitable for remote rendering.
+ * This class provides a mechanism to intercept standard Compose
+ * [androidx.compose.ui.graphics.Brush] instances, such as linear gradients or solid colors, and
+ * convert them into a format suitable for remote rendering.
  */
 @Immutable
 public abstract class RemoteBrush internal constructor() {
@@ -54,17 +53,6 @@ public abstract class RemoteBrush internal constructor() {
     public abstract fun RemoteStateScope.applyTo(paint: RemotePaint, size: RemoteSize)
 
     public companion object {
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun fromComposeUi(brush: Brush): RemoteBrush {
-            return when (brush) {
-                is SolidColor -> RemoteBrush.solidColor(brush.value.rc)
-                else -> {
-                    println("RemoteBrush.fromComposeUi not implemented for $brush")
-                    RemoteBrush.solidColor(Color.Transparent.rc)
-                }
-            }
-        }
-
         internal fun resolve(value: RemoteFloat, infinityValue: RemoteFloat): RemoteFloat {
             return if (value.constantValueOrNull == Float.POSITIVE_INFINITY) {
                 infinityValue
@@ -72,6 +60,8 @@ public abstract class RemoteBrush internal constructor() {
                 value
             }
         }
+
+        internal const val Black: Int = 0xFF000000.toInt()
     }
 }
 
@@ -87,7 +77,7 @@ public abstract class RemoteShaderBrush internal constructor() : RemoteBrush() {
     override fun RemoteStateScope.applyTo(paint: RemotePaint, size: RemoteSize) {
         val shader = createShader(size)
         paint.shader = shader
-        paint.color = Color.Black.rc
+        paint.color = RemoteColor(Black)
     }
 
     /**
@@ -107,6 +97,6 @@ public abstract class RemoteShaderBrush internal constructor() : RemoteBrush() {
         val shader = createShader(size)
         shader.remoteMatrix3x3 = matrix3x3
         paint.shader = shader
-        paint.color = Color.Black.rc
+        paint.color = RemoteColor(Black)
     }
 }

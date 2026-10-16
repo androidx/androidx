@@ -20,8 +20,8 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.layout.RemoteContentScale
 import androidx.compose.remote.creation.compose.layout.RemoteSize
-import androidx.compose.remote.creation.compose.layout.toTileModeInt
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
@@ -30,22 +30,20 @@ import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createScaleY
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createTranslateXy
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.TileMode as ComposeTileMode
-import androidx.compose.ui.layout.ContentScale
 
 internal class RemoteImageShader(
     public val bitmap: RemoteImageBitmap,
-    public val tileModeX: ComposeTileMode,
-    public val tileModeY: ComposeTileMode,
+    public val tileModeX: RemoteTileMode,
+    public val tileModeY: RemoteTileMode,
 ) : RemoteShader() {
     override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
         paintBundle.setTextureShader(
             bitmap.getIdForCreationState(creationState),
-            tileModeX.toTileModeInt().toShort(),
-            tileModeY.toTileModeInt().toShort(),
+            tileModeX.value.toShort(),
+            tileModeY.value.toShort(),
             Rc.Texture.FILTER_DEFAULT,
             0,
         )
@@ -55,9 +53,9 @@ internal class RemoteImageShader(
 @Immutable
 internal data class RemoteImageBrush(
     public val bitmap: RemoteImageBitmap,
-    public val tileModeX: ComposeTileMode = ComposeTileMode.Clamp,
-    public val tileModeY: ComposeTileMode = ComposeTileMode.Clamp,
-    public val contentScale: ContentScale = ContentScale.None,
+    public val tileModeX: RemoteTileMode = RemoteTileMode.Clamp,
+    public val tileModeY: RemoteTileMode = RemoteTileMode.Clamp,
+    public val contentScale: RemoteContentScale = RemoteContentScale.None,
 ) : RemoteShaderBrush() {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -76,35 +74,35 @@ internal data class RemoteImageBrush(
         val finalScaleX: RemoteFloat
         val finalScaleY: RemoteFloat
         when (contentScale) {
-            ContentScale.Fit -> {
+            RemoteContentScale.Fit -> {
                 val scale = scaleX.isLessThan(scaleY).select(scaleX, scaleY)
                 finalScaleX = scale
                 finalScaleY = scale
             }
-            ContentScale.Crop -> {
+            RemoteContentScale.Crop -> {
                 val scale = scaleX.isGreaterThan(scaleY).select(scaleX, scaleY)
                 finalScaleX = scale
                 finalScaleY = scale
             }
-            ContentScale.FillBounds -> {
+            RemoteContentScale.FillBounds -> {
                 finalScaleX = scaleX
                 finalScaleY = scaleY
             }
-            ContentScale.FillWidth -> {
+            RemoteContentScale.FillWidth -> {
                 finalScaleX = scaleX
                 finalScaleY = scaleX
             }
-            ContentScale.FillHeight -> {
+            RemoteContentScale.FillHeight -> {
                 finalScaleX = scaleY
                 finalScaleY = scaleY
             }
-            ContentScale.Inside -> {
+            RemoteContentScale.Inside -> {
                 val minScale = scaleX.isLessThan(scaleY).select(scaleX, scaleY)
                 val scale = minScale.isLessThan(1.rf).select(minScale, 1.rf)
                 finalScaleX = scale
                 finalScaleY = scale
             }
-            ContentScale.None -> {
+            RemoteContentScale.None -> {
                 finalScaleX = 1.rf
                 finalScaleY = 1.rf
             }
@@ -117,21 +115,3 @@ internal data class RemoteImageBrush(
         return createTranslateXy(dx, dy) * createScaleX(finalScaleX) * createScaleY(finalScaleY)
     }
 }
-
-/**
- * Creates a texture brush with a specified [image].
- *
- * @param image The [RemoteImageBitmap] to use
- * @param tileModeX The [ComposeTileMode] to use for the bitmap in the x-axis. Defaults to
- *   [ComposeTileMode.Clamp] to repeat the edge pixels
- * @param tileModeY The [ComposeTileMode] to use for the bitmap in the y-axis. Defaults to
- *   [ComposeTileMode.Clamp] to repeat the edge pixels
- * @param contentScale The [ContentScale] to use when scaling the bitmap.
- */
-@Stable
-public fun RemoteBrush.Companion.image(
-    image: RemoteImageBitmap,
-    tileModeX: ComposeTileMode = ComposeTileMode.Clamp,
-    tileModeY: ComposeTileMode = ComposeTileMode.Clamp,
-    contentScale: ContentScale = ContentScale.None,
-): RemoteShaderBrush = RemoteImageBrush(image, tileModeX, tileModeY, contentScale)
