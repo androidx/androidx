@@ -27,6 +27,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.TextClassName
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.TextFieldClassName
+import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.platform.toLegacyClassName
 import androidx.compose.ui.semantics.CredentialRequestData
 import androidx.compose.ui.semantics.Role
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.fastForEach
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 
+@OptIn(ExperimentalComposeUiHostApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun ViewStructure.populate(
     semanticsInfo: SemanticsInfo,
@@ -141,7 +143,7 @@ internal fun ViewStructure.populate(
     }
 
     // Autofill Hints.
-    contentTypeProp?.contentHints?.let { autofillApi.setAutofillHints(this, it) }
+    contentTypeProp?.contentHints?.let { autofillApi.setAutofillHints(this, it.toTypedArray()) }
 
     // Dimensions.
     rectManager.withRect(semanticsInfo.semanticsId) { left, top, right, bottom ->
