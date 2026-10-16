@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEqualTo
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
@@ -50,6 +51,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.compose.platform.SpatialConfiguration
+import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterDefaults
 import androidx.xr.compose.spatial.OrbiterPosition
@@ -79,7 +81,11 @@ import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.unit.DpVolumeOffset
+import androidx.xr.testutils.SpatialNode
+import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.XrDeviceTest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -88,6 +94,8 @@ import org.junit.runner.RunWith
 
 /**
  * Automated instrument tests for the Spatial Layout CUJ test case in Compose XR.
+ *
+ * All tests run in Full Space, which is requested in [setUp].
  *
  * Covers:
  * - Multi-column spatial layout (left column, center column, right column)
@@ -99,6 +107,8 @@ import org.junit.runner.RunWith
  * - 3D positioning of stacked panels along the Y axis in SpatialColumn
  * - Uniform spacing between panels in a grid built with SpatialArrangement.spacedBy
  * - Z-axis depth alignment in SpatialBox and 3D translation via SubspaceModifier.offset
+ * - Rendered panel positions in the system spatial scene graph (`dumpsys spf_cpm`, queried via
+ *   SpatialSceneHelper) along the X, Y, and Z axes
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -114,6 +124,7 @@ class SpatialLayoutTest {
             "XR spatial environment is not supported on this device/emulator",
             SpatialConfiguration.hasXrSpatialFeature(context),
         )
+        enterFullSpace()
     }
 
     /**
@@ -683,6 +694,115 @@ class SpatialLayoutTest {
     }
 
     /**
+     * Validates, through the system spatial scene graph, that the panels of a SpatialRow are
+     * rendered in order along the X axis with SpatialSpacer gaps between them.
+     */
+    @Test
+    fun spatialLayout_sceneGraph_rowWithSpacers_rendersPanelsAlongXAxis() {
+        val small = SpatialPanelSpec("scene_row_small", width = 160.dp, height = 120.dp)
+        val medium = SpatialPanelSpec("scene_row_medium", width = 200.dp, height = 160.dp)
+        val large = SpatialPanelSpec("scene_row_large", width = 240.dp, height = 200.dp)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialRow(modifier = SubspaceModifier.width(680.dp).height(200.dp)) {
+                    ScenePanel(small)
+                    SpatialSpacer(modifier = SubspaceModifier.width(40.dp))
+                    ScenePanel(medium)
+                    SpatialSpacer(modifier = SubspaceModifier.width(40.dp))
+                    ScenePanel(large)
+                }
+            }
+        }
+
+        // The row spans x = -340.dp..340.dp: 160.dp panel, 40.dp gap, 200.dp panel, 40.dp gap,
+        // 240.dp panel. All panels are vertically centered and at the same depth.
+        val scene = captureScenePanels(small, medium, large)
+        scene.positionOf(small).assertEquals(DpVolumeOffset(x = (-260).dp))
+        scene.positionOf(medium).assertEquals(DpVolumeOffset(x = (-40).dp))
+        scene.positionOf(large).assertEquals(DpVolumeOffset(x = 220.dp))
+    }
+
+    /**
+     * Validates, through the system spatial scene graph, that the panels of a SpatialColumn are
+     * rendered stacked along the Y axis with uniform spacing.
+     */
+    @Test
+    fun spatialLayout_sceneGraph_spacedColumn_rendersPanelsAlongYAxis() {
+        val small = SpatialPanelSpec("scene_column_small", width = 160.dp, height = 120.dp)
+        val medium = SpatialPanelSpec("scene_column_medium", width = 200.dp, height = 160.dp)
+        val large = SpatialPanelSpec("scene_column_large", width = 240.dp, height = 200.dp)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialColumn(
+                    modifier = SubspaceModifier.width(240.dp).height(560.dp),
+                    verticalArrangement = SpatialArrangement.spacedBy(40.dp),
+                ) {
+                    ScenePanel(small)
+                    ScenePanel(medium)
+                    ScenePanel(large)
+                }
+            }
+        }
+
+        // The column spans y = -280.dp..280.dp: 120.dp panel, 40.dp gap, 160.dp panel, 40.dp gap,
+        // 200.dp panel. Y increases upwards. All panels are horizontally centered and at the same
+        // depth.
+        val scene = captureScenePanels(small, medium, large)
+        scene.positionOf(small).assertEquals(DpVolumeOffset(y = 220.dp))
+        scene.positionOf(medium).assertEquals(DpVolumeOffset(y = 40.dp))
+        scene.positionOf(large).assertEquals(DpVolumeOffset(y = (-180).dp))
+    }
+
+    /**
+     * Validates, through the system spatial scene graph, that SpatialBox depth alignment renders
+     * panels at different depths along the Z axis.
+     */
+    @Test
+    fun spatialLayout_sceneGraph_spatialBoxDepthAlignment_rendersPanelsAlongZAxis() {
+        val center = SpatialPanelSpec("scene_box_center", width = 200.dp, height = 160.dp)
+        val front = SpatialPanelSpec("scene_box_front", width = 240.dp, height = 200.dp)
+        val back = SpatialPanelSpec("scene_box_back", width = 160.dp, height = 120.dp)
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialBox(modifier = SubspaceModifier.width(600.dp).height(400.dp).depth(200.dp)) {
+                    ScenePanel(center)
+                    ScenePanel(
+                        front,
+                        SubspaceModifier.align(
+                            SpatialBiasAlignment(
+                                horizontalBias = -1f,
+                                verticalBias = 1f,
+                                depthBias = 1f,
+                            )
+                        ),
+                    )
+                    ScenePanel(
+                        back,
+                        SubspaceModifier.align(
+                            SpatialBiasAlignment(
+                                horizontalBias = 1f,
+                                verticalBias = -1f,
+                                depthBias = -1f,
+                            )
+                        ),
+                    )
+                }
+            }
+        }
+
+        // Flat panels aligned to the front/back of the 200.dp deep box move by +/-100.dp along Z,
+        // and to its corners by half of the remaining width and height.
+        // Positions are DpVolumeOffset(x, y, z).
+        val scene = captureScenePanels(center, front, back)
+        scene.positionOf(center).assertEquals(DpVolumeOffset(0.dp, 0.dp, 0.dp))
+        scene.positionOf(front).assertEquals(DpVolumeOffset((-180).dp, 100.dp, 100.dp))
+        scene.positionOf(back).assertEquals(DpVolumeOffset(220.dp, (-140).dp, (-100).dp))
+    }
+
+    /**
      * Asserts that the subspace node with the given [tag] is positioned at ([x], [y], [z]) relative
      * to the root of the Subspace, within [PositionTolerance].
      */
@@ -691,6 +811,102 @@ class SpatialLayoutTest {
             .onSubspaceNodeWithTag(tag)
             .assertPositionInRootIsEqualTo(x, y, z, PositionTolerance)
     }
+
+    /**
+     * Requests Full Space for the test activity. Called from [setUp] so that every test runs in
+     * Full Space, where Subspace panels are rendered as spatial scene graph nodes.
+     */
+    private fun enterFullSpace() {
+        runBlocking(Dispatchers.Main) { composeTestRule.activity.requestFullSpace() }
+    }
+
+    /**
+     * Captures the system spatial scene graph and returns where each of [panels] was rendered.
+     *
+     * Scene graph panel nodes are named `ViewPanel:<viewId>` and carry no test tags, so every panel
+     * must have a unique width: nodes are matched to panels by sorting both by width. Node
+     * positions are in meters, so they are converted to dp, relative to the Compose `SubspaceRoot`
+     * node, using the ratio between the node widths and the panel widths.
+     */
+    private fun captureScenePanels(vararg panels: SpatialPanelSpec): ScenePanels {
+        val nodes = awaitScenePanelNodes(panels.size)
+        val nodesByPanel =
+            panels
+                .sortedBy { it.width }
+                .zip(nodes.sortedBy { it.effectiveSurfaceBoundsInMeters!!.x })
+                .toMap()
+        val metersPerDp =
+            nodesByPanel
+                .map { (panel, node) ->
+                    node.effectiveSurfaceBoundsInMeters!!.x / panel.width.value
+                }
+                .average()
+                .toFloat()
+        val subspaceRoot =
+            generateSequence(nodes.first()) { it.parent }.first { it.name == "SubspaceRoot" }
+        return ScenePanels(
+            nodesByPanel.mapValues { (_, node) ->
+                val position = subspaceRoot.transformPointFromWorld(node.position) / metersPerDp
+                DpVolumeOffset(position.x.dp, position.y.dp, position.z.dp)
+            }
+        )
+    }
+
+    /** Where each panel was rendered, relative to the root of the Subspace, in dp. */
+    private class ScenePanels(private val positions: Map<SpatialPanelSpec, DpVolumeOffset>) {
+        fun positionOf(panel: SpatialPanelSpec): DpVolumeOffset = positions.getValue(panel)
+    }
+
+    /**
+     * Polls the scene graph until the task of the test activity has [count] visible panel nodes
+     * with a size, and returns them. Panels only become visible once Compose has laid them out.
+     */
+    private fun awaitScenePanelNodes(count: Int): List<SpatialNode> {
+        var nodes = emptyList<SpatialNode>()
+        composeTestRule.waitUntil(
+            conditionDescription = "$count visible panel nodes in the spatial scene",
+            timeoutMillis = 10_000L,
+        ) {
+            val task =
+                SpatialSceneHelper.captureSpatialScene()
+                    .findTaskByActivity(composeTestRule.activity)
+            nodes =
+                task
+                    ?.findNodes {
+                        it.name.startsWith("ViewPanel") &&
+                            it.isVisible &&
+                            it.effectiveSurfaceBoundsInMeters != null
+                    }
+                    .orEmpty()
+            nodes.size == count
+        }
+        return nodes
+    }
+
+    /**
+     * Asserts that this scene graph position equals [expected] on every axis, within
+     * [ScenePositionTolerance].
+     */
+    private fun DpVolumeOffset.assertEquals(expected: DpVolumeOffset) {
+        x.assertIsEqualTo(expected.x, subject = "scene graph x", tolerance = ScenePositionTolerance)
+        y.assertIsEqualTo(expected.y, subject = "scene graph y", tolerance = ScenePositionTolerance)
+        z.assertIsEqualTo(expected.z, subject = "scene graph z", tolerance = ScenePositionTolerance)
+    }
+
+    /** Declares a SpatialPanel of the given [spec] whose content shows the spec's tag. */
+    @Composable
+    @SubspaceComposable
+    private fun ScenePanel(spec: SpatialPanelSpec, modifier: SubspaceModifier = SubspaceModifier) {
+        SpatialPanel(modifier = modifier.width(spec.width).height(spec.height).testTag(spec.tag)) {
+            TestPanelBox(spec.tag)
+        }
+    }
+
+    /**
+     * Describes a SpatialPanel declared by a test: its test [tag] and its size. Scene graph tests
+     * give each panel a unique width so that its scene graph node can be identified by size.
+     */
+    private class SpatialPanelSpec(val tag: String, val width: Dp, val height: Dp)
 
     @Composable
     @SubspaceComposable
@@ -716,5 +932,11 @@ class SpatialLayoutTest {
          * subspace layouts on device.
          */
         val PositionTolerance = 1.dp
+
+        /**
+         * Tolerance for panel positions read from the scene graph, which reports positions rounded
+         * to millimeters.
+         */
+        val ScenePositionTolerance = 4.dp
     }
 }
