@@ -35,6 +35,6 @@
             <id>unused</id>
             <name>com.testdata.Empty</name>
         </dataTypes>
-        <id>unused</id>
+        <id>com.testdata.FunctionWithEmptySerializable</id>
     </AppFunctionComponentMetadataDocument>
 </appfunctions>

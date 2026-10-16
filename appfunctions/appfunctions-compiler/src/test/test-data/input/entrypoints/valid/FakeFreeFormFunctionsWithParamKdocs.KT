@@ -1,17 +1,18 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionDeclaration
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
 /**
  * Tests the generation of descriptions elements for app functions' parameters.
  */
-class FakeFreeFormFunctions {
+@AppFunctionServiceEntryPoint("FakeFreeFormFunctionsService", "app_functions_v2")
+abstract class FakeFreeFormFunctions : AppFunctionService() {
     /**
      * A fake free-form AppFunction to test descriptions in parameter metadata.
      *
-     * @param appFunctionContext the AppFunction's context.
      * @param intParam an input integer. Adding more text here to test multi-line description:
      * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
      * labore et dolore magna aliqua.
@@ -21,7 +22,6 @@ class FakeFreeFormFunctions {
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_isDescribedByKDoc_true(
-        appFunctionContext: AppFunctionContext,
         intParam: Int,
         stringListParam: List<String>,
     ): String {
@@ -34,14 +34,12 @@ class FakeFreeFormFunctions {
      * This kdoc will not be used in any of the metadata descriptions since `isDescribedByKDoc` is
      * set to false.
      *
-     * @param appFunctionContext the AppFunction's context.
      * @param intParam an input integer.
      * @return a string.
      * @throws IllegalArgumentException if the inputString is in an incorrect format.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun fakeFreeFormFunction_isDescribedByKDoc_false(
-        appFunctionContext: AppFunctionContext,
         intParam: Int,
     ): String {
         return "response"
@@ -50,14 +48,12 @@ class FakeFreeFormFunctions {
     /**
      * A fake free-form AppFunction to test descriptions in parameter metadata.
      *
-     * @param appFunctionContext the AppFunction's context.
      * @param invalidParam Invalid param. Should be ignored.
      * @return a string.
      * @throws IllegalArgumentException if the parameters have an incorrect format.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_invalidParam_ignored(
-        appFunctionContext: AppFunctionContext,
         intParam: Int,
     ): String {
         return "response"
@@ -66,7 +62,6 @@ class FakeFreeFormFunctions {
     /**
      * A fake free-form AppFunction to test descriptions in parameter metadata.
      *
-     * @param appFunctionContext the AppFunction's context.
      * @param paramWithEmptyDescription
      *
      * @return a string.
@@ -74,7 +69,6 @@ class FakeFreeFormFunctions {
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_emptyDescription_ignored(
-        appFunctionContext: AppFunctionContext,
         paramWithEmptyDescription: Int,
     ): String {
         return "response"
@@ -83,7 +77,6 @@ class FakeFreeFormFunctions {
     /**
      * A fake free-form AppFunction to test descriptions in parameter metadata.
      *
-     * @param appFunctionContext the AppFunction's context.
      * @param intParam an input integer.
      * @fakeCustomTag Custom tag's content.
      * @return a string.
@@ -91,7 +84,6 @@ class FakeFreeFormFunctions {
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_onlyKnownTagsSkipped(
-        appFunctionContext: AppFunctionContext,
         intParam: Int,
     ): String {
         return "response"

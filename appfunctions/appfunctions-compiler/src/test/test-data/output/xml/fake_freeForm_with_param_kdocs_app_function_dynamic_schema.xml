@@ -1,79 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <appfunctions>
     <appfunction>
-        <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_emptyDescription_ignored</id>
-        <enabledByDefault>true</enabledByDefault>
-        <description>A fake free-form AppFunction to test descriptions in parameter metadata.</description>
-        <parameters>
-            <dataTypeMetadata>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>7</type>
-            </dataTypeMetadata>
-            <id>unused</id>
-            <isRequired>true</isRequired>
-            <name>paramWithEmptyDescription</name>
-        </parameters>
-        <response>
-            <id>unused</id>
-            <valueType>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>8</type>
-            </valueType>
-            <description>a string.</description>
-        </response>
-        <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_emptyDescription_ignored</functionId>
-    </appfunction>
-    <appfunction>
-        <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_invalidParam_ignored</id>
-        <enabledByDefault>true</enabledByDefault>
-        <description>A fake free-form AppFunction to test descriptions in parameter metadata.</description>
-        <parameters>
-            <dataTypeMetadata>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>7</type>
-            </dataTypeMetadata>
-            <id>unused</id>
-            <isRequired>true</isRequired>
-            <name>intParam</name>
-        </parameters>
-        <response>
-            <id>unused</id>
-            <valueType>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>8</type>
-            </valueType>
-            <description>a string.</description>
-        </response>
-        <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_invalidParam_ignored</functionId>
-    </appfunction>
-    <appfunction>
-        <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_false</id>
-        <enabledByDefault>true</enabledByDefault>
-        <parameters>
-            <dataTypeMetadata>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>7</type>
-            </dataTypeMetadata>
-            <id>unused</id>
-            <isRequired>true</isRequired>
-            <name>intParam</name>
-        </parameters>
-        <response>
-            <id>unused</id>
-            <valueType>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>8</type>
-            </valueType>
-        </response>
-        <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_false</functionId>
-    </appfunction>
-    <appfunction>
         <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_true</id>
         <enabledByDefault>true</enabledByDefault>
         <description>A fake free-form AppFunction to test descriptions in parameter metadata.</description>
@@ -114,6 +41,79 @@
             <description>a string.</description>
         </response>
         <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_true</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_false</id>
+        <enabledByDefault>true</enabledByDefault>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>intParam</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </valueType>
+        </response>
+        <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_false</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_invalidParam_ignored</id>
+        <enabledByDefault>true</enabledByDefault>
+        <description>A fake free-form AppFunction to test descriptions in parameter metadata.</description>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>intParam</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </valueType>
+            <description>a string.</description>
+        </response>
+        <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_invalidParam_ignored</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_emptyDescription_ignored</id>
+        <enabledByDefault>true</enabledByDefault>
+        <description>A fake free-form AppFunction to test descriptions in parameter metadata.</description>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>7</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>paramWithEmptyDescription</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </valueType>
+            <description>a string.</description>
+        </response>
+        <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_emptyDescription_ignored</functionId>
     </appfunction>
     <appfunction>
         <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_onlyKnownTagsSkipped</id>

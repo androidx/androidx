@@ -1,35 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <appfunctions>
     <appfunction>
-        <id>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithBothDerivedSerializableListAndListItemNullable</id>
-        <enabledByDefault>true</enabledByDefault>
-        <parameters>
-            <dataTypeMetadata>
-                <id>unused</id>
-                <isNullable>true</isNullable>
-                <itemType>
-                    <dataTypeReference>com.testdata.DerivedSerializable</dataTypeReference>
-                    <id>unused</id>
-                    <isNullable>true</isNullable>
-                    <type>11</type>
-                </itemType>
-                <type>10</type>
-            </dataTypeMetadata>
-            <id>unused</id>
-            <isRequired>true</isRequired>
-            <name>serializable</name>
-        </parameters>
-        <response>
-            <id>unused</id>
-            <valueType>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>0</type>
-            </valueType>
-        </response>
-        <functionId>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithBothDerivedSerializableListAndListItemNullable</functionId>
-    </appfunction>
-    <appfunction>
         <id>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithDerivedSerializable</id>
         <enabledByDefault>true</enabledByDefault>
         <parameters>
@@ -83,6 +54,59 @@
         <functionId>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithDerivedSerializableList</functionId>
     </appfunction>
     <appfunction>
+        <id>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithNullableDerivedSerializableList</id>
+        <enabledByDefault>true</enabledByDefault>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <itemType>
+                    <dataTypeReference>com.testdata.DerivedSerializable</dataTypeReference>
+                    <id>unused</id>
+                    <isNullable>false</isNullable>
+                    <type>11</type>
+                </itemType>
+                <type>10</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>serializable</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>0</type>
+            </valueType>
+        </response>
+        <functionId>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithNullableDerivedSerializableList</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithNullableDerivedSerializable</id>
+        <enabledByDefault>true</enabledByDefault>
+        <parameters>
+            <dataTypeMetadata>
+                <dataTypeReference>com.testdata.DerivedSerializable</dataTypeReference>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <type>11</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>serializable</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>0</type>
+            </valueType>
+        </response>
+        <functionId>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithNullableDerivedSerializable</functionId>
+    </appfunction>
+    <appfunction>
         <id>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithDerivedSerializableListItemNullable</id>
         <enabledByDefault>true</enabledByDefault>
         <parameters>
@@ -112,31 +136,7 @@
         <functionId>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithDerivedSerializableListItemNullable</functionId>
     </appfunction>
     <appfunction>
-        <id>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithNullableDerivedSerializable</id>
-        <enabledByDefault>true</enabledByDefault>
-        <parameters>
-            <dataTypeMetadata>
-                <dataTypeReference>com.testdata.DerivedSerializable</dataTypeReference>
-                <id>unused</id>
-                <isNullable>true</isNullable>
-                <type>11</type>
-            </dataTypeMetadata>
-            <id>unused</id>
-            <isRequired>true</isRequired>
-            <name>serializable</name>
-        </parameters>
-        <response>
-            <id>unused</id>
-            <valueType>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>0</type>
-            </valueType>
-        </response>
-        <functionId>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithNullableDerivedSerializable</functionId>
-    </appfunction>
-    <appfunction>
-        <id>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithNullableDerivedSerializableList</id>
+        <id>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithBothDerivedSerializableListAndListItemNullable</id>
         <enabledByDefault>true</enabledByDefault>
         <parameters>
             <dataTypeMetadata>
@@ -145,7 +145,7 @@
                 <itemType>
                     <dataTypeReference>com.testdata.DerivedSerializable</dataTypeReference>
                     <id>unused</id>
-                    <isNullable>false</isNullable>
+                    <isNullable>true</isNullable>
                     <type>11</type>
                 </itemType>
                 <type>10</type>
@@ -162,7 +162,7 @@
                 <type>0</type>
             </valueType>
         </response>
-        <functionId>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithNullableDerivedSerializableList</functionId>
+        <functionId>com.testdata.DerivedSerializableInputFunctions#simpleFunctionWithBothDerivedSerializableListAndListItemNullable</functionId>
     </appfunction>
     <AppFunctionComponentMetadataDocument>
         <dataTypes>
@@ -223,6 +223,6 @@
             <id>unused</id>
             <name>com.testdata.LongBaseSerializable</name>
         </dataTypes>
-        <id>unused</id>
+        <id>com.testdata.DerivedSerializableInputFunctions</id>
     </AppFunctionComponentMetadataDocument>
 </appfunctions>

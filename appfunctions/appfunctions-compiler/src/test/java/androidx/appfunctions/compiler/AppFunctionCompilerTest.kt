@@ -327,8 +327,7 @@ class AppFunctionCompilerTest {
     fun testAllParcelablePrimitiveInputFunctions_genAppFunctionInventory_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/ParcelablePrimitiveFunctions.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                sourceFileNames = listOf("entrypoints/valid/ParcelablePrimitiveFunctions.KT")
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -365,10 +364,9 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/FunctionWithSerializableProxyInput.KT",
+                        "entrypoints/valid/FunctionWithSerializableProxyInput.KT",
                         "serializable/valid/SerializableWithProxyType.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -405,8 +403,7 @@ class AppFunctionCompilerTest {
     fun testSerializableInputFunctions_genAppFunctionInventory_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/SerializableInputFunctions.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                sourceFileNames = listOf("entrypoints/valid/SerializableInputFunctions.KT")
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -428,10 +425,9 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/DerivedSerializableInputFunctions.KT",
+                        "entrypoints/valid/DerivedSerializableInputFunctions.KT",
                         "serializable/valid/DerivedSerializable.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -455,10 +451,9 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/NestedDerivedSerializableInputFunctions.KT",
+                        "entrypoints/valid/NestedDerivedSerializableInputFunctions.KT",
                         "serializable/valid/NestedDerivedSerializable.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -482,10 +477,9 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/DerivedSerializableOutputFunctions.KT",
+                        "entrypoints/valid/DerivedSerializableOutputFunctions.KT",
                         "serializable/valid/DerivedSerializable.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -509,10 +503,9 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/NestedDerivedSerializableOutputFunctions.KT",
+                        "entrypoints/valid/NestedDerivedSerializableOutputFunctions.KT",
                         "serializable/valid/NestedDerivedSerializable.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -536,12 +529,11 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/AppFunctionWithInputFromDifferentPackage.KT",
+                        "entrypoints/valid/AppFunctionWithInputFromDifferentPackage.KT",
                         "serializable/valid/DiffPackageSerializable.KT",
                         "schema/DiffPackageSchemas.KT",
                         "serializable/valid/AnotherDiffPackageSerializable.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -564,7 +556,10 @@ class AppFunctionCompilerTest {
         val report =
             compilationTestHelper.compileAll(
                 sourceFileNames =
-                    listOf("functions/valid/FakeAllPrimitiveParamsImpl.KT", "schema/FakeSchemas.KT")
+                    listOf(
+                        "entrypoints/valid/FakeAllPrimitiveParamsImpl.KT",
+                        "schema/FakeSchemas.KT",
+                    )
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -572,13 +567,6 @@ class AppFunctionCompilerTest {
             expectGeneratedSourceFileName =
                 "${'$'}FakeAllPrimitiveParamsImpl_AppFunctionInventory.kt",
             goldenFileName = "inventory/${'$'}FakeAllPrimitiveParamsImpl_AppFunctionInventory.KT",
-        )
-        compilationTestHelper.assertSuccessWithSourceContent(
-            report = report,
-            expectGeneratedSourceFileName =
-                "${'$'}FakeAllPrimitiveArrayParamsImpl_AppFunctionInventory.kt",
-            goldenFileName =
-                "inventory/${'$'}FakeAllPrimitiveArrayParamsImpl_AppFunctionInventory.KT",
         )
     }
 
@@ -588,15 +576,16 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/FakeAllPrimitiveReturnsImpl.KT",
+                        "entrypoints/valid/FakeAllPrimitiveReturnsImpl.KT",
                         "schema/FakeSchemas.KT",
                     )
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
             report = report,
-            expectGeneratedSourceFileName = "${'$'}UnitReturnImpl_AppFunctionInventory.kt",
-            goldenFileName = "inventory/${'$'}UnitReturnImpl_AppFunctionInventory.KT",
+            expectGeneratedSourceFileName =
+                "${'$'}FakeAllPrimitiveReturnsImpl_AppFunctionInventory.kt",
+            goldenFileName = "inventory/${'$'}FakeAllPrimitiveReturnsImpl_AppFunctionInventory.KT",
         )
     }
 
@@ -604,18 +593,12 @@ class AppFunctionCompilerTest {
     fun testIntValueConstraint_Xml_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/IntEnumValueFunctions.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                sourceFileNames = listOf("entrypoints/valid/IntEnumValueFunctions.KT")
             )
         compilationTestHelper.assertSuccessWithResourceContent(
             report = report,
             expectGeneratedResourceFileName = "app_functions_v2.xml",
             goldenFileName = "xml/intEnumValueFunctions_app_functions_v2.xml",
-        )
-        compilationTestHelper.assertSuccessWithSourceContent(
-            report = report,
-            expectGeneratedSourceFileName = "${'$'}AggregatedAppFunctionInventory_Impl.kt",
-            goldenFileName = "inventory/${'$'}AggregatedAppFunctionInventory_IntEnum_Impl.KT",
         )
         compilationTestHelper.assertSuccessWithSourceContent(
             report = report,
@@ -628,8 +611,7 @@ class AppFunctionCompilerTest {
     fun testStringValueConstraint_Xml_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/StringEnumValueFunctions.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                sourceFileNames = listOf("entrypoints/valid/StringEnumValueFunctions.KT")
             )
         compilationTestHelper.assertSuccessWithResourceContent(
             report = report,
@@ -648,8 +630,7 @@ class AppFunctionCompilerTest {
     fun testSerializableOutputFunctions_genAppFunctionInventory_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/SerializableOutputFunctions.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                sourceFileNames = listOf("entrypoints/valid/SerializableOutputFunctions.KT")
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -671,12 +652,11 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/AppFunctionWithOutputFromDifferentPackage.KT",
+                        "entrypoints/valid/AppFunctionWithOutputFromDifferentPackage.KT",
                         "serializable/valid/DiffPackageSerializable.KT",
                         "schema/DiffPackageSchemas.KT",
                         "serializable/valid/AnotherDiffPackageSerializable.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -700,10 +680,9 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/RecursiveSerializableInputFunctions.KT",
+                        "entrypoints/valid/RecursiveSerializableInputFunctions.KT",
                         "serializable/valid/RecursiveSerializable.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -802,7 +781,7 @@ class AppFunctionCompilerTest {
     fun testFunctionWithGenericSerializable_genAppFunctionInventory_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/FunctionWithGenericSerializable.KT")
+                sourceFileNames = listOf("entrypoints/valid/FunctionWithGenericSerializable.KT")
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -818,8 +797,7 @@ class AppFunctionCompilerTest {
     fun testFunctionWithGenericSerializable_genDynamicIndexXmlFile_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/FunctionWithGenericSerializable.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                sourceFileNames = listOf("entrypoints/valid/FunctionWithGenericSerializable.KT")
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
@@ -834,13 +812,13 @@ class AppFunctionCompilerTest {
         val report =
             compilationTestHelper.compileAll(
                 sourceFileNames =
-                    listOf("functions/valid/FakeNoArgImpl.KT", "schema/FakeSchemas.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    listOf("entrypoints/valid/FakeNoArgImpl.KT", "schema/FakeSchemas.KT"),
+                processorOptions = mapOf("appfunctions:generateV1Xml" to "true"),
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
             report = report,
-            expectGeneratedResourceFileName = "app_functions.xml",
+            expectGeneratedResourceFileName = "app_functions_v2-v1.xml",
             goldenFileName = "xml/fakeNoArgImpl_app_function.xml",
         )
     }
@@ -851,15 +829,15 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/FakeNoArgImpl_IsEnabled_True.KT",
+                        "entrypoints/valid/FakeNoArgImpl_IsEnabled_True.KT",
                         "schema/FakeSchemas.KT",
                     ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                processorOptions = mapOf("appfunctions:generateV1Xml" to "true"),
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
             report = report,
-            expectGeneratedResourceFileName = "app_functions.xml",
+            expectGeneratedResourceFileName = "app_functions_v2-v1.xml",
             goldenFileName = "xml/fakeNoArgImpl_isEnabled_true_app_function.xml",
         )
     }
@@ -870,15 +848,15 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/FakeNoArgImpl_IsEnabled_False.KT",
+                        "entrypoints/valid/FakeNoArgImpl_IsEnabled_False.KT",
                         "schema/FakeSchemas.KT",
                     ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                processorOptions = mapOf("appfunctions:generateV1Xml" to "true"),
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
             report = report,
-            expectGeneratedResourceFileName = "app_functions.xml",
+            expectGeneratedResourceFileName = "app_functions_v2-v1.xml",
             goldenFileName = "xml/fakeNoArgImpl_isEnabled_false_app_function.xml",
         )
     }
@@ -887,13 +865,13 @@ class AppFunctionCompilerTest {
     fun testFakeNoArg_freeForm_genLegacyIndexXmlFile_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/FakeNoArg_FreeForm_Function.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                sourceFileNames = listOf("entrypoints/valid/FakeNoArg_FreeForm_Function.KT"),
+                processorOptions = mapOf("appfunctions:generateV1Xml" to "true"),
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
             report = report,
-            expectGeneratedResourceFileName = "app_functions.xml",
+            expectGeneratedResourceFileName = "app_functions_v2-v1.xml",
             goldenFileName = "xml/fakeNoArg_freeForm_function_app_function.xml",
         )
     }
@@ -903,8 +881,7 @@ class AppFunctionCompilerTest {
         val report =
             compilationTestHelper.compileAll(
                 sourceFileNames =
-                    listOf("functions/valid/FakeNoArgImpl.KT", "schema/FakeSchemas.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    listOf("entrypoints/valid/FakeNoArgImpl.KT", "schema/FakeSchemas.KT")
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
@@ -920,10 +897,9 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/FakeNoArgImpl_IsEnabled_True.KT",
+                        "entrypoints/valid/FakeNoArgImpl_IsEnabled_True.KT",
                         "schema/FakeSchemas.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
@@ -939,10 +915,9 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/FakeNoArgImpl_IsEnabled_False.KT",
+                        "entrypoints/valid/FakeNoArgImpl_IsEnabled_False.KT",
                         "schema/FakeSchemas.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
@@ -956,8 +931,7 @@ class AppFunctionCompilerTest {
     fun testFakeNoArg_freeForm_genIndexXmlFile_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/FakeNoArg_FreeForm_Function.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                sourceFileNames = listOf("entrypoints/valid/FakeNoArg_FreeForm_Function.KT")
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
@@ -971,8 +945,8 @@ class AppFunctionCompilerTest {
     fun testFakeFreeFormFunctionWithInstruction_genXml_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/FakeFreeFormFunctionsWithInstruction.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                sourceFileNames =
+                    listOf("entrypoints/valid/FakeFreeFormFunctionsWithInstruction.KT")
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
@@ -987,8 +961,7 @@ class AppFunctionCompilerTest {
         val report =
             compilationTestHelper.compileAll(
                 sourceFileNames =
-                    listOf("functions/valid/FakeFreeFormFunctionsWithDetailedKdocs.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    listOf("entrypoints/valid/FakeFreeFormFunctionsWithDetailedKdocs.KT")
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
@@ -1002,8 +975,7 @@ class AppFunctionCompilerTest {
     fun testFakeFunction_freeForm_paramKdocAsDescription_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/FakeFreeFormFunctionsWithParamKdocs.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                sourceFileNames = listOf("entrypoints/valid/FakeFreeFormFunctionsWithParamKdocs.KT")
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
@@ -1019,10 +991,9 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/FakeAllPrimitiveParamsImpl.KT",
+                        "entrypoints/valid/FakeAllPrimitiveParamsImpl.KT",
                         "schema/FakeSchemas.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
@@ -1038,10 +1009,9 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/FakeAllPrimitiveReturnsImpl.KT",
+                        "entrypoints/valid/FakeAllPrimitiveReturnsImpl.KT",
                         "schema/FakeSchemas.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
@@ -1057,10 +1027,9 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames =
                     listOf(
-                        "functions/valid/FakeAllNullablePrimitiveParamsWithDefaultValuesImpl.KT",
+                        "entrypoints/valid/FakeAllNullablePrimitiveParamsWithDefaultValuesImpl.KT",
                         "schema/FakeSchemas.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
@@ -1115,7 +1084,6 @@ class AppFunctionCompilerTest {
                     listOf(
                         "functions/valid/AllPrimitiveInputFunctions.KT",
                         "functions/valid/DiffPackageFunction.KT",
-                        "functions/valid/FakeFreeFormFunctionsWithDetailedKdocs.KT",
                     )
             )
 
@@ -1131,7 +1099,7 @@ class AppFunctionCompilerTest {
         val report =
             compilationTestHelper.compileAll(
                 sourceFileNames =
-                    listOf("functions/valid/FakeFreeFormFunctionsWithDetailedKdocs.KT")
+                    listOf("entrypoints/valid/FakeFreeFormFunctionsWithDetailedKdocs.KT")
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -1234,8 +1202,7 @@ class AppFunctionCompilerTest {
     fun testSimpleFunctionWithEmptySerializable_genAppFunctionInventory_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/FunctionWithEmptySerializable.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                sourceFileNames = listOf("entrypoints/valid/FunctionWithEmptySerializable.KT")
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -1338,8 +1305,7 @@ class AppFunctionCompilerTest {
                         "oneofserializable/OneOfSealedClass.KT",
                         "oneofserializable/OneOfSealedInterface.KT",
                         "oneofserializable/OneOfFunctions.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                    )
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -1372,14 +1338,13 @@ class AppFunctionCompilerTest {
     fun testDeprecatedFunction_generatedClass_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/DeprecatedFunction.KT"),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
+                sourceFileNames = listOf("entrypoints/valid/DeprecatedFunction.KT")
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
             report = report,
-            expectGeneratedSourceFileName = "${'$'}DeprecatedFunction_AppFunctionInvoker.kt",
-            goldenFileName = "invoker/${'$'}DeprecatedFunction_AppFunctionInvoker.KT",
+            expectGeneratedSourceFileName = "DeprecatedFunctionService.kt",
+            goldenFileName = "entrypoints/DeprecatedFunctionService.KT",
         )
         compilationTestHelper.assertSuccessWithSourceContent(
             report = report,
@@ -1403,15 +1368,16 @@ class AppFunctionCompilerTest {
                 )
                 .toString()
         val dynamicSchemaXmlFile = File(testOutputLocation, "app_functions_v2.xml")
-        val legacySchemaXmlFile = File(testOutputLocation, "app_functions.xml")
+        val legacySchemaXmlFile = File(testOutputLocation, "app_functions_v2-v1.xml")
 
         try {
             val report =
                 compilationTestHelper.compileAll(
-                    sourceFileNames = listOf("functions/valid/FunctionWithGenericSerializable.KT"),
+                    sourceFileNames =
+                        listOf("entrypoints/valid/FunctionWithGenericSerializable.KT"),
                     processorOptions =
                         mapOf(
-                            "appfunctions:aggregateAppFunctions" to "true",
+                            "appfunctions:generateV1Xml" to "true",
                             "appfunctions:appFunctionsXmlLocation" to testOutputLocation,
                         ),
                 )
@@ -1440,7 +1406,7 @@ class AppFunctionCompilerTest {
             )
             compilationTestHelper.assertSuccessWithResourceContent(
                 report = report,
-                expectGeneratedResourceFileName = "app_functions.xml",
+                expectGeneratedResourceFileName = "app_functions_v2-v1.xml",
                 goldenFileName = "xml/functionWithGenericSerializable_app_function_legacy.xml",
             )
         } finally {

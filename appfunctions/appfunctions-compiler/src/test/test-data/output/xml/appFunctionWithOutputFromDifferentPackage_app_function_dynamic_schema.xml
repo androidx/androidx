@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <appfunctions>
     <appfunction>
+        <id>com.testdata.AppFunctionWithOutputFromDifferentPackage#functionWithDiffPackageOutput</id>
+        <enabledByDefault>true</enabledByDefault>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <dataTypeReference>com.testdata.differentPackage.DiffPackageSerializable</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </valueType>
+        </response>
+        <schemaCategory>diff_package_schemas_category</schemaCategory>
+        <schemaName>diffPackageOutputSchemas</schemaName>
+        <schemaVersion>1</schemaVersion>
+        <functionId>com.testdata.AppFunctionWithOutputFromDifferentPackage#functionWithDiffPackageOutput</functionId>
+    </appfunction>
+    <appfunction>
         <id>com.testdata.AppFunctionWithOutputFromDifferentPackage#functionWithAnotherDiffPackageOutput</id>
         <enabledByDefault>true</enabledByDefault>
         <response>
@@ -21,23 +38,6 @@
         <schemaName>diffPackageOutputSchemas</schemaName>
         <schemaVersion>1</schemaVersion>
         <functionId>com.testdata.AppFunctionWithOutputFromDifferentPackage#functionWithAnotherDiffPackageOutput</functionId>
-    </appfunction>
-    <appfunction>
-        <id>com.testdata.AppFunctionWithOutputFromDifferentPackage#functionWithDiffPackageOutput</id>
-        <enabledByDefault>true</enabledByDefault>
-        <response>
-            <id>unused</id>
-            <valueType>
-                <dataTypeReference>com.testdata.differentPackage.DiffPackageSerializable</dataTypeReference>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>11</type>
-            </valueType>
-        </response>
-        <schemaCategory>diff_package_schemas_category</schemaCategory>
-        <schemaName>diffPackageOutputSchemas</schemaName>
-        <schemaVersion>1</schemaVersion>
-        <functionId>com.testdata.AppFunctionWithOutputFromDifferentPackage#functionWithDiffPackageOutput</functionId>
     </appfunction>
     <AppFunctionComponentMetadataDocument>
         <dataTypes>
@@ -80,6 +80,6 @@
             <id>unused</id>
             <name>com.testdata.differentPackage.DiffPackageSerializable</name>
         </dataTypes>
-        <id>unused</id>
+        <id>com.testdata.AppFunctionWithOutputFromDifferentPackage</id>
     </AppFunctionComponentMetadataDocument>
 </appfunctions>

@@ -38,6 +38,7 @@ class AppFunctionLegacySchemaXmlGenerator(
     fun generateLegacyIndexXml(
         serviceEntryPoint: AnnotatedAppFunctionServiceEntryPoint,
         resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
+        exportLocation: String? = null,
     ) {
         val appFunctionMetadataList =
             serviceEntryPoint.appFunctions.map { appFunction ->
@@ -55,7 +56,7 @@ class AppFunctionLegacySchemaXmlGenerator(
                 sources = serviceEntryPoint.getSourceFiles().toTypedArray(),
             ),
             serviceEntryPoint.appFunctionXmlFileName + V1_XML_SUFFIX,
-            exportLocation = null,
+            exportLocation = exportLocation,
         )
     }
 
@@ -115,8 +116,7 @@ class AppFunctionLegacySchemaXmlGenerator(
         if (exportLocation != null) {
             try {
                 XmlFileResolver.RESOLVER.getWriteStream(
-                        filePath =
-                            Path(exportLocation).resolve("${XML_FILE_NAME}.${XML_EXTENSION}"),
+                        filePath = Path(exportLocation).resolve("${fileName}.${XML_EXTENSION}"),
                         logger,
                     )
                     .use { stream ->
