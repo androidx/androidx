@@ -787,7 +787,13 @@ fun SharedContentConfigDeferredTransitionSample() {
                     Box(
                         Modifier.align(Alignment.TopEnd)
                             .sharedElement(
-                                rememberSharedContentState(key = "item_2"),
+                                rememberSharedContentState(
+                                    key = "item_2",
+                                    config =
+                                        SharedContentConfig(
+                                            permitTransformDuringDeferredTransition = false
+                                        ),
+                                ),
                                 animatedVisibilityScope = this@DeferredAnimatedContent,
                             )
                             .size(100.dp)
