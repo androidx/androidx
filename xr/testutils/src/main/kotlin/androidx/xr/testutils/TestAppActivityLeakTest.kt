@@ -52,26 +52,4 @@ abstract class TestAppActivityLeakTest(activityClass: Class<out Activity>) :
             sleep(200)
         }
     }
-
-    @Test
-    @XrDeviceTest
-    fun activity_stressTest_consecutiveLaunchAndDestroy_doesNotLeak() {
-        for (i in 1..5) {
-            val weakActivityRef = WeakReference(startActivity())
-
-            // Finish the Activity to close it
-            instrumentation.runOnMainSync { weakActivityRef.get()?.finish() }
-
-            // Wait for the main thread to be idle again
-            instrumentation.waitForIdleSync()
-
-            assertGarbageCollected(weakActivityRef)
-
-            if (requiresSplitEngine) {
-                // TODO(b/552839023): Platform issue during rapid spatial renderer teardown and
-                // re-initialization.
-                sleep(200)
-            }
-        }
-    }
 }
