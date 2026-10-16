@@ -194,6 +194,9 @@ public class PickVisualMediaRequest internal constructor() {
     public var defaultTab: DefaultTab = DefaultTab.PhotosTab
         internal set
 
+    public var isCustomDefaultTabApplied: Boolean = false
+        internal set
+
     public var isCustomAccentColorApplied: Boolean = false
         internal set
 
@@ -219,6 +222,7 @@ public class PickVisualMediaRequest internal constructor() {
         private var maxItems: Int = PickMultipleVisualMedia.getMaxItems()
         private var isOrderedSelection: Boolean = false
         private var defaultTab: DefaultTab = DefaultTab.PhotosTab
+        private var isCustomDefaultTabApplied: Boolean = false
         private var isCustomAccentColorApplied: Boolean = false
         private var accentColor: Long = 0
         private var mediaCapabilitiesForTranscoding: MediaCapabilities? = null
@@ -279,6 +283,7 @@ public class PickVisualMediaRequest internal constructor() {
          */
         public fun setDefaultTab(defaultTab: DefaultTab): Builder {
             this.defaultTab = defaultTab
+            this.isCustomDefaultTabApplied = true
             return this
         }
 
@@ -414,6 +419,7 @@ public class PickVisualMediaRequest internal constructor() {
                 this.maxItems = this@Builder.maxItems
                 this.isOrderedSelection = this@Builder.isOrderedSelection
                 this.defaultTab = this@Builder.defaultTab
+                this.isCustomDefaultTabApplied = this@Builder.isCustomDefaultTabApplied
                 this.isCustomAccentColorApplied = this@Builder.isCustomAccentColorApplied
                 this.accentColor = this@Builder.accentColor
                 this.mediaCapabilitiesForTranscoding = this@Builder.mediaCapabilitiesForTranscoding
