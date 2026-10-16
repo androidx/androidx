@@ -27,6 +27,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.RequiresApi
+import androidx.collection.mutableObjectListOf
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
@@ -69,7 +70,6 @@ import androidx.compose.material.primarySurface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -1365,9 +1365,9 @@ private class AccessibilityTreeInspectorApi34(private val rootView: View) :
     }
 
     private inline fun View.visitViewAndChildren(visitor: (View) -> Boolean) {
-        val queue = mutableVectorOf(this)
+        val queue = mutableObjectListOf(this)
         while (queue.isNotEmpty()) {
-            val current = queue.removeAt(queue.lastIndex)
+            val current = queue.removeAt(queue.size - 1)
             val visitChildren = visitor(current)
             if (visitChildren && current is ViewGroup) {
                 for (child in current.children) {
@@ -1378,9 +1378,9 @@ private class AccessibilityTreeInspectorApi34(private val rootView: View) :
     }
 
     private inline fun NodeInfo.visitNodeAndChildren(visitor: (NodeInfo) -> Boolean) {
-        val queue = mutableVectorOf(this)
+        val queue = mutableObjectListOf(this)
         while (queue.isNotEmpty()) {
-            val current = queue.removeAt(queue.lastIndex)
+            val current = queue.removeAt(queue.size - 1)
             val visitChildren = visitor(current)
             if (visitChildren) {
                 for (i in 0 until current.nodeInfo.childCount) {
