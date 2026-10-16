@@ -33,5 +33,10 @@ internal class TouchUpActionModifier(public val action: Action) : RemoteModifier
     }
 }
 
+/**
+ * Performs [action] when a touch up event occurs on the element.
+ *
+ * @param action The [Action] to perform on touch up.
+ */
 public fun RemoteModifier.onTouchUp(action: Action): RemoteModifier =
     then(TouchUpActionModifier(action))

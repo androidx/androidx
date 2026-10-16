@@ -75,6 +75,8 @@ public sealed interface RemoteModifier {
      * Concatenates this modifier with another.
      *
      * Returns a [RemoteModifier] representing this modifier followed by [other] in sequence.
+     *
+     * @param other The [RemoteModifier] to append after this modifier.
      */
     public infix fun then(other: RemoteModifier): RemoteModifier =
         if (other === RemoteModifier) this else CombinedRemoteModifier(this, other)

@@ -482,7 +482,11 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
     public operator fun rem(v: Float): RemoteFloat =
         binaryOp(this, v, OperationKey.Rem) { a, b -> a % b }
 
-    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] modulo [v]. */
+    /**
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] modulo [v].
+     *
+     * @param v The divisor [RemoteFloat].
+     */
     public operator fun rem(v: RemoteFloat): RemoteFloat =
         binaryOp(this, v, OperationKey.Rem) { a, b -> a % b }
 
@@ -491,7 +495,11 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
     public fun min(v: Float): RemoteFloat =
         binaryOp(this, v, OperationKey.Min, directEval = { a, b -> kotlin.math.min(a, b) })
 
-    /** Returns a new [RemoteFloat] that evaluates to minimum of this [RemoteFloat] and [v]. */
+    /**
+     * Returns a new [RemoteFloat] that evaluates to the minimum of this [RemoteFloat] and [v].
+     *
+     * @param v The [RemoteFloat] to compare with.
+     */
     public fun min(v: RemoteFloat): RemoteFloat =
         binaryOp(this, v, OperationKey.Min) { a, b -> kotlin.math.min(a, b) }
 
@@ -504,7 +512,11 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         return binaryOp(this, v, OperationKey.Plus, directEval = { a, b -> a + b })
     }
 
-    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] plus [v]. */
+    /**
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] plus [v].
+     *
+     * @param v The [RemoteFloat] to add.
+     */
     public operator fun plus(v: RemoteFloat): RemoteFloat {
         v.constantValueOrNull?.let {
             return plus(it)
@@ -524,7 +536,11 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         return binaryOp(this, v, OperationKey.Minus, directEval = { a, b -> a - b })
     }
 
-    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] minus [v]. */
+    /**
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] minus [v].
+     *
+     * @param v The [RemoteFloat] to subtract.
+     */
     public operator fun minus(v: RemoteFloat): RemoteFloat {
         v.constantValueOrNull?.let {
             return minus(it)
@@ -550,7 +566,11 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         return binaryOp(this, v, OperationKey.Times, directEval = { a, b -> a * b })
     }
 
-    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] times [v]. */
+    /**
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] times [v].
+     *
+     * @param v The [RemoteFloat] to multiply by.
+     */
     public operator fun times(v: RemoteFloat): RemoteFloat {
         v.constantValueOrNull?.let {
             return times(it)
@@ -573,7 +593,11 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         return binaryOp(this, v, OperationKey.Div, directEval = { a, b -> a / b })
     }
 
-    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] div [v]. */
+    /**
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] divided by [v].
+     *
+     * @param v The divisor [RemoteFloat].
+     */
     public operator fun div(v: RemoteFloat): RemoteFloat {
         if (constantValueOrNull != null && constantValueOrNull == 0f) {
             return RemoteFloat(0f)
@@ -604,8 +628,9 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
     }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is equal to the value of this
-     * [RemoteFloat] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is equal to this [RemoteFloat].
+     *
+     * @param other The [RemoteFloat] to compare with.
      */
     public fun isEqualTo(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
@@ -629,8 +654,10 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is not equal to the value of
-     * this [RemoteFloat] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is not equal to this
+     * [RemoteFloat].
+     *
+     * @param other The [RemoteFloat] to compare with.
      */
     public fun isNotEqualTo(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
@@ -654,8 +681,10 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is less than the value of this
-     * [RemoteFloat] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteFloat] is less than
+     * [other].
+     *
+     * @param other The [RemoteFloat] to compare with.
      */
     public fun isLessThan(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
@@ -678,8 +707,10 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is less than or equal to the
-     * value of this [RemoteFloat] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteFloat] is less than or
+     * equal to [other].
+     *
+     * @param other The [RemoteFloat] to compare with.
      */
     public fun isLessThanOrEqualTo(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
@@ -702,8 +733,10 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is greater than the value of
-     * this [RemoteFloat] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteFloat] is greater than
+     * [other].
+     *
+     * @param other The [RemoteFloat] to compare with.
      */
     public fun isGreaterThan(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
@@ -726,8 +759,10 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is greater than or equal to the
-     * value of this [RemoteFloat] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteFloat] is greater than or
+     * equal to [other].
+     *
+     * @param other The [RemoteFloat] to compare with.
      */
     public fun isGreaterThanOrEqualTo(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
@@ -851,6 +886,14 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
             }
         }
 
+        /**
+         * Creates a named [RemoteFloat] expression evaluated in a [RemoteFloatContext].
+         *
+         * @param name A unique name to identify this state within its [domain].
+         * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+         * @param expression A lambda that computes the [RemoteFloat] expression.
+         * @return A [RemoteFloat] representing the named float expression.
+         */
         @JvmStatic
         public fun createNamedRemoteFloatExpression(
             name: String,

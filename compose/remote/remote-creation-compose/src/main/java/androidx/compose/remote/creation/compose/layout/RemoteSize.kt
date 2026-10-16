@@ -33,8 +33,9 @@ public class RemoteSize(
 ) {
 
     /**
-     * Returns a [RemoteSize] with the width and height decreased by the [offset]'s x and y
-     * coordinates, respectively.
+     * Returns a [RemoteSize] with the width and height decreased by [offset]'s x and y coordinates.
+     *
+     * @param offset The [RemoteOffset] to subtract from this size.
      */
     public fun offsetSize(offset: RemoteOffset): RemoteSize {
         return RemoteSize(width - offset.x, height - offset.y)

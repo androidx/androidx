@@ -37,11 +37,19 @@ internal class HeightModifier(val type: Type, val value: RemoteFloat) : RemoteMo
     override fun toString(): String = "HeightModifier(type=$type, value=$value)"
 }
 
-/** Sets the height of the content using [RemoteDp]. */
+/**
+ * Sets the height of the content using [RemoteDp].
+ *
+ * @param height The height to apply in [RemoteDp].
+ */
 public fun RemoteModifier.height(height: RemoteDp): RemoteModifier =
     then(HeightModifier(Type.EXACT_DP, height.value))
 
-/** Sets the height of the content using [RemoteFloat]. */
+/**
+ * Sets the height of the content using [RemoteFloat].
+ *
+ * @param height The height to apply in pixels.
+ */
 public fun RemoteModifier.height(height: RemoteFloat): RemoteModifier =
     then(HeightModifier(Type.EXACT, height))
 

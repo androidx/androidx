@@ -417,6 +417,12 @@ internal constructor(
         get() = unaryOp(OperationKey.Abs, OP_ABS) { v -> abs(v) }
 
     public companion object {
+        /**
+         * Creates a [RemoteInt] from a literal constant [Int] value.
+         *
+         * @param value The constant [Int] value.
+         * @return A [RemoteInt] representing the constant integer.
+         */
         public operator fun invoke(value: Int): RemoteInt {
             return RemoteIntExpression(
                 value,
@@ -519,8 +525,9 @@ internal constructor(
     }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is equal to the value of this
-     * [RemoteInt] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is equal to this [RemoteInt].
+     *
+     * @param other The [RemoteInt] to compare with.
      */
     public fun isEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
@@ -534,8 +541,10 @@ internal constructor(
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is not equal to the value of
-     * this [RemoteInt] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is not equal to this
+     * [RemoteInt].
+     *
+     * @param other The [RemoteInt] to compare with.
      */
     public fun isNotEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
@@ -549,8 +558,9 @@ internal constructor(
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is less than the value of this
-     * [RemoteInt] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteInt] is less than [other].
+     *
+     * @param other The [RemoteInt] to compare with.
      */
     public fun isLessThan(other: RemoteInt): RemoteBoolean =
         comparisonOp(
@@ -564,8 +574,10 @@ internal constructor(
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is less than or equal to the
-     * value of this [RemoteInt] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteInt] is less than or equal
+     * to [other].
+     *
+     * @param other The [RemoteInt] to compare with.
      */
     public fun isLessThanOrEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
@@ -579,8 +591,10 @@ internal constructor(
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is greater than the value of
-     * this [RemoteInt] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteInt] is greater than
+     * [other].
+     *
+     * @param other The [RemoteInt] to compare with.
      */
     public fun isGreaterThan(other: RemoteInt): RemoteBoolean =
         comparisonOp(
@@ -594,8 +608,10 @@ internal constructor(
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is greater than or equal to the
-     * value of this [RemoteInt] or `false` otherwise.
+     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteInt] is greater than or
+     * equal to [other].
+     *
+     * @param other The [RemoteInt] to compare with.
      */
     public fun isGreaterThanOrEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(

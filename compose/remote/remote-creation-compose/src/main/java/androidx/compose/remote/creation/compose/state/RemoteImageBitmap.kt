@@ -142,6 +142,14 @@ internal constructor(
                 )
             }
 
+        /**
+         * Creates a named [RemoteImageBitmap] from a lambda providing the initial [ImageBitmap].
+         *
+         * @param name A unique name to identify this state within its [domain].
+         * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+         * @param value A lambda that provides the initial [ImageBitmap].
+         * @return A [RemoteImageBitmap] representing the named bitmap.
+         */
         @JvmStatic
         public fun createNamedRemoteImageBitmap(
             name: String,
@@ -160,6 +168,14 @@ internal constructor(
             }
         }
 
+        /**
+         * Creates a named [RemoteImageBitmap] backed by an image [url].
+         *
+         * @param name A unique name to identify this state within its [domain].
+         * @param url The URL of the image.
+         * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+         * @return A [RemoteImageBitmap] representing the named bitmap.
+         */
         @JvmStatic
         public fun createNamedRemoteImageBitmap(
             name: String,
@@ -290,7 +306,14 @@ public fun rememberNamedRemoteImageBitmap(
     return remember(name, domain) { createNamedRemoteImageBitmap(name, domain, value) }
 }
 
-/** A Composable function to remember and provide a **named** remote bitmap from a URL. */
+/**
+ * Remembers a named [RemoteImageBitmap] loaded from a [url].
+ *
+ * @param name A unique name to identify this state within its [domain].
+ * @param url The URL of the image.
+ * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+ * @return A [RemoteImageBitmap] representing the named bitmap from [url].
+ */
 @Composable
 public fun rememberNamedRemoteImageBitmap(
     name: String,

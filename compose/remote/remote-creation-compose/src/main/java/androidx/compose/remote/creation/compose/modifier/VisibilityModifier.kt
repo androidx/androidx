@@ -28,6 +28,11 @@ internal class VisibilityModifier(public val visible: RemoteInt) : RemoteModifie
     }
 }
 
-// TODO make RemoteInt a State internally so this is just RemoteInt
+/**
+ * Sets the visibility of the element.
+ *
+ * @param visible A [RemoteInt] indicating visibility (`Component.Visibility.VISIBLE`, `INVISIBLE`,
+ *   or `GONE`).
+ */
 public fun RemoteModifier.visibility(visible: RemoteInt): RemoteModifier =
     then(VisibilityModifier(visible))

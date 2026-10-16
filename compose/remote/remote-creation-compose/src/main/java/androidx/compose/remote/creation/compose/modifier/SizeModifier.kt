@@ -31,7 +31,11 @@ import androidx.compose.remote.creation.compose.state.rf
 public fun RemoteModifier.size(width: RemoteDp, height: RemoteDp): RemoteModifier =
     width(width).height(height)
 
-/** Sets both the width and height of the content to [size]. */
+/**
+ * Sets both the width and height of the content to [size].
+ *
+ * @param size The width and height to apply in [RemoteDp].
+ */
 public fun RemoteModifier.size(size: RemoteDp): RemoteModifier = width(size).height(size)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
