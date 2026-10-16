@@ -29,6 +29,9 @@ androidx {
     description = "Compose player for RemoteCompose documents"
     addGoldenImageAssets()
     enableRobolectric()
+    deviceTests {
+        maxShardCount = 1
+    }
 }
 
 android {
