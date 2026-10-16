@@ -33,43 +33,19 @@ function sedInPlace() {
 echo "Updating ASwB"
 CURRENT_ASWB_BUILD_ID=`sed -n "s/^aswbBuildId = \"\([^\"]*\)\"/\1/p" gradle/libs.versions.toml`
 
-function checkGcloudPermissions() {
-  local bucket="gs://androidx-aswb-binaries"
-  local test_file=".upload_test_$(date +%s)"
-
-  # 1. Check if the user is authenticated and the token is valid
-  if ! gcloud auth print-access-token > /dev/null 2>&1; then
-    echo "ERROR: Your gcloud credentials are missing or expired."
-    echo "Please run: gcloud auth login"
-    return 1
-  fi
-
-  # 2. Check upload permissions by transferring a zero-byte temporary file
-  touch "$test_file"
-  if gcloud storage cp "$test_file" "$bucket/$test_file" > /dev/null 2>&1; then
-    # Cleanup remote and local artifacts
-    gcloud storage rm "$bucket/$test_file" > /dev/null 2>&1
-    rm -f "$test_file"
-    echo "GCS Upload permissions verified for $bucket"
-    return 0
-  else
-    rm -f "$test_file"
-    echo "ERROR: You do not have permission to upload to $bucket."
-    echo "Please ensure your active account has the 'Storage Object Creator' role on this bucket."
-    return 1
-  fi
-}
+source development/check_gcloud_permissions.sh
 
 if [ "$CURRENT_ASWB_BUILD_ID" == "$NEW_ASWB_BUILD_ID" ]; then
   echo "No change in ASwB build id - update not occurring"
 else
   echo "Updating ASwB build id from '$CURRENT_ASWB_BUILD_ID' to '$NEW_ASWB_BUILD_ID'"
 
+  echo "checking whether gcert was run"
+  source gbash.sh || exit 1
+
   # if the user doesn't have permission to upload to GCS, we don't want to proceed with downloading
   # artifacts.
   checkGcloudPermissions || exit 1
-
-  sedInPlace "s/aswbBuildId = \".*/aswbBuildId = \"$NEW_ASWB_BUILD_ID\"/g" gradle/libs.versions.toml
 
   # make a temp directory
   mkdir tmp-aswb-install && cd tmp-aswb-install
@@ -90,5 +66,9 @@ else
   gcloud storage cp android-studio-with-blaze-canary-$NEW_ASWB_BUILD_ID.burrito "gs://androidx-aswb-binaries/mac"
 
   cd .. && rm -rf tmp-aswb-install
+
+  # update the version in libs.versions.toml
+  sedInPlace "s/aswbBuildId = \".*/aswbBuildId = \"$NEW_ASWB_BUILD_ID\"/g" gradle/libs.versions.toml
+
   echo "Update completed, please raise a CL with the change in libs.versions.toml"
 fi
