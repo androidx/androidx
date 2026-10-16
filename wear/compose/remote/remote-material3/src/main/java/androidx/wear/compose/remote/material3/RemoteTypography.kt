@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -158,7 +159,26 @@ public class RemoteTypography(
     /** Creates a copy of Wear Remote Compose [RemoteTypography] from Wear Compose [Typography]. */
     public constructor(
         typography: Typography
+    ) : this(typography, defaultFontFamily = RemoteFontFamily.Default)
+
+    /**
+     * Creates a copy of Wear Remote Compose [RemoteTypography] from Wear Compose [Typography].
+     *
+     * Font families that can't be represented remotely, such as app-bundled resource fonts, are
+     * dropped by the conversion. Use [defaultFontFamily] to map every style to a font available to
+     * the player instead, for example `RemoteFontFamily.Named("device:google-sans-flex")`.
+     *
+     * @param typography the Wear Compose [Typography] to convert.
+     * @param defaultFontFamily the [RemoteFontFamily] applied to every style. When
+     *   [RemoteFontFamily.Default], styles keep any font family that could be converted from
+     *   [typography].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
+        typography: Typography,
+        defaultFontFamily: RemoteFontFamily,
     ) : this(
+        defaultFontFamily = defaultFontFamily,
         displayLarge = RemoteTextStyle.fromTextStyle(typography.displayLarge),
         displayMedium = RemoteTextStyle.fromTextStyle(typography.displayMedium),
         displaySmall = RemoteTextStyle.fromTextStyle(typography.displaySmall),
