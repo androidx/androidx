@@ -164,18 +164,7 @@ public fun AndroidPaint.Join?.toStrokeJoin(): StrokeJoin =
     }
 
 /** Converts [ContentScale] to [ImageScaling]. */
-internal fun ContentScale.toImageScalingInt(): Int {
-    return when (this) {
-        ContentScale.Fit -> ImageScaling.SCALE_FIT
-        ContentScale.Crop -> ImageScaling.SCALE_CROP
-        ContentScale.None -> ImageScaling.SCALE_NONE
-        ContentScale.Inside -> ImageScaling.SCALE_INSIDE
-        ContentScale.FillWidth -> ImageScaling.SCALE_FILL_WIDTH
-        ContentScale.FillHeight -> ImageScaling.SCALE_FILL_HEIGHT
-        ContentScale.FillBounds -> ImageScaling.SCALE_FILL_BOUNDS
-        else -> ImageScaling.SCALE_NONE
-    }
-}
+internal fun ContentScale.toImageScalingInt(): Int = toRemoteContentScale().value
 
 internal fun TextOverflow.encode(): Int =
     when (this) {

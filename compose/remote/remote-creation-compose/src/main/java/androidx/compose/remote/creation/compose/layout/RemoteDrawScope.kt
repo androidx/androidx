@@ -31,7 +31,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.layout.ContentScale
 
 /**
  * A remote-compatible drawing scope for RemoteCompose. Unlike [DrawScope], this class uses remote
@@ -173,7 +172,7 @@ internal constructor(
         srcSize: RemoteSize = RemoteSize(image.width, image.height),
         dstOffset: RemoteOffset = RemoteOffset.Zero,
         dstSize: RemoteSize = size,
-        scaleType: ContentScale = ContentScale.Fit,
+        scaleType: RemoteContentScale = RemoteContentScale.Fit,
         scaleFactor: RemoteFloat = 1f.rf,
         contentDescription: String? = null,
     ) {
@@ -187,7 +186,7 @@ internal constructor(
             dstOffset.y,
             dstOffset.x + dstSize.width,
             dstOffset.y + dstSize.height,
-            scaleType.toImageScalingInt(),
+            scaleType.value,
             scaleFactor,
             contentDescription,
         )
