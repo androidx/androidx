@@ -595,6 +595,19 @@ class LongListTest {
     }
 
     @Test
+    fun removeAllItself() {
+        val l = mutableLongListOf(1L, 2L, 3L)
+        assertTrue(l.removeAll(l))
+        assertTrue(l.isEmpty())
+    }
+
+    @Test
+    fun removeAllItselfEmpty() {
+        val l = mutableLongListOf()
+        assertFalse(l.removeAll(l))
+    }
+
+    @Test
     fun removeAllLongArray() {
         assertFalse(list.removeAll(longArrayOf(0L, 10L, 15L)))
         val l = mutableLongListOf(0L, 1L, 15L, 10L, 2L, 3L, 4L, 5L, 20L, 5L)
@@ -610,6 +623,13 @@ class LongListTest {
         val l2 = mutableLongListOf(0L, 1L, 15L, 10L, 2L, 3L, 4L, 5L, 20L, 5L)
         l2 -= mutableLongListOf(20L, 0L, 15L, 10L, 5L)
         assertEquals(list, l2)
+    }
+
+    @Test
+    fun minusAssignItself() {
+        val l = mutableLongListOf(1L, 2L, 3L)
+        l -= l
+        assertTrue(l.isEmpty())
     }
 
     @Test

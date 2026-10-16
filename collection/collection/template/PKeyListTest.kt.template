@@ -583,6 +583,19 @@ class PKeyListTest {
     }
 
     @Test
+    fun removeAllItself() {
+        val l = mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix)
+        assertTrue(l.removeAll(l))
+        assertTrue(l.isEmpty())
+    }
+
+    @Test
+    fun removeAllItselfEmpty() {
+        val l = mutablePKeyListOf()
+        assertFalse(l.removeAll(l))
+    }
+
+    @Test
     fun removeAllPKeyArray() {
         assertFalse(list.removeAll(pKeyArrayOf(0KeySuffix, 10KeySuffix, 15KeySuffix)))
         val l = mutablePKeyListOf(0KeySuffix, 1KeySuffix, 15KeySuffix, 10KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 20KeySuffix, 5KeySuffix)
@@ -598,6 +611,13 @@ class PKeyListTest {
         val l2 = mutablePKeyListOf(0KeySuffix, 1KeySuffix, 15KeySuffix, 10KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 20KeySuffix, 5KeySuffix)
         l2 -= mutablePKeyListOf(20KeySuffix, 0KeySuffix, 15KeySuffix, 10KeySuffix, 5KeySuffix)
         assertEquals(list, l2)
+    }
+
+    @Test
+    fun minusAssignItself() {
+        val l = mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix)
+        l -= l
+        assertTrue(l.isEmpty())
     }
 
     @Test

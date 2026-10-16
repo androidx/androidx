@@ -866,6 +866,10 @@ public class MutableFloatList(initialCapacity: Int = 16) : FloatList(initialCapa
      */
     public fun removeAll(elements: FloatList): Boolean {
         val initialSize = _size
+        if (elements === this) {
+            clear()
+            return initialSize != 0
+        }
         for (i in 0..elements.lastIndex) {
             remove(elements[i])
         }
@@ -881,6 +885,10 @@ public class MutableFloatList(initialCapacity: Int = 16) : FloatList(initialCapa
 
     /** Removes all [elements] from the [MutableFloatList]. */
     public operator fun minusAssign(elements: FloatList) {
+        if (elements === this) {
+            clear()
+            return
+        }
         elements.forEach { element ->
             remove(element)
         }

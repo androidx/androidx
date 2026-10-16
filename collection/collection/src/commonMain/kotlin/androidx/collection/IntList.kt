@@ -813,6 +813,10 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      */
     public fun removeAll(elements: IntList): Boolean {
         val initialSize = _size
+        if (elements === this) {
+            clear()
+            return initialSize != 0
+        }
         for (i in 0..elements.lastIndex) {
             remove(elements[i])
         }
@@ -828,6 +832,10 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
 
     /** Removes all [elements] from the [MutableIntList]. */
     public operator fun minusAssign(elements: IntList) {
+        if (elements === this) {
+            clear()
+            return
+        }
         elements.forEach { element ->
             remove(element)
         }

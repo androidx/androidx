@@ -595,6 +595,19 @@ class DoubleListTest {
     }
 
     @Test
+    fun removeAllItself() {
+        val l = mutableDoubleListOf(1.0, 2.0, 3.0)
+        assertTrue(l.removeAll(l))
+        assertTrue(l.isEmpty())
+    }
+
+    @Test
+    fun removeAllItselfEmpty() {
+        val l = mutableDoubleListOf()
+        assertFalse(l.removeAll(l))
+    }
+
+    @Test
     fun removeAllDoubleArray() {
         assertFalse(list.removeAll(doubleArrayOf(0.0, 10.0, 15.0)))
         val l = mutableDoubleListOf(0.0, 1.0, 15.0, 10.0, 2.0, 3.0, 4.0, 5.0, 20.0, 5.0)
@@ -610,6 +623,13 @@ class DoubleListTest {
         val l2 = mutableDoubleListOf(0.0, 1.0, 15.0, 10.0, 2.0, 3.0, 4.0, 5.0, 20.0, 5.0)
         l2 -= mutableDoubleListOf(20.0, 0.0, 15.0, 10.0, 5.0)
         assertEquals(list, l2)
+    }
+
+    @Test
+    fun minusAssignItself() {
+        val l = mutableDoubleListOf(1.0, 2.0, 3.0)
+        l -= l
+        assertTrue(l.isEmpty())
     }
 
     @Test
