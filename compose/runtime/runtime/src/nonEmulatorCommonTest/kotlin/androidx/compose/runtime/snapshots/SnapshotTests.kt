@@ -1909,6 +1909,63 @@ class SnapshotTests {
         assertEquals(111, state.value)
     }
 
+    @Test
+    fun disposingParentMutableSnapshotWhileNestedSnapshotIsActiveDoesNotCorruptState() {
+        // 1. NestedMutableSnapshot active after parent.dispose()
+        val state = mutableIntStateOf(0)
+        val parent = takeMutableSnapshot()
+        parent.enter { state.intValue = 99 }
+        val child = parent.takeNestedMutableSnapshot()
+        parent.dispose()
+
+        try {
+            assertEquals(99, child.enter { state.intValue })
+            child.enter { state.intValue = 100 }
+            assertEquals(100, child.enter { state.intValue })
+            assertEquals(0, state.intValue)
+        } finally {
+            child.dispose()
+        }
+        assertEquals(0, state.intValue)
+
+        // 2. NestedReadonlySnapshot active after parent.dispose()
+        val roState = mutableIntStateOf(0)
+        val roParent = takeMutableSnapshot()
+        roParent.enter { roState.intValue = 50 }
+        val roChild = roParent.takeNestedSnapshot()
+        roParent.dispose()
+
+        try {
+            assertEquals(50, roChild.enter { roState.intValue })
+            roState.intValue = 1
+            assertEquals(1, roState.intValue)
+            assertEquals(50, roChild.enter { roState.intValue })
+        } finally {
+            roChild.dispose()
+        }
+        assertEquals(1, roState.intValue)
+
+        // 3. Three-level nesting: parent and child disposed while grandchild is active
+        val deepState = mutableIntStateOf(0)
+        val root = takeMutableSnapshot()
+        root.enter { deepState.intValue = 10 }
+        val middle = root.takeNestedMutableSnapshot()
+        middle.enter { deepState.intValue = 20 }
+        val leaf = middle.takeNestedMutableSnapshot()
+        root.dispose()
+        middle.dispose()
+
+        try {
+            assertEquals(20, leaf.enter { deepState.intValue })
+            leaf.enter { deepState.intValue = 30 }
+            assertEquals(30, leaf.enter { deepState.intValue })
+            assertEquals(0, deepState.intValue)
+        } finally {
+            leaf.dispose()
+        }
+        assertEquals(0, deepState.intValue)
+    }
+
     private fun usedRecords(state: StateObject): Int {
         var used = 0
         var current: StateRecord? = state.firstStateRecord
