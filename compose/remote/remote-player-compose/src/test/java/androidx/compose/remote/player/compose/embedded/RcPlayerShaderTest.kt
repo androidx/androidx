@@ -71,7 +71,7 @@ class RcPlayerShaderTest {
 
         val bundle = PaintBundle().apply { setShader(shaderId) }
         val paintState = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState, remoteContext, read = remoteContext)
+        updatePaintFromBundle(bundle, paintState, remoteContext)
 
         assertThat(remoteContext.mRemoteComposeState.getFromId(shaderId)).isNull()
         assertThat(paintState.brush).isNull()
@@ -96,7 +96,7 @@ class RcPlayerShaderTest {
 
         val bundle = PaintBundle().apply { setShader(shaderId) }
         val paintState = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState, remoteContext, read = remoteContext)
+        updatePaintFromBundle(bundle, paintState, remoteContext)
 
         assertThat(remoteContext.mRemoteComposeState.getFromId(shaderId)).isNotNull()
         assertThat(paintState.brush).isInstanceOf(ShaderBrush::class.java)

@@ -133,6 +133,9 @@ private object FailedBitmapDecode
  * decode until the bitmap is actually needed — when it is drawn, or when its Image component first
  * composes. The decoded bitmap is cached in the state's data map (`getFromId`), so later lookups
  * are cheap. Returns null if there is no bitmap or metadata for the id.
+ *
+ * [remoteContext] may be a read-only [GraphContext]; the decode is written through its
+ * [writeContext].
  */
 internal fun resolveBitmap(remoteContext: RemoteContext, id: Int): Bitmap? {
     val cached = remoteContext.mRemoteComposeState.getFromId(id)
@@ -143,7 +146,7 @@ internal fun resolveBitmap(remoteContext: RemoteContext, id: Int): Bitmap? {
     val data = remoteContext.mRemoteComposeState.getObject(id) as? BitmapData ?: return null
     val decoded =
         try {
-            data.apply(remoteContext)
+            data.apply(remoteContext.writeContext)
             remoteContext.mRemoteComposeState.getFromId(id) as? Bitmap
         } catch (_: Exception) {
             null
@@ -262,9 +265,9 @@ private fun DrawScope.executeOperationsInPass(
                 }
             }
             is PaintData -> {
-                // remoteContext for shader/texture bitmap decode (a write); read for reactive
-                // colors.
-                updatePaintFromBundle(op.mPaintData, paintState, remoteContext, read)
+                // Resolved through read: use the GraphContext for reactive colors; its
+                // writeContext handles shader/texture bitmap decode.
+                updatePaintFromBundle(op.mPaintData, paintState, read)
             }
             is FloatExpression -> {
                 val snapshotState = remoteContext.mRemoteComposeState as? SnapshotRemoteComposeState
