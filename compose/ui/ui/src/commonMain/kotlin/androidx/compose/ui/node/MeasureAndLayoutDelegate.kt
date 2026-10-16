@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.tooling.ComposeToolingApi
 import androidx.compose.runtime.tooling.ComposeToolingFlags
 import androidx.compose.ui.internal.checkPrecondition
@@ -67,7 +67,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     private val onPositionedDispatcher = OnPositionedDispatcher()
 
     /** List of listeners that must be called after layout has completed. */
-    private val onLayoutCompletedListeners = mutableVectorOf<Owner.OnLayoutCompletedListener>()
+    private val onLayoutCompletedListeners = mutableObjectListOf<Owner.OnLayoutCompletedListener>()
 
     /**
      * The current measure iteration. The value is incremented during the [measureAndLayout]
@@ -88,7 +88,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      * the previous measure/layout pass and they were already measured as part of it. See
      * [requestRemeasure] for more details.
      */
-    private val postponedMeasureRequests = mutableVectorOf<PostponedRequest>()
+    private val postponedMeasureRequests = mutableObjectListOf<PostponedRequest>()
 
     private var rootConstraints: Constraints? = null
 
@@ -123,6 +123,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             LayoutTreeConsistencyChecker(
                 root,
                 relayoutNodes,
+                @Suppress("AsCollectionCall") // Debug-only consistency checker takes a List.
                 postponedMeasureRequests.asMutableList(),
             )
         } else {

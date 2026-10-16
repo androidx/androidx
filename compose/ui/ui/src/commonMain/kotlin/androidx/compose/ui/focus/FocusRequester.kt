@@ -16,10 +16,10 @@
 
 package androidx.compose.ui.focus
 
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.visitChildren
@@ -51,7 +51,8 @@ private const val InvalidFocusRequesterInvocation =
 @Stable
 public class FocusRequester @RememberInComposition public constructor() {
 
-    internal val focusRequesterNodes: MutableVector<FocusRequesterModifierNode> = mutableVectorOf()
+    internal val focusRequesterNodes: MutableObjectList<FocusRequesterModifierNode> =
+        mutableObjectListOf()
 
     /**
      * Use this function to request focus. If the system grants focus to a component associated with

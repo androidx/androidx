@@ -20,7 +20,7 @@ package androidx.compose.ui.node
 
 import androidx.collection.IntObjectMap
 import androidx.collection.intObjectMapOf
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.RetainedValuesStore
@@ -301,7 +301,7 @@ class ModifierLocalConsumerEntityTest {
 
     @OptIn(InternalComposeUiApi::class)
     private class FakeOwner : Owner {
-        val listeners = mutableVectorOf<() -> Unit>()
+        val listeners = mutableObjectListOf<() -> Unit>()
 
         override var showLayoutBounds: Boolean = false
         override val snapshotObserver: OwnerSnapshotObserver = OwnerSnapshotObserver { it.invoke() }

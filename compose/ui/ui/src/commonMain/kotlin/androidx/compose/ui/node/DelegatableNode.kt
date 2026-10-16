@@ -17,11 +17,11 @@
 package androidx.compose.ui.node
 
 import androidx.annotation.EmptySuper
+import androidx.collection.MutableObjectList
 import androidx.collection.MutableScatterSet
 import androidx.collection.ScatterSet
+import androidx.collection.mutableObjectListOf
 import androidx.collection.mutableScatterSetOf
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -145,7 +145,7 @@ private fun LayoutNode.getChildren(zOrder: Boolean) =
         _children
     }
 
-private fun MutableVector<Modifier.Node>.addLayoutNodeChildren(
+private fun MutableObjectList<Modifier.Node>.addLayoutNodeChildren(
     node: Modifier.Node,
     zOrder: Boolean,
 ) {
@@ -158,11 +158,11 @@ internal inline fun DelegatableNode.visitChildren(
     block: (Modifier.Node) -> Unit,
 ) {
     checkPrecondition(node.isAttached) { "visitChildren called on an unattached node" }
-    val branches = mutableVectorOf<Modifier.Node>()
+    val branches = mutableObjectListOf<Modifier.Node>()
     val child = node.child
     if (child == null) branches.addLayoutNodeChildren(node, zOrder) else branches.add(child)
     while (branches.isNotEmpty()) {
-        val branch = branches.removeAt(branches.lastIndex)
+        val branch = branches.removeAt(branches.size - 1)
         if (branch.aggregateChildKindSet and mask == 0) {
             branches.addLayoutNodeChildren(branch, zOrder)
             // none of these nodes match the mask, so don't bother traversing them
@@ -189,7 +189,7 @@ internal inline fun DelegatableNode.visitSubtreeIf(
     block: (Modifier.Node) -> Boolean,
 ) {
     checkPrecondition(node.isAttached) { "visitSubtreeIf called on an unattached node" }
-    val branches = mutableVectorOf<Modifier.Node>()
+    val branches = mutableObjectListOf<Modifier.Node>()
     val child = node.child
     if (child == null) branches.addLayoutNodeChildren(node, zOrder) else branches.add(child)
     outer@ while (branches.isNotEmpty()) {
@@ -586,7 +586,7 @@ internal inline fun <reified T> Modifier.Node.dispatchForKind(
     dispatchToDelegates: Boolean,
     block: (T) -> Unit,
 ) {
-    var stack: MutableVector<Modifier.Node>? = null
+    var stack: MutableObjectList<Modifier.Node>? = null
     var node: Modifier.Node? = this
     while (node != null) {
         val dispatchAgain =
@@ -611,7 +611,7 @@ internal inline fun <reified T> Modifier.Node.dispatchForKind(
                     } else {
                         // turns out there are multiple delegates that implement this kind, so we
                         // have to allocate in this case.
-                        stack = stack ?: mutableVectorOf()
+                        stack = stack ?: mutableObjectListOf()
                         val theNode = node
                         if (theNode != null) {
                             stack?.add(theNode)
@@ -630,6 +630,6 @@ internal inline fun <reified T> Modifier.Node.dispatchForKind(
     }
 }
 
-private fun MutableVector<Modifier.Node>?.pop(): Modifier.Node? {
+private fun MutableObjectList<Modifier.Node>?.pop(): Modifier.Node? {
     return if (this == null || isEmpty()) null else removeAt(size - 1)
 }

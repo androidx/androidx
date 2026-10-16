@@ -19,6 +19,8 @@
 package androidx.compose.ui.layout
 
 import androidx.activity.ComponentActivity
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
@@ -82,8 +84,6 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -2015,7 +2015,7 @@ class LookaheadScopeTest {
         rule.setContent {
             LookaheadScope {
                 SubcomposeLayout {
-                    val placeables = mutableVectorOf<Placeable>()
+                    val placeables = mutableObjectListOf<Placeable>()
                     repeat(3) {
                         subcompose(it) {
                                 Box(
@@ -4046,10 +4046,10 @@ class LookaheadScopeTest {
     private fun assertSameLayoutWithAndWithoutLookahead(
         content: @Composable (modifier: Modifier) -> Unit
     ) {
-        val controlGroupSizes = mutableVectorOf<IntSize>()
-        val controlGroupPositions = mutableVectorOf<Offset>()
-        val sizes = mutableVectorOf<IntSize>()
-        val positions = mutableVectorOf<Offset>()
+        val controlGroupSizes = mutableObjectListOf<IntSize>()
+        val controlGroupPositions = mutableObjectListOf<Offset>()
+        val sizes = mutableObjectListOf<IntSize>()
+        val positions = mutableObjectListOf<Offset>()
         var enableControlGroup by mutableStateOf(true)
         rule.setContent {
             if (enableControlGroup) {
@@ -4160,15 +4160,15 @@ class LookaheadScopeTest {
     }
 
     private fun Modifier.trackSizeAndPosition(
-        sizes: MutableVector<IntSize>,
-        positions: MutableVector<Offset>,
+        sizes: MutableObjectList<IntSize>,
+        positions: MutableObjectList<Offset>,
     ) =
         this.onGloballyPositioned {
             positions.add(it.positionInRoot())
             sizes.add(it.size)
         }
 
-    private fun <T> MutableVector<T>.debugPrint(tag: String) {
+    private fun <T> MutableObjectList<T>.debugPrint(tag: String) {
         print("$tag: [")
         forEach { print("$it, ") }
         print("]")

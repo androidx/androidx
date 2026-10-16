@@ -21,7 +21,7 @@ package androidx.compose.ui.platform
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.node.Owner
@@ -119,7 +119,7 @@ private class InputMethodSession(
     private val onAllConnectionsClosed: () -> Unit,
 ) {
     private val lock = Any()
-    private var connections = mutableVectorOf<WeakReference<NullableInputConnectionWrapper>>()
+    private var connections = mutableObjectListOf<WeakReference<NullableInputConnectionWrapper>>()
     private var disposed = false
 
     val isActive: Boolean
