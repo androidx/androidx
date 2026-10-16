@@ -613,7 +613,7 @@ private data class OnGlobaLayoutListenerElement(
 
         if (throttleMillis != other.throttleMillis) return false
         if (debounceMillis != other.debounceMillis) return false
-        if (callback != other.callback) return false
+        if (callback !== other.callback) return false
 
         return true
     }
