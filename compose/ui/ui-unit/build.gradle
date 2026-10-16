@@ -42,7 +42,7 @@ androidXMultiplatform {
         commonMain.dependencies {
             api("androidx.annotation:annotation:1.8.1")
             api(project(":compose:ui:ui-geometry"))
-            implementation("androidx.collection:collection:1.6.0")
+            implementation("androidx.collection:collection:1.7.0")
             implementation(project(":compose:runtime:runtime"))
             implementation(project(":compose:ui:ui-util"))
         }
@@ -54,7 +54,7 @@ androidXMultiplatform {
 
         androidMain.dependencies {
             api("androidx.annotation:annotation-experimental:1.4.1")
-            implementation("androidx.collection:collection-ktx:1.4.2")
+            implementation("androidx.collection:collection-ktx:1.7.0")
         }
 
         androidDeviceTest.dependencies {
@@ -63,12 +63,12 @@ androidXMultiplatform {
             implementation(libs.testExtJunit)
             implementation(libs.espressoCore)
             implementation(libs.truth)
-            implementation("androidx.collection:collection-ktx:1.4.2")
+            implementation("androidx.collection:collection-ktx:1.7.0")
         }
 
         androidHostTest.dependencies {
             implementation(libs.truth)
-            implementation("androidx.collection:collection-ktx:1.4.2")
+            implementation("androidx.collection:collection-ktx:1.7.0")
         }
     }
 }
