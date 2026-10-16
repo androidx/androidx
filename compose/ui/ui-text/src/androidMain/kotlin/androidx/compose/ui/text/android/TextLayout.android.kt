@@ -263,7 +263,14 @@ constructor(
                 } else {
                     isBoringLayout = false
                     StaticLayoutFactory.create(
-                        text = charSequence,
+                        // See StringCharSequence: avoids copying the whole String once per drawn
+                        // line. BoringLayout has a single line, so it is not wrapped.
+                        text =
+                            if (charSequence is String) {
+                                StringCharSequence(charSequence)
+                            } else {
+                                charSequence
+                            },
                         paint = textPaint,
                         width = widthInt,
                         start = 0,
