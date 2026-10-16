@@ -138,6 +138,8 @@ internal fun ComponentModifiers.toModifier(
     ignoreVisibility: Boolean,
     ignoreClicks: Boolean,
 ): Modifier {
+    // Only components with draw operations can DRAW_CONTENT through a layer.
+    val contentLayer = if (drawOpsList != null) rememberGraphicsLayer() else null
     var modifier: Modifier = Modifier
     // Track whether a DrawContentOperation has already been attached to the modifier chain, so
     // that subsequent clip operations are hoisted before drawWithContent without bypassing
@@ -238,6 +240,7 @@ internal fun ComponentModifiers.toModifier(
                                 textMeasurer = textMeasurer,
                                 onDrawContent = { drawContent() },
                                 graph = graph,
+                                contentLayer = contentLayer,
                             )
                         }
                     } else {
@@ -271,6 +274,7 @@ internal fun ComponentModifiers.toModifier(
                 textMeasurer = textMeasurer,
                 onDrawContent = { drawContent() },
                 graph = graph,
+                contentLayer = contentLayer,
             )
         }
     }
