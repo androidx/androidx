@@ -251,6 +251,55 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
                 getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 19
         }
 
+        /* Extra that will be sent by [PickVisualMedia] and [PickMultipleVisualMedia] to an Activity
+         * that handles [ACTION_SYSTEM_FALLBACK_PICK_IMAGES] that specifies UI customization options
+         * for the picker.
+         *
+         * The value of this intent extra should be of type [android.os.Bundle] containing UI
+         * customization params for the fallback picker.
+         *
+         * The bundle may include the following keys:
+         * - [EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS_ASPECT_RATIO]: An [Int]
+         *   specifying the thumbnail aspect ratio, one of
+         *   [SYSTEM_FALLBACK_PICK_IMAGES_ASPECT_RATIO_SQUARE_1_1] or
+         *   [SYSTEM_FALLBACK_PICK_IMAGES_ASPECT_RATIO_PORTRAIT_9_16].
+         */
+        @field:Suppress("ActionValue")
+        /* Don't include SYSTEM_FALLBACK in the extra */
+        public const val EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS: String =
+            "androidx.activity.result.contract.extra.PICK_IMAGES_UI_CUSTOMIZATION_PARAMS"
+
+        /**
+         * Key within the [EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS] bundle
+         * specifying the thumbnail aspect ratio.
+         *
+         * Expected value is an integer: [SYSTEM_FALLBACK_PICK_IMAGES_ASPECT_RATIO_SQUARE_1_1] or
+         * [SYSTEM_FALLBACK_PICK_IMAGES_ASPECT_RATIO_PORTRAIT_9_16].
+         */
+        @field:Suppress("ActionValue")
+        /* Don't include SYSTEM_FALLBACK in the extra */
+        public const val EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS_ASPECT_RATIO:
+            String =
+            "androidx.activity.result.contract.extra.PICK_IMAGES_UI_CUSTOMIZATION_PARAMS_ASPECT_RATIO"
+
+        /**
+         * Value for [EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS_ASPECT_RATIO]
+         * specifying a square 1:1 aspect ratio thumbnail sizing within the media grid.
+         */
+        public const val SYSTEM_FALLBACK_PICK_IMAGES_ASPECT_RATIO_SQUARE_1_1: Int = 0
+
+        /**
+         * Value for [EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS_ASPECT_RATIO]
+         * specifying a portrait 9:16 aspect ratio thumbnail sizing within the media grid.
+         */
+        public const val SYSTEM_FALLBACK_PICK_IMAGES_ASPECT_RATIO_PORTRAIT_9_16: Int = 1
+
+        @JvmStatic
+        internal fun arePhotoPickerUiCustomizationParamsAvailable(): Boolean {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 22
+        }
+
         /**
          * Check if the current device has support for the photo picker by checking the running
          * Android version, the SDK extension version or the picker provided by a system app
@@ -487,6 +536,15 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
                         putExtra(MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS, selectionParams)
                     }
                 }
+
+                if (arePhotoPickerUiCustomizationParamsAvailable()) {
+                    input.uiCustomizationParams?.let { uiCustomizationParams ->
+                        putExtra(
+                            MediaStore.EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS,
+                            uiCustomizationParams.toPhotoPickerUiCustomizationParams(),
+                        )
+                    }
+                }
             }
         } else if (isSystemFallbackPickerAvailable(context)) {
             val fallbackPicker = checkNotNull(getSystemFallbackPicker(context)).activityInfo
@@ -520,6 +578,13 @@ public open class PickVisualMedia : ActivityResultContract<PickVisualMediaReques
                     putExtra(
                         EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM,
                         it.createHighlightAlbumFallbackBundle(),
+                    )
+                }
+
+                input.uiCustomizationParams?.createFallbackUiParamBundle()?.let { bundle ->
+                    putExtra(
+                        EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS,
+                        bundle,
                     )
                 }
             }

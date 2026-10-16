@@ -30,6 +30,7 @@ import androidx.photopicker.activity.PickVisualMedia.VisualMediaType
 import androidx.photopicker.activity.params.HighlightAlbumParams
 import androidx.photopicker.activity.params.HighlightSearchResultsParams
 import androidx.photopicker.activity.params.SelectionParams
+import androidx.photopicker.activity.params.UiCustomizationParams
 
 /**
  * Creates a request for a [PickMultipleVisualMedia] or [PickVisualMedia] Activity Contract.
@@ -221,6 +222,9 @@ public class PickVisualMediaRequest internal constructor() {
     public var selectionParams: SelectionParams? = null
         internal set
 
+    public var uiCustomizationParams: UiCustomizationParams? = null
+        internal set
+
     /** A builder for constructing [PickVisualMediaRequest] instances. */
     public class Builder {
 
@@ -236,6 +240,7 @@ public class PickVisualMediaRequest internal constructor() {
         private var highlightSearchResultsParams: HighlightSearchResultsParams? = null
         private var highlightAlbumParams: HighlightAlbumParams? = null
         private var selectionParams: SelectionParams? = null
+        private var uiCustomizationParams: UiCustomizationParams? = null
 
         /**
          * Set the media type for the [PickVisualMediaRequest].
@@ -426,6 +431,27 @@ public class PickVisualMediaRequest internal constructor() {
             return this
         }
 
+        /* Sets UI customization options in the PhotoPicker. Not passing this implies the
+         * photopicker will use its default UI.
+         *
+         * This feature was added for the system PhotoPicker in SDK extension version 22 on Android
+         * UpsideDownCake (API level 34) and higher. For devices running a system fallback photo
+         * picker, this preference is forwarded via
+         * [PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS]. If the
+         * underlying platform conditions or fallback picker implementation do not support this
+         * feature, this request is safely ignored.
+         *
+         * @param uiCustomizationParams The UI customization preferences, or `null` to clear.
+         * @return This builder.
+         * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS
+         */
+        public fun setUiCustomizationParams(
+            uiCustomizationParams: UiCustomizationParams?
+        ): Builder {
+            this.uiCustomizationParams = uiCustomizationParams
+            return this
+        }
+
         /**
          * Build the PickVisualMediaRequest specified by this builder.
          *
@@ -454,6 +480,7 @@ public class PickVisualMediaRequest internal constructor() {
                 this.highlightSearchResultsParams = this@Builder.highlightSearchResultsParams
                 this.highlightAlbumParams = this@Builder.highlightAlbumParams
                 this.selectionParams = this@Builder.selectionParams
+                this.uiCustomizationParams = this@Builder.uiCustomizationParams
             }
         }
     }
