@@ -41,6 +41,7 @@ import androidx.compose.remote.creation.compose.capture.CanvasOperationBuffer
 import androidx.compose.remote.creation.compose.capture.PaintTrackerTest.TestPaintChanges
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.asComposePath
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
@@ -3931,6 +3932,54 @@ class RemoteCanvasTest {
         }
 
         assertThrows(IllegalArgumentException::class.java) { pattern(10.rdp) }
+    }
+
+    @Test
+    fun testDrawTweenPath_PathOverload_DoesNotDoubleBuffer() {
+        val path1 = RemotePath().asComposePath()
+        val path2 = RemotePath().asComposePath()
+        val tween = createNamedRemoteFloat("tween", 0.5f)
+        val start = RemoteFloat(0f)
+        val stop = RemoteFloat(1f)
+        remoteCanvas.drawTweenPath(
+            path1,
+            path2,
+            tween,
+            start,
+            stop,
+            androidx.compose.ui.graphics.Paint(),
+        )
+
+        assertThat(fakeBuffer.calls).isEmpty()
+
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls).contains("addPaint")
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawTweenPath") }).isTrue()
+    }
+
+    @Test
+    fun testDrawTweenPath_RemotePathOverload_DoesNotDoubleBuffer() {
+        val path1 = RemotePath()
+        val path2 = RemotePath()
+        val tween = createNamedRemoteFloat("tween", 0.5f)
+        val start = RemoteFloat(0f)
+        val stop = RemoteFloat(1f)
+        remoteCanvas.drawTweenPath(
+            path1,
+            path2,
+            tween,
+            start,
+            stop,
+            androidx.compose.ui.graphics.Paint(),
+        )
+
+        assertThat(fakeBuffer.calls).isEmpty()
+
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls).contains("addPaint")
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawTweenPath") }).isTrue()
     }
 }
 
