@@ -44,6 +44,7 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.internal.CodepointTransformation
 import androidx.compose.foundation.text.input.internal.SingleLineCodepointTransformation
+import androidx.compose.foundation.text.input.internal.SingleLineOutputTransformation
 import androidx.compose.foundation.text.input.internal.TextFieldCoreModifier
 import androidx.compose.foundation.text.input.internal.TextFieldDecoratorModifier
 import androidx.compose.foundation.text.input.internal.TextFieldTextLayoutModifier
@@ -196,6 +197,7 @@ public fun BasicTextField(
         outputTransformation = outputTransformation,
         decorator = decorator,
         scrollState = scrollState,
+        isPassword = false,
     )
 }
 
@@ -240,21 +242,45 @@ internal fun BasicTextField(
         MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_LATEST)
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     val transformedState =
-        remember(state, codepointTransformation, outputTransformation) {
-            // First prefer provided codepointTransformation if not null, e.g. BasicSecureTextField
-            // would send PasswordTransformation. Second, apply a SingleLineCodepointTransformation
-            // if
-            // text field is configured to be single line. Else, don't apply any visual
-            // transformation.
-            val appliedCodepointTransformation =
-                codepointTransformation ?: SingleLineCodepointTransformation.takeIf { singleLine }
-            TransformedTextFieldState(
-                textFieldState = state,
-                inputTransformation = inputTransformation,
-                codepointTransformation = appliedCodepointTransformation,
-                outputTransformation = outputTransformation,
-            )
+        remember(state, singleLine, codepointTransformation, outputTransformation) {
+            if (
+                ComposeFoundationFlags.isBasicTextFieldOutputTransformationOnlyEnabled &&
+                    codepointTransformation == null
+            ) {
+                // If the TextField is both configured to be singleLine and given an
+                // OutputTransformation, we should combine them where SingleLine transformation
+                // works after the given OutputTransformation.
+                val appliedOutputTransformation =
+                    if (singleLine && outputTransformation != null) {
+                        SingleLineOutputTransformation.wrap(outputTransformation)
+                    } else if (singleLine && outputTransformation == null) {
+                        SingleLineOutputTransformation
+                    } else {
+                        outputTransformation
+                    }
+                TransformedTextFieldState(
+                    textFieldState = state,
+                    inputTransformation = inputTransformation,
+                    codepointTransformation = null,
+                    outputTransformation = appliedOutputTransformation,
+                )
+            } else {
+                // First prefer provided codepointTransformation if not null, e.g.
+                // BasicSecureTextField would send PasswordTransformation. Second, apply a
+                // SingleLineCodepointTransformation if text field is configured to be single line.
+                // Else, don't apply any visual transformation.
+                val appliedCodepointTransformation =
+                    codepointTransformation
+                        ?: SingleLineCodepointTransformation.takeIf { singleLine }
+                TransformedTextFieldState(
+                    textFieldState = state,
+                    inputTransformation = inputTransformation,
+                    codepointTransformation = appliedCodepointTransformation,
+                    outputTransformation = outputTransformation,
+                )
+            }
         }
 
     // Invalidate textLayoutState if TextFieldState itself has changed, since TextLayoutState

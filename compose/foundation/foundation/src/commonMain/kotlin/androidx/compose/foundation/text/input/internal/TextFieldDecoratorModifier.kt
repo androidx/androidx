@@ -546,10 +546,20 @@ internal class TextFieldDecoratorModifierNode(
         get() = true
 
     // This function is called inside a snapshot observer.
+    @OptIn(ExperimentalFoundationApi::class)
     override fun SemanticsPropertyReceiver.applySemantics() {
-        val text = textFieldState.outputText
-        val selection = text.selection
+        // Password or not, inputText always tells the untransformed text
         inputText = AnnotatedString(textFieldState.untransformedText.toString())
+        // Only password fields announce their untransformed value to editableText.
+        val text =
+            if (!ComposeFoundationFlags.isBasicTextFieldOutputTransformationOnlyEnabled) {
+                textFieldState.outputText
+            } else if (isPassword) {
+                textFieldState.untransformedText
+            } else {
+                textFieldState.visualText
+            }
+        val selection = text.selection
         editableText = AnnotatedString(text.toString())
         textSelectionRange = selection
         textCompositionRange = textFieldState.untransformedComposition
