@@ -23,6 +23,9 @@ import androidx.photopicker.activity.PickVisualMedia.MediaCapabilities
 import androidx.photopicker.activity.PickVisualMedia.MediaCapabilities.Companion.TYPE_HDR10
 import androidx.photopicker.activity.PickVisualMedia.MediaCapabilities.Companion.TYPE_HDR10_PLUS
 import androidx.photopicker.activity.PickVisualMedia.MediaCapabilities.Companion.TYPE_HLG10
+import androidx.photopicker.activity.params.HighlightAlbumParams
+import androidx.photopicker.activity.params.HighlightSearchResultsParams
+import androidx.photopicker.activity.params.HighlightType
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -264,6 +267,91 @@ class PickVisualMediaRequestTest {
     }
 
     @Test
+    fun testPickVisualMediaRequest_highlightSearchResultsParams() {
+        val params =
+            HighlightSearchResultsParams.Builder()
+                .setHighlightType(HighlightType.EXPANDED)
+                .setHighlightSearchTextQuery("cats")
+                .build()
+
+        val request =
+            PickVisualMediaRequest.Builder().setHighlightSearchResultsParams(params).build()
+
+        assertThat(request.highlightSearchResultsParams).isNotNull()
+        assertThat(request.highlightSearchResultsParams?.highlightSearchTextQuery).isEqualTo("cats")
+        assertThat(request.highlightSearchResultsParams?.highlightType)
+            .isEqualTo(HighlightType.EXPANDED)
+    }
+
+    @Test
+    fun testPickVisualMediaRequest_highlightAlbumParams() {
+        val params =
+            HighlightAlbumParams.Builder()
+                .setHighlightType(HighlightType.COLLAPSED)
+                .setHighlightAlbum(HighlightAlbumParams.ALBUM_FAVORITES)
+                .build()
+
+        val request = PickVisualMediaRequest.Builder().setHighlightAlbumParams(params).build()
+
+        assertThat(request.highlightAlbumParams).isNotNull()
+        assertThat(request.highlightAlbumParams?.highlightAlbum)
+            .isEqualTo(HighlightAlbumParams.ALBUM_FAVORITES)
+        assertThat(request.highlightAlbumParams?.highlightType).isEqualTo(HighlightType.COLLAPSED)
+    }
+
+    @Test
+    fun testPickVisualMediaRequest_mutuallyExclusiveHighlightParams() {
+        val searchParams =
+            HighlightSearchResultsParams.Builder()
+                .setHighlightType(HighlightType.EXPANDED)
+                .setHighlightSearchTextQuery("cats")
+                .build()
+
+        val albumParams =
+            HighlightAlbumParams.Builder()
+                .setHighlightType(HighlightType.COLLAPSED)
+                .setHighlightAlbum(HighlightAlbumParams.ALBUM_FAVORITES)
+                .build()
+
+        assertThrows(IllegalArgumentException::class.java) {
+            PickVisualMediaRequest.Builder()
+                .setHighlightSearchResultsParams(searchParams)
+                .setHighlightAlbumParams(albumParams)
+                .build()
+        }
+    }
+
+    @Test
+    fun testPickVisualMedia_createIntent_highlightSearchResultsParams() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val params =
+            HighlightSearchResultsParams.Builder()
+                .setHighlightType(HighlightType.EXPANDED)
+                .setHighlightSearchTextQuery("cats")
+                .build()
+
+        val request =
+            PickVisualMediaRequest.Builder().setHighlightSearchResultsParams(params).build()
+
+        val intent = PickVisualMedia().createIntent(context, request)
+        if (
+            PickVisualMedia.isSystemPickerAvailable() &&
+                PickVisualMedia.areSystemHighlightParamsAvailable()
+        ) {
+            val searchBundle =
+                intent.getBundleExtra(MediaStore.EXTRA_PICK_IMAGES_HIGHLIGHT_SEARCH_RESULTS)
+
+            assertThat(searchBundle).isNotNull()
+            assertThat(searchBundle?.getInt(MediaStore.KEY_PICK_IMAGES_HIGHLIGHT_TYPE))
+                .isEqualTo(MediaStore.PICK_IMAGES_HIGHLIGHT_TYPE_EXPANDED)
+            assertThat(
+                    searchBundle?.getString(MediaStore.KEY_PICK_IMAGES_HIGHLIGHT_SEARCH_TEXT_QUERY)
+                )
+                .isEqualTo("cats")
+        }
+    }
+
+    @Test
     fun testPickMultipleVisualMedia_createIntent_locationMetadataAccess() {
         val context = InstrumentationRegistry.getInstrumentation().context
 
@@ -337,5 +425,87 @@ class PickVisualMediaRequestTest {
             .isEqualTo(
                 "androidx.activity.result.contract.extra.PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS"
             )
+    }
+
+    @Test
+    fun testPickVisualMedia_createIntent_highlightAlbumParams() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val params =
+            HighlightAlbumParams.Builder()
+                .setHighlightType(HighlightType.COLLAPSED)
+                .setHighlightAlbum(HighlightAlbumParams.ALBUM_CAMERA)
+                .build()
+
+        val request = PickVisualMediaRequest.Builder().setHighlightAlbumParams(params).build()
+
+        val intent = PickVisualMedia().createIntent(context, request)
+        if (
+            PickVisualMedia.isSystemPickerAvailable() &&
+                PickVisualMedia.areSystemHighlightParamsAvailable()
+        ) {
+            val albumBundle = intent.getBundleExtra(MediaStore.EXTRA_PICK_IMAGES_HIGHLIGHT_ALBUM)
+
+            assertThat(albumBundle).isNotNull()
+            assertThat(albumBundle?.getInt(MediaStore.KEY_PICK_IMAGES_HIGHLIGHT_TYPE))
+                .isEqualTo(MediaStore.PICK_IMAGES_HIGHLIGHT_TYPE_COLLAPSED)
+            assertThat(albumBundle?.getString(MediaStore.KEY_PICK_IMAGES_HIGHLIGHT_ALBUM_ID))
+                .isEqualTo(MediaStore.PICK_IMAGES_HIGHLIGHT_ALBUM_CAMERA)
+        }
+    }
+
+    @Test
+    fun testPickMultipleVisualMedia_createIntent_highlightSearchResultsParams() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val params =
+            HighlightSearchResultsParams.Builder()
+                .setHighlightType(HighlightType.EXPANDED)
+                .setHighlightSearchTextQuery("dogs")
+                .build()
+
+        val request =
+            PickVisualMediaRequest.Builder().setHighlightSearchResultsParams(params).build()
+
+        val intent = PickMultipleVisualMedia().createIntent(context, request)
+        if (
+            PickVisualMedia.isSystemPickerAvailable() &&
+                PickVisualMedia.areSystemHighlightParamsAvailable()
+        ) {
+            val searchBundle =
+                intent.getBundleExtra(MediaStore.EXTRA_PICK_IMAGES_HIGHLIGHT_SEARCH_RESULTS)
+
+            assertThat(searchBundle).isNotNull()
+            assertThat(searchBundle?.getInt(MediaStore.KEY_PICK_IMAGES_HIGHLIGHT_TYPE))
+                .isEqualTo(MediaStore.PICK_IMAGES_HIGHLIGHT_TYPE_EXPANDED)
+            assertThat(
+                    searchBundle?.getString(MediaStore.KEY_PICK_IMAGES_HIGHLIGHT_SEARCH_TEXT_QUERY)
+                )
+                .isEqualTo("dogs")
+        }
+    }
+
+    @Test
+    fun testPickMultipleVisualMedia_createIntent_highlightAlbumParams() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val params =
+            HighlightAlbumParams.Builder()
+                .setHighlightType(HighlightType.COLLAPSED)
+                .setHighlightAlbum(HighlightAlbumParams.ALBUM_FAVORITES)
+                .build()
+
+        val request = PickVisualMediaRequest.Builder().setHighlightAlbumParams(params).build()
+
+        val intent = PickMultipleVisualMedia().createIntent(context, request)
+        if (
+            PickVisualMedia.isSystemPickerAvailable() &&
+                PickVisualMedia.areSystemHighlightParamsAvailable()
+        ) {
+            val albumBundle = intent.getBundleExtra(MediaStore.EXTRA_PICK_IMAGES_HIGHLIGHT_ALBUM)
+
+            assertThat(albumBundle).isNotNull()
+            assertThat(albumBundle?.getInt(MediaStore.KEY_PICK_IMAGES_HIGHLIGHT_TYPE))
+                .isEqualTo(MediaStore.PICK_IMAGES_HIGHLIGHT_TYPE_COLLAPSED)
+            assertThat(albumBundle?.getString(MediaStore.KEY_PICK_IMAGES_HIGHLIGHT_ALBUM_ID))
+                .isEqualTo(MediaStore.PICK_IMAGES_HIGHLIGHT_ALBUM_FAVORITES)
+        }
     }
 }
