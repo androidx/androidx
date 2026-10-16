@@ -152,6 +152,7 @@ public class WebViewFeature {
             NAVIGATION_LISTENER_NAVIGATION_STATE,
             NAVIGATION_LISTENER_NAVIGATION_VISIBLE,
             GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1,
+            WEB_MESSAGE_SHARED_ARRAY_BUFFER,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -1080,6 +1081,20 @@ public class WebViewFeature {
     @WebViewCompat.ExperimentalGoogleAccountsCallback
     public static final String GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1 =
             "GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link SharedArrayBuffer#allocate(String, long)},
+     * {@link WebMessageCompat#WebMessageCompat(SharedArrayBuffer)},
+     * {@link WebMessageCompat#WebMessageCompat(SharedArrayBuffer, WebMessagePortCompat[])},
+     * {@link WebMessageCompat#getSharedArrayBuffer()},
+     * {@link SharedArrayBuffer#mapAndCreateByteBuffer()} and
+     * {@link SharedArrayBuffer#getSize()}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String WEB_MESSAGE_SHARED_ARRAY_BUFFER =
+            "WEB_MESSAGE_SHARED_ARRAY_BUFFER";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is

@@ -52,6 +52,7 @@ import androidx.webkit.ProxyController;
 import androidx.webkit.SafeBrowsingResponseCompat;
 import androidx.webkit.ServiceWorkerClientCompat;
 import androidx.webkit.ServiceWorkerWebSettingsCompat;
+import androidx.webkit.SharedArrayBuffer;
 import androidx.webkit.SpeculativeLoadingConfig;
 import androidx.webkit.TracingConfig;
 import androidx.webkit.TracingController;
@@ -1170,6 +1171,18 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFramework GOOGLE_ACCOUNTS_CALLBACK =
             new ApiFeature.NoFramework(WebViewFeature.GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1,
                     Features.GOOGLE_ACCOUNTS_CALLBACK);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link SharedArrayBuffer#allocate(String, long)}
+     * {@link WebMessageCompat#getSharedArrayBuffer()}
+     * {@link SharedArrayBuffer#mapAndCreateByteBuffer()}
+     * {@link SharedArrayBuffer#getSize()}
+     */
+    public static final ApiFeature.NoFramework WEB_MESSAGE_SHARED_ARRAY_BUFFER =
+            new ApiFeature.NoFramework(WebViewFeature.WEB_MESSAGE_SHARED_ARRAY_BUFFER,
+                    Features.WEB_MESSAGE_SHARED_ARRAY_BUFFER);
 
     // --- Add new feature constants above this line ---
 

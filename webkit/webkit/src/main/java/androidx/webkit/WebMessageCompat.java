@@ -43,9 +43,15 @@ public class WebMessageCompat {
      * Indicates the payload of WebMessageCompat is JavaScript ArrayBuffer.
      */
     public static final int TYPE_ARRAY_BUFFER = 1;
+    /**
+     * Indicates the payload of WebMessageCompat is a {@link SharedArrayBuffer}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int TYPE_SHARED_ARRAY_BUFFER = 2;
     private final WebMessagePortCompat @Nullable [] mPorts;
     private final @Nullable String mString;
     private final byte @Nullable [] mArrayBuffer;
+    private final @Nullable SharedArrayBuffer mSharedArrayBuffer;
     private final @Type int mType;
 
     /**
@@ -66,6 +72,7 @@ public class WebMessageCompat {
     public WebMessageCompat(@Nullable String data, WebMessagePortCompat @Nullable [] ports) {
         mString = data;
         mArrayBuffer = null;
+        mSharedArrayBuffer = null;
         mPorts = ports;
         mType = TYPE_STRING;
     }
@@ -100,8 +107,50 @@ public class WebMessageCompat {
         Objects.requireNonNull(arrayBuffer);
         mArrayBuffer = arrayBuffer;
         mString = null;
+        mSharedArrayBuffer = null;
         mPorts = ports;
         mType = TYPE_ARRAY_BUFFER;
+    }
+
+    /**
+     * Creates a WebMessage with {@link SharedArrayBuffer} payload.
+     *
+     * @param sharedArrayBuffer the shared array buffer of the message, as returned by
+     *                          {@link SharedArrayBuffer#allocate(String, long)} or
+     *                          received from web content.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#WEB_MESSAGE_SHARED_ARRAY_BUFFER} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     */
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_SHARED_ARRAY_BUFFER,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public WebMessageCompat(@NonNull SharedArrayBuffer sharedArrayBuffer) {
+        this(sharedArrayBuffer, null);
+    }
+
+    /**
+     * Creates a WebMessage with {@link SharedArrayBuffer} payload.
+     *
+     * @param sharedArrayBuffer the shared array buffer of the message, as returned by
+     *                          {@link SharedArrayBuffer#allocate(String, long)} or
+     *                          received from web content.
+     * @param ports             the ports that are sent with the message.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#WEB_MESSAGE_SHARED_ARRAY_BUFFER} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     */
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_SHARED_ARRAY_BUFFER,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public WebMessageCompat(@NonNull SharedArrayBuffer sharedArrayBuffer,
+            WebMessagePortCompat @Nullable [] ports) {
+        Objects.requireNonNull(sharedArrayBuffer);
+        mSharedArrayBuffer = sharedArrayBuffer;
+        mArrayBuffer = null;
+        mString = null;
+        mPorts = ports;
+        mType = TYPE_SHARED_ARRAY_BUFFER;
     }
 
     /**
@@ -153,6 +202,28 @@ public class WebMessageCompat {
     }
 
     /**
+     * Returns the {@link SharedArrayBuffer} of the message. This should only be called when
+     * {@link #getType()} returns {@link #TYPE_SHARED_ARRAY_BUFFER}. Example:
+     * <pre class="prettyprint">
+     * WebMessageCompat message = ... // The WebMessageCompat received or prepared.
+     * if (message.getType() == WebMessageCompat.TYPE_SHARED_ARRAY_BUFFER) {
+     *     SharedArrayBuffer sharedArrayBuffer = message.getSharedArrayBuffer();
+     *     // Access the shared memory here.
+     * }
+     * </pre>
+     *
+     * @return SharedArrayBuffer payload data.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull SharedArrayBuffer getSharedArrayBuffer() {
+        checkType(TYPE_SHARED_ARRAY_BUFFER);
+        // Required for null check. SharedArrayBuffer is always non-null when
+        // mType == TYPE_SHARED_ARRAY_BUFFER.
+        Objects.requireNonNull(mSharedArrayBuffer);
+        return mSharedArrayBuffer;
+    }
+
+    /**
      * Returns the ports that are sent with the message, or {@code null} if no port
      * is sent.
      */
@@ -166,6 +237,8 @@ public class WebMessageCompat {
                 return "String";
             case TYPE_ARRAY_BUFFER:
                 return "ArrayBuffer";
+            case TYPE_SHARED_ARRAY_BUFFER:
+                return "SharedArrayBuffer";
             default:
                 return "Unknown";
         }
@@ -179,7 +252,7 @@ public class WebMessageCompat {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef({TYPE_STRING, TYPE_ARRAY_BUFFER})
+    @IntDef({TYPE_STRING, TYPE_ARRAY_BUFFER, TYPE_SHARED_ARRAY_BUFFER})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Type {
     }

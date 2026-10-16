@@ -16,23 +16,32 @@
 
 <html>
 <body>
-<p>This demo sends 2 variables to a worker for processing (in this case
-    multiplying by 2 both numbers) via a SharedArrayBuffer.</p>
+<p>This demo shares a SharedArrayBuffer with the Android app holding this WebView. The buffer is
+    allocated by the app, sent to this page, and passed on to a worker that multiplies both numbers
+    by 2. The app reads the same memory and shows the values above the WebView, without the page
+    sending them back.</p>
 <label for="v0">v[0]</label><input id="v0"><br>
 <label for="v1">v[1]</label><input id="v1"><br>
-<button id="send">Send to Worker</button>
+<button id="send" disabled>Send to Worker</button>
 <script>
-    const sab = new SharedArrayBuffer(16);
-    const view = new Int32Array(sab);
+    let view = null;
     const myWorker = new Worker('shared_array_buffer_worker.js');
     myWorker.addEventListener('message', event => {
         document.getElementById("v0").value = view[0];
         document.getElementById("v1").value = view[1];
     });
+    // The app replies to the message below with the SharedArrayBuffer it allocated.
+    sharedArrayBufferBridge.onmessage = event => {
+        view = new Int32Array(event.data);
+        document.getElementById("v0").value = view[0];
+        document.getElementById("v1").value = view[1];
+        document.getElementById("send").disabled = false;
+    };
+    sharedArrayBufferBridge.postMessage("ready");
     document.getElementById("send").addEventListener("click", event => {
         view[0] = Number(document.getElementById("v0").value);
         view[1] = Number(document.getElementById("v1").value);
-        myWorker.postMessage(sab);
+        myWorker.postMessage(view.buffer);
     });
 </script>
 </body>

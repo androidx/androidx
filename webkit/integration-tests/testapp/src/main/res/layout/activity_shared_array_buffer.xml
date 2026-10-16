@@ -21,9 +21,30 @@
     android:orientation="vertical"
     android:rotationX="0">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="@string/shared_array_buffer_native_header"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/native_value_0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp" />
+
+    <TextView
+        android:id="@+id/native_value_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:paddingHorizontal="8dp" />
+
     <WebView
         android:id="@+id/webview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
 </LinearLayout>
