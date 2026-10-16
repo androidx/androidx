@@ -438,8 +438,9 @@ internal class TextFieldCoreModifierNode(
         val layoutResult = textLayoutState.layoutResult ?: return
 
         val rawCursorRect =
-            layoutResult.getCursorRect(
-                offsetToFollow.coerceIn(0..layoutResult.layoutInput.text.length)
+            textFieldSelectionState.getCursorRectInLayout(
+                layoutResult,
+                offsetToFollow.coerceIn(0, layoutResult.layoutInput.text.length),
             )
         val cursorRect =
             getCursorRectInScroller(
