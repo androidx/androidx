@@ -595,6 +595,19 @@ class IntListTest {
     }
 
     @Test
+    fun removeAllItself() {
+        val l = mutableIntListOf(1, 2, 3)
+        assertTrue(l.removeAll(l))
+        assertTrue(l.isEmpty())
+    }
+
+    @Test
+    fun removeAllItselfEmpty() {
+        val l = mutableIntListOf()
+        assertFalse(l.removeAll(l))
+    }
+
+    @Test
     fun removeAllIntArray() {
         assertFalse(list.removeAll(intArrayOf(0, 10, 15)))
         val l = mutableIntListOf(0, 1, 15, 10, 2, 3, 4, 5, 20, 5)
@@ -610,6 +623,13 @@ class IntListTest {
         val l2 = mutableIntListOf(0, 1, 15, 10, 2, 3, 4, 5, 20, 5)
         l2 -= mutableIntListOf(20, 0, 15, 10, 5)
         assertEquals(list, l2)
+    }
+
+    @Test
+    fun minusAssignItself() {
+        val l = mutableIntListOf(1, 2, 3)
+        l -= l
+        assertTrue(l.isEmpty())
     }
 
     @Test
