@@ -23,6 +23,7 @@ import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
@@ -310,11 +311,13 @@ internal fun Hyphens.encode(): Int =
         else -> 0
     }
 
-internal fun TileMode.toTileModeInt(): Int =
+internal fun TileMode.toTileModeInt(): Int = toRemoteTileMode().value
+
+internal fun TileMode.toRemoteTileMode(): RemoteTileMode =
     when (this) {
-        TileMode.Clamp -> 0
-        TileMode.Repeated -> 1
-        TileMode.Mirror -> 2
-        TileMode.Decal -> 3
-        else -> 0
+        TileMode.Clamp -> RemoteTileMode.Clamp
+        TileMode.Repeated -> RemoteTileMode.Repeated
+        TileMode.Mirror -> RemoteTileMode.Mirror
+        TileMode.Decal -> RemoteTileMode.Decal
+        else -> RemoteTileMode.Clamp
     }

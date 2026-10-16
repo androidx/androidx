@@ -20,6 +20,7 @@ import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
@@ -37,11 +38,22 @@ import kotlin.test.assertEquals
 class DrawHelpersTest {
 
     @Test
+    fun remoteGraphicsConversions_toInt() {
+        assertEquals(PaintBundle.BLEND_MODE_SRC_OVER, RemoteBlendMode.SrcOver.value)
+        assertEquals(0, RemoteTileMode.Clamp.value)
+        assertEquals(1, RemoteTileMode.Repeated.value)
+        assertEquals(2, RemoteTileMode.Mirror.value)
+        assertEquals(3, RemoteTileMode.Decal.value)
+    }
+
+    @Test
     fun composeToRemote_roundTrip() {
         assertEquals(RemoteBlendMode.SrcOver, BlendMode.SrcOver.toRemoteBlendMode())
         assertEquals(BlendMode.SrcOver, RemoteBlendMode.SrcOver.toComposeBlendMode())
         assertEquals(RemoteBlendMode.Clear, BlendMode.Clear.toRemoteBlendMode())
         assertEquals(BlendMode.Clear, RemoteBlendMode.Clear.toComposeBlendMode())
+
+        assertEquals(RemoteTileMode.Mirror, TileMode.Mirror.toRemoteTileMode())
     }
 
     @Test
