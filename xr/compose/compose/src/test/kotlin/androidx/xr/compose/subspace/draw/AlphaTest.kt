@@ -29,6 +29,10 @@ import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -253,5 +257,21 @@ class AlphaTest {
                     ?.getAlpha()
             )
             .isEqualTo(1.0f)
+    }
+
+    @Test
+    fun alpha_nan_throwsException() {
+        assertFailsWith<IllegalArgumentException> { SubspaceModifier.alpha(Float.NaN) }
+    }
+
+    @Test
+    fun alpha_equalsAndHashCode() {
+        val modifier1 = SubspaceModifier.alpha(0.5f)
+        val modifier2 = SubspaceModifier.alpha(0.5f)
+        val modifierDifferent = SubspaceModifier.alpha(0.8f)
+
+        assertTrue(modifier1 == modifier2)
+        assertEquals(modifier1.hashCode(), modifier2.hashCode())
+        assertFalse(modifier1 == modifierDifferent)
     }
 }
