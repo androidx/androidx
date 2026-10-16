@@ -24,6 +24,7 @@
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -103,4 +104,9 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2026"
     description = "Provides a component that produces Compose state."
+}
+
+// b/484004578
+tasks.withType(KotlinCompile).configureEach {
+    incremental = false
 }
