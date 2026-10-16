@@ -724,6 +724,7 @@ package androidx.webkit {
     method @Deprecated @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.START_SAFE_BROWSING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void startSafeBrowsing(android.content.Context, android.webkit.ValueCallback<java.lang.Boolean!>?);
     method @Deprecated @SuppressCompatibility @AnyThread @androidx.webkit.WebViewCompat.ExperimentalAsyncStartUp public static void startUpWebView(android.content.Context, androidx.webkit.WebViewStartUpConfig, androidx.webkit.WebViewCompat.WebViewStartUpCallback);
     method @AnyThread public static void startUpWebView(android.content.Context, androidx.webkit.WebViewStartUpConfig, androidx.webkit.WebViewOutcomeReceiver<androidx.webkit.WebViewStartUpResult!,androidx.webkit.WebViewStartupException!>);
+    method @AnyThread public static void startUpWebView(android.content.Context, androidx.webkit.WebViewStartUpConfig, java.util.concurrent.Executor, androidx.webkit.WebViewOutcomeReceiver<androidx.webkit.WebViewStartUpResult!,androidx.webkit.WebViewStartupException!>);
     field public static final int INJECTION_EVENT_DOCUMENT_END = 1; // 0x1
     field public static final int INJECTION_EVENT_DOCUMENT_START = 0; // 0x0
   }

@@ -16,8 +16,6 @@
 
 package androidx.webkit.internal;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.webkit.WebView;
 
 import androidx.webkit.WebViewCompat;
@@ -38,6 +36,8 @@ import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.jspecify.annotations.NonNull;
+
+import java.util.concurrent.Executor;
 
 /**
  * Adapter for WebViewProviderFactoryBoundaryInterface providing static WebView functionality
@@ -154,21 +154,22 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     @Override
     public void startUpWebView(
             @NonNull WebViewStartUpConfig config,
+            @NonNull Executor callbackExecutor,
             WebViewCompat.@NonNull WebViewStartUpCallback callback) {
         mImpl.startUpWebView(
                 BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                         new WebViewStartUpConfigAdapter(config)),
                 BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                         new WebViewStartUpCallbackAdapter(result -> {
-                            // We want to ensure that the callback is run on the Android main
-                            // looper. The callee doesn't guarantee this. It's also desirable to
-                            // post it to make sure that we don't run the app's callback
+                            // We want to ensure that the callback is run on the executor provided
+                            // by the caller. The callee doesn't guarantee this. It's also desirable
+                            // to post it to make sure that we don't run the app's callback
                             // synchronously from inside startChromiumLocked:
                             // - This helps avoid making the blocking task longer.
                             // - If the app's callback has a problem the stack trace will
                             // hopefully make it clearer that it's not WebView's fault since
                             // WebView code will not be in the stack trace.
-                            new Handler(Looper.getMainLooper()).post(
+                            callbackExecutor.execute(
                                     () -> callback.onSuccess(result));
                         })));
     }
@@ -176,25 +177,26 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     @Override
     public void startUpWebView(
             @NonNull WebViewStartUpConfig config,
+            @NonNull Executor callbackExecutor,
             @NonNull WebViewOutcomeReceiver<WebViewStartUpResult,
                     WebViewStartupException> callback) {
         mImpl.startUpWebView(config::accept,
                 onSuccess -> {
-                    // We want to ensure that the callback is run on the Android main looper. The
-                    // callee doesn't guarantee this. It's also desirable to post it to make sure
-                    // that we don't run the app's callback synchronously from inside
+                    // We want to ensure that the callback is run on the executor provided by the
+                    // caller. The callee doesn't guarantee this. It's also desirable to post it to
+                    // make sure that we don't run the app's callback synchronously from inside
                     // startChromiumLocked:
                     // - This helps avoid making the blocking task longer.
                     // - If the app's callback has a problem the stack trace will hopefully make it
                     // clearer that it's not WebView's fault since WebView code will not be in the
                     // stack trace.
                     WebViewStartupResultImpl result = new WebViewStartupResultImpl(onSuccess);
-                    new Handler(Looper.getMainLooper()).post(() -> callback.onResult(result));
+                    callbackExecutor.execute(() -> callback.onResult(result));
                 },
                 onFailure -> {
-                    // We want to ensure that the callback is run on the Android main looper. The
-                    // callee doesn't guarantee this. It's also desirable to post it to make sure
-                    // that we don't run the app's callback synchronously from inside
+                    // We want to ensure that the callback is run on the executor provided by the
+                    // caller. The callee doesn't guarantee this. It's also desirable to post it to
+                    // make sure that we don't run the app's callback synchronously from inside
                     // startChromiumLocked:
                     // - This helps avoid making the blocking task longer.
                     // - If the app's callback has a problem the stack trace will hopefully make it
@@ -202,7 +204,7 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
                     // stack trace.
                     WebViewStartupException exception =
                             WebViewStartupExceptionBuilder.buildException(onFailure);
-                    new Handler(Looper.getMainLooper()).post(() -> callback.onError(exception));
+                    callbackExecutor.execute(() -> callback.onError(exception));
                 });
     }
 }
