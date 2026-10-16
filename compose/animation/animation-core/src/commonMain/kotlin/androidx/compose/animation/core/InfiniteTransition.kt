@@ -16,12 +16,12 @@
 
 package androidx.compose.animation.core
 
+import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -142,13 +142,14 @@ public class InfiniteTransition internal constructor(public val label: String) {
         }
     }
 
-    private val _animations = mutableVectorOf<TransitionAnimationState<*, *>>()
+    private val _animations = mutableObjectListOf<TransitionAnimationState<*, *>>()
     private var refreshChildNeeded by mutableStateOf(false)
     private var startTimeNanos = AnimationConstants.UnspecifiedTime
     private var isRunning by mutableStateOf(true)
 
     /** List of [TransitionAnimationState]s that are in a [InfiniteTransition]. */
     public val animations: List<TransitionAnimationState<*, *>>
+        @Suppress("AsCollectionCall") // Public API requires a List.
         get() = _animations.asMutableList()
 
     internal fun addAnimation(animation: TransitionAnimationState<*, *>) {
