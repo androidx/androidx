@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalComposeUiHostApi::class)
+
 package androidx.compose.ui.platform
 
 import android.accessibilityservice.AccessibilityServiceInfo
@@ -52,8 +54,6 @@ import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.PlatformHapticFeedback
 import androidx.compose.ui.node.LayoutNodeDrawScope
-import androidx.compose.ui.res.ImageVectorCache
-import androidx.compose.ui.res.ResourceIdCache
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -166,17 +166,13 @@ private constructor(
             return _viewModelStoreOwner
         }
 
-    /** [ImageVectorCache] provided by [LocalImageVectorCache] */
-    internal val imageVectorCache: ImageVectorCache =
+    /** [ComposeUiSharedResources] holding shared resource caches */
+    internal val sharedResources: ComposeUiSharedResources =
         if (matchesContext) {
-            composeViewContext!!.imageVectorCache
+            composeViewContext!!.sharedResources
         } else {
-            ImageVectorCache()
+            ComposeUiSharedResources(view.context.resources.configuration)
         }
-
-    /** [ResourceIdCache] provided by [LocalResourceIdCache] */
-    internal val resourceIdCache: ResourceIdCache =
-        composeViewContext?.resourceIdCache ?: ResourceIdCache()
 
     private var _graphicsResourceCache: GraphicsResourceCache? =
         composeViewContext?.graphicsResourceCache
@@ -459,11 +455,10 @@ private constructor(
      * AndroidComposeViews also.
      */
     internal fun onConfigurationChanged(configuration: Configuration) {
+        sharedResources.onConfigurationChanged(configuration)
         val changedFlags = currentConfiguration.updateFrom(configuration)
         if (changedFlags != 0) {
-            imageVectorCache.prune(changedFlags)
             this@ComposeViewContext.configuration.value = Configuration(configuration)
-            resourceIdCache.clear()
             if (changedFlags and ActivityInfo.CONFIG_FONT_WEIGHT_ADJUSTMENT != 0) {
                 fontFamilyResolver.value = createFontFamilyResolver(view.context)
             }
@@ -584,18 +579,16 @@ private constructor(
                 LocalHostDefaultProvider provides owner.hostDefaultProvider,
                 LocalView provides owner.view,
                 LocalViewConfiguration provides owner.viewConfiguration,
-                LocalImageVectorCache provides imageVectorCache,
-                LocalResourceIdCache provides resourceIdCache,
             ) {
-                ProvideCommonCompositionLocals(owner = owner, content = content)
+                sharedResources.ProvideCompositionLocals {
+                    ProvideCommonCompositionLocals(owner = owner, content = content)
+                }
             }
         } else {
             CompositionLocalProvider(
                 LocalAndroidComposeView provides owner,
                 LocalLifecycleOwner provides lifecycleOwner,
                 LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
-                LocalImageVectorCache provides imageVectorCache,
-                LocalResourceIdCache provides resourceIdCache,
                 LocalSoundEffect providesComputed { soundEffect },
                 LocalContext provides owner.context,
                 LocalInspectionTables provides inspectionTable,
@@ -611,18 +604,21 @@ private constructor(
                 LocalHostDefaultProvider provides owner.hostDefaultProvider,
                 LocalGraphicsResourceCache providesComputed { graphicsResourceCache },
             ) {
-                if (isMediaQueryIntegrationEnabled) {
-                    CompositionLocalProvider(
-                        // Defer owner.uiMediaScope evaluation until actively read in composition.
-                        LocalUiMediaScope providesComputed
-                            {
-                                owner.uiMediaScope ?: error("UiMediaScope is not initialized.")
-                            }
-                    ) {
+                sharedResources.ProvideCompositionLocals {
+                    if (isMediaQueryIntegrationEnabled) {
+                        CompositionLocalProvider(
+                            // Defer owner.uiMediaScope evaluation until actively read in
+                            // composition.
+                            LocalUiMediaScope providesComputed
+                                {
+                                    owner.uiMediaScope ?: error("UiMediaScope is not initialized.")
+                                }
+                        ) {
+                            ProvideCommonCompositionLocals(owner = owner, content = content)
+                        }
+                    } else {
                         ProvideCommonCompositionLocals(owner = owner, content = content)
                     }
-                } else {
-                    ProvideCommonCompositionLocals(owner = owner, content = content)
                 }
             }
         }
@@ -641,14 +637,12 @@ private constructor(
 
         @Deprecated("This callback is superseded by onTrimMemory")
         override fun onLowMemory() {
-            imageVectorCache.clear()
-            resourceIdCache.clear()
+            sharedResources.clear()
             _graphicsResourceCache?.clear()
         }
 
         override fun onTrimMemory(level: Int) {
-            imageVectorCache.clear()
-            resourceIdCache.clear()
+            sharedResources.clear()
             _graphicsResourceCache?.clear()
         }
 
