@@ -22,11 +22,17 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.widget.RemoteViews
+import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.glance.LocalSize
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
+import androidx.glance.adaptive.appwidget.ui.GlanceAppWidgetProfiles
 import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
+import androidx.glance.adaptive.appwidget.ui.RemoteComposeTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.RemoteViewsRenderOutput
 import androidx.glance.adaptive.appwidget.ui.RemoteViewsTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
@@ -441,6 +447,85 @@ class GlanceRemoteViewsComposerTest {
         val result = composer.compose(TestTemplate(), target)
 
         assertThat(result).isSameInstanceAs(expectedRemoteViews)
+    }
+
+    @Test
+    @Config(sdk = [37], qualifiers = "xhdpi")
+    fun compose_remoteComposeRenderer_capturesDocumentIntoRemoteViewsWithPxSize() = runTest {
+        var remoteComposableInvoked = false
+        var observedConstraints: HostConstraints<AppWidgetGlanceSurface>? = null
+        var capturedDisplaySize: Size? = null
+        var capturedProfile: Profile? = null
+
+        AppWidgetTemplateRegistry.register(
+            TestTemplate::class.java,
+            RemoteComposeTemplateRenderer { _, constraints ->
+                observedConstraints = constraints
+                {
+                    remoteComposableInvoked = true
+                    val state = LocalRemoteComposeCreationState.current
+                    capturedDisplaySize = state.creationDisplayInfo.size
+                    capturedProfile = state.profile
+                    RemoteBox {}
+                }
+            },
+        )
+        val target = RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88))
+
+        val result = composer.compose(TestTemplate(), target)
+
+        val density = context.resources.displayMetrics.density
+        assertThat(density).isEqualTo(2f)
+        assertThat(result).isNotNull()
+        assertThat(remoteComposableInvoked).isTrue()
+        assertThat(observedConstraints)
+            .isEqualTo(HostConstraints(Dimensions(348, 88), target.surface))
+        assertThat(capturedDisplaySize).isEqualTo(Size(348 * density, 88 * density))
+        assertThat(capturedProfile).isSameInstanceAs(GlanceAppWidgetProfiles.widgetsV7)
+        assertThat(capturedProfile?.apiLevel)
+            .isEqualTo(GlanceAppWidgetProfiles.WIDGETS_V7_DOC_API_LEVEL)
+        assertThat(capturedProfile?.operationsProfiles)
+            .isEqualTo(GlanceAppWidgetProfiles.PROFILE_WIDGETS)
+        assertThat(recordedLocalSizes).isEmpty()
+    }
+
+    @Test
+    @Config(sdk = [37], qualifiers = "xhdpi")
+    fun compose_remoteComposeRenderer_unspecifiedDimensions_fallsBackToDisplaySize() = runTest {
+        var capturedDisplaySize: Size? = null
+
+        AppWidgetTemplateRegistry.register(
+            TestTemplate::class.java,
+            RemoteComposeTemplateRenderer { _, _ ->
+                {
+                    capturedDisplaySize =
+                        LocalRemoteComposeCreationState.current.creationDisplayInfo.size
+                    RemoteBox {}
+                }
+            },
+        )
+        val target = RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, UNSPECIFIED)
+
+        val result = composer.compose(TestTemplate(), target)
+
+        val displayMetrics = context.resources.displayMetrics
+        assertThat(result).isNotNull()
+        assertThat(capturedDisplaySize)
+            .isEqualTo(
+                Size(displayMetrics.widthPixels.toFloat(), displayMetrics.heightPixels.toFloat())
+            )
+    }
+
+    @Test(expected = IllegalStateException::class)
+    @Config(sdk = [36])
+    fun compose_remoteComposePreSdk37_throwsIllegalStateException() = runTest {
+        AppWidgetTemplateRegistry.register(
+            TestTemplate::class.java,
+            RemoteComposeTemplateRenderer { _, _ -> {} },
+        )
+        val target = RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(200, 100))
+
+        composer.compose(TestTemplate(), target)
     }
 
     // endregion
