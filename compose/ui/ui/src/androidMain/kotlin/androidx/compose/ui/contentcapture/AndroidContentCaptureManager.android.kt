@@ -21,7 +21,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.LongSparseArray
 import android.view.View
-import android.view.ViewStructure
 import android.view.translation.TranslationRequestValue
 import android.view.translation.ViewTranslationRequest
 import android.view.translation.ViewTranslationResponse
@@ -36,6 +35,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.SemanticsNodeCopy
+import androidx.compose.ui.platform.coreshims.ViewCompatShims
+import androidx.compose.ui.platform.coreshims.ViewStructureCompat
 import androidx.compose.ui.platform.getTextLayoutResult
 import androidx.compose.ui.platform.toLegacyClassName
 import androidx.compose.ui.semantics.AdjustedSemanticsNode
@@ -49,7 +50,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.trace
-import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -349,13 +349,13 @@ internal class AndroidContentCaptureManager(
         boundsUpdateChannel.trySend(Unit)
     }
 
-    private fun SemanticsNode.toViewStructure(index: Int): ViewStructure? {
+    private fun SemanticsNode.toViewStructure(index: Int): ViewStructureCompat? {
         val session = contentCaptureSession ?: return null
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             return null
         }
 
-        val rootAutofillId = ViewCompat.getAutofillId(view) ?: return null
+        val rootAutofillId = ViewCompatShims.getAutofillId(view) ?: return null
         val parentNode = parent
         val parentAutofillId =
             if (parentNode != null) {
@@ -437,7 +437,10 @@ internal class AndroidContentCaptureManager(
         }
     }
 
-    private fun bufferContentCaptureViewAppeared(virtualId: Int, viewStructure: ViewStructure?) {
+    private fun bufferContentCaptureViewAppeared(
+        virtualId: Int,
+        viewStructure: ViewStructureCompat?,
+    ) {
         if (viewStructure == null) {
             return
         }
@@ -473,7 +476,9 @@ internal class AndroidContentCaptureManager(
             bufferedEvents.fastForEach { event ->
                 when (event.type) {
                     ContentCaptureEventType.VIEW_APPEAR -> {
-                        event.structureCompat?.let { node -> session.notifyViewAppeared(node) }
+                        event.structureCompat?.let { node ->
+                            session.notifyViewAppeared(node.toViewStructure())
+                        }
                     }
                     ContentCaptureEventType.VIEW_DISAPPEAR -> {
                         session.newAutofillId(event.id.toLong())?.let { autofillId ->
@@ -675,5 +680,5 @@ private data class ContentCaptureEvent(
     val id: Int,
     val timestamp: Long,
     val type: ContentCaptureEventType,
-    val structureCompat: ViewStructure?,
+    val structureCompat: ViewStructureCompat?,
 )
