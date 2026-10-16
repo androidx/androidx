@@ -17,7 +17,12 @@
 package androidx.people
 
 import android.content.Intent
+import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.core.content.IntentCompat
+import androidx.people.internal.platform.PeopleContractCompat
+import androidx.people.internal.platform.capabilityFromInteractionType
+import androidx.people.internal.platform.toPersonQuery
 
 /**
  * Represents an incoming interaction request delivered to a People Directory application's
@@ -145,7 +150,7 @@ public class PeopleInteraction(
          */
         @Suppress("ActionValue")
         public const val ACTION_START_INTERACTION: String =
-            "android.provider.action.START_PEOPLE_INTERACTION"
+            PeopleContractCompat.Intents.ACTION_START_PEOPLE_INTERACTION
 
         /**
          * Parses an incoming [Intent] delivered with [ACTION_START_INTERACTION].
@@ -155,7 +160,22 @@ public class PeopleInteraction(
          *   interaction request.
          */
         @JvmStatic
-        public fun parse(intent: Intent): PeopleInteraction? =
-            TODO("Implemented in the follow-up change")
+        public fun parse(intent: Intent): PeopleInteraction? {
+            if (intent.action != ACTION_START_INTERACTION) return null
+            val interactionType =
+                intent.getStringExtra(PeopleContractCompat.Intents.EXTRA_PEOPLE_INTERACTION_TYPE)
+                    ?: return null
+            val capability = capabilityFromInteractionType(interactionType) ?: return null
+
+            val queryArgs =
+                IntentCompat.getParcelableExtra(
+                    intent,
+                    PeopleContractCompat.Intents.EXTRA_PEOPLE_QUERY_ARGS,
+                    Bundle::class.java,
+                ) ?: return null
+
+            val personQuery = queryArgs.toPersonQuery() ?: return null
+            return PeopleInteraction(targetQuery = personQuery, capability = capability)
+        }
     }
 }
