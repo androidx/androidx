@@ -23,16 +23,14 @@ import androidx.compose.remote.creation.compose.state.rf
  * An immutable, 2D floating-point size with [width] and [height] represented as [RemoteFloat]s.
  *
  * This class is used in remote creation to represent dimensions that may be backed by remote state.
+ *
+ * @property width The horizontal dimension.
+ * @property height The vertical dimension.
  */
-public class RemoteSize {
-
-    public val width: RemoteFloat
-    public val height: RemoteFloat
-
-    public constructor(width: RemoteFloat, height: RemoteFloat) {
-        this.width = width
-        this.height = height
-    }
+public class RemoteSize(
+    public val width: RemoteFloat,
+    public val height: RemoteFloat,
+) {
 
     /**
      * Returns a [RemoteSize] with the width and height decreased by the [offset]'s x and y
