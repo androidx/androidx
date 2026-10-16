@@ -132,7 +132,6 @@ Use this boilerplate, ensuring a separate `@Test` method exists for each explici
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
@@ -142,6 +141,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.${COMPONENT_NAME}Default
 import androidx.wear.compose.remote.material3.previews.${COMPONENT_NAME}WithVariant
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -163,7 +163,7 @@ class ${COMPONENT_NAME}Test {
     @Test
     fun ${COMPONENT_NAME}Default() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ${COMPONENT_NAME}Default()
@@ -173,7 +173,7 @@ class ${COMPONENT_NAME}Test {
     @Test
     fun ${COMPONENT_NAME}WithVariant() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ${COMPONENT_NAME}WithVariant()
@@ -191,7 +191,6 @@ Use this boilerplate:
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
@@ -203,6 +202,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.samples.${COMPONENT_NAME}Sample
 import androidx.wear.compose.remote.material3.util.ComponentContainer
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -224,7 +224,7 @@ class ${COMPONENT_NAME}SampleTest {
     @Test
     fun ${COMPONENT_NAME}SampleTest() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { ${COMPONENT_NAME}Sample() }

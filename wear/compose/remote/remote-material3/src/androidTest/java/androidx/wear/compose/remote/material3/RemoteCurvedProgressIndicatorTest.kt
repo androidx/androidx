@@ -19,7 +19,6 @@ package androidx.wear.compose.remote.material3
 import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.remote.player.view.RemoteComposePlayer
@@ -41,6 +40,7 @@ import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressNoCol
 import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressNoGap
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -124,7 +124,7 @@ class RemoteCurvedProgressIndicatorTest {
         }
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             update = { player: RemoteComposePlayer ->
                 colorOverrides.forEach { name, colorInt ->
                     player.setUserLocalColor(name, colorInt)

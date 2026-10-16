@@ -26,7 +26,6 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
@@ -39,6 +38,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -94,7 +94,7 @@ class DynamicColorTest {
 
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             update = { player ->
                 colorOverrides.forEach { name, colorInt ->
                     player.setUserLocalColor(name, colorInt)

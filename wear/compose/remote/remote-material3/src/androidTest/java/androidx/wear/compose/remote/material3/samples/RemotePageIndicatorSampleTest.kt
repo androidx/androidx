@@ -17,7 +17,6 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
@@ -27,6 +26,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,7 +49,7 @@ class RemotePageIndicatorSampleTest {
     @Test
     fun RemoteHorizontalPageIndicatorSampleTest() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteHorizontalPageIndicatorSample() }
@@ -59,7 +59,7 @@ class RemotePageIndicatorSampleTest {
     @Test
     fun RemoteVerticalPageIndicatorSampleTest() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteVerticalPageIndicatorSample() }

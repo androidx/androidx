@@ -50,6 +50,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.compose.material3.ColorScheme
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -94,7 +95,7 @@ class RemoteColorSchemeScreenshotTest {
     fun dynamicColorScheme_wearWidgetsProfile_fallsBackToNamedColors() {
         runColorGridTest(
             expected = fallbackColor(DistinctColorScheme, source = "fallback"),
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             colorScheme = { dynamicRemoteColorScheme(fallbackColorScheme = DistinctColorScheme) },
         )
     }

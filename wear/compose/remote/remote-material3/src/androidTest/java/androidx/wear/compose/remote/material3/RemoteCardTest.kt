@@ -19,7 +19,6 @@ package androidx.wear.compose.remote.material3
 import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
@@ -35,6 +34,7 @@ import androidx.wear.compose.remote.material3.previews.RemoteCardWithImage
 import androidx.wear.compose.remote.material3.previews.RemoteCardWithImageAndBorder
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,7 +56,7 @@ class RemoteCardTest {
     @Test
     fun card_default() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteCardDefault() }
@@ -66,7 +66,7 @@ class RemoteCardTest {
     @Test
     fun card_default_rtl() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
             creationComposableWrapper = ComposableWrappers.rtl,
         ) {
@@ -77,7 +77,7 @@ class RemoteCardTest {
     @Test
     fun card_outline() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteCardOutline() }
@@ -87,7 +87,7 @@ class RemoteCardTest {
     @Test
     fun card_with_image_and_border() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteCardWithImageAndBorder() }
@@ -103,7 +103,7 @@ class RemoteCardTest {
             put("WearM3.onSurface", Color(0xFFE2E3DC).toArgb())
         }
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
             update = { player ->
                 colorOverrides.forEach { name, colorInt ->
@@ -118,7 +118,7 @@ class RemoteCardTest {
     @Test
     fun card_with_image() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteCardWithImage() }

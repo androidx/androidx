@@ -22,7 +22,6 @@ import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
@@ -39,6 +38,7 @@ import androidx.wear.compose.remote.material3.previews.RemoteTextButtonTonal
 import androidx.wear.compose.remote.material3.previews.RemoteTextButtonTonalDisabled
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -119,7 +119,7 @@ class RemoteTextButtonTest {
             put("WearM3.onSurface", Color(0xFFE2E3DC).toArgb())
         }
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
             update = { player ->
                 colorOverrides.forEach { name, colorInt ->

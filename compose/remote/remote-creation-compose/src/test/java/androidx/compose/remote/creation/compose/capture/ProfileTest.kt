@@ -42,6 +42,20 @@ import org.robolectric.annotation.Config
 class ProfileTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val displayInfo = CreationDisplayInfo(100, 100, 160)
+    private val minimalProfileSupportedOperations = buildIntSet {
+        RcPlatformProfiles.ANDROIDX.supportedOperations.forEach { op ->
+            if (
+                op != Operations.COLOR_THEME &&
+                    op != Operations.MODIFIER_TOUCH_DOWN &&
+                    op != Operations.MODIFIER_TOUCH_UP &&
+                    op != Operations.MODIFIER_TOUCH_CANCEL
+            ) {
+                add(op)
+            }
+        }
+    }
+    private val minimalProfile =
+        createProfile(supportedOperations = minimalProfileSupportedOperations)
 
     @Test
     fun createProfile_defaultValues() {
@@ -92,12 +106,12 @@ class ProfileTest {
         }
 
     @Test
-    fun currentProfileSupportsThemedColorsAndTouchModifiers_wearWidgetsProfile_returnsFalse() =
+    fun currentProfileSupportsThemedColorsAndTouchModifiers_minimalProfile_returnsFalse() =
         runTest {
             var themedColors: Boolean? = null
             var touchModifiers: Boolean? = null
 
-            captureSingleRemoteDocument(context, profile = RcPlatformProfiles.WEAR_WIDGETS) {
+            captureSingleRemoteDocument(context, profile = minimalProfile) {
                 themedColors = currentProfileSupportsThemedColors()
                 touchModifiers = currentProfileSupportsTouchModifiers()
                 RemoteBox()
@@ -109,12 +123,11 @@ class ProfileTest {
 
     @Test
     fun currentProfileSupportsTouchModifiers_requiresAllTouchOperations() = runTest {
-        val baseOps = RcPlatformProfiles.WEAR_WIDGETS.supportedOperations
         val partialTouchProfile =
             createProfile(
                 supportedOperations =
                     buildIntSet {
-                        baseOps.forEach { op -> add(op) }
+                        addAll(minimalProfileSupportedOperations)
                         add(Operations.MODIFIER_TOUCH_DOWN)
                         add(Operations.MODIFIER_TOUCH_UP)
                     }
@@ -135,7 +148,7 @@ class ProfileTest {
         var supportsColorTheme: Boolean? = null
         var supportsBoth: Boolean? = null
 
-        captureSingleRemoteDocument(context, profile = RcPlatformProfiles.WEAR_WIDGETS) {
+        captureSingleRemoteDocument(context, profile = minimalProfile) {
             supportsDrawRect = currentProfileSupports(Operations.DRAW_RECT)
             supportsColorTheme = currentProfileSupports(Operations.COLOR_THEME)
             supportsBoth = currentProfileSupports(Operations.DRAW_RECT, Operations.COLOR_THEME)
