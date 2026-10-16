@@ -1,13 +1,19 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionDeclaration
-import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
-class FakeAllNullablePrimitiveParamsWithDefaultValuesImpl :
-    FakeAllNullablePrimitiveParamsWithDefaultValues {
+@AppFunctionServiceEntryPoint(
+    "FakeAllNullablePrimitiveParamsWithDefaultValuesService",
+    "app_functions_v2",
+)
+abstract class FakeAllNullablePrimitiveParamsWithDefaultValuesImpl :
+    AppFunctionService(),
+    FakeAllNullablePrimitiveParamsWithDefaultValues,
+    FakeAllNullablePrimitiveArrayParamsWithDefaultValues {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     override fun allNullablePrimitiveParamsWithDefault(
-        appFunctionContext: AppFunctionContext,
         arg1: Int?,
         arg2: Long?,
         arg3: Float?,
@@ -15,13 +21,9 @@ class FakeAllNullablePrimitiveParamsWithDefaultValuesImpl :
         arg5: String?,
         arg6: Boolean?,
     ) {}
-}
 
-class FakeAllNullablePrimitiveArrayParamsWithDefaultValuesImpl :
-    FakeAllNullablePrimitiveArrayParamsWithDefaultValues {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     override fun allNullablePrimitiveArrayParamsWithDefault(
-        appFunctionContext: AppFunctionContext,
         arg1: IntArray?,
         arg2: LongArray?,
         arg3: FloatArray?,

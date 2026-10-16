@@ -1,11 +1,13 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionInstruction
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionDeclaration
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
-class FakeFreeFormFunctionsWithInstruction {
+@AppFunctionServiceEntryPoint("FakeFreeFormFunctionsWithInstructionService", "app_functions_v2")
+abstract class FakeFreeFormFunctionsWithInstruction : AppFunctionService() {
     /**
      * This is a cool function but we want to override it.
      *
@@ -16,7 +18,6 @@ class FakeFreeFormFunctionsWithInstruction {
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     @AppFunctionInstruction("Overridden function description")
     fun myInstructionFunction(
-        appFunctionContext: AppFunctionContext,
         @AppFunctionInstruction("Overridden param description") arg1: Int,
         arg2: Int,
         arg3: SerializableWithKDocAndInstruction,
@@ -28,7 +29,6 @@ class FakeFreeFormFunctionsWithInstruction {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionInstruction("Overridden function description without kdoc")
     fun myInstructionFunctionWithoutKdoc(
-        appFunctionContext: AppFunctionContext,
         @AppFunctionInstruction("Overridden param description without kdoc") arg1: Int,
         arg3: SerializableWithKDocAndInstruction,
         arg4: SerializableWithOnlyInstruction,

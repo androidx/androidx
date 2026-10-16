@@ -134,12 +134,14 @@ class AppFunctionServiceEntryPointProcessor(
             appFunctionSerializablesDescriptionMap = descriptionMap,
             packageName = XML_PACKAGE_NAME,
             fileName = serviceEntryPoint.appFunctionXmlFileName,
+            outputLocation = options.appFunctionsXmlLocation,
         )
         if (options.generateV1Xml) {
             val legacyGenerator = AppFunctionLegacySchemaXmlGenerator(codeGenerator, logger)
             legacyGenerator.generateLegacyIndexXml(
                 serviceEntryPoint = serviceEntryPoint,
                 resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
+                exportLocation = options.appFunctionsXmlLocation,
             )
         }
     }

@@ -1,55 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <appfunctions>
     <appfunction>
-        <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_inputClassDescribedByKdoc_false</id>
-        <enabledByDefault>true</enabledByDefault>
-        <description>Tests that the input class description is empty when class's isDescribedByKDoc = false.</description>
-        <parameters>
-            <dataTypeMetadata>
-                <dataTypeReference>com.testdata.NotDescribedByKdoc</dataTypeReference>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>11</type>
-            </dataTypeMetadata>
-            <id>unused</id>
-            <isRequired>true</isRequired>
-            <name>notDescribedByKdoc</name>
-        </parameters>
-        <response>
-            <id>unused</id>
-            <valueType>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>0</type>
-            </valueType>
-        </response>
-        <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_inputClassDescribedByKdoc_false</functionId>
-    </appfunction>
-    <appfunction>
-        <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_false</id>
-        <enabledByDefault>true</enabledByDefault>
-        <parameters>
-            <dataTypeMetadata>
-                <dataTypeReference>com.testdata.InputToFakeFreeFormFunction</dataTypeReference>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>11</type>
-            </dataTypeMetadata>
-            <id>unused</id>
-            <isRequired>true</isRequired>
-            <name>input</name>
-        </parameters>
-        <response>
-            <id>unused</id>
-            <valueType>
-                <id>unused</id>
-                <isNullable>false</isNullable>
-                <type>8</type>
-            </valueType>
-        </response>
-        <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_false</functionId>
-    </appfunction>
-    <appfunction>
         <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_true</id>
         <enabledByDefault>true</enabledByDefault>
         <description>A fake free-form AppFunction to test the description element in the function's generated
@@ -112,6 +63,30 @@ agent.</description>
         <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_withDerivedSerializable_true</functionId>
     </appfunction>
     <appfunction>
+        <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_false</id>
+        <enabledByDefault>true</enabledByDefault>
+        <parameters>
+            <dataTypeMetadata>
+                <dataTypeReference>com.testdata.InputToFakeFreeFormFunction</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>input</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </valueType>
+        </response>
+        <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_false</functionId>
+    </appfunction>
+    <appfunction>
         <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_withParametrizedTypes</id>
         <enabledByDefault>true</enabledByDefault>
         <description>Tests the description elements for serializable's parametrized properties.</description>
@@ -160,6 +135,31 @@ agent.</description>
             </valueType>
         </response>
         <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_withRepeatedTypes</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_inputClassDescribedByKdoc_false</id>
+        <enabledByDefault>true</enabledByDefault>
+        <description>Tests that the input class description is empty when class's isDescribedByKDoc = false.</description>
+        <parameters>
+            <dataTypeMetadata>
+                <dataTypeReference>com.testdata.NotDescribedByKdoc</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>notDescribedByKdoc</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>0</type>
+            </valueType>
+        </response>
+        <functionId>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_inputClassDescribedByKdoc_false</functionId>
     </appfunction>
     <AppFunctionComponentMetadataDocument>
         <dataTypes>
@@ -448,6 +448,6 @@ agent.</description>
             <id>unused</id>
             <name>com.testdata.Optional&lt;kotlin.Int?&gt;</name>
         </dataTypes>
-        <id>unused</id>
+        <id>com.testdata.FakeFreeFormFunctions</id>
     </AppFunctionComponentMetadataDocument>
 </appfunctions>

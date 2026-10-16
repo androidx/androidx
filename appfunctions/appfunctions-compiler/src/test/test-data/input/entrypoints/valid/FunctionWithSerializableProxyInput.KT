@@ -1,19 +1,19 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionDeclaration
-import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 import java.time.LocalDateTime
 
-class FunctionWithSerializableProxyInput {
+@AppFunctionServiceEntryPoint("FunctionWithSerializableProxyInputService", "app_functions_v2")
+abstract class FunctionWithSerializableProxyInput : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionWithLocalDateTime(
-        appFunctionContext: AppFunctionContext,
         localDateTime: LocalDateTime
     ) {}
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionWithSerializableWithProxy(
-        appFunctionContext: AppFunctionContext,
         serializableWithProxyType: SerializableWithProxyType
     ) {}
 }

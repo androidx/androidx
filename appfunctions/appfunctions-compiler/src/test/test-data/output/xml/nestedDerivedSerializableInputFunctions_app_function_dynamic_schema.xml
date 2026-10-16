@@ -144,6 +144,6 @@
             <id>unused</id>
             <name>com.testdata.NonNestedChildSerializable</name>
         </dataTypes>
-        <id>unused</id>
+        <id>com.testdata.NestedDerivedSerializableInputFunctions</id>
     </AppFunctionComponentMetadataDocument>
 </appfunctions>

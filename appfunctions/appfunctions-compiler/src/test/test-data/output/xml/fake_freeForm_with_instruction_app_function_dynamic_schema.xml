@@ -152,6 +152,6 @@
             <id>unused</id>
             <name>com.testdata.SerializableWithOnlyInstruction</name>
         </dataTypes>
-        <id>unused</id>
+        <id>com.testdata.FakeFreeFormFunctionsWithInstruction</id>
     </AppFunctionComponentMetadataDocument>
 </appfunctions>

@@ -16,37 +16,36 @@
 
 package com.testdata.oneofserializable
 
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionDeclaration
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
-class OneOfFunctions {
+@AppFunctionServiceEntryPoint("OneOfFunctionsService", "app_functions_v2")
+abstract class OneOfFunctions : AppFunctionService() {
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun oneOfSealedParam(
-        appFunctionContext: AppFunctionContext,
         oneOfSealedInterface: OneOfSealedInterface,
         oneOfSealedInterfaceNullable: OneOfSealedInterface?,
         oneOfSealedInterfaceList: List<OneOfSealedInterface>,
     ) {}
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
-    fun oneOfSealedReturn(appFunctionContext: AppFunctionContext): OneOfSealedClass =
+    fun oneOfSealedReturn(): OneOfSealedClass =
         OneOfSealedClass.ASubclass("", "")
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
-    fun oneOfSealedListReturn(appFunctionContext: AppFunctionContext): List<OneOfSealedClass> =
+    fun oneOfSealedListReturn(): List<OneOfSealedClass> =
         emptyList()
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun oneOfSealedNestedSerializable(
-        appFunctionContext: AppFunctionContext,
         oneOfSealedNestedSerializable: OneOfSealedNestedSerializable,
     ) = OneOfSealedNestedSerializable(BSubclass("", 0))
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun oneOfNonSealedOneOfSerializableParam(
-        appFunctionContext: AppFunctionContext,
         nonSealedOneOfSerializable: NonSealedOneOfSerializable,
         nonSealedOneOfSerializableNullable: NonSealedOneOfSerializable?,
         nonSealedOneOfSerializableList: List<NonSealedOneOfSerializable>,
