@@ -26,9 +26,9 @@ import android.view.autofill.AutofillManager
 import android.view.autofill.AutofillValue
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.platform.coreshims.ViewCompatShims
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastRoundToInt
-import androidx.core.view.ViewCompat
 
 /**
  * Autofill implementation for Android.
@@ -59,7 +59,8 @@ internal class AndroidAutofill(
 
     init {
         view.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_YES
-        rootAutofillId = checkPreconditionNotNull(ViewCompat.getAutofillId(view)?.toAutofillId())
+        rootAutofillId =
+            checkPreconditionNotNull(ViewCompatShims.getAutofillId(view)?.toAutofillId())
     }
 
     override fun requestAutofillForNode(autofillNode: @Suppress("Deprecation") AutofillNode) {
