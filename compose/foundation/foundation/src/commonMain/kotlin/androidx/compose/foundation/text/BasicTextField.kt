@@ -149,8 +149,9 @@ private object BasicTextFieldDefaults {
  * @param outputTransformation to transform output representation
  * @param decorator to add decorations (such as borders, placeholders, hints, or prefixes/suffixes)
  *   around the text field, and increase the hit target area. The decorator receives an
- *   `innerTextField` composable lambda representing the actual text input area, which must be
- *   called exactly once
+ *   `innerTextField` composable lambda representing the actual text input area, which must not be
+ *   called more than once. Not calling it is supported, for example when the decorator draws the
+ *   text itself
  * @param scrollState to manage scroll. If [lineLimits] is [SingleLine], the text field scrolls
  *   horizontally. Otherwise, it scrolls vertically
  * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
