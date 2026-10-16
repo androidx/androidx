@@ -44,7 +44,7 @@ androidXMultiplatform {
     sourceSets {
         commonMain.dependencies {
             // Keep pinned unless there is a need for tip of tree behavior
-            implementation("androidx.collection:collection:1.4.5")
+            implementation("androidx.collection:collection:1.7.0")
             implementation("androidx.compose.animation:animation-core:1.13.0-alpha03")
             api("androidx.compose.animation:animation:1.13.0-alpha03")
             api("androidx.navigationevent:navigationevent:1.1.2")

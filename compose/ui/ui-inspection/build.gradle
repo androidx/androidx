@@ -39,7 +39,7 @@ dependencies {
     // because compose:ui-inspector can be run only in app with compose:ui:ui
     // thus all its transitive dependencies will be present too.
     compileOnly(libs.kotlinCoroutinesAndroid)
-    compileOnly("androidx.collection:collection:1.4.2")
+    compileOnly("androidx.collection:collection:1.7.0")
     compileOnly("androidx.inspection:inspection:1.0.0")
     compileOnly(project(":compose:runtime:runtime"))
     compileOnly(project(":compose:ui:ui-graphics"))
