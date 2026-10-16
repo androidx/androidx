@@ -19,10 +19,15 @@ package androidx.compose.foundation.text.test
 import android.content.Context
 import androidx.emoji2.bundled.BundledEmojiCompatConfig
 import androidx.emoji2.text.EmojiCompat
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executor
 
-internal fun withEmojiCompat(context: Context, enabled: Boolean = true, block: () -> Unit) {
+internal fun withEmojiCompat(
+    context: Context = InstrumentationRegistry.getInstrumentation().targetContext,
+    enabled: Boolean = true,
+    block: () -> Unit,
+) {
     if (!enabled) {
         block()
         return

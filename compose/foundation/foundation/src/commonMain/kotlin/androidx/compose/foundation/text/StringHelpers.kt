@@ -22,20 +22,20 @@ import androidx.compose.ui.text.TextRange
 internal expect fun StringBuilder.appendCodePointX(codePoint: Int): StringBuilder
 
 /** Returns the index of the character break preceding [index]. */
-internal expect fun String.findPrecedingBreak(index: Int): Int
+internal expect fun CharSequence.findPrecedingBreak(index: Int): Int
 
 /**
  * Returns the index of the character break following [index]. Returns -1 if there are no more
- * breaks before the end of the string.
+ * breaks before the end of the char sequence.
  */
-internal expect fun String.findFollowingBreak(index: Int): Int
+internal expect fun CharSequence.findFollowingBreak(index: Int): Int
 
 /**
  * @return If the index is within an emoji, returns the index of the start of the emoji. If the
  *   index is not an emoji, returns the code point before the given [index], or [ifNotFound] if
  *   there is no code point before [index].
  */
-internal expect fun String.findCodePointOrEmojiStartBefore(index: Int, ifNotFound: Int): Int
+internal expect fun CharSequence.findCodePointOrEmojiStartBefore(index: Int, ifNotFound: Int): Int
 
 internal fun CharSequence.findParagraphStart(startIndex: Int): Int {
     for (index in startIndex downTo 1) {

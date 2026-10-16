@@ -373,7 +373,6 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isRoundedRectangleBorderRenderingFixEnabled: Boolean = true
-
     /**
      * Controls whether lazy layout item animations use the state-based enter and exit transition
      * model.
@@ -412,6 +411,19 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isBorderMatchesOutlineBoundsFixEnabled: Boolean = true
+
+    /**
+     * Controls whether [androidx.compose.foundation.text.BasicTextField] and
+     * [androidx.compose.foundation.text.BasicSecureTextField] use only
+     * [androidx.compose.foundation.text.input.OutputTransformation] internally for single-line line
+     * break replacement and glyph-based password obfuscation, rather than the legacy
+     * `CodepointTransformation`.
+     */
+    // TODO: Remove this flag once it has soaked and remove CodepointTransformation entirely
+    //  (b/568765731)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isBasicTextFieldOutputTransformationOnlyEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */

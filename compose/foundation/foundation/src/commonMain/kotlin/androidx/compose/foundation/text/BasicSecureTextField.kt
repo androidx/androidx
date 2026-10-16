@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
@@ -23,6 +24,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -53,6 +55,7 @@ import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -66,7 +69,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 /**
  * BasicSecureTextField is specifically designed for password entry fields and is a preconfigured
  * alternative to [BasicTextField]. It only supports a single line of content and comes with default
- * settings for [KeyboardOptions], [InputTransformation], and [CodepointTransformation] that are
+ * settings for [KeyboardOptions], [InputTransformation], and [OutputTransformation] that are
  * appropriate for entering secure content. Additionally, some context menu actions like cut, copy,
  * and drag are disabled for added security.
  *
@@ -121,6 +124,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
  */
 // This takes a composable lambda, but it is not primarily a container.
 @Suppress("ComposableLambdaParameterPosition")
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 public fun BasicSecureTextField(
     state: TextFieldState,
@@ -171,19 +175,39 @@ public fun BasicSecureTextField(
         }
     }
 
-    val codepointTransformation =
-        remember(textObfuscationMode, secureTextFieldController) {
-            when (textObfuscationMode) {
-                TextObfuscationMode.RevealLastTyped,
-                TextObfuscationMode.System -> {
-                    secureTextFieldController.codepointTransformation
+    val codepointTransformation: CodepointTransformation?
+    val outputTransformation: OutputTransformation?
+    if (ComposeFoundationFlags.isBasicTextFieldOutputTransformationOnlyEnabled) {
+        codepointTransformation = null
+        outputTransformation =
+            remember(textObfuscationMode, secureTextFieldController) {
+                when (textObfuscationMode) {
+                    TextObfuscationMode.RevealLastTyped,
+                    TextObfuscationMode.System -> {
+                        secureTextFieldController.outputTransformation
+                    }
+                    TextObfuscationMode.Hidden -> {
+                        OutputTransformationPerGlyph { obfuscationMaskState.value.toString() }
+                    }
+                    else -> null
                 }
-                TextObfuscationMode.Hidden -> {
-                    CodepointTransformation { _, _ -> obfuscationMaskState.value.code }
-                }
-                else -> null
             }
-        }
+    } else {
+        outputTransformation = null
+        codepointTransformation =
+            remember(textObfuscationMode, secureTextFieldController) {
+                when (textObfuscationMode) {
+                    TextObfuscationMode.RevealLastTyped,
+                    TextObfuscationMode.System -> {
+                        secureTextFieldController.codepointTransformation
+                    }
+                    TextObfuscationMode.Hidden -> {
+                        CodepointTransformation { _, _ -> obfuscationMaskState.value.code }
+                    }
+                    else -> null
+                }
+            }
+    }
 
     val secureTextFieldModifier =
         modifier
@@ -215,6 +239,7 @@ public fun BasicSecureTextField(
             interactionSource = interactionSource,
             cursorBrush = cursorBrush,
             codepointTransformation = codepointTransformation,
+            outputTransformation = outputTransformation,
             decorator = decorator,
             isPassword = true,
             scrollState = scrollState,
@@ -251,6 +276,16 @@ internal class SecureTextFieldController(
             codepoint
         } else {
             obfuscationMask().code
+        }
+    }
+
+    /** Pass to [BasicTextField] for obscuring text input. */
+    val outputTransformation = OutputTransformationPerGlyph { range ->
+        if (range.min != passwordInputTransformation.revealCodepointIndex) {
+            // only obscure if the current offset is not marked for reveal
+            obfuscationMask().toString()
+        } else {
+            null
         }
     }
 
@@ -294,11 +329,38 @@ internal class PasswordInputTransformation(
         private set
 
     override fun TextFieldBuffer.transformInput() {
-        // We only care about changes that add a single character
-        val singleCharacterChange = changes.changeCount == 1 && changes.getRange(0).length == 1
+        val singleCharacterInsertion =
+            if (ComposeFoundationFlags.isBasicTextFieldOutputTransformationOnlyEnabled) {
+                // We only care about a single character insertion changes
+                var isSingleGlyph = false
+                if (changes.changeCount == 1) {
+                    val insertedRange = changes.getRange(0)
+                    val insertedLength = insertedRange.length
+                    if (insertedLength == 1) {
+                        isSingleGlyph = true
+                    } else if (insertedLength > 1) {
+                        // To detect a single character insertion, we check if the changed range
+                        // corresponds to a single glyph. `findFollowingBreak` helps identify the
+                        // boundary of the next glyph, which works for single characters as well as
+                        // complex multi-codepoint emojis.
+                        val nextBreakInInsertedText =
+                            asCharSequence()
+                                .subSequence(insertedRange.min, insertedRange.max)
+                                .findFollowingBreak(0)
+                        if (nextBreakInInsertedText == insertedLength) {
+                            // this is a proper single character insertion, including emojis.
+                            isSingleGlyph = true
+                        }
+                    }
+                }
+                isSingleGlyph
+            } else {
+                // We only care about changes that add a single character
+                changes.changeCount == 1 && changes.getRange(0).length == 1
+            }
 
         // if there is an expanded selection, don't reveal anything
-        if (!singleCharacterChange || hasSelection) {
+        if (!singleCharacterInsertion || hasSelection) {
             revealCodepointIndex = -1
             return
         }
@@ -473,4 +535,27 @@ public fun BasicSecureTextField(
         textObfuscationCharacter = textObfuscationCharacter,
         scrollState = rememberScrollState(),
     )
+}
+
+/**
+ * A special OutputTransformation implementation that separates the buffer into unbreakable glyphs.
+ *
+ * @param transform A transformation function that points to a `range` that consists of a single
+ *   glyph or emoji. Return an optional string that should replace the glyph in the given range.
+ *   Returning `null` indicates that replacement is not necessary.
+ */
+internal class OutputTransformationPerGlyph(
+    private val transform: TextFieldBuffer.(range: TextRange) -> String?
+) : OutputTransformation {
+    override fun TextFieldBuffer.transformOutput() {
+        var readOffset = length
+        val charSequence = asCharSequence()
+        while (readOffset > 0) {
+            val previousBreak = charSequence.findPrecedingBreak(readOffset)
+            transform(TextRange(previousBreak, readOffset))?.let {
+                replace(previousBreak, readOffset, it)
+            }
+            readOffset = previousBreak
+        }
+    }
 }

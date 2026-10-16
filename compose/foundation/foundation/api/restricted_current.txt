@@ -167,6 +167,7 @@ package androidx.compose.foundation {
     property public boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
     property public boolean isBasicTextFieldHeightInLinesOptimizationEnabled;
     property public boolean isBasicTextFieldMinSizeOptimizationEnabled;
+    property public boolean isBasicTextFieldOutputTransformationOnlyEnabled;
     property public boolean isBasicTextFieldSizeOptimizationEnabled;
     property public boolean isBasicTextFieldStyledTextEnabled;
     property public boolean isBorderMatchesOutlineBoundsFixEnabled;
@@ -201,6 +202,7 @@ package androidx.compose.foundation {
     field public static boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
     field public static boolean isBasicTextFieldHeightInLinesOptimizationEnabled;
     field public static boolean isBasicTextFieldMinSizeOptimizationEnabled;
+    field public static boolean isBasicTextFieldOutputTransformationOnlyEnabled;
     field public static boolean isBasicTextFieldSizeOptimizationEnabled;
     field public static boolean isBasicTextFieldStyledTextEnabled;
     field public static boolean isBorderMatchesOutlineBoundsFixEnabled;
