@@ -30,8 +30,7 @@ import androidx.tracing.Tracer
 internal const val COMPOSE_TRACING_CATEGORY = "androidx.compose"
 
 @OptIn(InternalComposeTracingApi::class, ExperimentalContextPropagation::class)
-internal class ComposeTracer(private val tracer: Tracer) :
-    RecompositionTracer.TraceCollector, CompositionTracer {
+internal class ComposeTracer : RecompositionTracer.TraceCollector, CompositionTracer {
     @JvmField val stackMap = mutableLongObjectMapOf<Stack<AutoCloseable>>()
     @JvmField
     internal val mainStack: Stack<AutoCloseable> = Stack(tid = Looper.getMainLooper().thread.id)
@@ -78,23 +77,29 @@ internal class ComposeTracer(private val tracer: Tracer) :
         if (!isEnabled()) return
         val closeables = currentThreadStack()
         closeables +=
-            tracer.beginSection(COMPOSE_TRACING_CATEGORY, info, token = null, metadataBlock = {})
+            Tracer.global.beginSection(
+                COMPOSE_TRACING_CATEGORY,
+                info,
+                token = null,
+                metadataBlock = {},
+            )
     }
 
     override fun traceEventEnd() {
         endSection()
     }
 
-    override fun isTraceInProgress(): Boolean = tracer.isCategoryEnabled(COMPOSE_TRACING_CATEGORY)
+    override fun isTraceInProgress(): Boolean =
+        Tracer.global.isCategoryEnabled(COMPOSE_TRACING_CATEGORY)
 
     override fun beginSection(sectionName: String, flowIds: List<Long>) {
         if (!isEnabled()) return
         val closeables = currentThreadStack()
         closeables +=
-            tracer.beginSection(
+            Tracer.global.beginSection(
                 COMPOSE_TRACING_CATEGORY,
                 sectionName,
-                tracer.tokenForManualPropagation(flowIds),
+                Tracer.global.tokenForManualPropagation(flowIds),
                 metadataBlock = {},
             )
     }
@@ -112,10 +117,10 @@ internal class ComposeTracer(private val tracer: Tracer) :
         flowIds: List<Long>,
     ) {
         if (!isEnabled()) return
-        tracer.instant(
+        Tracer.global.instant(
             COMPOSE_TRACING_CATEGORY,
             sectionName,
-            tracer.tokenForManualPropagation(flowIds),
+            Tracer.global.tokenForManualPropagation(flowIds),
         ) {
             addStackTrace(stackTrace)
             addCorrelationId(id.toLong())
