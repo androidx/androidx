@@ -682,7 +682,7 @@ class DeferredSharedElementTest {
                 myState = state
                 val transition = rememberDeferredTransition(state)
                 val mutableTransform =
-                    remember(state.pendingTargetState, previewScale) {
+                    remember(state.pendingTargetState) {
                         MutableContentTransform {
                             if (state.pendingTargetState != null) {
                                 initialContentTransform { scale = previewScale }
@@ -743,8 +743,8 @@ class DeferredSharedElementTest {
                     listOf(0.9f, 0.8f, 0.7f, 0.6f, 0.5f)
                 }
             for (s in steps) {
-                previewScale = s
                 rule.mainClock.advanceTimeByFrame()
+                rule.runOnIdle { previewScale = s }
                 rule.waitForIdle()
             }
 
@@ -760,10 +760,12 @@ class DeferredSharedElementTest {
 
         // Reset state
         rule.mainClock.autoAdvance = true
-        rule.runOnIdle { myState!!.animateTo("B") }
+        rule.runOnIdle {
+            previewScale = 1f
+            myState!!.animateTo("B")
+        }
         rule.waitForIdle()
         rule.mainClock.autoAdvance = false
-        previewScale = 1f
 
         // Scenario 2: Fast gesture
         val boundsFast = simulateGesture(isFast = true)
