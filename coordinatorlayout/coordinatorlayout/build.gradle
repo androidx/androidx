@@ -35,6 +35,7 @@ android {
         animationsDisabled = true
     }
 
+    compileSdk { version = release(36) { minorApiLevel = 1 } }
     namespace = "androidx.coordinatorlayout"
 }
 
