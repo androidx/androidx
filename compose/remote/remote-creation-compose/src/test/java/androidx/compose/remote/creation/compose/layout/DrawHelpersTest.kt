@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ImageScaling
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
@@ -34,6 +35,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DrawHelpersTest {
+
+    @Test
+    fun composeToRemote_roundTrip() {
+        assertEquals(RemoteBlendMode.SrcOver, BlendMode.SrcOver.toRemoteBlendMode())
+        assertEquals(BlendMode.SrcOver, RemoteBlendMode.SrcOver.toComposeBlendMode())
+        assertEquals(RemoteBlendMode.Clear, BlendMode.Clear.toRemoteBlendMode())
+        assertEquals(BlendMode.Clear, RemoteBlendMode.Clear.toComposeBlendMode())
+    }
 
     @Test
     fun composeGraphicsConversions_toInt() {

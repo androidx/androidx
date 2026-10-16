@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ImageScaling
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
@@ -70,6 +71,11 @@ public fun BlendMode.toAndroidBlendMode(): android.graphics.BlendMode {
         else -> AndroidBlendMode.SRC_OVER
     }
 }
+
+/** Converts a [RemoteBlendMode] to an Android framework [AndroidBlendMode]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteBlendMode.toAndroidBlendMode(): AndroidBlendMode =
+    toComposeBlendMode().toAndroidBlendMode()
 
 /** Converts a Compose [StrokeCap] to an Android framework [AndroidPaint.Cap]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -195,40 +201,75 @@ internal fun FontStyle.encode(): Int =
         else -> -1
     }
 
-internal fun BlendMode.toInt(): Int {
-    return when (this) {
-        BlendMode.Clear -> PaintBundle.BLEND_MODE_CLEAR
-        BlendMode.Src -> PaintBundle.BLEND_MODE_SRC
-        BlendMode.Dst -> PaintBundle.BLEND_MODE_DST
-        BlendMode.SrcOver -> PaintBundle.BLEND_MODE_SRC_OVER
-        BlendMode.DstOver -> PaintBundle.BLEND_MODE_DST_OVER
-        BlendMode.SrcIn -> PaintBundle.BLEND_MODE_SRC_IN
-        BlendMode.DstIn -> PaintBundle.BLEND_MODE_DST_IN
-        BlendMode.SrcOut -> PaintBundle.BLEND_MODE_SRC_OUT
-        BlendMode.DstOut -> PaintBundle.BLEND_MODE_DST_OUT
-        BlendMode.SrcAtop -> PaintBundle.BLEND_MODE_SRC_ATOP
-        BlendMode.DstAtop -> PaintBundle.BLEND_MODE_DST_ATOP
-        BlendMode.Xor -> PaintBundle.BLEND_MODE_XOR
-        BlendMode.Plus -> PaintBundle.BLEND_MODE_PLUS
-        BlendMode.Modulate -> PaintBundle.BLEND_MODE_MODULATE
-        BlendMode.Screen -> PaintBundle.BLEND_MODE_SCREEN
-        BlendMode.Overlay -> PaintBundle.BLEND_MODE_OVERLAY
-        BlendMode.Darken -> PaintBundle.BLEND_MODE_DARKEN
-        BlendMode.Lighten -> PaintBundle.BLEND_MODE_LIGHTEN
-        BlendMode.ColorDodge -> PaintBundle.BLEND_MODE_COLOR_DODGE
-        BlendMode.ColorBurn -> PaintBundle.BLEND_MODE_COLOR_BURN
-        BlendMode.Hardlight -> PaintBundle.BLEND_MODE_HARD_LIGHT
-        BlendMode.Softlight -> PaintBundle.BLEND_MODE_SOFT_LIGHT
-        BlendMode.Difference -> PaintBundle.BLEND_MODE_DIFFERENCE
-        BlendMode.Exclusion -> PaintBundle.BLEND_MODE_EXCLUSION
-        BlendMode.Multiply -> PaintBundle.BLEND_MODE_MULTIPLY
-        BlendMode.Hue -> PaintBundle.BLEND_MODE_HUE
-        BlendMode.Saturation -> PaintBundle.BLEND_MODE_SATURATION
-        BlendMode.Color -> PaintBundle.BLEND_MODE_COLOR
-        BlendMode.Luminosity -> PaintBundle.BLEND_MODE_LUMINOSITY
-        else -> PaintBundle.BLEND_MODE_SRC_OVER
+internal fun BlendMode.toInt(): Int = toRemoteBlendMode().value
+
+internal fun BlendMode.toRemoteBlendMode(): RemoteBlendMode =
+    when (this) {
+        BlendMode.Clear -> RemoteBlendMode.Clear
+        BlendMode.Src -> RemoteBlendMode.Src
+        BlendMode.Dst -> RemoteBlendMode.Dst
+        BlendMode.SrcOver -> RemoteBlendMode.SrcOver
+        BlendMode.DstOver -> RemoteBlendMode.DstOver
+        BlendMode.SrcIn -> RemoteBlendMode.SrcIn
+        BlendMode.DstIn -> RemoteBlendMode.DstIn
+        BlendMode.SrcOut -> RemoteBlendMode.SrcOut
+        BlendMode.DstOut -> RemoteBlendMode.DstOut
+        BlendMode.SrcAtop -> RemoteBlendMode.SrcAtop
+        BlendMode.DstAtop -> RemoteBlendMode.DstAtop
+        BlendMode.Xor -> RemoteBlendMode.Xor
+        BlendMode.Plus -> RemoteBlendMode.Plus
+        BlendMode.Modulate -> RemoteBlendMode.Modulate
+        BlendMode.Screen -> RemoteBlendMode.Screen
+        BlendMode.Overlay -> RemoteBlendMode.Overlay
+        BlendMode.Darken -> RemoteBlendMode.Darken
+        BlendMode.Lighten -> RemoteBlendMode.Lighten
+        BlendMode.ColorDodge -> RemoteBlendMode.ColorDodge
+        BlendMode.ColorBurn -> RemoteBlendMode.ColorBurn
+        BlendMode.Hardlight -> RemoteBlendMode.Hardlight
+        BlendMode.Softlight -> RemoteBlendMode.Softlight
+        BlendMode.Difference -> RemoteBlendMode.Difference
+        BlendMode.Exclusion -> RemoteBlendMode.Exclusion
+        BlendMode.Multiply -> RemoteBlendMode.Multiply
+        BlendMode.Hue -> RemoteBlendMode.Hue
+        BlendMode.Saturation -> RemoteBlendMode.Saturation
+        BlendMode.Color -> RemoteBlendMode.Color
+        BlendMode.Luminosity -> RemoteBlendMode.Luminosity
+        else -> RemoteBlendMode.SrcOver
     }
-}
+
+internal fun RemoteBlendMode.toComposeBlendMode(): BlendMode =
+    when (this) {
+        RemoteBlendMode.Clear -> BlendMode.Clear
+        RemoteBlendMode.Src -> BlendMode.Src
+        RemoteBlendMode.Dst -> BlendMode.Dst
+        RemoteBlendMode.SrcOver -> BlendMode.SrcOver
+        RemoteBlendMode.DstOver -> BlendMode.DstOver
+        RemoteBlendMode.SrcIn -> BlendMode.SrcIn
+        RemoteBlendMode.DstIn -> BlendMode.DstIn
+        RemoteBlendMode.SrcOut -> BlendMode.SrcOut
+        RemoteBlendMode.DstOut -> BlendMode.DstOut
+        RemoteBlendMode.SrcAtop -> BlendMode.SrcAtop
+        RemoteBlendMode.DstAtop -> BlendMode.DstAtop
+        RemoteBlendMode.Xor -> BlendMode.Xor
+        RemoteBlendMode.Plus -> BlendMode.Plus
+        RemoteBlendMode.Modulate -> BlendMode.Modulate
+        RemoteBlendMode.Screen -> BlendMode.Screen
+        RemoteBlendMode.Overlay -> BlendMode.Overlay
+        RemoteBlendMode.Darken -> BlendMode.Darken
+        RemoteBlendMode.Lighten -> BlendMode.Lighten
+        RemoteBlendMode.ColorDodge -> BlendMode.ColorDodge
+        RemoteBlendMode.ColorBurn -> BlendMode.ColorBurn
+        RemoteBlendMode.Hardlight -> BlendMode.Hardlight
+        RemoteBlendMode.Softlight -> BlendMode.Softlight
+        RemoteBlendMode.Difference -> BlendMode.Difference
+        RemoteBlendMode.Exclusion -> BlendMode.Exclusion
+        RemoteBlendMode.Multiply -> BlendMode.Multiply
+        RemoteBlendMode.Hue -> BlendMode.Hue
+        RemoteBlendMode.Saturation -> BlendMode.Saturation
+        RemoteBlendMode.Color -> BlendMode.Color
+        RemoteBlendMode.Luminosity -> BlendMode.Luminosity
+        else -> BlendMode.SrcOver
+    }
 
 internal fun StrokeCap.toInt(): Int =
     when (this) {
