@@ -1143,17 +1143,21 @@ class CaptureRemoteDocumentTest {
     fun captureSingleRemoteDocument_withoutContext() =
         runTest(UnconfinedTestDispatcher()) {
             val displayInfo = RemoteCreationDisplayInfo(width = 200, height = 200, densityDpi = 160)
+            var capturedDensity: RemoteDensity? = null
 
             val bytes =
                 captureSingleRemoteDocument(
                     creationDisplayInfo = displayInfo,
                     profile = RcPlatformProfiles.ANDROIDX,
                 ) {
+                    capturedDensity = LocalRemoteDensity.current
                     RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc)) {
                         RemoteText("HeadlessNoContext".rs)
                     }
                 }
 
+            assertNotNull(capturedDensity)
+            assertEquals(1f, capturedDensity?.density?.constantValue)
             val doc = bytes.toCoreDocument()
             assertDocumentContainsText(doc, "HeadlessNoContext")
         }

@@ -51,6 +51,9 @@ import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.savedstate.SavedState
 import androidx.savedstate.read
@@ -147,7 +150,7 @@ public suspend fun captureSingleRemoteDocument(
             platformImageProvider = AndroidPlatformImageProvider,
             savedState = savedState,
             retainedValuesStore = retainedValuesStore,
-            content = withAndroidLocals(context, content),
+            content = withAndroidLocals(context, creationDisplayInfo, content),
         )
     return CapturedDocument(document, writerEvents.pendingIntents, writerEvents.lambdas)
 }
@@ -256,7 +259,7 @@ public fun captureRemoteDocument(
         coroutineContext = coroutineContext,
         savedState = savedState,
         retainedValuesStore = retainedValuesStore,
-        content = withAndroidLocals(context, content),
+        content = withAndroidLocals(context, creationDisplayInfo, content),
     )
 
 /**
@@ -266,6 +269,7 @@ public fun captureRemoteDocument(
  */
 private fun withAndroidLocals(
     context: Context,
+    creationDisplayInfo: RemoteCreationDisplayInfo,
     content: @Composable @RemoteComposable () -> Unit,
 ): @Composable @RemoteComposable () -> Unit {
     val configuration = context.resources.configuration
@@ -273,6 +277,12 @@ private fun withAndroidLocals(
         CompositionLocalProvider(
             LocalContext provides context,
             LocalConfiguration provides configuration,
+            LocalInspectionMode provides creationDisplayInfo.isInspectionMode,
+            LocalDensity provides
+                Density(
+                    creationDisplayInfo.density.density,
+                    creationDisplayInfo.density.fontScale,
+                ),
             LocalFontWeightAdjustment provides platformFontWeightAdjustment(configuration),
             LocalIs24HourFormat provides DateFormat.is24HourFormat(context),
             content = content,
