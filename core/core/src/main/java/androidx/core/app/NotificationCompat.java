@@ -10587,9 +10587,9 @@ public class NotificationCompat {
         }
 
         /**
-         * Returns whether the projected device should use the actions from this extender
-         * (configured via {@link #addAction}, {@link #addActions}, or {@link #clearActions})
-         * instead of the main notification actions.
+         * Returns whether the notifications shown on the projected device should use the actions
+         * from this extender (configured via {@link #addAction}, {@link #addActions}, or
+         * {@link #clearActions}) instead of the main notification actions.
          *
          * <p>If this returns {@code false} (the default), no projected actions have been configured
          * and the projected device may display compatible actions from the main notification by
