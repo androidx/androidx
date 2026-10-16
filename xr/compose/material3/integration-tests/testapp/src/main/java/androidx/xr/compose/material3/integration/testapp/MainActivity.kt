@@ -16,7 +16,6 @@
 
 @file:OptIn(
     ExperimentalMaterial3AdaptiveApi::class,
-    ExperimentalMaterial3Api::class,
     ExperimentalMaterial3XrApi::class,
 )
 
@@ -25,18 +24,14 @@ package androidx.xr.compose.material3.integration.testapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.layout.AnimatedPane
-import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
@@ -54,12 +49,16 @@ import androidx.xr.compose.material3.LocalSpatialNavigationBarOrbiterProperties
 import androidx.xr.compose.material3.LocalSpatialNavigationRailOrbiterProperties
 import androidx.xr.compose.material3.LocalSpatialShortNavigationBarOrbiterProperties
 import androidx.xr.compose.material3.LocalSpatialWideNavigationRailOrbiterProperties
+import androidx.xr.compose.material3.integration.testapp.components.ListDetailPaneScaffold
+import androidx.xr.compose.material3.integration.testapp.components.NavigationSuiteScaffold
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.enableEdgeToEdge(window)
-        setContent { Content() }
+        setContent {
+            Content()
+        }
     }
 }
 
@@ -100,7 +99,7 @@ private fun Content() {
                     )
                 }
             },
-            layoutType =
+            navigationSuiteType =
                 navSuiteType
                     ?: NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(
                         currentWindowAdaptiveInfo()
@@ -131,10 +130,9 @@ private fun Home() {
                 listOf(ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List))
         )
     ListDetailPaneScaffold(
-        directive = navigator.scaffoldDirective,
-        value = navigator.scaffoldValue,
-        listPane = { AnimatedPane { ListPane(navigator) } },
-        detailPane = { AnimatedPane { DetailPane(navigator) } },
+        navigator = navigator,
+        listPane = { ListPane(navigator) },
+        detailPane = { DetailPane(navigator) },
     )
 }
 
