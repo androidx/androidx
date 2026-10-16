@@ -105,7 +105,11 @@ class RemoteBrushTest {
                                     RemoteBrush.linearGradient(
                                         colors = colors,
                                         start = RemoteOffset(0f.rf, 0f.rf),
-                                        end = RemoteOffset(Offset.Infinite),
+                                        end =
+                                            RemoteOffset(
+                                                Offset.Infinite.x.rf,
+                                                Offset.Infinite.y.rf,
+                                            ),
                                     )
                                 )
                     )
@@ -146,7 +150,11 @@ class RemoteBrushTest {
                                 .background(
                                     RemoteBrush.radialGradient(
                                         colors = colors,
-                                        center = RemoteOffset(Offset.Infinite),
+                                        center =
+                                            RemoteOffset(
+                                                Offset.Infinite.x.rf,
+                                                Offset.Infinite.y.rf,
+                                            ),
                                         radius = Float.POSITIVE_INFINITY.rf,
                                     )
                                 )
@@ -160,7 +168,11 @@ class RemoteBrushTest {
                                 .background(
                                     RemoteBrush.sweepGradient(
                                         colors = colors,
-                                        center = RemoteOffset(Offset.Infinite),
+                                        center =
+                                            RemoteOffset(
+                                                Offset.Infinite.x.rf,
+                                                Offset.Infinite.y.rf,
+                                            ),
                                     )
                                 )
                     )
