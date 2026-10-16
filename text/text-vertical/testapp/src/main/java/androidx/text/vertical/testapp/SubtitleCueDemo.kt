@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.text.vertical.EmphasisStyle
 import androidx.text.vertical.FontShearSpan
+import androidx.text.vertical.compose.HorizontalText
 import androidx.text.vertical.compose.VerticalText
 import androidx.text.vertical.compose.buildVerticalText
 import androidx.text.vertical.compose.toVerticalTextStyle
@@ -51,14 +53,22 @@ internal const val SUBTITLE_CUE_TEXT_TAG = "subtitle_cue_text"
 /** The maximum height constraint applied to the subtitle cue [VerticalText]. */
 internal val SUBTITLE_CUE_MAX_HEIGHT = 280.dp
 
+/** The test tag of the subtitle cue [HorizontalText]. */
+internal const val SUBTITLE_CUE_HORIZONTAL_TAG = "subtitle_cue_horizontal_text"
+
+/** The maximum width constraint applied to the subtitle cue [HorizontalText]. */
+internal val SUBTITLE_CUE_MAX_WIDTH = 280.dp
+
 /**
- * Displays a vertical subtitle cue in the top-end corner of the screen.
+ * Displays vertical and horizontal subtitle cues inside one viewport.
  *
- * The cue box uses [Modifier.heightIn] with [SUBTITLE_CUE_MAX_HEIGHT] so that [VerticalText] wraps
- * its height to the measured vertical column height.
+ * The top-end box uses [Modifier.heightIn] with [SUBTITLE_CUE_MAX_HEIGHT] so that [VerticalText]
+ * wraps its height to the measured vertical column height. The bottom-center box uses
+ * [Modifier.widthIn] with [SUBTITLE_CUE_MAX_WIDTH] so that [HorizontalText] wraps its width to the
+ * widest measured line width.
  *
- * @param styleColorsEnabled whether the sample uses high-contrast style colors.
- * @param modifier the [Modifier] applied to the outer container.
+ * @param styleColorsEnabled whether the sample uses high-contrast style colors
+ * @param modifier the [Modifier] applied to the outer container
  */
 @Composable
 fun SubtitleCueDemo(styleColorsEnabled: Boolean, modifier: Modifier = Modifier) {
@@ -67,24 +77,36 @@ fun SubtitleCueDemo(styleColorsEnabled: Boolean, modifier: Modifier = Modifier) 
     val cueStyle =
         remember(styleColorsEnabled) {
             TextStyle(
-                    color = if (styleColorsEnabled) Color(0xFF1A237E) else Color.White,
-                    fontSize = 20.sp,
-                    fontFamily = FontFamily.Serif,
-                    background = if (styleColorsEnabled) Color(0xFFFFF59D) else Color(0xCC000000),
-                    localeList = LocaleList(Locale("ja")),
-                )
-                .toVerticalTextStyle()
+                color = if (styleColorsEnabled) Color(0xFF1A237E) else Color.White,
+                fontSize = 20.sp,
+                fontFamily = FontFamily.Serif,
+                background = if (styleColorsEnabled) Color(0xFFFFF59D) else Color(0xCC000000),
+                localeList = LocaleList(Locale("ja")),
+            )
         }
+    val verticalCueStyle = remember(cueStyle) { cueStyle.toVerticalTextStyle() }
 
-    Box(
-        modifier = modifier.fillMaxSize().padding(24.dp),
-        contentAlignment = Alignment.TopEnd,
-    ) {
-        Box(modifier = Modifier.border(1.dp, Color(0xFF90CAF9)).padding(8.dp)) {
+    Box(modifier = modifier.fillMaxSize().padding(24.dp)) {
+        Box(
+            modifier =
+                Modifier.align(Alignment.TopEnd).border(1.dp, Color(0xFF90CAF9)).padding(8.dp)
+        ) {
             VerticalText(
                 text = cueText,
                 modifier =
                     Modifier.heightIn(max = SUBTITLE_CUE_MAX_HEIGHT).testTag(SUBTITLE_CUE_TEXT_TAG),
+                style = verticalCueStyle,
+            )
+        }
+        Box(
+            modifier =
+                Modifier.align(Alignment.BottomCenter).border(1.dp, Color(0xFF90CAF9)).padding(8.dp)
+        ) {
+            HorizontalText(
+                text = cueText,
+                modifier =
+                    Modifier.widthIn(max = SUBTITLE_CUE_MAX_WIDTH)
+                        .testTag(SUBTITLE_CUE_HORIZONTAL_TAG),
                 style = cueStyle,
             )
         }

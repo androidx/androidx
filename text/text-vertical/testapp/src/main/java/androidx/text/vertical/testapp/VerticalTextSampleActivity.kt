@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontFamily
+import androidx.text.vertical.compose.toVerticalTextStyle
 import java.io.File
 
 /**
@@ -84,10 +85,14 @@ internal fun VerticalTextSampleApp(initialTabIndex: Int = 0) {
                 ?.let { FontFamily(Typeface.createFromFile(it)) } ?: FontFamily.SansSerif
         arrayOf(
             DemoTab("Vertical Text") { enabled ->
-                ZoomableVerticalText(styleColorsEnabled = enabled) { LongText(it) }
+                ZoomableVerticalText(styleColorsEnabled = enabled) {
+                    LongText(it.toVerticalTextStyle())
+                }
             },
             DemoTab("Vertical Multi-style Text") { enabled ->
-                ZoomableVerticalText(styleColorsEnabled = enabled) { ComplexText(it) }
+                ZoomableVerticalText(styleColorsEnabled = enabled) {
+                    ComplexText(it.toVerticalTextStyle())
+                }
             },
             DemoTab("Horizontal Text") { enabled ->
                 ZoomableVerticalText(isVertical = false, styleColorsEnabled = enabled) {
@@ -109,7 +114,9 @@ internal fun VerticalTextSampleApp(initialTabIndex: Int = 0) {
                 }
             },
             DemoTab("Style Colors", styleColorsInitiallyEnabled = true) { enabled ->
-                ZoomableVerticalText(styleColorsEnabled = enabled) { StyleColorsText(it) }
+                ZoomableVerticalText(styleColorsEnabled = enabled) {
+                    StyleColorsText(it.toVerticalTextStyle())
+                }
             },
             DemoTab("Subtitle Cue") { enabled -> SubtitleCueDemo(styleColorsEnabled = enabled) },
         )

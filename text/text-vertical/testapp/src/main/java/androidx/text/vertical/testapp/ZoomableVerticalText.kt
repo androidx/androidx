@@ -29,12 +29,12 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.sp
-import androidx.text.vertical.compose.VerticalTextStyle
 import kotlin.math.roundToInt
 
 /**
@@ -58,7 +58,7 @@ fun ZoomableVerticalText(
     isVertical: Boolean = true,
     styleColorsEnabled: Boolean = false,
     fontFamily: FontFamily = FontFamily.Serif,
-    content: @Composable (VerticalTextStyle) -> Unit,
+    content: @Composable (TextStyle) -> Unit,
 ) {
     val fontSize = 32f
     var zoom by remember { mutableFloatStateOf(1f) }
@@ -67,7 +67,7 @@ fun ZoomableVerticalText(
     val panLimits = remember { PanLimits() }
     val style =
         remember(zoom, styleColorsEnabled, fontFamily) {
-            VerticalTextStyle(
+            TextStyle(
                 fontSize = (fontSize * zoom).sp,
                 fontFamily = fontFamily,
                 color = if (styleColorsEnabled) Color(0xFF1A237E) else Color.Unspecified,
