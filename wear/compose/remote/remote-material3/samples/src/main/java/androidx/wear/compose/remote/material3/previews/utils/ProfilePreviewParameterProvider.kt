@@ -16,12 +16,10 @@
 
 package androidx.wear.compose.remote.material3.previews.utils
 
-import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
 class ProfilePreviewParameterProvider : PreviewParameterProvider<Profile> {
-    @OptIn(ExperimentalRemoteCreationApi::class)
-    override val values = sequenceOf(RcPlatformProfiles.ANDROIDX, RcPlatformProfiles.WEAR_WIDGETS)
+    override val values = sequenceOf(RcPlatformProfiles.ANDROIDX)
 }

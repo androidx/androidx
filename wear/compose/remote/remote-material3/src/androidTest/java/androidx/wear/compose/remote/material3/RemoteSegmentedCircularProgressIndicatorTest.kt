@@ -18,7 +18,6 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
@@ -36,6 +35,7 @@ import androidx.wear.compose.remote.material3.previews.RemoteSegmentedCircularPr
 import androidx.wear.compose.remote.material3.previews.RemoteSegmentedCircularProgressSmallStroke
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -92,7 +92,7 @@ class RemoteSegmentedCircularProgressIndicatorTest {
 
     private fun screenshotTest(content: @Composable () -> Unit) {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { content() }

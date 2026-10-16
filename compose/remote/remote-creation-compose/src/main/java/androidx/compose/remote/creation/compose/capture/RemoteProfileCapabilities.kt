@@ -25,16 +25,15 @@ import androidx.compose.remote.creation.compose.modifier.onTouchDown
 import androidx.compose.remote.creation.compose.modifier.onTouchUp
 import androidx.compose.remote.creation.compose.state.createThemedRemoteColor
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 
 /**
  * Whether the current creation [Profile] supports themed (Android system) colors created with
  * [createThemedRemoteColor].
  *
- * Some profiles, such as [RcPlatformProfiles.WEAR_WIDGETS], do not include the color theme
- * operation. Design systems and components can check this before emitting themed colors and fall
- * back to named or literal colors when it is `false`.
+ * Some profiles, such as `androidx.glance.wear.GlanceWearProfiles.wearWidgets`, do not include the
+ * color theme operation. Design systems and components can check this before emitting themed colors
+ * and fall back to named or literal colors when it is `false`.
  */
 @Composable
 @RemoteComposable
@@ -45,7 +44,8 @@ public fun currentProfileSupportsThemedColors(): Boolean =
  * Whether the current creation [Profile] supports the touch down, up and cancel modifiers
  * ([onTouchDown], [onTouchUp], [onTouchCancel]), for example to drive a press animation.
  *
- * Some profiles, such as [RcPlatformProfiles.WEAR_WIDGETS], do not include those touch operations.
+ * Some profiles, such as `androidx.glance.wear.GlanceWearProfiles.wearWidgets`, do not include
+ * those touch operations.
  */
 @Composable
 @RemoteComposable

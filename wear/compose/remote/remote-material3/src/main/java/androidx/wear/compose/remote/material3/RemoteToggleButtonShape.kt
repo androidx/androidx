@@ -38,7 +38,6 @@ import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.tween
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
@@ -106,7 +105,7 @@ internal class AnimatedToggleButtonShape(val shape: RemoteShape, val modifier: R
  *
  * The pressed state is driven by touch down, up and cancel actions, so the animation only runs on
  * players that dispatch those events. It is also skipped when the creation profile doesn't support
- * those actions, for example [RcPlatformProfiles.WEAR_WIDGETS].
+ * those actions, for example `androidx.glance.wear.GlanceWearProfiles.wearWidgets`.
  */
 // TODO(b/571080867): Move press shape animation helper to androidx.compose.remote.foundation.
 @Composable

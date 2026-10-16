@@ -40,7 +40,6 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.embedded.RcPlayer
@@ -74,6 +73,7 @@ import androidx.wear.compose.remote.material3.previews.RemoteIconButtonTonal
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestImageVectors
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule
@@ -98,7 +98,7 @@ class RemoteIconButtonTest {
     @Test
     fun remote_icon_button_enabled() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteIconButtonEnabled() }
@@ -108,7 +108,7 @@ class RemoteIconButtonTest {
     @Test
     fun remote_icon_button_large() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteIconButtonLarge() }
@@ -118,7 +118,7 @@ class RemoteIconButtonTest {
     @Test
     fun remote_icon_button_small() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteIconButtonSmall() }
@@ -128,7 +128,7 @@ class RemoteIconButtonTest {
     @Test
     fun remote_icon_button_extra_small() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteIconButtonExtraSmall() }
@@ -138,7 +138,7 @@ class RemoteIconButtonTest {
     @Test
     fun remote_icon_button_filled_enabled() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteIconButtonFilled() }
@@ -233,7 +233,7 @@ class RemoteIconButtonTest {
             put("WearM3.onSurface", Color(0xFFE2E3DC).toArgb())
         }
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
             update = { player ->
                 colorOverrides.forEach { name, colorInt ->
@@ -260,7 +260,7 @@ class RemoteIconButtonTest {
 
             remoteComposeTestRule.setContent(
                 remoteCreationDisplayInfo = displayInfo,
-                profile = RcPlatformProfiles.WEAR_WIDGETS,
+                profile = TestProfiles.wearWidgets,
                 onCoreDocumentCreated = { capturedDoc.value = it },
                 playComposableWrapper = {
                     if (!showWearM3.value) {

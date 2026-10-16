@@ -49,6 +49,7 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -101,7 +102,7 @@ class RemoteMaterialThemeColorTest {
         val document =
             capturePrimaryBox(
                 colorScheme = { dynamicRemoteColorScheme() },
-                profile = RcPlatformProfiles.WEAR_WIDGETS,
+                profile = TestProfiles.wearWidgets,
             )
 
         assertThat(document.themedColors ?: emptyList<ColorTheme>()).isEmpty()
