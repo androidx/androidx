@@ -24,6 +24,7 @@ import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -43,7 +44,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
@@ -269,7 +269,7 @@ private class WackyInputConnection(private val state: WackyTextState, view: View
     private var composition: TextRange? = null
 
     private var batchLevel = 0
-    private val batch = mutableVectorOf<() -> Unit>()
+    private val batch = mutableObjectListOf<() -> Unit>()
 
     // region InputConnection
 
