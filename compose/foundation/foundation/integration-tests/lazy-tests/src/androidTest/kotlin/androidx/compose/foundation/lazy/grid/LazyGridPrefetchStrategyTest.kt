@@ -18,6 +18,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
@@ -29,7 +30,6 @@ import androidx.compose.foundation.lazy.layout.NestedPrefetchScope
 import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.foundation.lazy.layout.TestPrefetchScheduler
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -288,7 +288,7 @@ class LazyGridPrefetchStrategyTest(val config: Config) :
         override val prefetchScheduler: PrefetchScheduler?
     ) : LazyGridPrefetchStrategy {
 
-        private val handles = mutableVectorOf<LazyLayoutPrefetchState.PrefetchHandle>()
+        private val handles = mutableObjectListOf<LazyLayoutPrefetchState.PrefetchHandle>()
         private var prefetchIndex: Int = -1
 
         override fun LazyGridPrefetchScope.onScroll(delta: Float, layoutInfo: LazyGridLayoutInfo) {
