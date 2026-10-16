@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.ImageSourceConfig
 import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
 import androidx.camera.camera2.pipe.internal.CameraPipeLifetime
 import androidx.camera.camera2.pipe.media.ImageSources
@@ -897,15 +898,11 @@ internal class StreamGraphImplTest {
     @Test
     fun testGetOutputLatency() {
         val streamGraph =
-            createStreamGraphImpl(
-                config.fakeMetadata,
-                config.graphConfig,
-                imageSources,
-                cameraControllerProvider,
-            )
+            createStreamGraphImpl(metadata, graphConfig, imageSources, cameraControllerProvider)
         cameraController.streamGraph = streamGraph
-        val stream1 = streamGraph[config.streamConfig1]!!
-        assertThat(streamGraph.getOutputLatency(stream1.id)).isNull()
+        val stream1 = streamGraph[stream1Config]!!
+        assertThat(streamGraph.getOutputLatency(stream1.id))
+            .isEqualTo(StreamGraph.OutputLatency(0, 0))
         cameraController.simulateOutputLatency()
         assertThat(
                 streamGraph.getOutputLatency(stream1.id)?.equals(cameraController.outputLatencySet)
