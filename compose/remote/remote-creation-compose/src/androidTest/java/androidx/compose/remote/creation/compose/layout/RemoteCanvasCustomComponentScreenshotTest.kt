@@ -65,13 +65,13 @@ import org.junit.runner.RunWith
 
 /**
  * End-to-end connected screenshot test verifying that custom components created via
- * [androidx.compose.remote.creation.compose.capture.RecordingCanvas.custom] render correctly
- * through the Java player ([androidx.compose.remote.player.view.RemoteComposePlayer]).
+ * [androidx.compose.remote.creation.compose.layout.RemoteCanvas.custom] render correctly through
+ * the Java player ([androidx.compose.remote.player.view.RemoteComposePlayer]).
  */
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
-class RecordingCanvasCustomComponentScreenshotTest {
+class RemoteCanvasCustomComponentScreenshotTest {
     @get:Rule
     val composeTestRule =
         RemoteScreenshotTestRule(
