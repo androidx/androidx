@@ -961,7 +961,7 @@ internal constructor(
 
     override fun dispose() {
         if (!disposed) {
-            super.dispose()
+            disposed = true
             nestedDeactivated(this)
             dispatchObserverOnPreDispose(this)
         }
@@ -1257,7 +1257,8 @@ internal constructor(
      * The number of pending nested snapshots of this snapshot. To simplify the code, this snapshot
      * it, itself, counted as its own nested snapshot.
      */
-    private var snapshots = 1
+    internal var snapshots = 1
+        private set
 
     /** Tracks whether the snapshot has been applied. */
     internal var applied = false
@@ -1744,9 +1745,9 @@ internal class NestedMutableSnapshot(
     override val root: Snapshot
         get() = parent.root
 
-    override fun dispose() {
-        if (!disposed) {
-            super.dispose()
+    override fun nestedDeactivated(snapshot: Snapshot) {
+        super.nestedDeactivated(snapshot)
+        if (snapshots == 0) {
             deactivate()
         }
     }
