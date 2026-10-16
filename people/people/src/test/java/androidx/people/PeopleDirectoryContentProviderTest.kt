@@ -23,6 +23,7 @@ import android.os.CancellationSignal
 import androidx.people.internal.platform.PeopleContractCompat
 import androidx.people.internal.platform.toQueryArgs
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
@@ -295,6 +296,35 @@ class PeopleDirectoryContentProviderTest {
         assertThrows(UnsupportedOperationException::class.java) {
             directory.query(uri, null, "display_name = ?", arrayOf("Alice"), "display_name ASC")
         }
+    }
+
+    @Test
+    fun notifyChange_forPersonQueryWithoutAPeopleProvider_returnsFalse() = runTest {
+        val context = RuntimeEnvironment.getApplication()
+        val query = personQuery("com.example.app") { addPhones("+15551234567") }
+
+        val result = PeopleDirectoryContentProvider.notifyChange(context, query)
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun notifyChange_forGroupQueryWithoutAPeopleProvider_returnsFalse() = runTest {
+        val context = RuntimeEnvironment.getApplication()
+        val query = groupQuery("com.example.app") { addLookupKeys("g1") }
+
+        val result = PeopleDirectoryContentProvider.notifyChange(context, query)
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun requestRefresh_withoutAPeopleProvider_returnsFalse() = runTest {
+        val context = RuntimeEnvironment.getApplication()
+
+        val result = PeopleDirectoryContentProvider.requestRefresh(context)
+
+        assertThat(result).isFalse()
     }
 
     @Test
