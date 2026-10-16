@@ -21,6 +21,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.foundation.BorderRenderer
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
@@ -29,13 +30,18 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.layer.CompositingStrategy
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
@@ -50,6 +56,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastAny
+import kotlin.math.ceil
 import kotlinx.coroutines.launch
 
 /**
@@ -138,8 +145,10 @@ internal abstract class RippleNode(
 
     private val animatedFocusRingInterpolation = Animatable(0f)
 
-    private var innerFocusedBorderLogic: BorderLogicLayerDelegate? = null
-    private var outerFocusedBorderLogic: BorderLogicLayerDelegate? = null
+    // Separate renderers for the inner and outer focus ring, as BorderRenderer caches drawing
+    // logic per instance and a new instance should be used for each concurrently drawn border.
+    private var innerFocusRingBorder: FocusRingBorder? = null
+    private var outerFocusRingBorder: FocusRingBorder? = null
 
     private var _rippleNodeConfiguration: RippleNodeConfiguration? = null
 
@@ -354,10 +363,10 @@ internal abstract class RippleNode(
     }
 
     override fun onDetach() {
-        innerFocusedBorderLogic?.release()
-        innerFocusedBorderLogic = null
-        outerFocusedBorderLogic?.release()
-        outerFocusedBorderLogic = null
+        innerFocusRingBorder?.release()
+        innerFocusRingBorder = null
+        outerFocusRingBorder?.release()
+        outerFocusRingBorder = null
         _rippleNodeConfiguration = null
         hasValidSize = false
         rippleSize = Size.Zero
@@ -393,7 +402,8 @@ internal abstract class RippleNode(
             }
         }
 
-        if (animatedFocusRingInterpolation.value > 0f) {
+        val focusRingInterpolation = animatedFocusRingInterpolation.value
+        if (focusRingInterpolation > 0f) {
             val config = resolveRippleNodeConfiguration()
             val insetRing =
                 config.focusConfiguration as? RippleNodeConfiguration.FocusConfiguration.InsetRing
@@ -405,23 +415,21 @@ internal abstract class RippleNode(
                     layoutDirection = layoutDirection,
                     density = this,
                 )
-            val innerBorderLogic =
-                innerFocusedBorderLogic
-                    ?: BorderLogicLayerDelegate().also { innerFocusedBorderLogic = it }
-            val outerBorderLogic =
-                outerFocusedBorderLogic
-                    ?: BorderLogicLayerDelegate().also { outerFocusedBorderLogic = it }
-            innerBorderLogic.drawBorder(
+            val innerBorder =
+                innerFocusRingBorder ?: FocusRingBorder().also { innerFocusRingBorder = it }
+            val outerBorder =
+                outerFocusRingBorder ?: FocusRingBorder().also { outerFocusRingBorder = it }
+            innerBorder.drawBorder(
                 drawScope = this,
-                width = { insetRing.innerStrokeWidth * animatedFocusRingInterpolation.value },
-                inset = { insetRing.innerStrokeInset * animatedFocusRingInterpolation.value },
+                width = insetRing.innerStrokeWidth * focusRingInterpolation,
+                inset = insetRing.innerStrokeInset * focusRingInterpolation,
                 brush = SolidColor(insetRing.innerStrokeColor()),
                 outline = outline,
             )
-            outerBorderLogic.drawBorder(
+            outerBorder.drawBorder(
                 drawScope = this,
-                width = { insetRing.outerStrokeWidth * animatedFocusRingInterpolation.value },
-                inset = { insetRing.outerStrokeInset * animatedFocusRingInterpolation.value },
+                width = insetRing.outerStrokeWidth * focusRingInterpolation,
+                inset = insetRing.outerStrokeInset * focusRingInterpolation,
                 brush = SolidColor(insetRing.outerStrokeColor()),
                 outline = outline,
             )
@@ -434,38 +442,110 @@ internal abstract class RippleNode(
 
     abstract fun removeRipple(interaction: PressInteraction.Press)
 
-    /** Border logic that correctly manages the [GraphicsLayer], should be released in [onDetach] */
-    inner class BorderLogicLayerDelegate {
-        val borderLogic = BorderLogic()
-        var layer: GraphicsLayer? = null
+    /**
+     * Draws one of the focus ring borders, and owns the [GraphicsLayer]s needed for rendering it.
+     * [release] must be called in [onDetach] to release the layers.
+     *
+     * Depending on [ComposeMaterial3RippleFlags.isBorderRendererFocusRingEnabled] (read once when
+     * this is created), borders are drawn with [BorderRenderer] or the legacy [BorderLogic].
+     */
+    @OptIn(ExperimentalMaterial3RippleApi::class)
+    inner class FocusRingBorder {
+        private var borderLayer: GraphicsLayer? = null
+        private var insetLayer: GraphicsLayer? = null
 
-        fun drawBorder(
-            drawScope: DrawScope,
-            width: () -> Dp,
-            inset: () -> Dp,
-            brush: Brush,
-            outline: Outline,
-        ) {
-            return borderLogic.drawBorder(
-                drawScope,
-                width,
-                inset,
-                brush,
-                { layer ?: obtainGraphicsLayer().also { layer = it } },
-                outline,
-            )
+        private val borderRenderer: BorderRenderer? =
+            if (ComposeMaterial3RippleFlags.isBorderRendererFocusRingEnabled) {
+                BorderRenderer { obtainBorderLayer() }
+            } else {
+                null
+            }
+        private val borderLogic: BorderLogic? = if (borderRenderer == null) BorderLogic() else null
+
+        fun drawBorder(drawScope: DrawScope, width: Dp, inset: Dp, brush: Brush, outline: Outline) {
+            if (borderRenderer != null) {
+                borderRenderer.drawInsetBorder(drawScope, width, inset, brush, outline) {
+                    insetLayer
+                        ?: requireGraphicsContext().createGraphicsLayer().also { insetLayer = it }
+                }
+            } else {
+                borderLogic!!.drawBorder(
+                    drawScope = drawScope,
+                    width = { width },
+                    inset = { inset },
+                    brush = brush,
+                    layerProvider = ::obtainBorderLayer,
+                    outline = outline,
+                )
+            }
         }
 
-        fun obtainGraphicsLayer(): GraphicsLayer = requireGraphicsContext().createGraphicsLayer()
+        private fun obtainBorderLayer(): GraphicsLayer =
+            borderLayer ?: requireGraphicsContext().createGraphicsLayer().also { borderLayer = it }
 
         fun release() {
-            layer?.let {
-                requireGraphicsContext().releaseGraphicsLayer(it)
-                layer = null
-            }
+            borderLayer?.let { requireGraphicsContext().releaseGraphicsLayer(it) }
+            borderLayer = null
+            insetLayer?.let { requireGraphicsContext().releaseGraphicsLayer(it) }
+            insetLayer = null
         }
     }
 }
+
+/**
+ * Draws a border defined by [outline] with [width] and [brush] into [drawScope], inset by [inset]
+ * from the edge of the outline. [BorderRenderer] draws internal borders aligned with the edge of
+ * the outline - this adds support for an additional inset: the border starts [inset] inwards from
+ * the edge of the outline, concentric with it (corner radii are reduced by the inset), and grows
+ * inwards as [width] increases. Both [width] and [inset] are rounded up to whole pixels.
+ *
+ * Negative insets are not supported, and are treated as no inset.
+ *
+ * @param onProvideInsetGraphicsLayer provides a [GraphicsLayer] used when [inset] is positive. This
+ *   must be a different layer from the one used by this [BorderRenderer], as both can be used
+ *   during the same draw. The caller is responsible for its lifecycle, with the same requirements
+ *   as for the [BorderRenderer] layer.
+ */
+internal fun BorderRenderer.drawInsetBorder(
+    drawScope: DrawScope,
+    width: Dp,
+    inset: Dp,
+    brush: Brush,
+    outline: Outline,
+    onProvideInsetGraphicsLayer: () -> GraphicsLayer,
+): Unit =
+    with(drawScope) {
+        val insetPx = if (inset.isUnspecified) 0f else ceil(inset.toPx())
+        if (insetPx <= 0f) {
+            drawBorder(this, width, brush, outline)
+            return
+        }
+        if (width.isUnspecified) return
+        // BorderRenderer rounds widths up to whole pixels. Round the width and the inset separately
+        // before adding them, so that the border has the same width it would have without an
+        // inset. Any value in (totalPx - 1, totalPx] rounds up to totalPx, so aim for the middle of
+        // that range to be robust to floating point error in the dp <-> px conversion.
+        val widthPx = if (width == Dp.Hairline) 1f else ceil(width.toPx())
+        if (widthPx <= 0f) return
+        val totalWidth = (widthPx + insetPx - 0.5f).toDp()
+
+        val layer = onProvideInsetGraphicsLayer()
+        layer.compositingStrategy = CompositingStrategy.Offscreen
+        // Round the layer size up, so that borders on non-pixel-aligned sizes are not clipped.
+        layer.record(IntSize(ceil(size.width).toInt(), ceil(size.height).toInt())) {
+            // Draw a border that is widthPx + insetPx wide...
+            drawBorder(this, totalWidth, brush, outline)
+            // ...and clear the outer insetPx of it. Strokes are centered on the outline, so this
+            // also clears outside the outline, where nothing has been drawn.
+            drawOutline(
+                outline = outline,
+                brush = brush,
+                style = Stroke(insetPx * 2),
+                blendMode = BlendMode.Clear,
+            )
+        }
+        drawLayer(layer)
+    }
 
 /**
  * @return the [AnimationSpec] used when transitioning to [interaction], either from a previous

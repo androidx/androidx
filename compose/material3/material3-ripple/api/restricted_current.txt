@@ -2,6 +2,15 @@
 // - surface=restricted-non-atomic-group
 package androidx.compose.material3.ripple {
 
+  @SuppressCompatibility @androidx.compose.material3.ripple.ExperimentalMaterial3RippleApi public final class ComposeMaterial3RippleFlags {
+    property public boolean isBorderRendererFocusRingEnabled;
+    field public static final androidx.compose.material3.ripple.ComposeMaterial3RippleFlags INSTANCE;
+    field public static boolean isBorderRendererFocusRingEnabled;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3-ripple API is experimental and is likely to change or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3RippleApi {
+  }
+
   public final class RippleKt {
     method public static androidx.compose.ui.node.DelegatableNode createRippleModifierNode(androidx.compose.foundation.interaction.InteractionSource interactionSource, kotlin.jvm.functions.Function0<androidx.compose.material3.ripple.RippleNodeConfiguration> rippleNodeConfiguration);
   }
