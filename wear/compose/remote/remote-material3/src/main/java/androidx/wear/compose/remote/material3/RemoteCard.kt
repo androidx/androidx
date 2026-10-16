@@ -273,7 +273,7 @@ public object RemoteCardDefaults {
 
     /** The default border color used for outlined cards. */
     public val outlinedCardBorderColor: RemoteColor
-        @Composable @RemoteComposable get() = outlinedCardColors().contentColor
+        @Composable @RemoteComposable get() = RemoteMaterialTheme.colorScheme.outline
 
     /** The default size of the border for [RemoteOutlinedCard] */
     public val OutlinedBorderSize: RemoteDp = 1.rdp

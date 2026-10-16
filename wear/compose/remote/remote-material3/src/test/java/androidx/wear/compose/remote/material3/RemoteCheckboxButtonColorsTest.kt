@@ -18,16 +18,22 @@ package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-@RunWith(JUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Config.TARGET_SDK])
 class RemoteCheckboxButtonColorsTest {
+    @get:Rule val composeTestRule = createComposeRule()
 
     @Test
     fun checkboxButtonDefaults_values() {
@@ -128,5 +134,48 @@ class RemoteCheckboxButtonColorsTest {
 
         val colors3 = colors1.copy(checkedContainerColor = RemoteColor(Color.Green))
         assertNotEquals(colors1, colors3)
+    }
+
+    @Test
+    fun checkboxButtonColors_defaultsCheckmarkColorToPrimaryContainer() {
+        lateinit var colors: RemoteCheckboxButtonColors
+        lateinit var splitColors: RemoteSplitCheckboxButtonColors
+        val expectedPrimaryContainer = Color.Green.rc
+        val expectedBackground = Color.Magenta.rc
+        composeTestRule.setContent {
+            RemoteMaterialTheme(
+                colorScheme =
+                    RemoteColorScheme()
+                        .copy(
+                            primaryContainer = expectedPrimaryContainer,
+                            background = expectedBackground,
+                        )
+            ) {
+                colors = RemoteCheckboxButtonDefaults.checkboxButtonColors()
+                splitColors = RemoteSplitCheckboxButtonDefaults.splitCheckboxButtonColors()
+            }
+        }
+
+        assertEquals(
+            expectedPrimaryContainer.constantValue,
+            colors.checkedCheckmarkColor.constantValue,
+        )
+        assertEquals(
+            splitColors.disabledCheckedCheckmarkColor.constantValue,
+            colors.disabledCheckedCheckmarkColor.constantValue,
+        )
+    }
+
+    @Test
+    fun outlinedCardBorderColor_defaultsToOutline() {
+        lateinit var borderColor: RemoteColor
+        val expectedOutline = Color.Cyan.rc
+        composeTestRule.setContent {
+            RemoteMaterialTheme(colorScheme = RemoteColorScheme().copy(outline = expectedOutline)) {
+                borderColor = RemoteCardDefaults.outlinedCardBorderColor
+            }
+        }
+
+        assertEquals(expectedOutline.constantValue, borderColor.constantValue)
     }
 }
