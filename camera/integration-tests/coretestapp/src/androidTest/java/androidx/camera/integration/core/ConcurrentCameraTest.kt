@@ -40,6 +40,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.media3.effect.Media3Effect
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule.Companion.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -827,6 +828,7 @@ class ConcurrentCameraTest(private val implName: String, private val cameraConfi
         }
 
         fun startRecordingVideos() {
+            skipVideoRecordingTestIfNotSupportedByEmulator()
             recordingFile = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
             activeRecording =
                 videoCapture!!
