@@ -21,7 +21,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.ui.graphics.Color
 
 /**
  * A [RemotePainter] that draws a [RemoteColor] into the provided RemoteCanvas.
@@ -46,12 +45,3 @@ public class RemoteColorPainter(private val color: RemoteColor) : RemotePainter(
  * @param color The [RemoteColor] to create the painter for.
  */
 public fun painterRemoteColor(color: RemoteColor): RemotePainter = RemoteColorPainter(color = color)
-
-/**
- * Creates a [RemoteColorPainter] from a [Color].
- *
- * @param color The [Color] to create the painter for.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun painterRemoteColor(color: Color): RemotePainter =
-    painterRemoteColor(color = RemoteColor(color))

@@ -418,4 +418,20 @@ class RemoteTextStyleTest {
         assertThat(combineFontSettings(null, null)).isNull()
         assertThat(combineFontSettings("", null)).isNull()
     }
+
+    @Test
+    fun remoteTextStyle_exposesRemoteFontWeightAndFontStyle() {
+        val style =
+            RemoteTextStyle(
+                fontWeight = FontWeight.SemiBold,
+                fontStyle = FontStyle.Italic,
+            )
+
+        assertThat(style.remoteFontWeight).isEqualTo(RemoteFontWeight.SemiBold)
+        assertThat(style.remoteFontStyle).isEqualTo(RemoteFontStyle.Italic)
+
+        val defaultStyle = RemoteTextStyle()
+        assertThat(defaultStyle.remoteFontWeight).isNull()
+        assertThat(defaultStyle.remoteFontStyle).isNull()
+    }
 }

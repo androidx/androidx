@@ -44,10 +44,7 @@ import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.trace
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -253,12 +250,6 @@ private fun captureRemoteDocumentImpl(
             composition.setContent {
                 CompositionLocalProvider(
                     LocalRemoteComposeCreationState provides creationState,
-                    LocalInspectionMode provides creationDisplayInfo.isInspectionMode,
-                    LocalDensity provides
-                        Density(
-                            creationDisplayInfo.density.density,
-                            creationDisplayInfo.density.fontScale,
-                        ),
                     LocalRemoteDensity provides remoteDensity,
                     LocalLayoutDirection provides layoutDirection,
                     LocalLifecycleOwner provides lifecycleOwner,

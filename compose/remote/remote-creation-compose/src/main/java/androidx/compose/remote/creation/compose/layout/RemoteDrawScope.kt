@@ -31,8 +31,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.layout.ContentScale
-import androidx.graphics.shapes.RoundedPolygon
 
 /**
  * A remote-compatible drawing scope for RemoteCompose. Unlike [DrawScope], this class uses remote
@@ -174,7 +172,7 @@ internal constructor(
         srcSize: RemoteSize = RemoteSize(image.width, image.height),
         dstOffset: RemoteOffset = RemoteOffset.Zero,
         dstSize: RemoteSize = size,
-        scaleType: ContentScale = ContentScale.Fit,
+        scaleType: RemoteContentScale = RemoteContentScale.Fit,
         scaleFactor: RemoteFloat = 1f.rf,
         contentDescription: String? = null,
     ) {
@@ -188,7 +186,7 @@ internal constructor(
             dstOffset.y,
             dstOffset.x + dstSize.width,
             dstOffset.y + dstSize.height,
-            scaleType.toImageScalingInt(),
+            scaleType.value,
             scaleFactor,
             contentDescription,
         )
@@ -208,23 +206,6 @@ internal constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun drawPath(path: RemotePath, paint: RemotePaint?) {
         remoteCanvas.drawPath(path, paint = paint)
-    }
-
-    /** Draws a rounded polygon. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun drawRoundedPolygon(roundedPolygon: RoundedPolygon, paint: RemotePaint?) {
-        remoteCanvas.drawRoundedPolygon(roundedPolygon, paint)
-    }
-
-    /** Draws a morph between two rounded polygons. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun drawRoundedPolygonMorph(
-        from: RoundedPolygon,
-        to: RoundedPolygon,
-        progress: RemoteFloat,
-        paint: RemotePaint?,
-    ) {
-        remoteCanvas.drawRoundedPolygonMorph(from, to, progress, paint)
     }
 
     /** Draws a tween path. */

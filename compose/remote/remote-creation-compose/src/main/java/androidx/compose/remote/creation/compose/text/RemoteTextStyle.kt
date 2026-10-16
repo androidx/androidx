@@ -17,6 +17,8 @@
 package androidx.compose.remote.creation.compose.text
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.toRemoteFontStyle
+import androidx.compose.remote.creation.compose.layout.toRemoteFontWeight
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
@@ -77,6 +79,13 @@ constructor(
     public val fontFeatureSettings: String? = null,
     public val fontVariationSettings: FontVariation.Settings? = null,
 ) {
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val remoteFontWeight: RemoteFontWeight?
+        get() = fontWeight?.toRemoteFontWeight()
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val remoteFontStyle: RemoteFontStyle?
+        get() = fontStyle?.toRemoteFontStyle()
 
     /**
      * Returns a new [RemoteTextStyle] that is a combination of this style and the given [other]

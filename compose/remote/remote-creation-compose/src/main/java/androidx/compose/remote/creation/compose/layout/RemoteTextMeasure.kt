@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.core.operations.TextAttribute
@@ -24,14 +25,14 @@ import androidx.compose.remote.creation.compose.state.RemoteStateInstanceKey
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.TextMeasurer
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 
 private val DefaultFontSize: RemoteTextUnit = 12.rsp
 
@@ -108,8 +109,8 @@ public class RemoteTextMeasurer(internal val density: RemoteDensity) {
                 .setTextSize(textSizePxId)
                 .setTypeface(
                     0,
-                    (style.fontWeight ?: FontWeight.Normal).weight,
-                    style.fontStyle == FontStyle.Italic,
+                    (style.remoteFontWeight ?: RemoteFontWeight.Normal).weight,
+                    style.remoteFontStyle == RemoteFontStyle.Italic,
                 )
                 .commit()
 
@@ -151,8 +152,8 @@ public class RemoteTextMeasurer(internal val density: RemoteDensity) {
                 .setTextSize(textSizePxId)
                 .setTypeface(
                     0,
-                    (style.fontWeight ?: FontWeight.Normal).weight,
-                    style.fontStyle == FontStyle.Italic,
+                    (style.remoteFontWeight ?: RemoteFontWeight.Normal).weight,
+                    style.remoteFontStyle == RemoteFontStyle.Italic,
                 )
                 .commit()
 
