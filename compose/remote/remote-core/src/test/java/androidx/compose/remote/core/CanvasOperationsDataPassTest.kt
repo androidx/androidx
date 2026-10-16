@@ -131,6 +131,25 @@ class CanvasOperationsDataPassTest {
         assertThat(context.getFloat(exprId)).isEqualTo(30f)
     }
 
+    @Test
+    fun `Canvas operations float expressions are collected in CoreDocument`() {
+        val rcWriter = RemoteComposeWriter(RcPlatformServices.None)
+
+        var exprId = -1
+        rcWriter.root {
+            rcWriter.startBox(RecordingModifier())
+            rcWriter.startCanvasOperations()
+            exprId = Utils.idFromNan(rcWriter.floatExpression(10f, 20f, ADD))
+            rcWriter.endCanvasOperations()
+            rcWriter.endBox()
+        }
+
+        val doc = CoreDocument()
+        doc.initFromBuffer(rcWriter.buffer)
+
+        assertThat(doc.floatExpressions).containsKey(exprId)
+    }
+
     private class TestRemoteContext : RemoteContext() {
         private val floats = HashMap<Int, Float>()
 
