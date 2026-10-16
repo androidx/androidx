@@ -132,15 +132,6 @@ public object ComposeUiFlags {
     public var isTriggerMoveEventsWhenLocationHasNotChangedEnabled: Boolean = true
 
     /**
-     * Enables re-interpreting trackpad pinch gestures (CLASSIFICATION_PINCH) as mouse events with
-     * scale factor, rather than passing through fake finger touch events.
-     */
-    // TODO: b/519714278 - Cleanup feature flag
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isTrackpadPinchReinterpretationEnabled: Boolean = true
-
-    /**
      * Reduce provided CompositionLocals by letting them pull from LocalOwner /
      * LocalAndroidComposeView dynamically when unprovided, instead of eagerly providing all of
      * them.
