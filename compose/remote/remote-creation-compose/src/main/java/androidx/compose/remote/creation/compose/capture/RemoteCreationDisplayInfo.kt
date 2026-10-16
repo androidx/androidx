@@ -23,7 +23,6 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 
 private const val baseDensity = 160f
 
@@ -91,14 +90,6 @@ public fun RemoteCreationDisplayInfo(
         densityBehavior,
     )
 }
-
-/** The width of the display in [Dp] units. */
-public val RemoteCreationDisplayInfo.widthDp: Dp
-    get() = with(density) { size.width.toDp() }
-
-/** The height of the display in [Dp] units. */
-public val RemoteCreationDisplayInfo.heightDp: Dp
-    get() = with(density) { size.height.toDp() }
 
 internal fun RemoteCreationDisplayInfo.toCreationDisplayInfo() =
     CreationDisplayInfo(

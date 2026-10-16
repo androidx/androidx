@@ -25,6 +25,15 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.unit.Dp
+
+/** The width of the display in [Dp] units. */
+public val RemoteCreationDisplayInfo.widthDp: Dp
+    get() = with(density) { size.width.toDp() }
+
+/** The height of the display in [Dp] units. */
+public val RemoteCreationDisplayInfo.heightDp: Dp
+    get() = with(density) { size.height.toDp() }
 
 /**
  * Creates a [RemoteCreationDisplayInfo] instance from display metrics.
