@@ -42,6 +42,7 @@ import androidx.compose.remote.creation.compose.capture.PaintTrackerTest.TestPai
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
@@ -49,16 +50,20 @@ import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createOffscreenRemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteIntArray
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
+import androidx.compose.remote.creation.compose.state.RemoteStringArray
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
@@ -79,6 +84,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -3547,7 +3553,389 @@ class RemoteCanvasTest {
             }
         assertThat(coreDoc.docInfo.mNumberOfOps).isGreaterThan(0)
     }
+
+    @Test
+    fun testDefinePattern() {
+        val macro = remoteCanvas.definePattern { x: RemoteFloat, y: RemoteFloat, c: RemoteColor ->
+            remoteCanvas.drawRect(
+                x,
+                y,
+                x + 50f.rf,
+                y + 50f.rf,
+                CompatAndroidRemotePaint().apply { remoteColor = c },
+            )
+        }
+
+        macro(10f.rf, 10f.rf, RemoteColor(Color.RED), null)
+        macro(10f.rf, 100f.rf, RemoteColor(Color.GREEN), null)
+        macro(100f.rf, 10f.rf, RemoteColor(Color.BLUE), null)
+        macro(100f.rf, 100f.rf, RemoteColor(Color.YELLOW), null)
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter { it.startsWith("drawRect") || it.contains("paint.setColor") }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFFFF0000)",
+                "drawRect(10.000000, 10.000000, 60.000000, 60.000000)",
+                "  paint.setColor(0xFF00FF00)",
+                "drawRect(10.000000, 100.000000, 60.000000, 150.000000)",
+                "  paint.setColor(0xFF0000FF)",
+                "drawRect(100.000000, 10.000000, 150.000000, 60.000000)",
+                "  paint.setColor(0xFFFFFF00)",
+                "drawRect(100.000000, 100.000000, 150.000000, 150.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefinePattern_sixArguments() {
+        val macro =
+            remoteCanvas.definePattern {
+                x: RemoteFloat,
+                y: RemoteFloat,
+                w: RemoteFloat,
+                h: RemoteFloat,
+                c: RemoteColor,
+                condition: RemoteBoolean ->
+                remoteCanvas.drawConditionally(condition) {
+                    remoteCanvas.drawRect(
+                        x,
+                        y,
+                        x + w,
+                        y + h,
+                        CompatAndroidRemotePaint().apply { remoteColor = c },
+                    )
+                }
+            }
+
+        macro(10f.rf, 10f.rf, 50f.rf, 50f.rf, RemoteColor(Color.RED), RemoteBoolean(true), null)
+        // Note this will get elided due to the condition being false.
+        macro(20f.rf, 20f.rf, 60f.rf, 60f.rf, RemoteColor(Color.GREEN), RemoteBoolean(false), null)
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter { it.startsWith("drawRect") || it.contains("paint.setColor") }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFFFF0000)",
+                "drawRect(10.000000, 10.000000, 60.000000, 60.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testRemoteCanvas_forEach_singleArg() {
+        remoteCanvas.forEach(listOf(10f.rf, 30f.rf, 50f.rf)) { cx ->
+            remoteCanvas.drawCircle(
+                cx,
+                50f.rf,
+                10f.rf,
+                CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.BLUE) },
+            )
+        }
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter {
+                it.startsWith("drawCircle") || it.contains("paint.setColor")
+            }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFF0000FF)",
+                "drawCircle(10.000000, 50.000000, 10.000000)",
+                "  paint.setColor(0xFF0000FF)",
+                "drawCircle(30.000000, 50.000000, 10.000000)",
+                "  paint.setColor(0xFF0000FF)",
+                "drawCircle(50.000000, 50.000000, 10.000000)",
+            )
+            .inOrder()
+    }
+
+    @Ignore("Requires remote-core tuple alias support for multi-argument forEach")
+    @Test
+    fun testRemoteCanvas_forEach_multiArgs() {
+        remoteCanvas.forEach(
+            listOf(10f.rf, 40f.rf),
+            listOf(15f.rf, 45f.rf),
+            listOf(RemoteColor(Color.RED), RemoteColor(Color.GREEN)),
+        ) { x, y, color ->
+            remoteCanvas.drawRect(
+                x,
+                y,
+                x + 20f.rf,
+                y + 20f.rf,
+                CompatAndroidRemotePaint().apply { remoteColor = color },
+            )
+        }
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter { it.startsWith("drawRect") || it.contains("paint.setColor") }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFFFF0000)",
+                "drawRect(10.000000, 15.000000, 30.000000, 35.000000)",
+                "  paint.setColor(0xFF00FF00)",
+                "drawRect(40.000000, 45.000000, 60.000000, 65.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testRemoteCanvas_forEach_floatArray() {
+        val paint = CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.RED) }
+        val array = RemoteFloatArray(listOf(100f.rf, 200f.rf))
+
+        remoteCanvas.forEach(array) { x -> remoteCanvas.drawCircle(x, 50f.rf, 10f.rf, paint) }
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter {
+                it.startsWith("drawCircle") || it.contains("paint.setColor")
+            }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFFFF0000)",
+                "drawCircle(100.000000, 50.000000, 10.000000)",
+                "  paint.setColor(0xFFFF0000)",
+                "drawCircle(200.000000, 50.000000, 10.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testRemoteCanvas_forEach_intArray() {
+        val paint = CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.BLUE) }
+        val intArray = RemoteIntArray(10, 20, 30)
+
+        remoteCanvas.forEach(intArray) { intVal ->
+            remoteCanvas.drawCircle(intVal.toRemoteFloat(), 50f.rf, 5f.rf, paint)
+        }
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter {
+                it.startsWith("drawCircle") || it.contains("paint.setColor")
+            }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFF0000FF)",
+                "drawCircle(10.000000, 50.000000, 5.000000)",
+                "  paint.setColor(0xFF0000FF)",
+                "drawCircle(20.000000, 50.000000, 5.000000)",
+                "  paint.setColor(0xFF0000FF)",
+                "drawCircle(30.000000, 50.000000, 5.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefinePattern_withRemoteIntArray() {
+        val paint = CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.GREEN) }
+        val listPattern = remoteCanvas.definePattern { offsets: RemoteIntArray ->
+            remoteCanvas.forEach(offsets) { offset ->
+                remoteCanvas.drawCircle(offset.toRemoteFloat(), 25f.rf, 5f.rf, paint)
+            }
+        }
+
+        listPattern(RemoteIntArray(50, 100))
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter {
+                it.startsWith("drawCircle") || it.contains("paint.setColor")
+            }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFF00FF00)",
+                "drawCircle(50.000000, 25.000000, 5.000000)",
+                "  paint.setColor(0xFF00FF00)",
+                "drawCircle(100.000000, 25.000000, 5.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testRemoteCanvas_forEach_stringArray() {
+        val paint = CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.BLACK) }
+        val stringArray = RemoteStringArray(listOf("One".rs, "Two".rs))
+
+        remoteCanvas.forEach(stringArray) { str ->
+            remoteCanvas.drawText(str, 3, 0f.rf, 10f.rf, paint)
+        }
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter {
+                it.startsWith("drawTextRun") || it.contains("paint.setColor")
+            }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFF000000)",
+                "drawTextRun(text=\"One\", start=0, end=3, x=0.000000, y=10.000000)",
+                "  paint.setColor(0xFF000000)",
+                "drawTextRun(text=\"Two\", start=0, end=3, x=0.000000, y=10.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefinePattern_inForEach_remoteFloatArray() {
+        remoteCanvas.forEach(RemoteFloatArray(listOf(10f.rf, 30f.rf))) { cx ->
+            remoteCanvas.drawCircle(
+                cx,
+                50f.rf,
+                10f.rf,
+                CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.BLUE) },
+            )
+        }
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter {
+                it.startsWith("drawCircle") || it.contains("paint.setColor")
+            }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFF0000FF)",
+                "drawCircle(10.000000, 50.000000, 10.000000)",
+                "  paint.setColor(0xFF0000FF)",
+                "drawCircle(30.000000, 50.000000, 10.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefinePattern_inForEach_remoteIntArray() {
+        remoteCanvas.forEach(RemoteIntArray(10, 30)) { cx ->
+            remoteCanvas.drawCircle(
+                cx.toRemoteFloat(),
+                50f.rf,
+                10f.rf,
+                CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.GREEN) },
+            )
+        }
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter {
+                it.startsWith("drawCircle") || it.contains("paint.setColor")
+            }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFF00FF00)",
+                "drawCircle(10.000000, 50.000000, 10.000000)",
+                "  paint.setColor(0xFF00FF00)",
+                "drawCircle(30.000000, 50.000000, 10.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefinePattern_inForEach_remoteStringArray() {
+        remoteCanvas.forEach(RemoteStringArray(listOf("Hello".rs, "World".rs))) { text ->
+            remoteCanvas.drawText(
+                text,
+                5,
+                0f.rf,
+                10f.rf,
+                CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.BLACK) },
+            )
+        }
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter {
+                it.startsWith("drawTextRun") || it.contains("paint.setColor")
+            }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFF000000)",
+                "drawTextRun(text=\"Hello\", start=0, end=5, x=0.000000, y=10.000000)",
+                "  paint.setColor(0xFF000000)",
+                "drawTextRun(text=\"World\", start=0, end=5, x=0.000000, y=10.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefinePattern_withRemoteStringArray() {
+        val paint = CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.MAGENTA) }
+        val listPattern = remoteCanvas.definePattern { texts: RemoteStringArray ->
+            remoteCanvas.forEach(texts) { text ->
+                remoteCanvas.drawText(text, 5, 0f.rf, 20f.rf, paint)
+            }
+        }
+
+        listPattern(RemoteStringArray(listOf("Alpha".rs, "Omega".rs)))
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter {
+                it.startsWith("drawTextRun") || it.contains("paint.setColor")
+            }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFFFF00FF)",
+                "drawTextRun(text=\"Alpha\", start=0, end=5, x=0.000000, y=20.000000)",
+                "  paint.setColor(0xFFFF00FF)",
+                "drawTextRun(text=\"Omega\", start=0, end=5, x=0.000000, y=20.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefinePattern_withRemoteFloatArray() {
+        val paint = CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.RED) }
+        val listPattern = remoteCanvas.definePattern { offsets: RemoteFloatArray ->
+            remoteCanvas.forEach(offsets) { offset ->
+                remoteCanvas.drawCircle(offset, 25f.rf, 5f.rf, paint)
+            }
+        }
+
+        listPattern(RemoteFloatArray(listOf(50f.rf, 100f.rf)))
+
+        remoteCanvas.flush()
+
+        val drawAndPaintCommands =
+            captureDrawCalls().filter {
+                it.startsWith("drawCircle") || it.contains("paint.setColor")
+            }
+        assertThat(drawAndPaintCommands)
+            .containsExactly(
+                "  paint.setColor(0xFFFF0000)",
+                "drawCircle(50.000000, 25.000000, 5.000000)",
+                "  paint.setColor(0xFFFF0000)",
+                "drawCircle(100.000000, 25.000000, 5.000000)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefinePattern_unsupportedType_throwsIllegalArgumentException() {
+        val pattern = remoteCanvas.definePattern { dp: RemoteDp ->
+            remoteCanvas.drawCircle(dp.value, 25f.rf, 5f.rf, CompatAndroidRemotePaint())
+        }
+
+        assertThrows(IllegalArgumentException::class.java) { pattern(10.rdp) }
+    }
 }
+
+private class OptimizingTestRemoteComposeBuffer(calls: ArrayList<String> = ArrayList()) :
+    RecordingTestRemoteComposeBuffer(calls)
 
 private fun formatFloat(f: Float): String {
     return if (f.isNaN()) {
@@ -3769,6 +4157,3 @@ private open class RecordingTestRemoteComposeBuffer(val calls: ArrayList<String>
         super.addAnimatedFloat(id, value, animation)
     }
 }
-
-private class OptimizingTestRemoteComposeBuffer(calls: ArrayList<String> = ArrayList()) :
-    RecordingTestRemoteComposeBuffer(calls)
