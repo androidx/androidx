@@ -135,32 +135,30 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
             val pinnedItems =
                 itemProvider.calculateLazyLayoutPinnedIndices(pinnedItemList = state.pinnedItems)
 
-            Snapshot.withMutableSnapshot {
-                    trace("wear-compose:tlc:measure") {
-                        measurementStrategy.measure(
-                            itemsCount = itemsCount,
-                            keyIndexMap = itemProvider.keyIndexMap,
-                            measuredItemProvider = measuredItemProvider,
-                            verticalArrangement = verticalArrangement,
-                            containerConstraints = containerConstraints,
-                            scrollToBeConsumed = scrollToBeConsumed,
-                            anchorItemKey = anchorItemKey,
-                            anchorItemIndex = anchorItemIndex,
-                            anchorItemScrollOffset = anchorItemScrollOffset,
-                            lastMeasuredAnchorItemHeight = lastMeasuredAnchorItemHeight,
-                            coroutineScope = coroutineScope,
-                            density = this,
-                            pinnedItems = pinnedItems,
-                            layout = { width, height, placement ->
-                                layout(
-                                    containerConstraints.constrainWidth(width),
-                                    containerConstraints.constrainHeight(height),
-                                    emptyMap(),
-                                    placement,
-                                )
-                            },
-                        )
-                    }
+            trace("wear-compose:tlc:measure") {
+                    measurementStrategy.measure(
+                        itemsCount = itemsCount,
+                        keyIndexMap = itemProvider.keyIndexMap,
+                        measuredItemProvider = measuredItemProvider,
+                        verticalArrangement = verticalArrangement,
+                        containerConstraints = containerConstraints,
+                        scrollToBeConsumed = scrollToBeConsumed,
+                        anchorItemKey = anchorItemKey,
+                        anchorItemIndex = anchorItemIndex,
+                        anchorItemScrollOffset = anchorItemScrollOffset,
+                        lastMeasuredAnchorItemHeight = lastMeasuredAnchorItemHeight,
+                        coroutineScope = coroutineScope,
+                        density = this,
+                        pinnedItems = pinnedItems,
+                        layout = { width, height, placement ->
+                            layout(
+                                containerConstraints.constrainWidth(width),
+                                containerConstraints.constrainHeight(height),
+                                emptyMap(),
+                                placement,
+                            )
+                        },
+                    )
                 }
                 .also { state.applyMeasureResult(it) }
         }

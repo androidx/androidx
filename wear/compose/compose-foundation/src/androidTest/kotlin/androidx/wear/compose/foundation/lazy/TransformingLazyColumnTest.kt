@@ -32,9 +32,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.WithTouchSlop
@@ -50,6 +52,7 @@ import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.SubcomposeLayoutState
 import androidx.compose.ui.layout.SubcomposeSlotReusePolicy
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -74,6 +77,7 @@ import androidx.wear.compose.foundation.TEST_TAG
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.concurrent.thread
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineScope
@@ -1660,6 +1664,40 @@ class TransformingLazyColumnTest {
 
         rule.onNodeWithTag("1").assertExists().assertIsNotDisplayed().assertIsPlaced()
         rule.onNodeWithTag("11").assertExists().assertIsNotDisplayed().assertIsPlaced()
+    }
+
+    @Test
+    fun stateWrittenFromBackgroundThreadDuringMeasure_isNotLost() {
+        lateinit var itemState: MutableState<String?>
+        var valueReadInPlacement: String? = null
+        var measuredOnce = false
+        rule.setContent {
+            TransformingLazyColumn(modifier = Modifier.size(100.dp)) {
+                item {
+                    val state = remember { mutableStateOf<String?>(null) }
+                    itemState = state
+                    Box(
+                        Modifier.size(50.dp).layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            if (!measuredOnce) {
+                                measuredOnce = true
+                                // Write from another thread while the list is still measuring.
+                                thread { state.value = "loaded" }.join()
+                            }
+                            layout(placeable.width, placeable.height) {
+                                valueReadInPlacement = state.value
+                                placeable.place(0, 0)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(itemState.value).isEqualTo("loaded")
+            assertThat(valueReadInPlacement).isEqualTo("loaded")
+        }
     }
 }
 
