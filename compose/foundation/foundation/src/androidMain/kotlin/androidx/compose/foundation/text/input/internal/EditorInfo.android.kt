@@ -183,7 +183,9 @@ internal fun EditorInfo.update(
 
     if (shouldEnableStylusHandwriting(imeOptions)) {
         EditorInfoCompat.setStylusHandwritingEnabled(this, true)
-        EditorInfoApi34.setHandwritingGestures(this)
+        if (Build.VERSION.SDK_INT >= 34) {
+            EditorInfoApi34.setHandwritingGestures(this)
+        }
     } else {
         EditorInfoCompat.setStylusHandwritingEnabled(this, false)
     }
