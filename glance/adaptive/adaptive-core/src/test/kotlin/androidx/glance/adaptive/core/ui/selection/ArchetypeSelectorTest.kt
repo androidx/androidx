@@ -23,7 +23,8 @@ import org.junit.Test
 class ArchetypeSelectorTest {
 
     private class TestTemplate(val hasDetails: Boolean) : AdaptiveGlanceTemplate {
-        override val templateId: String = "TestTemplate"
+        override val templateName: String = "TestTemplate"
+        override val templateId: Int = 1
     }
 
     private data class TestSurface(override val tag: String) : GlanceSurface

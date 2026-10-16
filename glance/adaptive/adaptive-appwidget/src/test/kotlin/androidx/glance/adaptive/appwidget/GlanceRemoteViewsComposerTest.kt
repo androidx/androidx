@@ -59,7 +59,8 @@ import org.robolectric.annotation.Config
 class GlanceRemoteViewsComposerTest {
 
     private class TestTemplate : AdaptiveGlanceTemplate {
-        override val templateId: String = "TestTemplate"
+        override val templateName: String = "TestTemplate"
+        override val templateId: Int = 1
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()

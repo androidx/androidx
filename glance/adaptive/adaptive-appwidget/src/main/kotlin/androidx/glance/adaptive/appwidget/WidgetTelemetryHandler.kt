@@ -19,17 +19,17 @@ package androidx.glance.adaptive.appwidget
 import android.appwidget.AppWidgetManager
 import android.os.Bundle
 import android.util.Log
-import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import kotlinx.coroutines.CancellationException
 
 /**
  * Writes xFF telemetry extras into the [AppWidgetManager] options bundle of placed widgets. The
- * host reads them from there to attribute each placement to a template, layout archetype and
- * library version.
+ * platform (`AppWidgetServiceImpl`) reads allowlisted keys during StatsD pulls
+ * (`AppWidgetStatusPulled`) to attribute each placement to a template type, library version code,
+ * and responsive compaction state.
  *
- * Each write is one blocking `updateAppWidgetOptions` Binder call to system_server, after which the
- * system broadcasts `ACTION_APPWIDGET_OPTIONS_CHANGED` back to the provider. Writes are skipped
+ * Each write is one blocking `updateAppWidgetOptions` Binder call to `system_server`, after which
+ * the system broadcasts `ACTION_APPWIDGET_OPTIONS_CHANGED` back to the provider. Writes are skipped
  * when the bundle already holds the current values. Failures are logged and contained per
  * [RenderTarget] and per widget, so telemetry never blocks the RemoteViews update that follows it
  * in [BaseWidgetDelegate.pushUpdate].
@@ -39,9 +39,7 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
     /**
      * Ensures every widget in [targetToInstances] carries the telemetry extras for [data].
      *
-     * The archetype is resolved once per [RenderTarget], from the same surface and normalized
-     * dimensions that [GlanceRemoteViewsComposer.compose] renders with, so the reported archetype
-     * is the rendered one. Must not be called on the main thread.
+     * Must not be called on the main thread.
      *
      * @param targetToInstances appWidgetIds as grouped by
      *   [GlanceRemoteViewsComposer.groupInstancesByRenderTarget].
@@ -52,30 +50,13 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
         data: AdaptiveGlanceTemplate,
     ) {
         val templateId = data.templateId
-        for ((target, appWidgetIds) in targetToInstances) {
-            val archetypeId =
-                try {
-                    AppWidgetTemplateRegistry.resolveArchetypeId(
-                        data = data,
-                        surface = target.surface,
-                        dimensions = target.dimensions,
-                    )
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    // Leave this target's extras unchanged rather than write partial values.
-                    Log.w(
-                        TAG,
-                        "Error resolving archetype for surface ${target.surface}, size " +
-                            "${target.dimensions}",
-                        e,
-                    )
-                    continue
-                }
+        for ((_, appWidgetIds) in targetToInstances) {
+            // TODO(b/561481040): Detect responsive slot compaction per target.
+            val hasDroppedSlots = false
             for (i in appWidgetIds.indices) {
                 val appWidgetId = appWidgetIds[i]
                 try {
-                    ensureTelemetryOptionsForWidget(appWidgetId, templateId, archetypeId)
+                    ensureTelemetryOptionsForWidget(appWidgetId, templateId, hasDroppedSlots)
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -87,11 +68,11 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
 
     private fun ensureTelemetryOptionsForWidget(
         appWidgetId: Int,
-        templateId: String,
-        archetypeId: String?,
+        templateId: Int,
+        hasDroppedSlots: Boolean,
     ) {
         val options = appWidgetManager.getAppWidgetOptions(appWidgetId) ?: return
-        if (!needsTelemetryUpdate(options, templateId, archetypeId)) return
+        if (!needsTelemetryUpdate(options, templateId, hasDroppedSlots)) return
 
         // Pre-populate the receiver's options cache before calling updateAppWidgetOptions so that
         // the system's resulting ACTION_APPWIDGET_OPTIONS_CHANGED broadcast does not mistake a
@@ -109,69 +90,92 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
                 ) {
                     putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, widgetId)
                 }
-                putBoolean(EXTRA_XFF_ENABLED, true)
-                putString(EXTRA_XFF_TEMPLATE_ID, templateId)
-                putString(EXTRA_XFF_SDK_VERSION, XFF_SDK_VERSION)
-                // Note: Because updateAppWidgetOptions merges via Bundle.putAll(), Bundle.remove()
-                // would not clear an existing key in system_server. Writing null explicitly
-                // overwrites any stale archetype ID during putAll().
-                putString(EXTRA_XFF_ARCHETYPE_ID, archetypeId)
+                putBoolean(OPTION_ADAPTIVE_WIDGET_ENABLED, true)
+                putInt(OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE, templateId)
+                putInt(OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE, XFF_SDK_VERSION_CODE)
+                putBoolean(OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, hasDroppedSlots)
             }
         appWidgetManager.updateAppWidgetOptions(appWidgetId, telemetryOptions)
     }
 
     private fun needsTelemetryUpdate(
         options: Bundle,
-        templateId: String,
-        archetypeId: String?,
+        templateId: Int,
+        hasDroppedSlots: Boolean,
     ): Boolean =
-        !options.getBoolean(EXTRA_XFF_ENABLED, false) ||
-            options.getString(EXTRA_XFF_TEMPLATE_ID) != templateId ||
-            options.getString(EXTRA_XFF_SDK_VERSION) != XFF_SDK_VERSION ||
-            options.getString(EXTRA_XFF_ARCHETYPE_ID) != archetypeId
+        !options.getBoolean(OPTION_ADAPTIVE_WIDGET_ENABLED, false) ||
+            !options.containsKey(OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE) ||
+            options.getInt(
+                OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE,
+                AdaptiveGlanceTemplate.TEMPLATE_ID_UNKNOWN,
+            ) != templateId ||
+            !options.containsKey(OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE) ||
+            options.getInt(OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE, 0) != XFF_SDK_VERSION_CODE ||
+            !options.containsKey(OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS) ||
+            options.getBoolean(OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, false) != hasDroppedSlots
 
     companion object {
         private const val TAG = "WidgetTelemetryHandler"
 
-        // Hosts read the keys below from the options bundle by their literal string values, so the
-        // values are a host contract: changing one breaks host-side telemetry. The constants stay
-        // internal because no app code reads them.
+        // The platform (`AppWidgetServiceImpl`) reads the keys below from the options bundle when
+        // allowlisted via DeviceConfig (`widget_logged_options_allowlist`) and logs them in
+        // `AppWidgetStatusPulled`. Changing any literal value breaks platform telemetry collection.
 
         /**
-         * Extra boolean flag indicating that this widget is managed by the xFF declarative adaptive
-         * framework.
+         * Bundle option boolean flag indicating that this widget is managed by the xFF declarative
+         * adaptive framework.
          */
-        const val EXTRA_XFF_ENABLED: String = "androidx.glance.adaptive.extra.XFF_ENABLED"
+        const val OPTION_ADAPTIVE_WIDGET_ENABLED: String =
+            "android.appwidget.option.ADAPTIVE_WIDGET_ENABLED"
 
-        /** Extra string indicating the active template identifier for this adaptive widget. */
-        const val EXTRA_XFF_TEMPLATE_ID: String = "androidx.glance.adaptive.extra.XFF_TEMPLATE_ID"
-
-        /** Extra string indicating the compiled version of the xFF Jetpack library. */
-        const val EXTRA_XFF_SDK_VERSION: String = "androidx.glance.adaptive.extra.XFF_SDK_VERSION"
+        /** Bundle option integer indicating the template type for this adaptive widget. */
+        const val OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE: String =
+            "android.appwidget.option.ADAPTIVE_WIDGET_TEMPLATE_TYPE"
 
         /**
-         * Extra string indicating the selected layout archetype for the current widget dimensions.
+         * Bundle option integer indicating the compiled version code of the xFF Jetpack library.
          */
-        const val EXTRA_XFF_ARCHETYPE_ID: String = "androidx.glance.adaptive.extra.XFF_ARCHETYPE_ID"
+        const val OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE: String =
+            "android.appwidget.option.ADAPTIVE_WIDGET_SDK_VERSION_CODE"
 
-        // TODO(b/561481040): Populate EXTRA_XFF_DROPPED_SLOTS once responsive slot compaction
-        // detection is implemented.
         /**
-         * Extra boolean flag indicating if secondary optional template slots were omitted due to
-         * responsive compaction.
+         * Bundle option boolean flag indicating if secondary optional template slots were omitted
+         * due to responsive compaction.
          */
-        const val EXTRA_XFF_DROPPED_SLOTS: String =
-            "androidx.glance.adaptive.extra.XFF_DROPPED_SLOTS"
+        const val OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS: String =
+            "android.appwidget.option.ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS"
 
         /**
-         * Current xFF SDK version string written to widget options bundles.
+         * Default fallback SDK version code (`1.0.0` -> `10000`) used in host JVM unit tests where
+         * AAR `META-INF` resources are not packaged.
+         */
+        internal const val DEFAULT_SDK_VERSION_CODE: Int = 10_000
+
+        /**
+         * Parses a semantic version string (e.g., `"1.2.3-alpha01"`) into an integer version code
+         * (`major * 10_000 + minor * 100 + patch`, e.g., `10203`), or returns `null` if malformed
+         * or if `minor` or `patch` is outside `0..99`.
+         */
+        internal fun parseSdkVersionCode(version: String): Int? {
+            val core = version.trim().substringBefore('-')
+            val parts = core.split('.')
+            val major = parts.getOrNull(0)?.toIntOrNull() ?: return null
+            val minor = parts.getOrNull(1)?.toIntOrNull() ?: 0
+            val patch = parts.getOrNull(2)?.toIntOrNull() ?: 0
+            if (major < 0 || minor !in 0..99 || patch !in 0..99) return null
+            return major * 10_000 + minor * 100 + patch
+        }
+
+        /**
+         * Current xFF SDK version code written to widget options bundles.
          *
-         * Dynamically loaded from the version metadata file generated by the AndroidX build system
-         * (`META-INF/androidx.glance.adaptive_adaptive-appwidget.version`), as `BuildConfig`
-         * generation is disabled in AndroidX libraries. The literal fallback is used only in host
-         * unit test environments where AAR resources are not packaged.
+         * Dynamically loaded and parsed from the version metadata file generated by the AndroidX
+         * build system (`META-INF/androidx.glance.adaptive_adaptive-appwidget.version`), as
+         * `BuildConfig` generation is disabled in AndroidX libraries. Falls back to
+         * [DEFAULT_SDK_VERSION_CODE] in host unit test environments where AAR resources are not
+         * packaged.
          */
-        val XFF_SDK_VERSION: String by
+        val XFF_SDK_VERSION_CODE: Int by
             lazy(LazyThreadSafetyMode.PUBLICATION) {
                 runCatching {
                     WidgetTelemetryHandler::class
@@ -182,12 +186,9 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
                         )
                         ?.bufferedReader()
                         ?.use { it.readLine()?.trim() }
-                        ?.takeIf { it.isNotEmpty() }
+                        ?.let { parseSdkVersionCode(it) }
                 }
-                    .getOrNull()
-                    // Generic fallback for host-side JVM unit tests where AAR META-INF resources
-                    // are not packaged; avoids manual updates across library version bumps.
-                    ?: "0.0.0"
+                    .getOrNull() ?: DEFAULT_SDK_VERSION_CODE
             }
     }
 }

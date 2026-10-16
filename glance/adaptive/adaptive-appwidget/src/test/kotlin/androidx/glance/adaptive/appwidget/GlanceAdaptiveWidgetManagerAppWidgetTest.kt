@@ -39,7 +39,8 @@ import org.robolectric.shadows.ShadowLog
 class GlanceAdaptiveWidgetManagerAppWidgetTest {
 
     private class TestTemplate : AdaptiveGlanceTemplate {
-        override val templateId: String = "TestTemplate"
+        override val templateName: String = "TestTemplate"
+        override val templateId: Int = 1
     }
 
     /**

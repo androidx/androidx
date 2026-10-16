@@ -55,16 +55,10 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 class WidgetTelemetryHandlerTest {
 
-    private class TestTemplate(override val templateId: String = "TestTemplate") :
-        AdaptiveGlanceTemplate
-
-    private class UnregisteredTemplate : AdaptiveGlanceTemplate {
-        override val templateId: String = "unregistered_template"
-    }
-
-    private enum class TestArchetype {
-        SPLIT_ROW
-    }
+    private class TestTemplate(
+        override val templateName: String = "TestTemplate",
+        override val templateId: Int = 1,
+    ) : AdaptiveGlanceTemplate
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private lateinit var appWidgetManager: AppWidgetManager
@@ -80,23 +74,28 @@ class WidgetTelemetryHandlerTest {
     }
 
     @Test
-    fun ensureTelemetryOptions_writesExtrasUnderHostContractKeys() {
+    fun ensureTelemetryOptions_writesExtrasUnderPlatformContractKeys() {
         bindWidget(701)
 
         handler.ensureTelemetryOptions(
             mapOf(HOME_SCREEN_TARGET to listOf(701)),
-            TestTemplate(templateId = "custom_template_v1"),
+            TestTemplate(templateName = "custom_template_v1", templateId = 7),
         )
 
-        // Hosts read these keys by literal value, so assert the strings rather than the constants.
+        // Platform AppWidgetServiceImpl reads these keys by literal value, so assert the strings
+        // directly.
         val options = appWidgetManager.getAppWidgetOptions(701)
-        assertThat(options.getBoolean("androidx.glance.adaptive.extra.XFF_ENABLED")).isTrue()
-        assertThat(options.getString("androidx.glance.adaptive.extra.XFF_TEMPLATE_ID"))
-            .isEqualTo("custom_template_v1")
-        assertThat(options.getString("androidx.glance.adaptive.extra.XFF_SDK_VERSION"))
-            .isEqualTo(WidgetTelemetryHandler.XFF_SDK_VERSION)
-        assertThat(options.getString("androidx.glance.adaptive.extra.XFF_ARCHETYPE_ID"))
-            .isEqualTo("MOBILE_HOME_SCREEN")
+        assertThat(options.getBoolean("android.appwidget.option.ADAPTIVE_WIDGET_ENABLED")).isTrue()
+        assertThat(options.getInt("android.appwidget.option.ADAPTIVE_WIDGET_TEMPLATE_TYPE"))
+            .isEqualTo(7)
+        assertThat(options.getInt("android.appwidget.option.ADAPTIVE_WIDGET_SDK_VERSION_CODE"))
+            .isEqualTo(WidgetTelemetryHandler.XFF_SDK_VERSION_CODE)
+        assertThat(
+                options.containsKey("android.appwidget.option.ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS")
+            )
+            .isTrue()
+        assertThat(options.getBoolean("android.appwidget.option.ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS"))
+            .isFalse()
     }
 
     @Test
@@ -121,10 +120,10 @@ class WidgetTelemetryHandlerTest {
         verify(appWidgetManager).updateAppWidgetOptions(eq(702), delta.capture())
         assertThat(delta.firstValue.keySet())
             .containsExactly(
-                WidgetTelemetryHandler.EXTRA_XFF_ENABLED,
-                WidgetTelemetryHandler.EXTRA_XFF_TEMPLATE_ID,
-                WidgetTelemetryHandler.EXTRA_XFF_SDK_VERSION,
-                WidgetTelemetryHandler.EXTRA_XFF_ARCHETYPE_ID,
+                WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_ENABLED,
+                WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE,
+                WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE,
+                WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS,
             )
         val options = appWidgetManager.getAppWidgetOptions(702)
         assertThat(options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
@@ -132,8 +131,8 @@ class WidgetTelemetryHandlerTest {
         assertThat(options.getInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY))
             .isEqualTo(AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD)
         assertThat(options.getString("custom_developer_key")).isEqualTo("custom_value")
-        assertThat(options.getString(WidgetTelemetryHandler.EXTRA_XFF_ARCHETYPE_ID))
-            .isEqualTo("MOBILE_LOCK_SCREEN")
+        assertThat(options.getInt(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE))
+            .isEqualTo(1)
     }
 
     @Test
@@ -141,13 +140,13 @@ class WidgetTelemetryHandlerTest {
         bindWidget(
             703,
             Bundle().apply {
-                putBoolean(WidgetTelemetryHandler.EXTRA_XFF_ENABLED, true)
-                putString(WidgetTelemetryHandler.EXTRA_XFF_TEMPLATE_ID, "TestTemplate")
-                putString(
-                    WidgetTelemetryHandler.EXTRA_XFF_SDK_VERSION,
-                    WidgetTelemetryHandler.XFF_SDK_VERSION,
+                putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_ENABLED, true)
+                putInt(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE, 1)
+                putInt(
+                    WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE,
+                    WidgetTelemetryHandler.XFF_SDK_VERSION_CODE,
                 )
-                putString(WidgetTelemetryHandler.EXTRA_XFF_ARCHETYPE_ID, "MOBILE_HOME_SCREEN")
+                putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, false)
             },
         )
 
@@ -157,61 +156,42 @@ class WidgetTelemetryHandlerTest {
     }
 
     @Test
-    fun ensureTelemetryOptions_whenArchetypeBecomesNull_overwritesStaleArchetypeId() {
+    fun ensureTelemetryOptions_whenTemplateTypeChanges_updatesOptions() {
         bindWidget(
             704,
             Bundle().apply {
-                putBoolean(WidgetTelemetryHandler.EXTRA_XFF_ENABLED, true)
-                putString(WidgetTelemetryHandler.EXTRA_XFF_TEMPLATE_ID, "unregistered_template")
-                putString(
-                    WidgetTelemetryHandler.EXTRA_XFF_SDK_VERSION,
-                    WidgetTelemetryHandler.XFF_SDK_VERSION,
+                putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_ENABLED, true)
+                putInt(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE, 1)
+                putInt(
+                    WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE,
+                    WidgetTelemetryHandler.XFF_SDK_VERSION_CODE,
                 )
-                putString(WidgetTelemetryHandler.EXTRA_XFF_ARCHETYPE_ID, "STALE_ARCHETYPE")
+                putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, false)
             },
         )
 
         handler.ensureTelemetryOptions(
             mapOf(HOME_SCREEN_TARGET to listOf(704)),
-            UnregisteredTemplate(),
+            TestTemplate(templateId = 2),
         )
 
         assertThat(
                 appWidgetManager
                     .getAppWidgetOptions(704)
-                    .getString(WidgetTelemetryHandler.EXTRA_XFF_ARCHETYPE_ID)
+                    .getInt(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE)
             )
-            .isNull()
+            .isEqualTo(2)
     }
 
     @Test
-    fun ensureTelemetryOptions_whenArchetypeResolutionThrowsForOneTarget_stillWritesOtherTargets() {
-        registerTestTemplate(
-            ArchetypeSelector { _, constraints ->
-                check(constraints.dimensions.widthDp != 999) { "Simulated selector bug" }
-                TestArchetype.SPLIT_ROW
-            }
-        )
-        bindWidget(705)
-        bindWidget(706)
-
-        handler.ensureTelemetryOptions(
-            mapOf(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(999, 100)) to
-                    listOf(705),
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(280, 100)) to
-                    listOf(706),
-            ),
-            TestTemplate(),
-        )
-
-        verify(appWidgetManager, never()).updateAppWidgetOptions(eq(705), any())
-        assertThat(
-                appWidgetManager
-                    .getAppWidgetOptions(706)
-                    .getString(WidgetTelemetryHandler.EXTRA_XFF_ARCHETYPE_ID)
-            )
-            .isEqualTo("SPLIT_ROW")
+    fun parseSdkVersionCode_parsesSemanticVersionStrings() {
+        assertThat(WidgetTelemetryHandler.parseSdkVersionCode("1.0.0-alpha01")).isEqualTo(10_000)
+        assertThat(WidgetTelemetryHandler.parseSdkVersionCode("1.2.3")).isEqualTo(10_203)
+        assertThat(WidgetTelemetryHandler.parseSdkVersionCode("2.5.0-beta02")).isEqualTo(20_500)
+        assertThat(WidgetTelemetryHandler.parseSdkVersionCode("0.0.0")).isEqualTo(0)
+        assertThat(WidgetTelemetryHandler.parseSdkVersionCode("1.100.0")).isNull()
+        assertThat(WidgetTelemetryHandler.parseSdkVersionCode("1.0.100")).isNull()
+        assertThat(WidgetTelemetryHandler.parseSdkVersionCode("invalid")).isNull()
     }
 
     @Test
@@ -231,7 +211,7 @@ class WidgetTelemetryHandlerTest {
         assertThat(
                 appWidgetManager
                     .getAppWidgetOptions(708)
-                    .getBoolean(WidgetTelemetryHandler.EXTRA_XFF_ENABLED)
+                    .getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_ENABLED)
             )
             .isTrue()
     }
