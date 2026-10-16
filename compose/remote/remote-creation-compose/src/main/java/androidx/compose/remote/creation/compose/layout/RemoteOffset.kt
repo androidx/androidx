@@ -30,15 +30,10 @@ import androidx.compose.remote.creation.compose.state.rf
  * @property x The horizontal displacement.
  * @property y The vertical displacement.
  */
-public class RemoteOffset {
-    public val x: RemoteFloat
-    public val y: RemoteFloat
-
-    public constructor(x: RemoteFloat, y: RemoteFloat) {
-        this.x = x
-        this.y = y
-    }
-
+public class RemoteOffset(
+    public val x: RemoteFloat,
+    public val y: RemoteFloat,
+) {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(x: Float, y: Float) : this(RemoteFloat(x), RemoteFloat(y))
 
