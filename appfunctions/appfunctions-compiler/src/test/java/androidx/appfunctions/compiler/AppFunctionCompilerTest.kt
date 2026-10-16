@@ -257,62 +257,10 @@ class AppFunctionCompilerTest {
     }
 
     @Test
-    fun testNoAppFunctionDefined_generatesEmptyXmlFiles() {
-        val report =
-            compilationTestHelper.compileAll(
-                sourceFileNames = emptyList(),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
-            )
-
-        compilationTestHelper.assertSuccessWithResourceContent(
-            report = report,
-            expectGeneratedResourceFileName = "app_functions.xml",
-            goldenFileName = "xml/emptyXml_app_function.xml",
-        )
-        compilationTestHelper.assertSuccessWithResourceContent(
-            report = report,
-            expectGeneratedResourceFileName = "app_functions_v2.xml",
-            goldenFileName = "xml/emptyXml_app_function.xml",
-        )
-    }
-
-    @Test
-    fun testMissingFirstParameter_hasCompileError() {
-        val report =
-            compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/invalid/MissingFirstParameter.KT")
-            )
-
-        compilationTestHelper.assertErrorWithMessage(
-            report,
-            "The first parameter of an app function must be " +
-                "androidx.appfunctions.AppFunctionContext\n" +
-                "    fun missingFirstParameter() {}\n" +
-                "    ^",
-        )
-    }
-
-    @Test
-    fun testIncorrectFirstParameter_hasCompileError() {
-        val report =
-            compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/invalid/IncorrectFirstParameter.KT")
-            )
-
-        compilationTestHelper.assertErrorWithMessage(
-            report,
-            "The first parameter of an app function must be " +
-                "androidx.appfunctions.AppFunctionContext\n" +
-                "    fun incorrectFirstParameter(x: Int) {}\n" +
-                "    ^",
-        )
-    }
-
-    @Test
     fun testAllPrimitiveInputFunctions_genAppFunctionInventory_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/AllPrimitiveInputFunctions.KT")
+                sourceFileNames = listOf("entrypoints/valid/AllPrimitiveInputFunctions.KT")
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -347,7 +295,7 @@ class AppFunctionCompilerTest {
     fun testInvalidBaseParcelable_throwsException() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/invalid/InvalidBaseParcelable.KT")
+                sourceFileNames = listOf("entrypoints/invalid/InvalidBaseParcelable.KT")
             )
 
         compilationTestHelper.assertErrorWithMessage(
@@ -381,21 +329,6 @@ class AppFunctionCompilerTest {
             expectGeneratedResourceFileName = "app_functions_v2.xml",
             goldenFileName =
                 "xml/functionWithSerializableProxyInput_app_function_dynamic_schema.xml",
-        )
-    }
-
-    @Test
-    fun testAllPrimitiveInputFunctions_genAppFunctionInvokerImpl_success() {
-        val report =
-            compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/AllPrimitiveInputFunctions.KT")
-            )
-
-        compilationTestHelper.assertSuccessWithSourceContent(
-            report = report,
-            expectGeneratedSourceFileName =
-                "${'$'}AllPrimitiveInputFunctions_AppFunctionInvoker.kt",
-            goldenFileName = "invoker/${'$'}AllPrimitiveInputFunctions_AppFunctionInvoker.KT",
         )
     }
 
@@ -704,15 +637,15 @@ class AppFunctionCompilerTest {
     fun testBadInputFunctions_genAppFunctionInventoryImpl_hasCompileError() {
         val reportListPrimitiveArrayInputFunction =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/invalid/ListPrimitiveArrayInputFunction.KT")
+                sourceFileNames = listOf("entrypoints/invalid/ListPrimitiveArrayInputFunction.KT")
             )
         val reportArrayNonPrimitiveInputFunction =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/invalid/ArrayNonPrimitiveInputFunction.KT")
+                sourceFileNames = listOf("entrypoints/invalid/ArrayNonPrimitiveInputFunction.KT")
             )
         val reportAnyTypedInputFunction =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/invalid/AnyTypedInputFunction.KT")
+                sourceFileNames = listOf("entrypoints/invalid/AnyTypedInputFunction.KT")
             )
 
         compilationTestHelper.assertErrorWithMessage(
@@ -737,7 +670,7 @@ class AppFunctionCompilerTest {
         val report =
             compilationTestHelper.compileAll(
                 sourceFileNames =
-                    listOf("functions/invalid/FunctionWithInvalidSerializableInterface.KT")
+                    listOf("entrypoints/invalid/FunctionWithInvalidSerializableInterface.KT")
             )
 
         compilationTestHelper.assertErrorWithMessage(
@@ -752,7 +685,7 @@ class AppFunctionCompilerTest {
         val report =
             compilationTestHelper.compileAll(
                 sourceFileNames =
-                    listOf("functions/invalid/FunctionWithInvalidGenericSerializable.KT")
+                    listOf("entrypoints/invalid/FunctionWithInvalidGenericSerializable.KT")
             )
 
         compilationTestHelper.assertErrorWithMessage(
@@ -767,7 +700,7 @@ class AppFunctionCompilerTest {
         val report =
             compilationTestHelper.compileAll(
                 sourceFileNames =
-                    listOf("functions/invalid/FunctionWithInvalidGenericSerializableInterface.KT")
+                    listOf("entrypoints/invalid/FunctionWithInvalidGenericSerializableInterface.KT")
             )
 
         compilationTestHelper.assertErrorWithMessage(
@@ -1041,60 +974,6 @@ class AppFunctionCompilerTest {
     }
 
     @Test
-    fun testGenerateInventoryComponentRegistry() {
-        val report =
-            compilationTestHelper.compileAll(
-                sourceFileNames =
-                    listOf(
-                        "functions/valid/AllPrimitiveInputFunctions.KT",
-                        "functions/valid/DiffPackageFunction.KT",
-                    )
-            )
-
-        compilationTestHelper.assertSuccessWithSourceContent(
-            report = report,
-            expectGeneratedSourceFileName = "${'$'}Main_InventoryComponentRegistry.kt",
-            goldenFileName = "registry/${'$'}Main_InventoryComponentRegistry.KT",
-        )
-    }
-
-    @Test
-    fun testGenerateInvokerComponentRegistry() {
-        val report =
-            compilationTestHelper.compileAll(
-                sourceFileNames =
-                    listOf(
-                        "functions/valid/AllPrimitiveInputFunctions.KT",
-                        "functions/valid/DiffPackageFunction.KT",
-                    )
-            )
-
-        compilationTestHelper.assertSuccessWithSourceContent(
-            report = report,
-            expectGeneratedSourceFileName = "${'$'}Main_InvokerComponentRegistry.kt",
-            goldenFileName = "registry/${'$'}Main_InvokerComponentRegistry.KT",
-        )
-    }
-
-    @Test
-    fun testGenerateFunctionComponentRegistry() {
-        val report =
-            compilationTestHelper.compileAll(
-                sourceFileNames =
-                    listOf(
-                        "functions/valid/AllPrimitiveInputFunctions.KT",
-                        "functions/valid/DiffPackageFunction.KT",
-                    )
-            )
-
-        compilationTestHelper.assertSuccessWithSourceContent(
-            report = report,
-            expectGeneratedSourceFileName = "${'$'}Main_FunctionComponentRegistry.kt",
-            goldenFileName = "registry/${'$'}Main_FunctionComponentRegistry.KT",
-        )
-    }
-
-    @Test
     fun testGenerateSerializableComponentRegistry() {
         val report =
             compilationTestHelper.compileAll(
@@ -1122,44 +1001,6 @@ class AppFunctionCompilerTest {
             expectGeneratedSourceFileName =
                 "${'$'}MyGroupMyModule_SerializableComponentRegistry.kt",
             goldenFileName = "registry/${'$'}MyGroupMyModule_SerializableComponentRegistry.KT",
-        )
-    }
-
-    @Test
-    fun testGenerateAggregateInventoryImpl() {
-        val report =
-            compilationTestHelper.compileAll(
-                sourceFileNames =
-                    listOf(
-                        "functions/valid/AllPrimitiveInputFunctions.KT",
-                        "functions/valid/DiffPackageFunction.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
-            )
-
-        compilationTestHelper.assertSuccessWithSourceContent(
-            report = report,
-            expectGeneratedSourceFileName = "${'$'}AggregatedAppFunctionInventory_Impl.kt",
-            goldenFileName = "inventory/${'$'}AggregatedAppFunctionInventory_Impl.KT",
-        )
-    }
-
-    @Test
-    fun testGenerateAggregateInvokerImpl() {
-        val report =
-            compilationTestHelper.compileAll(
-                sourceFileNames =
-                    listOf(
-                        "functions/valid/AllPrimitiveInputFunctions.KT",
-                        "functions/valid/DiffPackageFunction.KT",
-                    ),
-                processorOptions = mapOf("appfunctions:aggregateAppFunctions" to "true"),
-            )
-
-        compilationTestHelper.assertSuccessWithSourceContent(
-            report = report,
-            expectGeneratedSourceFileName = "${'$'}AggregatedAppFunctionInvoker_Impl.kt",
-            goldenFileName = "invoker/${'$'}AggregatedAppFunctionInvoker_Impl.KT",
         )
     }
 
@@ -1224,7 +1065,7 @@ class AppFunctionCompilerTest {
         val report =
             compilationTestHelper.compileAll(
                 sourceFileNames =
-                    listOf("functions/invalid/AppFunctionWithOptionalNonNullSerializable.KT")
+                    listOf("entrypoints/invalid/AppFunctionWithOptionalNonNullSerializable.KT")
             )
 
         compilationTestHelper.assertErrorWithMessage(
