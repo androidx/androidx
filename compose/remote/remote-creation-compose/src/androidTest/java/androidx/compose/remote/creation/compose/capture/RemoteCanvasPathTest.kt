@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.capture
 
-import android.graphics.Bitmap
 import android.graphics.Paint
 import android.graphics.Path
 import androidx.compose.remote.core.CoreDocument
@@ -26,6 +25,8 @@ import androidx.compose.remote.core.RecordingRemoteComposeBuffer
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.layout.drawPath
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.geometry.Size
@@ -37,7 +38,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class RecordingCanvasPathTest {
+class RemoteCanvasPathTest {
     private val recordingBuffer = RecordingRemoteComposeBuffer()
     private val profile =
         Profile(
@@ -55,11 +56,10 @@ class RecordingCanvasPathTest {
         }
 
     private val creationState = RemoteComposeCreationState(Size(400f, 400f), profile)
-    private val recordingCanvas =
-        RecordingCanvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888), creationState)
+    private val remoteCanvas = RemoteCanvas(creationState)
 
     private fun inflateOperations(): ArrayList<Operation> {
-        recordingCanvas.flush()
+        remoteCanvas.flush()
         recordingBuffer.writeToBuffer()
         val buffer = creationState.document.buffer
         buffer.buffer.index = 0
@@ -75,7 +75,7 @@ class RecordingCanvasPathTest {
                 moveTo(10f, 10f)
                 lineTo(100f, 100f)
             }
-        recordingCanvas.drawPath(path, Paint())
+        remoteCanvas.drawPath(path, Paint())
 
         // Mutate and clear the path prior to calling flush()
         path.reset()
