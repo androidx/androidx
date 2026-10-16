@@ -74,24 +74,6 @@
     </issue>
 
     <issue
-        id="ModifierNodeElementDataClassWithLambda"
-        message="ModifierNodeElement implementations using a data class with lambda properties will result in incorrect equals implementations"
-        errorLine1="    data class PointerInputElement(val callback: (PointerEvent) -> Unit) :"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/samples/ModifierSamples.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierNodeElementDataClassWithLambda"
-        message="ModifierNodeElement implementations using a data class with lambda properties will result in incorrect equals implementations"
-        errorLine1="    val block: (TraversableBackgroundModifierNode.() -> Unit)?,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/samples/TraverseModifierDemo.kt"/>
-    </issue>
-
-    <issue
         id="ComposableNaming"
         message="Composable functions that return Unit should start with an uppercase letter"
         errorLine1="fun approachLayoutSample() {"

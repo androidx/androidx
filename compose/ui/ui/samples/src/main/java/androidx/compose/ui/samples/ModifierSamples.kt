@@ -375,7 +375,7 @@ fun PointerInputModifierNodeSample() {
         }
     }
 
-    data class PointerInputElement(val callback: (PointerEvent) -> Unit) :
+    class PointerInputElement(val callback: (PointerEvent) -> Unit) :
         ModifierNodeElement<OnPointerEventNode>() {
         override fun create() = OnPointerEventNode(callback)
 
@@ -386,6 +386,16 @@ fun PointerInputModifierNodeSample() {
         override fun InspectorInfo.inspectableProperties() {
             name = "onPointerEvent"
             properties["callback"] = callback
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is PointerInputElement) return false
+            return callback === other.callback
+        }
+
+        override fun hashCode(): Int {
+            return System.identityHashCode(callback)
         }
     }
 

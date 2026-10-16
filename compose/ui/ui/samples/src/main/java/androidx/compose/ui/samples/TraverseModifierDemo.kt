@@ -726,7 +726,7 @@ internal class TraversableBackgroundModifierNode(
  * need to use a custom Modifier.Node, you need to do this. You can think of this like a Virtual
  * DOM.
  */
-private data class DemoCustomTraversableModifierElement(
+private class DemoCustomTraversableModifierElement(
     private val color: Color = Color.Unspecified,
     private val brush: Brush? = null,
     private val alpha: Float,
@@ -750,6 +750,25 @@ private data class DemoCustomTraversableModifierElement(
         properties["alpha"] = alpha
         properties["shape"] = shape
         properties["block"] = block
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DemoCustomTraversableModifierElement) return false
+        if (color != other.color) return false
+        if (brush != other.brush) return false
+        if (alpha != other.alpha) return false
+        if (shape != other.shape) return false
+        return block === other.block
+    }
+
+    override fun hashCode(): Int {
+        var result = color.hashCode()
+        result = 31 * result + (brush?.hashCode() ?: 0)
+        result = 31 * result + alpha.hashCode()
+        result = 31 * result + shape.hashCode()
+        result = 31 * result + (block?.let { System.identityHashCode(it) } ?: 0)
+        return result
     }
 }
 
