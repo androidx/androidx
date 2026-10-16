@@ -37,7 +37,7 @@ import androidx.core.graphics.drawable.IconCompat
 class SpotlightSectionDemoScreen(carContext: CarContext) : Screen(carContext) {
     private val testImage: CarIcon by lazy {
         CarIcon.createOriginalIcon(
-            IconCompat.createWithResource(carContext, R.drawable.test_image_square)
+            IconCompat.createWithResource(carContext, R.drawable.test_android_media)
         )
     }
 
