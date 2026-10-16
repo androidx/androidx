@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.graphics.PixelFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
@@ -122,6 +123,30 @@ class CameraMetadataTest {
             )
         assertThat(streamMap.isOutputSupportedFor(StreamFormat.YUV_420_888)).isTrue()
         assertThat(streamMap.isOutputSupportedFor(StreamFormat.RAW_SENSOR)).isTrue()
+    }
+
+    @Test
+    fun verifyHighEndDeviceTemplate_providesFrontStreamConfigurationMap() {
+        val frontMetadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = CameraId("1"),
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+            )
+
+        val frontStreamMap = frontMetadata[CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP]
+        assertThat(frontStreamMap).isNotNull()
+        assertThat(frontStreamMap!!.getOutputFormats())
+            .containsExactly(
+                StreamFormat(PixelFormat.RGB_888),
+                StreamFormat.RAW_SENSOR,
+                StreamFormat.JPEG,
+                StreamFormat.PRIVATE,
+                StreamFormat.YUV_420_888,
+                StreamFormat.RAW10,
+                StreamFormat.YCBCR_P010,
+                StreamFormat.JPEG_R,
+            )
     }
 
     @Test

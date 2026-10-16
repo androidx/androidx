@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
@@ -45,6 +46,9 @@ public object HighEndDeviceTemplate : DeviceTemplate {
 
     private val defaultStreamConfigurationMap: CameraStreamConfigurationMap =
         createDefaultCameraStreamConfigurationMap()
+
+    private val frontStreamConfigurationMap: CameraStreamConfigurationMap =
+        createFrontCameraStreamConfigurationMap()
 
     private val requiredCharacteristics =
         mapOf(
@@ -881,6 +885,639 @@ public object HighEndDeviceTemplate : DeviceTemplate {
                 ),
         )
 
+    private fun createFrontCameraStreamConfigurationMap(): CameraStreamConfigurationMap =
+        FakeCameraStreamConfigurationMap(
+            outputTable =
+                listOf(
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat(PixelFormat.RGB_888),
+                        Size(550, 310),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat(PixelFormat.RGB_888),
+                        Size(640, 480),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat(PixelFormat.RGB_888),
+                        Size(800, 600),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat(PixelFormat.RGB_888),
+                        Size(1024, 768),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.RAW_SENSOR,
+                        Size(3440, 2448),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(3264, 2448),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(3264, 1836),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(2560, 1920),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(2688, 1512),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1920, 1920),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(2560, 1280),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(2048, 1536),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1920, 1440),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1920, 1080),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(3440, 2448),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(3264, 2448),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(3264, 1836),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(2560, 1920),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(2688, 1512),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1920, 1920),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(2560, 1280),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(2048, 1536),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1920, 1440),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1920, 1080),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1600, 1200),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1920, 960),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1792, 1008),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1440, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1344, 1008),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1280, 960),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1080, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1280, 720),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1024, 768),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1024, 576),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(800, 600),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(720, 480),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(640, 480),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(640, 360),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(352, 288),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(320, 240),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(176, 144),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(3440, 2448),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(3264, 2448),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(3264, 1836),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(2560, 1920),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(2688, 1512),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1920, 1920),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(2560, 1280),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(2048, 1536),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1920, 1440),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1920, 1080),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1600, 1200),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1920, 960),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1792, 1008),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1440, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1344, 1008),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1280, 960),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1080, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1280, 720),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1024, 768),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1024, 576),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(800, 600),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(720, 480),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(640, 480),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(640, 360),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(352, 288),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(320, 240),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(176, 144),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(3440, 2448),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.RAW10,
+                        Size(3440, 2448),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(3264, 2448),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(3264, 1836),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(2560, 1920),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(2688, 1512),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1920, 1920),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(2560, 1280),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(2048, 1536),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1920, 1440),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1920, 1080),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1600, 1200),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1920, 960),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1792, 1008),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1440, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1344, 1008),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1280, 960),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1080, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1280, 720),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1024, 768),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1024, 576),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(800, 600),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(720, 480),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(640, 480),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(640, 360),
+                        minDuration = 16666666L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(352, 288),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(320, 240),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(176, 144),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(3440, 2448),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(3264, 2448),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(3264, 1836),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(2560, 1920),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(2688, 1512),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1920, 1920),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(2560, 1280),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(2048, 1536),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1920, 1440),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1920, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1600, 1200),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1920, 960),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1792, 1008),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1440, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1344, 1008),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1280, 960),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1080, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1280, 720),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1024, 768),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(1024, 576),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(800, 600),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(720, 480),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(640, 480),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(640, 360),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(352, 288),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(320, 240),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(176, 144),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG_R,
+                        Size(3440, 2448),
+                        minDuration = 33333333L,
+                    ),
+                ),
+            outputClassTypes =
+                setOf(
+                    SurfaceHolder::class.java,
+                    SurfaceTexture::class.java,
+                    ImageReader::class.java,
+                ),
+        )
+
     override fun createCameraMetadata(
         cameraId: CameraId,
         lensFacing: Int?,
@@ -905,6 +1542,12 @@ public object HighEndDeviceTemplate : DeviceTemplate {
                 lensFacingOverrides +
                 characteristicsOverrides
 
+        val defaultStreamConfigurationMap =
+            if ((lensFacing ?: LENS_FACING_BACK) == LENS_FACING_FRONT) {
+                frontStreamConfigurationMap
+            } else {
+                this.defaultStreamConfigurationMap
+            }
         val defaultMetadata =
             mapOf(CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP to defaultStreamConfigurationMap)
         val allMetadata = (defaultMetadata + metadataOverrides).filterValues { it != null }
