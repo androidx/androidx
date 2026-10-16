@@ -1,12 +1,10 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionDeclaration
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionSerializableInterface
-
-@AppFunctionSerializable(isDescribedByKDoc = false)
-data class SetField<T>(val value: T)
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
 @AppFunctionSerializableInterface
 interface Note {
@@ -15,10 +13,11 @@ interface Note {
 
 @AppFunctionSerializable(isDescribedByKDoc = false)
 data class UpdateNoteParams(
-    val content: SetField<Note>? = null,
+    val content: Note,
 )
 
-class FunctionWithGenericSerializable {
+@AppFunctionServiceEntryPoint("FunctionWithNestedSerializableInterfaceService", "app_functions_v2")
+abstract class FunctionWithNestedSerializableInterface : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
-    suspend fun test(appFunctionContext: AppFunctionContext, params: UpdateNoteParams) {}
+    suspend fun test(params: UpdateNoteParams) {}
 }

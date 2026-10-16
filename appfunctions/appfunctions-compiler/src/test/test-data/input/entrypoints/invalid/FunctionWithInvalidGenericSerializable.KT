@@ -1,8 +1,9 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionDeclaration
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
 @AppFunctionSerializable(isDescribedByKDoc = false)
 data class SetField<T>(val value: T)
@@ -12,7 +13,8 @@ data class UpdateNoteParams(
     val content: SetField<Byte>? = null, // Unsupported type "Byte"
 )
 
-class FunctionWithGenericSerializable {
+@AppFunctionServiceEntryPoint("FunctionWithGenericSerializableService", "app_functions_v2")
+abstract class FunctionWithGenericSerializable : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
-    suspend fun test(appFunctionContext: AppFunctionContext, params: UpdateNoteParams) {}
+    suspend fun test(params: UpdateNoteParams) {}
 }
