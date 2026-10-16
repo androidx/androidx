@@ -68,7 +68,7 @@ public class MatchmakingRequest(
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
                 isAtLeastSdkExtension23()
         ) {
-            @Suppress("UNUSED_VARIABLE") val unused = this.platformMatchmakingRequest
+            @Suppress("CheckReturnValue") this.platformMatchmakingRequest
         } else {
             require(includedDataSources.isEmpty() || excludedDataSources.isEmpty()) {
                 "Cannot set both includeDataSources and excludeDataSources"
@@ -84,18 +84,16 @@ public class MatchmakingRequest(
                     .addRecordTypes(recordTypes.map { it.toPlatformRecordClass() }.toSet())
                     .apply {
                         if (includedDataSources.isNotEmpty()) {
-                            @Suppress("UNUSED_VARIABLE")
-                            val unused =
-                                setIncludedDataSources(
-                                    includedDataSources.map { it.toPlatformDataOrigin() }.toSet()
-                                )
+                            @Suppress("CheckReturnValue")
+                            setIncludedDataSources(
+                                includedDataSources.map { it.toPlatformDataOrigin() }.toSet()
+                            )
                         }
                         if (excludedDataSources.isNotEmpty()) {
-                            @Suppress("UNUSED_VARIABLE")
-                            val unused =
-                                setExcludedDataSources(
-                                    excludedDataSources.map { it.toPlatformDataOrigin() }.toSet()
-                                )
+                            @Suppress("CheckReturnValue")
+                            setExcludedDataSources(
+                                excludedDataSources.map { it.toPlatformDataOrigin() }.toSet()
+                            )
                         }
                     }
                     .build()

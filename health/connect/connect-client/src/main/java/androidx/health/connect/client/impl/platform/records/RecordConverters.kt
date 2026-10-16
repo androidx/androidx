@@ -925,10 +925,8 @@ private fun ExerciseSessionRecord.toPlatformExerciseSessionRecord(): PlatformExe
             if (isAtLeastSdkExtension13()) {
                 plannedExerciseSessionId?.let { setPlannedExerciseSessionId(it) }
             }
-            if (isAtLeastSdkExtension21()) {
-                rateOfPerceivedExertion?.let {
-                    @Suppress("UNUSED_VARIABLE") val unused = setRateOfPerceivedExertion(it)
-                }
+            if (isAtLeastSdkExtension21() && rateOfPerceivedExertion != null) {
+                @Suppress("CheckReturnValue") setRateOfPerceivedExertion(rateOfPerceivedExertion)
             }
         }
         .build()
@@ -964,14 +962,15 @@ public fun ExerciseSegment.toPlatformExerciseSegment():
         .setRepetitionsCount(repetitions)
         .apply {
             if (isAtLeastSdkExtension21()) {
-                weight?.let {
-                    @Suppress("UNUSED_VARIABLE") val unused = setWeight(it.toPlatformMass())
+                if (weight != null) {
+                    @Suppress("CheckReturnValue") setWeight(weight.toPlatformMass())
                 }
-                setIndex?.let {
-                    @Suppress("UNUSED_VARIABLE") val unused = setSetIndex(it)
+                if (setIndex != null) {
+                    @Suppress("CheckReturnValue") setSetIndex(setIndex)
                 }
-                rateOfPerceivedExertion?.let {
-                    @Suppress("UNUSED_VARIABLE") val unused = setRateOfPerceivedExertion(it)
+                if (rateOfPerceivedExertion != null) {
+                    @Suppress("CheckReturnValue")
+                    setRateOfPerceivedExertion(rateOfPerceivedExertion)
                 }
             }
         }
