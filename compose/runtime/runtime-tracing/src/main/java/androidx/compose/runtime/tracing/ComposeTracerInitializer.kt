@@ -18,10 +18,9 @@ package androidx.compose.runtime.tracing
 
 import android.content.Context
 import androidx.startup.Initializer
-import androidx.tracing.Tracer
 
 internal class ComposeTracerInitializer : Initializer<ComposeTracer> {
-    override fun create(context: Context): ComposeTracer = ComposeTracer(Tracer.global)
+    override fun create(context: Context): ComposeTracer = ComposeTracer()
 
     override fun dependencies(): List<Class<out Initializer<*>?>?> = emptyList()
 }
