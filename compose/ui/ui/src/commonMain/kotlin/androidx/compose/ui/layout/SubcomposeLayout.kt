@@ -20,6 +20,7 @@ import androidx.collection.IntList
 import androidx.collection.MutableOrderedScatterSet
 import androidx.collection.mutableIntListOf
 import androidx.collection.mutableIntSetOf
+import androidx.collection.mutableObjectListOf
 import androidx.collection.mutableOrderedScatterSetOf
 import androidx.collection.mutableScatterMapOf
 import androidx.compose.runtime.Applier
@@ -33,7 +34,6 @@ import androidx.compose.runtime.ReusableComposition
 import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.ShouldPauseCallback
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.mutableStateOf
@@ -559,7 +559,7 @@ internal class LayoutNodeSubcompositionsState(
     // still needs it, the approach pass will be triggered to re-create the composition.
     // The valid slot ids are stored between 0 and currentApproachIndex - 1, beyond index
     // currentApproachIndex are [UnspecifiedSlotId]s.
-    private val slotIdsOfCompositionsNeededInApproach = mutableVectorOf<Any?>()
+    private val slotIdsOfCompositionsNeededInApproach = mutableObjectListOf<Any?>()
 
     /**
      * `root.foldedChildren` list consist of:

@@ -27,7 +27,7 @@ import android.view.View
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Rect
@@ -119,7 +119,7 @@ internal class TextInputServiceAndroid(
      * [inputMethodManager]. The [TextInputCommand]s sent to this channel are processed by
      * [processInputCommands].
      */
-    private val textInputCommandQueue = mutableVectorOf<TextInputCommand>()
+    private val textInputCommandQueue = mutableObjectListOf<TextInputCommand>()
     private var frameCallback: Runnable? = null
     private var scheduledForImmediateDispatch = false
 

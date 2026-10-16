@@ -20,8 +20,6 @@ import androidx.collection.LongSparseArray
 import androidx.collection.MutableLongObjectMap
 import androidx.collection.MutableObjectList
 import androidx.collection.mutableObjectListOf
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -242,7 +240,7 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
  */
 /*@VisibleForTesting*/
 internal open class NodeParent {
-    val children: MutableVector<Node> = mutableVectorOf()
+    val children: MutableObjectList<Node> = mutableObjectListOf()
 
     // Supports removePointerInputModifierNode() function
     private val removeMatchingPointerInputModifierNodeList = MutableObjectList<NodeParent>(10)
@@ -373,7 +371,7 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
 
     // Note: pointerIds are stored in a structure specific to their value type (PointerId).
     // This structure uses a LongArray internally, which avoids auto-boxing caused by
-    // a more generic collection such as HashMap or MutableVector.
+    // a more generic collection such as HashMap or MutableObjectList.
     val pointerIds = PointerIdArray()
 
     /**

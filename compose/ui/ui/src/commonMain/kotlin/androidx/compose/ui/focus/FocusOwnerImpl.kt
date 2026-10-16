@@ -18,7 +18,7 @@ package androidx.compose.ui.focus
 
 import androidx.collection.MutableLongSet
 import androidx.collection.MutableObjectList
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InteractionBarrierNode
@@ -73,7 +73,7 @@ internal class FocusOwnerImpl(
     private val owner: Owner,
 ) : FocusOwner {
 
-    override val activeInteractionBarriers = mutableVectorOf<InteractionBarrierNode>()
+    override val activeInteractionBarriers = mutableObjectListOf<InteractionBarrierNode>()
 
     override fun registerInteractionBarrier(node: InteractionBarrierNode) {
         activeInteractionBarriers.add(node)

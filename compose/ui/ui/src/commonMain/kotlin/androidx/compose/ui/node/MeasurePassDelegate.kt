@@ -17,7 +17,6 @@
 package androidx.compose.ui.node
 
 import androidx.collection.MutableObjectList
-import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.internal.checkPrecondition
@@ -143,10 +142,11 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
 
     override val alignmentLines: AlignmentLines = LayoutNodeAlignmentLines(this)
 
-    private val _childDelegates = MutableVector<MeasurePassDelegate>()
+    private val _childDelegates = MutableObjectList<MeasurePassDelegate>()
 
     internal var childDelegatesDirty: Boolean = true
     internal val childDelegates: List<MeasurePassDelegate>
+        @Suppress("AsCollectionCall") // Passed to MeasurePolicy as List<Measurable>.
         get() {
             // Update the children list first so we know whether the cached list is
             // reusable.
