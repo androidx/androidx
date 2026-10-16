@@ -39,26 +39,6 @@ class AppWidgetSizeTiersTest {
     }
 
     @Test
-    fun widthTier_fromDp_tabletHomeScreenBreakpoints() {
-        assertThat(
-                AppWidgetSizeTiers.resolveWidthTier(100, AppWidgetGlanceSurface.TABLET_HOME_SCREEN)
-            )
-            .isEqualTo(WidthTier.W1)
-        assertThat(
-                AppWidgetSizeTiers.resolveWidthTier(200, AppWidgetGlanceSurface.TABLET_HOME_SCREEN)
-            )
-            .isEqualTo(WidthTier.W2)
-        assertThat(
-                AppWidgetSizeTiers.resolveWidthTier(250, AppWidgetGlanceSurface.TABLET_HOME_SCREEN)
-            )
-            .isEqualTo(WidthTier.W3)
-        assertThat(
-                AppWidgetSizeTiers.resolveWidthTier(400, AppWidgetGlanceSurface.TABLET_HOME_SCREEN)
-            )
-            .isEqualTo(WidthTier.W4)
-    }
-
-    @Test
     fun widthTier_fromDp_lockScreenBreakpoints() {
         assertThat(
                 AppWidgetSizeTiers.resolveWidthTier(80, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)

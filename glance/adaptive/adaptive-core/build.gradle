@@ -29,7 +29,7 @@ plugins {
 
 dependencies {
     api(libs.androidx.annotation)
-    implementation("androidx.collection:collection:1.4.2")
+    api("androidx.collection:collection:1.4.2")
     implementation(libs.kotlinCoroutinesCore)
 
     testImplementation(libs.testCore)

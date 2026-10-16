@@ -105,11 +105,16 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         // Default no-op. Overridden by developers to provide initial or refreshed data.
     }
 
+    // AppWidgetProvider in the platform SDK leaves these parameters unannotated for
+    // backwards source-compatibility with existing Kotlin subclasses that override them
+    // with nullable types. Since GlanceAdaptiveWidgetReceiver is a new Kotlin base class,
+    // we expose non-null parameters to match GlanceAppWidgetReceiver and suppress Metalava's
+    // InvalidNullabilityOverride check.
     @CallSuper
     override fun onUpdate(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray,
+        @Suppress("InvalidNullabilityOverride") context: Context,
+        @Suppress("InvalidNullabilityOverride") appWidgetManager: AppWidgetManager,
+        @Suppress("InvalidNullabilityOverride") appWidgetIds: IntArray,
     ) {
         runAndLogExceptions {
             initializeWidgetOptionsAndIds(appWidgetManager, appWidgetIds)
@@ -164,10 +169,10 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
 
     @CallSuper
     override fun onAppWidgetOptionsChanged(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
+        @Suppress("InvalidNullabilityOverride") context: Context,
+        @Suppress("InvalidNullabilityOverride") appWidgetManager: AppWidgetManager,
         appWidgetId: Int,
-        newOptions: Bundle,
+        @Suppress("InvalidNullabilityOverride") newOptions: Bundle,
     ) {
         runAndLogExceptions {
             super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
@@ -188,7 +193,10 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
      * cleanup.
      */
     @CallSuper
-    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+    override fun onDeleted(
+        @Suppress("InvalidNullabilityOverride") context: Context,
+        @Suppress("InvalidNullabilityOverride") appWidgetIds: IntArray,
+    ) {
         runAndLogExceptions {
             super.onDeleted(context, appWidgetIds)
             WidgetOptionsCache.remove(appWidgetIds)
@@ -196,14 +204,21 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
     }
 
     @CallSuper
-    override fun onRestored(context: Context, oldWidgetIds: IntArray, newWidgetIds: IntArray) {
+    override fun onRestored(
+        @Suppress("InvalidNullabilityOverride") context: Context,
+        @Suppress("InvalidNullabilityOverride") oldWidgetIds: IntArray,
+        @Suppress("InvalidNullabilityOverride") newWidgetIds: IntArray,
+    ) {
         runAndLogExceptions {
             super.onRestored(context, oldWidgetIds, newWidgetIds)
             WidgetOptionsCache.restore(oldWidgetIds, newWidgetIds)
         }
     }
 
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        @Suppress("InvalidNullabilityOverride") context: Context,
+        @Suppress("InvalidNullabilityOverride") intent: Intent,
+    ) {
         runAndLogExceptions {
             when (intent.action) {
                 Intent.ACTION_LOCALE_CHANGED -> {
@@ -233,20 +248,22 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
     public companion object {
         /**
          * Broadcast action to force a debug update of the Glance Adaptive widget via adb: `adb
-         * shell am broadcast -a androidx.glance.adaptive.action.DEBUG_UPDATE -n APP/COMPONENT`
+         * shell am broadcast -a androidx.glance.adaptive.appwidget.action.DEBUG_UPDATE -n
+         * APP/COMPONENT`
          *
          * To target specific widget IDs, pass [AppWidgetManager.EXTRA_APPWIDGET_IDS]: `adb shell am
-         * broadcast -a androidx.glance.adaptive.action.DEBUG_UPDATE -n APP/COMPONENT --eia
-         * appWidgetIds 1,2`
+         * broadcast -a androidx.glance.adaptive.appwidget.action.DEBUG_UPDATE -n APP/COMPONENT
+         * --eia appWidgetIds 1,2`
          */
         public const val ACTION_DEBUG_UPDATE: String =
-            "androidx.glance.adaptive.action.DEBUG_UPDATE"
+            "androidx.glance.adaptive.appwidget.action.DEBUG_UPDATE"
 
         /**
          * Key for storing the developer String instance identifier in [AppWidgetManager] widget
          * options bundle.
          */
-        public const val EXTRA_WIDGET_ID: String = "androidx.glance.adaptive.WIDGET_ID"
+        public const val EXTRA_WIDGET_ID: String =
+            "androidx.glance.adaptive.appwidget.extra.WIDGET_ID"
     }
 }
 

@@ -34,9 +34,7 @@ import androidx.glance.adaptive.core.util.BundleUtils
  * @property surfacePlacements Map of host surfaces to active placement counts for this instance.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WidgetInstanceInfo
-@JvmOverloads
-constructor(
+public class WidgetInstanceInfo(
     public val widgetName: String,
     public val widgetId: String,
     options: Bundle = Bundle(),
