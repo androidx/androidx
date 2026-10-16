@@ -66,6 +66,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -73,6 +74,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -157,6 +159,78 @@ class AndroidGraphicsLayerTest {
             },
             verifySoftwareRender = false, // Only supported in hardware accelerated use cases
         )
+    }
+
+    @Test
+    fun testGraphicsLayerBitmapWithTranslucentContent() {
+        val width = 63
+        val height = 3
+        val bitmapSize = IntSize(width, height)
+        lateinit var layer: GraphicsLayer
+        val rowColors = listOf(Color.Blue, Color.Red, Color.Green).map { it.copy(alpha = 0.5f) }
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(bitmapSize) {
+                            rowColors.forEachIndexed { row, color ->
+                                drawRect(color, Offset(0f, row.toFloat()), Size(size.width, 1f))
+                            }
+                        }
+                    }
+            },
+            verify = {
+                val bitmap: ImageBitmap = layer.toImageBitmap()
+                assertEquals(bitmapSize, IntSize(bitmap.width, bitmap.height))
+                val pixels = IntArray(bitmapSize.width * bitmapSize.height)
+                bitmap.readPixels(pixels)
+                var pixelIdx = 0
+                for (pixel in pixels) {
+                    val currentRow = pixelIdx / bitmap.width
+                    // Colors read back from the bitmap are not premultiplied, so the color
+                    // channels should not be scaled by the alpha
+                    val a = (pixel ushr 24 and 0xff)
+                    val r = (pixel shr 16 and 0xff)
+                    val g = (pixel shr 8 and 0xff)
+                    val b = (pixel and 0xff)
+                    assertEquals(128, a)
+                    assertEquals(if (currentRow == 1) 255 else 0, r)
+                    assertEquals(if (currentRow == 2) 255 else 0, g)
+                    assertEquals(if (currentRow == 0) 255 else 0, b)
+                    pixelIdx++
+                }
+            },
+        )
+    }
+
+    @Test
+    fun testCreateBitmapFromArgb888Buffer() {
+        val width = 5
+        val height = 3
+        val padding = 12
+        val rowStride = width * 4 + padding
+        val buffer = ByteBuffer.allocate(rowStride * height)
+
+        // expected unpadded result
+        val expected = ByteBuffer.allocate(width * 4 * height)
+
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                val i = y * width + x
+                val pixel = byteArrayOf(i.toByte(), i.toByte(), i.toByte(), 128.toByte())
+                buffer.put(pixel)
+                expected.put(pixel)
+            }
+            // should be discarded in the resultant bitmap buffer
+            repeat(padding) { buffer.put(0x5A.toByte()) }
+        }
+        buffer.rewind()
+
+        val bitmap = createBitmapFromRgba8888(buffer, width, height, rowStride)
+
+        val actual = ByteBuffer.allocate(bitmap.byteCount)
+        bitmap.copyPixelsToBuffer(actual)
+        assertArrayEquals(expected.array(), actual.array())
     }
 
     @Test

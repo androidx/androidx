@@ -17,6 +17,7 @@
 package androidx.compose.ui.graphics.layer
 
 import android.graphics.Bitmap
+import android.graphics.Bitmap.createBitmap
 import android.graphics.Canvas
 import android.graphics.Picture
 import android.graphics.PixelFormat
@@ -26,10 +27,12 @@ import android.media.ImageReader
 import android.os.Build
 import android.os.Looper
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.graphics.Canvas as ComposeCanvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.os.HandlerCompat
+import java.nio.ByteBuffer
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -107,7 +110,7 @@ internal object LayerSnapshotV22 : LayerSnapshotImpl {
 internal object LayerSnapshotV21 : LayerSnapshotImpl {
     override suspend fun toBitmap(graphicsLayer: GraphicsLayer): Bitmap {
         val size = graphicsLayer.size
-        val bitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
         val canvas = ComposeCanvas(Canvas(bitmap))
         graphicsLayer.draw(canvas, null)
         return bitmap
@@ -115,22 +118,33 @@ internal object LayerSnapshotV21 : LayerSnapshotImpl {
 }
 
 private fun Image.toBitmap(): Bitmap {
-    planes!!.let {
-        val plane = it[0]
-        val pixelCount = width * height
-        val colors = IntArray(pixelCount)
-        // Do a bulk copy as it is more efficient than buffer.get then rearrange the pixels
-        // in memory from RGBA to ARGB for bitmap consumption
-        plane.buffer.asIntBuffer().get(colors)
-        for (i in 0 until pixelCount) {
-            val color = colors[i]
-            val red = color and 0xff
-            val green = color shr 8 and 0xff
-            val blue = color shr 16 and 0xff
-            val alpha = color shr 24 and 0xff
-            colors[i] = Color(red, green, blue, alpha).toArgb()
-        }
+    val plane = planes!![0]
+    return createBitmapFromRgba8888(plane.buffer, width, height, plane.rowStride)
+}
 
-        return Bitmap.createBitmap(colors, width, height, android.graphics.Bitmap.Config.ARGB_8888)
+@VisibleForTesting
+internal fun createBitmapFromRgba8888(
+    buffer: ByteBuffer,
+    width: Int,
+    height: Int,
+    rowStride: Int,
+): Bitmap {
+    val bitmap = createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val rowBytes = width * 4
+    if (rowStride == rowBytes) {
+        buffer.rewind()
+        bitmap.copyPixelsFromBuffer(buffer)
+    } else {
+        val packed = ByteBuffer.allocateDirect(rowBytes * height)
+        for (row in 0 until height) {
+            val rowStart = row * rowStride
+            buffer.limit(rowStart + rowBytes)
+            buffer.position(rowStart)
+            packed.put(buffer)
+        }
+        buffer.clear()
+        packed.rewind()
+        bitmap.copyPixelsFromBuffer(packed)
     }
+    return bitmap
 }
