@@ -124,6 +124,12 @@ public open class PickMultipleVisualMedia(private val maxItems: Int = getMaxItem
                         putExtra(MediaStore.EXTRA_REQUEST_LOCATION_METADATA_ACCESS, true)
                     }
                 }
+
+                if (PickVisualMedia.arePhotoPickerSelectionParamsAvailable()) {
+                    input.selectionParams?.toPhotoPickerSelectionParams()?.let { selectionParams ->
+                        putExtra(MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS, selectionParams)
+                    }
+                }
             }
         } else if (PickVisualMedia.isSystemFallbackPickerAvailable(context)) {
             val fallbackPicker =
