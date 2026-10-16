@@ -251,6 +251,8 @@ internal class SharedMutableTransformState {
                     } else {
                         MutationPhase.MutatingPendingCatchUp
                     }
+                scaleVelocityTracker?.resetTracking()
+                offsetVelocityTracker?.resetTracking()
                 scaleHandoffVelocity = null
                 slideHandoffVelocity = null
             }
