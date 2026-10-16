@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalComposeUiHostApi::class)
+
 package androidx.compose.ui.viewinterop
 
 import android.content.Context
@@ -51,10 +53,11 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ObservationTarget
 import androidx.compose.ui.node.Owner
-import androidx.compose.ui.node.OwnerScope
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.platform.AndroidComposeView
+import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.composeToViewOffset
 import androidx.compose.ui.platform.compositionContext
@@ -100,7 +103,7 @@ internal open class AndroidViewHolder(
     ViewGroup(context),
     NestedScrollingParent3,
     ComposeNodeLifecycleCallback,
-    OwnerScope,
+    ObservationTarget,
     OnApplyWindowInsetsListener {
 
     init {
@@ -229,7 +232,7 @@ internal open class AndroidViewHolder(
 
     private var isDrawing = false
 
-    override val isValidOwnerScope: Boolean
+    override val isObservationValid: Boolean
         get() = isAttachedToWindow
 
     override fun getAccessibilityClassName(): CharSequence {
