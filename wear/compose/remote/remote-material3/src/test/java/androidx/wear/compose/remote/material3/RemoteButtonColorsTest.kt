@@ -161,4 +161,30 @@ class RemoteButtonColorsTest {
         assertEquals(Color.Transparent, colors.containerColor.constantValue)
         assertEquals(Color.Transparent, colors.disabledContainerColor.constantValue)
     }
+
+    @Test
+    fun filledTonalButtonColors_defaultsIconColorToPrimary() {
+        lateinit var colors: RemoteButtonColors
+        val expectedPrimary = Color.Yellow.rc
+        composeTestRule.setContent {
+            RemoteMaterialTheme(colorScheme = RemoteColorScheme().copy(primary = expectedPrimary)) {
+                colors = RemoteButtonDefaults.filledTonalButtonColors()
+            }
+        }
+
+        assertEquals(expectedPrimary.constantValue, colors.iconColor.constantValue)
+    }
+
+    @Test
+    fun outlinedButtonColors_defaultsIconColorToPrimary() {
+        lateinit var colors: RemoteButtonColors
+        val expectedPrimary = Color.Yellow.rc
+        composeTestRule.setContent {
+            RemoteMaterialTheme(colorScheme = RemoteColorScheme().copy(primary = expectedPrimary)) {
+                colors = RemoteButtonDefaults.outlinedButtonColors()
+            }
+        }
+
+        assertEquals(expectedPrimary.constantValue, colors.iconColor.constantValue)
+    }
 }

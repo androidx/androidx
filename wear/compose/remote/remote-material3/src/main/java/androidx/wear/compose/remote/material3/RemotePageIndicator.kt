@@ -97,11 +97,13 @@ public fun rememberRemotePageIndicatorState(
 public object RemotePageIndicatorDefaults {
     /** Default color of the selected page indicator. */
     public val selectedColor: RemoteColor
-        @Composable @RemoteComposable get() = RemoteMaterialTheme.colorScheme.onSurface
+        @Composable @RemoteComposable get() = RemoteMaterialTheme.colorScheme.onBackground
 
     /** Default color of unselected page indicators. */
     public val unselectedColor: RemoteColor
-        @Composable @RemoteComposable get() = RemoteMaterialTheme.colorScheme.onSurfaceVariant
+        @Composable
+        @RemoteComposable
+        get() = RemoteMaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f.rf)
 
     /** Default color of the indicator background. */
     public val backgroundColor: RemoteColor
