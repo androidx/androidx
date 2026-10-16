@@ -70,7 +70,6 @@ import androidx.compose.remote.core.operations.TextLookupInt
 import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.TextMerge
 import androidx.compose.remote.core.operations.TextSubtext
-import androidx.compose.ui.util.fastForEach
 
 /** Utility for getting summary information about a [CoreDocument]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

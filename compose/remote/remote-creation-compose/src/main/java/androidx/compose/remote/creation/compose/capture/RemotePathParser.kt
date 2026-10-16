@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.state.sin
 import androidx.compose.remote.creation.compose.state.sqrt
 import androidx.compose.remote.creation.compose.state.tan
 import androidx.compose.remote.creation.compose.state.toRad
+import androidx.compose.remote.creation.compose.util.fastForEach
 import androidx.compose.remote.creation.compose.vector.RemotePathExtensions
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.AddArc
@@ -53,7 +54,6 @@ import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeRe
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeReflectiveQuadTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeVerticalTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.VerticalTo
-import androidx.compose.ui.util.fastForEach
 import kotlin.math.PI
 
 internal fun List<RemotePathNode>.toRemotePath(
