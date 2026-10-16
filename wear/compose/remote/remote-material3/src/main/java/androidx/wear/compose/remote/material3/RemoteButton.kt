@@ -415,7 +415,7 @@ public fun RemoteCompactButton(
                     RemoteBox(
                         modifier = RemoteModifier.wrapContentSize(),
                         contentAlignment = RemoteAlignment.Center,
-                        content = icon,
+                        content = provideScopeContent(colors.iconColor(enabled = enabled), icon),
                     )
                     RemoteBox(RemoteModifier.size(RemoteButtonDefaults.CompactButtonIconSpacing))
                 }
@@ -458,7 +458,7 @@ public fun RemoteCompactButton(
                     contentAlignment = RemoteAlignment.Center,
                 ) {
                     if (icon != null) {
-                        icon()
+                        provideScopeContent(colors.iconColor(enabled = enabled), icon)()
                     }
                 }
             }
@@ -569,7 +569,7 @@ private fun RemoteButtonImpl(
             RemoteBox(
                 modifier = RemoteModifier.wrapContentSize(),
                 contentAlignment = RemoteAlignment.Center,
-                content = icon,
+                content = provideScopeContent(colors.iconColor(enabled = enabled), icon),
             )
             RemoteBox(RemoteModifier.size(iconSpacing))
         }
@@ -997,7 +997,7 @@ public object RemoteButtonDefaults {
                 containerColor = surfaceContainer,
                 contentColor = onSurface,
                 secondaryContentColor = onSurfaceVariant,
-                iconColor = onSurface,
+                iconColor = primary,
                 disabledContainerColor = onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
                 disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
                 disabledSecondaryContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
@@ -1027,7 +1027,7 @@ public object RemoteButtonDefaults {
                 containerColor = Color.Transparent.rc,
                 contentColor = onSurface,
                 secondaryContentColor = onSurfaceVariant,
-                iconColor = onSurface,
+                iconColor = primary,
                 disabledContainerColor = Color.Transparent.rc,
                 disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
                 disabledSecondaryContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
@@ -1167,6 +1167,11 @@ public class RemoteButtonColors(
             ifTrue = secondaryContentColor,
             ifFalse = disabledSecondaryContentColor,
         )
+    }
+
+    @Stable
+    internal fun iconColor(enabled: RemoteBoolean = true.rb): RemoteColor {
+        return enabled.select(ifTrue = iconColor, ifFalse = disabledIconColor)
     }
 
     /**
