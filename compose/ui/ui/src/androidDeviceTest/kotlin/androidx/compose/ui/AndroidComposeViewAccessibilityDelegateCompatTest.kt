@@ -958,6 +958,41 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
+    fun sendContentChange_whenMergingNodeDeletesPropertyStillSetByChild() {
+        // Arrange.
+        var parentHasDescription by mutableStateOf(true)
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).semantics(mergeDescendants = true) {
+                    testTag = tag
+                    if (parentHasDescription) contentDescription = "parent"
+                }
+            ) {
+                Box(Modifier.size(5.dp).semantics { contentDescription = "child" })
+            }
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+        dispatchedAccessibilityEvents.clear()
+
+        // Act: the merged configuration still has a content description (from the child), but the
+        // node's own configuration no longer does.
+        rule.runOnIdle { parentHasDescription = false }
+        rule.runOnIdle { rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs) }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(
+                    dispatchedAccessibilityEvents.any {
+                        it.eventType == TYPE_WINDOW_CONTENT_CHANGED &&
+                            it.contentChangeTypes == CONTENT_CHANGE_TYPE_UNDEFINED
+                    }
+                )
+                .isTrue()
+        }
+    }
+
+    @Test
     fun testPopulateAccessibilityNodeInfoProperties_SeekBar() {
         // Arrange.
         val setProgressActionLabel = "setProgress"

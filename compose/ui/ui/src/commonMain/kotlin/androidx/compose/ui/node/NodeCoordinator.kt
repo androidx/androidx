@@ -1188,6 +1188,16 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         sourceCoordinates: LayoutCoordinates,
         clipBounds: Boolean,
     ): Rect {
+        val bounds = rectCache
+        localBoundingBoxOf(sourceCoordinates, bounds, clipBounds)
+        return bounds.toRect()
+    }
+
+    internal fun localBoundingBoxOf(
+        sourceCoordinates: LayoutCoordinates,
+        bounds: MutableRect,
+        clipBounds: Boolean = true,
+    ) {
         checkPrecondition(isAttached) { ExpectAttachedLayoutCoordinates }
         checkPrecondition(sourceCoordinates.isAttached) {
             "LayoutCoordinates $sourceCoordinates is not attached!"
@@ -1196,7 +1206,6 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         srcCoordinator.onCoordinatesUsed()
         val commonAncestor = findCommonAncestor(srcCoordinator)
 
-        val bounds = rectCache
         bounds.left = 0f
         bounds.top = 0f
         bounds.right = sourceCoordinates.size.width.toFloat()
@@ -1206,14 +1215,14 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         while (coordinator !== commonAncestor) {
             coordinator.rectInParent(bounds, clipBounds)
             if (bounds.isEmpty) {
-                return Rect.Zero
+                bounds.set(0f, 0f, 0f, 0f)
+                return
             }
 
             coordinator = coordinator.wrappedBy!!
         }
 
         ancestorToLocal(commonAncestor, bounds, clipBounds)
-        return bounds.toRect()
     }
 
     private fun ancestorToLocal(
@@ -1758,12 +1767,12 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
                         isInLayer,
                     )
 
+                @OptIn(ExperimentalComposeUiApi::class, ExperimentalComposeUiHostApi::class)
                 override fun shouldHitTest(node: Modifier.Node): Boolean {
-                    @OptIn(ExperimentalComposeUiApi::class)
                     if (!ComposeUiFlags.isSkipNonImportantSemanticsNodesHitTestEnabled) return true
 
                     return SemanticsNode(node.requireLayoutNode(), mergingEnabled = false)
-                        .isImportantForAccessibility()
+                        .isImportantForAccessibility
                 }
 
                 override fun shareWithSiblings(
