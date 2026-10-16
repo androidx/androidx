@@ -527,6 +527,10 @@ public class CustomTabsClient {
             public void extraCallback(final String callbackName, final Bundle args)
                     throws RemoteException {
                 if (callback == null) return;
+                if (callbackName == null) {
+                    Log.w(TAG, "extraCallback called with null callbackName.");
+                    return;
+                }
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -537,10 +541,14 @@ public class CustomTabsClient {
 
             @Override
             @SuppressWarnings("NullAway") // TODO: b/141869399
-            public Bundle extraCallbackWithResult(@NonNull String callbackName,
+            public Bundle extraCallbackWithResult(@Nullable String callbackName,
                     @Nullable Bundle args)
                     throws RemoteException {
                 if (callback == null) return null;
+                if (callbackName == null) {
+                    Log.w(TAG, "extraCallbackWithResult called with null callbackName.");
+                    return null;
+                }
                 return callback.extraCallbackWithResult(callbackName, args);
             }
 
@@ -560,6 +568,10 @@ public class CustomTabsClient {
             public void onPostMessage(final String message, final Bundle extras)
                     throws RemoteException {
                 if (callback == null) return;
+                if (message == null) {
+                    Log.w(TAG, "onPostMessage called with null message.");
+                    return;
+                }
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -570,9 +582,14 @@ public class CustomTabsClient {
 
             @Override
             public void onRelationshipValidationResult(
-                    final @CustomTabsService.Relation int relation, final Uri requestedOrigin,
+                    final @CustomTabsService.Relation int relation,
+                    final @Nullable Uri requestedOrigin,
                     final boolean result, final @Nullable Bundle extras) throws RemoteException {
                 if (callback == null) return;
+                if (requestedOrigin == null) {
+                    Log.w(TAG, "onRelationshipValidationResult called with null requestedOrigin.");
+                    return;
+                }
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -587,8 +604,11 @@ public class CustomTabsClient {
                     final @Nullable Bundle extras)
                     throws RemoteException {
                 if (callback == null) return;
+                if (extras == null) {
+                    Log.w(TAG, "onActivityResized called with null extras.");
+                    return;
+                }
                 mHandler.post(new Runnable() {
-                    @SuppressWarnings("NullAway") // b/316641009
                     @Override
                     public void run() {
                         callback.onActivityResized(height, width, extras);
@@ -597,8 +617,12 @@ public class CustomTabsClient {
             }
 
             @Override
-            public void onWarmupCompleted(final @NonNull Bundle extras) throws RemoteException {
+            public void onWarmupCompleted(final @Nullable Bundle extras) throws RemoteException {
                 if (callback == null) return;
+                if (extras == null) {
+                    Log.w(TAG, "onWarmupCompleted called with null extras.");
+                    return;
+                }
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -610,9 +634,13 @@ public class CustomTabsClient {
             @Override
             public void onActivityLayout(final int left, final int top, final int right,
                     final int bottom, @CustomTabsCallback.ActivityLayoutState int state,
-                    @NonNull Bundle extras)
+                    @Nullable Bundle extras)
                     throws RemoteException {
                 if (callback == null) return;
+                if (extras == null) {
+                    Log.w(TAG, "onActivityLayout called with null extras.");
+                    return;
+                }
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -622,8 +650,12 @@ public class CustomTabsClient {
             }
 
             @Override
-            public void onMinimized(@NonNull Bundle extras) throws RemoteException {
+            public void onMinimized(@Nullable Bundle extras) throws RemoteException {
                 if (callback == null) return;
+                if (extras == null) {
+                    Log.w(TAG, "onMinimized called with null extras.");
+                    return;
+                }
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -633,9 +665,13 @@ public class CustomTabsClient {
             }
 
             @Override
-            public void onUnminimized(@NonNull Bundle extras)
+            public void onUnminimized(@Nullable Bundle extras)
                     throws RemoteException {
                 if (callback == null) return;
+                if (extras == null) {
+                    Log.w(TAG, "onUnminimized called with null extras.");
+                    return;
+                }
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
