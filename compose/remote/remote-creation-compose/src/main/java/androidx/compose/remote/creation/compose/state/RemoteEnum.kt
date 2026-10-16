@@ -293,6 +293,15 @@ public inline fun <reified T : Enum<T>> rememberNamedRemoteEnum(
     return rememberNamedRemoteEnum(name, initialValue, enumEntries(), domain)
 }
 
+/**
+ * Remembers a named remote enum expression using the provided [enumEntries].
+ *
+ * @param name A unique name to identify this state within its [domain].
+ * @param initialValue The initial [Enum] value.
+ * @param enumEntries The [EnumEntries] containing all values of the enum.
+ * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+ * @return A [RemoteEnum] instance representing the named expression.
+ */
 @Composable
 @RemoteComposable
 public fun <T : Enum<T>> rememberNamedRemoteEnum(

@@ -82,5 +82,10 @@ public class ClipModifier(public val shape: RemoteShape = RemoteRectangleShape) 
     }
 }
 
+/**
+ * Clips the content to [shape].
+ *
+ * @param shape The [RemoteShape] to clip the content to.
+ */
 public fun RemoteModifier.clip(shape: RemoteShape = RemoteRectangleShape): RemoteModifier =
     then(ClipModifier(shape))

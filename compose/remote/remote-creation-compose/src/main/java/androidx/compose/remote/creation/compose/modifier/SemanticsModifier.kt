@@ -57,6 +57,12 @@ internal constructor(
  * pairs primarily via extension functions.
  */
 public interface SemanticsPropertyReceiver {
+    /**
+     * Sets the semantics property [key] to [value].
+     *
+     * @param key The [SemanticsPropertyKey] to set.
+     * @param value The value to associate with [key].
+     */
     public operator fun <T> set(key: SemanticsPropertyKey<T>, value: T?)
 
     @Suppress("HiddenAbstractMethodInInterface")
@@ -66,12 +72,21 @@ public interface SemanticsPropertyReceiver {
 
 /** General semantics properties, mainly used for accessibility and testing. */
 public object SemanticsProperties {
+    /** Semantics property key for [SemanticsPropertyReceiver.contentDescription]. */
     public val ContentDescription: SemanticsPropertyKey<RemoteString> =
         SemanticsPropertyKey("ContentDescription")
+
+    /** Semantics property key for [SemanticsPropertyReceiver.role]. */
     public val Role: SemanticsPropertyKey<Role> = SemanticsPropertyKey("Role")
+
+    /** Semantics property key for [SemanticsPropertyReceiver.text]. */
     public val Text: SemanticsPropertyKey<RemoteString> = SemanticsPropertyKey("Text")
+
+    /** Semantics property key for [SemanticsPropertyReceiver.stateDescription]. */
     public val StateDescription: SemanticsPropertyKey<RemoteString> =
         SemanticsPropertyKey("StateDescription")
+
+    /** Semantics property key for [SemanticsPropertyReceiver.enabled]. */
     public val Enabled: SemanticsPropertyKey<Boolean> = SemanticsPropertyKey("Enabled")
 }
 

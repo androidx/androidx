@@ -52,6 +52,7 @@ public enum class RemoteDensityBehavior(internal val value: Int) {
  * @property density The Compose [Density] of the virtual display.
  * @property isInspectionMode Whether the capture is happening in an inspection or preview
  *   environment (e.g. inside an IDE preview). Defaults to false.
+ * @property densityBehavior The [RemoteDensityBehavior] to use for interpreting dimension values.
  */
 public class RemoteCreationDisplayInfo
 internal constructor(

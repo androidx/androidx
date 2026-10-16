@@ -68,7 +68,11 @@ internal constructor(public val value: RemoteFloat, public val type: TextUnitTyp
         return toPx(creationState.remoteDensity).writeToDocument(creationState)
     }
 
-    /** Converts this [RemoteTextUnit] to pixels using the provided [density]. */
+    /**
+     * Converts this [RemoteTextUnit] to pixels using the provided [density].
+     *
+     * @param density The [RemoteDensity] used to convert this [RemoteTextUnit] to pixels.
+     */
     public fun toPx(density: RemoteDensity): RemoteFloat {
         checkTextUnit()
         val constValue = value.constantValueOrNull

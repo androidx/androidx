@@ -64,7 +64,7 @@ import androidx.compose.ui.graphics.StrokeCap
  *   track color.
  * @param strokeWidth The stroke width for the progress indicator. Defaults to
  *   [RemoteProgressIndicatorDefaults.DefaultStrokeWidth].
- * @param gapSize The size (in RemoteDp) of the gap between the ends of the progress indicator and
+ * @param gapSize The size (in [RemoteDp]) of the gap between the ends of the progress indicator and
  *   the track. The stroke endcaps are not included in this distance.
  */
 @RemoteComposable
@@ -98,7 +98,7 @@ public fun RemoteCircularProgressIndicator(
  * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
  *   track color.
  * @param strokeWidth The stroke width for the progress indicator.
- * @param gapSize The size (in RemoteDp) of the gap between the ends of the progress indicator and
+ * @param gapSize The size (in [RemoteDp]) of the gap between the ends of the progress indicator and
  *   the track.
  */
 @RemoteComposable
@@ -277,10 +277,26 @@ public object RemoteProgressIndicatorDefaults {
     @RemoteComposable
     public fun colors(): RemoteProgressIndicatorColors = defaultProgressIndicatorColors()
 
-    /** Returns recommended size of the gap based on `strokeWidth`. */
+    /**
+     * Returns recommended size of the gap based on [strokeWidth].
+     *
+     * @param strokeWidth The stroke width of the progress indicator.
+     */
     public fun calculateRecommendedGapSize(strokeWidth: RemoteDp): RemoteDp = strokeWidth / 3f.rf
 
-    /** Creates a [RemoteProgressIndicatorColors] with modified colors. */
+    /**
+     * Creates a [RemoteProgressIndicatorColors] with modified colors.
+     *
+     * @param indicatorColor The indicator color when enabled, or `null` to use the theme default.
+     * @param trackColor The track color when enabled, or `null` to use the theme default.
+     * @param overflowTrackColor The overflow track color when enabled, or `null` to use the theme
+     *   default.
+     * @param disabledIndicatorColor The indicator color when disabled, or `null` to use the theme
+     *   default.
+     * @param disabledTrackColor The track color when disabled, or `null` to use the theme default.
+     * @param disabledOverflowTrackColor The overflow track color when disabled, or `null` to use
+     *   the theme default.
+     */
     @Composable
     @RemoteComposable
     public fun colors(
@@ -311,7 +327,17 @@ public object RemoteProgressIndicatorDefaults {
         )
     }
 
-    /** Creates a [RemoteProgressIndicatorColors] with modified brushes. */
+    /**
+     * Creates a [RemoteProgressIndicatorColors] with modified brushes.
+     *
+     * @param indicatorBrush The [RemoteBrush] used to draw the indicator when enabled.
+     * @param trackBrush The [RemoteBrush] used to draw the track when enabled.
+     * @param overflowTrackBrush The [RemoteBrush] used to draw the overflow track when enabled.
+     * @param disabledIndicatorBrush The [RemoteBrush] used to draw the indicator when disabled.
+     * @param disabledTrackBrush The [RemoteBrush] used to draw the track when disabled.
+     * @param disabledOverflowTrackBrush The [RemoteBrush] used to draw the overflow track when
+     *   disabled.
+     */
     @Composable
     @RemoteComposable
     public fun colors(
@@ -354,7 +380,17 @@ public object RemoteProgressIndicatorDefaults {
     }
 }
 
-/** Represents the indicator and track colors used in progress indicator in a remote context. */
+/**
+ * Represents the indicator and track colors used in progress indicator in a remote context.
+ *
+ * @param indicatorBrush The [RemoteBrush] used to draw the indicator when enabled.
+ * @param trackBrush The [RemoteBrush] used to draw the track when enabled.
+ * @param overflowTrackBrush The [RemoteBrush] used to draw the overflow track when enabled.
+ * @param disabledIndicatorBrush The [RemoteBrush] used to draw the indicator when disabled.
+ * @param disabledTrackBrush The [RemoteBrush] used to draw the track when disabled.
+ * @param disabledOverflowTrackBrush The [RemoteBrush] used to draw the overflow track when
+ *   disabled.
+ */
 public class RemoteProgressIndicatorColors(
     public val indicatorBrush: RemoteBrush,
     public val trackBrush: RemoteBrush,

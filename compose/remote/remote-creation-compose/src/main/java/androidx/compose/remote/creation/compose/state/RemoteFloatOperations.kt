@@ -150,7 +150,11 @@ public fun pow(a: Float, b: RemoteFloat): RemoteFloat =
 public fun pow(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
     binaryOp(a, b, RemoteFloat.OperationKey.Pow) { a, b -> a.pow(b) }
 
-/** Returns the positive square root of the given [RemoteFloat]. */
+/**
+ * Returns the positive square root of the given [RemoteFloat].
+ *
+ * @param a The [RemoteFloat] whose square root is to be computed.
+ */
 public fun sqrt(a: RemoteFloat): RemoteFloat =
     a.unaryOp(RemoteFloat.OperationKey.Sqrt) { a -> sqrt(a) }
 
@@ -189,20 +193,26 @@ public fun copySign(a: Float, b: RemoteFloat): RemoteFloat =
 public fun copySign(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
     binaryOp(a, b, RemoteFloat.OperationKey.CopySign) { a, b -> Math.copySign(a, b) }
 
-/** Returns Euler's number `e` raised to the power of the given [RemoteFloat] value [a]. */
+/**
+ * Returns Euler's number `e` raised to the power of [a].
+ *
+ * @param a The exponent to raise `e` to.
+ */
 public fun exp(a: RemoteFloat): RemoteFloat =
     a.unaryOp(RemoteFloat.OperationKey.Exp) { a -> exp(a) }
 
 /**
- * Returns the smallest [RemoteFloat] that is greater than or equal to [a] and is a mathematical
- * integer.
+ * Returns the smallest mathematical integer [RemoteFloat] greater than or equal to [a].
+ *
+ * @param a The [RemoteFloat] value to round up.
  */
 public fun ceil(a: RemoteFloat): RemoteFloat =
     a.unaryOp(RemoteFloat.OperationKey.Ceil) { a -> ceil(a) }
 
 /**
- * Returns the largest (closest to positive infinity) [RemoteFloat] value that is less than or equal
- * to [a] and is equal to a mathematical integer.
+ * Returns the largest mathematical integer [RemoteFloat] less than or equal to [a].
+ *
+ * @param a The [RemoteFloat] value to round down.
  */
 public fun floor(a: RemoteFloat): RemoteFloat =
     a.unaryOp(RemoteFloat.OperationKey.Floor) { a -> floor(a) }
@@ -215,6 +225,11 @@ public fun floor(a: RemoteFloat): RemoteFloat =
 public fun log(a: RemoteFloat): RemoteFloat =
     a.unaryOp(RemoteFloat.OperationKey.Log) { a -> log10(a) }
 
+/**
+ * Computes the natural logarithm (base `e`) of the [RemoteFloat] [a].
+ *
+ * @param a The value whose natural logarithm is to be computed.
+ */
 public fun ln(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloat.OperationKey.Ln) { a -> ln(a) }
 
 /**
@@ -296,7 +311,11 @@ public fun atan2(a: Float, b: RemoteFloat): RemoteFloat =
 public fun atan2(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
     binaryOp(a, b, RemoteFloat.OperationKey.Atan2) { a, b -> atan2(a, b) }
 
-/** Returns the cube root of a [RemoteFloat]. */
+/**
+ * Returns the cube root of a [RemoteFloat].
+ *
+ * @param a The [RemoteFloat] whose cube root is to be computed.
+ */
 public fun cbrt(a: RemoteFloat): RemoteFloat =
     a.unaryOp(RemoteFloat.OperationKey.Cbrt) { a -> cbrt(a) }
 
@@ -309,7 +328,11 @@ public fun cbrt(a: RemoteFloat): RemoteFloat =
 public fun toDeg(a: RemoteFloat): RemoteFloat =
     a.unaryOp(RemoteFloat.OperationKey.ToDeg) { a -> a * FP_TO_RAD }
 
-/** Converts the given [RemoteFloat] value in degrees to radians. */
+/**
+ * Converts the given [RemoteFloat] value in degrees to radians.
+ *
+ * @param a An angle in degrees.
+ */
 public fun toRad(a: RemoteFloat): RemoteFloat =
     a.unaryOp(RemoteFloat.OperationKey.ToRad) { a -> a * FP_TO_DEG }
 
