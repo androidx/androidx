@@ -23,6 +23,7 @@ import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.runtime.math.toDegrees
 import androidx.xr.scenecore.runtime.ActivitySpace
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
@@ -115,6 +116,74 @@ internal fun isValidSceneParentTransform(matrix: Matrix4): Boolean {
     }
     val relativeError = (maxScale - minScale) / maxScale
     return relativeError <= MAX_SCENE_PARENT_SCALE_RELATIVE_ERROR
+}
+
+/**
+ * Extracts a gravity-aligned yaw rotation, avoiding gimbal lock near vertical poles (pitch = ±90°).
+ *
+ * Standard Euler yaw (`eulerAngles.y`) becomes unstable when looking nearly straight up or down
+ * because the horizontal projection of the Forward (-Z) vector approaches zero. To maintain
+ * stability:
+ * - Normal pitch: Yaw is computed from the horizontal projection of Forward (-Z).
+ * - Vertical poles: Yaw smoothly blends into being derived from the device's Up (+Y) vector, which
+ *   remains well-behaved horizontally at extreme pitch angles.
+ */
+internal fun gravityAlignedYawRotation(rotation: Quaternion): Quaternion {
+    val polarBlendThreshold = 0.15f // ~8.6 degrees from vertical poles
+    val exactPoleEpsilon = 1e-4f
+
+    val forward = rotation * Vector3.Forward
+    val r = kotlin.math.hypot(forward.x, forward.z)
+
+    // In OpenXR/SceneCore, -Z is forward. We measure angle around Y relative to negative Z axis.
+    val angleFwd = kotlin.math.atan2(-forward.x, -forward.z)
+
+    val yawRad =
+        if (r >= polarBlendThreshold) {
+            // Standard pitch: Horizontal forward vector magnitude is large enough for stable yaw
+            angleFwd
+        } else {
+            // Compute Up vector transforms when approaching vertical poles (>81.4 deg pitch)
+            val up = rotation * Vector3.Up
+            val upHorizontal = kotlin.math.hypot(up.x, up.z)
+            if (upHorizontal < exactPoleEpsilon) {
+                angleFwd
+            } else {
+                // When pointing straight up (forward.y > 0), the top (+Y) of the device tilts
+                // backwards across the pole, pointing opposite to facing direction. Invert sign to
+                // align with forward yaw.
+                val upSign = if (forward.y > 0f) -1f else 1f
+                val angleUp = kotlin.math.atan2(-up.x * upSign, -up.z * upSign)
+
+                if (r < exactPoleEpsilon) {
+                    // Vertical poles: Forward vector is vertical; rely entirely on the horizontal
+                    // up vector
+                    angleUp
+                } else {
+                    // Transition zone: Smoothly blend forward and up yaw angles to prevent heading
+                    // jumps
+                    val u = r / polarBlendThreshold
+                    val smoothstep = 3f * u * u - 2f * u * u * u // Hermite curve (3u^2 - 2u^3)
+
+                    val pi = kotlin.math.PI.toFloat()
+                    val twoPi = 2f * pi
+                    var delta = angleFwd - angleUp
+
+                    // Wrap angle difference into [-pi, pi) to ensure shortest-arc interpolation
+                    delta = ((delta + pi) % twoPi + twoPi) % twoPi - pi
+
+                    // At exact 180-degree (antipodal) roll differences, float noise can flip the
+                    // sign between -pi and +pi. Snap to +pi within epsilon to guarantee
+                    // deterministic interpolation direction.
+                    if (kotlin.math.abs(kotlin.math.abs(delta) - pi) < exactPoleEpsilon) {
+                        delta = pi
+                    }
+                    angleUp + smoothstep * delta
+                }
+            }
+        }
+
+    return Quaternion.fromEulerAngles(0f, toDegrees(yawRad), 0f)
 }
 
 /**
@@ -292,8 +361,7 @@ public class ActivitySpaceImpl(
             val scaleFactor = sceneParentScale.x
             val scaleFactorInv = 1.0f / scaleFactor
             activitySpaceRotation = newTransform.rotation
-            val yaw = activitySpaceRotation.eulerAngles.y
-            val yawRotation = Quaternion.fromEulerAngles(0.0f, yaw, 0.0f)
+            val yawRotation = gravityAlignedYawRotation(activitySpaceRotation)
             val gravityAlignedRotation = activitySpaceRotation.inverse * yawRotation
             val newOriginCompensation = OriginCompensation(scaleFactor, gravityAlignedRotation)
             extensions.createNodeTransaction().use { transaction ->
