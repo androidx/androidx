@@ -65,33 +65,6 @@
     </issue>
 
     <issue
-        id="LambdaStructuralEquality"
-        message="Checking lambdas for structural equality, instead of checking for referential equality"
-        errorLine1="        if (callback != other.callback) return false"
-        errorLine2="                     ~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/OnGlobalLayoutListenerTest.kt"/>
-    </issue>
-
-    <issue
-        id="LambdaStructuralEquality"
-        message="Checking lambdas for structural equality, instead of checking for referential equality"
-        errorLine1="                if (onRemeasured != other.onRemeasured) return false"
-        errorLine2="                                 ~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/OnSizeChangedTest.kt"/>
-    </issue>
-
-    <issue
-        id="LambdaStructuralEquality"
-        message="Checking lambdas for structural equality, instead of checking for referential equality"
-        errorLine1="                if (onPlaced != other.onPlaced) return false"
-        errorLine2="                             ~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/OnSizeChangedTest.kt"/>
-    </issue>
-
-    <issue
         id="ComposableLambdaParameterNaming"
         message="Composable lambda parameter should be named `content`"
         errorLine1="internal fun ReverseMeasureLayout(modifier: Modifier, vararg contents: @Composable () -> Unit) ="
