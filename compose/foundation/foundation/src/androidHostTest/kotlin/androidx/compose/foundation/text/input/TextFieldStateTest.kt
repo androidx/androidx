@@ -26,6 +26,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
@@ -834,6 +835,92 @@ class TextFieldStateTest {
         assertThat(newValueCalled.toString()).isEqualTo("World")
         // Even though content changes and there was a composing region, IME is not restarted
         assertThat(restartImeCalled).isFalse()
+    }
+
+    @Test
+    fun noOpUserEdit_duringComposition_doesNotUpdateValueOrNotifyIme() {
+        val state = TextFieldState("Hello ")
+        DefaultImeEditCommandScope(TransformedTextFieldState(state)).setComposingText("ab", 1)
+        assertThat(state.composition).isEqualTo(TextRange(6, 8))
+        val valueBefore = state.value
+        var listenerCalled = false
+        state.addNotifyImeListener { _, _, _ -> listenerCalled = true }
+
+        state.editAsUser(null) { selection = TextRange(8) }
+
+        assertThat(state.value).isSameInstanceAs(valueBefore)
+        assertThat(listenerCalled).isFalse()
+    }
+
+    @Test
+    fun noOpUserEdit_duringStyledComposition_doesNotUpdateValueOrNotifyIme() {
+        val state = TextFieldState("Hello ")
+        val annotations =
+            listOf<PlacedAnnotation>(
+                AnnotatedString.Range(SpanStyle(background = Color.Yellow), 0, 2)
+            )
+        DefaultImeEditCommandScope(TransformedTextFieldState(state))
+            .setComposingText("ab", 1, annotations)
+        assertThat(state.value.composingAnnotations)
+            .containsExactly(AnnotatedString.Range(SpanStyle(background = Color.Yellow), 6, 8))
+        val valueBefore = state.value
+        var listenerCalled = false
+        state.addNotifyImeListener { _, _, _ -> listenerCalled = true }
+
+        state.editAsUser(null) { selection = TextRange(8) }
+
+        assertThat(state.value).isSameInstanceAs(valueBefore)
+        assertThat(listenerCalled).isFalse()
+    }
+
+    @Test
+    fun userEdit_changingOnlyComposingAnnotations_updatesValue() {
+        val state = TextFieldState("Hello ")
+        DefaultImeEditCommandScope(TransformedTextFieldState(state)).setComposingText("ab", 1)
+        var listenerCalled = false
+        state.addNotifyImeListener { _, _, _ -> listenerCalled = true }
+
+        state.editAsUser(null) {
+            setComposition(
+                6,
+                8,
+                listOf(AnnotatedString.Range(SpanStyle(background = Color.Yellow), 0, 2)),
+            )
+        }
+
+        assertThat(state.composition).isEqualTo(TextRange(6, 8))
+        assertThat(state.value.composingAnnotations)
+            .containsExactly(AnnotatedString.Range(SpanStyle(background = Color.Yellow), 6, 8))
+        assertThat(listenerCalled).isTrue()
+    }
+
+    @Test
+    fun noOpUserEdit_withoutComposition_doesNotNotifyIme() {
+        val state = TextFieldState("Hello")
+        DefaultImeEditCommandScope(TransformedTextFieldState(state)).commitText(" World", 1)
+        assertThat(state.composition).isNull()
+        assertThat(state.value.composingAnnotations).isEmpty()
+        val valueBefore = state.value
+        var listenerCalled = false
+        state.addNotifyImeListener { _, _, _ -> listenerCalled = true }
+
+        state.editAsUser(null) { selection = TextRange(11) }
+
+        assertThat(state.value).isSameInstanceAs(valueBefore)
+        assertThat(listenerCalled).isFalse()
+    }
+
+    @Test
+    fun noOpUserEdit_afterProgrammaticEdit_doesNotNotifyIme() {
+        val state = TextFieldState("Hello")
+        state.edit { replace(length, length, " World") }
+        assertThat(state.value.composingAnnotations).isNull()
+        var listenerCalled = false
+        state.addNotifyImeListener { _, _, _ -> listenerCalled = true }
+
+        state.editAsUser(null) { selection = TextRange(11) }
+
+        assertThat(listenerCalled).isFalse()
     }
 
     @Test
