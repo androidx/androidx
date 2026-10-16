@@ -38,7 +38,7 @@ public object AppWidgetSurfaceDetector {
                 (category and AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD) == 0 -> {
                 AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN
             }
-            else -> AppWidgetGlanceSurface.MOBILE_HOME_SCREEN
+            else -> resolveHomeScreenSurface()
         }
     }
 
@@ -50,7 +50,7 @@ public object AppWidgetSurfaceDetector {
      * @return Resolved [AppWidgetGlanceSurface].
      */
     public fun fromAppWidgetOptions(options: Bundle?): AppWidgetGlanceSurface {
-        if (options == null) return AppWidgetGlanceSurface.MOBILE_HOME_SCREEN
+        if (options == null) return resolveHomeScreenSurface()
         val category =
             options.getInt(
                 AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY,
@@ -82,14 +82,12 @@ public object AppWidgetSurfaceDetector {
 
         if ((categories and AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN) != 0) {
             results.add(
-                AppWidgetGlanceSurface.MOBILE_HOME_SCREEN to
-                    AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
+                resolveHomeScreenSurface() to AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
             )
         }
         if ((categories and AppWidgetProviderInfo.WIDGET_CATEGORY_SEARCHBOX) != 0) {
             results.add(
-                AppWidgetGlanceSurface.MOBILE_HOME_SCREEN to
-                    AppWidgetProviderInfo.WIDGET_CATEGORY_SEARCHBOX
+                resolveHomeScreenSurface() to AppWidgetProviderInfo.WIDGET_CATEGORY_SEARCHBOX
             )
         }
         if (!isNotKeyguard && (isKeyguard || isHomeScreen)) {
@@ -108,5 +106,11 @@ public object AppWidgetSurfaceDetector {
             results.add(fromHostCategory(categories) to fallbackCategory)
         }
         return results
+    }
+
+    private fun resolveHomeScreenSurface(): AppWidgetGlanceSurface {
+        // TODO(b/573924109): Return a legacy RemoteViews surface (homescreen_remote_views) below
+        //  API 37 (CINNAMON_BUN) once RemoteCompose renderers are registered on MOBILE_HOME_SCREEN.
+        return AppWidgetGlanceSurface.MOBILE_HOME_SCREEN
     }
 }
