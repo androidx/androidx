@@ -268,7 +268,7 @@ private const val ScrimAlphaDark = 0.8f
 private const val ScaleProgressMultiplier = 0.15f
 private val DisplayBoundsMargin = 8.dp
 
-private fun calculateSlideOffset(
+internal fun calculateSlideOffset(
     fullSize: IntSize,
     currentScale: Float,
     rawYDelta: Float,
