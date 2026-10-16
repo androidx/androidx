@@ -899,8 +899,8 @@ class DeferredAnimatedContentTest {
                     listOf(0.9f, 0.8f, 0.7f, 0.6f, 0.5f)
                 }
             for (s in steps) {
-                previewScale = s
                 rule.mainClock.advanceTimeByFrame()
+                rule.runOnIdle { previewScale = s }
                 rule.waitForIdle()
             }
 
@@ -919,10 +919,12 @@ class DeferredAnimatedContentTest {
 
         // Reset
         rule.mainClock.autoAdvance = true
-        rule.runOnIdle { state.animateTo("A") }
+        rule.runOnIdle {
+            previewScale = 1f
+            state.animateTo("A")
+        }
         rule.waitForIdle()
         rule.mainClock.autoAdvance = false
-        previewScale = 1f
 
         // Scenario 2: Fast gesture
         val (enterDropFast, exitDropFast) = simulateGesture(isFast = true)
