@@ -75,6 +75,28 @@ class OpenXrTransactionTest {
     }
 
     @Test
+    fun setSpaceAttachment_invalidTransactionHandle_marksStagingErrorAndCommitReturnsFalse() {
+        val tx = OpenXrTransaction(fakeNative, INVALID_HANDLE)
+        val entity = fakeNative.createSceneEntity()
+        tx.setSpaceAttachment(entity, fakeNative.fakeSpaceHandle)
+
+        val success = tx.commit()
+        assertThat(success).isFalse()
+        tx.close()
+    }
+
+    @Test
+    fun removeSpaceAttachment_invalidTransactionHandle_marksStagingErrorAndCommitReturnsFalse() {
+        val tx = OpenXrTransaction(fakeNative, INVALID_HANDLE)
+        val entity = fakeNative.createSceneEntity()
+        tx.removeSpaceAttachment(entity)
+
+        val success = tx.commit()
+        assertThat(success).isFalse()
+        tx.close()
+    }
+
+    @Test
     fun setTransform_invalidEntityHandle_throwsIllegalArgumentException() {
         val tx = fakeNative.openTransaction()
         assertThrows(IllegalArgumentException::class.java) {
@@ -87,6 +109,34 @@ class OpenXrTransactionTest {
     fun setParent_invalidEntityHandle_throwsIllegalArgumentException() {
         val tx = fakeNative.openTransaction()
         assertThrows(IllegalArgumentException::class.java) { tx.setParent(INVALID_HANDLE, 100L) }
+        tx.close()
+    }
+
+    @Test
+    fun setSpaceAttachment_invalidEntityHandle_throwsIllegalArgumentException() {
+        val tx = fakeNative.openTransaction()
+        assertThrows(IllegalArgumentException::class.java) {
+            tx.setSpaceAttachment(INVALID_HANDLE, fakeNative.fakeSpaceHandle)
+        }
+        tx.close()
+    }
+
+    @Test
+    fun setSpaceAttachment_invalidSpaceHandle_throwsIllegalArgumentException() {
+        val entity = fakeNative.createSceneEntity()
+        val tx = fakeNative.openTransaction()
+        assertThrows(IllegalArgumentException::class.java) {
+            tx.setSpaceAttachment(entity, INVALID_HANDLE)
+        }
+        tx.close()
+    }
+
+    @Test
+    fun removeSpaceAttachment_invalidEntityHandle_throwsIllegalArgumentException() {
+        val tx = fakeNative.openTransaction()
+        assertThrows(IllegalArgumentException::class.java) {
+            tx.removeSpaceAttachment(INVALID_HANDLE)
+        }
         tx.close()
     }
 
@@ -201,6 +251,92 @@ class OpenXrTransactionTest {
     }
 
     @Test
+    fun setSpaceAttachment_attachesEntityWithLastKnownLossBehaviourOnCommit() {
+        val entity = fakeNative.createSceneEntity()
+
+        fakeNative.openTransaction().use { tx ->
+            tx.setSpaceAttachment(entity, fakeNative.fakeSpaceHandle)
+
+            // Before commit, the attachment should NOT be applied yet
+            assertThat(fakeNative.entityAttachments[entity]).isNull()
+
+            assertThat(tx.commit()).isTrue()
+        }
+
+        assertThat(fakeNative.entityAttachments[entity])
+            .isEqualTo(
+                FakeSceneCoreOpenXrNative.Attachment(
+                    fakeNative.fakeSpaceHandle,
+                    ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN,
+                )
+            )
+    }
+
+    @Test
+    fun removeSpaceAttachment_detachesEntityOnCommit() {
+        val entity = fakeNative.createSceneEntity()
+        fakeNative.openTransaction().use { tx ->
+            tx.setSpaceAttachment(entity, fakeNative.fakeSpaceHandle)
+            tx.commit()
+        }
+        assertThat(fakeNative.entityAttachments).containsKey(entity)
+
+        fakeNative.openTransaction().use { tx ->
+            tx.removeSpaceAttachment(entity)
+            assertThat(tx.commit()).isTrue()
+        }
+
+        assertThat(fakeNative.entityAttachments).doesNotContainKey(entity)
+    }
+
+    @Test
+    fun commit_appliesParentAndAttachmentTogether() {
+        val entity = fakeNative.createSceneEntity()
+        val parent = fakeNative.createSceneEntity()
+
+        fakeNative.openTransaction().use { tx ->
+            tx.setParent(entity, parent).setSpaceAttachment(entity, fakeNative.fakeSpaceHandle)
+            assertThat(tx.commit()).isTrue()
+        }
+
+        assertThat(fakeNative.entityParents[entity]).isEqualTo(parent)
+        assertThat(fakeNative.entityAttachments[entity]?.spaceHandle)
+            .isEqualTo(fakeNative.fakeSpaceHandle)
+    }
+
+    @Test
+    fun commit_whenAttachmentStagingFails_cancelsTransactionAndAppliesNothing() {
+        val entity = fakeNative.createSceneEntity()
+        val parent = fakeNative.createSceneEntity()
+        fakeNative.simulateAttachmentFailure = true
+
+        val tx = fakeNative.openTransaction()
+        tx.setParent(entity, parent).setSpaceAttachment(entity, fakeNative.fakeSpaceHandle)
+
+        assertThat(tx.commit()).isFalse()
+        assertThat(fakeNative.cancelledTransactions).contains(tx.transactionHandle)
+        assertThat(fakeNative.entityParents[entity]).isNull()
+        assertThat(fakeNative.entityAttachments[entity]).isNull()
+    }
+
+    @Test
+    fun commit_whenAttachmentRemovalFails_cancelsTransactionAndKeepsAttachment() {
+        val entity = fakeNative.createSceneEntity()
+        fakeNative.openTransaction().use { tx ->
+            tx.setSpaceAttachment(entity, fakeNative.fakeSpaceHandle)
+            check(tx.commit())
+        }
+        fakeNative.simulateAttachmentFailure = true
+
+        val tx = fakeNative.openTransaction()
+        tx.removeSpaceAttachment(entity)
+
+        assertThat(tx.commit()).isFalse()
+        assertThat(fakeNative.cancelledTransactions).contains(tx.transactionHandle)
+        assertThat(fakeNative.entityAttachments).containsKey(entity)
+    }
+
+    @Test
     fun close_withoutCommit_cancelsTransaction() {
         val entity = fakeNative.createSceneEntity()
         val pose = Pose(Vector3(1f, 2f, 3f))
@@ -253,6 +389,10 @@ class OpenXrTransactionTest {
             tx.setTransform(1L, Pose(), Vector3(1f, 1f, 1f))
         }
         assertThrows(IllegalStateException::class.java) { tx.setParent(1L, 2L) }
+        assertThrows(IllegalStateException::class.java) {
+            tx.setSpaceAttachment(1L, fakeNative.fakeSpaceHandle)
+        }
+        assertThrows(IllegalStateException::class.java) { tx.removeSpaceAttachment(1L) }
         assertThrows(IllegalStateException::class.java) { tx.commit() }
     }
 }

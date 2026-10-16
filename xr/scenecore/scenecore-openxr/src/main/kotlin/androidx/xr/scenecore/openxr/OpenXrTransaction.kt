@@ -21,8 +21,8 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 
 /**
- * Manages an OpenXR scene transaction for atomic mutations of entity transforms and parent
- * hierarchies.
+ * Manages an OpenXR scene transaction for atomic mutations of entity transforms, parent
+ * hierarchies, and `XrSpace` attachments.
  *
  * Instances are strictly thread-confined and non-reentrant within their `.use { ... }` lifecycle.
  * They are intended to be used on a single thread and must not be shared across threads or invoked
@@ -72,6 +72,60 @@ internal constructor(
                 nativeWrapper.setTransactionParent(transactionHandle, child, parentHandle)
         if (!isStaged) {
             // TODO: b/537445115 - Record a warning event that the parent can't be staged.
+            hasStagingError = true
+        }
+        return this
+    }
+
+    /**
+     * Attaches an entity to an `XrSpace` within this transaction.
+     *
+     * Once committed, the runtime places the entity at the space's pose every frame. Where the
+     * runtime supports it, the entity stays at the space's last known pose while the space isn't
+     * tracked.
+     *
+     * The caller keeps ownership of the space, and must commit [removeSpaceAttachment] before
+     * destroying it. Staging fails, so [commit] returns false, if the runtime doesn't have
+     * `XR_ANDROIDX1_scene_component_attachment` enabled, or if the space isn't backed by an anchor.
+     * For example, the runtime rejects a `LOCAL` reference space with
+     * `XR_ERROR_FEATURE_UNSUPPORTED`.
+     */
+    public fun setSpaceAttachment(entityHandle: Long, spaceHandle: Long): OpenXrTransaction {
+        check(!isClosed) { "Cannot mutate a closed transaction." }
+        require(entityHandle != INVALID_HANDLE) {
+            "Cannot set attachment on entity with INVALID_HANDLE."
+        }
+        require(spaceHandle != INVALID_HANDLE) { "Cannot attach entity to space INVALID_HANDLE." }
+        val isStaged =
+            transactionHandle != INVALID_HANDLE &&
+                nativeWrapper.setTransactionSpaceAttachment(
+                    transactionHandle,
+                    entityHandle,
+                    spaceHandle,
+                    ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN,
+                )
+        if (!isStaged) {
+            // TODO: b/537445115 - Record a warning event that the attachment can't be staged.
+            hasStagingError = true
+        }
+        return this
+    }
+
+    /**
+     * Removes an entity's `XrSpace` attachment within this transaction.
+     *
+     * Once committed, the runtime stops moving the entity with the space.
+     */
+    public fun removeSpaceAttachment(entityHandle: Long): OpenXrTransaction {
+        check(!isClosed) { "Cannot mutate a closed transaction." }
+        require(entityHandle != INVALID_HANDLE) {
+            "Cannot remove attachment from entity with INVALID_HANDLE."
+        }
+        val isStaged =
+            transactionHandle != INVALID_HANDLE &&
+                nativeWrapper.removeTransactionSpaceAttachment(transactionHandle, entityHandle)
+        if (!isStaged) {
+            // TODO: b/537445115 - Record a warning event that the removal can't be staged.
             hasStagingError = true
         }
         return this
