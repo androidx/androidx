@@ -44,11 +44,11 @@ abstract class AndroidXExtension(
     @Suppress("unused") // used from build.gradle
     @JvmField
     val AllLibraryGroups: List<LibraryGroup>,
-    private val libraryGroupsByGroupId: Map<String, LibraryGroup>,
-    private val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup>,
+    val mavenCoordinatesToProjectPathMap: Map<String, String>,
     private val allPossibleProjects: Provider<List<IncludedProject>>,
     private val headShaProvider: () -> Provider<String>,
     private val configureAarAsJarForConfigurationDelegate: (String) -> Unit,
+    private val libraryGroupFromPathProvider: (String, MutableList<String>?) -> LibraryGroup?,
 ) : ExtensionAware, AndroidXConfiguration {
     val mavenGroup: LibraryGroup?
     val deviceTests = DeviceTests.register(project.extensions)
@@ -64,24 +64,6 @@ abstract class AndroidXExtension(
 
     fun isIsolatedProjectsEnabled(): Boolean {
         return buildFeatures.isIsolatedProjectsEnabled()
-    }
-
-    /**
-     * Map of maven coordinates (e.g. "androidx.core:core") to a Gradle project path (e.g.
-     * ":core:core")
-     */
-    val mavenCoordinatesToProjectPathMap: Map<String, String> by lazy {
-        val newProjectMap: MutableMap<String, String> = mutableMapOf()
-        allPossibleProjects.get().forEach {
-            val group =
-                overrideLibraryGroupsByProjectPath[it.gradlePath]
-                    ?: getLibraryGroupFromProjectPath(it.gradlePath, null)
-            if (group != null) {
-                newProjectMap["${group.group}:${substringAfterLastColon(it.gradlePath)}"] =
-                    it.gradlePath
-            }
-        }
-        newProjectMap
     }
 
     val name: Property<String> = project.objects.property(String::class.java)
@@ -112,7 +94,7 @@ abstract class AndroidXExtension(
                 if (otherProject.gradlePath == project.path) {
                     false
                 } else {
-                    getLibraryGroupFromProjectPath(otherProject.gradlePath) == ourGroup
+                    libraryGroupFromPathProvider(otherProject.gradlePath, null) == ourGroup
                 }
             }
         return otherProjectsInSameGroup
@@ -126,68 +108,7 @@ abstract class AndroidXExtension(
     }
 
     private fun chooseLibraryGroup(explanationBuilder: MutableList<String>? = null): LibraryGroup? {
-        return getLibraryGroupFromProjectPath(project.path, explanationBuilder)
-    }
-
-    private fun substringBeforeLastColon(projectPath: String): String {
-        val lastColonIndex = projectPath.lastIndexOf(":")
-        return projectPath.substring(0, lastColonIndex)
-    }
-
-    private fun substringAfterLastColon(projectPath: String): String {
-        val lastColonIndex = projectPath.lastIndexOf(":")
-        return projectPath.substring(lastColonIndex + 1)
-    }
-
-    // gets the library group from the project path, including special cases
-    private fun getLibraryGroupFromProjectPath(
-        projectPath: String,
-        explanationBuilder: MutableList<String>? = null,
-    ): LibraryGroup? {
-        val overridden = overrideLibraryGroupsByProjectPath[projectPath]
-        explanationBuilder?.add(
-            "Library group (in libraryversions.toml) having" +
-                " overrideInclude=[\"$projectPath\"] is $overridden"
-        )
-        if (overridden != null) return overridden
-
-        val result = getStandardLibraryGroupFromProjectPath(projectPath, explanationBuilder)
-        if (result != null) return result
-
-        // samples are allowed to be nested deeper
-        if (projectPath.contains("samples")) {
-            val parentPath = substringBeforeLastColon(projectPath)
-            return getLibraryGroupFromProjectPath(parentPath, explanationBuilder)
-        }
-        return null
-    }
-
-    // simple function to get the library group from the project path, without special cases
-    private fun getStandardLibraryGroupFromProjectPath(
-        projectPath: String,
-        explanationBuilder: MutableList<String>?,
-    ): LibraryGroup? {
-        // Get the text of the library group, something like "androidx.core"
-        val parentPath = substringBeforeLastColon(projectPath)
-
-        if (parentPath == "") {
-            explanationBuilder?.add("Parent path for $projectPath is empty")
-            return null
-        }
-        // convert parent project path to groupId
-        val groupIdText =
-            if (projectPath.startsWith(":external")) {
-                projectPath.replace(":external:", "")
-            } else {
-                "androidx.${parentPath.substring(1).replace(':', '.')}"
-            }
-
-        // get the library group having that text
-        val result = libraryGroupsByGroupId[groupIdText]
-        explanationBuilder?.add(
-            "Library group (in libraryversions.toml) having group=\"$groupIdText\" is $result"
-        )
-        return result
+        return libraryGroupFromPathProvider(project.path, explanationBuilder)
     }
 
     /**
