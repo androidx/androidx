@@ -19,6 +19,8 @@ package androidx.compose.material3
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.navigationevent.NavigationEvent
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -93,15 +95,74 @@ class MaterialTransitionsTest {
     }
 
     @Test
-    fun horizontalSharedAxisForwardTransform_returnsNonNullSpec() {
-        val spec = MaterialTransitions.HorizontalSharedAxis.forwardTransform()
-        assertThat(spec).isNotNull()
+    fun slideOffset_centerPivot_returnsZeroHorizontalOffset() {
+        val offset =
+            calculateSlideOffset(
+                fullSize = IntSize(width = 1000, height = 2000),
+                currentScale = 0.85f,
+                rawYDelta = 0f,
+                displayBoundsMargin = 20f,
+                pivotFractionX = 0.5f,
+            )
+        assertThat(offset).isEqualTo(IntOffset.Zero)
     }
 
     @Test
-    fun horizontalSharedAxisBackwardTransform_returnsNonNullSpec() {
+    fun slideOffset_rightShiftedPivot_returnsPositiveHorizontalOffset() {
+        val offset =
+            calculateSlideOffset(
+                fullSize = IntSize(width = 1000, height = 2000),
+                currentScale = 0.85f,
+                rawYDelta = 0f,
+                displayBoundsMargin = 20f,
+                pivotFractionX = 0.9f,
+            )
+
+        assertThat(offset).isEqualTo(IntOffset(59, 0))
+    }
+
+    @Test
+    fun slideOffset_fullScale_returnsZeroHorizontalOffset() {
+        val offset =
+            calculateSlideOffset(
+                fullSize = IntSize(width = 1000, height = 2000),
+                currentScale = 1f,
+                rawYDelta = 0f,
+                displayBoundsMargin = 20f,
+                pivotFractionX = 0.9f,
+            )
+        assertThat(offset).isEqualTo(IntOffset.Zero)
+    }
+
+    @Test
+    fun horizontalSharedAxisForwardTransform_configuresSlideAndFade() {
+        val spec = MaterialTransitions.HorizontalSharedAxis.forwardTransform()
+        val fullSize = IntSize(width = 1000, height = 2000)
+
+        assertThat(spec.targetContentEnter.config.slide?.slideOffset?.invoke(fullSize))
+            .isEqualTo(IntOffset(200, 0))
+        assertThat(spec.initialContentExit.config.slide?.slideOffset?.invoke(fullSize))
+            .isEqualTo(IntOffset(-200, 0))
+        assertThat(spec.targetContentEnter.config.fade?.alpha).isEqualTo(0f)
+        assertThat(spec.initialContentExit.config.fade?.alpha).isEqualTo(0f)
+        assertThat(spec.targetContentZIndex).isEqualTo(0f)
+    }
+
+    @Test
+    fun horizontalSharedAxisBackwardTransform_configuresSlideFadeScaleAndZIndex() {
         val spec = MaterialTransitions.HorizontalSharedAxis.backwardTransform()
-        assertThat(spec).isNotNull()
+        val fullSize = IntSize(width = 1000, height = 2000)
+
+        assertThat(spec.targetContentEnter.config.slide?.slideOffset?.invoke(fullSize))
+            .isEqualTo(IntOffset(-200, 0))
+        assertThat(spec.initialContentExit.config.slide?.slideOffset?.invoke(fullSize))
+            .isEqualTo(IntOffset(200, 0))
+        assertThat(spec.targetContentEnter.config.fade?.alpha).isEqualTo(0f)
+        assertThat(spec.initialContentExit.config.fade?.alpha).isEqualTo(0f)
+        assertThat(spec.targetContentEnter.config.fade?.animationSpec)
+            .isEqualTo(spec.initialContentExit.config.fade?.animationSpec)
+        assertThat(spec.initialContentExit.config.scale?.scale).isEqualTo(1f)
+        assertThat(spec.targetContentZIndex).isLessThan(0f)
     }
 
     @Test
@@ -126,9 +187,10 @@ class MaterialTransitionsTest {
     }
 
     @Test
-    fun fadeThroughTransform_returnsNonNullSpec() {
+    fun fadeThroughTransform_configuresFadeAndScale() {
         val spec = MaterialTransitions.FadeThrough.transform()
-        assertThat(spec).isNotNull()
+        assertThat(spec.targetContentEnter.config.fade?.alpha).isEqualTo(0f)
+        assertThat(spec.initialContentExit.config.fade?.alpha).isEqualTo(0f)
         assertThat(spec.targetContentEnter.config.scale?.scale).isEqualTo(0.8f)
         assertThat(spec.initialContentExit.config.scale?.scale).isEqualTo(1.05f)
     }
