@@ -57,6 +57,15 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @property rotation gravity-aligned orientation applied to the activity space root node.
  */
 internal class OriginCompensation(val sceneParentScale: Float, val rotation: Quaternion) {
+    val activitySpaceToSceneParentTransform: Matrix4 =
+        (1.0f / sceneParentScale).let { scaleInverse ->
+            Matrix4.fromTrs(
+                Vector3.Zero,
+                rotation,
+                Vector3(scaleInverse, scaleInverse, scaleInverse),
+            )
+        }
+
     /** Converts [sceneParentSpacePosition] from scene parent space into activity space. */
     fun toActivitySpace(sceneParentSpacePosition: Vector3): Vector3 =
         (rotation.inverse * sceneParentSpacePosition) * sceneParentScale
@@ -314,12 +323,6 @@ public class ActivitySpaceImpl(
 
     internal val originCompensation = AtomicReference(OriginCompensation.IDENTITY)
     private val lastSceneParentTransform = AtomicReference<Matrix4?>(null)
-
-    internal val sceneParentScaleAbs: Vector3
-        get() {
-            val scale = originCompensation.get().sceneParentScale
-            return Vector3(scale, scale, scale)
-        }
 
     /**
      * Handles the updates to scene core root transform.
