@@ -89,7 +89,11 @@ internal class TextFieldCharSequence(
 
     override fun toString(): String = text.toString()
 
-    fun contentEquals(other: CharSequence): Boolean = text.contentEquals(other)
+    fun contentEquals(other: CharSequence): Boolean =
+        // Compare against the backing text of another TextFieldCharSequence. When both are Strings
+        // this uses String equality (identity check, then a bulk compare) instead of a per-char
+        // loop through TextFieldCharSequence.get, which is O(length) virtual calls.
+        text.contentEquals(if (other is TextFieldCharSequence) other.text else other)
 
     /**
      * Copies the contents of this sequence from [[sourceStartIndex], [sourceEndIndex]) into
