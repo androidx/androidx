@@ -17,7 +17,6 @@
 package androidx.compose.ui.focus
 
 import androidx.collection.MutableObjectList
-import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.ui.InteractionBarrierNode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -202,7 +201,7 @@ internal interface FocusOwner : FocusManager {
     var isFocusCaptured: Boolean
 
     /** Active interaction barriers currently in the hierarchy. */
-    val activeInteractionBarriers: MutableVector<InteractionBarrierNode>?
+    val activeInteractionBarriers: MutableObjectList<InteractionBarrierNode>?
         get() = null
 
     /** Registers an [InteractionBarrierNode] to block focus traversal and key input. */

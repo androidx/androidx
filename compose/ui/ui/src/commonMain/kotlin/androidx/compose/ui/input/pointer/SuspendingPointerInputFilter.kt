@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.input.pointer
 
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
@@ -555,7 +555,9 @@ internal class SuspendingPointerInputModifierNodeImpl(
      * Must use `synchronized(pointerHandlersLock)` to access.
      */
     private val pointerHandlers =
-        mutableVectorOf<SuspendingPointerInputModifierNodeImpl.PointerEventHandlerCoroutine<*>>()
+        mutableObjectListOf<
+            SuspendingPointerInputModifierNodeImpl.PointerEventHandlerCoroutine<*>
+        >()
 
     private val pointerHandlersLock = makeSynchronizedObject(pointerHandlers)
 
@@ -565,7 +567,9 @@ internal class SuspendingPointerInputModifierNodeImpl(
      * handlers without affecting the current dispatch pass. Must only access on the UI thread.
      */
     private val dispatchingPointerHandlers =
-        mutableVectorOf<SuspendingPointerInputModifierNodeImpl.PointerEventHandlerCoroutine<*>>()
+        mutableObjectListOf<
+            SuspendingPointerInputModifierNodeImpl.PointerEventHandlerCoroutine<*>
+        >()
 
     /**
      * The last pointer event we saw where at least one pointer was currently down; null otherwise.

@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.mutableObjectListOf
 import java.lang.ref.Reference
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
@@ -26,7 +26,7 @@ import java.lang.ref.WeakReference
  * removed with [pop].
  */
 internal class WeakCache<T> {
-    private val values = mutableVectorOf<Reference<T>>()
+    private val values = mutableObjectListOf<Reference<T>>()
     private val referenceQueue = ReferenceQueue<T>()
 
     /**
@@ -46,7 +46,7 @@ internal class WeakCache<T> {
         clearWeakReferences()
 
         while (values.isNotEmpty()) {
-            val item = values.removeAt(values.lastIndex).get()
+            val item = values.removeAt(values.size - 1).get()
             if (item != null) {
                 return item
             }

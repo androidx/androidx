@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
@@ -77,9 +77,9 @@ internal fun FocusTargetNode.performRequestFocus(): Boolean {
     }
 
     // Find ancestor target and event nodes of the previous active target node
-    var previousAncestorTargetNodes: MutableVector<FocusTargetNode>? = null
+    var previousAncestorTargetNodes: MutableObjectList<FocusTargetNode>? = null
     if (previousActiveNode != null) {
-        previousAncestorTargetNodes = mutableVectorOf()
+        previousAncestorTargetNodes = mutableObjectListOf()
         previousActiveNode.visitAncestors(Nodes.FocusTarget) { previousAncestorTargetNodes.add(it) }
     }
 
@@ -88,8 +88,8 @@ internal fun FocusTargetNode.performRequestFocus(): Boolean {
     // case we don't need to clear focus from it.
     var shouldClearFocusFromPreviousActiveNode = true
 
-    val commonAncestorTargetNodes = mutableVectorOf<FocusTargetNode>()
-    val ancestorTargetNodes = mutableVectorOf<FocusTargetNode>()
+    val commonAncestorTargetNodes = mutableObjectListOf<FocusTargetNode>()
+    val ancestorTargetNodes = mutableObjectListOf<FocusTargetNode>()
     visitAncestors(Nodes.FocusTarget) {
         val removed = previousAncestorTargetNodes?.remove(it)
         // If the currently visited node was in the previousAncestorTargetNodes, then it is a

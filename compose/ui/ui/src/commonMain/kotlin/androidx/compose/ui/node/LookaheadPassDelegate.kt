@@ -17,7 +17,6 @@
 package androidx.compose.ui.node
 
 import androidx.collection.MutableObjectList
-import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.internal.checkPrecondition
@@ -159,7 +158,7 @@ internal class LookaheadPassDelegate(
 
     override val alignmentLines: AlignmentLines = LookaheadAlignmentLines(this)
 
-    private val _childDelegates = MutableVector<LookaheadPassDelegate>()
+    private val _childDelegates = MutableObjectList<LookaheadPassDelegate>()
 
     internal fun onApproachPlacement() {
         if (_placedState == PlacedState.IsNotPlaced) {
@@ -194,6 +193,7 @@ internal class LookaheadPassDelegate(
 
     /** [Measurable]s provided to layout during lookahead pass. */
     internal val childDelegates: List<LookaheadPassDelegate>
+        @Suppress("AsCollectionCall") // Passed to MeasurePolicy as List<Measurable>.
         get() {
             layoutNode.children.let {
                 // Invoke children to get children updated before checking dirty
