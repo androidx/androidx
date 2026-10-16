@@ -16,7 +16,7 @@
 
 package androidx.xr.glimmer.list
 
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.mutableObjectListOf
 import androidx.xr.glimmer.requirePrecondition
 
 /**
@@ -45,7 +45,7 @@ import androidx.xr.glimmer.requirePrecondition
  *    within the completion block of another layout call.
  */
 internal class LazyLayoutBeyondBoundsInfo {
-    private val beyondBoundsItems = mutableVectorOf<Interval>()
+    private val beyondBoundsItems = mutableObjectListOf<Interval>()
 
     /**
      * Create a beyond bounds interval. This can be used to specify which composed items we want to
