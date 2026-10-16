@@ -24,6 +24,8 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
@@ -31,6 +33,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
@@ -321,3 +324,12 @@ internal fun TileMode.toRemoteTileMode(): RemoteTileMode =
         TileMode.Decal -> RemoteTileMode.Decal
         else -> RemoteTileMode.Clamp
     }
+
+internal fun FontStyle.toRemoteFontStyle(): RemoteFontStyle =
+    when (this) {
+        FontStyle.Normal -> RemoteFontStyle.Normal
+        FontStyle.Italic -> RemoteFontStyle.Italic
+        else -> RemoteFontStyle.Normal
+    }
+
+internal fun FontWeight.toRemoteFontWeight(): RemoteFontWeight = RemoteFontWeight(weight)

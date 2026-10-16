@@ -21,6 +21,8 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
@@ -28,6 +30,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
@@ -54,6 +57,9 @@ class DrawHelpersTest {
         assertEquals(BlendMode.Clear, RemoteBlendMode.Clear.toComposeBlendMode())
 
         assertEquals(RemoteTileMode.Mirror, TileMode.Mirror.toRemoteTileMode())
+
+        assertEquals(RemoteFontStyle.Italic, FontStyle.Italic.toRemoteFontStyle())
+        assertEquals(RemoteFontWeight.Bold, FontWeight.Bold.toRemoteFontWeight())
     }
 
     @Test
