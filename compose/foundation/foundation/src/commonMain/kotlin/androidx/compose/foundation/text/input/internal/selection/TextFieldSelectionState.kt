@@ -289,6 +289,16 @@ internal class TextFieldSelectionState(
      */
     private var previousRawDragOffset: Int = -1
 
+    /**
+     * The last [TextLayoutResult] passed to [getCursorRectInLayout], together with the offset and
+     * the cursor rect it returned. [TextLayoutResult] is immutable, so the same instance and offset
+     * always produce the same cursor rect. One edit asks for the cursor rect several times (focus
+     * rect, cursor drawing, scrolling the cursor into view) with the same layout and offset.
+     */
+    private var cursorRectCacheLayout: TextLayoutResult? = null
+    private var cursorRectCacheOffset: Int = -1
+    private var cursorRectCacheValue: Rect = Rect.Zero
+
     var pressInteraction: PressInteraction.Press? = null
 
     /**
@@ -390,6 +400,23 @@ internal class TextFieldSelectionState(
     }
 
     /**
+     * Returns [TextLayoutResult.getCursorRect] for [offset] in [layoutResult]. The result of the
+     * last call is reused when it was made with the same [layoutResult] instance and [offset].
+     *
+     * This does not read any state.
+     */
+    fun getCursorRectInLayout(layoutResult: TextLayoutResult, offset: Int): Rect {
+        if (layoutResult === cursorRectCacheLayout && offset == cursorRectCacheOffset) {
+            return cursorRectCacheValue
+        }
+        val cursorRect = layoutResult.getCursorRect(offset)
+        cursorRectCacheLayout = layoutResult
+        cursorRectCacheOffset = offset
+        cursorRectCacheValue = cursorRect
+        return cursorRect
+    }
+
+    /**
      * Calculates the rectangle area that the cursor occupies. Normally [TextLayoutResult] functions
      * return a rectangle with zero(0) width for the cursor. This is slightly padded here to make
      * room for the stroke width while drawing the caret. Furthermore rectangle location is also
@@ -407,7 +434,7 @@ internal class TextFieldSelectionState(
         if (!visualText.selection.collapsed) return Rect.Zero
 
         val offset = visualText.selection.start.coerceIn(0, layoutResult.layoutInput.text.length)
-        val cursorRect = layoutResult.getCursorRect(offset)
+        val cursorRect = getCursorRectInLayout(layoutResult, offset)
 
         val cursorWidth = with(density) { floor(DefaultCursorThickness.toPx()).coerceAtLeast(1f) }
         // left and right values in cursorRect should be the same but in any case use the
