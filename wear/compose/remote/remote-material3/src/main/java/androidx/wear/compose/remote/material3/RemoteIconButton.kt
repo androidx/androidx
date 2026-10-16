@@ -388,7 +388,7 @@ public class RemoteIconButtonColors(
     }
 
     /**
-     * Returns a copy of this RemoteIconButtonColors optionally overriding some of the values.
+     * Returns a copy of this [RemoteIconButtonColors] optionally overriding some of the values.
      *
      * @param containerColor the background color of this icon button when enabled.
      * @param contentColor the content color of this icon button when enabled.

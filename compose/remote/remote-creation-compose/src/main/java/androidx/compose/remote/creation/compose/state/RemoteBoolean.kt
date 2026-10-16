@@ -30,7 +30,7 @@ import androidx.compose.runtime.remember
 /**
  * A class representing a remote boolean value.
  *
- * `RemoteBoolean` internally stores its state as a [RemoteInt], typically using `1` for `true` and
+ * [RemoteBoolean] internally stores its state as a [RemoteInt], typically using `1` for `true` and
  * `0` for `false`. This allows boolean logic to be evaluated efficiently on the remote rendering
  * engine.
  */
@@ -145,7 +145,7 @@ internal constructor(
     public fun toRemoteInt(): RemoteInt = intValue
 
     /**
-     * If this RemoteBoolean evaluates to `true` then the returned value evaluates to [ifTrue]
+     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
      * otherwise it evaluates to [ifFalse].
      *
      * @param ifTrue The [RemoteString] to be selected if this boolean is `true`.
@@ -197,7 +197,7 @@ internal constructor(
     }
 
     /**
-     * If this RemoteBoolean evaluates to `true` then the returned value evaluates to [ifTrue]
+     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
      * otherwise it evaluates to [ifFalse].
      *
      * @param ifTrue The [RemoteFloat] to be selected if this boolean is `true`.
@@ -228,7 +228,7 @@ internal constructor(
     }
 
     /**
-     * If this RemoteBoolean evaluates to `true` then the returned value evaluates to [ifTrue]
+     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
      * otherwise it evaluates to [ifFalse].
      *
      * @param ifTrue The [RemoteInt] to be selected if this boolean is `true`.
@@ -259,7 +259,7 @@ internal constructor(
     }
 
     /**
-     * If this RemoteBoolean evaluates to `true` then the returned value evaluates to [ifTrue]
+     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
      * otherwise it evaluates to [ifFalse].
      *
      * @param ifTrue The [RemoteBoolean] to be selected if this boolean is `true`.
@@ -329,7 +329,7 @@ internal constructor(
     }
 
     /**
-     * If this RemoteBoolean evaluates to `true` then the returned value evaluates to [ifTrue]
+     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
      * otherwise it evaluates to [ifFalse].
      *
      * @param ifTrue The color to be selected if this boolean is `true` (as an [Int] representing an
@@ -356,7 +356,7 @@ internal constructor(
     }
 
     /**
-     * If this RemoteBoolean evaluates to `true` then the returned value evaluates to [ifTrue]
+     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
      * otherwise it evaluates to [ifFalse].
      *
      * @param ifTrue The [RemoteColor] to be selected if this boolean is `true`.
@@ -380,7 +380,7 @@ internal constructor(
     }
 
     /**
-     * If this RemoteBoolean evaluates to `true` then the returned value evaluates to [ifTrue]
+     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
      * otherwise it evaluates to [ifFalse].
      *
      * @param ifTrue The [RemoteDp] to be selected if this boolean is `true`.
@@ -506,6 +506,11 @@ public class MutableRemoteBoolean
 internal constructor(remoteInt: MutableRemoteInt) :
     RemoteBoolean(remoteInt), MutableRemoteState<Boolean> {
 
+    /**
+     * Creates a [MutableRemoteBoolean] with an initial [Boolean] value.
+     *
+     * @param initialValue The initial value for this mutable boolean.
+     */
     @RememberInComposition
     public constructor(initialValue: Boolean) : this(MutableRemoteInt(if (initialValue) 1 else 0))
 

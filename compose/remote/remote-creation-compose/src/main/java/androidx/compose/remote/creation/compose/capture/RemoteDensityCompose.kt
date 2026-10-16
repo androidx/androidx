@@ -41,15 +41,31 @@ public fun RemoteDensity.Companion.from(
     )
 }
 
-/** Converts a [TextUnit] to pixels using the provided [RemoteDensity]. */
+/**
+ * Converts a [TextUnit] to pixels using the provided [RemoteDensity].
+ *
+ * @param density The [RemoteDensity] used to convert this [TextUnit] to pixels.
+ */
 public fun TextUnit.toPx(density: RemoteDensity): RemoteFloat = asRemoteTextUnit().toPx(density)
 
-/** Converts a [Dp] to pixels using the provided [RemoteDensity]. */
+/**
+ * Converts a [Dp] to pixels using the provided [RemoteDensity].
+ *
+ * @param density The [RemoteDensity] used to convert this [Dp] to pixels.
+ */
 public fun Dp.toPx(density: RemoteDensity): RemoteFloat = asRdp().toPx(density)
 
-/** Converts a [TextUnit] to pixels using this [RemoteDensity]. */
+/**
+ * Converts a [TextUnit] to pixels using this [RemoteDensity].
+ *
+ * @param textUnit The [TextUnit] value to convert.
+ */
 public fun RemoteDensity.toPx(textUnit: TextUnit): RemoteFloat =
     textUnit.asRemoteTextUnit().toPx(this)
 
-/** Converts a [Dp] to pixels using this [RemoteDensity]. */
+/**
+ * Converts a [Dp] to pixels using this [RemoteDensity].
+ *
+ * @param dp The [Dp] value to convert.
+ */
 public fun RemoteDensity.toPx(dp: Dp): RemoteFloat = dp.asRdp().toPx(this)

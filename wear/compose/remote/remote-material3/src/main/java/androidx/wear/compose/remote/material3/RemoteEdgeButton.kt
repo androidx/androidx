@@ -252,7 +252,11 @@ public object RemoteEdgeButtonDefaults {
     /** The default shape for [RemoteEdgeButton]. */
     public val shape: RemoteShape = RemoteEdgeButtonShape(RemoteEdgeButtonSize.Small)
 
-    /** The recommended shape for [RemoteEdgeButton] of a given size. */
+    /**
+     * The recommended shape for [RemoteEdgeButton] of a given [buttonSize].
+     *
+     * @param buttonSize The [RemoteEdgeButtonSize] of the edge button.
+     */
     public fun shape(buttonSize: RemoteEdgeButtonSize = RemoteEdgeButtonSize.Small): RemoteShape =
         RemoteEdgeButtonShape(buttonSize)
 
@@ -265,6 +269,18 @@ public object RemoteEdgeButtonDefaults {
     /**
      * Creates a [RemoteButtonColors] that represents the default background and content colors used
      * in a [RemoteEdgeButton].
+     *
+     * @param containerColor The background color of this [RemoteEdgeButton] when enabled.
+     * @param contentColor The content color of this [RemoteEdgeButton] when enabled.
+     * @param secondaryContentColor The secondary content color of this [RemoteEdgeButton] when
+     *   enabled.
+     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled.
+     * @param disabledContainerColor The background color of this [RemoteEdgeButton] when not
+     *   enabled.
+     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled.
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteEdgeButton]
+     *   when not enabled.
+     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled.
      */
     @Composable
     public fun buttonColors(
@@ -293,7 +309,21 @@ public object RemoteEdgeButtonDefaults {
     public fun filledTonalButtonColors(): RemoteButtonColors =
         RemoteButtonDefaults.filledTonalButtonColors()
 
-    /** Creates a [RemoteButtonColors] with filled tonal colors for [RemoteEdgeButton]. */
+    /**
+     * Creates a [RemoteButtonColors] with filled tonal colors for [RemoteEdgeButton].
+     *
+     * @param containerColor The background color of this [RemoteEdgeButton] when enabled.
+     * @param contentColor The content color of this [RemoteEdgeButton] when enabled.
+     * @param secondaryContentColor The secondary content color of this [RemoteEdgeButton] when
+     *   enabled.
+     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled.
+     * @param disabledContainerColor The background color of this [RemoteEdgeButton] when not
+     *   enabled.
+     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled.
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteEdgeButton]
+     *   when not enabled.
+     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled.
+     */
     @Composable
     public fun filledTonalButtonColors(
         containerColor: RemoteColor? = null,
@@ -325,6 +355,18 @@ public object RemoteEdgeButtonDefaults {
 
     /**
      * Creates a [RemoteButtonColors] with higher chroma container colors for [RemoteEdgeButton].
+     *
+     * @param containerColor The background color of this [RemoteEdgeButton] when enabled.
+     * @param contentColor The content color of this [RemoteEdgeButton] when enabled.
+     * @param secondaryContentColor The secondary content color of this [RemoteEdgeButton] when
+     *   enabled.
+     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled.
+     * @param disabledContainerColor The background color of this [RemoteEdgeButton] when not
+     *   enabled.
+     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled.
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteEdgeButton]
+     *   when not enabled.
+     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled.
      */
     @Composable
     public fun filledVariantButtonColors(
@@ -353,7 +395,18 @@ public object RemoteEdgeButtonDefaults {
     public fun outlinedButtonColors(): RemoteButtonColors =
         RemoteButtonDefaults.outlinedButtonColors()
 
-    /** Creates a [RemoteButtonColors] with outlined colors for [RemoteEdgeButton]. */
+    /**
+     * Creates a [RemoteButtonColors] with outlined colors for [RemoteEdgeButton].
+     *
+     * @param contentColor The content color of this [RemoteEdgeButton] when enabled.
+     * @param secondaryContentColor The secondary content color of this [RemoteEdgeButton] when
+     *   enabled.
+     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled.
+     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled.
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteEdgeButton]
+     *   when not enabled.
+     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled.
+     */
     @Composable
     public fun outlinedButtonColors(
         contentColor: RemoteColor? = null,

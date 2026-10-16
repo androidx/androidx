@@ -174,6 +174,10 @@ public abstract class RemoteString internal constructor(cacheKey: RemoteStateCac
             }
         }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteString] is empty (`length
+     * == 0`).
+     */
     public val isEmpty: RemoteBoolean
         get() {
             constantValueOrNull?.let {
@@ -201,6 +205,10 @@ public abstract class RemoteString internal constructor(cacheKey: RemoteStateCac
             )
         }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteString] is not empty
+     * (`length > 0`).
+     */
     public val isNotEmpty: RemoteBoolean
         get() {
             constantValueOrNull?.let {
@@ -387,8 +395,8 @@ public abstract class RemoteString internal constructor(cacheKey: RemoteStateCac
     }
 
     /**
-     * Returns a [RemoteString] that evaluates to the trimmed version of this this [RemoteString]
-     * where leading and trailing whitespace characters have been removed.
+     * Returns a [RemoteString] that evaluates to the trimmed version of this [RemoteString] where
+     * leading and trailing whitespace characters have been removed.
      *
      * @return A new [MutableRemoteString] representing the trimmed version of this string.
      */

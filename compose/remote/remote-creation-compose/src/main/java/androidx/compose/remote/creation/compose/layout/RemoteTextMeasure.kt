@@ -174,6 +174,12 @@ public class RemoteTextMeasurer(internal val density: RemoteDensity) {
  */
 @Immutable
 public class RemoteTextLayoutResult(public val size: RemoteSize) {
+    /**
+     * Creates a [RemoteTextLayoutResult] with the given [width] and [height].
+     *
+     * @param width The measured width as a [RemoteFloat].
+     * @param height The measured height as a [RemoteFloat].
+     */
     public constructor(width: RemoteFloat, height: RemoteFloat) : this(RemoteSize(width, height))
 
     /** The measured width as a [RemoteFloat]. */

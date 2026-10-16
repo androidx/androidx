@@ -45,6 +45,10 @@ public class WriterEvents {
         return pendingIntentList.lastIndex
     }
 
+    /**
+     * An [IntObjectMap] of [PendingIntent]s collected during document capture, indexed by their
+     * action IDs.
+     */
     public val pendingIntents: IntObjectMap<PendingIntent>
         get() =
             MutableIntObjectMap<PendingIntent>().apply {

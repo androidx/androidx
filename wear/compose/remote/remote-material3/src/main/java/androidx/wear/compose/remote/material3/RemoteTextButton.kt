@@ -194,7 +194,7 @@ public class RemoteTextButtonColors(
     }
 
     /**
-     * Returns a copy of this RemoteTextButtonColors optionally overriding some of the values.
+     * Returns a copy of this [RemoteTextButtonColors] optionally overriding some of the values.
      *
      * @param containerColor the background color of this text button when enabled.
      * @param contentColor the content color of this text button when enabled.

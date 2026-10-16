@@ -27,7 +27,7 @@ import androidx.compose.runtime.Stable
 /**
  * Represents a Density-independent pixel (Dp) value.
  *
- * `RemoteDp` represents a Dp value that can be a constant, a named variable, or a dynamic
+ * [RemoteDp] represents a Dp value that can be a constant, a named variable, or a dynamic
  * expression.
  */
 @Stable
@@ -79,14 +79,17 @@ internal constructor(
     }
 
     /**
-     * Function to convert this [RemoteDp] to a density-independent pixel value. It multiplies the
-     * current float value by the screen's density.
+     * Converts this [RemoteDp] to pixels by multiplying the current float value by [density].
+     *
+     * @param density The [RemoteDensity] used to convert Dp to pixels.
      */
     public fun toPx(density: RemoteDensity): RemoteFloat {
         return density.density * value
     }
 
-    /** Converts a RemoteDp to a RemoteFloat Px using the [RemoteDensity]. */
+    /**
+     * Converts this [RemoteDp] to a [RemoteFloat] pixel value using the current [RemoteDensity].
+     */
     public fun toPx(): RemoteFloat {
         return RemoteFloatExpression(
             constantValueOrNull = null,
@@ -102,62 +105,130 @@ internal constructor(
         return toPx(creationState.remoteDensity).getFloatIdForCreationState(creationState)
     }
 
-    /** Add two [RemoteDp]s together. */
+    /**
+     * Adds two [RemoteDp] values together.
+     *
+     * @param other The [RemoteDp] to add to this value.
+     */
     public operator fun plus(other: RemoteDp): RemoteDp = RemoteDp(this.value + other.value)
 
-    /** Subtract a [RemoteDp] from another one. */
+    /**
+     * Subtracts [other] from this [RemoteDp].
+     *
+     * @param other The [RemoteDp] to subtract from this value.
+     */
     public operator fun minus(other: RemoteDp): RemoteDp = RemoteDp(this.value - other.value)
 
-    /** This is the same as multiplying the Dp by -1.0. */
+    /** Negates this [RemoteDp], equivalent to multiplying by -1.0. */
     public operator fun unaryMinus(): RemoteDp = RemoteDp(-this.value)
 
-    /** Divide a [RemoteDp] by a scalar. */
+    /**
+     * Divides this [RemoteDp] by a scalar.
+     *
+     * @param other The scalar divisor.
+     */
     public operator fun div(other: Float): RemoteDp = RemoteDp(this.value / other)
 
-    /** Divide a [RemoteDp] by a scalar. */
+    /**
+     * Divides this [RemoteDp] by a scalar.
+     *
+     * @param other The scalar divisor.
+     */
     public operator fun div(other: Int): RemoteDp = RemoteDp(this.value / other.toFloat())
 
-    /** Divide a [RemoteDp] by a [RemoteFloat]. */
+    /**
+     * Divides this [RemoteDp] by a [RemoteFloat].
+     *
+     * @param other The [RemoteFloat] divisor.
+     */
     public operator fun div(other: RemoteFloat): RemoteDp = RemoteDp(this.value / other)
 
-    /** Divide a [RemoteDp] by a [RemoteInt]. */
+    /**
+     * Divides this [RemoteDp] by a [RemoteInt].
+     *
+     * @param other The [RemoteInt] divisor.
+     */
     public operator fun div(other: RemoteInt): RemoteDp =
         RemoteDp(this.value / other.toRemoteFloat())
 
-    /** Divide by another [RemoteDp] to get a scalar. */
+    /**
+     * Divides this [RemoteDp] by another [RemoteDp] to produce a scalar ratio.
+     *
+     * @param other The [RemoteDp] divisor.
+     */
     public operator fun div(other: RemoteDp): RemoteFloat = this.value / other.value
 
-    /** Multiply a [RemoteDp] by a scalar. */
+    /**
+     * Multiplies this [RemoteDp] by a scalar.
+     *
+     * @param other The scalar multiplier.
+     */
     public operator fun times(other: Float): RemoteDp = RemoteDp(this.value * other)
 
-    /** Multiply a [RemoteDp] by a scalar. */
+    /**
+     * Multiplies this [RemoteDp] by a scalar.
+     *
+     * @param other The scalar multiplier.
+     */
     public operator fun times(other: Int): RemoteDp = RemoteDp(this.value * other.toFloat())
 
-    /** Multiply a [RemoteDp] by a [RemoteFloat]. */
+    /**
+     * Multiplies this [RemoteDp] by a [RemoteFloat].
+     *
+     * @param other The [RemoteFloat] multiplier.
+     */
     public operator fun times(other: RemoteFloat): RemoteDp = RemoteDp(this.value * other)
 
-    /** Multiply a [RemoteDp] by a [RemoteInt]. */
+    /**
+     * Multiplies this [RemoteDp] by a [RemoteInt].
+     *
+     * @param other The [RemoteInt] multiplier.
+     */
     public operator fun times(other: RemoteInt): RemoteDp =
         RemoteDp(this.value * other.toRemoteFloat())
 
-    /** Check if this [RemoteDp] is less than [other]. */
+    /**
+     * Checks if this [RemoteDp] is less than [other].
+     *
+     * @param other The [RemoteDp] to compare with.
+     */
     public fun isLessThan(other: RemoteDp): RemoteBoolean = this.value.isLessThan(other.value)
 
-    /** Check if this [RemoteDp] is less than or equal to [other]. */
+    /**
+     * Checks if this [RemoteDp] is less than or equal to [other].
+     *
+     * @param other The [RemoteDp] to compare with.
+     */
     public fun isLessThanOrEqualTo(other: RemoteDp): RemoteBoolean =
         this.value.isLessThanOrEqualTo(other.value)
 
-    /** Check if this [RemoteDp] is greater than [other]. */
+    /**
+     * Checks if this [RemoteDp] is greater than [other].
+     *
+     * @param other The [RemoteDp] to compare with.
+     */
     public fun isGreaterThan(other: RemoteDp): RemoteBoolean = this.value.isGreaterThan(other.value)
 
-    /** Check if this [RemoteDp] is greater than or equal to [other]. */
+    /**
+     * Checks if this [RemoteDp] is greater than or equal to [other].
+     *
+     * @param other The [RemoteDp] to compare with.
+     */
     public fun isGreaterThanOrEqualTo(other: RemoteDp): RemoteBoolean =
         this.value.isGreaterThanOrEqualTo(other.value)
 
-    /** Check if this [RemoteDp] is equal to [other]. */
+    /**
+     * Checks if this [RemoteDp] is equal to [other].
+     *
+     * @param other The [RemoteDp] to compare with.
+     */
     public fun isEqualTo(other: RemoteDp): RemoteBoolean = this.value.isEqualTo(other.value)
 
-    /** Check if this [RemoteDp] is not equal to [other]. */
+    /**
+     * Checks if this [RemoteDp] is not equal to [other].
+     *
+     * @param other The [RemoteDp] to compare with.
+     */
     public fun isNotEqualTo(other: RemoteDp): RemoteBoolean = this.value.isNotEqualTo(other.value)
 
     public companion object {
@@ -210,6 +281,14 @@ internal constructor(
             )
         }
 
+        /**
+         * Creates a named [RemoteDp] expression.
+         *
+         * @param name A unique name to identify this state within its [domain].
+         * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+         * @param value A lambda that provides the [RemoteDp] expression.
+         * @return A [RemoteDp] representing the named Dp expression.
+         */
         public fun createNamedRemoteDp(
             name: String,
             domain: RemoteState.Domain = RemoteState.Domain.User,
@@ -282,8 +361,18 @@ public fun RemoteFloat.toRemoteDp(): RemoteDp {
     )
 }
 
-/** Returns the smaller of two [RemoteDp] values. */
+/**
+ * Returns the smaller of two [RemoteDp] values.
+ *
+ * @param a The first [RemoteDp] value to compare.
+ * @param b The second [RemoteDp] value to compare.
+ */
 public fun min(a: RemoteDp, b: RemoteDp): RemoteDp = RemoteDp(min(a.value, b.value))
 
-/** Returns the greater of two [RemoteDp] values. */
+/**
+ * Returns the greater of two [RemoteDp] values.
+ *
+ * @param a The first [RemoteDp] value to compare.
+ * @param b The second [RemoteDp] value to compare.
+ */
 public fun max(a: RemoteDp, b: RemoteDp): RemoteDp = RemoteDp(max(a.value, b.value))

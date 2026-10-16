@@ -115,6 +115,30 @@ public class RemoteTypography(
     public val numeralSmall: RemoteTextStyle,
     public val numeralExtraSmall: RemoteTextStyle,
 ) {
+    /**
+     * Creates a [RemoteTypography] with default token styles and an optional [defaultFontFamily].
+     *
+     * @param defaultFontFamily The default [RemoteFontFamily] applied to styles without an explicit
+     *   font family.
+     * @param displayLarge The largest display headline style.
+     * @param displayMedium The medium display headline style.
+     * @param displaySmall The smallest display headline style.
+     * @param titleLarge The largest title style.
+     * @param titleMedium The medium title style.
+     * @param titleSmall The smallest title style.
+     * @param labelLarge The largest label style.
+     * @param labelMedium The medium label style.
+     * @param labelSmall The smallest label style.
+     * @param bodyLarge The largest body text style.
+     * @param bodyMedium The medium body text style.
+     * @param bodySmall The small body text style.
+     * @param bodyExtraSmall The smallest body text style.
+     * @param numeralExtraLarge The extra-large numeral style.
+     * @param numeralLarge The large numeral style.
+     * @param numeralMedium The medium numeral style.
+     * @param numeralSmall The small numeral style.
+     * @param numeralExtraSmall The extra-small numeral style.
+     */
     public constructor(
         defaultFontFamily: RemoteFontFamily = RemoteFontFamily.Default,
         displayLarge: RemoteTextStyle = RemoteTypographyTokens.DisplayLarge,
@@ -156,7 +180,11 @@ public class RemoteTypography(
         numeralExtraSmall = numeralExtraSmall.withDefaultFontFamily(defaultFontFamily),
     )
 
-    /** Creates a copy of Wear Remote Compose [RemoteTypography] from Wear Compose [Typography]. */
+    /**
+     * Creates a [RemoteTypography] from a Wear Compose [Typography].
+     *
+     * @param typography The Wear Compose [Typography] to convert.
+     */
     public constructor(
         typography: Typography
     ) : this(typography, defaultFontFamily = RemoteFontFamily.Default)
@@ -199,7 +227,7 @@ public class RemoteTypography(
         numeralExtraSmall = RemoteTextStyle.fromTextStyle(typography.numeralExtraSmall),
     )
 
-    /** Returns a copy of this RemoteTypography, optionally overriding some of the values. */
+    /** Returns a copy of this [RemoteTypography], optionally overriding some of the values. */
     public fun copy(
         displayLarge: RemoteTextStyle = this.displayLarge,
         displayMedium: RemoteTextStyle = this.displayMedium,

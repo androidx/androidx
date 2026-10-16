@@ -180,7 +180,7 @@ public class RemoteColorScheme(
             source.resolve(WearColorRoles.OnErrorContainer, colorScheme.onErrorContainer),
     )
 
-    /** Returns a copy of this RemoteColorScheme, optionally overriding some of the values. */
+    /** Returns a copy of this [RemoteColorScheme], optionally overriding some of the values. */
     public fun copy(
         primary: RemoteColor = this.primary,
         primaryDim: RemoteColor = this.primaryDim,

@@ -28,7 +28,12 @@ import androidx.compose.runtime.Immutable
 @Immutable
 public interface RemoteCornerSize {
 
-    /** Converts the [RemoteCornerSize] to pixels in RemoteFloat. */
+    /**
+     * Converts the [RemoteCornerSize] to pixels in [RemoteFloat].
+     *
+     * @param shapeSize The size of the shape.
+     * @param density The current [RemoteDensity].
+     */
     public fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat
 }
 

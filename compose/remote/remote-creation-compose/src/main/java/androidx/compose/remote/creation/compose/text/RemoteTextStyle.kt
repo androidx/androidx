@@ -118,6 +118,28 @@ constructor(
         )
     }
 
+    /**
+     * Returns a new [RemoteTextStyle] that is a combination of this style and the given attributes,
+     * keeping this style's values for any attributes left unspecified (`null` or `Unspecified`).
+     *
+     * @param color The color of the text.
+     * @param fontSize The size of glyphs to use when painting the text in [RemoteTextUnit].
+     * @param fontWeight The typeface thickness to use when painting the text (e.g.,
+     *   [FontWeight.Bold]).
+     * @param fontStyle The font style to use when painting the text (e.g., [FontStyle.Italic]).
+     * @param fontFamily The font family to be used when rendering the text.
+     * @param letterSpacing The amount of space to add between each letter in [RemoteTextUnit].
+     * @param background The background color for the text.
+     * @param textAlign The alignment of the text within the lines of the paragraph.
+     * @param lineHeight Line height for the text in [RemoteTextUnit] unit, e.g. SP or EM.
+     * @param textDecoration The decorations to paint on the text (e.g.,
+     *   [TextDecoration.Underline]).
+     * @param lineBreak The configuration of line break.
+     * @param hyphens The configuration of hyphenation.
+     * @param fontFeatureSettings The advanced typography settings provided by font in CSS format
+     *   (e.g. "smcp" or "tnum").
+     * @param fontVariationSettings The font variation settings to be applied to the text.
+     */
     public fun merge(
         color: RemoteColor? = null,
         fontSize: RemoteTextUnit? = null,
@@ -154,6 +176,24 @@ constructor(
 
     /**
      * Creates a copy of this [RemoteTextStyle] with the ability to override individual attributes.
+     *
+     * @param color The color of the text.
+     * @param fontSize The size of glyphs to use when painting the text in [RemoteTextUnit].
+     * @param fontWeight The typeface thickness to use when painting the text (e.g.,
+     *   [FontWeight.Bold]).
+     * @param fontStyle The font style to use when painting the text (e.g., [FontStyle.Italic]).
+     * @param fontFamily The font family to be used when rendering the text.
+     * @param letterSpacing The amount of space to add between each letter in [RemoteTextUnit].
+     * @param background The background color for the text.
+     * @param textAlign The alignment of the text within the lines of the paragraph.
+     * @param lineHeight Line height for the text in [RemoteTextUnit] unit, e.g. SP or EM.
+     * @param textDecoration The decorations to paint on the text (e.g.,
+     *   [TextDecoration.Underline]).
+     * @param lineBreak The configuration of line break.
+     * @param hyphens The configuration of hyphenation.
+     * @param fontFeatureSettings The advanced typography settings provided by font in CSS format
+     *   (e.g. "smcp" or "tnum").
+     * @param fontVariationSettings The font variation settings to be applied to the text.
      */
     public fun copy(
         color: RemoteColor? = this.color,
@@ -198,6 +238,8 @@ constructor(
          * taken from the [Font] in the [FontListFontFamily] that best matches the style's
          * [FontWeight] and [FontStyle], using the same CSS font matching rules as Compose, among
          * the fonts that declare variation settings.
+         *
+         * @param style The Compose [TextStyle] to convert.
          */
         public fun fromTextStyle(style: TextStyle): RemoteTextStyle {
             // Maps unspecified color into null as it's not supported in remote compose.
@@ -236,6 +278,7 @@ constructor(
             )
         }
 
+        /** Constant for default [RemoteTextStyle] with no overridden properties. */
         public val Default: RemoteTextStyle = RemoteTextStyle()
     }
 }

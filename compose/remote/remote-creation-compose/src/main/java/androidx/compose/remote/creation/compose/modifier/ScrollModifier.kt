@@ -41,9 +41,22 @@ import androidx.compose.runtime.remember
 public class RemoteScrollState
 @RememberInComposition
 constructor(public val positionState: MutableRemoteFloat, public val notches: Int) {
+    /**
+     * Creates a [RemoteScrollState] with an initial [position] and number of [notches].
+     *
+     * @param position Initial scroll position in pixels.
+     * @param notches The number of equally spaced snap points along the scroll range, or 0 for
+     *   continuous scrolling.
+     */
     @RememberInComposition
     public constructor(position: Float, notches: Int) : this(MutableRemoteFloat(position), notches)
 
+    /**
+     * Creates a [RemoteScrollState] with an optional number of [notches].
+     *
+     * @param notches The number of equally spaced snap points along the scroll range, or 0 for
+     *   continuous scrolling.
+     */
     @RememberInComposition
     public constructor(notches: Int = 0) : this(MutableRemoteFloat(), notches)
 

@@ -130,19 +130,30 @@ public fun RemoteModifier.padding(
     bottom: RemoteFloat = 0f.rf,
 ): RemoteModifier = then(PaddingModifier(start = start, top = top, end = end, bottom = bottom))
 
-/** Adds [all] padding to each edge of the content. */
+/**
+ * Adds [all] padding to each edge of the content.
+ *
+ * @param all Padding in pixels applied to all four edges.
+ */
 public fun RemoteModifier.padding(all: RemoteFloat): RemoteModifier = padding(all, all, all, all)
 
 /**
  * Adds [horizontal] padding to the start and end edges, and [vertical] padding to the top and
  * bottom edges.
+ *
+ * @param horizontal Padding in pixels applied to the start and end edges.
+ * @param vertical Padding in pixels applied to the top and bottom edges.
  */
 public fun RemoteModifier.padding(
     horizontal: RemoteFloat = 0f.rf,
     vertical: RemoteFloat = 0f.rf,
 ): RemoteModifier = padding(start = horizontal, top = vertical, end = horizontal, bottom = vertical)
 
-/** Adds padding defined by the [padding] object. */
+/**
+ * Adds padding defined by the [padding] object.
+ *
+ * @param padding The [RemotePaddingValues] describing the padding for each edge.
+ */
 public fun RemoteModifier.padding(padding: RemotePaddingValues): RemoteModifier =
     padding(
         start = padding.leftPadding,
@@ -151,7 +162,11 @@ public fun RemoteModifier.padding(padding: RemotePaddingValues): RemoteModifier 
         bottom = padding.bottomPadding,
     )
 
-/** Adds [all] padding to each edge of the content. */
+/**
+ * Adds [all] padding to each edge of the content.
+ *
+ * @param all Padding in [RemoteDp] applied to all four edges.
+ */
 public fun RemoteModifier.padding(all: RemoteDp): RemoteModifier =
     padding(start = all, top = all, end = all, bottom = all)
 
@@ -175,6 +190,9 @@ public fun RemoteModifier.padding(
 /**
  * Adds [horizontal] padding to the start and end edges, and [vertical] padding to the top and
  * bottom edges.
+ *
+ * @param horizontal Padding in [RemoteDp] applied to the start and end edges.
+ * @param vertical Padding in [RemoteDp] applied to the top and bottom edges.
  */
 public fun RemoteModifier.padding(
     horizontal: RemoteDp = 0.rdp,

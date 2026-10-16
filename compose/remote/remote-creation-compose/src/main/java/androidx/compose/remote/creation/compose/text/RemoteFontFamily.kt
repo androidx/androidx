@@ -42,7 +42,11 @@ public sealed class RemoteFontFamily(public val name: String, private val fontFa
     /** Represents the cursive system font family. */
     public object Cursive : RemoteFontFamily("cursive", "RemoteFontFamily.Cursive")
 
-    /** Represents a custom or system font family referenced by name. */
+    /**
+     * Represents a custom or system font family referenced by name.
+     *
+     * @param name The font family name resolved by the player.
+     */
     public class Named(name: String) : RemoteFontFamily(name, "RemoteFontFamily.Named($name)") {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -59,7 +63,11 @@ public sealed class RemoteFontFamily(public val name: String, private val fontFa
     override fun toString(): String = fontFamilyName
 
     public companion object {
-        /** Maps a Compose [FontFamily] to a [RemoteFontFamily]. */
+        /**
+         * Maps a Compose [FontFamily] to a [RemoteFontFamily].
+         *
+         * @param fontFamily The Compose [FontFamily] to convert, or `null`.
+         */
         public fun fromComposeFontFamily(fontFamily: FontFamily?): RemoteFontFamily? {
             if (fontFamily == null) return null
             return when (fontFamily) {
