@@ -80,23 +80,9 @@ public object MaterialTransitions {
          */
         public fun forwardTransform(): ContentTransform {
             return ((slideInHorizontally { (it * SlideFraction).toInt() } +
-                fadeIn(
-                    animationSpec =
-                        tween(
-                            durationMillis = FadeDurationMillis,
-                            delayMillis = FadeDelayMillis,
-                            easing = LinearEasing,
-                        )
-                )) togetherWith
+                fadeIn(animationSpec = FadeAnimationSpec)) togetherWith
                 (slideOutHorizontally { (-it * SlideFraction).toInt() } +
-                    fadeOut(
-                        animationSpec =
-                            tween(
-                                durationMillis = FadeDurationMillis,
-                                delayMillis = FadeDelayMillis,
-                                easing = LinearEasing,
-                            )
-                    )))
+                    fadeOut(animationSpec = FadeAnimationSpec)))
         }
 
         /**
@@ -106,13 +92,11 @@ public object MaterialTransitions {
          * @sample androidx.compose.material3.samples.HorizontalSharedAxisTransitionSample
          */
         public fun backwardTransform(): ContentTransform {
-            return ((slideInHorizontally { (-it * SlideFraction).toInt() }) togetherWith
+            return ((slideInHorizontally { (-it * SlideFraction).toInt() } +
+                    fadeIn(animationSpec = FadeAnimationSpec)) togetherWith
                     (slideOutHorizontally { (it * SlideFraction).toInt() } +
                         scaleOut(targetScale = 1f) +
-                        fadeOut(
-                            animationSpec =
-                                tween(durationMillis = FadeDurationMillis, easing = LinearEasing)
-                        )))
+                        fadeOut(animationSpec = FadeAnimationSpec)))
                 .apply { targetContentZIndex = BackwardTargetContentZIndex }
         }
 
@@ -149,13 +133,13 @@ public object MaterialTransitions {
 
                     alpha = 1f
                     scale = currentScale
-                    transformOrigin = TransformOrigin(pivotFractionX, PivotFractionY)
                     offset =
                         calculateSlideOffset(
                             fullSize = fullSize,
                             currentScale = currentScale,
                             rawYDelta = rawYDelta,
                             displayBoundsMargin = displayBoundsMarginPx,
+                            pivotFractionX = pivotFractionX,
                         )
                 }
                 targetContentTransform { fullSize ->
@@ -188,9 +172,14 @@ public object MaterialTransitions {
         private const val BackwardTargetContentZIndex = -10f
         private const val PivotFractionXRightEdge = 0.5f
         private const val PivotFractionXDefault = 0.9f
-        private const val PivotFractionY = 0.5f
         private const val FadeDurationMillis = 90
         private const val FadeDelayMillis = 50
+        private val FadeAnimationSpec =
+            tween<Float>(
+                durationMillis = FadeDurationMillis,
+                delayMillis = FadeDelayMillis,
+                easing = LinearEasing,
+            )
     }
 
     /**
@@ -284,7 +273,9 @@ private fun calculateSlideOffset(
     currentScale: Float,
     rawYDelta: Float,
     displayBoundsMargin: Float,
+    pivotFractionX: Float = 0.5f,
 ): IntOffset {
+    val horizontalOffsetPx = (1f - currentScale) * (pivotFractionX - 0.5f) * fullSize.width
     val verticalOffsetPx =
         calculateDampedVerticalOffset(
             rawYDelta = rawYDelta,
@@ -292,7 +283,7 @@ private fun calculateSlideOffset(
             currentScale = currentScale,
             displayBoundsMargin = displayBoundsMargin,
         )
-    return IntOffset(0, verticalOffsetPx.toInt())
+    return IntOffset(horizontalOffsetPx.toInt(), verticalOffsetPx.toInt())
 }
 
 internal fun calculateDampedVerticalOffset(
