@@ -370,7 +370,11 @@ internal constructor(
             if (
                 beforeEditValue.composition != mainBuffer.composition ||
                     beforeEditValue.highlight != mainBuffer.highlight ||
-                    beforeEditValue.composingAnnotations != mainBuffer.composingAnnotations
+                    !composingAnnotationsUnchanged(
+                        current = beforeEditValue.composingAnnotations,
+                        composition = mainBuffer.composition,
+                        annotationList = mainBuffer.composingAnnotations,
+                    )
             ) {
                 // edit operation caused no change to text content or selection
                 // No need to run an existing InputTransformation, or record an undo. Only update
@@ -819,7 +823,7 @@ private fun finalizeComposingAnnotations(
         composition != null && !composition.collapsed -> {
             listOf(
                 AnnotatedString.Range(
-                    SpanStyle(textDecoration = TextDecoration.Underline),
+                    DefaultComposingStyle,
                     start = composition.min,
                     end = composition.max,
                 )
@@ -827,6 +831,60 @@ private fun finalizeComposingAnnotations(
         }
         else -> emptyList()
     }
+
+/** Style used for the composing region when the IME does not provide any composing annotations. */
+private val DefaultComposingStyle = SpanStyle(textDecoration = TextDecoration.Underline)
+
+/**
+ * Returns true if [current] is equal to what [finalizeComposingAnnotations] would return for
+ * [composition] and [annotationList], or if both [current] and [annotationList] are null. Does not
+ * allocate.
+ *
+ * `TextFieldState.commitEditAsUser` uses this to decide whether an edit that changed neither the
+ * text nor the selection still has to publish a new value. Comparing [current] with the result of
+ * [finalizeComposingAnnotations] would give the same answer, but would allocate a list on every
+ * such IME call. Each branch below matches the branch of [finalizeComposingAnnotations] with the
+ * same condition.
+ */
+private fun composingAnnotationsUnchanged(
+    current: List<PlacedAnnotation>?,
+    composition: TextRange?,
+    annotationList: MutableVector<PlacedAnnotation>?,
+): Boolean {
+    // finalizeComposingAnnotations never returns null, so a null [current] comes from a value that
+    // was not created by commitEditAsUser, for example the initial value or a programmatic edit.
+    // Treat it as unchanged only when the buffer has no IME annotations either. This is what the
+    // previous check did: it compared the two nullable references, so it skipped only when both
+    // were null.
+    if (current == null) return annotationList == null
+    return when {
+        // The IME provided composing annotations. finalizeComposingAnnotations would copy them
+        // into a new list, so compare them one by one instead.
+        annotationList != null && annotationList.isNotEmpty() -> {
+            if (current.size != annotationList.size) return false
+            for (i in current.indices) {
+                if (current[i] != annotationList[i]) return false
+            }
+            true
+        }
+        // No IME annotations, but there is a non-empty composing region.
+        // finalizeComposingAnnotations would return a single underline range over the
+        // composition, created with the 3-argument AnnotatedString.Range constructor, whose tag
+        // is "". Check each field of that range.
+        composition != null && !composition.collapsed -> {
+            current.size == 1 &&
+                current[0].let {
+                    it.item == DefaultComposingStyle &&
+                        it.start == composition.min &&
+                        it.end == composition.max &&
+                        it.tag.isEmpty()
+                }
+        }
+        // No IME annotations and no composing region: finalizeComposingAnnotations would return
+        // an empty list.
+        else -> current.isEmpty()
+    }
+}
 
 /**
  * Creates a temporary, mutable [TextFieldBuffer] representing the current state of this

@@ -364,7 +364,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         // actual text. If the TFS instance changes but has the same text, we don't need to
         // re-layout. Also if the TFS object _doesn't_ change but its text _does_, we do need to
         // re-layout. That state read happens in getOrComputeLayout to invalidate correctly.
-        var visualText: CharSequence? = null
+        var visualText: TextFieldCharSequence? = null
         var annotations: List<PlacedAnnotation>? = null
         // We keep composition separate from visualText because we do not want to invalidate text
         // layout when selection changes. Composition should invalidate the layout because it
