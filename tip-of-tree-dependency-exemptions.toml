@@ -118,12 +118,6 @@ validThroughLibraryVersion = "1.0.0-beta01"
 reason = "b/TODO - <reason>"
 
 [[tipOfTreeExemptions]]
-library = ":compose:ui:ui"
-dependsOn = ":core:core"
-validThroughLibraryVersion = "1.14.0-beta01"
-reason = "b/380381249 - ContentCaptureSessionCompat.flush, notifyViewAppeared, notifyViewDisappeared"
-
-[[tipOfTreeExemptions]]
 library = ":constraintlayout:constraintlayout"
 dependsOn = ":constraintlayout:constraintlayout-core"
 validThroughLibraryVersion = "2.3.0-beta01"

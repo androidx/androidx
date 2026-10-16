@@ -19,6 +19,7 @@ package androidx.compose.ui.contentcapture
 import android.os.Build
 import android.os.Bundle
 import android.util.LongSparseArray
+import android.view.ViewGroup
 import android.view.ViewStructure
 import android.view.translation.TranslationRequestValue
 import android.view.translation.TranslationResponseValue
@@ -42,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.createAndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.coreshims.ViewStructureCompat
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearTextSubstitution
 import androidx.compose.ui.semantics.isShowingTextSubstitution
@@ -97,7 +99,7 @@ class ContentCaptureTest {
     private val tag = "tag"
     private lateinit var androidComposeView: AndroidComposeView
     private lateinit var contentCaptureSessionWrapper: ContentCaptureSessionWrapper
-    private lateinit var viewStructure: ViewStructure
+    private lateinit var viewStructureCompat: ViewStructureCompat
     private val contentCaptureEventLoopIntervalMs = 100L
 
     @Test
@@ -113,10 +115,11 @@ class ContentCaptureTest {
             verify(contentCaptureSessionWrapper).newVirtualViewStructure(any(), any())
             verify(contentCaptureSessionWrapper).notifyViewAppeared(any())
             verify(contentCaptureSessionWrapper).flush()
-            verify(viewStructure).setDimens(any(), any(), any(), any(), any(), any())
-            verify(viewStructure, times(1)).extras
+            verify(viewStructureCompat).setDimens(any(), any(), any(), any(), any(), any())
+            verify(viewStructureCompat, times(1)).extras
+            verify(viewStructureCompat).toViewStructure()
             verifyNoMoreInteractions(contentCaptureSessionWrapper)
-            verifyNoMoreInteractions(viewStructure)
+            verifyNoMoreInteractions(viewStructureCompat)
         }
     }
 
@@ -135,7 +138,7 @@ class ContentCaptureTest {
                 verify(contentCaptureSessionWrapper).notifyViewDisappeared(any())
                 verify(contentCaptureSessionWrapper).flush()
                 verifyNoMoreInteractions(contentCaptureSessionWrapper)
-                verifyNoMoreInteractions(viewStructure)
+                verifyNoMoreInteractions(viewStructureCompat)
             }
         }
     }
@@ -163,7 +166,7 @@ class ContentCaptureTest {
 
         val bundle1 = Bundle()
         val bundle2 = Bundle()
-        whenever(viewStructure.extras).doReturnConsecutively(listOf(bundle1, bundle2))
+        whenever(viewStructureCompat.extras).doReturnConsecutively(listOf(bundle1, bundle2))
 
         // Act.
         rule.runOnIdle { appeared = true }
@@ -177,15 +180,15 @@ class ContentCaptureTest {
         // Assert.
         rule.runOnIdle {
             with(argumentCaptor<CharSequence>()) {
-                verify(viewStructure, times(2)).setText(capture())
+                verify(viewStructureCompat, times(2)).setText(capture())
                 assertThat(firstValue).isEqualTo("foo")
                 assertThat(secondValue).isEqualTo("bar")
             }
-            verify(viewStructure, times(2)).extras
+            verify(viewStructureCompat, times(2)).extras
             assertAdditionalIndices(bundle1, 0)
             assertAdditionalIndices(bundle2, 1)
             with(argumentCaptor<String>()) {
-                verify(viewStructure, times(1)).setId(anyInt(), isNull(), isNull(), capture())
+                verify(viewStructureCompat, times(1)).setId(anyInt(), isNull(), isNull(), capture())
                 assertThat(firstValue).isEqualTo("testTagFoo")
             }
             verify(contentCaptureSessionWrapper, times(0)).notifyViewsDisappeared(any())
@@ -339,7 +342,7 @@ class ContentCaptureTest {
             // At least 5 times(List itself + 4 children)
             verify(contentCaptureSessionWrapper, atLeast(5)).notifyViewAppeared(any())
             with(argumentCaptor<String>()) {
-                verify(viewStructure, times(5)).setClassName(capture())
+                verify(viewStructureCompat, times(5)).setClassName(capture())
                 assertThat(firstValue).isEqualTo("android.widget.ViewGroup")
                 assertThat(secondValue).isEqualTo("android.widget.TextView")
                 assertThat(thirdValue).isEqualTo("android.widget.TextView")
@@ -361,7 +364,7 @@ class ContentCaptureTest {
             }
 
             val bundle1 = Bundle()
-            whenever(viewStructure.extras).thenReturn(bundle1)
+            whenever(viewStructureCompat.extras).thenReturn(bundle1)
 
             // Act.
             rule.runOnIdle {
@@ -401,7 +404,7 @@ class ContentCaptureTest {
 
             val bundle1 = Bundle()
             val bundle2 = Bundle()
-            whenever(viewStructure.extras).doReturnConsecutively(listOf(bundle1, bundle2))
+            whenever(viewStructureCompat.extras).doReturnConsecutively(listOf(bundle1, bundle2))
             rule.runOnIdle {
                 // text_[4,5] appeared, text_[0,1] disappeared
                 scope?.launch { listState?.scrollToItem(index = 2) }
@@ -440,7 +443,7 @@ class ContentCaptureTest {
             }
 
             val bundle1 = Bundle()
-            whenever(viewStructure.extras).thenReturn(bundle1)
+            whenever(viewStructureCompat.extras).thenReturn(bundle1)
 
             // Act.
             rule.runOnIdle {
@@ -480,7 +483,7 @@ class ContentCaptureTest {
 
             val bundle1 = Bundle()
             val bundle2 = Bundle()
-            whenever(viewStructure.extras).doReturnConsecutively(listOf(bundle1, bundle2))
+            whenever(viewStructureCompat.extras).doReturnConsecutively(listOf(bundle1, bundle2))
             rule.runOnIdle {
                 // text_[1,2] appeared, text_[5,6] disappeared
                 scope?.launch { listState?.scrollToItem(index = 1) }
@@ -785,10 +788,12 @@ class ContentCaptureTest {
         content: @Composable () -> Unit,
     ) {
         contentCaptureSessionWrapper = mock()
-        viewStructure = mock()
+        viewStructureCompat = mock()
+        val viewStructure: ViewStructure = mock()
 
         whenever(contentCaptureSessionWrapper.newVirtualViewStructure(any(), any()))
-            .thenReturn(viewStructure)
+            .thenReturn(viewStructureCompat)
+        whenever(viewStructureCompat.toViewStructure()).thenReturn(viewStructure)
 
         // TODO(mnuzen): provideContentCaptureManager as a compositionLocal so that instead of
         //  casting view and getting ContentCaptureManager, retrieve it via
@@ -812,7 +817,7 @@ class ContentCaptureTest {
 
         runOnIdle {
             if (!retainInteractionsDuringInitialization) {
-                clearInvocations(contentCaptureSessionWrapper, viewStructure)
+                clearInvocations(contentCaptureSessionWrapper, viewStructureCompat)
             }
         }
     }
