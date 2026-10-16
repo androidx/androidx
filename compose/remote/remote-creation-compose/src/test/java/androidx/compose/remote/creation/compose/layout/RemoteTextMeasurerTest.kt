@@ -57,6 +57,16 @@ class RemoteTextMeasurerTest {
         assertThat(result.size.height).isNotNull()
         assertThat(result.width).isNotNull()
         assertThat(result.height).isNotNull()
+        assertThat(result.advanceWidth).isNotNull()
+        assertThat(result.monospaceWidth).isNotNull()
+        assertThat(result.left).isNotNull()
+        assertThat(result.top).isNotNull()
+        assertThat(result.right).isNotNull()
+        assertThat(result.bottom).isNotNull()
+        assertThat(result.ascent).isNotNull()
+        assertThat(result.descent).isNotNull()
+        assertThat(result.firstBaseline).isNotNull()
+        assertThat(result.lastBaseline).isNotNull()
     }
 
     @Test
@@ -68,11 +78,75 @@ class RemoteTextMeasurerTest {
     }
 
     @Test
+    fun measureAdvanceWidth_returnsRemoteFloat() {
+        val measurer = RemoteTextMeasurer(density = density)
+        val advanceWidth = measurer.measureAdvanceWidth(" Hello ".rs)
+
+        assertThat(advanceWidth).isNotNull()
+    }
+
+    @Test
+    fun measureMonospaceWidth_returnsRemoteFloat() {
+        val measurer = RemoteTextMeasurer(density = density)
+        val monospaceWidth = measurer.measureMonospaceWidth("Hello".rs)
+
+        assertThat(monospaceWidth).isNotNull()
+    }
+
+    @Test
     fun measureHeight_returnsRemoteFloat() {
         val measurer = RemoteTextMeasurer(density = density)
         val height = measurer.measureHeight("Hello".rs)
 
         assertThat(height).isNotNull()
+    }
+
+    @Test
+    fun measureLeft_returnsRemoteFloat() {
+        val measurer = RemoteTextMeasurer(density = density)
+        val left = measurer.measureLeft("Hello".rs)
+
+        assertThat(left).isNotNull()
+    }
+
+    @Test
+    fun measureTop_returnsRemoteFloat() {
+        val measurer = RemoteTextMeasurer(density = density)
+        val top = measurer.measureTop("Hello".rs)
+
+        assertThat(top).isNotNull()
+    }
+
+    @Test
+    fun measureRight_returnsRemoteFloat() {
+        val measurer = RemoteTextMeasurer(density = density)
+        val right = measurer.measureRight("Hello".rs)
+
+        assertThat(right).isNotNull()
+    }
+
+    @Test
+    fun measureBottom_returnsRemoteFloat() {
+        val measurer = RemoteTextMeasurer(density = density)
+        val bottom = measurer.measureBottom("Hello".rs)
+
+        assertThat(bottom).isNotNull()
+    }
+
+    @Test
+    fun measureAscent_returnsRemoteFloat() {
+        val measurer = RemoteTextMeasurer(density = density)
+        val ascent = measurer.measureAscent("Hello".rs)
+
+        assertThat(ascent).isNotNull()
+    }
+
+    @Test
+    fun measureDescent_returnsRemoteFloat() {
+        val measurer = RemoteTextMeasurer(density = density)
+        val descent = measurer.measureDescent("Hello".rs)
+
+        assertThat(descent).isNotNull()
     }
 
     @Test
@@ -152,9 +226,40 @@ class RemoteTextMeasurerTest {
 
         val widthId = result.width.getFloatIdForCreationState(creationState)
         val heightId = result.height.getFloatIdForCreationState(creationState)
+        val advanceWidthId = result.advanceWidth.getFloatIdForCreationState(creationState)
+        val monospaceWidthId = result.monospaceWidth.getFloatIdForCreationState(creationState)
+        val leftId = result.left.getFloatIdForCreationState(creationState)
+        val topId = result.top.getFloatIdForCreationState(creationState)
+        val rightId = result.right.getFloatIdForCreationState(creationState)
+        val bottomId = result.bottom.getFloatIdForCreationState(creationState)
+        val ascentId = result.ascent.getFloatIdForCreationState(creationState)
+        val descentId = result.descent.getFloatIdForCreationState(creationState)
+        val firstBaselineId = result.firstBaseline.getFloatIdForCreationState(creationState)
+        val lastBaselineId = result.lastBaseline.getFloatIdForCreationState(creationState)
 
         assertThat(widthId.isNaN()).isTrue()
         assertThat(heightId.isNaN()).isTrue()
+        assertThat(advanceWidthId.isNaN()).isTrue()
+        assertThat(monospaceWidthId.isNaN()).isTrue()
+        assertThat(leftId.isNaN()).isTrue()
+        assertThat(topId.isNaN()).isTrue()
+        assertThat(rightId.isNaN()).isTrue()
+        assertThat(bottomId.isNaN()).isTrue()
+        assertThat(ascentId.isNaN()).isTrue()
+        assertThat(descentId.isNaN()).isTrue()
+        assertThat(firstBaselineId.isNaN()).isTrue()
+        assertThat(lastBaselineId.isNaN()).isTrue()
         assertThat(creationState.document.bufferSize()).isGreaterThan(0)
+    }
+
+    @Test
+    fun sizeConstructor_setsZeroBaselines() {
+        val result = RemoteTextLayoutResult(RemoteSize(100f.rf, 20f.rf))
+
+        assertThat(result.ascent.constantValueOrNull).isEqualTo(0f)
+        assertThat(result.firstBaseline.constantValueOrNull).isEqualTo(0f)
+        assertThat(result.lastBaseline.constantValueOrNull).isEqualTo(0f)
+        assertThat(result.firstBaseline.cacheKey).isEqualTo(0f.rf.cacheKey)
+        assertThat(result.lastBaseline.cacheKey).isEqualTo(0f.rf.cacheKey)
     }
 }
