@@ -41,8 +41,10 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Tests for behaviours related to
@@ -605,6 +607,48 @@ public class AsyncStartUpTest {
                 convertToString(result.getNonUiThreadBlockingStartUpLocations().get(0)
                         .getStackInformation())
                 .contains("Chromium init"));
+    }
+
+    /**
+     * Tests that {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig,
+     * Executor, WebViewOutcomeReceiver)} invokes the callback on the provided {@link Executor}
+     * rather than the main looper.
+     */
+    @Test
+    @MediumTest
+    public void testAsyncStartUp_customCallbackExecutorRunsCallbackOnProvidedExecutor()
+            throws Throwable {
+        WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
+                Executors.newSingleThreadExecutor()).build();
+        final AtomicReference<Thread> callbackExecutorThread = new AtomicReference<>();
+        Executor callbackExecutor = Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "CustomStartUpCallbackThread");
+            callbackExecutorThread.set(t);
+            return t;
+        });
+        final ResolvableFuture<Thread> callbackThreadFuture = ResolvableFuture.create();
+
+        WebViewCompat.startUpWebView(
+                ApplicationProvider.getApplicationContext(),
+                config,
+                callbackExecutor,
+                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                    @Override
+                    public void onResult(@NonNull WebViewStartUpResult result) {
+                        callbackThreadFuture.set(Thread.currentThread());
+                    }
+
+                    @Override
+                    public void onError(@NonNull WebViewStartupException error) {
+                        callbackThreadFuture.setException(error);
+                    }
+                });
+        Thread actualThread = WebkitUtils.waitForFuture(callbackThreadFuture);
+
+        Assert.assertTrue(webViewCurrentlyLoaded());
+        Assert.assertNotNull(callbackExecutorThread.get());
+        Assert.assertSame(callbackExecutorThread.get(), actualThread);
+        Assert.assertNotSame(Looper.getMainLooper().getThread(), actualThread);
     }
 
     private static String convertToString(Throwable t) {

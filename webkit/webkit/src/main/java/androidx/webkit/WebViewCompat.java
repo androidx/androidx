@@ -1493,9 +1493,10 @@ public class WebViewCompat {
                 // - If the app's callback has a problem the stack trace will hopefully make it
                 // clearer that it's not WebView's fault since WebView code will not be in the
                 // stack trace.
-                getFactory().startUpWebView(config, (WebViewStartUpCallback) (result) -> {
-                    new Handler(Looper.getMainLooper()).post(() -> callback.onSuccess(result));
-                });
+                getFactory().startUpWebView(
+                        config,
+                        new Handler(Looper.getMainLooper())::post,
+                        callback);
                 return;
             }
             if (config.shouldRunUiThreadStartUpTasks()) {
@@ -1541,11 +1542,45 @@ public class WebViewCompat {
      * Startup is not expected to fail under normal circumstances, but can in rare cases. If a
      * failure has been reported to the callback, calling any other WebView APIs is likely to throw
      * an exception or immediately crash, and should be avoided if possible.
+     * <p>
+     * The callback will be executed on the main thread using {@link Looper#getMainLooper()}. To
+     * specify the execution thread for the callback, use
+     * {@link #startUpWebView(Context, WebViewStartUpConfig, Executor, WebViewOutcomeReceiver)}.
+     * Note that {@link WebViewStartUpConfig#getBackgroundExecutor()} is only used by WebView to
+     * run background startup tasks, not to invoke {@code callback}.
      *
      * @param context  Application Context.
      * @param config   configuration for startup.
      * @param callback the callback triggered when WebView startup is complete or fails. This will
-     *                 be called on the main looper (Looper.getMainLooper()).
+     *                 be called on the main looper ({@link Looper#getMainLooper()}).
+     * @see #startUpWebView(Context, WebViewStartUpConfig, Executor, WebViewOutcomeReceiver)
+     */
+    @AnyThread
+    public static void startUpWebView(
+            @NonNull Context context,
+            @NonNull WebViewStartUpConfig config,
+            @NonNull WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>
+                    callback) {
+        startUpWebView(context, config, new Handler(Looper.getMainLooper())::post, callback);
+    }
+
+    /**
+     * Asynchronously trigger WebView startup, invoking {@code callback} on
+     * {@code callbackExecutor}.
+     * <p>
+     * This method functions as
+     * {@link #startUpWebView(Context, WebViewStartUpConfig, WebViewOutcomeReceiver)}, but invokes
+     * {@code callback} on the provided {@code callbackExecutor} instead of the main looper.
+     * <p>
+     * Note that {@code callbackExecutor} only controls where {@code callback} is invoked, whereas
+     * {@link WebViewStartUpConfig#getBackgroundExecutor()} is used by WebView to run background
+     * startup tasks.
+     *
+     * @param context          Application Context.
+     * @param config           configuration for startup.
+     * @param callbackExecutor the {@link Executor} on which {@code callback} will be invoked.
+     * @param callback         the callback triggered when WebView startup is complete or fails.
+     * @see #startUpWebView(Context, WebViewStartUpConfig, WebViewOutcomeReceiver)
      */
     @SuppressLint("UnsafeOptInUsageError")
     @SuppressWarnings("deprecation")
@@ -1553,6 +1588,7 @@ public class WebViewCompat {
     public static void startUpWebView(
             @NonNull Context context,
             @NonNull WebViewStartUpConfig config,
+            @NonNull Executor callbackExecutor,
             @NonNull WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>
                     callback) {
         config.getBackgroundExecutor().execute(() -> {
@@ -1561,13 +1597,14 @@ public class WebViewCompat {
             // V2: If the ASYNC_WEBVIEW_STARTUP_V2 feature is supported, we call
             // the new version of the API which supports WebViewOutcomeReceiver.
             if (WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP_V2.isSupportedByWebView()) {
-                getFactory().startUpWebView(config, callback);
+                getFactory().startUpWebView(config, callbackExecutor, callback);
                 return;
             }
             // V1: If the ASYNC_WEBVIEW_STARTUP feature is supported, we call
             // the old version of the API and adapt the callback.
             if (WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP.isSupportedByWebView()) {
-                getFactory().startUpWebView(config, (WebViewStartUpCallback) callback::onResult);
+                getFactory().startUpWebView(
+                        config, callbackExecutor, (WebViewStartUpCallback) callback::onResult);
                 return;
             }
             // Default: If none of the async startup features are supported, we
@@ -1580,10 +1617,10 @@ public class WebViewCompat {
                 // of startup we can do without blocking the UI thread already happened during
                 // `getWebViewClassLoader` above and so there's nothing more to do.
             }
-            // Trigger the callback from the main looper.
+            // Trigger the callback using the provided executor.
             // The framework doesn't support providing any diagnostic information, therefore,
             // returning `null` for every method.
-            new Handler(Looper.getMainLooper()).post(
+            callbackExecutor.execute(
                     () -> callback.onResult(new NullReturningWebViewStartUpResult()));
         });
     }
