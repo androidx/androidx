@@ -255,7 +255,7 @@ class SpatialElevationTest {
                 }
             ) { padding ->
                 LazyColumn(modifier = Modifier.padding(padding), state = listState) {
-                    items(10) { RowItem { EditItem(it, modifier = Modifier.padding(20.dp)) } }
+                    items(15) { RowItem { EditItem(it, modifier = Modifier.padding(20.dp)) } }
                 }
             }
 
