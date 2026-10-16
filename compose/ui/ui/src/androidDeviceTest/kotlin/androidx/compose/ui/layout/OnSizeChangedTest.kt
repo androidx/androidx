@@ -537,8 +537,8 @@ class OnSizeChangedTest {
                 if (this === other) return true
                 if (other !is Node1Element) return false
 
-                if (onRemeasured != other.onRemeasured) return false
-                if (onPlaced != other.onPlaced) return false
+                if (onRemeasured !== other.onRemeasured) return false
+                if (onPlaced !== other.onPlaced) return false
 
                 return true
             }
