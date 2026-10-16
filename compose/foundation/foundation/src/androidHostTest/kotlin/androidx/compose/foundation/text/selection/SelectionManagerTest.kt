@@ -22,6 +22,7 @@ import androidx.collection.longObjectMapOf
 import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
+import androidx.compose.foundation.text.contextmenu.test.FakeToolbarRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
@@ -985,6 +986,38 @@ class SelectionManagerTest {
 
         assertThat(toolbar.showMenuCount).isEqualTo(2)
         assertThat(toolbar.status).isEqualTo(TextToolbarStatus.Shown)
+    }
+
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
+    @Test
+    fun showSelectionToolbar_selectionCleared_hidesTextToolbar() {
+        val toolbar = setUpToolbarTest()
+        selectionManager.showSelectionToolbar()
+        assertThat(toolbar.status).isEqualTo(TextToolbarStatus.Shown)
+
+        selectionManager.selection = null
+        selectionManager.showSelectionToolbar()
+
+        assertThat(toolbar.showMenuCount).isEqualTo(1)
+        assertThat(toolbar.hideCount).isEqualTo(1)
+        assertThat(toolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+    }
+
+    @ContextMenuFlagSuppress(suppressedFlagValue = false)
+    @Test
+    fun showSelectionToolbar_selectionCleared_hidesContextMenu() {
+        setUpToolbarTest()
+        val toolbarRequester = FakeToolbarRequester()
+        selectionManager.toolbarRequester = toolbarRequester
+        selectionManager.showSelectionToolbar()
+        assertThat(toolbarRequester.shown).isTrue()
+
+        selectionManager.selection = null
+        selectionManager.showSelectionToolbar()
+
+        assertThat(toolbarRequester.showCount).isEqualTo(1)
+        assertThat(toolbarRequester.hideCount).isEqualTo(1)
+        assertThat(toolbarRequester.shown).isFalse()
     }
 
     /**
