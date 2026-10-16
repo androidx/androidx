@@ -47,6 +47,12 @@ package androidx.compose.ui.tooling.preview {
     property public static String NEXUS_9;
     property public static String PHONE;
     property public static String PIXEL;
+    property public static String PIXEL_10;
+    property public static String PIXEL_10A;
+    property public static String PIXEL_10_PRO;
+    property public static String PIXEL_10_PRO_FOLD;
+    property public static String PIXEL_10_PRO_XL;
+    property public static String PIXEL_11_PRO_FOLD;
     property public static String PIXEL_2;
     property public static String PIXEL_2_XL;
     property public static String PIXEL_3;
@@ -67,6 +73,7 @@ package androidx.compose.ui.tooling.preview {
     property public static String PIXEL_8A;
     property public static String PIXEL_8_PRO;
     property public static String PIXEL_9;
+    property public static String PIXEL_9A;
     property public static String PIXEL_9_PRO;
     property public static String PIXEL_9_PRO_FOLD;
     property public static String PIXEL_9_PRO_XL;
@@ -96,6 +103,12 @@ package androidx.compose.ui.tooling.preview {
     field public static final String NEXUS_9 = "id:Nexus 9";
     field public static final String PHONE = "spec:width=411dp,height=891dp";
     field public static final String PIXEL = "id:pixel";
+    field public static final String PIXEL_10 = "id:pixel_10";
+    field public static final String PIXEL_10A = "id:pixel_10a";
+    field public static final String PIXEL_10_PRO = "id:pixel_10_pro";
+    field public static final String PIXEL_10_PRO_FOLD = "id:pixel_10_pro_fold";
+    field public static final String PIXEL_10_PRO_XL = "id:pixel_10_pro_xl";
+    field public static final String PIXEL_11_PRO_FOLD = "id:pixel_11_pro_fold";
     field public static final String PIXEL_2 = "id:pixel_2";
     field public static final String PIXEL_2_XL = "id:pixel_2_xl";
     field public static final String PIXEL_3 = "id:pixel_3";
@@ -116,6 +129,7 @@ package androidx.compose.ui.tooling.preview {
     field public static final String PIXEL_8A = "id:pixel_8a";
     field public static final String PIXEL_8_PRO = "id:pixel_8_pro";
     field public static final String PIXEL_9 = "id:pixel_9";
+    field public static final String PIXEL_9A = "id:pixel_9a";
     field public static final String PIXEL_9_PRO = "id:pixel_9_pro";
     field public static final String PIXEL_9_PRO_FOLD = "id:pixel_9_pro_fold";
     field public static final String PIXEL_9_PRO_XL = "id:pixel_9_pro_xl";
