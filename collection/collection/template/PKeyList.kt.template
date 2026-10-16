@@ -939,6 +939,10 @@ public class MutablePKeyList(
      */
     public fun removeAll(elements: PKeyList): Boolean {
         val initialSize = _size
+        if (elements === this) {
+            clear()
+            return initialSize != 0
+        }
         for (i in 0..elements.lastIndex) {
             remove(elements[i])
         }
@@ -958,6 +962,10 @@ public class MutablePKeyList(
      * Removes all [elements] from the [MutablePKeyList].
      */
     public operator fun minusAssign(elements: PKeyList) {
+        if (elements === this) {
+            clear()
+            return
+        }
         elements.forEach { element ->
             remove(element)
         }
