@@ -32,8 +32,23 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteCustomPropertiesScope
+import androidx.compose.remote.creation.compose.layout.drawArc
+import androidx.compose.remote.creation.compose.layout.drawBitmapFontTextRun
+import androidx.compose.remote.creation.compose.layout.drawBitmapFontTextRunOnPath
+import androidx.compose.remote.creation.compose.layout.drawCircle
+import androidx.compose.remote.creation.compose.layout.drawColor
+import androidx.compose.remote.creation.compose.layout.drawLine
+import androidx.compose.remote.creation.compose.layout.drawOval
+import androidx.compose.remote.creation.compose.layout.drawPath
+import androidx.compose.remote.creation.compose.layout.drawRPath
+import androidx.compose.remote.creation.compose.layout.drawRect
+import androidx.compose.remote.creation.compose.layout.drawRoundRect
 import androidx.compose.remote.creation.compose.layout.drawRoundedPolygon
 import androidx.compose.remote.creation.compose.layout.drawRoundedPolygonMorph
+import androidx.compose.remote.creation.compose.layout.drawText
+import androidx.compose.remote.creation.compose.layout.drawTextOnPath
+import androidx.compose.remote.creation.compose.layout.drawTextRun
+import androidx.compose.remote.creation.compose.layout.drawTweenPath
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.BaseRemoteState
@@ -56,7 +71,6 @@ import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.graphics.shapes.RoundedPolygon
 
@@ -210,37 +224,15 @@ public open class RecordingCanvas(
     }
 
     override fun drawColor(drawColor: Int) {
-        drawRect(
-            0f.rf,
-            0f.rf,
-            creationState.creationDisplayInfo.size.width.toInt().rf,
-            creationState.creationDisplayInfo.size.height.toInt().rf,
-            Paint().apply {
-                color = drawColor
-                style = Paint.Style.FILL
-            },
-        )
+        remoteCanvas.drawColor(drawColor)
     }
 
     override fun drawText(text: String, x: Float, y: Float, paint: Paint) {
-        drawTextRun(text, 0, text.length, 0, text.length, x, y, false, paint)
+        remoteCanvas.drawText(text, x, y, paint)
     }
 
     public fun drawText(text: String, x: RemoteFloat, y: RemoteFloat, paint: Paint) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawTextRun(
-                    text,
-                    0,
-                    text.length,
-                    0,
-                    text.length,
-                    x.getFloatIdForCreationState(creationState),
-                    y.getFloatIdForCreationState(creationState),
-                    false,
-                )
-            }
-        buffer.addRoots(op, x, y)
+        remoteCanvas.drawText(text, x, y, paint)
     }
 
     /**
@@ -259,11 +251,11 @@ public open class RecordingCanvas(
         y: RemoteFloat,
         paint: Paint,
     ) {
-        drawTextRun(text, 0, length, 0, length, x, y, false, paint)
+        remoteCanvas.drawText(text, length, x, y, paint)
     }
 
     override fun drawRect(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
-        drawRect(left.rf, top.rf, right.rf, bottom.rf, paint)
+        remoteCanvas.drawRect(left, top, right, bottom, paint)
     }
 
     public fun drawRect(
@@ -273,35 +265,20 @@ public open class RecordingCanvas(
         bottom: RemoteFloat,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawRect(
-                    left.getFloatIdForCreationState(creationState),
-                    top.getFloatIdForCreationState(creationState),
-                    right.getFloatIdForCreationState(creationState),
-                    bottom.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, left, top, right, bottom)
+        remoteCanvas.drawRect(left, top, right, bottom, paint)
     }
 
     override fun drawRect(rect: Rect, paint: Paint) {
-        drawRect(
-            rect.left.toFloat(),
-            rect.top.toFloat(),
-            rect.right.toFloat(),
-            rect.bottom.toFloat(),
-            paint,
-        )
+        remoteCanvas.drawRect(rect, paint)
     }
 
     override fun drawRect(rect: RectF, paint: Paint) {
-        drawRect(rect.left, rect.top, rect.right, rect.bottom, paint)
+        remoteCanvas.drawRect(rect, paint)
     }
 
     /** For V1 compatibility. */
     override fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
-        drawOval(left.rf, top.rf, right.rf, bottom.rf, paint)
+        remoteCanvas.drawOval(left, top, right, bottom, paint)
     }
 
     public fun drawOval(
@@ -311,16 +288,7 @@ public open class RecordingCanvas(
         bottom: RemoteFloat,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawOval(
-                    left.getFloatIdForCreationState(creationState),
-                    top.getFloatIdForCreationState(creationState),
-                    right.getFloatIdForCreationState(creationState),
-                    bottom.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, left, top, right, bottom)
+        remoteCanvas.drawOval(left, top, right, bottom, paint)
     }
 
     override fun drawRoundRect(
@@ -332,7 +300,7 @@ public open class RecordingCanvas(
         ry: Float,
         paint: Paint,
     ) {
-        drawRoundRect(left.rf, top.rf, right.rf, bottom.rf, rx.rf, ry.rf, paint)
+        remoteCanvas.drawRoundRect(left, top, right, bottom, rx, ry, paint)
     }
 
     public fun drawRoundRect(
@@ -344,22 +312,11 @@ public open class RecordingCanvas(
         ry: RemoteFloat,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawRoundRect(
-                    left.getFloatIdForCreationState(creationState),
-                    top.getFloatIdForCreationState(creationState),
-                    right.getFloatIdForCreationState(creationState),
-                    bottom.getFloatIdForCreationState(creationState),
-                    rx.getFloatIdForCreationState(creationState),
-                    ry.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, left, top, right, bottom, rx, ry)
+        remoteCanvas.drawRoundRect(left, top, right, bottom, rx, ry, paint)
     }
 
     override fun drawLine(startX: Float, startY: Float, stopX: Float, stopY: Float, paint: Paint) {
-        drawLine(startX.rf, startY.rf, stopX.rf, stopY.rf, paint)
+        remoteCanvas.drawLine(startX, startY, stopX, stopY, paint)
     }
 
     public fun drawLine(
@@ -369,16 +326,7 @@ public open class RecordingCanvas(
         stopY: RemoteFloat,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawLine(
-                    startX.getFloatIdForCreationState(creationState),
-                    startY.getFloatIdForCreationState(creationState),
-                    stopX.getFloatIdForCreationState(creationState),
-                    stopY.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, startX, startY, stopX, stopY)
+        remoteCanvas.drawLine(startX, startY, stopX, stopY, paint)
     }
 
     override fun translate(dx: Float, dy: Float) {
@@ -525,8 +473,7 @@ public open class RecordingCanvas(
      * @param paint The [Paint] object to use for drawing the path.
      */
     public fun drawRPath(path: RemotePath, paint: Paint) {
-        val op = recordRenderingOp(paint) { document.drawPath(path) }
-        buffer.addRoots(op, path)
+        remoteCanvas.drawRPath(path, paint)
     }
 
     /**
@@ -617,10 +564,7 @@ public open class RecordingCanvas(
         isRtl: Boolean,
         paint: Paint,
     ) {
-        val textString = text.toString()
-        recordRenderingOp(paint) {
-            document.drawTextRun(textString, start, end, contextStart, contextEnd, x, y, isRtl)
-        }
+        remoteCanvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
     }
 
     /**
@@ -647,20 +591,7 @@ public open class RecordingCanvas(
         isRtl: Boolean,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawTextRun(
-                    text.getIdForCreationState(creationState),
-                    start,
-                    end,
-                    contextStart,
-                    contextEnd,
-                    x.getFloatIdForCreationState(creationState),
-                    y.getFloatIdForCreationState(creationState),
-                    isRtl,
-                )
-            }
-        buffer.addRoots(op, text, x, y)
+        remoteCanvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
     }
 
     /**
@@ -686,19 +617,7 @@ public open class RecordingCanvas(
         glyphSpacing: RemoteFloat,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawBitmapFontTextRun(
-                    text.getIdForCreationState(creationState),
-                    bitmapFont.getIdForCreationState(creationState),
-                    start,
-                    end,
-                    x.getFloatIdForCreationState(creationState),
-                    y.getFloatIdForCreationState(creationState),
-                    glyphSpacing.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, text, bitmapFont, x, y, glyphSpacing)
+        remoteCanvas.drawBitmapFontTextRun(text, bitmapFont, start, end, x, y, glyphSpacing, paint)
     }
 
     /**
@@ -724,25 +643,20 @@ public open class RecordingCanvas(
         glyphSpacing: Float,
         paint: Paint,
     ) {
-        val pathSnapshot = Path(path)
-        val op =
-            recordRenderingOp(paint) {
-                document.drawBitmapFontTextRunOnPath(
-                    text.getIdForCreationState(creationState),
-                    bitmapFont.getIdForCreationState(creationState),
-                    pathSnapshot,
-                    start,
-                    end,
-                    yAdj,
-                    glyphSpacing,
-                )
-            }
-        buffer.addRoots(op, text, bitmapFont)
+        remoteCanvas.drawBitmapFontTextRunOnPath(
+            text,
+            bitmapFont,
+            path,
+            start,
+            end,
+            yAdj,
+            glyphSpacing,
+            paint,
+        )
     }
 
     override fun drawPath(path: Path, paint: Paint) {
-        val pathSnapshot = Path(path)
-        recordRenderingOp(paint) { document.drawPath(pathSnapshot) }
+        remoteCanvas.drawPath(path, paint)
     }
 
     override fun rotate(degrees: Float) {
@@ -778,8 +692,7 @@ public open class RecordingCanvas(
         vOffset: Float,
         paint: Paint,
     ) {
-        val pathSnapshot = Path(path)
-        recordRenderingOp(paint) { document.drawTextOnPath(text, pathSnapshot, hOffset, vOffset) }
+        remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
 
     /**
@@ -798,17 +711,7 @@ public open class RecordingCanvas(
         vOffset: RemoteFloat,
         paint: Paint,
     ) {
-        val pathSnapshot = Path(path)
-        val op =
-            recordRenderingOp(paint) {
-                document.drawTextOnPath(
-                    text,
-                    pathSnapshot,
-                    hOffset.getFloatIdForCreationState(creationState),
-                    vOffset.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, hOffset, vOffset)
+        remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
 
     /**
@@ -827,16 +730,7 @@ public open class RecordingCanvas(
         vOffset: RemoteFloat,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawTextOnPath(
-                    text,
-                    path,
-                    hOffset.getFloatIdForCreationState(creationState),
-                    vOffset.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, path, hOffset, vOffset)
+        remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
 
     /**
@@ -855,17 +749,7 @@ public open class RecordingCanvas(
         vOffset: RemoteFloat,
         paint: Paint,
     ) {
-        val pathSnapshot = Path(path)
-        val op =
-            recordRenderingOp(paint) {
-                document.drawTextOnPath(
-                    text.getIdForCreationState(creationState),
-                    pathSnapshot,
-                    hOffset.getFloatIdForCreationState(creationState),
-                    vOffset.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, text, hOffset, vOffset)
+        remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
 
     /**
@@ -884,7 +768,7 @@ public open class RecordingCanvas(
         vOffset: RemoteFloat,
         paint: Paint,
     ) {
-        remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint.asRemotePaint())
+        remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
 
     override fun drawArc(
@@ -897,16 +781,7 @@ public open class RecordingCanvas(
         useCenter: Boolean,
         paint: Paint,
     ) {
-        drawArc(
-            left.rf,
-            top.rf,
-            right.rf,
-            bottom.rf,
-            startAngle.rf,
-            sweepAngle.rf,
-            useCenter,
-            paint,
-        )
+        remoteCanvas.drawArc(left, top, right, bottom, startAngle, sweepAngle, useCenter, paint)
     }
 
     public fun drawArc(
@@ -919,33 +794,11 @@ public open class RecordingCanvas(
         useCenter: Boolean,
         paint: Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                if (useCenter) {
-                    document.drawSector(
-                        left.getFloatIdForCreationState(creationState),
-                        top.getFloatIdForCreationState(creationState),
-                        right.getFloatIdForCreationState(creationState),
-                        bottom.getFloatIdForCreationState(creationState),
-                        startAngle.getFloatIdForCreationState(creationState),
-                        sweepAngle.getFloatIdForCreationState(creationState),
-                    )
-                } else {
-                    document.drawArc(
-                        left.getFloatIdForCreationState(creationState),
-                        top.getFloatIdForCreationState(creationState),
-                        right.getFloatIdForCreationState(creationState),
-                        bottom.getFloatIdForCreationState(creationState),
-                        startAngle.getFloatIdForCreationState(creationState),
-                        sweepAngle.getFloatIdForCreationState(creationState),
-                    )
-                }
-            }
-        buffer.addRoots(op, left, top, right, bottom, startAngle, sweepAngle)
+        remoteCanvas.drawArc(left, top, right, bottom, startAngle, sweepAngle, useCenter, paint)
     }
 
     override fun drawCircle(cx: Float, cy: Float, radius: Float, paint: Paint) {
-        drawCircle(cx.rf, cy.rf, radius.rf, paint)
+        remoteCanvas.drawCircle(cx, cy, radius, paint)
     }
 
     /**
@@ -957,15 +810,7 @@ public open class RecordingCanvas(
      * @param paint The [Paint] object for styling.
      */
     public fun drawCircle(cx: RemoteFloat, cy: RemoteFloat, radius: RemoteFloat, paint: Paint) {
-        val op =
-            recordRenderingOp(paint) {
-                document.drawCircle(
-                    cx.getFloatIdForCreationState(creationState),
-                    cy.getFloatIdForCreationState(creationState),
-                    radius.getFloatIdForCreationState(creationState),
-                )
-            }
-        buffer.addRoots(op, cx, cy, radius)
+        remoteCanvas.drawCircle(cx, cy, radius, paint)
     }
 
     /**
@@ -990,27 +835,7 @@ public open class RecordingCanvas(
         stop: RemoteFloat,
         paint: androidx.compose.ui.graphics.Paint,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                if (path1 is RemoteComposePath && path2 is RemoteComposePath) {
-                    document.drawTweenPath(
-                        path1.remote,
-                        path2.remote,
-                        tween.getFloatIdForCreationState(creationState),
-                        start.getFloatIdForCreationState(creationState),
-                        stop.getFloatIdForCreationState(creationState),
-                    )
-                } else {
-                    document.drawTweenPath(
-                        path1.asAndroidPath(),
-                        path2.asAndroidPath(),
-                        tween.getFloatIdForCreationState(creationState),
-                        start.getFloatIdForCreationState(creationState),
-                        stop.getFloatIdForCreationState(creationState),
-                    )
-                }
-            }
-        buffer.addRoots(op, tween, start, stop)
+        remoteCanvas.drawTweenPath(path1, path2, tween, start, stop, paint)
     }
 
     /**
@@ -1032,7 +857,7 @@ public open class RecordingCanvas(
         stop: RemoteFloat,
         paint: androidx.compose.ui.graphics.Paint,
     ) {
-        remoteCanvas.drawTweenPath(path1, path2, tween, start, stop, paint.asRemotePaint())
+        remoteCanvas.drawTweenPath(path1, path2, tween, start, stop, paint)
     }
 
     /**
