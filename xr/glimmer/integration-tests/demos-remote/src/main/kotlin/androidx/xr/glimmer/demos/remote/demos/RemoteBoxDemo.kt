@@ -16,6 +16,7 @@
 
 package androidx.xr.glimmer.demos.remote.demos
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
@@ -23,11 +24,18 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 @Composable
 internal fun RemoteBoxDemo() {
-    RemoteComposeDemo("box.rc") {
+    val documentBytes: ByteArray? by rememberRemoteDocumentState {
         RemoteBox(RemoteModifier.size(50.rdp).background(Color.Green.rc))
+    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        OutlinedRemoteDocumentPlayer(documentBytes = documentBytes, modifier = Modifier.weight(1f))
+        SaveRemoteDocumentButton(fileName = "box.rc", documentBytes = documentBytes)
     }
 }

@@ -16,6 +16,7 @@
 package androidx.xr.glimmer.demos.remote.demos
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.LinearEasing
@@ -25,10 +26,10 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -36,14 +37,19 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
+import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.RemoteDocument
+import androidx.compose.remote.player.core.state.StateUpdater
+import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,72 +64,89 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.xr.glimmer.Button
+import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Text
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Renders a remote compose and allows you to save it as a file on your device. */
 @Composable
-@SuppressLint("RestrictedApiAndroidX")
-internal fun RemoteComposeDemo(
-    fileName: String,
-    modifier: Modifier = Modifier,
-    content: @Composable @RemoteComposable () -> Unit,
-) {
+internal fun rememberRemoteDocumentState(
+    content: @Composable @RemoteComposable () -> Unit
+): State<ByteArray?> {
     val context = LocalContext.current
-    val capturedDocumentBytes = remember { mutableStateOf<ByteArray?>(null) }
-    val remoteDocument = remember { mutableStateOf<RemoteDocument?>(null) }
+    val flow = remember(context) { remoteDocumentFlow(context, content) }
+    return flow.collectAsStateWithLifecycle(null)
+}
 
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            val document =
-                captureSingleRemoteDocument(
-                    context = context,
-                    profile = RemoteGlimmerProfile,
-                    content = content,
-                )
-            remoteDocument.value = RemoteDocument(document.bytes)
-            capturedDocumentBytes.value = document.bytes
-        }
-    }
-
-    Column(modifier = modifier.fillMaxSize()) {
-        RemotePlayer(remoteDocument = remoteDocument.value, modifier = Modifier.weight(1f))
-        SaveRemoteDocumentButton(
-            fileName = fileName,
-            capturedDocumentBytes = capturedDocumentBytes.value,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-        )
-    }
+internal fun remoteDocumentFlow(
+    context: Context,
+    content: @Composable @RemoteComposable () -> Unit,
+): Flow<ByteArray> {
+    return captureRemoteDocument(
+        context = context,
+        creationDisplayInfo =
+            createCreationDisplayInfo(
+                context = context,
+                densityBehavior = RemoteDensityBehavior.Dp,
+            ),
+        profile = RemoteGlimmerProfile,
+        content = content,
+    )
 }
 
 @Composable
 @SuppressLint("RestrictedApiAndroidX")
-private fun RemotePlayer(remoteDocument: RemoteDocument?, modifier: Modifier = Modifier) {
-    BoxWithConstraints(
-        modifier = modifier.fillMaxWidth().background(Color.Black),
-        contentAlignment = Alignment.TopCenter,
-    ) {
-        if (remoteDocument != null) {
-            RemoteDocumentPlayer(
-                document = remoteDocument.document,
-                documentWidth = maxWidth.value.toInt(),
-                documentHeight = maxHeight.value.toInt(),
-                debugMode = 0,
-                onNamedAction = { _, _, _ -> },
-            )
-        } else {
-            ProgressIndicator(Modifier.size(80.dp))
+internal fun OutlinedRemoteDocumentPlayer(
+    documentBytes: ByteArray?,
+    modifier: Modifier = Modifier,
+    onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
+    update: (RemoteComposePlayer) -> Unit = {},
+) {
+    // Conversion: ByteArray -> RemoteDocument -> CoreDocument.
+    val coreDocument = remember { mutableStateOf<CoreDocument?>(null) }
+    if (documentBytes != null) {
+        LaunchedEffect(documentBytes) {
+            withContext(Dispatchers.Default) {
+                coreDocument.value = RemoteDocument(documentBytes).document
+            }
+        }
+    }
+
+    // Outline the boundaries of the RC player to highlight where the RC content is rendered.
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            text = "Remote Compose content:",
+            color = Color.Red,
+            style = GlimmerTheme.typography.caption,
+        )
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxWidth().border(1.dp, Color.Red),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            val coreDocumentValue = coreDocument.value
+            if (coreDocumentValue != null) {
+                RemoteDocumentPlayer(
+                    document = coreDocumentValue,
+                    update = update,
+                    onNamedAction = onNamedAction,
+                    documentWidth = maxWidth.value.toInt(),
+                    documentHeight = maxHeight.value.toInt(),
+                )
+            } else {
+                ProgressIndicator(Modifier.size(80.dp))
+            }
         }
     }
 }
 
 @Composable
-private fun SaveRemoteDocumentButton(
+internal fun SaveRemoteDocumentButton(
     fileName: String,
-    capturedDocumentBytes: ByteArray?,
+    documentBytes: ByteArray?,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -132,10 +155,10 @@ private fun SaveRemoteDocumentButton(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.CreateDocument("application/remote-compose-doc")
         ) { uri ->
-            if (uri != null && capturedDocumentBytes != null) {
+            if (uri != null && documentBytes != null) {
                 scope.launch(Dispatchers.IO) {
                     context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                        outputStream.write(capturedDocumentBytes)
+                        outputStream.write(documentBytes)
                     }
                 }
             }
@@ -143,7 +166,7 @@ private fun SaveRemoteDocumentButton(
 
     Button(
         onClick = { saveLauncher.launch(fileName) },
-        enabled = capturedDocumentBytes != null,
+        enabled = documentBytes != null,
         modifier = modifier.padding(24.dp),
     ) {
         Text("Save as .rc file")

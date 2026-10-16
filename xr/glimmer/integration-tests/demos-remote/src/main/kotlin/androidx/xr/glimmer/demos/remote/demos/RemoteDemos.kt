@@ -22,5 +22,8 @@ import androidx.xr.glimmer.demos.remote.DemoCategory
 internal val RemoteDemos =
     DemoCategory(
         "Remote Compose Glimmer Demos",
-        listOf(ComposableDemo("Box demo") { RemoteBoxDemo() }),
+        listOf(
+            ComposableDemo("Remote Box") { RemoteBoxDemo() },
+            RemoteSurfaceDemos,
+        ),
     )
