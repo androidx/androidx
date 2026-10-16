@@ -597,7 +597,7 @@ public constructor(
     }
 
     /** Returns the number of entries in this cache. */
-    public fun count(): Int = size
+    public fun count(): Int = _count
 
     /** Returns the number of entries matching the given [predicate]. */
     public inline fun count(predicate: (K, V) -> Boolean): Int {
