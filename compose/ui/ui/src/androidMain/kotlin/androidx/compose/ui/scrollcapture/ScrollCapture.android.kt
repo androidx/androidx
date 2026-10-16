@@ -21,7 +21,7 @@ import android.view.ScrollCaptureCallback
 import android.view.ScrollCaptureTarget
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -75,7 +75,7 @@ internal class ScrollCapture : ComposeScrollCaptureCallback.ScrollCaptureSession
         targets: Consumer<ScrollCaptureTarget>,
     ) {
         // Search the semantics tree for scroll containers.
-        val candidates = mutableVectorOf<ScrollCaptureCandidate>()
+        val candidates = mutableObjectListOf<ScrollCaptureCandidate>()
         visitScrollCaptureCandidates(
             fromNode = semanticsOwner.unmergedRootSemanticsNode,
             onCandidate = candidates::add,
@@ -200,10 +200,10 @@ private val SemanticsNode.canScrollVertically: Boolean
  *   children of the current node will be visited.
  */
 private inline fun SemanticsNode.visitDescendants(onNode: (SemanticsNode) -> Boolean) {
-    val nodes = mutableVectorOf<SemanticsNode>()
+    val nodes = mutableObjectListOf<SemanticsNode>()
     nodes.addAll(getChildrenForSearch())
     while (nodes.isNotEmpty()) {
-        val node = nodes.removeAt(nodes.lastIndex)
+        val node = nodes.removeAt(nodes.size - 1)
         val visitChildren = onNode(node)
         if (visitChildren) {
             nodes.addAll(node.getChildrenForSearch())
