@@ -18,9 +18,7 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.geometry.Offset
 
 /**
  * An immutable 2D floating-point offset that can be used to represent a point or a vector in a
@@ -50,22 +48,9 @@ public class RemoteOffset {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(x: RemoteFloat, y: Float) : this(x, RemoteFloat(y))
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(offset: Offset) {
-        this.x = offset.x.rf
-        this.y = offset.y.rf
-    }
-
     /** The magnitude of the smaller of the two components, [x] and [y]. */
     public val minDimension: RemoteFloat
         get() = x.min(y)
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun asOffset(scope: RemoteStateScope): Offset {
-        with(scope) {
-            return Offset(x.floatId, y.floatId)
-        }
-    }
 
     public companion object {
         /** A [RemoteOffset] with both [x] and [y] set to zero. */
