@@ -118,6 +118,45 @@ class TextFieldCharSequenceTest {
         assertThat(textFieldValue.highlight).isNull()
     }
 
+    @Test
+    fun contentEquals_textFieldCharSequence_sameTextDifferentSelection_isTrue() {
+        val a = TextFieldCharSequence("hello", selection = TextRange(0))
+        val b = TextFieldCharSequence("hello", selection = TextRange(2, 4))
+
+        assertThat(a.contentEquals(b)).isTrue()
+        assertThat(b.contentEquals(a)).isTrue()
+    }
+
+    @Test
+    fun contentEquals_textFieldCharSequence_differentText_isFalse() {
+        val a = TextFieldCharSequence("hello")
+
+        assertThat(a.contentEquals(TextFieldCharSequence("hellO"))).isFalse()
+        assertThat(a.contentEquals(TextFieldCharSequence("hell"))).isFalse()
+        assertThat(a.contentEquals(TextFieldCharSequence("hello!"))).isFalse()
+    }
+
+    @Test
+    fun contentEquals_textFieldCharSequence_nonStringBackingText() {
+        val stringBacked = TextFieldCharSequence("hello")
+        val builderBacked = TextFieldCharSequence(StringBuilder("hello"))
+
+        assertThat(stringBacked.contentEquals(builderBacked)).isTrue()
+        assertThat(builderBacked.contentEquals(stringBacked)).isTrue()
+        assertThat(stringBacked.contentEquals(TextFieldCharSequence(StringBuilder("world"))))
+            .isFalse()
+    }
+
+    @Test
+    fun contentEquals_plainCharSequence() {
+        val a = TextFieldCharSequence("hello")
+
+        assertThat(a.contentEquals("hello")).isTrue()
+        assertThat(a.contentEquals(StringBuilder("hello"))).isTrue()
+        assertThat(a.contentEquals("world")).isFalse()
+        assertThat(a.contentEquals("")).isFalse()
+    }
+
     private fun TextEditState(text: String, composition: TextRange) =
         TextFieldCharSequence(text, selection = TextRange.Zero, composition = composition)
 }

@@ -50,7 +50,7 @@ internal class LayoutHelper(val layout: Layout) {
         var paragraphEnd = 0
         val lineFeeds = mutableListOf<Int>()
         do {
-            paragraphEnd = layout.text.indexOf(char = LINE_FEED, startIndex = paragraphEnd)
+            paragraphEnd = TextUtils.indexOf(layout.text, LINE_FEED, paragraphEnd)
             if (paragraphEnd < 0) {
                 // No more LINE_FEED char found. Use the end of the text as the paragraph end.
                 paragraphEnd = layout.text.length
