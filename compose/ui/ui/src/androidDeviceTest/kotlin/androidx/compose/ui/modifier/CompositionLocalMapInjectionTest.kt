@@ -91,7 +91,7 @@ class CompositionLocalMapInjectionTest {
     fun consumeInDraw() {
         // No assertions needed. This not crashing is the test
         rule.setContent {
-            CompositionLocalProvider(SomeLocal provides 1) {
+            CompositionLocalProvider(LocalSomeValue provides 1) {
                 OldBox(modifierOf { ConsumeInDrawNode() }.size(10.dp))
             }
         }
@@ -101,7 +101,7 @@ class CompositionLocalMapInjectionTest {
     fun consumeInLayout() {
         // No assertions needed. This not crashing is the test
         rule.setContent {
-            CompositionLocalProvider(SomeLocal provides 1) {
+            CompositionLocalProvider(LocalSomeValue provides 1) {
                 OldBox(modifierOf { ConsumeInLayoutNode() }.size(10.dp))
             }
         }
@@ -111,7 +111,7 @@ class CompositionLocalMapInjectionTest {
     fun consumeInAttach() {
         // No assertions needed. This not crashing is the test
         rule.setContent {
-            CompositionLocalProvider(SomeLocal provides 1) {
+            CompositionLocalProvider(LocalSomeValue provides 1) {
                 OldBox(modifierOf { ConsumeInAttachNode() }.size(10.dp))
             }
         }
@@ -122,7 +122,7 @@ class CompositionLocalMapInjectionTest {
         val node = ConsumeInDrawNode()
         var state by mutableStateOf(1)
         rule.setContent {
-            CompositionLocalProvider(SomeLocal provides state) {
+            CompositionLocalProvider(LocalSomeValue provides state) {
                 OldBox(modifierOf { node }.size(10.dp))
             }
         }
@@ -136,7 +136,7 @@ class CompositionLocalMapInjectionTest {
         val node = ConsumeInLayoutNode()
         var state by mutableStateOf(1)
         rule.setContent {
-            CompositionLocalProvider(SomeLocal provides state) {
+            CompositionLocalProvider(LocalSomeValue provides state) {
                 OldBox(modifierOf { node }.size(10.dp))
             }
         }
@@ -150,7 +150,7 @@ class CompositionLocalMapInjectionTest {
         val node = ConsumeInAttachNode()
         var state by mutableStateOf(1)
         rule.setContent {
-            CompositionLocalProvider(SomeLocal provides state) {
+            CompositionLocalProvider(LocalSomeValue provides state) {
                 OldBox(modifierOf { node }.size(10.dp))
             }
         }
@@ -163,7 +163,7 @@ class CompositionLocalMapInjectionTest {
     fun consumeInDrawSkippableUpdate() {
         // No assertions needed. This not crashing is the test
         rule.setContent {
-            CompositionLocalProvider(SomeLocal provides 1) {
+            CompositionLocalProvider(LocalSomeValue provides 1) {
                 OldBoxSkippableUpdate(modifierOf { ConsumeInDrawNode() }.size(10.dp))
             }
         }
@@ -173,7 +173,7 @@ class CompositionLocalMapInjectionTest {
     fun consumeInLayoutSkippableUpdate() {
         // No assertions needed. This not crashing is the test
         rule.setContent {
-            CompositionLocalProvider(SomeLocal provides 1) {
+            CompositionLocalProvider(LocalSomeValue provides 1) {
                 OldBoxSkippableUpdate(modifierOf { ConsumeInLayoutNode() }.size(10.dp))
             }
         }
@@ -183,7 +183,7 @@ class CompositionLocalMapInjectionTest {
     fun consumeInAttachSkippableUpdate() {
         // No assertions needed. This not crashing is the test
         rule.setContent {
-            CompositionLocalProvider(SomeLocal provides 1) {
+            CompositionLocalProvider(LocalSomeValue provides 1) {
                 OldBoxSkippableUpdate(modifierOf { ConsumeInAttachNode() }.size(10.dp))
             }
         }
@@ -194,7 +194,7 @@ class CompositionLocalMapInjectionTest {
         val node = ConsumeInDrawNode()
         var state by mutableStateOf(1)
         rule.setContent {
-            CompositionLocalProvider(SomeLocal provides state) {
+            CompositionLocalProvider(LocalSomeValue provides state) {
                 OldBoxSkippableUpdate(modifierOf { node }.size(10.dp))
             }
         }
@@ -208,7 +208,7 @@ class CompositionLocalMapInjectionTest {
         val node = ConsumeInLayoutNode()
         var state by mutableStateOf(1)
         rule.setContent {
-            CompositionLocalProvider(SomeLocal provides state) {
+            CompositionLocalProvider(LocalSomeValue provides state) {
                 OldBoxSkippableUpdate(modifierOf { node }.size(10.dp))
             }
         }
@@ -222,7 +222,7 @@ class CompositionLocalMapInjectionTest {
         val node = ConsumeInAttachNode()
         var state by mutableStateOf(1)
         rule.setContent {
-            CompositionLocalProvider(SomeLocal provides state) {
+            CompositionLocalProvider(LocalSomeValue provides state) {
                 OldBoxSkippableUpdate(modifierOf { node }.size(10.dp))
             }
         }
@@ -232,7 +232,7 @@ class CompositionLocalMapInjectionTest {
     }
 }
 
-val SomeLocal = compositionLocalOf<Int> { error("unprovided value") }
+val LocalSomeValue = compositionLocalOf<Int> { error("unprovided value") }
 
 inline fun <reified T : Modifier.Node> modifierOf(crossinline fn: () -> T) =
     object : ModifierNodeElement<T>() {
@@ -253,7 +253,7 @@ class ConsumeInDrawNode : CompositionLocalConsumerModifierNode, DrawModifierNode
         // Consume Static local
         view = currentValueOf(LocalView)
         // Consume Freshly Provided Local
-        int = currentValueOf(SomeLocal)
+        int = currentValueOf(LocalSomeValue)
     }
 }
 
@@ -269,7 +269,7 @@ class ConsumeInLayoutNode :
         // Consume Static local
         view = currentValueOf(LocalView)
         // Consume Freshly Provided Local
-        int = currentValueOf(SomeLocal)
+        int = currentValueOf(LocalSomeValue)
         val placeable = measurable.measure(constraints)
         return layout(constraints.minWidth, constraints.maxWidth) { placeable.place(0, 0) }
     }
@@ -284,7 +284,7 @@ class ConsumeInAttachNode :
         // Consume Static local
         view = currentValueOf(LocalView)
         // Consume Freshly Provided Local
-        int = currentValueOf(SomeLocal)
+        int = currentValueOf(LocalSomeValue)
     }
 
     override fun onAttach() {
