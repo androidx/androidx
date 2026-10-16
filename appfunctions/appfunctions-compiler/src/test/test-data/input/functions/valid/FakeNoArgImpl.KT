@@ -1,8 +1,0 @@
-package com.testdata
-
-import androidx.appfunctions.AppFunctionDeclaration
-import androidx.appfunctions.AppFunctionContext
-
-class FakeNoArgImpl : FakeNoArg {
-    @AppFunctionDeclaration(isDescribedByKDoc = false) override fun noArg(appFunctionContext: AppFunctionContext) {}
-}

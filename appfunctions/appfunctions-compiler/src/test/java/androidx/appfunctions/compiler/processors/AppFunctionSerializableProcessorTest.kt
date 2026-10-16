@@ -287,7 +287,7 @@ class AppFunctionSerializableProcessorTest {
     fun testProcessor_genericFactory_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/FunctionWithGenericSerializable.KT")
+                sourceFileNames = listOf("entrypoints/valid/FunctionWithGenericSerializable.KT")
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -301,7 +301,7 @@ class AppFunctionSerializableProcessorTest {
     fun testProcessor_genericSerializableFieldFactory_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/FunctionWithGenericSerializable.KT")
+                sourceFileNames = listOf("entrypoints/valid/FunctionWithGenericSerializable.KT")
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(
@@ -315,7 +315,7 @@ class AppFunctionSerializableProcessorTest {
     fun testProcessor_serializableWithEmptyConstructor_success() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("functions/valid/FunctionWithEmptySerializable.KT")
+                sourceFileNames = listOf("entrypoints/valid/FunctionWithEmptySerializable.KT")
             )
 
         compilationTestHelper.assertSuccessWithSourceContent(

@@ -441,6 +441,6 @@
             <id>unused</id>
             <name>java.time.LocalTime</name>
         </dataTypes>
-        <id>unused</id>
+        <id>com.testdata.FunctionWithSerializableProxyInput</id>
     </AppFunctionComponentMetadataDocument>
 </appfunctions>

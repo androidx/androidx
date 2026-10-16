@@ -87,6 +87,6 @@
             <id>unused</id>
             <name>com.testdata.StringEnumPropSerializable</name>
         </dataTypes>
-        <id>unused</id>
+        <id>com.testdata.StringEnumValueFunctions</id>
     </AppFunctionComponentMetadataDocument>
 </appfunctions>

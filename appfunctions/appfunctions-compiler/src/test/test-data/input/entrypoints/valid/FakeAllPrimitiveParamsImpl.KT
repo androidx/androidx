@@ -1,12 +1,14 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionDeclaration
-import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
-class FakeAllPrimitiveParamsImpl : FakeAllPrimitiveParams {
+@AppFunctionServiceEntryPoint("FakeAllPrimitiveParamsService", "app_functions_v2")
+abstract class FakeAllPrimitiveParamsImpl :
+    AppFunctionService(), FakeAllPrimitiveParams, FakeAllPrimitiveArrayParams {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     override fun allPrimitiveParams(
-        appFunctionContext: AppFunctionContext,
         arg1: Int,
         arg2: Long,
         arg3: Float,
@@ -14,12 +16,9 @@ class FakeAllPrimitiveParamsImpl : FakeAllPrimitiveParams {
         arg5: String,
         arg6: Boolean,
     ) {}
-}
 
-class FakeAllPrimitiveArrayParamsImpl : FakeAllPrimitiveArrayParams {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     override fun allPrimitiveArrayParams(
-        appFunctionContext: AppFunctionContext,
         arg1: IntArray,
         arg2: LongArray,
         arg3: FloatArray,

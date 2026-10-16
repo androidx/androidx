@@ -84,6 +84,6 @@
             <id>unused</id>
             <name>com.testdata.differentPackage.DiffPackageSerializable</name>
         </dataTypes>
-        <id>unused</id>
+        <id>com.testdata.AppFunctionWithInputFromDifferentPackage</id>
     </AppFunctionComponentMetadataDocument>
 </appfunctions>

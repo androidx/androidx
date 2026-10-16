@@ -1,13 +1,15 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionDeclaration
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
 /**
  * Tests the generation of descriptions elements for app functions and serializable classes.
  */
-class FakeFreeFormFunctions {
+@AppFunctionServiceEntryPoint("FakeFreeFormFunctionsService", "app_functions_v2")
+abstract class FakeFreeFormFunctions : AppFunctionService() {
     /**
      * A fake free-form AppFunction to test the description element in the function's generated
      * metadata xml.
@@ -15,14 +17,12 @@ class FakeFreeFormFunctions {
      * This kdoc consists of multiple paragraphs and is used as the function's description to the
      * agent.
      *
-     * @param appFunctionContext the AppFunction's context.
      * @param serializableParam an input AppFunctionSerializable.
      * @return The result string.
      * @throws IllegalArgumentException if the parameters have an incorrect format.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_isDescribedByKDoc_true(
-        appFunctionContext: AppFunctionContext,
         serializableParam: InputToFakeFreeFormFunction,
     ): String {
         return serializableParam.data
@@ -35,14 +35,12 @@ class FakeFreeFormFunctions {
      * This kdoc consists of multiple paragraphs and is used as the function's description to the
      * agent.
      *
-     * @param appFunctionContext the AppFunction's context.
      * @param input an input AppFunctionSerializable.
      * @return The result string.
      * @throws IllegalArgumentException if the inputString is in an incorrect format.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_isDescribedByKDoc_withDerivedSerializable_true(
-        appFunctionContext: AppFunctionContext,
         input: DerivedInputToFakeFreeFormFunction,
     ): String {
         return input.data
@@ -54,14 +52,12 @@ class FakeFreeFormFunctions {
      *
      * This kdoc will not be used as the description since `isDescribedByKDoc` is set to false.
      *
-     * @param appFunctionContext the AppFunction's context.
      * @param input an input AppFunctionSerializable.
      * @return The result string.
      * @throws IllegalArgumentException if the inputString is in an incorrect format.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun fakeFreeFormFunction_isDescribedByKDoc_false(
-        appFunctionContext: AppFunctionContext,
         input: InputToFakeFreeFormFunction,
     ): String {
         return input.data
@@ -70,21 +66,18 @@ class FakeFreeFormFunctions {
     /** Tests the description elements for serializable's parametrized properties. */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_withParametrizedTypes(
-        appFunctionContext: AppFunctionContext,
         parametrizedTypesInput: InputWithParametrizedTypes,
     ) {}
 
     /** Tests the description elements for serializable's repeated properties. */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_withRepeatedTypes(
-        appFunctionContext: AppFunctionContext,
         parametrizedTypesInput: InputWithRepeatedTypes,
     ) {}
 
     /** Tests that the input class description is empty when class's isDescribedByKDoc = false. */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_inputClassDescribedByKdoc_false(
-        appFunctionContext: AppFunctionContext,
         notDescribedByKdoc: NotDescribedByKdoc,
     ) {}
 }

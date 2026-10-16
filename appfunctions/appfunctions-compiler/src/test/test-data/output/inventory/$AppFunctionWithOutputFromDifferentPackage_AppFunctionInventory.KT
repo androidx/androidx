@@ -21,14 +21,14 @@ import kotlin.collections.Map
  * Source Files:
  * AppFunctionWithOutputFromDifferentPackage.kt
  * DiffPackageSchemas.kt
- * AnotherDiffPackageSerializable.kt
  * DiffPackageSerializable.kt
+ * AnotherDiffPackageSerializable.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$AppFunctionWithOutputFromDifferentPackage_AppFunctionInventory` : AppFunctionInventory {
   override val functionIdToMetadataMap: Map<String, CompileTimeAppFunctionMetadata> = mapOf(
-    "com.testdata.AppFunctionWithOutputFromDifferentPackage#functionWithAnotherDiffPackageOutput" to ComTestdataAppFunctionWithOutputFromDifferentPackageFunctionWithAnotherDiffPackageOutputMetadataObject.APP_FUNCTION_METADATA,
     "com.testdata.AppFunctionWithOutputFromDifferentPackage#functionWithDiffPackageOutput" to ComTestdataAppFunctionWithOutputFromDifferentPackageFunctionWithDiffPackageOutputMetadataObject.APP_FUNCTION_METADATA,
+    "com.testdata.AppFunctionWithOutputFromDifferentPackage#functionWithAnotherDiffPackageOutput" to ComTestdataAppFunctionWithOutputFromDifferentPackageFunctionWithAnotherDiffPackageOutputMetadataObject.APP_FUNCTION_METADATA,
   )
 
   private val COM_TESTDATA_ANOTHERDIFFERENTPACKAGE_ANOTHERDIFFPACKAGESERIALIZABLE_OBJECT_DATA_TYPE_PROPERTIES_MAP_STRINGPARAM:
@@ -93,6 +93,35 @@ public class `$AppFunctionWithOutputFromDifferentPackage_AppFunctionInventory` :
           dataTypes = componentsMetadataDataTypesMap
       )
 
+  private object ComTestdataAppFunctionWithOutputFromDifferentPackageFunctionWithDiffPackageOutputMetadataObject {
+    private val SCHEMA_METADATA: AppFunctionSchemaMetadata? =
+        AppFunctionSchemaMetadata(category= "diff_package_schemas_category", name="diffPackageOutputSchemas", version=1)
+
+    private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
+    )
+
+    private val REFERENCE_RESPONSE_VALUE_TYPE: AppFunctionReferenceTypeMetadata =
+        AppFunctionReferenceTypeMetadata(
+            referenceDataType = "com.testdata.differentPackage.DiffPackageSerializable",
+            isNullable = false,
+            description = ""
+        )
+
+    private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
+            valueType = REFERENCE_RESPONSE_VALUE_TYPE,
+            description = ""
+        )
+
+    public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
+        CompileTimeAppFunctionMetadata(
+            id = "com.testdata.AppFunctionWithOutputFromDifferentPackage#functionWithDiffPackageOutput",
+            isEnabledByDefault = true,
+            schema =  SCHEMA_METADATA,
+            parameters = PARAMETER_METADATA_LIST,
+            response = RESPONSE_METADATA,
+        )
+  }
+
   private object ComTestdataAppFunctionWithOutputFromDifferentPackageFunctionWithAnotherDiffPackageOutputMetadataObject {
     private val SCHEMA_METADATA: AppFunctionSchemaMetadata? =
         AppFunctionSchemaMetadata(category= "diff_package_schemas_category", name="diffPackageOutputSchemas", version=1)
@@ -122,35 +151,6 @@ public class `$AppFunctionWithOutputFromDifferentPackage_AppFunctionInventory` :
     public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
         CompileTimeAppFunctionMetadata(
             id = "com.testdata.AppFunctionWithOutputFromDifferentPackage#functionWithAnotherDiffPackageOutput",
-            isEnabledByDefault = true,
-            schema =  SCHEMA_METADATA,
-            parameters = PARAMETER_METADATA_LIST,
-            response = RESPONSE_METADATA,
-        )
-  }
-
-  private object ComTestdataAppFunctionWithOutputFromDifferentPackageFunctionWithDiffPackageOutputMetadataObject {
-    private val SCHEMA_METADATA: AppFunctionSchemaMetadata? =
-        AppFunctionSchemaMetadata(category= "diff_package_schemas_category", name="diffPackageOutputSchemas", version=1)
-
-    private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
-    )
-
-    private val REFERENCE_RESPONSE_VALUE_TYPE: AppFunctionReferenceTypeMetadata =
-        AppFunctionReferenceTypeMetadata(
-            referenceDataType = "com.testdata.differentPackage.DiffPackageSerializable",
-            isNullable = false,
-            description = ""
-        )
-
-    private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
-            valueType = REFERENCE_RESPONSE_VALUE_TYPE,
-            description = ""
-        )
-
-    public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
-        CompileTimeAppFunctionMetadata(
-            id = "com.testdata.AppFunctionWithOutputFromDifferentPackage#functionWithDiffPackageOutput",
             isEnabledByDefault = true,
             schema =  SCHEMA_METADATA,
             parameters = PARAMETER_METADATA_LIST,

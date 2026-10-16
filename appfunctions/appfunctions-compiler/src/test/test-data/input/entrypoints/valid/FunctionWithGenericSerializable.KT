@@ -1,8 +1,9 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionDeclaration
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
 /** An example generic AppFunctionSerializable. */
 @AppFunctionSerializable(isDescribedByKDoc = true)
@@ -21,10 +22,10 @@ data class UpdateNoteParams(
     val nullableAttachments: SetField<List<Attachment>?>? = null,
 )
 
-class FunctionWithGenericSerializable {
+@AppFunctionServiceEntryPoint("FunctionWithGenericSerializableService", "app_functions_v2")
+abstract class FunctionWithGenericSerializable : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     suspend fun test(
-        appFunctionContext: AppFunctionContext,
         params: UpdateNoteParams,
         topLevelGenericParam: SetField<Int>?
     ) {}
