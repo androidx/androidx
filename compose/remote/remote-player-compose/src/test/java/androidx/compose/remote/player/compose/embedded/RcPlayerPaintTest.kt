@@ -248,7 +248,7 @@ class RcPlayerPaintTest {
         )
 
         val paintState1 = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState1, remoteContext, read = remoteContext)
+        updatePaintFromBundle(bundle, paintState1, remoteContext)
 
         val brush1 = paintState1.brush
         assertThat(brush1).isNotNull()
@@ -262,7 +262,7 @@ class RcPlayerPaintTest {
         remoteContext.mRemoteComposeState.overrideColor(colorId, updatedMagenta)
 
         val paintState2 = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState2, remoteContext, read = remoteContext)
+        updatePaintFromBundle(bundle, paintState2, remoteContext)
 
         val brush2 = paintState2.brush
         assertThat(brush2).isNotNull()
@@ -287,7 +287,7 @@ class RcPlayerPaintTest {
         )
 
         val paintState = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState, remoteContext, read = remoteContext)
+        updatePaintFromBundle(bundle, paintState, remoteContext)
 
         assertThat(paintState.brush).isNotNull()
         assertThat(paintState.brush).isInstanceOf(ShaderBrush::class.java)
@@ -311,7 +311,7 @@ class RcPlayerPaintTest {
         )
 
         val paintState = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState, remoteContext, read = remoteContext)
+        updatePaintFromBundle(bundle, paintState, remoteContext)
 
         assertThat(paintState.brush).isNotNull()
         assertThat(paintState.brush).isInstanceOf(ShaderBrush::class.java)
@@ -324,11 +324,11 @@ class RcPlayerPaintTest {
         assertThat(paintState.filterQuality).isEqualTo(FilterQuality.Low)
 
         val noFilterBundle = PaintBundle().apply { setFilterBitmap(false) }
-        updatePaintFromBundle(noFilterBundle, paintState, remoteContext, read = remoteContext)
+        updatePaintFromBundle(noFilterBundle, paintState, remoteContext)
         assertThat(paintState.filterQuality).isEqualTo(FilterQuality.None)
 
         val filterBundle = PaintBundle().apply { setFilterBitmap(true) }
-        updatePaintFromBundle(filterBundle, paintState, remoteContext, read = remoteContext)
+        updatePaintFromBundle(filterBundle, paintState, remoteContext)
         assertThat(paintState.filterQuality).isEqualTo(FilterQuality.Low)
     }
 }
