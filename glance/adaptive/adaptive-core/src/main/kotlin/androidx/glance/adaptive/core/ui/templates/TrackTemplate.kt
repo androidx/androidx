@@ -39,7 +39,8 @@ public class TrackTemplate(
     public val progress: Float? = null,
     public val statusText: String? = null,
 ) : AdaptiveGlanceTemplate {
-    override val templateId: String = "TrackTemplate"
+    override val templateName: String = "TrackTemplate"
+    override val templateId: Int = TEMPLATE_ID
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -61,4 +62,9 @@ public class TrackTemplate(
     override fun toString(): String =
         "TrackTemplate(title=$title, subtitle=$subtitle, progress=$progress, " +
             "statusText=$statusText)"
+
+    public companion object {
+        /** Stable integer telemetry identifier for [TrackTemplate]. */
+        public const val TEMPLATE_ID: Int = 1
+    }
 }

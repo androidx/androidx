@@ -42,7 +42,8 @@ import org.robolectric.annotation.Config
 class AppWidgetTemplateRegistryTest {
 
     private data class DummyTemplate(val title: String) : AdaptiveGlanceTemplate {
-        override val templateId: String = "DummyTemplate"
+        override val templateName: String = "DummyTemplate"
+        override val templateId: Int = 1
     }
 
     private enum class DummyArchetype {

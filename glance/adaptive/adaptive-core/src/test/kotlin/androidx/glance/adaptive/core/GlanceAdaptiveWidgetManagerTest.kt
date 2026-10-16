@@ -24,7 +24,8 @@ import org.junit.Test
 class GlanceAdaptiveWidgetManagerTest {
 
     private class TestTemplate : AdaptiveGlanceTemplate {
-        override val templateId: String = "TestTemplate"
+        override val templateName: String = "TestTemplate"
+        override val templateId: Int = 1
     }
 
     private class FakeWidgetDelegate : GlanceAdaptiveWidgetDelegate {
