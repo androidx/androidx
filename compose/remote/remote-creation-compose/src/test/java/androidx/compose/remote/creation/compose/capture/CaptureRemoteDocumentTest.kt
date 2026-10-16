@@ -881,19 +881,19 @@ class CaptureRemoteDocumentTest {
         assertEquals(0, SnapshotWriteMonitor.activeSessionCount)
         assertFalse(SnapshotWriteMonitor.isRunning)
 
-        SnapshotWriteMonitor.acquire()
+        val first = SnapshotWriteMonitor.acquire()
         assertEquals(1, SnapshotWriteMonitor.activeSessionCount)
         assertTrue(SnapshotWriteMonitor.isRunning)
 
-        SnapshotWriteMonitor.acquire()
+        val second = SnapshotWriteMonitor.acquire()
         assertEquals(2, SnapshotWriteMonitor.activeSessionCount)
         assertTrue(SnapshotWriteMonitor.isRunning)
 
-        SnapshotWriteMonitor.release()
+        first.close()
         assertEquals(1, SnapshotWriteMonitor.activeSessionCount)
         assertTrue(SnapshotWriteMonitor.isRunning)
 
-        SnapshotWriteMonitor.release()
+        second.close()
         assertEquals(0, SnapshotWriteMonitor.activeSessionCount)
         assertFalse(SnapshotWriteMonitor.isRunning)
     }

@@ -220,13 +220,17 @@ private fun captureRemoteDocumentImpl(
     val rootNode = RemoteRootNode()
     val applier = RemoteComposeApplier(rootNode)
 
-    val recomposerDispatcher =
-        (currentCoroutineContext() + coroutineContext).toSingleThreadedRecomposerContext(
-            name = traceName
+    // One time source for pacing frames and throttling documents, so a test clock drives both.
+    val timeSource = RemoteClockTimeSource(clock)
+    val session =
+        HeadlessSession(
+            parentContext = currentCoroutineContext() + coroutineContext.minusKey(Job),
+            name = traceName,
+            nanoTime = clock::nanoTime,
+            timeSource = timeSource,
         )
-    val writeTracker = CaptureWriteTracker()
-    val recomposer =
-        Recomposer(currentCoroutineContext() + recomposerDispatcher + writeTracker.contextElement)
+    val recomposerDispatcher = session.recomposerDispatcher
+    val recomposer = session.recomposer
     val composition = Composition(applier, recomposer)
     val lifecycleOwner = HeadlessLifecycleOwner(savedState)
     val saveableStateRegistry = savedState?.let {
@@ -248,32 +252,16 @@ private fun captureRemoteDocumentImpl(
 
         coroutineScope {
             // Frames are normally sent as soon as an awaiter appears. The Recomposer itself awaits
-            // frames on this clock (runRecomposeAndApplyChanges below), so pacing them with a
-            // time-based delay would add latency to every recomposition and stall entirely on
-            // hosts whose clock only advances explicitly (virtual-time test dispatchers, a paused
-            // Robolectric looper). Emitted documents are rate limited separately by
-            // updateThrottle, between renders rather than between frames; only while that
-            // throttle is holding documents back are the pump's frames paced too (see the loop).
-            // One time source for pacing frames and throttling documents, so a test clock
-            // drives both.
-            val timeSource = RemoteClockTimeSource(clock)
-            val frameClock =
-                HeadlessFrameClock(nanoTime = clock::nanoTime, timeSource = timeSource) {
-                    recomposer.refreshStateIfIdle(recomposerDispatcher)
-                }
-            if (!isSingleDocument) SnapshotWriteMonitor.acquire()
+            // frames on this clock (started below), so pacing them with a time-based delay would
+            // add latency to every recomposition and stall entirely on hosts whose clock only
+            // advances explicitly (virtual-time test dispatchers, a paused Robolectric looper).
+            // Emitted documents are rate limited separately by updateThrottle, between renders
+            // rather than between frames; only while that throttle is holding documents back are
+            // the pump's frames paced too (see the loop).
+            val frameClock = session.frameClock
+            val writeMonitor = if (isSingleDocument) null else SnapshotWriteMonitor.acquire()
             try {
-                // The pump sends frames requested while nothing is driving the composition to
-                // quiescence, e.g. between throttled renders. It is started before the Recomposer
-                // so that it is parked by the time the first frame is requested.
-                launch(recomposerDispatcher) { frameClock.runClock() }
-                launch(recomposerDispatcher + frameClock) {
-                    // Queued before the runner's first slice can request a frame, so it runs after
-                    // the Recomposer registers its apply observer but before any effect resumes
-                    // from withFrameNanos.
-                    launch { writeTracker.start() }
-                    recomposer.runRecomposeAndApplyChanges()
-                }
+                session.start(this)
 
                 // Set the content only once the Recomposer is running. A Recomposer invalidates
                 // every composition it knows about when it starts, since it was not observing
@@ -371,12 +359,7 @@ private fun captureRemoteDocumentImpl(
                                 "CaptureRemoteDocument:$traceName:$settleTraceName",
                                 ThreadLocalRandom.current().nextInt(),
                             ) {
-                                awaitRecomposerQuiescence(
-                                    recomposer = recomposer,
-                                    frameClock = frameClock,
-                                    recomposerDispatcher = recomposerDispatcher,
-                                    writeTracker = writeTracker,
-                                )
+                                session.awaitQuiescence()
                             }
                         if (isSingleDocument) quiescence.throwIfNotQuiescent()
 
@@ -462,11 +445,9 @@ private fun captureRemoteDocumentImpl(
                     invalidations.close()
                 }
             } finally {
-                writeTracker.stop()
-                frameClock.cancel()
-                recomposer.cancel()
+                session.close()
                 currentCoroutineContext().cancelChildren()
-                if (!isSingleDocument) SnapshotWriteMonitor.release()
+                writeMonitor?.close()
             }
         }
     } finally {
@@ -527,6 +508,113 @@ private fun QuiescenceResult.throwIfNotQuiescent() {
                     "notifying snapshot apply observers. A snapshot apply observer elsewhere in " +
                     "the process may be slow or blocked."
             )
+    }
+}
+
+/**
+ * Wires together the pieces needed to run a [Recomposer] without a UI: a single-threaded
+ * [recomposerDispatcher] derived from [parentContext], a [HeadlessFrameClock], a
+ * [CaptureWriteTracker] installed in the recomposer's effect context, and the [recomposer] itself.
+ *
+ * [close] cancels the recomposer, the frame clock and the write tracker; it does not dispose
+ * compositions created from [recomposer], which remain the caller's responsibility.
+ *
+ * @param parentContext the context the session runs in; its [Job] is used as the recomposer's
+ *   parent, its dispatcher (if any) is narrowed to one thread.
+ * @param name names the single-threaded dispatcher slice, for debugging.
+ * @param nanoTime the time stamped on frames, see [HeadlessFrameClock].
+ * @param timeSource measures the time between paced frames, see [HeadlessFrameClock].
+ */
+private class HeadlessSession(
+    parentContext: CoroutineContext,
+    name: String,
+    nanoTime: () -> Long,
+    timeSource: TimeSource,
+) : AutoCloseable {
+    private enum class State {
+        Created,
+        Started,
+        Closed,
+    }
+
+    private val lock = Any()
+    private var state = State.Created
+    /** Single-threaded context that recomposition, frames and effects run on. */
+    val recomposerDispatcher: CoroutineContext =
+        parentContext.toSingleThreadedRecomposerContext(name)
+
+    /** Tracks this session's own global snapshot writes, see [CaptureWriteTracker]. */
+    private val writeTracker = CaptureWriteTracker()
+
+    /** The recomposer; create compositions from it with `Composition(applier, recomposer)`. */
+    val recomposer = Recomposer(parentContext + recomposerDispatcher + writeTracker.contextElement)
+
+    /** The frame clock the recomposer and its effects await frames on once [start]ed. */
+    val frameClock =
+        HeadlessFrameClock(nanoTime = nanoTime, timeSource = timeSource) {
+            recomposer.refreshStateIfIdle(recomposerDispatcher)
+        }
+
+    /**
+     * Launches the frame clock's pump and `recomposer.runRecomposeAndApplyChanges()` in [scope].
+     * The pump is started first so that it is parked by the time the first frame is requested, and
+     * the write tracker is started after the recomposer registers its apply observer but before any
+     * effect can resume from a frame.
+     *
+     * The launched coroutines complete when the session is [close]d, which is the only way to stop
+     * them; a `coroutineScope` that calls [start] therefore does not return until then.
+     *
+     * @throws IllegalStateException if the session was already started or closed.
+     */
+    fun start(scope: CoroutineScope) {
+        transition(from = State.Created, to = State.Started) { "start" }
+        scope.launch(recomposerDispatcher) { frameClock.runClock() }
+        scope.launch(recomposerDispatcher + frameClock) {
+            // Queued before the runner's first slice can request a frame, so it runs after the
+            // Recomposer registers its apply observer but before any effect resumes from
+            // withFrameNanos.
+            launch { writeTracker.start() }
+            recomposer.runRecomposeAndApplyChanges()
+        }
+    }
+
+    /**
+     * Drives the recomposer until it settles, see [awaitRecomposerQuiescence].
+     *
+     * @throws IllegalStateException if the session is not started, or already closed.
+     */
+    suspend fun awaitQuiescence(maxIterations: Int = MAX_IDLE_ITERATIONS): QuiescenceResult {
+        synchronized(lock) {
+            check(state == State.Started) { "Cannot await quiescence: session is $state" }
+        }
+        return awaitRecomposerQuiescence(
+            recomposer = recomposer,
+            frameClock = frameClock,
+            recomposerDispatcher = recomposerDispatcher,
+            writeTracker = writeTracker,
+            maxIterations = maxIterations,
+        )
+    }
+
+    /**
+     * Stops the write tracker, the frame clock and the recomposer. Idempotent; a session closed
+     * before it was started can no longer be started.
+     */
+    override fun close() {
+        synchronized(lock) {
+            if (state == State.Closed) return
+            state = State.Closed
+        }
+        writeTracker.stop()
+        frameClock.cancel()
+        recomposer.cancel()
+    }
+
+    private inline fun transition(from: State, to: State, action: () -> String) {
+        synchronized(lock) {
+            check(state == from) { "Cannot ${action()} HeadlessSession: session is $state" }
+            state = to
+        }
     }
 }
 
@@ -1086,7 +1174,11 @@ internal object SnapshotWriteMonitor {
     internal val isRunning: Boolean
         get() = synchronized(lock) { observerHandle != null }
 
-    fun acquire() {
+    /**
+     * Starts the monitor if no other session holds it. Close the returned handle (once) when the
+     * session ends; the monitor stops when the last handle is closed.
+     */
+    fun acquire(): AutoCloseable {
         synchronized(lock) {
             if (refCount++ == 0) {
                 val channel = Channel<Unit>(1)
@@ -1116,9 +1208,10 @@ internal object SnapshotWriteMonitor {
                 }
             }
         }
+        return Handle()
     }
 
-    fun release() {
+    private fun release() {
         synchronized(lock) {
             check(refCount > 0) {
                 "SnapshotWriteMonitor.release() called without matching acquire()"
@@ -1129,6 +1222,14 @@ internal object SnapshotWriteMonitor {
                 monitorScope?.cancel()
                 monitorScope = null
             }
+        }
+    }
+
+    private class Handle : AutoCloseable {
+        private val isClosed = AtomicBoolean(false)
+
+        override fun close() {
+            if (isClosed.compareAndSet(false, true)) release()
         }
     }
 }
