@@ -231,7 +231,7 @@ class SemanticsInfoTest {
             }
         }
         val semanticsId = rule.onNodeWithTag("0").semanticsId()
-        val semanticsInfo = checkNotNull(rootForTest.semanticsOwner[semanticsId])
+        val semanticsInfo = checkNotNull(rootForTest.semanticsOwner.getSemanticsInfo(semanticsId))
 
         // Act.
         rule.runOnIdle { lazyListState.requestScrollToItem(1) }
@@ -315,7 +315,7 @@ class SemanticsInfoTest {
         tag: String,
         useUnmergedTree: Boolean = true,
     ): SemanticsInfo? {
-        return semanticsOwner[onNodeWithTag(tag, useUnmergedTree).semanticsId()]
+        return semanticsOwner.getSemanticsInfo(onNodeWithTag(tag, useUnmergedTree).semanticsId())
     }
 
     companion object {
