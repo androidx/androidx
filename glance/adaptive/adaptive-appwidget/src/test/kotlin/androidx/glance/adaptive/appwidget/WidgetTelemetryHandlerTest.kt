@@ -24,7 +24,6 @@ import android.os.Bundle
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
-import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import androidx.test.core.app.ApplicationProvider
@@ -70,7 +69,7 @@ class WidgetTelemetryHandlerTest {
         handler = WidgetTelemetryHandler(appWidgetManager)
         WidgetOptionsCache.clear()
         AppWidgetTemplateRegistry.resetForTesting()
-        registerTestTemplate(ArchetypeSelector { _, constraints -> constraints.surface })
+        registerTestTemplate()
     }
 
     @Test
@@ -251,13 +250,10 @@ class WidgetTelemetryHandlerTest {
         assertThat(onUpdateCalled).isFalse()
     }
 
-    private fun registerTestTemplate(
-        selector: ArchetypeSelector<TestTemplate, AppWidgetGlanceSurface, *>
-    ) {
+    private fun registerTestTemplate() {
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
             GlanceTemplateRenderer { _, _ -> {} },
-            selector,
         )
     }
 

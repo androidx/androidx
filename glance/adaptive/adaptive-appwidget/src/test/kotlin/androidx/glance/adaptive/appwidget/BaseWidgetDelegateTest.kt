@@ -106,7 +106,6 @@ class BaseWidgetDelegateTest {
             GlanceTemplateRenderer { template, constraints ->
                 { mockRenderer(template, constraints.surface) }
             },
-            ArchetypeSelector { _, constraints -> constraints.surface },
         )
     }
 
@@ -731,7 +730,6 @@ class BaseWidgetDelegateTest {
             GlanceTemplateRenderer { template, constraints ->
                 { onRender(selector.select(template, constraints)) }
             },
-            selector,
         )
     }
 
