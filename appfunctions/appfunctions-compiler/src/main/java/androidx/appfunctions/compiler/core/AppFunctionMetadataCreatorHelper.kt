@@ -34,7 +34,6 @@ import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.to
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAccessLevelAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAccessLevelClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAnnotation
-import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionContextClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSchemaDefinitionAnnotation
 import androidx.appfunctions.compiler.core.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionArrayTypeMetadata
@@ -172,11 +171,6 @@ class AppFunctionMetadataCreatorHelper(
         parameterDescriptionMap: Map<String, String> = mapOf(),
     ): List<AppFunctionParameterMetadata> = buildList {
         for (parameter in parameters) {
-            if (parameter.type.isOfType(AppFunctionContextClass.CLASS_NAME)) {
-                // Skip the first parameter which is always the `AppFunctionContext`.
-                continue
-            }
-
             val dataTypeMetadata =
                 parameter.type
                     .resolveSelfOrUpperBoundType()

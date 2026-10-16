@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 import com.android.build.api.artifact.SingleArtifact
+import com.google.devtools.ksp.gradle.KspAATask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 android {
     namespace = "androidx.appfunctions.integration.testapp"
@@ -81,4 +83,16 @@ androidComponents {
             apkAssets(variant.artifacts.get(SingleArtifact.APK.INSTANCE))
         }
     })
+}
+
+// TODO(b/456071824): Remove this workaround
+// Setting `ext["kotlin.incremental"] = "false"` is required in addition to `configureEach` because
+// AGP's built-in Kotlin registers `KotlinCompile` tasks during variant creation and configures
+// `task.incremental` from `kotlin.incremental` after `configureEach` actions run.
+ext["kotlin.incremental"] = "false"
+tasks.withType(KotlinCompile).configureEach {
+    incremental = false
+}
+tasks.withType(KspAATask).configureEach {
+    it.kspConfig.incremental.set(false)
 }

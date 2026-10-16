@@ -19,13 +19,9 @@ package androidx.appfunctions.compiler.processors
 import androidx.appfunctions.compiler.AppFunctionCompiler
 import androidx.appfunctions.compiler.core.AnnotatedAppFunction
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
-import androidx.appfunctions.compiler.core.AppFunctionComponentRegistryGenerator
-import androidx.appfunctions.compiler.core.AppFunctionComponentRegistryGenerator.AppFunctionComponent
 import androidx.appfunctions.compiler.core.AppFunctionInventoryCodeBuilder
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
 import androidx.appfunctions.compiler.core.IntrospectionHelper
-import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionComponentRegistryAnnotation
-import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
@@ -41,80 +37,44 @@ import com.squareup.kotlinpoet.buildCodeBlock
 /**
  * Generates implementations for the AppFunctionInventory interface.
  *
- * It resolves all functions in a class annotated with `@AppFunctionDeclaration`, and generates the
- * corresponding metadata for those functions.
- *
- * **Important:** [androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor] will
- * process exactly once for each compilation unit to generate a single registry for looking up all
- * generated inventories within the compilation unit.
+ * It resolves all functions in a class annotated with `@AppFunctionServiceEntryPoint`, and
+ * generates the corresponding metadata for those functions.
  */
 class AppFunctionInventoryProcessor(private val codeGenerator: CodeGenerator) : SymbolProcessor {
 
     private var hasProcessed = false
 
-    @OptIn(KspExperimental::class)
     override fun process(resolver: Resolver): List<KSAnnotated> {
         if (hasProcessed) return emptyList()
         hasProcessed = true
 
         val appFunctionSymbolResolver = AppFunctionSymbolResolver(resolver)
-        val appFunctionClasses = appFunctionSymbolResolver.resolveAnnotatedAppFunctions()
         val appFunctionEntryPoints =
             appFunctionSymbolResolver.resolveAnnotatedAppFunctionServiceEntryPoints()
         val resolvedAnnotatedSerializableProxies =
             ResolvedAnnotatedSerializableProxies(
                 appFunctionSymbolResolver.resolveAllAnnotatedSerializableProxiesFromModule()
             )
-        val generatedInventoryComponents = buildList {
-            for (appFunctionClass in appFunctionClasses) {
-                val inventoryQualifiedName =
-                    generateAppFunctionInventoryClass(
-                        enclosingClassDeclaration = appFunctionClass.classDeclaration,
-                        annotatedAppFunctions = appFunctionClass.appFunctions,
-                        resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
-                        sourceFiles = appFunctionClass.getSourceFiles(),
-                    )
-                add(
-                    AppFunctionComponent(
-                        qualifiedName = inventoryQualifiedName,
-                        sourceFiles = appFunctionClass.getSourceFiles(),
-                    )
-                )
-            }
-            for (appFunctionEntryPoint in appFunctionEntryPoints) {
-                // Don't put inventories generated from entry points into components, since it
-                // doesn't need aggregation to be used.
-                generateAppFunctionInventoryClass(
-                    enclosingClassDeclaration = appFunctionEntryPoint.serviceDeclaration,
-                    annotatedAppFunctions = appFunctionEntryPoint.appFunctions,
-                    resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
-                    sourceFiles = appFunctionEntryPoint.getSourceFiles(),
-                )
-            }
-        }
-
-        AppFunctionComponentRegistryGenerator(codeGenerator)
-            .generateRegistry(
-                resolver.getModuleName().asString(),
-                AppFunctionComponentRegistryAnnotation.Category.INVENTORY,
-                generatedInventoryComponents,
+        for (appFunctionEntryPoint in appFunctionEntryPoints) {
+            generateAppFunctionInventoryClass(
+                enclosingClassDeclaration = appFunctionEntryPoint.serviceDeclaration,
+                annotatedAppFunctions = appFunctionEntryPoint.appFunctions,
+                resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
+                sourceFiles = appFunctionEntryPoint.getSourceFiles(),
             )
+        }
         return resolvedAnnotatedSerializableProxies.resolvedAnnotatedSerializableProxies.map {
             it.classDeclaration
         }
     }
 
-    /**
-     * Generates an implementation of AppFunctionInventory.
-     *
-     * @return fully qualified name of the generated inventory implementation class.
-     */
+    /** Generates an implementation of AppFunctionInventory. */
     private fun generateAppFunctionInventoryClass(
         enclosingClassDeclaration: KSClassDeclaration,
         annotatedAppFunctions: List<AnnotatedAppFunction>,
         resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
         sourceFiles: Set<KSFile>,
-    ): String {
+    ) {
         val originalPackageName = enclosingClassDeclaration.packageName.asString()
         val originalClassName = enclosingClassDeclaration.simpleName.asString()
 
@@ -146,8 +106,6 @@ class AppFunctionInventoryProcessor(private val codeGenerator: CodeGenerator) : 
             )
             .bufferedWriter()
             .use { fileSpec.writeTo(it) }
-
-        return "${originalPackageName}.$inventoryClassName"
     }
 
     private fun buildSourceFilesKdoc(sourceFiles: Set<KSFile>): CodeBlock {
