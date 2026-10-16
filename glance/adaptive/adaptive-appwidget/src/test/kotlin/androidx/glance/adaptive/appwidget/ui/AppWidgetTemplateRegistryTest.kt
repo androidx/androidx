@@ -18,6 +18,7 @@ package androidx.glance.adaptive.appwidget.ui
 
 import android.content.Context
 import android.widget.RemoteViews
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.AbstractApplier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
@@ -101,6 +102,25 @@ class AppWidgetTemplateRegistryTest {
         assertThat(output).isInstanceOf(RemoteViewsRenderOutput::class.java)
         val rvOutput = output as RemoteViewsRenderOutput
         assertThat(rvOutput.provider(context)).isSameInstanceAs(expectedRemoteViews)
+    }
+
+    @Test
+    fun render_remoteComposeRenderer_returnsRemoteComposeOutput() {
+        val expectedContent: @RemoteComposable @Composable () -> Unit = {}
+        AppWidgetTemplateRegistry.register(
+            DummyTemplate::class.java,
+            RemoteComposeTemplateRenderer { _, _ -> expectedContent },
+        )
+
+        val output =
+            AppWidgetTemplateRegistry.render(
+                DummyTemplate("Test"),
+                HostConstraints(Dimensions(200, 100), surface),
+            )
+
+        assertThat(output).isInstanceOf(RemoteComposeRenderOutput::class.java)
+        val contentOutput = output as RemoteComposeRenderOutput
+        assertThat(contentOutput.content).isSameInstanceAs(expectedContent)
     }
 
     @Test
