@@ -275,6 +275,40 @@ class CaptureRemoteDocumentRecompositionTest {
     }
 
     /**
+     * A render that writes a state it also reads must not invalidate itself, otherwise regeneration
+     * would spin. The state is read nowhere else, so neither composition nor another render may
+     * follow.
+     */
+    @Test
+    fun testRenderWritingStateItReadsDoesNotRerender() = runTest {
+        val drawCount = mutableStateOf(0)
+        val renders = AtomicInteger()
+
+        val flow =
+            captureRemoteDocument(
+                creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
+                context = context,
+                coroutineContext = coroutineContext,
+                content = {
+                    RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                        renders.incrementAndGet()
+                        drawCount.value = drawCount.value + 1
+                        drawRect(paint = RemotePaint { color = Color.Red.rc })
+                    }
+                },
+            )
+
+        val documents = mutableListOf<ByteArray>()
+        val job = launch { flow.toList(documents) }
+        testScheduler.advanceUntilIdle()
+
+        assertThat(renders.get()).isEqualTo(1)
+        assertThat(drawCount.value).isEqualTo(1)
+        assertThat(documents).hasSize(1)
+        job.cancel()
+    }
+
+    /**
      * A recomposition whose output is identical applies no changes to the node tree, so the render
      * is skipped.
      */
