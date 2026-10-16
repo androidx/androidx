@@ -16,15 +16,16 @@
 
 package com.testdata
 
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionDeclaration
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
-class IntEnumValueFunctions {
+@AppFunctionServiceEntryPoint("IntEnumValueFunctionsService", "app_functions_v2")
+abstract class IntEnumValueFunctions : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun intEnumParamFunction(
-        ctx: AppFunctionContext,
         @AppFunctionIntValueConstraint(enumValues = [0, 1])
         intParam: Int
     ) {
@@ -32,13 +33,10 @@ class IntEnumValueFunctions {
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionIntValueConstraint(enumValues = [0, 1])
-    fun intEnumReturnFunction(
-        ctx: AppFunctionContext,
-    ): Int = 0
+    fun intEnumReturnFunction(): Int = 0
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun intEnumSerializableFunction(
-        ctx: AppFunctionContext,
         intEnumPropSerializable: IntEnumPropSerializable
     ) {
     }

@@ -225,6 +225,6 @@
             <id>unused</id>
             <name>com.testdata.UpdateNoteParams</name>
         </dataTypes>
-        <id>unused</id>
+        <id>com.testdata.FunctionWithGenericSerializable</id>
     </AppFunctionComponentMetadataDocument>
 </appfunctions>

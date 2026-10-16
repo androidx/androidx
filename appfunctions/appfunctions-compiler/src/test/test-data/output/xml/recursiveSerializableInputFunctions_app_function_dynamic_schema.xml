@@ -25,14 +25,19 @@
         <functionId>com.testdata.RecursiveSerializableInputFunctions#simpleFunction</functionId>
     </appfunction>
     <appfunction>
-        <id>com.testdata.RecursiveSerializableInputFunctions#simpleFunctionNullableSerializable</id>
+        <id>com.testdata.RecursiveSerializableInputFunctions#simpleFunctionSerializableList</id>
         <enabledByDefault>true</enabledByDefault>
         <parameters>
             <dataTypeMetadata>
-                <dataTypeReference>com.testdata.RecursiveSerializable</dataTypeReference>
                 <id>unused</id>
-                <isNullable>true</isNullable>
-                <type>11</type>
+                <isNullable>false</isNullable>
+                <itemType>
+                    <dataTypeReference>com.testdata.RecursiveSerializable</dataTypeReference>
+                    <id>unused</id>
+                    <isNullable>false</isNullable>
+                    <type>11</type>
+                </itemType>
+                <type>10</type>
             </dataTypeMetadata>
             <id>unused</id>
             <isRequired>true</isRequired>
@@ -46,7 +51,7 @@
                 <type>0</type>
             </valueType>
         </response>
-        <functionId>com.testdata.RecursiveSerializableInputFunctions#simpleFunctionNullableSerializable</functionId>
+        <functionId>com.testdata.RecursiveSerializableInputFunctions#simpleFunctionSerializableList</functionId>
     </appfunction>
     <appfunction>
         <id>com.testdata.RecursiveSerializableInputFunctions#simpleFunctionNullableSerializableList</id>
@@ -78,19 +83,14 @@
         <functionId>com.testdata.RecursiveSerializableInputFunctions#simpleFunctionNullableSerializableList</functionId>
     </appfunction>
     <appfunction>
-        <id>com.testdata.RecursiveSerializableInputFunctions#simpleFunctionSerializableList</id>
+        <id>com.testdata.RecursiveSerializableInputFunctions#simpleFunctionNullableSerializable</id>
         <enabledByDefault>true</enabledByDefault>
         <parameters>
             <dataTypeMetadata>
+                <dataTypeReference>com.testdata.RecursiveSerializable</dataTypeReference>
                 <id>unused</id>
-                <isNullable>false</isNullable>
-                <itemType>
-                    <dataTypeReference>com.testdata.RecursiveSerializable</dataTypeReference>
-                    <id>unused</id>
-                    <isNullable>false</isNullable>
-                    <type>11</type>
-                </itemType>
-                <type>10</type>
+                <isNullable>true</isNullable>
+                <type>11</type>
             </dataTypeMetadata>
             <id>unused</id>
             <isRequired>true</isRequired>
@@ -104,7 +104,7 @@
                 <type>0</type>
             </valueType>
         </response>
-        <functionId>com.testdata.RecursiveSerializableInputFunctions#simpleFunctionSerializableList</functionId>
+        <functionId>com.testdata.RecursiveSerializableInputFunctions#simpleFunctionNullableSerializable</functionId>
     </appfunction>
     <AppFunctionComponentMetadataDocument>
         <dataTypes>
@@ -128,6 +128,6 @@
             <id>unused</id>
             <name>com.testdata.RecursiveSerializable</name>
         </dataTypes>
-        <id>unused</id>
+        <id>com.testdata.RecursiveSerializableInputFunctions</id>
     </AppFunctionComponentMetadataDocument>
 </appfunctions>

@@ -3,23 +3,24 @@ package com.testdata
 import android.app.PendingIntent
 import android.content.Intent
 import androidx.appfunctions.AppFunctionDeclaration
-import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
-class ParcelablePrimitiveFunctions {
+@AppFunctionServiceEntryPoint("ParcelablePrimitiveFunctionsService", "app_functions_v2")
+abstract class ParcelablePrimitiveFunctions : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
-    fun pendingIntentInput(appFunctionContext: AppFunctionContext, pendingIntent: PendingIntent) {}
+    fun pendingIntentInput(pendingIntent: PendingIntent) {}
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun listPendingIntentInput(
-        appFunctionContext: AppFunctionContext,
         listPendingIntent: List<PendingIntent>
     ) {}
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
-    fun pendingIntentOutput(appFunctionContext: AppFunctionContext): PendingIntent {
+    fun pendingIntentOutput(): PendingIntent {
         val intent = Intent()
         return PendingIntent.getActivity(
-            appFunctionContext.context,
+            this,
             1,
             intent,
             PendingIntent.FLAG_IMMUTABLE
@@ -28,11 +29,11 @@ class ParcelablePrimitiveFunctions {
 
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
-    fun listPendingIntentOutput(appFunctionContext: AppFunctionContext): List<PendingIntent> {
+    fun listPendingIntentOutput(): List<PendingIntent> {
         val intent = Intent()
         return listOf(
             PendingIntent.getActivity(
-                appFunctionContext.context,
+                this,
                 1,
                 intent,
                 PendingIntent.FLAG_IMMUTABLE

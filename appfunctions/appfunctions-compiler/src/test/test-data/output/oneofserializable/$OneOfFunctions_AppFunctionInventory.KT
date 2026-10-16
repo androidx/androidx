@@ -23,18 +23,18 @@ import kotlin.collections.Map
 /**
  * Source Files:
  * OneOfFunctions.kt
- * NonSealedOneOfSerializable.kt
- * OneOfSealedClass.kt
  * OneOfSealedInterface.kt
+ * OneOfSealedClass.kt
+ * NonSealedOneOfSerializable.kt
  */
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
   override val functionIdToMetadataMap: Map<String, CompileTimeAppFunctionMetadata> = mapOf(
-    "com.testdata.oneofserializable.OneOfFunctions#oneOfNonSealedOneOfSerializableParam" to ComTestdataOneofserializableOneOfFunctionsOneOfNonSealedOneOfSerializableParamMetadataObject.APP_FUNCTION_METADATA,
-    "com.testdata.oneofserializable.OneOfFunctions#oneOfSealedListReturn" to ComTestdataOneofserializableOneOfFunctionsOneOfSealedListReturnMetadataObject.APP_FUNCTION_METADATA,
-    "com.testdata.oneofserializable.OneOfFunctions#oneOfSealedNestedSerializable" to ComTestdataOneofserializableOneOfFunctionsOneOfSealedNestedSerializableMetadataObject.APP_FUNCTION_METADATA,
     "com.testdata.oneofserializable.OneOfFunctions#oneOfSealedParam" to ComTestdataOneofserializableOneOfFunctionsOneOfSealedParamMetadataObject.APP_FUNCTION_METADATA,
     "com.testdata.oneofserializable.OneOfFunctions#oneOfSealedReturn" to ComTestdataOneofserializableOneOfFunctionsOneOfSealedReturnMetadataObject.APP_FUNCTION_METADATA,
+    "com.testdata.oneofserializable.OneOfFunctions#oneOfSealedListReturn" to ComTestdataOneofserializableOneOfFunctionsOneOfSealedListReturnMetadataObject.APP_FUNCTION_METADATA,
+    "com.testdata.oneofserializable.OneOfFunctions#oneOfSealedNestedSerializable" to ComTestdataOneofserializableOneOfFunctionsOneOfSealedNestedSerializableMetadataObject.APP_FUNCTION_METADATA,
+    "com.testdata.oneofserializable.OneOfFunctions#oneOfNonSealedOneOfSerializableParam" to ComTestdataOneofserializableOneOfFunctionsOneOfNonSealedOneOfSerializableParamMetadataObject.APP_FUNCTION_METADATA,
   )
 
   private val ANDROIDX_APPFUNCTIONS_APPFUNCTIONTEXTRESOURCE_OBJECT_DATA_TYPE_PROPERTIES_MAP_CONTENT:
@@ -478,167 +478,6 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           dataTypes = componentsMetadataDataTypesMap
       )
 
-  private object ComTestdataOneofserializableOneOfFunctionsOneOfNonSealedOneOfSerializableParamMetadataObject {
-    private val SCHEMA_METADATA: AppFunctionSchemaMetadata? = null
-
-    private val PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLE_REFERENCE_DATA_TYPE:
-        AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
-            referenceDataType = "com.testdata.oneofserializable.NonSealedOneOfSerializable",
-            isNullable = false,
-            description = ""
-        )
-
-    private val NONSEALEDONEOFSERIALIZABLE_PARAMETER_METADATA: AppFunctionParameterMetadata =
-        AppFunctionParameterMetadata(
-            name = "nonSealedOneOfSerializable",
-            isRequired = true,
-            dataType = PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLE_REFERENCE_DATA_TYPE,
-            description = "",
-        )
-
-    private val PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLENULLABLE_REFERENCE_DATA_TYPE:
-        AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
-            referenceDataType = "com.testdata.oneofserializable.NonSealedOneOfSerializable",
-            isNullable = true,
-            description = ""
-        )
-
-    private val NONSEALEDONEOFSERIALIZABLENULLABLE_PARAMETER_METADATA: AppFunctionParameterMetadata
-        = AppFunctionParameterMetadata(
-            name = "nonSealedOneOfSerializableNullable",
-            isRequired = true,
-            dataType = PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLENULLABLE_REFERENCE_DATA_TYPE,
-            description = "",
-        )
-
-    private val PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLELIST_ARRAY_DATA_TYPE_REFERENCE_ITEM_TYPE:
-        AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
-            referenceDataType = "com.testdata.oneofserializable.NonSealedOneOfSerializable",
-            isNullable = false,
-            description = ""
-        )
-
-    private val PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLELIST_ARRAY_DATA_TYPE:
-        AppFunctionArrayTypeMetadata = AppFunctionArrayTypeMetadata(
-            itemType = PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLELIST_ARRAY_DATA_TYPE_REFERENCE_ITEM_TYPE,
-            isNullable = false,
-            description = ""
-        )
-
-    private val NONSEALEDONEOFSERIALIZABLELIST_PARAMETER_METADATA: AppFunctionParameterMetadata =
-        AppFunctionParameterMetadata(
-            name = "nonSealedOneOfSerializableList",
-            isRequired = true,
-            dataType = PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLELIST_ARRAY_DATA_TYPE,
-            description = "",
-        )
-
-    private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
-      NONSEALEDONEOFSERIALIZABLE_PARAMETER_METADATA,
-      NONSEALEDONEOFSERIALIZABLENULLABLE_PARAMETER_METADATA,
-      NONSEALEDONEOFSERIALIZABLELIST_PARAMETER_METADATA,
-    )
-
-    private val PRIMITIVE_RESPONSE_VALUE_TYPE: AppFunctionUnitTypeMetadata =
-        AppFunctionUnitTypeMetadata(
-            isNullable = false,
-            description = ""
-        )
-
-    private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
-            valueType = PRIMITIVE_RESPONSE_VALUE_TYPE,
-            description = ""
-        )
-
-    public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
-        CompileTimeAppFunctionMetadata(
-            id = "com.testdata.oneofserializable.OneOfFunctions#oneOfNonSealedOneOfSerializableParam",
-            isEnabledByDefault = true,
-            schema =  SCHEMA_METADATA,
-            parameters = PARAMETER_METADATA_LIST,
-            response = RESPONSE_METADATA,
-        )
-  }
-
-  private object ComTestdataOneofserializableOneOfFunctionsOneOfSealedListReturnMetadataObject {
-    private val SCHEMA_METADATA: AppFunctionSchemaMetadata? = null
-
-    private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
-    )
-
-    private val ARRAY_RESPONSE_VALUE_TYPE_REFERENCE_ITEM_TYPE: AppFunctionReferenceTypeMetadata =
-        AppFunctionReferenceTypeMetadata(
-            referenceDataType = "com.testdata.oneofserializable.OneOfSealedClass",
-            isNullable = false,
-            description = ""
-        )
-
-    private val ARRAY_RESPONSE_VALUE_TYPE: AppFunctionArrayTypeMetadata =
-        AppFunctionArrayTypeMetadata(
-            itemType = ARRAY_RESPONSE_VALUE_TYPE_REFERENCE_ITEM_TYPE,
-            isNullable = false,
-            description = ""
-        )
-
-    private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
-            valueType = ARRAY_RESPONSE_VALUE_TYPE,
-            description = ""
-        )
-
-    public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
-        CompileTimeAppFunctionMetadata(
-            id = "com.testdata.oneofserializable.OneOfFunctions#oneOfSealedListReturn",
-            isEnabledByDefault = true,
-            schema =  SCHEMA_METADATA,
-            parameters = PARAMETER_METADATA_LIST,
-            response = RESPONSE_METADATA,
-        )
-  }
-
-  private object ComTestdataOneofserializableOneOfFunctionsOneOfSealedNestedSerializableMetadataObject {
-    private val SCHEMA_METADATA: AppFunctionSchemaMetadata? = null
-
-    private val PARAMETER_METADATA_ONEOFSEALEDNESTEDSERIALIZABLE_REFERENCE_DATA_TYPE:
-        AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
-            referenceDataType = "com.testdata.oneofserializable.OneOfSealedNestedSerializable",
-            isNullable = false,
-            description = ""
-        )
-
-    private val ONEOFSEALEDNESTEDSERIALIZABLE_PARAMETER_METADATA: AppFunctionParameterMetadata =
-        AppFunctionParameterMetadata(
-            name = "oneOfSealedNestedSerializable",
-            isRequired = true,
-            dataType = PARAMETER_METADATA_ONEOFSEALEDNESTEDSERIALIZABLE_REFERENCE_DATA_TYPE,
-            description = "",
-        )
-
-    private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
-      ONEOFSEALEDNESTEDSERIALIZABLE_PARAMETER_METADATA,
-    )
-
-    private val REFERENCE_RESPONSE_VALUE_TYPE: AppFunctionReferenceTypeMetadata =
-        AppFunctionReferenceTypeMetadata(
-            referenceDataType = "com.testdata.oneofserializable.OneOfSealedNestedSerializable",
-            isNullable = false,
-            description = ""
-        )
-
-    private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
-            valueType = REFERENCE_RESPONSE_VALUE_TYPE,
-            description = ""
-        )
-
-    public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
-        CompileTimeAppFunctionMetadata(
-            id = "com.testdata.oneofserializable.OneOfFunctions#oneOfSealedNestedSerializable",
-            isEnabledByDefault = true,
-            schema =  SCHEMA_METADATA,
-            parameters = PARAMETER_METADATA_LIST,
-            response = RESPONSE_METADATA,
-        )
-  }
-
   private object ComTestdataOneofserializableOneOfFunctionsOneOfSealedParamMetadataObject {
     private val SCHEMA_METADATA: AppFunctionSchemaMetadata? = null
 
@@ -742,6 +581,167 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
     public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
         CompileTimeAppFunctionMetadata(
             id = "com.testdata.oneofserializable.OneOfFunctions#oneOfSealedReturn",
+            isEnabledByDefault = true,
+            schema =  SCHEMA_METADATA,
+            parameters = PARAMETER_METADATA_LIST,
+            response = RESPONSE_METADATA,
+        )
+  }
+
+  private object ComTestdataOneofserializableOneOfFunctionsOneOfSealedListReturnMetadataObject {
+    private val SCHEMA_METADATA: AppFunctionSchemaMetadata? = null
+
+    private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
+    )
+
+    private val ARRAY_RESPONSE_VALUE_TYPE_REFERENCE_ITEM_TYPE: AppFunctionReferenceTypeMetadata =
+        AppFunctionReferenceTypeMetadata(
+            referenceDataType = "com.testdata.oneofserializable.OneOfSealedClass",
+            isNullable = false,
+            description = ""
+        )
+
+    private val ARRAY_RESPONSE_VALUE_TYPE: AppFunctionArrayTypeMetadata =
+        AppFunctionArrayTypeMetadata(
+            itemType = ARRAY_RESPONSE_VALUE_TYPE_REFERENCE_ITEM_TYPE,
+            isNullable = false,
+            description = ""
+        )
+
+    private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
+            valueType = ARRAY_RESPONSE_VALUE_TYPE,
+            description = ""
+        )
+
+    public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
+        CompileTimeAppFunctionMetadata(
+            id = "com.testdata.oneofserializable.OneOfFunctions#oneOfSealedListReturn",
+            isEnabledByDefault = true,
+            schema =  SCHEMA_METADATA,
+            parameters = PARAMETER_METADATA_LIST,
+            response = RESPONSE_METADATA,
+        )
+  }
+
+  private object ComTestdataOneofserializableOneOfFunctionsOneOfSealedNestedSerializableMetadataObject {
+    private val SCHEMA_METADATA: AppFunctionSchemaMetadata? = null
+
+    private val PARAMETER_METADATA_ONEOFSEALEDNESTEDSERIALIZABLE_REFERENCE_DATA_TYPE:
+        AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
+            referenceDataType = "com.testdata.oneofserializable.OneOfSealedNestedSerializable",
+            isNullable = false,
+            description = ""
+        )
+
+    private val ONEOFSEALEDNESTEDSERIALIZABLE_PARAMETER_METADATA: AppFunctionParameterMetadata =
+        AppFunctionParameterMetadata(
+            name = "oneOfSealedNestedSerializable",
+            isRequired = true,
+            dataType = PARAMETER_METADATA_ONEOFSEALEDNESTEDSERIALIZABLE_REFERENCE_DATA_TYPE,
+            description = "",
+        )
+
+    private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
+      ONEOFSEALEDNESTEDSERIALIZABLE_PARAMETER_METADATA,
+    )
+
+    private val REFERENCE_RESPONSE_VALUE_TYPE: AppFunctionReferenceTypeMetadata =
+        AppFunctionReferenceTypeMetadata(
+            referenceDataType = "com.testdata.oneofserializable.OneOfSealedNestedSerializable",
+            isNullable = false,
+            description = ""
+        )
+
+    private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
+            valueType = REFERENCE_RESPONSE_VALUE_TYPE,
+            description = ""
+        )
+
+    public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
+        CompileTimeAppFunctionMetadata(
+            id = "com.testdata.oneofserializable.OneOfFunctions#oneOfSealedNestedSerializable",
+            isEnabledByDefault = true,
+            schema =  SCHEMA_METADATA,
+            parameters = PARAMETER_METADATA_LIST,
+            response = RESPONSE_METADATA,
+        )
+  }
+
+  private object ComTestdataOneofserializableOneOfFunctionsOneOfNonSealedOneOfSerializableParamMetadataObject {
+    private val SCHEMA_METADATA: AppFunctionSchemaMetadata? = null
+
+    private val PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLE_REFERENCE_DATA_TYPE:
+        AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
+            referenceDataType = "com.testdata.oneofserializable.NonSealedOneOfSerializable",
+            isNullable = false,
+            description = ""
+        )
+
+    private val NONSEALEDONEOFSERIALIZABLE_PARAMETER_METADATA: AppFunctionParameterMetadata =
+        AppFunctionParameterMetadata(
+            name = "nonSealedOneOfSerializable",
+            isRequired = true,
+            dataType = PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLE_REFERENCE_DATA_TYPE,
+            description = "",
+        )
+
+    private val PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLENULLABLE_REFERENCE_DATA_TYPE:
+        AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
+            referenceDataType = "com.testdata.oneofserializable.NonSealedOneOfSerializable",
+            isNullable = true,
+            description = ""
+        )
+
+    private val NONSEALEDONEOFSERIALIZABLENULLABLE_PARAMETER_METADATA: AppFunctionParameterMetadata
+        = AppFunctionParameterMetadata(
+            name = "nonSealedOneOfSerializableNullable",
+            isRequired = true,
+            dataType = PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLENULLABLE_REFERENCE_DATA_TYPE,
+            description = "",
+        )
+
+    private val PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLELIST_ARRAY_DATA_TYPE_REFERENCE_ITEM_TYPE:
+        AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
+            referenceDataType = "com.testdata.oneofserializable.NonSealedOneOfSerializable",
+            isNullable = false,
+            description = ""
+        )
+
+    private val PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLELIST_ARRAY_DATA_TYPE:
+        AppFunctionArrayTypeMetadata = AppFunctionArrayTypeMetadata(
+            itemType = PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLELIST_ARRAY_DATA_TYPE_REFERENCE_ITEM_TYPE,
+            isNullable = false,
+            description = ""
+        )
+
+    private val NONSEALEDONEOFSERIALIZABLELIST_PARAMETER_METADATA: AppFunctionParameterMetadata =
+        AppFunctionParameterMetadata(
+            name = "nonSealedOneOfSerializableList",
+            isRequired = true,
+            dataType = PARAMETER_METADATA_NONSEALEDONEOFSERIALIZABLELIST_ARRAY_DATA_TYPE,
+            description = "",
+        )
+
+    private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
+      NONSEALEDONEOFSERIALIZABLE_PARAMETER_METADATA,
+      NONSEALEDONEOFSERIALIZABLENULLABLE_PARAMETER_METADATA,
+      NONSEALEDONEOFSERIALIZABLELIST_PARAMETER_METADATA,
+    )
+
+    private val PRIMITIVE_RESPONSE_VALUE_TYPE: AppFunctionUnitTypeMetadata =
+        AppFunctionUnitTypeMetadata(
+            isNullable = false,
+            description = ""
+        )
+
+    private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
+            valueType = PRIMITIVE_RESPONSE_VALUE_TYPE,
+            description = ""
+        )
+
+    public val APP_FUNCTION_METADATA: CompileTimeAppFunctionMetadata =
+        CompileTimeAppFunctionMetadata(
+            id = "com.testdata.oneofserializable.OneOfFunctions#oneOfNonSealedOneOfSerializableParam",
             isEnabledByDefault = true,
             schema =  SCHEMA_METADATA,
             parameters = PARAMETER_METADATA_LIST,

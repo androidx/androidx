@@ -1,40 +1,37 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionDeclaration
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 
-class SerializableInputFunctions {
+@AppFunctionServiceEntryPoint("SerializableInputFunctionsService", "app_functions_v2")
+abstract class SerializableInputFunctions : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
-    fun simpleFunction(appFunctionContext: AppFunctionContext, serializable: SampleSerializable) {}
+    fun simpleFunction(serializable: SampleSerializable) {}
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionSerializableList(
-        appFunctionContext: AppFunctionContext,
         serializable: List<SampleSerializable>,
     ) {}
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableSerializableList(
-        appFunctionContext: AppFunctionContext,
         serializable: List<SampleSerializable>?,
     ) {}
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionNullableSerializable(
-        appFunctionContext: AppFunctionContext,
         serializable: SampleSerializable?,
     ) {}
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionSerializableListItemNullable(
-        appFunctionContext: AppFunctionContext,
         serializable: List<SampleSerializable?>,
     ) {}
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun simpleFunctionBothSerializableListAndListItemNullable(
-        appFunctionContext: AppFunctionContext,
         serializable: List<SampleSerializable?>?,
     ) {}
 }
