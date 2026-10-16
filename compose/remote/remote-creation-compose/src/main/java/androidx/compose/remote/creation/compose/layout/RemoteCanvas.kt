@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
@@ -405,6 +406,29 @@ public class RemoteCanvas(
 
     /** Draws text from [text] at ([x], [y]) using the specified [paint]. */
     public fun drawText(
+        text: String,
+        x: RemoteFloat,
+        y: RemoteFloat,
+        paint: RemotePaint? = null,
+    ) {
+        val op =
+            recordRenderingOp(paint) {
+                document.drawTextRun(
+                    text,
+                    0,
+                    text.length,
+                    0,
+                    text.length,
+                    x.floatId,
+                    y.floatId,
+                    false,
+                )
+            }
+        buffer.addRoots(op, x, y)
+    }
+
+    /** Draws text from [text] at ([x], [y]) using the specified [paint]. */
+    public fun drawText(
         text: RemoteString,
         x: RemoteFloat,
         y: RemoteFloat,
@@ -415,6 +439,23 @@ public class RemoteCanvas(
                 document.drawTextRun(text.id, 0, -1, 0, -1, x.floatId, y.floatId, false)
             }
         buffer.addRoots(op, text, x, y)
+    }
+
+    public fun drawTextRun(
+        text: CharSequence,
+        start: Int,
+        end: Int,
+        contextStart: Int,
+        contextEnd: Int,
+        x: Float,
+        y: Float,
+        isRtl: Boolean,
+        paint: RemotePaint? = null,
+    ) {
+        val textString = text.toString()
+        recordRenderingOp(paint) {
+            document.drawTextRun(textString, start, end, contextStart, contextEnd, x, y, isRtl)
+        }
     }
 
     public fun drawTextRun(
@@ -468,6 +509,20 @@ public class RemoteCanvas(
     }
 
     public fun drawTextOnPath(
+        text: String,
+        path: RemotePath,
+        hOffset: RemoteFloat,
+        vOffset: RemoteFloat,
+        paint: RemotePaint? = null,
+    ) {
+        val op =
+            recordRenderingOp(paint) {
+                document.drawTextOnPath(text, path, hOffset.floatId, vOffset.floatId)
+            }
+        buffer.addRoots(op, path, hOffset, vOffset)
+    }
+
+    public fun drawTextOnPath(
         text: RemoteString,
         path: RemotePath,
         hOffset: RemoteFloat,
@@ -479,6 +534,44 @@ public class RemoteCanvas(
                 document.drawTextOnPath(text.id, path, hOffset.floatId, vOffset.floatId)
             }
         buffer.addRoots(op, text, path, hOffset, vOffset)
+    }
+
+    /**
+     * Draws a substring of [text] with [bitmapFont] at position ([x], [y]).
+     *
+     * @param text The [RemoteString] to draw.
+     * @param bitmapFont The [RemoteBitmapFont] to draw [text] with.
+     * @param start The character to start drawing from.
+     * @param end The character to stop drawing at. Note if this is -1 then all characters from
+     *   [start] until the last character of [text] are drawn.
+     * @param x The left x-coordinate to start rendering from.
+     * @param y The top y-coordinate to start rendering from.
+     * @param glyphSpacing Horizontal adjustment in pixels between glyphs.
+     * @param paint The [RemotePaint] to render with.
+     */
+    public fun drawBitmapFontTextRun(
+        text: RemoteString,
+        bitmapFont: RemoteBitmapFont,
+        start: Int,
+        end: Int,
+        x: RemoteFloat,
+        y: RemoteFloat,
+        glyphSpacing: RemoteFloat,
+        paint: RemotePaint? = null,
+    ) {
+        val op =
+            recordRenderingOp(paint) {
+                document.drawBitmapFontTextRun(
+                    text.getIdForCreationState(creationState),
+                    bitmapFont.getIdForCreationState(creationState),
+                    start,
+                    end,
+                    x.floatId,
+                    y.floatId,
+                    glyphSpacing.floatId,
+                )
+            }
+        buffer.addRoots(op, text, bitmapFont, x, y, glyphSpacing)
     }
 
     /** Draws a path using the specified [paint]. */
