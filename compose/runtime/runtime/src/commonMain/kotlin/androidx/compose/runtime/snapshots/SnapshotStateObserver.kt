@@ -17,15 +17,15 @@
 package androidx.compose.runtime.snapshots
 
 import androidx.collection.MutableObjectIntMap
+import androidx.collection.MutableObjectList
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
+import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.ComputedState
 import androidx.compose.runtime.DerivedState
 import androidx.compose.runtime.TestOnly
-import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.internal.AtomicReference
 import androidx.compose.runtime.internal.currentThreadId
@@ -173,7 +173,7 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
      * [ObservedScopeMap] associated with its [ObservedScopeMap.onChanged] callback in this list.
      * The list only grows.
      */
-    private val observedScopeMaps = mutableVectorOf<ObservedScopeMap>()
+    private val observedScopeMaps = mutableObjectListOf<ObservedScopeMap>()
     private val observedScopeMapsLock = makeSynchronizedObject()
 
     /**
@@ -404,10 +404,11 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
             _invalidated ?: MutableScatterSet<Any>().also { _invalidated = it }
 
         /** Reusable vector for re-recording states inside [recordInvalidation] */
-        private var _statesToReread: MutableVector<IndirectState<*>>? = null
+        private var _statesToReread: MutableObjectList<IndirectState<*>>? = null
         private val statesToReread
             get() =
-                _statesToReread ?: mutableVectorOf<IndirectState<*>>().also { _statesToReread = it }
+                _statesToReread
+                    ?: mutableObjectListOf<IndirectState<*>>().also { _statesToReread = it }
 
         // derived state handling
 

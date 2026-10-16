@@ -16,9 +16,11 @@
 
 package androidx.compose.runtime.internal
 
+import androidx.collection.MutableObjectList
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.collection.ScatterSet
+import androidx.collection.mutableObjectListOf
 import androidx.collection.mutableScatterMapOf
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
@@ -30,8 +32,6 @@ import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.Stack
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.composer.RememberManager
 import androidx.compose.runtime.composer.linkbuffer.NullAnchor
 import androidx.compose.runtime.debugRuntimeCheck
@@ -46,7 +46,7 @@ import androidx.compose.runtime.tooling.CompositionErrorContext
  */
 internal class PausedCompositionRemembers(private val abandoning: MutableSet<RememberObserver>) :
     RememberObserver {
-    val pausedRemembers = mutableVectorOf<RememberObserverHolder>()
+    val pausedRemembers = mutableObjectListOf<RememberObserverHolder>()
 
     override fun onRemembered() {
         pausedRemembers.forEach {
@@ -66,16 +66,16 @@ internal class PausedCompositionRemembers(private val abandoning: MutableSet<Rem
 internal class RememberEventDispatcher() : RememberManager {
     private var abandoning: MutableSet<RememberObserver>? = null
     private var traceContext: CompositionErrorContext? = null
-    private val remembering = mutableVectorOf<RememberObserverHolder>()
+    private val remembering = mutableObjectListOf<RememberObserverHolder>()
     private var rememberSet = mutableScatterSetOf<RememberObserverHolder>()
     private var currentRememberingList = remembering
-    private val leaving = mutableVectorOf<Any>()
-    private val sideEffects = mutableVectorOf<() -> Unit>()
+    private val leaving = mutableObjectListOf<Any>()
+    private val sideEffects = mutableObjectListOf<() -> Unit>()
     private var releasing: MutableScatterSet<ComposeNodeLifecycleCallback>? = null
     private var pausedPlaceholders:
         MutableScatterMap<RecomposeScopeImpl, PausedCompositionRemembers>? =
         null
-    private var nestedRemembersLists: Stack<MutableVector<RememberObserverHolder>>? = null
+    private var nestedRemembersLists: Stack<MutableObjectList<RememberObserverHolder>>? = null
     private var ignoreLeavingSet: ScatterSet<RememberObserverHolder>? = null
 
     fun prepare(abandoning: MutableSet<RememberObserver>, traceContext: CompositionErrorContext?) {
@@ -121,8 +121,8 @@ internal class RememberEventDispatcher() : RememberManager {
             val removed = currentRememberingList.remove(instance) || remembering.remove(instance)
             if (!removed) {
                 // The instance must be in a nested paused composition.
-                fun removeFrom(vector: MutableVector<RememberObserverHolder>): Boolean {
-                    vector.forEach { holder ->
+                fun removeFrom(list: MutableObjectList<RememberObserverHolder>): Boolean {
+                    list.forEach { holder ->
                         val nested = holder.wrapped
                         if (nested is PausedCompositionRemembers) {
                             val remembers = nested.pausedRemembers
@@ -187,7 +187,7 @@ internal class RememberEventDispatcher() : RememberManager {
         val placeholder = pausedPlaceholders?.get(scope)
         if (placeholder != null) {
             (nestedRemembersLists
-                    ?: Stack<MutableVector<RememberObserverHolder>>().also {
+                    ?: Stack<MutableObjectList<RememberObserverHolder>>().also {
                         nestedRemembersLists = it
                     })
                 .push(currentRememberingList)
@@ -260,7 +260,7 @@ internal class RememberEventDispatcher() : RememberManager {
             }
         } else null
 
-    private fun dispatchRememberList(list: MutableVector<RememberObserverHolder>) {
+    private fun dispatchRememberList(list: MutableObjectList<RememberObserverHolder>) {
         val abandoning = abandoning ?: return
         list.forEach { instance ->
             val wrapped = instance.wrapped
