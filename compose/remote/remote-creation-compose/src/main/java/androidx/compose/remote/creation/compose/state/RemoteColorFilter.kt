@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.ui.graphics.BlendMode
 
 /** Represents a color filter that can be used with remote paint. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public sealed interface RemoteColorFilter
@@ -26,12 +25,12 @@ import androidx.compose.ui.graphics.BlendMode
  * A remote-compatible color filter that applies a blend mode with a specified color.
  *
  * @property color The [RemoteColor] to use for the tint.
- * @property blendMode The [BlendMode] to use for blending.
+ * @property blendMode The [RemoteBlendMode] to use for blending.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteBlendModeColorFilter(
     public val color: RemoteColor,
-    public val blendMode: BlendMode,
+    public val blendMode: RemoteBlendMode,
 ) : RemoteColorFilter {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -43,23 +42,5 @@ public class RemoteBlendModeColorFilter(
         var result = color.hashCode()
         result = 31 * result + blendMode.hashCode()
         return result
-    }
-}
-
-/**
- * A remote-compatible color filter that wraps a Compose [androidx.compose.ui.graphics.ColorFilter].
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ComposeRemoteColorFilter(
-    public val composeColorFilter: androidx.compose.ui.graphics.ColorFilter
-) : RemoteColorFilter {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ComposeRemoteColorFilter) return false
-        return composeColorFilter == other.composeColorFilter
-    }
-
-    override fun hashCode(): Int {
-        return composeColorFilter.hashCode()
     }
 }
