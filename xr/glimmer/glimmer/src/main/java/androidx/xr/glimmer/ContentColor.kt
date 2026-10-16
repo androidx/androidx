@@ -66,7 +66,7 @@ internal fun DelegatableNode.currentContentColor(): Color {
     var contentColor = Color.White
     traverseAncestors(ContentColorTraverseKey) {
         if (it is ContentColorProviderNode) {
-            contentColor = it.contentColor
+            contentColor = it.currentContentColor
             // Stop at the nearest descendant node
             false
         } else {
@@ -79,10 +79,10 @@ internal fun DelegatableNode.currentContentColor(): Color {
 }
 
 private class ContentColorProviderElement(private val contentColor: Color) :
-    ModifierNodeElement<ContentColorProviderNode>() {
-    override fun create(): ContentColorProviderNode = ContentColorProviderNode(contentColor)
+    ModifierNodeElement<ContentColorProviderNodeImpl>() {
+    override fun create(): ContentColorProviderNodeImpl = ContentColorProviderNodeImpl(contentColor)
 
-    override fun update(node: ContentColorProviderNode) = node.update(contentColor)
+    override fun update(node: ContentColorProviderNodeImpl) = node.update(contentColor)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -101,18 +101,27 @@ private class ContentColorProviderElement(private val contentColor: Color) :
     }
 }
 
-internal class ContentColorProviderNode(contentColor: Color) : TraversableNode, Modifier.Node() {
-
+private class ContentColorProviderNodeImpl(contentColor: Color) :
+    Modifier.Node(), ContentColorProviderNode {
     override val shouldAutoInvalidate = false
 
-    var contentColor by mutableStateOf(contentColor)
+    override var currentContentColor by mutableStateOf(contentColor)
         private set
 
     fun update(contentColor: Color) {
-        this.contentColor = contentColor
+        this.currentContentColor = contentColor
     }
+}
 
-    override val traverseKey: String = ContentColorTraverseKey
+/**
+ * Allows custom nodes to provide a content color. Reads of [DelegatableNode.currentContentColor]
+ * will return the color provided by the nearest ancestor node that implements this interface.
+ */
+internal interface ContentColorProviderNode : TraversableNode {
+    val currentContentColor: Color
+
+    override val traverseKey: String
+        get() = ContentColorTraverseKey
 }
 
 private const val ContentColorTraverseKey = "androidx.xr.glimmer.ContentColor"
