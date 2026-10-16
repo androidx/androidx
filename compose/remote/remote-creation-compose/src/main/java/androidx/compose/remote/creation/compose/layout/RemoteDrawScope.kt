@@ -61,6 +61,12 @@ internal constructor(
     public val size: RemoteSize
         get() = RemoteSize(width, height)
 
+    /**
+     * Applies [paint] for drawing commands executed within [block].
+     *
+     * @param paint The [RemotePaint] to apply before executing [block].
+     * @param block Drawing commands to execute with [paint] active.
+     */
     public fun usePaint(paint: RemotePaint, block: () -> Unit) {
         remoteCanvas.usePaint(paint)
         block()
@@ -88,6 +94,15 @@ internal constructor(
         )
     }
 
+    /**
+     * Draws a rounded rectangle with the given [paint], [topLeft] offset, [size], and
+     * [cornerRadius].
+     *
+     * @param paint The [RemotePaint] to use for drawing the rounded rectangle.
+     * @param topLeft The top-left offset of the rounded rectangle.
+     * @param size The size of the rounded rectangle.
+     * @param cornerRadius The x and y radii of the rounded corners.
+     */
     public fun drawRoundRect(
         paint: RemotePaint?,
         topLeft: RemoteOffset = RemoteOffset.Zero,
@@ -105,7 +120,13 @@ internal constructor(
         )
     }
 
-    /** Draws a circle. */
+    /**
+     * Draws a circle at [center] with the given [radius] and [paint].
+     *
+     * @param paint The [RemotePaint] to use for drawing the circle.
+     * @param radius The radius of the circle in pixels.
+     * @param center The center coordinate of the circle.
+     */
     public fun drawCircle(
         paint: RemotePaint?,
         radius: RemoteFloat,
@@ -115,6 +136,13 @@ internal constructor(
         remoteCanvas.drawCircle(center.x, center.y, radius, paint)
     }
 
+    /**
+     * Draws an oval bounded by the rectangle defined by [topLeft] and [size].
+     *
+     * @param paint The [RemotePaint] to use for drawing the oval.
+     * @param topLeft The top-left offset of the bounding rectangle.
+     * @param size The size of the bounding rectangle.
+     */
     public fun drawOval(
         paint: RemotePaint?,
         topLeft: RemoteOffset = RemoteOffset.Zero,
@@ -129,6 +157,16 @@ internal constructor(
         )
     }
 
+    /**
+     * Draws an arc scaled to fit inside the rectangle defined by [topLeft] and [size].
+     *
+     * @param paint The [RemotePaint] to use for drawing the arc.
+     * @param startAngle Starting angle in degrees where 0 degrees is at 3 o'clock.
+     * @param sweepAngle Clockwise sweep angle in degrees relative to [startAngle].
+     * @param useCenter Whether the arc is connected to the center of the oval (forming a wedge).
+     * @param topLeft The top-left offset of the bounding rectangle.
+     * @param size The size of the bounding rectangle.
+     */
     public fun drawArc(
         paint: RemotePaint?,
         startAngle: RemoteFloat,
@@ -149,7 +187,13 @@ internal constructor(
         )
     }
 
-    /** Draws a line. */
+    /**
+     * Draws a line segment between [start] and [end] using the given [paint].
+     *
+     * @param paint The [RemotePaint] to use for drawing the line.
+     * @param start The starting point of the line.
+     * @param end The ending point of the line.
+     */
     public fun drawLine(paint: RemotePaint?, start: RemoteOffset, end: RemoteOffset) {
         remoteCanvas.drawLine(start.x, start.y, end.x, end.y, paint)
     }

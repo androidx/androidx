@@ -63,15 +63,18 @@ public fun RemoteMaterialTheme(
 
 /**
  * Contains functions to access the current theme values provided at the call site's
- * `RemoteMaterialTheme` context.
+ * [RemoteMaterialTheme] context.
  */
 public object RemoteMaterialTheme {
+    /** Retrieves the current [RemoteColorScheme] at the call site's position in the hierarchy. */
     public val colorScheme: RemoteColorScheme
         @Composable @RemoteComposable get() = LocalRemoteMaterialTheme.current.colorScheme
 
+    /** Retrieves the current [RemoteTypography] at the call site's position in the hierarchy. */
     public val typography: RemoteTypography
         @Composable @RemoteComposable get() = LocalRemoteMaterialTheme.current.typography
 
+    /** Retrieves the current [RemoteShapes] at the call site's position in the hierarchy. */
     public val shapes: RemoteShapes
         @Composable @RemoteComposable get() = LocalRemoteMaterialTheme.current.shapes
 

@@ -41,18 +41,47 @@ public sealed interface RemoteAnimationSpec {
 public class RemoteEasing
 internal constructor(internal val type: Int, internal val spec: FloatArray? = null) {
     public companion object {
+        /** Standard cubic bezier easing curve. */
         public val Standard: RemoteEasing = RemoteEasing(CUBIC_STANDARD)
+
+        /** Linear easing curve with a constant rate of change. */
         public val Linear: RemoteEasing = RemoteEasing(CUBIC_LINEAR)
+
+        /** Easing curve that starts slowly and accelerates toward the end. */
         public val Accelerate: RemoteEasing = RemoteEasing(CUBIC_ACCELERATE)
+
+        /** Easing curve that starts quickly and decelerates toward the end. */
         public val Decelerate: RemoteEasing = RemoteEasing(CUBIC_DECELERATE)
+
+        /** Easing curve that pulls back slightly before moving forward. */
         public val Anticipate: RemoteEasing = RemoteEasing(CUBIC_ANTICIPATE)
+
+        /** Easing curve that overshoots the target before settling. */
         public val Overshoot: RemoteEasing = RemoteEasing(CUBIC_OVERSHOOT)
+
+        /** Easing curve that bounces at the end of the transition. */
         public val Bounce: RemoteEasing = RemoteEasing(EASE_OUT_BOUNCE)
+
+        /** Easing curve that oscillates elastically at the end of the transition. */
         public val Elastic: RemoteEasing = RemoteEasing(EASE_OUT_ELASTIC)
 
+        /**
+         * Creates a custom cubic bezier [RemoteEasing] curve from the control points `(x1, y1)` and
+         * `(x2, y2)`.
+         *
+         * @param x1 The x-coordinate of the first control point.
+         * @param y1 The y-coordinate of the first control point.
+         * @param x2 The x-coordinate of the second control point.
+         * @param y2 The y-coordinate of the second control point.
+         */
         public fun Cubic(x1: Float, y1: Float, x2: Float, y2: Float): RemoteEasing =
             RemoteEasing(CUBIC_CUSTOM, floatArrayOf(x1, y1, x2, y2))
 
+        /**
+         * Creates a custom spline [RemoteEasing] curve that interpolates through [points].
+         *
+         * @param points The control points defining the spline curve.
+         */
         public fun Spline(points: FloatArray): RemoteEasing =
             RemoteEasing(SPLINE_CUSTOM, points.copyOf())
     }

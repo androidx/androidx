@@ -29,4 +29,9 @@ internal class ZIndexModifier(public val value: RemoteFloat) : RemoteModifier.El
     }
 }
 
+/**
+ * Controls the drawing order of the element relative to its siblings with [zIndex].
+ *
+ * @param zIndex The z-index value; higher values are drawn on top of lower values.
+ */
 public fun RemoteModifier.zIndex(zIndex: RemoteFloat): RemoteModifier = then(ZIndexModifier(zIndex))

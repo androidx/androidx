@@ -89,6 +89,6 @@ public object RemoteButtonGroupDefaults {
 
     internal val minimumInteractiveComponentSize = 48.rdp
 
-    /** Default for the minimum width of buttons in a RemoteButtonGroup */
+    /** Default for the minimum width of buttons in a [RemoteButtonGroup]. */
     public val MinWidth: RemoteDp = minimumInteractiveComponentSize
 }

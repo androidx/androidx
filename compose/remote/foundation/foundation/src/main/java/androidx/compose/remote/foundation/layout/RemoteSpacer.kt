@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
  *
  * This delegates to [RemoteBox] which handles the layout recording or foundation Box dispatching.
  *
+ * @param modifier The [RemoteModifier] to be applied to this spacer.
  * @sample androidx.compose.remote.foundation.samples.RemoteSpacerSample
  * @sample androidx.compose.remote.foundation.samples.RemoteSpacerWeightSample
  */

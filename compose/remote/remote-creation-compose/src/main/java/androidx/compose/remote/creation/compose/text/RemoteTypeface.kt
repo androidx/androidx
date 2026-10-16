@@ -29,7 +29,7 @@ public sealed interface RemoteTypeface {
     /** The name used to identify the font in the document and player */
     public val name: String
 
-    /** Converts this RemoteTypeface to an Android framework Typeface. */
+    /** Converts this [RemoteTypeface] to an Android framework [Typeface]. */
     public fun toAndroidTypeface(): Typeface
 
     /** Represents the default system font. */
@@ -103,7 +103,7 @@ public sealed interface RemoteTypeface {
         }
     }
 
-    /** Represents the style of a RemoteTypeface (e.g., Normal, Bold, Italic). */
+    /** Represents the style of a [RemoteTypeface] (e.g., Normal, Bold, Italic). */
     public enum class Style {
         Normal,
         Bold,
@@ -112,14 +112,23 @@ public sealed interface RemoteTypeface {
     }
 
     public companion object {
-        /** Creates a RemoteTypeface with the given font name and style. */
+        /**
+         * Creates a [RemoteTypeface] with the given [fontName] and [style].
+         *
+         * @param fontName The font family name, or `null` for the default font.
+         * @param style The [Style] of the typeface.
+         */
         public fun create(fontName: String?, style: Style = Style.Normal): RemoteTypeface {
             val weight = if (style == Style.Bold || style == Style.BoldItalic) 700 else 400
             val isItalic = style == Style.Italic || style == Style.BoldItalic
             return Named(fontName ?: "default", weight, isItalic)
         }
 
-        /** Maps an Android framework Typeface to a RemoteTypeface. */
+        /**
+         * Maps an Android framework [Typeface] to a [RemoteTypeface].
+         *
+         * @param typeface The Android [Typeface] to convert, or `null` for [Default].
+         */
         public fun fromAndroidTypeface(typeface: Typeface?): RemoteTypeface {
             return when (typeface) {
                 null -> Default
