@@ -949,6 +949,104 @@ class ParameterFactoryTest {
     }
 
     @Test
+    fun testTextStyleWithLongLocaleList() {
+        val style =
+            TextStyle(
+                color = Color.Red,
+                textDecoration = TextDecoration.Underline,
+                textDirection = TextDirection.Content,
+                // Uncommon locales: a locale equal to the device locale is shown as "current".
+                localeList =
+                    LocaleList(
+                        Locale("fr-CA"),
+                        Locale("fr-BE"),
+                        Locale("fr-CH"),
+                        Locale("fr-LU"),
+                        Locale("fr-MC"),
+                        Locale("fr-SN"),
+                        Locale("fr-CM"),
+                    ),
+            )
+        validate(create("style", style)) {
+            parameter("style", ParameterType.String, TextStyle::class.java.simpleName) {
+                parameter("color", ParameterType.Color, Color.Red.toArgb())
+                parameter("fontSize", ParameterType.String, "Unspecified", index = 1)
+                parameter("letterSpacing", ParameterType.String, "Unspecified", index = 7)
+                parameter("localeList", ParameterType.Iterable, "Collection[7]", ref(10), 10) {
+                    parameter("[0]", ParameterType.String, "fr-CA")
+                    parameter("[1]", ParameterType.String, "fr-BE")
+                    parameter("[2]", ParameterType.String, "fr-CH")
+                    parameter("[3]", ParameterType.String, "fr-LU")
+                    parameter("[4]", ParameterType.String, "fr-MC")
+                }
+                parameter("background", ParameterType.String, "Unspecified", index = 11)
+                parameter("textDecoration", ParameterType.String, "Underline", index = 12)
+                parameter("textDirection", ParameterType.String, "Content", index = 14)
+                parameter("lineHeight", ParameterType.String, "Unspecified", index = 15)
+            }
+        }
+
+        // The reference leads to the rest of the locales:
+        validate(expand("style", style, ref(10), 5, 5)!!) {
+            parameter("localeList", ParameterType.Iterable, "Collection[7]", childStartIndex = 5) {
+                parameter("[5]", ParameterType.String, "fr-SN")
+                parameter("[6]", ParameterType.String, "fr-CM")
+            }
+        }
+    }
+
+    @Test
+    fun testTextStyleFieldsAreNotARecursionLevel() {
+        val holder = StyleHolder(styleWithShadow())
+        // The TextStyle fields don't count as a recursion level, so the shadow is fully expanded:
+        validate(create("holder", holder)) {
+            parameter("holder", ParameterType.String, StyleHolder::class.java.simpleName) {
+                parameter("style", ParameterType.String, TextStyle::class.java.simpleName) {
+                    parameter("color", ParameterType.Color, Color.Red.toArgb())
+                    parameter("fontSize", ParameterType.String, "Unspecified", index = 1)
+                    parameter("letterSpacing", ParameterType.String, "Unspecified", index = 7)
+                    parameter("background", ParameterType.String, "Unspecified", index = 11)
+                    parameter("textDecoration", ParameterType.String, "Underline", index = 12)
+                    validateShadow(index = 13)
+                    parameter("textDirection", ParameterType.String, "Content", index = 14)
+                    parameter("lineHeight", ParameterType.String, "Unspecified", index = 15)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testTextStyleFieldAtRecursionLimit() {
+        val holder = StyleHolderHolder(StyleHolder(styleWithShadow()))
+        // The style is at the recursion limit, so the shadow is cut with a reference:
+        validate(create("holder", holder)) {
+            parameter("holder", ParameterType.String, StyleHolderHolder::class.java.simpleName) {
+                parameter("inner", ParameterType.String, StyleHolder::class.java.simpleName) {
+                    parameter("style", ParameterType.String, TextStyle::class.java.simpleName) {
+                        parameter("color", ParameterType.Color, Color.Red.toArgb())
+                        parameter("fontSize", ParameterType.String, "Unspecified", index = 1)
+                        parameter("letterSpacing", ParameterType.String, "Unspecified", index = 7)
+                        parameter("background", ParameterType.String, "Unspecified", index = 11)
+                        parameter("textDecoration", ParameterType.String, "Underline", index = 12)
+                        parameter(
+                            "shadow",
+                            ParameterType.String,
+                            Shadow::class.java.simpleName,
+                            ref(0, 0, 13),
+                            13,
+                        )
+                        parameter("textDirection", ParameterType.String, "Content", index = 14)
+                        parameter("lineHeight", ParameterType.String, "Unspecified", index = 15)
+                    }
+                }
+            }
+        }
+
+        // The reference leads to the shadow:
+        validate(expand("holder", holder, ref(0, 0, 13))!!) { validateShadow() }
+    }
+
+    @Test
     fun testDeepRecursiveStructure() {
         val c1 = DeepCycle()
         val c2 = NextDeepCycle()
@@ -1089,6 +1187,25 @@ class ParameterFactoryTest {
         elements.checkFinished()
     }
 
+    private fun styleWithShadow(): TextStyle =
+        TextStyle(
+            color = Color.Red,
+            textDecoration = TextDecoration.Underline,
+            textDirection = TextDirection.Content,
+            shadow = Shadow(Color.Blue, Offset(1.0f, 4.0f), 1.5f),
+        )
+
+    private fun ParameterValidationReceiver.validateShadow(index: Int = -1) {
+        parameter("shadow", ParameterType.String, Shadow::class.java.simpleName, index = index) {
+            parameter("color", ParameterType.Color, Color.Blue.toArgb())
+            parameter("offset", ParameterType.String, Offset::class.java.simpleName) {
+                parameter("x", ParameterType.DimensionDp, 0.5f)
+                parameter("y", ParameterType.DimensionDp, 2.0f)
+            }
+            parameter("blurRadius", ParameterType.DimensionDp, 0.75f)
+        }
+    }
+
     private fun checkExpand(
         parameter: NodeParameter,
         name: String,
@@ -1211,6 +1328,10 @@ private open class DeepCycle {
 }
 
 private class NextDeepCycle : DeepCycle()
+
+private class StyleHolder(val style: TextStyle)
+
+private class StyleHolderHolder(val inner: StyleHolder)
 
 private fun NodeParameter.checkEquals(other: NodeParameter): Boolean {
     assertThat(other.name).isEqualTo(name)

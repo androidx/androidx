@@ -377,13 +377,6 @@ internal class ParameterFactory(inlineClassConverter: InlineClassConverter) {
             return createFromCompositeValue(name, value, parentValue)
         }
 
-        private fun create(
-            name: String,
-            value: Any?,
-            parentValue: Any?,
-            specifiedIndex: Int = 0,
-        ): NodeParameter? = create(name, value, parentValue)?.apply { index = specifiedIndex }
-
         private fun createFromSimpleValue(name: String, value: Any?): NodeParameter? {
             if (value == null) {
                 return null
@@ -466,10 +459,24 @@ internal class ParameterFactory(inlineClassConverter: InlineClassConverter) {
             parentValue: Any?,
             index: Int,
         ): NodeParameter? {
-            valueIndex.add(index)
             recursions++
-            val parameter = create(name, value, parentValue)?.apply { this.index = index }
+            val parameter = createSubElement(name, value, parentValue, index)
             recursions--
+            return parameter
+        }
+
+        /**
+         * Create the element at [index] of [parentValue] without counting it as a recursion level.
+         * The [index] is still added to the reference of any value cut inside the element.
+         */
+        private fun createSubElement(
+            name: String,
+            value: Any?,
+            parentValue: Any?,
+            index: Int,
+        ): NodeParameter? {
+            valueIndex.add(index)
+            val parameter = create(name, value, parentValue)?.apply { this.index = index }
             valueIndex.removeLast()
             return parameter
         }
@@ -850,31 +857,19 @@ internal class ParameterFactory(inlineClassConverter: InlineClassConverter) {
 
         // Temporary handling of TextStyle: remove when TextStyle implements InspectableValue
         // Hide: paragraphStyle, spanStyle, platformStyle, lineHeightStyle
+        // The fields are listed by findFromTextStyle. They do not count as a recursion level, but
+        // references to values cut inside a field include the field index that findFromTextStyle
+        // expects.
         private fun createFromTextStyle(name: String, value: TextStyle): NodeParameter {
             val parameter =
                 NodeParameter(name, ParameterType.String, TextStyle::class.java.simpleName)
             val elements = parameter.elements
-            create("color", value.color, value)?.let { elements.add(it) }
-            create("fontSize", value.fontSize, value, 1)?.let { elements.add(it) }
-            create("fontWeight", value.fontWeight, value, 2)?.let { elements.add(it) }
-            create("fontStyle", value.fontStyle, value, 3)?.let { elements.add(it) }
-            create("fontSynthesis", value.fontSynthesis, value, 4)?.let { elements.add(it) }
-            create("fontFamily", value.fontFamily, value, 5)?.let { elements.add(it) }
-            create("fontFeatureSettings", value.fontFeatureSettings, value, 6)?.let {
-                elements.add(it)
+            var index = 0
+            while (true) {
+                val (fieldName, fieldValue) = findFromTextStyle(value, index) ?: break
+                createSubElement(fieldName, fieldValue, value, index)?.let { elements.add(it) }
+                index++
             }
-            create("letterSpacing", value.letterSpacing, value, 7)?.let { elements.add(it) }
-            create("baselineShift", value.baselineShift, value, 8)?.let { elements.add(it) }
-            create("textGeometricTransform", value.textGeometricTransform, value, 9)?.let {
-                elements.add(it)
-            }
-            create("localeList", value.localeList, value, 10)?.let { elements.add(it) }
-            create("background", value.background, value, 11)?.let { elements.add(it) }
-            create("textDecoration", value.textDecoration, value, 12)?.let { elements.add(it) }
-            create("shadow", value.shadow, value, 13)?.let { elements.add(it) }
-            create("textDirection", value.textDirection, value, 14)?.let { elements.add(it) }
-            create("lineHeight", value.lineHeight, value, 15)?.let { elements.add(it) }
-            create("textIndent", value.textIndent, value, 16)?.let { elements.add(it) }
             return parameter
         }
 
