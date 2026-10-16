@@ -265,6 +265,35 @@ public class AccessibilityNodeInfoCompatTest extends
         }
     }
 
+    @OptIn(markerClass = PreviewAccessibilityApi.class)
+    @Test
+    public void testMathInfoPreviewTags() {
+        // Tag values are MathML element names and must match the platform MathInfo tag values.
+        assertThat(MathInfoCompat.MATH_TAG_ANNOTATION).isEqualTo("annotation");
+        assertThat(MathInfoCompat.MATH_TAG_ANNOTATION_XML).isEqualTo("annotation-xml");
+        assertThat(MathInfoCompat.MATH_TAG_ERROR).isEqualTo("merror");
+        assertThat(MathInfoCompat.MATH_TAG_PHANTOM).isEqualTo("mphantom");
+        assertThat(MathInfoCompat.MATH_TAG_SEMANTICS).isEqualTo("semantics");
+        assertThat(MathInfoCompat.MATH_TAG_SPACE).isEqualTo("mspace");
+
+        String[] previewTags = {
+                MathInfoCompat.MATH_TAG_ANNOTATION,
+                MathInfoCompat.MATH_TAG_ANNOTATION_XML,
+                MathInfoCompat.MATH_TAG_ERROR,
+                MathInfoCompat.MATH_TAG_PHANTOM,
+                MathInfoCompat.MATH_TAG_SEMANTICS,
+                MathInfoCompat.MATH_TAG_SPACE,
+        };
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        for (String tag : previewTags) {
+            nodeCompat.setStructuredDataInfo(new MathInfoCompat(tag));
+
+            MathInfoCompat retrieved = (MathInfoCompat) nodeCompat.getStructuredDataInfo();
+            assertThat(retrieved).isNotNull();
+            assertThat(retrieved.getTag()).isEqualTo(tag);
+        }
+    }
+
     @Test
     public void testMathInfoGetAttributes_isUnmodifiable() {
         MathInfoCompat mathInfo = new MathInfoCompat(MathInfoCompat.MATH_TAG_FRACTION);
