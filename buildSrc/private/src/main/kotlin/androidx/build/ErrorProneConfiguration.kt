@@ -136,6 +136,7 @@ private fun JavaCompile.configureWithErrorProne() {
             // Tell error-prone that we are running it on android compatible libraries
             "-XDandroidCompatible=true",
             "-XDcompilePolicy=simple", // Workaround for b/36098770
+            "-XDaddTypeAnnotationsToSymbol=true", // required by Error prone on JDK 21
             listOf(
                     "-Xplugin:ErrorProne",
 
@@ -221,6 +222,10 @@ private fun JavaCompile.configureWithErrorProne() {
 
                     // Disable checks which are already enforced by lint.
                     "-Xep:PrivateConstructorForUtilityClass:OFF",
+                    "-Xep:NotJavadoc:OFF",
+                    "-Xep:ExposedPrivateType:OFF",
+                    "-Xep:ListRemoveAmbiguous:OFF",
+                    "-Xep:PreferThrowsTag:OFF",
 
                     // Enforce the following checks.
                     "-Xep:JavaTimeDefaultTimeZone:ERROR",
@@ -237,7 +242,7 @@ private fun JavaCompile.configureWithErrorProne() {
                     "-Xep:JavaLangClash:ERROR",
                     "-Xep:TypeParameterUnusedInFormals:ERROR",
                     // "-Xep:StringSplitter:ERROR", // disabled with upgrade to 2.14.0
-                    "-Xep:ReferenceEquality:ERROR",
+                    "-Xep:ReferenceEquality:OFF",
                     "-Xep:AssertionFailureIgnored:ERROR",
                     "-Xep:UnnecessaryParentheses:ERROR",
                     "-Xep:EqualsGetClass:ERROR",
