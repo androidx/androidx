@@ -125,7 +125,7 @@ import org.intellij.lang.annotations.Language
  *   suitable for a surface background.
  * @param focusedColor the background [Color] for this surface when focused. When providing a custom
  *   color, ensure it is suitable for a focused surface background or use
- *   [SurfaceDefaults.focusedColor] to adapt it.
+ *   [SurfaceDefaults.calculateFocusedColor] to adapt it.
  * @param contentColor the [Color] for content inside this surface
  * @param focusedContentColor the [Color] for content inside this surface when focused
  * @param depthEffect the [SurfaceDepthEffect] for this surface, representing the [DepthEffect]
@@ -140,7 +140,7 @@ public fun Modifier.surface(
     enabled: Boolean = true,
     shape: Shape = GlimmerTheme.shapes.medium,
     color: Color = GlimmerTheme.colors.surface,
-    focusedColor: Color = SurfaceDefaults.focusedColor(color),
+    focusedColor: Color = SurfaceDefaults.calculateFocusedColor(color),
     contentColor: Color = calculateContentColor(color),
     focusedContentColor: Color = calculateContentColor(focusedColor),
     depthEffect: SurfaceDepthEffect? = null,
@@ -162,19 +162,15 @@ public fun Modifier.surface(
 
 /** Contains default values used by [surface]. */
 public object SurfaceDefaults {
-
     /**
-     * Returns the focused background [Color] for a surface derived from the provided [baseColor].
+     * Derives a color suitable for use as a focused background color from the provided [seedColor].
      *
-     * Adjusts the provided [baseColor] so that it is suitable for use as a focused surface
-     * background.
-     *
-     * @param baseColor the base [Color] of the surface
-     * @return the focused surface background [Color], adjusted to improve content contrast
+     * @param seedColor the base [Color] from which the focused surface color will be derived
+     * @return a color to be used as the focused surface background [Color], adjusted to improve
+     *   content contrast
      */
-    @Composable
-    public fun focusedColor(baseColor: Color = GlimmerTheme.colors.surface): Color =
-        baseColor.withTone(newTone = FocusedSurfaceColorTone)
+    public fun calculateFocusedColor(seedColor: Color): Color =
+        seedColor.withTone(newTone = FocusedSurfaceColorTone)
 }
 
 /**

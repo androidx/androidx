@@ -167,7 +167,7 @@ class IconButtonTest {
         var expectedSurfaceColor: Color? = null
 
         rule.setGlimmerThemeContent(addInitialFocusInterceptor = false) {
-            expectedSurfaceColor = SurfaceDefaults.focusedColor(expectedColor)
+            expectedSurfaceColor = SurfaceDefaults.calculateFocusedColor(expectedColor)
             IconButton(
                 onClick = {},
                 shape = expectedShape,

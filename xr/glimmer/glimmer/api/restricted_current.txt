@@ -425,8 +425,8 @@ package androidx.xr.glimmer {
   }
 
   public final class SurfaceDefaults {
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color focusedColor(optional androidx.compose.ui.graphics.Color baseColor);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public long focusedColor-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly public androidx.compose.ui.graphics.Color calculateFocusedColor(androidx.compose.ui.graphics.Color seedColor);
+    method @BytecodeOnly public long calculateFocusedColor-l2rxGTc(long);
     field public static final androidx.xr.glimmer.SurfaceDefaults INSTANCE;
   }
 

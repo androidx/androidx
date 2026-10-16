@@ -1168,11 +1168,13 @@ class SurfaceTest {
     }
 
     @Test
-    fun surfaceDefaults_focusedColor() {
-        rule.setGlimmerThemeContent {
-            assertThat(SurfaceDefaults.focusedColor())
-                .isEqualTo(GlimmerTheme.colors.surface.withTone(newTone = 34f))
-        }
+    fun surfaceDefaults_calculateFocusedColor() {
+        assertThat(SurfaceDefaults.calculateFocusedColor(Color.White))
+            .isEqualTo(Color.White.withTone(34f))
+        assertThat(SurfaceDefaults.calculateFocusedColor(Color.Red))
+            .isEqualTo(Color.Red.withTone(34f))
+        assertThat(SurfaceDefaults.calculateFocusedColor(Color.Black))
+            .isEqualTo(Color.Black.withTone(34f))
     }
 }
 

@@ -287,7 +287,7 @@ class CardTest {
             colors = Colors(surface = surfaceColor, background = backgroundColor),
         ) {
             expectedShape = GlimmerTheme.shapes.medium
-            expectedFocusedSurfaceColor = SurfaceDefaults.focusedColor(surfaceColor)
+            expectedFocusedSurfaceColor = SurfaceDefaults.calculateFocusedColor(surfaceColor)
             Card(modifier = Modifier.testTag("card")) { Box(Modifier.size(100.dp, 100.dp)) }
         }
 
