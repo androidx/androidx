@@ -131,6 +131,7 @@ package androidx.photopicker.activity {
     method @InaccessibleFromKotlin public int getMaxItems();
     method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? getMediaCapabilitiesForTranscoding();
     method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.VisualMediaType getMediaType();
+    method @InaccessibleFromKotlin @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=22) public androidx.photopicker.activity.params.SelectionParams? getSelectionParams();
     method @InaccessibleFromKotlin public boolean isCustomAccentColorApplied();
     method @InaccessibleFromKotlin public boolean isCustomDefaultTabApplied();
     method @InaccessibleFromKotlin public boolean isLocationMetadataAccessRequested();
@@ -146,6 +147,7 @@ package androidx.photopicker.activity {
     property public int maxItems;
     property public androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? mediaCapabilitiesForTranscoding;
     property public androidx.photopicker.activity.PickVisualMedia.VisualMediaType mediaType;
+    property @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=22) public androidx.photopicker.activity.params.SelectionParams? selectionParams;
   }
 
   public static final class PickVisualMediaRequest.Builder {
@@ -160,6 +162,7 @@ package androidx.photopicker.activity {
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.photopicker.activity.PickVisualMediaRequest.Builder setMediaCapabilitiesForTranscoding(androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? mediaCapabilities);
     method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setMediaType(androidx.photopicker.activity.PickVisualMedia.VisualMediaType mediaType);
     method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setOrderedSelection(boolean isOrderedSelection);
+    method @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=22) public androidx.photopicker.activity.PickVisualMediaRequest.Builder setSelectionParams(androidx.photopicker.activity.params.SelectionParams? selectionParams);
   }
 
   public final class PickVisualMediaRequestKt {
@@ -232,6 +235,42 @@ package androidx.photopicker.activity.params {
   public static final class HighlightType.Companion {
     property public static int COLLAPSED;
     property public static int EXPANDED;
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class SelectionParams {
+    method @InaccessibleFromKotlin public long getMaxMediaItemResolutionInPixels();
+    method @InaccessibleFromKotlin public long getMaxMediaItemSizeInBytes();
+    method @InaccessibleFromKotlin public long getMaxSelectionBatchSizeInBytes();
+    method @InaccessibleFromKotlin public java.time.Duration? getMaxVideoDuration();
+    method @InaccessibleFromKotlin public java.util.List<java.lang.String> getMimeTypes();
+    method @InaccessibleFromKotlin public long getMinMediaItemResolutionInPixels();
+    method @InaccessibleFromKotlin public java.time.Duration? getMinVideoDuration();
+    property public long maxMediaItemResolutionInPixels;
+    property public long maxMediaItemSizeInBytes;
+    property public long maxSelectionBatchSizeInBytes;
+    property public java.time.Duration? maxVideoDuration;
+    property public java.util.List<java.lang.String> mimeTypes;
+    property public long minMediaItemResolutionInPixels;
+    property public java.time.Duration? minVideoDuration;
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public static final class SelectionParams.Builder {
+    ctor public SelectionParams.Builder();
+    method public androidx.photopicker.activity.params.SelectionParams build();
+    method public androidx.photopicker.activity.params.SelectionParams.Builder clearMaxMediaItemResolution();
+    method public androidx.photopicker.activity.params.SelectionParams.Builder clearMaxMediaItemSize();
+    method public androidx.photopicker.activity.params.SelectionParams.Builder clearMaxSelectionBatchSize();
+    method public androidx.photopicker.activity.params.SelectionParams.Builder clearMaxVideoDuration();
+    method public androidx.photopicker.activity.params.SelectionParams.Builder clearMimeTypes();
+    method public androidx.photopicker.activity.params.SelectionParams.Builder clearMinMediaItemResolution();
+    method public androidx.photopicker.activity.params.SelectionParams.Builder clearMinVideoDuration();
+    method public androidx.photopicker.activity.params.SelectionParams.Builder setMaxMediaItemResolutionInPixels(long maxMediaItemResolutionInPixels);
+    method public androidx.photopicker.activity.params.SelectionParams.Builder setMaxMediaItemSizeInBytes(long maxMediaItemSizeInBytes);
+    method public androidx.photopicker.activity.params.SelectionParams.Builder setMaxSelectionBatchSizeInBytes(long maxSelectionBatchSizeInBytes);
+    method public androidx.photopicker.activity.params.SelectionParams.Builder setMaxVideoDuration(java.time.Duration maxVideoDuration);
+    method public androidx.photopicker.activity.params.SelectionParams.Builder setMimeTypes(java.util.List<java.lang.String> mimeTypes);
+    method public androidx.photopicker.activity.params.SelectionParams.Builder setMinMediaItemResolutionInPixels(long minMediaItemResolutionInPixels);
+    method public androidx.photopicker.activity.params.SelectionParams.Builder setMinVideoDuration(java.time.Duration minVideoDuration);
   }
 
 }
