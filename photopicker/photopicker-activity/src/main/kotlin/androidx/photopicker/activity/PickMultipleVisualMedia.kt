@@ -130,6 +130,15 @@ public open class PickMultipleVisualMedia(private val maxItems: Int = getMaxItem
                         putExtra(MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS, selectionParams)
                     }
                 }
+
+                if (PickVisualMedia.arePhotoPickerUiCustomizationParamsAvailable()) {
+                    input.uiCustomizationParams?.let { uiCustomizationParams ->
+                        putExtra(
+                            MediaStore.EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS,
+                            uiCustomizationParams.toPhotoPickerUiCustomizationParams(),
+                        )
+                    }
+                }
             }
         } else if (PickVisualMedia.isSystemFallbackPickerAvailable(context)) {
             val fallbackPicker =
@@ -178,6 +187,13 @@ public open class PickMultipleVisualMedia(private val maxItems: Int = getMaxItem
                     putExtra(
                         PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM,
                         it.createHighlightAlbumFallbackBundle(),
+                    )
+                }
+
+                input.uiCustomizationParams?.createFallbackUiParamBundle()?.let { bundle ->
+                    putExtra(
+                        PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS,
+                        bundle,
                     )
                 }
             }
