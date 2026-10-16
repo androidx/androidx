@@ -18,9 +18,11 @@ package androidx.compose.foundation.text
 
 import androidx.compose.foundation.implementedInJetBrainsFork
 
-internal actual fun String.findPrecedingBreak(index: Int): Int = implementedInJetBrainsFork()
+internal actual fun CharSequence.findPrecedingBreak(index: Int): Int = implementedInJetBrainsFork()
 
-internal actual fun String.findFollowingBreak(index: Int): Int = implementedInJetBrainsFork()
+internal actual fun CharSequence.findFollowingBreak(index: Int): Int = implementedInJetBrainsFork()
 
-internal actual fun String.findCodePointOrEmojiStartBefore(index: Int, ifNotFound: Int): Int =
-    implementedInJetBrainsFork()
+internal actual fun CharSequence.findCodePointOrEmojiStartBefore(
+    index: Int,
+    ifNotFound: Int,
+): Int = implementedInJetBrainsFork()

@@ -33,6 +33,7 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldDecorator
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.insert
@@ -185,6 +186,7 @@ private fun InsertReplaceDeleteDemo() {
         BasicTextField(
             state = state,
             modifier = Modifier.alignByBaseline().weight(0.5f).then(demoTextFieldModifiers),
+            lineLimits = TextFieldLineLimits.SingleLine,
             outputTransformation = {
                 if (prefixEnabled) {
                     insert(0, prefix.text.toString())

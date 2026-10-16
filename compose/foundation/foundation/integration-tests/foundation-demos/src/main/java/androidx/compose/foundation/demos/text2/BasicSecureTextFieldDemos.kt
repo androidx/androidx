@@ -62,6 +62,13 @@ fun BasicSecureTextFieldDemos() {
             Text("Copy surrogate pair \"\uD801\uDC37\"")
         }
 
+        Button(
+            onClick = {
+                clipboardManager.setText(AnnotatedString("\ud83c\udff3\ufe0f\u200d\ud83c\udf08"))
+            }
+        ) {
+            Text("Copy complex emoji \ud83c\udff3\ufe0f\u200d\ud83c\udf08")
+        }
         TagLine(tag = "Visible")
         BasicSecureTextFieldDemo(TextObfuscationMode.Visible)
 
