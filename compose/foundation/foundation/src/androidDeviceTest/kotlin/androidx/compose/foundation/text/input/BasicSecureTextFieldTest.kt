@@ -17,6 +17,8 @@
 package androidx.compose.foundation.text.input
 
 import android.os.Looper
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.internal.toClipEntry
@@ -39,6 +41,7 @@ import androidx.compose.foundation.text.passwordVisibilitySettingFactory
 import androidx.compose.foundation.text.resetPasswordVisibilitySettingFactory
 import androidx.compose.foundation.text.selection.FakeTextToolbar
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
+import androidx.compose.foundation.text.test.withEmojiCompat
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -491,6 +494,47 @@ internal class BasicSecureTextFieldTest {
             assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("&b")
             rule.mainClock.advanceTimeBy(1500)
             assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("&&")
+        }
+    }
+
+    @Test
+    fun emojisAreObfuscatedAsSingleCharacter() = withEmojiCompat {
+        inputMethodInterceptor.setContent {
+            BasicSecureTextField(
+                state = rememberTextFieldState("${COMPLEX_EMOJI}hello${REGULAR_EMOJI}"),
+                textObfuscationCharacter = '*',
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("*******")
+        }
+    }
+
+    @Test
+    fun emojisAreRevealedSeparately() = withEmojiCompat {
+        inputMethodInterceptor.setContent {
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                textObfuscationCharacter = '*',
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            performTextInput(COMPLEX_EMOJI)
+            rule.mainClock.advanceTimeBy(200)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo(COMPLEX_EMOJI)
+
+            performTextInput(COMPLEX_EMOJI)
+            rule.mainClock.advanceTimeBy(200)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("*${COMPLEX_EMOJI}")
+
+            performTextInput(REGULAR_EMOJI)
+            rule.mainClock.advanceTimeBy(200)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text)
+                .isEqualTo("**${REGULAR_EMOJI}")
         }
     }
 
@@ -1019,6 +1063,36 @@ internal class BasicSecureTextFieldTest {
         assertThat(registerThread).isEqualTo(Looper.getMainLooper().thread)
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun lastTypedCharacterIsRevealed_whenOutputTransformationOnlyDisabled() {
+        ComposeFoundationFlags.isBasicTextFieldOutputTransformationOnlyEnabled = false
+        try {
+            val state = TextFieldState()
+            inputMethodInterceptor.setContent {
+                BasicSecureTextField(
+                    state = state,
+                    textObfuscationMode = TextObfuscationMode.RevealLastTyped,
+                    textObfuscationCharacter = '*',
+                    modifier = Modifier.testTag(Tag),
+                )
+            }
+            with(rule.onNodeWithTag(Tag)) {
+                requestFocus()
+                performTextInput("a")
+                rule.mainClock.advanceTimeBy(200)
+                assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("a")
+                performTextInput("b")
+                rule.mainClock.advanceTimeBy(200)
+                assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("*b")
+                rule.mainClock.advanceTimeBy(1500)
+                assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("**")
+            }
+        } finally {
+            ComposeFoundationFlags.isBasicTextFieldOutputTransformationOnlyEnabled = true
+        }
+    }
+
     private inline fun testSystemShowPassword(block: SystemPasswordControl.() -> Unit) {
         val control = SystemPasswordControl()
         passwordVisibilitySettingFactory = { _ -> control }
@@ -1087,5 +1161,13 @@ internal class BasicSecureTextFieldTest {
         fun onDestroy(block: () -> Unit) {
             this.destroyAction = block
         }
+    }
+
+    companion object {
+        // Rainbow flag (🏳️‍🌈): white flag (U+1F3F3), variation selector-16 (U+FE0F),
+        // zero-width joiner (U+200D), rainbow (U+1F308). Multiple codepoints.
+        private const val COMPLEX_EMOJI = "\ud83c\udff3\ufe0f\u200d\ud83c\udf08"
+        // Grinning face (😀, U+1F600). Single codepoint (surrogate pair in UTF-16).
+        private const val REGULAR_EMOJI = "\uD83D\uDE00"
     }
 }

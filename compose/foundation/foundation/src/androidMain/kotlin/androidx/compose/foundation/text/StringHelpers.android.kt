@@ -19,7 +19,7 @@ package androidx.compose.foundation.text
 import androidx.emoji2.text.EmojiCompat
 import java.text.BreakIterator
 
-internal actual fun String.findPrecedingBreak(index: Int): Int {
+internal actual fun CharSequence.findPrecedingBreak(index: Int): Int {
     val emojiBreak =
         getEmojiCompatIfLoaded()?.getEmojiStart(this, maxOf(0, index - 1))?.takeUnless { it == -1 }
     if (emojiBreak != null) return emojiBreak
@@ -29,13 +29,21 @@ internal actual fun String.findPrecedingBreak(index: Int): Int {
     return it.preceding(index)
 }
 
-internal actual fun String.findFollowingBreak(index: Int): Int {
+internal actual fun CharSequence.findFollowingBreak(index: Int): Int {
     val emojiBreak = getEmojiCompatIfLoaded()?.getEmojiEnd(this, index)?.takeUnless { it == -1 }
     if (emojiBreak != null) return emojiBreak
 
     val it = BreakIterator.getCharacterInstance()
     it.setText(this)
     return it.following(index)
+}
+
+private fun BreakIterator.setText(cs: CharSequence) {
+    if (cs is String) {
+        this.setText(cs)
+    } else {
+        this.text = CharSequenceCharacterIterator(cs, 0, cs.length)
+    }
 }
 
 /**
@@ -46,7 +54,10 @@ private fun CharSequence.findCodePointBefore(index: Int, ifNotFound: Int): Int =
     if (index <= 0) ifNotFound
     else java.lang.Character.offsetByCodePoints(this, index, /* codePointOffset= */ -1)
 
-internal actual fun String.findCodePointOrEmojiStartBefore(index: Int, ifNotFound: Int): Int {
+internal actual fun CharSequence.findCodePointOrEmojiStartBefore(
+    index: Int,
+    ifNotFound: Int,
+): Int {
     if (index <= 0) return ifNotFound
 
     val emojiCompat = getEmojiCompatIfLoaded()

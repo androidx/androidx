@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.input
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.internal.CodepointTransformation
 import androidx.compose.foundation.text.input.internal.mask
@@ -44,10 +46,13 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.test.fail
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldCodepointTransformationTest {
@@ -57,6 +62,16 @@ class TextFieldCodepointTransformationTest {
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     private val Tag = "BasicTextField"
+
+    @Before
+    fun setUp() {
+        ComposeFoundationFlags.isBasicTextFieldOutputTransformationOnlyEnabled = false
+    }
+
+    @After
+    fun tearDown() {
+        ComposeFoundationFlags.isBasicTextFieldOutputTransformationOnlyEnabled = true
+    }
 
     @Test
     fun textField_rendersTheResultOf_codepointTransformation() {

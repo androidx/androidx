@@ -18,12 +18,12 @@ package androidx.compose.foundation.text.input.internal.selection
 
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.OutputTransformationPerGlyph
 import androidx.compose.foundation.text.PlatformSelectionBehaviorCommonTestCases
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.insert
-import androidx.compose.foundation.text.input.internal.CodepointTransformation
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -131,10 +131,38 @@ class TextFieldPlatformSelectionBehaviorsTest(override val testLongPress: Boolea
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG).width(200.dp),
-                codepointTransformation =
-                    object : CodepointTransformation {
-                        override fun transform(codepointIndex: Int, codepoint: Int): Int =
-                            if (codepoint == 'x'.code) '*'.code else codepoint
+                codepointTransformation = { _, codepoint ->
+                    if (codepoint == 'x'.code) '*'.code else codepoint
+                },
+            )
+        }
+
+        // The visual text is "abc *** def"
+        //  select "xxx".
+        performLongPressOrDoubleClick { Offset(x = fontSize.toPx() * 5, y = fontSize.toPx() / 2) }
+
+        assertThat(state.selection).isEqualTo(TextRange(4, 7))
+
+        platformSelectionBehaviorsRule.expectSuggestSelectionForLongPressOrDoubleClick(
+            "abc *** def",
+            TextRange(4, 7),
+        )
+        expectOnShowContextMenu("abc *** def", TextRange(4, 7))
+    }
+
+    @Test
+    fun withPerGlyphOutputTransformation() {
+        val state = TextFieldState("abc xxx def")
+
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                textStyle = defaultTextStyle,
+                modifier = Modifier.testTag(TAG).width(200.dp),
+                outputTransformation =
+                    OutputTransformationPerGlyph { range ->
+                        val original = asCharSequence().substring(range.min, range.max)
+                        if (original == "x") "*" else original
                     },
             )
         }
