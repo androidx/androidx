@@ -1177,8 +1177,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         }
 
         if (ComposeFoundationFlags.isNewContextMenuEnabled) {
-            if (showToolbar && isInTouchMode) {
-                derivedContentRect ?: return
+            if (showToolbar && isInTouchMode && derivedContentRect != null) {
                 toolbarRequester.show()
             } else {
                 toolbarRequester.hide()
@@ -1193,8 +1192,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
     private fun updateSelectionTextToolbar() {
         val textToolbar = textToolbar ?: return
-        if (showToolbar && isInTouchMode) {
-            val rect = getContentRect() ?: return
+        val rect = if (showToolbar && isInTouchMode) getContentRect() else null
+        if (rect != null) {
             textToolbar.showMenu(
                 rect = rect,
                 onCopyRequested = if (canCopy()) ::toolbarCopy else null,
