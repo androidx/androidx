@@ -28,7 +28,6 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -145,7 +144,7 @@ class RemoteTypographyTest {
 
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
         ) {
             RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc)) {
                 RemoteMaterialTheme(typography = myTypography) {
@@ -191,7 +190,7 @@ class RemoteTypographyTest {
 
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
         ) {
             RemoteMaterialTheme(typography = myTypography) {
                 RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc)) {

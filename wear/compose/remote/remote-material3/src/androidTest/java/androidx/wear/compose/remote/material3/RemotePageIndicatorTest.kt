@@ -19,7 +19,6 @@ package androidx.wear.compose.remote.material3
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
@@ -28,6 +27,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,7 +50,7 @@ class RemotePageIndicatorTest {
     @Test
     fun horizontal_page_indicator_pageCount3() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state = rememberRemotePageIndicatorState(selectedPage = 1.ri, pageCount = 3)
@@ -61,7 +61,7 @@ class RemotePageIndicatorTest {
     @Test
     fun horizontal_page_indicator_pageCount6() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state = rememberRemotePageIndicatorState(selectedPage = 2.ri, pageCount = 6)
@@ -72,7 +72,7 @@ class RemotePageIndicatorTest {
     @Test
     fun horizontal_page_indicator_pageCount10_settled0() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state = rememberRemotePageIndicatorState(selectedPage = 0.ri, pageCount = 10)
@@ -83,7 +83,7 @@ class RemotePageIndicatorTest {
     @Test
     fun horizontal_page_indicator_pageCount10_settled5() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state = rememberRemotePageIndicatorState(selectedPage = 5.ri, pageCount = 10)
@@ -94,7 +94,7 @@ class RemotePageIndicatorTest {
     @Test
     fun horizontal_page_indicator_pageCount10_transition() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state =
@@ -110,7 +110,7 @@ class RemotePageIndicatorTest {
     @Test
     fun horizontal_page_indicator_pageCount10_settled9() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state = rememberRemotePageIndicatorState(selectedPage = 9.ri, pageCount = 10)
@@ -121,7 +121,7 @@ class RemotePageIndicatorTest {
     @Test
     fun horizontal_page_indicator_pageCount10_transition_offset20() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state =
@@ -137,7 +137,7 @@ class RemotePageIndicatorTest {
     @Test
     fun horizontal_page_indicator_pageCount10_transition_offset80() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state =
@@ -153,7 +153,7 @@ class RemotePageIndicatorTest {
     @Test
     fun horizontal_page_indicator_pageCount5_transition_offset20() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state =
@@ -169,7 +169,7 @@ class RemotePageIndicatorTest {
     @Test
     fun horizontal_page_indicator_pageCount5_transition_offset50() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state =
@@ -185,7 +185,7 @@ class RemotePageIndicatorTest {
     @Test
     fun horizontal_page_indicator_pageCount5_transition_offset80() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state =
@@ -201,7 +201,7 @@ class RemotePageIndicatorTest {
     @Test
     fun vertical_page_indicator_pageCount3() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state = rememberRemotePageIndicatorState(selectedPage = 1.ri, pageCount = 3)
@@ -212,7 +212,7 @@ class RemotePageIndicatorTest {
     @Test
     fun vertical_page_indicator_pageCount6() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state = rememberRemotePageIndicatorState(selectedPage = 2.ri, pageCount = 6)
@@ -223,7 +223,7 @@ class RemotePageIndicatorTest {
     @Test
     fun vertical_page_indicator_pageCount10_settled0() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state = rememberRemotePageIndicatorState(selectedPage = 0.ri, pageCount = 10)
@@ -234,7 +234,7 @@ class RemotePageIndicatorTest {
     @Test
     fun vertical_page_indicator_pageCount10_settled5() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state = rememberRemotePageIndicatorState(selectedPage = 5.ri, pageCount = 10)
@@ -245,7 +245,7 @@ class RemotePageIndicatorTest {
     @Test
     fun vertical_page_indicator_pageCount10_transition() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state =
@@ -261,7 +261,7 @@ class RemotePageIndicatorTest {
     @Test
     fun vertical_page_indicator_pageCount10_settled9() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state = rememberRemotePageIndicatorState(selectedPage = 9.ri, pageCount = 10)
@@ -272,7 +272,7 @@ class RemotePageIndicatorTest {
     @Test
     fun vertical_page_indicator_pageCount10_transition_offset20() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state =
@@ -288,7 +288,7 @@ class RemotePageIndicatorTest {
     @Test
     fun vertical_page_indicator_pageCount10_transition_offset80() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state =
@@ -304,7 +304,7 @@ class RemotePageIndicatorTest {
     @Test
     fun vertical_page_indicator_pageCount5_transition_offset20() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state =
@@ -320,7 +320,7 @@ class RemotePageIndicatorTest {
     @Test
     fun vertical_page_indicator_pageCount5_transition_offset50() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state =
@@ -336,7 +336,7 @@ class RemotePageIndicatorTest {
     @Test
     fun vertical_page_indicator_pageCount5_transition_offset80() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgets,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val state =

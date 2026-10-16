@@ -27,6 +27,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.Operations
+import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
@@ -50,6 +54,8 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.vector.draw
 import androidx.compose.remote.creation.compose.vector.painterRemoteVector
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.R
 import androidx.compose.runtime.Composable
@@ -88,6 +94,16 @@ class RcPlayerScreenshotTest {
     @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
+
+    private val profileWithoutClipPath =
+        Profile(
+            CoreDocument.DOCUMENT_API_LEVEL,
+            RcProfiles.PROFILE_ANDROIDX,
+            AndroidxRcPlatformServices(),
+            { RcPlatformProfiles.ANDROIDX.supportedOperations - Operations.CLIP_PATH },
+        ) { creationDisplayInfo, profile, callback ->
+            RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
+        }
 
     @Test
     fun basicLayout() {
@@ -336,7 +352,7 @@ class RcPlayerScreenshotTest {
     fun vectorDrawable_clipPath_wearWidgets() {
         rule.setContent {
             val document =
-                rememberRemoteDocument(profile = RcPlatformProfiles.WEAR_WIDGETS) {
+                rememberRemoteDocument(profile = profileWithoutClipPath) {
                     val painter =
                         painterRemoteVector(
                             ImageVector.vectorResource(R.drawable.vector_icon_clip_path_1)
@@ -417,8 +433,8 @@ class RcPlayerScreenshotTest {
                 }
             }
 
-        val docWearWidgets =
-            rememberRemoteDocument(profile = RcPlatformProfiles.WEAR_WIDGETS) {
+        val docWithoutClipPath =
+            rememberRemoteDocument(profile = profileWithoutClipPath) {
                 val painter = painterRemoteVector(ImageVector.vectorResource(resId))
                 RemoteCanvas(modifier = RemoteModifier.size(80.rdp)) {
                     with(painter) { onDraw() }
@@ -449,7 +465,7 @@ class RcPlayerScreenshotTest {
                 modifier = Modifier.size(80.dp).background(Color(0xFFF0F0F0)),
                 contentAlignment = Alignment.Center,
             ) {
-                docWearWidgets.value?.let { RcPlayer(document = it) }
+                docWithoutClipPath.value?.let { RcPlayer(document = it) }
             }
         }
     }

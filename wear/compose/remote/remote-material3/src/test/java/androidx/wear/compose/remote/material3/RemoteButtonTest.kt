@@ -30,7 +30,6 @@ import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.ui.Modifier
@@ -45,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.EnableEmbeddedPlayerRule
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
@@ -116,7 +116,7 @@ class RemoteButtonTest {
             captureRule.captureDocument(
                 context = context,
                 creationDisplayInfo = displayInfo,
-                profile = RcPlatformProfiles.WEAR_WIDGETS,
+                profile = TestProfiles.wearWidgets,
             ) {
                 ComponentContainer {
                     RemoteButton(
