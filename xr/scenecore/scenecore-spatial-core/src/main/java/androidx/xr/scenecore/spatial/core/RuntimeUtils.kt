@@ -296,34 +296,26 @@ internal object RuntimeUtils {
     }
 
     /**
-     * Converts from the Extensions hit test result to the runtime hit test result.
+     * Converts [hitTestResultExt] from scene parent space into activity space.
      *
-     * @param hitTestResultExt a [HitTestResult] instance to be converted.
+     * @param hitTestResultExt hit-test result in scene parent space to convert.
+     * @param originCompensation coordinate snapshot to use for every converted field.
+     * @return converted [RuntimeHitTestResult] in activity space.
      */
-    fun getHitTestResult(hitTestResultExt: HitTestResult): RuntimeHitTestResult {
+    fun getHitTestResult(
+        hitTestResultExt: HitTestResult,
+        originCompensation: OriginCompensation = OriginCompensation.IDENTITY,
+    ): RuntimeHitTestResult {
         val hitPosition =
             if (hitTestResultExt.hitPosition == null) null
-            else
-                Vector3(
-                    hitTestResultExt.hitPosition.x,
-                    hitTestResultExt.hitPosition.y,
-                    hitTestResultExt.hitPosition.z,
-                )
+            else originCompensation.toActivitySpace(getVector3(hitTestResultExt.hitPosition))
         val surfaceNormal =
             if (hitTestResultExt.surfaceNormal == null) null
             else
-                Vector3(
-                    hitTestResultExt.surfaceNormal.x,
-                    hitTestResultExt.surfaceNormal.y,
-                    hitTestResultExt.surfaceNormal.z,
-                )
+                originCompensation.toActivitySpaceNormal(getVector3(hitTestResultExt.surfaceNormal))
+        val distance = hitTestResultExt.distance * originCompensation.sceneParentScale
         val surfaceType = getHitTestSurfaceType(hitTestResultExt.surfaceType)
-        return RuntimeHitTestResult(
-            hitPosition,
-            surfaceNormal,
-            surfaceType,
-            hitTestResultExt.distance,
-        )
+        return RuntimeHitTestResult(hitPosition, surfaceNormal, surfaceType, distance)
     }
 
     fun getHitTestFilter(@ScenePose.HitTestFilterValue hitTestFilter: Int): Int {
