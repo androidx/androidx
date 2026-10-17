@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -74,7 +75,7 @@ fun SimpleNavigationWithSaveableStateSample() {
 
 @Composable
 fun Screen1() {
-    var counter by rememberSaveable { mutableStateOf(0) }
+    var counter by rememberSaveable { mutableIntStateOf(0) }
     Button(onClick = { counter++ }) { Text("Counter=$counter on Screen1") }
 }
 
