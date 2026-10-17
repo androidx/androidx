@@ -20,6 +20,8 @@
         <intent>
             <action android:name="android.provider.action.START_PEOPLE_INTERACTION" />
         </intent>
+        <!-- Allows PlatformPeopleBackend to detect the platform People Provider. -->
+        <provider android:authorities="com.android.people" />
     </queries>
 </manifest>
 
