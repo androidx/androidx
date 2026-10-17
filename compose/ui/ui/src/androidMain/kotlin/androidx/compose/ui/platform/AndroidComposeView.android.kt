@@ -1934,11 +1934,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                             )
                             newHandler.layout(0, 0, width, height)
                         }
-                        // Ensure that AndroidViewsHandler is measured and laid out after creation,
-                        // so that it can report correct bounds on screen (for semantics, etc).
-                        // Normally this is done by addView, but here we disabled it for
-                        // optimization purposes.
-                        requestLayout()
                     }
             } else {
                 this.androidViewsHandler!!
