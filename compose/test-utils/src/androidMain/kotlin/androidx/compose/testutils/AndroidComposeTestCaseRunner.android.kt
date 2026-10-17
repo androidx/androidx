@@ -75,9 +75,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         private set
 
     private val supportsRenderNode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-    private val supportsMRenderNode =
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.P &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+    private val supportsMRenderNode = Build.VERSION.SDK_INT < Build.VERSION_CODES.P
 
     private val screenWidthSpec: Int
     private val screenHeightSpec: Int
