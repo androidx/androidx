@@ -27,6 +27,7 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
+import androidx.people.internal.PeopleBackendResolver
 import androidx.people.internal.platform.PeopleContractCompat
 import androidx.people.internal.platform.toCursor
 import androidx.people.internal.platform.toGroupQuery
@@ -217,7 +218,7 @@ public abstract class PeopleDirectoryContentProvider : ContentProvider() {
          */
         @JvmStatic
         public suspend fun requestRefresh(context: Context): Boolean =
-            TODO("Implemented in the follow-up change")
+            PeopleBackendResolver.resolve(context).requestRefresh()
 
         /**
          * Notifies the system People Directory that records matching [query] have changed.
@@ -234,7 +235,7 @@ public abstract class PeopleDirectoryContentProvider : ContentProvider() {
          */
         @JvmStatic
         public suspend fun notifyChange(context: Context, query: PersonQuery): Boolean =
-            TODO("Implemented in the follow-up change")
+            PeopleBackendResolver.resolve(context).notifyChange(query)
 
         /**
          * Notifies the system People Directory that groups matching [query] have changed.
@@ -251,7 +252,7 @@ public abstract class PeopleDirectoryContentProvider : ContentProvider() {
          */
         @JvmStatic
         public suspend fun notifyChange(context: Context, query: GroupQuery): Boolean =
-            TODO("Implemented in the follow-up change")
+            PeopleBackendResolver.resolve(context).notifyChange(query)
 
         private const val TAG = "PeopleDirectoryContentProvider"
         private const val MATCH_PERSONS = 1
