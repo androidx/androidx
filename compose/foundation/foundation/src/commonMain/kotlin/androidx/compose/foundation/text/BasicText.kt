@@ -309,9 +309,9 @@ public fun BasicText(
  *   text, baselines and other details. The callback can be used to add additional decoration or
  *   functionality to the text. For example, to draw selection around the text.
  * @param overflow How visual overflow should be handled.
- * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
- *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- *   [overflow] and TextAlign may have unexpected effects.
+ * @param softWrap Whether to wrap text at soft line breaks. When true, wraps text to the next line
+ *   when it exceeds layout bounds. When false, positions text as if there was unlimited horizontal
+ *   space, which may cause it to clip or overflow according to [overflow].
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
  *   If the text exceeds the given number of lines, it will be truncated according to [overflow] and
  *   [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
@@ -348,9 +348,9 @@ public fun BasicText(
  *   text, baselines and other details. The callback can be used to add additional decoration or
  *   functionality to the text. For example, to draw selection around the text.
  * @param overflow How visual overflow should be handled.
- * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
- *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- *   [overflow] and TextAlign may have unexpected effects.
+ * @param softWrap Whether to wrap text at soft line breaks. When true, wraps text to the next line
+ *   when it exceeds layout bounds. When false, positions text as if there was unlimited horizontal
+ *   space, which may cause it to clip or overflow according to [overflow].
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
  *   If the text exceeds the given number of lines, it will be truncated according to [overflow] and
  *   [softWrap]. It is required that 1 <= [minLines] <= [maxLines].

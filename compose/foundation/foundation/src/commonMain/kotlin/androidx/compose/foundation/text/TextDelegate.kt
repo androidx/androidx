@@ -32,7 +32,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.resolveDefaults
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -63,9 +62,9 @@ import kotlin.math.ceil
  *   dropped. It is required that 1 <= [minLines] <= [maxLines].
  * @param minLines The minimum height in terms of minimum number of visible lines. It is required
  *   that 1 <= [minLines] <= [maxLines].
- * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
- *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- *   [overflow] and [TextAlign] may have unexpected effects.
+ * @param softWrap Whether to wrap text at soft line breaks. When true, wraps text to the next line
+ *   when it exceeds layout bounds. When false, positions text as if there was unlimited horizontal
+ *   space, which may cause it to clip or overflow according to [overflow].
  * @param overflow How visual overflow should be handled. Specifically, the ellipsis is applied to
  *   the last line before the line truncated by [maxLines], if [maxLines] is non-null and that line
  *   overflows the width constraint.
