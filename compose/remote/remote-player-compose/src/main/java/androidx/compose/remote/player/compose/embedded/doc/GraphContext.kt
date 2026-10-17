@@ -40,6 +40,7 @@ import androidx.compose.remote.player.compose.embedded.RcPlayerFeatureSet
 import androidx.compose.remote.player.compose.embedded.RcTypefaceResolver
 import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
 import androidx.compose.remote.player.compose.embedded.draw.GraphPaintContext
+import androidx.compose.remote.player.compose.embedded.draw.TextMeasurePaintSpec
 import androidx.compose.remote.player.compose.embedded.draw.derefId
 import androidx.compose.remote.player.compose.embedded.resources.RcTypefaceCache
 import androidx.compose.remote.player.compose.embedded.resources.resolveImageAttributeDimensions
@@ -116,7 +117,7 @@ internal class GraphContext(
     }
 
     private val graphPaintContext = GraphPaintContext(this)
-    private val textMeasurePaints = MutableIntObjectMap<ComposeLocalPaint>()
+    private val textMeasurePaintSpecs = MutableIntObjectMap<TextMeasurePaintSpec>()
 
     internal var textMeasurer: TextMeasurer?
         get() = graphPaintContext.textMeasurer
@@ -124,8 +125,8 @@ internal class GraphContext(
             graphPaintContext.textMeasurer = value
         }
 
-    internal fun setTextMeasurePaint(id: Int, paintState: ComposeLocalPaint) {
-        textMeasurePaints[id] = paintState
+    internal fun setTextMeasurePaintSpec(id: Int, spec: TextMeasurePaintSpec) {
+        textMeasurePaintSpecs[id] = spec
     }
 
     /**
@@ -217,7 +218,8 @@ internal class GraphContext(
                 if (op is ImageAttribute) {
                     resolveImageAttributeDimensions(this, writeContext, derefId(op.imageId, this))
                 }
-                graphPaintContext.paintState = textMeasurePaints[id] ?: ComposeLocalPaint()
+                graphPaintContext.paintState =
+                    textMeasurePaintSpecs[id]?.toComposeLocalPaint(this) ?: ComposeLocalPaint()
                 op.paint(graphPaintContext)
             } else if (op is FloatExpression) {
                 loadFloat(id, op.evaluate(this))

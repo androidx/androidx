@@ -240,6 +240,7 @@ internal fun RcPlayerImpl(
 
     LaunchedEffect(density) {
         remoteContext.density = density.density
+        state.graphContext.density = density.density
         remoteContext.loadFloat(
             RemoteContext.ID_FONT_SIZE,
             14f * density.fontScale * density.density,
@@ -279,6 +280,7 @@ internal fun RcPlayerImpl(
         state.graphContext.also { gc ->
             gc.typefaceResolver = typefaceResolver
             gc.textMeasurer = textMeasurer
+            gc.density = density.density
         }
     DisposableEffect(graphContext, typefaceResolver) {
         graphContext.typefaceCache.onAttach(typefaceResolver)

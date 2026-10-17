@@ -39,6 +39,7 @@ import androidx.compose.remote.player.compose.embedded.resources.resolveBitmap
 import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.remote.player.compose.utils.getPath
 import androidx.compose.remote.player.compose.utils.toStampedPathEffectStyle
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -168,6 +169,169 @@ private fun resolvePaintFloat(bits: Int, read: RemoteContext): Float {
 }
 
 /**
+ * Immutable, constant-size snapshot of the subset of [PaintBundle] state read by
+ * [ComposeLocalPaint.toNativeTextPaint] during `TextMeasure` and `TextAttribute` evaluation.
+ *
+ * Raw `Int` bit patterns are retained for `TEXT_SIZE` and `FONT_AXIS` values so NaN-encoded
+ * variable references resolve reactively against [GraphContext] in O(1) without accumulating or
+ * replaying [PaintBundle] lists.
+ */
+@Immutable
+internal class TextMeasurePaintSpec(
+    val isTextSizeSet: Boolean = false,
+    val rawTextSizeBits: Int = Float.NaN.toRawBits(),
+    val isTypefaceSet: Boolean = false,
+    val fontFamily: Int = 0,
+    val fontWeight: Int = 400,
+    val fontStyle: FontStyle = FontStyle.Normal,
+    val fontAxis: IntArray? = null,
+    val rawFontAxisValueBits: IntArray? = null,
+) {
+    fun toComposeLocalPaint(remoteContext: RemoteContext): ComposeLocalPaint =
+        ComposeLocalPaint().also { paint ->
+            if (isTextSizeSet) {
+                paint.textSize = resolvePaintFloat(rawTextSizeBits, remoteContext)
+                paint.isTextSizeSet = true
+            }
+            if (isTypefaceSet) {
+                paint.fontFamily = fontFamily
+                paint.fontWeight = fontWeight
+                paint.fontStyle = fontStyle
+                paint.isTypefaceSet = true
+            }
+            val tags = fontAxis
+            val rawValues = rawFontAxisValueBits
+            if (tags != null && rawValues != null) {
+                paint.fontAxis = tags
+                paint.fontAxisValues =
+                    FloatArray(tags.size) { j -> resolvePaintFloat(rawValues[j], remoteContext) }
+            }
+            paint.textMeasureSpec = this
+        }
+
+    fun withBundle(bundle: PaintBundle): TextMeasurePaintSpec {
+        val array = bundle.getArray()
+        val end = bundle.getPos().coerceIn(0, array.size)
+        var nextIsTextSizeSet = isTextSizeSet
+        var nextRawTextSizeBits = rawTextSizeBits
+        var nextIsTypefaceSet = isTypefaceSet
+        var nextFontFamily = fontFamily
+        var nextFontWeight = fontWeight
+        var nextFontStyle = fontStyle
+        var nextFontAxis = fontAxis
+        var nextRawFontAxisValueBits = rawFontAxisValueBits
+        var changed = false
+
+        var i = 0
+        while (i < end) {
+            val cmd = array[i++]
+            when (cmd and 0xFFFF) {
+                PaintBundle.TEXT_SIZE -> {
+                    if (i >= end) break
+                    nextRawTextSizeBits = array[i++]
+                    nextIsTextSizeSet = true
+                    changed = true
+                }
+                PaintBundle.TYPEFACE -> {
+                    if (i >= end) break
+                    val style = cmd ushr 16
+                    nextFontFamily = array[i++]
+                    nextFontWeight = style and 0x3ff
+                    nextFontStyle = if ((style shr 10) > 0) FontStyle.Italic else FontStyle.Normal
+                    nextIsTypefaceSet = true
+                    changed = true
+                }
+                PaintBundle.FONT_AXIS -> {
+                    val count = cmd ushr 16
+                    if (count > MAX_FONT_AXES || count * 2 > end - i) break
+                    if (count > 0) {
+                        val tags = IntArray(count)
+                        val rawValues = IntArray(count)
+                        for (j in 0 until count) {
+                            tags[j] = array[i++]
+                            rawValues[j] = array[i++]
+                        }
+                        nextFontAxis = tags
+                        nextRawFontAxisValueBits = rawValues
+                    } else {
+                        nextFontAxis = null
+                        nextRawFontAxisValueBits = null
+                    }
+                    changed = true
+                }
+                PaintBundle.COLOR,
+                PaintBundle.COLOR_ID,
+                PaintBundle.STROKE_WIDTH,
+                PaintBundle.STROKE_MITER,
+                PaintBundle.ALPHA,
+                PaintBundle.SHADER,
+                PaintBundle.SHADER_MATRIX,
+                PaintBundle.COLOR_FILTER,
+                PaintBundle.COLOR_FILTER_ID,
+                PaintBundle.FALLBACK_TYPEFACE -> {
+                    if (i >= end) break
+                    i++
+                }
+                PaintBundle.TEXTURE -> {
+                    if (end - i < 3) break
+                    i += 3
+                }
+                PaintBundle.STYLE,
+                PaintBundle.STROKE_CAP,
+                PaintBundle.STROKE_JOIN,
+                PaintBundle.BLEND_MODE,
+                PaintBundle.CLEAR_COLOR_FILTER,
+                PaintBundle.ANTI_ALIAS,
+                PaintBundle.FILTER_BITMAP,
+                PaintBundle.IMAGE_FILTER_QUALITY -> Unit
+                PaintBundle.PATH_EFFECT -> {
+                    val count = cmd ushr 16
+                    if (count > end - i) break
+                    i += count
+                }
+                PaintBundle.GRADIENT -> {
+                    if (i >= end) break
+                    val colorsLen = array[i++] and 0xFF
+                    if (colorsLen >= end - i) break
+                    i += colorsLen
+                    val stopsLen = array[i++]
+                    if (stopsLen < 0 || stopsLen > end - i) break
+                    i += stopsLen
+                    val trailingWords =
+                        when (cmd ushr 16) {
+                            PaintBundle.LINEAR_GRADIENT -> 5
+                            PaintBundle.RADIAL_GRADIENT -> 4
+                            PaintBundle.SWEEP_GRADIENT -> 2
+                            PaintBundle.RADIAL_GRADIENT2 -> 7
+                            else -> break
+                        }
+                    if (trailingWords > end - i) break
+                    i += trailingWords
+                }
+                else -> break
+            }
+        }
+
+        if (!changed) return this
+        return TextMeasurePaintSpec(
+            isTextSizeSet = nextIsTextSizeSet,
+            rawTextSizeBits = nextRawTextSizeBits,
+            isTypefaceSet = nextIsTypefaceSet,
+            fontFamily = nextFontFamily,
+            fontWeight = nextFontWeight,
+            fontStyle = nextFontStyle,
+            fontAxis = nextFontAxis,
+            rawFontAxisValueBits = nextRawFontAxisValueBits,
+        )
+    }
+
+    companion object {
+        private const val MAX_FONT_AXES = 8
+        val Empty = TextMeasurePaintSpec()
+    }
+}
+
+/**
  * Applies [bundle] to [paintState]. Variable references are resolved through [remoteContext]; pass
  * the player's [GraphContext] so computed values are current and reads are observed. Writes that
  * must persist (e.g. lazy bitmap decode) go through its [writeContext].
@@ -179,6 +343,7 @@ public fun updatePaintFromBundle(
     remoteContext: RemoteContext,
 ) {
     paintState.sourceBundles.add(bundle)
+    paintState.textMeasureSpec = paintState.textMeasureSpec.withBundle(bundle)
     val array = bundle.getArray()
     var i = 0
     while (i < bundle.getPos()) {

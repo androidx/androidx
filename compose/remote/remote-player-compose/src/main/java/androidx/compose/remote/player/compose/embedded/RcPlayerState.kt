@@ -133,6 +133,10 @@ public class RcPlayerState(
             .also { gc ->
                 gc.store = remoteContext
                 gc.touchVersion = remoteContext.touchVersion
+                gc.density = remoteContext.density
+                preprocessed.textMeasurePaintSpecs.forEach { id, spec ->
+                    gc.setTextMeasurePaintSpec(id, spec)
+                }
             }
 
     /** The initial clock timestamp (in milliseconds) when this player state was initialized. */
