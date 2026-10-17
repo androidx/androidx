@@ -24,7 +24,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 
 /**
@@ -40,9 +39,9 @@ import androidx.compose.ui.text.style.TextOverflow
  * @param text The text to be displayed.
  * @param modifier Modifier to apply to this layout node.
  * @param style Style configuration for the text such as color, font, line height etc.
- * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
- *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
- *   [overflow] and [TextAlign] may have unexpected effects.
+ * @param softWrap Whether to wrap text at soft line breaks. When true, wraps text to the next line
+ *   when it exceeds layout bounds. When false, positions text as if there was unlimited horizontal
+ *   space, which may cause it to clip or overflow according to [overflow].
  * @param overflow How visual overflow should be handled.
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
  *   If the text exceeds the given number of lines, it will be truncated according to [overflow] and
