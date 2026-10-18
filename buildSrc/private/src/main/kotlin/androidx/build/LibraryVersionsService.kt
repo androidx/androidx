@@ -19,8 +19,10 @@ package androidx.build
 import androidx.build.pinneddependencies.TIP_OF_TREE_EXEMPTIONS_FILE_NAME
 import androidx.build.pinneddependencies.TipOfTreeExemption
 import androidx.build.pinneddependencies.parseTipOfTreeExemptions
+import kotlin.collections.forEach
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
@@ -36,6 +38,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         val tomlFileContents: Property<String>
         val tipOfTreeExemptionsFileName: Property<String>
         val tipOfTreeExemptionsFileContents: Property<String>
+        val allPossibleProjects: ListProperty<IncludedProject>
     }
 
     private val parsedTomlFile: JsonNode by lazy {
@@ -109,8 +112,83 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         result
     }
 
+    val mavenCoordinatesToProjectPathMap: Map<String, String> by lazy {
+        val newProjectMap: MutableMap<String, String> = mutableMapOf()
+        parameters.allPossibleProjects.get().forEach {
+            val group =
+                overrideLibraryGroupsByProjectPath[it.gradlePath]
+                    ?: getLibraryGroupFromProjectPath(it.gradlePath, null)
+            if (group != null) {
+                newProjectMap["${group.group}:${substringAfterLastColon(it.gradlePath)}"] =
+                    it.gradlePath
+            }
+        }
+        newProjectMap
+    }
+
+    private fun substringBeforeLastColon(projectPath: String): String {
+        val lastColonIndex = projectPath.lastIndexOf(":")
+        return projectPath.substring(0, lastColonIndex)
+    }
+
+    private fun substringAfterLastColon(projectPath: String): String {
+        val lastColonIndex = projectPath.lastIndexOf(":")
+        return projectPath.substring(lastColonIndex + 1)
+    }
+
+    /** @return the library group from the project path, including special cases */
+    fun getLibraryGroupFromProjectPath(
+        projectPath: String,
+        explanationBuilder: MutableList<String>? = null,
+    ): LibraryGroup? {
+        val overridden = overrideLibraryGroupsByProjectPath[projectPath]
+        explanationBuilder?.add(
+            "Library group (in libraryversions.toml) having" +
+                " overrideInclude=[\"$projectPath\"] is $overridden"
+        )
+        if (overridden != null) return overridden
+
+        val result = getStandardLibraryGroupFromProjectPath(projectPath, explanationBuilder)
+        if (result != null) return result
+
+        // samples are allowed to be nested deeper
+        if (projectPath.contains("samples")) {
+            val parentPath = substringBeforeLastColon(projectPath)
+            return getLibraryGroupFromProjectPath(parentPath, explanationBuilder)
+        }
+        return null
+    }
+
+    // simple function to get the library group from the project path, without special cases
+    private fun getStandardLibraryGroupFromProjectPath(
+        projectPath: String,
+        explanationBuilder: MutableList<String>?,
+    ): LibraryGroup? {
+        // Get the text of the library group, something like "androidx.core"
+        val parentPath = substringBeforeLastColon(projectPath)
+
+        if (parentPath == "") {
+            explanationBuilder?.add("Parent path for $projectPath is empty")
+            return null
+        }
+        // convert parent project path to groupId
+        val groupIdText =
+            if (projectPath.startsWith(":external")) {
+                projectPath.replace(":external:", "")
+            } else {
+                "androidx.${parentPath.substring(1).replace(':', '.')}"
+            }
+
+        // get the library group having that text
+        val result = libraryGroupsByGroupId[groupIdText]
+        explanationBuilder?.add(
+            "Library group (in libraryversions.toml) having group=\"$groupIdText\" is $result"
+        )
+        return result
+    }
+
     // map of library groups keyed by group name
-    val libraryGroupsByGroupId: Map<String, LibraryGroup> by lazy {
+    internal val libraryGroupsByGroupId: Map<String, LibraryGroup> by lazy {
         val result = mutableMapOf<String, LibraryGroup>()
         for (association in libraryGroupAssociations) {
             // Check for duplicate groups
@@ -142,7 +220,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     }
 
     // map from project name to group override if applicable
-    val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup> by lazy {
+    internal val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup> by lazy {
         val result = mutableMapOf<String, LibraryGroup>()
         for (association in libraryGroupAssociations) {
             val baseGroup = libraryGroupsByGroupId[association.libraryGroup.group]
@@ -260,6 +338,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
             val toml = project.lazyReadFile(tomlFileName)
             val exemptionsFileName = TIP_OF_TREE_EXEMPTIONS_FILE_NAME
             val exemptions = project.lazyReadFile(exemptionsFileName)
+            val listProjectsService = ListProjectsService.registerOrGet(project)
 
             return project.gradle.sharedServices.registerIfAbsent(
                 "libraryVersionsService",
@@ -269,6 +348,9 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
                 spec.parameters.tomlFileContents.set(toml)
                 spec.parameters.tipOfTreeExemptionsFileName.set(exemptionsFileName)
                 spec.parameters.tipOfTreeExemptionsFileContents.set(exemptions)
+                spec.parameters.allPossibleProjects.set(
+                    listProjectsService.map { it.allPossibleProjects }
+                )
             }
         }
     }
