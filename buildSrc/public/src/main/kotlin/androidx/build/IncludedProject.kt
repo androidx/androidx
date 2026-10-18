@@ -16,6 +16,8 @@
 
 package androidx.build
 
+import java.io.Serializable
+
 // NOTE: This class is symlinked to
 // playground-common/playground-plugin/src/main/kotlin/androidx/build
 // Please test playground when modifying it.
@@ -25,4 +27,8 @@ data class IncludedProject(
     val gradlePath: String,
     /** File path for the project, relative to support root folder. */
     val filePath: String,
-)
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 345435631564L
+    }
+}

@@ -264,12 +264,14 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                 project,
                 versionService.libraryVersions,
                 versionService.libraryGroups.values.toList(),
-                versionService.libraryGroupsByGroupId,
-                versionService.overrideLibraryGroupsByProjectPath,
+                versionService.mavenCoordinatesToProjectPathMap,
                 listProjectsService.map { it.allPossibleProjects },
                 { project.getHeadShaProvider() },
                 { configurationName: String ->
                     configureAarAsJarForConfiguration(project, configurationName)
+                },
+                { projectPath: String, explanationBuilder: MutableList<String>? ->
+                    versionService.getLibraryGroupFromProjectPath(projectPath, explanationBuilder)
                 },
             )
             .apply { kotlinTarget.set(KotlinTarget.DEFAULT) }

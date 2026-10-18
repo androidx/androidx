@@ -409,10 +409,135 @@ class LibraryVersionsServiceTest {
         assertThat(service.versionGroupFor(":core:core-splashscreen", "androidx.core")).isNull()
     }
 
+    @Test
+    fun mavenCoordinatesToProjectPathMap_standardAndNestedProjects() {
+        val service =
+            createLibraryVersionsService(
+                """
+                [versions]
+                V1 = "1.2.3"
+                [groups]
+                CORE = { group = "androidx.core", atomicGroupVersion = "versions.V1" }
+                COMPOSE_UI = { group = "androidx.compose.ui", atomicGroupVersion = "versions.V1" }
+                """
+                    .trimIndent(),
+                allPossibleProjects =
+                    listOf(
+                        IncludedProject(":core:core", "core/core"),
+                        IncludedProject(":compose:ui:ui-graphics", "compose/ui/ui-graphics"),
+                    ),
+            )
+        assertThat(service.mavenCoordinatesToProjectPathMap)
+            .containsExactly(
+                "androidx.core:core",
+                ":core:core",
+                "androidx.compose.ui:ui-graphics",
+                ":compose:ui:ui-graphics",
+            )
+    }
+
+    @Test
+    fun mavenCoordinatesToProjectPathMap_overrideInclude() {
+        val service =
+            createLibraryVersionsService(
+                """
+                [versions]
+                V1 = "1.2.3"
+                [groups]
+                CORE = { group = "androidx.core", atomicGroupVersion = "versions.V1" }
+                CUSTOM = { group = "androidx.custom", atomicGroupVersion = "versions.V1", overrideInclude = [":core:core-custom", ":other:subproject"] }
+                """
+                    .trimIndent(),
+                allPossibleProjects =
+                    listOf(
+                        IncludedProject(":core:core", "core/core"),
+                        IncludedProject(":core:core-custom", "core/core-custom"),
+                        IncludedProject(":other:subproject", "other/subproject"),
+                    ),
+            )
+        assertThat(service.mavenCoordinatesToProjectPathMap)
+            .containsExactly(
+                "androidx.core:core",
+                ":core:core",
+                "androidx.custom:core-custom",
+                ":core:core-custom",
+                "androidx.custom:subproject",
+                ":other:subproject",
+            )
+    }
+
+    @Test
+    fun mavenCoordinatesToProjectPathMap_samplesInheritParentGroup() {
+        val service =
+            createLibraryVersionsService(
+                """
+                [versions]
+                V1 = "1.2.3"
+                [groups]
+                CORE = { group = "androidx.core", atomicGroupVersion = "versions.V1" }
+                COMPOSE_UI = { group = "androidx.compose.ui", atomicGroupVersion = "versions.V1" }
+                """
+                    .trimIndent(),
+                allPossibleProjects =
+                    listOf(
+                        IncludedProject(":core:core:samples", "core/core/samples"),
+                        IncludedProject(":compose:ui:ui:samples", "compose/ui/ui/samples"),
+                    ),
+            )
+        assertThat(service.mavenCoordinatesToProjectPathMap)
+            .containsExactly(
+                "androidx.core:samples",
+                ":core:core:samples",
+                "androidx.compose.ui:samples",
+                ":compose:ui:ui:samples",
+            )
+    }
+
+    @Test
+    fun mavenCoordinatesToProjectPathMap_externalProjects() {
+        val service =
+            createLibraryVersionsService(
+                """
+                [versions]
+                V1 = "1.2.3"
+                [groups]
+                LIBYUV = { group = "libyuv", atomicGroupVersion = "versions.V1" }
+                """
+                    .trimIndent(),
+                allPossibleProjects =
+                    listOf(IncludedProject(":external:libyuv", "external/libyuv")),
+            )
+        assertThat(service.mavenCoordinatesToProjectPathMap)
+            .containsExactly("libyuv:libyuv", ":external:libyuv")
+    }
+
+    @Test
+    fun mavenCoordinatesToProjectPathMap_unmatchedProjectsExcluded() {
+        val service =
+            createLibraryVersionsService(
+                """
+                [versions]
+                V1 = "1.2.3"
+                [groups]
+                CORE = { group = "androidx.core", atomicGroupVersion = "versions.V1" }
+                """
+                    .trimIndent(),
+                allPossibleProjects =
+                    listOf(
+                        IncludedProject(":icing", "icing"),
+                        IncludedProject(":unknown:project", "unknown/project"),
+                        IncludedProject(":core:core", "core/core"),
+                    ),
+            )
+        assertThat(service.mavenCoordinatesToProjectPathMap)
+            .containsExactly("androidx.core:core", ":core:core")
+    }
+
     private fun createLibraryVersionsService(
         tomlFileContents: String,
         tomlFileName: String = "libraryversions.toml",
         exemptions: String? = "tipOfTreeExemptions = []",
+        allPossibleProjects: List<IncludedProject> = emptyList(),
         project: Project = ProjectBuilder.builder().withProjectDir(tempDir.newFolder()).build(),
     ): LibraryVersionsService {
         val serviceProvider =
@@ -424,6 +549,7 @@ class LibraryVersionsServiceTest {
                 spec.parameters.tomlFileName.set(tomlFileName)
                 spec.parameters.tipOfTreeExemptionsFileName.set(TIP_OF_TREE_EXEMPTIONS_FILE_NAME)
                 spec.parameters.tipOfTreeExemptionsFileContents.set(exemptions)
+                spec.parameters.allPossibleProjects.set(allPossibleProjects)
             }
         return serviceProvider.get()
     }
