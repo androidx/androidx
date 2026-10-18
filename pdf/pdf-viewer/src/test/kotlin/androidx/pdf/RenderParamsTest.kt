@@ -22,6 +22,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalPdfApi::class)
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class RenderParamsTest {
@@ -35,6 +36,7 @@ class RenderParamsTest {
                     RenderParams.FLAG_RENDER_TEXT_ANNOTATIONS or
                         RenderParams.FLAG_RENDER_HIGHLIGHT_ANNOTATIONS,
                 renderFormContentMode = RenderParams.RENDER_FORM_CONTENT_DISABLED,
+                bitmapConfig = RenderParams.BITMAP_CONFIG_RGB_565,
             )
 
         val parcel = Parcel.obtain()
@@ -47,6 +49,8 @@ class RenderParamsTest {
         assertThat(createdFromParcel.renderFlags).isEqualTo(renderParams.renderFlags)
         assertThat(createdFromParcel.renderFormContentMode)
             .isEqualTo(renderParams.renderFormContentMode)
+        assertThat(createdFromParcel.bitmapConfig).isEqualTo(renderParams.bitmapConfig)
+        assertThat(createdFromParcel).isEqualTo(renderParams)
     }
 
     @Test
@@ -63,5 +67,35 @@ class RenderParamsTest {
         assertThat(createdFromParcel.renderFlags).isEqualTo(RenderParams.FLAG_RENDER_NONE)
         assertThat(createdFromParcel.renderFormContentMode)
             .isEqualTo(RenderParams.RENDER_FORM_CONTENT_ENABLED)
+        assertThat(createdFromParcel.bitmapConfig).isEqualTo(RenderParams.BITMAP_CONFIG_ARGB_8888)
+    }
+
+    @Test
+    fun bitmapConfig_defaultsToArgb8888() {
+        val renderParams = RenderParams(renderMode = RenderParams.RENDER_MODE_FOR_DISPLAY)
+
+        assertThat(renderParams.bitmapConfig).isEqualTo(RenderParams.BITMAP_CONFIG_ARGB_8888)
+    }
+
+    @Test
+    fun equals_differentBitmapConfig_isNotEqual() {
+        val argbParams =
+            RenderParams(
+                renderMode = RenderParams.RENDER_MODE_FOR_DISPLAY,
+                renderFlags = RenderParams.FLAG_RENDER_NONE,
+                renderFormContentMode = RenderParams.RENDER_FORM_CONTENT_ENABLED,
+                bitmapConfig = RenderParams.BITMAP_CONFIG_ARGB_8888,
+            )
+        val rgb565Params =
+            RenderParams(
+                renderMode = RenderParams.RENDER_MODE_FOR_DISPLAY,
+                renderFlags = RenderParams.FLAG_RENDER_NONE,
+                renderFormContentMode = RenderParams.RENDER_FORM_CONTENT_ENABLED,
+                bitmapConfig = RenderParams.BITMAP_CONFIG_RGB_565,
+            )
+
+        assertThat(argbParams).isEqualTo(RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY))
+        assertThat(argbParams).isNotEqualTo(rgb565Params)
+        assertThat(argbParams.hashCode()).isNotEqualTo(rgb565Params.hashCode())
     }
 }

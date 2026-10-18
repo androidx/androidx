@@ -54,6 +54,7 @@ import androidx.pdf.utils.isFormFillingAvailable
 import androidx.pdf.utils.isGetTopObjectAvailable
 import androidx.pdf.utils.isSignatureFeatureAvailable
 import androidx.pdf.utils.toAndroidClass
+import androidx.pdf.utils.toBitmapConfig
 import androidx.pdf.utils.toContentClass
 import java.util.Collections
 import java.util.concurrent.CopyOnWriteArrayList
@@ -486,7 +487,7 @@ public class SandboxedPdfDocument(
         }
 
         private fun getDefaultBitmap(width: Int, height: Int): Bitmap {
-            val output = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val output = Bitmap.createBitmap(width, height, renderParams.toBitmapConfig())
             output.eraseColor(Color.WHITE)
             return output
         }

@@ -26,11 +26,12 @@ import java.util.Objects
 @SuppressLint("BanParcelableUsage")
 /**
  * The set of parameters that will be used to render the page of a PDF Document. It can be tuned to
- * set the render mode, render flags and render form content mode.
+ * set the render mode, render flags, render form content mode and the bitmap configuration.
  *
  * Note: [renderFlags] defaults to [FLAG_RENDER_NONE] which means that no annotations will be
  * rendered on the bitmap. [renderFormContentMode] defaults to [RENDER_FORM_CONTENT_ENABLED] which
- * means that PDF form widgets (if present) will be rendered on the bitmap.
+ * means that PDF form widgets (if present) will be rendered on the bitmap. [bitmapConfig] defaults
+ * to [BITMAP_CONFIG_ARGB_8888] which renders the content at the highest fidelity.
  *
  * @property renderMode The mode to render the content.
  * @property renderFlags (Optional) Flags to control the rendering of annotations on the page
@@ -46,6 +47,47 @@ public class RenderParams(
     @RenderFlags public val renderFlags: Int = FLAG_RENDER_NONE,
     @RenderFormContentMode public val renderFormContentMode: Int = RENDER_FORM_CONTENT_ENABLED,
 ) : Parcelable {
+
+    @OptIn(ExperimentalPdfApi::class)
+    @BitmapConfig
+    private var _bitmapConfig: Int = BITMAP_CONFIG_ARGB_8888
+
+    /**
+     * The configuration of the bitmaps the page content is rendered into.
+     *
+     * Defaults to [BITMAP_CONFIG_ARGB_8888]. Use [BITMAP_CONFIG_RGB_565] to halve the memory used
+     * by rendered pages and tiles, at the cost of color fidelity. Requires SDK extension >= 24 and
+     * is ignored on older platforms.
+     *
+     * @see BitmapConfig
+     */
+    @Suppress("ExperimentalPropertyAnnotation")
+    @ExperimentalPdfApi
+    @get:BitmapConfig
+    public val bitmapConfig: Int
+        get() = _bitmapConfig
+
+    /**
+     * Creates a [RenderParams] that renders the page content into bitmaps of the requested
+     * [bitmapConfig].
+     *
+     * @param renderMode The mode to render the content.
+     * @param renderFlags Flags to control the rendering of annotations on the page bitmaps.
+     * @param renderFormContentMode Mode to control the rendering of PDF form content in the page
+     *   bitmaps.
+     * @param bitmapConfig The configuration used for rendering page content and tiles. Using
+     *   [BITMAP_CONFIG_RGB_565] halves memory consumption at the cost of color fidelity. Requires
+     *   SDK Extension 24 or higher.
+     */
+    @ExperimentalPdfApi
+    public constructor(
+        @RenderMode renderMode: Int,
+        @RenderFlags renderFlags: Int,
+        @RenderFormContentMode renderFormContentMode: Int,
+        @BitmapConfig bitmapConfig: Int,
+    ) : this(renderMode, renderFlags, renderFormContentMode) {
+        _bitmapConfig = bitmapConfig
+    }
 
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(RENDER_MODE_FOR_DISPLAY, RENDER_MODE_FOR_PRINT)
@@ -72,12 +114,19 @@ public class RenderParams(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public annotation class RenderFormContentMode
 
+    @OptIn(ExperimentalPdfApi::class)
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(BITMAP_CONFIG_ARGB_8888, BITMAP_CONFIG_RGB_565)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public annotation class BitmapConfig
+
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(renderMode)
         dest.writeInt(renderFlags)
         dest.writeInt(renderFormContentMode)
+        dest.writeInt(_bitmapConfig)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -86,11 +135,12 @@ public class RenderParams(
 
         return renderMode == other.renderMode &&
             renderFlags == other.renderFlags &&
-            renderFormContentMode == other.renderFormContentMode
+            renderFormContentMode == other.renderFormContentMode &&
+            _bitmapConfig == other._bitmapConfig
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(renderMode, renderFlags, renderFormContentMode)
+        return Objects.hash(renderMode, renderFlags, renderFormContentMode, _bitmapConfig)
     }
 
     public companion object {
@@ -115,11 +165,29 @@ public class RenderParams(
         /** Mode to exclude PDF form content in rendered PDF bitmaps. */
         public const val RENDER_FORM_CONTENT_DISABLED: Int = 2
 
+        /**
+         * Renders the PDF content into bitmaps that store each pixel on 4 bytes, with an alpha
+         * channel and is the default.
+         */
+        @ExperimentalPdfApi public const val BITMAP_CONFIG_ARGB_8888: Int = 1
+
+        /**
+         * Renders the PDF content into bitmaps that store each pixel on 2 bytes, without an alpha
+         * channel. Requires SDK extension 24 or above.
+         */
+        @ExperimentalPdfApi public const val BITMAP_CONFIG_RGB_565: Int = 2
+
+        @OptIn(ExperimentalPdfApi::class)
         @JvmField
         public val CREATOR: Parcelable.Creator<RenderParams> =
             object : Parcelable.Creator<RenderParams> {
                 override fun createFromParcel(parcel: Parcel): RenderParams {
-                    return RenderParams(parcel.readInt(), parcel.readInt(), parcel.readInt())
+                    return RenderParams(
+                        renderMode = parcel.readInt(),
+                        renderFlags = parcel.readInt(),
+                        renderFormContentMode = parcel.readInt(),
+                        bitmapConfig = parcel.readInt(),
+                    )
                 }
 
                 override fun newArray(size: Int): Array<RenderParams?> {
