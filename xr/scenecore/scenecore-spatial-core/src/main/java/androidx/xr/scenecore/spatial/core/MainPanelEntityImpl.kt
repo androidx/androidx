@@ -41,9 +41,6 @@ internal class MainPanelEntityImpl(
 ) : BasePanelEntity(activity, node, extensions, sceneNodeRegistry, executor), PanelEntity {
     // Note that we expect the Node supplied here to be the WindowLeash node.
     init {
-        // Read the Pixel dimensions for the primary panel off the Activity's WindowManager.
-        super.sizeInPixels =
-            PixelDimensions(boundsFromWindowManager.width(), boundsFromWindowManager.height())
         val cornerRadius = defaultCornerRadiusInMeters
         extensions.createNodeTransaction().use { transaction ->
             transaction.setCornerRadius(node, cornerRadius).apply()
@@ -53,12 +50,20 @@ internal class MainPanelEntityImpl(
 
     private val resizeLock = Any()
 
-    /** Indicates if the asynchronous IPC call to set the window size is currently in-flight. */
-    @GuardedBy("resizeLock") private var isExecutingSetMainWindowSizeAsync = false
+    /**
+     * Tracks the target [PixelDimensions] of the active asynchronous resize, or `null` when idle.
+     *
+     * Set when a user drags the main panel's resize handle via
+     * [androidx.xr.scenecore.runtime.ResizableComponent] or triggers a UI layout change that
+     * updates [sizeInPixels] or [size]. Remains non-null while [XrExtensions.setMainWindowSize]
+     * asynchronously resizes the [Activity] window, and resets to `null` (or advances to
+     * [latestDeferredPixelSizeRequest]) in [handleSetSizeComplete].
+     */
+    @GuardedBy("resizeLock") private var inFlightTargetSize: PixelDimensions? = null
 
     /**
-     * Holds the most recent size request received while an operation is in-flight. Older pending
-     * requests are overwritten to ensure we only process the latest state.
+     * Stores the latest [PixelDimensions] requested while [inFlightTargetSize] is non-null,
+     * overwriting older pending requests so only the most recent size runs next.
      */
     @GuardedBy("resizeLock") private var latestDeferredPixelSizeRequest: PixelDimensions? = null
 
@@ -89,22 +94,29 @@ internal class MainPanelEntityImpl(
             )
         }
         set(value) {
-            // TODO: b/376126162 - Consider calling setPixelDimensions() either when
-            // setMainWindowSize's callback is called, or when the next spatial state callback with
-            // the expected size is called.
-            if (value == super.sizeInPixels) {
-                return
-            }
-            super.sizeInPixels = value
-            isSetSizePending.set(true)
-
             var shouldExecuteNow = false
-            // Execute immediately, or overwrite the pending request if already busy.
             synchronized(resizeLock) {
-                if (isExecutingSetMainWindowSizeAsync) {
+                if (inFlightTargetSize != null) {
+                    // An asynchronous resize IPC is already in-flight. Compare against the latest
+                    // pending target size (either a previously deferred request, or the currently
+                    // executing in-flight target) to ignore redundant duplicate requests;
+                    // otherwise, coalesce by overwriting the deferred request to be sent once the
+                    // current IPC completes.
+                    val targetInProgress = latestDeferredPixelSizeRequest ?: inFlightTargetSize
+                    if (value == targetInProgress) {
+                        return
+                    }
                     latestDeferredPixelSizeRequest = value
                 } else {
-                    isExecutingSetMainWindowSizeAsync = true
+                    // No resize is in-flight. Compare directly against live WindowManager bounds
+                    // (rather than a cached value, which can become stale if the system resizes the
+                    // window externally) and skip the IPC if the window is already at the requested
+                    // size.
+                    if (value == sizeInPixels) {
+                        return
+                    }
+                    inFlightTargetSize = value
+                    isSetSizePending.set(true)
                     shouldExecuteNow = true
                 }
             }
@@ -125,7 +137,7 @@ internal class MainPanelEntityImpl(
             )
         } catch (e: Exception) {
             synchronized(resizeLock) {
-                isExecutingSetMainWindowSizeAsync = false
+                inFlightTargetSize = null
                 latestDeferredPixelSizeRequest = null
             }
             isSetSizePending.set(false)
@@ -144,9 +156,10 @@ internal class MainPanelEntityImpl(
         synchronized(resizeLock) {
             if (latestDeferredPixelSizeRequest != null) {
                 nextSizeToExecute = latestDeferredPixelSizeRequest
+                inFlightTargetSize = nextSizeToExecute
                 latestDeferredPixelSizeRequest = null
             } else {
-                isExecutingSetMainWindowSizeAsync = false
+                inFlightTargetSize = null
             }
         }
 
