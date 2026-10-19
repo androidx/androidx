@@ -23,21 +23,17 @@ import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.creation.compose.shaders.RemoteBrush
-import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
-import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.remote.creation.compose.state.asin
-import androidx.compose.remote.creation.compose.state.cubicEasing
+import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.PaintingStyle
@@ -46,13 +42,17 @@ import androidx.compose.ui.graphics.StrokeCap
 /**
  * Material Design circular progress indicator.
  *
+ * Animates changes to [progress] with the [RemoteMotionScheme.slowEffectsSpec] of
+ * [RemoteMaterialTheme.motionScheme].
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCircularProgressIndicatorSample
  *
- * For an animated progress, see:
+ * Example that changes [progress] on click:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCircularProgressIndicatorAnimatedSample
  * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
- *   represents completion.
+ *   represents completion. Values outside of this range are coerced into the range 0..1. Progress
+ *   changes are animated.
  * @param modifier Modifier to be applied to the [RemoteCircularProgressIndicator].
  * @param enabled controls the enabled state. When enabled is `false`, this component will appear
  *   visually disabled. Note that only solid colors are supported when [enabled] is an expression,
@@ -79,9 +79,12 @@ public fun RemoteCircularProgressIndicator(
     strokeWidth: RemoteDp = RemoteProgressIndicatorDefaults.DefaultStrokeWidth,
     gapSize: RemoteDp = RemoteProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),
 ) {
+    // Coerce before animating, as Wear Material3 does, so an out of range value animates from the
+    // end of the indicator instead of pausing there.
+    val animatedProgress = animateProgress(clamp(progress, 0f.rf, 1f.rf))
     RemoteCanvas(modifier = modifier.fillMaxSize()) {
         val fullSweep = 360f.rf - ((startAngle - endAngle) % 360f.rf + 360f.rf) % 360f.rf
-        val sweepAngle = progress * fullSweep
+        val sweepAngle = animatedProgress * fullSweep
         drawIndicatorArcs(startAngle, sweepAngle, fullSweep, strokeWidth, gapSize, colors, enabled)
     }
 }
@@ -103,7 +106,7 @@ public fun RemoteCircularProgressIndicator(
  */
 @RemoteComposable
 @Composable
-@Suppress("RestrictedApiAndroidX") // cubicEasing
+@Suppress("RestrictedApiAndroidX") // RemoteTimeVariables, rotate
 public fun RemoteCircularProgressIndicator(
     modifier: RemoteModifier = RemoteModifier,
     colors: RemoteProgressIndicatorColors = RemoteProgressIndicatorDefaults.colors(),
@@ -123,7 +126,7 @@ public fun RemoteCircularProgressIndicator(
 
         val segmentProgress = (timeProgress % 0.25f.rf) * 4f.rf
 
-        val easedProgress = cubicEasing(0.4f.rf, 0f.rf, 0.2f.rf, 1f.rf, segmentProgress)
+        val easedProgress = RemoteMotionTokens.easeStandard(segmentProgress)
 
         val sweepConditions =
             listOf(
@@ -178,7 +181,7 @@ private fun RemoteDrawScope.drawIndicatorArcs(
     val bottom = top + arcDimen
 
     val chordRatio =
-        min(1f.rf, max(0f.rf, (strokePx + gapSizePx) / max(0.001f.rf, diameter - strokePx)))
+        clamp((strokePx + gapSizePx) / max(0.001f.rf, diameter - strokePx), 0f.rf, 1f.rf)
     val gapSweep = asin(chordRatio) * (360f / Math.PI.toFloat()).rf
 
     val trackGapSweep = min(sweepAngle, gapSweep)
@@ -214,248 +217,4 @@ private fun RemoteDrawScope.drawIndicatorArcs(
         topLeft = RemoteOffset(left, top),
         size = RemoteSize(right - left, bottom - top),
     )
-}
-
-/** Contains defaults for Remote Progress Indicators. */
-public object RemoteProgressIndicatorDefaults {
-    /** Diameter of the indicator circle for indeterminate progress. */
-    internal val IndeterminateCircularIndicatorDiameter: RemoteDp = 24.rdp
-
-    /** Default stroke width for indeterminate [RemoteCircularProgressIndicator]. */
-    public val IndeterminateStrokeWidth: RemoteDp = 3.rdp
-
-    /** Small screen breakpoint in Dp for circular progress indicator. */
-    internal val SmallScreenBreakpoint: RemoteDp = 225.rdp
-
-    /** Default stroke width for [RemoteCircularProgressIndicator]. */
-    public val DefaultStrokeWidth: RemoteDp = 12.rdp
-
-    /**
-     * Large stroke width for circular progress indicator based on [screenSize].
-     *
-     * @param screenSize Screen size in [RemoteDp] used to determine stroke width.
-     * @return 8.rdp if [screenSize] is less than [SmallScreenBreakpoint], 12.rdp otherwise.
-     */
-    public fun largeStrokeWidth(screenSize: RemoteDp): RemoteDp =
-        screenSize.isLessThan(SmallScreenBreakpoint).select(8.rdp, 12.rdp)
-
-    /**
-     * Small stroke width for circular progress indicator based on [screenSize].
-     *
-     * @param screenSize Screen size in [RemoteDp] used to determine stroke width.
-     * @return 5.rdp if [screenSize] is less than [SmallScreenBreakpoint], 8.rdp otherwise.
-     */
-    public fun smallStrokeWidth(screenSize: RemoteDp): RemoteDp =
-        screenSize.isLessThan(SmallScreenBreakpoint).select(5.rdp, 8.rdp)
-
-    /** Default start angle for [RemoteCircularProgressIndicator]. */
-    public val StartAngle: RemoteFloat = 270f.rf
-
-    /** Default start angle for [RemoteCurvedProgressIndicator]. */
-    public val CurvedIndicatorStartAngle: RemoteFloat = 135f.rf
-
-    /** Default sweep angle for [RemoteCurvedProgressIndicator]. */
-    public val CurvedIndicatorSweepAngle: RemoteFloat = 90f.rf
-
-    /** Default stroke width for [RemoteCurvedProgressIndicator]. */
-    public val CurvedIndicatorStrokeWidth: RemoteDp = 8.rdp
-
-    /** Default padding from edge for [RemoteCurvedProgressIndicator]. */
-    public val CurvedIndicatorPadding: RemoteDp = 2.rdp
-
-    /** Default gap angle in degrees for [RemoteCurvedProgressIndicator]. */
-    public val CurvedIndicatorGapAngleDegrees: RemoteFloat = 2f.rf
-
-    /**
-     * Default fraction of dot size below which opacity fade-out begins for
-     * [RemoteCurvedProgressIndicator].
-     */
-    public val CurvedIndicatorDotFadeOutFraction: RemoteFloat = 0.5f.rf
-
-    /** Creates a [RemoteProgressIndicatorColors] with the default colors. */
-    @Composable
-    @RemoteComposable
-    public fun colors(): RemoteProgressIndicatorColors = defaultProgressIndicatorColors()
-
-    /**
-     * Returns recommended size of the gap based on [strokeWidth].
-     *
-     * @param strokeWidth The stroke width of the progress indicator.
-     */
-    public fun calculateRecommendedGapSize(strokeWidth: RemoteDp): RemoteDp = strokeWidth / 3f.rf
-
-    /**
-     * Creates a [RemoteProgressIndicatorColors] with modified colors.
-     *
-     * @param indicatorColor The indicator color when enabled, or `null` to use the theme default.
-     * @param trackColor The track color when enabled, or `null` to use the theme default.
-     * @param overflowTrackColor The overflow track color when enabled, or `null` to use the theme
-     *   default.
-     * @param disabledIndicatorColor The indicator color when disabled, or `null` to use the theme
-     *   default.
-     * @param disabledTrackColor The track color when disabled, or `null` to use the theme default.
-     * @param disabledOverflowTrackColor The overflow track color when disabled, or `null` to use
-     *   the theme default.
-     */
-    @Composable
-    @RemoteComposable
-    public fun colors(
-        indicatorColor: RemoteColor? = null,
-        trackColor: RemoteColor? = null,
-        overflowTrackColor: RemoteColor? = null,
-        disabledIndicatorColor: RemoteColor? = null,
-        disabledTrackColor: RemoteColor? = null,
-        disabledOverflowTrackColor: RemoteColor? = null,
-    ): RemoteProgressIndicatorColors {
-        val defaults = defaultProgressIndicatorColors()
-        return RemoteProgressIndicatorColors(
-            indicatorBrush =
-                indicatorColor?.let { RemoteBrush.solidColor(it) } ?: defaults.indicatorBrush,
-            trackBrush = trackColor?.let { RemoteBrush.solidColor(it) } ?: defaults.trackBrush,
-            overflowTrackBrush =
-                overflowTrackColor?.let { RemoteBrush.solidColor(it) }
-                    ?: defaults.overflowTrackBrush,
-            disabledIndicatorBrush =
-                disabledIndicatorColor?.let { RemoteBrush.solidColor(it) }
-                    ?: defaults.disabledIndicatorBrush,
-            disabledTrackBrush =
-                disabledTrackColor?.let { RemoteBrush.solidColor(it) }
-                    ?: defaults.disabledTrackBrush,
-            disabledOverflowTrackBrush =
-                disabledOverflowTrackColor?.let { RemoteBrush.solidColor(it) }
-                    ?: defaults.disabledOverflowTrackBrush,
-        )
-    }
-
-    /**
-     * Creates a [RemoteProgressIndicatorColors] with modified brushes.
-     *
-     * @param indicatorBrush The [RemoteBrush] used to draw the indicator when enabled.
-     * @param trackBrush The [RemoteBrush] used to draw the track when enabled.
-     * @param overflowTrackBrush The [RemoteBrush] used to draw the overflow track when enabled.
-     * @param disabledIndicatorBrush The [RemoteBrush] used to draw the indicator when disabled.
-     * @param disabledTrackBrush The [RemoteBrush] used to draw the track when disabled.
-     * @param disabledOverflowTrackBrush The [RemoteBrush] used to draw the overflow track when
-     *   disabled.
-     */
-    @Composable
-    @RemoteComposable
-    public fun colors(
-        indicatorBrush: RemoteBrush? = null,
-        trackBrush: RemoteBrush? = null,
-        overflowTrackBrush: RemoteBrush? = null,
-        disabledIndicatorBrush: RemoteBrush? = null,
-        disabledTrackBrush: RemoteBrush? = null,
-        disabledOverflowTrackBrush: RemoteBrush? = null,
-    ): RemoteProgressIndicatorColors {
-        val defaults = defaultProgressIndicatorColors()
-        return RemoteProgressIndicatorColors(
-            indicatorBrush = indicatorBrush ?: defaults.indicatorBrush,
-            trackBrush = trackBrush ?: defaults.trackBrush,
-            overflowTrackBrush = overflowTrackBrush ?: defaults.overflowTrackBrush,
-            disabledIndicatorBrush = disabledIndicatorBrush ?: defaults.disabledIndicatorBrush,
-            disabledTrackBrush = disabledTrackBrush ?: defaults.disabledTrackBrush,
-            disabledOverflowTrackBrush =
-                disabledOverflowTrackBrush ?: defaults.disabledOverflowTrackBrush,
-        )
-    }
-
-    @Composable
-    @RemoteComposable
-    private fun defaultProgressIndicatorColors(): RemoteProgressIndicatorColors {
-        val colorScheme = RemoteMaterialTheme.colorScheme
-        return RemoteProgressIndicatorColors(
-            indicatorBrush = RemoteBrush.solidColor(colorScheme.primary),
-            trackBrush = RemoteBrush.solidColor(colorScheme.surfaceContainer),
-            overflowTrackBrush = RemoteBrush.solidColor(colorScheme.primary.copy(alpha = 0.6f.rf)),
-            disabledIndicatorBrush =
-                RemoteBrush.solidColor(colorScheme.onSurface.toDisabledColor(0.38f.rf)),
-            disabledTrackBrush =
-                RemoteBrush.solidColor(colorScheme.onSurface.toDisabledColor(0.12f.rf)),
-            disabledOverflowTrackBrush =
-                RemoteBrush.solidColor(
-                    colorScheme.primary.copy(alpha = 0.6f.rf).toDisabledColor(0.12f.rf)
-                ),
-        )
-    }
-}
-
-/**
- * Represents the indicator and track colors used in progress indicator in a remote context.
- *
- * @param indicatorBrush The [RemoteBrush] used to draw the indicator when enabled.
- * @param trackBrush The [RemoteBrush] used to draw the track when enabled.
- * @param overflowTrackBrush The [RemoteBrush] used to draw the overflow track when enabled.
- * @param disabledIndicatorBrush The [RemoteBrush] used to draw the indicator when disabled.
- * @param disabledTrackBrush The [RemoteBrush] used to draw the track when disabled.
- * @param disabledOverflowTrackBrush The [RemoteBrush] used to draw the overflow track when
- *   disabled.
- */
-public class RemoteProgressIndicatorColors(
-    public val indicatorBrush: RemoteBrush,
-    public val trackBrush: RemoteBrush,
-    public val overflowTrackBrush: RemoteBrush,
-    public val disabledIndicatorBrush: RemoteBrush,
-    public val disabledTrackBrush: RemoteBrush,
-    public val disabledOverflowTrackBrush: RemoteBrush,
-) {
-    /**
-     * Represents the indicator color, depending on [enabled].
-     *
-     * @param enabled whether the component is enabled.
-     */
-    internal fun indicatorBrush(enabled: RemoteBoolean): RemoteBrush =
-        resolveRemoteBrush(enabled, indicatorBrush, disabledIndicatorBrush)
-
-    /**
-     * Represents the track color, depending on [enabled].
-     *
-     * @param enabled whether the component is enabled.
-     */
-    internal fun trackBrush(enabled: RemoteBoolean): RemoteBrush =
-        resolveRemoteBrush(enabled, trackBrush, disabledTrackBrush)
-
-    /**
-     * Represents the animated overflow track color.
-     *
-     * @param enabled whether the component is enabled.
-     */
-    internal fun overflowTrackBrush(enabled: RemoteBoolean): RemoteBrush =
-        resolveRemoteBrush(enabled, overflowTrackBrush, disabledOverflowTrackBrush)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || other !is RemoteProgressIndicatorColors) return false
-
-        if (indicatorBrush != other.indicatorBrush) return false
-        if (trackBrush != other.trackBrush) return false
-        if (overflowTrackBrush != other.overflowTrackBrush) return false
-        if (disabledIndicatorBrush != other.disabledIndicatorBrush) return false
-        if (disabledTrackBrush != other.disabledTrackBrush) return false
-        if (disabledOverflowTrackBrush != other.disabledOverflowTrackBrush) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = indicatorBrush.hashCode()
-        result = 31 * result + trackBrush.hashCode()
-        result = 31 * result + overflowTrackBrush.hashCode()
-        result = 31 * result + disabledIndicatorBrush.hashCode()
-        result = 31 * result + disabledTrackBrush.hashCode()
-        result = 31 * result + disabledOverflowTrackBrush.hashCode()
-        return result
-    }
-
-    /** Returns the resolved brush for the given [enabled] state. */
-    private fun resolveRemoteBrush(
-        enabled: RemoteBoolean,
-        enabledBrush: RemoteBrush,
-        disabledBrush: RemoteBrush,
-    ): RemoteBrush {
-        // Always returns the enabled brush if enabled is not constant
-        return enabled.constantValueOrNull?.let { isEnabled ->
-            if (isEnabled) enabledBrush else disabledBrush
-        } ?: enabledBrush
-    }
 }

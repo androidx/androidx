@@ -26,7 +26,6 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -76,11 +75,8 @@ public fun RemoteCheckboxButton(
     secondaryLabel: (@Composable @RemoteComposable RemoteRowScope.() -> Unit)? = null,
     label: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
-    val progress =
-        animateRemoteFloatAsState(
-            targetValue = checked.select(1f.rf, 0f.rf),
-            animationSpec = RemoteMaterialTheme.motionScheme.fastEffectsSpec(),
-        )
+    val progress = animateSelectionControlProgress(checked)
+    val colorProgress = animateSelectionColorProgress(checked)
 
     RemoteSelectionButtonImpl(
         onClick = onCheckedChange,
@@ -88,11 +84,17 @@ public fun RemoteCheckboxButton(
         enabled = enabled,
         shape = shape,
         containerColor =
-            colors.containerColor(enabled = enabled, checked = checked, progress = progress),
+            colors.containerColor(enabled = enabled, checked = checked, progress = colorProgress),
         contentColor =
-            colors.contentColor(enabled = enabled, checked = checked, progress = progress),
+            colors.contentColor(enabled = enabled, checked = checked, progress = colorProgress),
         secondaryContentColor =
-            colors.secondaryContentColor(enabled = enabled, checked = checked, progress = progress),
+            colors.secondaryContentColor(
+                enabled = enabled,
+                checked = checked,
+                progress = colorProgress,
+            ),
+        iconColor =
+            colors.iconColor(enabled = enabled, checked = checked, progress = colorProgress),
         contentPadding = contentPadding,
         border = border,
         borderColor = borderColor,

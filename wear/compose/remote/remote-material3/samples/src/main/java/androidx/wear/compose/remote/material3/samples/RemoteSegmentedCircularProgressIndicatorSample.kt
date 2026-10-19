@@ -25,10 +25,8 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
-import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.runtime.Composable
@@ -77,17 +75,12 @@ public fun RemoteSegmentedCircularProgressIndicatorAnimatedSample(
     modifier: RemoteModifier = RemoteModifier.size(150.rdp)
 ) {
     val progress = remember { MutableRemoteFloat { 0.2f.rf } }
-    val animatedProgress =
-        animateRemoteFloatAsState(
-            targetValue = progress,
-            animationSpec = remoteTween(durationMillis = 250),
-        )
-
     val incrementAction = valueChange(progress, ((progress + 0.2f) % 1.2f).createReference())
 
+    // The indicator animates the progress changes.
     RemoteSegmentedCircularProgressIndicator(
         segmentCount = 5.ri,
-        progress = animatedProgress,
+        progress = progress,
         modifier = modifier.clickable(incrementAction),
     )
 }
