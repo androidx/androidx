@@ -18,7 +18,6 @@ package androidx.compose.material3.integration.a2ui.ui
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.A2uiMessageProcessor
-import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.processor.A2uiMessageProcessor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
@@ -57,12 +56,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.a2ui.A2uiSurface
-import androidx.compose.material3.a2ui.catalog.MaterialA2uiBasicCatalogV1Defaults
-import androidx.compose.material3.a2ui.catalog.materialA2uiBasicCatalogV1
 import androidx.compose.material3.integration.a2ui.icons.ArrowBackIcon
 import androidx.compose.material3.integration.a2ui.icons.CodeIcon
 import androidx.compose.material3.integration.a2ui.model.UiComponent
-import androidx.compose.material3.integration.a2ui.ui.samples.AudioPlayerRenderer
 import androidx.compose.material3.integration.a2ui.ui.samples.AudioPlayerSample
 import androidx.compose.material3.integration.a2ui.ui.samples.ButtonSample
 import androidx.compose.material3.integration.a2ui.ui.samples.CardSample
@@ -72,7 +68,6 @@ import androidx.compose.material3.integration.a2ui.ui.samples.ColumnSample
 import androidx.compose.material3.integration.a2ui.ui.samples.DateTimeInputSample
 import androidx.compose.material3.integration.a2ui.ui.samples.DividerSample
 import androidx.compose.material3.integration.a2ui.ui.samples.IconSample
-import androidx.compose.material3.integration.a2ui.ui.samples.ImageRenderer
 import androidx.compose.material3.integration.a2ui.ui.samples.ImageSample
 import androidx.compose.material3.integration.a2ui.ui.samples.ListSample
 import androidx.compose.material3.integration.a2ui.ui.samples.ModalSample
@@ -81,7 +76,6 @@ import androidx.compose.material3.integration.a2ui.ui.samples.SliderSample
 import androidx.compose.material3.integration.a2ui.ui.samples.TabsSample
 import androidx.compose.material3.integration.a2ui.ui.samples.TextFieldSample
 import androidx.compose.material3.integration.a2ui.ui.samples.TextSample
-import androidx.compose.material3.integration.a2ui.ui.samples.VideoRenderer
 import androidx.compose.material3.integration.a2ui.ui.samples.VideoSample
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
@@ -97,7 +91,6 @@ import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.derivedMediaQuery
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -118,7 +111,7 @@ fun ComponentDetailScreen(
     var showJsonSheet by remember { mutableStateOf(false) }
 
     val surfaceId = remember(component) { "demo_${component.name.lowercase()}" }
-    val catalog = rememberDemoCatalog()
+    val catalog = rememberBasicCatalog()
     val processor =
         rememberDemoMessageProcessor(catalog = catalog, snackbarHostState = snackbarHostState)
 
@@ -351,51 +344,6 @@ private fun ControlsPane(
     }
 }
 
-@Composable
-private fun rememberDemoCatalog(): A2uiCatalog {
-    val context = LocalContext.current
-    return remember(context) {
-        materialA2uiBasicCatalogV1(
-            image =
-                MaterialA2uiBasicCatalogV1Defaults.image {
-                    url,
-                    contentDescription,
-                    contentScale,
-                    modifier,
-                    _ ->
-                    ImageRenderer(
-                        url = url,
-                        contentDescription = contentDescription,
-                        contentScale = contentScale,
-                        modifier = modifier,
-                    )
-                },
-            video =
-                MaterialA2uiBasicCatalogV1Defaults.video { url, modifier, onError ->
-                    VideoRenderer(
-                        url = url,
-                        modifier = modifier,
-                        onError = onError,
-                    )
-                },
-            audioPlayer =
-                MaterialA2uiBasicCatalogV1Defaults.audioPlayer {
-                    url,
-                    contentDescription,
-                    modifier,
-                    onError ->
-                    AudioPlayerRenderer(
-                        url = url,
-                        contentDescription = contentDescription,
-                        modifier = modifier,
-                        onError = onError,
-                    )
-                },
-            functions = A2uiBasicCatalogV1.Functions(context),
-        )
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ComponentDetailTopBar(
@@ -445,8 +393,7 @@ private fun ComponentPreviewCard(
             if (surfaceModel != null) {
                 val surfaceModifier =
                     when (component) {
-                        UiComponent.ROW ->
-                            Modifier.fillMaxWidth().wrapContentHeight(Alignment.CenterVertically)
+                        UiComponent.ROW,
                         UiComponent.COLUMN,
                         UiComponent.LIST,
                         UiComponent.DIVIDER -> Modifier.fillMaxSize()

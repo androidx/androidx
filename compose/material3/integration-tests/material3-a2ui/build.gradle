@@ -36,12 +36,15 @@ dependencies {
     implementation(project(":a2ui:a2ui-model"))
     implementation(project(":a2ui:compose:compose-runtime"))
     implementation(project(":a2ui:compose:compose-ui"))
+    implementation(project(":a2ui:compose:compose-ui-tooling-preview"))
     implementation(project(":compose:material3:material3-a2ui"))
 
     implementation("androidx.compose.foundation:foundation:1.13.0-alpha03")
     implementation("androidx.compose.material3:material3:1.5.0-alpha28")
     implementation("androidx.compose.runtime:runtime:1.13.0-alpha03")
     implementation("androidx.compose.ui:ui:1.13.0-alpha03")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.13.0-alpha03")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.13.0-alpha03")
 
     implementation("androidx.activity:activity:1.12.1")
     implementation("androidx.activity:activity-compose:1.12.1")
