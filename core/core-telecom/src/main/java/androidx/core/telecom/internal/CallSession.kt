@@ -741,7 +741,19 @@ internal open class CallSession(
     override fun onDisconnect(cause: DisconnectCause, wasCompleted: Consumer<Boolean>) {
         CoroutineScope(coroutineContext).launch {
             try {
-                onDisconnectCallback(cause)
+                val normalizedCause =
+                    if (cause.code == DisconnectCause.UNKNOWN) {
+                        DisconnectCause(
+                            DisconnectCause.LOCAL,
+                            cause.label,
+                            cause.description,
+                            cause.reason,
+                            cause.tone,
+                        )
+                    } else {
+                        cause
+                    }
+                onDisconnectCallback(normalizedCause)
                 wasCompleted.accept(true)
                 onStateChangedCallback.emit(CallStateEvent.DISCONNECTED)
             } catch (e: Exception) {
