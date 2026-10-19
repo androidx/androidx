@@ -62,7 +62,6 @@ import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -103,7 +102,7 @@ private fun OuterComposeWithNestedScroll(factory: (Context) -> View) {
     }
 }
 
-private fun AndroidViewWithNestedScrollEnabled(context: Context): View {
+private fun AndroidViewWithRecyclerView(context: Context): View {
     return LayoutInflater.from(context)
         .inflate(R.layout.android_in_compose_nested_scroll_interop, null)
         .apply {
@@ -112,12 +111,11 @@ private fun AndroidViewWithNestedScrollEnabled(context: Context): View {
                 adapter = NestedScrollInteropAdapter()
             }
         }
-        .also { ViewCompat.setNestedScrollingEnabled(it, true) }
 }
 
 @Composable
 internal fun NestedScrollInteropComposeParentWithAndroidChild() {
-    OuterComposeWithNestedScroll { context -> AndroidViewWithNestedScrollEnabled(context) }
+    OuterComposeWithNestedScroll { context -> AndroidViewWithRecyclerView(context) }
 }
 
 @Composable
@@ -167,7 +165,6 @@ internal fun ComposeViewComposeNestedInterop() {
                     setContent { LazyColumnWithNestedScrollInteropEnabled() }
                 }
             }
-            .also { ViewCompat.setNestedScrollingEnabled(it, true) }
     }
 }
 
@@ -268,7 +265,7 @@ internal class ViewComposeViewNestedScrollInteropDemo : ComponentActivity() {
                 val nestedScrollInterop = rememberNestedScrollInteropConnection()
                 Box(modifier = Modifier.nestedScroll(nestedScrollInterop)) {
                     AndroidView(
-                        { context -> AndroidViewWithNestedScrollEnabled(context) },
+                        { context -> AndroidViewWithRecyclerView(context) },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }

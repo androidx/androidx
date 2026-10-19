@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.view.ViewParent
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositionContext
+import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
@@ -573,7 +574,13 @@ internal open class AndroidViewHolder(
         type: Int,
         consumed: IntArray,
     ) {
-        if (!isNestedScrollingEnabled) return
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (
+            !AndroidComposeUiFlags.isNestedScrollInteropViewHolderFixEnabled &&
+                !isNestedScrollingEnabled
+        ) {
+            return
+        }
         val consumedByParent =
             dispatcher.dispatchPostScroll(
                 consumed = Offset(dxConsumed.toComposeOffset(), dyConsumed.toComposeOffset()),
@@ -592,7 +599,13 @@ internal open class AndroidViewHolder(
         dyUnconsumed: Int,
         type: Int,
     ) {
-        if (!isNestedScrollingEnabled) return
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (
+            !AndroidComposeUiFlags.isNestedScrollInteropViewHolderFixEnabled &&
+                !isNestedScrollingEnabled
+        ) {
+            return
+        }
         dispatcher.dispatchPostScroll(
             consumed = Offset(dxConsumed.toComposeOffset(), dyConsumed.toComposeOffset()),
             available = Offset(dxUnconsumed.toComposeOffset(), dyUnconsumed.toComposeOffset()),
@@ -601,7 +614,13 @@ internal open class AndroidViewHolder(
     }
 
     override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
-        if (!isNestedScrollingEnabled) return
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (
+            !AndroidComposeUiFlags.isNestedScrollInteropViewHolderFixEnabled &&
+                !isNestedScrollingEnabled
+        ) {
+            return
+        }
         val consumedByParent =
             dispatcher.dispatchPreScroll(
                 available = Offset(dx.toComposeOffset(), dy.toComposeOffset()),
@@ -617,7 +636,13 @@ internal open class AndroidViewHolder(
         velocityY: Float,
         consumed: Boolean,
     ): Boolean {
-        if (!isNestedScrollingEnabled) return false
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (
+            !AndroidComposeUiFlags.isNestedScrollInteropViewHolderFixEnabled &&
+                !isNestedScrollingEnabled
+        ) {
+            return false
+        }
         val viewVelocity = Velocity(velocityX.toComposeVelocity(), velocityY.toComposeVelocity())
         dispatcher.coroutineScope.launch {
             if (!consumed) {
@@ -630,12 +655,20 @@ internal open class AndroidViewHolder(
     }
 
     override fun onNestedPreFling(target: View, velocityX: Float, velocityY: Float): Boolean {
-        if (!isNestedScrollingEnabled) return false
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (
+            !AndroidComposeUiFlags.isNestedScrollInteropViewHolderFixEnabled &&
+                !isNestedScrollingEnabled
+        ) {
+            return false
+        }
         val toBeConsumed = Velocity(velocityX.toComposeVelocity(), velocityY.toComposeVelocity())
         dispatcher.coroutineScope.launch { dispatcher.dispatchPreFling(toBeConsumed) }
         return false
     }
 
+    // TODO(b/541378736): Remove once
+    //  AndroidComposeUiFlags.isNestedScrollInteropViewHolderFixEnabled is removed.
     override fun isNestedScrollingEnabled(): Boolean {
         return view.isNestedScrollingEnabled
     }

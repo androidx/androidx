@@ -32,6 +32,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.AndroidComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color as ComposeColor
@@ -45,7 +47,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.swipeUp
-import androidx.test.espresso.contrib.RecyclerViewActions.scrollToPosition
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -69,23 +70,24 @@ class NestedScrollInteropViewHolderTest {
         recyclerViewConsumptionTracker.reset()
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun nestedScrollInteropIsOff_shouldNotPropagateDeltas() {
-        // arrange
-        rule.setContent {
-            NestedScrollInteropWithView(
-                modifier = Modifier.nestedScroll(connection),
-                enabled = false,
-                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
-            )
+    fun nestedScrollInteropFixDisabled_rootViewNestedScrollingDisabled_shouldNotPropagateDeltas() {
+        try {
+            AndroidComposeUiFlags.isNestedScrollInteropViewHolderFixEnabled = false
+            rule.setContent {
+                NestedScrollInteropWithView(
+                    modifier = Modifier.nestedScroll(connection),
+                    recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
+                )
+            }
+
+            onView(withId(R.id.main_list)).perform(swipeUp())
+
+            rule.runOnIdle { assertThat(connection.offeredFromChild).isEqualTo(Offset.Zero) }
+        } finally {
+            AndroidComposeUiFlags.isNestedScrollInteropViewHolderFixEnabled = true
         }
-
-        // act
-        onView(withId(R.id.main_list))
-            .perform(scrollToPosition<NestedScrollInteropAdapter.SimpleTextViewHolder>(20))
-
-        // assert
-        rule.runOnIdle { assertThat(connection.offeredFromChild).isEqualTo(Offset.Zero) }
     }
 
     @Test
@@ -94,7 +96,6 @@ class NestedScrollInteropViewHolderTest {
         rule.setContent {
             NestedScrollInteropWithView(
                 modifier = Modifier.nestedScroll(connection),
-                enabled = true,
                 recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
             )
         }
@@ -112,7 +113,6 @@ class NestedScrollInteropViewHolderTest {
         rule.setContent {
             NestedScrollInteropWithView(
                 modifier = Modifier.nestedScroll(connection),
-                enabled = true,
                 recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
             )
         }
@@ -133,7 +133,6 @@ class NestedScrollInteropViewHolderTest {
         rule.setContent {
             NestedScrollInteropWithView(
                 modifier = Modifier.nestedScroll(connection),
-                enabled = true,
                 recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
             )
         }
@@ -162,7 +161,6 @@ class NestedScrollInteropViewHolderTest {
             Box(modifier = Modifier.scrollable(controller, Orientation.Vertical)) {
                 NestedScrollInteropWithView(
                     modifier = Modifier.nestedScroll(connection),
-                    enabled = true,
                     recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
                 )
             }
@@ -252,7 +250,6 @@ class NestedScrollInteropViewHolderTest {
         rule.setContent {
             NestedScrollInteropWithView(
                 modifier = Modifier.nestedScroll(connection),
-                enabled = true,
                 recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
             )
         }
@@ -273,7 +270,6 @@ class NestedScrollInteropViewHolderTest {
         rule.setContent {
             NestedScrollInteropWithView(
                 modifier = Modifier.nestedScroll(connection),
-                enabled = true,
                 recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
             )
         }

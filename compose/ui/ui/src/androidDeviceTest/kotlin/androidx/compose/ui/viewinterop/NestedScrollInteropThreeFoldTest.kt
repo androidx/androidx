@@ -62,42 +62,9 @@ class NestedScrollInteropThreeFoldTest {
     }
 
     @Test
-    fun nestedScrollInteropIsOff_CVC_shouldNotPropagateCorrectly() {
-        // arrange
-        rule.setContent {
-            NestedScrollDeepNested(modifier = Modifier.nestedScroll(connection), enabled = false)
-        }
-
-        // act
-        rule.onNodeWithTag(MainTestList).performTouchInput { swipeUp() }
-
-        // assert
-        rule.runOnIdle { assertThat(connection.offeredFromChild).isEqualTo(Offset.Zero) }
-    }
-
-    @Test
-    fun nestedScrollInteropIsOff_VCV_shouldNotPropagateCorrectly() {
-        // arrange
-        createViewComposeActivity(
-            outerModifier = Modifier.nestedScroll(connection),
-            enableInterop = false,
-        ) {
-            RecyclerViewAndroidView(interopEnabled = false)
-        }
-
-        // act
-        rule.onNodeWithTag(AndroidViewContainer).performTouchInput { swipeUp() }
-
-        // assert
-        rule.runOnIdle { assertThat(connection.offeredFromChild).isEqualTo(Offset.Zero) }
-    }
-
-    @Test
     fun nestedScrollInteropIsOn_CVC_shouldPropagateCorrectly() {
         // arrange
-        rule.setContent {
-            NestedScrollDeepNested(modifier = Modifier.nestedScroll(connection), enabled = true)
-        }
+        rule.setContent { NestedScrollDeepNested(modifier = Modifier.nestedScroll(connection)) }
 
         // act
         rule.onNodeWithTag(MainTestList).performTouchInput { swipeUp() }
@@ -113,7 +80,7 @@ class NestedScrollInteropThreeFoldTest {
             outerModifier = Modifier.nestedScroll(connection),
             enableInterop = true,
         ) {
-            RecyclerViewAndroidView(interopEnabled = true)
+            RecyclerViewAndroidView()
         }
 
         // act
@@ -129,7 +96,6 @@ class NestedScrollInteropThreeFoldTest {
         rule.setContent {
             NestedScrollDeepNested(
                 modifier = Modifier.nestedScroll(allConsumingConnection),
-                enabled = true,
                 connection = connection,
             )
         }
@@ -154,7 +120,7 @@ class NestedScrollInteropThreeFoldTest {
             outerModifier = Modifier.nestedScroll(allConsumingConnection),
             enableInterop = true,
         ) {
-            RecyclerViewAndroidView(interopEnabled = true)
+            RecyclerViewAndroidView()
         }
 
         // act
@@ -173,7 +139,6 @@ class NestedScrollInteropThreeFoldTest {
         rule.setContent {
             NestedScrollDeepNested(
                 modifier = Modifier.nestedScroll(secondaryInspectableConnection),
-                enabled = true,
                 connection = connection,
             )
         }
@@ -195,7 +160,6 @@ class NestedScrollInteropThreeFoldTest {
         rule.setContent {
             NestedScrollDeepNested(
                 modifier = Modifier.nestedScroll(secondaryInspectableConnection),
-                enabled = true,
                 connection = connection,
             )
         }
@@ -219,7 +183,7 @@ class NestedScrollInteropThreeFoldTest {
             outerModifier = Modifier.nestedScroll(connection),
             enableInterop = true,
         ) {
-            RecyclerViewAndroidView(interopEnabled = true)
+            RecyclerViewAndroidView()
         }
 
         // act
