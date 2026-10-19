@@ -18,11 +18,18 @@ package androidx.xr.scenecore.openxr.testing
 
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.openxr.ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN
 import androidx.xr.scenecore.openxr.AndroidViewPanelDisplayResult
 import androidx.xr.scenecore.openxr.INVALID_HANDLE
 import androidx.xr.scenecore.openxr.SceneCoreOpenXrNative
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+
+/**
+ * XR_SCENE_COMPONENT_ATTACHMENT_LOSS_BEHAVIOUR_DETACH_ANDROIDX1, which the native side accepts but
+ * production code doesn't use.
+ */
+internal const val ATTACHMENT_LOSS_BEHAVIOUR_DETACH: Int = 2
 
 /** Test fake implementation of [SceneCoreOpenXrNative] that records all calls in-memory. */
 internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = false) {
@@ -32,6 +39,8 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     var fakeRootEntityHandle: Long = 1000L
     var fakeSpatialContainerHandle: Long = 2000L
     var fakeRootSpaceHandle: Long = 3000L
+    // An XrSpace, such as an anchor's, for tests to attach entities to.
+    var fakeSpaceHandle: Long = 4000L
     // Volatile because runtime tests can read it from the executor thread.
     @Volatile var fakeRootSpacePoseInPlatformReferenceSpace: Pose? = null
     val rootSpacePoseQueryCount = AtomicInteger(0)
@@ -47,6 +56,8 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     var simulateInitFailure: Boolean = false
     var simulateCreateSpatialContainerFailure: Boolean = false
     var allowInvalidSessionHandle: Boolean = false
+    // When set, staging or removing an attachment fails, as if the runtime rejected it.
+    var simulateAttachmentFailure: Boolean = false
 
     private var nextEntityHandle: Long = 1001L
     private var nextTransactionHandle: Long = 5001L
@@ -55,10 +66,16 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     val destroyedEntities: MutableList<Long> = mutableListOf()
     val entityParents: MutableMap<Long, Long> = mutableMapOf()
     val entityTransforms: MutableMap<Long, Pair<Pose, Vector3>> = mutableMapOf()
+    val entityAttachments: MutableMap<Long, Attachment> = mutableMapOf()
+
+    /** The `XrSpace` an entity is attached to, and what happens when that space loses tracking. */
+    data class Attachment(val spaceHandle: Long, val trackingLossBehaviour: Int)
 
     class PendingTransaction(val handle: Long) {
         val transforms: MutableMap<Long, Pair<Pose, Vector3>> = mutableMapOf()
         val parents: MutableMap<Long, Long> = mutableMapOf()
+        // A null value removes the entity's attachment on submit.
+        val attachments: MutableMap<Long, Attachment?> = mutableMapOf()
     }
 
     val openTransactions: MutableMap<Long, PendingTransaction> = mutableMapOf()
@@ -138,6 +155,7 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
         entityParents.remove(entityHandle)
         entityParents.entries.removeIf { it.value == entityHandle }
         entityTransforms.remove(entityHandle)
+        entityAttachments.remove(entityHandle)
         return true
     }
 
@@ -181,6 +199,37 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
         return true
     }
 
+    override fun setTransactionSpaceAttachment(
+        transactionHandle: Long,
+        entityHandle: Long,
+        spaceHandle: Long,
+        trackingLossBehaviour: Int,
+    ): Boolean {
+        check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
+        if (simulateAttachmentFailure) return false
+        val tx = openTransactions[transactionHandle] ?: return false
+        // Like the native side, reject values that aren't LAST_KNOWN or DETACH.
+        if (
+            trackingLossBehaviour != ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN &&
+                trackingLossBehaviour != ATTACHMENT_LOSS_BEHAVIOUR_DETACH
+        ) {
+            return false
+        }
+        tx.attachments[entityHandle] = Attachment(spaceHandle, trackingLossBehaviour)
+        return true
+    }
+
+    override fun removeTransactionSpaceAttachment(
+        transactionHandle: Long,
+        entityHandle: Long,
+    ): Boolean {
+        check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
+        if (simulateAttachmentFailure) return false
+        val tx = openTransactions[transactionHandle] ?: return false
+        tx.attachments[entityHandle] = null
+        return true
+    }
+
     override fun submitSceneTransaction(transactionHandle: Long): Boolean {
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
         val tx = openTransactions.remove(transactionHandle) ?: return false
@@ -192,6 +241,13 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
                 entityParents[child] = parent
             } else {
                 entityParents.remove(child)
+            }
+        }
+        for ((entity, attachment) in tx.attachments) {
+            if (attachment != null) {
+                entityAttachments[entity] = attachment
+            } else {
+                entityAttachments.remove(entity)
             }
         }
         committedTransactions.add(transactionHandle)
