@@ -33,11 +33,10 @@ import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
+import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -86,9 +85,9 @@ class ScaleModifierTest {
         val modifier2 = SubspaceModifier.scale(0.5f)
         val modifierDifferent = SubspaceModifier.scale(0.8f)
 
-        assertTrue(modifier1 == modifier2)
-        assertEquals(modifier1.hashCode(), modifier2.hashCode())
-        assertFalse(modifier1 == modifierDifferent)
+        assertThat(modifier1).isEqualTo(modifier2)
+        assertThat(modifier1.hashCode()).isEqualTo(modifier2.hashCode())
+        assertThat(modifier1).isNotEqualTo(modifierDifferent)
     }
 
     @Test

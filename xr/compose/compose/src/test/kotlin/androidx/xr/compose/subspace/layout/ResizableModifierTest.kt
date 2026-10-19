@@ -49,8 +49,8 @@ import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.metersToDp
 import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.scene
+import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
@@ -552,10 +552,10 @@ class ResizableModifierTest {
                 size = IntVolumeSize(150, 200, 300),
             )
 
-        assertTrue(event1 == event2)
-        assertEquals(event1.hashCode(), event2.hashCode())
-        assertEquals(event1.toString(), event2.toString())
-        assertFalse(event1 == eventDifferentType)
-        assertFalse(event1 == eventDifferentSize)
+        assertThat(event1).isEqualTo(event2)
+        assertThat(event1.hashCode()).isEqualTo(event2.hashCode())
+        assertThat(event1.toString()).isEqualTo(event2.toString())
+        assertThat(event1).isNotEqualTo(eventDifferentType)
+        assertThat(event1).isNotEqualTo(eventDifferentSize)
     }
 }
