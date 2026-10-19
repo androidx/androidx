@@ -19,8 +19,8 @@ package androidx.compose.foundation
 import android.os.Build
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -94,13 +94,14 @@ private class PreferKeepClearElement(val clearRect: ((LayoutCoordinates) -> Rect
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private class PreferKeepClearNode(rect: ((LayoutCoordinates) -> Rect)?) : RectListNode(rect) {
-    override fun currentRects(): MutableVector<android.graphics.Rect> {
-        val rects = mutableVectorOf<android.graphics.Rect>()
+    override fun currentRects(): MutableObjectList<android.graphics.Rect> {
+        val rects = mutableObjectListOf<android.graphics.Rect>()
         rects.addAll(view.preferKeepClearRects)
         return rects
     }
 
-    override fun updateRects(rects: MutableVector<android.graphics.Rect>) {
+    override fun updateRects(rects: MutableObjectList<android.graphics.Rect>) {
+        @Suppress("AsCollectionCall") // View API requires a List.
         view.preferKeepClearRects = rects.asMutableList()
     }
 }

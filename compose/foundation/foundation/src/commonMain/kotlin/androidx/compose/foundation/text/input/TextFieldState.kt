@@ -19,6 +19,8 @@
 package androidx.compose.foundation.text.input
 
 import androidx.annotation.VisibleForTesting
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.text.input.internal.TextStyleBuffer
@@ -26,8 +28,6 @@ import androidx.compose.foundation.text.input.internal.undo.TextFieldEditUndoBeh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.SaverScope
@@ -662,7 +662,7 @@ internal constructor(
         )
     }
 
-    private val notifyImeListeners = mutableVectorOf<NotifyImeListener>()
+    private val notifyImeListeners = mutableObjectListOf<NotifyImeListener>()
 
     /**
      * Saves and restores a [TextFieldState] for [rememberSaveable].
@@ -811,14 +811,14 @@ public fun TextFieldState.clearText() {
 @Suppress("ListIterator")
 private fun finalizeComposingAnnotations(
     composition: TextRange?,
-    annotationList: MutableVector<PlacedAnnotation>?,
+    annotationList: MutableObjectList<PlacedAnnotation>?,
 ): List<PlacedAnnotation> =
     when {
         annotationList != null && annotationList.isNotEmpty() -> {
             // it is important to freeze the mutable list into an immutable list because
             // mutable list is sustained inside the EditingBuffer and TextFieldCharSequence
             // must be read-only.
-            annotationList.asMutableList().toList()
+            List(annotationList.size) { annotationList[it] }
         }
         composition != null && !composition.collapsed -> {
             listOf(
@@ -849,7 +849,7 @@ private val DefaultComposingStyle = SpanStyle(textDecoration = TextDecoration.Un
 private fun composingAnnotationsUnchanged(
     current: List<PlacedAnnotation>?,
     composition: TextRange?,
-    annotationList: MutableVector<PlacedAnnotation>?,
+    annotationList: MutableObjectList<PlacedAnnotation>?,
 ): Boolean {
     // finalizeComposingAnnotations never returns null, so a null [current] comes from a value that
     // was not created by commitEditAsUser, for example the initial value or a programmatic edit.
