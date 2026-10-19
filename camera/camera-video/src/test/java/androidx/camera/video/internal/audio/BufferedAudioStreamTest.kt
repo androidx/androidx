@@ -23,6 +23,9 @@ import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
+import java.util.Collections
+import java.util.IdentityHashMap
+import java.util.concurrent.Semaphore
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -48,6 +51,7 @@ class BufferedAudioStreamTest {
         private const val DESTINATION_BYTE_BUFFER_CAPACITY = 16
     }
 
+    private lateinit var audioSettings: AudioSettings
     private lateinit var byteBuffer: ByteBuffer
     private lateinit var baseAudioStream: FakeAudioStream
     private lateinit var bufferedAudioStream: BufferedAudioStream
@@ -55,7 +59,7 @@ class BufferedAudioStreamTest {
 
     @Before
     fun setUp() {
-        val audioSettings =
+        audioSettings =
             AudioSettings.builder()
                 .setAudioSource(AUDIO_SOURCE)
                 .setCaptureSampleRate(SAMPLE_RATE)
@@ -181,6 +185,99 @@ class BufferedAudioStreamTest {
 
         // Clean up.
         bufferedAudioStream.stop()
+    }
+
+    @Test
+    fun reusesCollectionBuffersAfterBeingConsumed() {
+        // Arrange: Only allow the producer to collect the next data after the consumer has read
+        // the previous one, so the queue never overflows and every collected buffer is returned
+        // to the pool after being read.
+        val readPermits = Semaphore(1)
+        bufferedAudioStream.release()
+        baseAudioStream =
+            FakeAudioStream(createAudioDataProvider(), onRead = { readPermits.acquire() })
+        bufferedAudioStream = BufferedAudioStream(baseAudioStream, audioSettings)
+        bufferedAudioStream.start()
+
+        // Act: Each read consumes exactly one collected AudioData.
+        val readCount = 30
+        val firstBytes = mutableListOf<Byte>()
+        try {
+            repeat(readCount) {
+                byteBuffer.clear()
+                val packetInfo = bufferedAudioStream.read(byteBuffer)
+                assertThat(packetInfo.sizeInBytes).isEqualTo(SOURCE_BYTE_BUFFER_CAPACITY)
+                firstBytes.add(byteBuffer.get(0))
+                readPermits.release()
+            }
+        } finally {
+            // Queue stop() behind the blocked collection first, then unblock the producer so the
+            // stop task can run. This bounds the producer to at most one more read.
+            bufferedAudioStream.stop()
+            readPermits.release(Int.MAX_VALUE / 2)
+        }
+
+        // Assert: Data is delivered in order without corruption, i.e. a buffer is never reused
+        // while its data is still pending.
+        assertThat(firstBytes).isEqualTo((0 until readCount).map { it.toByte() })
+        // Assert: Collection buffers are reused instead of allocated for every read.
+        val readByteBuffers = baseAudioStream.getReadByteBuffers()
+        val distinctByteBuffers =
+            Collections.newSetFromMap(IdentityHashMap<ByteBuffer, Boolean>()).apply {
+                addAll(readByteBuffers)
+            }
+        assertThat(readByteBuffers.size).isAtLeast(readCount)
+        assertThat(distinctByteBuffers.size).isLessThan(readCount)
+    }
+
+    @Test
+    fun collectionBufferSizeFollowsReadBufferSizeChanges() {
+        // Arrange: Slow down the producer to bound the number of collected buffers.
+        bufferedAudioStream.release()
+        baseAudioStream = FakeAudioStream(createAudioDataProvider(), readDelayMs = 1)
+        bufferedAudioStream = BufferedAudioStream(baseAudioStream, audioSettings)
+
+        try {
+            repeat(2) {
+                bufferedAudioStream.start()
+
+                // Act & Assert: The collection buffer size follows the read buffer size, including
+                // when it changes back to a previously requested size.
+                listOf(16, 8, 16).forEach { size ->
+                    val destination = ByteBuffer.allocate(size)
+                    readUntilCollectionBufferCapacityIs(size, destination)
+
+                    // Assert: Once the size has changed, pooled buffers of the old size are no
+                    // longer reused.
+                    val from = baseAudioStream.getReadByteBuffers().size - 1
+                    repeat(5) {
+                        destination.clear()
+                        bufferedAudioStream.read(destination)
+                    }
+                    assertThat(
+                            baseAudioStream
+                                .getReadByteBuffers()
+                                .drop(from)
+                                .map { it.capacity() }
+                                .distinct()
+                        )
+                        .containsExactly(size)
+                }
+
+                bufferedAudioStream.stop()
+            }
+        } finally {
+            bufferedAudioStream.stop()
+        }
+    }
+
+    private fun readUntilCollectionBufferCapacityIs(capacity: Int, destination: ByteBuffer) {
+        val deadlineMs = System.currentTimeMillis() + COMMON_TIMEOUT_MS
+        do {
+            assertThat(System.currentTimeMillis()).isLessThan(deadlineMs)
+            destination.clear()
+            bufferedAudioStream.read(destination)
+        } while (baseAudioStream.getReadByteBuffers().last().capacity() != capacity)
     }
 
     private fun AudioStream.verifyMultipleReads(verifyTimes: Int, byteBuffer: ByteBuffer) {
