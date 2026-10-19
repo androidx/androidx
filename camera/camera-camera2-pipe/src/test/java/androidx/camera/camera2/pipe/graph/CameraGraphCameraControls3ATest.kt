@@ -23,6 +23,7 @@ import android.util.Size
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.Converge3ABehavior
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
@@ -143,6 +144,36 @@ class CameraGraphCameraControls3ATest {
 
         assertThat(unlockResultDeferred.await().status).isEqualTo(Result3A.Status.OK)
         assertThat(unlockResultDeferred.await().frameMetadata).isNotNull()
+    }
+
+    @Test
+    fun converge3A_completesWithStatusOK() = testScope.runTest {
+        val result3ADeferred =
+            cameraGraph.converge3A(afBehavior = Converge3ABehavior.AFTER_CURRENT_SCAN)
+
+        cameraGraph
+            .simulateNextFrame()
+            .simulateTotalCaptureResult(
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED
+                )
+            )
+        advanceUntilIdle()
+
+        val result3A = result3ADeferred.await()
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+        assertThat(result3A.frameMetadata).isNotNull()
+    }
+
+    @Test
+    fun lockThenConverge_happensInOrder() = testScope.runTest {
+        cameraGraph.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
+        cameraGraph.converge3A(aeBehavior = Converge3ABehavior.AFTER_NEW_SCAN)
+
+        val lockParams = cameraGraph.simulateNextFrame().requestSequence.requiredParameters
+        val convergeParams = cameraGraph.simulateNextFrame().requestSequence.requiredParameters
+        assertThat(lockParams).containsExactly(CaptureRequest.CONTROL_AE_LOCK, true)
+        assertThat(convergeParams).containsExactly(CaptureRequest.CONTROL_AE_LOCK, false)
     }
 
     @Test
