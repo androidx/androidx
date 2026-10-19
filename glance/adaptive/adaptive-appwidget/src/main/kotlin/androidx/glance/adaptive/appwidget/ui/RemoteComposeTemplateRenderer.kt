@@ -105,33 +105,39 @@ internal class RemoteComposeRenderOutput(val content: @RemoteComposable @Composa
 
 /**
  * A [TemplateRenderer] that produces [@RemoteComposable][RemoteComposable] `@Composable` content
- * for a template [T] and surface [S].
+ * for a template [T], archetype [A], and surface [S].
  *
  * @param T The type of [AdaptiveGlanceTemplate] data payload this renderer consumes.
  * @param S The type of [GlanceSurface] this renderer targets.
+ * @param A The layout archetype resolved for this render pass.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface RemoteComposeTemplateRenderer<
     in T : AdaptiveGlanceTemplate,
     in S : GlanceSurface,
-> : TemplateRenderer<T, S, AppWidgetRenderOutput> {
+    in A : Any,
+> : TemplateRenderer<T, S, A, AppWidgetRenderOutput> {
 
     /**
      * Produces the [@RemoteComposable][RemoteComposable] `@Composable` content representation of
-     * [template] for [constraints].
+     * [template] for [archetype] and [constraints].
      *
      * @param template The declarative data payload describing the widget's content.
+     * @param archetype The layout archetype resolved for [template] under [constraints].
      * @param constraints The layout constraints and target surface provided by the host.
      * @return The `@RemoteComposable @Composable` content lambda to capture into a RemoteCompose
      *   document.
      */
     public fun renderRemoteCompose(
         template: T,
+        archetype: A,
         constraints: HostConstraints<S>,
     ): @RemoteComposable @Composable () -> Unit
 
     override fun render(
         template: T,
+        archetype: A,
         constraints: HostConstraints<S>,
-    ): AppWidgetRenderOutput = RemoteComposeRenderOutput(renderRemoteCompose(template, constraints))
+    ): AppWidgetRenderOutput =
+        RemoteComposeRenderOutput(renderRemoteCompose(template, archetype, constraints))
 }
