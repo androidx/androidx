@@ -228,6 +228,7 @@ internal constructor(
             physicalCameraIds = physicalCameraIds,
             hardwareBuffers = hardwareBuffers,
         )
+        frame.simulateTotalCaptureResult(resultMetadata)
         frame.simulateComplete(resultMetadata)
         return frame
     }
