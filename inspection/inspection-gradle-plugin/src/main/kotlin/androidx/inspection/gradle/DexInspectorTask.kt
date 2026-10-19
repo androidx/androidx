@@ -78,7 +78,16 @@ abstract class DexInspectorTask : DefaultTask() {
             // https://docs.gradle.org/current/userguide/java_plugin.html#sec:java_plugin_and_dependency_management
             val libArgs = compileClasspath.map { listOf("--lib", it.absolutePath) }.flatten()
             val minApiArg = listOf("--min-api", "$minSdkVersion")
-            it.args = listOf("--output", output.absolutePath) + libArgs + minApiArg + filesToDex
+            // There are R8 warnings that are expected handling the kotlin metadata library.
+            // For details see: https://b.corp.google.com/issues/562516798#comment3
+            it.args =
+                listOf(
+                    "--output",
+                    output.absolutePath,
+                    "--map-diagnostics:StringDiagnostic",
+                    "info",
+                    "none",
+                ) + libArgs + minApiArg + filesToDex
             it.errorOutput = errorStream
             it.isIgnoreExitValue = true
         }
@@ -116,7 +125,7 @@ fun Project.registerBundleInspectorTask(
             task.minSdkVersion = libraryExtension.defaultConfig.minSdk!!
             task.d8Executable.setFrom(
                 configurations.detachedConfiguration(
-                    dependencies.create("com.android.tools:r8:8.11.18")
+                    dependencies.create("com.android.tools:r8:9.4.17")
                 )
             )
             task.jars.from(jar.get().archiveFile)
