@@ -35,7 +35,9 @@ import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,6 +66,29 @@ class ScaleModifierTest {
         assertFailsWith<IllegalArgumentException> {
             composeTestRule.setContent { Subspace { PanelContent("panel", -0.5f) } }
         }
+    }
+
+    @Test
+    fun infiniteScale_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            SubspaceModifier.scale(Float.POSITIVE_INFINITY)
+        }
+    }
+
+    @Test
+    fun nanScale_throwsException() {
+        assertFailsWith<IllegalArgumentException> { SubspaceModifier.scale(Float.NaN) }
+    }
+
+    @Test
+    fun scale_equalsAndHashCode() {
+        val modifier1 = SubspaceModifier.scale(0.5f)
+        val modifier2 = SubspaceModifier.scale(0.5f)
+        val modifierDifferent = SubspaceModifier.scale(0.8f)
+
+        assertTrue(modifier1 == modifier2)
+        assertEquals(modifier1.hashCode(), modifier2.hashCode())
+        assertFalse(modifier1 == modifierDifferent)
     }
 
     @Test
