@@ -15,10 +15,10 @@
  */
 package androidx.compose.ui.node
 
-import androidx.collection.MutableObjectList
-import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositionLocalMap
+import androidx.compose.runtime.collection.MutableVector
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.tooling.CompositionErrorContext
 import androidx.compose.runtime.tooling.LocalCompositionErrorContext
 import androidx.compose.ui.InternalComposeUiApi
@@ -140,7 +140,7 @@ internal class LayoutNode(
 
     // the list of nodes containing the virtual children as is
     private val _foldedChildren =
-        MutableObjectListWithMutationTracking(mutableObjectListOf<LayoutNode>()) {
+        MutableVectorWithMutationTracking(mutableVectorOf<LayoutNode>()) {
             layoutDelegate.markChildrenDirty()
         }
     internal val foldedChildren: List<LayoutNode>
@@ -148,14 +148,13 @@ internal class LayoutNode(
 
     // the list of nodes where the virtual children are unfolded (their children are represented
     // as our direct children)
-    private var _unfoldedChildren: MutableObjectList<LayoutNode>? = null
+    private var _unfoldedChildren: MutableVector<LayoutNode>? = null
 
     private fun recreateUnfoldedChildrenIfDirty() {
         if (unfoldedVirtualChildrenListDirty) {
             unfoldedVirtualChildrenListDirty = false
             val unfoldedChildren =
-                _unfoldedChildren
-                    ?: mutableObjectListOf<LayoutNode>().also { _unfoldedChildren = it }
+                _unfoldedChildren ?: mutableVectorOf<LayoutNode>().also { _unfoldedChildren = it }
             unfoldedChildren.clear()
             _foldedChildren.forEach {
                 if (it.isVirtual) {
@@ -192,11 +191,11 @@ internal class LayoutNode(
      * This should **not** be mutated or even accessed directly from outside of [LayoutNode]. Use
      * [forEachChild]/[forEachChildIndexed] when there's a need to iterate through the vector.
      */
-    internal val _children: MutableObjectList<LayoutNode>
+    internal val _children: MutableVector<LayoutNode>
         get() {
             updateChildrenIfDirty()
             return if (virtualChildrenCount == 0) {
-                _foldedChildren.objectList
+                _foldedChildren.vector
             } else {
                 _unfoldedChildren!!
             }
@@ -216,7 +215,6 @@ internal class LayoutNode(
 
     /** The children of this LayoutNode, controlled by [insertAt], [move], and [removeAt]. */
     internal val children: List<LayoutNode>
-        @Suppress("AsCollectionCall") // Exposed as a List to callers.
         get() = _children.asMutableList()
 
     /**
@@ -610,7 +608,7 @@ internal class LayoutNode(
         }
     }
 
-    private val _zSortedChildren = mutableObjectListOf<LayoutNode>()
+    private val _zSortedChildren = mutableVectorOf<LayoutNode>()
     private var zSortedChildrenInvalidated = true
 
     /**
@@ -621,7 +619,7 @@ internal class LayoutNode(
      * Note that the object is reused so you shouldn't save it for later.
      */
     @PublishedApi
-    internal val zSortedChildren: MutableObjectList<LayoutNode>
+    internal val zSortedChildren: MutableVector<LayoutNode>
         get() {
             if (zSortedChildrenInvalidated) {
                 _zSortedChildren.clear()
