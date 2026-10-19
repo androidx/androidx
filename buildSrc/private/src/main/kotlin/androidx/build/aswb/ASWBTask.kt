@@ -32,6 +32,9 @@ import org.gradle.api.Project
 fun Project.configureASWBTask(task: ManagedIdeTask) {
     task.ideName.convention("ASwB")
 
+    // We don't want people to have to accept the terms of service for ASwB (b/574544210)
+    task.acceptTos.convention(true)
+
     val aswbVersion = getVersionByName("aswbBuildId")
 
     val gcsSubDir = if (task.osName == "linux") "glinux" else "mac"
