@@ -18,11 +18,11 @@ package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraManager
 import android.os.Build
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.internal.CameraStatusMonitor
 import androidx.camera.camera2.pipe.internal.CameraStatusMonitor.CameraStatus
+import androidx.camera.common.CameraId
 import javax.inject.Provider
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineName

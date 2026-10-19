@@ -16,9 +16,9 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.internal.CameraStatusMonitor
 import androidx.camera.camera2.pipe.internal.CameraStatusMonitor.CameraStatus
+import androidx.camera.common.CameraId
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow

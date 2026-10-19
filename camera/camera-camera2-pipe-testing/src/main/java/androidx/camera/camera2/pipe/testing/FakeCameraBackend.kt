@@ -24,12 +24,12 @@ import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.ConfigQueryResult
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.SurfaceTracker
 import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.common.CameraId
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow

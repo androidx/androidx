@@ -19,7 +19,7 @@ package androidx.camera.camera2.adapter
 import android.content.Context
 import android.hardware.camera2.CameraManager
 import android.util.Log
-import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.impl.AbstractCameraPresenceSource
 import androidx.concurrent.futures.CallbackToFutureAdapter

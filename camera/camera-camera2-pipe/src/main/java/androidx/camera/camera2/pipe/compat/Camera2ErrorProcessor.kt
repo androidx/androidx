@@ -18,10 +18,10 @@ package androidx.camera.camera2.pipe.compat
 
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraError
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.internal.CriticalCameraErrorListener
+import androidx.camera.common.CameraId
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton

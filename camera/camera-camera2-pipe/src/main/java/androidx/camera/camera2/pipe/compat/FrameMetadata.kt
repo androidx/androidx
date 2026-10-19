@@ -20,14 +20,13 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
 import android.util.ArrayMap
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.EmptyRequestMetadata
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.common.CameraFrameNumber
-import androidx.camera.common.CameraId as CommonCameraId
+import androidx.camera.common.CameraId
 import androidx.camera.common.CaptureRequestWrapper
 import androidx.camera.common.Metadata
 
@@ -113,7 +112,7 @@ internal class CorrectedFrameMetadata(
     override val frameNumber: CameraFrameNumber
         get() = frameMetadata.frameNumber
 
-    override val cameraId: CommonCameraId
+    override val cameraId: CameraId
         get() = frameMetadata.cameraId
 
     override val captureRequest: CaptureRequestWrapper

@@ -21,7 +21,6 @@ package androidx.camera.camera2.pipe.compat
 import android.hardware.camera2.CameraDevice
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraError
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraInterop
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Debug
@@ -35,6 +34,7 @@ import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.core.Token
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
+import androidx.camera.common.CameraId
 import androidx.camera.common.unwrapAs
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit

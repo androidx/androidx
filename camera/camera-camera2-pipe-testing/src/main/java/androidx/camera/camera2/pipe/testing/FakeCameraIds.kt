@@ -16,7 +16,7 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.common.CameraId
 import kotlinx.atomicfu.atomic
 
 /**

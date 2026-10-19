@@ -26,7 +26,6 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.DoNotDisturbException
 import androidx.camera.camera2.pipe.config.CameraPipeContext
@@ -37,6 +36,7 @@ import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
+import androidx.camera.common.CameraId
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.withContext

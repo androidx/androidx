@@ -17,6 +17,7 @@ package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.common.CameraId
 import androidx.camera.featurecombinationquery.CameraDeviceSetupCompat
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow

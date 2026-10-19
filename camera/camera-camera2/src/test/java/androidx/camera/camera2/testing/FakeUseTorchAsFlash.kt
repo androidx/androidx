@@ -24,10 +24,10 @@ import androidx.camera.camera2.compat.workaround.UseTorchAsFlashImpl
 import androidx.camera.camera2.internal.IntrinsicZoomCalculator
 import androidx.camera.camera2.internal.IntrinsicZoomCalculator.Companion.NO_OP_INTRINSIC_ZOOM_CALCULATOR
 import androidx.camera.camera2.pipe.CameraBackendId
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.common.CameraId
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 object FakeUseTorchAsFlash {

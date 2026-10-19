@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.compat
 import android.hardware.camera2.CameraDevice
 import android.os.Looper.getMainLooper
 import androidx.camera.camera2.pipe.CameraError
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraInterop
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.RequestTemplate
@@ -39,6 +38,7 @@ import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
+import androidx.camera.common.CameraId
 import androidx.camera.common.unwrapAs
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit

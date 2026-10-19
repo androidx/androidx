@@ -23,9 +23,9 @@ import android.os.Build
 import androidx.camera.camera2.compat.workaround.FlashAvailabilityCheckerTest.TestCameraMetadata.Mode
 import androidx.camera.camera2.impl.CameraProperties
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.testing.FakeCameraProperties
+import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 import com.google.common.truth.Truth
 import java.lang.Class

@@ -24,7 +24,6 @@ import android.hardware.camera2.CameraManager
 import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.config.CameraPipeContext
 import androidx.camera.camera2.pipe.config.CameraPipeJob
 import androidx.camera.camera2.pipe.core.Debug
@@ -33,6 +32,7 @@ import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.internal.CameraPipeLifetime
 import androidx.camera.camera2.pipe.internal.CriticalCameraErrorListener
+import androidx.camera.common.CameraId
 import androidx.camera.featurecombinationquery.CameraDeviceSetupCompat
 import androidx.camera.featurecombinationquery.CameraDeviceSetupCompatFactory
 import javax.inject.Inject

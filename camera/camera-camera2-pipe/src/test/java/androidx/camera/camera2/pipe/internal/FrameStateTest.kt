@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.internal
 
 import android.util.Size
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
@@ -33,6 +32,7 @@ import androidx.camera.camera2.pipe.testing.FakeImage
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CameraId
 import com.google.common.truth.Truth.assertThat
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers

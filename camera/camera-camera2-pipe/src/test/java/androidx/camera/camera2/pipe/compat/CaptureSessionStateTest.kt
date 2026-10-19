@@ -20,7 +20,6 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
@@ -43,6 +42,7 @@ import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraId
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

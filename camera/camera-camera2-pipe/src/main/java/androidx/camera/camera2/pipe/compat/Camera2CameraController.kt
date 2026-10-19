@@ -25,7 +25,6 @@ import androidx.camera.camera2.pipe.CameraController.ControllerState
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
@@ -40,6 +39,7 @@ import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.internal.CameraStatusMonitor
 import androidx.camera.camera2.pipe.internal.CameraStatusMonitor.CameraStatus
+import androidx.camera.common.CameraId
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred

@@ -22,7 +22,6 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelExternal
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
@@ -40,6 +39,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.media.ImageSource
 import androidx.camera.camera2.pipe.media.ImageSources
+import androidx.camera.common.CameraId
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.atomicfu.atomic

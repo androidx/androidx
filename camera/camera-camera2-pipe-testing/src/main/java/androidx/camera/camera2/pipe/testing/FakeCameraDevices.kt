@@ -19,8 +19,8 @@ package androidx.camera.camera2.pipe.testing
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraDevices
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.common.CameraId
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

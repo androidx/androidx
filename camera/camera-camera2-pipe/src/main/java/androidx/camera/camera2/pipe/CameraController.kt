@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe
 import android.view.Surface
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.common.CameraId
 
 /**
  * A single [CameraController] handles the state and connection status for a [CameraGraph] instance.

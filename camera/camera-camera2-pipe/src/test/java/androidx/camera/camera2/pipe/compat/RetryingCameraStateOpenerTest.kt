@@ -32,7 +32,6 @@ import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_SECURITY_EXCEPTI
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_UNDETERMINED
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_UNKNOWN_EXCEPTION
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StrictMode
@@ -45,6 +44,7 @@ import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.FakeTimeSource
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraId
 import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds

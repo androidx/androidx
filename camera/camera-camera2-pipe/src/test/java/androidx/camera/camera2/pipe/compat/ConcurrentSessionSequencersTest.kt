@@ -17,8 +17,8 @@
 package androidx.camera.camera2.pipe.compat
 
 import androidx.camera.camera2.pipe.CameraGraphId
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.ConcurrentCameraGraphs
+import androidx.camera.common.CameraId
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration.Companion.milliseconds

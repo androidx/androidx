@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
-
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
+import androidx.camera.common.CameraId
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -75,7 +74,7 @@ public interface CameraDevices {
     public fun awaitConcurrentCameraIds(): Set<Set<CameraId>>? = awaitConcurrentCameraIds(null)
 
     /**
-     * Read metadata for a specific camera id, suspending if needed. By default, this method will
+     * Read metadata for a specific [CameraId], suspending if needed. By default, this method will
      * query metadata from the default backend if one is not specified.
      */
     public suspend fun getCameraMetadata(
@@ -84,7 +83,7 @@ public interface CameraDevices {
     ): CameraMetadata?
 
     /**
-     * Read metadata for a specific camera id, blocking if needed. By default, this method will
+     * Read metadata for a specific [CameraId], blocking if needed. By default, this method will
      * query metadata from the default backend if one is not specified.
      */
     public fun awaitCameraMetadata(
@@ -184,30 +183,6 @@ public interface CameraDevices {
         level = DeprecationLevel.WARNING,
     )
     public fun awaitMetadata(camera: CameraId): CameraMetadata
-}
-
-/** CameraId represents a typed identifier for a camera represented as a non-blank String. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@JvmInline
-public value class CameraId(public val value: String) {
-    init {
-        require(value.isNotBlank()) { "CameraId cannot be null or blank!" }
-    }
-
-    public companion object {
-        public inline fun fromCamera2Id(value: String): CameraId = CameraId(value)
-
-        public inline fun fromCamera1Id(value: Int): CameraId = CameraId("$value")
-    }
-
-    /**
-     * Attempt to parse an camera1 id from a camera2 id.
-     *
-     * @return The parsed Camera1 id, or null if the value cannot be parsed as a Camera1 id.
-     */
-    public inline fun toCamera1Id(): Int? = value.toIntOrNull()
-
-    override fun toString(): String = "CameraId-$value"
 }
 
 /**

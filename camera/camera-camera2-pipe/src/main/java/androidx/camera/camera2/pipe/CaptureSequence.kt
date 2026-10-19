@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.common.CameraId
 
 /**
  * An ordered list of [TCaptureRequest] objects, listeners, and associated metadata that will be
