@@ -60,33 +60,6 @@ class AppFunctionLegacySchemaXmlGenerator(
         )
     }
 
-    /**
-     * Generates AppFunction's legacy index XML files for v1 indexer in App Search.
-     *
-     * @param appFunctionsByClass a collection of functions annotated with @AppFunctionDeclaration
-     *   grouped by their enclosing classes.
-     */
-    fun generateLegacyIndexXml(
-        appFunctionsByClass: List<AnnotatedAppFunctions>,
-        resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
-        exportLocation: String?,
-    ) {
-        val appFunctionMetadataList = appFunctionsByClass.flatMap { annotatedAppFunctions ->
-            annotatedAppFunctions
-                .createAppFunctionMetadataList(resolvedAnnotatedSerializableProxies)
-                .map { it.toAppFunctionMetadataDocument() }
-        }
-        writeXmlFile(
-            appFunctionMetadataList,
-            Dependencies(
-                aggregating = true,
-                *appFunctionsByClass.flatMap { it.getSourceFiles() }.toTypedArray(),
-            ),
-            XML_FILE_NAME,
-            exportLocation,
-        )
-    }
-
     private fun writeXmlFile(
         appFunctionMetadataList: List<AppFunctionMetadataDocument>,
         dependencies: Dependencies,
@@ -177,7 +150,6 @@ class AppFunctionLegacySchemaXmlGenerator(
 
     private companion object {
         private const val XML_PACKAGE_NAME = "assets"
-        private const val XML_FILE_NAME = "app_functions"
         private const val XML_EXTENSION = "xml"
         private const val V1_XML_SUFFIX = "-v1"
 

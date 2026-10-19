@@ -22,7 +22,6 @@ import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.is
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.isSupportedType
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAccessLevelAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAnnotation
-import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionContextClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSchemaDefinitionAnnotation
 import androidx.appfunctions.compiler.core.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionDataTypeMetadata
@@ -57,7 +56,7 @@ data class AnnotatedAppFunction(
      *
      * @throws SymbolNotReadyException if any related nodes are not ready for processing yet.
      */
-    fun validate(skipFirstParameterValidation: Boolean = false): AnnotatedAppFunction {
+    fun validate(): AnnotatedAppFunction {
         for (parameter in appFunctionDeclaration.parameters) {
             if (!parameter.validate()) {
                 throw SymbolNotReadyException(
@@ -73,10 +72,7 @@ data class AnnotatedAppFunction(
                 appFunctionDeclaration,
             )
         }
-        if (!skipFirstParameterValidation) {
-            validateFirstParameter()
-        }
-        validateParameterTypes(skipFirstParameterValidation)
+        validateParameterTypes()
         return this
     }
 
@@ -163,9 +159,6 @@ data class AnnotatedAppFunction(
         rootAppFunctionSchemaInterface?.containingFile?.let { sourceFileSet.add(it) }
 
         for (ksValueParameter in appFunctionDeclaration.parameters) {
-            if (ksValueParameter.type.isOfType(AppFunctionContextClass.CLASS_NAME)) {
-                continue
-            }
             val parameterTypeReference = AppFunctionTypeReference(ksValueParameter.type)
             if (parameterTypeReference.typeOrItemTypeIsAppFunctionSerializable()) {
                 sourceFileSet.addAll(
@@ -189,30 +182,8 @@ data class AnnotatedAppFunction(
         return sourceFileSet
     }
 
-    private fun validateFirstParameter() {
-        val firstParam = appFunctionDeclaration.parameters.firstOrNull()
-        if (firstParam == null) {
-            throw ProcessingException(
-                "The first parameter of an app function must be " +
-                    "${AppFunctionContextClass.CLASS_NAME}",
-                appFunctionDeclaration,
-            )
-        }
-        if (!firstParam.type.isOfType(AppFunctionContextClass.CLASS_NAME)) {
-            throw ProcessingException(
-                "The first parameter of an app function must be " +
-                    "${AppFunctionContextClass.CLASS_NAME}",
-                firstParam,
-            )
-        }
-    }
-
-    private fun validateParameterTypes(skipFirstParameterValidation: Boolean) {
-        for ((paramIndex, ksValueParameter) in appFunctionDeclaration.parameters.withIndex()) {
-            if (paramIndex == 0 && !skipFirstParameterValidation) {
-                continue
-            }
-
+    private fun validateParameterTypes() {
+        for (ksValueParameter in appFunctionDeclaration.parameters) {
             if (!isSupportedType(ksValueParameter.type)) {
                 throw ProcessingException(
                     "App function parameters must be a supported type, or a type " +
