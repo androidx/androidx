@@ -97,7 +97,7 @@ object Camera2ExtensionsTestUtil {
         verifyOutput: Boolean = false,
     ) {
         val extensionsCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
-        assumeCameraExtensionSupported(extensionMode, extensionsCharacteristics)
+        assumeCameraExtensionSupported(cameraManager, cameraId, extensionMode)
 
         // Preview surface
         val previewSize =
@@ -206,10 +206,15 @@ object Camera2ExtensionsTestUtil {
      * required for testing. Halt the test if any criteria is not satisfied.
      */
     fun assumeCameraExtensionSupported(
+        cameraManager: CameraManager,
+        cameraId: String,
         extensionMode: Int,
-        extensionsCharacteristics: CameraExtensionCharacteristics,
     ) {
-        assumeTrue(extensionsCharacteristics.supportedExtensions.contains(extensionMode))
+        val extensionsCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
+        assumeTrue(
+            Camera2ExtensionsUtil.getSupportedExtensions(cameraManager, cameraId)
+                .contains(extensionMode)
+        )
         assumeTrue(
             extensionsCharacteristics
                 .getExtensionSupportedSizes(extensionMode, SurfaceTexture::class.java)
@@ -372,8 +377,11 @@ object Camera2ExtensionsTestUtil {
                     if (!backwardCompatible) {
                         return@filter false
                     }
-                    val extCharacteristics = cameraManager.getCameraExtensionCharacteristics((it))
-                    return@filter extCharacteristics.supportedExtensions.contains(extensionsMode)
+                    return@filter Camera2ExtensionsUtil.isCamera2ExtensionModeSupported(
+                        context,
+                        it,
+                        extensionsMode,
+                    )
                 }
 
             if (supportedCameraIdList.size <= 1) {
@@ -388,9 +396,9 @@ object Camera2ExtensionsTestUtil {
     fun findNextEffectMode(context: Context, cameraId: String, extensionsMode: Int): Int {
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
-            val characteristics = cameraManager.getCameraExtensionCharacteristics((cameraId))
             val supportedExtensions =
-                ArrayList(characteristics.supportedExtensions).apply { sort() }
+                ArrayList(Camera2ExtensionsUtil.getSupportedExtensions(cameraManager, cameraId))
+                    .apply { sort() }
             val currentIndex = supportedExtensions.indexOf(extensionsMode)
             if (currentIndex >= 0 && supportedExtensions.size > 1) {
                 return supportedExtensions[(currentIndex + 1) % supportedExtensions.size]
