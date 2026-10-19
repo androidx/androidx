@@ -17,6 +17,7 @@
 package androidx.wear.compose.foundation
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
@@ -26,7 +27,10 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -370,5 +374,583 @@ class CurvedTextStyleTest {
         val newStyle = style.merge(otherStyle)
 
         assertEquals(newStyle.warpOffset, otherStyle.warpOffset)
+    }
+
+    @Test
+    fun `constructor from TextStyle maps matching properties`() {
+        val background = Color.Green
+        val color = Color.Blue
+        val fontSize = 18.sp
+        val fontFamily = FontFamily.Monospace
+        val fontWeight = FontWeight.Medium
+        val fontStyle = FontStyle.Italic
+        val fontSynthesis = FontSynthesis.Style
+        val letterSpacing = 0.5.em
+        val lineHeight = 24.sp
+        val textStyle =
+            TextStyle(
+                background = background,
+                color = color,
+                fontSize = fontSize,
+                fontFamily = fontFamily,
+                fontWeight = fontWeight,
+                fontStyle = fontStyle,
+                fontSynthesis = fontSynthesis,
+                letterSpacing = letterSpacing,
+                lineHeight = lineHeight,
+            )
+
+        val curvedTextStyle = CurvedTextStyle(textStyle)
+
+        assertEquals(background, curvedTextStyle.background)
+        assertEquals(color, curvedTextStyle.color)
+        assertEquals(fontSize, curvedTextStyle.fontSize)
+        assertEquals(fontFamily, curvedTextStyle.fontFamily)
+        assertEquals(fontWeight, curvedTextStyle.fontWeight)
+        assertEquals(fontStyle, curvedTextStyle.fontStyle)
+        assertEquals(fontSynthesis, curvedTextStyle.fontSynthesis)
+        assertEquals(letterSpacing, curvedTextStyle.letterSpacing)
+        assertEquals(letterSpacing, curvedTextStyle.letterSpacingCounterClockwise)
+        assertEquals(lineHeight, curvedTextStyle.lineHeight)
+        assertEquals(CurvedTextStyle.WarpOffset.Unspecified, curvedTextStyle.warpOffset)
+    }
+
+    @Test
+    fun `plus operator combining styles produces same result as merge`() {
+        val style1 =
+            CurvedTextStyle(
+                color = Color.Red,
+                fontSize = 14.sp,
+                warpOffset = CurvedTextStyle.WarpOffset.None,
+            )
+        val style2 =
+            CurvedTextStyle(
+                background = Color.Yellow,
+                fontSize = 18.sp,
+                warpOffset = CurvedTextStyle.WarpOffset.Baseline,
+            )
+
+        val plusResult = style1 + style2
+        val mergeResult = style1.merge(style2)
+
+        assertEquals(mergeResult, plusResult)
+    }
+
+    @Test
+    fun `copy with default arguments preserves all properties`() {
+        val original =
+            CurvedTextStyle(
+                background = Color.DarkGray,
+                color = Color.LightGray,
+                fontSize = 16.sp,
+                fontFamily = FontFamily.Cursive,
+                fontWeight = FontWeight.Black,
+                fontStyle = FontStyle.Italic,
+                fontSynthesis = FontSynthesis.Weight,
+                letterSpacing = 2.sp,
+                letterSpacingCounterClockwise = 3.sp,
+                lineHeight = 22.sp,
+                warpOffset = CurvedTextStyle.WarpOffset.HalfAscent,
+            )
+
+        val copied = original.copy()
+
+        assertEquals(original, copied)
+        assertEquals(original.background, copied.background)
+        assertEquals(original.color, copied.color)
+        assertEquals(original.fontSize, copied.fontSize)
+        assertEquals(original.fontFamily, copied.fontFamily)
+        assertEquals(original.fontWeight, copied.fontWeight)
+        assertEquals(original.fontStyle, copied.fontStyle)
+        assertEquals(original.fontSynthesis, copied.fontSynthesis)
+        assertEquals(original.letterSpacing, copied.letterSpacing)
+        assertEquals(
+            original.letterSpacingCounterClockwise,
+            copied.letterSpacingCounterClockwise,
+        )
+        assertEquals(original.lineHeight, copied.lineHeight)
+        assertEquals(original.warpOffset, copied.warpOffset)
+    }
+
+    @Test
+    fun `copy with background specified updates background only`() {
+        val original =
+            CurvedTextStyle(
+                background = Color.Red,
+                color = Color.Green,
+                fontSize = 14.sp,
+            )
+        val newBackground = Color.Blue
+
+        val copied = original.copy(background = newBackground)
+
+        assertEquals(newBackground, copied.background)
+        assertEquals(original.color, copied.color)
+        assertEquals(original.fontSize, copied.fontSize)
+    }
+
+    @Test
+    fun `copy with color specified updates color only`() {
+        val original =
+            CurvedTextStyle(
+                background = Color.Red,
+                color = Color.Green,
+                fontSize = 14.sp,
+            )
+        val newColor = Color.Magenta
+
+        val copied = original.copy(color = newColor)
+
+        assertEquals(newColor, copied.color)
+        assertEquals(original.background, copied.background)
+        assertEquals(original.fontSize, copied.fontSize)
+    }
+
+    @Test
+    fun `copy with fontSize specified updates fontSize only`() {
+        val original =
+            CurvedTextStyle(
+                color = Color.Green,
+                fontSize = 14.sp,
+            )
+        val newFontSize = 22.sp
+
+        val copied = original.copy(fontSize = newFontSize)
+
+        assertEquals(newFontSize, copied.fontSize)
+        assertEquals(original.color, copied.color)
+    }
+
+    @Test
+    fun `copy with fontFamily specified updates fontFamily only`() {
+        val original =
+            CurvedTextStyle(
+                fontFamily = FontFamily.Serif,
+                fontSize = 14.sp,
+            )
+        val newFontFamily = FontFamily.Monospace
+
+        val copied = original.copy(fontFamily = newFontFamily)
+
+        assertEquals(newFontFamily, copied.fontFamily)
+        assertEquals(original.fontSize, copied.fontSize)
+    }
+
+    @Test
+    fun `copy with fontWeight specified updates fontWeight only`() {
+        val original =
+            CurvedTextStyle(
+                fontWeight = FontWeight.Normal,
+                fontSize = 14.sp,
+            )
+        val newFontWeight = FontWeight.Bold
+
+        val copied = original.copy(fontWeight = newFontWeight)
+
+        assertEquals(newFontWeight, copied.fontWeight)
+        assertEquals(original.fontSize, copied.fontSize)
+    }
+
+    @Test
+    fun `copy with fontStyle specified updates fontStyle only`() {
+        val original =
+            CurvedTextStyle(
+                fontStyle = FontStyle.Normal,
+                fontSize = 14.sp,
+            )
+        val newFontStyle = FontStyle.Italic
+
+        val copied = original.copy(fontStyle = newFontStyle)
+
+        assertEquals(newFontStyle, copied.fontStyle)
+        assertEquals(original.fontSize, copied.fontSize)
+    }
+
+    @Test
+    fun `copy with fontSynthesis specified updates fontSynthesis only`() {
+        val original =
+            CurvedTextStyle(
+                fontSynthesis = FontSynthesis.None,
+                fontSize = 14.sp,
+            )
+        val newFontSynthesis = FontSynthesis.All
+
+        val copied = original.copy(fontSynthesis = newFontSynthesis)
+
+        assertEquals(newFontSynthesis, copied.fontSynthesis)
+        assertEquals(original.fontSize, copied.fontSize)
+    }
+
+    @Test
+    fun `copy with letterSpacing specified updates letterSpacing only`() {
+        val original =
+            CurvedTextStyle(
+                letterSpacing = 1.sp,
+                letterSpacingCounterClockwise = 2.sp,
+            )
+        val newLetterSpacing = 5.sp
+
+        val copied = original.copy(letterSpacing = newLetterSpacing)
+
+        assertEquals(newLetterSpacing, copied.letterSpacing)
+        assertEquals(
+            original.letterSpacingCounterClockwise,
+            copied.letterSpacingCounterClockwise,
+        )
+    }
+
+    @Test
+    fun `copy with letterSpacingCounterClockwise specified updates letterSpacingCounterClockwise only`() {
+        val original =
+            CurvedTextStyle(
+                letterSpacing = 1.sp,
+                letterSpacingCounterClockwise = 2.sp,
+            )
+        val newLetterSpacingCounterClockwise = 6.sp
+
+        val copied = original.copy(letterSpacingCounterClockwise = newLetterSpacingCounterClockwise)
+
+        assertEquals(
+            newLetterSpacingCounterClockwise,
+            copied.letterSpacingCounterClockwise,
+        )
+        assertEquals(original.letterSpacing, copied.letterSpacing)
+    }
+
+    @Test
+    fun `copy with lineHeight specified updates lineHeight only`() {
+        val original =
+            CurvedTextStyle(
+                lineHeight = 16.sp,
+                fontSize = 14.sp,
+            )
+        val newLineHeight = 28.sp
+
+        val copied = original.copy(lineHeight = newLineHeight)
+
+        assertEquals(newLineHeight, copied.lineHeight)
+        assertEquals(original.fontSize, copied.fontSize)
+    }
+
+    @Test
+    fun `copy with warpOffset specified updates warpOffset only`() {
+        val original =
+            CurvedTextStyle(
+                warpOffset = CurvedTextStyle.WarpOffset.Baseline,
+                fontSize = 14.sp,
+            )
+        val newWarpOffset = CurvedTextStyle.WarpOffset.Ascent
+
+        val copied = original.copy(warpOffset = newWarpOffset)
+
+        assertEquals(newWarpOffset, copied.warpOffset)
+        assertEquals(original.fontSize, copied.fontSize)
+    }
+
+    @Test
+    fun `warpOffset isSpecified returns true for specified and false for unspecified`() {
+        val unspecified = CurvedTextStyle.WarpOffset.Unspecified
+        val specified = CurvedTextStyle.WarpOffset.Baseline
+
+        assertFalse(unspecified.isSpecified)
+        assertTrue(specified.isSpecified)
+    }
+
+    @Test
+    fun `warpOffset isUnspecified returns true for unspecified and false for specified`() {
+        val unspecified = CurvedTextStyle.WarpOffset.Unspecified
+        val specified = CurvedTextStyle.WarpOffset.HalfOpticalHeight
+
+        assertTrue(unspecified.isUnspecified)
+        assertFalse(specified.isUnspecified)
+    }
+
+    @Test
+    fun `warpOffset takeOrElse specified offset returns this without evaluating fallback`() {
+        val offset = CurvedTextStyle.WarpOffset.Ascent
+        var fallbackEvaluated = false
+
+        val result = offset.takeOrElse {
+            fallbackEvaluated = true
+            CurvedTextStyle.WarpOffset.Descent
+        }
+
+        assertEquals(CurvedTextStyle.WarpOffset.Ascent, result)
+        assertFalse(fallbackEvaluated)
+    }
+
+    @Test
+    fun `warpOffset takeOrElse unspecified offset evaluates and returns fallback`() {
+        val offset = CurvedTextStyle.WarpOffset.Unspecified
+        var fallbackEvaluated = false
+
+        val result = offset.takeOrElse {
+            fallbackEvaluated = true
+            CurvedTextStyle.WarpOffset.Descent
+        }
+
+        assertEquals(CurvedTextStyle.WarpOffset.Descent, result)
+        assertTrue(fallbackEvaluated)
+    }
+
+    @Test
+    fun `determineWarpRadiusOffset for baseline returns zero`() {
+        val offset = CurvedTextStyle.WarpOffset.Baseline
+        val ascent = -24f
+        val descent = 6f
+
+        val radiusOffset = offset.determineWarpRadiusOffset(ascent, descent)
+
+        assertEquals(0f, radiusOffset, 0.0001f)
+    }
+
+    @Test
+    fun `determineWarpRadiusOffset for halfAscent returns negative halfAscent`() {
+        val offset = CurvedTextStyle.WarpOffset.HalfAscent
+        val ascent = -24f
+        val descent = 6f
+
+        val radiusOffset = offset.determineWarpRadiusOffset(ascent, descent)
+
+        assertEquals(12f, radiusOffset, 0.0001f)
+    }
+
+    @Test
+    fun `determineWarpRadiusOffset for halfOpticalHeight returns negative halfOpticalHeight`() {
+        val offset = CurvedTextStyle.WarpOffset.HalfOpticalHeight
+        val ascent = -24f
+        val descent = 6f
+
+        val radiusOffset = offset.determineWarpRadiusOffset(ascent, descent)
+
+        assertEquals(9f, radiusOffset, 0.0001f)
+    }
+
+    @Test
+    fun `determineWarpRadiusOffset for ascent returns negative ascent`() {
+        val offset = CurvedTextStyle.WarpOffset.Ascent
+        val ascent = -24f
+        val descent = 6f
+
+        val radiusOffset = offset.determineWarpRadiusOffset(ascent, descent)
+
+        assertEquals(24f, radiusOffset, 0.0001f)
+    }
+
+    @Test
+    fun `determineWarpRadiusOffset for descent returns negative descent`() {
+        val offset = CurvedTextStyle.WarpOffset.Descent
+        val ascent = -24f
+        val descent = 6f
+
+        val radiusOffset = offset.determineWarpRadiusOffset(ascent, descent)
+
+        assertEquals(-6f, radiusOffset, 0.0001f)
+    }
+
+    @Test
+    fun `determineWarpRadiusOffset for none throws IllegalArgumentException`() {
+        val offset = CurvedTextStyle.WarpOffset.None
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                offset.determineWarpRadiusOffset(-20f, 5f)
+            }
+
+        assertTrue(exception.message!!.contains("Illegal warp offset: None"))
+    }
+
+    @Test
+    fun `determineWarpRadiusOffset for unspecified throws IllegalArgumentException`() {
+        val offset = CurvedTextStyle.WarpOffset.Unspecified
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                offset.determineWarpRadiusOffset(-20f, 5f)
+            }
+
+        assertTrue(exception.message!!.contains("Illegal warp offset: Unspecified"))
+    }
+
+    @Test
+    fun `determineWarpRadiusOffset for unknown offset throws IllegalArgumentException`() {
+        val offset = CurvedTextStyle.WarpOffset(120.toByte())
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                offset.determineWarpRadiusOffset(-20f, 5f)
+            }
+
+        assertTrue(exception.message!!.contains("Illegal warp offset: Unknown: 120"))
+    }
+
+    @Test
+    fun `equals with same instance evaluates to true`() {
+        val style =
+            CurvedTextStyle(
+                background = Color.Yellow,
+                color = Color.Blue,
+                fontSize = 16.sp,
+                warpOffset = CurvedTextStyle.WarpOffset.Baseline,
+            )
+
+        val areEqual = style == style
+
+        assertTrue(areEqual)
+    }
+
+    @Test
+    fun `equals and hashCode with default properties evaluates to true and matches hashCode`() {
+        val style1 = CurvedTextStyle()
+        val style2 = CurvedTextStyle()
+
+        val hashCode1 = style1.hashCode()
+        val hashCode2 = style2.hashCode()
+
+        assertEquals(style1, style2)
+        assertEquals(style2, style1)
+        assertEquals(hashCode1, hashCode2)
+    }
+
+    @Test
+    fun `equals and hashCode with identical properties evaluates to true and matches hashCode`() {
+        val style1 =
+            CurvedTextStyle(
+                background = Color.Yellow,
+                color = Color.Blue,
+                fontSize = 16.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                fontSynthesis = FontSynthesis.Weight,
+                letterSpacing = 1.sp,
+                letterSpacingCounterClockwise = 2.sp,
+                lineHeight = 20.sp,
+                warpOffset = CurvedTextStyle.WarpOffset.Ascent,
+            )
+        val style2 =
+            CurvedTextStyle(
+                background = Color.Yellow,
+                color = Color.Blue,
+                fontSize = 16.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                fontSynthesis = FontSynthesis.Weight,
+                letterSpacing = 1.sp,
+                letterSpacingCounterClockwise = 2.sp,
+                lineHeight = 20.sp,
+                warpOffset = CurvedTextStyle.WarpOffset.Ascent,
+            )
+
+        val hashCode1 = style1.hashCode()
+        val hashCode2 = style2.hashCode()
+
+        assertEquals(style1, style2)
+        assertEquals(style2, style1)
+        assertEquals(hashCode1, hashCode2)
+    }
+
+    @Test
+    fun `equals with different background returns false`() {
+        val style1 = CurvedTextStyle(background = Color.Red)
+        val style2 = CurvedTextStyle(background = Color.Blue)
+
+        assertNotEquals(style1, style2)
+    }
+
+    @Test
+    fun `equals with different color returns false`() {
+        val style1 = CurvedTextStyle(color = Color.Red)
+        val style2 = CurvedTextStyle(color = Color.Blue)
+
+        assertNotEquals(style1, style2)
+    }
+
+    @Test
+    fun `equals with different fontSize returns false`() {
+        val style1 = CurvedTextStyle(fontSize = 12.sp)
+        val style2 = CurvedTextStyle(fontSize = 14.sp)
+
+        assertNotEquals(style1, style2)
+    }
+
+    @Test
+    fun `equals with different fontFamily returns false`() {
+        val style1 = CurvedTextStyle(fontFamily = FontFamily.Serif)
+        val style2 = CurvedTextStyle(fontFamily = FontFamily.Monospace)
+
+        assertNotEquals(style1, style2)
+    }
+
+    @Test
+    fun `equals with different fontWeight returns false`() {
+        val style1 = CurvedTextStyle(fontWeight = FontWeight.Normal)
+        val style2 = CurvedTextStyle(fontWeight = FontWeight.Bold)
+
+        assertNotEquals(style1, style2)
+    }
+
+    @Test
+    fun `equals with different fontStyle returns false`() {
+        val style1 = CurvedTextStyle(fontStyle = FontStyle.Normal)
+        val style2 = CurvedTextStyle(fontStyle = FontStyle.Italic)
+
+        assertNotEquals(style1, style2)
+    }
+
+    @Test
+    fun `equals with different fontSynthesis returns false`() {
+        val style1 = CurvedTextStyle(fontSynthesis = FontSynthesis.None)
+        val style2 = CurvedTextStyle(fontSynthesis = FontSynthesis.All)
+
+        assertNotEquals(style1, style2)
+    }
+
+    @Test
+    fun `equals with different letterSpacing returns false`() {
+        val style1 = CurvedTextStyle(letterSpacing = 1.sp)
+        val style2 = CurvedTextStyle(letterSpacing = 2.sp)
+
+        assertNotEquals(style1, style2)
+    }
+
+    @Test
+    fun `equals with different letterSpacingCounterClockwise returns false`() {
+        val style1 = CurvedTextStyle(letterSpacingCounterClockwise = 1.sp)
+        val style2 = CurvedTextStyle(letterSpacingCounterClockwise = 2.sp)
+
+        assertNotEquals(style1, style2)
+    }
+
+    @Test
+    fun `equals with different lineHeight returns false`() {
+        val style1 = CurvedTextStyle(lineHeight = 16.sp)
+        val style2 = CurvedTextStyle(lineHeight = 20.sp)
+
+        assertNotEquals(style1, style2)
+    }
+
+    @Test
+    fun `equals with different warpOffset returns false`() {
+        val style1 = CurvedTextStyle(warpOffset = CurvedTextStyle.WarpOffset.Baseline)
+        val style2 = CurvedTextStyle(warpOffset = CurvedTextStyle.WarpOffset.Ascent)
+
+        assertNotEquals(style1, style2)
+    }
+
+    @Test
+    fun `equals with null other returns false`() {
+        val style = CurvedTextStyle(color = Color.Red)
+
+        assertFalse(style.equals(null))
+    }
+
+    @Test
+    fun `equals with different type returns false`() {
+        val style = CurvedTextStyle(color = Color.Red)
+        val other: Any = "NotACurvedTextStyle"
+
+        assertFalse(style.equals(other))
     }
 }
