@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("NOTHING_TO_INLINE")
-
 package androidx.compose.ui.layout
 
-import android.graphics.Rect
 import android.os.Build
 import android.view.View
 import android.view.View.OnAttachStateChangeListener
 import androidx.collection.MutableIntObjectMap
-import androidx.collection.MutableObjectList
-import androidx.collection.ScatterMap
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -31,7 +26,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ExperimentalMediaQueryApi
-import androidx.compose.ui.R
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.util.fastForEach
 import androidx.core.graphics.Insets
@@ -42,14 +36,7 @@ import androidx.core.view.WindowInsetsAnimationCompat.BoundsCompat
 import androidx.core.view.WindowInsetsCompat
 
 internal interface WindowInsetsRulerProvider {
-    // New
     val insetsProvider: WindowInsetsRulersProvider?
-
-    // Old
-    val insetsValues: ScatterMap<Any, WindowWindowInsetsAnimationValues>?
-    val cutoutRulers: List<RectRulers>?
-    val insetsListener: InsetsListener?
-    val cutoutRects: MutableObjectList<MutableState<Rect>>?
 }
 
 /**
@@ -204,11 +191,11 @@ internal class WindowInsetsWatcher(val view: View) :
     }
 
     /**
-     * On [R], we don't receive the [onEnd] call when an animation is canceled, so we post the value
-     * received in [onApplyWindowInsets] immediately after [onPrepare]. If [onProgress] or [onEnd]
-     * is received before the runnable executes then the value won't be used. Otherwise, the
-     * [onApplyWindowInsets] value will be used. It may have a janky frame, but it is the best we
-     * can do.
+     * On [Build.VERSION_CODES.R], we don't receive the [onEnd] call when an animation is canceled,
+     * so we post the value received in [onApplyWindowInsets] immediately after [onPrepare]. If
+     * [onProgress] or [onEnd] is received before the runnable executes then the value won't be
+     * used. Otherwise, the [onApplyWindowInsets] value will be used. It may have a janky frame, but
+     * it is the best we can do.
      */
     override fun run() {
         if (prepared) {

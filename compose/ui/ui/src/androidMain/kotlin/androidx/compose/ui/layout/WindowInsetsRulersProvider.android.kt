@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 @file:Suppress("NOTHING_TO_INLINE")
-@file:OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 
 package androidx.compose.ui.layout
 
@@ -24,7 +23,6 @@ import androidx.collection.MutableIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.State
-import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.CaptionBar
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.DisplayCutout
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.Ime
@@ -46,11 +44,7 @@ internal actual fun findDisplayCutouts(placementScope: Placeable.PlacementScope)
         node.visitNodes(Nodes.Traversable) { traversableNode ->
             if (traversableNode.traverseKey === RulerKey) {
                 val provider = traversableNode as WindowInsetsRulerProvider
-                return if (AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled) {
-                    provider.insetsProvider?.displayCutoutBoundsRulers ?: emptyList()
-                } else {
-                    provider.cutoutRulers ?: emptyList()
-                }
+                return provider.insetsProvider?.displayCutoutBoundsRulers ?: emptyList()
             }
         }
         node = node.wrapped
@@ -67,12 +61,8 @@ internal actual fun findInsetsAnimationProperties(
         node.visitNodes(Nodes.Traversable) { traversableNode ->
             if (traversableNode.traverseKey === RulerKey) {
                 val provider = traversableNode as WindowInsetsRulerProvider
-                return if (AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled) {
-                    provider.insetsProvider?.findWindowInsetsAnimation(windowInsetsRulers)
-                        ?: NoWindowInsetsAnimation
-                } else {
-                    provider.insetsValues?.get(windowInsetsRulers) ?: NoWindowInsetsAnimation
-                }
+                return provider.insetsProvider?.findWindowInsetsAnimation(windowInsetsRulers)
+                    ?: NoWindowInsetsAnimation
             }
         }
         node = node.wrapped
