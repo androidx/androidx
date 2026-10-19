@@ -66,6 +66,7 @@ class BackupActionKeysTest {
         assertEquals("FLOAT", BackupActionValues.VALUE_TYPE_FLOAT)
         assertEquals("BOOLEAN", BackupActionValues.VALUE_TYPE_BOOLEAN)
         assertEquals("STRING", BackupActionValues.VALUE_TYPE_STRING)
+        assertEquals("STRING_SET", BackupActionValues.VALUE_TYPE_STRING_SET)
         assertEquals("success", BackupActionValues.STATUS_SUCCESS)
         assertEquals("failure", BackupActionValues.STATUS_FAILURE)
         assertEquals("default_prefs", BackupActionValues.DEFAULT_PREF_NAME)

@@ -18,8 +18,11 @@ package androidx.test.backup.host
 
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class StorageDomainTest {
@@ -181,6 +184,10 @@ class StorageDomainTest {
             StorageDomain.Preference("name", "key", "hello").toString(),
         )
         assertEquals(
+            "Preference(prefName='name', key='key', value=[a, b])",
+            StorageDomain.Preference("name", "key", setOf("a", "b")).toString(),
+        )
+        assertEquals(
             "Preference(prefName='name', key='key', value=null)",
             StorageDomain.Preference("name", "key").toString(),
         )
@@ -193,6 +200,10 @@ class StorageDomainTest {
         assertEquals(
             "Preference(prefName='name', key='key', value=${"a".repeat(64)}... (100064 chars))",
             StorageDomain.Preference("name", "key", value).toString(),
+        )
+        assertEquals(
+            "Preference(prefName='name', key='key', value=[${"a".repeat(63)}... (100066 chars))",
+            StorageDomain.Preference("name", "key", setOf(value)).toString(),
         )
     }
 
@@ -214,4 +225,79 @@ class StorageDomainTest {
                 .toString(),
         )
     }
+
+    @Test
+    fun testPreference_acceptsASetOfStrings() {
+        val preference = StorageDomain.Preference("name", "key", setOf("a", "b"))
+
+        assertEquals(setOf("a", "b"), preference.value)
+        assertEquals(StorageDomain.Preference("name", "key", setOf("b", "a")), preference)
+        assertEquals(
+            StorageDomain.Preference("name", "key", setOf("b", "a")).hashCode(),
+            preference.hashCode(),
+        )
+    }
+
+    @Test
+    fun testPreference_rejectsASetWithAnElementThatIsNotAString() {
+        assertThrows(IllegalArgumentException::class.java) {
+            StorageDomain.Preference("name", "key", setOf("a", 1))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            StorageDomain.Preference("name", "key", setOf("a", null))
+        }
+    }
+
+    /** A preference keeps its own copy of a set, so later changes to the set don't affect it. */
+    @Test
+    fun testPreference_keepsACopyOfASet() {
+        val values = mutableSetOf("a")
+        val preference = StorageDomain.Preference("name", "key", values)
+
+        values += "b"
+
+        assertEquals(setOf("a"), preference.value)
+        assertThrows(UnsupportedOperationException::class.java) {
+            @Suppress("UNCHECKED_CAST") (preference.value as MutableSet<String>).add("c")
+        }
+    }
+
+    @Test
+    fun testDomainsAreInTheDefaultStorageOfTheAppByDefault() {
+        assertEquals(false, StorageDomain.Preference("name", "key", "v").isDeviceProtectedStorage)
+        assertEquals(false, database().isDeviceProtectedStorage)
+        assertEquals(false, StorageDomain.TextFile("a.txt", "c").isDeviceProtectedStorage)
+        assertEquals(
+            false,
+            StorageDomain.BinaryFile("a.bin", byteArrayOf(1)).isDeviceProtectedStorage,
+        )
+    }
+
+    @Test
+    fun testDomainsInDeviceProtectedStorageDifferFromTheOthers() {
+        val pairs =
+            listOf(
+                StorageDomain.Preference("name", "key", "v") to
+                    StorageDomain.Preference("name", "key", "v", isDeviceProtectedStorage = true),
+                database() to database(isDeviceProtectedStorage = true),
+                StorageDomain.TextFile("a.txt", "c") to
+                    StorageDomain.TextFile("a.txt", "c", isDeviceProtectedStorage = true),
+                StorageDomain.BinaryFile("a.bin", byteArrayOf(1)) to
+                    StorageDomain.BinaryFile(
+                        "a.bin",
+                        byteArrayOf(1),
+                        isDeviceProtectedStorage = true,
+                    ),
+            )
+
+        for ((inDefaultStorage, deviceProtected) in pairs) {
+            assertNotEquals(inDefaultStorage, deviceProtected)
+            assertNotEquals(inDefaultStorage.toString(), deviceProtected.toString())
+            assertTrue(deviceProtected.toString().endsWith(", isDeviceProtectedStorage=true)"))
+            assertFalse(inDefaultStorage.toString().contains("isDeviceProtectedStorage"))
+        }
+    }
+
+    private fun database(isDeviceProtectedStorage: Boolean = false) =
+        StorageDomain.Database("db", "table", "id", 1, mapOf("a" to "b"), isDeviceProtectedStorage)
 }

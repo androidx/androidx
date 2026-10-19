@@ -356,8 +356,6 @@ public class BackupRestoreTestRunnerTest {
 
     /** Returns its arguments as its result. */
     public class EchoArgsAction : BackupDeviceAction {
-        override val phase: Int = BackupDeviceAction.PHASE_VERIFY
-
         override fun execute(
             context: Context,
             args: BackupDeviceActionArgs,
@@ -366,8 +364,6 @@ public class BackupRestoreTestRunnerTest {
 
     /** Reports a failed check, as an assertion does. */
     public class FailingAction : BackupDeviceAction {
-        override val phase: Int = BackupDeviceAction.PHASE_VERIFY
-
         override fun execute(
             context: Context,
             args: BackupDeviceActionArgs,
@@ -376,8 +372,6 @@ public class BackupRestoreTestRunnerTest {
 
     /** Crashes. */
     public class ThrowingAction : BackupDeviceAction {
-        override val phase: Int = BackupDeviceAction.PHASE_VERIFY
-
         override fun execute(
             context: Context,
             args: BackupDeviceActionArgs,
@@ -386,8 +380,6 @@ public class BackupRestoreTestRunnerTest {
 
     /** Crashes with a message, and so a stack trace, longer than the runner reports. */
     public class LongMessageThrowingAction : BackupDeviceAction {
-        override val phase: Int = BackupDeviceAction.PHASE_VERIFY
-
         override fun execute(
             context: Context,
             args: BackupDeviceActionArgs,

@@ -74,6 +74,7 @@ class BackupActionWireProtocolTest {
         assertEquals("FLOAT", BackupActionValues.VALUE_TYPE_FLOAT)
         assertEquals("BOOLEAN", BackupActionValues.VALUE_TYPE_BOOLEAN)
         assertEquals("STRING", BackupActionValues.VALUE_TYPE_STRING)
+        assertEquals("STRING_SET", BackupActionValues.VALUE_TYPE_STRING_SET)
         assertEquals("success", BackupActionValues.STATUS_SUCCESS)
         assertEquals("failure", BackupActionValues.STATUS_FAILURE)
     }
@@ -268,6 +269,58 @@ class BackupActionWireProtocolTest {
     }
 
     @Test
+    fun populateArgsWriteAStringSetAsAJsonArray() {
+        assertEquals(
+            mapOf(
+                "storage_type" to "PREFS",
+                "pref_name" to "prefs",
+                "pref_key" to "key",
+                "value" to """["a","b\"c",""]""",
+                "value_type" to "STRING_SET",
+            ),
+            BackupActionWireProtocol.populateArgs(
+                StorageDomain.Preference("prefs", "key", linkedSetOf("a", "b\"c", ""))
+            ),
+        )
+    }
+
+    @Test
+    fun populateArgsWriteAnEmptyStringSet() {
+        val args =
+            BackupActionWireProtocol.populateArgs(
+                StorageDomain.Preference("prefs", "key", emptySet<String>())
+            )
+
+        assertEquals("[]", args["value"])
+        assertEquals("STRING_SET", args["value_type"])
+    }
+
+    @Test
+    fun populateArgsMarkEveryKindOfDomainInDeviceProtectedStorage() {
+        val domains =
+            listOf(
+                StorageDomain.Preference("prefs", "key", "v", isDeviceProtectedStorage = true),
+                StorageDomain.Preference("prefs", "key", null, isDeviceProtectedStorage = true),
+                StorageDomain.Database("app.db", "t", "id", 1, mapOf("a" to "b"), true),
+                StorageDomain.TextFile("a.txt", "hello", isDeviceProtectedStorage = true),
+                StorageDomain.BinaryFile("b.bin", byteArrayOf(1), isDeviceProtectedStorage = true),
+            )
+
+        for (domain in domains) {
+            assertEquals(
+                "true",
+                BackupActionWireProtocol.populateArgs(domain)["is_device_protected"],
+                "$domain",
+            )
+            assertEquals(
+                "true",
+                BackupActionWireProtocol.assertArgs(domain)["is_device_protected"],
+                "$domain",
+            )
+        }
+    }
+
+    @Test
     fun populateArgsAddTheMissingPrimaryKeyToTheDatabaseRow() {
         val args =
             BackupActionWireProtocol.populateArgs(
@@ -331,7 +384,7 @@ class BackupActionWireProtocolTest {
     /** The action verifies a preference against its value, so the value is sent only once. */
     @Test
     fun assertArgsVerifyAPreferenceAgainstItsValue() {
-        for (value in listOf(7, "value", true)) {
+        for (value in listOf(7, linkedSetOf("a", "b"))) {
             val domain = StorageDomain.Preference("prefs", "key", value)
 
             assertEquals(

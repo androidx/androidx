@@ -27,7 +27,6 @@ import androidx.test.backup.BackupActionInputKeys.KEY_VAL
 import androidx.test.backup.BackupActionInputKeys.VALUE
 import androidx.test.backup.BackupActionInputKeys.VALUES
 import androidx.test.backup.BackupActionInputKeys.VALUE_TYPE
-import androidx.test.backup.BackupActionPhase
 import androidx.test.backup.BackupActionValues.VALUE_TYPE_STRING
 import androidx.test.backup.BackupDeviceAction
 import androidx.test.backup.BackupDeviceActionArgs
@@ -45,8 +44,6 @@ import androidx.test.backup.BackupDeviceActionResult
  * backup-eligible changes pending.
  */
 public class PopulateStorageAction : BackupDeviceAction {
-    @get:BackupActionPhase override val phase: Int = BackupDeviceAction.PHASE_POPULATE
-
     override fun execute(context: Context, args: BackupDeviceActionArgs): BackupDeviceActionResult {
         val target =
             try {
@@ -94,6 +91,10 @@ public class PopulateStorageAction : BackupDeviceAction {
                 is Float -> editor.putFloat(target.key, parsedValue)
                 is Boolean -> editor.putBoolean(target.key, parsedValue)
                 is String -> editor.putString(target.key, parsedValue)
+                // parsePreferenceValue returns a Set only as a Set<String>.
+                is Set<*> ->
+                    @Suppress("UNCHECKED_CAST")
+                    editor.putStringSet(target.key, parsedValue as Set<String>)
                 else -> error("Unexpected parsed preference value: $parsedValue")
             }
         }
