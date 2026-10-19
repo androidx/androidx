@@ -277,7 +277,88 @@ class BackupRestoreControllerImplTest {
         assertTrue(instrumentCommand().endsWith(" $PACKAGE.test/$RUNNER"), instrumentCommand())
     }
 
-    /** The installed paths identify an installation of the app and of its test APKs. */
+    /** A test application ID picks its runner among the ones installed for the app. */
+    @Test
+    fun runOnDeviceRunsTheRunnerOfTheTestApplicationId() = runBlocking {
+        onDeviceWithInstrumentations("com.example.tests/$RUNNER", "$PACKAGE.test/$RUNNER")
+        val controller =
+            BackupRestoreControllerImpl(
+                device.session,
+                FAKE_SERIAL,
+                34,
+                PACKAGE,
+                testApplicationId = "com.example.tests",
+            )
+
+        controller.runOnDevice("com.example.MyAction")
+
+        assertTrue(instrumentCommand().endsWith(" com.example.tests/$RUNNER"), instrumentCommand())
+    }
+
+    /**
+     * A test application ID whose test APK has no runner for the app fails the action with the test
+     * APKs that have one, rather than running in the process of another app or failing in `am`.
+     */
+    @Test
+    fun runOnDeviceFailsWhenTheTestApkOfTheTestApplicationIdHasNoRunnerForTheApp() = runBlocking {
+        device.onShell { command ->
+            if (command == "pm list instrumentation $PACKAGE") {
+                shellOutput(
+                    "instrumentation:com.example.tests/$RUNNER (target=com.example.other)\n" +
+                        "instrumentation:$PACKAGE.test/$RUNNER (target=$PACKAGE)\n"
+                )
+            } else {
+                null
+            }
+        }
+        val controller =
+            BackupRestoreControllerImpl(
+                device.session,
+                FAKE_SERIAL,
+                34,
+                PACKAGE,
+                testApplicationId = "com.example.tests",
+            )
+
+        val result = controller.runOnDevice("com.example.MyAction")
+
+        assertEquals(
+            BackupActionResult.Failure(
+                "Test APK com.example.tests isn't installed or has no $RUNNER for $PACKAGE. Test " +
+                    "APKs with one: $PACKAGE.test"
+            ),
+            result,
+        )
+        assertTrue(device.commands.none { it.startsWith("am instrument") }, "${device.commands}")
+    }
+
+    @Test
+    fun runOnDeviceFailsWhenNoTestApkHasARunnerForTheTestApplicationId() = runBlocking {
+        onDeviceWithInstrumentations()
+        val controller =
+            BackupRestoreControllerImpl(
+                device.session,
+                FAKE_SERIAL,
+                34,
+                PACKAGE,
+                testApplicationId = "com.example.tests",
+            )
+
+        val result = controller.runOnDevice("com.example.MyAction")
+
+        assertEquals(
+            BackupActionResult.Failure(
+                "Test APK com.example.tests isn't installed or has no $RUNNER for $PACKAGE. Test " +
+                    "APKs with one: none"
+            ),
+            result,
+        )
+    }
+
+    /**
+     * The installed paths identify an installation of the app and of its test APKs, whatever the
+     * test application ID of the controller.
+     */
     @Test
     fun installedApkPathsCoverATestApkOutsideThePackagesOfTheApp() = runBlocking {
         device.onShell { command ->
@@ -305,6 +386,17 @@ class BackupRestoreControllerImplTest {
             )
 
         assertEquals(paths, controller.installedApkPaths())
+        assertEquals(
+            paths,
+            BackupRestoreControllerImpl(
+                    device.session,
+                    FAKE_SERIAL,
+                    34,
+                    PACKAGE,
+                    testApplicationId = "com.example.tests",
+                )
+                .installedApkPaths(),
+        )
         // The packages of the app already include its test APK.
         assertTrue(device.commands.none { it == "pm list packages -f $PACKAGE.test" })
     }

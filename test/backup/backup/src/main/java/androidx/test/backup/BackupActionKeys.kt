@@ -84,14 +84,14 @@ public object BackupActionInputKeys {
     public const val VALUE: String = "value"
 
     /**
-     * Primitive type used to store and read back a preference [VALUE].
+     * Type used to store and read back a preference [VALUE].
      *
      * Must be one of [BackupActionValues.VALUE_TYPE_INT], [BackupActionValues.VALUE_TYPE_LONG],
-     * [BackupActionValues.VALUE_TYPE_FLOAT], [BackupActionValues.VALUE_TYPE_BOOLEAN] or
-     * [BackupActionValues.VALUE_TYPE_STRING], matched case-insensitively. Defaults to
-     * [BackupActionValues.VALUE_TYPE_STRING] when absent. Any other value fails the action, as does
-     * a [VALUE] or [EXPECTED] that does not parse as this type. Booleans accept only `"true"` and
-     * `"false"`, in any casing.
+     * [BackupActionValues.VALUE_TYPE_FLOAT], [BackupActionValues.VALUE_TYPE_BOOLEAN],
+     * [BackupActionValues.VALUE_TYPE_STRING] or [BackupActionValues.VALUE_TYPE_STRING_SET], matched
+     * case-insensitively. Defaults to [BackupActionValues.VALUE_TYPE_STRING] when absent. Any other
+     * value fails the action, as does a [VALUE] or [EXPECTED] that does not parse as this type.
+     * Booleans accept only `"true"` and `"false"`, in any casing.
      */
     public const val VALUE_TYPE: String = "value_type"
 
@@ -245,6 +245,14 @@ public object BackupActionValues {
      * default when the key is absent.
      */
     public const val VALUE_TYPE_STRING: String = "STRING"
+
+    /**
+     * [BackupActionInputKeys.VALUE_TYPE] value storing the value with `putStringSet`.
+     *
+     * The value is a JSON array of strings, such as `["a","b"]`. Verification compares the stored
+     * set with it regardless of order.
+     */
+    public const val VALUE_TYPE_STRING_SET: String = "STRING_SET"
 
     /** [BackupActionOutputKeys.STATUS] value reported when the action completed its work. */
     public const val STATUS_SUCCESS: String = "success"

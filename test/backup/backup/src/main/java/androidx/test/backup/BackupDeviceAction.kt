@@ -17,8 +17,6 @@
 package androidx.test.backup
 
 import android.content.Context
-import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
 
 /**
  * Arguments passed from the host orchestrator to a [BackupDeviceAction].
@@ -168,34 +166,6 @@ constructor(public val payload: Map<String, String> = emptyMap()) {
 }
 
 /**
- * Denotes that the annotated [Int] is the phase of a backup and restore test that a
- * [BackupDeviceAction] runs in, as [BackupDeviceAction.phase] reports it.
- *
- * Unlike [BackupActionStatus], this set is closed: a phase is one of these values.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-@Retention(AnnotationRetention.SOURCE)
-@IntDef(BackupDeviceAction.PHASE_POPULATE, BackupDeviceAction.PHASE_VERIFY)
-@Target(
-    AnnotationTarget.PROPERTY,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.TYPE,
-    AnnotationTarget.FUNCTION,
-)
-public annotation class BackupActionPhase {
-    public companion object {
-        /** The phase of an action that seeds data in the app's storage before a backup. */
-        public const val POPULATE: Int = BackupDeviceAction.PHASE_POPULATE
-
-        /**
-         * The phase of an action that checks restored data in the app's storage after a restore.
-         */
-        public const val VERIFY: Int = BackupDeviceAction.PHASE_VERIFY
-    }
-}
-
-/**
  * Runs an action inside the application sandbox on the target device.
  *
  * Implementations must provide a public no-arg constructor to enable dynamic instantiation.
@@ -207,26 +177,6 @@ public annotation class BackupActionPhase {
  * tell the two apart.
  */
 public interface BackupDeviceAction {
-    public companion object {
-        /** The [phase] of an action that seeds data in the app's storage before a backup. */
-        public const val PHASE_POPULATE: Int = 1
-
-        /**
-         * The [phase] of an action that checks restored data in the app's storage after a restore.
-         */
-        public const val PHASE_VERIFY: Int = 2
-    }
-
-    /**
-     * The phase of a backup and restore test in which this action runs: [PHASE_POPULATE] for an
-     * action that seeds data before a backup, or [PHASE_VERIFY] for an action that checks restored
-     * data after a restore.
-     *
-     * The phase only describes the action. This library doesn't read it, so it doesn't change when
-     * or how the action runs.
-     */
-    @get:BackupActionPhase public val phase: Int
-
     /**
      * Runs the action payload.
      *

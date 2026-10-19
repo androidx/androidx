@@ -40,6 +40,12 @@ class FailureMessagesTest {
         assertEquals("'${"a".repeat(63)}...' (75 chars)", shown(value))
     }
 
+    /** A stored set can come back in another order, so sets are shown sorted. */
+    @Test
+    fun shownSortsTheElementsOfASet() {
+        assertEquals("'[a, b]'", shown(linkedSetOf("b", "a")))
+    }
+
     @Test
     fun textMismatchShowsShortTextsWhole() {
         assertEquals(

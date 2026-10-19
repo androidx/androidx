@@ -233,12 +233,4 @@ class BackupDeviceActionTest {
             BackupDeviceActionResult(mapOf("status" to "verified", "error" to "stale")).isSuccess
         )
     }
-
-    @Test
-    fun testActionPhaseConstants() {
-        assertEquals(1, BackupDeviceAction.PHASE_POPULATE)
-        assertEquals(2, BackupDeviceAction.PHASE_VERIFY)
-        assertEquals(BackupDeviceAction.PHASE_POPULATE, BackupActionPhase.POPULATE)
-        assertEquals(BackupDeviceAction.PHASE_VERIFY, BackupActionPhase.VERIFY)
-    }
 }
