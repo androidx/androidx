@@ -51,6 +51,14 @@ public abstract class CoroutineWorker(appContext: Context, private val params: W
     @Deprecated(message = "use withContext(...) inside doWork() instead.")
     public open val coroutineContext: CoroutineDispatcher = DeprecatedDispatcher
 
+    /**
+     * Starts the suspending work by launching a coroutine and calling [doWork].
+     *
+     * This method is `final` and cannot be overridden. Override [doWork] instead to perform your
+     * suspending background work.
+     *
+     * @return A [ListenableFuture] with the [Result] of the [doWork] computation.
+     */
     @Suppress("DEPRECATION")
     public final override fun startWork(): ListenableFuture<Result> {
         // if a developer didn't override coroutineContext property, then

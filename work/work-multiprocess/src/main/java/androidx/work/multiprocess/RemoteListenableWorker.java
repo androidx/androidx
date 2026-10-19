@@ -70,6 +70,16 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
         super(appContext, workerParams);
     }
 
+    /**
+     * Returns a failed {@link ListenableFuture}. {@code startWork()} should not be called on a
+     * {@link RemoteListenableWorker}.
+     * <p>
+     * This method is {@code final} and cannot be overridden. Override {@link #startRemoteWork()}
+     * instead to define the work that runs in the remote process.
+     *
+     * @return A {@link ListenableFuture} that immediately fails with an
+     * {@link IllegalArgumentException}
+     */
     @Override
     public final @NonNull ListenableFuture<Result> startWork() {
         String message = "startWork() shouldn't never be called on RemoteListenableWorker";
