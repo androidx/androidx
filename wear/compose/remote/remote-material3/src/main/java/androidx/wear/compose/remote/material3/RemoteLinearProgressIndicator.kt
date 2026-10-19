@@ -28,8 +28,8 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.max
-import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -52,13 +52,17 @@ import androidx.compose.ui.unit.LayoutDirection
  * The indicator also includes a small dot at the end of the progress line. This dot serves as an
  * accessibility feature to show the range of the indicator.
  *
+ * Animates changes to [progress] with the [RemoteMotionScheme.defaultEffectsSpec] of
+ * [RemoteMaterialTheme.motionScheme].
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteLinearProgressIndicatorSample
  *
- * For an animated progress, see:
+ * Example that changes [progress] on click:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteLinearProgressIndicatorAnimatedSample
  * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
- *   represents completion. Values outside of this range are coerced into the range 0..1.
+ *   represents completion. Values outside of this range are coerced into the range 0..1. Progress
+ *   changes are animated.
  * @param modifier Modifier to be applied to the [RemoteLinearProgressIndicator].
  * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
  *   track colors for this progress indicator in different states.
@@ -79,6 +83,13 @@ public fun RemoteLinearProgressIndicator(
     enabled: RemoteBoolean = true.rb,
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    // Coerce before animating, as Wear Material3 does, so an out of range value animates from the
+    // end of the track instead of pausing there.
+    val animatedProgress =
+        animateProgress(
+            clamp(progress, 0f.rf, 1f.rf),
+            RemoteMaterialTheme.motionScheme.defaultEffectsSpec(),
+        )
 
     RemoteCanvas(
         modifier =
@@ -87,7 +98,7 @@ public fun RemoteLinearProgressIndicator(
                 .height(strokeWidth)
                 .scale(scaleX = if (isRtl) (-1f).rf else 1f.rf, scaleY = 1f.rf)
     ) {
-        drawLinearIndicator(progress, strokeWidth, colors, enabled)
+        drawLinearIndicator(animatedProgress, strokeWidth, colors, enabled)
     }
 }
 
@@ -135,7 +146,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
     val strokePx = strokeWidth.toPx()
     val strokeCapOffset = strokePx / 2f.rf
     val yOffset = height / 2f.rf
-    val clampedProgress = min(1f.rf, max(0f.rf, progress))
+    val clampedProgress = clamp(progress, 0f.rf, 1f.rf)
     val availableWidth = max(0f.rf, width - strokePx - horizontalMargin * 2f.rf)
     val progressPx = clampedProgress * availableWidth
 
@@ -178,7 +189,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
     val distanceFromProgressToDot =
         dotCenterX - dotRadius - progressPx - strokeCapOffset * 2f.rf - horizontalMargin
 
-    val scaleFraction = min(1f.rf, max(0f.rf, distanceFromProgressToDot / dotMargin))
+    val scaleFraction = clamp(distanceFromProgressToDot / dotMargin, 0f.rf, 1f.rf)
     val scaledDotRadius = dotRadius * scaleFraction
     val isDotHidden = scaleFraction.isLessThan(0.01f.rf)
 

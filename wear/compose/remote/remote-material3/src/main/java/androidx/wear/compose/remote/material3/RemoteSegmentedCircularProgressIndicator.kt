@@ -31,11 +31,15 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.asin
+import androidx.compose.remote.creation.compose.state.clamp
+import androidx.compose.remote.creation.compose.state.cos
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.sin
+import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
@@ -48,17 +52,22 @@ import androidx.compose.ui.graphics.StrokeCap
  * segments. This overload of [RemoteSegmentedCircularProgressIndicator] fills the segments in order
  * based on [progress].
  *
+ * Animates changes to [progress] with the [RemoteMotionScheme.slowEffectsSpec] of
+ * [RemoteMaterialTheme.motionScheme], as a single animation across the segments. Only the length of
+ * the filled segments animates, not their stroke width.
+ *
  * Example of [RemoteSegmentedCircularProgressIndicator] with progress value:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteSegmentedCircularProgressIndicatorSample
  *
- * For an animated progress, see:
+ * Example that changes [progress] on click:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteSegmentedCircularProgressIndicatorAnimatedSample
  * @param segmentCount Number of equal segments that the progress indicator should be divided into.
  *   Has to be a constant [RemoteInt] greater than or equal to 1.
  * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
- *   represents completion. Values outside of this range are coerced into the range.
+ *   represents completion. Values outside of this range are coerced into the range. Progress
+ *   changes are animated.
  * @param modifier Modifier to be applied to the progress indicator.
  * @param enabled Controls the enabled state. When enabled is `false`, this component will appear
  *   visually disabled. Note that the disabled colors are only applied when [enabled] is a constant.
@@ -92,8 +101,19 @@ public fun RemoteSegmentedCircularProgressIndicator(
             "segmentCount must be a constant RemoteInt"
         }
     require(count >= 1) { "segmentCount must be at least 1, was $count" }
+    // Coerce before animating, as Wear Material3 does, so an out of range value animates from the
+    // end of the indicator instead of pausing there.
+    val targetProgress = clamp(progress, 0f.rf, 1f.rf)
+    val animatedProgress = animateProgress(targetProgress)
+    val targetFractions = List(count) { segmentFraction(targetProgress, count, it) }
+    // A constant progress isn't animated, so the segments are at their targets already.
+    val segmentFractions =
+        if (targetProgress.hasConstantValue) {
+            targetFractions
+        } else {
+            List(count) { segmentFraction(animatedProgress, count, it) }
+        }
     RemoteCanvas(modifier = modifier.fillMaxSize()) {
-        val progressInSegments = progress * count.toFloat().rf
         drawSegments(
             segmentCount = count,
             startAngle = startAngle,
@@ -102,11 +122,15 @@ public fun RemoteSegmentedCircularProgressIndicator(
             gapSize = gapSize,
             colors = colors,
             enabled = enabled,
-        ) { segmentIndex ->
-            min(1f.rf, max(0f.rf, progressInSegments - segmentIndex.toFloat().rf))
-        }
+            segmentFractions = segmentFractions,
+            targetSegmentFractions = targetFractions,
+        )
     }
 }
+
+/** Returns how much of the segment at [segmentIndex] is filled at [progress], from 0 to 1. */
+private fun segmentFraction(progress: RemoteFloat, segmentCount: Int, segmentIndex: Int) =
+    clamp(progress * segmentCount.toFloat().rf - segmentIndex.toFloat().rf, 0f.rf, 1f.rf)
 
 /**
  * Material Design segmented circular progress indicator.
@@ -115,6 +139,10 @@ public fun RemoteSegmentedCircularProgressIndicator(
  * segments. This overload of [RemoteSegmentedCircularProgressIndicator] allows for each segment to
  * be individually indicated as completed, such as for showing activity for intervals within a
  * longer period.
+ *
+ * When a segment turns on or off, its length grows from its start or shrinks back to it, with the
+ * [RemoteMotionScheme.fastEffectsSpec] of [RemoteMaterialTheme.motionScheme]. The stroke width
+ * doesn't animate.
  *
  * Example of [RemoteSegmentedCircularProgressIndicator] where the segments are turned on/off:
  *
@@ -157,6 +185,10 @@ public fun RemoteSegmentedCircularProgressIndicator(
             "segmentCount must be a constant RemoteInt"
         }
     require(count >= 1) { "segmentCount must be at least 1, was $count" }
+    val animationSpec = RemoteMaterialTheme.motionScheme.fastEffectsSpec()
+    val targetFractions =
+        List(count) { segmentIndex -> segmentValue(segmentIndex).select(1f.rf, 0f.rf) }
+    val segmentFractions = List(count) { animateProgress(targetFractions[it], animationSpec) }
     RemoteCanvas(modifier = modifier.fillMaxSize()) {
         drawSegments(
             segmentCount = count,
@@ -166,17 +198,17 @@ public fun RemoteSegmentedCircularProgressIndicator(
             gapSize = gapSize,
             colors = colors,
             enabled = enabled,
-        ) { segmentIndex ->
-            segmentValue(segmentIndex).select(1f.rf, 0f.rf)
-        }
+            segmentFractions = segmentFractions,
+            targetSegmentFractions = targetFractions,
+        )
     }
 }
 
 /**
  * Draws [segmentCount] track segments, and an indicator on top of each segment filled according to
- * [segmentFraction], a value between 0 (empty) and 1 (full).
+ * [segmentFractions], values between 0 (empty) and 1 (full) that may be animating towards
+ * [targetSegmentFractions]. A segment whose target fraction is constant doesn't animate.
  */
-@Suppress("RestrictedApiAndroidX")
 private fun RemoteDrawScope.drawSegments(
     segmentCount: Int,
     startAngle: RemoteFloat,
@@ -185,7 +217,8 @@ private fun RemoteDrawScope.drawSegments(
     gapSize: RemoteDp,
     colors: RemoteProgressIndicatorColors,
     enabled: RemoteBoolean,
-    segmentFraction: (segmentIndex: Int) -> RemoteFloat,
+    segmentFractions: List<RemoteFloat>,
+    targetSegmentFractions: List<RemoteFloat>,
 ) {
     val fullSweep = 360f.rf - ((startAngle - endAngle) % 360f.rf + 360f.rf) % 360f.rf
     val strokePx = strokeWidth.toPx()
@@ -199,10 +232,12 @@ private fun RemoteDrawScope.drawSegments(
             diameterOffset + (height - diameter) / 2f.rf,
         )
     val arcSize = RemoteSize(arcDimen, arcDimen)
+    val arcRadius = arcDimen / 2f.rf
+    val arcCenter = RemoteOffset(topLeft.x + arcRadius, topLeft.y + arcRadius)
 
     // Sweep angle of the gap between two segments.
     val chordRatio =
-        min(1f.rf, max(0f.rf, (strokePx + gapSizePx) / max(0.001f.rf, diameter - strokePx)))
+        clamp((strokePx + gapSizePx) / max(0.001f.rf, diameter - strokePx), 0f.rf, 1f.rf)
     val gapSweep = asin(chordRatio) * (360f / Math.PI.toFloat()).rf
     val segmentSweep = fullSweep / segmentCount.toFloat().rf
 
@@ -212,13 +247,18 @@ private fun RemoteDrawScope.drawSegments(
         strokeCap = StrokeCap.Round
         with(colors.trackBrush(enabled)) { applyTo(this@RemotePaint, size) }
     }
+    val indicatorStrokePx = strokePx + AntiAliasingStrokePadding.rf
     val indicatorPaint = RemotePaint {
         style = PaintingStyle.Stroke
+        this.strokeWidth = indicatorStrokePx
         strokeCap = StrokeCap.Round
         with(colors.indicatorBrush(enabled)) { applyTo(this@RemotePaint, size) }
     }
-    val baseIndicatorColor = indicatorPaint.color
-    val baseIndicatorStrokePx = strokePx + AntiAliasingStrokePadding.rf
+    val indicatorColor = indicatorPaint.color
+    val dotPaint = RemotePaint {
+        style = PaintingStyle.Fill
+        with(colors.indicatorBrush(enabled)) { applyTo(this@RemotePaint, size) }
+    }
 
     for (segment in 0 until segmentCount) {
         val segmentStartAngle =
@@ -234,34 +274,58 @@ private fun RemoteDrawScope.drawSegments(
             size = arcSize,
         )
 
-        // Indicator. When a segment becomes active (progressSweep > 0), its dot scales in from the
-        // leading edge using a spring intro animation (~0.85s) while its arc sweep advances in
-        // parallel, and opacity fades in from 0% at 0% width to 100% at 50% width, matching the
-        // Wear Material3 motion spec.
-        val progressSweep = segmentSweep * segmentFraction(segment)
-        val hasProgress = progressSweep.isGreaterThan(0f.rf)
-        val dotScale =
-            remote.animateSpring(
-                rf = hasProgress.select(1f.rf, 0f.rf),
-                stiffness = SpringStiffness,
-                dampingRatio = SpringDampingRatio,
-            )
-        val isVisible = hasProgress and dotScale.isGreaterThan(0f.rf)
-        val dotAlpha = min(1f.rf, dotScale * 2f.rf)
-        indicatorPaint.strokeWidth = baseIndicatorStrokePx * dotScale
-        indicatorPaint.color =
-            isVisible.select(
-                baseIndicatorColor.copy(alpha = baseIndicatorColor.alpha * dotAlpha),
-                Color.Transparent.rc,
-            )
+        // Indicator. Like Wear Material3, only its length animates, at the full stroke width.
+        val fraction = segmentFractions[segment]
+        val targetFraction = targetSegmentFractions[segment]
+        val animatedSweep = segmentSweep * fraction
+        val targetSweep = segmentSweep * targetFraction
+        // A progress too small to fill the gap at the start of the segment is shown as a full dot,
+        // when it is the target rather than a step of the animation.
+        val holdsDot =
+            targetSweep.isGreaterThan(0f.rf) and
+                targetSweep.isLessThanOrEqualTo(gapSweep) and
+                animatedSweep.isGreaterThan(0f.rf)
+        val progressSweep = holdsDot.select(max(animatedSweep, gapSweep), animatedSweep)
+
+        // An arc, which is a full dot at the start of the segment when it fills just the gap.
+        val isArc = progressSweep.isGreaterThanOrEqualTo(gapSweep)
+        indicatorPaint.color = isArc.select(indicatorColor, Color.Transparent.rc)
         drawArc(
             paint = indicatorPaint,
-            startAngle = segmentStartAngle + (gapSweep / 2f.rf) * dotScale,
+            startAngle = segmentStartAngle + gapSweep / 2f.rf,
             // A zero sweep draws nothing, while a tiny sweep with a round cap draws a dot.
-            sweepAngle = isVisible.select(max(MinDotSweep, progressSweep - gapSweep), 0f.rf),
+            sweepAngle = isArc.select(max(MinDotSweep, progressSweep - gapSweep), 0f.rf),
             useCenter = false,
             topLeft = topLeft,
             size = arcSize,
+        )
+
+        // While the animation grows a segment from nothing or shrinks it to nothing, the end of
+        // the indicator is a dot, scaled and faded by how much of the gap the progress fills, so
+        // that it doesn't pop in or linger at full size. A segment whose target fraction is
+        // constant doesn't animate, and never needs that dot, since holdsDot shows any sweep up to
+        // the gap as a full dot, so its dot is left out of the document. This is decided from the
+        // target fraction, as the sweeps depend on the canvas size and are never constant.
+        if (targetFraction.hasConstantValue) continue
+        val isPartialDot = progressSweep.isGreaterThan(0f.rf) and !isArc
+        val dotFraction = progressSweep / max(0.001f.rf, gapSweep)
+        val dotRadius = indicatorStrokePx / 2f.rf * dotFraction
+        val dotAngle = toRad(segmentStartAngle + progressSweep / 2f.rf)
+        dotPaint.color =
+            isPartialDot.select(
+                indicatorColor.copy(
+                    alpha = indicatorColor.alpha * min(1f.rf, dotRadius * 2f.rf / strokePx)
+                ),
+                Color.Transparent.rc,
+            )
+        drawCircle(
+            paint = dotPaint,
+            radius = isPartialDot.select(dotRadius, 0f.rf),
+            center =
+                RemoteOffset(
+                    arcCenter.x + arcRadius * cos(dotAngle),
+                    arcCenter.y + arcRadius * sin(dotAngle),
+                ),
         )
     }
 }
@@ -271,9 +335,3 @@ private const val AntiAliasingStrokePadding = 1f
 
 /** Sweep angle used to draw a dot with a round stroke cap. */
 private val MinDotSweep: RemoteFloat = 0.05f.rf
-
-/** Spring stiffness for the ~0.85s segment dot intro animation. */
-private const val SpringStiffness = 50f
-
-/** Critically damped spring ratio for the segment dot intro animation. */
-private const val SpringDampingRatio = 1f

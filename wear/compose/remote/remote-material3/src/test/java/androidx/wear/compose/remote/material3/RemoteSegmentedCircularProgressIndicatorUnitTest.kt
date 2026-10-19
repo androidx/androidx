@@ -17,25 +17,15 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
-import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -122,68 +112,6 @@ class RemoteSegmentedCircularProgressIndicatorUnitTest {
                 segmentValue = { true.rb },
             )
         }
-    }
-
-    @Test
-    fun progress_segmentIntroAnimation_scalesDotFromSmallToFull() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
-        val doc = runBlocking {
-            captureRule.captureDocument(context = context, creationDisplayInfo = displayInfo) {
-                val progress = RemoteFloat.createNamedRemoteFloat("progress", 0f)
-                RemoteSegmentedCircularProgressIndicator(
-                    segmentCount = 5.ri,
-                    progress = progress,
-                    modifier = RemoteModifier.size(150.rdp),
-                    colors =
-                        RemoteProgressIndicatorDefaults.colors(
-                            indicatorColor = Color.Red.rc,
-                            trackColor = Color.Blue.rc,
-                        ),
-                )
-            }
-        }
-        val remoteContext =
-            AndroidRemoteContext().apply { density = context.resources.displayMetrics.density }
-        val initBitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        remoteContext.useCanvas(Canvas(initBitmap))
-        remoteContext.setAnimationTime(0f)
-        doc.initializeContext(remoteContext)
-        doc.paint(remoteContext, Theme.UNSPECIFIED)
-
-        // Advance progress slightly above 0 (as in a long timer) at t=0s to trigger the ~0.85s
-        // spring intro animation on the first segment dot.
-        remoteContext.setNamedFloatOverride("USER:progress", 0.001f)
-        doc.paint(remoteContext, Theme.UNSPECIFIED)
-
-        val earlyDotBitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        remoteContext.useCanvas(Canvas(earlyDotBitmap))
-        remoteContext.setAnimationTime(0.15f)
-        doc.paint(remoteContext, Theme.UNSPECIFIED)
-
-        val settledDotBitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-        remoteContext.useCanvas(Canvas(settledDotBitmap))
-        remoteContext.setAnimationTime(1.0f)
-        doc.paint(remoteContext, Theme.UNSPECIFIED)
-
-        val earlyDotRedPixels = earlyDotBitmap.countPixelsMatching {
-            it.red > 0.3f && it.blue < 0.7f
-        }
-        val settledDotRedPixels = settledDotBitmap.countPixelsMatching {
-            it.red > 0.3f && it.blue < 0.7f
-        }
-        assertThat(earlyDotRedPixels).isGreaterThan(0)
-        assertThat(earlyDotRedPixels).isLessThan(settledDotRedPixels)
-    }
-
-    private fun Bitmap.countPixelsMatching(predicate: (Color) -> Boolean): Int {
-        var count = 0
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                if (predicate(Color(getPixel(x, y)))) count++
-            }
-        }
-        return count
     }
 
     private fun capture(content: @Composable @RemoteComposable () -> Unit) {

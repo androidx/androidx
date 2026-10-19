@@ -50,7 +50,6 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -109,21 +108,18 @@ public fun RemoteSplitCheckboxButton(
     secondaryLabel: @Composable @RemoteComposable (RemoteRowScope.() -> Unit)? = null,
     label: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
-    val progress =
-        animateRemoteFloatAsState(
-            targetValue = checked.select(1f.rf, 0f.rf),
-            animationSpec = RemoteMaterialTheme.motionScheme.fastEffectsSpec(),
-        )
+    val progress = animateSelectionControlProgress(checked)
+    val colorProgress = animateSelectionColorProgress(checked)
     val (startSectionShape, endSectionShape) =
         splitSectionShapes(shape, RemoteSplitCheckboxButtonDefaults.splitSectionsShape)
     val containerColor =
-        colors.containerColor(enabled = enabled, checked = checked, progress = progress)
+        colors.containerColor(enabled = enabled, checked = checked, progress = colorProgress)
     val contentColor =
-        colors.contentColor(enabled = enabled, checked = checked, progress = progress)
+        colors.contentColor(enabled = enabled, checked = checked, progress = colorProgress)
     val secondaryContentColor =
-        colors.secondaryContentColor(enabled = enabled, checked = checked, progress = progress)
+        colors.secondaryContentColor(enabled = enabled, checked = checked, progress = colorProgress)
     val splitContainerColor =
-        colors.splitContainerColor(enabled = enabled, checked = checked, progress = progress)
+        colors.splitContainerColor(enabled = enabled, checked = checked, progress = colorProgress)
     val boxColor = colors.boxColor(enabled = enabled, checked = checked, progress = progress)
     val checkmarkColor = colors.checkmarkColor(enabled = enabled)
 
