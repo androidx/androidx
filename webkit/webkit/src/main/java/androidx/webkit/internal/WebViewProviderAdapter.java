@@ -26,6 +26,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.annotation.UiThread;
+import androidx.webkit.GoogleAccountsEvent;
 import androidx.webkit.JavaScriptExecutionWorld;
 import androidx.webkit.Navigation;
 import androidx.webkit.NavigationListener;
@@ -49,6 +50,7 @@ import org.jspecify.annotations.Nullable;
 import java.lang.reflect.InvocationHandler;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 /**
  * Adapter for WebViewProviderBoundaryInterface providing the functionality expected of
@@ -383,6 +385,32 @@ public class WebViewProviderAdapter {
             @NonNull String jsObjectName,
             @NonNull String worldName) {
         mImpl.removeWebMessageListener(jsObjectName, worldName);
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#setGoogleAccountsCallback(WebView, String, Executor, Consumer)}.
+     */
+    @UiThread
+    @WebViewCompat.ExperimentalGoogleAccountsCallback
+    public void setGoogleAccountsCallback(
+            @Nullable String accountId,
+            @NonNull Executor executor,
+            @NonNull Consumer<GoogleAccountsEvent> callback) {
+        mImpl.setGoogleAccountsCallback(
+                accountId != null ? accountId : "",
+                executor,
+                invocationHandler -> callback.accept(
+                        GoogleAccountsEvent.forInvocationHandler(invocationHandler)));
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#clearGoogleAccountsCallback(WebView)}.
+     */
+    @UiThread
+    @WebViewCompat.ExperimentalGoogleAccountsCallback
+    public void clearGoogleAccountsCallback() {
+        mImpl.clearGoogleAccountsCallback();
     }
 
 }

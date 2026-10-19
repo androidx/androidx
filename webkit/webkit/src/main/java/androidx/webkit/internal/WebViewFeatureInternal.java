@@ -33,6 +33,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.pm.PackageInfoCompat;
 import androidx.webkit.BackForwardCacheSettings;
+import androidx.webkit.GoogleAccountsEvent;
 import androidx.webkit.JavaScriptExecutionWorld;
 import androidx.webkit.Navigation;
 import androidx.webkit.NavigationListener;
@@ -77,6 +78,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1153,6 +1155,21 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(
                     WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_VISIBLE,
                     Features.WEB_VIEW_NAVIGATION_LISTENER_NAVIGATION_VISIBLE);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebViewCompat#setGoogleAccountsCallback(WebView, String, Executor, Consumer)},
+     * {@link WebViewCompat#setGoogleAccountsCallback(WebView, String, Consumer)},
+     * {@link WebViewCompat#clearGoogleAccountsCallback(WebView)},
+     * {@link GoogleAccountsEvent#getActionType()},
+     * {@link GoogleAccountsEvent#getContinueUrl()},
+     * {@link GoogleAccountsEvent#isOutermostMainFrame()}, and
+     * {@link GoogleAccountsEvent#isNavigationRequest()}.
+     */
+    public static final ApiFeature.NoFramework GOOGLE_ACCOUNTS_CALLBACK =
+            new ApiFeature.NoFramework(WebViewFeature.GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1,
+                    Features.GOOGLE_ACCOUNTS_CALLBACK);
 
     // --- Add new feature constants above this line ---
 
