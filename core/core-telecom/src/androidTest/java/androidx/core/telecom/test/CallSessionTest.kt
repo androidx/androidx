@@ -16,9 +16,11 @@
 
 package androidx.core.telecom.test
 
+import android.media.ToneGenerator
 import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
 import android.telecom.CallEndpoint
+import android.telecom.DisconnectCause
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.BluetoothDeviceChecker
@@ -499,6 +501,109 @@ class CallSessionTest : BaseTelecomTest() {
 
             // Cleanup
             audioJob.cancel()
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verifies that when the platform invokes [CallSession.onDisconnect] with
+     * [DisconnectCause.UNKNOWN] (e.g., on API 34-36 during local Call.disconnect()), the Jetpack
+     * layer normalizes the cause code to [DisconnectCause.LOCAL] to match [CallSessionLegacy] while
+     * preserving metadata.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testOnDisconnect_remapsUnknownToLocal() {
+        runBlocking {
+            val callChannels = CallChannels()
+            var receivedCause: DisconnectCause? = null
+            val completionDeferred = CompletableDeferred<Boolean>()
+            val callSession =
+                CallSession(
+                    FakeBluetoothDeviceChecker(),
+                    coroutineContext,
+                    TestUtils.INCOMING_CALL_ATTRIBUTES,
+                    TestUtils.mOnAnswerLambda,
+                    { cause -> receivedCause = cause },
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                    callChannels,
+                    MutableSharedFlow(),
+                    { _, _ -> },
+                    CompletableDeferred(Unit),
+                )
+
+            val unknownCause =
+                DisconnectCause(
+                    DisconnectCause.UNKNOWN,
+                    "label",
+                    "description",
+                    "reason",
+                    ToneGenerator.TONE_PROP_BEEP,
+                )
+            callSession.onDisconnect(unknownCause) { completed ->
+                completionDeferred.complete(completed)
+            }
+
+            assertTrue(completionDeferred.await())
+            assertNotNull(receivedCause)
+            assertEquals(DisconnectCause.LOCAL, receivedCause?.code)
+            assertEquals("label", receivedCause?.label)
+            assertEquals("description", receivedCause?.description)
+            assertEquals("reason", receivedCause?.reason)
+            assertEquals(ToneGenerator.TONE_PROP_BEEP, receivedCause?.tone)
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verifies that when the platform invokes [CallSession.onDisconnect] with an explicit
+     * non-UNKNOWN [DisconnectCause] (such as [DisconnectCause.REJECTED]), the cause is passed
+     * through unchanged.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testOnDisconnect_preservesNonUnknownDisconnectCause() {
+        runBlocking {
+            val callChannels = CallChannels()
+            var receivedCause: DisconnectCause? = null
+            val completionDeferred = CompletableDeferred<Boolean>()
+            val callSession =
+                CallSession(
+                    FakeBluetoothDeviceChecker(),
+                    coroutineContext,
+                    TestUtils.INCOMING_CALL_ATTRIBUTES,
+                    TestUtils.mOnAnswerLambda,
+                    { cause -> receivedCause = cause },
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                    callChannels,
+                    MutableSharedFlow(),
+                    { _, _ -> },
+                    CompletableDeferred(Unit),
+                )
+
+            val rejectedCause =
+                DisconnectCause(
+                    DisconnectCause.REJECTED,
+                    "label",
+                    "description",
+                    "reason",
+                    ToneGenerator.TONE_PROP_BEEP,
+                )
+            callSession.onDisconnect(rejectedCause) { completed ->
+                completionDeferred.complete(completed)
+            }
+
+            assertTrue(completionDeferred.await())
+            assertNotNull(receivedCause)
+            assertEquals(DisconnectCause.REJECTED, receivedCause?.code)
+            assertEquals("label", receivedCause?.label)
+            assertEquals("description", receivedCause?.description)
+            assertEquals("reason", receivedCause?.reason)
+            assertEquals(ToneGenerator.TONE_PROP_BEEP, receivedCause?.tone)
             callChannels.closeAllChannels()
         }
     }
