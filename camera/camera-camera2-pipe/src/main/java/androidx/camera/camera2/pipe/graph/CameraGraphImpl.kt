@@ -277,8 +277,8 @@ constructor(
         convergedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int?,
         timeLimitNs: Long?,
-    ): Deferred<Result3A> {
-        return controller3A.converge3A(
+    ): Deferred<Result3A> = withSessionLockAsync {
+        controller3A.converge3A(
             aeRegions,
             afRegions,
             awbRegions,
