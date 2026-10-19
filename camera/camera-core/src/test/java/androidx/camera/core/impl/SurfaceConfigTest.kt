@@ -401,6 +401,85 @@ class SurfaceConfigTest {
     }
 
     @Test
+    fun transformSurfaceConfig_withPreviewStabilizationTable_smallerThanPreview_returnsPreview() {
+        assertThat(transformWithPreviewStabilizationTable(s240p_4_3).configSize)
+            .isEqualTo(ConfigSize.PREVIEW)
+        assertThat(transformWithPreviewStabilizationTable(s720p_16_9).configSize)
+            .isEqualTo(ConfigSize.PREVIEW)
+    }
+
+    @Test
+    fun transformSurfaceConfig_withPreviewStabilizationTable_largerThanPreview_returnsS1440p() {
+        val surfaceConfig = transformWithPreviewStabilizationTable(s1440p_4_3)
+
+        assertThat(surfaceConfig.configType).isEqualTo(ConfigType.PRIV)
+        assertThat(surfaceConfig.configSize).isEqualTo(ConfigSize.S1440P_4_3)
+    }
+
+    @Test
+    fun transformSurfaceConfig_withPreviewStabilizationTable_recordSmallerThanS1440p_returnsS1440p() {
+        // Arrange: RECORD (1920x1080) is smaller than s1440p, which doesn't matter for the
+        // preview stabilization table.
+        val smallRecordSurfaceSizeDefinition =
+            SurfaceSizeDefinition.create(
+                analysisSize,
+                surfaceSizeDefinition.s720pSizeMap,
+                previewSize,
+                surfaceSizeDefinition.s1440pSizeMap,
+                previewSize,
+                surfaceSizeDefinition.maximumSizeMap,
+                surfaceSizeDefinition.maximum4x3SizeMap,
+                surfaceSizeDefinition.maximum16x9SizeMap,
+                surfaceSizeDefinition.ultraMaximumSizeMap,
+            )
+
+        // Act
+        val surfaceConfig =
+            transformWithPreviewStabilizationTable(s1440p_4_3, smallRecordSurfaceSizeDefinition)
+
+        // Assert
+        assertThat(surfaceConfig.configSize).isEqualTo(ConfigSize.S1440P_4_3)
+    }
+
+    @Test
+    fun transformSurfaceConfig_withPreviewStabilizationTable_largerThanS1440p_returnsMaximum() {
+        assertThat(transformWithPreviewStabilizationTable(recordSize).configSize)
+            .isEqualTo(ConfigSize.MAXIMUM)
+    }
+
+    @Test
+    fun transformSurfaceConfig_withPreviewStabilizationTable_largerThanMaximum_returnsNotSupport() {
+        assertThat(transformWithPreviewStabilizationTable(Size(6000, 3000)).configSize)
+            .isEqualTo(ConfigSize.NOT_SUPPORT)
+    }
+
+    @Test
+    fun transformSurfaceConfig_withPreviewStabilizationTable_noS1440pForFormat_returnsMaximum() {
+        // RAW_SENSOR has neither s1440p nor MAXIMUM size in the surface size definition.
+        val surfaceConfig =
+            SurfaceConfig.transformSurfaceConfig(
+                imageFormat = ImageFormat.RAW_SENSOR,
+                size = s1440p_4_3,
+                surfaceSizeDefinition = surfaceSizeDefinition,
+                configSource = SurfaceConfig.ConfigSource.PREVIEW_STABILIZATION_TABLE,
+            )
+
+        assertThat(surfaceConfig.configType).isEqualTo(ConfigType.RAW)
+        assertThat(surfaceConfig.configSize).isEqualTo(ConfigSize.MAXIMUM)
+    }
+
+    private fun transformWithPreviewStabilizationTable(
+        size: Size,
+        sizeDefinition: SurfaceSizeDefinition = surfaceSizeDefinition,
+    ): SurfaceConfig =
+        SurfaceConfig.transformSurfaceConfig(
+            imageFormat = ImageFormat.PRIVATE,
+            size = size,
+            surfaceSizeDefinition = sizeDefinition,
+            configSource = SurfaceConfig.ConfigSource.PREVIEW_STABILIZATION_TABLE,
+        )
+
+    @Test
     fun configSize_getRelatedFixedSize_withFixedSize_returnsCorrectSize() {
         // Arrange
         val configSize = ConfigSize.S1080P_4_3

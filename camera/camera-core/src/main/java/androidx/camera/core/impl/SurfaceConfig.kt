@@ -135,6 +135,17 @@ public data class SurfaceConfig(
                         configSize = ConfigSize.MAXIMUM
                     }
                 }
+            } else if (configSource == ConfigSource.PREVIEW_STABILIZATION_TABLE) {
+                // The preview stabilization table only uses PREVIEW, s1440p and MAXIMUM sizes.
+                val s1440pSize = surfaceSizeDefinition.s1440pSizeMap[imageFormat]
+                val maximumSize = surfaceSizeDefinition.getMaximumSize(imageFormat)
+                if (sizeArea <= SizeUtil.getArea(surfaceSizeDefinition.getPreviewSize())) {
+                    configSize = ConfigSize.PREVIEW
+                } else if (s1440pSize != null && sizeArea <= SizeUtil.getArea(s1440pSize)) {
+                    configSize = ConfigSize.S1440P_4_3
+                } else if (maximumSize == null || sizeArea <= SizeUtil.getArea(maximumSize)) {
+                    configSize = ConfigSize.MAXIMUM
+                }
             } else {
                 if (sizeArea <= SizeUtil.getArea(surfaceSizeDefinition.getAnalysisSize())) {
                     configSize = ConfigSize.VGA
@@ -243,6 +254,13 @@ public data class SurfaceConfig(
          * [CameraDevice.createCaptureSession].
          */
         CAPTURE_SESSION_TABLES,
+
+        /**
+         * Represents the preview stabilization guaranteed stream config table defined in
+         * [CameraDevice.createCaptureSession], which only uses the PREVIEW, s1440p and MAXIMUM
+         * sizes.
+         */
+        PREVIEW_STABILIZATION_TABLE,
     }
 
     /**
