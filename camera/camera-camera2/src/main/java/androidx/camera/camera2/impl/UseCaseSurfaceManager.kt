@@ -33,6 +33,7 @@ import androidx.concurrent.futures.await
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
@@ -63,6 +64,8 @@ constructor(
 
     @GuardedBy("lock") private var stopDeferred: CompletableDeferred<Unit>? = null
 
+    @GuardedBy("lock") private var isConfiguringSurfaces = false
+
     /** Async set up the Surfaces to the [CameraGraph] */
     public fun setupAsync(
         graph: CameraGraph,
@@ -91,56 +94,18 @@ constructor(
                 threads.scope
                     .async {
                         check(sessionConfigAdapter.isSessionConfigValid())
-
                         val surfaces =
-                            try {
-                                getSurfaces(deferrableSurfaces, timeoutMillis)
-                            } catch (e: SurfaceClosedException) {
-                                Camera2Logger.warn(e) { "Failed to get Surfaces: Surfaces closed" }
-                                sessionConfigAdapter.reportSurfaceInvalid(e.deferrableSurface)
-                                return@async false
-                            } catch (e: TimeoutCancellationException) {
-                                Camera2Logger.warn {
-                                    "Failed to get Surfaces within $timeoutMillis ms"
-                                }
-                                return@async false
-                            }
-                        if (!isActive || surfaces.isEmpty()) {
-                            Camera2Logger.info {
-                                "Failed to get Surfaces: isActive=$isActive, surfaces=$surfaces"
-                            }
-                            return@async false
-                        }
-                        if (surfaces.areValid()) {
-                            synchronized(lock) {
-                                configuredSurfaceMap =
-                                    deferrableSurfaces.associateBy { deferrableSurface ->
-                                        checkNotNull(
-                                            surfaces[deferrableSurfaces.indexOf(deferrableSurface)]
-                                        )
-                                    }
-                                setSurfaceListener()
-                            }
+                            awaitValidSurfaces(
+                                deferrableSurfaces = deferrableSurfaces,
+                                sessionConfigAdapter = sessionConfigAdapter,
+                                timeoutMillis = timeoutMillis,
+                            ) ?: return@async false
 
-                            surfaceToStreamMap.forEach {
-                                val stream = it.value
-                                val surface = surfaces[deferrableSurfaces.indexOf(it.key)]
-                                Camera2Logger.debug { "Configured $surface for $stream" }
-                                graph.setSurface(stream = stream, surface = surface)
-                                inactiveSurfaceCloser.configure(stream, it.key, graph)
-                            }
-                            Camera2Logger.info { "Surface setup complete" }
-                            return@async true
-                        } else {
-                            Camera2Logger.warn { "Surface setup failed: Some Surfaces are invalid" }
-                            // Only handle the first failed Surface since subsequent calls to
-                            // CameraInternal#onUseCaseReset() will handle the other failed Surfaces
-                            // if there are any.
-                            sessionConfigAdapter.reportSurfaceInvalid(
-                                deferrableSurfaces[surfaces.indexOf(null)]
-                            )
-                            return@async false
-                        }
+                        configureSurfaces(
+                            graph = graph,
+                            deferrableToSurface = deferrableSurfaces.zip(surfaces).toMap(),
+                            surfaceToStreamMap = surfaceToStreamMap,
+                        )
                     }
                     .apply {
                         // When setup is done or cancelled, decrement the DeferrableSurfaces.
@@ -159,6 +124,7 @@ constructor(
                 return@synchronized currentStopDeferred
             }
             setupDeferred?.cancel()
+            setupDeferred = null
             inactiveSurfaceCloser.closeAll()
             configuredSurfaceMap = null
 
@@ -231,6 +197,117 @@ constructor(
         }
     }
 
+    private suspend fun CoroutineScope.awaitValidSurfaces(
+        deferrableSurfaces: List<DeferrableSurface>,
+        sessionConfigAdapter: SessionConfigAdapter,
+        timeoutMillis: Long,
+    ): List<Surface>? {
+        val surfaces =
+            try {
+                getSurfaces(deferrableSurfaces, timeoutMillis)
+            } catch (e: SurfaceClosedException) {
+                Camera2Logger.warn(e) { "Failed to get Surfaces: Surfaces closed" }
+                sessionConfigAdapter.reportSurfaceInvalid(e.deferrableSurface)
+                return null
+            } catch (e: TimeoutCancellationException) {
+                Camera2Logger.warn { "Failed to get Surfaces within $timeoutMillis ms" }
+                return null
+            }
+        if (!isActive || surfaces.isEmpty()) {
+            Camera2Logger.info { "Failed to get Surfaces: isActive=$isActive, surfaces=$surfaces" }
+            return null
+        }
+        if (!surfaces.areValid()) {
+            Camera2Logger.warn { "Surface setup failed: Some Surfaces are invalid" }
+            // Only handle the first failed Surface since subsequent calls to
+            // CameraInternal#onUseCaseReset() will handle the other failed Surfaces
+            // if there are any.
+            sessionConfigAdapter.reportSurfaceInvalid(deferrableSurfaces[surfaces.indexOf(null)])
+            return null
+        }
+        return surfaces.requireNoNulls()
+    }
+
+    private fun CoroutineScope.configureSurfaces(
+        graph: CameraGraph,
+        deferrableToSurface: Map<DeferrableSurface, Surface>,
+        surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
+    ): Boolean {
+        val surfaceToDeferrable =
+            deferrableToSurface.entries.associate { (deferrable, surface) -> surface to deferrable }
+        if (!tryStartConfiguration(surfaceToDeferrable)) {
+            return false
+        }
+
+        val configuredStreams = mutableListOf<StreamId>()
+        var setupCompleted = false
+        try {
+            for ((deferrableSurface, stream) in surfaceToStreamMap) {
+                if (!canContinueSetup()) return false
+                val surface = checkNotNull(deferrableToSurface[deferrableSurface])
+                Camera2Logger.debug { "Configured $surface for $stream" }
+                graph.setSurface(stream = stream, surface = surface)
+                configuredStreams.add(stream)
+                inactiveSurfaceCloser.configure(stream, deferrableSurface, graph)
+            }
+            setupCompleted = tryCommitConfiguration()
+            return setupCompleted
+        } finally {
+            if (!setupCompleted) {
+                rollbackConfiguration(graph, configuredStreams)
+            }
+        }
+    }
+
+    private fun CoroutineScope.canContinueSetup(): Boolean =
+        synchronized(lock) { isActive && stopDeferred == null }
+
+    private fun CoroutineScope.tryStartConfiguration(
+        surfaceToDeferrable: Map<Surface, DeferrableSurface>
+    ): Boolean =
+        synchronized(lock) {
+            if (!isActive || stopDeferred != null) {
+                Camera2Logger.info {
+                    "Failed to configure Surfaces: isActive=$isActive, stopDeferred=$stopDeferred"
+                }
+                return false
+            }
+            configuredSurfaceMap = surfaceToDeferrable
+            isConfiguringSurfaces = true
+            setSurfaceListener()
+            true
+        }
+
+    private fun CoroutineScope.tryCommitConfiguration(): Boolean =
+        synchronized(lock) {
+            if (isActive && stopDeferred == null) {
+                isConfiguringSurfaces = false
+                Camera2Logger.info { "Surface setup complete" }
+                true
+            } else {
+                false
+            }
+        }
+
+    private fun rollbackConfiguration(
+        graph: CameraGraph,
+        configuredStreams: List<StreamId>,
+    ) {
+        // Clear configuredSurfaceMap first so concurrent onSurfaceActive callbacks are ignored
+        // while we detach streams outside the lock. Keep isConfiguringSurfaces = true until
+        // detaching finishes so stopDeferred is not completed prematurely.
+        synchronized(lock) { configuredSurfaceMap = null }
+        for (stream in configuredStreams) {
+            graph.setSurface(stream = stream, surface = null)
+        }
+        synchronized(lock) {
+            isConfiguringSurfaces = false
+            configuredSurfaceMap = null
+            inactiveSurfaceCloser.closeAll()
+            tryClearSurfaceListener()
+        }
+    }
+
     @GuardedBy("lock")
     private fun setSurfaceListener() {
         cameraPipe.cameraSurfaceManager().addListener(this)
@@ -239,7 +316,9 @@ constructor(
     @GuardedBy("lock")
     private fun tryClearSurfaceListener() {
         synchronized(lock) {
-            if (activeSurfaceMap.isEmpty() && configuredSurfaceMap == null) {
+            if (
+                activeSurfaceMap.isEmpty() && configuredSurfaceMap == null && !isConfiguringSurfaces
+            ) {
                 Camera2Logger.debug { "${this@UseCaseSurfaceManager} remove surface listener" }
                 cameraPipe.cameraSurfaceManager().removeListener(this)
                 stopDeferred?.complete(Unit)
