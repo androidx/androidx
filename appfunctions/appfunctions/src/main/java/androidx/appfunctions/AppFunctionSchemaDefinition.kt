@@ -35,7 +35,6 @@ import androidx.appfunctions.metadata.AppFunctionSchemaMetadata
  * @AppFunctionSchemaDefinition(name = "findNotes", version = 1, category = "Notes")
  * interface FindNotesSchema {
  * suspend fun findNotes(
- * appFunctionContext: AppFunctionContext,
  * params: FindNotesParams,
  * ): List<Note>
  * }
