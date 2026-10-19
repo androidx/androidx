@@ -16,6 +16,7 @@
 
 package androidx.glance.adaptive.appwidget
 
+import android.app.Activity
 import android.app.PendingIntent
 import android.os.Bundle
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
@@ -27,9 +28,9 @@ import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
  * hosts support.
  *
  * Callers reach these operations through extension functions on [GlanceAdaptiveWidgetManager]
- * declared in this artifact, so only modules depending on it can call them. The extensions are
- * no-ops for a manager whose delegate does not implement this interface, so every AppWidget
- * delegate must implement it.
+ * declared in this artifact, so only modules depending on it can call them. Every AppWidget
+ * delegate must implement this interface: for any other delegate, the extensions are no-ops, except
+ * `setConfigurationResult`, which throws.
  */
 internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegate {
     /**
@@ -59,4 +60,21 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
         options: Bundle,
         successCallback: PendingIntent?,
     ): Boolean
+
+    /**
+     * Completes the configuration of the widget being configured by [activity], storing [widgetId]
+     * and [options] in its options, then setting the [Activity.RESULT_OK] result expected by the
+     * host. The result is not set if this throws. This is a blocking call that returns only once
+     * the options are stored and the result is set.
+     *
+     * @param activity The configuration [Activity] started with
+     *   [android.appwidget.AppWidgetManager.ACTION_APPWIDGET_CONFIGURE].
+     * @param widgetId The widget instance String identifier to assign to the configured widget, or
+     *   null to use the one in [options] or already stored for the widget, or a generated one if
+     *   there is none.
+     * @param options The configuration options to store in the options of the configured widget.
+     * @throws IllegalArgumentException if [activity]'s intent does not carry a valid
+     *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID].
+     */
+    fun setConfigurationResult(activity: Activity, widgetId: String?, options: Bundle)
 }
