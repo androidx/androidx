@@ -76,6 +76,7 @@ import androidx.compose.remote.core.operations.PathCreate
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
+import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.TimeAttribute
@@ -105,6 +106,8 @@ import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.drawText
@@ -190,6 +193,59 @@ internal fun resolveFloat(value: Float, fallback: Float, context: RemoteContext)
     return if (value.isNaN()) context.getFloat(Utils.idFromNan(value)) else fallback
 }
 
+/**
+ * The stack of draw targets redirected by `DRAW_TO_BITMAP` during a single draw pass.
+ *
+ * This is transient draw-phase state, not composition state: it is created per [executeOperations]
+ * call (callers may pass one in to observe [isDrawingToOffscreen]), threaded through nested
+ * operation lists, and unwound by the end of the pass. It must not be remembered or shared across
+ * frames.
+ */
+internal class OffscreenDrawState {
+    private class SavedTarget(
+        val canvas: Canvas,
+        val graphicsLayer: GraphicsLayer?,
+        val alpha: Float,
+    )
+
+    private val stack = ArrayList<SavedTarget>()
+
+    /** True while draw operations are redirected to an offscreen bitmap. */
+    val isDrawingToOffscreen: Boolean
+        get() = stack.isNotEmpty()
+
+    /** The number of redirected targets currently on the stack. */
+    val depth: Int
+        get() = stack.size
+
+    /**
+     * Redirects [drawScope] to [target], saving the current canvas, graphics layer, and paint alpha
+     * so [pop] can restore them. The paint alpha is reset so offscreen content is drawn opaque;
+     * it's applied again when the bitmap is drawn back on screen.
+     */
+    fun push(drawScope: DrawScope, paintState: ComposeLocalPaint, target: Canvas) {
+        val drawContext = drawScope.drawContext
+        stack.add(SavedTarget(drawContext.canvas, drawContext.graphicsLayer, paintState.alpha))
+        drawContext.canvas = target
+        drawContext.graphicsLayer = null
+        paintState.alpha = 1f
+    }
+
+    /** Restores the target saved by the matching [push]. No-op if the stack is empty. */
+    fun pop(drawScope: DrawScope, paintState: ComposeLocalPaint) {
+        val saved = stack.removeLastOrNull() ?: return
+        val drawContext = drawScope.drawContext
+        drawContext.canvas = saved.canvas
+        drawContext.graphicsLayer = saved.graphicsLayer
+        paintState.alpha = saved.alpha
+    }
+
+    /** Pops until [depth] is at most [targetDepth]. */
+    fun popTo(targetDepth: Int, drawScope: DrawScope, paintState: ComposeLocalPaint) {
+        while (stack.size > targetDepth) pop(drawScope, paintState)
+    }
+}
+
 internal fun DrawScope.executeOperations(
     operations: List<Operation>,
     remoteContext: RemoteContext,
@@ -197,6 +253,9 @@ internal fun DrawScope.executeOperations(
     paintState: ComposeLocalPaint = ComposeLocalPaint(),
     onDrawContent: () -> Unit = {},
     graph: GraphContext? = null,
+    offscreenState: OffscreenDrawState = OffscreenDrawState(),
+    contentLayer: GraphicsLayer? = null,
+    contentOrigin: Offset = Offset.Zero,
 ) {
     remoteContext.withOpCountReset {
         graph?.clearLastOpCount()
@@ -207,6 +266,9 @@ internal fun DrawScope.executeOperations(
             paintState = paintState,
             onDrawContent = onDrawContent,
             graph = graph,
+            offscreenState = offscreenState,
+            contentLayer = contentLayer,
+            contentOrigin = contentOrigin,
         )
     }
 }
@@ -218,6 +280,9 @@ private fun DrawScope.executeOperationsInPass(
     paintState: ComposeLocalPaint = ComposeLocalPaint(),
     onDrawContent: () -> Unit = {},
     graph: GraphContext? = null,
+    offscreenState: OffscreenDrawState,
+    contentLayer: GraphicsLayer? = null,
+    contentOrigin: Offset = Offset.Zero,
 ) {
     // Reads route through the GraphContext when present: it resolves time ids from the Compose
     // frame clock and computed ids via per-pass DAG memoization over reactive leaf states, and a
@@ -239,10 +304,7 @@ private fun DrawScope.executeOperationsInPass(
                 it.textMeasurer = textMeasurer
             }
     var canvasLevel = 0
-    // For DRAW_TO_BITMAP: the original on-screen canvas, saved the first time the draw target is
-    // redirected to an offscreen bitmap so it can be restored (on a `bitmapId == 0` reset, and
-    // defensively at the end of the op stream).
-    var mainCanvas: Canvas? = null
+    val initialOffscreenDepth = offscreenState.depth
     operations.fastForEach { op ->
         remoteContext.incrementOpCount()
         if (
@@ -307,6 +369,14 @@ private fun DrawScope.executeOperationsInPass(
             is UpdateDynamicFloatList,
             is DataMapLookup -> op.apply(remoteContext)
             is NamedVariable -> op.apply(remoteContext)
+            is BitmapData -> op.apply(remoteContext)
+            is ShaderData -> {
+                op.enable(
+                    (remoteContext.mRemoteComposeState as? SnapshotRemoteComposeState)
+                        ?.trustedContent == true
+                )
+                op.apply(remoteContext)
+            }
             is ParticlesLoop -> {
                 // Particle system: bridged to the core (View player) implementation. Needs the
                 // graph for seed state + frame-clock observation; without it skip.
@@ -330,6 +400,9 @@ private fun DrawScope.executeOperationsInPass(
                     paintState,
                     onDrawContent,
                     graph,
+                    offscreenState,
+                    contentLayer,
+                    contentOrigin,
                 )
             }
             is ConditionalOperations -> {
@@ -354,6 +427,9 @@ private fun DrawScope.executeOperationsInPass(
                         paintState,
                         onDrawContent,
                         graph,
+                        offscreenState,
+                        contentLayer,
+                        contentOrigin,
                     )
             }
             is LoopOperation -> {
@@ -378,6 +454,9 @@ private fun DrawScope.executeOperationsInPass(
                             paintState,
                             onDrawContent,
                             graph,
+                            offscreenState,
+                            contentLayer,
+                            contentOrigin,
                         )
                         i += step
                         guard++
@@ -398,7 +477,17 @@ private fun DrawScope.executeOperationsInPass(
                     for (j in outArgs.indices) {
                         if (j < argIds.size) remoteContext.loadFloat(argIds[j], outArgs[j])
                     }
-                    fn.execute(remoteContext)
+                    executeOperationsInPass(
+                        fn.list,
+                        remoteContext,
+                        textMeasurer,
+                        paintState,
+                        onDrawContent,
+                        graph,
+                        offscreenState,
+                        contentLayer,
+                        contentOrigin,
+                    )
                 }
             }
             is DrawCircle -> {
@@ -950,23 +1039,43 @@ private fun DrawScope.executeOperationsInPass(
             is DrawToBitmap -> {
                 // Offscreen render target: redirect the DrawScope's canvas to one backed by the
                 // target bitmap so subsequent draw ops accumulate there; `bitmapId == 0` restores
-                // the
-                // on-screen canvas (mirrors DrawToBitmap.paint()). MODE_NO_INITIALIZE
-                // skips the erase-to-color. Compose's DrawScope draws (incl. brushes) follow the
-                // swapped canvas because the framework draws target drawContext.canvas.
+                // the previous canvas from the stack (mirrors DrawToBitmap.paint()).
                 val bitmapId = derefId(op.bitmapId, read)
                 val mode = op.mode
                 val color = op.color
-                if (mainCanvas == null) mainCanvas = drawContext.canvas
                 if (bitmapId == 0) {
-                    drawContext.canvas = mainCanvas!!
+                    offscreenState.pop(this, paintState)
                 } else {
+                    if ((mode and DrawToBitmap.MODE_COMPONENT_ID) != 0) {
+                        var compId = color
+                        val resolvedInt = read.getInteger(color)
+                        if (resolvedInt != 0) {
+                            compId = resolvedInt
+                        } else {
+                            val resolvedFloat = read.getFloat(color)
+                            if (!resolvedFloat.isNaN() && resolvedFloat != 0f) {
+                                compId = resolvedFloat.toInt()
+                            }
+                        }
+                        val targetComp =
+                            remoteContext.document?.getComponent(compId)
+                                ?: remoteContext.mLastComponent
+                        val bd = remoteContext.getObject(bitmapId) as? BitmapData
+                        if (bd != null) {
+                            val prevLast = remoteContext.mLastComponent
+                            remoteContext.mLastComponent = targetComp
+                            bd.ensureOffscreenBitmap(remoteContext)
+                            remoteContext.mLastComponent = prevLast
+                        }
+                    } else {
+                        val bd = remoteContext.getObject(bitmapId) as? BitmapData
+                        bd?.ensureOffscreenBitmap(remoteContext)
+                    }
                     val stored = resolveBitmap(remoteContext, bitmapId)
                     if (stored != null) {
                         // The target must be a mutable bitmap to back a Canvas. Decoded document
                         // bitmaps are immutable, so draw into a mutable copy and store it back
-                        // under
-                        // the same id, so a later DRAW_BITMAP of this id reads the rendered
+                        // under the same id, so a later DRAW_BITMAP of this id reads the rendered
                         // content.
                         val target =
                             if (stored.isMutable) {
@@ -976,10 +1085,12 @@ private fun DrawScope.executeOperationsInPass(
                                     remoteContext.mRemoteComposeState.cacheData(bitmapId, it)
                                 }
                             }
+                        val initColor =
+                            if ((mode and DrawToBitmap.MODE_COMPONENT_ID) != 0) 0 else color
                         if ((mode and DrawToBitmap.MODE_NO_INITIALIZE) == 0) {
-                            target.eraseColor(color)
+                            target.eraseColor(initColor)
                         }
-                        drawContext.canvas = Canvas(target.asImageBitmap())
+                        offscreenState.push(this, paintState, Canvas(target.asImageBitmap()))
                     }
                 }
             }
@@ -1324,9 +1435,14 @@ private fun DrawScope.executeOperationsInPass(
                     }
                 }
             }
-            is DrawContent -> {
-                onDrawContent()
-            }
+            is DrawContent ->
+                drawContentWithPaint(
+                    paintState = paintState,
+                    contentLayer = contentLayer,
+                    isDrawingToOffscreen = offscreenState.isDrawingToOffscreen,
+                    contentOrigin = contentOrigin,
+                    onDrawContent = onDrawContent,
+                )
             is PathData -> {
                 op.applyTrackingPathChange(remoteContext)
             }
@@ -1395,5 +1511,58 @@ private fun DrawScope.executeOperationsInPass(
     }
     // If a DRAW_TO_BITMAP redirect was left active (document didn't reset with bitmapId 0), restore
     // the on-screen canvas so it isn't leaked to subsequent drawing on this DrawScope.
-    mainCanvas?.let { drawContext.canvas = it }
+    offscreenState.popTo(initialOffscreenDepth, this, paintState)
+}
+
+/**
+ * Draws the component's content (`DRAW_CONTENT`), applying the current paint's alpha, color filter
+ * and blend mode to it as a group via [contentLayer] (mirroring the View player's saveLayer).
+ *
+ * The content is drawn directly when no group effect is set, when there is no [contentLayer] (the
+ * root and canvas draw passes, where [onDrawContent] is a no-op), or while drawing to an offscreen
+ * bitmap, where a hardware [GraphicsLayer] can't be drawn and the effect is instead applied when
+ * the bitmap is drawn back.
+ */
+private fun DrawScope.drawContentWithPaint(
+    paintState: ComposeLocalPaint,
+    contentLayer: GraphicsLayer?,
+    isDrawingToOffscreen: Boolean,
+    contentOrigin: Offset,
+    onDrawContent: () -> Unit,
+) {
+    if (isDrawingToOffscreen) {
+        onDrawContent()
+        return
+    }
+    val hasGroupEffect =
+        paintState.alpha < 1f || paintState.colorFilter != null || paintState.isBlendModeSet
+    if (contentLayer == null || !hasGroupEffect) {
+        if (contentOrigin != Offset.Zero) {
+            drawContext.canvas.save()
+            drawContext.canvas.translate(contentOrigin.x, contentOrigin.y)
+            try {
+                onDrawContent()
+            } finally {
+                drawContext.canvas.restore()
+            }
+        } else {
+            onDrawContent()
+        }
+        return
+    }
+    contentLayer.alpha = paintState.alpha
+    contentLayer.blendMode = paintState.blendMode
+    contentLayer.colorFilter = paintState.colorFilter
+    contentLayer.record { onDrawContent() }
+    if (contentOrigin != Offset.Zero) {
+        drawContext.canvas.save()
+        drawContext.canvas.translate(contentOrigin.x, contentOrigin.y)
+        try {
+            drawLayer(contentLayer)
+        } finally {
+            drawContext.canvas.restore()
+        }
+    } else {
+        drawLayer(contentLayer)
+    }
 }
