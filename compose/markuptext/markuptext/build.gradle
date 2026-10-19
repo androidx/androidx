@@ -32,11 +32,16 @@ plugins {
 }
 
 dependencies {
-    // Add dependencies here
+    api("androidx.compose.runtime:runtime:1.12.0")
+
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.kotlinTestJunit)
+    testImplementation(project(":kruth:kruth"))
 }
 
 android {
     namespace = "androidx.compose.markuptext"
+    compileSdk { version = release(37) }
 }
 
 androidx {
