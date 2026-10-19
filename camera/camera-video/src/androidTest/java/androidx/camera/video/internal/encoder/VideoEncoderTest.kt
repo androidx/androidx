@@ -47,9 +47,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -366,27 +370,51 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
         assertThat(format.getInteger(KEY_PRIORITY)).isEqualTo(0)
     }
 
-    private fun initVideoEncoder(
+    @Test
+    fun releaseVideoEncoderWithoutStart_doesNotLeakCodecThread() {
+        // See b/573671138: releasing a surface-input codec that was never started may leak a
+        // native codec thread.
+        val config = createVideoEncoderConfig()
+        val baseline = countLeakProneCodecThreads()
+
+        repeat(3) {
+            // The encoder is configured with a surface input but never started.
+            val encoder = EncoderImpl(encoderExecutor, config, SESSION_TYPE_REGULAR)
+            encoder.release()
+            encoder.releasedFuture.get(5, TimeUnit.SECONDS)
+        }
+
+        // The native thread exits asynchronously after the codec is released.
+        assertThat(awaitLeakProneCodecThreadCount(baseline)).isEqualTo(baseline)
+    }
+
+    private fun createVideoEncoderConfig(
         captureFrameRate: Int = FRAME_RATE,
         encodeFrameRate: Int = FRAME_RATE,
-    ) {
-        // init video encoder
+    ): VideoEncoderConfig {
         val cameraInfo = camera.cameraInfo as CameraInfoInternal
         val quality = Quality.LOWEST
         val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
         val resolution = videoCapabilities.getResolution(quality, dynamicRange)!!
 
-        videoEncoderConfig =
-            VideoEncoderConfig.builder()
-                .setInputTimebase(INPUT_TIMEBASE)
-                .setBitrate(BIT_RATE)
-                .setColorFormat(COLOR_FORMAT)
-                .setCaptureFrameRate(captureFrameRate)
-                .setEncodeFrameRate(encodeFrameRate)
-                .setIFrameInterval(I_FRAME_INTERVAL)
-                .setMimeType(MIME_TYPE)
-                .setResolution(resolution)
-                .build()
+        return VideoEncoderConfig.builder()
+            .setInputTimebase(INPUT_TIMEBASE)
+            .setBitrate(BIT_RATE)
+            .setColorFormat(COLOR_FORMAT)
+            .setCaptureFrameRate(captureFrameRate)
+            .setEncodeFrameRate(encodeFrameRate)
+            .setIFrameInterval(I_FRAME_INTERVAL)
+            .setMimeType(MIME_TYPE)
+            .setResolution(resolution)
+            .build()
+    }
+
+    private fun initVideoEncoder(
+        captureFrameRate: Int = FRAME_RATE,
+        encodeFrameRate: Int = FRAME_RATE,
+    ) {
+        // init video encoder
+        videoEncoderConfig = createVideoEncoderConfig(captureFrameRate, encodeFrameRate)
 
         videoEncoderCallback = mock(EncoderCallback::class.java)
         doAnswer { args: InvocationOnMock ->
@@ -425,4 +453,20 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
     private fun isKeyFrame(bufferInfo: MediaCodec.BufferInfo): Boolean {
         return bufferInfo.flags and MediaCodec.BUFFER_FLAG_KEY_FRAME != 0
     }
+
+    private fun awaitLeakProneCodecThreadCount(expected: Int): Int = runBlocking {
+        withTimeoutOrNull(2_000L) {
+            while (countLeakProneCodecThreads() > expected) {
+                delay(50L)
+            }
+        }
+        countLeakProneCodecThreads()
+    }
+
+    /** Counts the codec threads leaked by b/573671138 (named C2OMXNode on older versions). */
+    private fun countLeakProneCodecThreads(): Int =
+        File("/proc/self/task").listFiles().orEmpty().count { task ->
+            runCatching { File(task, "comm").readText().trim() }.getOrDefault("") in
+                setOf("C2NodeImpl", "C2OMXNode")
+        }
 }
