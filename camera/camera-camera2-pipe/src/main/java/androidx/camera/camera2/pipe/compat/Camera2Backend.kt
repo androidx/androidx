@@ -28,7 +28,6 @@ import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.ConfigQueryResult
 import androidx.camera.camera2.pipe.OutputStream
@@ -41,6 +40,7 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import androidx.camera.common.CameraId
 import androidx.camera.common.unwrapAs
 import javax.inject.Inject
 import javax.inject.Provider

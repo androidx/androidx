@@ -23,8 +23,8 @@ import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.internal.CameraCompatibilityFilter.isBackwardCompatible
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector

@@ -24,9 +24,9 @@ import android.os.Build
 import android.view.Surface
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.impl.Camera2ImplConfig
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.common.CameraId
 import androidx.camera.core.CompositionSettings
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageCapture

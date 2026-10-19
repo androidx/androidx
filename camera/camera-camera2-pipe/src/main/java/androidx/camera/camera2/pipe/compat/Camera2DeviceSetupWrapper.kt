@@ -20,8 +20,8 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
+import androidx.camera.common.CameraId
 
 /**
  * A wrapper interface that mirrors android.hardware.camera2.CameraDevice.CameraDeviceSetup.

@@ -18,8 +18,8 @@ package androidx.camera.camera2.impl
 
 import androidx.camera.camera2.config.CameraConfig
 import androidx.camera.camera2.config.CameraScope
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.common.CameraId
 import javax.inject.Inject
 
 /** Pre-computed camera properties */

@@ -17,7 +17,7 @@
 package androidx.camera.camera2.pipe.internal
 
 import androidx.camera.camera2.pipe.CameraError
-import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.common.CameraId
 
 /**
  * Interface intended to be used to report camera errors. It will ensure only the current

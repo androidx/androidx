@@ -24,10 +24,10 @@ import android.util.Range
 import android.util.Size
 import androidx.annotation.OptIn
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
 import androidx.camera.camera2.testing.FakeCameraProperties
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ExposureState

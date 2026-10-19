@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.hardware.camera2.CameraDevice
 import androidx.camera.camera2.pipe.CameraError
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.Permissions
@@ -34,6 +33,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraId
 import com.google.common.truth.Truth.assertThat
 import javax.inject.Provider
 import kotlin.time.Duration.Companion.milliseconds

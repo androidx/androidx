@@ -20,8 +20,8 @@ import androidx.camera.camera2.config.CameraAppComponent
 import androidx.camera.camera2.config.CameraConfig
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.pipe.CameraDevices
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.DoNotDisturbException
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.InitializationException

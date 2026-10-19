@@ -24,10 +24,10 @@ import androidx.camera.camera2.compat.quirk.UltraWideFlashCaptureUnderexposureQu
 import androidx.camera.camera2.compat.quirk.UseTorchAsFlashQuirk
 import androidx.camera.camera2.internal.IntrinsicZoomCalculator
 import androidx.camera.camera2.pipe.CameraDevices
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.warn
+import androidx.camera.common.CameraId
 import dagger.Module
 import dagger.Provides
 

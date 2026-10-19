@@ -26,8 +26,8 @@ import androidx.camera.camera2.adapter.EncoderProfilesProviderAdapter
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CamcorderProfileResolutionQuirk
 import androidx.camera.camera2.compat.quirk.CameraQuirks
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8
 import androidx.camera.core.impl.Quirks

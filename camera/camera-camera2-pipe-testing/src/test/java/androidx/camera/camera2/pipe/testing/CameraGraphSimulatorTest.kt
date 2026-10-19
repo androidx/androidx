@@ -22,7 +22,6 @@ import android.hardware.camera2.CaptureResult
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
@@ -36,6 +35,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.media.ImageReaderWrapper
+import androidx.camera.common.CameraId
 import androidx.camera.common.ImageWrapper
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows

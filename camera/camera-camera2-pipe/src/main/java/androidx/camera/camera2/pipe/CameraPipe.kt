@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.config.ThreadConfigModule
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.media.ImageSources
+import androidx.camera.common.CameraId
 import androidx.camera.featurecombinationquery.CameraDeviceSetupCompat
 import java.util.concurrent.Executor
 import kotlin.time.Duration

@@ -43,9 +43,9 @@ import androidx.camera.camera2.impl.UseCaseCameraState
 import androidx.camera.camera2.impl.UseCaseSurfaceManager
 import androidx.camera.camera2.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.RequestTemplate
+import androidx.camera.common.CameraId
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import androidx.camera.core.imagecapture.CameraCapturePipeline

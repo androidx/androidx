@@ -29,9 +29,9 @@ import androidx.camera.camera2.internal.HLG10_CONSTRAINED
 import androidx.camera.camera2.internal.HLG10_HDR10_CONSTRAINED
 import androidx.camera.camera2.internal.HLG10_SDR_CONSTRAINED
 import androidx.camera.camera2.internal.HLG10_UNCONSTRAINED
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.common.CameraId
 import androidx.camera.core.DynamicRange
 import com.google.common.truth.Truth
 import org.junit.Assert

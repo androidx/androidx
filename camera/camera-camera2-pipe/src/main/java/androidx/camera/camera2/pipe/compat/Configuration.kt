@@ -25,7 +25,6 @@ import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.camera.camera2.pipe.CameraColorSpace
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile
 import androidx.camera.camera2.pipe.OutputStream.MirrorMode
 import androidx.camera.camera2.pipe.OutputStream.OutputType
@@ -37,6 +36,7 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.checkNOrHigher
 import androidx.camera.camera2.pipe.core.checkOOrHigher
 import androidx.camera.camera2.pipe.core.checkPOrHigher
+import androidx.camera.common.CameraId
 import androidx.camera.common.UnsafeWrapper
 import java.lang.Class
 import java.util.concurrent.Executor

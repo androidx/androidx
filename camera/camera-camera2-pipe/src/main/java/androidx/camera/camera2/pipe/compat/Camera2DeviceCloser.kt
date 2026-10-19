@@ -20,10 +20,10 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.view.Surface
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.common.CameraId
 import androidx.camera.common.unwrapAs
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject

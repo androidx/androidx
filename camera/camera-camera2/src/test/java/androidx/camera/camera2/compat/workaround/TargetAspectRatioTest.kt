@@ -21,9 +21,9 @@ import android.hardware.camera2.CameraMetadata
 import android.os.Build
 import android.util.Range
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.common.CameraId
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -17,9 +17,9 @@
 package androidx.camera.camera2.pipe.testing
 
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
+import androidx.camera.common.CameraId
 
 /** Utility class for providing fake metadata for tests. */
 class FakeCamera2MetadataProvider(

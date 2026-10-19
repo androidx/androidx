@@ -22,7 +22,6 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.os.Build
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.internal.CameraPipeLifetime
 import androidx.camera.camera2.pipe.testing.FakeCamera2MetadataProvider
@@ -30,6 +29,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraId
 import androidx.camera.featurecombinationquery.CameraDeviceSetupCompat
 import androidx.camera.featurecombinationquery.CameraDeviceSetupCompatFactory
 import androidx.test.core.app.ApplicationProvider

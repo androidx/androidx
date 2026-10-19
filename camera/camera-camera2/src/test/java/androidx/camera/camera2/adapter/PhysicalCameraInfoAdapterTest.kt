@@ -21,6 +21,7 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
@@ -96,7 +97,7 @@ class PhysicalCameraInfoAdapterTest {
         val cameraProperties =
             FakeCameraProperties(
                 FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
-                cameraId = androidx.camera.camera2.pipe.CameraId(physicalCameraId),
+                cameraId = CameraId(physicalCameraId),
             )
         val adapter =
             PhysicalCameraInfoAdapter(
@@ -171,7 +172,7 @@ class PhysicalCameraInfoAdapterTest {
         val cameraProperties =
             FakeCameraProperties(
                 FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
-                cameraId = androidx.camera.camera2.pipe.CameraId(physicalCameraId),
+                cameraId = CameraId(physicalCameraId),
             )
         val adapter =
             PhysicalCameraInfoAdapter(
