@@ -49,6 +49,13 @@ public class RemoteListenableDelegatingWorker(
 
     private var componentName: ComponentName? = null
 
+    /**
+     * Delegates work execution to the [RemoteListenableWorker] running in the configured remote
+     * process via [RemoteListenableWorker.startRemoteWork].
+     *
+     * @return A [ListenableFuture] with the [Result] of the remote [RemoteListenableWorker]
+     *   computation.
+     */
     @Suppress("AsyncSuffixFuture") // Implementing a ListenableWorker
     override fun startWork(): ListenableFuture<Result> {
         return executeRemote(

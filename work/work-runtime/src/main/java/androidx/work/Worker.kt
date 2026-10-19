@@ -60,6 +60,14 @@ public abstract class Worker(context: Context, workerParams: WorkerParameters) :
      */
     @WorkerThread public abstract fun doWork(): Result
 
+    /**
+     * Starts the synchronous background work on [backgroundExecutor] by calling [doWork].
+     *
+     * This method is `final` and cannot be overridden. Override [doWork] instead to perform your
+     * background processing.
+     *
+     * @return A [ListenableFuture] with the [Result] of the [doWork] computation.
+     */
     final override fun startWork(): ListenableFuture<Result> = backgroundExecutor.future {
         doWork()
     }
