@@ -2129,6 +2129,97 @@ class SupportedSurfaceCombinationTest {
 
     // //////////////////////////////////////////////////////////////////////////////////////////
     //
+    // StreamSpec selection tests for preview stabilization
+    //
+    // //////////////////////////////////////////////////////////////////////////////////////////
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun getSuggestedStreamSpecs_previewStabilizationOn_selectsS1440pPrivWithMaximumJpeg() {
+        // Arrange: (PRIV, s1440p) + (JPEG, MAXIMUM) is guaranteed by the preview stabilization
+        // table. 1920x1440 is larger than the PREVIEW size, but it should still be selectable.
+        val privUseCase = createUseCase(CaptureType.PREVIEW)
+        val jpegUseCase = createUseCase(CaptureType.IMAGE_CAPTURE)
+
+        // Act & Assert
+        getSuggestedSpecsAndVerify(
+            useCasesExpectedResultMap =
+                mapOf(privUseCase to RESOLUTION_1440P, jpegUseCase to maximumSize),
+            useCasesOutputSizesMap =
+                mapOf(
+                    // 3840x2160 is larger than s1440p and is not guaranteed.
+                    privUseCase to
+                        listOf(recordSize, RESOLUTION_1440P, Size(1280, 960), previewSize)
+                ),
+            videoStabilization = VideoStabilization.PREVIEW,
+        )
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun getSuggestedStreamSpecs_previewStabilizationOn_recordSmallerThanS1440p_selectsS1440pPriv() {
+        // Arrange: RECORD is 1080p, so 1920x1440 is larger than RECORD. The preview stabilization
+        // table still guarantees (PRIV, s1440p) + (JPEG, MAXIMUM).
+        setRecordSize(RESOLUTION_1080P)
+        val privUseCase = createUseCase(CaptureType.PREVIEW)
+        val jpegUseCase = createUseCase(CaptureType.IMAGE_CAPTURE)
+
+        // Act & Assert
+        getSuggestedSpecsAndVerify(
+            useCasesExpectedResultMap =
+                mapOf(privUseCase to RESOLUTION_1440P, jpegUseCase to maximumSize),
+            useCasesOutputSizesMap =
+                mapOf(privUseCase to listOf(recordSize, RESOLUTION_1440P, previewSize)),
+            videoStabilization = VideoStabilization.PREVIEW,
+        )
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun getSuggestedStreamSpecs_previewStabilizationOff_doesNotSelectS1440pPrivWithMaximumJpeg() {
+        // Arrange: (PRIV, RECORD) + (JPEG, MAXIMUM) is not guaranteed for a LEGACY device.
+        val privUseCase = createUseCase(CaptureType.PREVIEW)
+        val jpegUseCase = createUseCase(CaptureType.IMAGE_CAPTURE)
+
+        // Act & Assert
+        getSuggestedSpecsAndVerify(
+            useCasesExpectedResultMap =
+                mapOf(privUseCase to previewSize, jpegUseCase to maximumSize),
+            useCasesOutputSizesMap =
+                mapOf(
+                    privUseCase to
+                        listOf(recordSize, RESOLUTION_1440P, Size(1280, 960), previewSize)
+                ),
+        )
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun getSuggestedStreamSpecs_previewStabilizationOnWith10Bit_selectsRecordSizeVideo() {
+        // Arrange: The 10-bit table is used instead of the preview stabilization table, so the
+        // sizes should still be transformed for (PRIV, PREVIEW) + (PRIV, RECORD).
+        val videoUseCase =
+            createUseCase(CaptureType.VIDEO_CAPTURE, dynamicRange = DynamicRange.HDR10_10_BIT)
+        val previewUseCase =
+            createUseCase(CaptureType.PREVIEW, dynamicRange = DynamicRange.HDR10_PLUS_10_BIT)
+
+        // Act & Assert
+        getSuggestedSpecsAndVerify(
+            mapOf(videoUseCase to recordSize, previewUseCase to previewSize),
+            dynamicRangeProfiles = HDR10_HDR10_PLUS_UNCONSTRAINED,
+            capabilities = intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT),
+            videoStabilization = VideoStabilization.PREVIEW,
+        )
+    }
+
+    private fun setRecordSize(size: Size) {
+        whenever(mockVideoProfileProxy.width).thenReturn(size.width)
+        whenever(mockVideoProfileProxy.height).thenReturn(size.height)
+        whenever(mockVideoProfileProxy.resolution).thenReturn(size)
+    }
+
+    // //////////////////////////////////////////////////////////////////////////////////////////
+    //
     // StreamSpec selection tests for DynamicRange
     //
     // //////////////////////////////////////////////////////////////////////////////////////////
