@@ -35,8 +35,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
-import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component2
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
@@ -153,7 +151,7 @@ class ListItemTest {
             colors = Colors(surface = surfaceColor, background = backgroundColor),
         ) {
             expectedShape = GlimmerTheme.shapes.medium
-            expectedFocusedSurfaceColor = SurfaceDefaults.focusedColor(surfaceColor)
+            expectedFocusedSurfaceColor = SurfaceDefaults.calculateFocusedColor(surfaceColor)
             ListItem(modifier = Modifier.testTag("listItem")) { Box(Modifier.size(100.dp, 100.dp)) }
         }
         rule.waitForIdle()

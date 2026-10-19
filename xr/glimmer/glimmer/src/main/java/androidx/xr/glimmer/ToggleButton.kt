@@ -273,7 +273,7 @@ public object ToggleButtonDefaults {
      */
     @Composable
     public fun focusedBackgroundColor(baseColor: Color = GlimmerTheme.colors.surface): Color =
-        SurfaceDefaults.focusedColor(baseColor)
+        SurfaceDefaults.calculateFocusedColor(baseColor)
 
     /**
      * Returns the checked, unfocused background [Color] for a [ToggleButton] derived from the
