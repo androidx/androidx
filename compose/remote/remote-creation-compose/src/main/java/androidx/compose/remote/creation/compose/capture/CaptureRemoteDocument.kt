@@ -65,6 +65,7 @@ import java.util.IdentityHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -245,25 +246,6 @@ private fun captureRemoteDocumentImpl(
 
         val initialSize = creationState.document.buffer.buffer.size()
 
-        withContext(recomposerDispatcher) {
-            composition.setContent {
-                CompositionLocalProvider(
-                    LocalRemoteComposeCreationState provides creationState,
-                    LocalRemoteDensity provides remoteDensity,
-                    LocalLayoutDirection provides layoutDirection,
-                    LocalLifecycleOwner provides lifecycleOwner,
-                    LocalSavedStateRegistryOwner provides lifecycleOwner,
-                    LocalSaveableStateRegistry provides saveableStateRegistry,
-                ) {
-                    if (retainedValuesStore != null) {
-                        LocalRetainedValuesStoreProvider(retainedValuesStore, content)
-                    } else {
-                        content()
-                    }
-                }
-            }
-        }
-
         coroutineScope {
             // Frames are normally sent as soon as an awaiter appears. The Recomposer itself awaits
             // frames on this clock (runRecomposeAndApplyChanges below), so pacing them with a
@@ -291,6 +273,31 @@ private fun captureRemoteDocumentImpl(
                     // from withFrameNanos.
                     launch { writeTracker.start() }
                     recomposer.runRecomposeAndApplyChanges()
+                }
+
+                // Set the content only once the Recomposer is running. A Recomposer invalidates
+                // every composition it knows about when it starts, since it was not observing
+                // snapshot state on their behalf until then; content set before that point is
+                // therefore composed a second time before the first document is rendered. Queued
+                // on the single-threaded dispatcher behind the runner's first slice, so the
+                // initial composition also happens under the started write tracker.
+                withContext(recomposerDispatcher) {
+                    composition.setContent {
+                        CompositionLocalProvider(
+                            LocalRemoteComposeCreationState provides creationState,
+                            LocalRemoteDensity provides remoteDensity,
+                            LocalLayoutDirection provides layoutDirection,
+                            LocalLifecycleOwner provides lifecycleOwner,
+                            LocalSavedStateRegistryOwner provides lifecycleOwner,
+                            LocalSaveableStateRegistry provides saveableStateRegistry,
+                        ) {
+                            if (retainedValuesStore != null) {
+                                LocalRetainedValuesStoreProvider(retainedValuesStore, content)
+                            } else {
+                                content()
+                            }
+                        }
+                    }
                 }
 
                 // Regeneration must not be driven by observing Recomposer.currentState transitions.
@@ -649,12 +656,13 @@ private suspend fun awaitRecomposerQuiescence(
     maxIterations: Int = MAX_IDLE_ITERATIONS,
 ): QuiescenceResult =
     withContext(recomposerDispatcher) {
-        // yield() so continuations queued on recomposerDispatcher (e.g. effects resuming from
-        // withFrameNanos after sendFrame) run before quiescence is sampled. recomposerDispatcher is
-        // usually a combined context, so the interceptor must be read out of it. Skip yield() for
-        // immediate dispatchers like Dispatchers.Main.immediate on the main thread (where
-        // continuations run inline), as yield() forces a Handler.post() via YieldContext, which
-        // deadlocks if the main thread is blocked inside runBlocking/runTest.
+        // Yield so continuations queued on recomposerDispatcher (effects started by the last
+        // composition, effects resuming from withFrameNanos after sendFrame) run before quiescence
+        // is sampled, see drainRecomposerDispatcher. recomposerDispatcher is usually a combined
+        // context, so the interceptor must be read out of it. Skip yielding for immediate
+        // dispatchers like Dispatchers.Main.immediate on the main thread (where continuations run
+        // inline), as yield() forces a Handler.post() via YieldContext, which deadlocks if the main
+        // thread is blocked inside runBlocking/runTest.
         val interceptor = recomposerDispatcher[ContinuationInterceptor]
         val shouldYield =
             interceptor !is CoroutineDispatcher ||
@@ -666,12 +674,12 @@ private suspend fun awaitRecomposerQuiescence(
             while (idleIterations < maxIterations) {
                 recomposer.refreshStateIfIdle()
                 recomposer.currentState.first { it == Recomposer.State.Idle }
-                if (shouldYield) yield()
+                drainRecomposerDispatcher(recomposerDispatcher, shouldYield)
                 while (frameClock.hasAwaiters) {
                     frameClock.sendFrame()
                     // Without yield() nothing else checks for cancellation by the frame budget.
                     ensureActive()
-                    if (shouldYield) yield()
+                    drainRecomposerDispatcher(recomposerDispatcher, shouldYield)
                 }
                 Snapshot.sendApplyNotifications()
                 if (!awaitApplyObserverNotifications(canYield = shouldYield)) {
@@ -691,6 +699,36 @@ private suspend fun awaitRecomposerQuiescence(
             QuiescenceResult.Unstable
         } ?: QuiescenceResult.ContinuousFrames
     }
+
+/**
+ * Yields until no task is queued behind the caller on [recomposerDispatcher], so that continuations
+ * dispatched by the last composition or frame (an effect starting, or resuming from
+ * `withFrameNanos`) have run before quiescence is sampled. An effect that `yield()`s before it
+ * requests a frame is otherwise invisible to [awaitRecomposerQuiescence]: the recomposer is idle
+ * and the frame clock has no awaiter yet. Only a [CountingSerialDispatcher] exposes its queue; on
+ * other dispatchers this yields once, as before. Bounded by [APPLY_NOTIFICATION_MAX_POLLS] so
+ * content that yields forever cannot stall the capture.
+ *
+ * Must run before [Snapshot.sendApplyNotifications] in an iteration, never between it and the
+ * quiescence sample: the frame clock's pump may send frames while this yields, and state written by
+ * their callbacks only becomes [Recomposer.hasPendingWork] once notifications are sent.
+ *
+ * @param canYield whether the current dispatcher may be released with [yield], see
+ *   [awaitRecomposerQuiescence]. When `false`, this does nothing.
+ */
+private suspend fun drainRecomposerDispatcher(
+    recomposerDispatcher: CoroutineContext,
+    canYield: Boolean,
+) {
+    if (!canYield) return
+    val dispatcher = recomposerDispatcher[ContinuationInterceptor] as? CountingSerialDispatcher
+    var polls = 0
+    do {
+        yield()
+    } while (
+        dispatcher != null && dispatcher.queuedTasks > 0 && ++polls < APPLY_NOTIFICATION_MAX_POLLS
+    )
+}
 
 /**
  * Waits for at most [APPLY_NOTIFICATION_WAIT] (or [APPLY_NOTIFICATION_MAX_POLLS] polls) until no
@@ -969,11 +1007,48 @@ private fun CoroutineContext.toSingleThreadedRecomposerContext(name: String): Co
     val interceptor = baseContext[ContinuationInterceptor]
     return when {
         interceptor == null ->
-            baseContext + Dispatchers.Default.limitedParallelism(parallelism = 1, name = name)
+            baseContext +
+                CountingSerialDispatcher(
+                    Dispatchers.Default.limitedParallelism(parallelism = 1, name = name)
+                )
         interceptor is MainCoroutineDispatcher -> baseContext
         interceptor is CoroutineDispatcher && interceptor.isDispatchNeeded(EmptyCoroutineContext) ->
-            baseContext + interceptor.limitedParallelism(parallelism = 1, name = name)
+            baseContext +
+                CountingSerialDispatcher(
+                    interceptor.limitedParallelism(parallelism = 1, name = name)
+                )
         else -> baseContext
+    }
+}
+
+/**
+ * Runs tasks on [delegate], which executes at most one task at a time, and counts the tasks that
+ * were dispatched but have not started yet. Since tasks never run concurrently, a task that
+ * observes [queuedTasks] `== 0` knows nothing is waiting to run behind it; see
+ * [drainRecomposerDispatcher].
+ */
+private class CountingSerialDispatcher(private val delegate: CoroutineDispatcher) :
+    CoroutineDispatcher() {
+    private val queued = AtomicInteger()
+
+    /** Number of dispatched tasks that have not started running yet. */
+    val queuedTasks: Int
+        get() = queued.get()
+
+    override fun isDispatchNeeded(context: CoroutineContext): Boolean =
+        delegate.isDispatchNeeded(context)
+
+    override fun dispatch(context: CoroutineContext, block: Runnable) {
+        queued.incrementAndGet()
+        try {
+            delegate.dispatch(context) {
+                queued.decrementAndGet()
+                block.run()
+            }
+        } catch (e: Throwable) {
+            queued.decrementAndGet()
+            throw e
+        }
     }
 }
 

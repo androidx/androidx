@@ -625,6 +625,27 @@ class CaptureRemoteDocumentTest {
     }
 
     /**
+     * Content that reads no changing state is composed exactly once. A Recomposer invalidates every
+     * composition it knows about when it starts, so content set before the Recomposer runs would be
+     * composed a second time before the first render.
+     */
+    @Test
+    fun captureSingleRemoteDocument_stableContent_composesOnce() = runTest {
+        val compositions = AtomicInteger()
+
+        val document =
+            withContext(Dispatchers.Default) {
+                captureSingleRemoteDocument(context) {
+                    compositions.incrementAndGet()
+                    RemoteText("Once".rs)
+                }
+            }
+
+        assertDocumentContainsText(document.toCoreDocument(), "Once")
+        assertEquals(1, compositions.get())
+    }
+
+    /**
      * A streaming capture of content that never stops requesting frames still emits documents,
      * rendering each time the frame cap is reached, instead of never producing even the first one.
      */
