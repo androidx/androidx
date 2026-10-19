@@ -60,6 +60,7 @@ import androidx.compose.remote.core.operations.ColorTheme
 import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatExpression
+import androidx.compose.remote.core.operations.FloatFunctionDefine
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.IdLookup
 import androidx.compose.remote.core.operations.ImageAttribute
@@ -1248,6 +1249,9 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
     var inScrollModifier = false
 
     fun visitOp(op: Operation) {
+        if (op is FloatFunctionDefine) {
+            return
+        }
         val prevLayoutComponent = currentLayoutComponent
         val prevInScroll = inScrollModifier
         if (op is LayoutComponent) {
