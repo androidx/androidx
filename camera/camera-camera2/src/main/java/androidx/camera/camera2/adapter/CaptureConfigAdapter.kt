@@ -135,21 +135,27 @@ constructor(
                 !zslControl.isZslDisabledByFlashMode()
         ) {
             zslControl.dequeueImageFromBuffer()?.let { imageProxy ->
-                CameraCaptureResults.retrieveCameraCaptureResult(imageProxy.imageInfo)?.let {
-                    cameraCaptureResult ->
-                    check(cameraCaptureResult is CaptureResultAdapter) {
-                        "Unexpected capture result type: ${cameraCaptureResult.javaClass}"
-                    }
-                    val imageWrapper = AndroidImage(checkNotNull(imageProxy.image))
-                    val frameInfo = checkNotNull(cameraCaptureResult.unwrapAs<FrameInfo>())
-                    inputRequest = InputRequest(imageWrapper, frameInfo)
+                try {
+                    CameraCaptureResults.retrieveCameraCaptureResult(imageProxy.imageInfo)?.let {
+                        cameraCaptureResult ->
+                        check(cameraCaptureResult is CaptureResultAdapter) {
+                            "Unexpected capture result type: ${cameraCaptureResult.javaClass}"
+                        }
+                        val imageWrapper = AndroidImage(checkNotNull(imageProxy.image))
+                        val frameInfo = checkNotNull(cameraCaptureResult.unwrapAs<FrameInfo>())
+                        inputRequest = InputRequest(imageWrapper, frameInfo)
 
-                    // It's essential to call ImageProxy#close().
-                    // To ensure the ImageProxy is closed after the image is written to the output
-                    // surface. This is crucial to prevent resource leaks, where images might not
-                    // be closed properly if CameraX fails to propagate close events to its internal
-                    // components.
-                    captureCallback = buildImageClosingRequestListener(imageProxy)
+                        // It's essential to call ImageProxy#close().
+                        // To ensure the ImageProxy is closed after the image is written to the
+                        // output surface. This is crucial to prevent resource leaks, where images
+                        // might not be closed properly if CameraX fails to propagate close events
+                        // to its internal components.
+                        captureCallback = buildImageClosingRequestListener(imageProxy)
+                    }
+                } finally {
+                    if (captureCallback == null) {
+                        imageProxy.close()
+                    }
                 }
             }
         }
@@ -204,6 +210,10 @@ constructor(
             }
 
             override fun onAborted(request: Request) {
+                closeImageProxy()
+            }
+
+            override fun onRequestSequenceAborted(requestMetadata: RequestMetadata) {
                 closeImageProxy()
             }
 

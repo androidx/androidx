@@ -33,7 +33,6 @@ import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPrivateRepr
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.MetadataImageReader
 import androidx.camera.core.SafeCloseImageReaderProxy
-import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.SessionConfig
@@ -52,6 +51,15 @@ public interface ZslControl {
 
     /** This method cleans up all resources used for ZSL capture. */
     public fun clearZslConfig()
+
+    /** Clears any buffered [ImageProxy] instances from the ZSL ring buffer. */
+    public fun clearRingBuffer() {}
+
+    /**
+     * Sets whether ZSL buffering is disabled because all use cases are detached (e.g., on lifecycle
+     * stop).
+     */
+    public fun setZslDisabledByDetach(disabled: Boolean) {}
 
     /**
      * Determines whether the provided [DeferrableSurface] belongs to ZSL.
@@ -121,18 +129,21 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
     internal val zslRingBuffer =
         ZslRingBuffer(RING_BUFFER_CAPACITY) { imageProxy -> imageProxy.close() }
 
-    private var isZslDisabledByUseCaseConfig = false
-    private var isZslDisabledByFlashMode = false
+    @Volatile private var isZslDisabledByUseCaseConfig = false
+    @Volatile private var isZslDisabledByFlashMode = false
+    @Volatile private var isZslDisabledByDetach = false
     private var isZslDisabledByQuirks = DeviceQuirks[ZslDisablerQuirk::class.java] != null
 
-    @VisibleForTesting internal var reprocessingImageReader: SafeCloseImageReaderProxy? = null
-    private var metadataMatchingCaptureCallback: CameraCaptureCallback? = null
+    @VisibleForTesting
+    @Volatile
+    internal var reprocessingImageReader: SafeCloseImageReaderProxy? = null
     private var reprocessingImageDeferrableSurface: DeferrableSurface? = null
 
     private val zslIntersectionSizes: List<Size> =
         ZslUtil.computeZslIntersectionSizes(cameraMetadata, FORMAT)
 
     override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {
+        isZslDisabledByDetach = false
         reset()
 
         // Early return only if use case config doesn't support zsl. If flash mode doesn't
@@ -172,12 +183,30 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
         val metadataImageReader = MetadataImageReader(size.width, size.height, FORMAT, MAX_IMAGES)
         val metadataCaptureCallback = metadataImageReader.cameraCaptureCallback
         val reprocImageReader = SafeCloseImageReaderProxy(metadataImageReader)
-        metadataImageReader.setOnImageAvailableListener(
+        reprocessingImageReader = reprocImageReader
+        reprocImageReader.setOnImageAvailableListener(
             { reader ->
                 try {
                     val imageProxy = reader.acquireLatestImage()
                     if (imageProxy != null) {
-                        zslRingBuffer.enqueue(imageProxy)
+                        if (
+                            isZslDisabledByUseCaseConfig ||
+                                isZslDisabledByFlashMode ||
+                                isZslDisabledByDetach ||
+                                reprocessingImageReader !== reprocImageReader
+                        ) {
+                            imageProxy.close()
+                        } else {
+                            zslRingBuffer.enqueue(imageProxy)
+                            if (
+                                isZslDisabledByUseCaseConfig ||
+                                    isZslDisabledByFlashMode ||
+                                    isZslDisabledByDetach ||
+                                    reprocessingImageReader !== reprocImageReader
+                            ) {
+                                clearRingBuffer()
+                            }
+                        }
                     }
                 } catch (e: IllegalStateException) {
                     Camera2Logger.error { "Failed to acquire latest image" }
@@ -212,8 +241,6 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
             )
         )
 
-        metadataMatchingCaptureCallback = metadataCaptureCallback
-        reprocessingImageReader = reprocImageReader
         reprocessingImageDeferrableSurface = reprocDeferrableSurface
     }
 
@@ -225,10 +252,11 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
     }
 
     override fun setZslDisabledByUserCaseConfig(disabled: Boolean) {
-        if (isZslDisabledByUseCaseConfig != disabled && disabled) {
+        val shouldClear = isZslDisabledByUseCaseConfig != disabled && disabled
+        isZslDisabledByUseCaseConfig = disabled
+        if (shouldClear) {
             clearRingBuffer()
         }
-        isZslDisabledByUseCaseConfig = disabled
     }
 
     override fun isZslDisabledByUserCaseConfig(): Boolean {
@@ -236,7 +264,11 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
     }
 
     override fun setZslDisabledByFlashMode(disabled: Boolean) {
+        val shouldClear = isZslDisabledByFlashMode != disabled && disabled
         isZslDisabledByFlashMode = disabled
+        if (shouldClear) {
+            clearRingBuffer()
+        }
     }
 
     override fun isZslDisabledByFlashMode(): Boolean {
@@ -261,10 +293,6 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
         if (reprocImageDeferrableSurface != null) {
             val reprocImageReaderProxy = reprocessingImageReader
             if (reprocImageReaderProxy != null) {
-                reprocImageDeferrableSurface.terminationFuture.addListener(
-                    { reprocImageReaderProxy.safeClose() },
-                    CameraXExecutors.mainThreadExecutor(),
-                )
                 // Clear the listener so that no more buffer is enqueued to |zslRingBuffer|.
                 reprocImageReaderProxy.clearOnImageAvailableListener()
                 reprocessingImageReader = null
@@ -276,10 +304,21 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
         clearRingBuffer()
     }
 
-    private fun clearRingBuffer() {
+    override fun clearRingBuffer() {
         val ringBuffer = zslRingBuffer
         while (!ringBuffer.isEmpty) {
-            ringBuffer.dequeue().close()
+            try {
+                ringBuffer.dequeue().close()
+            } catch (e: NoSuchElementException) {
+                break
+            }
+        }
+    }
+
+    override fun setZslDisabledByDetach(disabled: Boolean) {
+        isZslDisabledByDetach = disabled
+        if (disabled) {
+            clearRingBuffer()
         }
     }
 
@@ -299,6 +338,10 @@ public class ZslControlNoOpImpl @Inject constructor() : ZslControl {
     override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {}
 
     override fun clearZslConfig() {}
+
+    override fun clearRingBuffer() {}
+
+    override fun setZslDisabledByDetach(disabled: Boolean) {}
 
     override fun isZslSurface(surface: DeferrableSurface, sessionConfig: SessionConfig): Boolean =
         false
