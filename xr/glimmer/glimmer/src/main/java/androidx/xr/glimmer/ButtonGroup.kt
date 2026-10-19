@@ -49,6 +49,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusProperties
+import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.focus.Focusability
 import androidx.compose.ui.focus.requestFocusForChildInLocalBounds
@@ -131,7 +133,7 @@ public fun ButtonGroup(
                     },
             )
             .padding(contentPadding)
-            .then(ButtonGroupElement(state, horizontalArrangement)),
+            .then(ButtonGroupElement(state)),
         // Wrap the provided arrangement so we can update our state with the child layout positions
         horizontalArrangement =
             remember(horizontalArrangement, state) {
@@ -388,44 +390,68 @@ private fun SnapLayoutInfoProvider(state: ButtonGroupStateImpl): SnapLayoutInfoP
 
 /** Offsets the content drawn in this [ButtonGroup] using the provided [state]. */
 @Suppress("ModifierNodeInspectableProperties")
-private class ButtonGroupElement(
-    private val state: ButtonGroupStateImpl,
-    private val arrangement: Arrangement.Horizontal,
-) : ModifierNodeElement<ButtonGroupNode>() {
-    override fun create(): ButtonGroupNode = ButtonGroupNode(state, arrangement)
+private class ButtonGroupElement(private val state: ButtonGroupStateImpl) :
+    ModifierNodeElement<ButtonGroupNode>() {
+    override fun create(): ButtonGroupNode = ButtonGroupNode(state)
 
     override fun update(node: ButtonGroupNode) {
-        node.update(state, arrangement)
+        node.update(state)
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ButtonGroupElement) return false
+        if (javaClass != other?.javaClass) return false
 
-        if (state != other.state) return false
-        if (arrangement != other.arrangement) return false
+        other as ButtonGroupElement
 
-        return true
+        return state == other.state
     }
 
     override fun hashCode(): Int {
-        var result = state.hashCode()
-        result = 31 * result + arrangement.hashCode()
-        return result
+        return state.hashCode()
     }
 }
 
-private class ButtonGroupNode(
-    private var state: ButtonGroupStateImpl,
-    private var arrangement: Arrangement.Horizontal,
-) : DelegatingNode(), LayoutModifierNode, SemanticsModifierNode {
+private class ButtonGroupNode(private var state: ButtonGroupStateImpl) :
+    DelegatingNode(), LayoutModifierNode, SemanticsModifierNode, FocusPropertiesModifierNode {
 
     private val focusTargetModifierNode =
         delegate(FocusTargetModifierNode(focusability = Focusability.Never))
 
-    fun update(state: ButtonGroupStateImpl, arrangement: Arrangement.Horizontal) {
+    /**
+     * The x position of the focus line from the most recent placement, relative to the left edge of
+     * this node, or -1 if the layout hasn't been measured/placed yet.
+     */
+    private var focusLineX = -1
+
+    /** The height of the focus line from the most recent placement. */
+    private var focusLineHeight = 0
+
+    /** Places the focus on the correct child when focus enters this component */
+    override fun applyFocusProperties(focusProperties: FocusProperties) {
+        // TODO(b/573251560): Implement this functionality directly on FocusTargetModifierNode
+        focusProperties.onEnter = { requestFocusAtFocusLine() }
+    }
+
+    /**
+     * Requests focus for the child that intersects the focus line from the most recent placement.
+     */
+    private fun requestFocusAtFocusLine() {
+        if (focusLineX < 0) return
+        requestFocusForChildInLocalBounds(
+            left = focusLineX,
+            top = 0,
+            right = focusLineX,
+            bottom = focusLineHeight,
+        )
+    }
+
+    fun update(state: ButtonGroupStateImpl) {
         this.state = state
-        this.arrangement = arrangement
+    }
+
+    override fun onDetach() {
+        focusLineX = -1
     }
 
     override fun MeasureScope.measure(
@@ -449,18 +475,21 @@ private class ButtonGroupNode(
                     viewportWidth = viewportWidth,
                     contentWidth = contentWidth,
                 )
-            rowPlaceable.place(x, 0)
+            rowPlaceable.placeRelative(x = x, y = 0)
+
+            // Record the focus line, so focus can also be redirected to it when focus enters this
+            // ButtonGroup (see onEnter).
+            // The focus line's position, relative to the start of the viewport
+            val focusLineStart = totalScroll + x
+            // Local bounds are always relative to the left edge, so mirror the focus line if
+            // needed. Round once, so the requested area stays a zero-width vertical line.
+            val isRtl = layoutDirection == LayoutDirection.Rtl
+            focusLineX =
+                (if (isRtl) viewportWidth - focusLineStart else focusLineStart).fastRoundToInt()
+            focusLineHeight = rowPlaceable.height
+
             // Request focus at the scroll position
-            if (focusTargetModifierNode.focusState.hasFocus) {
-                // Round once, so the requested area stays a zero-width vertical line.
-                val focusLineX = (totalScroll + x).fastRoundToInt()
-                node.requestFocusForChildInLocalBounds(
-                    left = focusLineX,
-                    top = 0,
-                    right = focusLineX,
-                    bottom = rowPlaceable.height,
-                )
-            }
+            if (focusTargetModifierNode.focusState.hasFocus) requestFocusAtFocusLine()
         }
     }
 
@@ -550,6 +579,9 @@ private val ButtonGroupChildBounds.center: Float
  *
  * These bounds can be automatically returned by wrapping your Row's incoming [Arrangement] in an
  * [ArrangementListeningWrapper].
+ *
+ * The bounds are always relative to the start of the content, so they are in ascending order
+ * regardless of layout direction.
  */
 @Immutable
 internal class ButtonGroupChildrenBounds(private val bounds: LongArray) {
@@ -633,6 +665,11 @@ private fun ButtonGroupChildrenBounds.lastOrNull(): ButtonGroupChildBounds? =
 /**
  * Provides access to the [ButtonGroupChildrenBounds] of the [wrapped] arrangement via the
  * [onChildLayoutsChange] callback, which is invoked whenever the children are arranged.
+ *
+ * The reported bounds are relative to the start of the content. In RTL, the [wrapped] arrangement
+ * typically positions the first child at the right edge, so positions are mirrored here so that the
+ * first child is still at the lowest position. This allows all scrolling logic to be written in
+ * terms of start-relative (logical) positions, independent of layout direction.
  */
 private class ArrangementListeningWrapper(
     private val wrapped: Arrangement.Horizontal,
@@ -648,11 +685,21 @@ private class ArrangementListeningWrapper(
         outPositions: IntArray,
     ) {
         with(wrapped) { arrange(totalSize, sizes, layoutDirection, outPositions) }
+        // outPositions are always relative to the left edge. Mirror them if the children are laid
+        // out from right to left. We check the actual positions rather than just the layout
+        // direction, as some arrangements (such as Arrangement.Absolute) ignore layout direction.
+        val isRtl =
+            if (outPositions.size >= 2) {
+                outPositions.first() > outPositions.last()
+            } else {
+                layoutDirection == LayoutDirection.Rtl
+            }
         val bounds =
             LongArray(size = outPositions.size) { index ->
-                val start = outPositions[index]
-                val end = start + sizes[index]
-                packInts(start, end)
+                val size = sizes[index]
+                val start =
+                    if (isRtl) totalSize - outPositions[index] - size else outPositions[index]
+                packInts(start, start + size)
             }
         onChildLayoutsChange(ButtonGroupChildrenBounds(bounds))
     }
