@@ -20,6 +20,8 @@ package androidx.xr.scenecore.integration.tests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.xr.runtime.RequiresSpatialApi
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfAnimation
@@ -43,6 +45,7 @@ class SceneCoreGltfMultiAnimationTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun animation_singleChannelFsm_transitionsThroughStates() = runTestWithSession { session ->
         val playingDeferred = CompletableDeferred<Unit>()
         val listener =
@@ -96,6 +99,7 @@ class SceneCoreGltfMultiAnimationTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun animation_multiChannelConcurrency_playsSimultaneously() = runTestWithSession { session ->
         val playingDeferred1 = CompletableDeferred<Unit>()
         val playingDeferred2 = CompletableDeferred<Unit>()
@@ -170,6 +174,7 @@ class SceneCoreGltfMultiAnimationTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun animation_speedAndLooping_updatesLivePlayback() = runTestWithSession { session ->
         val playingDeferred = CompletableDeferred<Unit>()
         val listener =
@@ -215,6 +220,7 @@ class SceneCoreGltfMultiAnimationTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun animation_stopAllAnimations_abortsAllActiveChannels() = runTestWithSession { session ->
         val playingDeferred1 = CompletableDeferred<Unit>()
         val playingDeferred2 = CompletableDeferred<Unit>()

@@ -79,6 +79,7 @@ class GravityAlignedModifierTest {
 
     /** Validates that a gravity-aligned panel under a level parent maintains identity rotation. */
     @Test
+    @XrDeviceTest
     fun gravityAligned_parentIsLevel_appliesNoRotation() {
         composeTestRule.setContent {
             Subspace {
@@ -109,6 +110,7 @@ class GravityAlignedModifierTest {
      * parent to keep its up-vector aligned with world gravity.
      */
     @Test
+    @XrDeviceTest
     fun gravityAligned_parentHasPitchAndRoll_appliesCounterRotation() {
         val parentRotation = Quaternion.fromEulerAngles(pitch = 30f, yaw = 0f, roll = 45f)
 
@@ -148,6 +150,7 @@ class GravityAlignedModifierTest {
      * (heading) of the parent hierarchy.
      */
     @Test
+    @XrDeviceTest
     fun gravityAligned_parentHasYaw_preservesYawOnly() {
         val parentRotation = Quaternion.fromEulerAngles(pitch = 20f, yaw = 60f, roll = -25f)
 
@@ -187,6 +190,7 @@ class GravityAlignedModifierTest {
      * SpatialRow containing a rotated SpatialBox).
      */
     @Test
+    @XrDeviceTest
     fun gravityAligned_nestedRotations_alignsWithGravity() {
         val rowRotation = Quaternion.fromEulerAngles(pitch = 20f, yaw = -17f, roll = -61f)
         val innerBoxRotation = Quaternion.fromEulerAngles(pitch = 15f, yaw = 10f, roll = 25f)
@@ -233,6 +237,7 @@ class GravityAlignedModifierTest {
      * Validates modifier composition when a local rotate modifier is chained before gravityAligned.
      */
     @Test
+    @XrDeviceTest
     fun gravityAligned_chainedWithLocalRotate_appliesCombinedGravityAlignment() {
         val parentRotation = Quaternion.fromEulerAngles(pitch = -30f, yaw = 11f, roll = 22f)
         val childLocalRotation = Quaternion.fromEulerAngles(pitch = 17f, yaw = 29f, roll = 39f)
@@ -281,6 +286,7 @@ class GravityAlignedModifierTest {
      * gravity alignment and inheriting parent rotation.
      */
     @Test
+    @XrDeviceTest
     fun gravityAligned_dynamicToggle_togglesAlignment() {
         var isGravityAligned by mutableStateOf(true)
         val parentRotation = Quaternion.fromEulerAngles(pitch = 30f, yaw = 0f, roll = 45f)

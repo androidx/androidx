@@ -132,6 +132,7 @@ class SpatialLayoutTest {
      * correct dimensions and hierarchy tags.
      */
     @Test
+    @XrDeviceTest
     fun spatialLayout_multiColumnGrid_rendersAllColumnsAndPanels() {
         composeTestRule.setContent {
             Subspace {
@@ -284,6 +285,7 @@ class SpatialLayoutTest {
      * orbiters render within the hierarchy.
      */
     @Test
+    @XrDeviceTest
     fun spatialLayout_subspaceAndLocalOrbiters_rendersAllOrbitersAndPanels() {
         composeTestRule.setContent {
             Subspace {
@@ -372,6 +374,7 @@ class SpatialLayoutTest {
 
     /** Validates dynamic AspectRatio modifier adjustments on a SpatialPanel. */
     @Test
+    @XrDeviceTest
     fun spatialLayout_aspectRatioModifier_updatesPanelDimensionsDynamically() {
         var aspectRatioValue by mutableFloatStateOf(1f)
 
@@ -421,6 +424,7 @@ class SpatialLayoutTest {
 
     /** Validates dimensions and arrangement of stacked panels within a SpatialColumn. */
     @Test
+    @XrDeviceTest
     fun spatialLayout_columnSpacingAndArrangement_rendersPanelsWithExpectedDimensions() {
         composeTestRule.setContent {
             Subspace {

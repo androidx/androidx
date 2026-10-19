@@ -51,6 +51,8 @@ import androidx.xr.compose.testing.assertHeightIsEqualTo
 import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
+import androidx.xr.runtime.RequiresSpatialApi
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.testutils.SpatialNode
 import androidx.xr.testutils.SpatialSceneHelper
@@ -115,6 +117,7 @@ class MovablePanelTest {
      * Validates that a SpatialPanel with default system MovePolicy renders and exists in Subspace.
      */
     @Test
+    @XrDeviceTest
     fun movablePanel_defaultSystemPolicy_rendersInSubspace() {
         composeTestRule.setContent {
             Subspace {
@@ -146,6 +149,8 @@ class MovablePanelTest {
     }
 
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun movablePanel_systemMovePolicy_withObserverCallback() {
         val observedEventCount = AtomicInteger(0)
 
@@ -217,6 +222,8 @@ class MovablePanelTest {
     }
 
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun movablePanel_customMovePolicy_updatesLayoutOffset() {
         var panelOffsetX by mutableStateOf(0.dp)
         var panelOffsetY by mutableStateOf(0.dp)
@@ -292,6 +299,7 @@ class MovablePanelTest {
 
     /** Validates that disabling the movable modifier preserves bounds and hierarchy. */
     @Test
+    @XrDeviceTest
     fun movablePanel_disabled_preservesBoundsAndHierarchy() {
         var isMovableEnabled by mutableStateOf(true)
 
@@ -347,6 +355,7 @@ class MovablePanelTest {
 
     /** Validates that a movable SpatialPanel inside a SpatialRow maintains layout hierarchy. */
     @Test
+    @XrDeviceTest
     fun movablePanel_inSpatialRow_preservesLayoutHierarchy() {
         composeTestRule.setContent {
             Subspace {
@@ -392,6 +401,7 @@ class MovablePanelTest {
 
     /** Validates that MovePolicy.system with scaleWithDistance preserves subspace layout bounds. */
     @Test
+    @XrDeviceTest
     fun movablePanel_systemMovePolicy_scaleWithDistance_preservesLayoutBounds() {
         composeTestRule.setContent {
             Subspace {
@@ -428,6 +438,7 @@ class MovablePanelTest {
 
     /** Validates that multiple movable panels maintain independent positions and state. */
     @Test
+    @XrDeviceTest
     fun movablePanel_multiplePanels_maintainIndependentPositions() {
         var panelTwoOffsetX by mutableStateOf(150.dp)
         var panelTwoOffsetY by mutableStateOf(0.dp)
@@ -494,6 +505,8 @@ class MovablePanelTest {
 
     /** Validates that a movable SpatialPanel translates across all 3D axes (X, Y, Z depth). */
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun movablePanel_customMovePolicy_depthTranslationAnd3DOffset() {
         var panelOffsetX by mutableStateOf(0.dp)
         var panelOffsetY by mutableStateOf(0.dp)
@@ -574,6 +587,7 @@ class MovablePanelTest {
      * position.
      */
     @Test
+    @XrDeviceTest
     fun movablePanel_dynamicResize_preservesPositionAndMovableState() {
         var panelWidth by mutableStateOf(300.dp)
         var panelHeight by mutableStateOf(200.dp)
@@ -621,6 +635,7 @@ class MovablePanelTest {
 
     /** Validates that SpatialMainPanel in Subspace can be configured with movable modifier. */
     @Test
+    @XrDeviceTest
     fun movablePanel_spatialMainPanel_rendersWithMovableModifier() {
         composeTestRule.setContent {
             // 2D content rendered to the main panel
@@ -646,6 +661,8 @@ class MovablePanelTest {
     }
 
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun movablePanel_systemMovePolicy_translatesWithSpatialInteraction() {
         var deltaXAccumulated by mutableStateOf(0f)
 
@@ -696,6 +713,8 @@ class MovablePanelTest {
     }
 
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun movablePanel_systemMovePolicy_translatesAlongMultipleAxesWithSpatialInteraction() {
         var deltaXAccumulated by mutableStateOf(0f)
         var deltaYAccumulated by mutableStateOf(0f)
@@ -751,6 +770,7 @@ class MovablePanelTest {
      * expose move affordances in the spatial scene.
      */
     @Test
+    @XrDeviceTest
     fun movablePanel_disabledMovable_doesNotExposeMoveAffordance() {
         composeTestRule.setContent {
             Subspace {
