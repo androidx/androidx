@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-// TODO: remove Suppress after XrLog is updated or removed pending b/537445115
-@file:Suppress("DEPRECATION")
-@file:SuppressLint("RestrictedApiAndroidX")
-
 package androidx.xr.scenecore.openxr
 
-import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 
 /**
- * Manages an OpenXR scene transaction for atomic mutations of entity transforms and parent
- * hierarchies.
+ * Manages an OpenXR scene transaction for atomic mutations of entity transforms, parent
+ * hierarchies, and `XrSpace` attachments.
  *
  * Instances are strictly thread-confined and non-reentrant within their `.use { ... }` lifecycle.
  * They are intended to be used on a single thread and must not be shared across threads or invoked
@@ -49,24 +43,15 @@ internal constructor(
 
     /** Sets the local pose and scale of an entity within this transaction. */
     public fun setTransform(entityHandle: Long, pose: Pose, scale: Vector3): OpenXrTransaction {
-        if (isClosed) {
-            XrLog.warn("Cannot mutate a closed transaction.")
-            throw IllegalStateException("Cannot mutate a closed transaction.")
-        }
+        check(!isClosed) { "Cannot mutate a closed transaction." }
         require(entityHandle != INVALID_HANDLE) {
             "Cannot set transform on entity with INVALID_HANDLE."
         }
-        if (transactionHandle != INVALID_HANDLE) {
-            val success =
+        val isStaged =
+            transactionHandle != INVALID_HANDLE &&
                 nativeWrapper.setTransactionTransform(transactionHandle, entityHandle, pose, scale)
-            if (!success) {
-                XrLog.warn {
-                    "Failed to stage transform for entity $entityHandle in transaction $transactionHandle"
-                }
-                hasStagingError = true
-            }
-        } else {
-            XrLog.warn("Cannot stage transform on an invalid transaction handle.")
+        if (!isStaged) {
+            // TODO: b/537445115 - Record a warning event that the transform can't be staged.
             hasStagingError = true
         }
         return this
@@ -78,39 +63,85 @@ internal constructor(
      * Passing `null` or [INVALID_HANDLE] unparents the child entity in the scene graph.
      */
     public fun setParent(child: Long, parent: Long?): OpenXrTransaction {
-        if (isClosed) {
-            XrLog.warn("Cannot mutate a closed transaction.")
-            throw IllegalStateException("Cannot mutate a closed transaction.")
-        }
+        check(!isClosed) { "Cannot mutate a closed transaction." }
         require(child != INVALID_HANDLE) { "Cannot set parent on entity with INVALID_HANDLE." }
-        if (transactionHandle != INVALID_HANDLE) {
-            val parentHandle =
-                if (parent == null || parent == INVALID_HANDLE) INVALID_HANDLE else parent
-            val success = nativeWrapper.setTransactionParent(transactionHandle, child, parentHandle)
-            if (!success) {
-                XrLog.warn {
-                    "Failed to stage parent for entity $child in transaction $transactionHandle"
-                }
-                hasStagingError = true
-            }
-        } else {
-            XrLog.warn("Cannot stage parent on an invalid transaction handle.")
+        val parentHandle =
+            if (parent == null || parent == INVALID_HANDLE) INVALID_HANDLE else parent
+        val isStaged =
+            transactionHandle != INVALID_HANDLE &&
+                nativeWrapper.setTransactionParent(transactionHandle, child, parentHandle)
+        if (!isStaged) {
+            // TODO: b/537445115 - Record a warning event that the parent can't be staged.
             hasStagingError = true
         }
         return this
     }
 
-    /** Submits the transaction to the OpenXR scene graph. */
-    public fun commit(): Boolean {
-        if (isClosed) {
-            XrLog.warn("Cannot commit a closed transaction.")
-            throw IllegalStateException("Cannot commit a closed transaction.")
+    /**
+     * Attaches an entity to an `XrSpace` within this transaction.
+     *
+     * Once committed, the runtime places the entity at the space's pose every frame. Where the
+     * runtime supports it, the entity stays at the space's last known pose while the space isn't
+     * tracked.
+     *
+     * The caller keeps ownership of the space, and must commit [removeSpaceAttachment] before
+     * destroying it. Staging fails, so [commit] returns false, if the runtime doesn't have
+     * `XR_ANDROIDX1_scene_component_attachment` enabled, or if the space isn't backed by an anchor.
+     * For example, the runtime rejects a `LOCAL` reference space with
+     * `XR_ERROR_FEATURE_UNSUPPORTED`.
+     */
+    public fun setSpaceAttachment(entityHandle: Long, spaceHandle: Long): OpenXrTransaction {
+        check(!isClosed) { "Cannot mutate a closed transaction." }
+        require(entityHandle != INVALID_HANDLE) {
+            "Cannot set attachment on entity with INVALID_HANDLE."
         }
+        require(spaceHandle != INVALID_HANDLE) { "Cannot attach entity to space INVALID_HANDLE." }
+        val isStaged =
+            transactionHandle != INVALID_HANDLE &&
+                nativeWrapper.setTransactionSpaceAttachment(
+                    transactionHandle,
+                    entityHandle,
+                    spaceHandle,
+                    ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN,
+                )
+        if (!isStaged) {
+            // TODO: b/537445115 - Record a warning event that the attachment can't be staged.
+            hasStagingError = true
+        }
+        return this
+    }
+
+    /**
+     * Removes an entity's `XrSpace` attachment within this transaction.
+     *
+     * Once committed, the runtime stops moving the entity with the space.
+     */
+    public fun removeSpaceAttachment(entityHandle: Long): OpenXrTransaction {
+        check(!isClosed) { "Cannot mutate a closed transaction." }
+        require(entityHandle != INVALID_HANDLE) {
+            "Cannot remove attachment from entity with INVALID_HANDLE."
+        }
+        val isStaged =
+            transactionHandle != INVALID_HANDLE &&
+                nativeWrapper.removeTransactionSpaceAttachment(transactionHandle, entityHandle)
+        if (!isStaged) {
+            // TODO: b/537445115 - Record a warning event that the removal can't be staged.
+            hasStagingError = true
+        }
+        return this
+    }
+
+    /**
+     * Submits the transaction to the OpenXR scene graph.
+     *
+     * @return true if the runtime accepted the transaction. Returns false, and applies none of its
+     *   changes, if this transaction isn't [isAvailable], if a change couldn't be staged, or if the
+     *   runtime rejected the transaction.
+     */
+    public fun commit(): Boolean {
+        check(!isClosed) { "Cannot commit a closed transaction." }
         isClosed = true
         if (hasStagingError) {
-            XrLog.warn {
-                "Transaction $transactionHandle encountered errors during staging; aborting commit."
-            }
             if (transactionHandle != INVALID_HANDLE) {
                 nativeWrapper.cancelSceneTransaction(transactionHandle)
             }
@@ -119,14 +150,11 @@ internal constructor(
         if (transactionHandle != INVALID_HANDLE) {
             val success = nativeWrapper.submitSceneTransaction(transactionHandle)
             if (!success) {
-                XrLog.warn {
-                    "Failed to submit transaction $transactionHandle; cancelling transaction."
-                }
+                // TODO: b/537445115 - Record a warning event that the submit failed.
                 nativeWrapper.cancelSceneTransaction(transactionHandle)
             }
             return success
         }
-        XrLog.warn("Cannot commit an invalid transaction handle.")
         return false
     }
 

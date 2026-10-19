@@ -38,6 +38,11 @@ private const val LIBRARY_NAME = "androidx.xr.scenecore.openxr"
 private const val NATIVE_POSE_FLOAT_COUNT = 7
 private const val ROOT_SPACE_POSE_OK = 0
 
+// XR_SCENE_COMPONENT_ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN_ANDROIDX1: where the runtime supports
+// it, the entity stays at the attached XrSpace's last known pose while the space isn't tracked.
+// This MUST match XrSceneComponentAttachmentLossBehaviourANDROIDX1 in the OpenXR headers.
+internal const val ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN: Int = 1
+
 /**
  * Decodes a native pose array laid out as `[x, y, z, qx, qy, qz, qw]` (position first, unlike
  * `XrPosef`).
@@ -131,6 +136,20 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
         transactionHandle: Long,
         childHandle: Long,
         parentHandle: Long,
+    ): Boolean
+
+    private external fun nativeSetTransactionSpaceAttachment(
+        handle: Long,
+        transactionHandle: Long,
+        entityHandle: Long,
+        spaceHandle: Long,
+        trackingLossBehaviour: Int,
+    ): Boolean
+
+    private external fun nativeRemoveTransactionSpaceAttachment(
+        handle: Long,
+        transactionHandle: Long,
+        entityHandle: Long,
     ): Boolean
 
     private external fun nativeSubmitSceneTransaction(
@@ -297,6 +316,46 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
             transactionHandle,
             childHandle,
             parentHandle,
+        )
+    }
+
+    /**
+     * Stages attaching an entity to an `XrSpace` in the given transaction.
+     *
+     * Once the transaction is submitted, the runtime places the entity at the space's pose every
+     * frame. [trackingLossBehaviour] is an `XrSceneComponentAttachmentLossBehaviourANDROIDX1`
+     * value. Staging fails for values other than LAST_KNOWN (1) and DETACH (2).
+     */
+    open fun setTransactionSpaceAttachment(
+        transactionHandle: Long,
+        entityHandle: Long,
+        spaceHandle: Long,
+        trackingLossBehaviour: Int,
+    ): Boolean {
+        check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
+            "SceneCoreOpenXrNative has been destroyed."
+        }
+        return nativeSetTransactionSpaceAttachment(
+            nativeScenecore,
+            transactionHandle,
+            entityHandle,
+            spaceHandle,
+            trackingLossBehaviour,
+        )
+    }
+
+    /** Stages removing an entity's `XrSpace` attachment in the given transaction. */
+    open fun removeTransactionSpaceAttachment(
+        transactionHandle: Long,
+        entityHandle: Long,
+    ): Boolean {
+        check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
+            "SceneCoreOpenXrNative has been destroyed."
+        }
+        return nativeRemoveTransactionSpaceAttachment(
+            nativeScenecore,
+            transactionHandle,
+            entityHandle,
         )
     }
 
