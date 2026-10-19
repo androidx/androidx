@@ -42,11 +42,12 @@ internal class GlanceRenderOutput(val content: @Composable () -> Unit) : AppWidg
 }
 
 /**
- * A [TemplateRenderer] that produces Glance `@Composable` content for a template [T] and surface
- * [S].
+ * A [TemplateRenderer] that produces Glance `@Composable` content for a template [T], archetype
+ * [A], and surface [S].
  *
  * @param T The type of [AdaptiveGlanceTemplate] data payload this renderer consumes.
  * @param S The type of [GlanceSurface] this renderer targets.
+ * @param A The layout archetype resolved for this render pass.
  */
 // TODO(b/569862874): Temporary bridge for TrackTemplateRenderer. Remove GlanceTemplateRenderer once
 //  TrackTemplateRenderer is migrated to RemoteViews / RemoteCompose. Kept internal so nothing
@@ -54,22 +55,27 @@ internal class GlanceRenderOutput(val content: @Composable () -> Unit) : AppWidg
 internal fun interface GlanceTemplateRenderer<
     in T : AdaptiveGlanceTemplate,
     in S : GlanceSurface,
-> : TemplateRenderer<T, S, AppWidgetRenderOutput> {
+    in A : Any,
+> : TemplateRenderer<T, S, A, AppWidgetRenderOutput> {
 
     /**
-     * Produces the Glance `@Composable` content representation of [template] for [constraints].
+     * Produces the Glance `@Composable` content representation of [template] for [archetype] and
+     * [constraints].
      *
      * @param template The declarative data payload describing the widget's content.
+     * @param archetype The layout archetype resolved for [template] under [constraints].
      * @param constraints The layout constraints and target surface provided by the host.
      * @return The Glance `@Composable` content lambda to compose.
      */
     fun renderGlance(
         template: T,
+        archetype: A,
         constraints: HostConstraints<S>,
     ): @Composable () -> Unit
 
     override fun render(
         template: T,
+        archetype: A,
         constraints: HostConstraints<S>,
-    ): AppWidgetRenderOutput = GlanceRenderOutput(renderGlance(template, constraints))
+    ): AppWidgetRenderOutput = GlanceRenderOutput(renderGlance(template, archetype, constraints))
 }

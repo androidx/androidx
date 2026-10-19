@@ -103,7 +103,8 @@ class BaseWidgetDelegateTest {
         AppWidgetTemplateRegistry.resetForTesting()
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
-            GlanceTemplateRenderer { template, constraints ->
+            ArchetypeSelector { _, constraints -> constraints.surface },
+            GlanceTemplateRenderer { template, _, constraints ->
                 { mockRenderer(template, constraints.surface) }
             },
         )
@@ -727,9 +728,8 @@ class BaseWidgetDelegateTest {
             }
         AppWidgetTemplateRegistry.register(
             DimensionAwareTemplate::class.java,
-            GlanceTemplateRenderer { template, constraints ->
-                { onRender(selector.select(template, constraints)) }
-            },
+            selector,
+            GlanceTemplateRenderer { _, archetype, _ -> { onRender(archetype) } },
         )
     }
 
