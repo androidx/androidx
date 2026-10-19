@@ -18,10 +18,10 @@ package androidx.xr.scenecore.integration.tests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.xr.runtime.RequiresSpatialApi
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.runtime.testing.math.assertPose
-import androidx.xr.runtime.testing.math.assertVector3
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.scene
@@ -38,6 +38,7 @@ class SceneCoreGltfNodeHierarchyTransformTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun nodeHierarchy_inspection_matchesGltfAssetSchema() = runTestWithSession { session ->
         val gltfModel = GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))
         val entity =
@@ -60,6 +61,7 @@ class SceneCoreGltfNodeHierarchyTransformTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun nodeTransforms_localVsModelAccumulation_computesCorrectly() =
         runTestWithSession { session ->
             val gltfModel = GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))
@@ -97,6 +99,7 @@ class SceneCoreGltfNodeHierarchyTransformTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun nodeTransforms_modifiedWhileEntityDisabled_persistsWhenEnabled() =
         runTestWithSession { session ->
             val gltfModel = GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))

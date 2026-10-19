@@ -84,6 +84,7 @@ class PanelRotationTest {
 
     /** Validates that an individual SpatialPanel rotates and updates across angle changes. */
     @Test
+    @XrDeviceTest
     fun panelRotation_individualPanel_rotatesAroundAxis() {
         var rotationAngle by mutableFloatStateOf(0f)
         val axis = Vector3.Up
@@ -138,6 +139,7 @@ class PanelRotationTest {
 
     /** Validates that a SpatialRow rotates all its child panels in sync. */
     @Test
+    @XrDeviceTest
     fun panelRotation_spatialRow_rotatesAllChildrenInSync() {
         var rotationAngle by mutableFloatStateOf(30f)
         val axis = Vector3.Right
@@ -207,6 +209,7 @@ class PanelRotationTest {
 
     /** Validates that a SpatialColumn rotates all its child panels in sync. */
     @Test
+    @XrDeviceTest
     fun panelRotation_spatialColumn_rotatesAllChildrenInSync() {
         var rotationAngle by mutableFloatStateOf(15f)
         val axis = Vector3.Forward
@@ -277,6 +280,7 @@ class PanelRotationTest {
      * the middle, a standalone rotated panel on the right, and an info panel.
      */
     @Test
+    @XrDeviceTest
     fun panelRotation_compositeLayout_rotatesColumnRowAndStandalonePanels() {
         var rotation by mutableFloatStateOf(30f)
         val axisAngle = Vector3(1f, 1f, 0f)
@@ -442,6 +446,7 @@ class PanelRotationTest {
 
     /** Validates that Euler angles and Quaternion rotation overloads apply cleanly. */
     @Test
+    @XrDeviceTest
     fun panelRotation_eulerAndQuaternionOverloads_applyCleanly() {
         var eulerPitch by mutableFloatStateOf(45f)
         var quaternionRotation by mutableStateOf(Quaternion.fromAxisAngle(Vector3(0f, 1f, 0f), 90f))

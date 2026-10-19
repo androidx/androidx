@@ -21,11 +21,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.xr.runtime.RequiresSpatialApi
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.Space
@@ -50,6 +51,7 @@ class PanelTransformationTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun panelSeparation_matchesPhysicalMetricDistanceInSystem() =
         runTestWithSession { activity, session ->
             // Create Primary Panel at (0, 0, -1) and Secondary Panel at (0, 0, 1) directly under
@@ -107,6 +109,7 @@ class PanelTransformationTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun panelRotation_rotatesInSystem() = runTestWithSession { activity, session ->
         // Unrotated reference panel under activity space (Identity rotation)
         val unrotatedPanel =
@@ -166,6 +169,7 @@ class PanelTransformationTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun hierarchicalScale_doublesPhysicalDistanceAndNodeScale() =
         runTestWithSession { activity, session ->
             // Unscaled reference panel at origin (1.0x scale)

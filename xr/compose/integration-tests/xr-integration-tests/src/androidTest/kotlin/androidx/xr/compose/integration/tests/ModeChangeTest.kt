@@ -80,6 +80,7 @@ class ModeChangeTest {
 
     /** Validates that the HomeSpace single-panel layout renders the space content. */
     @Test
+    @XrDeviceTest
     fun homeSpaceLayout_rendersMainPanelAndControls() {
         composeTestRule.setContent { SpaceChangeAppContent() }
 
@@ -91,6 +92,7 @@ class ModeChangeTest {
      * Validates that the FullSpace 3-panel layout renders all panels and controls after transition.
      */
     @Test
+    @XrDeviceTest
     fun fullSpaceLayout_rendersThreePanelsAndControls() {
         Assume.assumeTrue(
             "XR spatial environment is not supported on this device/emulator",
@@ -116,6 +118,7 @@ class ModeChangeTest {
 
     /** Validates dynamic switching between HomeSpace and FullSpace. */
     @Test
+    @XrDeviceTest
     fun dynamicSpaceSwitch_togglesLayout() {
         Assume.assumeTrue(
             "XR spatial environment is not supported on this device/emulator",

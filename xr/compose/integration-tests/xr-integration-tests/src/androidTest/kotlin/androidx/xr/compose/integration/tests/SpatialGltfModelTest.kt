@@ -41,6 +41,8 @@ import androidx.xr.compose.subspace.SpatialGltfModelStatus
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.rememberSpatialGltfModelState
+import androidx.xr.runtime.RequiresSpatialApi
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AlphaMode
@@ -134,6 +136,8 @@ class SpatialGltfModelTest {
      * TODO: b/519600136 - Look into testing Session initialization directly.
      */
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun spatialGltfModel_fromPath_loadsSuccessfully() {
         val state = setGltfModelContentAndWait()
         assertThat(state.status).isEqualTo(SpatialGltfModelStatus.Loaded)
@@ -141,6 +145,8 @@ class SpatialGltfModelTest {
 
     /** Verifies that a binary glTF (.glb) model loads successfully from a [Uri]. */
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun spatialGltfModel_fromUri_loadsSuccessfully() {
         val state =
             setGltfModelContentAndWait(
@@ -151,6 +157,8 @@ class SpatialGltfModelTest {
 
     /** Verifies that loading from a non-existent [Uri] transitions gracefully to Failed. */
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun spatialGltfModel_fromNonExistentUri_failsGracefully() {
         val state =
             setGltfModelContentAndWait(
@@ -164,6 +172,8 @@ class SpatialGltfModelTest {
      * [SpatialGltfModelStatus.Failed].
      */
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun spatialGltfModel_fromResource_failsGracefully() {
         val state =
             setGltfModelContentAndWait(
@@ -178,6 +188,8 @@ class SpatialGltfModelTest {
 
     /** Verifies that glTF nodes can be inspected once the asset is loaded. */
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun spatialGltfModel_nodesAreAccessible() {
         val state = setGltfModelContentAndWait()
         assertThat(state.status).isEqualTo(SpatialGltfModelStatus.Loaded)
@@ -191,6 +203,8 @@ class SpatialGltfModelTest {
 
     /** Verifies that a node's local transform and scale can be updated programmatically. */
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun spatialGltfModel_nodeTransformCanBeModified() {
         val state = setGltfModelContentAndWait()
         assertThat(state.status).isEqualTo(SpatialGltfModelStatus.Loaded)
@@ -226,6 +240,8 @@ class SpatialGltfModelTest {
 
     /** Verifies applying and clearing material overrides on a mesh node. */
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun spatialGltfModel_materialOverrideCanBeAppliedAndCleared() {
         var material: KhronosPbrMaterial? = null
         var isCreated by mutableStateOf(false)
@@ -266,6 +282,8 @@ class SpatialGltfModelTest {
 
     /** Verifies that child spatial content placed inside SpatialGltfModel is mounted. */
     @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun spatialGltfModel_rendersChildSpatialContent() {
         val state =
             setGltfModelContentAndWait(

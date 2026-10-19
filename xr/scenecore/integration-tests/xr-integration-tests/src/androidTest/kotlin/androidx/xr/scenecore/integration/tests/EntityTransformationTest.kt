@@ -21,8 +21,6 @@ import androidx.test.filters.LargeTest
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.runtime.testing.math.assertPose
-import androidx.xr.runtime.testing.math.assertVector3
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
