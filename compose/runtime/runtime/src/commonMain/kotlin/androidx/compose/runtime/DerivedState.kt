@@ -158,7 +158,7 @@ private class DerivedSnapshotState<T>(
 
                                 record
                             } else {
-                                current(stateObject.firstStateRecord, snapshot)
+                                current(stateObject.firstStateRecord, stateObject, snapshot)
                             }
 
                         hash = 31 * hash + identityHashCode(record)
@@ -180,7 +180,7 @@ private class DerivedSnapshotState<T>(
      * @return latest state record for the derived state.
      */
     fun current(snapshot: Snapshot): ResultRecord<*> =
-        currentRecord(current(first, snapshot), snapshot, false, calculation)
+        currentRecord(current(first, this, snapshot), snapshot, false, calculation)
 
     private fun currentRecord(
         readable: ResultRecord<T>,
@@ -287,7 +287,7 @@ private class DerivedSnapshotState<T>(
             Snapshot.current.readObserver?.invoke(this)
             // Read observer could advance the snapshot, so get current snapshot again
             val snapshot = Snapshot.current
-            val record = current(first, snapshot)
+            val record = current(first, this, snapshot)
             @Suppress("UNCHECKED_CAST")
             return currentRecord(record, snapshot, true, calculation).result as T
         }
@@ -300,7 +300,7 @@ private class DerivedSnapshotState<T>(
     override val currentRecord: DerivedState.Record<T>
         get() {
             val snapshot = Snapshot.current
-            val record = current(first, snapshot)
+            val record = current(first, this, snapshot)
             return currentRecord(record, snapshot, false, calculation)
         }
 
