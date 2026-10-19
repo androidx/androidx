@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeUiHostApi::class)
-
 package androidx.compose.ui.platform
 
 import android.accessibilityservice.AccessibilityServiceInfo
@@ -3162,7 +3160,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun scheduleScrollEventIfNeeded(scrollObservationScope: ScrollObservationScope) {
-        if (!scrollObservationScope.isObservationValid) {
+        if (!scrollObservationScope.isValidOwnerScope) {
             return
         }
         view.snapshotObserver.observeReads(

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeUiHostApi::class)
-
 package androidx.compose.ui.platform
 
 import android.annotation.SuppressLint
@@ -23,7 +21,7 @@ import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntSet
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.node.ObservationTarget
+import androidx.compose.ui.node.OwnerScope
 import androidx.compose.ui.semantics.AdjustedSemanticsNode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.ScrollAxisRange
@@ -138,8 +136,8 @@ internal class ScrollObservationScope(
     var oldYValue: Float?,
     var horizontalScrollAxisRange: ScrollAxisRange?,
     var verticalScrollAxisRange: ScrollAxisRange?,
-) : ObservationTarget {
-    override val isObservationValid
+) : OwnerScope {
+    override val isValidOwnerScope
         get() = allScopes.contains(this)
 }
 
