@@ -27,7 +27,9 @@ import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.RcPlatformServices;
+import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.layout.managers.CoreText;
 
 import org.junit.Before;
@@ -35,6 +37,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 28)
@@ -299,5 +305,43 @@ public class AndroidPaintContextTest {
         assertEquals(largerAllocated, reusedFromPool);
         assertEquals(480, reusedFromPool.getWidth());
         assertEquals(120, reusedFromPool.getHeight());
+    }
+
+    @Test
+    public void testLoadBitmap_zeroDimensions_updatesBitmapDataFromLoadedAndOverriddenBitmap() {
+        boolean originalEnableImageUrls = Limits.ENABLE_IMAGE_URLS;
+        try {
+            Limits.ENABLE_IMAGE_URLS = true;
+            int bitmapId = 77;
+            byte[] urlBytes = "https://example.com/pic.png".getBytes(StandardCharsets.UTF_8);
+
+            Bitmap sourceBitmap = Bitmap.createBitmap(64, 48, Bitmap.Config.ARGB_8888);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            sourceBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+            byte[] pngBytes = bos.toByteArray();
+
+            mRemoteContext.setBitmapLoader(url -> new ByteArrayInputStream(pngBytes));
+
+            BitmapData bd =
+                    new BitmapData(
+                            bitmapId,
+                            BitmapData.TYPE_PNG,
+                            (short) 0,
+                            BitmapData.ENCODING_URL,
+                            (short) 0,
+                            urlBytes);
+            bd.apply(mRemoteContext);
+
+            assertEquals(64, bd.getWidth());
+            assertEquals(48, bd.getHeight());
+
+            // Overriding with a differently sized bitmap updates BitmapData dimensions too
+            Bitmap overrideBitmap = Bitmap.createBitmap(120, 80, Bitmap.Config.ARGB_8888);
+            mRemoteContext.overrideData(bitmapId, overrideBitmap);
+            assertEquals(120, bd.getWidth());
+            assertEquals(80, bd.getHeight());
+        } finally {
+            Limits.ENABLE_IMAGE_URLS = originalEnableImageUrls;
+        }
     }
 }

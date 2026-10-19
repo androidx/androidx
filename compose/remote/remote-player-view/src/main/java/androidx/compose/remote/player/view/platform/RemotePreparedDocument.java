@@ -223,6 +223,14 @@ public class RemotePreparedDocument implements RemoteComposePlayer.PreparedDocum
         BitmapData[] data = doc.getDocument().getBitmapDataSet();
         for (BitmapData d : data) {
             d.apply(mContext);
+            if (d.getWidth() == 0 && d.getHeight() == 0) {
+                Object resolved = mResolvedData.get(d.getId());
+                if (resolved instanceof Bitmap) {
+                    Bitmap bitmap = (Bitmap) resolved;
+                    d.setWidth(bitmap.getWidth());
+                    d.setHeight(bitmap.getHeight());
+                }
+            }
         }
     }
 

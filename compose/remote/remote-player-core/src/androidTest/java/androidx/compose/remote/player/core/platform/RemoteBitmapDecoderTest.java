@@ -251,6 +251,26 @@ public class RemoteBitmapDecoderTest {
     }
 
     @Test
+    public void testDecodeUrl_zeroBounds_usesActualSize() {
+        byte[] pngData = createPng(32, 24);
+        BitmapLoader urlLoader = (url) -> new ByteArrayInputStream(pngData);
+
+        byte[] urlData = "http://example.com/test.png".getBytes(StandardCharsets.UTF_8);
+        Bitmap bitmap =
+                RemoteBitmapDecoder.decodeBitmap(
+                        1,
+                        BitmapData.ENCODING_URL,
+                        BitmapData.TYPE_PNG,
+                        0,
+                        0,
+                        urlData,
+                        urlLoader);
+        assertThat(bitmap).isNotNull();
+        assertThat(bitmap.getWidth()).isEqualTo(32);
+        assertThat(bitmap.getHeight()).isEqualTo(24);
+    }
+
+    @Test
     public void testDecodeInline_raw8888() {
         int width = 2;
         int height = 2;
