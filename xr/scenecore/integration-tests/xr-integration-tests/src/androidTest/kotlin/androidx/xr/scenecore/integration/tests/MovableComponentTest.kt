@@ -37,7 +37,9 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
@@ -90,6 +92,7 @@ class MovableComponentTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun movableComponent_mainPanelEntity_systemMovable_isMovable() {
         val moveListener = RecordingMoveListener(applyMoveToEntity = false)
 
@@ -126,6 +129,7 @@ class MovableComponentTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun movableComponent_panelEntity_systemMovable_isMovable() {
         val panelName = "movablePanel"
         val moveListener = RecordingMoveListener(applyMoveToEntity = false)
@@ -168,6 +172,7 @@ class MovableComponentTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun movableComponent_mainPanelEntity_customMovable_isMovable() {
         val moveListener = RecordingMoveListener(applyMoveToEntity = true)
 
@@ -212,6 +217,7 @@ class MovableComponentTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun movableComponent_panelEntity_customMovable_isMovable() {
         val panelName = "customMovablePanel"
         val moveListener = RecordingMoveListener(applyMoveToEntity = true)

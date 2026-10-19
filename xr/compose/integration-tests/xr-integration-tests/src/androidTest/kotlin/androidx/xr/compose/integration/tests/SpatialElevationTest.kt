@@ -116,6 +116,7 @@ class SpatialElevationTest {
 
     /** Validates that clicking NavigationRail orbiter items scrolls the LazyColumn list. */
     @Test
+    @XrDeviceTest
     fun orbiterElevation_navigationRail_scrollsListContent() {
         composeTestRule.setContent { SpatialElevationContent() }
 
@@ -141,6 +142,7 @@ class SpatialElevationTest {
 
     /** Validates that the primary layout, orbiters, and elevated action buttons are rendered. */
     @Test
+    @XrDeviceTest
     fun orbiterElevation_initialLayout_rendersOrbitersAndElevationControls() {
         composeTestRule.setContent { SpatialElevationContent() }
 
@@ -167,6 +169,7 @@ class SpatialElevationTest {
      * it.
      */
     @Test
+    @XrDeviceTest
     fun orbiterElevation_dialogPopup_showsAndDismisses() {
         composeTestRule.setContent { SpatialElevationContent() }
 
@@ -182,6 +185,7 @@ class SpatialElevationTest {
 
     /** Validates that clicking the popup button presents a SpatialPopup and closes it. */
     @Test
+    @XrDeviceTest
     fun orbiterElevation_spatialPopup_showsAndDismisses() {
         composeTestRule.setContent { SpatialElevationContent() }
 
@@ -201,6 +205,7 @@ class SpatialElevationTest {
 
     /** Validates expanding the icon menu ornament on the right. */
     @Test
+    @XrDeviceTest
     fun orbiterElevation_iconMenuOrnament_expandsOnItemClick() {
         composeTestRule.setContent { SpatialElevationContent() }
 
@@ -211,6 +216,7 @@ class SpatialElevationTest {
 
     /** Validates that clicking the edit button allows editing the item text and updates it. */
     @Test
+    @XrDeviceTest
     fun orbiterElevation_editItem_updatesContentText() {
         composeTestRule.setContent { SpatialElevationContent() }
 

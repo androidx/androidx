@@ -19,6 +19,8 @@ package androidx.xr.scenecore.integration.tests
 import android.annotation.SuppressLint
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.xr.runtime.RequiresSpatialApi
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.ImageBasedLightingAsset
@@ -193,6 +195,7 @@ class SpatialEnvironmentTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     @SuppressLint("RestrictedApiAndroidX")
     fun geometryEntity_setAndClear_movesEntitySubspaceUnderEnvironmentRoot() =
         runTestWithSession { activity, session ->

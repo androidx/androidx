@@ -18,6 +18,8 @@ package androidx.xr.scenecore.integration.tests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.xr.runtime.RequiresSpatialApi
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.testutils.XrDeviceTest
 import com.google.common.truth.Truth.assertThat
@@ -32,6 +34,7 @@ class ImageBasedLightingAssetTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
     fun imageBasedLightingAsset_createFromPathAndBytes_createsAssets() =
         runTestWithSession { activity, session ->
             val iblFromPath =

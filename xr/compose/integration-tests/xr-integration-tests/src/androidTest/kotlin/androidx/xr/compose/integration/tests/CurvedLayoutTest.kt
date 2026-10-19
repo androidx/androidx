@@ -87,6 +87,7 @@ class CurvedLayoutTest {
      * with zero z-displacement and identity rotation.
      */
     @Test
+    @XrDeviceTest
     fun curvedLayout_zeroOrNegativeRadius_rendersFlatRow() {
         var curveRadius by mutableStateOf(0.dp)
 
@@ -147,6 +148,7 @@ class CurvedLayoutTest {
      * depths and angling them inward towards the user.
      */
     @Test
+    @XrDeviceTest
     fun curvedLayout_positiveRadius_curvesPanelsInward() {
         composeTestRule.setContent {
             Subspace {
@@ -196,6 +198,7 @@ class CurvedLayoutTest {
      * angle).
      */
     @Test
+    @XrDeviceTest
     fun curvedLayout_decreasingRadius_increasesCurvature() {
         var curveRadius by mutableStateOf(1000.dp)
 
@@ -259,6 +262,7 @@ class CurvedLayoutTest {
      * interactive slider adjustments).
      */
     @Test
+    @XrDeviceTest
     fun curvedLayout_dynamicRadiusAdjustment_updatesPanelCurvature() {
         var curveRadius by mutableStateOf(100.dp)
 
@@ -308,6 +312,7 @@ class CurvedLayoutTest {
      * curve trajectory.
      */
     @Test
+    @XrDeviceTest
     fun curvedLayout_verticalAlignment_preservesAlignmentAlongCurve() {
         composeTestRule.setContent {
             Subspace {
@@ -352,6 +357,7 @@ class CurvedLayoutTest {
      * the sample app layout architecture.
      */
     @Test
+    @XrDeviceTest
     fun curvedLayout_multiColumnStructure_rendersAllPanels() {
         composeTestRule.setContent {
             Subspace {
