@@ -85,6 +85,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -340,7 +341,7 @@ fun ExpandInShrinkOutSample() {
 @Sampled
 @Composable
 fun ColumnAnimatedVisibilitySample() {
-    var itemIndex by remember { mutableStateOf(0) }
+    var itemIndex by remember { mutableIntStateOf(0) }
     val colors = listOf(Color.Red, Color.Green, Color.Blue)
     Column(Modifier.fillMaxWidth().clickable { itemIndex = (itemIndex + 1) % colors.size }) {
         colors.forEachIndexed { i, color ->

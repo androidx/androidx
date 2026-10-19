@@ -74,7 +74,7 @@ import androidx.compose.ui.unit.sp
 @Sampled
 fun AnimateIncrementDecrementSample() {
     Column(Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        var count by remember { mutableStateOf(0) }
+        var count by remember { mutableIntStateOf(0) }
         // The `AnimatedContent` below uses an integer count as its target state. So when the
         // count changes, it will animate out the content associated with the previous count, and
         // animate in the content associated with the target state.
