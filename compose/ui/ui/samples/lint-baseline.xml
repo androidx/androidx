@@ -92,42 +92,6 @@
     </issue>
 
     <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var size by remember { mutableStateOf(20) }"
-        errorLine2="                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/samples/AndroidViewSample.kt"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
-        errorLine1="    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }"
-        errorLine2="                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/samples/NestedScrollInteropSamples.kt"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
-        errorLine1="    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }"
-        errorLine2="                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/samples/NestedScrollSamples.kt"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
-        errorLine1="    val basicState = remember { mutableStateOf(0f) }"
-        errorLine2="                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/samples/NestedScrollSamples.kt"/>
-    </issue>
-
-    <issue
         id="ModifierNodeInspectableProperties"
         message="AnimatePlacementNodeElement does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read AnimatePlacementNodeElement&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
         errorLine1="    data class AnimatePlacementNodeElement(val lookaheadScope: LookaheadScope) :"

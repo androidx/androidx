@@ -34,7 +34,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -58,7 +58,7 @@ fun AndroidViewSample() {
     // Compose a TextView.
     AndroidView({ context -> TextView(context).apply { text = "This is a TextView" } })
     // Compose a View and update its size based on state. Note the modifiers.
-    var size by remember { mutableStateOf(20) }
+    var size by remember { mutableIntStateOf(20) }
     AndroidView(::View, Modifier.clickable { size += 20 }.background(Color.Blue)) { view ->
         view.layoutParams = ViewGroup.LayoutParams(size, size)
     }
